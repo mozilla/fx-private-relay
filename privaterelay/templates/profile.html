@@ -1,8 +1,12 @@
+{% extends "base.html" %}
+
 {% load socialaccount %}
+
+{% block content %}
 
 {% get_social_accounts request.user as accounts %}
 
-Hi <img src="{{ accounts.fxa.0.extra_data.avatar }}"> {{ accounts.fxa.0.extra_data.displayName }}
+Hi <img src="{{ accounts.fxa.0.extra_data.avatar }}"> {{ accounts.fxa.0.extra_data.displayName }} <a href="/accounts/logout/">Log out</a>
 <hr>
 These are your relay addresses (click to see messages):
 <ul>
@@ -14,3 +18,5 @@ These are your relay addresses (click to see messages):
     {% csrf_token %}
     <input type="submit" value="Generate new relay address">
 </form>
+
+{% endblock %}
