@@ -1,0 +1,5 @@
+{% load socialaccount %}
+
+{% get_social_accounts request.user as accounts %}
+
+Hi <img src="{{ accounts.fxa.0.extra_data.avatar }}"> {{ accounts.fxa.0.extra_data.displayName }}
