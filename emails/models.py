@@ -11,9 +11,13 @@ def address_default():
 
 class RelayAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address = models.CharField(max_length=64, default=address_default)
+    address = models.CharField(
+        max_length=64, default=address_default, unique=True
+    )
 
 
-class Messages(models.Model):
+class Message(models.Model):
     relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE)
+    from_address = models.CharField(max_length=255)
+    subject = models.CharField(max_length=255)
     message = models.TextField()

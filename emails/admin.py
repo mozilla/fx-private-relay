@@ -1,15 +1,15 @@
 from django.contrib import admin
 
-from .models import RelayAddress, Messages
+from .models import RelayAddress, Message
 
 
 class RelayAddressAdmin(admin.ModelAdmin):
     pass
 
 
-class MessagesAdmin(admin.ModelAdmin):
+class MessageAdmin(admin.ModelAdmin):
     pass
 
 
 admin.site.register(RelayAddress, RelayAddressAdmin)
-admin.site.register(Messages, MessagesAdmin)
+admin.site.register(Message, MessageAdmin)
