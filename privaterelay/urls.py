@@ -20,8 +20,9 @@ from . import views
 
 
 urlpatterns = [
-    path('accounts/profile/', views.profile),
+    path('accounts/profile/', views.profile, name='profile'),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
+    path('emails/', include('emails.urls')),
     path('', views.home),
 ]
