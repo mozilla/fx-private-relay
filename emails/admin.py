@@ -1,3 +1,15 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import RelayAddress, Messages
+
+
+class RelayAddressAdmin(admin.ModelAdmin):
+    pass
+
+
+class MessagesAdmin(admin.ModelAdmin):
+    pass
+
+
+admin.site.register(RelayAddress, RelayAddressAdmin)
+admin.site.register(Messages, MessagesAdmin)
