@@ -1,5 +1,9 @@
 import json
 
+from decouple import config
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
+
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -34,22 +38,35 @@ def messages(request):
 @csrf_exempt
 def inbound(request):
     email_to = request.POST.get('to')
-    print('email_to: %s' % email_to)
     local_portion = email_to.split('@')[0]
-    print('local_portion: %s' % local_portion)
-    relay_address = get_object_or_404(RelayAddress, address=local_portion)
-    print('relay_address: %s' % relay_address)
     from_address = request.POST.get('from')
-    print('from_address: %s' % from_address)
     subject = request.POST.get('subject')
-    print('subject: %s' % subject)
     text = request.POST.get('text')
-    print('text: %s' % text)
 
+    relay_address = get_object_or_404(RelayAddress, address=local_portion)
+
+    # Store in local DB
     message = Message.objects.create(
         relay_address=relay_address,
         from_address=from_address,
         subject=subject,
         message=text
     )
+
+    # Forward to real email address
+    try:
+        message = Mail(
+            from_email='inbound@privaterelay.groovecoder.com',
+            to_emails=relay_address.user.email,
+            subject='Forwarding email from %s sent to %s' % (
+                from_address, local_portion
+            ),
+            html_content=text
+        )
+        sendgrid_client = SendGridAPIClient(config('SENDGRID_API_KEY'))
+        response = sendgrid_client.send(message)
+        print(response)
+    except Exception as e:
+        print(e.message)
+
     return HttpResponse(message)
