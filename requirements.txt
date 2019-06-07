@@ -3,3 +3,4 @@ django-heroku==0.3.1
 gunicorn==19.9.0
 django-allauth==0.39.1
 python-decouple==3.1
+sendgrid==6.0.5
