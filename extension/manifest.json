@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "Private Relay",
+  "version": "1.0",
+
+  "description": "Private Relay provides generated email addresses to use in place of personal email addresses.",
+
+  "icons": {
+    "48": "icons/border-48.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://privaterelay.groovecoder.com/accounts/profile/"],
+      "js": ["js/get_relay_addresses.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["js/add_dropdown_to_email_inputs.js"]
+    }
+  ],
+
+  "permissions": [
+      "<all_urls>",
+      "storage"
+  ]
+
+}
