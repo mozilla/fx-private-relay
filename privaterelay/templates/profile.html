@@ -17,7 +17,7 @@ These are your relay addresses (click to see messages):
 {% endfor %}
 </ul>
 <form action="/emails/" method="POST">
-    {% csrf_token %}
+    <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
     <input type="submit" value="Generate new relay address">
 </form>
 
