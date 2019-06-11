@@ -5,5 +5,7 @@
   for (const relayAddressLink of relayAddressLinks) {
     relayAddresses.push(relayAddressLink.textContent);
   }
-  await browser.storage.local.set({relayAddresses});
+  chrome.storage.local.set({relayAddresses}, () => {
+    console.log("Set the relayAddresses.");
+  });
 })();
