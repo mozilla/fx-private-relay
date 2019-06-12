@@ -6,17 +6,47 @@
 
 {% get_social_accounts request.user as accounts %}
 
-Hi <img src="{{ accounts.fxa.0.extra_data.avatar }}"> {{ accounts.fxa.0.extra_data.displayName }} <a href="/accounts/logout/">Log out</a>
-<hr>
-These are your relay addresses (click to see messages):
-<ul>
-{% for relay_address in relay_addresses %}
-    <li><a href="/emails/messages/?relay_address_id={{ relay_address.id }}">{{ relay_address.address }}@privaterelay.groovecoder.com</a></li>
-{% endfor %}
-</ul>
-<form action="/emails/" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="Generate new relay address">
-</form>
+<main class="container px-8 md:px-0 py-8 mx-auto max-w-4xl">
+  <div class="bg-white rounded py-8 sm:mt-8  ">
+    <div class="px-8 pb-8 border-b border-solid border-gray-300">
+      <div class="sm:flex-wrap sm:flex sm:justify-between sm:items-center">
+        <div class="name text-lg">
+          Hi, {{ accounts.fxa.0.extra_data.displayName }}
+        </div>
+        <div class="generate-button">
+          <form action="/emails/" method="POST">
+              {% csrf_token %}
+              <input class="ml-8 py-2 px-4 bg-transparent cursor-pointer leading-normal rounded border border-solid border-indigo-800 text-indigo-800 hover:bg-indigo-800 hover:text-white" type="submit" value="Generate new relay address">
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Empty State -->
+    <!-- List of Emails -->
+    <div class="px-8 mt-8 main-list">
+      <h2 class="text-xl font-bold mt-4 mb-8">Generated Addresses</h2>
+
+      <ul>
+      {% for relay_address in relay_addresses %}
+          <li>
+            <div class="sm:flex-wrap sm:flex sm:justify-between sm:items-center border-b border-solid border-gray-400 pb-4 mb-4">
+              <div class="email-meta">
+                <div class="text-lg font-bold text-gray-800">
+                  Email Name
+                </div>
+                {{ relay_address.address }}@privaterelay.groovecoder.com
+              </div>
+              <div class="email-actions">
+                <a class="ml-8 py-2 px-4 leading-normal rounded border border-solid border-indigo-800 text-indigo-800 hover:bg-indigo-800 hover:text-white" href="/emails/messages/?relay_address_id={{ relay_address.id }}">View Messages</a>
+              </div>
+            </div>
+          </li>
+      {% endfor %}
+      </ul>
+      
+    </div>
+  </div>
+</main>
+
 
 {% endblock %}
