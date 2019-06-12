@@ -32,3 +32,20 @@ header {
 main {
 
 }
+
+.beta-tag {
+  opacity: 0.75;
+  background: var(--purple);
+  color: var(--white);
+  text-transform: uppercase;
+  font-size: 11px;
+  padding: 0;
+  display: inline-block;
+  padding: 0 10px;
+  width: auto;
+  height: 25px;
+  line-height: 25px;
+  border-radius: 3px;
+  text-align: center;
+  letter-spacing: 2px;
+}
