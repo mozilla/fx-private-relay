@@ -1,9 +1,7 @@
-{% extends "base.html" %}
-
 {% load socialaccount %}
 
 {% block content %}
 
-{% include "includes/login.html" %}
+<a href="{% provider_login_url 'fxa' %}">Sign in with FxA</a>
 
 {% endblock %}

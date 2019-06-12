@@ -1,9 +1,22 @@
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Firefox Private Relay</title>
+  </head>
+  <body>
+    <header>
+        <h1>Firefox Private Relay</h1>
+        {% include "includes/login.html" %}
+    </header>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 
-{% block content %}{% endblock %}
+    {% block content %}{% endblock %}
+  </body>
+</html>
