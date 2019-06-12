@@ -15,7 +15,8 @@ html {
 body {
 	font-family: Helvetica Neue,Helvetica,Arial,sans-serif;
 	font-size: 16px;
-  background-color: var(--blue);
+  min-height: 100vh;
+  /* background-color: var(--blue); */
   background-image: linear-gradient(135deg, var(--blue), var(--purple));
 }
 
