@@ -18,6 +18,8 @@ body {
   min-height: 100vh;
   /* background-color: var(--blue); */
   background-image: linear-gradient(135deg, var(--blue), var(--purple));
+  display: flex;
+  flex-direction: column;
 }
 
 .btn {
@@ -29,8 +31,17 @@ header {
 	color: var(--white);
 }
 
-main {
+footer {
+  flex-shrink: 0;
+}
 
+main {
+  flex: 1 0 auto;
+  /* min-height: calc(100vh - 160px); */
+}
+
+.main-list {
+  min-height: 50vh;
 }
 
 .beta-tag {
@@ -48,4 +59,9 @@ main {
   border-radius: 3px;
   text-align: center;
   letter-spacing: 2px;
+}
+
+.empty-content {
+  position: relative;
+  z-index: 1;
 }

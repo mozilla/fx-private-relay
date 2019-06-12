@@ -1,3 +1,6 @@
+
+
+<!--
 These are your messages for 1bx8im6er:
 <ul>
 
@@ -5,3 +8,117 @@ These are your messages for 1bx8im6er:
 </li>
 
 </ul>
+
+ -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Firefox Private Relay</title>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+    <header class="p-8">
+      <div class="sm:flex-wrap sm:flex sm:justify-between sm:items-center mx-auto">
+        <h1 class="text-2xl md:text-3xl mb-4 md:mb-0 flex flex-row">
+          <img class="inline mr-2 align-middle" alt="icon" src="//placehold.it/40x40/C0F665/000000"/>
+          <strong>Firefox&nbsp;</strong> Private Relay
+          <span class="beta-tag ml-2">BETA</span>
+        </h1>
+        <div class="user-area">
+            <!-- If not logged in:
+            <a class="py-2 px-4 leading-normal rounded border border-solid border-white text-white hover:bg-white hover:text-black" href="/accounts/fxa/login/">Sign in with FxA</a>
+            -->
+            <!-- If logged in: -->
+            <!-- <img src="{{ accounts.fxa.0.extra_data.avatar }}"> {{ accounts.fxa.0.extra_data.displayName }} <a href="/accounts/logout/">Log out</a> -->
+            <img class="w-8 inline-block mr-2" src='images/profile.png'/> {Name}
+            <a class="ml-8 py-2 px-4 leading-normal rounded border border-solid border-white text-white hover:bg-white hover:text-black" href="/">Log out</a>
+        </div>
+      </div>
+    </header>
+    <main class="container px-8 md:px-0 py-8 mx-auto max-w-4xl">
+      <div class="bg-white rounded py-8 sm:mt-8  ">
+        <div class="px-8 pb-8 border-b border-solid border-gray-400">
+          <div class="sm:flex-wrap sm:flex sm:justify-between sm:items-center">
+            <div class="name text-lg">
+              Messages for <strong>{Title}</strong>
+              <br>
+              <span class="text-md">bevzztv09@privaterelay.groovecoder.com</span>
+            </div>
+            <div class="generate-button">
+              <a class="ml-8 py-2 px-4 leading-normal rounded border border-solid border-indigo-800 text-indigo-800 hover:bg-indigo-800 hover:text-white" href="logged-in.html">Back</a>
+            </div>
+          </div>
+        </div>
+        <!-- Empty State -->
+        <!-- List of Emails -->
+        <div class="px-8 mt-8">
+          <div class="border-b border-solid border-gray-300 pb-4 mb-4">
+            <div class="email-meta">
+              <div class="text-lg font-bold text-gray-800">
+                Subject: {subject line}
+                <br>
+                From: {email address}
+                <br>
+
+              </div>
+              <div class="text-gray-600 font-normal email-send">{Date/time email was sent}</div>
+              <div class="email-body leading-normal pt-4 text-gray-700">
+                <p>Adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+              </div>
+            </div>
+          </div>
+          <div class="border-b border-solid border-gray-300 pb-4 mb-4">
+            <div class="email-meta">
+              <div class="text-lg font-bold text-gray-800">
+                Subject: {subject line}
+                <br>
+                From: {email address}
+                <br>
+
+              </div>
+              <div class="text-gray-600 font-normal email-send">{Date/time email was sent}</div>
+              <div class="email-body leading-normal pt-4 text-gray-700">
+                <p>Adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+              </div>
+            </div>
+          </div>
+          <div class="border-b border-solid border-gray-300 pb-4 mb-4">
+            <div class="email-meta">
+              <div class="text-lg font-bold text-gray-800">
+                Subject: {subject line}
+                <br>
+                From: {email address}
+                <br>
+
+              </div>
+              <div class="text-gray-600 font-normal email-send">{Date/time email was sent}</div>
+              <div class="email-body leading-normal pt-4 text-gray-700">
+                <p>Adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer class="bg-white p-4 shadow-md">
+      <div class="sm:flex sm:flex-wrap sm:justify-between sm:content-center mx-auto ">
+        <a href="#" class="block">
+          <img src="//placehold.it/114x38/68EE0F/000000?text=Mozilla"/>
+        </a>
+        <ul class="flex flex-wrap content-center">
+          <li class="block sm:inline-block ">
+            <a href="#">Link</a>
+          </li>
+          <li class="block sm:inline-block sm:ml-4">
+            <a href="#">Link</a>
+          </li>
+          <li class="block sm:inline-block sm:ml-4">
+            <a href="#">Link</a>
+          </li>
+        </ul>
+      </div>
+    </footer>
+  </body>
+</html>
