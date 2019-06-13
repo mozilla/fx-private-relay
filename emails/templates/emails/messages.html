@@ -1,6 +1,50 @@
-These are your messages for {{ relay_address.address }}:
-<ul>
-  {% for message in messages %}
-  <li>{{ message.message }}</li>
-  {% endfor %}
-</ul>
+{% extends "base.html" %}
+
+{% load socialaccount %}
+
+{% block content %}
+
+<main class="container px-8 md:px-0 py-8 mx-auto max-w-4xl">
+  <div class="bg-white rounded py-8 sm:mt-8  ">
+    <div class="px-8 pb-8 border-b border-solid border-gray-400">
+      <div class="sm:flex-wrap sm:flex sm:justify-between sm:items-center">
+        <div class="name text-lg">
+          Messages for <strong>{Title}</strong>
+          <br>
+          <span class="text-md">{{ relay_address.address }}</span>
+        </div>
+        <div class="generate-button">
+          <a class="ml-8 py-2 px-4 leading-normal rounded border border-solid border-indigo-800 text-indigo-800 hover:bg-indigo-800 hover:text-white" href="/">Back</a>
+        </div>
+      </div>
+    </div>
+    <!-- Empty State -->
+    <!-- List of Emails -->
+    <div class="px-8 mt-8">
+    <ul>
+      {% for message in messages %}
+      <li>
+        <div class="border-b border-solid border-gray-300 pb-4 mb-4">
+          <div class="email-meta">
+            <div class="text-lg font-bold text-gray-800">
+              Subject: {subject line}
+              <br>
+              From: {email address}
+              <br>
+
+            </div>
+            <div class="text-gray-600 font-normal email-send">{Date/time email was sent}</div>
+            <div class="email-body leading-normal pt-4 text-gray-700">
+              {{ message.message }}
+            </div>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    </div>
+  </div>
+</main>
+
+
+{% endblock %}
