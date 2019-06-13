@@ -1,0 +1,17 @@
+{% load socialaccount %}
+
+{% block content %}
+
+<div class="user-area">
+		{% if request.user.is_anonymous %}
+		<a class="block py-2 px-4 leading-normal rounded border border-solid border-white text-white hover:bg-white hover:text-black" href="{% provider_login_url 'fxa' process='login' %}">Sign in <span class="hidden sm:inline">with FxA</span> </a>
+		{% else %}
+		{% get_social_accounts request.user as accounts %}
+		<div class="text-right sm:text-left">
+			<img class="hidden sm:inline-block w-8  mr-2" src="{{ accounts.fxa.0.extra_data.avatar }}" /> {{ accounts.fxa.0.extra_data.displayName }}
+			<a class="inline-block mt-2 sm:mt-0 ml-4 py-2 px-4 leading-normal rounded border border-solid border-white text-white hover:bg-white hover:text-black" href="{% url 'account_logout' %}">Sign out</a>
+		</div>
+		{% endif %}
+</div>
+
+{% endblock %}

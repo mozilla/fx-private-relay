@@ -1,9 +1,34 @@
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
+{% load static %}
+{% load socialaccount %}
 
-{% block content %}{% endblock %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Firefox Private Relay</title>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static "css/style.css" %}">
+  </head>
+  <body>
+    {% include "includes/header.html" %}
+
+    {% if messages %}
+    <div class="p-4">
+      <div class="container mx-auto max-w-4xl ">
+        <div class="">
+          <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }} bg-white p-4 shadow-md rounded" {% else %} class="bg-white p-4 shadow-lg rounded" {% endif %}>{{ message }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+
+    {% include "includes/footer.html" %}
+
+  </body>
+</html>
