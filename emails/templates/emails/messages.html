@@ -4,23 +4,23 @@
 
 {% block content %}
 
-<main class="container px-8 md:px-0 py-8 mx-auto max-w-4xl">
+<main class="container px-4 lg:px-0 py-8 mx-auto max-w-4xl">
   <div class="bg-white rounded py-8 sm:mt-8 shadow-md">
     <div class="px-8 pb-8 border-b border-solid border-gray-400">
-      <div class="sm:flex-wrap sm:flex sm:justify-between sm:items-center">
+      <div class="md:flex-wrap md:flex md:justify-between md:items-center">
         <div class="name text-lg">
           Messages for <strong>{Title}</strong>
           <br>
           <span class="text-md">{{ relay_address.address }}</span>
         </div>
         <div class="generate-button">
-          <a class="ml-8 py-2 px-4 leading-normal rounded border border-solid border-indigo-800 text-indigo-800 hover:bg-indigo-800 hover:text-white" href="/">Back</a>
+          <a class="md:ml-8 mt-4 md:mt-0 inline-block py-2 px-4 leading-normal rounded border border-solid border-purple-800 text-purple-800 hover:bg-purple-800 hover:text-white" href="/">Back</a>
         </div>
       </div>
     </div>
     <!-- Empty State -->
     <!-- List of Emails -->
-    <div class="px-8 mt-8">
+    <div class="px-4 mt-4 sm:mt-8 sm:px-8">
     <ul>
       {% for message in messages %}
       <li>
