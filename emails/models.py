@@ -1,8 +1,14 @@
 import random
 import string
+import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
+
+
+class Profile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    api_token = models.UUIDField(default=uuid.uuid4)
 
 
 def address_default():

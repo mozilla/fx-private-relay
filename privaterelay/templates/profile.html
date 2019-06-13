@@ -15,7 +15,7 @@
         </div>
         <div class="generate-button">
           <form action="/emails/" method="POST">
-              {% csrf_token %}
+              <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
               <input class="md:ml-8 mt-4 md:mt-0 py-2 px-4 bg-transparent cursor-pointer leading-normal rounded border border-solid border-purple-800 text-purple-800 hover:bg-purple-800 hover:text-white" type="submit" value="Generate new relay address">
           </form>
         </div>
@@ -48,6 +48,5 @@
     </div>
   </div>
 </main>
-
 
 {% endblock %}

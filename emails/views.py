@@ -12,8 +12,14 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import RelayAddress, Message
 
 
+@csrf_exempt
 def index(request):
     if not request.user:
+        raise PermissionDenied
+    user_profile = request.user.profile_set.first()
+    if not request.POST['api_token']:
+        raise PermissionDenied
+    if not str(request.POST['api_token']) == str(user_profile.api_token):
         raise PermissionDenied
     RelayAddress.objects.create(user=request.user)
     return redirect('profile')
