@@ -7,7 +7,7 @@
     <meta charset="utf-8">
     <title>Firefox Private Relay</title>
     <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static "css/style.css" %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
   </head>
   <body>
     {% include "includes/header.html" %}
@@ -18,7 +18,13 @@
         <div class="">
           <ul class="messages">
             {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }} bg-white p-4 shadow-md rounded" {% else %} class="bg-white p-4 shadow-lg rounded" {% endif %}>{{ message }}</li>
+            <li{% if message.tags %} class="{{ message.tags }} relative bg-white p-4 shadow-md rounded js-notification" {% else %} class="bg-white p-4 shadow-lg rounded relative js-notification" {% endif %}>{{ message }}
+              <span class="absolute top-0 bottom-0 right-0 p-2 block">
+                <div class="h-full flex items-center js-dismiss">
+                  <svg class="h-8 w-8 fill-current text-gray hover:text-purple-800" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+                </div>
+              </span>
+            </li>
             {% endfor %}
           </ul>
         </div>
@@ -30,5 +36,6 @@
 
     {% include "includes/footer.html" %}
 
+    <script type="text/javascript" src="{% static 'js/app.js' %}" charset="utf-8"></script>
   </body>
 </html>
