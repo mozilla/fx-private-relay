@@ -23,8 +23,8 @@ body {
   flex-direction: column;
 }
 
-.btn {
-
+.logo {
+  max-width: 80px;
 }
 
 header {

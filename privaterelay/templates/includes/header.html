@@ -1,10 +1,10 @@
-<header class="p-8 shadow-lg">
-	<div class="sm:flex-wrap sm:flex sm:justify-between sm:items-center mx-auto">
-		<a href="/" class="block">
-			<h1 class="text-2xl md:text-3xl mb-4 md:mb-0 flex flex-row">
-				<img class="inline mr-2 align-middle" alt="icon" src="//placehold.it/40x40/C0F665/000000"/>
-				<strong>Firefox&nbsp;</strong> Private Relay
-				<span class="beta-tag ml-2">BETA</span>
+{% load static %}
+<header class="px-4 py-8 sm:px-8 shadow-lg">
+	<div class="flex justify-between items-center mx-auto">
+		<a href="/" class="inline-block w-auto sm:w-3/4">
+			<h1 class="text-lg sm:text-2xl md:text-3xl flex flex-wrap flex-row items-center">
+				<img class="hidden sm:inline-block  mr-2 align-middle logo" alt="icon" src="{% static '/images/logo.svg' %}"/>
+				<span class="block sm:inline-block leading-tight"><strong>Firefox</strong> <br class="sm:hidden">Private Relay</span>
 			</h1>
 		</a>
 		{% include "includes/login.html" %}

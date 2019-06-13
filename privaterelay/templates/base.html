@@ -13,13 +13,15 @@
     {% include "includes/header.html" %}
 
     {% if messages %}
-    <div class="mt-4 container mx-auto max-w-4xl shadow-lg rounded">
-      <div class="sm:flex-wrap sm:flex sm:justify-between sm:items-center mx-auto border rounded border-solid border-gray bg-white p-4">
-        <ul class="messages">
+    <div class="p-4">
+      <div class="container mx-auto max-w-4xl ">
+        <div class="">
+          <ul class="messages">
             {% for message in messages %}
-              <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            <li{% if message.tags %} class="{{ message.tags }} bg-white p-4 shadow-md rounded" {% else %} class="bg-white p-4 shadow-lg rounded" {% endif %}>{{ message }}</li>
             {% endfor %}
-        </ul>
+          </ul>
+        </div>
       </div>
     </div>
     {% endif %}
