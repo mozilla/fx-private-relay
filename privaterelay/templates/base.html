@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
@@ -17,7 +18,11 @@
           <span class="beta-tag ml-2">BETA</span>
         </h1>
         <div class="user-area">
-          <a class="inline-block py-2 px-4 leading-normal rounded border border-solid border-white text-white hover:bg-white hover:text-black" href="logged-in.html">Sign in with FxA</a>
+            {% if request.user.is_anonymous %}
+            <a class="inline-block py-2 px-4 leading-normal rounded border border-solid border-white text-white hover:bg-white hover:text-black" href="{% provider_login_url 'fxa' process='login' %}">Sign in with FxA</a>
+            {% else %}
+            <a class="inline-block py-2 px-4 leading-normal rounded border border-solid border-white text-white hover:bg-white hover:text-black" href="{% url 'account_logout' %}">Sign out</a>
+            {% endif %}
         </div>
       </div>
     </header>
