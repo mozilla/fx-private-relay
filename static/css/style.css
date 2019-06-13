@@ -66,3 +66,21 @@ main {
   position: relative;
   z-index: 1;
 }
+
+.messages li.success {
+  background: #c6f6d5;
+  border: 1px solid #22543d;
+  color: #22543d;
+}
+
+.messages li.error {
+  background: #fed7d7;
+  border: 1px solid #c53030;
+  color: #c53030;
+}
+
+.messages li.warning {
+  background: #faf089;
+  border: 1px solid #b7791f;
+  color: #b7791f;
+}
