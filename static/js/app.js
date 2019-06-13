@@ -11,3 +11,5 @@ function checkForNotifications() {
 }
 
 checkForNotifications();
+
+new ClipboardJS('.js-copy');
