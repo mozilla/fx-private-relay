@@ -64,7 +64,9 @@ ROOT_URLCONF = 'privaterelay.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['privaterelay/templates',],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'privaterelay', 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
