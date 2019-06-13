@@ -28,6 +28,14 @@ SECRET_KEY = config('SECRET_KEY', None)
 
 DEBUG = config('DEBUG', False)
 
+# Honor the 'X-Forwarded-Proto' header for request.is_secure()
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_HOST = config('DJANGO_SECURE_SSL_HOST', None)
+SECURE_SSL_REDIRECT = config('DJANGO_SECURE_SSL_REDIRECT', False)
+SECURE_HSTS_SECONDS = config('DJANGO_SECURE_HSTS_SECONDS', None)
+SECURE_CONTENT_TYPE_NOSNIFF = config('DJANGO_SECURE_CONTENT_TYPE_NOSNIFF',
+                                     False)
+
 ALLOWED_HOSTS = []
 
 
