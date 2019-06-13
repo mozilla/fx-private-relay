@@ -23,6 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
+# defaulting to blank to be production-broken by default
 SECRET_KEY = config('SECRET_KEY', None)
 
 DEBUG = config('DEBUG', False)
@@ -138,6 +139,7 @@ AUTHENTICATION_BACKENDS = (
 
 SOCIALACCOUNT_PROVIDERS = {
     'fxa': {
+        # Note: to request "profile" scope, must be a trusted Mozilla client
         'SCOPE': ['profile'],
         'OAUTH_ENDPOINT': config('FXA_OAUTH_ENDPOINT', 'https://oauth.accounts.firefox.com/v1'),
         'PROFILE_ENDPOINT': config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'),

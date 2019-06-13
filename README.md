@@ -41,19 +41,25 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
     cp .env-dist .env
     ```
 
-5. Migrate DB:
+5. Add a `SECRET_KEY` value to `.env`:
+
+    ```
+    SECRET_KEY=secret-key-should-be-different-for-every-install
+    ```
+
+6. Migrate DB:
 
     ```
     python manage.py migrate
     ```
 
-6. Create superuser:
+7. Create superuser:
 
     ```
     python manage.my createsuperuser
     ```
 
-7. Run it:
+8. Run it:
 
     ```
     python manage.py runserver
