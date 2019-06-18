@@ -48,6 +48,11 @@ def inbound(request):
     from_address = request.POST.get('from')
     subject = request.POST.get('subject')
     text = request.POST.get('text')
+    print("email_to: %s" % email_to)
+    print("local_portion: %s" % local_portion)
+    print("from_address: %s" % from_address)
+    print("subject: %s" % subject)
+    print("text: %s" % text)
 
     relay_address = get_object_or_404(RelayAddress, address=local_portion)
 
