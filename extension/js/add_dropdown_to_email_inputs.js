@@ -18,9 +18,12 @@
     document.body.appendChild(relayAddressesDatalist);
 
     // set the "list" attribute of all email inputs to "relay-addresses"
+
     const emailInputs = document.querySelectorAll("input[type='email']");
     for (const emailInput of emailInputs) {
       emailInput.setAttribute("list", "relay-addresses");
+      // disable autocomplete so that only generated private relay addresses appear
+      emailInput.setAttribute("autocomplete", "false");
     }
   }
 
