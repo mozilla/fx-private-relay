@@ -1,7 +1,8 @@
 Django==2.2.2
+django-allauth==0.39.1
 django-csp==3.5
 django-heroku==0.3.1
+django-referrer-policy==1.0
 gunicorn==19.9.0
-django-allauth==0.39.1
 python-decouple==3.1
 sendgrid==6.0.5

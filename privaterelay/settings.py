@@ -38,8 +38,9 @@ SECURE_CONTENT_TYPE_NOSNIFF = config('DJANGO_SECURE_CONTENT_TYPE_NOSNIFF',
 SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
 CSP_DEFAULT_SRC = ("'none'",)
 CSP_SCRIPT_SRC = ("'self'", "https://unpkg.com")
-CSP_STYLE_SRC = ("'self'", "data:", "https://unpkg.com")
+CSP_STYLE_SRC = ("'self'", "https://unpkg.com")
 CSP_IMG_SRC = ("'self'", config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'), "https://unpkg.com", "https://placehold.it")
+REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 ALLOWED_HOSTS = []
 
@@ -73,6 +74,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     'csp.middleware.CSPMiddleware',
+    'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
 ]
 
 ROOT_URLCONF = 'privaterelay.urls'
