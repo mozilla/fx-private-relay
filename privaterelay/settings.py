@@ -34,7 +34,12 @@ SECURE_SSL_HOST = config('DJANGO_SECURE_SSL_HOST', None)
 SECURE_SSL_REDIRECT = config('DJANGO_SECURE_SSL_REDIRECT', False)
 SECURE_HSTS_SECONDS = config('DJANGO_SECURE_HSTS_SECONDS', None)
 SECURE_CONTENT_TYPE_NOSNIFF = config('DJANGO_SECURE_CONTENT_TYPE_NOSNIFF',
-                                     False)
+                                     True)
+SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
+CSP_DEFAULT_SRC = ("'none'",)
+CSP_SCRIPT_SRC = ("'self'", "https://unpkg.com")
+CSP_STYLE_SRC = ("'self'", "data:", "https://unpkg.com")
+CSP_IMG_SRC = ("'self'", config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'), "https://unpkg.com", "https://placehold.it")
 
 ALLOWED_HOSTS = []
 
@@ -66,6 +71,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'csp.middleware.CSPMiddleware',
 ]
 
 ROOT_URLCONF = 'privaterelay.urls'
