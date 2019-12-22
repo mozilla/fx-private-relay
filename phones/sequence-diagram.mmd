@@ -1,0 +1,17 @@
+sequenceDiagram
+    User->>Relay Phone Number: TXT {minutes}
+    Relay Phone Number->>Proxy Number: Creates {minutes} session
+    Relay Phone Number->>User: TXT {proxy number}
+    User->>3rd Party: give {proxy number} as phone number
+    loop proxied TXT conversation
+        3rd Party->>Proxy Number: TXT
+        Proxy Number->>User: TXT
+        User->>Proxy Number: TXT
+        Proxy Number->>3rd Party: TXT
+    end
+    opt TODO: manual stop
+        User->>Proxy Number: TXT "stop"
+    end
+    opt manual reset
+        User->>Relay Phone Number: TXT "reset"
+    end
