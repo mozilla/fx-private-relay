@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.fxa',
 
     'emails.apps.EmailsConfig',
+    'phones.apps.PhonesConfig',
 ]
 
 MIDDLEWARE = [
