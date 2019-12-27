@@ -27,43 +27,30 @@ def main_twilio_webhook(request):
     from_num = request.POST['From']
     body = request.POST['Body'].lower()
 
-    if body == 'reset':
-        from_num_sessions = Session.objects.filter(
-            initiating_real_number=from_num
-        )
-        for session in from_num_sessions:
-            service.sessions(session.twilio_sid).update(status='closed')
-        from_num_sessions.delete()
-        resp.message(
-            "Relay session reset. \n%s" % PROMPT_MESSAGE
-        )
-        return HttpResponse(resp)
-
-    # TODO: remove this check; allow users to have multiple sessions at once?
-    if body != 'reset':
-        existing_sessions = Session.objects.filter(
-            initiating_real_number=from_num
-        )
-        if existing_sessions:
-            pretty_proxy = format_number(
-                parse(existing_sessions[0].initiating_proxy_number),
-                PhoneNumberFormat.NATIONAL
-            )
-            resp.message(
-                "You already have a relay number: \n%s. \n"
-                "Reply 'reset' to reset it." % pretty_proxy
-            )
-            return HttpResponse(resp)
-
     try:
         ttl_minutes = int(body)
     except ValueError:
         resp.message(PROMPT_MESSAGE)
         return HttpResponse(resp)
 
-    session = service.sessions.create(ttl=ttl_minutes*60,)
-    participant = service.sessions(session.sid).participants.create(
-        identifier=from_num
+    # First, if this number already has any sessions, close them on Twilio
+    # and delete them from the local DB
+    from_num_sessions = Session.objects.filter(
+        initiating_real_number=from_num
+    )
+    for session in from_num_sessions:
+        service.sessions(session.twilio_sid).update(status='closed')
+    from_num_sessions.delete()
+
+    # Check that there are relay numbers available so we don't accidentally
+    # create an open session that will be crossed with some other session.
+    available_numbers = _get_available_numbers()
+    if len(available_numbers) == 0:
+        resp.message("No relay numbers available. Try again later.")
+        return HttpResponse(resp)
+
+    session, participant = _get_session_and_participant_with_available_number(
+        available_numbers, ttl_minutes, from_num
     )
     proxy_num = participant.proxy_identifier
 
@@ -127,8 +114,9 @@ def twilio_proxy_out_of_session(request):
     new_participant = service.sessions(twilio_session.sid).participants.create(
         identifier=from_num
     )
-    db_session.status = 'connected-to-party'
-    db_session.save()
+    # Now that the twilio session is in-progress, we can delete our DB record
+    db_session.delete()
+
     # Now that we've added the 2nd participant,
     # send their first message to the 1st participant
     message = (
@@ -136,5 +124,28 @@ def twilio_proxy_out_of_session(request):
         .participants(db_session.initiating_participant_sid)
         .message_interactions.create(body=request.POST['Body'])
     )
-
     return HttpResponse(status=201, content="Created")
+
+
+def _get_available_numbers():
+    numbers = service.phone_numbers.list()
+    available_numbers = [
+        number.phone_number for number in numbers if number.in_use == 0
+    ]
+    return available_numbers
+
+
+def _get_session_and_participant_with_available_number(
+    available_numbers, ttl_minutes, from_num
+):
+    # Since Twilio doesn't automatically assign phone numbers that are not
+    # already in use, we need to keep trying to create a session until we get
+    # a session with one of the available numbers.
+    while True:
+        session = service.sessions.create(ttl=ttl_minutes*60,)
+        participant = service.sessions(session.sid).participants.create(
+            identifier=from_num
+        )
+        if participant.proxy_identifier in available_numbers:
+            return session, participant
+        service.sessions(session.twilio_sid).update(status='closed')
