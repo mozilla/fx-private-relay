@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from decouple import config
 from phonenumbers import parse, format_number
 from phonenumbers import PhoneNumberFormat
@@ -27,20 +29,15 @@ def main_twilio_webhook(request):
     from_num = request.POST['From']
     body = request.POST['Body'].lower()
 
+    _delete_expired_sessions()
+
     try:
         ttl_minutes = int(body)
     except ValueError:
         resp.message(PROMPT_MESSAGE)
         return HttpResponse(resp)
 
-    # First, if this number already has any sessions, close them on Twilio
-    # and delete them from the local DB
-    from_num_sessions = Session.objects.filter(
-        initiating_real_number=from_num
-    )
-    for session in from_num_sessions:
-        service.sessions(session.twilio_sid).update(status='closed')
-    from_num_sessions.delete()
+    _reset_numbers_sessions(from_num)
 
     # Check that there are relay numbers available so we don't accidentally
     # create an open session that will be crossed with some other session.
@@ -57,12 +54,14 @@ def main_twilio_webhook(request):
     # store this half-way open session in our local DB,
     # so when the next number texts the proxy number,
     # we can add them as the 2nd participant and open the session
-    Session.objects.create(
+    expiration_datetime = session.date_created + timedelta(minutes=ttl_minutes)
+    db_session = Session.objects.create(
         twilio_sid = session.sid,
         initiating_proxy_number=proxy_num,
         initiating_real_number=from_num,
         initiating_participant_sid=participant.sid,
         status='waiting-for-party',
+        expiration=expiration_datetime,
     )
 
     # reply back with the number and minutes it will live
@@ -88,20 +87,25 @@ def twilio_proxy_out_of_session(request):
     So, we use this to add the 2nd participant to the existing session, relay
     the 2nd participant's message, and the 2 parties can begin communicating
     thru the proxy number.
-
-    TODO: detect real out-of-session messages - i.e., not first messages
     """
+
     resp = MessagingResponse()
 
+    _delete_expired_sessions()
     try:
         db_session = Session.objects.get(
             initiating_proxy_number=request.POST['To'],
             status='waiting-for-party',
         )
-    except (Session.DoesNotExist, MultipleObjectsReturned) as e:
+    except Session.DoesNotExist as e:
         print(e)
-        resp.message('The person you are trying to reach is unavailable.')
+        resp.message('The number you are trying to reach is unavailable.')
         return HttpResponse(resp)
+    except MultipleObjectsReturned as e:
+        print(e)
+        resp.message('The number you are trying to reach is busy.')
+        return HttpResponse(resp)
+
 
     twilio_session = service.sessions(db_session.twilio_sid).fetch()
     if (twilio_session.status in ['closed', 'failed', 'unknown']):
@@ -112,7 +116,7 @@ def twilio_proxy_out_of_session(request):
 
     from_num = request.POST['From']
     new_participant = service.sessions(twilio_session.sid).participants.create(
-        identifier=from_num
+        identifier=from_num,
     )
     # Now that the twilio session is in-progress, we can delete our DB record
     db_session.delete()
@@ -125,6 +129,24 @@ def twilio_proxy_out_of_session(request):
         .message_interactions.create(body=request.POST['Body'])
     )
     return HttpResponse(status=201, content="Created")
+
+
+def _reset_numbers_sessions(number):
+    # If this number already has any sessions, close them on Twilio
+    # and delete them from the local DB
+    from_num_sessions = Session.objects.filter(
+        initiating_real_number=number
+    )
+    for session in from_num_sessions:
+        service.sessions(session.twilio_sid).update(status='closed')
+    from_num_sessions.delete()
+
+def _delete_expired_sessions():
+    expired_sessions = Session.objects.filter(
+        status='waiting-for-party',
+        expiration__lte=datetime.now()
+    )
+    expired_sessions.delete()
 
 
 def _get_available_numbers():
