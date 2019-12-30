@@ -117,6 +117,7 @@ def twilio_proxy_out_of_session(request):
     from_num = request.POST['From']
     new_participant = service.sessions(twilio_session.sid).participants.create(
         identifier=from_num,
+        proxy_identifier=db_session.initiating_proxy_number,
     )
     # Now that the twilio session is in-progress, we can delete our DB record
     db_session.delete()
