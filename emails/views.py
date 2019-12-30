@@ -1,3 +1,4 @@
+from email.utils import parseaddr
 import json
 
 from decouple import config
@@ -43,18 +44,21 @@ def messages(request):
 
 @csrf_exempt
 def inbound(request):
-    email_to = request.POST.get('to')
+    email_to = parseaddr(request.POST.get('to'))[1]
     local_portion = email_to.split('@')[0]
-    from_address = request.POST.get('from')
+    from_address = parseaddr(request.POST.get('from'))[1]
     subject = request.POST.get('subject')
     text = request.POST.get('text')
     print("email_to: %s" % email_to)
-    print("local_portion: %s" % local_portion)
     print("from_address: %s" % from_address)
-    print("subject: %s" % subject)
-    print("text: %s" % text)
 
-    relay_address = get_object_or_404(RelayAddress, address=local_portion)
+    # 404s make sendgrid retry the email, so respond with 200 even if
+    # the address isn't found
+    try:
+        relay_address = RelayAddress.objects.get(address=local_portion)
+    except RelayAddress.DoesNotExist as e:
+        print(e)
+        return HttpResponse("Address does not exist")
 
     # Store in local DB
     message = Message.objects.create(
