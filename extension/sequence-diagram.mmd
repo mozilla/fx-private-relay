@@ -1,0 +1,24 @@
+sequenceDiagram
+    Private Relay Extension->>relay.firefox.com: POST /addresses
+    relay.firefox.com->>Private Relay Extension: 201 Created: anon@relay.firefox.com
+    Private Relay Extension->>example.com: &lt;form&gt; submit
+    Private Relay Extension->>relay.firefox.com: PUT /addresses/:id for example.com
+    relay.firefox.com->>Private Relay Extension: 200 OK
+    example.com->>example.com MTA: mailto:anon@relay.firefox.com
+    example.com MTA->>api.sendgrid.com: SMTP
+    api.sendgrid.com->>api.sendgrid.com: Verify sending MTA (SPF)
+    api.sendgrid.com->>api.sendgrid.com: Verify message signatures (DKIM)
+    api.sendgrid.com->>relay.firefox.com: POST /inbound
+    relay.firefox.com->>relay.firefox.com: Verify address was generated for example.com
+    relay.firefox.com->>relay.firefox.com: look up real user address
+    relay.firefox.com->>api.sendgrid.com: POST /v3/mail/send
+    api.sendgrid.com->>User MTA: SMTP
+    User MTA->>User Mail Client: SMTP
+    User Mail Client->>User Mail Client: User replies
+    User Mail Client->>User MTA: SMTP
+    User MTA->>api.sendgrid.com: SMTP
+    api.sendgrid.com->>relay.firefox.com: POST /inbound
+    relay.firefox.com->>relay.firefox.com: Transform from/to address
+    relay.firefox.com->>relay.firefox.com: remove user address
+    relay.firefox.com->>api.sendgrid.com: POST /v3/mail/send
+    api.sendgrid.com->>example.com MTA: SMTP
