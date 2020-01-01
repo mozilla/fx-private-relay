@@ -32,7 +32,7 @@ class Message(models.Model):
     relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE)
     from_address = models.CharField(max_length=255)
     subject = models.CharField(max_length=255)
-    message = models.TextField()
+    message = models.TextField(null=True)
 
     def __str__(self):
         return '%s, From: %s, To: %s' % (
