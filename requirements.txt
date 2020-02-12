@@ -1,4 +1,4 @@
-Django==2.2.9
+Django==2.2.10
 django-allauth==0.39.1
 django-csp==3.5
 django-heroku==0.3.1
