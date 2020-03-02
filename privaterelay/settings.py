@@ -45,10 +45,15 @@ REFERRER_POLICY = 'strict-origin-when-cross-origin'
 ALLOWED_HOSTS = []
 
 
+# Get our backing resource configs to check if we should install the app
+ADMIN_ENABLED = config('ADMIN_ENABLED', None)
+SENDGRID_API_KEY = config('SENDGRID_API_KEY', None)
+TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
+TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)
+
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -60,10 +65,22 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.fxa',
-
-    'emails.apps.EmailsConfig',
-    'phones.apps.PhonesConfig',
 ]
+
+if ADMIN_ENABLED:
+    INSTALLED_APPS += [
+        'django.contrib.admin',
+    ]
+
+if SENDGRID_API_KEY:
+    INSTALLED_APPS += [
+        'emails.apps.EmailsConfig',
+    ]
+
+if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
+    INSTALLED_APPS += [
+        'phones.apps.PhonesConfig',
+    ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
