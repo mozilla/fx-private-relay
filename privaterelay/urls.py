@@ -23,6 +23,11 @@ from . import views
 
 
 urlpatterns = [
+    # Dockerflow endpoint
+    path('__version__', views.version),
+    path('__heartbeat__', views.heartbeat),
+    path('__lbheartbeat__', views.lbheartbeat),
+
     path('accounts/profile/', views.profile, name='profile'),
     path('accounts/', include('allauth.urls')),
     path('', views.home),
