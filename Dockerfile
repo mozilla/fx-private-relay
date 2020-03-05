@@ -16,4 +16,6 @@ COPY . /app
 
 RUN pip install -r requirements.txt
 
-CMD ["/app/.local/bin/gunicorn", "--config", "gunicorn.conf", "privaterelay.wsgi:application"]
+ENTRYPOINT ["/app/.local/bin/gunicorn"]
+
+CMD ["--config", "gunicorn.conf", "privaterelay.wsgi:application"]
