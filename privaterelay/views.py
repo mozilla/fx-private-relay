@@ -34,7 +34,6 @@ def version(request):
 
 
 def heartbeat(request):
-    import ipdb; ipdb.set_trace()
     db_conn = connections['default']
     c = db_conn.cursor()
     return HttpResponse('200 OK', status=200)
