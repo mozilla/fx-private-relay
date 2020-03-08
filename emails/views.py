@@ -2,8 +2,8 @@ from email.utils import parseaddr
 import json
 
 from decouple import config
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from socketlabs.injectionapi import SocketLabsClient
+from socketlabs.injectionapi.message.basicmessage import BasicMessage
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
@@ -51,6 +51,7 @@ def inbound(request):
     from_address = parseaddr(message_data['From']['EmailAddress'])[1]
     subject = message_data.get('Subject')
     text = message_data.get('TextBody')
+    html = message_data.get('HtmlBody')
     print("email_to: %s" % email_to)
     print("from_address: %s" % from_address)
 
@@ -72,16 +73,16 @@ def inbound(request):
 
     # Forward to real email address
     try:
-        message = Mail(
-            from_email='inbound@privaterelay.groovecoder.com',
-            to_emails=relay_address.user.email,
-            subject='Forwarding email from %s sent to %s' % (
-                from_address, local_portion
-            ),
-            html_content=text
+        message = BasicMessage()
+        message.subject = 'Forwarding email from %s sent to %s' % (
+            from_address, local_portion
         )
-        sendgrid_client = SendGridAPIClient(config('SENDGRID_API_KEY'))
-        response = sendgrid_client.send(message)
+        message.html_body = html
+        message.plain_text_body = text
+        message.from_email_address = 'inbound@privaterelay.groovecoder.com'
+        message.to_email_address.append(relay_address.user.email)
+        socketlabs_client = SocketLabsClient(1000, settings.SOCKETLABS_API_KEY)
+        response = socketlabs_client.send(message)
         print(response)
     except Exception as e:
         print(e.message)
