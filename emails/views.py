@@ -4,7 +4,9 @@ import json
 from decouple import config
 from socketlabs.injectionapi import SocketLabsClient
 from socketlabs.injectionapi.message.basicmessage import BasicMessage
+from socketlabs.injectionapi.message.emailaddress import EmailAddress
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -45,11 +47,19 @@ def messages(request):
 @csrf_exempt
 def inbound(request):
     json_body = json.loads(request.body)
+    db_message = _inbound_logic(json_body)
+    return HttpResponse(db_message)
+
+
+def _inbound_logic(json_body):
     message_data = json_body['Message']
     email_to = parseaddr(message_data['To'][0]['EmailAddress'])[1]
     local_portion = email_to.split('@')[0]
     from_address = parseaddr(message_data['From']['EmailAddress'])[1]
     subject = message_data.get('Subject')
+    json.dump(json_body, open(
+        'from_%s_to_%s_subject_%s' % (from_address, email_to, subject), 'w'
+    ))
     text = message_data.get('TextBody')
     html = message_data.get('HtmlBody')
     print("email_to: %s" % email_to)
@@ -64,7 +74,7 @@ def inbound(request):
         return HttpResponse("Address does not exist")
 
     # Store in local DB
-    message = Message.objects.create(
+    db_message = Message.objects.create(
         relay_address=relay_address,
         from_address=from_address,
         subject=subject,
@@ -72,19 +82,18 @@ def inbound(request):
     )
 
     # Forward to real email address
-    try:
-        message = BasicMessage()
-        message.subject = 'Forwarding email from %s sent to %s' % (
-            from_address, local_portion
-        )
-        message.html_body = html
-        message.plain_text_body = text
-        message.from_email_address = 'inbound@privaterelay.groovecoder.com'
-        message.to_email_address.append(relay_address.user.email)
-        socketlabs_client = SocketLabsClient(1000, settings.SOCKETLABS_API_KEY)
-        response = socketlabs_client.send(message)
-        print(response)
-    except Exception as e:
-        print(e.message)
-
-    return HttpResponse(message)
+    sl_message = BasicMessage()
+    sl_message.subject = 'Forwarding email from %s sent to %s' % (
+        from_address, local_portion
+    )
+    sl_message.html_body = html
+    sl_message.plain_text_body = text
+    sl_message.from_email_address = EmailAddress(
+        'inbound@privaterelay.groovecoder.com'
+    )
+    sl_message.to_email_address.append(EmailAddress(relay_address.user.email))
+    socketlabs_client = SocketLabsClient(
+        settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
+    )
+    response = socketlabs_client.send(sl_message)
+    print(response)
