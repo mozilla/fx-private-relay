@@ -44,11 +44,13 @@ def messages(request):
 
 @csrf_exempt
 def inbound(request):
-    email_to = parseaddr(request.POST.get('to'))[1]
+    json_body = json.loads(request.body)
+    message_data = json_body['Message']
+    email_to = parseaddr(message_data['To'][0]['EmailAddress'])[1]
     local_portion = email_to.split('@')[0]
-    from_address = parseaddr(request.POST.get('from'))[1]
-    subject = request.POST.get('subject')
-    text = request.POST.get('text')
+    from_address = parseaddr(message_data['From']['EmailAddress'])[1]
+    subject = message_data.get('Subject')
+    text = message_data.get('TextBody')
     print("email_to: %s" % email_to)
     print("from_address: %s" % from_address)
 
