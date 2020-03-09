@@ -49,9 +49,7 @@ def inbound(request):
     if _get_secret_key(request) != settings.SOCKETLABS_SECRET_KEY:
         return HttpResponse("Unauthorized", status=401)
 
-    # set this env var to validate socketlabs inbound API
-    # See: https://inbound.docs.socketlabs.com/v1/documentation/introduction
-    if settings.SOCKETLABS_VALIDATION_KEY:
+    if request.POST['Type'] == 'Validation':
         return HttpResponse(settings.SOCKETLABS_VALIDATION_KEY)
 
     if request.content_type != 'application/json':
