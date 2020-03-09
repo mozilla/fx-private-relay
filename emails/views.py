@@ -46,18 +46,30 @@ def messages(request):
 
 @csrf_exempt
 def inbound(request):
-    json_body = json.loads(request.body)
-
-    if json_body['SecretKey'] != settings.SOCKETLABS_SECRET_KEY:
-        return HttpResponse("Unauthorized", status_code=401)
+    if _get_secret_key(request) != settings.SOCKETLABS_SECRET_KEY:
+        return HttpResponse("Unauthorized", status=401)
 
     # set this env var to validate socketlabs inbound API
     # See: https://inbound.docs.socketlabs.com/v1/documentation/introduction
     if settings.SOCKETLABS_VALIDATION_KEY:
         return HttpResponse(settings.SOCKETLABS_VALIDATION_KEY)
 
+    if request.content_type != 'application/json':
+        return HttpResponse("Unsupported Media Type", status=415)
+
+    json_body = json.loads(request.body)
     db_message = _inbound_logic(json_body)
-    return HttpResponse(db_message)
+
+    return HttpResponse("Created", status=201)
+
+
+def _get_secret_key(request):
+    if request.content_type == 'application/x-www-form-urlencoded':
+        return request.POST['SecretKey']
+    if request.content_type == 'application/json':
+        json_body = json.loads(request.body)
+        return json_body['SecretKey']
+    return ''
 
 
 def _inbound_logic(json_body):
