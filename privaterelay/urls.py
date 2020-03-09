@@ -38,7 +38,7 @@ if settings.ADMIN_ENABLED:
         path('admin/', admin.site.urls),
     ]
 
-if settings.SENDGRID_API_KEY:
+if settings.SOCKETLABS_API_KEY:
     urlpatterns += [
         path('emails/', include('emails.urls')),
     ]

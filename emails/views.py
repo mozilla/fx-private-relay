@@ -2,9 +2,11 @@ from email.utils import parseaddr
 import json
 
 from decouple import config
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from socketlabs.injectionapi import SocketLabsClient
+from socketlabs.injectionapi.message.basicmessage import BasicMessage
+from socketlabs.injectionapi.message.emailaddress import EmailAddress
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -44,11 +46,31 @@ def messages(request):
 
 @csrf_exempt
 def inbound(request):
-    email_to = parseaddr(request.POST.get('to'))[1]
+    json_body = json.loads(request.body)
+
+    if json_body['SecretKey'] != settings.SOCKETLABS_SECRET_KEY:
+        return HttpResponse("Unauthorized", status_code=401)
+
+    # set this env var to validate socketlabs inbound API
+    # See: https://inbound.docs.socketlabs.com/v1/documentation/introduction
+    if settings.SOCKETLABS_VALIDATION_KEY:
+        return HttpResponse(settings.SOCKETLABS_VALIDATION_KEY)
+
+    db_message = _inbound_logic(json_body)
+    return HttpResponse(db_message)
+
+
+def _inbound_logic(json_body):
+    message_data = json_body['Message']
+    email_to = parseaddr(message_data['To'][0]['EmailAddress'])[1]
     local_portion = email_to.split('@')[0]
-    from_address = parseaddr(request.POST.get('from'))[1]
-    subject = request.POST.get('subject')
-    text = request.POST.get('text')
+    from_address = parseaddr(message_data['From']['EmailAddress'])[1]
+    subject = message_data.get('Subject')
+    json.dump(json_body, open(
+        'from_%s_to_%s_subject_%s' % (from_address, email_to, subject), 'w'
+    ))
+    text = message_data.get('TextBody')
+    html = message_data.get('HtmlBody')
     print("email_to: %s" % email_to)
     print("from_address: %s" % from_address)
 
@@ -61,7 +83,7 @@ def inbound(request):
         return HttpResponse("Address does not exist")
 
     # Store in local DB
-    message = Message.objects.create(
+    db_message = Message.objects.create(
         relay_address=relay_address,
         from_address=from_address,
         subject=subject,
@@ -69,19 +91,18 @@ def inbound(request):
     )
 
     # Forward to real email address
-    try:
-        message = Mail(
-            from_email='inbound@privaterelay.groovecoder.com',
-            to_emails=relay_address.user.email,
-            subject='Forwarding email from %s sent to %s' % (
-                from_address, local_portion
-            ),
-            html_content=text
-        )
-        sendgrid_client = SendGridAPIClient(config('SENDGRID_API_KEY'))
-        response = sendgrid_client.send(message)
-        print(response)
-    except Exception as e:
-        print(e.message)
-
-    return HttpResponse(message)
+    sl_message = BasicMessage()
+    sl_message.subject = 'Forwarding email from %s sent to %s' % (
+        from_address, local_portion
+    )
+    sl_message.html_body = html
+    sl_message.plain_text_body = text
+    sl_message.from_email_address = EmailAddress(
+        settings.RELAY_FROM_ADDRESS
+    )
+    sl_message.to_email_address.append(EmailAddress(relay_address.user.email))
+    socketlabs_client = SocketLabsClient(
+        settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
+    )
+    response = socketlabs_client.send(sl_message)
+    print(response)

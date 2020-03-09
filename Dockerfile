@@ -13,6 +13,7 @@ EXPOSE 8000
 USER app
 
 COPY . /app
+COPY .env-dist /app/.env
 
 RUN pip install -r requirements.txt
 

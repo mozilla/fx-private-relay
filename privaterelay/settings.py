@@ -47,7 +47,10 @@ ALLOWED_HOSTS = []
 
 # Get our backing resource configs to check if we should install the app
 ADMIN_ENABLED = config('ADMIN_ENABLED', None)
-SENDGRID_API_KEY = config('SENDGRID_API_KEY', None)
+SOCKETLABS_SERVER_ID = config('SOCKETLABS_SERVER_ID', 0, cast=int)
+SOCKETLABS_API_KEY = config('SOCKETLABS_API_KEY', None)
+SOCKETLABS_VALIDATION_KEY = config('SOCKETLABS_VALIDATION_KEY', None)
+RELAY_FROM_ADDRESS = config('RELAY_FROM_ADDRESS', None)
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)
 
@@ -72,7 +75,7 @@ if ADMIN_ENABLED:
         'django.contrib.admin',
     ]
 
-if SENDGRID_API_KEY:
+if SOCKETLABS_API_KEY:
     INSTALLED_APPS += [
         'emails.apps.EmailsConfig',
     ]
