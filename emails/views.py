@@ -49,7 +49,8 @@ def inbound(request):
     if _get_secret_key(request) != settings.SOCKETLABS_SECRET_KEY:
         return HttpResponse("Unauthorized", status=401)
 
-    if request.POST['Type'] == 'Validation':
+    if (request.content_type == 'application/x-www-form-urlencoded' and
+        request.POST['Type'] == 'Validation'):
         return HttpResponse(settings.SOCKETLABS_VALIDATION_KEY)
 
     if request.content_type != 'application/json':
