@@ -47,7 +47,7 @@ ALLOWED_HOSTS = []
 
 # Get our backing resource configs to check if we should install the app
 ADMIN_ENABLED = config('ADMIN_ENABLED', None)
-SOCKETLABS_SERVER_ID = config('SOCKETLABS_SERVER_ID', None, cast=int)
+SOCKETLABS_SERVER_ID = config('SOCKETLABS_SERVER_ID', 0, cast=int)
 SOCKETLABS_API_KEY = config('SOCKETLABS_API_KEY', None)
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)

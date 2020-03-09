@@ -52,7 +52,7 @@ jobs:
 
       - run:
           name: Test Code
-          command: docker run fx-private-relay python manage.py test
+          command: docker run --entrypoint "python" fx-private-relay manage.py test
 
   deploy:
     docker:
