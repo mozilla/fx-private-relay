@@ -89,7 +89,7 @@ def _inbound_logic(json_body):
     sl_message.html_body = html
     sl_message.plain_text_body = text
     sl_message.from_email_address = EmailAddress(
-        'inbound@privaterelay.groovecoder.com'
+        settings.RELAY_FROM_ADDRESS
     )
     sl_message.to_email_address.append(EmailAddress(relay_address.user.email))
     socketlabs_client = SocketLabsClient(
