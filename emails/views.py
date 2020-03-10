@@ -12,36 +12,43 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import RelayAddress, Message
+from .models import RelayAddress
 
 
 @csrf_exempt
 def index(request):
     if not request.user:
         raise PermissionDenied
+    if request.method == 'POST':
+        return _index_POST(request)
+    return redirect('profile')
+
+
+def _index_POST(request):
+    api_token = request.POST.get('api_token', None)
+    if not api_token:
+        raise PermissionDenied
     user_profile = request.user.profile_set.first()
-    if not request.POST['api_token']:
+    if not str(api_token) == str(user_profile.api_token):
         raise PermissionDenied
-    if not str(request.POST['api_token']) == str(user_profile.api_token):
-        raise PermissionDenied
+    if request.POST.get('method_override', None) == 'DELETE':
+        return _index_DELETE(request)
+
     RelayAddress.objects.create(user=request.user)
     return redirect('profile')
 
 
-def messages(request):
-    if not request.user:
-        raise PermissionDenied
-    relay_address_id = request.GET.get('relay_address_id', False)
-    if not relay_address_id:
-        raise Http404("Relay address not found")
-    relay_address = RelayAddress.objects.get(id=relay_address_id)
-    if relay_address.user != request.user:
-        raise PermissionDenied
-    messages = Message.objects.filter(relay_address=relay_address)
-    return render(request, 'emails/messages.html',{
-        'messages': messages,
-        'relay_address': relay_address
-    })
+#TODO: add csrf here? or make ids uuid so they can't be guessed?
+def _index_DELETE(request):
+    try:
+        relay_address = RelayAddress.objects.get(
+            id=request.POST['relay_address_id']
+        )
+        relay_address.delete()
+        return redirect('profile')
+    except RelayAddress.DoesNotExist as e:
+        print(e)
+        return HttpResponse("Address does not exist")
 
 
 @csrf_exempt
@@ -79,9 +86,8 @@ def _inbound_logic(json_body):
     subject = message_data.get('Subject')
     text = message_data.get('TextBody')
     html = message_data.get('HtmlBody')
-    print("email_to: %s" % email_to)
-    print("from_address: %s" % from_address)
 
+    # TODO: do we need this in SocketLabs?
     # 404s make sendgrid retry the email, so respond with 200 even if
     # the address isn't found
     try:
@@ -89,14 +95,6 @@ def _inbound_logic(json_body):
     except RelayAddress.DoesNotExist as e:
         print(e)
         return HttpResponse("Address does not exist")
-
-    # Store in local DB
-    db_message = Message.objects.create(
-        relay_address=relay_address,
-        from_address=from_address,
-        subject=subject,
-        message=text
-    )
 
     # Forward to real email address
     sl_message = BasicMessage()
