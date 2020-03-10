@@ -16,52 +16,52 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 ### Install and Run
 1. Clone and change to the directory:
 
-    ```
-    git clone git@github.com:groovecoder/private-relay.git
-    cd private-relay
+    ```sh
+    git clone git@github.com:mozilla/fx-private-relay.git
+    cd fx-private-relay
     ```
 
 2. Create and activate a virtual environment:
 
-    ```
+    ```sh
     virtualenv env
     source env/bin/activate
     ```
 
 3. Install requirements:
 
-    ```
+    ```sh
     pip install -r requirements.txt
     ```
 
 4. Copy `.env` file for
    [`decouple`](https://pypi.python.org/pypi/python-decouple) config:
 
-    ```
+    ```sh
     cp .env-dist .env
     ```
 
 5. Add a `SECRET_KEY` value to `.env`:
 
-    ```
+    ```ini
     SECRET_KEY=secret-key-should-be-different-for-every-install
     ```
 
 6. Migrate DB:
 
-    ```
+    ```sh
     python manage.py migrate
     ```
 
 7. Create superuser:
 
-    ```
-    python manage.my createsuperuser
+    ```sh
+    python manage.py createsuperuser
     ```
 
 8. Run it:
 
-    ```
+    ```sh
     python manage.py runserver
     ```
 
