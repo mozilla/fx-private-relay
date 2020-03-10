@@ -77,9 +77,6 @@ def _inbound_logic(json_body):
     local_portion = email_to.split('@')[0]
     from_address = parseaddr(message_data['From']['EmailAddress'])[1]
     subject = message_data.get('Subject')
-    json.dump(json_body, open(
-        'from_%s_to_%s_subject_%s' % (from_address, email_to, subject), 'w'
-    ))
     text = message_data.get('TextBody')
     html = message_data.get('HtmlBody')
     print("email_to: %s" % email_to)
@@ -103,9 +100,7 @@ def _inbound_logic(json_body):
 
     # Forward to real email address
     sl_message = BasicMessage()
-    sl_message.subject = 'Forwarding email from %s sent to %s' % (
-        from_address, local_portion
-    )
+    sl_message.subject = subject
     sl_message.html_body = html
     sl_message.plain_text_body = text
     sl_message.from_email_address = EmailAddress(
