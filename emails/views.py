@@ -1,3 +1,4 @@
+from datetime import datetime
 from email.utils import parseaddr
 import json
 
@@ -92,6 +93,10 @@ def _inbound_logic(json_body):
     # the address isn't found
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
+        if not relay_address.enabled:
+            relay_address.num_blocked += 1
+            relay_address.save(update_fields=['num_blocked'])
+            return HttpResponse("Address does not exist")
     except RelayAddress.DoesNotExist as e:
         print(e)
         return HttpResponse("Address does not exist")
@@ -110,7 +115,10 @@ def _inbound_logic(json_body):
         settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
     )
     response = socketlabs_client.send(sl_message)
-    print(response)
+    relay_address.num_forwarded += 1
+    relay_address.last_used_at = datetime.now()
+    relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
+    return HttpResponse("Created", status=201)
 
 
 def _generate_relay_From(original_from_address):
