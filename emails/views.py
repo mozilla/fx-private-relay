@@ -104,7 +104,7 @@ def _inbound_logic(json_body):
     sl_message.html_body = html
     sl_message.plain_text_body = text
     sl_message.from_email_address = EmailAddress(
-        settings.RELAY_FROM_ADDRESS
+        '%s via %s' % (from_address, settings.RELAY_FROM_ADDRESS)
     )
     sl_message.to_email_address.append(EmailAddress(relay_address.user.email))
     socketlabs_client = SocketLabsClient(
