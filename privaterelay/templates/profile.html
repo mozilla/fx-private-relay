@@ -34,10 +34,10 @@
                 <div class="text-lg font-bold text-gray-800">
                   Email Name
                 </div>
-                <span class="break-all">{{ relay_address.address }}@privaterelay.groovecoder.com</span>
+                <span class="break-all">{{ relay_address.address }}@{{ RELAY_DOMAIN }}</span>
               </div>
               <div class="email-actions">
-                <button data-clipboard-text="{{ relay_address.address }}@privaterelay.groovecoder.com" class="js-copy text-center inline-block mr-2 md:mr-0 mt-4 md:mt-0 md:ml-8 py-2 px-4 leading-normal rounded border border-solid border-purple-800 text-purple-800 hover:bg-purple-800 hover:text-white">Copy Address</button>
+                  <button data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" class="js-copy text-center inline-block mr-2 md:mr-0 mt-4 md:mt-0 md:ml-8 py-2 px-4 leading-normal rounded border border-solid border-purple-800 text-purple-800 hover:bg-purple-800 hover:text-white">Copy Address</button>
                 <a class="text-center inline-block mt-4 md:mt-0 md:ml-4  py-2 px-4 leading-normal rounded border border-solid border-purple-800 bg-purple-800 hover:bg-purple-900 text-white" href="/emails/messages/?relay_address_id={{ relay_address.id }}">View Messages</a>
               </div>
             </div>
