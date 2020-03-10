@@ -104,7 +104,7 @@ def _inbound_logic(json_body):
     sl_message.html_body = html
     sl_message.plain_text_body = text
     sl_message.from_email_address = EmailAddress(
-        '%s via %s' % (from_address, settings.RELAY_FROM_ADDRESS)
+        _generate_relay_From(from_address)
     )
     sl_message.to_email_address.append(EmailAddress(relay_address.user.email))
     socketlabs_client = SocketLabsClient(
@@ -112,3 +112,12 @@ def _inbound_logic(json_body):
     )
     response = socketlabs_client.send(sl_message)
     print(response)
+
+
+def _generate_relay_From(original_from_address):
+    relay_display_name, relay_from_address = parseaddr(
+        settings.RELAY_FROM_ADDRESS
+    )
+    return '%s via Firefox Private Relay <%s>' % (
+        original_from_address, relay_from_address
+    )
