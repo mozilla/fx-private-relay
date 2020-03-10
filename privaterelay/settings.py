@@ -37,9 +37,13 @@ SECURE_CONTENT_TYPE_NOSNIFF = config('DJANGO_SECURE_CONTENT_TYPE_NOSNIFF',
                                      True)
 SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
 CSP_DEFAULT_SRC = ("'none'",)
-CSP_SCRIPT_SRC = ("'self'", "https://unpkg.com")
-CSP_STYLE_SRC = ("'self'", "https://unpkg.com")
-CSP_IMG_SRC = ("'self'", config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'), "https://unpkg.com", "https://placehold.it")
+CSP_SCRIPT_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'",)
+CSP_IMG_SRC = (
+    "'self'",
+    config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'),
+    "https://placehold.it"
+)
 REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 ALLOWED_HOSTS = []

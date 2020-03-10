@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8">
     <title>Firefox Private Relay</title>
-    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/tailwind.min.css' %}" >
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
   </head>
   <body>
@@ -36,7 +36,7 @@
 
     {% include "includes/footer.html" %}
 
-    <script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/clipboard.min.js' %}" charset="utf-8"></script>
     <script type="text/javascript" src="{% static 'js/app.js' %}" charset="utf-8"></script>
   </body>
 </html>
