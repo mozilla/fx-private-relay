@@ -29,7 +29,7 @@
       {% for relay_address in relay_addresses %}
           <tr class="border">
               <td class="email-meta">
-                  <span title="Click to copy" data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" class="js-copy cursor-pointer">{{ relay_address.address }}@{{ RELAY_DOMAIN }}</span>
+                  <span title="Click to copy" data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" class="inline-block w-64 js-copy cursor-pointer truncate ...">{{ relay_address.address }}@{{ RELAY_DOMAIN }}</span>
               </td>
               <td class="email-meta">
                 <span class="break-all">{{ relay_address.created_at|date:"N j Y" }}</span>
