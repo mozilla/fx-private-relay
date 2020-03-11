@@ -23,18 +23,13 @@ class RelayAddress(models.Model):
     address = models.CharField(
         max_length=64, default=address_default, unique=True
     )
+    enabled = models.BooleanField(default=True)
+    description = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used_at = models.DateTimeField(blank=True, null=True)
+    num_forwarded = models.PositiveSmallIntegerField(default=0)
+    num_blocked = models.PositiveSmallIntegerField(default=0)
+    num_spam = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return self.address
-
-
-class Message(models.Model):
-    relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE)
-    from_address = models.CharField(max_length=255)
-    subject = models.CharField(max_length=255)
-    message = models.TextField(null=True)
-
-    def __str__(self):
-        return '%s, From: %s, To: %s' % (
-            self.subject, self.from_address, self.relay_address
-        )

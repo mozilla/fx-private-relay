@@ -1,3 +1,4 @@
+from datetime import datetime
 from email.utils import parseaddr
 import json
 
@@ -24,6 +25,7 @@ def index(request):
     return redirect('profile')
 
 
+#TODO: add csrf here? or make ids uuid so they can't be guessed?
 def _index_POST(request):
     api_token = request.POST.get('api_token', None)
     if not api_token:
@@ -31,11 +33,30 @@ def _index_POST(request):
     user_profile = request.user.profile_set.first()
     if not str(api_token) == str(user_profile.api_token):
         raise PermissionDenied
+    if request.POST.get('method_override', None) == 'PUT':
+        return _index_PUT(request)
     if request.POST.get('method_override', None) == 'DELETE':
         return _index_DELETE(request)
 
     RelayAddress.objects.create(user=request.user)
     return redirect('profile')
+
+
+#TODO: add csrf here? or make ids uuid so they can't be guessed?
+def _index_PUT(request):
+    try:
+        relay_address = RelayAddress.objects.get(
+            id=request.POST['relay_address_id']
+        )
+        if request.POST.get('enabled') == 'Disable':
+            relay_address.enabled = False
+        elif request.POST.get('enabled') == 'Enable':
+            relay_address.enabled = True
+        relay_address.save(update_fields=['enabled'])
+        return redirect('profile')
+    except RelayAddress.DoesNotExist as e:
+        print(e)
+        return HttpResponse("Address does not exist")
 
 
 #TODO: add csrf here? or make ids uuid so they can't be guessed?
@@ -92,6 +113,10 @@ def _inbound_logic(json_body):
     # the address isn't found
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
+        if not relay_address.enabled:
+            relay_address.num_blocked += 1
+            relay_address.save(update_fields=['num_blocked'])
+            return HttpResponse("Address does not exist")
     except RelayAddress.DoesNotExist as e:
         print(e)
         return HttpResponse("Address does not exist")
@@ -110,7 +135,10 @@ def _inbound_logic(json_body):
         settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
     )
     response = socketlabs_client.send(sl_message)
-    print(response)
+    relay_address.num_forwarded += 1
+    relay_address.last_used_at = datetime.now()
+    relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
+    return HttpResponse("Created", status=201)
 
 
 def _generate_relay_From(original_from_address):
