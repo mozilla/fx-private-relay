@@ -25,6 +25,7 @@ def index(request):
     return redirect('profile')
 
 
+#TODO: add csrf here? or make ids uuid so they can't be guessed?
 def _index_POST(request):
     api_token = request.POST.get('api_token', None)
     if not api_token:
@@ -32,11 +33,30 @@ def _index_POST(request):
     user_profile = request.user.profile_set.first()
     if not str(api_token) == str(user_profile.api_token):
         raise PermissionDenied
+    if request.POST.get('method_override', None) == 'PUT':
+        return _index_PUT(request)
     if request.POST.get('method_override', None) == 'DELETE':
         return _index_DELETE(request)
 
     RelayAddress.objects.create(user=request.user)
     return redirect('profile')
+
+
+#TODO: add csrf here? or make ids uuid so they can't be guessed?
+def _index_PUT(request):
+    try:
+        relay_address = RelayAddress.objects.get(
+            id=request.POST['relay_address_id']
+        )
+        if request.POST.get('enabled') == 'Disable':
+            relay_address.enabled = False
+        elif request.POST.get('enabled') == 'Enable':
+            relay_address.enabled = True
+        relay_address.save(update_fields=['enabled'])
+        return redirect('profile')
+    except RelayAddress.DoesNotExist as e:
+        print(e)
+        return HttpResponse("Address does not exist")
 
 
 #TODO: add csrf here? or make ids uuid so they can't be guessed?
