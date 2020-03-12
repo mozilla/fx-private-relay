@@ -9,6 +9,10 @@
     "48": "icons/border-48.png"
   },
 
+  "background": {
+      "scripts": ["js/background.js"]
+  },
+
   "content_scripts": [
     {
       "matches": [
@@ -18,16 +22,13 @@
           "https://relay.firefox.com/accounts/profile/"
       ],
       "js": ["js/get_profile_data.js"]
-    },
-    {
-      "matches": ["<all_urls>"],
-      "js": ["js/add_dropdown_to_email_inputs.js"]
     }
   ],
 
   "permissions": [
       "<all_urls>",
-      "storage"
+      "storage",
+      "menus"
   ]
 
 }
