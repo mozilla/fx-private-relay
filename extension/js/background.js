@@ -6,7 +6,8 @@ browser.menus.create({
 
 async function makeRelayAddressForTargetElement(info, tab) {
   const apiToken = await browser.storage.local.get("apiToken");
-  const newRelayAddressUrl = "http://127.0.0.1:8000/emails/"
+  // TODO: get the domain from a dynamic input source for different environments
+  const newRelayAddressUrl = "http://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/emails/"
   const newRelayAddressResponse = await fetch(newRelayAddressUrl, {
     method: "POST",
     headers: {
