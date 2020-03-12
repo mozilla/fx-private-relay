@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 
 {% load socialaccount %}
+{% load static %}
 
 {% block content %}
 
 {% get_social_accounts request.user as accounts %}
 
-<main class="container px-4 lg:px-0 py-8 mx-auto max-w-6xl">
+<main id="profile-main" class="container px-4 lg:px-0 py-8 mx-auto max-w-6xl" data-api-token="{{ user.profile_set.first.api_token }}">
   <div class="bg-white rounded py-8 sm:mt-8 shadow-md  ">
     <div class="px-8 pb-8 border-b border-solid border-gray-300">
         real address: {{ request.user.email }}
@@ -29,7 +30,7 @@
       {% for relay_address in relay_addresses %}
           <tr class="border">
               <td class="email-meta">
-                  <span title="Click to copy" data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" class="inline-block w-64 js-copy cursor-pointer truncate ...">{{ relay_address.address }}@{{ RELAY_DOMAIN }}</span>
+                  <span title="Click to copy" data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" class="relay-address inline-block w-64 js-copy cursor-pointer truncate ...">{{ relay_address.address }}@{{ RELAY_DOMAIN }}</span>
               </td>
               <td class="email-meta">
                 <span class="break-all">{{ relay_address.created_at|date:"N j Y" }}</span>
@@ -63,16 +64,21 @@
               </td>
             </tr>
       {% endfor %}
+            <tr>
+             <td class="w-1/3">
+              <div class="md:flex-wrap md:flex md:justify-between md:items-center">
+                <div class="generate-button">
+                  <form action="/emails/" method="POST" class="inline-block">
+                      <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+                      <input class="md:ml-8 mt-4 md:mt-0 py-2 px-4 bg-transparent cursor-pointer leading-normal rounded border border-solid border-purple-800 text-purple-800 hover:bg-purple-800 hover:text-white" type="submit" value="Generate new relay address">
+                  </form>
+                  <a class="inline-block md:ml-8 mt-4 md:mt-0 py-2 px-4 bg-transparent cursor-pointer leading-normal rounded border border-solid border-purple-800 text-purple-800 hover:bg-purple-800 hover:text-white" href="{% get_media_prefix %}private_relay-1.0.zip">Add to Firefox</a>
+                </div>
+              </div>
+             </td>
+            </tr>
           </tbody>
       </table>
-      <div class="md:flex-wrap md:flex md:justify-between md:items-center">
-        <div class="generate-button">
-          <form action="/emails/" method="POST">
-              <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-              <input class="md:ml-8 mt-4 md:mt-0 py-2 px-4 bg-transparent cursor-pointer leading-normal rounded border border-solid border-purple-800 text-purple-800 hover:bg-purple-800 hover:text-white" type="submit" value="Generate new relay address">
-          </form>
-        </div>
-      </div>
     </div>
   </div>
 </main>

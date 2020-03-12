@@ -13,12 +13,13 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
+from .context_processors import relay_from_domain
 from .models import RelayAddress
 
 
 @csrf_exempt
 def index(request):
-    if not request.user:
+    if not request.user and not request.POST.get(api_token, False):
         raise PermissionDenied
     if request.method == 'POST':
         return _index_POST(request)
@@ -38,7 +39,13 @@ def _index_POST(request):
     if request.POST.get('method_override', None) == 'DELETE':
         return _index_DELETE(request)
 
-    RelayAddress.objects.create(user=request.user)
+    relay_address = RelayAddress.objects.create(user=request.user)
+    return_string = '%s@%s' % (
+        relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
+    )
+    if 'moz-extension' in request.headers.get('Origin', ''):
+        return HttpResponse(return_string, status=201)
+
     return redirect('profile')
 
 
