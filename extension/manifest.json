@@ -11,8 +11,13 @@
 
   "content_scripts": [
     {
-      "matches": ["*://privaterelay.groovecoder.com/accounts/profile/"],
-      "js": ["js/get_relay_addresses.js"]
+      "matches": [
+          "http://127.0.0.1/accounts/profile/",
+          "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/",
+          "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/",
+          "https://relay.firefox.com/accounts/profile/"
+      ],
+      "js": ["js/get_profile_data.js"]
     },
     {
       "matches": ["<all_urls>"],

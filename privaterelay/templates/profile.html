@@ -7,7 +7,7 @@
 
 {% get_social_accounts request.user as accounts %}
 
-<main class="container px-4 lg:px-0 py-8 mx-auto max-w-6xl">
+<main id="profile-main" class="container px-4 lg:px-0 py-8 mx-auto max-w-6xl" data-api-token="{{ user.profile_set.first.api_token }}">
   <div class="bg-white rounded py-8 sm:mt-8 shadow-md  ">
     <div class="px-8 pb-8 border-b border-solid border-gray-300">
         real address: {{ request.user.email }}
@@ -30,7 +30,7 @@
       {% for relay_address in relay_addresses %}
           <tr class="border">
               <td class="email-meta">
-                  <span title="Click to copy" data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" class="inline-block w-64 js-copy cursor-pointer truncate ...">{{ relay_address.address }}@{{ RELAY_DOMAIN }}</span>
+                  <span title="Click to copy" data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" class="relay-address inline-block w-64 js-copy cursor-pointer truncate ...">{{ relay_address.address }}@{{ RELAY_DOMAIN }}</span>
               </td>
               <td class="email-meta">
                 <span class="break-all">{{ relay_address.created_at|date:"N j Y" }}</span>
