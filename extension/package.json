@@ -1,0 +1,30 @@
+{
+  "name": "fx-private-relay",
+  "version": "1.0.0",
+  "description": "Firefox Private Relay",
+  "main": "index.js",
+  "dependencies": {
+    "web-ext": "^3.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build:manifest": "sed -i '' 's@http://127.0.0.1@'\"$RELAY_DOMAIN\"'@g'  manifest.json",
+    "build:background": "sed -i '' 's@http://127.0.0.1:8000@'\"$RELAY_DOMAIN\"'@g' js/background.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/fx-private-relay.git"
+  },
+  "keywords": [
+    "firefox",
+    "privacy",
+    "email"
+  ],
+  "author": "Mozilla",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fx-private-relay/issues"
+  },
+  "homepage": "https://github.com/mozilla/fx-private-relay#readme"
+}
