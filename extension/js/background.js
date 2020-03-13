@@ -1,13 +1,12 @@
 browser.menus.create({
-  id: "fx-private-relay-make-address",
-  title: "Make a relay address for this field",
+  id: "fx-private-relay-generate-alias",
+  title: "Generate Email Alias",
   contexts: ["editable"]
 });
 
 async function makeRelayAddressForTargetElement(info, tab) {
   const apiToken = await browser.storage.local.get("apiToken");
-  // TODO: get the domain from a dynamic input source for different environments
-  const newRelayAddressUrl = "http://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/emails/"
+  const newRelayAddressUrl = "http://127.0.0.1:8000/emails/";
   const newRelayAddressResponse = await fetch(newRelayAddressUrl, {
     method: "POST",
     headers: {
@@ -24,7 +23,7 @@ async function makeRelayAddressForTargetElement(info, tab) {
 
 browser.menus.onClicked.addListener( async (info, tab) => {
   switch (info.menuItemId) {
-    case "fx-private-relay-make-address":
+    case "fx-private-relay-generate-alias":
       await makeRelayAddressForTargetElement(info, tab);
       break;
   }
