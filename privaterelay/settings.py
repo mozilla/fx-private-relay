@@ -32,6 +32,11 @@ DEBUG = config('DEBUG', False)
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_HOST = config('DJANGO_SECURE_SSL_HOST', None)
 SECURE_SSL_REDIRECT = config('DJANGO_SECURE_SSL_REDIRECT', False)
+SECURE_REDIRECT_EXEMPT = [
+    r'^__version__',
+    r'^__heartbeat__',
+    r'^__lbheartbeat__',
+]
 SECURE_HSTS_SECONDS = config('DJANGO_SECURE_HSTS_SECONDS', None)
 SECURE_CONTENT_TYPE_NOSNIFF = config('DJANGO_SECURE_CONTENT_TYPE_NOSNIFF',
                                      True)
