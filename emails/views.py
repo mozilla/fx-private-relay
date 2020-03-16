@@ -8,6 +8,7 @@ from socketlabs.injectionapi.message.basicmessage import BasicMessage
 from socketlabs.injectionapi.message.emailaddress import EmailAddress
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
@@ -44,6 +45,15 @@ def _index_POST(request):
         return _index_PUT(request)
     if request.POST.get('method_override', None) == 'DELETE':
         return _index_DELETE(request)
+
+    existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
+    if existing_addresses.count() >= 5:
+        if 'moz-extension' in request.headers.get('Origin', ''):
+            return HttpResponse('Payment Required', status=402)
+        messages.error(
+            request, "You already have 5 email addresses. Please upgrade."
+        )
+        return redirect('profile')
 
     relay_address = RelayAddress.objects.create(user=user_profile.user)
     return_string = '%s@%s' % (
