@@ -9,12 +9,14 @@ browser.menus.create({
 
 async function makeRelayAddressForTargetElement(info, tab) {
   const apiToken = await browser.storage.local.get("apiToken");
+
   if (!apiToken.apiToken) {
     browser.tabs.create({
       url: RELAY_SITE_ORIGIN,
     });
     return;
   }
+
   const newRelayAddressUrl = `${RELAY_SITE_ORIGIN}/emails/`;
   const newRelayAddressResponse = await fetch(newRelayAddressUrl, {
     method: "POST",
@@ -23,6 +25,15 @@ async function makeRelayAddressForTargetElement(info, tab) {
     },
     body: `api_token=${apiToken.apiToken}`
   });
+
+  if (newRelayAddressResponse.status === 402) {
+    browser.tabs.executeScript(tab.id, {
+      frameId: info.frameId,
+      code:`alert("You already have 5 email addresses. Please upgrade.");`,
+    });
+    return;
+  }
+
   const newRelayAddress = await newRelayAddressResponse.text();
   browser.tabs.executeScript(tab.id, {
     frameId: info.frameId,
