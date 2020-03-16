@@ -14,16 +14,24 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
-from .models import RelayAddress
+from .models import RelayAddress, Profile
 
 
 @csrf_exempt
 def index(request):
-    if not request.user and not request.POST.get(api_token, False):
+    if (not request.user.is_authenticated and
+        not request.POST.get("api_token", False)
+       ):
         raise PermissionDenied
     if request.method == 'POST':
         return _index_POST(request)
     return redirect('profile')
+
+
+def _get_user_profile(request, api_token):
+    if not request.user.is_authenticated:
+        return Profile.objects.get(api_token=api_token)
+    return request.user.profile_set.first()
 
 
 #TODO: add csrf here? or make ids uuid so they can't be guessed?
@@ -31,15 +39,13 @@ def _index_POST(request):
     api_token = request.POST.get('api_token', None)
     if not api_token:
         raise PermissionDenied
-    user_profile = request.user.profile_set.first()
-    if not str(api_token) == str(user_profile.api_token):
-        raise PermissionDenied
+    user_profile = _get_user_profile(request, api_token)
     if request.POST.get('method_override', None) == 'PUT':
         return _index_PUT(request)
     if request.POST.get('method_override', None) == 'DELETE':
         return _index_DELETE(request)
 
-    relay_address = RelayAddress.objects.create(user=request.user)
+    relay_address = RelayAddress.objects.create(user=user_profile.user)
     return_string = '%s@%s' % (
         relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
     )
