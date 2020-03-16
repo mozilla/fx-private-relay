@@ -1,3 +1,6 @@
+const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
+
+
 browser.menus.create({
   id: "fx-private-relay-generate-alias",
   title: "Generate Email Alias",
@@ -6,7 +9,13 @@ browser.menus.create({
 
 async function makeRelayAddressForTargetElement(info, tab) {
   const apiToken = await browser.storage.local.get("apiToken");
-  const newRelayAddressUrl = "http://127.0.0.1:8000/emails/";
+  if (!apiToken.apiToken) {
+    browser.tabs.create({
+      url: RELAY_SITE_ORIGIN,
+    });
+    return;
+  }
+  const newRelayAddressUrl = `${RELAY_SITE_ORIGIN}/emails/`;
   const newRelayAddressResponse = await fetch(newRelayAddressUrl, {
     method: "POST",
     headers: {
