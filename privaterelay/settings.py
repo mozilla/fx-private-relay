@@ -74,6 +74,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
+    'dockerflow.django',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -103,6 +105,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'dockerflow.django.middleware.DockerflowMiddleware',
 
     'csp.middleware.CSPMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
@@ -208,4 +212,27 @@ SOCIALACCOUNT_PROVIDERS = {
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 
-django_heroku.settings(locals())
+LOGGING = {
+    'version': 1,
+    'formatters': {
+        'json': {
+            '()': 'dockerflow.logging.JsonLogFormatter',
+            'logger_name': 'fx-private-relay'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'json'
+        },
+    },
+    'loggers': {
+        'request.summary': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    }
+}
+
+django_heroku.settings(locals(), logging=config('ON_HEROKU', False, cast=bool))
