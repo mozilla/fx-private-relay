@@ -1,6 +1,8 @@
 from datetime import datetime
 from email.utils import parseaddr
+from hashlib import sha256
 import json
+import logging
 
 from decouple import config
 from socketlabs.injectionapi import SocketLabsClient
@@ -16,6 +18,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
 from .models import RelayAddress, Profile
+
+
+logger = logging.getLogger('events')
 
 
 @csrf_exempt
@@ -144,6 +149,13 @@ def _inbound_logic(json_body):
         print(e)
         return HttpResponse("Address does not exist")
 
+    logger.info('email_relay', extra={
+        'relay_address_id': relay_address.id,
+        'relay_address': sha256(local_portion.encode('utf-8')).hexdigest(),
+        'real_address': sha256(
+            relay_address.user.email.encode('utf-8')
+        ).hexdigest(),
+    })
     # Forward to real email address
     sl_message = BasicMessage()
     sl_message.subject = subject
