@@ -232,6 +232,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
+        'events': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
     }
 }
 
