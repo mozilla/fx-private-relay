@@ -50,6 +50,7 @@ def home(request):
 
 
 def profile(request):
-    if (request.user):
-        relay_addresses = RelayAddress.objects.filter(user=request.user)
+    if (not request.user or request.user.is_anonymous):
+        return redirect('/')
+    relay_addresses = RelayAddress.objects.filter(user=request.user)
     return render(request, 'profile.html', {'relay_addresses': relay_addresses})
