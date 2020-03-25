@@ -18,6 +18,9 @@ async function makeRelayAddress() {
     },
     body: `api_token=${apiToken.apiToken}`
   });
+  if (newRelayAddressResponse.status === 402) {
+    return {status: 402};
+  }
   return await newRelayAddressResponse.text();
 }
 
@@ -32,7 +35,6 @@ async function makeRelayAddressForTargetElement(info, tab) {
     return;
   }
 
-  const newRelayAddress = await newRelayAddressResponse.text();
   browser.tabs.executeScript(tab.id, {
     frameId: info.frameId,
     code:`let inputElement = browser.menus.getTargetElement(${info.targetElementId});inputElement.value = "${newRelayAddress}";`,
