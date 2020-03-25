@@ -1,13 +1,6 @@
 const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
 
-
-browser.menus.create({
-  id: "fx-private-relay-generate-alias",
-  title: "Generate Email Alias",
-  contexts: ["editable"]
-});
-
-async function makeRelayAddressForTargetElement(info, tab) {
+async function makeRelayAddress() {
   const apiToken = await browser.storage.local.get("apiToken");
 
   if (!apiToken.apiToken) {
@@ -25,6 +18,11 @@ async function makeRelayAddressForTargetElement(info, tab) {
     },
     body: `api_token=${apiToken.apiToken}`
   });
+  return await newRelayAddressResponse.text();
+}
+
+async function makeRelayAddressForTargetElement(info, tab) {
+  const newRelayAddressResponse = await makeRelayAddress();
 
   if (newRelayAddressResponse.status === 402) {
     browser.tabs.executeScript(tab.id, {
@@ -41,10 +39,28 @@ async function makeRelayAddressForTargetElement(info, tab) {
   });
 }
 
+browser.menus.create({
+  id: "fx-private-relay-generate-alias",
+  title: "Generate Email Alias",
+  contexts: ["editable"]
+});
+
 browser.menus.onClicked.addListener( async (info, tab) => {
   switch (info.menuItemId) {
     case "fx-private-relay-generate-alias":
       await makeRelayAddressForTargetElement(info, tab);
       break;
   }
+});
+
+browser.runtime.onMessage.addListener(async (m) => {
+  let response;
+
+  switch (m.method) {
+    case "makeRelayAddress":
+      response = await makeRelayAddress();
+      break;
+  }
+
+  return response;
 });
