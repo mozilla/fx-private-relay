@@ -41,6 +41,9 @@ SECURE_HSTS_SECONDS = config('DJANGO_SECURE_HSTS_SECONDS', None)
 SECURE_CONTENT_TYPE_NOSNIFF = config('DJANGO_SECURE_CONTENT_TYPE_NOSNIFF',
                                      True)
 SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
+SESSION_COOKIE_SECURE = config(
+    'DJANGO_SESSION_COOKIE_SECURE', False, cast=bool
+)
 CSP_DEFAULT_SRC = ("'none'",)
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'",)
@@ -99,6 +102,7 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
