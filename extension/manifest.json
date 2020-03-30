@@ -27,6 +27,12 @@
           "http://127.0.0.1/accounts/profile/"
       ],
       "js": ["js/get_profile_data.js"]
+    },
+    {
+      "matches": [
+          "<all_urls>"
+      ],
+      "js": ["js/add_input_icon.js"]
     }
   ],
 
