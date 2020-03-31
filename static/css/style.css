@@ -363,13 +363,8 @@ ul {
   right: 0;
   padding-bottom: .5em;
   background-color: var(--darkestBlue);
-  /* background-color: var(--lightestGray); */
   z-index: 10;
 }
-/*
-.dashboard-header-wrapper .fx-private-relay-logotype {
-  background-image: url("/static/images/fx-private-relay-logotype-dark.svg");
-} */
 
 .dashboard-container {
   min-height: 100vh;
@@ -398,8 +393,6 @@ table {
 }
 
 .relay-email-address-wrapper {
-  /* background-color: #2728360d; */
-  /* background-color: #b1b6ff0d; */
   padding: 1rem;
   justify-content: space-between;
   display: flex;
@@ -411,15 +404,7 @@ table {
   grid-template-columns: minmax(200px, 30%) 40% 30%;
   padding: 1.5rem 1rem;
   width: 100%;
-  /* justify-content: space-between; */
 }
-/*
-.grid {
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  padding: 2rem;
-} */
 
 .nested-grid {
   display: grid;
@@ -432,7 +417,6 @@ table {
 .nested-grid-wrapper {
   display: flex;
   justify-content: center;
-  /* width: 50%; */
 }
 
 .center-value {
@@ -453,12 +437,10 @@ table {
 
 .delete-relay-email-button {
   padding: 12px;
-  /* border: none !important; */
   outline: none !important;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* background-color: var(--lightestGray); */
   border: 1px solid var(--lightestGray);
 }
 
@@ -518,7 +500,6 @@ table {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0);
-  /* background-color: #54ffbd; */
   background-image: linear-gradient(to right, #54ffbd, #54ffbd, #09f);
   outline: none;
   transition: .2s cubic-bezier(0.42, 0.5, 0.58, 1);
