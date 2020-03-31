@@ -1,37 +1,55 @@
+
 {% extends "base.html" %}
 
 {% load socialaccount %}
 
 {% block content %}
 
-<meta name="have-i-been-pwned-verification" value="53165bdeb4bcf7b210120225a6420e2a">
+<div class="home-header-wrapper">
+	{% include "includes/header.html" %}
+</div>
 
-<main class="container px-4 lg:px-0 py-8 mx-auto max-w-4xl">
-	<div class="sm:p-8 p-2">
-        <h2 class="leading-tight text-2xl md:text-3xl lg:text-4xl text-center text-purple-900 font-bold">Keep your <strong>email</strong> away from <br/> hackers and trackers. <small class="leading-snug font-normal block mt-4">Prevent your information from being sold or traded&nbsp;online.</small> </h2>
-		<div class="text-center mt-8 md:w-6/12 mx-auto">
-				<a class="w-full max-w-sm mx-auto block text-center py-2 px-4 leading-normal rounded border border-solid border-purple-700 text-purple-700 hover:bg-purple-700 hover:text-white" href="/accounts/fxa/login/">Sign up with FxA</a>
-				<p class="text-purple-900 text-xs py-4">Firefox browser not required for a Firefox Account.<br class="hidden md:block"> You may receive info about more Mozilla Privacy &amp; Security services. </p>
-				<p class="text-purple-900" >Have an account? <a class="font-bold underline hover:text-blue-800" href="{% provider_login_url 'fxa' %}">Log in</a> </p>
-		</div>
-	</div>
-	<div class="bg-white rounded p-4 md:p-8 mt-4 sm:mt-8 shadow-md ">
-		<h2 class="leading-tight text-xl md:text-3xl text-center font-bold mt-4 mb-8 md:mb-16">How does it work?</h2>
-		<div class="flex flex-wrap">
-			<div class="w-full md:w-1/3 text-center mb-12">
-				<h3 class="text-xl font-bold sm:h-24 ">Sign In</h3>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-			</div>
-			<div class="w-full md:w-1/3 text-center mb-12">
-				<h3 class="text-xl font-bold sm:h-24 ">Create Anon Email Addresses</h3>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-			</div>
-            <div class="w-full md:w-1/3 text-center mb-12">
-				<h3 class="text-xl font-bold sm:h-24 ">Use Them</h3>
-				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
-			</div>
-		</div>
+<main class="container txt-white flx flx-col jst-cntr al-cntr text-center row-full-width home-hero">
+	<h1 class="mw-850">Keep your email away from hackers and trackers.</h1>
+	<h2 class="sub-head">Prevent your information from being sold or traded&nbsp;online.</h2>
+	<div class="hero-sign-up-bg">
+		<a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' %}">Sign up with FxA</a>
+		<!-- <p class=" text-xs py-4">Firefox browser not required for a Firefox Account.<br class="hidden md:block"> You may receive info about more Mozilla Privacy &amp; Security services. </p> -->
+		<!-- <p>Have an account? <a class="font-bold underline hover:text-blue-800" href="{% provider_login_url 'fxa' %}">Log in</a> </p> -->
 	</div>
 </main>
+<div class="container how-it-works flx al-cntr jst-cntr flx-col">
+	<div class="card how-it-works-card content-row">
+		<div class="how-it-works-content txt-white">
+			<h2 class="how-it-works-header text-center">How It Works</h2>
+			<section class="step step-1 flx flx-row">
+				<div class="step-illustration step-1"></div>
+				<div class="step-text step-1">
+					<h3 class="step-headline ff-Met">Lorum Ipsum Whatsum</h3>
+					<p class="step-body">
+						These should be short, informative, and easy on the cognitive digestive system.
+					</p>
+				</div>
+			</section>
+			<section class="step step-2 flx flx-row">
+				<div class="step-illustration step-2"></div>
+				<div class="step-text step-2">
+					<h3 class="step-headline ff-Met">Lorum Ipsum Howsit</h3>
+					<p class="step-body">
+						They should make people feel good about using Private Relay and clear up immediate questions and confusion.
+					</p>
+				</div>
+			</section>
+			<section class="step step-3 flx flx-row">
+				<div class="step-illustration step-3"></div>
+				<div class="step-text step-3">
+					<h3 class="step-headline ff-Met">Step 3</h3>
+					<p class="step-body">These should be short, informative, and easy on the cognitive digestive system.</p>
+				</div>
+			</section>
+		</div>
+	</div>
+</div>
+
 
 {% endblock %}

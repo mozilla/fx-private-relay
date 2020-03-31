@@ -1,12 +1,8 @@
 {% load static %}
-<header class="px-4 py-8 sm:px-8 shadow-lg">
-	<div class="flex justify-between items-center mx-auto">
-		<a href="/" class="inline-block w-auto sm:w-3/4">
-			<h1 class="text-lg sm:text-2xl md:text-3xl flex flex-wrap flex-row items-center">
-				<img class="hidden sm:inline-block  mr-2 align-middle logo" alt="icon" src="{% static '/images/logo.svg' %}"/>
-				<span class="block sm:inline-block leading-tight"><strong>Firefox</strong> <br class="sm:hidden">Private Relay</span>
-			</h1>
-		</a>
-		{% include "includes/login.html" %}
-	</div>
+<header class="flx flx-row spc-btwn row-full-width">
+	<a href="/" class="flx flx-row logo-wrapper">
+		<div class="fx-private-relay-logomark"></div>
+		<div class="fx-private-relay-logotype"></div>
+	</a>
+	{% include "includes/login.html" %}
 </header>

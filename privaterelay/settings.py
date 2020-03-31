@@ -44,7 +44,7 @@ SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
 SESSION_COOKIE_SECURE = config(
     'DJANGO_SESSION_COOKIE_SECURE', False, cast=bool
 )
-CSP_DEFAULT_SRC = ("'none'",)
+CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'",)
 CSP_STYLE_SRC = ("'self'",)
 CSP_IMG_SRC = (
