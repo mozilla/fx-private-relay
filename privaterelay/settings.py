@@ -83,6 +83,8 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.fxa',
+
+    'privaterelay.apps.PrivateRelayConfig',
 ]
 
 if ADMIN_ENABLED:
