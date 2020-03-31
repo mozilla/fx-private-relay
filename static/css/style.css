@@ -432,7 +432,18 @@ table {
   font-family: Metropolis;
   font-weight: 300;
   letter-spacing: .05em;
-  padding-bottom: .45rem; 
+  padding-bottom: .45rem;
+}
+
+.relay-address {
+  cursor: default;
+  height: 100%; /* expand clickable area of relay address */
+  transition: all .1s ease;
+}
+
+.relay-address:hover {
+  opacity: .9;
+  transition: all .1s ease;
 }
 
 .delete-relay-email-button {
