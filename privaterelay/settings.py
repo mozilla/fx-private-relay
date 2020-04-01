@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 from decouple import config
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 import django_heroku
 
@@ -244,5 +246,10 @@ LOGGING = {
         },
     }
 }
+
+sentry_sdk.init(
+    dsn=config('SENTRY_DSN', None),
+    integrations=[DjangoIntegration()],
+)
 
 django_heroku.settings(locals(), logging=config('ON_HEROKU', False, cast=bool))

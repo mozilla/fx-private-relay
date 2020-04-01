@@ -6,6 +6,7 @@ django-referrer-policy==1.0
 dockerflow==2019.10.0
 gunicorn==19.9.0
 python-decouple==3.1
+sentry-sdk==0.14.3
 socketlabs-injectionapi==1.0.1
 
 # phonenumbers==8.11.1
