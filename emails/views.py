@@ -113,9 +113,7 @@ def inbound(request):
         return HttpResponse("Unsupported Media Type", status=415)
 
     json_body = json.loads(request.body)
-    db_message = _inbound_logic(json_body)
-
-    return HttpResponse("Created", status=201)
+    return _inbound_logic(json_body)
 
 
 def _get_secret_key(request):
@@ -169,7 +167,14 @@ def _inbound_logic(json_body):
     socketlabs_client = SocketLabsClient(
         settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
     )
-    response = socketlabs_client.send(sl_message)
+    try:
+        response = socketlabs_client.send(sl_message)
+    except Exception:
+        logger.exception("exception during sl send")
+        return HttpResponse("Internal Server Error", status=500)
+    if not response.result.name == 'Success':
+        logger.error('socketlabs_error', extra=response.to_json())
+        return HttpResponse("Internal Server Error", status=500)
     relay_address.num_forwarded += 1
     relay_address.last_used_at = datetime.now()
     relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
