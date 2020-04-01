@@ -37,7 +37,7 @@ async function makeRelayAddressForTargetElement(info, tab) {
 
   browser.tabs.executeScript(tab.id, {
     frameId: info.frameId,
-    code:`let inputElement = browser.menus.getTargetElement(${info.targetElementId});inputElement.value = "${newRelayAddress}";`,
+    code:`let inputElement = browser.menus.getTargetElement(${info.targetElementId});inputElement.value = "${newRelayAddressResponse}";`,
   });
 }
 
