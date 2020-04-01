@@ -8,7 +8,10 @@
   },
   "devDependencies": {},
   "scripts": {
-    "build": "sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@'\"$RELAY_DOMAIN\"'@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/",
+    "build:clean": "git co manifest.json js/background.js popup.html",
+    "build:dev": "sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/",
+    "build:stage": "sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/",
+    "build:prod": "sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://relay.firefox.com@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
