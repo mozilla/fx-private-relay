@@ -9,9 +9,10 @@
   "devDependencies": {},
   "scripts": {
     "build:clean": "git co manifest.json js/background.js popup.html",
-    "build:dev": "sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/",
-    "build:stage": "sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/",
-    "build:prod": "sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://relay.firefox.com@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/",
+    "build:local": "npm run build:clean && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/private_relay-1.0.zip ../static/downloads/addon/latest/private_relay.zip",
+    "build:dev": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/private_relay-1.0.zip ../static/downloads/addon/latest/private_relay.zip && npm run build:clean",
+    "build:stage": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/private_relay-1.0.zip ../static/downloads/addon/latest/private_relay.zip && npm run build:clean",
+    "build:prod": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://relay.firefox.com@g'  manifest.json js/background.js popup.html && web-ext build --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/private_relay-1.0.zip ../static/downloads/addon/latest/private_relay.zip && npm run build:clean",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -16,7 +16,6 @@ Including another URLconf
 from decouple import config
 
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
@@ -32,7 +31,7 @@ urlpatterns = [
     path('accounts/profile/', views.profile, name='profile'),
     path('accounts/', include('allauth.urls')),
     path('', views.home),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
 
 if settings.ADMIN_ENABLED:
     urlpatterns += [

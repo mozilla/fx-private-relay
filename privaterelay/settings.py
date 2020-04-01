@@ -104,6 +104,12 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
         'phones.apps.PhonesConfig',
     ]
 
+def download_xpis(headers, path, url):
+    if path.endswith('.xpi'):
+        headers['Content-Disposition'] = 'attachment'
+
+WHITENOISE_ADD_HEADERS_FUNCTION = download_xpis
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -197,10 +203,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
-
-MEDIA_URL = '/media/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SITE_ID = 1
 
