@@ -69,6 +69,7 @@ RELAY_FROM_ADDRESS = config('RELAY_FROM_ADDRESS', None)
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)
 
+SERVE_ADDON = config('SERVE_ADDON', None)
 # Application definition
 
 INSTALLED_APPS = [
@@ -104,6 +105,12 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
         'phones.apps.PhonesConfig',
     ]
 
+def download_xpis(headers, path, url):
+    if path.endswith('.xpi'):
+        headers['Content-Disposition'] = 'attachment'
+
+WHITENOISE_ADD_HEADERS_FUNCTION = download_xpis
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -137,6 +144,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'emails.context_processors.relay_from_domain',
+                'privaterelay.context_processors.django_settings',
             ],
         },
     },
@@ -197,10 +205,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
-
-MEDIA_URL = '/media/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 SITE_ID = 1
 

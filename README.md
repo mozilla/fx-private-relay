@@ -14,7 +14,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
   [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/))
 * [SocketLabs Server](https://www.socketlabs.com/signup/)
 
-### Install and Run Locally
+### Install and Run the Site Locally
 1. Clone and change to the directory:
 
     ```sh
@@ -68,7 +68,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 
 Next you'll need to enable Firefox Accounts auth ...
 
-### Enable Firefox Accounts Auth
+#### Enable Firefox Accounts Auth
 To enable Firefox Accounts authentication on your local server, you can use the
 "private-relay (local)" OAuth app on oauth-stable.dev.lcip.org.
 
@@ -95,7 +95,7 @@ Now you can sign into [http://127.0.0.1:8000/](http://127.0.0.1:8000/) with an
 FxA. Remember: you'll need to use an account on oauth-stable.dev.lcip.org, not
 the production accounts.firefox.com.
 
-### Enable SocketLabs Inbound API
+#### Enable SocketLabs Inbound API
 
 If you want to enable [SocketLabs Inbound
 API](https://inbound.docs.socketlabs.com/v1/documentation/introduction) to
@@ -140,6 +140,18 @@ public URLs to your local server.
 12. Test sending an email to test@domain
     * You should see SocketLabs send the request to your local `runserver`
     process thru your public ngrok URL.
+
+
+### Install and run the add-on locally
+
+The add-on adds Firefox UI to generate and auto-fill email addresses. You may
+want to build the add-on so that it communicates with your `127.0.0.1:8000`
+server instead of the production `relay.firefox.com` server:
+
+1. In the `extension/` directory, run `npm run build:local`
+
+2. Use `about:debugging` to install the resulting `static/downloads/addon/latest/private_relay.zip` file.
+   * Note: A link to the `.zip` is also available at http://127.0.0.1:8000/accounts/profile/
 
 
 ## Production Environments
