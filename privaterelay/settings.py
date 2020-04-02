@@ -69,6 +69,7 @@ RELAY_FROM_ADDRESS = config('RELAY_FROM_ADDRESS', None)
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)
 
+SERVE_ADDON = config('SERVE_ADDON', None)
 # Application definition
 
 INSTALLED_APPS = [
@@ -143,6 +144,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
 
                 'emails.context_processors.relay_from_domain',
+                'privaterelay.context_processors.django_settings',
             ],
         },
     },
