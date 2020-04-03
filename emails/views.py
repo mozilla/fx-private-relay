@@ -164,11 +164,13 @@ def _inbound_logic(json_body):
         relay_from_address, relay_from_display
     )
     sl_message.to_email_address.append(EmailAddress(relay_address.user.email))
-    socketlabs_client = SocketLabsClient(
-        settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
-    )
+    with request.timings('socketlabs_client'):
+        socketlabs_client = SocketLabsClient(
+            settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
+        )
     try:
-        response = socketlabs_client.send(sl_message)
+        with request.timings('socketlabs_client_send'):
+            response = socketlabs_client.send(sl_message)
     except Exception:
         logger.exception("exception during sl send")
         return HttpResponse("Internal Server Error", status=500)
