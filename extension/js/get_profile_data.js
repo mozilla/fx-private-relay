@@ -2,9 +2,7 @@
   // Get the api token from the account profile page
   const profileMainElement = document.querySelector("#profile-main");
   const apiToken = profileMainElement.dataset.apiToken;
-  chrome.storage.local.set({apiToken}, () => {
-    console.log("Set the API token.");
-  });
+  chrome.storage.local.set({apiToken});
 
   // Hide the "Get Private Relay" button because the user already has it
   document.querySelector("#download-addon").remove();
@@ -16,7 +14,5 @@
   for (const relayAddressEl of relayAddressElements) {
     relayAddresses.push(relayAddressEl.dataset.clipboardText);
   }
-  chrome.storage.local.set({relayAddresses}, () => {
-    console.log("Set the relayAddresses.");
-  });
+  chrome.storage.local.set({relayAddresses});
 })();

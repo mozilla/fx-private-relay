@@ -1,5 +1,4 @@
 (function () {
-  console.log("addRelayButtons");
   for (const emailInput of document.querySelectorAll("input[type='email']")) {
     const divEl = document.createElement("div");
     divEl.classList.add("relay-icon");
