@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="dashboard-header-wrapper">
+  {% include "includes/header.html" %}
+</div>
+
+<main id="profile-main" class="container bg-light dashboard-container container" data-api-token="{{ user.profile_set.first.api_token }}">
+    <!-- Empty State -->
+    <!-- List of Emails -->
+    <div class="main-list content-row">
+        <div class="p-4">
+          <div class="mx-auto max-w-4xl ">
+            <div class="">
+              <ul class="messages">
+                <li class="error">Sorry, Private Relay sign-ups are currently invitation-only. Please check again later.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+    </div>
+</main>
+
+{% endblock %}
