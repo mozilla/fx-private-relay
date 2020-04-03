@@ -121,10 +121,11 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    'dockerflow.django.middleware.DockerflowMiddleware',
-
     'csp.middleware.CSPMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
+    'dockerflow.django.middleware.DockerflowMiddleware',
+
+    'privaterelay.middleware.FxAToRequest',
 ]
 
 ROOT_URLCONF = 'privaterelay.urls'
