@@ -1,3 +1,4 @@
+from hashlib import sha256
 import random
 import string
 import uuid
@@ -33,6 +34,17 @@ class RelayAddress(models.Model):
 
     def __str__(self):
         return self.address
+
+    def make_relay_address(user):
+        relay_address = RelayAddress.objects.create(user=user)
+        address_hash = sha256(relay_address.address.encode('utf-8')).hexdigest()
+        address_already_deleted = DeletedAddress.objects.filter(
+            address_hash=address_hash
+        ).count()
+        if address_already_deleted > 0:
+            relay_address.delete()
+            return RelayAddress.make_relay_address(user)
+        return relay_address
 
 
 class DeletedAddress(models.Model):

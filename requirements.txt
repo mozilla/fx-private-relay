@@ -5,7 +5,9 @@ django-heroku==0.3.1
 django-referrer-policy==1.0
 dockerflow==2019.10.0
 gunicorn==19.9.0
+model-bakery==1.1.0
 python-decouple==3.1
+pytest-django==3.9.0
 sentry-sdk==0.14.3
 socketlabs-injectionapi==1.0.1
 
