@@ -17,7 +17,7 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
-from .models import RelayAddress, Profile
+from .models import DeletedAddress, Profile, RelayAddress
 
 
 logger = logging.getLogger('events')
@@ -40,6 +40,16 @@ def _get_user_profile(request, api_token):
     return request.user.profile_set.first()
 
 
+def _make_relay_address(user):
+    relay_address = RelayAddress.objects.create(user=user_profile.user)
+    address_hash = sha256(relay_address.address.encode('utf-8')).hexdigest()
+    deleted_address = DeletedAddress.objects.filter(address_hash=address_hash)
+    if deleted_address.length > 0:
+        relay_address.delete()
+        return _make_relay_address(user)
+    return relay_address
+
+
 def _index_POST(request):
     api_token = request.POST.get('api_token', None)
     if not api_token:
@@ -59,7 +69,7 @@ def _index_POST(request):
         )
         return redirect('profile')
 
-    relay_address = RelayAddress.objects.create(user=user_profile.user)
+    relay_address = _make_relay_address(user)
     return_string = '%s@%s' % (
         relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
     )

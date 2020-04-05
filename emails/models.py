@@ -33,3 +33,7 @@ class RelayAddress(models.Model):
 
     def __str__(self):
         return self.address
+
+
+class DeletedAddress(models.Model):
+    address_hash = models.CharField(max_length=64)
