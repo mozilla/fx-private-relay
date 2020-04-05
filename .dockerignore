@@ -1,4 +1,6 @@
 **/.DS_store
+.coverage
 .env
+.envrc
 .git
 extension
