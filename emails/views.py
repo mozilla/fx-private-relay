@@ -59,7 +59,7 @@ def _index_POST(request):
         )
         return redirect('profile')
 
-    relay_address = RelayAddress.make_relay_address(user)
+    relay_address = RelayAddress.make_relay_address(user_profile.user)
     return_string = '%s@%s' % (
         relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
     )

@@ -19,6 +19,10 @@ def address_default():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
 
 
+class CannotMakeAddressException(Exception):
+    pass
+
+
 class RelayAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(
@@ -35,7 +39,16 @@ class RelayAddress(models.Model):
     def __str__(self):
         return self.address
 
-    def make_relay_address(user):
+    def delete(self, *args, **kwargs):
+        deleted_address = DeletedAddress.objects.create(
+            address_hash=sha256(self.address.encode('utf-8')).hexdigest()
+        )
+        deleted_address.save()
+        return super(RelayAddress, self).delete(*args, **kwargs)
+
+    def make_relay_address(user, num_tries=0):
+        if num_tries >= 5:
+            raise CannotMakeAddressException
         relay_address = RelayAddress.objects.create(user=user)
         address_hash = sha256(relay_address.address.encode('utf-8')).hexdigest()
         address_already_deleted = DeletedAddress.objects.filter(
@@ -43,9 +56,13 @@ class RelayAddress(models.Model):
         ).count()
         if address_already_deleted > 0:
             relay_address.delete()
-            return RelayAddress.make_relay_address(user)
+            num_tries += 1
+            return RelayAddress.make_relay_address(user, num_tries)
         return relay_address
 
 
 class DeletedAddress(models.Model):
-    address_hash = models.CharField(max_length=64)
+    address_hash = models.CharField(max_length=64, db_index=True)
+
+    def __str__(self):
+        return self.address_hash
