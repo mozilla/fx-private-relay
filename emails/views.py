@@ -40,16 +40,15 @@ def _get_user_profile(request, api_token):
     return request.user.profile_set.first()
 
 
-#TODO: add csrf here? or make ids uuid so they can't be guessed?
 def _index_POST(request):
     api_token = request.POST.get('api_token', None)
     if not api_token:
         raise PermissionDenied
     user_profile = _get_user_profile(request, api_token)
     if request.POST.get('method_override', None) == 'PUT':
-        return _index_PUT(request)
+        return _index_PUT(request, user_profile)
     if request.POST.get('method_override', None) == 'DELETE':
-        return _index_DELETE(request)
+        return _index_DELETE(request, user_profile)
 
     existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
     if existing_addresses.count() >= 5:
@@ -70,34 +69,32 @@ def _index_POST(request):
     return redirect('profile')
 
 
-#TODO: add csrf here? or make ids uuid so they can't be guessed?
-def _index_PUT(request):
+def _get_relay_address_from_id(request, user_profile):
     try:
         relay_address = RelayAddress.objects.get(
-            id=request.POST['relay_address_id']
+            id=request.POST['relay_address_id'],
+            user=user_profile.user
         )
-        if request.POST.get('enabled') == 'Disable':
-            relay_address.enabled = False
-        elif request.POST.get('enabled') == 'Enable':
-            relay_address.enabled = True
-        relay_address.save(update_fields=['enabled'])
-        return redirect('profile')
+        return relay_address
     except RelayAddress.DoesNotExist as e:
         print(e)
         return HttpResponse("Address does not exist")
 
 
-#TODO: add csrf here? or make ids uuid so they can't be guessed?
-def _index_DELETE(request):
-    try:
-        relay_address = RelayAddress.objects.get(
-            id=request.POST['relay_address_id']
-        )
-        relay_address.delete()
-        return redirect('profile')
-    except RelayAddress.DoesNotExist as e:
-        print(e)
-        return HttpResponse("Address does not exist")
+def _index_PUT(request, user_profile):
+    relay_address = _get_relay_address_from_id(request, user_profile)
+    if request.POST.get('enabled') == 'Disable':
+        relay_address.enabled = False
+    elif request.POST.get('enabled') == 'Enable':
+        relay_address.enabled = True
+    relay_address.save(update_fields=['enabled'])
+    return redirect('profile')
+
+
+def _index_DELETE(request, user_profile):
+    relay_address = _get_relay_address_from_id(request, user_profile)
+    relay_address.delete()
+    return redirect('profile')
 
 
 @csrf_exempt
