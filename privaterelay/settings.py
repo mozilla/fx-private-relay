@@ -26,9 +26,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # defaulting to blank to be production-broken by default
-SECRET_KEY = config('SECRET_KEY', None)
+SECRET_KEY = config('SECRET_KEY', None, cast=str)
 
-DEBUG = config('DEBUG', False)
+DEBUG = config('DEBUG', False, cast=bool)
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
