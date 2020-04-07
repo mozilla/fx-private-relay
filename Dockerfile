@@ -17,6 +17,9 @@ COPY .env-dist /app/.env
 
 RUN pip install -r requirements.txt
 
+RUN mkdir -p /app/staticfiles
+RUN python manage.py collectstatic
+
 ENTRYPOINT ["/app/.local/bin/gunicorn"]
 
 CMD ["--config", "gunicorn.conf", "privaterelay.wsgi:application"]
