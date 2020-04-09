@@ -1,3 +1,7 @@
+function copyEmailOnClick() {
+	return;
+}
+
 function dismissNotification(){
 	const notification = document.querySelector(".js-notification");
 	notification.classList.toggle("hidden");
@@ -13,11 +17,16 @@ function toggleEmailForwardingPreferences(submitEvent) {
 	toggleButton.classList.toggle("forwarding-disabled");
 }
 
-function checkForEventTriggeringElements() {
-	const btn = document.querySelector(".js-dismiss");
-	if (btn) {
+function addEventListeners() {
+	const btns = document.querySelectorAll(".js-dismiss");
+	document.querySelectorAll(".js-dismiss").forEach(btn => {
 		btn.addEventListener("click", dismissNotification, false);
-	}
+	});
+
+	// Click to copy relay email addresses
+	document.querySelectorAll(".js-copy").forEach(relayEmail => {
+		relayEmail.addEventListener("click", copyEmailOnClick());
+	})
 
 	// Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
@@ -25,6 +34,69 @@ function checkForEventTriggeringElements() {
 	});
 }
 
-checkForEventTriggeringElements();
+document.addEventListener("DOMContentLoaded", () => {
+	addEventListeners();
+});
+
+class GlocalMenu extends HTMLElement {
+	constructor() {
+		super();
+	}
+
+	async connectedCallback() {
+		this._avatar = this.querySelector(".avatar-wrapper");
+		this._avatar.addEventListener("click", this);
+		this._active = false;
+		this._menu = this.querySelector(".glocal-menu-wrapper");
+
+		document.addEventListener("bento-was-opened", this);
+		const fxBento = document.querySelector("firefox-apps");
+
+		this.closeBentoIfOpen = () => {
+			if (fxBento._active) {
+				const closeBentoEvent = new Event("close-bento-menu");
+				fxBento.dispatchEvent(closeBentoEvent);
+			}
+		};
+
+		this.closeGlocalMenu = () => {
+			this._active = false;
+			this._menu.classList.remove("glocal-menu-open");
+			this._menu.classList.add("fx-bento-fade-out");
+			window.removeEventListener("click", this.closeGlocalMenu);
+			setTimeout(() => {
+				this._menu.classList.remove("fx-bento-fade-out");
+			}, 500);
+			return;
+		};
+
+		this.openGlocalMenu = (evt) => {
+			this._active = true;
+			this.closeBentoIfOpen();
+			evt.stopImmediatePropagation();
+			this._menu.classList.add("glocal-menu-open");
+			window.addEventListener("click", this.closeGlocalMenu);
+			return;
+		}
+	}
+
+	handleEvent(event) {
+		const bentoIsOpening = event.type === "bento-was-opened";
+		// Close the Glocal Menu if the Bento Menu is opening
+		if (bentoIsOpening && this._active) {
+			return this.closeGlocalMenu();
+		}
+		if (bentoIsOpening) {
+			return;
+		}
+
+		if (this._active) {
+			return this.closeGlocalMenu(event);
+		}
+		this.openGlocalMenu(event);
+	}
+}
+
+customElements.define("glocal-menu", GlocalMenu)
 
 new ClipboardJS('.js-copy');

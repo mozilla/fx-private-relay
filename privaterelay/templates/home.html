@@ -1,55 +1,32 @@
-
 {% extends "base.html" %}
 
 {% load socialaccount %}
 
 {% block content %}
 
-<div class="home-header-wrapper">
-	{% include "includes/header.html" %}
-</div>
-
-<main class="container txt-white flx flx-col jst-cntr al-cntr text-center row-full-width home-hero">
-	<h1 class="mw-850">Keep your email away from hackers and trackers.</h1>
-	<h2 class="sub-head">Prevent your information from being sold or traded&nbsp;online.</h2>
-	<div class="hero-sign-up-bg">
-		<a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' %}">Sign up with FxA</a>
-		<!-- <p class=" text-xs py-4">Firefox browser not required for a Firefox Account.<br class="hidden md:block"> You may receive info about more Mozilla Privacy &amp; Security services. </p> -->
-		<!-- <p>Have an account? <a class="font-bold underline hover:text-blue-800" href="{% provider_login_url 'fxa' %}">Log in</a> </p> -->
-	</div>
-</main>
-<div class="container how-it-works flx al-cntr jst-cntr flx-col">
-	<div class="card how-it-works-card content-row">
-		<div class="how-it-works-content txt-white">
-			<h2 class="how-it-works-header text-center">How It Works</h2>
-			<section class="step step-1 flx flx-row">
-				<div class="step-illustration step-1"></div>
-				<div class="step-text step-1">
-					<h3 class="step-headline ff-Met">Lorum Ipsum Whatsum</h3>
-					<p class="step-body">
-						These should be short, informative, and easy on the cognitive digestive system.
-					</p>
-				</div>
-			</section>
-			<section class="step step-2 flx flx-row">
-				<div class="step-illustration step-2"></div>
-				<div class="step-text step-2">
-					<h3 class="step-headline ff-Met">Lorum Ipsum Howsit</h3>
-					<p class="step-body">
-						They should make people feel good about using Private Relay and clear up immediate questions and confusion.
-					</p>
-				</div>
-			</section>
-			<section class="step step-3 flx flx-row">
-				<div class="step-illustration step-3"></div>
-				<div class="step-text step-3">
-					<h3 class="step-headline ff-Met">Step 3</h3>
-					<p class="step-body">These should be short, informative, and easy on the cognitive digestive system.</p>
-				</div>
-			</section>
+{% if messages %}
+	{% for message in messages %}
+		<div class="messages home-messages hidden">
+			<div{% if message.tags %} class="{{ message.tags }} js-notification" {% else %} class="" {% endif %}>
+				<span>{{ message }}</span>
+				<button class="flx center-value dismiss js-dismiss">
+					<svg class="x-close-icon fill-current text-gray hover:text-purple-800" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+				</button>
+			</div>
+		</div>
+	{% endfor %}
+{% endif %}
+<main class="container txt-white flx text-center row-full-width home-hero">
+	<div class="flx flx-row hero-content">
+		<div class="hero-left flx flx-col">
+			<h1 class="mw-850 home-hero-headline">Keep your email away from hackers and trackers.</h1>
+			<h2 class="sub-head hero-sub-head">Prevent your information from being sold or traded&nbsp;online.</h2>
+			<div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn">
+				<a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' %}">Add to Firefox</a>
+			</div>
+		</div>
+		<div class="hero-right flx flx-col">
 		</div>
 	</div>
-</div>
-
-
+</main>
 {% endblock %}
