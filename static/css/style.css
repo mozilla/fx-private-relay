@@ -206,7 +206,7 @@ header {
 
 .main-list {
   min-height: 50vh;
-  max-width: 800px;
+  max-width: 900px;
   margin: auto;
 }
 
@@ -352,6 +352,12 @@ table {
   font-weight: 600;
   cursor: default;
   height: 100%; /* expand clickable area of relay address */
+  display: block;
+  position: relative;
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding-right: 22px; /* makes room for click to copy icon */
   transition: all 0.1s ease;
 }
 
@@ -367,6 +373,9 @@ table {
   height: 18px;
   background-image: url(/static/images/copy-to-clipboard.svg);
   background-repeat: no-repeat;
+  position: absolute;
+  top: 0;
+  right: 0;
   margin-left: 0.45rem;
 }
 
@@ -839,6 +848,12 @@ ul.messages {
   }
 }
 
+@media screen and (max-width: 800px) {
+  .relay-stat {
+    margin-left: 2rem;
+  }
+}
+
 @media screen and (max-width: 750px) {
   .nested-grid {
     flex-direction: column;
@@ -850,7 +865,7 @@ ul.messages {
   }
 
   .relay-stat-value {
-    margin-left: 3rem;
+    margin-left: 2rem;
   }
 
   .relay-email-label {
@@ -863,7 +878,7 @@ ul.messages {
   }
 }
 
-@media screen and (max-width: 700px) {
+@media screen and (max-width: 750px) {
   .home-hero-headline {
     max-width: 440px;
     font-size: 2.5rem;
