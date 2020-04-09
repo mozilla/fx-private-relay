@@ -23,35 +23,10 @@ function createAndAppendEl(wrapper, tagName, className = null) {
 }
 
 async function getlocalizedBentoStrings() {
-  // let localizedBentoStrings;
-  // try {
-  //   const serverUrl = document.body.dataset.serverUrl;
-  //   const res = await fetch(
-  //     `https://monitor.firefox.com/getBentoStrings`,
-  //     {
-  //       mode: "cors",
-  //     }
-  //   );
-  //   localizedBentoStrings = await res.json();
-  // } catch(e) {
-  //   // Error fetching the localized strings. Defaulting to English.
-  //   localizedBentoStrings = {
-  //     bentoButtonTitle: "Firefox apps and services",
-  //     bentoHeadline: "Firefox is tech that fights for your online privacy.",
-  //     bentoBottomLink: "Made by Mozilla",
-  //     mobileCloseBentoButtonTitle: "Close menu",
-  //     fxDesktop: "Firefox Browser for Desktop",
-  //     fxMobile: "Firefox Browser for Mobile",
-  //     fxSend: "Firefox Send",
-  //     fxMonitor: "Firefox Monitor",
-  //     fxLockwise: "Firefox Lockwise",
-  //     pocket: "Pocket",
-  //   };
-  // }
 
   const localizedBentoStrings = {
-    "bentoButtonTitle":"Firefox apps and services","bentoHeadline":"Firefox is tech that fights for your online privacy.","bentoBottomLink":"Made by Mozilla","fxDesktop":"Firefox Browser for Desktop","fxLockwise":"Firefox Lockwise","fxMobile":"Firefox Browser for Mobile","fxMonitor":"Firefox Monitor","pocket":"Pocket","fxSend":"Firefox Send","mobileCloseBentoButtonTitle":"Close menu"
-  }
+    "bentoButtonTitle":"Firefox apps and services","bentoHeadline":"Firefox is tech that fights for your online privacy.","bentoBottomLink":"Made by Mozilla","fxDesktop":"Firefox Browser for Desktop","fxLockwise":"Firefox Lockwise","fxMobile":"Firefox Browser for Mobile","fxMonitor":"Firefox Monitor","pocket":"Pocket","fxSend":"Firefox Send","mobileCloseBentoButtonTitle":"Close menu",
+  };
   return localizedBentoStrings;
 }
 
@@ -103,6 +78,53 @@ class FirefoxApps extends HTMLElement {
     this._frag.appendChild(this._bentoWrapper);
     this.appendChild(this._frag);
     this.addEventListener("close-bento-menu", this);
+
+    this.handleKeyDownEvents = () => {
+      const moveFocusWithArrows = (whichDirection) => {
+        const activeEl = document.activeElement;
+        const bentoLinks = this._bentoContent.querySelectorAll("a");
+        if (!activeEl.dataset.bentoLinkOrder) { // check if link in Bento has focus
+          bentoLinks[0].focus(); // focus first link in bento
+          return;
+        }
+        const activeLinkNum = parseInt(activeEl.dataset.bentoLinkOrder);
+        const newActiveLink = parseInt(activeLinkNum + whichDirection);
+        if (bentoLinks[newActiveLink]) {
+          bentoLinks[newActiveLink].focus();
+        }
+        return;
+      };
+      switch(event.keyCode) {
+        case 27: // escape
+          // this._active = !this._active;
+          this._closeBento();
+          return;
+        case 40 : // down arrow || up arrow
+          moveFocusWithArrows(1);
+          break;
+        case 38: // arrow up
+          moveFocusWithArrows(-1);
+          break;
+      }
+      return;
+    };
+
+    this._closeBento = (event) => {
+      this._active = false;
+      this.handleBentoFocusTrap();
+      window.removeEventListener("resize", this.handleBentoHeight);
+      window.removeEventListener("click", this);
+      document.removeEventListener("keydown", this);
+      this.metricsSendEvent("bento-closed", this._currentSite);
+      this.classList.remove("fx-bento-open");
+      this._bentoWrapper.classList.add("fx-bento-fade-out");
+      setTimeout(() => {
+        this._bentoWrapper.classList.remove("fx-bento-fade-out");
+        this._bentoButton.blur();
+        this.classList = [];
+      }, 500);
+      return;
+    };
   }
 
   addTitleAndAriaLabel(el, localizedCopy) {
@@ -118,25 +140,8 @@ class FirefoxApps extends HTMLElement {
   }
 
   handleEvent(event) {
-    const closeBento = () => {
-      this.handleBentoFocusTrap();
-      window.removeEventListener("resize", this.handleBentoHeight);
-      window.removeEventListener("click", this);
-      document.removeEventListener("keydown", this);
-      this.metricsSendEvent("bento-closed", this._currentSite);
-      this.classList.remove("fx-bento-open");
-      this._bentoWrapper.classList.add("fx-bento-fade-out");
-      setTimeout(() => {
-        this._bentoWrapper.classList.remove("fx-bento-fade-out");
-        this._bentoButton.blur();
-        this.classList = [];
-      }, 500);
-      return;
-    };
-
     const keydownEvent = (event.type === "keydown");
     const eventTarget = event.target;
-
     if (
       // ignore mouse clicks inside the bento
       (!keydownEvent && ["fx-bento-content active", "fx-bento-headline", "fx-bento-logo", "fx-bento-headline-logo-wrapper"].includes(eventTarget.className)) ||
@@ -154,46 +159,17 @@ class FirefoxApps extends HTMLElement {
       }
       return null;
     };
-
     // close Bento on mouse clicks outside the Bento menu
     if (hasParent(event.target, "FIREFOX-APPS") === null) {
-      this._active = !this._active;
-      return closeBento();
+      return this._closeBento();
     }
 
     event.preventDefault();
     event.stopPropagation();
 
     if (keydownEvent) {
-      const moveFocusWithArrows = (whichDirection) => {
-        const activeEl = document.activeElement;
-        const bentoLinks = this._bentoContent.querySelectorAll("a");
-        if (!activeEl.dataset.bentoLinkOrder) { // check if link in Bento has focus
-          bentoLinks[0].focus(); // focus first link in bento
-          return;
-        }
-        const activeLinkNum = parseInt(activeEl.dataset.bentoLinkOrder);
-        const newActiveLink = parseInt(activeLinkNum + whichDirection);
-        if (bentoLinks[newActiveLink]) {
-          bentoLinks[newActiveLink].focus();
-        }
-        return;
-      };
-      switch(event.keyCode) {
-        case 27: // escape
-          this._active = !this._active;
-          closeBento();
-          return;
-        case 40 : // down arrow || up arrow
-          moveFocusWithArrows(1);
-          break;
-        case 38: // arrow up
-          moveFocusWithArrows(-1);
-          break;
-      }
-      return;
+      return this.handleKeyDownEvents(event);
     }
-
     this._active = !this._active;
     const eventTargetClassList = event.target.classList;
     const MozLinkClick = (eventTargetClassList.contains("fx-bento-bottom-link"));
@@ -206,21 +182,26 @@ class FirefoxApps extends HTMLElement {
       if (MozLinkClick) {
         this.metricsSendEvent("bento-app-link-click", "Mozilla");
         window.open(url, "_blank", "noopener");
-        return closeBento();
+        return this._closeBento();
       }
       const appToOpenId = eventTarget.dataset.bentoAppLinkId;
       this.metricsSendEvent("bento-app-link-click", appToOpenId);
       if (eventTargetClassList.contains("fx-bento-current-site")) { // open index page in existing window
         window.location = url;
-        return closeBento();
+        return this._closeBento();
       }
       window.open(url, "_blank", "noopener");
-      return closeBento();
+      return this._closeBento();
     }
 
-    if (!this._active) {
-      return closeBento();
+    if (
+        !this._active && event.target.classList.contains("fx-bento-button") ||
+        !this._active && event.target.classList.contains("fx-bento-mobile-close")
+    ) {
+      return this._closeBento();
     }
+
+    this._active = true;
 
     const sendEventOnBentoOpen = new Event("bento-was-opened");
     document.dispatchEvent(sendEventOnBentoOpen);
@@ -304,4 +285,3 @@ if (typeof(customElements) !== "undefined") {
     document.body.classList.add("hide-bento");
   });
 }
-
