@@ -6,7 +6,7 @@
   "description": "Private Relay provides generated email addresses to use in place of personal email addresses.",
 
   "icons": {
-    "48": "icons/border-48.png"
+    "48": "icons/placeholder-logo-beta.png"
   },
 
   "browser_specific_settings": {
@@ -23,7 +23,7 @@
   "browser_action": {
       "browser_style": true,
       "default_icon": {
-          "32": "icons/border-48.png"
+          "32": "icons/placeholder-logo-beta.png"
       },
       "default_popup": "popup.html"
   },
