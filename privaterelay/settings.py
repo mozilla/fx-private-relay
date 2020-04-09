@@ -52,7 +52,8 @@ CSP_STYLE_SRC = ("'self'",)
 CSP_IMG_SRC = (
     "'self'",
     config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'),
-    "https://placehold.it"
+    "https://placehold.it",
+    "https://stable.dev.lcip.org/profile/",
 )
 REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
