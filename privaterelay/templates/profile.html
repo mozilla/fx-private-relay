@@ -6,102 +6,105 @@
 {% block content %}
 
 {% get_social_accounts request.user as accounts %}
-<div class="dashboard-header-wrapper">
-  {% include "includes/header.html" %}
-</div>
 
-<main id="profile-main" class="container bg-light dashboard-container container" data-api-token="{{ user.profile_set.first.api_token }}">
-    <!-- Empty State -->
-    <!-- List of Emails -->
-    <div class="main-list content-row">
-      <table class="table-fixed">
-          <div id="download-addon">
-            {% if settings.SERVE_ADDON %}
-            <button class="add-to-firefox flx al-cntr" value="Add to Firefox"><a href="{% static 'downloads/addon/latest/'%}{{ settings.SERVE_ADDON }}">Get Private Relay</a></button>
-            {% else %}
-              <button class="add-to-firefox flx al-cntr" value="Add to Firefox"><a href="https://addons.mozilla.org/firefox/addon/private-relay/">Get Private Relay</a></button>
-            {% endif %}
+<main id="profile-main" class="container bg-light dashboard-container {% if relay_addresses|length == 0 %} env-bg {% endif %} container" data-api-token="{{ user.profile_set.first.api_token }}">
+  <div class="main-list content-row flx jst-cntr">
+    {% if messages %}
+      <div class="messages profile-messages hidden">
+          {% for message in messages %}
+          <div{% if message.tags %} class="{{ message.tags }} js-notification" {% else %} class="" {% endif %}>
+            <span>{{ message }}</span>
+            <button class="flx center-value dismiss js-dismiss">
+              <svg class="x-close-icon fill-current text-gray hover:text-purple-800" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+            </button>
           </div>
-          {% if messages %}
-          <div class="p-4">
-            <div class="mx-auto max-w-4xl ">
-              <div class="">
-                <ul class="messages">
-                  {% for message in messages %}
-                  <li{% if message.tags %} class="{{ message.tags }} relative bg-white p-4 shadow-md rounded js-notification" {% else %} class="bg-white p-4 shadow-lg rounded relative js-notification" {% endif %}>{{ message }}
-                    <button class="flx center-value dismiss js-dimiss">
-                      <svg class="h-8 w-8 fill-current text-gray hover:text-purple-800" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
-                    </button>
-                  </li>
-                  {% endfor %}
-                </ul>
-              </div>
-            </div>
-          </div>
-          {% endif %}
-      </table>
-
-      <div class="dashboard-container">
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% if relay_addresses|length == 0 %}
+    <div class="create-first-alias flx flx-col al-cntr jst-cntr appear-smoothly">
+      <p class="ff-Met no-active-aliases text-center">You have no active email aliases.</p>
+      <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
+        <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+        <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address">
+          Create New Relay Alias
+        </button>
+      </form>
+    </div>
+  {% endif %}
+      <div class="alias-list {% if relay_addresses|length == 0 %} no-aliases {% endif %}">
         <div class="flx flx-row dashboard-header">
-            <h2 class="section-headline">Manage Email Addresses </h2>
-            <form action="/emails/" method="POST" class="inline-block">
-              <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-              <button class="generate-new-relay flx al-cntr" type="submit" value="Generate new relay address">Create New Relay Address</button>
+          <h2 class="section-headline dashboard-headline">Manage Email Aliases</h2>
+          <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
+            <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+            <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address">
+              Create New Relay Alias
+            </button>
           </form>
         </div>
         {% for relay_address in relay_addresses %}
-        <div class="relay-email">
-          <!-- email address and created date -->
-          <div class="relay-email-row relay-email-address-wrapper">
-            <div class="relay-email-column center-value">
-              <span title="Click to copy" data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" class="relay-address email-value ff-Met js-copy flx jst-cntr al-cntr">{{ relay_address.address }}@{{ RELAY_DOMAIN }}</span>
+        <div class="relay-email"> 
+          <div class="relay-email-column relay-email-address-wrapper flx flx-row al-cntr">
+            <div class="flx flx-col">
+              <div class="flx flx-row al-cntr">
+                <span class="card-small-text created-label">Created:</span>
+                <span class="email-value card-small-text text-dark">{{ relay_address.created_at|date:"N j Y" }}</span>
+              </div>
             </div>
               <!-- delete email address -->
               <div class="relay-email-column column-delete center-value">
-                <form action="{% url 'emails-index' %}" method="POST" class="inline-block">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button">
-                    <span class="relay-email-label">DELETE</span>
-                    <span class="delete-relay-email-icon"></span>
+                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this relay address">
                   </button>
                 </form>
               </div>
           </div>
 
           <div class="grid">
-            <!--created date-->
-            <div class="relay-email-column column-created-date flx flx-col jst-cntr">
-              <span class="relay-email-label created-label">CREATED</span>
-              <span class="email-value created-date">{{ relay_address.created_at|date:"N j Y" }}</span>
+            <!--relay address-->
+            <div class="relay-email-column flx flx-col">
+              <div class="flx flx-row al-cntr">
+                <span title="Click to copy"
+                  data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" 
+                  class="relay-address ff-Met js-copy flx jst-cntr al-cntr">
+                    {{ relay_address.address }}@{{ RELAY_DOMAIN }}
+                  </span>
+              </div>
+              <div class="additional-notes">
+                <span class="add-note ff-Met">Add note</span>
+              </div>
             </div>
               <div class="relay-email-column nested-grid-wrapper">
                 <div class="nested-grid">
                   <!-- forwarded emails -->
-                  <div class="relay-email-column column-forwarded center-value">
-                    <span class="relay-email-label">FORWARDED</span>
-                    <span class="email-value">{{ relay_address.num_forwarded }}</span>
+                  <div class="relay-email-column column-forwarded center-value relay-stat">
+                    <span class="relay-email-label">Forwarded</span>
+                    <span class="email-value relay-stat-value">{{ relay_address.num_forwarded }}</span>
                   </div>
                   <!-- blocked emails -->
-                  <div class="relay-email-column column-blocked center-value">
-                    <span class="relay-email-label">BLOCKED</span>
-                    <span class="email-value">{{ relay_address.num_blocked }}</span>
+                  <div class="relay-email-column column-blocked center-value relay-stat">
+                    <span class="relay-email-label">Blocked</span>
+                    <span class="email-value relay-stat-value">{{ relay_address.num_blocked }}</span>
                   </div>
                     <!-- spam emails -->
-                    <div class="relay-email-column column-spam center-value">
-                      <span class="relay-email-label">SPAM</span>
-                      <span class="email-value">{{ relay_address.num_spam }}</span>
+                    <div class="relay-email-column column-spam center-value relay-stat">
+                      <span class="relay-email-label">Spam</span>
+                      <span class="email-value relay-stat-value">{{ relay_address.num_spam }}</span>
                     </div>
                   </div>
                 </div>
+              </div><!-- end grid -->
+              <div class="relay-email-row">
                 <!-- enable/disable email forwarding -->
                 <div class="relay-email-column flx flx-row email-forwarding">
                   <form action="{% url 'emails-index' %}" method="POST" class="flx flx-row al-cntr email-forwarding-form">
                     <input type="hidden" name="method_override" value="PUT">
                     <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
                     <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                    <span class="relay-email-label email-forwarding-label">Forward emails to {{ request.user.email }}</span>
+                    <span class="relay-email-label email-forwarding-label">Forward emails to <span class="text-dark demi primary-email-address">{{ request.user.email }}</span></span>
                     {% if relay_address.enabled %}
                     <button type="submit" name="enabled" value="Disable" class="text-center forwarding-toggle"></button>
                     {% else %}
@@ -109,7 +112,7 @@
                     {% endif %}
                   </form>
                 </div>
-              </div><!-- end grid -->
+              </div>
           </div>
 
         {% endfor %}
