@@ -795,6 +795,18 @@ ul.messages {
 
 /* end no aliases screen */
 
+/* auth error */
+
+.auth-error-wrapper {
+  max-width: 400px;
+  line-height: 1.4;
+  border-radius: 8px;
+  padding: 2px;
+  margin: 5vh auto auto auto;
+}
+
+/* end auth error */
+
 @media screen and (max-width: 1050px) {
   .home-hero {
     align-items: flex-start;
@@ -961,6 +973,10 @@ ul.messages {
 }
 
 @media screen and (max-width: 550px) {
+  .no-active-aliases {
+    font-size: 1.2rem;
+  }
+
   .fx-private-relay-logotype {
     display: none;
   }
