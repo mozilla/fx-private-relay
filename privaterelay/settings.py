@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 from decouple import config
+import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -112,11 +113,6 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
         'phones.apps.PhonesConfig',
     ]
 
-if STATSD_ENABLED:
-    INSTALLED_APPS += [
-        'django_statsd',
-    ]
-
 
 def download_xpis(headers, path, url):
     if path.endswith('.xpi'):
@@ -127,7 +123,7 @@ WHITENOISE_ADD_HEADERS_FUNCTION = download_xpis
 def _get_initial_middleware():
     if STATSD_ENABLED:
         return [
-            'django_statsd.middleware.StatsdMiddleware',
+            'privaterelay.middleware.ResponseMetrics',
         ]
     return []
 
@@ -148,11 +144,6 @@ MIDDLEWARE += [
     'dockerflow.django.middleware.DockerflowMiddleware',
     'privaterelay.middleware.FxAToRequest',
 ]
-
-if STATSD_ENABLED:
-    MIDDLEWARE += [
-        'django_statsd.middleware.StatsdMiddlewareTimer',
-    ]
 
 ROOT_URLCONF = 'privaterelay.urls'
 
@@ -282,5 +273,19 @@ sentry_sdk.init(
     dsn=config('SENTRY_DSN', None),
     integrations=[DjangoIntegration()],
 )
+
+markus.configure(
+    backends=[
+        {
+            'class': 'markus.backends.datadog.DatadogMetrics',
+            'options': {
+                'statsd_host': STATSD_HOST,
+                'statsd_port': STATSD_PORT,
+                'statsd_prefix': STATSD_PREFIX,
+            }
+        }
+    ]
+)
+
 
 django_heroku.settings(locals(), logging=config('ON_HEROKU', False, cast=bool))

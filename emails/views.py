@@ -4,12 +4,12 @@ from email.utils import parseaddr
 from hashlib import sha256
 import json
 import logging
+import markus
 
 from decouple import config
 from socketlabs.injectionapi import SocketLabsClient
 from socketlabs.injectionapi.message.basicmessage import BasicMessage
 from socketlabs.injectionapi.message.emailaddress import EmailAddress
-from statsd import Timer
 
 from django.conf import settings
 from django.contrib import messages
@@ -23,7 +23,7 @@ from .models import RelayAddress, Profile
 
 
 logger = logging.getLogger('events')
-timer = Timer('emails')
+metrics = markus.get_metrics('fx-private-relay')
 
 
 @csrf_exempt
@@ -193,7 +193,7 @@ def _generate_relay_From(original_from_address):
 def time_if_enabled(name):
     def timing_decorator(func):
         def func_wrapper(*args, **kwargs):
-            ctx_manager = (timer.time(name) if settings.STATSD_ENABLED
+            ctx_manager = (metrics.timer(name) if settings.STATSD_ENABLED
                            else contextlib.nullcontext())
             with ctx_manager:
                 return func(*args, **kwargs)
