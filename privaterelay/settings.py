@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 
 from decouple import config
+import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
@@ -62,17 +63,24 @@ ALLOWED_HOSTS = []
 
 # Get our backing resource configs to check if we should install the app
 ADMIN_ENABLED = config('ADMIN_ENABLED', None)
+
 SOCKETLABS_SERVER_ID = config('SOCKETLABS_SERVER_ID', 0, cast=int)
 SOCKETLABS_API_KEY = config('SOCKETLABS_API_KEY', None)
 SOCKETLABS_SECRET_KEY = config('SOCKETLABS_SECRET_KEY', None)
 SOCKETLABS_VALIDATION_KEY = config('SOCKETLABS_VALIDATION_KEY', None)
 RELAY_FROM_ADDRESS = config('RELAY_FROM_ADDRESS', None)
+
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)
 
-SERVE_ADDON = config('SERVE_ADDON', None)
-# Application definition
+STATSD_ENABLED = config('DJANGO_STATSD_ENABLED', False, cast=bool)
+STATSD_HOST = config('DJANGO_STATSD_HOST', '127.0.0.1')
+STATSD_PORT = config('DJANGO_STATSD_PORT', '8125')
+STATSD_PREFIX = config('DJANGO_STATSD_PREFIX', 'fx-private-relay')
 
+SERVE_ADDON = config('SERVE_ADDON', None)
+
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -106,13 +114,23 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
         'phones.apps.PhonesConfig',
     ]
 
+
 def download_xpis(headers, path, url):
     if path.endswith('.xpi'):
         headers['Content-Disposition'] = 'attachment'
 
 WHITENOISE_ADD_HEADERS_FUNCTION = download_xpis
 
-MIDDLEWARE = [
+def _get_initial_middleware():
+    if STATSD_ENABLED:
+        return [
+            'privaterelay.middleware.ResponseMetrics',
+        ]
+    return []
+
+MIDDLEWARE = _get_initial_middleware()
+
+MIDDLEWARE += [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -125,7 +143,6 @@ MIDDLEWARE = [
     'csp.middleware.CSPMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
-
     'privaterelay.middleware.FxAToRequest',
 ]
 
@@ -257,5 +274,19 @@ sentry_sdk.init(
     dsn=config('SENTRY_DSN', None),
     integrations=[DjangoIntegration()],
 )
+
+markus.configure(
+    backends=[
+        {
+            'class': 'markus.backends.datadog.DatadogMetrics',
+            'options': {
+                'statsd_host': STATSD_HOST,
+                'statsd_port': STATSD_PORT,
+                'statsd_prefix': STATSD_PREFIX,
+            }
+        }
+    ]
+)
+
 
 django_heroku.settings(locals(), logging=config('ON_HEROKU', False, cast=bool))

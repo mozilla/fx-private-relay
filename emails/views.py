@@ -1,8 +1,10 @@
+import contextlib
 from datetime import datetime
 from email.utils import parseaddr
 from hashlib import sha256
 import json
 import logging
+import markus
 
 from decouple import config
 from socketlabs.injectionapi import SocketLabsClient
@@ -21,6 +23,7 @@ from .models import DeletedAddress, Profile, RelayAddress
 
 
 logger = logging.getLogger('events')
+metrics = markus.get_metrics('fx-private-relay')
 
 
 @csrf_exempt
@@ -161,14 +164,11 @@ def _inbound_logic(json_body):
         relay_from_address, relay_from_display
     )
     sl_message.to_email_address.append(EmailAddress(relay_address.user.email))
-    socketlabs_client = SocketLabsClient(
-        settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
-    )
-    try:
-        response = socketlabs_client.send(sl_message)
-    except Exception:
-        logger.exception("exception during sl send")
-        return HttpResponse("Internal Server Error", status=500)
+    sl_client = _get_socketlabs_client()
+    response = _socketlabs_send(sl_client, sl_message)
+    # if _socketlabs_send returns a django HttpResponse return it immediately
+    if type(response) == HttpResponse:
+        return response
     if not response.result.name == 'Success':
         logger.error('socketlabs_error', extra=response.to_json())
         return HttpResponse("Internal Server Error", status=500)
@@ -185,3 +185,30 @@ def _generate_relay_From(original_from_address):
     return relay_from_address, '%s via Firefox Private Relay' % (
         original_from_address
     )
+
+
+def time_if_enabled(name):
+    def timing_decorator(func):
+        def func_wrapper(*args, **kwargs):
+            ctx_manager = (metrics.timer(name) if settings.STATSD_ENABLED
+                           else contextlib.nullcontext())
+            with ctx_manager:
+                return func(*args, **kwargs)
+        return func_wrapper
+    return timing_decorator
+
+
+@time_if_enabled('socketlabs_client')
+def _get_socketlabs_client():
+    return SocketLabsClient(
+        settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
+    )
+
+
+@time_if_enabled('socketlabs_client_send')
+def _socketlabs_send(sl_client, sl_message):
+    try:
+        return sl_client.send(sl_message)
+    except Exception:
+        logger.exception("exception during sl send")
+        return HttpResponse("Internal Server Error", status=500)
