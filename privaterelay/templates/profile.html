@@ -2,6 +2,7 @@
 
 {% load socialaccount %}
 {% load static %}
+{% load custom_tags %}
 
 {% block content %}
 
@@ -35,12 +36,17 @@
       <div class="alias-list {% if relay_addresses|length == 0 %} no-aliases {% endif %}">
         <div class="flx flx-row dashboard-header">
           <h2 class="section-headline dashboard-headline">Manage Email Aliases</h2>
-          <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
-            <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-            <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address">
-              Create New Relay Alias
-            </button>
-          </form>
+          <div class="remaining-aliases-wrapper flx al-cntr jst-cntr">
+            <span class="remaining-aliases">
+              You have <span class="num-remaining-aliases">{% remaining_free_aliases relay_addresses %}</span> remaining free aliases
+            </span>
+              <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
+                <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+                <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address">
+                  Create New Relay Alias
+                </button>
+              </form>
+          </div>
         </div>
         {% for relay_address in relay_addresses %}
         <div class="relay-email"> 
