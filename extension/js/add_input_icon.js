@@ -5,7 +5,14 @@
 
     const buttonEl = document.createElement("button");
     buttonEl.id = "relay-button";
+    buttonEl.classList.add("relay-button");
     buttonEl.type = "button";
+
+    const imgEl = document.createElement("img");
+    imgEl.src = browser.runtime.getURL("icons/placeholder-logo-beta.png");
+    imgEl.classList.add("relay-icon-img");
+    buttonEl.appendChild(imgEl);
+
     buttonEl.addEventListener("click", async (e) => {
       const newRelayAddressResponse = await browser.runtime.sendMessage({
           method: "makeRelayAddress",
