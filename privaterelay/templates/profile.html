@@ -87,13 +87,14 @@
             <div class="relay-email-column flx flx-col">
               <div class="flx flx-row al-cntr">
                 <span title="Click to copy"
+                  data-id="{{ relay_address.id }}"
                   data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" 
                   class="relay-address ff-Met js-copy flx jst-cntr al-cntr">
                     {{ relay_address.address }}@{{ RELAY_DOMAIN }}
                   </span>
               </div>
               <div class="additional-notes">
-                <span class="add-note ff-Met">Add note</span>
+                <span class="relay-email-address-note ff-Met"></span>
               </div>
             </div>
               <div class="relay-email-column nested-grid-wrapper">

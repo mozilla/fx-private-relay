@@ -864,24 +864,13 @@ ul.messages {
   font-family: var(--interUi)
 }
 
-.add-note {
+.relay-email-address-note {
   color: #7b7f8d;
   font-family: var(--metropolis);
   display: flex;
   margin-top: 1rem;
   font-weight: 300;
   align-items: center;
-}
-
-.add-note::after {
-  content: "";
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  background-image: url(/static/images/add-note.svg);
-  background-repeat: no-repeat;
-  background-size: contain;
-  margin-left: 0.35rem;
 }
 
 .primary-email-address {
