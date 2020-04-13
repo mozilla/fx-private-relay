@@ -86,7 +86,76 @@ button:active {
 }
 
 .home-hero {
-  min-height: 80vh;
+  min-height: 74vh;
+  margin: 2rem auto;
+}
+
+.how-it-works {
+  margin-bottom: 8rem;
+}
+
+.how-it-works-header {
+  font-size: 2.25rem;
+  font-weight: 500;
+  margin: 0 auto 4rem auto;
+}
+
+.how-it-works-card {
+  position: relative;
+  padding: 1px;
+  border-radius: 24px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 1100px;
+  background-color: #9059ff05;
+}
+
+.how-it-works-content {
+  padding: 5rem 5rem 7rem 5rem;
+  width: 100%;
+}
+
+.step {
+  margin: auto auto 5rem auto;
+  max-width: 1000px;
+}
+
+.step.step-3 {
+  margin-bottom: 7rem;
+}
+
+.step-text {
+  padding: 3rem;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.step-headline {
+  font-weight: 500;
+  font-size: 1.7rem;
+  margin: auto auto 20px 0;
+}
+
+.step-body {
+  margin: 0 auto auto auto;
+  color: rgba(255, 255, 255, .9);
+  font-size: 1.2rem;
+  line-height: 1.7rem;
+  letter-spacing: .009rem;
+  font-family: "Metropolis", Arial, Helvetica, sans-serif;
+  font-weight: 100;
+}
+
+.flx-row.step-2 {
+  flex-direction: row-reverse;
+}
+
+.step-illustration {
+  min-height: 260px;
+  min-width: 300px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, .1);
 }
 
 .flx {
@@ -113,6 +182,10 @@ button:active {
   align-items: center;
 }
 
+.margin-auto {
+  margin: auto;
+}
+
 .mw-850 {
   max-width: 850px;
 }
@@ -126,7 +199,7 @@ button:active {
 }
 
 .content-row {
-  max-width: 1020px;
+  /* max-width: 1020px; */
   width: 100%;
 }
 
@@ -585,7 +658,8 @@ ul.messages {
 
 .hero-right {
   border-radius: 24px;
-  background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.17), #0250bb1f);
+  /* background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.17), #0250bb1f); */
+  background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.07), #0250bb08);
   box-shadow: 0 12px 18px 2px rgba(34, 0, 51, 0.09), 0 6px 22px 4px rgba(4, 25, 59, 0.87), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
 }
 
@@ -839,6 +913,40 @@ ul.messages {
     min-width: 320px;
     justify-content: center;
   }
+
+  .how-it-works {
+    margin-bottom: 0;
+    text-align: center;
+  }
+
+  .how-it-works-card {
+    border-radius: 0;
+  }
+
+  .step-headline {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .step,
+  .flx-row.step-2 {
+    flex-wrap: wrap;
+    flex-direction: column;
+    max-width: 600px;
+  }
+
+  .how-it-works-content {
+    padding-left: 2.25rem;
+    padding-right: 2.25rem;
+  }
+
+  .step-text {
+    padding: 2rem;
+  }
+
+  .step.step-3 {
+    margin-bottom: 4rem;
+  }
 }
 
 @media screen and (max-width: 1050px) and (min-height: 1000px) {
@@ -940,6 +1048,7 @@ ul.messages {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
+
   .row-full-width {
     padding: 1.25rem;
   }
@@ -969,6 +1078,29 @@ ul.messages {
   .hero-sub-head {
     max-width: 300px;
     font-size: 1rem;
+  }
+
+  .how-it-works-content {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .step-text {
+    padding: 2rem 1rem;
+  }
+
+  .step-headline {
+    font-size: 1.5rem;
+    margin-left: 0;
+  }
+
+  .step-body {
+    font-size: 1rem;
+  }
+
+  .step {
+    text-align: left;
+    margin-bottom: 3rem;
   }
 }
 

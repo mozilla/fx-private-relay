@@ -19,14 +19,49 @@
 <main class="container txt-white flx text-center row-full-width home-hero">
 	<div class="flx flx-row hero-content">
 		<div class="hero-left flx flx-col">
-			<h1 class="mw-850 home-hero-headline">Keep your email away from hackers and trackers.</h1>
-			<h2 class="sub-head hero-sub-head">Prevent your information from being sold or traded&nbsp;online.</h2>
+            <h1 class="mw-850 home-hero-headline">Keep your email safe from hackers and trackers</h1>
+			<h2 class="sub-head hero-sub-head">Make an email alias with 1 click, and keep your address to yourself.</h2>
 			<div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn">
-				<a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' %}">Add to Firefox</a>
+				<a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' process='login' %}">Add to Firefox</a>
 			</div>
 		</div>
 		<div class="hero-right flx flx-col">
 		</div>
 	</div>
 </main>
+<div class="how-it-works flx al-cntr jst-cntr flx-col">
+	<div class="card how-it-works-card">
+		<div class="how-it-works-content txt-white flx flx-col">
+			<h2 class="how-it-works-header text-center">How It Works</h2>
+			<section class="step step-1 flx flx-row">
+				<div class="step-illustration step-1"></div>
+				<div class="step-text step-1">
+					<h3 class="step-headline ff-Met">How does using an alias protect me?</h3>
+					<p class="step-body">
+						Do you worry about giving away your email address? Sick of receiving emails you never signed up for? Do those unsubscribe links really work? By using aliases, you keep your real email off spam lists and away from sketchy companies you may not trust.
+					</p>
+				</div>
+			</section>
+			<section class="step step-2 flx flx-row">
+				<div class="step-illustration step-2"></div>
+				<div class="step-text step-2">
+					<h3 class="step-headline ff-Met">How does Private Relay work?</h3>
+					<p class="step-body">
+						When a form requires your email address, click the relay button to give an alias instead. We will forward emails from the alias to your real inbox. 
+					</p>
+				</div>
+			</section>
+			<section class="step step-3 flx flx-row">
+				<div class="step-illustration step-3"></div>
+				<div class="step-text step-3">
+					<h3 class="step-headline ff-Met">Take back control of your Inbox.</h3>
+					<p class="step-body">If any alias starts to receive emails you don't want, you can disable it or delete it completely.</p>
+				</div>
+			</section>
+			<div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn margin-auto">
+				<a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' process='login' %}">Add to Firefox</a>
+			</div>
+		</div>
+	</div>
+</div>
 {% endblock %}
