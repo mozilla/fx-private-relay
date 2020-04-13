@@ -19,8 +19,8 @@
 <main class="container txt-white flx text-center row-full-width home-hero">
 	<div class="flx flx-row hero-content">
 		<div class="hero-left flx flx-col">
-            <h1 class="mw-850 home-hero-headline">More control of your inbox.</h1>
-			<h2 class="sub-head hero-sub-head">We're piloting a new email service to protect the privacy of your inbox. Make an email alias with 1 click, and keep your address to yourself.</h2>
+            <h1 class="mw-850 home-hero-headline">Keep your email safe from hackers and trackers.</h1>
+			<h2 class="sub-head hero-sub-head">Make an email alias with 1 click, and keep your address to yourself.</h2>
 			<div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn">
 				<a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' process='login' %}">Add to Firefox</a>
 			</div>
@@ -29,9 +29,9 @@
 		</div>
 	</div>
 </main>
-<div class="container how-it-works flx al-cntr jst-cntr flx-col">
-	<div class="card how-it-works-card content-row">
-		<div class="how-it-works-content txt-white">
+<div class="how-it-works flx al-cntr jst-cntr flx-col">
+	<div class="card how-it-works-card">
+		<div class="how-it-works-content txt-white flx flx-col">
 			<h2 class="how-it-works-header text-center">How It Works</h2>
 			<section class="step step-1 flx flx-row">
 				<div class="step-illustration step-1"></div>
@@ -58,12 +58,10 @@
 					<p class="step-body">Firefox Private Relay puts you back in control of your email address.</p>
 				</div>
 			</section>
+			<div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn margin-auto">
+				<a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' process='login' %}">Add to Firefox</a>
+			</div>
 		</div>
 	</div>
 </div>
-			<div class="how-it-works-header text-center">
-                <div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn">
-                    <a class="hero-sign-up button flx al-cntr" href="{% provider_login_url 'fxa' process='login' %}">Add to Firefox</a>
-                </div>
-            </div>
 {% endblock %}

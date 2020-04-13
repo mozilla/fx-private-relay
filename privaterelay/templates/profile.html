@@ -8,7 +8,7 @@
 {% get_social_accounts request.user as accounts %}
 
 <main id="profile-main" class="container bg-light dashboard-container {% if relay_addresses|length == 0 %} env-bg {% endif %} container" data-api-token="{{ user.profile_set.first.api_token }}">
-  <div class="main-list content-row flx jst-cntr">
+  <div class="main-list flx jst-cntr">
     {% if messages %}
       <div class="messages profile-messages hidden">
           {% for message in messages %}
