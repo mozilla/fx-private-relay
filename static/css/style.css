@@ -49,6 +49,12 @@ h2,
   font-family: var(--metropolis);
 }
 
+.section-headline {
+  font-weight: 400;
+  color: var(--textDark);
+  margin: 0;
+}
+
 a {
   text-decoration: none;
 }
@@ -369,6 +375,11 @@ ul {
   margin-bottom: 1.5rem;
 }
 
+.dashboard-headline {
+  font-size: 1.5rem;
+  margin: auto auto 0 0;
+}
+
 main,
 table {
   width: 100%;
@@ -581,12 +592,6 @@ table {
   align-items: flex-end;
 }
 
-.section-headline {
-  font-weight: 400;
-  color: var(--textDark);
-  margin: 0;
-}
-
 .forwarding-toggle {
   border-radius: 10rem;
   height: 1.65rem;
@@ -686,6 +691,21 @@ ul.messages {
 
 .home-messages path {
   fill: #fff;
+}
+
+.remaining-aliases-wrapper {
+  flex-direction: column-reverse;
+}
+
+.remaining-aliases {
+  font-family: var(--metropolis);
+  font-size: 1rem;
+  font-weight: 300;
+  margin-top: .75rem;
+}
+
+.num-remaining-aliases {
+  font-weight: 600;
 }
 
 .create-new-relay {
@@ -1096,7 +1116,7 @@ ul.messages {
   }
 
   .dashboard-headline {
-    margin: 2rem auto;
+    margin-top: 6rem;
   }
 }
 
@@ -1210,6 +1230,10 @@ ul.messages {
 
   .relay-stat {
     margin-bottom: .5rem;
+  }
+
+  .dashboard-headline {
+    margin: 5rem auto auto auto;
   }
 }
 
