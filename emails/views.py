@@ -54,7 +54,7 @@ def _index_POST(request):
         return _index_DELETE(request, user_profile)
 
     existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
-    if existing_addresses.count() >= 5:
+    if existing_addresses.count() >= settings.MAX_NUM_BETA_ALIASES:
         if 'moz-extension' in request.headers.get('Origin', ''):
             return HttpResponse('Payment Required', status=402)
         messages.error(
