@@ -89,6 +89,10 @@ button:active {
   min-height: 80vh;
 }
 
+.bold {
+  font-weight: 700;
+}
+
 .flx {
   display: flex;
 }
