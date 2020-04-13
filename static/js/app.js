@@ -1,7 +1,3 @@
-function copyEmailOnClick() {
-	return;
-}
-
 function dismissNotification(){
 	const notification = document.querySelector(".js-notification");
 	notification.classList.toggle("hidden");
@@ -17,21 +13,44 @@ function toggleEmailForwardingPreferences(submitEvent) {
 	toggleButton.classList.toggle("forwarding-disabled");
 }
 
+
+function deleteAliasConfirmation(submitEvent) {
+	submitEvent.preventDefault();
+	const deleteAliasForm = submitEvent.target;
+
+	const confirmDeleteModal = deleteAliasForm.nextElementSibling;
+	confirmDeleteModal.classList.remove("hidden");
+
+	confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
+	confirmDeleteModalActions[0].focus();
+
+	confirmDeleteModalActions.forEach(btn => {
+		if (btn.classList.contains("cancel-delete")) {
+			btn.addEventListener("click", () => {
+				confirmDeleteModal.classList.add("hidden");
+			});
+		}
+		if (btn.classList.contains("confirm-delete")) {
+			btn.addEventListener("click", () => {
+				deleteAliasForm.submit();
+			});
+		}
+	});
+}
+
 function addEventListeners() {
-	const btns = document.querySelectorAll(".js-dismiss");
 	document.querySelectorAll(".js-dismiss").forEach(btn => {
 		btn.addEventListener("click", dismissNotification, false);
 	});
-
-	// Click to copy relay email addresses
-	document.querySelectorAll(".js-copy").forEach(relayEmail => {
-		relayEmail.addEventListener("click", copyEmailOnClick());
-	})
 
 	// Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
 		forwardEmailsToggleForm.addEventListener("submit", toggleEmailForwardingPreferences);
 	});
+
+	document.querySelectorAll(".delete-email-form").forEach(deleteForm => {
+		deleteForm.addEventListener("submit", deleteAliasConfirmation);
+	})
 }
 
 document.addEventListener("DOMContentLoaded", () => {

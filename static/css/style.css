@@ -158,6 +158,10 @@ button:active {
   border: 1px solid rgba(255, 255, 255, .1);
 }
 
+.bold {
+  font-weight: 700;
+}
+
 .flx {
   display: flex;
 }
@@ -465,6 +469,84 @@ table {
 
 .delete-relay-email-button:hover {
   background-color: var(--lightestGray);
+}
+
+.column-delete {
+  position: relative;
+}
+
+.delete-alias-content {
+  background-color: rgba(255, 255, 255, 1);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.delete-alias-confirmation {
+  border-radius: 16px;
+  position: absolute;
+  top: 2.75rem;
+  right: -10px;
+  background-color: transparent;
+  box-shadow: 0 0 10px -3px #3d3f4740;
+  min-width: 300px;
+  z-index: 1;
+  transform: translateY(12px);
+  animation: fxBentoAppear .1s ease;
+}
+
+.delete-alias-confirmation::after {
+  display: block;
+  content: "";
+  height: 12px;
+  width: 12px;
+  position: absolute;
+  top: -7px;
+  right: 23px;
+  margin: auto;
+  transform: rotate(45deg);
+  border-top-left-radius: 1px;
+  background-color: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 10px -3px #3d3f4740;
+  border-top: 1px solid transparent; /* creates outline in high-contrast mode */
+  border-left: 1px solid transparent; /* creates outline in high-contrast mode */
+  z-index: -1;
+}
+
+.confirm-delete-actions {
+  padding: 0;
+  width: 100%;
+  font-size: 0;
+  border-top: 1px solid #f1f1f8;
+}
+
+.confirm-delete-action {
+  border-radius: 0;
+  border: none;
+  outline: none;
+  width: 50%;
+  color: var(--textDark);
+  font-size:1rem;
+  padding: 1rem;
+  background-color: #f1f1f873;
+  user-select: none;
+}
+
+.confirm-delete-action:focus,
+.confirm-delete-action:hover {
+  background: #f1f1f8;
+}
+
+.confirm-delete-action:active {
+  background: #eaeaf0;
+}
+
+.confirm-delete {
+  border-left: 1px solid rgba(123, 127, 141, 0.08);
+}
+
+.delete-alias-message {
+  line-height: 1.5;
+  padding: 1.25rem 2rem 1rem 2rem;
 }
 
 .email-forwarding {
@@ -815,7 +897,7 @@ ul.messages {
   padding: 1rem 2rem;
 }
 
-.close-modal {
+.close-modal-x {
   position: absolute;
   top: 2rem;
   right: 2rem;

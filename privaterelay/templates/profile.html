@@ -21,9 +21,10 @@
         {% endfor %}
       </div>
     {% endif %}
+
     {% if relay_addresses|length == 0 %}
     <div class="create-first-alias flx flx-col al-cntr jst-cntr appear-smoothly">
-      <p class="ff-Met no-active-aliases text-center">You have no active email aliases.</p>
+      <p class="ff-Met no-active-aliases text-center">You have no email aliases.</p>
       <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
         <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
         <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address">
@@ -60,6 +61,15 @@
                   <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this relay address">
                   </button>
                 </form>
+                <div class="delete-alias-confirmation hidden">
+                    <div class="delete-alias-content modal-content-light text-center flx flx-col jst-cntr al-cntr">
+                      <p class="delete-alias-message">Are you sure you want to delete your <span class="bold">{{ relay_address.address }}</span> alias?</p>
+                      <div class="fx flx-row confirm-delete-actions">
+                        <button class="cancel-delete confirm-delete-action">Cancel</button>
+                        <button class="confirm-delete confirm-delete-action">Delete Alias</button>
+                      </div>
+                    </div>
+                  </div>
               </div>
           </div>
 
