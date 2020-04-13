@@ -24,7 +24,7 @@
 
     {% if relay_addresses|length == 0 %}
     <div class="create-first-alias flx flx-col al-cntr jst-cntr appear-smoothly">
-      <p class="ff-Met no-active-aliases text-center">You have no active email aliases.</p>
+      <p class="ff-Met no-active-aliases text-center">You have no email aliases.</p>
       <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
         <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
         <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address">
