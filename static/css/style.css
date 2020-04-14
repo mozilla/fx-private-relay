@@ -91,6 +91,10 @@ button:active {
   transition: all 0.1s ease;
 }
 
+::-moz-focus-inner {
+  border: 0;
+}
+
 .home-hero {
   min-height: 74vh;
   margin: 2rem auto;
@@ -472,18 +476,25 @@ table {
   border: 1px solid var(--lightestGray);
   background-image: url(/static/images/trashcan.svg);
   background-repeat: no-repeat;
-  background-position: 8px center;
-  border-radius: 50%;
+  background-position: 72px center;
   height: 36px;
-  width: 36px;
+  padding-right: 32px;
+  padding-left: 14px;
+  display: flex;
+  align-items: center;
 }
 
 .delete-relay-email-button:hover {
   background-color: var(--lightestGray);
+  border: 1px solid rgba(255, 255, 255, 0);
 }
 
 .column-delete {
   position: relative;
+}
+
+.relay-email-label.remove-label {
+  padding-bottom: 0;
 }
 
 .delete-alias-content {
