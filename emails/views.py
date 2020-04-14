@@ -186,6 +186,27 @@ def _generate_relay_From(original_from_address):
         original_from_address
     )
 
+@csrf_exempt
+def toggle_forwarding(request):
+    body_data = json.loads(request.body)
+    api_token = body_data["api_token"]
+
+    if not api_token:
+        raise PermissionDenied
+    user_profile = _get_user_profile(request, api_token)
+    relay_address = RelayAddress.objects.get(
+        id=body_data['relay_address_id'],
+        user=user_profile.user
+    )
+    if body_data['enabled'] == 'Disable':
+        relay_address.enabled = False
+    elif body_data['enabled'] == 'Enable':
+        relay_address.enabled = True
+    relay_address.save(update_fields=['enabled'])
+
+    forwardingStatus = { "enabled" : relay_address.enabled }
+    return HttpResponse(json.dumps(forwardingStatus))
+
 
 def time_if_enabled(name):
     def timing_decorator(func):
