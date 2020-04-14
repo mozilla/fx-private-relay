@@ -62,11 +62,12 @@
             </div>
               <!-- delete email address -->
               <div class="relay-email-column column-delete center-value">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
                   <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this relay address">
+                    <span class="remove-label relay-email-label">Delete</span>
                   </button>
                 </form>
                 <div class="delete-alias-confirmation hidden">
