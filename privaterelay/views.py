@@ -53,6 +53,9 @@ def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect('/')
     relay_addresses = RelayAddress.objects.filter(user=request.user)
-    avatar = request.user.socialaccount_set.first().extra_data['avatar']
+    fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
+    avatar = fxa_account.extra_data['avatar'] if fxa_account else None
 
-    return render(request, 'profile.html', {'relay_addresses': relay_addresses, 'avatar': avatar})
+    return render(request, 'profile.html', {
+        'relay_addresses': relay_addresses, 'avatar': avatar
+    })
