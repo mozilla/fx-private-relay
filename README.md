@@ -148,7 +148,7 @@ The add-on adds Firefox UI to generate and auto-fill email addresses. You may
 want to build the add-on so that it communicates with your `127.0.0.1:8000`
 server instead of the production `relay.firefox.com` server:
 
-1. In the `extension/` directory, run `npm run build:local`
+1. In the `extension/` directory, run `npm install` and then `npm run build`
 
 2. Use `about:debugging` to install the resulting `static/downloads/addon/latest/private_relay.zip` file.
    * Note: A link to the `.zip` is also available at http://127.0.0.1:8000/accounts/profile/

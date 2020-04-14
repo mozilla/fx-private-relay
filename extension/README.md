@@ -12,7 +12,6 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 1. Install the extension.
 
 2. Go to [relay.firefox.com](https://relay.firefox.com) and sign in.
-   * The extension will detect and load your relay addresses.
 
 3. In any `<input>` element, right-click and select "Make a relay address"
    * The extension will populate the options with your relay addresses.
@@ -20,11 +19,12 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 
 ## Local Extension Development
 
-1. Clone and change to the directory:
+1. Clone, change to the directory, install dependencies:
 
     ```
     git clone git@github.com:groovecoder/private-relay.git
     cd private-relay/extension
+    npm install
     ```
 
 2. Run with
@@ -39,18 +39,8 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 
 ## Build for other environments
 
-1. Build `manifest.json` replacing `127.0.0.1` with a different domain:
+These scripts will build the add-on to work with dev, stage, or prod servers.
 
-    ```
-    RELAY_DOMAIN="https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net"&& npm run build:manifest
-    ```
-
-2. Build `src/background.js` replacing `127.0.0.1:8000` with a different domain:
-
-    ```
-    RELAY_DOMAIN="https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net"&& npm run build:background
-    ```
-
-## Credits
-Icon is "[Mail by Thengakola from the Noun
-Project](https://thenounproject.com/search/?q=email%20shield&i=930191)"
+ * `npm run build:dev`: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/
+ * `npm run build:stage`: https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/
+ * `npm run build:prod`: https://relay.firefox.com/
