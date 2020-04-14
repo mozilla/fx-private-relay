@@ -28,6 +28,9 @@ urlpatterns = [
     path('__heartbeat__', views.heartbeat),
     path('__lbheartbeat__', views.lbheartbeat),
 
+    # FXA endpoints
+    path('fxa-rp-events', views.fxa_rp_events),
+
     path('accounts/profile/', views.profile, name='profile'),
     path('accounts/', include('allauth.urls')),
     path('', views.home),

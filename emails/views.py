@@ -148,6 +148,9 @@ def _inbound_logic(json_body):
         return HttpResponse("Address does not exist")
 
     logger.info('email_relay', extra={
+        'fxa_uid': (
+            relay_address.user.socialaccount_set.first().uid
+        ),
         'relay_address_id': relay_address.id,
         'relay_address': sha256(local_portion.encode('utf-8')).hexdigest(),
         'real_address': sha256(
