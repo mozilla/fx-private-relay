@@ -14,7 +14,7 @@ from socketlabs.injectionapi.message.emailaddress import EmailAddress
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 
@@ -26,10 +26,17 @@ logger = logging.getLogger('events')
 metrics = markus.get_metrics('fx-private-relay')
 
 
+def _get_data_from_request(request):
+    if request.content_type == 'application/json':
+        return json.loads(request.body)
+    return request.POST
+
+
 @csrf_exempt
 def index(request):
+    request_data = _get_data_from_request(request)
     if (not request.user.is_authenticated and
-        not request.POST.get("api_token", False)
+        not request_data.get("api_token", False)
        ):
         raise PermissionDenied
     if request.method == 'POST':
@@ -44,14 +51,15 @@ def _get_user_profile(request, api_token):
 
 
 def _index_POST(request):
-    api_token = request.POST.get('api_token', None)
+    request_data = _get_data_from_request(request)
+    api_token = request_data.get('api_token', None)
     if not api_token:
         raise PermissionDenied
     user_profile = _get_user_profile(request, api_token)
-    if request.POST.get('method_override', None) == 'PUT':
-        return _index_PUT(request, user_profile)
-    if request.POST.get('method_override', None) == 'DELETE':
-        return _index_DELETE(request, user_profile)
+    if request_data.get('method_override', None) == 'PUT':
+        return _index_PUT(request_data, user_profile)
+    if request_data.get('method_override', None) == 'DELETE':
+        return _index_DELETE(request_data, user_profile)
 
     existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
     if existing_addresses.count() >= settings.MAX_NUM_BETA_ALIASES:
@@ -72,10 +80,10 @@ def _index_POST(request):
     return redirect('profile')
 
 
-def _get_relay_address_from_id(request, user_profile):
+def _get_relay_address_from_id(request_data, user_profile):
     try:
         relay_address = RelayAddress.objects.get(
-            id=request.POST['relay_address_id'],
+            id=request_data['relay_address_id'],
             user=user_profile.user
         )
         return relay_address
@@ -84,18 +92,20 @@ def _get_relay_address_from_id(request, user_profile):
         return HttpResponse("Address does not exist")
 
 
-def _index_PUT(request, user_profile):
-    relay_address = _get_relay_address_from_id(request, user_profile)
-    if request.POST.get('enabled') == 'Disable':
+def _index_PUT(request_data, user_profile):
+    relay_address = _get_relay_address_from_id(request_data, user_profile)
+    if request_data.get('enabled') == 'Disable':
         relay_address.enabled = False
-    elif request.POST.get('enabled') == 'Enable':
+    elif request_data.get('enabled') == 'Enable':
         relay_address.enabled = True
     relay_address.save(update_fields=['enabled'])
-    return redirect('profile')
+
+    forwardingStatus = {'enabled': relay_address.enabled}
+    return JsonResponse(forwardingStatus)
 
 
-def _index_DELETE(request, user_profile):
-    relay_address = _get_relay_address_from_id(request, user_profile)
+def _index_DELETE(request_data, user_profile):
+    relay_address = _get_relay_address_from_id(request_data, user_profile)
     relay_address.delete()
     return redirect('profile')
 

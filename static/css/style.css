@@ -623,7 +623,7 @@ table {
   position: absolute;
   top: 0;
   bottom: 0;
-  transform: translateX(51%);
+  transform: translateX(50%);
   width: 1.15rem;
   height: 1.15rem;
   border-radius: 5rem;

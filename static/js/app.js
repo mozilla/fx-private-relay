@@ -3,14 +3,44 @@ function dismissNotification(){
 	notification.classList.toggle("hidden");
 }
 
-function toggleEmailForwardingPreferences(submitEvent) {
+async function toggleEmailForwardingPreferences(submitEvent) {
 	submitEvent.preventDefault();
-	const toggleForm = submitEvent.target;
-	const toggleButton = toggleForm.querySelector("button");
+	const toggleForwardingForm = submitEvent.target;
 
-	// The default style of the email forwading toggles is an enabled state.
-	// Adding the "forwarding-enabled" class will change them to red and move the toggle to the left.
-	toggleButton.classList.toggle("forwarding-disabled");
+	const formData = {};
+	Array.from(toggleForwardingForm.elements).forEach(elem => {
+		formData[elem.name] = elem.value;
+	})
+
+	const response = await sendForm(toggleForwardingForm.action, formData);
+
+	if (response && response.status == "200") {
+		const toggleButton = toggleForwardingForm.querySelector("button");
+		toggleButton.classList.toggle("forwarding-disabled");
+		if (toggleButton.value === "Enable") {
+			return toggleButton.value = "Disable";
+		} else if (toggleButton.value === "Disable") {
+			return toggleButton.value = "Enable";
+		}
+	}
+	return;
+}
+
+async function sendForm(formAction, formData) {
+	try {
+		return fetch(formAction, {
+			headers: {
+				"Content-Type": "application/json",
+				"X-Requested-With": "XMLHttpRequest",
+			},
+			credentials: "include",
+			mode: "same-origin",
+			method: "POST",
+			body: JSON.stringify(formData),
+		});
+	} catch(e) {
+		console.log(e)
+	}
 }
 
 
