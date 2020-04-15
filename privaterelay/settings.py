@@ -59,6 +59,9 @@ CSP_IMG_SRC = (
 REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 ALLOWED_HOSTS = []
+DJANGO_ALLOWED_HOST = config('DJANGO_ALLOWED_HOST', None)
+if DJANGO_ALLOWED_HOST:
+    ALLOWED_HOSTS += [DJANGO_ALLOWED_HOST]
 
 
 # Get our backing resource configs to check if we should install the app
