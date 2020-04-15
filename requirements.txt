@@ -13,6 +13,7 @@ requests==2.23.0
 sentry-sdk==0.14.3
 six==1.14.0
 socketlabs-injectionapi==1.0.1
+whitenoise==5.0.1
 
 # phones app
 # phonenumbers==8.11.1
