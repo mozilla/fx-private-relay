@@ -88,7 +88,9 @@ def fxa_rp_events(request):
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     for event_key in event_keys:
         if (event_key == FXA_PROFILE_CHANGE_EVENT):
-            _handle_fxa_profile_change(social_account)
+            _handle_fxa_profile_change(
+                authentic_jwt, social_account, event_key
+            )
     return HttpResponse('200 OK', status=200)
 
 
@@ -113,15 +115,15 @@ def _get_account_from_jwt(authentic_jwt):
         "JWT client ID does not match this application."
     )
     # Validate the jwt is for a user in this application
-    social_account = SocialAccount.objects.get(uid=authentic_jwt['sub'])
-    return social_account
+    social_account_uid = authentic_jwt['sub']
+    return SocialAccount.objects.get(uid=social_account_uid)
 
 
 def _get_event_keys_from_jwt(authentic_jwt):
     return authentic_jwt['events'].keys()
 
 
-def _handle_fxa_profile_change(social_account):
+def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
     token = social_account.socialtoken_set.first()
     headers = {'Authorization': 'Bearer: {0}'.format(token.token)}
     resp = requests.get(
