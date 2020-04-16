@@ -38,6 +38,48 @@ function deleteAliasConfirmation(submitEvent) {
 	});
 }
 
+// Checks for changes made to <firefox-private-relay-addon></firefox-private-relay-add-on> by the addon.
+function isRelayAddonInstalled() {
+	const installationIndicator = document.querySelector("firefox-private-relay-addon");
+	return (installationIndicator.dataset.addonInstalled === "true" || isAddonInstallInLocalStorage());
+}
+
+
+// Looks for previously saved installation note in localStorage
+function isAddonInstallInLocalStorage() {
+	return (localStorage && localStorage.getItem("addonInstalled", "true"))
+}
+
+
+function showCtas() {
+	return document.querySelectorAll(".hero-sign-up-bg.invisible").forEach(buttonWrapper => {
+		buttonWrapper.classList.remove("invisible");
+	});
+}
+
+
+function hideAddToFxButtons() {
+	document.querySelectorAll("a.add-to-fx").forEach(installBtn => {
+		installBtn.classList.add("hidden");
+	});
+	showCtas();
+}
+
+
+function hideSecondarySignInButtons() {
+	document.querySelectorAll("a.sign-in-btn").forEach(signInBtn => {
+		signInBtn.classList.add("hidden");
+	});
+	showCtas();
+}
+
+function showSecondarySignInButtons() {
+	document.querySelectorAll("a.sign-in-btn.hidden").forEach(signInBtn => {
+		signInBtn.classList.remove("hidden");
+	});
+}
+
+
 function addEventListeners() {
 	document.querySelectorAll(".js-dismiss").forEach(btn => {
 		btn.addEventListener("click", dismissNotification, false);
@@ -50,11 +92,43 @@ function addEventListeners() {
 
 	document.querySelectorAll(".delete-email-form").forEach(deleteForm => {
 		deleteForm.addEventListener("submit", deleteAliasConfirmation);
-	})
+	});
 }
 
+// Watch for the addon to update the dataset of <firefox-private-relay-addon></firefox-private-relay-addon>
+function watchForInstalledAddon() {
+	const installIndicator = document.querySelector("firefox-private-relay-addon");
+	const observerConfig = {
+		attributes: true
+	};
+
+	const patrollerDuties = (mutations, mutationPatroller) => {
+		for (let mutation of mutations) {
+			if (mutation.type === "attributes" && isRelayAddonInstalled()) {
+				hideAddToFxButtons();
+				showSecondarySignInButtons();
+				if (localStorage && !localStorage.getItem("addonInstalled", "true")) {
+					localStorage.setItem("addonInstalled", "true");
+				}
+				mutationPatroller.disconnect();
+			}
+		}
+	};
+
+	const mutationPatroller = new MutationObserver(patrollerDuties);
+	mutationPatroller.observe(installIndicator, observerConfig);
+}
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
+	watchForInstalledAddon();
 	addEventListeners();
+	if (isRelayAddonInstalled()) {
+		hideAddToFxButtons();
+	} else {
+		hideSecondarySignInButtons();
+	}
 });
 
 class GlocalMenu extends HTMLElement {
