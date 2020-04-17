@@ -95,8 +95,10 @@ def _get_relay_address_from_id(request_data, user_profile):
 def _index_PUT(request_data, user_profile):
     relay_address = _get_relay_address_from_id(request_data, user_profile)
     if request_data.get('enabled') == 'Disable':
+        # TODO?: create a soft bounce receipt rule for the address?
         relay_address.enabled = False
     elif request_data.get('enabled') == 'Enable':
+        # TODO?: remove soft bounce receipt rule for the address?
         relay_address.enabled = True
     relay_address.save(update_fields=['enabled'])
 
@@ -106,6 +108,7 @@ def _index_PUT(request_data, user_profile):
 
 def _index_DELETE(request_data, user_profile):
     relay_address = _get_relay_address_from_id(request_data, user_profile)
+    # TODO?: create hard bounce receipt rule for the address
     relay_address.delete()
     return redirect('profile')
 
@@ -154,6 +157,8 @@ def _inbound_logic(json_body):
             relay_address.save(update_fields=['num_blocked'])
             return HttpResponse("Address does not exist")
     except RelayAddress.DoesNotExist as e:
+        # TODO?: if sha256 of the address is in DeletedAddresses,
+        # create a hard bounce receipt rule
         print(e)
         return HttpResponse("Address does not exist")
 

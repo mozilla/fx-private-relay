@@ -24,6 +24,10 @@ from emails.models import RelayAddress
 FXA_PROFILE_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/profile-change'
 )
+FXA_DELETE_EVENT = (
+    'https://schemas.accounts.firefox.com/event/delete-user'
+)
+
 logger = logging.getLogger('events')
 jwt_instance = JWT()
 
@@ -91,6 +95,8 @@ def fxa_rp_events(request):
             _handle_fxa_profile_change(
                 authentic_jwt, social_account, event_key
             )
+        if (event_key == FXA_DELETE_EVENT):
+            _handle_fxa_delete(authentic_jwt, social_account, event_key)
     return HttpResponse('200 OK', status=200)
 
 
@@ -143,3 +149,15 @@ def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
     email_address_record = social_account.user.emailaddress_set.first()
     email_address_record.email = new_email
     email_address_record.save()
+
+
+def _handle_fxa_delete(authentic_jwt, social_account, event_key):
+    # TODO?: loop over the user's relay addresses and create hard bounce
+    # receipt rules for them? Note: can't just do this in RelayAddress.delete
+    # because cascade deletes like this don't necessarily call delete()
+    deleted_objects = social_account.user.delete()
+    logger.info('fxa_rp_event', extra={
+        'fxa_uid': authentic_jwt['sub'],
+        'event_key': event_key,
+        'deleted_objects': deleted_objects,
+    })
