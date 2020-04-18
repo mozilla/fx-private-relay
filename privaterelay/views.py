@@ -8,6 +8,7 @@ import requests
 
 from django.apps import apps
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -116,10 +117,10 @@ def _authenticate_fxa_jwt(jwt):
 def _get_account_from_jwt(authentic_jwt):
     # Validate the jwt is for this client
     social_app = SocialApp.objects.get(provider='fxa')
-    assert(
-        authentic_jwt['aud'] == social_app.client_id,
-        "JWT client ID does not match this application."
-    )
+    if authentic_jwt['aud'] != social_app.client_id:
+        raise PermissionDenied(
+            "JWT client ID does not match this application."
+        )
     # Validate the jwt is for a user in this application
     social_account_uid = authentic_jwt['sub']
     return SocialAccount.objects.get(uid=social_account_uid)
