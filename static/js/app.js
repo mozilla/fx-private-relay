@@ -41,13 +41,13 @@ function deleteAliasConfirmation(submitEvent) {
 // Checks for changes made to <firefox-private-relay-addon></firefox-private-relay-add-on> by the addon.
 function isRelayAddonInstalled() {
 	const installationIndicator = document.querySelector("firefox-private-relay-addon");
-	return (installationIndicator.dataset.addonInstalled === "true" || isAddonInstallInLocalStorage());
+	return (installationIndicator.dataset.addonInstalled === "true" || isAddonInstallInSessionStorage());
 }
 
 
-// Looks for previously saved installation note in localStorage
-function isAddonInstallInLocalStorage() {
-	return (localStorage && localStorage.getItem("addonInstalled", "true"))
+// Looks for previously saved installation note in sessionStorage
+function isAddonInstallInSessionStorage() {
+	return (sessionStorage && sessionStorage.getItem("addonInstalled", "true"))
 }
 
 
@@ -107,8 +107,8 @@ function watchForInstalledAddon() {
 			if (mutation.type === "attributes" && isRelayAddonInstalled()) {
 				hideAddToFxButtons();
 				showSecondarySignInButtons();
-				if (localStorage && !localStorage.getItem("addonInstalled", "true")) {
-					localStorage.setItem("addonInstalled", "true");
+				if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
+					sessionStorage.setItem("addonInstalled", "true");
 				}
 				mutationPatroller.disconnect();
 			}
