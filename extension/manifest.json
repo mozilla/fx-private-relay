@@ -31,6 +31,13 @@
   "content_scripts": [
     {
       "matches": [
+        "http://127.0.0.1/*"
+      ],
+      "js": ["js/installation_indicator.js"]
+
+    },
+    {
+      "matches": [
           "http://127.0.0.1/accounts/profile/"
       ],
       "js": ["js/get_profile_data.js"]
@@ -39,7 +46,7 @@
       "matches": [
           "<all_urls>"
       ],
-      "js": ["js/installation_indicator.js", "js/add_input_icon.js", "js/fill_relay_address.js"],
+      "js": ["js/add_input_icon.js", "js/fill_relay_address.js"],
       "css": ["css/add_input_icon.css"]
     }
   ],
