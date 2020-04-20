@@ -19,11 +19,9 @@
 <main class="container txt-white flx text-center row-full-width home-hero">
 	<div class="flx flx-row hero-content">
 		<div class="hero-left flx flx-col">
-            <h1 class="mw-850 home-hero-headline">Keep your email safe from hackers and trackers</h1>
+    	<h1 class="mw-850 home-hero-headline">Keep your email safe from hackers and trackers</h1>
 			<h2 class="sub-head hero-sub-head">Make an email alias with 1 click, and keep your address to yourself.</h2>
-			<div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn">
-				<a class="hero-sign-up button flx al-cntr" href="https://addons.mozilla.org/firefox/addon/private-relay/">Add to Firefox</a>
-			</div>
+			{% include "includes/landing_gradient_button.html" %}
 		</div>
 		<div class="hero-right flx flx-col">
 		</div>
@@ -58,9 +56,7 @@
 					<p class="step-body">If any alias starts to receive emails you don't want, you can disable it or delete it completely.</p>
 				</div>
 			</section>
-			<div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn margin-auto">
-				<a class="hero-sign-up button flx al-cntr" href="https://addons.mozilla.org/firefox/addon/private-relay/">Add to Firefox</a>
-			</div>
+			{% include "includes/landing_gradient_button.html" %}
 		</div>
 	</div>
 </div>

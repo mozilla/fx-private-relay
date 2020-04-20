@@ -1,0 +1,7 @@
+{% load static %}
+{% load socialaccount %}
+
+<div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn invisible">
+  <a class="add-to-fx hero-sign-up button flx al-cntr" href="https://addons.mozilla.org/firefox/addon/private-relay/">Add to Firefox</a>
+  <a class="sign-in-btn button flx al-cntr" href="{% provider_login_url 'fxa' process='login' %}">Sign In</a>
+</div>
