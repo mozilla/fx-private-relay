@@ -1,3 +1,5 @@
+/* global browser */
+
 function addRelayIconToInput(emailInput) {
   // remember the input's original parent element;
   const emailInputOriginalParentEl = emailInput.parentElement;
@@ -9,7 +11,7 @@ function addRelayIconToInput(emailInput) {
   const inputClone = emailInput.cloneNode();
   // add padding to the cloned input so that input text
   // is not covered up by the Relay icon
-  inputClone.style.paddingRight = "50px !important;"
+  inputClone.style.paddingRight = "50px";
 
 
   emailInputWrapper.appendChild(inputClone);
@@ -42,7 +44,7 @@ function addRelayIconToInput(emailInput) {
     divEl.style.right = "2px";
   }
 
-  createErrorMessage = (buttonElem, content) => {
+  const createErrorMessage = (buttonElem, content) => {
     const errorMessageWrapper = document.createElement("div");
     errorMessageWrapper.classList.add("relay-error-message-wrapper");
     errorMessageWrapper.style.top = (relayIconHeight + 15)+"px";
@@ -65,7 +67,7 @@ function addRelayIconToInput(emailInput) {
 
     emailInputWrapper.appendChild(errorMessageWrapper);
     dismissButton.focus();
-  }
+  };
 
   buttonEl.addEventListener("click", async (e) => {
     const newRelayAddressResponse = await browser.runtime.sendMessage({
@@ -88,11 +90,37 @@ function addRelayIconToInput(emailInput) {
   emailInput.remove();
 }
 
-(function () {
+function getEmailInputsAndAddIcon() {
   const getEmailInputs = document.querySelectorAll("input[type='email']");
   for (const emailInput of getEmailInputs) {
-    if (!emailInput.querySelector(".relay-icon")) {
+    if (!emailInput.parentElement.classList.contains("relay-email-input-wrapper")) {
       addRelayIconToInput(emailInput);
     }
   }
+}
+
+(function() {
+  // Catch all immediately findable email inputs
+  getEmailInputsAndAddIcon();
+
+  // Catch email inputs that only become findable after
+  // the entire page (including JS/CSS/images/etc) is fully loaded.
+  window.addEventListener("load", () => {
+    getEmailInputsAndAddIcon();
+  });
+
+  // Create MutationObserver and watch for dynamically generated email inputs
+  const mutationObserver = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.target.tagName === "FORM") {
+        const emailInput = mutation.target.querySelector("input[type='email']");
+        if (emailInput) {
+          addRelayIconToInput(emailInput);
+        }
+      }
+    });
+  });
+
+  mutationObserver.observe(document.body, { childList: true, subtree: true });
+
 })();
