@@ -109,12 +109,12 @@ function getEmailInputsAndAddIcon() {
     getEmailInputsAndAddIcon();
   });
 
-  // Create MutationObserver and watch for dynamically generated email inputs
+  // Create a MutationObserver to watch for dynamically generated email inputs
   const mutationObserver = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
       if (mutation.target.tagName === "FORM") {
         const emailInput = mutation.target.querySelector("input[type='email']");
-        if (emailInput) {
+        if (emailInput && !emailInput.parentElement.classList.contains("relay-email-input-wrapper")) {
           addRelayIconToInput(emailInput);
         }
       }
