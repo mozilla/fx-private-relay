@@ -13,12 +13,11 @@ function showRelayPanel() {
 async function popup() {
   const browserStorage = await browser.storage.local.get();
   const userApiToken = await browser.storage.local.get("apiToken");
-  showSignUpPanel();
-  // if (!userApiToken) {
-  //   showSignUpPanel();
-  // } else {
-  //   showRelayPanel();
-  // }
+  if (!userApiToken) {
+    showSignUpPanel();
+  } else {
+    showRelayPanel();
+  }
 
   document.querySelectorAll(".generate-alias").forEach(generateAliasBtn => {
     generateAliasBtn.addEventListener("click", async() => {
