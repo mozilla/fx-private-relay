@@ -5,7 +5,8 @@
   browser.storage.local.set({apiToken});
 
   // Get the relay address objects from the addon storage
-  const addonRelayAddresses = await browser.storage.local.get("relayAddresses");
+  const addonStorageRelayAddresses = await browser.storage.local.get("relayAddresses");
+  const addonRelayAddresses = (Object.keys(addonStorageRelayAddresses).length === 0) ? {relayAddresses: []} : addonStorageRelayAddresses;
 
   // Loop over the addresses on the page
   const relayAddressElements = document.querySelectorAll(".relay-address");
@@ -14,7 +15,7 @@
     // Add the domain note from the addon storage to the page
     const relayAddressId = relayAddressEl.dataset.id;
     const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == relayAddressId)[0];
-    const addonRelayAddressDomain = addonRelayAddress.domain;
+    const addonRelayAddressDomain = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
     relayAddressEl.parentElement.parentElement.querySelector('.relay-email-address-note').textContent = addonRelayAddressDomain
 
     // Get and store the relay addresses from the account profile page,
