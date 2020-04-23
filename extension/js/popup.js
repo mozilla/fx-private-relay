@@ -20,7 +20,7 @@ async function popup() {
 
   document.querySelectorAll(".generate-alias").forEach(generateAliasBtn => {
     generateAliasBtn.addEventListener("click", async() => {
-      let newRelayAddressResponse = await browser.runtime.sendMessage({
+      const newRelayAddressResponse = await browser.runtime.sendMessage({
         method: "makeRelayAddress",
       });
 
