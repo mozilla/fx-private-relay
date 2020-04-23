@@ -23,7 +23,7 @@
   "browser_action": {
       "browser_style": true,
       "default_icon": {
-          "32": "icons/make-new-alias.png"
+          "32": "icons/placeholder-logo-beta.png"
       },
       "default_popup": "popup.html"
   },
