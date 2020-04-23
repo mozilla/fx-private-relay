@@ -1,6 +1,6 @@
 const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
 
-async function makeRelayAddress() {
+async function makeRelayAddress(domain=null) {
   const apiToken = await browser.storage.local.get("apiToken");
 
   if (!apiToken.apiToken) {
@@ -19,15 +19,25 @@ async function makeRelayAddress() {
     body: `api_token=${apiToken.apiToken}`
   });
   if (newRelayAddressResponse.status === 402) {
+    // FIXME: can this just return newRelayAddressResponse ?
     return {status: 402};
   }
-  return await newRelayAddressResponse.text();
+  newRelayAddressJson = await newRelayAddressResponse.json();
+  if (domain) {
+    newRelayAddressJson.domain = domain;
+  }
+  // TODO: put this into an updateLocalAddresses() function
+  const localRelayAddresses = await browser.storage.local.get("relayAddresses");
+  const updatedLocalRelayAddresses = localRelayAddresses.relayAddresses.concat([newRelayAddressJson]);
+  browser.storage.local.set({relayAddresses: updatedLocalRelayAddresses});
+  return newRelayAddressJson.address;
 }
 
 async function makeRelayAddressForTargetElement(info, tab) {
-  const newRelayAddressResponse = await makeRelayAddress();
+  const pageUrl = new URL(info.pageUrl);
+  const newRelayAddress = await makeRelayAddress(pageUrl.hostname);
 
-  if (newRelayAddressResponse.status === 402) {
+  if (newRelayAddress.status === 402) {
     browser.tabs.executeScript(tab.id, {
       frameId: info.frameId,
       code:`alert("You already have 5 email addresses. Please upgrade.");`,
@@ -38,7 +48,7 @@ async function makeRelayAddressForTargetElement(info, tab) {
   browser.tabs.sendMessage(tab.id, {
     type: "fillTargetWithRelayAddress",
     targetElementId : info.targetElementId,
-    relayAddress: newRelayAddressResponse,
+    relayAddress: newRelayAddress,
   });
 }
 
@@ -61,7 +71,7 @@ browser.runtime.onMessage.addListener(async (m) => {
 
   switch (m.method) {
     case "makeRelayAddress":
-      response = await makeRelayAddress();
+      response = await makeRelayAddress(m.domain);
       break;
   }
 

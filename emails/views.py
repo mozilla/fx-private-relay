@@ -71,11 +71,14 @@ def _index_POST(request):
         return redirect('profile')
 
     relay_address = RelayAddress.make_relay_address(user_profile.user)
-    return_string = '%s@%s' % (
-        relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
-    )
     if 'moz-extension' in request.headers.get('Origin', ''):
-        return HttpResponse(return_string, status=201)
+        address_string = '%s@%s' % (
+            relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
+        )
+        return JsonResponse({
+            'id': relay_address.id,
+            'address': address_string
+        }, status=201)
 
     return redirect('profile')
 

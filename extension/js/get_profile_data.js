@@ -2,17 +2,29 @@
   // Get the api token from the account profile page
   const profileMainElement = document.querySelector("#profile-main");
   const apiToken = profileMainElement.dataset.apiToken;
-  chrome.storage.local.set({apiToken});
+  browser.storage.local.set({apiToken});
 
-  // Hide the "Get Private Relay" button because the user already has it
-  document.querySelector("#download-addon").remove();
+  // Get the relay address objects from the addon storage
+  const addonRelayAddresses = await browser.storage.local.get("relayAddresses");
 
-  // Get and store the relay addresses from the account profile page,
-  // so they can be used later, even if the API endpoint is down
+  // Loop over the addresses on the page
   const relayAddressElements = document.querySelectorAll(".relay-address");
   const relayAddresses = [];
   for (const relayAddressEl of relayAddressElements) {
-    relayAddresses.push(relayAddressEl.dataset.clipboardText);
+    // Add the domain note from the addon storage to the page
+    const relayAddressId = relayAddressEl.dataset.id;
+    const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == relayAddressId)[0];
+    const addonRelayAddressDomain = addonRelayAddress.domain;
+    relayAddressEl.parentElement.parentElement.querySelector('.relay-email-address-note').textContent = addonRelayAddressDomain
+
+    // Get and store the relay addresses from the account profile page,
+    // so they can be used later, even if the API endpoint is down
+    const relayAddress = {
+      "id": relayAddressEl.dataset.id,
+      "address": relayAddressEl.dataset.clipboardText,
+      "domain": addonRelayAddressDomain,
+    };
+    relayAddresses.push(relayAddress);
   }
-  chrome.storage.local.set({relayAddresses});
+  browser.storage.local.set({relayAddresses});
 })();

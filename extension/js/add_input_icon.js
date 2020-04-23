@@ -72,6 +72,7 @@ function addRelayIconToInput(emailInput) {
   buttonEl.addEventListener("click", async (e) => {
     const newRelayAddressResponse = await browser.runtime.sendMessage({
         method: "makeRelayAddress",
+        domain: document.location.hostname,
       });
       const errorMessageWrapper = document.querySelector(".relay-error-message-wrapper");
       if (errorMessageWrapper) {
