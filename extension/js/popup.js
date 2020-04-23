@@ -47,8 +47,8 @@ async function popup() {
       }
 
       // show newly created alias
-      aliasWrapper.classList.remove("hidden");
       aliasText.textContent = newRelayAddressResponse;
+      aliasWrapper.classList.remove("hidden");
       aliasDisplay.classList.add("show-alias");
 
       // Copy text to clipboard
