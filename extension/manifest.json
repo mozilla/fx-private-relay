@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Private Relay",
-  "version": "1.2.0",
+  "version": "1.3.0",
 
   "description": "Private Relay provides generated email addresses to use in place of personal email addresses.",
 
