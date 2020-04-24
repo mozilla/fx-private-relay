@@ -12,7 +12,7 @@ function showRelayPanel() {
 
 async function popup() {
   const userApiToken = await browser.storage.local.get("apiToken");
-  if (!userApiToken) {
+  if (!userApiToken.hasOwnProperty("userApiToken")) {
     showSignUpPanel();
   } else {
     showRelayPanel();
