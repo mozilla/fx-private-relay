@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+import ipaddress
 import os
 
 from decouple import config
@@ -69,6 +70,11 @@ ALLOWED_HOSTS = []
 DJANGO_ALLOWED_HOST = config('DJANGO_ALLOWED_HOST', None)
 if DJANGO_ALLOWED_HOST:
     ALLOWED_HOSTS += [DJANGO_ALLOWED_HOST]
+DJANGO_ALLOWED_SUBNET = config('DJANGO_ALLOWED_SUBNET', None)
+if DJANGO_ALLOWED_SUBNET:
+    ALLOWED_HOSTS += [
+        str(ip) for ip in ipaddress.IPv4Network(DJANGO_ALLOWED_SUBNET)
+    ]
 
 
 # Get our backing resource configs to check if we should install the app
