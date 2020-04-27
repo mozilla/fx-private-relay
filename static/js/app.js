@@ -5,7 +5,10 @@ function dismissNotification(){
 
 async function toggleEmailForwardingPreferences(submitEvent) {
 	submitEvent.preventDefault();
+
 	const toggleForwardingForm = submitEvent.target;
+	const toggleButton = toggleForwardingForm.querySelector("button");
+	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", toggleButton.value);
 
 	const formData = {};
 	Array.from(toggleForwardingForm.elements).forEach(elem => {
@@ -15,7 +18,6 @@ async function toggleEmailForwardingPreferences(submitEvent) {
 	const response = await sendForm(toggleForwardingForm.action, formData);
 
 	if (response && response.status == "200") {
-		const toggleButton = toggleForwardingForm.querySelector("button");
 		toggleButton.classList.toggle("forwarding-disabled");
 		if (toggleButton.value === "Enable") {
 			return toggleButton.value = "Disable";
@@ -51,17 +53,21 @@ function deleteAliasConfirmation(submitEvent) {
 	const confirmDeleteModal = deleteAliasForm.nextElementSibling;
 	confirmDeleteModal.classList.remove("hidden");
 
-	confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
+	const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
 	confirmDeleteModalActions[0].focus();
+
+	sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
 
 	confirmDeleteModalActions.forEach(btn => {
 		if (btn.classList.contains("cancel-delete")) {
 			btn.addEventListener("click", () => {
+				sendGaPing("Dashboard Alias Settings", "Delete Alias", "Cancel Delete");
 				confirmDeleteModal.classList.add("hidden");
 			});
 		}
 		if (btn.classList.contains("confirm-delete")) {
 			btn.addEventListener("click", () => {
+				sendGaPing("Dashboard Alias Settings", "Delete Alias", "Confirm Delete");
 				deleteAliasForm.submit();
 			});
 		}
@@ -123,6 +129,12 @@ function addEventListeners() {
 	document.querySelectorAll(".delete-email-form").forEach(deleteForm => {
 		deleteForm.addEventListener("submit", deleteAliasConfirmation);
 	});
+
+	document.querySelectorAll(".create-new-relay").forEach(createNewRelayBtn => {
+		createNewRelayBtn.addEventListener("click", () => {
+			sendGaPing("Create New Relay Alias", "Click", createNewRelayBtn.dataset.analyticsLabel);
+		})
+	});
 }
 
 // Watch for the addon to update the dataset of <firefox-private-relay-addon></firefox-private-relay-addon>
@@ -148,7 +160,6 @@ function watchForInstalledAddon() {
 	const mutationPatroller = new MutationObserver(patrollerDuties);
 	mutationPatroller.observe(installIndicator, observerConfig);
 }
-
 
 
 document.addEventListener("DOMContentLoaded", () => {
