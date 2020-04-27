@@ -57,8 +57,15 @@ AVATAR_IMG_SRC_MAP = {
 AVATAR_IMG_SRC = AVATAR_IMG_SRC_MAP[config(
     'FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'
 )]
+CSP_CONNECT_SRC = (
+    "'self'",
+    'https://www.google-analytics.com/',
+)
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = (
+    "'self'",
+    'https://www.google-analytics.com/',
+)
 CSP_STYLE_SRC = ("'self'",)
 CSP_IMG_SRC = (
     "'self'",
