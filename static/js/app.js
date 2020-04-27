@@ -8,7 +8,8 @@ async function toggleEmailForwardingPreferences(submitEvent) {
 
 	const toggleForwardingForm = submitEvent.target;
 	const toggleButton = toggleForwardingForm.querySelector("button");
-	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", toggleButton.value);
+	const analyticsLabel = (toggleButton.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
+	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
 	const formData = {};
 	Array.from(toggleForwardingForm.elements).forEach(elem => {

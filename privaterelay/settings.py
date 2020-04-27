@@ -58,13 +58,12 @@ AVATAR_IMG_SRC = AVATAR_IMG_SRC_MAP[config(
 )]
 CSP_CONNECT_SRC = (
     "'self'",
-    'https://www.google-analytics.com/r/collect',
-    'https://www.google-analytics.com/collect',
+    'https://www.google-analytics.com/',
 )
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = (
     "'self'",
-    'https://www.google-analytics.com/analytics.js',
+    'https://www.google-analytics.com/',
 )
 CSP_STYLE_SRC = ("'self'",)
 CSP_IMG_SRC = (
