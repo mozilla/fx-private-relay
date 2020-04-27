@@ -1,7 +1,9 @@
 from django.core.exceptions import PermissionDenied
 
 
-ALLOWED_SIGNUP_DOMAINS = ['mozilla.com', 'mozillafoundation.org']
+ALLOWED_SIGNUP_DOMAINS = [
+    'getpocket.com', 'mozilla.com', 'mozillafoundation.org'
+]
 
 
 def mozillians_only(sender, **kwargs):
