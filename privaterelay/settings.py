@@ -205,6 +205,9 @@ DATABASES = {
         default="sqlite:///%s" % os.path.join(BASE_DIR, 'db.sqlite3')
     )
 }
+MONITOR_DATABASE_URL = config('MONITOR_DATABASE_URL', None)
+if MONITOR_DATABASE_URL:
+    DATABASES['monitor'] = dj_database_url.parse(MONITOR_DATABASE_URL)
 
 
 # Password validation
