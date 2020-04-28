@@ -120,28 +120,32 @@ function toggleVisibilityOfElementsIfAddonIsInstalled() {
 	const elementsToShowIfAddonIsInstalled = document.querySelectorAll("a.sign-in-btn");
 
 	if (isRelayAddonInstalled()) { // Private Relay add-on IS installed
-		document.querySelectorAll("a.add-to-fx, .no-addon-content, a.add-to-fx-header, .no-addon-content").forEach(installCta => {
+		document.querySelectorAll("a.add-to-fx, a.add-to-fx-header ").forEach(installCta => {
 			installCta.classList.add("hidden");
 		});
 		elementsToShowIfAddonIsInstalled.forEach(elem => {
 			elem.classList.remove("hidden");
 		});
 	} else { // Private Relay add-on is not installed
-			elementsToShowIfAddonIsInstalled.forEach(elem => {
-				elem.classList.add("hidden");
+		elementsToShowIfAddonIsInstalled.forEach(elem => {
+			elem.classList.add("hidden");
 		});
 	}
 	showCtas();
 
-	if (document.querySelector(".no-addon-content") && wasDashboardInstallationMessageDismissed()) {
-			hideInstallCallout();
-			return;
-		} else if (document.querySelector(".no-addon-content") && !wasDashboardInstallationMessageDismissed()) {
-			const installCalloutWrapper = document.querySelector(".no-addon-content");
-			installCalloutWrapper.classList.remove("hidden");
-			const createFirstAliasContent = document.querySelector(".create-first-alias");
-			createFirstAliasContent.classList.add("hidden");
-		}
+	const dashboardInstallAddonMessage = document.querySelector(".no-addon-content");
+	if (
+			(dashboardInstallAddonMessage && isRelayAddonInstalled()) ||
+			(dashboardInstallAddonMessage && wasDashboardInstallationMessageDismissed())
+	) {
+		return hideInstallCallout();
+	}
+	if (dashboardInstallAddonMessage && !wasDashboardInstallationMessageDismissed()) {
+		dashboardInstallAddonMessage.classList.remove("hidden");
+		const createFirstAliasContent = document.querySelector(".create-first-alias");
+		createFirstAliasContent.classList.add("hidden");
+		return;
+	}
 }
 
 
