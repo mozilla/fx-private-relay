@@ -88,7 +88,7 @@ function isAddonInstallInSessionStorage() {
 }
 
 function wasDashboardInstallationMessageDismissed() {
-	return ("localStorage" in window && localStorage.getItem("hideAddonInstallMessage") === "true");
+	return ("sessionStorage" in window && sessionStorage.getItem("hideAddonInstallMessage") === "true");
 }
 
 
@@ -107,8 +107,8 @@ function hideSecondarySignInButtons() {
 }
 
 function hideInstallCallout() {
-	if ("localStorage" in window) {
-		localStorage.setItem("hideAddonInstallMessage", "true");
+	if ("sessionStorage" in window) {
+		sessionStorage.setItem("hideAddonInstallMessage", "true");
 	}
 	const installCalloutWrapper = document.querySelector(".no-addon-content");
 	installCalloutWrapper.classList.add("hidden");
@@ -161,7 +161,7 @@ function addEventListeners() {
 
 	const continueWithoutAddonBtn = document.querySelector(".continue-without-addon");
 	if (continueWithoutAddonBtn) {
-		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout());
+		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout);
 	}
 }
 
