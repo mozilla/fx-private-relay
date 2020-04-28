@@ -137,6 +137,8 @@ function toggleVisibilityOfElementsIfAddonIsInstalled() {
 			hideInstallCallout();
 			return;
 		} else if (document.querySelector(".no-addon-content") && !wasDashboardInstallationMessageDismissed()) {
+			const installCalloutWrapper = document.querySelector(".no-addon-content");
+			installCalloutWrapper.classList.remove("hidden");
 			const createFirstAliasContent = document.querySelector(".create-first-alias");
 			createFirstAliasContent.classList.add("hidden");
 		}
