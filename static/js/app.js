@@ -176,7 +176,6 @@ function watchForInstalledAddon() {
 		for (let mutation of mutations) {
 			if (mutation.type === "attributes" && isRelayAddonInstalled()) {
 				toggleVisibilityOfElementsIfAddonIsInstalled();
-				// showSecondarySignInButtons();
 				if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
 					sessionStorage.setItem("addonInstalled", "true");
 				}
