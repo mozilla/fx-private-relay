@@ -84,7 +84,11 @@ function isRelayAddonInstalled() {
 
 // Looks for previously saved installation note in sessionStorage
 function isAddonInstallInSessionStorage() {
-	return (sessionStorage && sessionStorage.getItem("addonInstalled", "true"))
+	return (sessionStorage && sessionStorage.getItem("addonInstalled", "true"));
+}
+
+function wasDashboardInstallationMessageDismissed() {
+	return ("localStorage" in window && localStorage.getItem("hideAddonInstallMessage") === "true");
 }
 
 
@@ -95,14 +99,6 @@ function showCtas() {
 }
 
 
-function hideAddToFxButtons() {
-	document.querySelectorAll("a.add-to-fx").forEach(installBtn => {
-		installBtn.classList.add("hidden");
-	});
-	showCtas();
-}
-
-
 function hideSecondarySignInButtons() {
 	document.querySelectorAll("a.sign-in-btn").forEach(signInBtn => {
 		signInBtn.classList.add("hidden");
@@ -110,10 +106,36 @@ function hideSecondarySignInButtons() {
 	showCtas();
 }
 
-function showSecondarySignInButtons() {
-	document.querySelectorAll("a.sign-in-btn.hidden").forEach(signInBtn => {
-		signInBtn.classList.remove("hidden");
-	});
+function hideInstallCallout() {
+	if ("localStorage" in window) {
+		localStorage.setItem("hideAddonInstallMessage", "true");
+	}
+	const installCalloutWrapper = document.querySelector(".no-addon-content");
+	installCalloutWrapper.classList.add("hidden");
+	const createFirstAliasContent = document.querySelector(".create-first-alias");
+	createFirstAliasContent.classList.remove("hidden");
+}
+
+function toggleVisibilityOfElementsIfAddonIsInstalled() {
+	const elementsToShowIfAddonIsInstalled = document.querySelectorAll("a.sign-in-btn");
+
+	if (isRelayAddonInstalled()) { // Private Relay add-on IS installed
+		document.querySelectorAll("a.add-to-fx, .no-addon-content, a.add-to-fx-header, .no-addon-content").forEach(installCta => {
+			installCta.classList.add("hidden");
+		});
+		elementsToShowIfAddonIsInstalled.forEach(elem => {
+			elem.classList.remove("hidden");
+		});
+	} else { // Private Relay add-on is not installed
+			elementsToShowIfAddonIsInstalled.forEach(elem => {
+				elem.classList.add("hidden");
+		});
+	}
+	showCtas();
+
+	if (document.querySelector(".no-addon-content") && wasDashboardInstallationMessageDismissed()) {
+			hideInstallCallout();
+		}
 }
 
 
@@ -136,6 +158,11 @@ function addEventListeners() {
 			sendGaPing("Create New Relay Alias", "Click", createNewRelayBtn.dataset.analyticsLabel);
 		})
 	});
+
+	const continueWithoutAddonBtn = document.querySelector(".continue-without-addon");
+	if (continueWithoutAddonBtn) {
+		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout());
+	}
 }
 
 // Watch for the addon to update the dataset of <firefox-private-relay-addon></firefox-private-relay-addon>
@@ -148,8 +175,8 @@ function watchForInstalledAddon() {
 	const patrollerDuties = (mutations, mutationPatroller) => {
 		for (let mutation of mutations) {
 			if (mutation.type === "attributes" && isRelayAddonInstalled()) {
-				hideAddToFxButtons();
-				showSecondarySignInButtons();
+				toggleVisibilityOfElementsIfAddonIsInstalled();
+				// showSecondarySignInButtons();
 				if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
 					sessionStorage.setItem("addonInstalled", "true");
 				}
@@ -166,11 +193,7 @@ function watchForInstalledAddon() {
 document.addEventListener("DOMContentLoaded", () => {
 	watchForInstalledAddon();
 	addEventListeners();
-	if (isRelayAddonInstalled()) {
-		hideAddToFxButtons();
-	} else {
-		hideSecondarySignInButtons();
-	}
+	toggleVisibilityOfElementsIfAddonIsInstalled();
 });
 
 class GlocalMenu extends HTMLElement {

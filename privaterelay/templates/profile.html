@@ -24,16 +24,26 @@
     {% endif %}
 
     {% if relay_addresses|length == 0 %}
-    <div class="create-first-alias flx flx-col al-cntr jst-cntr appear-smoothly">
-      <p class="ff-Met no-active-aliases text-center">You have no email aliases.</p>
-      <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
-        <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-        <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias - No existing aliases">
-          Create New Relay Alias
-        </button>
-      </form>
-    </div>
-  {% endif %}
+      <div class="create-first-alias flx flx-col al-cntr jst-cntr appear-smoothly hidden">
+        <p class="ff-Met no-active-aliases text-center">You have no email aliases.</p>
+        <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
+          <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+          <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias - No existing aliases">
+            Create New Relay Alias
+          </button>
+        </form>
+      </div>
+
+      <div class="no-addon-content flx flx-col al-cntr jst-cntr appear-smoothly">
+        <p class="ff-Met get-relay-addon text-center">For the best experience, get the Private Relay add-on</p>
+        <div class="bg-fx-gradient fx-gradient-btn add-to-fx-dash-wrapper">
+          <a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="add-to-fx-dash flx al-cntr jst-cntr bg-light">
+            Add to Firefox
+          </a>
+        </div>
+        <button class="text-link continue-without-addon">Continue without the add-on</button>
+      </div>
+    {% endif %}
       <div class="alias-list {% if relay_addresses|length == 0 %} no-aliases {% endif %}">
         <div class="flx flx-row dashboard-header">
           <h2 class="section-headline dashboard-headline">Manage Email Aliases</h2>

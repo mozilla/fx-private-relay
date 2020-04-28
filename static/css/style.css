@@ -291,6 +291,10 @@ header {
   color: var(--white);
 }
 
+.add-to-fx-header {
+  color: rgba(255, 255, 255, 1);
+}
+
 .main-list {
   min-height: 50vh;
   max-width: 900px;
@@ -719,6 +723,13 @@ ul.messages {
   font-weight: 600;
 }
 
+.add-to-fx-dash {
+  position: relative;
+  margin: 2px;
+  padding: 1rem 2rem;
+}
+
+.add-to-fx-dash,
 .create-new-relay {
   margin: 2px;
   padding: 12px 20px 12px 16px;
@@ -731,6 +742,7 @@ ul.messages {
   display: flex;
 }
 
+.add-to-fx-dash::before,
 .create-new-relay::before {
   content: "";
   background-image: url(/static/images/plus-sign.svg);
@@ -968,10 +980,14 @@ ul.messages {
   animation: appearSmoothly .2s ease;
 }
 
+.get-relay-addon,
 .no-active-aliases {
   font-size: 1.5rem;
+  line-height: 1.5;
+  max-width: 460px;
 }
 
+.get-relay-addon::before,
 .no-active-aliases::before {
   height: 100px;
   width: 100px;
@@ -980,6 +996,15 @@ ul.messages {
   background-repeat: no-repeat;
   display: block;
   margin: auto;
+}
+
+.continue-without-addon {
+  font-size: 1rem;
+  outline: none;
+  border: none;
+  margin-top: 24px;
+  font-weight: 300;
+  text-decoration: underline;
 }
 
 /* end no aliases screen */
