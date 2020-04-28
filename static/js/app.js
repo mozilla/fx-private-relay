@@ -120,7 +120,7 @@ function toggleVisibilityOfElementsIfAddonIsInstalled() {
 	const elementsToShowIfAddonIsInstalled = document.querySelectorAll("a.sign-in-btn");
 
 	if (isRelayAddonInstalled()) { // Private Relay add-on IS installed
-		document.querySelectorAll("a.add-to-fx, a.add-to-fx-header ").forEach(installCta => {
+		document.querySelectorAll("a.add-to-fx, a.add-to-fx-header").forEach(installCta => {
 			installCta.classList.add("hidden");
 		});
 		elementsToShowIfAddonIsInstalled.forEach(elem => {
