@@ -135,6 +135,10 @@ function toggleVisibilityOfElementsIfAddonIsInstalled() {
 
 	if (document.querySelector(".no-addon-content") && wasDashboardInstallationMessageDismissed()) {
 			hideInstallCallout();
+			return;
+		} else if (document.querySelector(".no-addon-content") && !wasDashboardInstallationMessageDismissed()) {
+			const createFirstAliasContent = document.querySelector(".create-first-alias");
+			createFirstAliasContent.classList.add("hidden");
 		}
 }
 
