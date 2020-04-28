@@ -161,7 +161,7 @@ function addEventListeners() {
 
 	const continueWithoutAddonBtn = document.querySelector(".continue-without-addon");
 	if (continueWithoutAddonBtn) {
-		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout());
+		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout);
 	}
 }
 
