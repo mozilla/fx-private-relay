@@ -21,7 +21,7 @@
 					<img class="glocal-small-avatar" alt="Firefox Account Avatar" src="{{ avatar }}" />
 					<div class="glocal-account-info">
 						<span class="glocal-fxa-email">{{ request.user.email }}</span>
-						<a href="{% manage_fxa_url %}" class="glocal-fxa-settings-link">Manage your Firefox Account</a>
+                        <a href="{{ settings.FXA_SETTINGS_URL }}" class="glocal-fxa-settings-link">Manage your Firefox Account</a>
 					</div>
 				</div>
 				<div class="glocal-site-options">
