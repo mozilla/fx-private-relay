@@ -269,6 +269,8 @@ SOCIALACCOUNT_PROVIDERS = {
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 
+FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', 'https://accounts.firefox.com/settings')
+
 LOGGING = {
     'version': 1,
     'formatters': {
