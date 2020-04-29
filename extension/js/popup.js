@@ -57,6 +57,14 @@ async function popup() {
       navigator.clipboard.writeText(newRelayAddressResponse);
     });
   });
+
+  document.querySelectorAll(".close-popup-after-click").forEach(el => {
+    el.addEventListener("click", async (e) => {
+      e.preventDefault();
+      await browser.tabs.create({ url: el.href });
+      window.close();
+    });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", popup);
