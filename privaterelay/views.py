@@ -5,6 +5,7 @@ import os
 
 from jwt import JWT, jwk_from_dict
 import requests
+import sentry_sdk
 
 from django.apps import apps
 from django.conf import settings
@@ -89,7 +90,14 @@ def lbheartbeat(request):
 def fxa_rp_events(request):
     jwt = _parse_jwt_from_request(request)
     authentic_jwt = _authenticate_fxa_jwt(jwt)
-    social_account = _get_account_from_jwt(authentic_jwt)
+    try:
+        social_account = _get_account_from_jwt(authentic_jwt)
+    except SocialAccount.DoesNotExist as e:
+        # we received an FXA event for an FXA not in our DB;
+        # capture the exception in sentry, but don't error, or FXA will retry
+        sentry_sdk.capture_exception(e)
+        return HttpResponse('202 Accepted', status=202)
+
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     for event_key in event_keys:
         if (event_key == FXA_PROFILE_CHANGE_EVENT):
