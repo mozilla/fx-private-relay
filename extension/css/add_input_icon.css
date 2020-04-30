@@ -16,7 +16,6 @@
   pointer-events: none;
   padding: 0 !important;
   width: 100%;
-  height: 100%;
   z-index: 99999999999999999;
 }
 
@@ -172,6 +171,7 @@ logomark {
   position: fixed;
   top: 48px;
   width: 100%;
+  height: 100%;
   left: 0;
   right: 0;
   display: block;
