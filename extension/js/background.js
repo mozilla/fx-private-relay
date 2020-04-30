@@ -46,22 +46,17 @@ async function makeRelayAddressForTargetElement(info, tab) {
     return;
   }
 
-  const options = {};
-
-  // Check if input is inside iframe and send the iframe's src if so
-  if (info.frameUrl && info.pageUrl) {
-    const iframeUrl = info.frameUrl;
-    const pageUrl = info.pageUrl;
-    const iframeSrc = (iframeUrl.includes(pageUrl)) ? iframeUrl.replace(pageUrl, "/") : iframeUrl;
-
-    options.iframeSrc = iframeSrc;
-  }
-  browser.tabs.sendMessage(tab.id, {
-    type: "fillTargetWithRelayAddress",
-    targetElementId : info.targetElementId,
-    relayAddress: newRelayAddress,
-    options,
-  });
+  browser.tabs.sendMessage(
+      tab.id,
+      {
+        type: "fillTargetWithRelayAddress",
+        targetElementId : info.targetElementId,
+        relayAddress: newRelayAddress,
+      },
+      {
+        frameId: info.frameId,
+    },
+  );
 }
 
 browser.menus.create({

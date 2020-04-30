@@ -70,17 +70,7 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
     if (message.type === "fillTargetWithRelayAddress") {
 
         // attempt to find the email input
-        let emailInput = browser.menus.getTargetElement(message.targetElementId);
-
-        // find email inputs in frame
-        if (!emailInput && message.options.iframeSrc) {
-            const parentIframe = document.querySelector(`iframe[src^="${message.options.iframeSrc}"]`);
-            // Later: Do better detecting of iframe input
-            const foundEmailInputs = parentIframe.contentWindow.document.body.querySelectorAll("input[type='email'], input[name='email']");
-            emailInput = (foundEmailInputs.length > 0) ? foundEmailInputs[0] : emailInput;
-        }
-
-        // default to showing the new alias in a modal if the input still hasn't been found
+        const emailInput = browser.menus.getTargetElement(message.targetElementId);
         if (!emailInput) {
             return showModal(message.relayAddress, "new-alias");
         }
