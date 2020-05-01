@@ -257,8 +257,9 @@ button:active {
   background-position: left center;
   background-size: contain;
   height: 100%;
-  min-width: 60px;
+  min-width: 42px;
   display: inline-block;
+  margin-right: 8px;
 }
 
 .fx-private-relay-logotype {
@@ -266,7 +267,7 @@ button:active {
   background-position: center 63%;
   background-repeat: no-repeat;
   background-size: contain;
-  min-width: 260px;
+  min-width: 270px;
   min-height: 50px;
 }
 
