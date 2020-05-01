@@ -7,14 +7,13 @@ function addRelayIconToInput(emailInput) {
   // create new wrapping element;
   const emailInputWrapper = document.createElement("div");
   emailInputWrapper.classList.add("relay-email-input-wrapper");
+  emailInputOriginalParentEl.insertBefore(emailInputWrapper, emailInput);
 
-  const inputClone = emailInput.cloneNode();
-  // add padding to the cloned input so that input text
+  // add padding to the input so that input text
   // is not covered up by the Relay icon
-  inputClone.style.paddingRight = "50px";
+  emailInput.style.paddingRight = "50px";
 
-
-  emailInputWrapper.appendChild(inputClone);
+  emailInputWrapper.appendChild(emailInput);
 
   const inputHeight = emailInput.clientHeight;
 
@@ -40,7 +39,7 @@ function addRelayIconToInput(emailInput) {
     imgEl.style.width = smallIconSize;
     imgEl.style.minWidth = smallIconSize;
     imgEl.style.minHeight = smallIconSize;
-    inputClone.style.paddingRight = "30px";
+    emailInput.style.paddingRight = "30px";
     divEl.style.right = "2px";
   }
 
@@ -82,13 +81,14 @@ function addRelayIconToInput(emailInput) {
         return createErrorMessage(buttonEl, "You already have 5 aliases.");
       }
       navigator.clipboard.writeText(newRelayAddressResponse);
-      inputClone.value = newRelayAddressResponse;
+      emailInput.value = newRelayAddressResponse;
+      emailInput.dispatchEvent(new InputEvent("relay-address", {
+        data: newRelayAddressResponse,
+      }));
   });
 
   divEl.appendChild(buttonEl);
   emailInputWrapper.appendChild(divEl);
-  emailInputOriginalParentEl.insertBefore(emailInputWrapper, emailInput);
-  emailInput.remove();
 }
 
 function getEmailInputsAndAddIcon() {
