@@ -257,7 +257,7 @@ button:active {
   background-position: left center;
   background-size: contain;
   height: 100%;
-  min-width: 80px;
+  min-width: 60px;
   display: inline-block;
 }
 
