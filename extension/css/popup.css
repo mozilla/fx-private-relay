@@ -1,74 +1,13 @@
-@font-face {
-  font-family: "Metropolis";
-  font-style: normal;
-  font-weight: 600;
-  src: url("/fonts/Metropolis/Metropolis-Medium.woff2") format("woff2");
-}
-
-@font-face {
-  font-family: 'Inter UI';
-  font-style: normal;
-  font-weight: 600;
-  src:
-    url("/fonts/Inter/Inter-UI-Regular.woff2") format("woff2"),
-    url("/fonts/Inter/Inter-UI-Regular.woff") format("woff");
-}
-
-body {
+.panel {
   --panelWidth: 360px;
   --panelHeight: 300px;
-  --ink: #20123a;
-  --Metropolis: "Metropolis", "SF Pro Text", "Segoe UI", Roboto, "Open Sans";
-  --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
-  font-family: "Inter UI", "SF Pro Text", 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  font-size: 17px;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.panel {
-  min-width: var(--panelWidth);
-  max-width: var(--panelWidth);
-  width: var(--panelWidth);
-  min-height: var(--panelHeight);
-  color: var(--ink);
   background: url("/images/email-tout-bg.svg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: top center;
-}
-
-logo-wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-logotype {
-  background-image: url("/images/logotype.svg");
-  margin-top: 6px;
-  margin-left: 8px;
-  width: 70%;
-  height: 30px;
-  display: inline-flex;
-}
-
-logomark {
-  content: "";
-  background-image: url("/images/logomark.svg");
-  width: 39px;
-  height: 39px;
-  display: block;
-}
-
-logotype,
-logomark,
-.new-tab::after,
-#generate-alias::after {
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: contain;
+  width: var(--panelWidth);
+  height: var(--panelHeight);
+  color: var(--ink70);
 }
 
 p {
@@ -80,11 +19,6 @@ p {
 .intro {
   margin: 48px auto 18px auto;
   font-size: 15px;
-}
-
-a {
-  color: inherit;
-  font-weight: 500;
 }
 
 .hidden {
@@ -118,21 +52,9 @@ a {
   display: inline-flex;
 }
 
-button,
-button:hover,
-button:focus,
-button:active,
-a,
-a:hover,
-a:focus,
-a:active {
-  outline: none;
-  transition: all 0.2s ease;
-}
-
 .create-account {
   color: var(--ink);
-  background: white;
+  background: rgba(255, 255, 255, 1);
   padding: 12px 24px;
   border-radius: 4px;
   margin: auto;
@@ -147,11 +69,11 @@ a:active {
 
 .create-account:hover,
 .create-account:focus {
-  background: #f9f9fa;
+  background: var(--grey20);
 }
 
 .create-account:active {
-  background: #ededf0;
+  background: var(--grey30);
 }
 
 .already-signed-up {
@@ -177,59 +99,20 @@ main {
   height: 100%;
 }
 
-::-moz-focus-inner {
-  border: 0;
-}
-
 .text-link {
-  color: var(--ink);
   font-weight: 900;
   text-decoration: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0);
+  border-bottom: 1px solid var(--ink70);
 }
 
 .text-link:hover,
 .text-link:focus {
+  color: var(--ink);
   border-bottom: 1px solid var(--ink);
 }
 
 alias-creation {
-  margin-top: 40px;
-}
-
-.view-dashboard {
-  margin: auto;
-  text-decoration: none;
-  font-size: 16px;
-}
-
-.view-dashboard::after {
-  height: 20px;
-  width: 20px;
-  margin-left: 4px;
-}
-
-.new-tab {
-  text-decoration: none;
-  font-size: 16px;
-  border: none;
-  outline: none;
-  display: flex;
-  align-items: center;
-  font-family: var(--Metropolis);
-}
-
-.manage-aliases::after {
-  height: 16px;
-  width: 16px;
-  margin-left: 4px;
-  font-size: 14px;
-}
-
-.new-tab::after {
-  display: inline-block;
-  content: "";
-  background-image: url("/icons/open-new-tab.svg");
+  margin: 40px 0 12px 0;
 }
 
 #generate-alias {
@@ -237,8 +120,8 @@ alias-creation {
   width: 100%;
   padding: 8px 12px;
   border-radius: 4px;
-  border: 1px solid #ededf0;
-  background: #f9f9fa;
+  border: 1px solid var(--grey20);
+  background: var(--grey10);
   color: var(--ink);
   font-size: 16px;
   font-family: var(--Metropolis);
@@ -249,12 +132,12 @@ alias-creation {
 
 #generate-alias:hover,
 #generate-alias:focus {
-  background: #ededf0;
+  background: var(--grey20);
 }
 
 #generate-alias:active {
-  background: #d7d7db;
-  border-color: #d7d7db;
+  background: var(--grey30);
+  border-color: var(--grey30);
 }
 
 #generate-alias::after {
@@ -283,7 +166,7 @@ alias-creation {
 }
 
 .alias-display.show-alias {
-  border-bottom: 1px solid #ededf0;
+  border-bottom: 1px solid var(--grey20);
   transition: all 0.2s ease;
 }
 
@@ -307,13 +190,4 @@ alias-creation {
 .error-message {
   font-size: 14px;
   margin-bottom: 4px;
-}
-
-.message-copied {
-  font-size: 12px;
-  background-color: #9059ff;
-  border-radius: 2px;
-  padding: 3px 6px;
-  color: rgba(255, 255, 255, 1);
-  margin-left: 8px;
 }
