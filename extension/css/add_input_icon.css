@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "Metropolis";
+  font-style: normal;
+  font-weight: 600;
+  src: url("/fonts/Metropolis/Metropolis-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: 'Inter UI';
+  font-style: normal;
+  font-weight: 600;
+  src:
+    url("/fonts/Inter/Inter-UI-Regular.woff2") format("woff2"),
+    url("/fonts/Inter/Inter-UI-Regular.woff") format("woff");
+}
+
 .relay-icon {
   position: absolute;
   top: 0;
@@ -167,21 +183,45 @@ logomark {
   background-position: center;
 }
 
+/* relay modal */
+
+@font-face {
+  font-family: "Metropolis";
+  font-style: normal;
+  font-weight: 600;
+  src: url("/fonts/Metropolis/Metropolis-Medium.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: 'Inter UI';
+  font-style: normal;
+  font-weight: 600;
+  src:
+    url("/fonts/Inter/Inter-UI-Regular.woff2") format("woff2"),
+    url("/fonts/Inter/Inter-UI-Regular.woff") format("woff");
+}
+
 .relay-modal-wrapper {
+  --grey10: #f9f9fa;
+  --grey20: #ededf0;
+  --grey30: #d7d7db;
+  --grey40: #b1b1b3;
+  --Metropolis: "Metropolis", "SF Pro Text", "Segoe UI", Roboto, "Open Sans";
+  --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
+  --violet: #9059ff;
+
   position: fixed;
-  top: 48px;
   width: 100%;
   height: 100%;
+  top: 0;
   left: 0;
   right: 0;
   display: block;
-  z-index: 100000000;
+  z-index: 9999999999999999;
   display: flex;
   align-content: center;
   align-items: center;
   justify-content: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-
 }
 
 .relay-modal-content {
@@ -213,18 +253,18 @@ logomark {
 }
 
 .relay-modal-message {
-  font-size: 16px;
-  line-height: 1.3;
+  font-size: 17px;
+  line-height: 1.5;
   text-align: center;
-  max-width: 300px;
-  font-weight: 300px;
-  color: rgba(0, 0, 0, .6);
+  color: #2b1e44d6;
   margin-bottom: 32px;
+  font-family: "Inter Ui";
 }
 
+.message-copied,
 .relay-message-copied {
   font-size: 12px;
-  background-color: #9059ff;
+  background-color: var(--violet);
   border-radius: 2px;
   padding: 3px 6px;
   color: rgba(255, 255, 255, 1);
@@ -236,8 +276,8 @@ logomark {
   padding:12px;
   border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0);
-  background: #f9f9fa;
-  color: #20123a;
+  background: var(--grey20);
+  color: var(--ink);
   font-size: 17px;
   display: flex;
   align-items: center;
@@ -253,23 +293,49 @@ logomark {
 
 .relay-modal-close-button:hover,
 .relay-modal-close-button:focus {
-  background: #f2f2f2;
+  background: var(--grey30);
   transition: all 0.2s ease;
 }
 
 .relay-modal-close-button:active {
-  background: #eaeaea;
+  background: var(--grey40);
   transition: all 0.2s ease;
 }
 
-.relay-modal-dashboard-link {
+.new-tab {
+  border: none;
+  outline: none;
+  display: flex;
+  align-items: center;
+}
+
+.view-dashboard,
+.manage-aliases,
+.new-tab {
+  color: var(--ink);
+  font-family: var(--Metropolis);
   margin: auto;
   text-decoration: none;
   font-size: 16px;
 }
 
-.relay-modal-dashbord-link::after {
+.view-dashboard::after,
+.manage-aliases::after,
+.new-tab::after {
+  display: inline-block;
+  content: "";
+  background-image: url("/icons/open-new-tab.svg");
   height: 20px;
   width: 20px;
   margin-left: 4px;
+  margin-bottom: 1px;
+}
+
+logotype,
+logomark,
+.new-tab::after,
+#generate-alias::after {
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: contain;
 }
