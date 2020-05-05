@@ -117,8 +117,8 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'allauth.socialaccount.providers.fxa',
 
+    'fxa_refreshing',
     'privaterelay.apps.PrivateRelayConfig',
 ]
 

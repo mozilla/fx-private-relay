@@ -100,12 +100,9 @@ def fxa_rp_events(request):
 
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     for event_key in event_keys:
-        if (event_key == FXA_PROFILE_CHANGE_EVENT):
-            _handle_fxa_profile_change(
-                authentic_jwt, social_account, event_key
-            )
-        if (event_key == FXA_DELETE_EVENT):
-            _handle_fxa_delete(authentic_jwt, social_account, event_key)
+        _handle_fxa_event(
+            event_key, authentic_jwt, social_account, event_key
+        )
     return HttpResponse('200 OK', status=200)
 
 
@@ -138,12 +135,28 @@ def _get_event_keys_from_jwt(authentic_jwt):
     return authentic_jwt['events'].keys()
 
 
+def _handle_fxa_event(event_key, authentic_jwt, social_account):
+    if (event_key == FXA_PROFILE_CHANGE_EVENT):
+        _handle_fxa_profile_change(
+            authentic_jwt, social_account, event_key
+        )
+    if (event_key == FXA_DELETE_EVENT):
+        _handle_fxa_delete(authentic_jwt, social_account, event_key)
+
+
 def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
     token = social_account.socialtoken_set.first()
     headers = {'Authorization': 'Bearer: {0}'.format(token.token)}
     resp = requests.get(
         FirefoxAccountsOAuth2Adapter.profile_url, headers=headers
     )
+    if resp.status_code == 401:
+        resp_json = resp.json()
+        if resp_json['reason'] == 'Invalid token':
+            # TODO: use the social_account refresh token to get a new access
+            # token and retry
+            pass
+
     extra_data = resp.json()
     new_email = extra_data['email']
     logger.info('fxa_rp_event', extra={
