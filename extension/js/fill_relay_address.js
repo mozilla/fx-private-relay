@@ -65,6 +65,12 @@ function showModal(modalContentString, modalType) {
     return;
 }
 
+function fillInputWithAlias(emailInput, relayAlias) {
+  emailInput.value = relayAlias;
+  emailInput.dispatchEvent(new InputEvent("relay-address", {
+    data: relayAlias,
+  }));
+}
 
 browser.runtime.onMessage.addListener((message, sender, response) => {
     if (message.type === "fillTargetWithRelayAddress") {
@@ -75,6 +81,6 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
             return showModal(message.relayAddress, "new-alias");
         }
 
-        emailInput.value = message.relayAddress;
+        fillInputWithAlias(emailInput, message.relayAddress);
     }
 });
