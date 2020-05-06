@@ -1,4 +1,5 @@
 /* global browser */
+/* global fillInputWithAlias */
 
 function addRelayIconToInput(emailInput) {
   // remember the input's original parent element;
@@ -70,21 +71,17 @@ function addRelayIconToInput(emailInput) {
 
   buttonEl.addEventListener("click", async (e) => {
     const newRelayAddressResponse = await browser.runtime.sendMessage({
-        method: "makeRelayAddress",
-        domain: document.location.hostname,
-      });
-      const errorMessageWrapper = document.querySelector(".relay-error-message-wrapper");
-      if (errorMessageWrapper) {
-        return errorMessageWrapper.remove();
-      }
-      if (newRelayAddressResponse.status === 402) {
-        return createErrorMessage(buttonEl, "You already have 5 aliases.");
-      }
-      navigator.clipboard.writeText(newRelayAddressResponse);
-      emailInput.value = newRelayAddressResponse;
-      emailInput.dispatchEvent(new InputEvent("relay-address", {
-        data: newRelayAddressResponse,
-      }));
+      method: "makeRelayAddress",
+      domain: document.location.hostname,
+    });
+    const errorMessageWrapper = document.querySelector(".relay-error-message-wrapper");
+    if (errorMessageWrapper) {
+      return errorMessageWrapper.remove();
+    }
+    if (newRelayAddressResponse.status === 402) {
+      return createErrorMessage(buttonEl, "You already have 5 aliases.");
+    }
+    fillInputWithAlias(emailInput, newRelayAddressResponse);
   });
 
   divEl.appendChild(buttonEl);

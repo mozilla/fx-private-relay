@@ -1,80 +1,84 @@
 function showModal(modalContentString, modalType) {
-    const modalWrapper = document.createElement("div");
-    modalWrapper.classList = ["relay-modal-wrapper"];
+  const modalWrapper = document.createElement("div");
+  modalWrapper.classList = ["relay-modal-wrapper"];
 
-    const modalContent = document.createElement("div");
-    modalContent.classList = ["relay-modal-content"];
+  const modalContent = document.createElement("div");
+  modalContent.classList = ["relay-modal-content"];
 
-    const logoWrapper = document.createElement("logo-wrapper");
-    const logoMark = document.createElement("logomark");
-    const logoType = document.createElement("logotype");
+  const logoWrapper = document.createElement("logo-wrapper");
+  const logoMark = document.createElement("logomark");
+  const logoType = document.createElement("logotype");
 
-    [logoMark, logoType].forEach(customEl => {
-        logoWrapper.appendChild(customEl);
+  [logoMark, logoType].forEach(customEl => {
+    logoWrapper.appendChild(customEl);
+  });
+
+  modalContent.appendChild(logoWrapper);
+
+  const modalAliasWrapper = document.createElement("div");
+  modalAliasWrapper.classList = ["relay-modal-message-alias-wrapper"];
+
+  if (modalType === "new-alias") {
+    const modalAlias = document.createElement("span");
+    modalAlias.textContent = modalContentString;
+    modalAlias.classList = ["relay-modal-alias"];
+
+    const purpleCopiedBlurb = document.createElement("span");
+    purpleCopiedBlurb.textContent = "Copied!";
+    purpleCopiedBlurb.classList = ["relay-message-copied"];
+
+    [modalAlias, purpleCopiedBlurb].forEach(textEl => {
+      modalAliasWrapper.appendChild(textEl);
     });
 
-    modalContent.appendChild(logoWrapper);
+    const modalMessage = document.createElement("span");
+    modalMessage.textContent = "You just created a new alias!";
+    modalMessage.classList = ["relay-modal-message relay-modal-headline"];
 
-    const modalAliasWrapper = document.createElement("div");
-    modalAliasWrapper.classList = ["relay-modal-message-alias-wrapper"];
+    [modalAliasWrapper, modalMessage].forEach(textEl => {
+      modalContent.appendChild(textEl);
+    });
+  }
 
-    if (modalType === "new-alias") {
-        const modalAlias = document.createElement("span");
-        modalAlias.textContent = modalContentString;
-        modalAlias.classList = ["relay-modal-alias"];
+  const modalCloseButton = document.createElement("button");
+  modalCloseButton.classList = ["relay-modal-close-button"];
+  modalCloseButton.textContent = "Got it!";
 
-        const purpleCopiedBlurb = document.createElement("span");
-        purpleCopiedBlurb.textContent = "Copied!";
-        purpleCopiedBlurb.classList = ["relay-message-copied"];
+  // Remove relay modal on button click
+  modalCloseButton.addEventListener("click", () => {
+    modalWrapper.remove();
+  });
 
-        [modalAlias, purpleCopiedBlurb].forEach(textEl => {
-            modalAliasWrapper.appendChild(textEl);
-        });
-
-        const modalMessage = document.createElement("span");
-        modalMessage.textContent = "You just created a new alias!";
-        modalMessage.classList = ["relay-modal-message relay-modal-headline"];
-
-        [modalAliasWrapper, modalMessage].forEach(textEl => {
-            modalContent.appendChild(textEl);
-        });
+  // Remove relay modal on clicks outside of modal.
+  modalWrapper.addEventListener("click", (e) => {
+    const originalTarget = e.explicitOriginalTarget;
+    if (originalTarget.classList.contains("relay-modal-wrapper")) {
+      modalWrapper.remove();
     }
+  });
 
-    const modalCloseButton = document.createElement("button");
-    modalCloseButton.classList = ["relay-modal-close-button"];
-    modalCloseButton.textContent = "Got it!";
+  modalContent.appendChild(modalCloseButton);
+  modalWrapper.appendChild(modalContent);
+  document.body.appendChild(modalWrapper)
 
-    // Remove relay modal on button click
-    modalCloseButton.addEventListener("click", () => {
-        modalWrapper.remove();
-    });
-
-    // Remove relay modal on clicks outside of modal.
-    modalWrapper.addEventListener("click", (e) => {
-        const originalTarget = e.explicitOriginalTarget;
-        if (originalTarget.classList.contains("relay-modal-wrapper")) {
-            modalWrapper.remove();
-        }
-    });
-
-    modalContent.appendChild(modalCloseButton);
-    modalWrapper.appendChild(modalContent);
-    document.body.appendChild(modalWrapper)
-
-    window.navigator.clipboard.writeText(modalContentString);
-    return;
+  window.navigator.clipboard.writeText(modalContentString);
+  return;
 }
 
+function fillInputWithAlias(emailInput, relayAlias) {
+  emailInput.value = relayAlias;
+  emailInput.dispatchEvent(new InputEvent("relay-address", {
+    data: relayAlias,
+  }));
+}
 
 browser.runtime.onMessage.addListener((message, sender, response) => {
-    if (message.type === "fillTargetWithRelayAddress") {
-
-        // attempt to find the email input
-        const emailInput = browser.menus && browser.menus.getTargetElement(message.targetElementId);
-        if (!emailInput) {
-            return showModal(message.relayAddress, "new-alias");
-        }
-
-        emailInput.value = message.relayAddress;
+  if (message.type === "fillTargetWithRelayAddress") {
+    // attempt to find the email input
+    const emailInput = browser.menus.getTargetElement(message.targetElementId);
+    if (!emailInput) {
+      return showModal(message.relayAddress, "new-alias");
     }
+    fillInputWithAlias(emailInput, message.relayAddress);
+  }
 });
