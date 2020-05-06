@@ -9,6 +9,7 @@ import sentry_sdk
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.http import HttpResponse, JsonResponse
@@ -84,6 +85,36 @@ def heartbeat(request):
 
 def lbheartbeat(request):
     return HttpResponse('200 OK', status=200)
+
+
+def invitation(request):
+    active_accounts_count = User.objects.count()
+    if active_accounts_count >= settings.MAX_ACTIVE_ACCOUNTS:
+        return render(
+            request, 'socialaccount/authentication_error.html',
+            context={
+                'error_message': 'There are too many active accounts on '
+                'Relay. Please try again later.'
+            },
+            status=403,
+        )
+
+    if settings.ALPHA_INVITE_TOKEN is None:
+        return render(
+            request, 'socialaccount/authentication_error.html',
+            context={'error_message': 'Invitations are currently closed.'},
+            status=403,
+        )
+
+    if request.GET.get('alpha_token') != settings.ALPHA_INVITE_TOKEN:
+        return render(
+            request, 'socialaccount/authentication_error.html',
+            context={'error_message': 'Invalid alpha token.'},
+            status=403,
+        )
+
+    request.session['alpha_token'] = request.GET.get('alpha_token')
+    return redirect('/')
 
 
 @csrf_exempt
