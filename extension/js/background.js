@@ -59,19 +59,21 @@ async function makeRelayAddressForTargetElement(info, tab) {
   );
 }
 
-browser.menus.create({
-  id: "fx-private-relay-generate-alias",
-  title: "Generate Email Alias",
-  contexts: ["editable"]
-});
+if (browser.menus) {
+  browser.menus.create({
+    id: "fx-private-relay-generate-alias",
+    title: "Generate Email Alias",
+    contexts: ["editable"]
+  });
 
-browser.menus.onClicked.addListener( async (info, tab) => {
-  switch (info.menuItemId) {
-    case "fx-private-relay-generate-alias":
-      await makeRelayAddressForTargetElement(info, tab);
-      break;
-  }
-});
+  browser.menus.onClicked.addListener( async (info, tab) => {
+    switch (info.menuItemId) {
+      case "fx-private-relay-generate-alias":
+        await makeRelayAddressForTargetElement(info, tab);
+        break;
+    }
+  });
+}
 
 browser.runtime.onMessage.addListener(async (m) => {
   let response;

@@ -16,12 +16,14 @@
 
 body {
   --panelWidth: 360px;
+  /* Any changes to --panelHeight should be reflected in the screen media query */
   --panelHeight: 300px;
   --ink: #20123a;
   --Metropolis: "Metropolis", "SF Pro Text", "Segoe UI", Roboto, "Open Sans";
   --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
   font-family: "Inter UI", "SF Pro Text", 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-size: 17px;
+  margin: 0;
   -moz-osx-font-smoothing: grayscale;
 }
 
@@ -75,6 +77,14 @@ p {
   margin-top: 0;
   line-height: 1.5;
   text-align: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 
 .intro {
@@ -316,4 +326,58 @@ alias-creation {
   padding: 3px 6px;
   color: rgba(255, 255, 255, 1);
   margin-left: 8px;
+}
+
+/* For mobile screens with a bigger height viewport than the browser popup.
+   This takes the --panelHeight + 1px as its min-height. */
+@media screen and (min-height: 301px) {
+  .panel {
+    height: 100vh;
+  }
+
+  logo-wrapper {
+    margin-top: 2rem;
+  }
+
+  logomark {
+    width: 48px;
+    height: 50px;
+  }
+
+  logotype {
+    width: 70%;
+    height: 50px;
+  }
+
+  .intro {
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+  }
+
+  .intro,
+  .alias,
+  .error-message {
+    font-size: 1rem;
+  }
+
+  .message-copied {
+    font-size: 0.8rem;
+  }
+
+  .text-link {
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .create-account {
+    font-size: 1.1rem;
+    padding: 1rem 3rem;
+  }
+
+  alias-creation {
+    margin-top: 12rem;
+  }
+
+  .view-dashboard {
+    margin: auto auto 0 auto;
+  }
 }
