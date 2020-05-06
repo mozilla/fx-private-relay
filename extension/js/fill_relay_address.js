@@ -70,7 +70,7 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
     if (message.type === "fillTargetWithRelayAddress") {
 
         // attempt to find the email input
-        const emailInput = browser.menus.getTargetElement(message.targetElementId);
+        const emailInput = browser.menus && browser.menus.getTargetElement(message.targetElementId);
         if (!emailInput) {
             return showModal(message.relayAddress, "new-alias");
         }
