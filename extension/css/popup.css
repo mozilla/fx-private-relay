@@ -1,5 +1,6 @@
 .panel {
   --panelWidth: 360px;
+  /* Any changes to --panelHeight should be reflected in the screen media query */
   --panelHeight: 300px;
   background: url("/images/email-tout-bg.svg");
   background-repeat: no-repeat;
@@ -14,6 +15,14 @@ p {
   margin-top: 0;
   line-height: 1.5;
   text-align: center;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
 }
 
 .intro {
@@ -190,4 +199,67 @@ alias-creation {
 .error-message {
   font-size: 14px;
   margin-bottom: 4px;
+}
+
+.message-copied {
+  font-size: 12px;
+  background-color: #9059ff;
+  border-radius: 2px;
+  padding: 3px 6px;
+  color: rgba(255, 255, 255, 1);
+  margin-left: 8px;
+}
+
+/* For mobile screens with a bigger height viewport than the browser popup.
+   This takes the --panelHeight + 1px as its min-height. */
+@media screen and (min-height: 301px) {
+  .panel {
+    height: 100vh;
+  }
+
+  logo-wrapper {
+    margin-top: 2rem;
+  }
+
+  logomark {
+    width: 48px;
+    height: 50px;
+  }
+
+  logotype {
+    width: 70%;
+    height: 50px;
+  }
+
+  .intro {
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+  }
+
+  .intro,
+  .alias,
+  .error-message {
+    font-size: 1rem;
+  }
+
+  .message-copied {
+    font-size: 0.8rem;
+  }
+
+  .text-link {
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .create-account {
+    font-size: 1.1rem;
+    padding: 1rem 3rem;
+  }
+
+  alias-creation {
+    margin-top: 12rem;
+  }
+
+  .view-dashboard {
+    margin: auto auto 0 auto;
+  }
 }
