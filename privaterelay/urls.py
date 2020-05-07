@@ -35,6 +35,12 @@ urlpatterns = [
     path('', views.home, name='home'),
 ]
 
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        path('__debug__/', include(debug_toolbar.urls)),
+    ]
+
 if settings.ADMIN_ENABLED:
     urlpatterns += [
         path('admin/', admin.site.urls),
