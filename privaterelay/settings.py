@@ -31,6 +31,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY', None, cast=str)
 
 DEBUG = config('DEBUG', False, cast=bool)
+if DEBUG:
+    INTERNAL_IPS = config(
+        'DJANGO_INTERNAL_IPS', default=[]
+    )
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -122,6 +126,11 @@ INSTALLED_APPS = [
     'privaterelay.apps.PrivateRelayConfig',
 ]
 
+if DEBUG:
+    INSTALLED_APPS += [
+        'debug_toolbar',
+    ]
+
 if ADMIN_ENABLED:
     INSTALLED_APPS += [
         'django.contrib.admin',
@@ -152,6 +161,11 @@ def _get_initial_middleware():
     return []
 
 MIDDLEWARE = _get_initial_middleware()
+
+if DEBUG:
+    MIDDLEWARE += [
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    ]
 
 MIDDLEWARE += [
     'django.middleware.security.SecurityMiddleware',
