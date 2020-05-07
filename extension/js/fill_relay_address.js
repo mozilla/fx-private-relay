@@ -78,6 +78,14 @@ function showModal(modalType, newAlias=null) {
 }
 
 
+function fillInputWithAlias(emailInput, relayAlias) {
+  emailInput.value = relayAlias;
+  emailInput.dispatchEvent(new InputEvent("relay-address", {
+    data: relayAlias,
+  }));
+}
+
+
 browser.runtime.onMessage.addListener((message, sender, response) => {
   if (message.type === "fillTargetWithRelayAddress") {
     // attempt to find the email input
@@ -85,7 +93,7 @@ browser.runtime.onMessage.addListener((message, sender, response) => {
     if (!emailInput) {
       return showModal("new-alias", message.relayAddress);
     }
-    return emailInput.value = message.relayAddress;
+    return fillInputWithAlias(emailInput, message.relayAddress);
   }
 
   if (message.type === "showMaxNumAliasesMessage") {
