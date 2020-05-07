@@ -47,7 +47,7 @@
           "<all_urls>"
       ],
       "js": ["js/add_input_icon.js", "js/fill_relay_address.js"],
-      "css": ["css/add_input_icon.css"],
+      "css": ["css/relay.css"],
       "all_frames": true
     }
   ],

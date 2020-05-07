@@ -1,4 +1,4 @@
-function showModal(modalContentString, modalType) {
+function showModal(modalType, newAlias=null) {
   const modalWrapper = document.createElement("div");
   modalWrapper.classList = ["relay-modal-wrapper"];
 
@@ -18,9 +18,9 @@ function showModal(modalContentString, modalType) {
   const modalAliasWrapper = document.createElement("div");
   modalAliasWrapper.classList = ["relay-modal-message-alias-wrapper"];
 
-  if (modalType === "new-alias") {
+  if (modalType === "new-alias") { // New alias was created, but input wasn't found.
     const modalAlias = document.createElement("span");
-    modalAlias.textContent = modalContentString;
+    modalAlias.textContent = newAlias;
     modalAlias.classList = ["relay-modal-alias"];
 
     const purpleCopiedBlurb = document.createElement("span");
@@ -38,6 +38,20 @@ function showModal(modalContentString, modalType) {
     [modalAliasWrapper, modalMessage].forEach(textEl => {
       modalContent.appendChild(textEl);
     });
+    window.navigator.clipboard.writeText(newAlias);
+  }
+
+  if (modalType === "max-num-aliases") { // User has maxed out the number of allowed free aliases.
+    const modalMessage = document.createElement("span");
+    modalMessage.textContent = "You have reached the maximum number of aliases allowed during the beta phase of Private Relay.";
+    modalMessage.classList = ["relay-modal-message relay-modal-headline"];
+    modalContent.appendChild(modalMessage);
+
+    const manageAliasesLink = document.createElement("a");
+    manageAliasesLink.textContent = "Manage Aliases";
+    manageAliasesLink.classList = ["new-tab"];
+    manageAliasesLink["href"] = "http://127.0.0.1:8000/accounts/profile";
+    modalContent.appendChild(manageAliasesLink);
   }
 
   const modalCloseButton = document.createElement("button");
@@ -59,11 +73,10 @@ function showModal(modalContentString, modalType) {
 
   modalContent.appendChild(modalCloseButton);
   modalWrapper.appendChild(modalContent);
-  document.body.appendChild(modalWrapper)
-
-  window.navigator.clipboard.writeText(modalContentString);
+  document.body.appendChild(modalWrapper);
   return;
 }
+
 
 function fillInputWithAlias(emailInput, relayAlias) {
   emailInput.value = relayAlias;
@@ -72,13 +85,18 @@ function fillInputWithAlias(emailInput, relayAlias) {
   }));
 }
 
+
 browser.runtime.onMessage.addListener((message, sender, response) => {
   if (message.type === "fillTargetWithRelayAddress") {
     // attempt to find the email input
     const emailInput = browser.menus.getTargetElement(message.targetElementId);
     if (!emailInput) {
-      return showModal(message.relayAddress, "new-alias");
+      return showModal("new-alias", message.relayAddress);
     }
-    fillInputWithAlias(emailInput, message.relayAddress);
+    return fillInputWithAlias(emailInput, message.relayAddress);
+  }
+
+  if (message.type === "showMaxNumAliasesMessage") {
+    return showModal("max-num-aliases");
   }
 });

@@ -39,10 +39,11 @@ async function makeRelayAddressForTargetElement(info, tab) {
   const newRelayAddress = await makeRelayAddress(pageUrl.hostname);
 
   if (newRelayAddress.status === 402) {
-    browser.tabs.executeScript(tab.id, {
-      frameId: info.frameId,
-      code:`alert("You already have 5 email addresses. Please upgrade.");`,
-    });
+    browser.tabs.sendMessage(
+      tab.id,
+      {
+        type: "showMaxNumAliasesMessage",
+      });
     return;
   }
 
