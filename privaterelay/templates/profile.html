@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% load socialaccount %}
 {% load static %}
 {% load relay_tags %}
@@ -58,6 +57,8 @@
                   Create New Relay Alias
                 </button>
               </form>
+              {% else %}
+              <script src="{% static '/js/alert_of_free_aliases.js' %}"></script>
             {% endif %}
           </div>
         </div>
