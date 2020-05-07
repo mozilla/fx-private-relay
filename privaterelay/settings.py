@@ -30,6 +30,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # defaulting to blank to be production-broken by default
 SECRET_KEY = config('SECRET_KEY', None, cast=str)
 
+ALPHA_INVITE_TOKEN = config('ALPHA_INVITE_TOKEN', default=None)
+MAX_ACTIVE_ACCOUNTS = config('MAX_ACTIVE_ACCOUNTS', default=1500, cast=int)
+
 DEBUG = config('DEBUG', False, cast=bool)
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()

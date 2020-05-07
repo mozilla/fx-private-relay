@@ -4,7 +4,11 @@
 <main id="profile-main" class="flx env-bg container bg-light dashboard-container" data-api-token="{{ user.profile_set.first.api_token }}">
   <div class="appear-smoothly flx flx-col al-cntr jst-cntr auth-error-wrapper">
     <div class="flx flx-col al-cntr jst-cntr auth-error">
-        <p class="ff-Met no-active-aliases text-center">Sorry, the Private Relay Beta is currently by invitation only. Please check again later.</p>
+        {% if error_message %}
+            <p class="ff-Met no-active-aliases text-center">{{ error_message }}</p>
+        {% else %}
+            <p class="ff-Met no-active-aliases text-center">Sorry, the Private Relay Beta is currently by invitation only. Please check again later.</p>
+        {% endif %}
       </div>
   </div>
 </main>
