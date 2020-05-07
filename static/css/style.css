@@ -997,6 +997,8 @@ ul.messages {
   background-repeat: no-repeat;
   display: block;
   margin: auto;
+  color: white;
+  font-weight: bold;
 }
 
 .continue-without-addon {
