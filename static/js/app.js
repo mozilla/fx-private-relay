@@ -3,6 +3,10 @@ function dismissNotification(){
 	notification.classList.toggle("hidden");
 }
 
+if (typeof(sendGaPing) === "undefined") {
+  sendGaPing = () => {};
+}
+
 async function toggleEmailForwardingPreferences(submitEvent) {
 	submitEvent.preventDefault();
 
