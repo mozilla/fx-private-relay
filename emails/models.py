@@ -41,7 +41,10 @@ class RelayAddress(models.Model):
 
     def delete(self, *args, **kwargs):
         deleted_address = DeletedAddress.objects.create(
-            address_hash=sha256(self.address.encode('utf-8')).hexdigest()
+            address_hash=sha256(self.address.encode('utf-8')).hexdigest(),
+            num_forwarded=self.num_forwarded,
+            num_blocked=self.num_blocked,
+            num_spam=self.num_spam,
         )
         deleted_address.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
@@ -50,7 +53,9 @@ class RelayAddress(models.Model):
         if num_tries >= 5:
             raise CannotMakeAddressException
         relay_address = RelayAddress.objects.create(user=user)
-        address_hash = sha256(relay_address.address.encode('utf-8')).hexdigest()
+        address_hash = sha256(
+            relay_address.address.encode('utf-8')
+        ).hexdigest()
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash
         ).count()
@@ -63,6 +68,9 @@ class RelayAddress(models.Model):
 
 class DeletedAddress(models.Model):
     address_hash = models.CharField(max_length=64, db_index=True)
+    num_forwarded = models.PositiveSmallIntegerField(default=0)
+    num_blocked = models.PositiveSmallIntegerField(default=0)
+    num_spam = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return self.address_hash
