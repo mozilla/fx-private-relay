@@ -7,7 +7,14 @@
         {% if error_message %}
             <p class="ff-Met no-active-aliases text-center">{{ error_message }}</p>
         {% else %}
-            <p class="ff-Met no-active-aliases text-center">Sorry, the Private Relay Beta is currently by invitation only. Please check again later.</p>
+            <p class="ff-Met no-active-aliases text-center">Sorry, the Private Relay Beta is currently by invitation only.</p>
+
+            <form method="post" action="{% url 'waitlist' %}">
+                {% csrf_token %}
+                <input type="hidden" name="email" type="hidden" value="{{ request.session.waitlist_email }}">
+                <img src="{{ request.session.waitlist_avatar }}">
+                <input type="submit" value="Join the Waitlist">
+            </form>
         {% endif %}
       </div>
   </div>

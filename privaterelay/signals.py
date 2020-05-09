@@ -22,6 +22,12 @@ def invitations_only(sender, **kwargs):
         if domain_part == allowed_domain:
             return True
 
+    # TODO: put sociallogin in session to validate?
+    kwargs['request'].session['waitlist_email'] = email
+    kwargs['request'].session['waitlist_avatar'] = (
+        sociallogin.account.extra_data['avatar']
+    )
+
     # Explicit invitations for an email address can get in
     try:
         active_invitation = Invitations.objects.get(email=email, active=True)
