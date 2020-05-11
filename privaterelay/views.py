@@ -1,4 +1,4 @@
-from datetime import timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import json
 import logging
@@ -212,7 +212,8 @@ def _get_oauth2_session(social_account):
         social_token.token = new_token['access_token']
         social_token.token_secret = new_token['refresh_token']
         social_token.expires_at = (
-            timezone.now() + timedelta(seconds=int(new_token['expires_in']))
+            datetime.now(timezone.utc) +
+            timedelta(seconds=int(new_token['expires_in']))
         )
         social_token.save()
 
@@ -224,7 +225,9 @@ def _get_oauth2_session(social_account):
         'client_secret': client_secret,
     }
 
-    expires_in = (social_token.expires_at - timezone.now()).total_seconds()
+    expires_in = (
+        social_token.expires_at - datetime.now(timezone.utc)
+    ).total_seconds()
     token = {
         'access_token': social_token.token,
         'refresh_token': social_token.token_secret,
