@@ -6,20 +6,16 @@ function showSignUpPanel() {
   return signUpOrInPanel.classList.remove("hidden");
 }
 
+
 function showRelayPanel() {
   document.body.classList.add("relay-panel");
   const relayPanel = document.querySelector(".signed-in-panel");
   return relayPanel.classList.remove("hidden");
 }
 
+
 async function getAllAliases() {
   return await browser.storage.local.get("relayAddresses");
-}
-
-
-async function maxNumAliasesCreated(aliases) {
-  const { maxNumAliases } = await browser.storage.local.get("maxNumAliases");
-  return (aliases.length >= maxNumAliases)
 }
 
 
@@ -32,13 +28,11 @@ async function makeNewAlias() {
 }
 
 
-function copyAliasToClipboard(evt) {
-  const copyBtn = evt.target;
-
+function copyAliasToClipboard(copyBtn) {
   document.querySelectorAll(".alias-copied").forEach(previouslyCopiedAlias => {
     previouslyCopiedAlias.classList.remove("alias-copied");
-    previouslyCopiedAlias.title = "Copy alias to clipboard"
-  })
+    previouslyCopiedAlias.title = "Copy alias to clipboard";
+  });
   copyBtn.classList.add("alias-copied");
   copyBtn.title = "Alias copied to your clipboard";
   window.navigator.clipboard.writeText(copyBtn.dataset.relayAddress);
@@ -53,6 +47,7 @@ async function updatePanelValues() {
   const remainingAliasMessage = document.querySelector(".aliases-remaining");
   const numRemainingEl = remainingAliasMessage.querySelector(".num-aliases-remaining");
   const aliasCreationEl = document.querySelector("alias-creation");
+  const createAliasBtn = aliasCreationEl.querySelector(".create-new-alias");
   const numRemaining = maxNumAliases - relayAddresses.length;
 
   const noAliases = (relayAddresses && relayAddresses.length === 0);
@@ -64,6 +59,8 @@ async function updatePanelValues() {
 
   if (numRemaining === 5) {
     aliasListHeader.classList.add("hidden");
+    createAliasBtn.disabled = true;
+
   }
 
   if (numRemaining === 0) {
@@ -74,7 +71,7 @@ async function updatePanelValues() {
   // adjust plural/singular form of the word "alias" if there is 1 remanining alias
   if (numRemaining === 1) {
     const aliasText = remainingAliasMessage.querySelector(".alias-text");
-    aliasText.textContent = "alias"
+    aliasText.textContent = "alias";
   }
 }
 
@@ -107,10 +104,13 @@ async function popup() {
     copyToClipboard.title = "Copy alias to clipboard";
     copyToClipboard.dataset.relayAddress = alias.address;
 
-    copyToClipboard.addEventListener("click", copyAliasToClipboard);
+    copyToClipboard.addEventListener("click", (e) => {
+      const copyBtn  = e.target;
+      copyAliasToClipboard(copyBtn);
+    });
     aliasEl.appendChild(copyToClipboard);
     return aliasListWrapper.appendChild(aliasEl);
-  }
+  };
 
   relayAddresses.forEach(relayAddress => {
     createAliasListItem(relayAddress);
@@ -137,9 +137,9 @@ async function popup() {
 
       // Add newly created alias to alias list
       createAliasListItem(newRelayAddressResponse);
-
-      // Copy text to clipboard
-      navigator.clipboard.writeText(newRelayAddressResponse.address);
+      const newlyCreatedAlias = document.querySelector(`button[data-relay-address="${newRelayAddressResponse.address}"]`);
+      copyAliasToClipboard(newlyCreatedAlias);
+      newlyCreatedAlias.focus();
     });
   });
 
