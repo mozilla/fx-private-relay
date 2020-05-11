@@ -9,6 +9,11 @@
   width: var(--panelWidth);
   height: var(--panelHeight);
   color: var(--ink70);
+  background-image: url("/images/email-tout-bg.svg");
+}
+
+.relay-panel {
+  min-height: 500px;
 }
 
 p {
@@ -26,23 +31,25 @@ p {
 }
 
 .intro {
-  margin: 48px auto 18px auto;
-  font-size: 15px;
+  margin: 24px auto;
+  line-height: 1.6;
+  font-size: 16px;
 }
 
 .hidden {
+  position: absolute;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
 }
 
 .hidden,
-.panel-content {
+panel-content {
   transition: all 0.2s ease;
 }
 
-.panel-content {
-  padding: 28px;
+panel-content {
+  padding: 24px;
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -50,66 +57,45 @@ p {
   right: 0;
   left: 0;
   bottom: 0;
-  background-image: url("/images/email0tou")
 }
 
 .gradient-button-wrapper {
   background: var(--fxGradient);
-  border-radius: 6px;
+  border-radius: 9px;
   padding: 2px;
-  margin: 0 auto 24px auto;
   display: inline-flex;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .create-account {
+  padding: 12px 24px;
+  margin: auto;
+}
+
+.gradient-button {
+  border-radius: 7px;
   color: var(--ink);
   background: rgba(255, 255, 255, 1);
-  padding: 12px 24px;
-  border-radius: 4px;
-  margin: auto;
-  font-weight: bolder;
 }
 
-.create-account::after {
-  height: 18px;
-  width: 18px;
-  margin-left: 6px;
+.gradient-button:hover,
+.gradient-button:focus {
+  background: var(--grey10);
 }
 
-.create-account:hover,
-.create-account:focus {
+.gradient-button:active {
   background: var(--grey20);
-}
-
-.create-account:active {
-  background: var(--grey30);
-}
-
-.already-signed-up {
-  font-size: 12px;
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  margin: 8px auto;
-}
-
-.already-signed-up > .text-link {
-  margin-left: 4px;
-}
-
-.already-signed-up .text-link {
-  display: block;
 }
 
 main {
   display: flex;
   flex-direction: column;
-  width: 100%;
   height: 100%;
 }
 
 .text-link {
-  font-weight: 900;
+  font-weight: 700;
   text-decoration: none;
   border-bottom: 1px solid var(--ink70);
 }
@@ -120,99 +106,192 @@ main {
   border-bottom: 1px solid var(--ink);
 }
 
-alias-creation {
-  margin: 40px 0 12px 0;
-}
-
-#generate-alias {
-  height: 48px;
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 4px;
-  border: 1px solid var(--grey20);
-  background: var(--grey10);
-  color: var(--ink);
+.create-new-alias {
+  border: none;
   font-size: 16px;
+  padding: 12px 20px 12px 16px;
   font-family: var(--Metropolis);
   position: relative;
   display: flex;
+}
+
+.create-new-alias::before {
+  content: "";
+  background-image: url(/images/plus-sign.svg);
+  background-size: contain;
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 13px;
+  height: 13px;
+  display: inline-flex;
+  margin: auto 6px auto 0;
+}
+
+.disabled {
+  opacity: .6;
+  pointer-events: none;
+}
+
+.aliases-remaining {
+  font-family: var(--Metropolis);
+  font-weight: bolder;
+}
+
+.aliases-remaining {
+  font-weight: 300;
+  font-size: 15px;
+  margin: auto auto 8px auto;
+}
+
+.num-aliases-remaining {
+  font-weight: 700;
+}
+
+footer {
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  margin: 12px auto;
 }
 
-#generate-alias:hover,
-#generate-alias:focus {
-  background: var(--grey20);
+.footer-button {
+  font-size: 15px;
 }
 
-#generate-alias:active {
-  background: var(--grey30);
-  border-color: var(--grey30);
+footer-button:hover {
+  color: var(--ink70);
 }
 
-#generate-alias::after {
+alias-list {
+  width: 100%;
+  max-height: 300px;
+  overflow: scroll;
+  margin: 12px auto auto 0;
+  display: flex;
+  flex-direction: column;
+}
+
+alias {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  font-size: 12px;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0);
+  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+}
+
+alias-list-header {
+  padding: 4px 4px 8px 4px;
+  border-bottom: 1px solid var(--grey20);
+  margin-bottom: 12px;
+  margin-top: auto;
+  font-size: 14px;
+  color: var(--grey90);
+}
+
+alias:hover {
+  background-color: var(--grey10);
+  transition: all 0.2s ease;
+}
+
+alias-list-address {
+  font-weight: 700;
+  margin-bottom: 2px;
+  color: var(--grey80);
+}
+
+alias-list-domain {
+  color: var(--grey70);
+}
+
+alias-list-address,
+alias-list-domain {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.copy-to-clipboard {
+  padding: 0;
   position: absolute;
+  right: 0;
   top: 0;
-  right: 12px;
+  right: 0;
   bottom: 0;
   margin: auto;
   height: 24px;
   width: 24px;
   content: "";
   background-image: url("/icons/make-new-alias.png");
+  width: 100%;
+  height: 100%;
+  border: none;
+  background-image: url("/icons/copy-to-clipboard.svg");
   background-color: transparent;
-}
-
-.alias-display {
-  border-bottom: 1px solid rgba(255, 255, 255, 0);
-  margin-bottom: 12px;
+  background-repeat: no-repeat;
+  background-size: 14px;
+  background-position: center right 4px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding-bottom: 8px;
-  position: relative;
-  height: 48px;
   transition: all 0.2s ease;
 }
 
-.alias-display.show-alias {
-  border-bottom: 1px solid var(--grey20);
-  transition: all 0.2s ease;
-}
-
-.alias-display.hidden {
-  position: absolute;
-}
-
-.error-message-wrapper,
-.alias-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.error-message-wrapper {
-  position: absolute;
-  text-align: center;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.error-message {
-  font-size: 14px;
-  margin-bottom: 4px;
-}
-
-.message-copied {
+.copy-to-clipboard::after {
+  visibility: hidden;
+  content: "Copied!";
   font-size: 12px;
   background-color: #9059ff;
   border-radius: 2px;
-  padding: 3px 6px;
+  padding: 2px 4px;
   color: rgba(255, 255, 255, 1);
-  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  position: absolute;
+  right: 1px;
+  margin: auto;
+  transition: all 0.1s ease;
+  opacity: 0;
+}
+
+.alias-copied::after {
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.1s ease;
+}
+
+alias-list-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alias-list-header-title {
+  font-weight: bolder;
+}
+
+.alias-list-header-title {
+  font-weight: bolder;
+}
+
+.click-to-copy-list-header {
+  font-size: 12px;
+  color: var(--grey60);
+}
+
+alias-creation {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
 }
 
 /* For mobile screens with a bigger height viewport than the browser popup.
    This takes the --panelHeight + 1px as its min-height. */
-@media screen and (min-height: 301px) {
+@media screen and (min-height: 501px) {
   .panel {
     height: 100vh;
   }

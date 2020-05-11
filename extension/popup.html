@@ -2,50 +2,44 @@
 <html id="1">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Firefox Private Relay</title>
     <link rel="stylesheet" href="css/relay.css">
     <link rel="stylesheet" href="css/popup.css">
-    <script src="js/popup.js" defer></script>
+    <script src="js/popup.js"></script>
   </head>
   <body class="panel">
-    <div class="sign-up-panel hidden panel-content">
-      <main>
-        <logo-wrapper>
-          <logomark></logomark>
-          <logotype></logotype>
-        </logo-wrapper>
-        <div class="content">
+    <panel-content>
+      <logo-wrapper>
+        <logomark></logomark>
+        <logotype></logotype>
+      </logo-wrapper>
+      <div class="sign-up-panel hidden">
+        <main>
           <p class="intro">Create an account or <a class="text-link close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">sign in</a> to access your dashboard and create aliases.</p>
           <div class="gradient-button-wrapper">
-              <a class="button create-account new-tab close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">Create Account</a>
+            <a class="button create-account new-tab gradient-button close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">Create Account</a>
           </div>
-        </div>
-      </main>
-    </div>
-
-    <div class="signed-in-panel panel-content hidden">
-      <main class="signed-in">
-        <logo-wrapper>
-          <logomark></logomark>
-          <logotype></logotype>
-        </logo-wrapper>
+        </main>
+      </div>
+      <main class="signed-in-panel hidden">
+        <alias-list>
+          <alias-list-header>
+            <span class="alias-list-header-title">Aliases</span>
+            <span class="click-to-copy-list-header">Click to copy</span>
+          </alias-list-header>
+        </alias-list>
         <alias-creation>
-          <div class="alias-display">
-            <div class="error-message-wrapper hidden">
-              <span class="error-message">You already have 5 active aliases.</span>
-              <a class="button manage-aliases new-tab close-popup-after-click" href="http://127.0.0.1:8000/accounts/profile?utm_source=addon&utm_medium=popup">Manage aliases</a>
-            </div>
-            <div class="alias-wrapper hidden">
-              <span class="alias"></span>
-              <span class="message-copied">Copied!</span>
-            </div>
+          <div class="gradient-button-wrapper">
+            <button class="create-new-alias gradient-button" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias - No existing aliases">
+              Create New Relay Alias
+            </button>
           </div>
-            <button id="generate-alias" class="generate-alias">Create New Relay Alias</button>
         </alias-creation>
-        <a class="button view-dashboard new-tab close-popup-after-click" href="http://127.0.0.1:8000/accounts/profile?utm_source=addon&utm_medium=popup">View Dashboard</a>
+        <footer>
+          <p class="ff-Met aliases-remaining text-center remaining-plural">You have <span class="num-aliases-remaining"></span> remaining free <span class="alias-text">aliases</span></p>
+          <a class="button new-tab close-popup-after-click footer-button" href="http://127.0.0.1:8000/accounts/profile?utm_source=addon&utm_medium=popup"></a>
+        </footer>
       </main>
-    </div>
-
+    </panel-content>
   </body>
 </html>
