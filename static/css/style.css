@@ -6,6 +6,14 @@
   --blue5: #073072;
   --darkBlueGradient: linear-gradient(60deg, #2d264e, #26294e);
   --darkestBlue: #282936;
+  --grey10: hsl(240, 9%, 98%);
+  --grey20: #f1f1f3;
+  --grey30: #d7d7db;
+  --grey40: #b1b1b3;
+  --grey60: #4a4a4f;
+  --grey70: #38383d;
+  --grey80: #2a2a2e;
+  --grey90: #0c0c0d;
   --textDark: #3d3f47;
   --lightestGray: rgba(123, 127, 141, 0.071);
   --maxContentWidth: 1400px;
@@ -754,6 +762,23 @@ ul.messages {
   height: 13px;
   display: inline-flex;
   margin: auto 6px auto 0;
+}
+
+.create-new-relay {
+  background: rgba(255, 255, 255, 1);
+}
+
+
+.add-to-fx-dash:hover,
+.add-to-fx-dash:focus,
+.create-new-relay:hover,
+.create-new-relay:focus {
+  background: var(--grey20);
+}
+
+.add-to-fx-dash:active,
+.create-new-relay:active {
+  background: var(--grey30);
 }
 
 .x-close-icon {
