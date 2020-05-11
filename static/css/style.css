@@ -302,6 +302,9 @@ header {
 }
 
 .add-to-fx-header {
+  padding: 4px 6px;
+  margin-right: -6px;
+  border-radius: 4px;
   color: rgba(255, 255, 255, 1);
 }
 
@@ -352,7 +355,7 @@ footer {
   margin: auto 0 0 0;
 }
 
-.moz-logo-link {
+.footer-link.moz-logo-link {
   min-width: 7rem;
   margin: auto 0;
 }
@@ -367,10 +370,26 @@ ul {
 }
 
 .footer-link {
+  padding: 4px;
+  border-radius: 4px;
   text-decoration: none;
   color: var(--white);
   font-family: var(--metropolis);
   margin: auto 2rem auto auto;
+}
+
+.add-to-fx-header:hover,
+.add-to-fx-header:focus,
+.footer-link:hover,
+.footer-link:focus {
+  opacity: .9;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+.add-to-fx-header:active,
+.footer-link:active {
+  background-color: rgba(0, 0, 0, .25);
+  opacity: .8;
 }
 
 .dashboard-container {
@@ -487,7 +506,7 @@ table {
 
 .delete-relay-email-button {
   outline: none !important;
-  border: 1px solid var(--lightestGray);
+  border: 1px solid var(--grey20);
   background-image: url(/static/images/trashcan.svg);
   background-repeat: no-repeat;
   background-position: 72px center;
@@ -498,9 +517,14 @@ table {
   align-items: center;
 }
 
-.delete-relay-email-button:hover {
-  background-color: var(--lightestGray);
+.delete-relay-email-button:hover,
+.delete-relay-email-button:focus  {
+  background-color: var(--grey10);
   border: 1px solid rgba(255, 255, 255, 0);
+}
+
+.delete-relay-email-button:active {
+  background-color: var(--grey20);
 }
 
 .column-delete {
@@ -1196,7 +1220,7 @@ ul.messages {
     width: 100%;
   }
 
-  .moz-logo-link {
+  .footer-link.moz-logo-link {
     margin: auto auto 1rem auto;
   }
 

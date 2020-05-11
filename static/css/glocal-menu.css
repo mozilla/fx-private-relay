@@ -91,9 +91,18 @@ glocal-menu {
 
 .glocal-fxa-settings-link {
   font-size: 14px;
-  color: #939ca6;
+  color: var(--grey50);
   display: flex;
   align-items: center;
+}
+
+.glocal-fxa-settings-link:hover,
+.glocal-fxa-settings-link:focus {
+  text-decoration: underline;
+}
+
+.glocal-fxa-settings-link:active {
+  color: var(--grey60);
 }
 
 .glocal-fxa-settings-link::after {
