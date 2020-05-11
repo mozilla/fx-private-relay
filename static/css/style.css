@@ -10,6 +10,7 @@
   --grey20: #f1f1f3;
   --grey30: #d7d7db;
   --grey40: #b1b1b3;
+  --grey50: #737373;
   --grey60: #4a4a4f;
   --grey70: #38383d;
   --grey80: #2a2a2e;
@@ -444,7 +445,7 @@ table {
 }
 
 .relay-email-label {
-  color: #7b7f8d;
+  color: var(--grey50);
   font-size: 1rem;
   font-family: var(--metropolis);
   font-weight: 300;
@@ -882,7 +883,7 @@ ul.messages {
 }
 
 .card-small-text {
-  color: #7b7f8d;
+  color: var(--grey50);
   font-size: 0.75rem;
   font-family: var(--metropolis);
   font-weight: 300;
@@ -903,7 +904,7 @@ ul.messages {
 }
 
 .relay-email-address-note {
-  color: #7b7f8d;
+  color: var(--grey50);
   font-family: var(--metropolis);
   display: flex;
   margin-top: 1rem;
