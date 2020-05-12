@@ -28,7 +28,7 @@
         <p class="ff-Met no-active-aliases text-center">You have no email aliases.</p>
         <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
           <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-          <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias - No existing aliases">
+          <button class="create-new-relay grey-pseudo-styles flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias - No existing aliases">
             Create New Relay Alias
           </button>
         </form>
@@ -37,11 +37,11 @@
       <div class="no-addon-content flx flx-col al-cntr jst-cntr appear-smoothly hidden">
         <p class="ff-Met get-relay-addon text-center">For the best experience, get the Private Relay add-on</p>
         <div class="bg-fx-gradient fx-gradient-btn add-to-fx-dash-wrapper">
-          <a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="add-to-fx-dash flx al-cntr jst-cntr">
+          <a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="add-to-fx-dash flx al-cntr jst-cntr grey-pseudo-styles">
             Add to Firefox
           </a>
         </div>
-        <button class="text-link continue-without-addon">Continue without the add-on</button>
+        <button class="text-link continue-without-addon grey-pseudo-styles">Continue without the add-on</button>
       </div>
     {% endif %}
       <div class="alias-list {% if relay_addresses|length == 0 %} no-aliases {% endif %}">
@@ -54,7 +54,7 @@
             {% if not relay_addresses|length == settings.MAX_NUM_BETA_ALIASES %}
               <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
                 <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-                <button class="create-new-relay flx al-cntr jst-cntr" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias">
+                <button class="create-new-relay flx al-cntr jst-cntr grey-pseudo-styles" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias">
                   Create New Relay Alias
                 </button>
               </form>
@@ -76,7 +76,7 @@
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this relay address">
+                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button grey-pseudo-styles" aria-label="Delete this relay address">
                     <span class="remove-label relay-email-label">Delete</span>
                   </button>
                 </form>

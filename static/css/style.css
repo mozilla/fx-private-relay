@@ -509,9 +509,9 @@ table {
   background-image: url(/static/images/copy-to-clipboard.svg);
   background-repeat: no-repeat;
   top: 0;
+  right: 48px;
   bottom: 3px;
   margin: auto;
-  margin-left: 8px;
 }
 
 .alias-copied-icon,
@@ -532,7 +532,6 @@ table {
 }
 
 .alias-copied-message {
-  margin-left: 4px;
   font-family: "Inter UI", Arial, Helvetica, sans-serif;
   background-color: var(--violet3);
   padding: 2px 4px;
@@ -559,15 +558,6 @@ table {
   padding-left: 14px;
   display: flex;
   align-items: center;
-}
-
-.delete-relay-email-button:hover,
-.delete-relay-email-button:focus {
-  background-color: var(--grey20);
-}
-
-.delete-relay-email-button:active {
-  background-color: var(--grey30);
 }
 
 .column-delete {
@@ -793,6 +783,7 @@ ul.messages {
 
 .add-to-fx-dash,
 .create-new-relay {
+  background-color: var(--grey10);
   margin: 2px;
   padding: 12px 20px 12px 16px;
   border-radius: 7px;
@@ -817,20 +808,13 @@ ul.messages {
   margin: auto 6px auto 0;
 }
 
-.create-new-relay {
-  background: rgba(255, 255, 255, 1);
+.grey-pseudo-styles:hover,
+.grey-pseudo-styles:focus {
+  background-color: var(--grey20);
 }
 
-.add-to-fx-dash:hover,
-.add-to-fx-dash:focus,
-.create-new-relay:hover,
-.create-new-relay:focus {
-  background: var(--grey20);
-}
-
-.add-to-fx-dash:active,
-.create-new-relay:active {
-  background: var(--grey30);
+.grey-pseudo-styles:active {
+  background-color: var(--grey30);
 }
 
 .x-close-icon {
@@ -1078,6 +1062,7 @@ ul.messages {
 }
 
 .continue-without-addon {
+  padding: 4px 8px;;
   font-size: 1rem;
   outline: none;
   border: none;
