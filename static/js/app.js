@@ -152,6 +152,19 @@ function toggleVisibilityOfElementsIfAddonIsInstalled() {
 	}
 }
 
+async function addEmailToWaitlist(e) {
+  e.preventDefault();
+  const waitlistForm = e.target;
+  const formData = {
+    "csrfmiddlewaretoken": waitlistForm[0].value,
+    "email": waitlistForm[1].value
+  };
+  const response = await sendForm(waitlistForm.action, formData);
+  // So far, always a Bad Request
+	return;
+
+}
+
 
 function addEventListeners() {
 	document.querySelectorAll(".js-dismiss").forEach(btn => {
@@ -176,7 +189,12 @@ function addEventListeners() {
 	const continueWithoutAddonBtn = document.querySelector(".continue-without-addon");
 	if (continueWithoutAddonBtn) {
 		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout);
-	}
+  }
+
+  const joinWaitlistForm = document.querySelector("#join-waitlist-form");
+  if (joinWaitlistForm) {
+    joinWaitlistForm.addEventListener("submit", addEmailToWaitlist);
+  }
 }
 
 // Watch for the addon to update the dataset of <firefox-private-relay-addon></firefox-private-relay-addon>

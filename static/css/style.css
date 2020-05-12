@@ -91,6 +91,19 @@ button:active {
   transition: all 0.1s ease;
 }
 
+.blue-button {
+  background-color: var(--blue3);
+}
+
+.blue-button:hover,
+.blue-button:focus {
+  background-color: var(--blue4);
+}
+
+.blue-button:active {
+  background-color: var(--blue5);
+}
+
 ::-moz-focus-inner {
   border: 0;
 }
@@ -247,6 +260,7 @@ button:active {
   border-color: #cfcfd8;
 }
 
+.blue-button:active,
 .sign-in:active {
   box-shadow: 0 2px 8px 0 rgba(14, 13, 26, 0.12), 0 3px 1px -2px rgba(7, 48, 114, 0.12), 0 2px 4px 0 rgba(34, 0, 51, 0.04), 0 0 0 1px rgba(32, 18, 58, 0.04);
 }
@@ -788,7 +802,6 @@ ul.messages {
 
 .hero-right {
   border-radius: 24px;
-  /* background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.17), #0250bb1f); */
   background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.07), #0250bb08);
   box-shadow: 0 12px 18px 2px rgba(34, 0, 51, 0.09), 0 6px 22px 4px rgba(4, 25, 59, 0.87), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
 }
@@ -809,6 +822,7 @@ ul.messages {
   border-radius: 9px;
   position: relative;
   opacity: 1;
+  overflow: hidden;
   transition: all 0.2s ease;
 }
 
@@ -981,6 +995,7 @@ ul.messages {
   animation: appearSmoothly .2s ease;
 }
 
+.invite-only-hl,
 .get-relay-addon,
 .no-active-aliases {
   font-size: 1.5rem;
@@ -1021,6 +1036,23 @@ ul.messages {
 }
 
 /* end auth error */
+
+/* join waitlist */
+
+.user-avatar {
+  max-width: 80px;
+}
+
+.join-waitlist-submit {
+  min-height: 48px;
+  width: 260px;
+  font-size: 17px;
+  border: none;
+  margin: 2px;
+  border-radius: 7px;
+  color: var(--white);
+}
+/* end join waitlist */
 
 @media screen and (max-width: 1050px) {
   .home-hero {
@@ -1248,6 +1280,7 @@ ul.messages {
 }
 
 @media screen and (max-width: 550px) {
+  .invite-only-hl,
   .no-active-aliases {
     font-size: 1.2rem;
   }

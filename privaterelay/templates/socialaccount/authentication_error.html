@@ -4,19 +4,18 @@
 <main id="profile-main" class="flx env-bg container bg-light dashboard-container" data-api-token="{{ user.profile_set.first.api_token }}">
   <div class="appear-smoothly flx flx-col al-cntr jst-cntr auth-error-wrapper">
     <div class="flx flx-col al-cntr jst-cntr auth-error">
-        {% if error_message %}
-            <p class="ff-Met no-active-aliases text-center">{{ error_message }}</p>
-        {% else %}
-            <p class="ff-Met no-active-aliases text-center">Sorry, the Private Relay Beta is currently by invitation only.</p>
-
-            <form method="post" action="{% url 'waitlist' %}">
-                {% csrf_token %}
-                <input type="hidden" name="email" type="hidden" value="{{ request.session.waitlist_email }}">
-                <img src="{{ request.session.waitlist_avatar }}">
-                <input type="submit" value="Join the Waitlist">
-            </form>
-        {% endif %}
-      </div>
+      {% if error_message %}
+        <p class="ff-Met no-active-aliases text-center">{{ error_message }}</p>
+      {% else %}
+        <img class="user-avatar" src="{{ request.session.waitlist_avatar }}" alt="User default profile" role="presentation">
+        <p class="ff-Met invite-only-hl text-center">Sorry, the Private Relay Beta is currently by invitation only.</p>
+        <form id="join-waitlist-form" method="post" action="{% url 'waitlist' %}">
+          {% csrf_token %}
+          <input type="hidden" name="email" type="hidden" value="{{ request.session.waitlist_email }}">
+          <input class="join-waitlist-submit button blue-button" type="submit" value="Join the Waitlist">
+        </form>
+      {% endif %}
+    </div>
   </div>
 </main>
 
