@@ -141,10 +141,6 @@ main {
 
 .aliases-remaining {
   font-family: var(--Metropolis);
-  font-weight: bolder;
-}
-
-.aliases-remaining {
   font-weight: 300;
   font-size: 15px;
   margin: auto auto 4px auto;
@@ -231,13 +227,9 @@ alias-list-domain {
   position: absolute;
   right: 0;
   top: 0;
-  right: 0;
   bottom: 0;
   margin: auto;
-  height: 24px;
-  width: 24px;
   content: "";
-  background-image: url("/icons/make-new-alias.png");
   width: 100%;
   height: 100%;
   border: none;

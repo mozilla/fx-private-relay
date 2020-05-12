@@ -68,7 +68,7 @@ async function updatePanelValues() {
     return;
   }
 
-  // adjust plural/singular form of the word "alias" if there is 1 remanining alias
+  // adjust plural/singular form of the word "alias" if there is 1 remaining alias
   if (numRemaining === 1) {
     const aliasText = remainingAliasMessage.querySelector(".alias-text");
     aliasText.textContent = "alias";

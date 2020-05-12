@@ -1,5 +1,6 @@
 const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
-const maxNumAliases = browser.storage.local.set({ "maxNumAliases": 5 });
+
+browser.storage.local.set({ "maxNumAliases": 5 });
 
 async function makeRelayAddress(domain=null) {
   const apiToken = await browser.storage.local.get("apiToken");
