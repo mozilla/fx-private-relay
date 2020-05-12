@@ -39,6 +39,7 @@ async function sendForm(formAction, formData) {
 			headers: {
 				"Content-Type": "application/json",
 				"X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": formData.csrfmiddlewaretoken,
 			},
 			credentials: "include",
 			mode: "same-origin",

@@ -22,16 +22,6 @@ def invitations_only(sender, **kwargs):
         if domain_part == allowed_domain:
             return True
 
-    # TODO: put sociallogin in session to validate?
-    if settings.WAITLIST_OPEN:
-        kwargs['request'].session['waitlist_open'] = True
-        kwargs['request'].session['waitlist_email'] = email
-        kwargs['request'].session['waitlist_avatar'] = (
-            sociallogin.account.extra_data['avatar']
-        )
-    else:
-        kwargs['request'].session['waitlist_open'] = False
-
     # Explicit invitations for an email address can get in
     try:
         active_invitation = Invitations.objects.get(email=email, active=True)
@@ -41,31 +31,47 @@ def invitations_only(sender, **kwargs):
         return True
 
     except Invitations.DoesNotExist:
-        # If we're not doing token-based invites; reject immediately
-        if not settings.ALPHA_INVITE_TOKEN:
-            raise PermissionDenied
-
-        # Token inviations are subject to max accounts limit
-        active_accounts_count = User.objects.count()
-        if active_accounts_count >= settings.MAX_ACTIVE_ACCOUNTS:
-            raise PermissionDenied("There are too many active accounts on "
-                                   "Relay. Please try again later.")
-
-        # Must have visited the invitation link which put the token in their
-        # session
-        if 'alpha_token' not in kwargs['request'].session:
-            raise PermissionDenied(
-                "You must visit the invitation link in your invite email "
-                "before signing up for Relay.")
-
-        # Check the token in their session matches the setting
-        session_token = kwargs['request'].session['alpha_token']
-        if (session_token == settings.ALPHA_INVITE_TOKEN):
-            Invitations.objects.create(
-                email=email, active=True, date_redeemed=datetime.now()
+        # Not mozilla domain; no invitation
+        if settings.WAITLIST_OPEN:
+            kwargs['request'].session['waitlist_open'] = True
+            kwargs['request'].session['waitlist_email'] = email
+            kwargs['request'].session['waitlist_avatar'] = (
+                sociallogin.account.extra_data['avatar']
             )
-            del kwargs['request'].session['alpha_token']
-            return True
+            waitlist_invite = Invitations.objects.filter(
+                    email=email, active=False
+            )
+            kwargs['request'].session['already_on_waitlist'] = (
+                waitlist_invite.count() > 0
+            )
+        else:
+            kwargs['request'].session['waitlist_open'] = False
+
+        # If we're not doing token-based invites; reject immediately
+        if settings.ALPHA_INVITE_TOKEN:
+            # Token inviations are subject to max accounts limit
+            active_accounts_count = User.objects.count()
+            if active_accounts_count >= settings.MAX_ACTIVE_ACCOUNTS:
+                raise PermissionDenied("There are too many active accounts on "
+                                       "Relay. Please try again later.")
+
+            # Must have visited the invitation link which put the token in
+            # their session
+            if 'alpha_token' not in kwargs['request'].session:
+                raise PermissionDenied(
+                    "You must visit the invitation link in your invite email "
+                    "before signing up for Relay.")
+
+            # Check the token in their session matches the setting
+            session_token = kwargs['request'].session['alpha_token']
+            if (session_token == settings.ALPHA_INVITE_TOKEN):
+                Invitations.objects.create(
+                    email=email, active=True, date_redeemed=datetime.now()
+                )
+                # delete the waitlist invitation for the same email
+                waitlist_invite.delete()
+                del kwargs['request'].session['alpha_token']
+                return True
 
     # Deny-by-default in case the logic above missed anything
     raise PermissionDenied

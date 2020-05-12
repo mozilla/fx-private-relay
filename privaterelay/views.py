@@ -123,7 +123,8 @@ def invitation(request):
 def waitlist(request):
     if not settings.WAITLIST_OPEN:
         raise PermissionDenied
-    email = request.POST.get('email')
+    json_body = json.loads(request.body)
+    email = json_body['email']
     if not email:
         return JsonResponse({}, status=400)
 
