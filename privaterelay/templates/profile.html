@@ -81,14 +81,14 @@
                   </button>
                 </form>
                 <div class="delete-alias-confirmation hidden">
-                    <div class="delete-alias-content modal-content-light text-center flx flx-col jst-cntr al-cntr">
-                      <p class="delete-alias-message">Are you sure you want to delete your <span class="bold">{{ relay_address.address }}</span> alias?</p>
-                      <div class="fx flx-row confirm-delete-actions">
-                        <button class="cancel-delete confirm-delete-action">Cancel</button>
-                        <button class="confirm-delete confirm-delete-action">Delete Alias</button>
-                      </div>
+                  <div class="delete-alias-content modal-content-light text-center flx flx-col jst-cntr al-cntr">
+                    <p class="delete-alias-message">Are you sure you want to delete your <span class="bold">{{ relay_address.address }}</span> alias?</p>
+                    <div class="fx flx-row confirm-delete-actions">
+                      <button class="cancel-delete confirm-delete-action">Cancel</button>
+                      <button class="confirm-delete confirm-delete-action">Delete Alias</button>
                     </div>
                   </div>
+                </div>
               </div>
           </div>
 
@@ -96,12 +96,14 @@
             <!--relay address-->
             <div class="relay-email-column flx flx-col">
               <div class="flx flx-row al-cntr">
-                <span title="Click to copy"
+                <button title="Click to copy"
                   data-id="{{ relay_address.id }}"
                   data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" 
-                  class="relay-address ff-Met js-copy flx jst-cntr al-cntr">
+                  class="relay-address click-copy ff-Met flx jst-cntr al-cntr">
                     {{ relay_address.address }}@{{ RELAY_DOMAIN }}
-                  </span>
+                    <span class="alias-copied-icon"></span>
+                    <span class="alias-copied-message">Copied!</span>
+              </button>
               </div>
               <div class="additional-notes">
                 <span class="relay-email-address-note ff-Met"></span>
