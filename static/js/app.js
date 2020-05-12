@@ -7,27 +7,29 @@ if (typeof(sendGaPing) === "undefined") {
   sendGaPing = () => {};
 }
 
-async function toggleEmailForwardingPreferences(submitEvent) {
+async function updateEmailForwardingPrefs(submitEvent) {
 	submitEvent.preventDefault();
 
-	const toggleForwardingForm = submitEvent.target;
-	const toggleButton = toggleForwardingForm.querySelector("button");
-	const analyticsLabel = (toggleButton.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
+	const forwardingPrefForm = submitEvent.target;
+	const checkBox = forwardingPrefForm.querySelector("button");
+	const analyticsLabel = (checkBox.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
 	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
 	const formData = {};
-	Array.from(toggleForwardingForm.elements).forEach(elem => {
+	Array.from(forwardingPrefForm.elements).forEach(elem => {
 		formData[elem.name] = elem.value;
 	})
 
-	const response = await sendForm(toggleForwardingForm.action, formData);
+	const response = await sendForm(forwardingPrefForm.action, formData);
 
 	if (response && response.status == "200") {
-		toggleButton.classList.toggle("forwarding-disabled");
-		if (toggleButton.value === "Enable") {
-			return toggleButton.value = "Disable";
-		} else if (toggleButton.value === "Disable") {
-			return toggleButton.value = "Enable";
+		checkBox.classList.toggle("forwarding-disabled");
+		if (checkBox.value === "Enable") {
+      checkBox.title = "Disable email forwarding for this alias";
+			return checkBox.value = "Disable";
+		} else if (checkBox.value === "Disable") {
+      checkBox.title="Enable email forwarding to this alias";
+			return checkBox.value = "Enable";
 		}
 	}
 	return;
@@ -160,7 +162,7 @@ function addEventListeners() {
 
 	// Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
-		forwardEmailsToggleForm.addEventListener("submit", toggleEmailForwardingPreferences);
+		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
 	});
 
 	document.querySelectorAll(".delete-email-form").forEach(deleteForm => {

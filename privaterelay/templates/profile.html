@@ -37,7 +37,7 @@
       <div class="no-addon-content flx flx-col al-cntr jst-cntr appear-smoothly hidden">
         <p class="ff-Met get-relay-addon text-center">For the best experience, get the Private Relay add-on</p>
         <div class="bg-fx-gradient fx-gradient-btn add-to-fx-dash-wrapper">
-          <a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="add-to-fx-dash flx al-cntr jst-cntr bg-light">
+          <a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="add-to-fx-dash flx al-cntr jst-cntr">
             Add to Firefox
           </a>
         </div>
@@ -54,7 +54,7 @@
             {% if not relay_addresses|length == settings.MAX_NUM_BETA_ALIASES %}
               <form action="/emails/" method="POST" class="fx-gradient-btn bg-fx-gradient">
                 <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-                <button class="create-new-relay flx al-cntr jst-cntr bg-light" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias">
+                <button class="create-new-relay flx al-cntr jst-cntr" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias">
                   Create New Relay Alias
                 </button>
               </form>
@@ -136,9 +136,9 @@
                     <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
                     <span class="relay-email-label email-forwarding-label">Forward emails to <span class="text-dark demi primary-email-address">{{ request.user.email }}</span></span>
                     {% if relay_address.enabled %}
-                    <button type="submit" name="enabled" value="Disable" class="text-center forwarding-toggle"></button>
+                    <button type="submit" name="enabled" value="Disable" title="Disable email forwarding for this alias" class="text-center forwarding-checkbox"></button>
                     {% else %}
-                    <button type="submit" name="enabled" value="Enable" class="text-center forwarding-disabled forwarding-toggle"></button>
+                    <button type="submit" name="enabled" value="Enable" title="Enable email forwarding for this alias" class="text-center forwarding-disabled forwarding-checkbox"></button>
                     {% endif %}
                   </form>
                 </div>
