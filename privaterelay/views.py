@@ -125,7 +125,7 @@ def waitlist(request):
     if not email:
         return JsonResponse({}, status=400)
 
-    invitation, created = Invitations.objects.get_or_create(
+    _, created = Invitations.objects.get_or_create(
         email=email, active=False
     )
     status = 201 if created else 200
