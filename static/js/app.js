@@ -24,7 +24,7 @@ async function updateEmailForwardingPrefs(submitEvent) {
 
 	const response = await sendForm(forwardingPrefForm.action, formData);
 
-	if (response && response.status === "200") {
+	if (response && response.status === 200) {
 		checkBox.classList.toggle("forwarding-disabled");
 		if (checkBox.value === "Enable") {
       checkBox.title = "Disable email forwarding for this alias";
