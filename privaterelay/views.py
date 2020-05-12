@@ -121,6 +121,8 @@ def invitation(request):
 
 @require_http_methods(['POST'])
 def waitlist(request):
+    if not settings.WAITLIST_OPEN:
+        raise PermissionDenied
     email = request.POST.get('email')
     if not email:
         return JsonResponse({}, status=400)
