@@ -23,10 +23,14 @@ def invitations_only(sender, **kwargs):
             return True
 
     # TODO: put sociallogin in session to validate?
-    kwargs['request'].session['waitlist_email'] = email
-    kwargs['request'].session['waitlist_avatar'] = (
-        sociallogin.account.extra_data['avatar']
-    )
+    if settings.WAITLIST_OPEN:
+        kwargs['request'].session['waitlist_open'] = True
+        kwargs['request'].session['waitlist_email'] = email
+        kwargs['request'].session['waitlist_avatar'] = (
+            sociallogin.account.extra_data['avatar']
+        )
+    else:
+        kwargs['request'].session['waitlist_open'] = False
 
     # Explicit invitations for an email address can get in
     try:
