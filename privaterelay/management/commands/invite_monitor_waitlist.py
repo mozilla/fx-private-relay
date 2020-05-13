@@ -50,6 +50,11 @@ class Command(BaseCommand):
                     date_redeemed=None
                 )
 
+                context = {
+                    'email': invitee.primary_email,
+                    'current_domain': settings.SITE_URL,
+                }
+
                 # Send email invite
                 sl_message = BasicMessage()
                 sl_message.subject = (
@@ -58,11 +63,11 @@ class Command(BaseCommand):
 
                 sl_message.html_body = render_to_string(
                     'emails/beta_invite_html_email.html',
-                    {'email': invitee.primary_email}
+                    context,
                 )
                 sl_message.plain_text_body = render_to_string(
                     'emails/beta_invite_text_email.txt',
-                    {'email': invitee.primary_email}
+                    context,
                 )
 
                 relay_display_name, relay_from_address = parseaddr(
