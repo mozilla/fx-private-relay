@@ -49,7 +49,7 @@ def invitations_only(sender, **kwargs):
 
         # If we're not doing token-based invites; reject immediately
         if settings.ALPHA_INVITE_TOKEN:
-            # Token inviations are subject to max accounts limit
+            # Token invitations are subject to max accounts limit
             active_accounts_count = User.objects.count()
             if active_accounts_count >= settings.MAX_ACTIVE_ACCOUNTS:
                 raise PermissionDenied("There are too many active accounts on "
