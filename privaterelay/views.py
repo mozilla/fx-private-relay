@@ -1,10 +1,11 @@
+from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import json
 import logging
 import os
 
 from jwt import JWT, jwk_from_dict
-import requests
+from requests_oauthlib import OAuth2Session
 import sentry_sdk
 
 from django.apps import apps
@@ -188,11 +189,9 @@ def _get_event_keys_from_jwt(authentic_jwt):
 
 
 def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
-    token = social_account.socialtoken_set.first()
-    headers = {'Authorization': 'Bearer: {0}'.format(token.token)}
-    resp = requests.get(
-        FirefoxAccountsOAuth2Adapter.profile_url, headers=headers
-    )
+    client = _get_oauth2_session(social_account)
+    resp = client.get(FirefoxAccountsOAuth2Adapter.profile_url)
+
     extra_data = resp.json()
     new_email = extra_data['email']
     logger.info('fxa_rp_event', extra={
@@ -219,3 +218,43 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
         'event_key': event_key,
         'deleted_objects': deleted_objects,
     })
+
+
+# use "raw" requests_oauthlib to automatically refresh the access token
+# https://github.com/pennersr/django-allauth/issues/420#issuecomment-301805706
+def _get_oauth2_session(social_account):
+    refresh_token_url = FirefoxAccountsOAuth2Adapter.access_token_url
+    social_token = social_account.socialtoken_set.first()
+
+    def _token_updater(new_token):
+        social_token.token = new_token['access_token']
+        social_token.token_secret = new_token['refresh_token']
+        social_token.expires_at = (
+            datetime.now(timezone.utc) +
+            timedelta(seconds=int(new_token['expires_in']))
+        )
+        social_token.save()
+
+    client_id = social_token.app.client_id
+    client_secret = social_token.app.secret
+
+    extra = {
+        'client_id': client_id,
+        'client_secret': client_secret,
+    }
+
+    expires_in = (
+        social_token.expires_at - datetime.now(timezone.utc)
+    ).total_seconds()
+    token = {
+        'access_token': social_token.token,
+        'refresh_token': social_token.token_secret,
+        'token_type': 'Bearer',
+        'expires_in': expires_in
+    }
+
+    client = OAuth2Session(
+        client_id, token=token, auto_refresh_url=refresh_token_url,
+        auto_refresh_kwargs=extra, token_updater=_token_updater
+    )
+    return client

@@ -8,11 +8,19 @@
   --darkestBlue: #282936;
   --dropShadowLight: 0 0 10px -3px #3d3f4740;
   --dropShadowDark: 0 12px 18px 2px rgba(34, 0, 51, 0.09), 0 6px 22px 4px rgba(4, 25, 59, 0.87), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
-  --grey20: #ededf0;
+  --grey10: hsl(240, 9%, 98%);
+  --grey20: #f1f1f3;
+  --grey30: #d7d7db;
+  --grey40: #b1b1b3;
+  --grey50: #737373;
+  --grey60: #4a4a4f;
+  --grey70: #38383d;
+  --grey80: #2a2a2e;
+  --grey90: #0c0c0d;
   --inkLight: #2b1e44;
   --ink: #20123a;
   --inkDark: #1d1133;
-  --textDark: #3d3f47;
+  --textDark: var(--grey70);
   --lightestGray: rgba(123, 127, 141, 0.071);
   --maxContentWidth: 1400px;
   --metropolis: "Metropolis", Arial, Helvetica, sans-serif;
@@ -56,7 +64,7 @@ body {
 }
 
 .bg-light {
-  background: #fbfbfe;
+  background: var(--grey10);
 }
 
 .drop-shadow-light {
@@ -194,10 +202,10 @@ button:active {
 
 .step-body {
   margin: 0 auto auto auto;
-  color: rgba(255, 255, 255, .9);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 1.2rem;
   line-height: 1.7rem;
-  letter-spacing: .009rem;
+  letter-spacing: 0.009rem;
   font-family: "Metropolis", Arial, Helvetica, sans-serif;
   font-weight: 100;
 }
@@ -210,7 +218,7 @@ button:active {
   min-height: 260px;
   min-width: 300px;
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, .1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .bold {
@@ -339,6 +347,9 @@ header {
 }
 
 .add-to-fx-header {
+  padding: 4px 6px;
+  margin-right: -6px;
+  border-radius: 4px;
   color: rgba(255, 255, 255, 1);
 }
 
@@ -379,7 +390,6 @@ header {
   top: 100px;
 }
 
-
 .messages.profile-messages {
   top: 20vh;
 }
@@ -389,7 +399,7 @@ footer {
   margin: auto 0 0 0;
 }
 
-.moz-logo-link {
+.footer-link.moz-logo-link {
   min-width: 7rem;
   margin: auto 0;
 }
@@ -404,10 +414,26 @@ ul {
 }
 
 .footer-link {
+  padding: 4px;
+  border-radius: 4px;
   text-decoration: none;
   color: var(--white);
   font-family: var(--metropolis);
   margin: auto 2rem auto auto;
+}
+
+.add-to-fx-header:hover,
+.add-to-fx-header:focus,
+.footer-link:hover,
+.footer-link:focus {
+  opacity: 0.9;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.add-to-fx-header:active,
+.footer-link:active {
+  background-color: rgba(0, 0, 0, 0.25);
+  opacity: 0.8;
 }
 
 .dashboard-container {
@@ -442,6 +468,7 @@ table {
 
 .relay-email {
   --hPadding: 2.5rem;
+
   margin-bottom: 2rem;
   background-color: white;
   border-radius: 16px;
@@ -481,7 +508,7 @@ table {
 }
 
 .relay-email-label {
-  color: #7b7f8d;
+  color: var(--grey50);
   font-size: 1rem;
   font-family: var(--metropolis);
   font-weight: 300;
@@ -490,6 +517,8 @@ table {
 }
 
 .relay-address {
+  text-align: left;
+  border: none;
   margin-right: 0.75rem;
   font-weight: 600;
   cursor: default;
@@ -499,44 +528,80 @@ table {
   max-width: 300px;
   text-overflow: ellipsis;
   overflow: hidden;
-  padding-right: 22px; /* makes room for click to copy icon */
-  transition: all 0.1s ease;
+  border-radius: 0;
+  padding: 2px 70px 2px 0; /* makes room for click to copy icon and copied message */
 }
 
-.relay-address:hover {
-  opacity: 0.9;
-  transition: all 0.1s ease;
+.relay-address:hover,
+.relay-address:focus {
+  opacity: 0.75;
+  text-decoration: underline;
 }
 
-.relay-address.js-copy::after {
-  content: "";
-  display: inline-block;
+.relay-address:active {
+  opacity: 0.6;
+}
+
+.relay-address.alias-copied {
+  opacity: 1 !important;
+  text-decoration: none !important;
+}
+
+.alias-copied-icon {
   width: 14px;
   height: 18px;
   background-image: url(/static/images/copy-to-clipboard.svg);
   background-repeat: no-repeat;
+  top: 0;
+  right: 48px;
+  bottom: 3px;
+  margin: auto;
+}
+
+.alias-copied-icon,
+.alias-copied-message {
+  display: inline-block;
   position: absolute;
   top: 0;
+  pointer-events: none;
+}
+
+.alias-copied .alias-copied-icon {
+  display: none;
+}
+
+.alias-copied-message,
+.alias-copied .alias-copied-icon {
+  visibility: hidden;
+}
+
+.alias-copied-message {
+  font-family: "Inter UI", Arial, Helvetica, sans-serif;
+  background-color: var(--violet3);
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: var(--white);
+  font-size: 14px;
   right: 0;
-  margin-left: 0.45rem;
+}
+
+.alias-copied .alias-copied-message {
+  visibility: visible;
 }
 
 .delete-relay-email-button {
   outline: none !important;
-  border: 1px solid var(--lightestGray);
+  border: 1px solid transparent;
+  background-color: transparent;
   background-image: url(/static/images/trashcan.svg);
   background-repeat: no-repeat;
-  background-position: 72px center;
+  background-position: 76px 6px;
+  background-size: 19px;
   height: 36px;
   padding-right: 32px;
   padding-left: 14px;
   display: flex;
   align-items: center;
-}
-
-.delete-relay-email-button:hover {
-  background-color: var(--lightestGray);
-  border: 1px solid rgba(255, 255, 255, 0);
 }
 
 .column-delete {
@@ -562,7 +627,7 @@ table {
   min-width: 300px;
   z-index: 1;
   transform: translateY(12px);
-  animation: fxBentoAppear .1s ease;
+  animation: fxBentoAppear 0.1s ease;
 }
 
 .delete-alias-confirmation::after {
@@ -587,7 +652,7 @@ table {
   padding: 0;
   width: 100%;
   font-size: 0;
-  border-top: 1px solid #f1f1f8;
+  border-top: 1px solid var(--grey20);
 }
 
 .confirm-delete-action {
@@ -596,23 +661,23 @@ table {
   outline: none;
   width: 50%;
   color: var(--textDark);
-  font-size:1rem;
+  font-size: 1rem;
   padding: 1rem;
-  background-color: #f1f1f873;
+  background-color: var(--grey10);
   user-select: none;
 }
 
 .confirm-delete-action:focus,
 .confirm-delete-action:hover {
-  background: #f1f1f8;
+  background: var(--grey20);
 }
 
 .confirm-delete-action:active {
-  background: #eaeaf0;
+  background: var(--grey30);
 }
 
 .confirm-delete {
-  border-left: 1px solid rgba(123, 127, 141, 0.08);
+  border-left: 1px solid var(--grey10);
 }
 
 .delete-alias-message {
@@ -627,6 +692,7 @@ table {
 
 .email-forwarding-form {
   width: 100%;
+  flex-direction: row-reverse;
 }
 
 .email-forwarding-label,
@@ -635,7 +701,7 @@ table {
 }
 
 .email-forwarding-label {
-  margin-right: 0.75rem;
+  margin: auto auto auto 0.75rem;
 }
 
 .relay-email-column.column-delete {
@@ -652,65 +718,49 @@ table {
   align-items: flex-end;
 }
 
-.forwarding-toggle {
-  border-radius: 10rem;
-  height: 1.65rem;
-  min-width: 2.75rem;
-  color: rgba(255, 255, 255, 0);
+.forwarding-checkbox {
+  height: 1.75rem;
+  min-width: 1.75rem;
+  width: 1.75rem;
   position: relative;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0);
-  background-image: linear-gradient(to right, #54ffbd, #54ffbd, #09f);
+  border: none;
+  border-radius: 4px;
   outline: none;
-  transition: 0.2s cubic-bezier(0.42, 0.5, 0.58, 1);
-  background-size: 192%;
+  background-image: url("/static/images/check.svg");
+  background-color: var(--grey20);
   background-position: center center;
-  margin: auto 0 auto auto;
+  background-repeat: no-repeat;
+  background-size: 20px;
+  margin: auto 0;
 }
 
-.forwarding-toggle::after {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  transform: translateX(50%);
-  width: 1.15rem;
-  height: 1.15rem;
-  border-radius: 5rem;
-  background-color: #54ffbd;
-  border: 2px solid white;
-  content: "";
-  display: block;
-  margin: auto;
-  transition: all 0.2s cubic-bezier(0.42, 0.5, 0.58, 1);
+.forwarding-checkbox:hover,
+.forwarding-checkbox:focus {
+  background-color: var(--grey30);
 }
 
-.forwarding-toggle::before {
-  content: "";
-  margin: 0;
-  position: absolute;
-  top: 1px;
-  bottom: 1px;
-  right: 1px;
-  left: 1px;
-  border-radius: 5rem;
-  background-color: white;
-  display: block;
-  transition: all 0.2s cubic-bezier(0.42, 0.5, 0.58, 1);
-}
-
-.forwarding-disabled .forwarding-toggle::after {
-  background-color: #ff4f5e;
+.forwarding-checkbox:active {
+  background-color: var(--grey40);
 }
 
 .forwarding-disabled {
-  background-image: linear-gradient(to right, #ff4f5e, #ff4f5e, #09f);
-  transition: all 0.2s cubic-bezier(0.42, 0.5, 0.58, 1);
+  background-image: none;
 }
 
 .forwarding-disabled::after {
-  transform: translateX(-27%);
-  background-color: #ff4f5e;
-  transition: all 0.2s cubic-bezier(0.42, 0.5, 0.58, 1);
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-image: url("/static/images/x-close.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 18px;
+  content: "";
+  display: block;
+  opacity: 0.4;
 }
 
 ul.messages {
@@ -761,7 +811,7 @@ ul.messages {
   font-family: var(--metropolis);
   font-size: 1rem;
   font-weight: 300;
-  margin-top: .75rem;
+  margin-top: 0.75rem;
 }
 
 .num-remaining-aliases {
@@ -776,6 +826,7 @@ ul.messages {
 
 .add-to-fx-dash,
 .create-new-relay {
+  background-color: var(--grey10);
   margin: 2px;
   padding: 12px 20px 12px 16px;
   border-radius: 7px;
@@ -798,6 +849,15 @@ ul.messages {
   height: 13px;
   display: inline-flex;
   margin: auto 6px auto 0;
+}
+
+.grey-pseudo-styles:hover,
+.grey-pseudo-styles:focus {
+  background-color: var(--grey20);
+}
+
+.grey-pseudo-styles:active {
+  background-color: var(--grey30);
 }
 
 .x-close-icon {
@@ -901,7 +961,7 @@ ul.messages {
 }
 
 .card-small-text {
-  color: #7b7f8d;
+  color: var(--grey50);
   font-size: 0.75rem;
   font-family: var(--metropolis);
   font-weight: 300;
@@ -918,11 +978,11 @@ ul.messages {
 
 .email-value {
   font-weight: 600;
-  font-family: var(--interUi)
+  font-family: var(--interUi);
 }
 
 .relay-email-address-note {
-  color: #7b7f8d;
+  color: var(--grey50);
   font-family: var(--metropolis);
   display: flex;
   margin-top: 1rem;
@@ -954,7 +1014,7 @@ ul.messages {
   background-image: var(--darkBlueGradient);
   content: "";
   z-index: -1;
-  opacity: .8;
+  opacity: 0.8;
 }
 
 .modal-content-dark::before {
@@ -1022,7 +1082,7 @@ ul.messages {
 }
 
 .appear-smoothly {
-  animation: appearSmoothly .2s ease;
+  animation: appearSmoothly 0.2s ease;
 }
 
 .invite-only-hl,
@@ -1045,6 +1105,7 @@ ul.messages {
 }
 
 .continue-without-addon {
+  padding: 4px 8px;;
   font-size: 1rem;
   outline: none;
   border: none;
@@ -1338,7 +1399,7 @@ ul.messages {
     width: 100%;
   }
 
-  .moz-logo-link {
+  .footer-link.moz-logo-link {
     margin: auto auto 1rem auto;
   }
 
@@ -1434,7 +1495,7 @@ ul.messages {
   }
 
   .grid {
-    flex-direction : column;
+    flex-direction: column;
   }
 
   .nested-grid,
@@ -1447,7 +1508,7 @@ ul.messages {
   }
 
   .relay-stat {
-    margin-bottom: .5rem;
+    margin-bottom: 0.5rem;
   }
 
   .dashboard-headline {

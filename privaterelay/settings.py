@@ -283,6 +283,7 @@ SOCIALACCOUNT_PROVIDERS = {
     'fxa': {
         # Note: to request "profile" scope, must be a trusted Mozilla client
         'SCOPE': ['profile'],
+        'AUTH_PARAMS': {'access_type': 'offline'},
         'OAUTH_ENDPOINT': config('FXA_OAUTH_ENDPOINT', 'https://oauth.accounts.firefox.com/v1'),
         'PROFILE_ENDPOINT': config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'),
     }

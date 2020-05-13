@@ -1,3 +1,5 @@
+/* global sendGaPing */
+
 function dismissNotification(){
 	const notification = document.querySelector(".js-notification");
 	notification.classList.toggle("hidden");
@@ -7,27 +9,29 @@ if (typeof(sendGaPing) === "undefined") {
   sendGaPing = () => {};
 }
 
-async function toggleEmailForwardingPreferences(submitEvent) {
+async function updateEmailForwardingPrefs(submitEvent) {
 	submitEvent.preventDefault();
 
-	const toggleForwardingForm = submitEvent.target;
-	const toggleButton = toggleForwardingForm.querySelector("button");
-	const analyticsLabel = (toggleButton.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
+	const forwardingPrefForm = submitEvent.target;
+	const checkBox = forwardingPrefForm.querySelector("button");
+	const analyticsLabel = (checkBox.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
 	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
 	const formData = {};
-	Array.from(toggleForwardingForm.elements).forEach(elem => {
+	Array.from(forwardingPrefForm.elements).forEach(elem => {
 		formData[elem.name] = elem.value;
-	})
+	});
 
-	const response = await sendForm(toggleForwardingForm.action, formData);
+	const response = await sendForm(forwardingPrefForm.action, formData);
 
-	if (response && response.status == "200") {
-		toggleButton.classList.toggle("forwarding-disabled");
-		if (toggleButton.value === "Enable") {
-			return toggleButton.value = "Disable";
-		} else if (toggleButton.value === "Disable") {
-			return toggleButton.value = "Enable";
+	if (response && response.status === 200) {
+		checkBox.classList.toggle("forwarding-disabled");
+		if (checkBox.value === "Enable") {
+      checkBox.title = "Disable email forwarding for this alias";
+			return checkBox.value = "Disable";
+		} else if (checkBox.value === "Disable") {
+      checkBox.title="Enable email forwarding to this alias";
+			return checkBox.value = "Enable";
 		}
 	}
 	return;
@@ -51,6 +55,17 @@ async function sendForm(formAction, formData) {
 	}
 }
 
+function copyToClipboardAndShowMessage(e) {
+  const aliasCopyBtn = e.target;
+  const aliasToCopy = aliasCopyBtn.dataset.clipboardText;
+  const previouslyCopiedAlias = document.querySelector(".alias-copied");
+  if (previouslyCopiedAlias) {
+    previouslyCopiedAlias.classList.remove("alias-copied");
+  }
+  aliasCopyBtn.classList.add("alias-copied");
+  aliasCopyBtn.title="Alias copied to clipboard";
+  return navigator.clipboard.writeText(aliasToCopy);
+}
 
 function deleteAliasConfirmation(submitEvent) {
 	submitEvent.preventDefault();
@@ -101,14 +116,6 @@ function showCtas() {
 	return document.querySelectorAll(".hero-sign-up-bg.invisible").forEach(buttonWrapper => {
 		buttonWrapper.classList.remove("invisible");
 	});
-}
-
-
-function hideSecondarySignInButtons() {
-	document.querySelectorAll("a.sign-in-btn").forEach(signInBtn => {
-		signInBtn.classList.add("hidden");
-	});
-	showCtas();
 }
 
 function hideInstallCallout() {
@@ -192,9 +199,12 @@ function addEventListeners() {
 		btn.addEventListener("click", dismissNotification, false);
 	});
 
+  document.querySelectorAll(".relay-address.click-copy").forEach(clickToCopy => {
+    clickToCopy.addEventListener("click", copyToClipboardAndShowMessage);
+  });
 	// Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
-		forwardEmailsToggleForm.addEventListener("submit", toggleEmailForwardingPreferences);
+		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
 	});
 
 	document.querySelectorAll(".delete-email-form").forEach(deleteForm => {
@@ -204,7 +214,7 @@ function addEventListeners() {
 	document.querySelectorAll(".create-new-relay").forEach(createNewRelayBtn => {
 		createNewRelayBtn.addEventListener("click", () => {
 			sendGaPing("Create New Relay Alias", "Click", createNewRelayBtn.dataset.analyticsLabel);
-		})
+		});
 	});
 
 	const continueWithoutAddonBtn = document.querySelector(".continue-without-addon");
@@ -222,11 +232,11 @@ function addEventListeners() {
 function watchForInstalledAddon() {
 	const installIndicator = document.querySelector("firefox-private-relay-addon");
 	const observerConfig = {
-		attributes: true
+		attributes: true,
 	};
 
 	const patrollerDuties = (mutations, mutationPatroller) => {
-		for (let mutation of mutations) {
+		for (const mutation of mutations) {
 			if (mutation.type === "attributes" && isRelayAddonInstalled()) {
 				toggleVisibilityOfElementsIfAddonIsInstalled();
 				if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
@@ -286,8 +296,9 @@ class GlocalMenu extends HTMLElement {
 			evt.stopImmediatePropagation();
 			this._menu.classList.add("glocal-menu-open");
 			window.addEventListener("click", this.closeGlocalMenu);
-			return;
-		}
+
+      return;
+		};
 	}
 
 	handleEvent(event) {
@@ -307,6 +318,4 @@ class GlocalMenu extends HTMLElement {
 	}
 }
 
-customElements.define("glocal-menu", GlocalMenu)
-
-new ClipboardJS('.js-copy');
+customElements.define("glocal-menu", GlocalMenu);
