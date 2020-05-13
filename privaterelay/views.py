@@ -16,6 +16,7 @@ from django.db import connections
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from allauth.socialaccount.providers.fxa.views import (
@@ -23,6 +24,7 @@ from allauth.socialaccount.providers.fxa.views import (
 )
 
 from emails.models import RelayAddress
+from .models import Invitations
 
 
 FXA_PROFILE_CHANGE_EVENT = (
@@ -116,6 +118,22 @@ def invitation(request):
 
     request.session['alpha_token'] = request.GET.get('alpha_token')
     return redirect('/')
+
+
+@require_http_methods(['POST'])
+def waitlist(request):
+    if not settings.WAITLIST_OPEN:
+        raise PermissionDenied
+    json_body = json.loads(request.body)
+    email = json_body['email']
+    if not email:
+        return JsonResponse({}, status=400)
+
+    _, created = Invitations.objects.get_or_create(
+        email=email, active=False
+    )
+    status = 201 if created else 200
+    return JsonResponse({'email': email}, status=status)
 
 
 @csrf_exempt

@@ -13,6 +13,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         email = options['email'][0]
         validate_email(email)
-        Invitations.objects.create(
-            email=email, active=True, date_sent=None, date_redeemed=None
-        )
+
+        try:
+            existing_invitation = Invitations.objects.get(
+                email=email, active=False
+            )
+            existing_invitation.active = True
+            existing_invitation.save(update_fields=['active'])
+        except Invitations.DoesNotExist:
+            Invitations.objects.create(
+                email=email, active=True, date_sent=None, date_redeemed=None
+            )

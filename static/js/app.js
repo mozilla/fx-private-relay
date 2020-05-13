@@ -43,6 +43,7 @@ async function sendForm(formAction, formData) {
 			headers: {
 				"Content-Type": "application/json",
 				"X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": formData.csrfmiddlewaretoken,
 			},
 			credentials: "include",
 			mode: "same-origin",
@@ -50,7 +51,7 @@ async function sendForm(formAction, formData) {
 			body: JSON.stringify(formData),
 		});
 	} catch(e) {
-		console.log(e);
+		throw e;
 	}
 }
 
@@ -159,6 +160,39 @@ function toggleVisibilityOfElementsIfAddonIsInstalled() {
 	}
 }
 
+async function addEmailToWaitlist(e) {
+  e.preventDefault();
+  const waitlistForm = e.target;
+  const submitBtn = waitlistForm.querySelector(".button");
+  const waitlistWrapper = document.querySelector(".invite-only-wrapper");
+  waitlistWrapper.classList.add("adding-email");
+  submitBtn.classList.add("loading");
+
+  const formData = {
+    "csrfmiddlewaretoken": waitlistForm[0].value,
+    "email": waitlistForm[1].value
+  };
+
+  try {
+    const response = await sendForm(waitlistForm.action, formData);
+    if (response && (response.status === 200 || response.status === 201)) {
+      setTimeout(()=> {
+        waitlistWrapper.classList.add("user-on-waitlist");
+        waitlistWrapper.classList.remove("adding-email");
+      }, 500);
+    } else {
+      throw "Response was not 200 or 201";
+    }
+
+  }
+  catch (e) {
+    sendGaPing("Errors", "Join Waitlist", "Join Waitlist");
+    waitlistWrapper.classList.add("show-error");
+  }
+
+	return;
+}
+
 
 function addEventListeners() {
 	document.querySelectorAll(".js-dismiss").forEach(btn => {
@@ -186,6 +220,11 @@ function addEventListeners() {
 	const continueWithoutAddonBtn = document.querySelector(".continue-without-addon");
 	if (continueWithoutAddonBtn) {
 		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout);
+  }
+
+  const joinWaitlistForm = document.querySelector("#join-waitlist-form");
+  if (joinWaitlistForm) {
+    joinWaitlistForm.addEventListener("submit", addEmailToWaitlist);
   }
 }
 

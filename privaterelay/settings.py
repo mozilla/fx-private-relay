@@ -32,6 +32,7 @@ SECRET_KEY = config('SECRET_KEY', None, cast=str)
 
 ALPHA_INVITE_TOKEN = config('ALPHA_INVITE_TOKEN', default=None)
 MAX_ACTIVE_ACCOUNTS = config('MAX_ACTIVE_ACCOUNTS', default=1500, cast=int)
+WAITLIST_OPEN = config('WAITLIST_OPEN', default=False, cast=bool)
 
 DEBUG = config('DEBUG', False, cast=bool)
 if DEBUG:

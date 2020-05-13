@@ -62,7 +62,7 @@
           </div>
         </div>
         {% for relay_address in relay_addresses %}
-        <div class="relay-email"> 
+        <div class="relay-email drop-shadow-light">
           <div class="relay-email-column relay-email-address-wrapper flx flx-row al-cntr">
             <div class="flx flx-col">
               <div class="flx flx-row al-cntr">
@@ -70,26 +70,26 @@
                 <span class="email-value card-small-text text-dark">{{ relay_address.created_at|date:"N j Y" }}</span>
               </div>
             </div>
-              <!-- delete email address -->
-              <div class="relay-email-column column-delete center-value">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr">
-                  <input type="hidden" name="method_override" value="DELETE">
-                  <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-                  <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button grey-pseudo-styles" aria-label="Delete this relay address">
-                    <span class="remove-label relay-email-label">Delete</span>
-                  </button>
-                </form>
-                <div class="delete-alias-confirmation hidden">
-                  <div class="delete-alias-content modal-content-light text-center flx flx-col jst-cntr al-cntr">
-                    <p class="delete-alias-message">Are you sure you want to delete your <span class="bold">{{ relay_address.address }}</span> alias?</p>
-                    <div class="fx flx-row confirm-delete-actions">
-                      <button class="cancel-delete confirm-delete-action">Cancel</button>
-                      <button class="confirm-delete confirm-delete-action">Delete Alias</button>
-                    </div>
+            <!-- delete email address -->
+            <div class="relay-email-column column-delete center-value">
+              <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr">
+                <input type="hidden" name="method_override" value="DELETE">
+                <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+                <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
+                <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this relay address">
+                  <span class="remove-label relay-email-label">Delete</span>
+                </button>
+              </form>
+              <div class="delete-alias-confirmation hidden drop-shadow-light">
+                <div class="delete-alias-content modal-content-light text-center flx flx-col jst-cntr al-cntr">
+                  <p class="delete-alias-message">Are you sure you want to delete your <span class="bold">{{ relay_address.address }}</span> alias?</p>
+                  <div class="fx flx-row confirm-delete-actions">
+                    <button class="cancel-delete confirm-delete-action">Cancel</button>
+                    <button class="confirm-delete confirm-delete-action">Delete Alias</button>
                   </div>
                 </div>
               </div>
+            </div>
           </div>
 
           <div class="grid">
