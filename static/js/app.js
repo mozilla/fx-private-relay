@@ -47,7 +47,7 @@ async function sendForm(formAction, formData) {
 			body: JSON.stringify(formData),
 		});
 	} catch(e) {
-		console.log(e)
+		throw e;
 	}
 }
 
@@ -156,14 +156,34 @@ function toggleVisibilityOfElementsIfAddonIsInstalled() {
 async function addEmailToWaitlist(e) {
   e.preventDefault();
   const waitlistForm = e.target;
+  const submitBtn = waitlistForm.querySelector(".button");
+  const waitlistWrapper = document.querySelector(".invite-only-wrapper");
+  waitlistWrapper.classList.add("adding-email");
+  submitBtn.classList.add("loading");
+
   const formData = {
     "csrfmiddlewaretoken": waitlistForm[0].value,
     "email": waitlistForm[1].value
   };
-  const response = await sendForm(waitlistForm.action, formData);
-  // So far, always a Bad Request
-	return;
 
+  try {
+    const response = await sendForm(waitlistForm.action, formData);
+    if (response && (response.status === 200 || response.status === 201)) {
+      setTimeout(()=> {
+        waitlistWrapper.classList.add("user-on-waitlist");
+        waitlistWrapper.classList.remove("adding-email");
+      }, 500);
+    } else {
+      throw "Response was not 200 or 201";
+    }
+
+  }
+  catch (e) {
+    sendGaPing("Errors", "Join Waitlist", "Join Waitlist");
+    waitlistWrapper.classList.add("show-error");
+  }
+
+	return;
 }
 
 

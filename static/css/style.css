@@ -6,6 +6,12 @@
   --blue5: #073072;
   --darkBlueGradient: linear-gradient(60deg, #2d264e, #26294e);
   --darkestBlue: #282936;
+  --dropShadowLight: 0 0 10px -3px #3d3f4740;
+  --dropShadowDark: 0 12px 18px 2px rgba(34, 0, 51, 0.09), 0 6px 22px 4px rgba(4, 25, 59, 0.87), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
+  --grey20: #ededf0;
+  --inkLight: #2b1e44;
+  --ink: #20123a;
+  --inkDark: #1d1133;
   --textDark: #3d3f47;
   --lightestGray: rgba(123, 127, 141, 0.071);
   --maxContentWidth: 1400px;
@@ -13,6 +19,7 @@
   --navy: #231142;
   --padding: 1.25rem;
   --purple: #7a26a3;
+  --monitorPurple: #37366f;
   --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
   --violet3: #9059ff;
   --violet4: #7542e5;
@@ -34,8 +41,26 @@ body {
   font-size: 17px;
 }
 
+.loading {
+  background-image: url("/static/images/loader.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+.text-light {
+  color: var(--white);
+}
+
+.text-light-grey {
+  color: var(--grey20);
+}
+
 .bg-light {
   background: #fbfbfe;
+}
+
+.drop-shadow-light {
+  box-shadow: var(--dropShadowLight);
 }
 
 .bg-fx-gradient {
@@ -93,6 +118,7 @@ button:active {
 
 .blue-button {
   background-color: var(--blue3);
+  background-position: center center;
 }
 
 .blue-button:hover,
@@ -102,6 +128,12 @@ button:active {
 
 .blue-button:active {
   background-color: var(--blue5);
+}
+
+.blue-button.loading {
+  color: rgba(255, 255, 255, .2);
+  background-color: var(--blue4);
+  transition: all .3s ease;
 }
 
 ::-moz-focus-inner {
@@ -414,7 +446,6 @@ table {
   background-color: white;
   border-radius: 16px;
   color: var(--textDark);
-  box-shadow: 0 0 10px -3px #3d3f4740;
 }
 
 .relay-email-address-wrapper {
@@ -528,7 +559,6 @@ table {
   top: 2.75rem;
   right: -10px;
   background-color: transparent;
-  box-shadow: 0 0 10px -3px #3d3f4740;
   min-width: 300px;
   z-index: 1;
   transform: translateY(12px);
@@ -803,7 +833,7 @@ ul.messages {
 .hero-right {
   border-radius: 24px;
   background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.07), #0250bb08);
-  box-shadow: 0 12px 18px 2px rgba(34, 0, 51, 0.09), 0 6px 22px 4px rgba(4, 25, 59, 0.87), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
+  box-shadow: var(--dropShadowDark);
 }
 
 .hero-left {
@@ -1028,7 +1058,6 @@ ul.messages {
 /* auth error */
 
 .auth-error-wrapper {
-  max-width: 400px;
   line-height: 1.4;
   border-radius: 8px;
   padding: 2px;
@@ -1039,19 +1068,126 @@ ul.messages {
 
 /* join waitlist */
 
+.invite-only-wrapper {
+  border-radius: 17px;
+  padding: 2px;
+  box-shadow: var(--dropShadowDark);
+}
+
+.invite-only-content {
+  max-width: 700px;
+  padding: 4rem;
+  width: 100%;
+  background-color: #302e5b;
+  border-radius: 16px;
+  position: relative;
+}
+
+.invite-only-hl {
+  margin: auto auto 20px auto;
+}
+
 .user-avatar {
+  min-height: 80px; /* prevents jumping while loading */
   max-width: 80px;
+  margin: 20px auto;
+}
+
+.join-waitlist-submit,
+.join-waitlist-form {
+  width: 100%;
+  margin: auto;
 }
 
 .join-waitlist-submit {
   min-height: 48px;
-  width: 260px;
+  max-width: 260px;
   font-size: 17px;
   border: none;
   margin: 2px;
-  border-radius: 7px;
-  color: var(--white);
+  border-radius: 8px;
 }
+
+.waitlist-user-email {
+  font-weight: 500;
+  margin: auto auto 20px auto;
+}
+
+.invite-only-wrapper::after {
+  width: 100%;
+  height: 100%;
+  content: "";
+  display: block;
+  position: absolute;
+  background-color: #302e5b;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.invite-only-wrapper.adding-email::after {
+  opacity: .3;
+  transition: all 0.2s ease;
+}
+
+.invite-only-wrapper.show-error::after {
+  opacity: 0 !important;
+}
+
+.waitlist-error,
+.user-on-waitlist-content,
+.show-error .join-waitlist-content,
+.user-on-waitlist .join-waitlist-content {
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.2s ease;
+}
+
+.waitlist-error,
+.user-on-waitlist-content {
+  position: absolute;
+  margin: auto;
+}
+
+.show-error .waitlist-error,
+.user-on-waitlist .user-on-waitlist-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+.waitlist-confirmation-hl::before {
+  content: "";
+  display: block;
+  background-color: #2ac3a2;
+  border: 3px solid #3fe1b0;
+  background-image: url("/static/images/white-check.svg");
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: center center;
+  height: 60px;
+  width: 60px;
+  margin: auto auto 16px auto;
+  border-radius: 50%;
+}
+
+.waitlist-confirmation-message {
+  margin: 0 auto auto auto;
+  max-width: 460px;
+}
+
+.file-an-issue {
+  text-decoration: underline;
+}
+
+.file-an-issue:hover,
+.file-an-issue:focus {
+  color: var(--grey30);
+}
+
+.file-an-issue:active {
+  color: var(--grey40);
+}
+
 /* end join waitlist */
 
 @media screen and (max-width: 1050px) {
@@ -1276,6 +1412,14 @@ ul.messages {
   .step {
     text-align: left;
     margin-bottom: 3rem;
+  }
+
+  .invite-only-content {
+    padding: 2rem;
+  }
+
+  .waitlist-confirmation-message {
+    font-size: 15px;
   }
 }
 
