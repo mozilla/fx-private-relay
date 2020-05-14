@@ -1,11 +1,15 @@
+from base64 import b64decode
 import contextlib
 from datetime import datetime
+from email import message_from_string, policy
 from email.utils import parseaddr
 from hashlib import sha256
 import json
 import logging
 import markus
 
+import boto3
+from botocore.exceptions import ClientError
 from decouple import config
 from socketlabs.injectionapi import SocketLabsClient
 from socketlabs.injectionapi.message.basicmessage import BasicMessage
@@ -22,6 +26,10 @@ from .context_processors import relay_from_domain
 from .models import DeletedAddress, Profile, RelayAddress
 
 
+SUPPORTED_SNS_TYPES = [
+    'SubscriptionConfirmation',
+    'Notification',
+]
 logger = logging.getLogger('events')
 metrics = markus.get_metrics('fx-private-relay')
 
@@ -114,6 +122,142 @@ def _index_DELETE(request_data, user_profile):
     # TODO?: create hard bounce receipt rule for the address
     relay_address.delete()
     return redirect('profile')
+
+
+@csrf_exempt
+def sns_inbound(request):
+    topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
+    if not topic_arn:
+        logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
+        return HttpResponse(
+            'Received SNS request without Topic ARN.', status=400
+        )
+    if topic_arn != settings.AWS_SNS_TOPIC:
+        logger.error(
+            'SNS message for wrong ARN',
+            extra={
+                'configured_arn': settings.AWS_SNS_TOPIC,
+                'received_arn': topic_arn,
+            }
+        )
+        return HttpResponse(
+            'Received SNS message for wrong topic.', status=400
+        )
+
+    message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
+    if not topic_arn:
+        logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
+        return HttpResponse(
+            'Received SNS request without Message Type.', status=400
+        )
+    if message_type not in SUPPORTED_SNS_TYPES:
+        logger.error(
+            'SNS message for unsupported type',
+            extra={
+                'supported_sns_types': SUPPORTED_SNS_TYPES,
+                'message_type': message_type,
+            }
+        )
+        return HttpResponse(
+            'Received SNS message for unsupported Type: %s' % message_type,
+            status=400
+        )
+
+    json_body = json.loads(request.body)
+    # TODO: Verify request comes from SNS
+    return _sns_inbound_logic(topic_arn, message_type, json_body)
+
+
+def _sns_inbound_logic(topic_arn, message_type, json_body):
+    if message_type == 'SubscriptionConfirmation':
+        logger.info(
+            'SNS SubscriptionConfirmation',
+            extra={'SubscribeURL': json_body['SubscribeURL']}
+        )
+        return HttpResponse('Logged SubscribeURL', status=200)
+    if message_type == 'Notification':
+        logger.info(
+            'SNS Notification',
+            extra={'json_body': json_body},
+        )
+        return _sns_notification(json_body)
+
+
+def _sns_notification(json_body):
+    message_json = json.loads(json_body['Message'])
+    notification_type = message_json['notificationType']
+    if notification_type != 'Received':
+        logger.error(
+            'SNS notification for unsupported type',
+            extra={'notification_type': notification_type},
+        )
+        return HttpResponse(
+            'Received SNS notification for unsupported Type: %s' %
+            notification_type,
+            status=400
+        )
+
+    return _sns_mail(message_json)
+
+
+def _sns_mail(message_json):
+    mail = message_json['mail']
+    to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
+    local_portion = to_address.split('@')[0]
+
+    try:
+        relay_address = RelayAddress.objects.get(address=local_portion)
+        if not relay_address.enabled:
+            relay_address.num_blocked += 1
+            relay_address.save(update_fields=['num_blocked'])
+            return HttpResponse("Address does not exist")
+    except RelayAddress.DoesNotExist:
+        # TODO?: if sha256 of the address is in DeletedAddresses,
+        # create a hard bounce receipt rule
+        logger.error('email_relay', extra={'message_json': message_json})
+        return HttpResponse("Address does not exist", status=404)
+
+    logger.info('email_relay', extra={
+        'fxa_uid': (
+            relay_address.user.socialaccount_set.first().uid
+        ),
+        'relay_address_id': relay_address.id,
+        'relay_address': sha256(local_portion.encode('utf-8')).hexdigest(),
+        'real_address': sha256(
+            relay_address.user.email.encode('utf-8')
+        ).hexdigest(),
+    })
+
+    from_address = parseaddr(mail['commonHeaders']['from'])[1]
+    subject = mail['commonHeaders']['subject']
+    email_message = message_from_string(message_json['content'])
+    for message_payload in email_message.get_payload():
+        if message_payload.get_content_type() == 'text/plain':
+            text_content = b64decode(
+                message_payload.get_payload()
+            ).decode('utf-8')
+        if message_payload.get_content_type() == 'text/html':
+            html_content = b64decode(
+                message_payload.get_payload()
+            ).decode('utf-8')
+
+    ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
+    try:
+        ses_response = ses_client.send_email(
+            Destination={'ToAddresses': [relay_address.user.email]},
+            Message={
+                'Body': {
+                    'Html': {'Charset': 'UTF-8', 'Data': html_content},
+                    'Text': {'Charset': 'UTF-8', 'Data': text_content},
+                },
+                'Subject': {'Charset': 'UTF-8', 'Data': subject},
+            },
+            Source=settings.RELAY_FROM_ADDRESS,
+            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
+        )
+        logger.debug('ses_sent_response', extra=ses_response['MessageId'])
+    except ClientError as e:
+        logger.error('ses_client_error', extra=e.response['Error'])
 
 
 @csrf_exempt

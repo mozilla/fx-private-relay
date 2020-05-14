@@ -95,10 +95,17 @@ if DJANGO_ALLOWED_SUBNET:
 # Get our backing resource configs to check if we should install the app
 ADMIN_ENABLED = config('ADMIN_ENABLED', None)
 
+
+AWS_REGION = config('AWS_REGION', None)
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', None)
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', None)
+AWS_SNS_TOPIC = config('AWS_SNS_TOPIC', None)
+AWS_SES_CONFIGSET = config('AWS_SES_CONFIGSET', None)
 SOCKETLABS_SERVER_ID = config('SOCKETLABS_SERVER_ID', 0, cast=int)
 SOCKETLABS_API_KEY = config('SOCKETLABS_API_KEY', None)
 SOCKETLABS_SECRET_KEY = config('SOCKETLABS_SECRET_KEY', None)
 SOCKETLABS_VALIDATION_KEY = config('SOCKETLABS_VALIDATION_KEY', None)
+
 RELAY_FROM_ADDRESS = config('RELAY_FROM_ADDRESS', None)
 
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
@@ -140,7 +147,7 @@ if ADMIN_ENABLED:
         'django.contrib.admin',
     ]
 
-if SOCKETLABS_API_KEY:
+if AWS_SNS_TOPIC or SOCKETLABS_API_KEY:
     INSTALLED_APPS += [
         'emails.apps.EmailsConfig',
     ]
