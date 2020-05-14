@@ -5,6 +5,7 @@ from hashlib import sha256
 import json
 import logging
 import markus
+import re
 
 from decouple import config
 from socketlabs.injectionapi import SocketLabsClient
@@ -180,9 +181,12 @@ def _inbound_logic(json_body):
     sl_message = BasicMessage()
     sl_message.subject = subject
 
-    wrapped_html = render_to_string('wrapped_email.html', {
+    # scramble alias so that clients don't recognize it and apply default link styles
+    display_email = re.sub('([@.:])', r'<span>\1</span>', email_to)
+    wrapped_html = render_to_string('emails/wrapped_email.html', {
         'original_html': html,
-        'email_to': email_to
+        'email_to': email_to,
+        'display_email': display_email,
     })
 
     sl_message.html_body = wrapped_html
