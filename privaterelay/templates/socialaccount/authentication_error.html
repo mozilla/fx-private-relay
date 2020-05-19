@@ -43,6 +43,8 @@
               </div>
             </div>
           </div>
+        {% elif auth_error.exception.args %}
+          <p class="ff-Met no-active-aliases text-center text-light">{{ auth_error.exception.args | first }}</p>
         {% endif %}
       {% endif %}
     </div>
