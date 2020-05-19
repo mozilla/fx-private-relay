@@ -2,59 +2,144 @@
 
 function showSignUpPanel() {
   const signUpOrInPanel = document.querySelector(".sign-up-panel");
+  document.body.classList.add("sign-up");
   return signUpOrInPanel.classList.remove("hidden");
 }
 
+
 function showRelayPanel() {
+  document.body.classList.add("relay-panel");
   const relayPanel = document.querySelector(".signed-in-panel");
   return relayPanel.classList.remove("hidden");
 }
 
+
+async function getAllAliases() {
+  return await browser.storage.local.get("relayAddresses");
+}
+
+
+async function makeNewAlias() {
+  const newRelayAddressResponse = await browser.runtime.sendMessage({
+    method: "makeRelayAddress",
+  });
+
+  return newRelayAddressResponse;
+}
+
+
+function copyAliasToClipboard(copyBtn) {
+  document.querySelectorAll(".alias-copied").forEach(previouslyCopiedAlias => {
+    previouslyCopiedAlias.classList.remove("alias-copied");
+    previouslyCopiedAlias.title = "Copy alias to clipboard";
+  });
+  copyBtn.classList.add("alias-copied");
+  copyBtn.title = "Alias copied to your clipboard";
+  window.navigator.clipboard.writeText(copyBtn.dataset.relayAddress);
+}
+
+
+async function updatePanelValues() {
+  const { relayAddresses } = await getAllAliases();
+  const { maxNumAliases } = await browser.storage.local.get("maxNumAliases");
+  const aliasListHeader = document.querySelector("alias-list-header");
+
+  const remainingAliasMessage = document.querySelector(".aliases-remaining");
+  const numRemainingEl = remainingAliasMessage.querySelector(".num-aliases-remaining");
+  const aliasCreationEl = document.querySelector("alias-creation");
+  const createAliasBtn = aliasCreationEl.querySelector(".create-new-alias");
+  const numRemaining = maxNumAliases - relayAddresses.length;
+
+  const noAliases = (relayAddresses && relayAddresses.length === 0);
+  const manageAliasesText = "Manage Aliases";
+  const footerButton = document.querySelector(".footer-button");
+  footerButton.textContent = noAliases ? "View Dashboard" : manageAliasesText;
+
+  numRemainingEl.textContent = numRemaining;
+
+  if (numRemaining === 5) {
+    aliasListHeader.classList.add("hidden");
+    createAliasBtn.disabled = true;
+
+  }
+
+  if (numRemaining === 0) {
+    aliasCreationEl.classList.add("disabled");
+    return;
+  }
+
+  // adjust plural/singular form of the word "alias" if there is 1 remaining alias
+  if (numRemaining === 1) {
+    const aliasText = remainingAliasMessage.querySelector(".alias-text");
+    aliasText.textContent = "alias";
+  }
+}
+
+
 async function popup() {
   const userApiToken = await browser.storage.local.get("apiToken");
   if (!userApiToken.hasOwnProperty("apiToken")) {
-    showSignUpPanel();
-  } else {
-    showRelayPanel();
+    return showSignUpPanel();
   }
 
-  document.querySelectorAll(".generate-alias").forEach(generateAliasBtn => {
-    generateAliasBtn.addEventListener("click", async() => {
-      const newRelayAddressResponse = await browser.runtime.sendMessage({
-        method: "makeRelayAddress",
-      });
+  showRelayPanel();
 
+  const { relayAddresses } = await getAllAliases();
+
+  const aliasListWrapper = document.querySelector("alias-list");
+  const aliasListHeader = aliasListWrapper.querySelector("alias-list-header");
+
+  const createAliasListItem = (alias) => {
+    const aliasEl = document.createElement("alias");
+    const aliasAddress = document.createElement("alias-list-address");
+    aliasAddress.textContent = alias.address;
+    aliasEl.appendChild(aliasAddress);
+
+    const aliasDomainEl = document.createElement("alias-list-domain");
+    aliasDomainEl.textContent = (!alias.domain || alias.domain === "") ? "" : alias.domain;
+    aliasEl.appendChild(aliasDomainEl);
+
+    const copyToClipboard = document.createElement("button");
+    copyToClipboard.classList = ["copy-to-clipboard"];
+    copyToClipboard.title = "Copy alias to clipboard";
+    copyToClipboard.dataset.relayAddress = alias.address;
+
+    copyToClipboard.addEventListener("click", (e) => {
+      const copyBtn  = e.target;
+      copyAliasToClipboard(copyBtn);
+    });
+    aliasEl.appendChild(copyToClipboard);
+    return aliasListWrapper.appendChild(aliasEl);
+  };
+
+  relayAddresses.forEach(relayAddress => {
+    createAliasListItem(relayAddress);
+  });
+
+  updatePanelValues();
+
+  document.querySelectorAll(".create-new-alias").forEach(generateAliasBtn => {
+    generateAliasBtn.addEventListener("click", async() => {
+      const newRelayAddressResponse =  await makeNewAlias();
       if (!newRelayAddressResponse) {
         return;
       }
 
-      const aliasDisplay = document.querySelector(".alias-display");
-      const aliasText = document.querySelector(".alias");
-      const aliasWrapper = document.querySelector(".alias-wrapper");
-
-      // Show error message if the user already has 5 active aliases
-      // TODO: Catch this earlier and show the message before they try to click
-      // the generate buttons.
       if (newRelayAddressResponse.status === 402) {
-        const errorMessageWrapper = document.querySelector(".error-message-wrapper");
-        errorMessageWrapper.classList.remove("hidden");
-        aliasDisplay.classList.add("show-error")
-        if (aliasDisplay.classList.contains("show-alias")) {
-          aliasText.classList.remove("show-alias");
-          aliasWrapper.classList.add("hidden");
-        }
-        return;
+        return updatePanelValues();
       }
 
-      // show newly created alias
-      aliasText.textContent = newRelayAddressResponse;
-      aliasWrapper.classList.remove("hidden");
-      aliasDisplay.classList.add("show-alias");
+      if (aliasListHeader.classList.contains("hidden")) {
+        aliasListHeader.classList.remove("hidden");
+      }
 
-      // Copy text to clipboard
-      // TODO allow users to access this alias and copy it again
-      // from the panel.
-      navigator.clipboard.writeText(newRelayAddressResponse);
+      updatePanelValues();
+
+      // Add newly created alias to alias list
+      createAliasListItem(newRelayAddressResponse);
+      const newlyCreatedAlias = document.querySelector(`button[data-relay-address="${newRelayAddressResponse.address}"]`);
+      copyAliasToClipboard(newlyCreatedAlias);
+      newlyCreatedAlias.focus();
     });
   });
 

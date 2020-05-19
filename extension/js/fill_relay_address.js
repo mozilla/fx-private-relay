@@ -79,9 +79,9 @@ function showModal(modalType, newAlias=null) {
 
 
 function fillInputWithAlias(emailInput, relayAlias) {
-  emailInput.value = relayAlias;
+  emailInput.value = relayAlias.address;
   emailInput.dispatchEvent(new InputEvent("relay-address", {
-    data: relayAlias,
+    data: relayAlias.address,
   }));
 }
 
