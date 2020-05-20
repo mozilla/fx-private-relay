@@ -22,6 +22,10 @@ glocal-menu {
   box-shadow: 0 7px 12px -3px rgba(28, 28, 29, 0.502);
 }
 
+.glocal-menu-wrapper.fx-bento-fade-out {
+  z-index: 100;
+}
+
 .glocal-menu-header {
   background-color: var(--glocalBackground);
   display: flex;
