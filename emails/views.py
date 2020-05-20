@@ -187,6 +187,7 @@ def _inbound_logic(json_body):
         'original_html': html,
         'email_to': email_to,
         'display_email': display_email,
+        'SITE_ORIGIN': settings.SITE_ORIGIN,
     })
 
     sl_message.html_body = wrapped_html
