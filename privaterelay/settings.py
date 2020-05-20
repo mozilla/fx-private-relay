@@ -81,8 +81,6 @@ CSP_IMG_SRC = (
 )
 REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
-SITE_URL = config('SITE_URL', None)
-
 ALLOWED_HOSTS = []
 DJANGO_ALLOWED_HOST = config('DJANGO_ALLOWED_HOST', None)
 if DJANGO_ALLOWED_HOST:

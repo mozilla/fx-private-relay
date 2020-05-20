@@ -41,6 +41,8 @@ class Command(BaseCommand):
                     "%s already has an active invitation" %
                     invitee.primary_email
                 )
+                invitee.waitlists_joined['email_relay']['notified'] = True
+                invitee.save(update_fields=['waitlists_joined'])
             except Invitations.DoesNotExist:
                 print("adding %s to invitations" % invitee.primary_email)
                 invitation = Invitations.objects.create(
@@ -52,7 +54,7 @@ class Command(BaseCommand):
 
                 context = {
                     'email': invitee.primary_email,
-                    'current_domain': settings.SITE_URL,
+                    'current_domain': settings.SITE_ORIGIN,
                 }
 
                 # Send email invite
