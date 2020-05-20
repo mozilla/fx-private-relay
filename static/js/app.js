@@ -61,6 +61,7 @@ function copyToClipboardAndShowMessage(e) {
   const previouslyCopiedAlias = document.querySelector(".alias-copied");
   if (previouslyCopiedAlias) {
     previouslyCopiedAlias.classList.remove("alias-copied");
+    previouslyCopiedAlias.title = "Copy alias to clipboard";
   }
   aliasCopyBtn.classList.add("alias-copied");
   aliasCopyBtn.title="Alias copied to clipboard";
