@@ -224,7 +224,7 @@ button:active {
   font-size: 1.2rem;
   line-height: 1.7rem;
   letter-spacing: 0.009rem;
-  font-family: "Metropolis", Arial, Helvetica, sans-serif;
+  font-family: var(--metropolis);
   font-weight: 100;
 }
 
@@ -369,27 +369,6 @@ header {
   min-height: 50vh;
   max-width: 900px;
   margin: auto;
-}
-
-.beta-tag {
-  opacity: 0.75;
-  background: var(--purple);
-  color: var(--white);
-  text-transform: uppercase;
-  font-size: 11px;
-  display: inline-block;
-  padding: 0 10px;
-  width: auto;
-  height: 25px;
-  line-height: 25px;
-  border-radius: 3px;
-  text-align: center;
-  letter-spacing: 2px;
-}
-
-.empty-content {
-  position: relative;
-  z-index: 1;
 }
 
 .messages {
@@ -773,46 +752,6 @@ table {
   opacity: 0.4;
 }
 
-ul.messages {
-  max-height: 50px;
-  display: flex;
-  border-radius: 8px;
-  padding: 0;
-}
-
-.js-notification {
-  position: relative;
-  width: 100%;
-  padding: 1rem;
-  align-items: center;
-  display: flex;
-  background: var(--lightestGray);
-  border-radius: 8px;
-}
-
-.dismiss {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 1rem;
-  margin: auto;
-  outline: none;
-  border: none;
-  background: var(--lightestGray);
-  height: 32px;
-  width: 32px;
-  border-radius: 50%;
-  padding: 5px;
-}
-
-.home-messages span {
-  color: #fff;
-}
-
-.home-messages path {
-  fill: #fff;
-}
-
 .remaining-aliases-wrapper {
   flex-direction: column-reverse;
 }
@@ -941,82 +880,9 @@ ul.messages {
   font-weight: 600;
 }
 
-/* download Firefox and Delete Email confirmation modals - wip */
-
-.modal-wrapper,
-.modal-bg-dark,
-.modal-bg-dark::after {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
-}
-
-.modal-bg-dark::after {
-  background-image: var(--darkBlueGradient);
-  content: "";
-  z-index: -1;
-  opacity: 0.8;
-}
-
-.modal-content-dark::before {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  background-image: var(--darkBlueGradient);
-  z-index: -1;
-}
-
-.modal-content-dark {
-  background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.17), #0250bb1f);
-  padding: 6rem;
-  border-radius: 24px;
-  color: rgba(255, 255, 255, 1);
-  box-shadow: 0 12px 18px 2px rgba(34, 0, 51, 0.09), 0 6px 22px 4px rgba(4, 25, 59, 0.87), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
-  position: relative;
-}
-
-.modal-headline {
-  font-size: 1.5rem;
-}
-
-.modal-btn {
-  color: rgba(255, 255, 255, 1);
-  padding: 1rem 2rem;
-}
-
-.close-modal-x {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  height: 24px;
-  width: 24px;
-  background-image: url("/static/images/x-close.svg");
-  background-position: center center;
-  border-radius: 50%;
-  padding: 20px;
-  background-repeat: no-repeat;
-  background-size: 24px;
-}
-
-.home-messages {
-  color: rgba(255, 255, 255, 1);
-}
-
 .x-close-icon path {
   fill: rgba(255, 255, 255, 1);
 }
-
-/* end modals */
 
 /* no aliases screen */
 
