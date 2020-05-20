@@ -4,6 +4,8 @@
   --blue3: #0060df;
   --blue4: #0250bb;
   --blue5: #073072;
+  --blue7: #003eaa;
+  --blue8: #002275;
   --darkBlueGradient: linear-gradient(60deg, #2d264e, #26294e);
   --darkestBlue: #282936;
   --dropShadowLight: 0 0 10px -3px #3d3f4740;
@@ -71,10 +73,6 @@ body {
   box-shadow: var(--dropShadowLight);
 }
 
-.bg-fx-gradient {
-  background-image: var(--fxGradient);
-}
-
 h1,
 h2,
 .button,
@@ -125,23 +123,43 @@ button:active {
 }
 
 .blue-button {
+  position: relative;
+  color: rgba(255, 255, 255, 1);
+  border: none;
+  outline: none;
   background-color: var(--blue3);
   background-position: center center;
+  border-radius: 2px;
+  min-height: 32px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--metropolis);
 }
 
-.blue-button:hover,
+.blue-button:hover {
+  background-color: var(--blue7);
+}
+
 .blue-button:focus {
-  background-color: var(--blue4);
+  box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
 }
 
 .blue-button:active {
-  background-color: var(--blue5);
+  background-color: var(--blue8);
 }
 
 .blue-button.loading {
   color: rgba(255, 255, 255, .2);
   background-color: var(--blue4);
   transition: all .3s ease;
+}
+
+.puffy {
+  min-height: 48px;
+  border-radius: 4px;
+  min-width: 200px;
 }
 
 ::-moz-focus-inner {
@@ -265,11 +283,6 @@ button:active {
   margin-right: auto;
 }
 
-.content-row {
-  /* max-width: 1020px; */
-  width: 100%;
-}
-
 .txt-white {
   color: #fff;
 }
@@ -300,7 +313,6 @@ button:active {
   border-color: #cfcfd8;
 }
 
-.blue-button:active,
 .sign-in:active {
   box-shadow: 0 2px 8px 0 rgba(14, 13, 26, 0.12), 0 3px 1px -2px rgba(7, 48, 114, 0.12), 0 2px 4px 0 rgba(34, 0, 51, 0.04), 0 0 0 1px rgba(32, 18, 58, 0.04);
 }
@@ -479,8 +491,6 @@ table {
   padding: 1.5rem var(--hPadding) 0 var(--hPadding);
   justify-content: space-between;
   display: flex;
-
-  /* border-bottom: 1px solid #27283605; */
 }
 
 .grid {
@@ -818,27 +828,7 @@ ul.messages {
   font-weight: 600;
 }
 
-.add-to-fx-dash {
-  position: relative;
-  margin: 2px;
-  padding: 1rem 2rem;
-}
-
-.add-to-fx-dash,
-.create-new-relay {
-  background-color: var(--grey10);
-  margin: 2px;
-  padding: 12px 20px 12px 16px;
-  border-radius: 7px;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  color: rgba(0, 0, 0, 1);
-  font-family: var(--metropolis);
-  display: flex;
-}
-
-.add-to-fx-dash::before,
+.add-to-fx::before,
 .create-new-relay::before {
   content: "";
   background-image: url(/static/images/plus-sign.svg);
@@ -849,6 +839,11 @@ ul.messages {
   height: 13px;
   display: inline-flex;
   margin: auto 6px auto 0;
+}
+
+.create-new-relay::before,
+.add-to-fx::before {
+  background-image: url(/static/images/plus-sign-white.svg);
 }
 
 .grey-pseudo-styles:hover,
@@ -908,56 +903,8 @@ ul.messages {
   max-width: 375px;
 }
 
-.fx-gradient-btn {
-  border-radius: 9px;
-  position: relative;
-  opacity: 1;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.fx-gradient-btn:hover {
-  opacity: 0.8;
-  transition: all 0.2s ease;
-}
-
-.sign-in-btn,
-.hero-sign-up {
-  background-image: var(--darkBlueGradient);
-  border-color: transparent;
-  margin: 2px;
-  padding: 1rem 2rem;
-  color: rgba(255, 255, 255, 1);
-  position: relative;
-}
-
-.sign-in-btn::after,
-.hero-sign-up::after {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.1);
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0;
-  content: "";
-  display: flex;
-  transition: all 0.2s ease;
-}
-
-.sign-in-btn:hover::after,
-.hero-sign-up:hover::after {
-  opacity: 1;
-  transition: all 0.2s ease;
-}
-
 .how-it-works-content > .hero-sign-up-bg {
   margin: auto;
-}
-
-.sign-in-btn:active,
-.hero-sign-up:active {
-  box-shadow: 0 4px 8px 0 rgba(14, 13, 26, 0.12), 0 5px 1px -2px rgba(7, 48, 114, 0.12), 0 2px 4px 0 rgba(34, 0, 51, 0.04), 0 0 0 1px rgba(32, 18, 58, 0.04);
 }
 
 .card-small-text {
@@ -1485,6 +1432,11 @@ ul.messages {
 }
 
 @media screen and (max-width: 550px) {
+
+  .step-illustration {
+    min-width: 100%;
+  }
+
   .invite-only-hl,
   .no-active-aliases {
     font-size: 1.2rem;

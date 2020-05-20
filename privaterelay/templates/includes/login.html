@@ -5,7 +5,7 @@
 
 <div class="user-area flx flx-row al-cntr">
 	{% if not request.user.is_anonymous %}
-		<a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="add-to-fx-header ff-Met">+ Add to Firefox</a>
+		<a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="add-to-fx-header add-to-fx ff-Met">Add to Firefox</a>
 	{% endif %}
 	<firefox-apps></firefox-apps>
 	{% if request.user.is_anonymous %}
