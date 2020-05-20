@@ -6,6 +6,7 @@
   --blue5: #073072;
   --blue7: #003eaa;
   --blue8: #002275;
+  --buttonFocus: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
   --darkBlueGradient: linear-gradient(60deg, #2d264e, #26294e);
   --darkestBlue: #282936;
   --dropShadowLight: 0 0 10px -3px #3d3f4740;
@@ -142,12 +143,15 @@ button:active {
   background-color: var(--blue7);
 }
 
+.sign-in:focus,
 .blue-button:focus {
-  box-shadow: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+  box-shadow: var(--buttonFocus);
+  outline: none;
 }
 
 .blue-button:active {
   background-color: var(--blue8);
+  box-shadow: 0 0 0 1px rgba(10, 132, 255, 0) inset, 0 0 0 1px rgba(10, 132, 255, 0), 0 0 0 4px rgba(10, 132, 255, 0);
 }
 
 .blue-button.loading {
@@ -307,7 +311,6 @@ button:active {
 }
 
 .sign-in:hover,
-.sign-in:focus,
 .sign-in:active {
   color: #cfcfd8;
   border-color: #cfcfd8;
