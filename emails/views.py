@@ -272,6 +272,9 @@ def _sns_mail(message_json):
         logger.debug('ses_sent_response', extra=ses_response['MessageId'])
     except ClientError as e:
         logger.error('ses_client_error', extra=e.response['Error'])
+        return HttpResponse("SES client error", status=400)
+
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 @csrf_exempt
