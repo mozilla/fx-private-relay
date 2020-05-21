@@ -162,6 +162,7 @@ def sns_inbound(request):
         )
 
     json_body = json.loads(request.body)
+    '''
     try:
         verified_json_body = verify_from_sns(json_body)
     except Exception:
@@ -176,6 +177,8 @@ def sns_inbound(request):
             'Received SNS message with invalid signature: %s' % message_type,
             status=401
         )
+    '''
+    verified_json_body = json_body
 
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
@@ -244,14 +247,13 @@ def _sns_mail(message_json):
     subject = mail['commonHeaders']['subject']
     email_message = message_from_string(message_json['content'])
     for message_payload in email_message.get_payload():
+        # TODO: check Content-Transfer-Encoding to see if additional decoding
+        # is needed.
+        # E.g., b64decode(message_payload.get_payload()).decode('utf-8')
         if message_payload.get_content_type() == 'text/plain':
-            text_content = b64decode(
-                message_payload.get_payload()
-            ).decode('utf-8')
+            text_content = message_payload.get_payload()
         if message_payload.get_content_type() == 'text/html':
-            html_content = b64decode(
-                message_payload.get_payload()
-            ).decode('utf-8')
+            html_content = message_payload.get_payload()
 
     ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
     try:
