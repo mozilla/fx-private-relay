@@ -6,6 +6,7 @@ from socketlabs.injectionapi.message.basicmessage import BasicMessage
 from socketlabs.injectionapi.message.emailaddress import EmailAddress
 
 from django.conf import settings
+from django.core.exceptions import EmptyResultSet
 from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
 
@@ -33,17 +34,24 @@ class Command(BaseCommand):
 
         for invitee in monitor_waitlist:
             try:
-                Invitations.objects.get(
+                invitation = Invitations.objects.get(
                     email=invitee.primary_email,
                     active=True,
                 )
-                print(
-                    "%s already has an active invitation" %
-                    invitee.primary_email
-                )
-                invitee.waitlists_joined['email_relay']['notified'] = True
-                invitee.save(update_fields=['waitlists_joined'])
-            except Invitations.DoesNotExist:
+                if invitation.date_redeemed:
+                    print(
+                        "%s already has an active invitation" %
+                        invitee.primary_email
+                    )
+                    invitee.waitlists_joined['email_relay']['notified'] = True
+                    invitee.save(update_fields=['waitlists_joined'])
+                else:
+                    print(
+                        "%s has an invitation but was not emailed" %
+                        invitee.primary_email
+                    )
+                    raise EmptyResultSet
+            except Invitations.DoesNotExist:  # no invitation
                 print("adding %s to invitations" % invitee.primary_email)
                 invitation = Invitations.objects.create(
                     email=invitee.primary_email,
