@@ -17,6 +17,50 @@ from ...models import Invitations, MonitorSubscriber
 logger = logging.getLogger('events')
 
 
+def email_invited_user(invitee, invitation):
+    context = {
+        'email': invitee.primary_email,
+        'current_domain': settings.SITE_ORIGIN,
+    }
+
+    # Send email invite
+    sl_message = BasicMessage()
+    sl_message.subject = (
+        "You're Invited to the Private Relay Beta!"
+    )
+
+    sl_message.html_body = render_to_string(
+        'emails/beta_invite_html_email.html',
+        context,
+    )
+    sl_message.plain_text_body = render_to_string(
+        'emails/beta_invite_text_email.txt',
+        context,
+    )
+
+    relay_display_name, relay_from_address = parseaddr(
+        settings.RELAY_FROM_ADDRESS
+    )
+    sl_message.from_email_address = EmailAddress(
+        relay_from_address
+    )
+    sl_message.to_email_address.append(
+        EmailAddress(invitee.primary_email)
+    )
+
+    sl_client = get_socketlabs_client()
+    response = socketlabs_send(sl_client, sl_message)
+    if not response.result.name == 'Success':
+        logger.error('socketlabs_error', extra=response.to_json())
+    else:
+        invitation.date_sent = datetime.now()
+        invitation.save(update_fields=['date_sent'])
+
+        invitee.waitlists_joined['email_relay']['notified'] = True
+        invitee.save(update_fields=['waitlists_joined'])
+    return response
+
+
 class Command(BaseCommand):
     help = 'Connects to Monitor waitlist and creates invitations.'
 
@@ -60,44 +104,6 @@ class Command(BaseCommand):
                     date_redeemed=None
                 )
 
-                context = {
-                    'email': invitee.primary_email,
-                    'current_domain': settings.SITE_ORIGIN,
-                }
-
-                # Send email invite
-                sl_message = BasicMessage()
-                sl_message.subject = (
-                    "You're Invited to the Private Relay Beta!"
-                )
-
-                sl_message.html_body = render_to_string(
-                    'emails/beta_invite_html_email.html',
-                    context,
-                )
-                sl_message.plain_text_body = render_to_string(
-                    'emails/beta_invite_text_email.txt',
-                    context,
-                )
-
-                relay_display_name, relay_from_address = parseaddr(
-                    settings.RELAY_FROM_ADDRESS
-                )
-                sl_message.from_email_address = EmailAddress(
-                    relay_from_address
-                )
-                sl_message.to_email_address.append(
-                    EmailAddress(invitee.primary_email)
-                )
-
-                sl_client = get_socketlabs_client()
-                response = socketlabs_send(sl_client, sl_message)
-
-                if not response.result.name == 'Success':
-                    logger.error('socketlabs_error', extra=response.to_json())
-
-                invitation.date_sent = datetime.now()
-                invitation.save(update_fields=['date_sent'])
-
-                invitee.waitlists_joined['email_relay']['notified'] = True
-                invitee.save(update_fields=['waitlists_joined'])
+                response = email_invited_user(invitee, invitation)
+            except EmptyResultSet:  # invitation exists email not sent
+                response = email_invited_user(invitee, invitation)
