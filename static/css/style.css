@@ -773,7 +773,7 @@ table {
 .add-to-fx::before,
 .create-new-relay::before {
   content: "";
-  background-image: url(/static/images/plus-sign.svg);
+  background-image: url(/static/images/plus-sign-white.svg);
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
@@ -781,11 +781,6 @@ table {
   height: 13px;
   display: inline-flex;
   margin: auto 6px auto 0;
-}
-
-.create-new-relay::before,
-.add-to-fx::before {
-  background-image: url(/static/images/plus-sign-white.svg);
 }
 
 .grey-pseudo-styles:hover,
