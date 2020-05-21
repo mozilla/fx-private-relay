@@ -24,12 +24,9 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
 from .models import DeletedAddress, Profile, RelayAddress
+from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
-SUPPORTED_SNS_TYPES = [
-    'SubscriptionConfirmation',
-    'Notification',
-]
 logger = logging.getLogger('events')
 metrics = markus.get_metrics('fx-private-relay')
 
@@ -126,6 +123,7 @@ def _index_DELETE(request_data, user_profile):
 
 @csrf_exempt
 def sns_inbound(request):
+    # We can check for some invalid values in headers before processing body
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
     if not topic_arn:
         logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
@@ -164,8 +162,22 @@ def sns_inbound(request):
         )
 
     json_body = json.loads(request.body)
-    # TODO: Verify request comes from SNS
-    return _sns_inbound_logic(topic_arn, message_type, json_body)
+    try:
+        verified_json_body = verify_from_sns(json_body)
+    except Exception:
+        logger.error(
+            'SNS message with invalid signature',
+            extra={
+                'SigningCertURL': json_body['SigningCertURL'],
+                'Signature': json_body['Signature'],
+            }
+        )
+        return HttpResponse(
+            'Received SNS message with invalid signature: %s' % message_type,
+            status=401
+        )
+
+    return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
 def _sns_inbound_logic(topic_arn, message_type, json_body):
