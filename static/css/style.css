@@ -4,6 +4,9 @@
   --blue3: #0060df;
   --blue4: #0250bb;
   --blue5: #073072;
+  --blue7: #003eaa;
+  --blue8: #002275;
+  --buttonFocus: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
   --darkBlueGradient: linear-gradient(60deg, #2d264e, #26294e);
   --darkestBlue: #282936;
   --dropShadowLight: 0 0 10px -3px #3d3f4740;
@@ -71,10 +74,6 @@ body {
   box-shadow: var(--dropShadowLight);
 }
 
-.bg-fx-gradient {
-  background-image: var(--fxGradient);
-}
-
 h1,
 h2,
 .button,
@@ -125,23 +124,46 @@ button:active {
 }
 
 .blue-button {
+  position: relative;
+  color: rgba(255, 255, 255, 1);
+  border: none;
+  outline: none;
   background-color: var(--blue3);
   background-position: center center;
+  border-radius: 2px;
+  min-height: 32px;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--metropolis);
 }
 
-.blue-button:hover,
+.blue-button:hover {
+  background-color: var(--blue7);
+}
+
+.sign-in:focus,
 .blue-button:focus {
-  background-color: var(--blue4);
+  box-shadow: var(--buttonFocus);
+  outline: none;
 }
 
 .blue-button:active {
-  background-color: var(--blue5);
+  background-color: var(--blue8);
+  box-shadow: 0 0 0 1px rgba(10, 132, 255, 0) inset, 0 0 0 1px rgba(10, 132, 255, 0), 0 0 0 4px rgba(10, 132, 255, 0);
 }
 
 .blue-button.loading {
   color: rgba(255, 255, 255, .2);
   background-color: var(--blue4);
   transition: all .3s ease;
+}
+
+.puffy {
+  min-height: 48px;
+  border-radius: 4px;
+  min-width: 200px;
 }
 
 ::-moz-focus-inner {
@@ -206,7 +228,7 @@ button:active {
   font-size: 1.2rem;
   line-height: 1.7rem;
   letter-spacing: 0.009rem;
-  font-family: "Metropolis", Arial, Helvetica, sans-serif;
+  font-family: var(--metropolis);
   font-weight: 100;
 }
 
@@ -265,11 +287,6 @@ button:active {
   margin-right: auto;
 }
 
-.content-row {
-  /* max-width: 1020px; */
-  width: 100%;
-}
-
 .txt-white {
   color: #fff;
 }
@@ -294,13 +311,11 @@ button:active {
 }
 
 .sign-in:hover,
-.sign-in:focus,
 .sign-in:active {
   color: #cfcfd8;
   border-color: #cfcfd8;
 }
 
-.blue-button:active,
 .sign-in:active {
   box-shadow: 0 2px 8px 0 rgba(14, 13, 26, 0.12), 0 3px 1px -2px rgba(7, 48, 114, 0.12), 0 2px 4px 0 rgba(34, 0, 51, 0.04), 0 0 0 1px rgba(32, 18, 58, 0.04);
 }
@@ -357,27 +372,6 @@ header {
   min-height: 50vh;
   max-width: 900px;
   margin: auto;
-}
-
-.beta-tag {
-  opacity: 0.75;
-  background: var(--purple);
-  color: var(--white);
-  text-transform: uppercase;
-  font-size: 11px;
-  display: inline-block;
-  padding: 0 10px;
-  width: auto;
-  height: 25px;
-  line-height: 25px;
-  border-radius: 3px;
-  text-align: center;
-  letter-spacing: 2px;
-}
-
-.empty-content {
-  position: relative;
-  z-index: 1;
 }
 
 .messages {
@@ -479,8 +473,6 @@ table {
   padding: 1.5rem var(--hPadding) 0 var(--hPadding);
   justify-content: space-between;
   display: flex;
-
-  /* border-bottom: 1px solid #27283605; */
 }
 
 .grid {
@@ -763,46 +755,6 @@ table {
   opacity: 0.4;
 }
 
-ul.messages {
-  max-height: 50px;
-  display: flex;
-  border-radius: 8px;
-  padding: 0;
-}
-
-.js-notification {
-  position: relative;
-  width: 100%;
-  padding: 1rem;
-  align-items: center;
-  display: flex;
-  background: var(--lightestGray);
-  border-radius: 8px;
-}
-
-.dismiss {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 1rem;
-  margin: auto;
-  outline: none;
-  border: none;
-  background: var(--lightestGray);
-  height: 32px;
-  width: 32px;
-  border-radius: 50%;
-  padding: 5px;
-}
-
-.home-messages span {
-  color: #fff;
-}
-
-.home-messages path {
-  fill: #fff;
-}
-
 .remaining-aliases-wrapper {
   flex-direction: column-reverse;
 }
@@ -818,30 +770,10 @@ ul.messages {
   font-weight: 600;
 }
 
-.add-to-fx-dash {
-  position: relative;
-  margin: 2px;
-  padding: 1rem 2rem;
-}
-
-.add-to-fx-dash,
-.create-new-relay {
-  background-color: var(--grey10);
-  margin: 2px;
-  padding: 12px 20px 12px 16px;
-  border-radius: 7px;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  color: rgba(0, 0, 0, 1);
-  font-family: var(--metropolis);
-  display: flex;
-}
-
-.add-to-fx-dash::before,
+.add-to-fx::before,
 .create-new-relay::before {
   content: "";
-  background-image: url(/static/images/plus-sign.svg);
+  background-image: url(/static/images/plus-sign-white.svg);
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
@@ -908,56 +840,8 @@ ul.messages {
   max-width: 375px;
 }
 
-.fx-gradient-btn {
-  border-radius: 9px;
-  position: relative;
-  opacity: 1;
-  overflow: hidden;
-  transition: all 0.2s ease;
-}
-
-.fx-gradient-btn:hover {
-  opacity: 0.8;
-  transition: all 0.2s ease;
-}
-
-.sign-in-btn,
-.hero-sign-up {
-  background-image: var(--darkBlueGradient);
-  border-color: transparent;
-  margin: 2px;
-  padding: 1rem 2rem;
-  color: rgba(255, 255, 255, 1);
-  position: relative;
-}
-
-.sign-in-btn::after,
-.hero-sign-up::after {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.1);
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0;
-  content: "";
-  display: flex;
-  transition: all 0.2s ease;
-}
-
-.sign-in-btn:hover::after,
-.hero-sign-up:hover::after {
-  opacity: 1;
-  transition: all 0.2s ease;
-}
-
 .how-it-works-content > .hero-sign-up-bg {
   margin: auto;
-}
-
-.sign-in-btn:active,
-.hero-sign-up:active {
-  box-shadow: 0 4px 8px 0 rgba(14, 13, 26, 0.12), 0 5px 1px -2px rgba(7, 48, 114, 0.12), 0 2px 4px 0 rgba(34, 0, 51, 0.04), 0 0 0 1px rgba(32, 18, 58, 0.04);
 }
 
 .card-small-text {
@@ -994,82 +878,9 @@ ul.messages {
   font-weight: 600;
 }
 
-/* download Firefox and Delete Email confirmation modals - wip */
-
-.modal-wrapper,
-.modal-bg-dark,
-.modal-bg-dark::after {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
-}
-
-.modal-bg-dark::after {
-  background-image: var(--darkBlueGradient);
-  content: "";
-  z-index: -1;
-  opacity: 0.8;
-}
-
-.modal-content-dark::before {
-  content: "";
-  display: block;
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  background-image: var(--darkBlueGradient);
-  z-index: -1;
-}
-
-.modal-content-dark {
-  background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.17), #0250bb1f);
-  padding: 6rem;
-  border-radius: 24px;
-  color: rgba(255, 255, 255, 1);
-  box-shadow: 0 12px 18px 2px rgba(34, 0, 51, 0.09), 0 6px 22px 4px rgba(4, 25, 59, 0.87), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
-  position: relative;
-}
-
-.modal-headline {
-  font-size: 1.5rem;
-}
-
-.modal-btn {
-  color: rgba(255, 255, 255, 1);
-  padding: 1rem 2rem;
-}
-
-.close-modal-x {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  height: 24px;
-  width: 24px;
-  background-image: url("/static/images/x-close.svg");
-  background-position: center center;
-  border-radius: 50%;
-  padding: 20px;
-  background-repeat: no-repeat;
-  background-size: 24px;
-}
-
-.home-messages {
-  color: rgba(255, 255, 255, 1);
-}
-
 .x-close-icon path {
   fill: rgba(255, 255, 255, 1);
 }
-
-/* end modals */
 
 /* no aliases screen */
 
@@ -1485,6 +1296,11 @@ ul.messages {
 }
 
 @media screen and (max-width: 550px) {
+
+  .step-illustration {
+    min-width: 100%;
+  }
+
   .invite-only-hl,
   .no-active-aliases {
     font-size: 1.2rem;
