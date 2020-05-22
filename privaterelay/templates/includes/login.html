@@ -9,7 +9,14 @@
 	{% endif %}
 	<firefox-apps></firefox-apps>
 	{% if request.user.is_anonymous %}
-		<a data-ga="send-ga-funnel-pings" data-event-category="Sign In Buttons" data-event-label="sign-in-btn-header"  class="sign-in button btn-transparent" href="{% provider_login_url 'fxa' process='login' %}">Sign In</a>
+    <a
+      data-entrypoint="relay-sign-in-header"
+      data-form_type="button"
+      data-ga="send-ga-funnel-pings"
+      data-event-category="Sign In Buttons"
+      data-event-label="sign-in-btn-header"
+      class="sign-in button btn-transparent"
+      href="{% provider_login_url 'fxa' process='login' %}">Sign In</a>
 	{% else %}
 		{% get_social_accounts request.user as accounts %}
 		<glocal-menu class="glocal-menu">
@@ -21,7 +28,7 @@
 					<img class="glocal-small-avatar" alt="Firefox Account Avatar" src="{{ avatar }}" />
 					<div class="glocal-account-info">
 						<span class="glocal-fxa-email">{{ request.user.email }}</span>
-                        <a href="{{ settings.FXA_SETTINGS_URL }}" class="glocal-fxa-settings-link">Manage your Firefox Account</a>
+            <a href="{{ settings.FXA_SETTINGS_URL }}" class="glocal-fxa-settings-link">Manage your Firefox Account</a>
 					</div>
 				</div>
 				<div class="glocal-site-options">
