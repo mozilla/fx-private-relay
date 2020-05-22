@@ -87,6 +87,8 @@ class Command(BaseCommand):
 
                 if not response.result.name == 'Success':
                     logger.error('socketlabs_error', extra=response.to_json())
+                                    invitee.waitlists_joined['email_relay']['notified'] = False
+                invitee.save(update_fields=['waitlists_joined'])
 
                 invitation.date_sent = datetime.now()
                 invitation.save(update_fields=['date_sent'])
