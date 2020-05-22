@@ -89,9 +89,9 @@ class Command(BaseCommand):
                     logger.error('socketlabs_error', extra=response.to_json())
                                     invitee.waitlists_joined['email_relay']['notified'] = False
                 invitee.save(update_fields=['waitlists_joined'])
+                else:
+                    invitation.date_sent = datetime.now()
+                    invitation.save(update_fields=['date_sent'])
 
-                invitation.date_sent = datetime.now()
-                invitation.save(update_fields=['date_sent'])
-
-                invitee.waitlists_joined['email_relay']['notified'] = True
-                invitee.save(update_fields=['waitlists_joined'])
+                    invitee.waitlists_joined['email_relay']['notified'] = True
+                    invitee.save(update_fields=['waitlists_joined'])
