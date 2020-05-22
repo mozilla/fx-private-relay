@@ -50,14 +50,16 @@ def email_invited_user(invitee, invitation):
 
     sl_client = get_socketlabs_client()
     response = socketlabs_send(sl_client, sl_message)
+
     if not response.result.name == 'Success':
         logger.error('socketlabs_error', extra=response.to_json())
-    else:
-        invitation.date_sent = datetime.now()
-        invitation.save(update_fields=['date_sent'])
+        return response
 
-        invitee.waitlists_joined['email_relay']['notified'] = True
-        invitee.save(update_fields=['waitlists_joined'])
+    invitation.date_sent = datetime.now()
+    invitation.save(update_fields=['date_sent'])
+
+    invitee.waitlists_joined['email_relay']['notified'] = True
+    invitee.save(update_fields=['waitlists_joined'])
     return response
 
 
@@ -74,8 +76,7 @@ class Command(BaseCommand):
             waitlists_joined__email_relay__notified=False
         )[:limit]
 
-        print("adding %s invitations ..." % monitor_waitlist.count())
-
+        invites_sent = 0
         for invitee in monitor_waitlist:
             try:
                 invitation = Invitations.objects.get(
@@ -84,19 +85,16 @@ class Command(BaseCommand):
                 )
                 if invitation.date_redeemed:
                     print(
-                        "%s already has an active invitation" %
+                        "%s already redeemed their invitation. "
+                        "No need to email. "
+                        "Setting notified to True." %
                         invitee.primary_email
                     )
                     invitee.waitlists_joined['email_relay']['notified'] = True
                     invitee.save(update_fields=['waitlists_joined'])
-                else:
-                    print(
-                        "%s has an invitation but was not emailed" %
-                        invitee.primary_email
-                    )
-                    raise EmptyResultSet
+                    continue
             except Invitations.DoesNotExist:  # no invitation
-                print("adding %s to invitations" % invitee.primary_email)
+                print("Creating invitation for %s" % invitee.primary_email)
                 invitation = Invitations.objects.create(
                     email=invitee.primary_email,
                     active=True,
@@ -104,6 +102,8 @@ class Command(BaseCommand):
                     date_redeemed=None
                 )
 
-                response = email_invited_user(invitee, invitation)
-            except EmptyResultSet:  # invitation exists email not sent
-                response = email_invited_user(invitee, invitation)
+            print("Sending invite email to %s" % invitee.primary_email)
+            email_invited_user(invitee, invitation)
+            invites_sent += 1
+
+        print("Sent %s invitations." % invites_sent)
