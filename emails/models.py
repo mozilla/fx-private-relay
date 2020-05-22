@@ -40,6 +40,7 @@ class RelayAddress(models.Model):
         return self.address
 
     def delete(self, *args, **kwargs):
+        # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
             address_hash=sha256(self.address.encode('utf-8')).hexdigest(),
             num_forwarded=self.num_forwarded,

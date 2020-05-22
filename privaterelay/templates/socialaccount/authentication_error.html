@@ -27,6 +27,7 @@
                 <form class="join-waitlist-form flx jst-cntr" id="join-waitlist-form" method="post" action="{% url 'waitlist' %}">
                   {% csrf_token %}
                   <input type="hidden" name="email" type="hidden" value="{{ request.session.waitlist_email }}">
+                  <input type="hidden" name="fxa_uid" type="hidden" value="{{ request.session.waitlist_fxa_uid }}">
                   <input
                   class="join-waitlist-submit button blue-button text-light"
                   type="submit"

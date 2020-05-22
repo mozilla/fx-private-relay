@@ -15,6 +15,7 @@ ALLOWED_SIGNUP_DOMAINS = [
 def invitations_only(sender, **kwargs):
     sociallogin = kwargs['sociallogin']
     email = sociallogin.account.extra_data['email']
+    fxa_uid = sociallogin.account.extra_data['uid']
 
     # Mozilla domain FXA's should always be allowed
     domain_part = email.split('@')[1]
@@ -34,6 +35,7 @@ def invitations_only(sender, **kwargs):
         # Not mozilla domain; no invitation
         if settings.WAITLIST_OPEN:
             kwargs['request'].session['waitlist_open'] = True
+            kwargs['request'].session['waitlist_fxa_uid'] = fxa_uid
             kwargs['request'].session['waitlist_email'] = email
             kwargs['request'].session['waitlist_avatar'] = (
                 sociallogin.account.extra_data['avatar']

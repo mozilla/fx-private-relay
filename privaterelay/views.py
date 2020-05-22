@@ -126,11 +126,12 @@ def waitlist(request):
         raise PermissionDenied
     json_body = json.loads(request.body)
     email = json_body['email']
-    if not email:
+    fxa_uid = json_body['fxa_uid']
+    if not email or not fxa_uid:
         return JsonResponse({}, status=400)
 
     _, created = Invitations.objects.get_or_create(
-        email=email, active=False
+        fxa_uid=fxa_uid, email=email, active=False
     )
     status = 201 if created else 200
     return JsonResponse({'email': email}, status=status)
@@ -140,15 +141,21 @@ def waitlist(request):
 def fxa_rp_events(request):
     jwt = _parse_jwt_from_request(request)
     authentic_jwt = _authenticate_fxa_jwt(jwt)
+    event_keys = _get_event_keys_from_jwt(authentic_jwt)
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
     except SocialAccount.DoesNotExist as e:
         # we received an FXA event for an FXA not in our DB;
-        # capture the exception in sentry, but don't error, or FXA will retry
+        # If the user joined the waitlist, we didn't create a social_account,
+        # but we did create an Invitations object. Delete it if necessary.
+        for event_key in event_keys:
+            if (event_key == FXA_DELETE_EVENT):
+                _delete_invitation(authentic_jwt)
+
+        # capture an exception in sentry, but don't error, or FXA will retry
         sentry_sdk.capture_exception(e)
         return HttpResponse('202 Accepted', status=202)
 
-    event_keys = _get_event_keys_from_jwt(authentic_jwt)
     for event_key in event_keys:
         if (event_key == FXA_PROFILE_CHANGE_EVENT):
             _handle_fxa_profile_change(
@@ -209,15 +216,30 @@ def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
 
 
 def _handle_fxa_delete(authentic_jwt, social_account, event_key):
-    # TODO?: loop over the user's relay addresses and create hard bounce
-    # receipt rules for them? Note: can't just do this in RelayAddress.delete
+    # TODO: Loop over the user's relay addresses and manually call delete()
+    # to create hard bounce receipt rules in SES,
     # because cascade deletes like this don't necessarily call delete()
-    deleted_objects = social_account.user.delete()
+    deleted_user_objects = social_account.user.delete()
+    deleted_invitation_objects = _delete_invitation(authentic_jwt)
     logger.info('fxa_rp_event', extra={
         'fxa_uid': authentic_jwt['sub'],
         'event_key': event_key,
-        'deleted_objects': deleted_objects,
+        'deleted_user_objects': deleted_user_objects,
+        'deleted_invitation_objects': deleted_invitation_objects,
     })
+
+
+def _delete_invitation(authentic_jwt):
+    try:
+        invitation = Invitations.objects.get(fxa_uid=authentic_jwt['sub'])
+        deleted_invitation_objects = invitation.delete()
+        logger.info('fxa_rp_event', extra={
+            'fxa_uid': authentic_jwt['sub'],
+            'deleted_invitation_objects': deleted_invitation_objects,
+        })
+        return deleted_invitation_objects
+    except Invitations.DoesNotExist:
+        pass
 
 
 # use "raw" requests_oauthlib to automatically refresh the access token
