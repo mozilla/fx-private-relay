@@ -68,7 +68,7 @@ AVATAR_IMG_SRC = AVATAR_IMG_SRC_MAP[config(
 CSP_CONNECT_SRC = (
     "'self'",
     'https://www.google-analytics.com/',
-    'https://accounts.firefox.com/metrics-flow',
+    'https://accounts.firefox.com',
 )
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = (
