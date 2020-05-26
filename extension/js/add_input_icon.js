@@ -28,18 +28,11 @@ function addRelayIconToInput(emailInput) {
   buttonEl.type = "button";
   buttonEl.title = "Generate new email alias";
 
-  const imgEl = document.createElement("img");
-  imgEl.src = browser.runtime.getURL("icons/make-new-alias.png");
-  imgEl.classList.add("relay-icon-img");
-  buttonEl.appendChild(imgEl);
-
   const relayIconHeight = 30;
   if (relayIconHeight > inputHeight) {
-    const smallIconSize = "20px";
-    imgEl.style.height = smallIconSize;
-    imgEl.style.width = smallIconSize;
-    imgEl.style.minWidth = smallIconSize;
-    imgEl.style.minHeight = smallIconSize;
+    const smallIconSize = "24px";
+    buttonEl.style.height = smallIconSize;
+    buttonEl.style.width = smallIconSize;
     emailInput.style.paddingRight = "30px";
     divEl.style.right = "2px";
   }
