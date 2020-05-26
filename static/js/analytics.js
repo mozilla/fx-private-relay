@@ -55,7 +55,6 @@ async function doFxaMetricsFlow(entrypointEl) {
     });
     if (response && response.status === 200) {
       const {flowId, flowBeginTime} = await response.json();
-      const {flowId, flowBeginTime} = response;
       entrypointData.flowId = flowId;
       entrypointData.flowBeginTime = flowBeginTime;
     }
