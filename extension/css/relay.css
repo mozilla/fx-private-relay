@@ -260,10 +260,19 @@ logomark,
   box-sizing: inherit;
 }
 
+.relay-icon {
+  padding: 0 !important;
+  height: 100% !important;
+}
+
 .relay-button {
-  padding: 4px 2px 3px 5px !important;
-  background-image: none;
-  background-color: transparent !important;
+  padding: 0 !important;
+  width: 30px;
+  height: 30px;
+  background-image: url("/icons/make-new-alias.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 86%;
   background-color: transparent !important;
   outline: none !important;
   border-radius: 4px;
@@ -290,13 +299,6 @@ button.relay-error-dismiss:active,
 .relay-modal-close-button:active,
 .relay-button:active {
   background-color: var(--grey30) !important;
-}
-
-.relay-icon-img {
-  width: var(--relayIconDimension);
-  height: var(--relayIconDimension);
-  min-width: var(--relayIconDimension);
-  min-height: var(--relayIconDimension);
 }
 
 .relay-error-message-wrapper {
