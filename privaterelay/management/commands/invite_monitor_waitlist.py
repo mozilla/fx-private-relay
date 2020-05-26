@@ -55,7 +55,7 @@ def email_invited_user(invitee, invitation):
         logger.error('socketlabs_error', extra=response.to_json())
         return response
 
-    invitation.date_sent = datetime.now()
+    invitation.date_sent = datetime.now(timezone.utc)
     invitation.save(update_fields=['date_sent'])
 
     invitee.waitlists_joined['email_relay']['notified'] = True
