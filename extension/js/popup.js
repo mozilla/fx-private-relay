@@ -59,12 +59,13 @@ async function updatePanelValues() {
 
   if (numRemaining === 5) {
     aliasListHeader.classList.add("hidden");
-    createAliasBtn.disabled = true;
+    createAliasBtn.disabled = false;
 
   }
 
   if (numRemaining === 0) {
     aliasCreationEl.classList.add("disabled");
+    createAliasBtn.disabled = true;
     return;
   }
 
