@@ -45,9 +45,9 @@ We collect data for the following events:
 
 - When a user clicks the delete alias icon and is presented with the Confirm/Delete tooltip.
 
-- When a user Cancel in the Confirm/Delete Alias tooltip
+- When a user clicks Cancel in the Confirm/Delete Alias tooltip
 
-- When a user click Confirm in the Confirm/Delete Alias tooltip
+- When a user clicks Confirm in the Confirm/Delete Alias tooltip
 
 - When a user changes the forwarding settings for an alias
 
