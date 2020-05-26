@@ -85,7 +85,7 @@ function handleIntersectingElem(entries, analyticsObserver) {
 
       // Send Google Analytics "View" pings when GA event triggers scroll into view
       if (isGoogleAnalyticsAvailable() && (elemDataset["ga"] === "send-ga-funnel-pings")) {
-        ga("send", "event", elemDataset.eventCategory, "View",  elemDataset.eventLabel);
+        ga("send", "event", elemDataset.eventCategory, "View",  elemDataset.eventLabel, { nonInteraction: true });
       }
       analyticsObserver.unobserve(entry.target);
 		}
