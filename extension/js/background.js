@@ -1,5 +1,7 @@
 const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
 
+browser.storage.local.set({ "maxNumAliases": 5 });
+
 async function makeRelayAddress(domain=null) {
   const apiToken = await browser.storage.local.get("apiToken");
 
@@ -31,7 +33,7 @@ async function makeRelayAddress(domain=null) {
   const localRelayAddresses = (Object.keys(localStorageRelayAddresses).length === 0) ? {relayAddresses: []} : localStorageRelayAddresses;
   const updatedLocalRelayAddresses = localRelayAddresses.relayAddresses.concat([newRelayAddressJson]);
   browser.storage.local.set({relayAddresses: updatedLocalRelayAddresses});
-  return newRelayAddressJson.address;
+  return newRelayAddressJson;
 }
 
 async function makeRelayAddressForTargetElement(info, tab) {

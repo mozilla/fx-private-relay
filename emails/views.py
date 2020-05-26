@@ -7,6 +7,7 @@ from hashlib import sha256
 import json
 import logging
 import markus
+import re
 
 import boto3
 from botocore.exceptions import ClientError
@@ -20,6 +21,7 @@ from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
+from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
@@ -336,8 +338,19 @@ def _inbound_logic(json_body):
     # Forward to real email address
     sl_message = BasicMessage()
     sl_message.subject = subject
-    sl_message.html_body = html
+
+    # scramble alias so that clients don't recognize it and apply default link styles
+    display_email = re.sub('([@.:])', r'<span>\1</span>', email_to)
+    wrapped_html = render_to_string('emails/wrapped_email.html', {
+        'original_html': html,
+        'email_to': email_to,
+        'display_email': display_email,
+        'SITE_ORIGIN': settings.SITE_ORIGIN,
+    })
+
+    sl_message.html_body = wrapped_html
     sl_message.plain_text_body = text
+
     relay_from_address, relay_from_display = _generate_relay_From(from_address)
     sl_message.from_email_address = EmailAddress(
         relay_from_address, relay_from_display
