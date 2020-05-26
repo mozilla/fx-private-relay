@@ -33,7 +33,7 @@ This is the Analytics plan for Firefox Private Relay. It documents our use of Go
 
 ## Collection
 
-Events are reported using the [Google Analytics Measurement Protocol](https://developers.google.com/analytics/devguides/collection/protocol/v1/).
+Events are reported using [Google Analytics](https://developers.google.com/analytics/devguides/collection/analyticsjs).
 
 We collect data for the following events:
 
@@ -69,21 +69,21 @@ We collect data for the following events:
   * `eventLabel` : Page location ID.
 
 
-### Bento
+### Firefox Apps menu (referred to internally as the Bento menu)
 
-- When a user opens the Bento menu
+- When a user opens the Firefox Apps menu
   * `hitType` : event
   * `eventCategory` : bento
   * `eventAction` : bento-opened
   * `eventLabel` : fx-monitor
 
-- When a user closes the Bento menu
+- When a user closes the Firefox Apps menu
   * `hitType` : event
   * `eventCategory` : bento
   * `eventAction` : bento-closed
   * `eventLabel` : fx-monitor
 
-- When a user clicks on one of the Bento menu links
+- When a user clicks on one of the Firefox Apps menu links
   * `hitType` : event
   * `eventCategory` : bento
   * `eventAction` : bento-app-link-click
