@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="{% static 'css/glocal-menu.css' %}">
     <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
   </head>
-  <body>
+  <body data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}">
     <firefox-private-relay-addon data-addon-installed="false"></firefox-private-relay-addon>
     {% include "includes/header.html" %}
     {% block content %}

@@ -44,6 +44,31 @@ function _dntEnabled(dnt, userAgent) {
   return dntStatus === "Enabled" ? true : false;
 }
 
+async function doFxaMetricsFlow(entrypointEl) {
+  const entrypointData = entrypointEl.dataset;
+  const fxaUrl = new URL("/metrics-flow?", document.body.dataset.fxaSettingsUrl);
+
+  try {
+    const response = await fetch(fxaUrl, {credentials: "omit"});
+    ["entrypoint", "form_type"].forEach(paramKey => {
+      fxaUrl.searchParams.append(paramKey, encodeURIComponent(entrypointData[paramKey]));
+    });
+    if (response && response.status === 200) {
+      const {flowId, flowBeginTime} = await response.json();
+      entrypointData.flowId = flowId;
+      entrypointData.flowBeginTime = flowBeginTime;
+    }
+  } catch(e) {
+    console.log(e);
+  }
+}
+
+
+function isGoogleAnalyticsAvailable() {
+  return (typeof(ga) !== "undefined");
+}
+
+
 function handleIntersectingElem(entries, analyticsObserver) {
 	entries.forEach(entry => {
 		if (entry.target.classList.contains("hidden")) {
@@ -52,37 +77,60 @@ function handleIntersectingElem(entries, analyticsObserver) {
 		}
 		if (entry.intersectionRatio === 1) {
       const elemDataset = entry.target.dataset;
-      ga("send", "event", elemDataset.eventCategory, "View",  elemDataset.eventLabel);
+
+      // Get /metrics-flow values when fxa entrypoints scroll into view
+      if (elemDataset.entrypoint) {
+        doFxaMetricsFlow(entry.target);
+      }
+
+      // Send Google Analytics "View" pings when GA event triggers scroll into view
+      if (isGoogleAnalyticsAvailable() && (elemDataset["ga"] === "send-ga-funnel-pings")) {
+        ga("send", "event", elemDataset.eventCategory, "View",  elemDataset.eventLabel, { nonInteraction: true });
+      }
       analyticsObserver.unobserve(entry.target);
 		}
 	});
 }
 
 function sendGaPing(eventCategory, eventAction, eventLabel) {
-  if (typeof(ga) !== "undefined") {
+  if (isGoogleAnalyticsAvailable()) {
     return ga("send", "event", eventCategory, eventAction, eventLabel);
   }
   return;
 }
 
+function openOauth(clickEvt, entrypointElem) {
+  clickEvt.preventDefault();
+
+  const elemData = entrypointElem.dataset;
+  const url = new URL(entrypointElem.href, document.body.dataset.siteOrigin);
+  let authParams = "";
+  ["flowId", "flowBeginTime", "entrypoint", "form_type"].forEach(dataKey => {
+    if (elemData[dataKey]) {
+      authParams += `&${dataKey}=${elemData[dataKey]}`;
+    }
+  });
+  url.searchParams.append("auth_params", authParams);
+  window.location.assign(url);
+}
+
 
 (()=> {
 // Check for DoNotTrack header before running GA script
-  if (_dntEnabled()) {
-    return;
-  }
 
+if (!_dntEnabled()) {
   (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments);},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m);
-  })(window,document,"script","https://www.google-analytics.com/analytics.js","ga");
+    (i[r].q=i[r].q||[]).push(arguments);},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m);
+    })(window,document,"script","https://www.google-analytics.com/analytics.js","ga");
+  
+    ga("create", "UA-77033033-33");
+    ga("set", "anonymizeIp", true);
+    ga("set", "transport", "beacon");
+    ga("send", "pageview");
+}
 
-  ga("create", "UA-77033033-33");
-  ga("set", "anonymizeIp", true);
-  ga("set", "transport", "beacon");
-  ga("send", "pageview");
-
-  const gaEventTriggers = document.querySelectorAll("[data-ga='send-ga-funnel-pings']");
+  const analyticsEventTriggers = document.querySelectorAll("[data-ga='send-ga-funnel-pings']");
 
   const intersectionObserverAvailable =  (
     "IntersectionObserver" in window &&
@@ -90,19 +138,23 @@ function sendGaPing(eventCategory, eventAction, eventLabel) {
     "intersectionRatio" in window.IntersectionObserverEntry.prototype
   );
 
-  if  (!intersectionObserverAvailable) {
-    return;
-  }
-
-  const analyticsObserver = new IntersectionObserver(handleIntersectingElem, {
+  const analyticsObserver = (intersectionObserverAvailable) ? new IntersectionObserver(handleIntersectingElem, {
     threshold: 1,
-  });
+  }) : null;
 
-  gaEventTriggers.forEach(eventTriggeringElem => {
-    analyticsObserver.observe(eventTriggeringElem);
-    eventTriggeringElem.addEventListener("click", () => {
+
+  analyticsEventTriggers.forEach(eventTriggeringElem => {
+    if (intersectionObserverAvailable) {
+      analyticsObserver.observe(eventTriggeringElem);
+    }
+    eventTriggeringElem.addEventListener("click", (evt) => {
       const eventData = eventTriggeringElem.dataset;
-      ga("send", "event", eventData.eventCategory, "Engage",  eventData.eventLabel);
+      if (eventData["entrypoint"]) {
+        openOauth(evt, eventTriggeringElem);
+      }
+      if (isGoogleAnalyticsAvailable()) {
+        ga("send", "event", eventData.eventCategory, "Engage",  eventData.eventLabel);
+      }
     });
   });
 })();
