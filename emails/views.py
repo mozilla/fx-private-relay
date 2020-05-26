@@ -143,7 +143,7 @@ def sns_inbound(request):
         )
 
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
-    if not topic_arn:
+    if not message_type:
         logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
         return HttpResponse(
             'Received SNS request without Message Type.', status=400
@@ -162,7 +162,6 @@ def sns_inbound(request):
         )
 
     json_body = json.loads(request.body)
-    '''
     try:
         verified_json_body = verify_from_sns(json_body)
     except Exception:
@@ -177,8 +176,6 @@ def sns_inbound(request):
             'Received SNS message with invalid signature: %s' % message_type,
             status=401
         )
-    '''
-    verified_json_body = json_body
 
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
