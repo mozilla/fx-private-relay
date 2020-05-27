@@ -103,7 +103,9 @@ class Command(BaseCommand):
                 )
 
             print("Sending invite email to %s" % invitee.primary_email)
-            email_invited_user(invitee, invitation)
+            response = email_invited_user(invitee, invitation)
+            if not response.result.name == 'Success':
+                continue
             invites_sent += 1
 
         print("Sent %s invitations." % invites_sent)
