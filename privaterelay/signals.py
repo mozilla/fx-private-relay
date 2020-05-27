@@ -74,4 +74,5 @@ def invitations_only(sender, **kwargs):
                 return True
 
     # Deny-by-default in case the logic above missed anything
-    raise PermissionDenied
+    raise PermissionDenied("Please check again later to be invited on "
+                           "Private Relay.")
