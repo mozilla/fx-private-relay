@@ -211,11 +211,18 @@ def _sns_notification(json_body):
             status=400
         )
 
-    return _sns_mail(message_json)
+    return _sns_message(message_json)
 
 
-def _sns_mail(message_json):
+def _sns_message(message_json):
     mail = message_json['mail']
+    if 'commonHeaders' not in mail:
+        logger.error('SNS message without commonHeaders')
+        return HttpResponse(
+            'Received SNS notification without commonHeaders.',
+            status=400
+        )
+
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
     local_portion = to_address.split('@')[0]
 
@@ -224,7 +231,7 @@ def _sns_mail(message_json):
         if not relay_address.enabled:
             relay_address.num_blocked += 1
             relay_address.save(update_fields=['num_blocked'])
-            return HttpResponse("Address does not exist")
+            return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
         # TODO?: if sha256 of the address is in DeletedAddresses,
         # create a hard bounce receipt rule
