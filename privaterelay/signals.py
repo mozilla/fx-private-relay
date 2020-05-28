@@ -59,8 +59,10 @@ def invitations_only(sender, **kwargs):
             # their session
             if 'alpha_token' not in kwargs['request'].session:
                 raise PermissionDenied(
-                    "You must visit the invitation link in your invite email "
-                    "before signing up for Relay.")
+                    "Private Relay is currently invite-only. "
+                    "If you received an invitation email, "
+                    "you must visit the invitation link in your invite email "
+                    "to sign up for Relay.")
 
             # Check the token in their session matches the setting
             session_token = kwargs['request'].session['alpha_token']
@@ -74,5 +76,7 @@ def invitations_only(sender, **kwargs):
                 return True
 
     # Deny-by-default in case the logic above missed anything
-    raise PermissionDenied("Please check again later to be invited on "
-                           "Private Relay.")
+    raise PermissionDenied(
+        "Private Relay is currently invite-only. "
+        "Please check back again later to join the wait-list."
+    )
