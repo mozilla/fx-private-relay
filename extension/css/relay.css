@@ -213,7 +213,7 @@ logomark,
   padding:12px;
   border-radius: 0;
   border: 1px solid rgba(255, 255, 255, 0);
-  background: var(--grey20);
+  background: var(--grey10);
   color: var(--ink);
   font-size: 17px;
   display: flex;
@@ -225,19 +225,8 @@ logomark,
   left: 0;
   right: 0;
   width: 100%;
-  transition: all 0.2s ease;
 }
 
-.relay-modal-close-button:hover,
-.relay-modal-close-button:focus {
-  background: var(--grey30);
-  transition: all 0.2s ease;
-}
-
-.relay-modal-close-button:active {
-  background: var(--grey40);
-  transition: all 0.2s ease;
-}
 
 /* input icon & icon messaging */
 
@@ -271,10 +260,19 @@ logomark,
   box-sizing: inherit;
 }
 
+.relay-icon {
+  padding: 0 !important;
+  height: 100% !important;
+}
+
 .relay-button {
-  padding: 0 1px !important;
-  background-image: none;
-  background: transparent !important;
+  padding: 0 !important;
+  width: 30px;
+  height: 30px;
+  background-image: url("/icons/make-new-alias.png");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 86%;
   background-color: transparent !important;
   outline: none !important;
   border-radius: 4px;
@@ -285,20 +283,22 @@ logomark,
   z-index: 99999999999999999;
 }
 
-.relay-button:hover {
-  background: var(--grey20);
-  transition: all 0.2s ease;
+.relay-button:hover,
+button.relay-error-dismiss:hover,
+.relay-modal-close-button:hover {
+  background-color: var(--grey20) !important;
 }
 
-.relay-button:focus {
-  border: 1px solid rgba(0, 0, 0, .09) !important;
+.relay-button:focus,
+button.relay-error-dismiss:focus,
+.relay-modal-close-button:focus {
+  border: 1px solid var(--grey30) !important;
 }
 
-.relay-icon-img {
-  width: var(--relayIconDimension);
-  height: var(--relayIconDimension);
-  min-width: var(--relayIconDimension);
-  min-height: var(--relayIconDimension);
+button.relay-error-dismiss:active,
+.relay-modal-close-button:active,
+.relay-button:active {
+  background-color: var(--grey30) !important;
 }
 
 .relay-error-message-wrapper {
@@ -352,7 +352,7 @@ button.relay-error-dismiss {
   padding: 0 !important;
   background-color: rgba(0, 0, 0, 0) !important;
   display: inline-block !important;
-  border: none !important;
+  border: 1px solid rgba(0, 0, 0, 0) !important;
   outline: none;
   background-image: url("/icons/x-close.svg");
   background-size: 80%;
@@ -366,9 +366,4 @@ button.relay-error-dismiss {
   bottom: 0;
   margin-top: auto;
   margin-bottom: auto;
-}
-
-button.relay-error-dismiss:hover,
-button.relay-error-dismiss:focus {
-  background-color: var(--grey20) !important;
 }
