@@ -810,13 +810,118 @@ table {
   color: var(--textDark);
 }
 
-.relay-email-address-note {
+.relay-email-address-label {
   color: var(--grey60);
-  font-family: var(--metropolis);
   display: flex;
-  margin-top: 1rem;
   font-weight: 500;
   align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  font-size: 16px;
+  border-radius: 4px;
+  padding: 8px 20px 8px 8px;
+  width: 140px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.relay-email-address-label.edited {
+  width: 200px;
+}
+
+.additional-notes {
+  display: flex;
+  flex-direction: row;
+  margin-top: 1rem;
+  position: relative;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.show-label.additional-notes {
+  visibility: visible;
+  pointer-events: all;
+}
+
+.additional-notes::after {
+  content: "";
+  min-width: 20px;
+  min-height: 20px;
+  margin-left: -20px;
+  display: inline-block;
+  background: url("/static/images/edit.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  pointer-events: none;
+}
+
+.relay-email-address-label:hover {
+  background: var(--grey20);
+  transition: all 0.2s ease;
+}
+
+.relay-email-address-label:focus {
+  box-shadow: var(--buttonFocus);
+  width: 250px !important;
+}
+
+.edited {
+  width: 200px;
+}
+
+.saved-confirmation {
+  content: "Saved!";
+  background-color: green;
+  border-radius: 4px;
+  padding: 4px;
+  display: inline-block;
+}
+
+
+.input-error::after,
+.input-error {
+  background: var(--warningRed);
+}
+
+
+.saved-confirmation::after,
+.saved-confirmation {
+  background: #3fc290;
+}
+
+.input-error,
+.saved-confirmation {
+  border-radius: 4px;
+  padding: 4px;
+  color: white;
+  font-size: 12px;
+  top: 40px;
+  z-index: 2;
+  position: absolute;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.input-error::after,
+.saved-confirmation::after {
+  height: 8px;
+  width: 8px;
+  transform: rotate(45deg);
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 12px;
+  display: block;
+}
+
+.show-saved-confirmation .saved-confirmation,
+.show-input-error .input-error {
+  visibility: visible;
+  opacity: 1;
+  transition: all 0.3s ease;
 }
 
 .additional-notes {
@@ -894,7 +999,6 @@ table {
 
 .card-top-row {
   padding-bottom: calc(var(--emailCardPadding) - 8px);
-  align-items: flex-end;
 }
 
 .card-row {

@@ -18,10 +18,58 @@
     const aliasId = aliasCardData.relayAddressId;
     const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == aliasId)[0];
 
+    const defaultAliasLabelText = "Alias label";
+    const storedAliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : defaultAliasLabelText;
 
-    const aliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
-    const aliasLabelElem = aliasCard.querySelector('.relay-email-address-note');
-    aliasLabelElem.textContent = aliasLabel;
+    const aliasLabelInput = aliasCard.querySelector('input.relay-email-address-label');
+    const aliasLabelWrapper = aliasLabelInput.parentElement;
+    aliasLabelWrapper.classList.add("show-label"); // show field only when addon is installed
+
+    [aliasLabelInput.dataset, aliasLabelInput.value].forEach(inputAttribute => {
+      inputAttribute = storedAliasLabel;
+    });
+    const forbiddenCharacters = `{}()=;-<>`;
+    aliasLabelInput.addEventListener("keydown", (e) => {
+      aliasLabelInput.classList.add("edited");
+      const typedChar = e.key;
+      if (aliasLabelInput.classList.contains("input-has-error")) {
+        if (typedChar === "Backspace") {
+          aliasLabelInput.classList.remove("input-has-error");
+          aliasLabelWrapper.classList.remove("show-input-error");
+        } else {
+          e.preventDefault();
+          return;
+        }
+      }
+      if (forbiddenCharacters.includes(typedChar)) {
+        aliasLabelInput.classList.add("input-has-error");
+        aliasLabelWrapper.querySelector(".forbidden-char").textContent = e.key;
+        aliasLabelWrapper.classList.add("show-input-error");
+      }
+    })
+
+    aliasLabelInput.addEventListener("focusout", () => {
+      const newAliasLabel = aliasLabelInput.value;
+      if (aliasLabelInput.classList.contains("input-has-error")) {
+        return;
+      }
+      if (newAliasLabel === aliasLabelInput.dataset.label) {
+        aliasLabelInput.classList.remove("edited");
+        return;
+      }
+
+      aliasLabelWrapper.classList.add("show-saved-confirmation");
+      const updatedRelayAddress = relayAddresses.filter(address => address.id == aliasId)[0];
+      updatedRelayAddress.domain = newAliasLabel;
+      browser.storage.local.set({relayAddresses});
+      aliasLabelInput.dataset.label = newAliasLabel;
+      setTimeout(()=> {
+        aliasLabelWrapper.classList.remove("show-saved-confirmation");
+      }, 1000);
+
+      aliasLabelInput.classList.remove("edited");
+
+    });
 
     // Get and store the relay addresses from the account profile page,
     // so they can be used later, even if the API endpoint is down
@@ -29,7 +77,7 @@
     const relayAddress = {
       "id": aliasId,
       "address": aliasCardData.relayAddress,
-      "domain": aliasLabel,
+      "domain": storedAliasLabel,
     };
     relayAddresses.push(relayAddress);
   }
