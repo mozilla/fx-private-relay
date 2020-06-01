@@ -130,10 +130,20 @@ def waitlist(request):
     if not email or not fxa_uid:
         return JsonResponse({}, status=400)
 
-    _, created = Invitations.objects.get_or_create(
-        fxa_uid=fxa_uid, email=email, active=False
-    )
-    status = 201 if created else 200
+    try:
+        invitation =  Invitations.objects.get(
+            Q(fxa_uid=fxa_uid) | Q(email=email), active=False
+        )
+        if not invitation.fxa_uid:
+            invitation.fxa_uid = fxa_uid
+            invitation.save()
+        if invitation.email != email:
+            invitation.email = email
+            invitation.save()
+        status = 200
+    except Invitations.DoesNotExist:
+        Invitations.objects.create(fxa_uid=fxa_uid, email=email, active=False)
+        status = 201
     return JsonResponse({'email': email}, status=status)
 
 
