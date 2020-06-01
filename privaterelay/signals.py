@@ -3,6 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
+from django.db.models import Q
 
 from .models import Invitations
 
@@ -25,7 +26,12 @@ def invitations_only(sender, **kwargs):
 
     # Explicit invitations for an email address can get in
     try:
-        active_invitation = Invitations.objects.get(email=email, active=True)
+        active_invitation = Invitations.objects.get(
+            Q(email=email) | Q(fxa_uid=fxa_uid), active=True
+        )
+        if not active_invitation.fxa_uid:
+            active_invitation.fxa_uid = fxa_uid
+            active_invitation.save()
         if not active_invitation.date_redeemed:
             active_invitation.date_redeemed = datetime.now()
             active_invitation.save()
