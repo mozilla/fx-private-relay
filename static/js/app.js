@@ -171,7 +171,8 @@ async function addEmailToWaitlist(e) {
 
   const formData = {
     "csrfmiddlewaretoken": waitlistForm[0].value,
-    "email": waitlistForm[1].value
+    "email": waitlistForm[1].value,
+    "fxa_uid": waitlistForm[2].value,
   };
 
   try {

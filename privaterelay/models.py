@@ -3,6 +3,7 @@ from django.db import models
 
 
 class Invitations(models.Model):
+    fxa_uid = models.CharField(max_length=255, blank=True)
     email = models.EmailField(db_index=True)
     date_added = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=False)
