@@ -25,9 +25,9 @@
     const aliasLabelWrapper = aliasLabelInput.parentElement;
     aliasLabelWrapper.classList.add("show-label"); // show field only when addon is installed
 
-    [aliasLabelInput.dataset, aliasLabelInput.value].forEach(inputAttribute => {
-      inputAttribute = storedAliasLabel;
-    });
+    aliasLabelInput.dataset.label = storedAliasLabel;
+    aliasLabelInput.value = storedAliasLabel;
+
     const forbiddenCharacters = `{}()=;-<>`;
     aliasLabelInput.addEventListener("keydown", (e) => {
       aliasLabelInput.classList.add("edited");
