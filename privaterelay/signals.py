@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -38,6 +38,11 @@ def invitations_only(sender, **kwargs):
         return True
 
     except Invitations.DoesNotExist:
+        waitlist_invite = Invitations.objects.filter(
+            Q(email=email) | Q(fxa_uid=fxa_uid), active=False
+        )
+        inactive_invitation = waitlist_invite.first()
+
         # Not mozilla domain; no invitation
         if settings.WAITLIST_OPEN:
             kwargs['request'].session['waitlist_open'] = True
@@ -46,12 +51,13 @@ def invitations_only(sender, **kwargs):
             kwargs['request'].session['waitlist_avatar'] = (
                 sociallogin.account.extra_data['avatar']
             )
-            waitlist_invite = Invitations.objects.filter(
-                    email=email, active=False
-            )
-            kwargs['request'].session['already_on_waitlist'] = (
-                waitlist_invite.count() > 0
-            )
+            if inactive_invitation:
+                kwargs['request'].session['already_on_waitlist'] = True
+                if not inactive_invitation.fxa_uid:
+                    inactive_invitation.fxa_uid = fxa_uid
+                    inactive_invitation.save()
+            else:
+                kwargs['request'].session['already_on_waitlist'] = False
         else:
             kwargs['request'].session['waitlist_open'] = False
 
