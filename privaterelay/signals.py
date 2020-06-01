@@ -81,11 +81,12 @@ def invitations_only(sender, **kwargs):
             # Check the token in their session matches the setting
             session_token = kwargs['request'].session['alpha_token']
             if (session_token == settings.ALPHA_INVITE_TOKEN):
+                if inactive_invitation:
+                    inactive_invitation.delete()
                 Invitations.objects.create(
-                    email=email, active=True, date_redeemed=datetime.now()
+                    email=email, fxa_uid=fxa_uid, active=True,
+                    date_redeemed=datetime.now(timezone.utc)
                 )
-                # delete the waitlist invitation for the same email
-                waitlist_invite.delete()
                 del kwargs['request'].session['alpha_token']
                 return True
 
