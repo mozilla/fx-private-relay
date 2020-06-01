@@ -1,0 +1,3 @@
+Join the beta at:
+
+{{ current_domain }}
