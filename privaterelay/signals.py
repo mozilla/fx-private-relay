@@ -33,7 +33,7 @@ def invitations_only(sender, **kwargs):
             active_invitation.fxa_uid = fxa_uid
             active_invitation.save()
         if not active_invitation.date_redeemed:
-            active_invitation.date_redeemed = datetime.now()
+            active_invitation.date_redeemed = datetime.now(timezone.utc)
             active_invitation.save()
         return True
 
