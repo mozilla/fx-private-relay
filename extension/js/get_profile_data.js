@@ -9,21 +9,27 @@
   const addonRelayAddresses = (Object.keys(addonStorageRelayAddresses).length === 0) ? {relayAddresses: []} : addonStorageRelayAddresses;
 
   // Loop over the addresses on the page
-  const relayAddressElements = document.querySelectorAll(".relay-address");
+  const dashboardRelayAliasCards = document.querySelectorAll("[data-relay-address]");
   const relayAddresses = [];
-  for (const relayAddressEl of relayAddressElements) {
+
+  for (const aliasCard of dashboardRelayAliasCards) {
     // Add the domain note from the addon storage to the page
-    const relayAddressId = relayAddressEl.dataset.id;
-    const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == relayAddressId)[0];
-    const addonRelayAddressDomain = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
-    relayAddressEl.parentElement.parentElement.querySelector('.relay-email-address-note').textContent = addonRelayAddressDomain
+    const aliasCardData = aliasCard.dataset;
+    const aliasId = aliasCardData.relayAddressId;
+    const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == aliasId)[0];
+
+
+    const aliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
+    const aliasLabelElem = aliasCard.querySelector('.relay-email-address-note');
+    aliasLabelElem.textContent = aliasLabel;
 
     // Get and store the relay addresses from the account profile page,
     // so they can be used later, even if the API endpoint is down
+
     const relayAddress = {
-      "id": relayAddressEl.dataset.id,
-      "address": relayAddressEl.dataset.clipboardText,
-      "domain": addonRelayAddressDomain,
+      "id": aliasId,
+      "address": aliasCardData.relayAddress,
+      "domain": aliasLabel,
     };
     relayAddresses.push(relayAddress);
   }

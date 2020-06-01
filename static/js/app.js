@@ -13,7 +13,11 @@ async function updateEmailForwardingPrefs(submitEvent) {
 	submitEvent.preventDefault();
 
 	const forwardingPrefForm = submitEvent.target;
-	const checkBox = forwardingPrefForm.querySelector("button");
+  const checkBox = forwardingPrefForm.querySelector("button");
+  const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
+  const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']");
+  const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}'`);
+
 	const analyticsLabel = (checkBox.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
 	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
@@ -28,9 +32,13 @@ async function updateEmailForwardingPrefs(submitEvent) {
 		checkBox.classList.toggle("forwarding-disabled");
 		if (checkBox.value === "Enable") {
       checkBox.title = "Disable email forwarding for this alias";
+      toggleLabel.textContent = "enabled";
+      wrappingEmailCard.classList.add("card-enabled");
 			return checkBox.value = "Disable";
 		} else if (checkBox.value === "Disable") {
       checkBox.title="Enable email forwarding to this alias";
+      toggleLabel.textContent = "disabled";
+      wrappingEmailCard.classList.remove("card-enabled");
 			return checkBox.value = "Enable";
 		}
 	}
@@ -71,20 +79,40 @@ function copyToClipboardAndShowMessage(e) {
 function deleteAliasConfirmation(submitEvent) {
 	submitEvent.preventDefault();
 	const deleteAliasForm = submitEvent.target;
+  const aliasToDelete = deleteAliasForm.dataset.deleteRelay;
+  const confirmDeleteModal = document.querySelector(".modal-bg")
+  const aliasToDeleteEls = confirmDeleteModal.querySelectorAll(".alias-to-delete");
+  aliasToDeleteEls.forEach(addressEl => {
+    addressEl.textContent = aliasToDelete;
+  })
 
-	const confirmDeleteModal = deleteAliasForm.nextElementSibling;
-	confirmDeleteModal.classList.remove("hidden");
+	confirmDeleteModal.classList.add("show-modal")
 
 	const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
 	confirmDeleteModalActions[0].focus();
 
-	sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
+  sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
+
+
+  // Close modal if the user clicks the Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key && e.key === "Escape") {
+      confirmDeleteModal.classList.remove("show-modal");
+    }
+  });
+
+  // Close the modal if the user clicks outside the modal
+  confirmDeleteModal.addEventListener("click", (e) => {
+    if (e.explicitOriginalTarget.classList.contains("show-modal")) {
+      confirmDeleteModal.classList.remove("show-modal");
+    }
+  });
 
 	confirmDeleteModalActions.forEach(btn => {
 		if (btn.classList.contains("cancel-delete")) {
 			btn.addEventListener("click", () => {
-				sendGaPing("Dashboard Alias Settings", "Delete Alias", "Cancel Delete");
-				confirmDeleteModal.classList.add("hidden");
+        sendGaPing("Dashboard Alias Settings", "Delete Alias", "Cancel Delete");
+        confirmDeleteModal.classList.remove("show-modal");
 			});
 		}
 		if (btn.classList.contains("confirm-delete")) {
@@ -196,7 +224,33 @@ async function addEmailToWaitlist(e) {
 }
 
 
+function toggleAliasCardDetailsVisibility(aliasCard) {
+  const detailsWrapper = aliasCard.querySelector(".details-wrapper");
+  aliasCard.classList.toggle("show-card-details");
+
+  const resizeAliasDetails = () => {
+    if (aliasCard.classList.contains("show-card-details")) {
+      aliasCard.style.paddingBottom = `${detailsWrapper.clientHeight}px`;
+    }
+  };
+
+  if (aliasCard.classList.contains("show-card-details")) {
+    resizeAliasDetails();
+    window.addEventListener("resize", resizeAliasDetails);
+  } else {
+    aliasCard.style.paddingBottom = "0";
+    window.removeEventListener("resize", resizeAliasDetails);
+  }
+}
+
+
 function addEventListeners() {
+  document.querySelectorAll(".relay-email-card").forEach(aliasCard => {
+    const toggleDetailsBtn = aliasCard.querySelector(".toggle-details-visibility");
+    toggleDetailsBtn.addEventListener("click", () => { toggleAliasCardDetailsVisibility(aliasCard) });
+    const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
+    deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
+  });
 	document.querySelectorAll(".js-dismiss").forEach(btn => {
 		btn.addEventListener("click", dismissNotification, false);
 	});
