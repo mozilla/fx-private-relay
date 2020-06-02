@@ -1,4 +1,3 @@
-from base64 import b64decode
 from datetime import datetime
 from email import message_from_string, policy
 from email.utils import parseaddr
@@ -6,7 +5,6 @@ from hashlib import sha256
 import json
 import logging
 import markus
-import quopri
 import re
 
 import boto3
@@ -251,7 +249,10 @@ def _sns_message(message_json):
 
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders']['subject']
-    email_message = message_from_string(message_json['content'])
+    email_message = message_from_string(
+        message_json['content'], policy=policy.default
+    )
+
     text_content, html_content = _get_text_and_html_content(email_message)
 
     ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
@@ -278,21 +279,11 @@ def _sns_message(message_json):
 
 def _get_text_and_html_content(email_message):
     for message_payload in email_message.get_payload():
-        payload = message_payload.get_payload()
-        if 'Content-Transfer-Encoding' in message_payload:
-            cte = email_message['Content-Transfer-Encoding']
-            if cte == 'quoted-printable':
-                payload = quopri.decodestring(
-                    message_payload.get_payload()
-                )
-            if cte == 'base64':
-                payload = b64decode(
-                    message_payload.get_payload()
-                ).decode('utf-8')
+        content = message_payload.get_content()
         if message_payload.get_content_type() == 'text/plain':
-            text_content = payload
+            text_content = content
         if message_payload.get_content_type() == 'text/html':
-            html_content = payload
+            html_content = content
 
     return text_content, html_content
 
