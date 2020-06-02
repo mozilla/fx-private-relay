@@ -76,6 +76,20 @@ function copyToClipboardAndShowMessage(e) {
   return navigator.clipboard.writeText(aliasToCopy);
 }
 
+
+function trapFocusInModal(modalElemClass, restrictFocusToModal=true) {
+  if (!restrictFocusToModal) {
+    return document.querySelectorAll("[tabindex='-1']").forEach(elem => {
+      elem.tabIndex = "0";
+    });
+  }
+  document.querySelectorAll("input, a, button, [tabindex]").forEach(elem => {
+    if (!elem.classList.contains(modalElemClass)) {
+      elem.tabIndex = "-1";
+    }
+  });
+};
+
 function deleteAliasConfirmation(submitEvent) {
 	submitEvent.preventDefault();
 	const deleteAliasForm = submitEvent.target;
@@ -86,33 +100,48 @@ function deleteAliasConfirmation(submitEvent) {
     addressEl.textContent = aliasToDelete;
   })
 
-	confirmDeleteModal.classList.add("show-modal")
-
-	const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
-	confirmDeleteModalActions[0].focus();
-
+  confirmDeleteModal.classList.add("show-modal");
+  trapFocusInModal("delete-modal", true);
   sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
+  const checkbox = confirmDeleteModal.querySelector(".checkbox");
+  checkbox.focus();
 
+  const closeModal = () => {
+    checkbox.checked = false;
+    confirmDeleteModal.classList.remove("show-modal");
+    trapFocusInModal("delete-modal", false);
+  }
 
   // Close modal if the user clicks the Escape key
   document.addEventListener("keydown", (e) => {
     if (e.key && e.key === "Escape") {
-      confirmDeleteModal.classList.remove("show-modal");
+      closeModal();
     }
   });
 
   // Close the modal if the user clicks outside the modal
   confirmDeleteModal.addEventListener("click", (e) => {
-    if (e.explicitOriginalTarget.classList.contains("show-modal")) {
-      confirmDeleteModal.classList.remove("show-modal");
+    if (e.target.classList && e.target.classList.contains("show-modal")) {
+      closeModal();
     }
   });
+
+  // Enable "Delete Anyway" button once the checkbox has been clicked.
+  const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
+  const deleteAnywayBtn = confirmDeleteModalActions[1];
+  checkbox.addEventListener("change", (e) => {
+    if (checkbox.checked) {
+      deleteAnywayBtn.disabled = false;
+    } else {
+      deleteAnywayBtn.disabled = true;
+    }
+  })
 
 	confirmDeleteModalActions.forEach(btn => {
 		if (btn.classList.contains("cancel-delete")) {
 			btn.addEventListener("click", () => {
         sendGaPing("Dashboard Alias Settings", "Delete Alias", "Cancel Delete");
-        confirmDeleteModal.classList.remove("show-modal");
+        closeModal();
 			});
 		}
 		if (btn.classList.contains("confirm-delete")) {
@@ -281,6 +310,13 @@ function addEventListeners() {
   const joinWaitlistForm = document.querySelector("#join-waitlist-form");
   if (joinWaitlistForm) {
     joinWaitlistForm.addEventListener("submit", addEmailToWaitlist);
+  }
+
+  const disabledDashboardButton = document.querySelector(".btn-disabled");
+  if (disabledDashboardButton) {
+    disabledDashboardButton.addEventListener("click", (e) => {
+      e.preventDefault();
+    });
   }
 }
 
