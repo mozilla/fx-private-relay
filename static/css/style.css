@@ -318,6 +318,10 @@ button:active {
   color: inherit;
 }
 
+.btn-disabled {
+  opacity: .9;
+}
+
 .sign-in {
   padding: 0.75rem 1.25rem;
   font-weight: 400;
@@ -667,11 +671,12 @@ table {
   top: 0;
   bottom: 0;
   margin: auto;
-  right: 3px;
+  right: 4px;
   transition: all 0.2s ease;
 }
 
 .forwarding-disabled::after {
+  left: 4px;
   right: 18px;
   transition: all 0.2s ease;
 }
@@ -737,6 +742,10 @@ table {
 
 .dash-create-new-relay::before {
   margin: auto;
+}
+
+.dash-create-new-relay.btn-disabled:hover {
+  background-color: var(--grey30);
 }
 
 .grey-pseudo-styles:hover,
@@ -811,7 +820,7 @@ table {
 }
 
 .relay-email-address-label {
-  color: var(--grey60);
+  color: var(--grey50);
   display: flex;
   font-weight: 500;
   align-items: center;
@@ -819,17 +828,17 @@ table {
   border: 1px solid transparent;
   font-size: 16px;
   border-radius: 4px;
-  padding: 8px 20px 8px 8px;
-  width: 140px;
+  padding: 6px 24px 6px 6px;
+  width: 156px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   transition: all 0.2s ease;
 }
 
-.relay-email-address-label.edited {
-  width: 200px;
-}
+/* .relay-email-address-label.edited {
+  width: 160px;
+} */
 
 .additional-notes {
   display: flex;
@@ -847,14 +856,16 @@ table {
 
 .additional-notes::after {
   content: "";
-  min-width: 20px;
-  min-height: 20px;
-  margin-left: -20px;
+  min-width: 16px;
+  min-height: 16px;
+  margin-left: -24px;
   display: inline-block;
   background: url("/static/images/edit.svg");
   background-repeat: no-repeat;
   background-position: center center;
   pointer-events: none;
+  background-size: contain;
+  opacity: .6;
 }
 
 .relay-email-address-label:hover {
@@ -864,12 +875,12 @@ table {
 
 .relay-email-address-label:focus {
   box-shadow: var(--buttonFocus);
-  width: 250px !important;
+  width: 200px !important;
 }
-
+/*
 .edited {
   width: 200px;
-}
+} */
 
 .saved-confirmation {
   content: "Saved!";
@@ -1107,6 +1118,68 @@ table {
 
 /* modal */
 
+.checkbox-wrapper {
+  position: relative;
+  width: 100%;
+  margin-top: 24px;
+}
+
+.checkbox {
+  position: absolute;
+  opacity: 0;
+  top: 4px;
+  height: 24px;
+  width: 24px;
+}
+
+.checkbox:hover + .checkbox-ui {
+  background-color: rgba(12, 12, 13, 0.2);
+  transition: all 0.2s ease;
+}
+
+.checkbox:active + .checkbox-ui {
+  background-color: rgba(12, 12, 13, 0.3);
+  transition: all 0.2s ease;
+}
+
+.checkbox + .checkbox-ui {
+  border: 1px solid rgba(12, 12, 13, 0.1);
+  border-radius: 2px;
+  height: 20px;
+  min-height: 20px;
+  max-height: 20px;
+  width: 20px;
+  min-width: 20px;
+  max-width: 20px;
+  margin-right: 10px;
+  margin-top: 4px;
+  display: inline-block;
+  background-color: rgba(12, 12, 13, 0.081);
+  transition: all 0.2s ease;
+}
+
+.checkbox:checked + .checkbox-ui {
+  background-color: #0060df;
+  background-image: url("/static/images/check.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  transition: all 0.2s ease;
+}
+
+.checkbox:checked:hover + .checkbox-ui {
+  background-color: #003eaa;
+}
+
+.checkbox:checked:active + .checkbox-ui {
+  background-color: #002275;
+}
+
+.checkbox:focus + .checkbox-ui {
+  border: 1px solid transparent;
+  box-shadow: var(--buttonFocus);
+}
+
 .modal-bg {
   position: fixed;
   display: none;
@@ -1126,44 +1199,55 @@ table {
 
 .modal-content {
   background: rgba(255, 255, 255, 1);
-  max-width: 500px;
+  max-width: 520px;
   border-radius: 8px;
   position: absolute;
   left: 2rem;
   right: 2rem;
   margin: auto;
-  padding: 3rem;
-  font-size: 15px;
-  line-height: 1.3;
+  padding: 3rem 4rem;
+}
+
+.modal-message {
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .modal-headline {
   font-weight: 300;
-  font-size: 24px;
-  margin: 0 auto 12px auto;
+  font-size: 22px;
+  margin: 0 auto 24px auto;
   color: var(--grey90);
 }
 
-.delete-tip {
-  color: var(--grey50);
+.modal-message {
+  color: var(--grey60);
   margin: 0 auto 12px auto;
 }
 
 .warning-text {
   color: var(--warningRed);
-  margin: 12px auto;
+}
+
+.alias-to-delete.demi {
+  display: inline-block;
+  margin: 0 auto 16px auto;
+  color: var(--grey80);
 }
 
 .confirm-delete-actions {
   justify-content: flex-end;
   display: flex;
-  margin-top: 32px;
+  margin-top: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, .05);
 }
 
 .confirm-delete-action {
-  font-size: 13px;
+  outline: none;
+  font-size: 16px;
   border-radius: 4px;
-  padding: 8px 16px;
+  padding: 12px 24px;
   min-width: 120px;
   border: 1px solid transparent;
 }
@@ -1192,6 +1276,11 @@ table {
 
 .confirm-delete:active {
   background-color: rgb(167, 5, 30);
+}
+
+.confirm-delete[disabled] {
+  opacity: .7;
+  pointer-events: none;
 }
 
 .confirm-delete {
@@ -1341,7 +1430,10 @@ table {
 }
 
 /* .column-forwarded, */
+
+.card-enabled .num-forwarded,
 .card-enabled .column-forwarded,
+.num-blocked,
 .column-blocked {
   opacity: 1;
   transition: all 0.2s ease;
@@ -1349,7 +1441,13 @@ table {
 
 .column-forwarded,
 .card-enabled .column-blocked {
-  opacity: 0.3;
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.num-forwarded,
+.card-enabled .num-blocked {
+  opacity: .4;
   transition: all 0.2s ease;
 }
 
@@ -1626,6 +1724,11 @@ table {
 
   .relay-stat {
     margin-bottom: 8px;
+  }
+
+  .relay-stat,
+  .details-row {
+    min-height: 30px;
   }
 
   .relay-stat-value {

@@ -18,7 +18,7 @@
     const aliasId = aliasCardData.relayAddressId;
     const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == aliasId)[0];
 
-    const defaultAliasLabelText = "Alias label";
+    const defaultAliasLabelText = "Add alias label";
     const storedAliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : defaultAliasLabelText;
 
     const aliasLabelInput = aliasCard.querySelector('input.relay-email-address-label');
@@ -26,11 +26,14 @@
     aliasLabelWrapper.classList.add("show-label"); // show field only when addon is installed
 
     aliasLabelInput.dataset.label = storedAliasLabel;
-    aliasLabelInput.value = storedAliasLabel;
+    aliasLabelInput.placeholder = storedAliasLabel;
+
+    if (storedAliasLabel === "" || storedAliasLabel === " ") {
+      aliasLabelInput.placeholder = defaultAliasLabelText;
+    }
 
     const forbiddenCharacters = `{}()=;-<>`;
     aliasLabelInput.addEventListener("keydown", (e) => {
-      aliasLabelInput.classList.add("edited");
       const typedChar = e.key;
       if (aliasLabelInput.classList.contains("input-has-error")) {
         if (typedChar === "Backspace") {
@@ -53,8 +56,8 @@
       if (aliasLabelInput.classList.contains("input-has-error")) {
         return;
       }
+      // Don't show saved confirmation message if the label hasn't changed
       if (newAliasLabel === aliasLabelInput.dataset.label) {
-        aliasLabelInput.classList.remove("edited");
         return;
       }
 
@@ -66,8 +69,6 @@
       setTimeout(()=> {
         aliasLabelWrapper.classList.remove("show-saved-confirmation");
       }, 1000);
-
-      aliasLabelInput.classList.remove("edited");
 
     });
 
