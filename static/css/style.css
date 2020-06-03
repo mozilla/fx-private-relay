@@ -25,14 +25,14 @@
   --inkDark: #1d1133;
   --textDark: var(--grey70);
   --lightestGray: rgba(123, 127, 141, 0.071);
-  --maxContentWidth: 1400px;
+  --maxContentWidth: 1350px;
   --metropolis: "Metropolis", Arial, Helvetica, sans-serif;
   --navy: #231142;
   --padding: 1.25rem;
   --purple: #7a26a3;
   --monitorPurple: #37366f;
   --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
-  --h1Gradient: linear-gradient(-90deg, #6173ff, #c689ff);
+  --h1Gradient: linear-gradient(-90deg, #83a0f7, #b66dff);
   --violet3: #9059ff;
   --violet4: #7542e5;
   --warningRed: #D70022;
@@ -181,7 +181,9 @@ button:active {
 
 .home-hero {
   min-height: 74vh;
-  margin: 2rem auto;
+  margin: 0 auto 6rem auto;
+  position: relative;
+  overflow: hidden;
 }
 
 .how-it-works {
@@ -337,7 +339,7 @@ button:active {
   height: 100%;
   min-width: 42px;
   display: inline-block;
-  margin-right: 8px;
+  margin-right: 12px;
 }
 
 .fx-private-relay-logotype {
@@ -345,29 +347,71 @@ button:active {
   background-position: center 63%;
   background-repeat: no-repeat;
   background-size: contain;
-  min-width: 270px;
-  min-height: 50px;
-}
-
-.fx-logotype {
-  margin-right: 8px;
-}
-
-.bolder {
-  font-weight: 600;
+  min-width: 180px;
 }
 
 .row-full-width {
   padding: 1.25rem 2.25rem;
 }
 
-.logo {
-  max-width: 80px;
+.beta-banner-container {
+  height: 500px;
+  width: 500px;
+  position: absolute;
+  top: 0;
+  right: 0;
 }
 
-header {
+.beta-banner {
+  background: var(--fxGradient);
+  padding: 2px 0;
+  color: rgba(255, 255, 255, 1);
+  font-weight: 800;
+  font-size: 16px;
+  transform: rotate(40deg);
+  position: absolute;
+  top: 60px;
+  right: -190px;
+}
+
+.beta-banner-content {
+  background: var(--darkBlueGradient);
+  padding: 20px 200px;
+  opacity: 0.95;
+  box-shadow: 4px 3px 9px 1px rgba(0, 0, 0, .1);
+}
+
+header{
   background: none;
   color: var(--white);
+  border-bottom: 1px solid var(--inkDark);
+  box-shadow: 0 0 3px 0px var(--inkDark);
+  background: rgba(0, 0, 0, 0);
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.fix-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--darkBlueGradient);
+  padding-top: 1rem;
+  box-shadow: 0 0 5px 3px var(--inkDark);
+  animation: dropHeader .5s ease;
+  transition: all 0.5s ease;
+}
+
+@keyFrames dropHeader {
+  0% {
+    opacity: .5;
+    transform: translateY(-60px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px)
+  }
 }
 
 .add-to-fx-header {
@@ -761,14 +805,13 @@ table {
 }
 
 .hero-content {
-  margin: auto;
+  margin: 2rem auto auto auto;
   width: 100%;
-  max-width: 1400px;
+  max-width: var(--maxContentWidth);
 }
 
 .hero-left,
 .hero-right {
-  min-height: 100%;
   flex: 1 1 44%;
   margin-left: auto;
   margin-right: auto;
@@ -777,13 +820,14 @@ table {
 }
 
 .hero-right {
-  border-radius: 24px;
+  border-radius: 12px;
   background-image: linear-gradient(230deg, rgba(144, 89, 255, 0.07), #0250bb08);
   box-shadow: var(--dropShadowDark);
+  margin: auto;
+  min-height: 460px;
 }
 
 .hero-left {
-  margin-bottom: 4rem;
   padding: 4rem 2rem 4rem 0;
   border-radius: 24px;
   text-align: left;
@@ -944,6 +988,9 @@ table {
 .dashboard-greeting {
   text-align: center;
   padding: 40px 0 80px 0;
+  font-weight: 100;
+  font-size: 15px;
+  font-family: var(--metropolis);
 }
 
 .no-aliases {
@@ -1443,12 +1490,24 @@ table {
 @media screen and (max-width: 1050px) {
   .home-hero {
     align-items: flex-start;
+    margin-bottom: 4rem;
   }
 
   .hero-content {
     max-width: 800px;
     margin: 3vh auto;
     flex-direction: column;
+  }
+
+  .beta-banner {
+    top: 50px;
+    font-size: 14px;
+    right: -190px;
+  }
+
+  .beta-banner-content {
+    padding-top: 16px;
+    padding-bottom: 16px;
   }
 
   .hero-left {
@@ -1464,7 +1523,6 @@ table {
 
   .hero-right {
     width: 100%;
-    max-width: 600px;
     min-height: 500px;
   }
 
@@ -1516,6 +1574,7 @@ table {
     max-width: 650px;
     font-size: 1.1rem;
   }
+
   .home-hero-headline {
     max-width: 800px;
     margin-bottom: 16px;
@@ -1651,8 +1710,14 @@ table {
     font-size: 1rem;
   }
 
+  .beta-banner-container,
   .hero-right {
     display: none;
+  }
+
+  header {
+    border-bottom: none;
+    box-shadow: none;
   }
 
   .step-text {
