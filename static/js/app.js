@@ -189,11 +189,11 @@ function hideInstallCallout() {
 function toggleVisibilityOfElementsIfAddonIsInstalled() {
 	// const elementsToShowIfAddonIsInstalled = document.querySelectorAll("a.sign-in-btn");
 
-	if (isRelayAddonInstalled()) { // Private Relay add-on IS installed
-		document.querySelectorAll("a.add-to-fx-header").forEach(installCta => {
-			installCta.classList.add("hidden");
-		});
-	}
+	// if (isRelayAddonInstalled()) { // Private Relay add-on IS installed
+	// 	document.querySelectorAll("a.add-to-fx-header").forEach(installCta => {
+	// 		installCta.classList.add("hidden");
+	// 	});
+	// }
 	showCtas();
 
 	const dashboardInstallAddonMessage = document.querySelector(".no-addon-content");
@@ -309,6 +309,21 @@ function addEventListeners() {
   if (disabledDashboardButton) {
     disabledDashboardButton.addEventListener("click", (e) => {
       e.preventDefault();
+    });
+  }
+
+  const mobileMenuWrapper = document.querySelector(".mobile-menu");
+  if (mobileMenuWrapper) {
+    const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
+    const mobileMenuLinks = document.querySelector(".mobile-menu-links");
+    mobileMenuButton.addEventListener("click", () => {
+      mobileMenuWrapper.classList.toggle("menu-open");
+      if (mobileMenuWrapper.classList.contains("menu-open")) {
+        mobileMenuLinks.style.top = mobileMenuWrapper.clientHeight + "px";
+       return mobileMenuWrapper.style.minHeight = mobileMenuLinks.clientHeight + mobileMenuWrapper.clientHeight + "px";
+      }
+      mobileMenuLinks.style.top = "0";
+      return mobileMenuWrapper.style.minHeight = "0";
     });
   }
 }
