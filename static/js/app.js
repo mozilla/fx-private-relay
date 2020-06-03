@@ -340,7 +340,18 @@ function watchForInstalledAddon() {
 document.addEventListener("DOMContentLoaded", () => {
 	watchForInstalledAddon();
 	addEventListeners();
-	toggleVisibilityOfElementsIfAddonIsInstalled();
+  toggleVisibilityOfElementsIfAddonIsInstalled();
+
+  const win = window;
+  const header = document.querySelector("header");
+
+  win.onscroll = () => {
+    if (win.pageYOffset > 300) {
+      header.classList.add("fix-header");
+    } else {
+      header.classList.remove("fix-header");
+    }
+  };
 });
 
 class GlocalMenu extends HTMLElement {
