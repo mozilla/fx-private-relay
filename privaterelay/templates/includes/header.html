@@ -7,15 +7,15 @@
     </a>
     <nav class="flx flx-row ff-Met al-cntr header-nav hide-mobile">
       <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} header-link" href="/">Home</a>
-      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} header-link" href="FAQ">FAQ</a>
+      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} header-link" href="/faq">FAQ</a>
     </nav>
     {% include "includes/login.html" %}
   </div>
   <nav class="flx flx-col ff-Met al-cntr mobile-menu show-mobile">
-    <button class="mobile-menu-toggle full-width">Menu</button>
+    <button class="mobile-menu-toggle full-width ff-Met" aria-label="Open mobile menu">Menu</button>
     <div class="mobile-menu-links flx flx-col">
       <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} mobile-menu-link mobile-home-link" href="/">Home</a>
-      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} mobile-menu-link" href="FAQ">FAQ</a>
+      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} mobile-menu-link" href="/faq">FAQ</a>
     </div>
     </nav>
 </header>
