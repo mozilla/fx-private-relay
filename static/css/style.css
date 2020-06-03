@@ -851,6 +851,14 @@ table {
   opacity: .6;
 }
 
+.user-created-label::after {
+  opacity: 0;
+}
+
+.user-created-label:hover::after {
+  opacity: .6;
+}
+
 .relay-email-address-label:hover {
   background: var(--grey20);
   width: 165px;

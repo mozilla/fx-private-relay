@@ -19,16 +19,18 @@
     const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == aliasId)[0];
 
     const defaultAliasLabelText = "Add alias label";
-    const storedAliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : defaultAliasLabelText;
+    const storedAliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
 
     const aliasLabelInput = aliasCard.querySelector('input.relay-email-address-label');
     const aliasLabelWrapper = aliasLabelInput.parentElement;
-    aliasLabelWrapper.classList.add("show-label"); // show field only when addon is installed
+    aliasLabelWrapper.classList.add("show-label"); // Field is visible only to users who have the addon installed
 
     aliasLabelInput.dataset.label = storedAliasLabel;
-    aliasLabelInput.placeholder = storedAliasLabel;
 
-    if (storedAliasLabel === "" || storedAliasLabel === " ") {
+    if (storedAliasLabel !== "") {
+      aliasLabelInput.value = storedAliasLabel;
+      aliasLabelWrapper.classList.add("user-created-label");
+    } else {
       aliasLabelInput.placeholder = defaultAliasLabelText;
     }
 
@@ -53,15 +55,25 @@
 
     aliasLabelInput.addEventListener("focusout", () => {
       const newAliasLabel = aliasLabelInput.value;
+
+      // Don't save labels containing forbidden characters
       if (aliasLabelInput.classList.contains("input-has-error")) {
         return;
       }
+
       // Don't show saved confirmation message if the label hasn't changed
       if (newAliasLabel === aliasLabelInput.dataset.label) {
         return;
       }
 
+      // show placeholder text if the label is blank
+      if (aliasLabelInput.value === "") {
+        aliasLabelWrapper.classList.remove("user-created-label");
+        aliasLabelInput.placeholder = defaultAliasLabelText;
+      } else {
+      aliasLabelWrapper.classList.add("user-created-label");
       aliasLabelWrapper.classList.add("show-saved-confirmation");
+      }
       const updatedRelayAddress = relayAddresses.filter(address => address.id == aliasId)[0];
       updatedRelayAddress.domain = newAliasLabel;
       browser.storage.local.set({relayAddresses});
