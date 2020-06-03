@@ -2,9 +2,5 @@
 {% load socialaccount %}
 
 <div class="hero-sign-up-bg bg-fx-gradient fx-gradient-btn invisible">
-  <a data-ga="send-ga-funnel-pings" data-event-category="Add to Firefox" data-event-label="add-to-fx-btn-{{ page_position }}" class="add-to-fx hero-sign-up blue-button puffy" href="https://addons.mozilla.org/firefox/addon/private-relay/">Add to Firefox</a>
-  <a
-  data-entrypoint="relay-sign-in-{{ page_position }}" data-form_type="button"
-  data-ga="send-ga-funnel-pings" data-event-category="Sign In Buttons" data-event-label="sign-in-btn-{{ page_position }}"
-  class="sign-in-btn blue-button puffy" href="{% provider_login_url 'fxa' process='login' %}">Sign In</a>
+  <a data-ga="send-ga-funnel-pings" data-event-category="Add to Firefox" data-event-label="add-to-fx-btn-{{ page_position }}" class="join-waitlist-btn hero-sign-up blue-button puffy" href="{% provider_login_url 'fxa' process='login' %}">Sign up for the beta waitlist</a>
 </div>

@@ -19,45 +19,49 @@
 <main class="container txt-white flx text-center row-full-width home-hero">
 	<div class="flx flx-row hero-content">
 		<div class="hero-left flx flx-col">
-    	<h1 class="mw-850 home-hero-headline">Keep your email safe from hackers and trackers</h1>
-			<h2 class="sub-head hero-sub-head">Make an email alias with 1 click, and keep your address to yourself.</h2>
+    	<h1 class="home-hero-headline">Hide your real email address from hackers and spammers</h1>
+			<h2 class="sub-head hero-sub-head">Firefox Relay makes it easy to create aliases, alternative email addresses that forward to your real inbox. Use it to protect your online accounts from hackers and block spam.</h2>
 			{% include "includes/landing_ctas.html" with page_position="landing-hero" %}
 		</div>
 		<div class="hero-right flx flx-col">
 		</div>
 	</div>
 </main>
-<div class="how-it-works flx al-cntr jst-cntr flx-col">
-	<div class="card how-it-works-card">
-		<div class="how-it-works-content txt-white flx flx-col">
-			<h2 class="how-it-works-header text-center">How It Works</h2>
-			<section class="step step-1 flx flx-row">
-				<div class="step-illustration step-1"></div>
-				<div class="step-text step-1">
-					<h3 class="step-headline ff-Met">How does using an alias protect me?</h3>
-					<p class="step-body">
-						Do you worry about giving away your email address? Sick of receiving emails you never signed up for? Do those unsubscribe links really work? By using aliases, you keep your real email off spam lists and away from sketchy companies you may not trust.
-					</p>
-				</div>
-			</section>
-			<section class="step step-2 flx flx-row">
-				<div class="step-illustration step-2"></div>
-				<div class="step-text step-2">
-					<h3 class="step-headline ff-Met">How does Private Relay work?</h3>
-					<p class="step-body">
-						When a form requires your email address, click the relay button to give an alias instead. We will forward emails from the alias to your real inbox. 
-					</p>
-				</div>
-			</section>
-			<section class="step step-3 flx flx-row">
-				<div class="step-illustration step-3"></div>
-				<div class="step-text step-3">
-					<h3 class="step-headline ff-Met">Take back control of your Inbox.</h3>
-					<p class="step-body">If any alias starts to receive emails you don't want, you can disable it or delete it completely.</p>
-				</div>
-			</section>
+	<div class="container flx al-cntr flx-col">
+		<div class="how-it-works-content txt-white flx flx-col al-cntr">
+      <h2 class="how-it-works-header text-center">How It Works</h2>
+      <span class="text-center">Protect your personal identity everywhere you use the Firefox browser.</span>
+      <div class="how-it-works-steps flx flx-row">
+        <section class="step step-1 flx flx-col">
+            <div class="step-illustration step-1"></div>
+            <div class="step-text step-1">
+              <h3 class="step-headline ff-Met">Install the extension</h3>
+              <p class="step-body">
+                  Download the Relay extension for Firefox. When the icon appears on your Firefox toolbar, the extension is installed and ready to use.
+              </p>
+            </div>
+          </section>
+          <section class="step step-2 flx flx-col">
+            <div class="step-illustration step-2"></div>
+            <div class="step-text step-2">
+              <h3 class="step-headline ff-Met">Sign in with your Firefox Account</h3>
+              <p class="step-body">
+                  Open the extension and sign in to your Firefox account. Relay will forward messages to the address associated with your account by default, but you can change this when you create each new alias.
+              </p>
+            </div>
+          </section>
+          <section class="step step-3 flx flx-col">
+            <div class="step-illustration step-3"></div>
+            <div class="step-text step-3">
+              <h3 class="step-headline ff-Met">Start using Relay</h3>
+              <p class="step-body">
+                As you browse, the Relay icon will appear in forms that require your email address. You can generate up to 5 aliases. Messages forwarded to you via your alias will have a Relay banner. If an alias is collected in a data breach or is the source of spam and other unwanted messages, you can block messages or even delete the alias from the Relay management page.
+              </p>
+            </div>
+          </section>
+      </div>
 			{% include "includes/landing_ctas.html" with page_position="landing-bottom" %}
 		</div>
 	</div>
-</div>
+
 {% endblock %}

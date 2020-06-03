@@ -32,6 +32,7 @@
   --purple: #7a26a3;
   --monitorPurple: #37366f;
   --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
+  --h1Gradient: linear-gradient(-90deg, #6173ff, #c689ff);
   --violet3: #9059ff;
   --violet4: #7542e5;
   --warningRed: #D70022;
@@ -93,16 +94,20 @@ a {
 }
 
 h1 {
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   margin: 28px auto 20px auto;
-  line-height: 1.1;
+  line-height: 1;
+  background: var(--h1Gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .sub-head {
   font-weight: 300;
   margin: 0 auto 32px auto;
-  font-size: 1.25rem;
-  line-height: 1.2;
+  font-size: 1.15rem;
+  line-height: 1.4;
 }
 
 button,
@@ -133,6 +138,7 @@ button:active {
   background-position: center center;
   border-radius: 2px;
   min-height: 32px;
+  max-width: 300px;
   padding: 8px 16px;
   display: flex;
   align-items: center;
@@ -185,53 +191,39 @@ button:active {
 .how-it-works-header {
   font-size: 2.25rem;
   font-weight: 500;
-  margin: 0 auto 4rem auto;
+  margin: 0 auto 20px auto;
 }
 
-.how-it-works-card {
-  position: relative;
-  padding: 1px;
-  border-radius: 24px;
-  overflow: hidden;
-  width: 100%;
-  max-width: 1100px;
-  background-color: #9059ff05;
-}
-
-.how-it-works-content {
-  padding: 5rem 5rem 7rem 5rem;
-  width: 100%;
+.how-it-works-steps {
+  justify-content: space-between;
+  max-width: var(--maxContentWidth);
+  padding: 4rem 0;
+  margin-bottom: 4rem;
 }
 
 .step {
-  margin: auto auto 5rem auto;
-  max-width: 1000px;
-}
-
-.step.step-3 {
-  margin-bottom: 7rem;
+  flex-direction: column;
+  flex: 0 1 31.333%;
 }
 
 .step-text {
-  padding: 3rem;
+  padding: 0 1rem;
   display: flex;
   justify-content: center;
   flex-direction: column;
 }
 
 .step-headline {
-  font-weight: 500;
-  font-size: 1.7rem;
-  margin: auto auto 20px 0;
+  font-size: 1.25rem;
+  margin: 0 auto 1rem 0;
 }
 
 .step-body {
   margin: 0 auto auto auto;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 1.2rem;
+  font-size: 1rem;
   line-height: 1.7rem;
   letter-spacing: 0.009rem;
-  font-family: var(--metropolis);
   font-weight: 100;
 }
 
@@ -242,8 +234,9 @@ button:active {
 .step-illustration {
   min-height: 260px;
   min-width: 300px;
-  border-radius: 24px;
+  border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 2rem;
 }
 
 .bold {
@@ -289,10 +282,6 @@ button:active {
 
 .margin-auto {
   margin: auto;
-}
-
-.mw-850 {
-  max-width: 850px;
 }
 
 .container {
@@ -794,7 +783,8 @@ table {
 }
 
 .hero-left {
-  padding: 4rem 2rem;
+  margin-bottom: 4rem;
+  padding: 4rem 2rem 4rem 0;
   border-radius: 24px;
   text-align: left;
   align-items: flex-start;
@@ -802,11 +792,8 @@ table {
 
 .hero-sub-head {
   margin: auto auto 32px 0;
-  max-width: 375px;
-}
-
-.how-it-works-content > .hero-sign-up-bg {
-  margin: auto;
+  max-width: 500px;
+  color: var(--grey10);
 }
 
 .card-small-text {
@@ -835,10 +822,6 @@ table {
   overflow: hidden;
   transition: all 0.2s ease;
 }
-
-/* .relay-email-address-label.edited {
-  width: 160px;
-} */
 
 .additional-notes {
   display: flex;
@@ -870,17 +853,15 @@ table {
 
 .relay-email-address-label:hover {
   background: var(--grey20);
-  transition: all 0.2s ease;
+  width: 165px;
+  transition: all 0.1s ease-in-out;
 }
 
 .relay-email-address-label:focus {
   box-shadow: var(--buttonFocus);
   width: 200px !important;
+  transition: all 0.2s ease-in-out;
 }
-/*
-.edited {
-  width: 200px;
-} */
 
 .saved-confirmation {
   content: "Saved!";
@@ -890,12 +871,10 @@ table {
   display: inline-block;
 }
 
-
 .input-error::after,
 .input-error {
   background: var(--warningRed);
 }
-
 
 .saved-confirmation::after,
 .saved-confirmation {
@@ -1492,33 +1471,29 @@ table {
     text-align: center;
   }
 
-  .how-it-works-card {
-    border-radius: 0;
+  .how-it-works-steps {
+    flex-direction: column;
+  }
+
+  .step {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .step-illustration {
+    min-width: 240px;
+    min-height: 240px;
+    margin-bottom: auto;
+  }
+
+  .step-body {
+    line-height: 1.5;
+    font-size: .9rem;
   }
 
   .step-headline {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .step,
-  .flx-row.step-2 {
-    flex-wrap: wrap;
-    flex-direction: column;
-    max-width: 600px;
-  }
-
-  .how-it-works-content {
-    padding-left: 2.25rem;
-    padding-right: 2.25rem;
-  }
-
-  .step-text {
-    padding: 2rem;
-  }
-
-  .step.step-3 {
-    margin-bottom: 4rem;
+    margin-bottom: .75rem;
   }
 }
 
@@ -1528,16 +1503,19 @@ table {
   }
 }
 
-@media screen and (max-height: 1000px) {
-  .hero-left {
-    margin-bottom: 3rem;
-  }
-}
-
 @media screen and (max-width: 1100px) {
+  .hero-sub-head {
+    max-width: 650px;
+    font-size: 1.1rem;
+  }
   .home-hero-headline {
-    max-width: 700px;
-    font-size: 2.6rem;
+    max-width: 800px;
+    margin-bottom: 16px;
+    font-size: 2.5rem;
+  }
+
+  .home-hero {
+    min-height: 50vh;
   }
 }
 
@@ -1565,12 +1543,28 @@ table {
     margin-left: 0;
     flex-direction: row;
   }
-}
 
-@media screen and (max-width: 750px) {
-  .home-hero-headline {
-    max-width: 440px;
-    font-size: 2.5rem;
+  .how-it-works-steps {
+    margin-bottom: 0;
+  }
+
+  .step {
+    flex-direction: column;
+    margin-bottom: 4rem;
+  }
+
+  .step-illustration {
+    margin-bottom: 1rem;
+  }
+
+  .step-headline {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
+  .step-body {
+    text-align: center;
   }
 
   .grid {
@@ -1637,11 +1631,7 @@ table {
 
   .hero-left {
     padding: 0;
-    margin: 5rem auto 10rem auto;
-  }
-
-  .hero-sign-up-bg {
-    width: 80%;
+    margin: 2rem auto 5rem auto;
   }
 
   .fx-private-relay-logotype {
@@ -1649,31 +1639,16 @@ table {
   }
 
   .hero-sub-head {
-    max-width: 300px;
+    max-width: 400px;
     font-size: 1rem;
   }
 
-  .how-it-works-content {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+  .hero-right {
+    display: none;
   }
 
   .step-text {
-    padding: 2rem 1rem;
-  }
-
-  .step-headline {
-    font-size: 1.5rem;
-    margin-left: 0;
-  }
-
-  .step-body {
-    font-size: 1rem;
-  }
-
-  .step {
-    text-align: left;
-    margin-bottom: 3rem;
+    padding: 1rem;
   }
 
   .invite-only-content {
@@ -1781,6 +1756,17 @@ table {
 }
 
 @media screen and (max-width: 450px) {
+
+  .step-body,
+  .step-headline {
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .step-text {
+    padding-left: .5rem;
+  }
+
   .card-top-row {
     flex-wrap: wrap;
   }

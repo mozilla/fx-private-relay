@@ -187,18 +187,11 @@ function hideInstallCallout() {
 }
 
 function toggleVisibilityOfElementsIfAddonIsInstalled() {
-	const elementsToShowIfAddonIsInstalled = document.querySelectorAll("a.sign-in-btn");
+	// const elementsToShowIfAddonIsInstalled = document.querySelectorAll("a.sign-in-btn");
 
 	if (isRelayAddonInstalled()) { // Private Relay add-on IS installed
-		document.querySelectorAll("a.add-to-fx, a.add-to-fx-header").forEach(installCta => {
+		document.querySelectorAll("a.add-to-fx-header").forEach(installCta => {
 			installCta.classList.add("hidden");
-		});
-		elementsToShowIfAddonIsInstalled.forEach(elem => {
-			elem.classList.remove("hidden");
-		});
-	} else { // Private Relay add-on is not installed
-		elementsToShowIfAddonIsInstalled.forEach(elem => {
-			elem.classList.add("hidden");
 		});
 	}
 	showCtas();
