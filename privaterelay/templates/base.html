@@ -16,7 +16,7 @@
     <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
     <link rel=”apple-touch-icon” href="{% static 'images/logos/relay-logo-dark-200.png' %}">
   </head>
-  <body data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}">
+  <body data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}" data-google-analytics-id="{{ settings.GOOGLE_ANALYTICS_ID }}">
     <firefox-private-relay-addon data-addon-installed="false"></firefox-private-relay-addon>
     {% include "includes/modal.html" %}
     {% include "includes/header.html" %}

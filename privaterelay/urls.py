@@ -28,6 +28,7 @@ urlpatterns = [
 
     # FXA endpoints
     path('fxa-rp-events', views.fxa_rp_events),
+    path('metrics-event', views.metrics_event),
 
     path('accounts/profile/', views.profile, name='profile'),
     path('accounts/', include('allauth.urls')),

@@ -144,6 +144,13 @@ async function addRelayIconToInput(emailInput) {
 
 
   relayIconBtn.addEventListener("click", async(e) => {
+    browser.runtime.sendMessage({
+      method: "sendMetricsEvent",
+      eventData: {
+        category: "Addon Input Icon",
+        action: "click",
+      },
+    })
 
     preventDefaultBehavior(e);
     window.addEventListener("resize", positionRelayMenu);
