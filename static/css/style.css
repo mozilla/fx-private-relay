@@ -437,13 +437,6 @@ header {
   }
 }
 
-.add-to-fx-header {
-  padding: 4px 6px;
-  margin-right: -6px;
-  border-radius: 4px;
-  color: rgba(255, 255, 255, 1);
-}
-
 .main-list {
   min-height: 50vh;
   max-width: 900px;
@@ -481,8 +474,6 @@ ul {
 
 .header-link:hover,
 .header-link:focus,
-.add-to-fx-header:hover,
-.add-to-fx-header:focus,
 .footer-link:hover,
 .footer-link:focus {
   opacity: 0.9;
@@ -490,7 +481,6 @@ ul {
 }
 
 .header-link:active,
-.add-to-fx-header:active,
 .footer-link:active {
   background-color: rgba(0, 0, 0, 0.25);
   opacity: 0.8;
@@ -747,19 +737,6 @@ table {
 
 .num-remaining-aliases {
   font-weight: 600;
-}
-
-.add-to-fx::before,
-.create-new-relay::before {
-  content: "";
-  background-image: url(/static/images/plus-sign-white.svg);
-  background-size: contain;
-  background-position: center center;
-  background-repeat: no-repeat;
-  width: 13px;
-  height: 13px;
-  display: inline-flex;
-  margin: auto 6px auto 0;
 }
 
 .dash-create-new-relay {
@@ -1387,7 +1364,6 @@ table {
 }
 
 .waitlist-confirmation-message {
-  margin: 0 auto auto auto;
   max-width: 460px;
 }
 
