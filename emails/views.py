@@ -264,6 +264,8 @@ def _sns_message(message_json):
         'SITE_ORIGIN': settings.SITE_ORIGIN,
     })
 
+    relay_from_address, relay_from_display = _generate_relay_From(from_address)
+
     ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
     try:
         ses_response = ses_client.send_email(
@@ -275,7 +277,7 @@ def _sns_message(message_json):
                 },
                 'Subject': {'Charset': 'UTF-8', 'Data': subject},
             },
-            Source=settings.RELAY_FROM_ADDRESS,
+            Source='{0} <{1}>'.format(relay_from_display, relay_from_address),
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         logger.debug('ses_sent_response', extra=ses_response['MessageId'])
