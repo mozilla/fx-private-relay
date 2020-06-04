@@ -1541,10 +1541,38 @@ table {
 .mobile-menu-toggle {
   background: transparent;
   border: none;
-  /* border-bottom: 2px solid var(--ink); */
   outline: none;
   background: #2f2f54;
   z-index: 1;
+}
+
+.mobile-menu-label {
+  position: relative;
+  display: inline-block;
+}
+
+.mobile-menu-label::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  display: flex;
+  background-image: url(/static/images/arrowhead-white.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  top: 0;
+  bottom: 0;
+  margin: auto auto 1px auto;
+  right: -26px;
+  background-size: contain;
+  opacity: .9;
+  transition: all 0.4s ease;
+}
+
+.menu-open .mobile-menu-label::after {
+  transform: rotate(180deg);
+  opacity: .5;
+  transition: all 0.4s ease;
 }
 
 .mobile-menu-toggle,
@@ -1560,6 +1588,9 @@ table {
 
 .mobile-home-link {
   border-bottom: 1px solid rgba(255, 255, 255, .04);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .menu-open .mobile-menu-links {
@@ -1625,7 +1656,7 @@ table {
 }
 
 .faq-answer {
-  color: var(--grey20);
+  color: var(--grey30);
   font-size: 1rem;
   line-height: 1.7rem;
   margin-top: 0;
@@ -1639,6 +1670,7 @@ table {
 
   .hero-content {
     max-width: 800px;
+    margin-top: 3rem;
     flex-direction: column;
   }
 
@@ -1914,9 +1946,9 @@ table {
 
 @media screen and (max-width: 550px) {
   .beta-banner {
-    top: 15px;
+    top: 23px;
     font-size: 12px;
-    right: -196px;
+    right: -190px;
     transform: rotate(31deg);
   }
 
@@ -2025,7 +2057,7 @@ table {
   }
 
   body {
-    padding-top: 130px;
+    padding-top: 124px;
   }
 }
 

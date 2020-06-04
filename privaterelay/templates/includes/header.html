@@ -1,7 +1,7 @@
 {% load static %}
 <header class="flx flx-col spc-btwn">
   <div class="flx flx-row spc-btwn row-full-width header-top">
-    <a href="/" class="flx flx-row logo-wrapper">
+    <a href="/" class="flx flx-row logo-wrapper" aria-label="Firefox Relay">
       <div class="fx-private-relay-logomark"></div>
       <div class="fx-private-relay-logotype"></div>
     </a>
@@ -12,7 +12,7 @@
     {% include "includes/login.html" %}
   </div>
   <nav class="flx flx-col ff-Met al-cntr mobile-menu show-mobile">
-    <button class="mobile-menu-toggle full-width ff-Met" aria-label="Open mobile menu">Menu</button>
+    <button class="mobile-menu-toggle full-width ff-Met" aria-label="Open mobile menu"><span class="mobile-menu-label">Menu</span></button>
     <div class="mobile-menu-links flx flx-col">
       <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} mobile-menu-link mobile-home-link" href="/">Home</a>
       <a class="{% if request.path == '/faq' %} active-header-link {% endif %} mobile-menu-link" href="/faq">FAQ</a>
