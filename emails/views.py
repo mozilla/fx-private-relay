@@ -255,13 +255,22 @@ def _sns_message(message_json):
 
     text_content, html_content = _get_text_and_html_content(email_message)
 
+    # scramble alias so that clients don't recognize it and apply default link styles
+    display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
+    wrapped_html = render_to_string('emails/wrapped_email.html', {
+        'original_html': html_content,
+        'email_to': to_address,
+        'display_email': display_email,
+        'SITE_ORIGIN': settings.SITE_ORIGIN,
+    })
+
     ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
     try:
         ses_response = ses_client.send_email(
             Destination={'ToAddresses': [relay_address.user.email]},
             Message={
                 'Body': {
-                    'Html': {'Charset': 'UTF-8', 'Data': html_content},
+                    'Html': {'Charset': 'UTF-8', 'Data': wrapped_html},
                     'Text': {'Charset': 'UTF-8', 'Data': text_content},
                 },
                 'Subject': {'Charset': 'UTF-8', 'Data': subject},
