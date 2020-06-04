@@ -1,6 +1,7 @@
 from datetime import datetime
 from email import message_from_string, policy
 from email.utils import parseaddr
+import email.headerregistry import Address
 from hashlib import sha256
 import json
 import logging
@@ -265,6 +266,9 @@ def _sns_message(message_json):
     })
 
     relay_from_address, relay_from_display = _generate_relay_From(from_address)
+    formatted_from_address = str(
+        Address(relay_from_display, addr_spec=relay_from_address)
+    )
 
     ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
     try:
@@ -277,7 +281,7 @@ def _sns_message(message_json):
                 },
                 'Subject': {'Charset': 'UTF-8', 'Data': subject},
             },
-            Source='{0} <{1}>'.format(relay_from_display, relay_from_address),
+            Source=formatted_from_address,
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         logger.debug('ses_sent_response', extra=ses_response['MessageId'])
