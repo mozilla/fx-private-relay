@@ -249,15 +249,11 @@ def _sns_message(message_json):
 
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders']['subject']
-    email_message = message_from_string(message_json['content'])
-    for message_payload in email_message.get_payload():
-        # TODO: check Content-Transfer-Encoding to see if additional decoding
-        # is needed.
-        # E.g., b64decode(message_payload.get_payload()).decode('utf-8')
-        if message_payload.get_content_type() == 'text/plain':
-            text_content = message_payload.get_payload()
-        if message_payload.get_content_type() == 'text/html':
-            html_content = message_payload.get_payload()
+    email_message = message_from_string(
+        message_json['content'], policy=policy.default
+    )
+
+    text_content, html_content = _get_text_and_html_content(email_message)
 
     ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
     try:
@@ -279,6 +275,17 @@ def _sns_message(message_json):
         return HttpResponse("SES client error", status=400)
 
     return HttpResponse("Sent email to final recipient.", status=200)
+
+
+def _get_text_and_html_content(email_message):
+    for message_payload in email_message.get_payload():
+        content = message_payload.get_content()
+        if message_payload.get_content_type() == 'text/plain':
+            text_content = content
+        if message_payload.get_content_type() == 'text/html':
+            html_content = content
+
+    return text_content, html_content
 
 
 @csrf_exempt
