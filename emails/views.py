@@ -1,6 +1,7 @@
 from datetime import datetime
 from email import message_from_string, policy
 from email.utils import parseaddr
+from email.headerregistry import Address
 from hashlib import sha256
 import json
 import logging
@@ -255,18 +256,32 @@ def _sns_message(message_json):
 
     text_content, html_content = _get_text_and_html_content(email_message)
 
+    # scramble alias so that clients don't recognize it and apply default link styles
+    display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
+    wrapped_html = render_to_string('emails/wrapped_email.html', {
+        'original_html': html_content,
+        'email_to': to_address,
+        'display_email': display_email,
+        'SITE_ORIGIN': settings.SITE_ORIGIN,
+    })
+
+    relay_from_address, relay_from_display = _generate_relay_From(from_address)
+    formatted_from_address = str(
+        Address(relay_from_display, addr_spec=relay_from_address)
+    )
+
     ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
     try:
         ses_response = ses_client.send_email(
             Destination={'ToAddresses': [relay_address.user.email]},
             Message={
                 'Body': {
-                    'Html': {'Charset': 'UTF-8', 'Data': html_content},
+                    'Html': {'Charset': 'UTF-8', 'Data': wrapped_html},
                     'Text': {'Charset': 'UTF-8', 'Data': text_content},
                 },
                 'Subject': {'Charset': 'UTF-8', 'Data': subject},
             },
-            Source=settings.RELAY_FROM_ADDRESS,
+            Source=formatted_from_address,
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         logger.debug('ses_sent_response', extra=ses_response['MessageId'])
