@@ -1,7 +1,7 @@
 from datetime import datetime
 from email import message_from_string, policy
 from email.utils import parseaddr
-import email.headerregistry import Address
+from email.headerregistry import Address
 from hashlib import sha256
 import json
 import logging
