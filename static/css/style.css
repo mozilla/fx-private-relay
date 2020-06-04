@@ -37,7 +37,7 @@
   --rowFullWidthVPadding: 1.25rem;
   --violet3: #9059ff;
   --violet4: #7542e5;
-  --warningRed: #D70022;
+  --warningRed: #d70022;
   --white: #fff;
 }
 
@@ -83,7 +83,7 @@ body {
 }
 
 .full-width {
-  padding: .75rem var(--rowFullWidthHPadding);
+  padding: 0.75rem var(--rowFullWidthHPadding);
 }
 
 h1,
@@ -110,7 +110,7 @@ a {
 .header-link {
   border-radius: 4px;
   padding: 4px 6px;
-  color: #ffffff !important;
+  color: #fff !important;
   margin-left: 1rem;
 }
 
@@ -197,9 +197,9 @@ button:active {
 }
 
 .blue-button.loading {
-  color: rgba(255, 255, 255, .2);
+  color: rgba(255, 255, 255, 0.2);
   background-color: var(--blue4);
-  transition: all .3s ease;
+  transition: all 0.3s ease;
 }
 
 .puffy {
@@ -216,10 +216,6 @@ button:active {
   min-height: 74vh;
   margin: 0 auto 6rem auto;
   position: relative;
-}
-
-.how-it-works {
-  margin-bottom: 8rem;
 }
 
 .how-it-works-header {
@@ -259,10 +255,6 @@ button:active {
   line-height: 1.7rem;
   letter-spacing: 0.009rem;
   font-weight: 100;
-}
-
-.flx-row.step-2 {
-  flex-direction: row-reverse;
 }
 
 .step-illustration {
@@ -342,7 +334,7 @@ button:active {
 }
 
 .btn-disabled {
-  opacity: .9;
+  opacity: 0.9;
 }
 
 .sign-in {
@@ -407,15 +399,13 @@ button:active {
   background: var(--darkBlueGradient);
   padding: 20px 200px;
   opacity: 0.95;
-  box-shadow: 4px 3px 9px 1px rgba(0, 0, 0, .1);
+  box-shadow: 4px 3px 9px 1px rgba(0, 0, 0, 0.1);
 }
 
-header{
-  background: none;
+header {
   color: var(--white);
   border-bottom: 1px solid var(--inkDark);
-  box-shadow: 0 0 3px 0px var(--inkDark);
-  background: rgba(0, 0, 0, 0);
+  box-shadow: 0 0 3px 0 var(--inkDark);
   z-index: 2;
   transition: all 0.3s ease;
 }
@@ -431,18 +421,19 @@ header{
   right: 0;
   background: var(--darkBlueGradient);
   box-shadow: 0 0 5px 3px var(--inkDark);
-  animation: dropHeader .5s ease;
+  animation: dropHeader 0.5s ease;
   transition: all 0.5s ease;
 }
 
-@keyFrames dropHeader {
+@keyframes dropHeader {
   0% {
-    opacity: .5;
+    opacity: 0.5;
     transform: translateY(-60px);
   }
+
   100% {
     opacity: 1;
-    transform: translateY(0px)
+    transform: translateY(0);
   }
 }
 
@@ -458,20 +449,6 @@ header{
   max-width: 900px;
   margin: auto;
   justify-content: flex-start;
-}
-
-.messages {
-  width: 100%;
-  max-width: var(--maxContentWidth);
-  margin: auto;
-  position: absolute;
-  right: 0;
-  left: 0;
-  top: 100px;
-}
-
-.messages.profile-messages {
-  top: 20vh;
 }
 
 footer {
@@ -549,12 +526,9 @@ table {
   width: 100%;
 }
 
-.relay-email {
-  margin-top: 48px;
-}
-
 .relay-email-card {
   --hPadding: 2.5rem;
+
   margin-bottom: 2rem;
   background-color: white;
   border-radius: 4px;
@@ -686,7 +660,7 @@ table {
 }
 
 .delete-relay-email-button:active {
-  background-color: var(--grey30)
+  background-color: var(--grey30);
 }
 
 .column-delete {
@@ -733,8 +707,8 @@ table {
 
 .forwarding-toggle::after {
   content: "";
-  height: .75rem;
-  width: .75rem;
+  height: 0.75rem;
+  width: 0.75rem;
   position: absolute;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 1);
@@ -761,7 +735,7 @@ table {
 }
 
 .forwarding-disabled {
-  background-color: var(--grey30)
+  background-color: var(--grey30);
 }
 
 .remaining-aliases {
@@ -907,10 +881,10 @@ table {
 .additional-notes {
   display: flex;
   flex-direction: row;
-  margin-top: 1rem;
   position: relative;
   visibility: hidden;
   pointer-events: none;
+  margin: auto auto 0 0;
 }
 
 .show-label.additional-notes {
@@ -929,7 +903,7 @@ table {
   background-position: center center;
   pointer-events: none;
   background-size: contain;
-  opacity: .6;
+  opacity: 0.6;
 }
 
 .user-created-label::after {
@@ -937,7 +911,7 @@ table {
 }
 
 .user-created-label:hover::after {
-  opacity: .6;
+  opacity: 0.6;
 }
 
 .relay-email-address-label:hover {
@@ -1003,23 +977,12 @@ table {
   transition: all 0.3s ease;
 }
 
-.additional-notes {
-  margin: auto auto 0 0;
-}
-
 .primary-email-address {
   font-weight: 600;
 }
 
 .x-close-icon path {
   fill: rgba(255, 255, 255, 1);
-}
-
-/* no aliases screen */
-
-.no-addon-content,
-.create-first-alias {
-  padding-top: 10vh;
 }
 
 .dashboard-greeting {
@@ -1030,10 +993,6 @@ table {
   font-family: var(--metropolis);
 }
 
-.no-aliases {
-  display: none;
-}
-
 .alias-list {
   width: 100%;
 }
@@ -1042,41 +1001,10 @@ table {
   animation: appearSmoothly 0.2s ease;
 }
 
-.invite-only-hl,
-.get-relay-addon,
-.no-active-aliases {
-  font-size: 1.5rem;
-  line-height: 1.5;
-  max-width: 460px;
-}
-
-.get-relay-addon::before,
-.no-active-aliases::before {
-  height: 100px;
-  width: 100px;
-  content: "";
-  background-image: url(/static/images/email-tout.svg);
-  background-repeat: no-repeat;
-  display: block;
-  margin: auto;
-}
-
-.continue-without-addon {
-  padding: 4px 8px;;
-  font-size: 1rem;
-  outline: none;
-  border: none;
-  margin-top: 24px;
-  font-weight: 300;
-  text-decoration: underline;
-}
-
-/* end no aliases screen */
-
-/* details */
-
 .relay-email {
   --emailCardPadding: 16px;
+
+  margin-top: 48px;
 }
 
 .card-top-row {
@@ -1186,9 +1114,6 @@ table {
   margin-top: 4px;
 }
 
-/* end details */
-
-/* modal */
 
 .checkbox-wrapper {
   position: relative;
@@ -1255,7 +1180,7 @@ table {
 .modal-bg {
   position: fixed;
   display: none;
-  background: rgba(0, 0, 0, .4);
+  background: rgba(0, 0, 0, 0.4);
   top: 0;
   bottom: 0;
   left: 0;
@@ -1283,6 +1208,8 @@ table {
 .modal-message {
   font-size: 14px;
   line-height: 1.5;
+  color: var(--grey60);
+  margin: 0 auto 12px auto;
 }
 
 .modal-headline {
@@ -1290,11 +1217,6 @@ table {
   font-size: 22px;
   margin: 0 auto 24px auto;
   color: var(--grey90);
-}
-
-.modal-message {
-  color: var(--grey60);
-  margin: 0 auto 12px auto;
 }
 
 .warning-text {
@@ -1312,7 +1234,7 @@ table {
   display: flex;
   margin-top: 12px;
   padding-top: 16px;
-  border-top: 1px solid rgba(0, 0, 0, .05);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .confirm-delete-action {
@@ -1351,35 +1273,21 @@ table {
 }
 
 .confirm-delete[disabled] {
-  opacity: .7;
+  opacity: 0.7;
   pointer-events: none;
 }
 
 .confirm-delete {
   background-color: var(--warningRed);
   color: rgba(255, 255, 255, 1);
-  margin-left: .5rem;
+  margin-left: 0.5rem;
 }
-
-/* end modal */
-
-/* auth error */
 
 .auth-error-wrapper {
   line-height: 1.4;
   border-radius: 8px;
   padding: 2px;
   margin: 5vh auto auto auto;
-}
-
-/* end auth error */
-
-/* join waitlist */
-
-.invite-only-wrapper {
-  border-radius: 17px;
-  padding: 2px;
-  box-shadow: var(--dropShadowDark);
 }
 
 .invite-only-content {
@@ -1434,7 +1342,7 @@ table {
 }
 
 .invite-only-wrapper.adding-email::after {
-  opacity: .3;
+  opacity: 0.3;
   transition: all 0.2s ease;
 }
 
@@ -1519,7 +1427,7 @@ table {
 
 .num-forwarded,
 .card-enabled .num-blocked {
-  opacity: .4;
+  opacity: 0.4;
   transition: all 0.2s ease;
 }
 
@@ -1539,7 +1447,6 @@ table {
 }
 
 .mobile-menu-toggle {
-  background: transparent;
   border: none;
   outline: none;
   background: #2f2f54;
@@ -1565,13 +1472,13 @@ table {
   margin: auto auto 1px auto;
   right: -26px;
   background-size: contain;
-  opacity: .9;
+  opacity: 0.9;
   transition: all 0.4s ease;
 }
 
 .menu-open .mobile-menu-label::after {
   transform: rotate(180deg);
-  opacity: .5;
+  opacity: 0.5;
   transition: all 0.4s ease;
 }
 
@@ -1583,11 +1490,11 @@ table {
 
 .mobile-menu-link {
   text-align: right;
-  padding: .75rem var(--rowFullWidthHPadding);
+  padding: 0.75rem var(--rowFullWidthHPadding);
 }
 
 .mobile-home-link {
-  border-bottom: 1px solid rgba(255, 255, 255, .04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -1612,7 +1519,7 @@ table {
 }
 
 .mobile-menu-link:hover {
-  background: rgba(0, 0, 0, .05);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .mobile-menu-link:focus {
@@ -1620,10 +1527,8 @@ table {
 }
 
 .mobile-menu-link:active {
-  background: rgba(0, 0, 0, .1)
+  background: rgba(0, 0, 0, 0.1);
 }
-
-/* FAQ */
 
 .faqs-wrapper {
   max-width: 1100px;
@@ -1652,7 +1557,7 @@ table {
   font-size: 1.25rem;
   line-height: 1.3;
   margin-top: 0;
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
 }
 
 .faq-answer {
@@ -1708,11 +1613,6 @@ table {
     justify-content: center;
   }
 
-  .how-it-works {
-    margin-bottom: 0;
-    text-align: center;
-  }
-
   .how-it-works-steps {
     flex-direction: column;
   }
@@ -1731,11 +1631,11 @@ table {
 
   .step-body {
     line-height: 1.5;
-    font-size: .9rem;
+    font-size: 0.9rem;
   }
 
   .step-headline {
-    margin-bottom: .75rem;
+    margin-bottom: 0.75rem;
   }
 }
 
@@ -1769,7 +1669,6 @@ table {
 }
 
 @media screen and (max-width: 750px) {
-
   .fx-private-relay-logotype {
     min-width: 150px;
   }
@@ -1854,17 +1753,15 @@ table {
     --rowFullWidthHPadding: 1.5rem;
   }
 
-  footer {
-    flex-direction: column !important;
-  }
-
+  footer,
   footer nav {
-    flex-direction: column;
+    flex-direction: column !important;
     width: 100%;
   }
 
   .footer-link.moz-logo-link {
     margin: auto auto 1rem auto;
+    max-width: 140px;
   }
 
   .footer-link {
@@ -1873,10 +1770,6 @@ table {
     width: 100%;
     padding-top: 1rem;
     padding-bottom: 1rem;
-  }
-
-  .w-24 {
-    max-width: 140px;
   }
 
   .relay-email {
@@ -1925,8 +1818,8 @@ table {
     padding: 1rem;
   }
 
-  .invite-only-content {
-    padding: 2rem;
+  .waitlist-confirmation-message {
+    font-size: 1rem;
   }
 
   .waitlist-confirmation-message {
@@ -1966,7 +1859,8 @@ table {
   }
 
   .nested-grid,
-  .nested-grid-wrapper {
+  .nested-grid-wrapper,
+  .relay-email-column {
     width: 100%;
   }
 
@@ -1987,10 +1881,6 @@ table {
     margin-bottom: 0;
   }
 
-  .relay-email-column {
-    width: 100%;
-  }
-
   .card-middle-row,
   .details-row {
     flex-direction: column;
@@ -2003,9 +1893,6 @@ table {
 
   .details-column {
     margin: auto 0 10px 0;
-  }
-
-  .details-column {
     flex-direction: row;
     justify-content: space-between;
   }
@@ -2062,8 +1949,6 @@ table {
 }
 
 @media screen and (max-width: 450px) {
-
-
   .step-body,
   .step-headline {
     margin-left: 0;
@@ -2071,7 +1956,7 @@ table {
   }
 
   .step-text {
-    padding-left: .5rem;
+    padding-left: 0.5rem;
   }
 
   .card-top-row {
@@ -2093,24 +1978,21 @@ table {
   }
 
   .confirm-delete-action {
-    margin-left: 0px;
-    margin-right: 0px;
+    margin-left: 0;
+    margin-right: 0;
     min-height: 48px;
   }
 
   .modal-content {
     font-size: 14px;
   }
-
-  /* .fx-private-relay-logotype {
-    display: none;
-  } */
 }
 
 @media screen and (max-width: 400px) {
   body {
     --rowFullWidthHPadding: 1rem;
   }
+
   .container {
     padding-left: 1rem;
     padding-right: 1rem;
