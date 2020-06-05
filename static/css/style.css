@@ -410,10 +410,6 @@ header {
   transition: all 0.3s ease;
 }
 
-.header-top {
-  z-index: 2;
-}
-
 .fix-header {
   position: fixed;
   top: 0;
@@ -1091,6 +1087,11 @@ table {
   margin-top: 4px;
 }
 
+.checkbox-label {
+  font-size: 14px;
+  margin: 6px auto auto 0;
+  color: var(--grey60);
+}
 
 .checkbox-wrapper {
   position: relative;
@@ -1200,10 +1201,19 @@ table {
   color: var(--warningRed);
 }
 
+.alias-to-delete {
+  display: inline;
+  word-wrap: break-word;
+}
+
 .alias-to-delete.demi {
-  display: inline-block;
-  margin: 0 auto 16px auto;
+  display: block;
+  margin: 0 auto 16px 0;
   color: var(--grey80);
+  max-width: 300px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-wrap: unset;
 }
 
 .confirm-delete-actions {
