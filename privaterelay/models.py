@@ -20,4 +20,5 @@ class MonitorSubscriber(models.Model):
         managed = False
 
     primary_email = models.CharField(max_length=255)
+    fxa_uid = models.CharField(max_length=255)
     waitlists_joined = JSONField()
