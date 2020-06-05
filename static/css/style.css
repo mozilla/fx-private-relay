@@ -812,6 +812,7 @@ table {
 }
 
 .hero-left {
+  margin: auto;
   padding: 2rem 2rem 2rem 0;
   border-radius: 24px;
   text-align: left;
@@ -858,6 +859,12 @@ table {
   visibility: hidden;
   pointer-events: none;
   margin: auto auto 0 0;
+}
+
+input::placeholder,
+.relay-email-address-label:placeholder-shown {
+  color: var(--grey50);
+  opacity: 1;
 }
 
 .show-label.additional-notes {

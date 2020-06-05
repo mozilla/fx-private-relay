@@ -16,7 +16,7 @@ async function updateEmailForwardingPrefs(submitEvent) {
   const checkBox = forwardingPrefForm.querySelector("button");
   const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
   const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']");
-  const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}'`);
+  const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}']`);
 
 	const analyticsLabel = (checkBox.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
 	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
