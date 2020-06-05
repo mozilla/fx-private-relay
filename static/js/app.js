@@ -88,17 +88,17 @@ function trapFocusInModal(modalElemClass, restrictFocusToModal=true) {
       elem.tabIndex = "-1";
     }
   });
-};
+}
 
 function deleteAliasConfirmation(submitEvent) {
 	submitEvent.preventDefault();
 	const deleteAliasForm = submitEvent.target;
   const aliasToDelete = deleteAliasForm.dataset.deleteRelay;
-  const confirmDeleteModal = document.querySelector(".modal-bg")
+  const confirmDeleteModal = document.querySelector(".modal-bg");
   const aliasToDeleteEls = confirmDeleteModal.querySelectorAll(".alias-to-delete");
   aliasToDeleteEls.forEach(addressEl => {
     addressEl.textContent = aliasToDelete;
-  })
+  });
 
   confirmDeleteModal.classList.add("show-modal");
   trapFocusInModal("delete-modal", true);
@@ -110,7 +110,7 @@ function deleteAliasConfirmation(submitEvent) {
     checkbox.checked = false;
     confirmDeleteModal.classList.remove("show-modal");
     trapFocusInModal("delete-modal", false);
-  }
+  };
 
   // Close modal if the user clicks the Escape key
   document.addEventListener("keydown", (e) => {
@@ -135,7 +135,7 @@ function deleteAliasConfirmation(submitEvent) {
     } else {
       deleteAnywayBtn.disabled = true;
     }
-  })
+  });
 
 	confirmDeleteModalActions.forEach(btn => {
 		if (btn.classList.contains("cancel-delete")) {
@@ -165,51 +165,6 @@ function isAddonInstallInSessionStorage() {
 	return (sessionStorage && sessionStorage.getItem("addonInstalled", "true"));
 }
 
-function wasDashboardInstallationMessageDismissed() {
-	return ("sessionStorage" in window && sessionStorage.getItem("hideAddonInstallMessage") === "true");
-}
-
-
-function showCtas() {
-	return document.querySelectorAll(".hero-sign-up-bg.invisible").forEach(buttonWrapper => {
-		buttonWrapper.classList.remove("invisible");
-	});
-}
-
-function hideInstallCallout() {
-	if ("sessionStorage" in window) {
-		sessionStorage.setItem("hideAddonInstallMessage", "true");
-	}
-	const installCalloutWrapper = document.querySelector(".no-addon-content");
-	installCalloutWrapper.classList.add("hidden");
-	const createFirstAliasContent = document.querySelector(".create-first-alias");
-	createFirstAliasContent.classList.remove("hidden");
-}
-
-function toggleVisibilityOfElementsIfAddonIsInstalled() {
-	// const elementsToShowIfAddonIsInstalled = document.querySelectorAll("a.sign-in-btn");
-
-	// if (isRelayAddonInstalled()) { // Private Relay add-on IS installed
-	// 	document.querySelectorAll("a.add-to-fx-header").forEach(installCta => {
-	// 		installCta.classList.add("hidden");
-	// 	});
-	// }
-	showCtas();
-
-	const dashboardInstallAddonMessage = document.querySelector(".no-addon-content");
-	if (
-			(dashboardInstallAddonMessage && isRelayAddonInstalled()) ||
-			(dashboardInstallAddonMessage && wasDashboardInstallationMessageDismissed())
-	) {
-		return hideInstallCallout();
-	}
-	if (dashboardInstallAddonMessage && !wasDashboardInstallationMessageDismissed()) {
-		dashboardInstallAddonMessage.classList.remove("hidden");
-		const createFirstAliasContent = document.querySelector(".create-first-alias");
-		createFirstAliasContent.classList.add("hidden");
-		return;
-	}
-}
 
 async function addEmailToWaitlist(e) {
   e.preventDefault();
@@ -269,24 +224,20 @@ function toggleAliasCardDetailsVisibility(aliasCard) {
 function addEventListeners() {
   document.querySelectorAll(".relay-email-card").forEach(aliasCard => {
     const toggleDetailsBtn = aliasCard.querySelector(".toggle-details-visibility");
-    toggleDetailsBtn.addEventListener("click", () => { toggleAliasCardDetailsVisibility(aliasCard) });
+    toggleDetailsBtn.addEventListener("click", () => {
+      toggleAliasCardDetailsVisibility(aliasCard);
+    });
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
     deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
   });
-	document.querySelectorAll(".js-dismiss").forEach(btn => {
-		btn.addEventListener("click", dismissNotification, false);
-	});
 
   document.querySelectorAll(".relay-address.click-copy").forEach(clickToCopy => {
     clickToCopy.addEventListener("click", copyToClipboardAndShowMessage);
   });
-	// Email forwarding toggles
+
+  // Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
 		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
-	});
-
-	document.querySelectorAll(".delete-email-form").forEach(deleteForm => {
-		deleteForm.addEventListener("submit", deleteAliasConfirmation);
 	});
 
 	document.querySelectorAll(".create-new-relay").forEach(createNewRelayBtn => {
@@ -294,11 +245,6 @@ function addEventListeners() {
 			sendGaPing("Create New Relay Alias", "Click", createNewRelayBtn.dataset.analyticsLabel);
 		});
 	});
-
-	const continueWithoutAddonBtn = document.querySelector(".continue-without-addon");
-	if (continueWithoutAddonBtn) {
-		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout);
-  }
 
   const joinWaitlistForm = document.querySelector("#join-waitlist-form");
   if (joinWaitlistForm) {
@@ -311,6 +257,7 @@ function addEventListeners() {
       e.preventDefault();
     });
   }
+
 
   const mobileMenuWrapper = document.querySelector(".mobile-menu");
   if (mobileMenuWrapper) {
@@ -326,6 +273,10 @@ function addEventListeners() {
       return mobileMenuWrapper.style.minHeight = "0";
     });
   }
+
+  document.querySelectorAll(".js-dismiss").forEach(btn => {
+		btn.addEventListener("click", dismissNotification, false);
+	});
 }
 
 // Watch for the addon to update the dataset of <firefox-private-relay-addon></firefox-private-relay-addon>
@@ -338,7 +289,6 @@ function watchForInstalledAddon() {
 	const patrollerDuties = (mutations, mutationPatroller) => {
 		for (const mutation of mutations) {
 			if (mutation.type === "attributes" && isRelayAddonInstalled()) {
-				toggleVisibilityOfElementsIfAddonIsInstalled();
 				if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
 					sessionStorage.setItem("addonInstalled", "true");
 				}
@@ -355,17 +305,24 @@ function watchForInstalledAddon() {
 document.addEventListener("DOMContentLoaded", () => {
 	watchForInstalledAddon();
 	addEventListeners();
-  toggleVisibilityOfElementsIfAddonIsInstalled();
 
   const win = window;
   const header = document.querySelector("header");
 
-  win.onscroll = () => {
-    if (win.pageYOffset > 300) {
+  const setHeader = (yOffset) => {
+    if (yOffset > 300) {
       header.classList.add("fix-header");
     } else {
       header.classList.remove("fix-header");
     }
+  };
+
+  setHeader(win.pageYOffset);
+  win.onscroll = () => {
+    if (win.pageYOffset > 400) {
+      return;
+    }
+    setHeader(win.pageYOffset);
   };
 });
 
