@@ -171,7 +171,6 @@ button:active {
   background-position: center center;
   border-radius: 2px;
   min-height: 32px;
-  max-width: 300px;
   padding: 8px 16px;
   display: flex;
   align-items: center;
@@ -433,6 +432,10 @@ header {
   }
 }
 
+.header-top {
+  z-index: 2;
+}
+
 .main-list {
   min-height: 50vh;
   max-width: 900px;
@@ -470,6 +473,7 @@ ul {
 
 .header-link:hover,
 .header-link:focus,
+
 .footer-link:hover,
 .footer-link:focus {
   opacity: 0.9;
@@ -745,6 +749,24 @@ table {
   padding: 16px;
 }
 
+.dash-create-new-relay::before {
+  margin: auto;
+}
+
+.dash-create-new-relay.btn-disabled:hover {
+  background-color: var(--grey30);
+}
+
+.dash-create-new-relay {
+  background-color: var(--grey30);
+  background-image: url("/static/images/plus-sign.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  padding: 16px;
+}
+
 .dash-create-new-relay:hover {
   background-color: var(--grey40);
 }
@@ -755,14 +777,6 @@ table {
 
 .dash-create-new-relay:active {
   background-color: var(--grey50);
-}
-
-.dash-create-new-relay::before {
-  margin: auto;
-}
-
-.dash-create-new-relay.btn-disabled:hover {
-  background-color: var(--grey30);
 }
 
 .grey-pseudo-styles:hover,
@@ -1278,49 +1292,63 @@ input::placeholder,
 }
 
 .auth-error-wrapper {
-  line-height: 1.4;
-  border-radius: 8px;
-  padding: 2px;
-  margin: 5vh auto auto auto;
+  padding: 4rem 2rem;
+  width: 100%;
+  max-width: 600px;
+}
+
+.waitlist-closed-wrapper {
+  max-width: 800px;
+}
+
+.waitlist-closed-message {
+  max-width: 650px;
+  margin: auto;
+  line-height: 1.5;
 }
 
 .invite-only-content {
-  max-width: 700px;
-  padding: 4rem;
-  width: 100%;
-  background-color: #302e5b;
-  border-radius: 16px;
+  line-height: 1.4;
+  margin: auto auto auto 0;
+  color: var(--grey10);
   position: relative;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
 }
 
 .invite-only-hl {
-  margin: auto auto 20px auto;
+  font-weight: 700;
+  margin: 0 auto 3rem auto;
+  text-align: center;
+  font-size: 3rem;
+  line-height: 1.2;
+  color: rgba(255, 255, 255, 1);
+}
+
+.invite-only-text {
+  font-size: 1.1rem;
+  margin: 0 auto 2rem auto;
 }
 
 .user-avatar {
-  min-height: 80px; /* prevents jumping while loading */
-  max-width: 80px;
-  margin: 20px auto;
+  min-height: 32px; /* prevents jumping while loading */
+  max-width: 32px;
 }
 
 .join-waitlist-submit,
 .join-waitlist-form {
-  width: 100%;
   margin: auto;
 }
 
-.join-waitlist-submit {
-  min-height: 48px;
-  max-width: 260px;
-  font-size: 17px;
-  border: none;
-  margin: 2px;
-  border-radius: 8px;
+.avatar-email-wrapper {
+  margin: auto auto 2rem auto;
 }
 
 .waitlist-user-email {
-  font-weight: 500;
-  margin: auto auto 20px auto;
+  font-weight: 600;
+  color: var(--grey20);
+  margin: auto auto auto 12px;
 }
 
 .invite-only-wrapper::after {
@@ -1329,7 +1357,6 @@ input::placeholder,
   content: "";
   display: block;
   position: absolute;
-  background-color: #302e5b;
   opacity: 0;
   pointer-events: none;
   transition: all 0.2s ease;
@@ -1357,6 +1384,7 @@ input::placeholder,
 .user-on-waitlist-content {
   position: absolute;
   margin: auto;
+  top: 0;
 }
 
 .show-error .waitlist-error,
@@ -1365,23 +1393,53 @@ input::placeholder,
   opacity: 1;
 }
 
-.waitlist-confirmation-hl::before {
+.zap-16 {
+  position: relative;
+  display: inline-block;
+}
+
+.zap-16::after {
+  height: 11px;
+  display: block;
+  background: url("/static/images/zap-16.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  content: "";
+  position: absolute;
+  bottom: -3;
+  left: 0;
+  right: 0;
+}
+
+.waitlist-confirmation-hl {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1rem auto 1.15rem auto;
+}
+
+.green-check {
+  align-items: flex-start;
+  margin: auto auto 1rem auto;
+}
+
+.green-check::before {
   content: "";
   display: block;
   background-color: #2ac3a2;
-  border: 3px solid #3fe1b0;
+  border: 2px solid #3fe1b0;
   background-image: url("/static/images/white-check.svg");
-  background-size: 40px;
+  background-size: 20px;
   background-repeat: no-repeat;
   background-position: center center;
-  height: 60px;
-  width: 60px;
-  margin: auto auto 16px auto;
+  height: 30px;
+  width: 30px;
+  min-width: 30px;
+  margin: auto .75rem auto auto;
   border-radius: 50%;
 }
 
 .waitlist-confirmation-message {
-  max-width: 460px;
+  margin: auto;
 }
 
 .file-an-issue {
@@ -1402,8 +1460,6 @@ input::placeholder,
   display: none !important;
 }
 
-/* .column-forwarded, */
-
 .card-enabled .num-forwarded,
 .card-enabled .column-forwarded,
 .num-blocked,
@@ -1423,8 +1479,6 @@ input::placeholder,
   opacity: 0.4;
   transition: all 0.2s ease;
 }
-
-/* end join waitlist */
 
 .mobile-menu {
   position: relative;
@@ -1804,7 +1858,6 @@ input::placeholder,
 
   header {
     border-bottom: none;
-    /* box-shadow: none; */
   }
 
   .step-text {
@@ -1815,8 +1868,8 @@ input::placeholder,
     font-size: 1rem;
   }
 
-  .waitlist-confirmation-message {
-    font-size: 15px;
+  .waitlist-confirmation-hl {
+    margin-top: 2rem;
   }
 
   .modal-content {
@@ -1842,13 +1895,21 @@ input::placeholder,
     min-width: 100%;
   }
 
-  .invite-only-hl,
-  .no-active-aliases {
-    font-size: 1.2rem;
-  }
-
+  .green-check,
   .grid {
     flex-direction: column;
+  }
+
+  .invite-only-hl {
+    font-size: 2rem;
+  }
+
+  .green-check::before {
+    margin: auto;
+  }
+
+  .invite-only-text {
+    font-size: 1rem;
   }
 
   .nested-grid,

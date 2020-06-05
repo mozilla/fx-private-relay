@@ -2,34 +2,39 @@
 
 {% block content %}
 
-<main id="profile-main" class="flx env-bg container dashboard-container">
-  <div class="appear-smoothly flx flx-col al-cntr jst-cntr auth-error-wrapper">
+<main id="profile-main" class="env-bg dashboard-container flx jst-cntr">
+  <div class="appear-smoothly flx flx-col al-cntr jst-cntr auth-error-wrapper {%if auth_error.exception.args %} waitlist-closed-wrapper {% endif %}">
     <div class="flx flx-col al-cntr jst-cntr auth-error">
       {% if error_message %}
-        <p class="ff-Met no-active-aliases text-center text-light">{{ error_message }}</p>
+        <p class="ff-Met no-active-aliases text-light">{{ error_message }}</p>
       {% else %}
         {% if settings.WAITLIST_OPEN %}
           <div class="invite-only-wrapper flx flx-cntr jst-cntr flx-col al-cntr bg-fx-gradient {% if request.session.already_on_waitlist %} user-on-waitlist {% endif %}">
-            <div class="invite-only-content flx flx-cntr jst-cntr flx-col al-cntr">
+            <p class="ff-Met invite-only-hl">Hello. Firefox Relay is Beta <span class="zap-16">Invite-Only</span></p>
+            <div class="invite-only-content flx flx-cntr jst-cntr flx-col">
               <!-- On waitlist content -->
-              <div class="user-on-waitlist-content waitlist-content flx flx-cntr jst-cntr flx-col al-cntr">
-                <p class="ff-Met invite-only-hl text-center text-light waitlist-confirmation-hl">You're on the list!</p>
-                <p class="text-light-grey text-center waitlist-confirmation-message">
-                  <span class="bold">{{ request.session.waitlist_email }}</span>
-                  has been added to the Private Relay waitlist. We'll let you know when we have more updates to share about this service.
+              <div class="user-on-waitlist-content waitlist-content flx flx-cntr jst-cntr flx-col">
+                <div class="green-check flx flx-row">
+                  <p class="ff-Met waitlist-confirmation-hl">You're on the list for the next release!</p>
+                </div>
+                <p class="waitlist-confirmation-message text-light-grey">
+                  <span class="bold text-light">{{ request.session.waitlist_email }}</span>
+                  has been added to the Relay waitlist. We’ll be in touch with updates about the next release of Relay. Thanks for your interest.
                 </p>
               </div>
               <!-- Join waitlist content-->
-              <div class="join-waitlist-content waitlist-content flx flx-cntr jst-cntr flx-col al-cntr">
-                <p class="ff-Met invite-only-hl text-center text-light">Sorry, the Private Relay Beta is currently by invitation only.</p>
-                <img class="user-avatar" src="{{ request.session.waitlist_avatar }}" alt="User default profile" role="presentation">
-                <span class="waitlist-user-email text-light-grey">{{ request.session.waitlist_email }}</span>
+              <div class="join-waitlist-content waitlist-content flx flx-col">
+                <p class="invite-only-text text-light-grey">We’re so glad you’re interested in joining our next release - use your Firefox account to get on the waitlist!</p>
+                <div class="flx flx-row al-cntr avatar-email-wrapper">
+                    <img class="user-avatar" src="{{ request.session.waitlist_avatar }}" alt="User default profile" role="presentation">
+                    <span class="waitlist-user-email flx">{{ request.session.waitlist_email }}</span>
+                </div>
                 <form class="join-waitlist-form flx jst-cntr" id="join-waitlist-form" method="post" action="{% url 'waitlist' %}">
                   {% csrf_token %}
                   <input type="hidden" name="email" type="hidden" value="{{ request.session.waitlist_email }}">
                   <input type="hidden" name="fxa_uid" type="hidden" value="{{ request.session.waitlist_fxa_uid }}">
                   <input
-                  class="join-waitlist-submit button blue-button text-light"
+                  class="join-waitlist-submit button blue-button puffy"
                   type="submit"
                   data-ga="send-ga-funnel-pings"
                   data-event-category="Join Waitlist"
@@ -40,12 +45,16 @@
               <!-- Waitlist error -->
               <div class="waitlist-error">
                 <p class="ff-Met">Oops, we're sorry but we hit a snag adding your email to the waitlist.</p>
-                <p class="waitlist-confirmation-message">Please try again later or <a class="file-an-issue" href="https://github.com/mozilla/fx-private-relay" target="_blank" rel="noopener noreferrer">file an issue</a>.</p>
+                <p class="waitlist-confirmation-message">Please try again later or <a class="file-an-issue text-light" href="https://github.com/mozilla/fx-private-relay" target="_blank" rel="noopener noreferrer">file an issue</a>.</p>
               </div>
             </div>
           </div>
         {% elif auth_error.exception.args %}
-          <p class="ff-Met no-active-aliases text-center text-light">{{ auth_error.exception.args | first }}</p>
+          <div class="waitlist-closed">
+            <p class="ff-Met invite-only-hl">Welcome to Firefox Private Relay Beta <span class="zap-16">Invite-Only</span></p>
+            <p class="text-center text-light waitlist-closed-message">Were you invited to join the Private Relay beta? Visit the link in your email invitation to complete your registration. <span class="bold">Be sure you are using the same email address you used to join the waitlist.</span></p>
+            <!-- <p class="ff-Met no-active-aliases text-center text-light">{{ auth_error.exception.args | first }}</p> -->
+          </div>
         {% endif %}
       {% endif %}
     </div>
