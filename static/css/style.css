@@ -1203,7 +1203,7 @@ table {
 
 .alias-to-delete {
   display: inline;
-  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .alias-to-delete.demi {
