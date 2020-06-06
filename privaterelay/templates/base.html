@@ -1,3 +1,4 @@
+{% load compress %}
 {% load socialaccount %}
 {% load static %}
 
@@ -7,11 +8,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Firefox Relay</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/inter-ui.css' %}">
-    <link rel="stylesheet" href="{% static 'css/metropolis.css' %}">
-    <link rel="stylesheet" href="{% static 'css/fx-bento.css' %}">
-    <link rel="stylesheet" href="{% static 'css/glocal-menu.css' %}">
+    {% compress css %}
+      <link rel="stylesheet" href="{% static 'css/style.css' %}">
+      <link rel="stylesheet" href="{% static 'css/inter-ui.css' %}">
+      <link rel="stylesheet" href="{% static 'css/metropolis.css' %}">
+      <link rel="stylesheet" href="{% static 'css/fx-bento.css' %}">
+      <link rel="stylesheet" href="{% static 'css/glocal-menu.css' %}">
+    {% endcompress %}
     <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
   </head>
   <body data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}">
@@ -22,9 +25,11 @@
     {% endblock %}
 
     {% include "includes/footer.html" %}
-    <script type="text/javascript" src="{% static 'js/clipboard.min.js' %}" charset="utf-8"></script>
-    <script src="{% static 'js/fx-bento.js' %}"></script>
-    <script src="{% static 'js/app.js' %}"></script>
-    <script src="{% static 'js/analytics.js' %}"></script>
+
+    {% compress js %}
+      <script src="{% static 'js/fx-bento.js' %}"></script>
+      <script src="{% static 'js/app.js' %}"></script>
+      <script src="{% static 'js/analytics.js' %}"></script>
+    {% endcompress %}
   </body>
 </html>
