@@ -137,8 +137,6 @@ a {
 }
 
 .sub-head {
-  font-weight: 300;
-  margin: 0 auto 32px auto;
   font-size: 1.15em;
   line-height: 1.4;
 }
@@ -725,14 +723,14 @@ table {
   background-color: var(--grey30);
 }
 
-.emaining-aliases {
+.remaining-aliases {
   font-family: var(--metropolis);
   font-size: 1em;
   font-weight: 300;
   margin-top: 0.75em;
 }
 
-.num-emaining-aliases {
+.num-remaining-aliases {
   font-weight: 600;
 }
 
@@ -1592,7 +1590,7 @@ input::placeholder,
 }
 
 .faqs-headline {
-  margin: 4em 0;
+  margin: 3em 0 2em;
   font-size: 2em;
 }
 
@@ -1644,10 +1642,6 @@ input::placeholder,
     justify-content: center;
     align-items: center;
     text-align: center;
-  }
-
-  .hero-sub-head {
-    margin: 0 auto 32px auto;
   }
 
   .hero-right {
