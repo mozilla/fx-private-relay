@@ -2,6 +2,7 @@
 {% load relay_tags %}
 
 
-<span class="remaining-aliases">
-  <span class="num-remaining-aliases">{% remaining_free_aliases relay_addresses %}</span> remaining free email aliases
+<span class="remaining-aliases flx">
+  <span class="num-remaining-aliases bold">
+    {% remaining_free_aliases relay_addresses %}</span> remaining free email {% if relay_addresses|length == 4 %}address{% else %} addresses {% endif %}
 </span>

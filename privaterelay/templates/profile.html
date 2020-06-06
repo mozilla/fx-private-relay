@@ -33,12 +33,10 @@
           </div>
         </div>
         <div class="flx flx-row flx-end inset">
-          <div class="show-750">
-            <span class="remaining-aliases">
-              <span class="num-remaining-aliases">{% remaining_free_aliases relay_addresses %}</span> remaining free email aliases
-            </span>
+          <div class="show-750 flx al-cntr">
+            {% include "includes/remaining-aliases.html" %}
           </div>
-          <form action="/emails/" method="POST">
+          <form action="/emails/" class="dash-create" method="POST">
             <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
             <button
             class="dash-create-new-relay flx al-cntr jst-cntr {%if relay_addresses|length == settings.MAX_NUM_BETA_ALIASES %} btn-disabled {% endif %}"
