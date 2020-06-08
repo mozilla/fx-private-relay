@@ -34,7 +34,7 @@
       aliasLabelInput.placeholder = defaultAliasLabelText;
     }
 
-    const forbiddenCharacters = `{}()=;-<>`;
+    const forbiddenCharacters = `{}()=;-<>'"`;
     aliasLabelInput.addEventListener("keydown", (e) => {
       const typedChar = e.key;
       if (aliasLabelInput.classList.contains("input-has-error")) {
