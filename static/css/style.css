@@ -496,7 +496,7 @@ ul {
 .dashboard-header {
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 1em;
+  padding-bottom: .5em;
   margin-bottom: 1em;
   border-bottom: 2px solid var(--grey30);
 }
@@ -667,6 +667,7 @@ table {
   line-height: 1;
   margin-bottom: 6px;
   font-weight: 700;
+  font-family: var(--metropolis);
 }
 
 .forwarding-toggle {
@@ -727,7 +728,6 @@ table {
   font-family: var(--metropolis);
   font-size: 1em;
   font-weight: 300;
-  margin-top: 0.75em;
 }
 
 .num-remaining-aliases {
