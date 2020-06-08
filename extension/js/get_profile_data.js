@@ -38,13 +38,12 @@
     aliasLabelInput.addEventListener("keydown", (e) => {
       const typedChar = e.key;
       if (aliasLabelInput.classList.contains("input-has-error")) {
-        if (typedChar === "Backspace") {
-          aliasLabelInput.classList.remove("input-has-error");
-          aliasLabelWrapper.classList.remove("show-input-error");
-        } else {
+        if (typedChar !== "Backspace") {
           e.preventDefault();
           return;
         }
+        aliasLabelInput.classList.remove("input-has-error");
+        aliasLabelWrapper.classList.remove("show-input-error");
       }
       if (forbiddenCharacters.includes(typedChar)) {
         aliasLabelInput.classList.add("input-has-error");
