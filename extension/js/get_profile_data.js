@@ -9,21 +9,90 @@
   const addonRelayAddresses = (Object.keys(addonStorageRelayAddresses).length === 0) ? {relayAddresses: []} : addonStorageRelayAddresses;
 
   // Loop over the addresses on the page
-  const relayAddressElements = document.querySelectorAll(".relay-address");
+  const dashboardRelayAliasCards = document.querySelectorAll("[data-relay-address]");
   const relayAddresses = [];
-  for (const relayAddressEl of relayAddressElements) {
+
+  for (const aliasCard of dashboardRelayAliasCards) {
     // Add the domain note from the addon storage to the page
-    const relayAddressId = relayAddressEl.dataset.id;
-    const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == relayAddressId)[0];
-    const addonRelayAddressDomain = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
-    relayAddressEl.parentElement.parentElement.querySelector('.relay-email-address-note').textContent = addonRelayAddressDomain
+    const aliasCardData = aliasCard.dataset;
+    const aliasId = aliasCardData.relayAddressId;
+    const addonRelayAddress = addonRelayAddresses.relayAddresses.filter(address => address.id == aliasId)[0];
+
+    const defaultAliasLabelText = "Add alias label";
+    const storedAliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
+
+    const aliasLabelInput = aliasCard.querySelector('input.relay-email-address-label');
+    const aliasLabelWrapper = aliasLabelInput.parentElement;
+    aliasLabelWrapper.classList.add("show-label"); // Field is visible only to users who have the addon installed
+
+    aliasLabelInput.dataset.label = storedAliasLabel;
+
+    if (storedAliasLabel !== "") {
+      aliasLabelInput.value = storedAliasLabel;
+      aliasLabelWrapper.classList.add("user-created-label");
+    } else {
+      aliasLabelInput.placeholder = defaultAliasLabelText;
+    }
+
+    const forbiddenCharacters = `{}()=;-<>'"`;
+    aliasLabelInput.addEventListener("keydown", (e) => {
+      const typedChar = e.key;
+      if (aliasLabelInput.classList.contains("input-has-error")) {
+        if (typedChar !== "Backspace") {
+          e.preventDefault();
+          return;
+        }
+        aliasLabelInput.classList.remove("input-has-error");
+        aliasLabelWrapper.classList.remove("show-input-error");
+      }
+      if (forbiddenCharacters.includes(typedChar)) {
+        aliasLabelInput.classList.add("input-has-error");
+        aliasLabelWrapper.querySelector(".forbidden-char").textContent = e.key;
+        aliasLabelWrapper.classList.add("show-input-error");
+      }
+    })
+
+    aliasLabelInput.addEventListener("focusout", () => {
+      const newAliasLabel = aliasLabelInput.value;
+
+      // Don't save labels containing forbidden characters
+      if (aliasLabelInput.classList.contains("input-has-error")) {
+        return;
+      }
+
+      // Don't show saved confirmation message if the label hasn't changed
+      if (newAliasLabel === aliasLabelInput.dataset.label) {
+        return;
+      }
+
+      // Save new alias label
+      const updatedRelayAddress = relayAddresses.filter(address => address.id == aliasId)[0];
+      updatedRelayAddress.domain = newAliasLabel;
+      browser.storage.local.set({relayAddresses});
+
+      // show placeholder text if the label is blank
+      if (aliasLabelInput.value === "") {
+        aliasLabelWrapper.classList.remove("user-created-label");
+        aliasLabelInput.placeholder = defaultAliasLabelText;
+      } else {
+        aliasLabelWrapper.classList.add("user-created-label");
+        aliasLabelWrapper.classList.add("show-saved-confirmation");
+      }
+
+      aliasLabelInput.dataset.label = newAliasLabel;
+      setTimeout(()=> {
+        aliasLabelWrapper.classList.remove("show-saved-confirmation");
+      }, 1000);
+
+    });
 
     // Get and store the relay addresses from the account profile page,
     // so they can be used later, even if the API endpoint is down
+
     const relayAddress = {
-      "id": relayAddressEl.dataset.id,
-      "address": relayAddressEl.dataset.clipboardText,
-      "domain": addonRelayAddressDomain,
+      "id": aliasId,
+      "address": aliasCardData.relayAddress,
+      "domain": storedAliasLabel,
     };
     relayAddresses.push(relayAddress);
   }

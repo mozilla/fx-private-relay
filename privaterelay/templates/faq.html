@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+{% load socialaccount %}
+
+{% block content %}
+  <main class="flx flx-col container faqs-wrapper">
+    <h1 class="faqs-headline">Frequently Asked Questions</h1>
+    <div class="faqs flx flx-row spc-btwn">
+      <section class="faq">
+        <h2 class="faq-headline">
+          How can I join the private beta?
+        </h2>
+        <p class="faq-answer">
+          First, you’ll need a Firefox account. Then, use your account to sign up for the waiting list. When a spot opens, we’ll send you an email with a link you can use to complete registration and start using Relay.
+        </p>
+      </section>
+      <section class="faq">
+        <h2 class="faq-headline">
+          Is Relay available only in the US?
+        </h2>
+        <p class="faq-answer">
+          The site is currently only available in English, but you can use the service anywhere.
+        </p>
+      </section>
+      <section class="faq">
+        <h2 class="faq-headline">
+          What about spam?
+        </h2>
+        <p class="faq-answer">
+          We use Amazon SES as our Email Service Provider, which enforces industry standard spam controls. We also have the ability to enforce even more strict spam filtering.      </p>
+      </section>
+      <section class="faq">
+        <h2 class="faq-headline">
+          What happens if I reply to a relay email?
+        </h2>
+        <p class="faq-answer">
+          We don’t yet offer the ability to reply with the relay address. If you try, nothing will happen. We are working on additional features to let you reply with a nice message or reply anonymously to senders.
+        </p>
+      </section>
+    </div>
+  </main>
+{% endblock %}

@@ -191,6 +191,7 @@ a.fx-bento-app-link {
   width: 100%;
   border: 1px solid transparent; /* Creates outline in high-contrast modes */
   pointer-events: all;
+  background: transparent;
 }
 
 .fx-bento-button:hover,

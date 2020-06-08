@@ -44,6 +44,16 @@ def home(request):
     return render(request, 'home.html')
 
 
+def faq(request):
+  if (not request.user or request.user.is_anonymous):
+    return render(request, 'faq.html')
+  fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
+  avatar = fxa_account.extra_data['avatar'] if fxa_account else None
+  return render(request, 'faq.html', {
+    'avatar': avatar
+  })
+
+
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect('/')

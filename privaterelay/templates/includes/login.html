@@ -4,9 +4,6 @@
 {% block content %}
 
 <div class="user-area flx flx-row al-cntr">
-	{% if not request.user.is_anonymous %}
-		<a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="add-to-fx-header add-to-fx ff-Met">Add to Firefox</a>
-	{% endif %}
 	<firefox-apps></firefox-apps>
 	{% if request.user.is_anonymous %}
     <a
@@ -37,7 +34,7 @@
 						{% if redirect_field_value %}
 							<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
 						{% endif %}
-						<button class="glocal-sign-out glocal-site-option" type="submit">Sign Out of Private Relay</button>
+						<button class="glocal-sign-out glocal-site-option" type="submit">Sign Out of Relay</button>
 					</form>
 				</div>
 			</div>

@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Firefox Private Relay</title>
+    <title>Firefox Relay</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/inter-ui.css' %}">
     <link rel="stylesheet" href="{% static 'css/metropolis.css' %}">
@@ -16,6 +16,7 @@
   </head>
   <body data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}">
     <firefox-private-relay-addon data-addon-installed="false"></firefox-private-relay-addon>
+    {% include "includes/modal.html" %}
     {% include "includes/header.html" %}
     {% block content %}
     {% endblock %}

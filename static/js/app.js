@@ -13,7 +13,11 @@ async function updateEmailForwardingPrefs(submitEvent) {
 	submitEvent.preventDefault();
 
 	const forwardingPrefForm = submitEvent.target;
-	const checkBox = forwardingPrefForm.querySelector("button");
+  const checkBox = forwardingPrefForm.querySelector("button");
+  const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
+  const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']");
+  const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}']`);
+
 	const analyticsLabel = (checkBox.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
 	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
@@ -28,9 +32,13 @@ async function updateEmailForwardingPrefs(submitEvent) {
 		checkBox.classList.toggle("forwarding-disabled");
 		if (checkBox.value === "Enable") {
       checkBox.title = "Disable email forwarding for this alias";
+      toggleLabel.textContent = "enabled";
+      wrappingEmailCard.classList.add("card-enabled");
 			return checkBox.value = "Disable";
 		} else if (checkBox.value === "Disable") {
       checkBox.title="Enable email forwarding to this alias";
+      toggleLabel.textContent = "disabled";
+      wrappingEmailCard.classList.remove("card-enabled");
 			return checkBox.value = "Enable";
 		}
 	}
@@ -68,23 +76,72 @@ function copyToClipboardAndShowMessage(e) {
   return navigator.clipboard.writeText(aliasToCopy);
 }
 
+
+function trapFocusInModal(modalElemClass, restrictFocusToModal=true) {
+  if (!restrictFocusToModal) {
+    return document.querySelectorAll("[tabindex='-1']").forEach(elem => {
+      elem.tabIndex = "0";
+    });
+  }
+  document.querySelectorAll("input, a, button, [tabindex]").forEach(elem => {
+    if (!elem.classList.contains(modalElemClass)) {
+      elem.tabIndex = "-1";
+    }
+  });
+}
+
 function deleteAliasConfirmation(submitEvent) {
 	submitEvent.preventDefault();
 	const deleteAliasForm = submitEvent.target;
+  const aliasToDelete = deleteAliasForm.dataset.deleteRelay;
+  const confirmDeleteModal = document.querySelector(".modal-bg");
+  const aliasToDeleteEls = confirmDeleteModal.querySelectorAll(".alias-to-delete");
+  aliasToDeleteEls.forEach(addressEl => {
+    addressEl.textContent = aliasToDelete;
+  });
 
-	const confirmDeleteModal = deleteAliasForm.nextElementSibling;
-	confirmDeleteModal.classList.remove("hidden");
+  confirmDeleteModal.classList.add("show-modal");
+  trapFocusInModal("delete-modal", true);
+  sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
+  const checkbox = confirmDeleteModal.querySelector(".checkbox");
+  checkbox.focus();
 
-	const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
-	confirmDeleteModalActions[0].focus();
+  const closeModal = () => {
+    checkbox.checked = false;
+    confirmDeleteModal.classList.remove("show-modal");
+    trapFocusInModal("delete-modal", false);
+  };
 
-	sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
+  // Close modal if the user clicks the Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key && e.key === "Escape") {
+      closeModal();
+    }
+  });
+
+  // Close the modal if the user clicks outside the modal
+  confirmDeleteModal.addEventListener("click", (e) => {
+    if (e.target.classList && e.target.classList.contains("show-modal")) {
+      closeModal();
+    }
+  });
+
+  // Enable "Delete Anyway" button once the checkbox has been clicked.
+  const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
+  const deleteAnywayBtn = confirmDeleteModalActions[1];
+  checkbox.addEventListener("change", (e) => {
+    if (checkbox.checked) {
+      deleteAnywayBtn.disabled = false;
+      return;
+    }
+    deleteAnywayBtn.disabled = true;
+  });
 
 	confirmDeleteModalActions.forEach(btn => {
 		if (btn.classList.contains("cancel-delete")) {
 			btn.addEventListener("click", () => {
-				sendGaPing("Dashboard Alias Settings", "Delete Alias", "Cancel Delete");
-				confirmDeleteModal.classList.add("hidden");
+        sendGaPing("Dashboard Alias Settings", "Delete Alias", "Cancel Delete");
+        closeModal();
 			});
 		}
 		if (btn.classList.contains("confirm-delete")) {
@@ -108,58 +165,6 @@ function isAddonInstallInSessionStorage() {
 	return (sessionStorage && sessionStorage.getItem("addonInstalled", "true"));
 }
 
-function wasDashboardInstallationMessageDismissed() {
-	return ("sessionStorage" in window && sessionStorage.getItem("hideAddonInstallMessage") === "true");
-}
-
-
-function showCtas() {
-	return document.querySelectorAll(".hero-sign-up-bg.invisible").forEach(buttonWrapper => {
-		buttonWrapper.classList.remove("invisible");
-	});
-}
-
-function hideInstallCallout() {
-	if ("sessionStorage" in window) {
-		sessionStorage.setItem("hideAddonInstallMessage", "true");
-	}
-	const installCalloutWrapper = document.querySelector(".no-addon-content");
-	installCalloutWrapper.classList.add("hidden");
-	const createFirstAliasContent = document.querySelector(".create-first-alias");
-	createFirstAliasContent.classList.remove("hidden");
-}
-
-function toggleVisibilityOfElementsIfAddonIsInstalled() {
-	const elementsToShowIfAddonIsInstalled = document.querySelectorAll("a.sign-in-btn");
-
-	if (isRelayAddonInstalled()) { // Private Relay add-on IS installed
-		document.querySelectorAll("a.add-to-fx, a.add-to-fx-header").forEach(installCta => {
-			installCta.classList.add("hidden");
-		});
-		elementsToShowIfAddonIsInstalled.forEach(elem => {
-			elem.classList.remove("hidden");
-		});
-	} else { // Private Relay add-on is not installed
-		elementsToShowIfAddonIsInstalled.forEach(elem => {
-			elem.classList.add("hidden");
-		});
-	}
-	showCtas();
-
-	const dashboardInstallAddonMessage = document.querySelector(".no-addon-content");
-	if (
-			(dashboardInstallAddonMessage && isRelayAddonInstalled()) ||
-			(dashboardInstallAddonMessage && wasDashboardInstallationMessageDismissed())
-	) {
-		return hideInstallCallout();
-	}
-	if (dashboardInstallAddonMessage && !wasDashboardInstallationMessageDismissed()) {
-		dashboardInstallAddonMessage.classList.remove("hidden");
-		const createFirstAliasContent = document.querySelector(".create-first-alias");
-		createFirstAliasContent.classList.add("hidden");
-		return;
-	}
-}
 
 async function addEmailToWaitlist(e) {
   e.preventDefault();
@@ -196,21 +201,43 @@ async function addEmailToWaitlist(e) {
 }
 
 
+function toggleAliasCardDetailsVisibility(aliasCard) {
+  const detailsWrapper = aliasCard.querySelector(".details-wrapper");
+  aliasCard.classList.toggle("show-card-details");
+
+  const resizeAliasDetails = () => {
+    if (aliasCard.classList.contains("show-card-details")) {
+      aliasCard.style.paddingBottom = `${detailsWrapper.clientHeight}px`;
+    }
+  };
+
+  if (aliasCard.classList.contains("show-card-details")) {
+    resizeAliasDetails();
+    window.addEventListener("resize", resizeAliasDetails);
+    return;
+  }
+  aliasCard.style.paddingBottom = "0";
+  window.removeEventListener("resize", resizeAliasDetails);
+}
+
+
 function addEventListeners() {
-	document.querySelectorAll(".js-dismiss").forEach(btn => {
-		btn.addEventListener("click", dismissNotification, false);
-	});
+  document.querySelectorAll(".relay-email-card").forEach(aliasCard => {
+    const toggleDetailsBtn = aliasCard.querySelector(".toggle-details-visibility");
+    toggleDetailsBtn.addEventListener("click", () => {
+      toggleAliasCardDetailsVisibility(aliasCard);
+    });
+    const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
+    deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
+  });
 
   document.querySelectorAll(".relay-address.click-copy").forEach(clickToCopy => {
     clickToCopy.addEventListener("click", copyToClipboardAndShowMessage);
   });
-	// Email forwarding toggles
+
+  // Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
 		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
-	});
-
-	document.querySelectorAll(".delete-email-form").forEach(deleteForm => {
-		deleteForm.addEventListener("submit", deleteAliasConfirmation);
 	});
 
 	document.querySelectorAll(".create-new-relay").forEach(createNewRelayBtn => {
@@ -219,15 +246,37 @@ function addEventListeners() {
 		});
 	});
 
-	const continueWithoutAddonBtn = document.querySelector(".continue-without-addon");
-	if (continueWithoutAddonBtn) {
-		continueWithoutAddonBtn.addEventListener("click", hideInstallCallout);
-  }
-
   const joinWaitlistForm = document.querySelector("#join-waitlist-form");
   if (joinWaitlistForm) {
     joinWaitlistForm.addEventListener("submit", addEmailToWaitlist);
   }
+
+  const disabledDashboardButton = document.querySelector(".btn-disabled");
+  if (disabledDashboardButton) {
+    disabledDashboardButton.addEventListener("click", (e) => {
+      e.preventDefault();
+    });
+  }
+
+
+  const mobileMenuWrapper = document.querySelector(".mobile-menu");
+  if (mobileMenuWrapper) {
+    const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
+    const mobileMenuLinks = document.querySelector(".mobile-menu-links");
+    mobileMenuButton.addEventListener("click", () => {
+      mobileMenuWrapper.classList.toggle("menu-open");
+      if (mobileMenuWrapper.classList.contains("menu-open")) {
+        mobileMenuLinks.style.top = mobileMenuWrapper.clientHeight + "px";
+       return mobileMenuWrapper.style.minHeight = mobileMenuLinks.clientHeight + mobileMenuWrapper.clientHeight + "px";
+      }
+      mobileMenuLinks.style.top = "0";
+      return mobileMenuWrapper.style.minHeight = "0";
+    });
+  }
+
+  document.querySelectorAll(".js-dismiss").forEach(btn => {
+		btn.addEventListener("click", dismissNotification, false);
+	});
 }
 
 // Watch for the addon to update the dataset of <firefox-private-relay-addon></firefox-private-relay-addon>
@@ -240,7 +289,6 @@ function watchForInstalledAddon() {
 	const patrollerDuties = (mutations, mutationPatroller) => {
 		for (const mutation of mutations) {
 			if (mutation.type === "attributes" && isRelayAddonInstalled()) {
-				toggleVisibilityOfElementsIfAddonIsInstalled();
 				if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
 					sessionStorage.setItem("addonInstalled", "true");
 				}
@@ -255,9 +303,27 @@ function watchForInstalledAddon() {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-	watchForInstalledAddon();
-	addEventListeners();
-	toggleVisibilityOfElementsIfAddonIsInstalled();
+  watchForInstalledAddon();
+  addEventListeners();
+
+  const win = window;
+  const header = document.querySelector("header");
+
+  const setHeader = (yOffset) => {
+    if (yOffset > 300) {
+      header.classList.add("fix-header");
+      return;
+    }
+    header.classList.remove("fix-header");
+  };
+
+  setHeader(win.pageYOffset);
+  win.onscroll = () => {
+    if (win.pageYOffset > 400) {
+      return;
+    }
+    setHeader(win.pageYOffset);
+  };
 });
 
 class GlocalMenu extends HTMLElement {
