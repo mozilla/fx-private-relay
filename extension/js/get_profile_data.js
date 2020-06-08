@@ -65,17 +65,20 @@
         return;
       }
 
+      // Save new alias label
+      const updatedRelayAddress = relayAddresses.filter(address => address.id == aliasId)[0];
+      updatedRelayAddress.domain = newAliasLabel;
+      browser.storage.local.set({relayAddresses});
+
       // show placeholder text if the label is blank
       if (aliasLabelInput.value === "") {
         aliasLabelWrapper.classList.remove("user-created-label");
         aliasLabelInput.placeholder = defaultAliasLabelText;
       } else {
-      aliasLabelWrapper.classList.add("user-created-label");
-      aliasLabelWrapper.classList.add("show-saved-confirmation");
+        aliasLabelWrapper.classList.add("user-created-label");
+        aliasLabelWrapper.classList.add("show-saved-confirmation");
       }
-      const updatedRelayAddress = relayAddresses.filter(address => address.id == aliasId)[0];
-      updatedRelayAddress.domain = newAliasLabel;
-      browser.storage.local.set({relayAddresses});
+
       aliasLabelInput.dataset.label = newAliasLabel;
       setTimeout(()=> {
         aliasLabelWrapper.classList.remove("show-saved-confirmation");

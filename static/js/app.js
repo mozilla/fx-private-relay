@@ -303,8 +303,8 @@ function watchForInstalledAddon() {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-	watchForInstalledAddon();
-	addEventListeners();
+  watchForInstalledAddon();
+  addEventListeners();
 
   const win = window;
   const header = document.querySelector("header");
