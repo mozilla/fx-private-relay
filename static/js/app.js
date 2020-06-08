@@ -132,9 +132,9 @@ function deleteAliasConfirmation(submitEvent) {
   checkbox.addEventListener("change", (e) => {
     if (checkbox.checked) {
       deleteAnywayBtn.disabled = false;
-    } else {
-      deleteAnywayBtn.disabled = true;
+      return;
     }
+    deleteAnywayBtn.disabled = true;
   });
 
 	confirmDeleteModalActions.forEach(btn => {
@@ -214,10 +214,10 @@ function toggleAliasCardDetailsVisibility(aliasCard) {
   if (aliasCard.classList.contains("show-card-details")) {
     resizeAliasDetails();
     window.addEventListener("resize", resizeAliasDetails);
-  } else {
-    aliasCard.style.paddingBottom = "0";
-    window.removeEventListener("resize", resizeAliasDetails);
+    return;
   }
+  aliasCard.style.paddingBottom = "0";
+  window.removeEventListener("resize", resizeAliasDetails);
 }
 
 
@@ -312,9 +312,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const setHeader = (yOffset) => {
     if (yOffset > 300) {
       header.classList.add("fix-header");
-    } else {
-      header.classList.remove("fix-header");
+      return;
     }
+    header.classList.remove("fix-header");
   };
 
   setHeader(win.pageYOffset);
