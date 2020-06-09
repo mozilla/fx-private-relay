@@ -90,7 +90,11 @@ function getEmailInputsAndAddIcon() {
   }
 }
 
-(function() {
+(async function() {
+  const inputIconPref = await browser.storage.local.get("showInputIcons");
+  if (inputIconPref.showInputIcons !== "show-input-icons") {
+    return;
+  }
   // Catch all immediately findable email inputs
   getEmailInputsAndAddIcon();
 
