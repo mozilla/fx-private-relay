@@ -179,10 +179,11 @@ def fxa_rp_events(request):
 
     for event_key in event_keys:
         if (event_key == FXA_PROFILE_CHANGE_EVENT):
-            logger.info('fxa_profile_update', extra={
-                'jwt': authentic_jwt,
-                'event_key': event_key,
-            })
+            if settings.DEBUG:
+                logger.info('fxa_profile_update', extra={
+                    'jwt': authentic_jwt,
+                    'event_key': event_key,
+                })
             _handle_fxa_profile_change(
                 authentic_jwt, social_account, event_key
             )
