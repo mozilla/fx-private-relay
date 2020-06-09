@@ -1,6 +1,7 @@
 const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
 
 browser.storage.local.set({ "maxNumAliases": 5 });
+browser.storage.local.set({ "showInputIcons": "show-input-icons" });
 
 async function makeRelayAddress(domain=null) {
   const apiToken = await browser.storage.local.get("apiToken");
@@ -84,6 +85,9 @@ browser.runtime.onMessage.addListener(async (m) => {
   switch (m.method) {
     case "makeRelayAddress":
       response = await makeRelayAddress(m.domain);
+      break;
+    case "updateInputIconPref":
+      browser.storage.local.set({ "showInputIcons" : m.iconPref });
       break;
   }
 
