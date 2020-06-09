@@ -46,14 +46,9 @@ async function updatePanelValues() {
 
   const remainingAliasMessage = document.querySelector(".aliases-remaining");
   const numRemainingEl = remainingAliasMessage.querySelector(".num-aliases-remaining");
-  // const aliasCreationEl = document.querySelector("alias-creation");
-  // const createAliasBtn = aliasCreationEl.querySelector(".create-new-alias");
   const numRemaining = maxNumAliases - relayAddresses.length;
-
-  const noAliases = (relayAddresses && relayAddresses.length === 0);
-  const manageAliasesText = "Manage Aliases";
-  const footerButton = document.querySelector(".footer-button");
-  footerButton.textContent = noAliases ? "View Dashboard" : manageAliasesText;
+  const maxNumAliasesEl = remainingAliasMessage.querySelector(".max-num-aliases");
+  maxNumAliasesEl.textContent = `/${maxNumAliases}`;
 
   numRemainingEl.textContent = numRemaining;
 
@@ -62,12 +57,6 @@ async function updatePanelValues() {
     createAliasBtn.disabled = false;
 
   }
-
-  // if (numRemaining === 0) {
-  //   aliasCreationEl.classList.add("disabled");
-  //   createAliasBtn.disabled = true;
-  //   return;
-  // }
 
   // adjust plural/singular form of the word "alias" if there is 1 remaining alias
   if (numRemaining === 1) {
@@ -124,64 +113,6 @@ async function popup() {
   enableSettingsPanel();
   enableInputIconDisabling();
   updatePanelValues();
-
-
-  // const { relayAddresses } = await getAllAliases();
-
-  // const aliasListWrapper = document.querySelector("alias-list");
-  // const aliasListHeader = aliasListWrapper.querySelector("alias-list-header");
-
-  // const createAliasListItem = (alias) => {
-  //   const aliasEl = document.createElement("alias");
-  //   const aliasAddress = document.createElement("alias-list-address");
-  //   aliasAddress.textContent = alias.address;
-  //   aliasEl.appendChild(aliasAddress);
-
-  //   const aliasDomainEl = document.createElement("alias-list-domain");
-  //   aliasDomainEl.textContent = (!alias.domain || alias.domain === "") ? "" : alias.domain;
-  //   aliasEl.appendChild(aliasDomainEl);
-
-  //   const copyToClipboard = document.createElement("button");
-  //   copyToClipboard.classList = ["copy-to-clipboard"];
-  //   copyToClipboard.title = "Copy alias to clipboard";
-  //   copyToClipboard.dataset.relayAddress = alias.address;
-
-  //   copyToClipboard.addEventListener("click", (e) => {
-  //     const copyBtn  = e.target;
-  //     copyAliasToClipboard(copyBtn);
-  //   });
-  //   aliasEl.appendChild(copyToClipboard);
-  //   return aliasListWrapper.appendChild(aliasEl);
-  // };
-
-  // relayAddresses.forEach(relayAddress => {
-  //   createAliasListItem(relayAddress);
-  // });
-
-  // document.querySelectorAll(".create-new-alias").forEach(generateAliasBtn => {
-  //   generateAliasBtn.addEventListener("click", async() => {
-  //     const newRelayAddressResponse =  await makeNewAlias();
-  //     if (!newRelayAddressResponse) {
-  //       return;
-  //     }
-
-  //     if (newRelayAddressResponse.status === 402) {
-  //       return updatePanelValues();
-  //     }
-
-  //     if (aliasListHeader.classList.contains("hidden")) {
-  //       aliasListHeader.classList.remove("hidden");
-  //     }
-
-  //     updatePanelValues();
-
-  //     // Add newly created alias to alias list
-  //     // createAliasListItem(newRelayAddressResponse);
-  //     const newlyCreatedAlias = document.querySelector(`button[data-relay-address="${newRelayAddressResponse.address}"]`);
-  //     copyAliasToClipboard(newlyCreatedAlias);
-  //     newlyCreatedAlias.focus();
-  //   });
-  // });
 
   document.querySelectorAll(".close-popup-after-click").forEach(el => {
     el.addEventListener("click", async (e) => {

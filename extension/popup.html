@@ -14,6 +14,7 @@
         <logotype></logotype>
         <button class="open-settings settings-toggle" title="Settings"></button>
       </logo-wrapper>
+
       <settings>
         <div class="settings-header">
           <button class="close-settings settings-toggle" title="Return to main panel"></button>
@@ -42,9 +43,9 @@
       </sign-up-panel>
 
       <main-panel class="signed-in-panel hidden">
-          <p class="ff-Met aliases-remaining text-center remaining-plural">You have <span class="num-aliases-remaining"></span> remaining free <span class="alias-text">aliases</span></p>
+          <p class="ff-Met aliases-remaining text-center remaining-plural">You have <span class="num-aliases-remaining"></span><span class="ff-Met max-num-aliases"></span></span> relay addresses remaining</p>
         <footer>
-          <a class="button new-tab close-popup-after-click footer-button" href="http://127.0.0.1:8000/accounts/profile?utm_source=addon&utm_medium=popup"></a>
+          <a class="button new-tab close-popup-after-click footer-button" href="http://127.0.0.1:8000/accounts/profile?utm_source=addon&utm_medium=popup">Manage Relay Addresses</a>
         </footer>
       </main-panel>
     </panel-content>
