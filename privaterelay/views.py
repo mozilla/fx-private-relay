@@ -15,6 +15,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -40,7 +41,7 @@ jwt_instance = JWT()
 
 def home(request):
     if (request.user and not request.user.is_anonymous):
-        return redirect('/accounts/profile/')
+        return redirect(reverse('profile'))
     return render(request, 'home.html')
 
 
@@ -56,7 +57,7 @@ def faq(request):
 
 def profile(request):
     if (not request.user or request.user.is_anonymous):
-        return redirect('/')
+        return redirect(reverse('fxa_login'))
     relay_addresses = RelayAddress.objects.filter(user=request.user)
     fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
     avatar = fxa_account.extra_data['avatar'] if fxa_account else None
