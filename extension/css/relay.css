@@ -1,8 +1,8 @@
 @font-face {
   font-family: "Metropolis";
   font-style: normal;
-  font-weight: 600;
-  src: url("/fonts/Metropolis/Metropolis-SemiBold.woff2") format("woff2");
+  font-weight: 800;
+  src: url("/fonts/Metropolis/Metropolis-Bold.woff2") format("woff2");
 }
 
 @font-face {
@@ -17,6 +17,15 @@
   font-style: normal;
   font-weight: 300;
   src: url("/fonts/Metropolis/Metropolis-Light.woff2") format("woff2");
+}
+
+/* @font-face {
+  font-family: 'Inter UI';
+  font-style: normal;
+  font-weight: 400;
+  src:
+    url("/fonts/Inter/Inter-UI-Regular.woff2") format("woff2"),
+    url("/fonts/Inter/Inter-UI-Regular.woff") format("woff");
 }
 
 @font-face {
@@ -35,7 +44,7 @@
   src:
     url("/fonts/Inter/Inter-UI-Medium.woff2") format("woff2"),
     url("/fonts/Inter/Inter-UI-Medium.woff") format("woff");
-}
+} */
 
 :root,
 .panel,
@@ -43,6 +52,9 @@
   --blue2: #0090ed;
   --blue3: #0060df;
   --blue4: #0250bb;
+  --blueHover: #003eaa;
+  --blueActive: #002275;
+  --blueButtonFocus: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
   --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
   --grey10: hsl(240, 9%, 98%);
   --grey20: #ededf0;
@@ -60,8 +72,7 @@
   --panelHeight: 400px;
   --relayIconDimension: 30px;
   --violet: #9059ff;
-  font-size: 17px;
-  font-family: var(--InterUI);
+  font-family: open-sans, sans-serif;
   -moz-osx-font-smoothing: grayscale;
 }
 
@@ -93,17 +104,18 @@ a:active {
 logo-wrapper {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  margin: 0 auto 24px auto;
-  width: 300px;
+  padding: 12px 0 12px 24px;
+  width: 100%;
+  border-bottom: 1px solid var(--grey20);
 }
 
 logotype {
   background-image: url("/images/logotype.svg");
   margin-top: 6px;
   margin-left: 8px;
-  width: 70%;
+  width: 200px;
   height: 30px;
   display: inline-flex;
 }
@@ -111,8 +123,8 @@ logotype {
 logomark {
   content: "";
   background-image: url("/images/logomark.svg");
-  width: 39px;
-  height: 39px;
+  width: 30px;
+  height: 30px;
   display: block;
 }
 
@@ -144,6 +156,28 @@ logomark,
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
+}
+
+.ff-Met {
+  font-family: var(--Metropolis);
+}
+
+.zap {
+  display: inline-block;
+  position: relative;
+}
+
+.zap::after {
+  display: block;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  height: 4px;
+  content: "";
+}
+
+.zap-18::after {
+  background-image: url("/images/zap-18.svg");
 }
 
 /* relay in-page modal */

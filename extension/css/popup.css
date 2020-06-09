@@ -1,7 +1,7 @@
 .panel {
   --panelWidth: 360px;
   /* Any changes to --panelHeight should be reflected in the screen media query */
-  --panelHeight: 300px;
+  --panelHeight: 400px;
   background: url("/images/email-tout-bg.svg");
   background-repeat: no-repeat;
   background-size: cover;
@@ -10,6 +10,13 @@
   height: var(--panelHeight);
   color: var(--ink70);
   background-image: url("/images/email-tout-bg.svg");
+}
+
+sign-up-panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
 }
 
 .relay-panel {
@@ -31,9 +38,11 @@ p {
 }
 
 .intro {
-  margin: 24px auto;
-  line-height: 1.6;
-  font-size: 16px;
+  margin: 32px auto 12px auto;
+  max-width: 300px;
+  color: var(--inkLight);
+  text-align: center;
+  line-height: 1.4;
 }
 
 .hidden {
@@ -49,7 +58,6 @@ panel-content {
 }
 
 panel-content {
-  padding: 24px;
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -59,47 +67,91 @@ panel-content {
   bottom: 0;
 }
 
-.gradient-button-wrapper {
-  background: var(--fxGradient);
-  border-radius: 9px;
-  padding: 2px;
-  display: inline-flex;
-  margin-left: auto;
-  margin-right: auto;
+.button {
+  text-decoration: none;
 }
 
-.gradient-button-wrapper:focus-within {
-  background: var(--grey20);
-}
-
-.create-account {
-  padding: 12px 24px;
-  margin: auto;
-}
-
-.gradient-button {
-  border-radius: 7px;
+.welcome {
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 1.2;
+  max-width: 220px;
+  text-align: center;
   color: var(--ink);
-  background: rgba(255, 255, 255, 1);
+  margin: 40px auto 4px auto;
+}
+
+.blue-primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--blue3);
+  color: var(--ink);
+  font-family: var(--Metropolis);
+  font-weight: 800;
+  font-size: 16px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 1);
+  height: 48px;
+  min-width: 132px;
+  width: 60%;
+  margin: 12px auto 4px auto;
+  padding: 12px 16px;
+  border-radius: 4px;
+}
+
+.blue-primary-btn:hover {
+  background: var(--blueHover);
+}
+
+.blue-primary-btn:focus {
+  box-shadow: var(--blueButtonFocus);
+}
+
+.blue-primary-btn:active {
+  background: var(--blueActive);
+}
+
+.join-waitlist-wrapper {
+  padding: 8px 24px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.join-waitlist-link {
+  margin-top: 2px;
+  padding: 0;
+  border-radius: 4px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--blue4);
+}
+
+.sign-in-btn {
+  margin-top: 32px;
 }
 
 .sign-in-link {
-  margin: -2px;
   padding: 2px;
   border-radius: 4px;
-  text-decoration: underline;
   background: transparent;
+  color: var(--ink);
+  text-decoration: none;
 }
 
-.sign-in-link:hover,
-.sign-in-link:focus,
-.gradient-button:hover,
-.gradient-button:focus {
+.join-waitlist-link:hover,
+.sign-in-link:hover {
   background: var(--grey20);
 }
 
-.sign-in-link:active,
-.gradient-button:active {
+.sign-in-link:focus,
+.join-waitlist-link:focus {
+  box-shadow: var(--blueButtonFocus) !important;
+}
+
+.sign-in-link:active {
   background: var(--grey30);
 }
 

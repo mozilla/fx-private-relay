@@ -13,14 +13,19 @@
         <logomark></logomark>
         <logotype></logotype>
       </logo-wrapper>
-      <div class="sign-up-panel hidden">
-        <main>
-          <p class="intro">Create an account or <a class="text-link sign-in-link close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">sign in</a> to access your dashboard and create aliases.</p>
-          <div class="gradient-button-wrapper">
-            <a class="button create-account new-tab gradient-button close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">Create Account</a>
-          </div>
-        </main>
-      </div>
+      <sign-up-panel class="sign-up-panel hidden">
+        <span class="ff-Met welcome">Welcome! Firefox Relay is beta <span class="zap zap-18">invite-only</span></span>
+        <p class="intro">
+          Have an invite? <a class="text-link sign-in-link close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">Sign in</a> with the email you used to join the Relay waitlist.
+        </p>
+        <a class="button sign-in-btn blue-primary-btn close-popup-after-click" href="http://127.0.0.1:8000/accounts/fxa/login/?process=login">
+          Sign In
+        </a>
+        <div class="join-waitlist-wrapper">
+          <span class="">Curious about Private Relay?</span>
+          <a href="http://127.0.0.1:8000/accounts/fxa/login/?process=login" class="join-waitlist-link">Sign up for the waitlist with your Firefox account.</a>
+        </div>
+      </sign-up-panel>
       <main class="signed-in-panel hidden">
         <alias-list>
           <alias-list-header>
