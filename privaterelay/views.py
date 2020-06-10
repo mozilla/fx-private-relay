@@ -217,8 +217,6 @@ def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
         'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
     })
 
-    _update_invitation(authentic_jwt, social_account.user.email, new_email)
-
     social_account.extra_data = extra_data
     social_account.save()
     social_account.user.email = new_email
@@ -240,21 +238,6 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
         'deleted_user_objects': deleted_user_objects,
         'deleted_invitation_objects': deleted_invitation_objects,
     })
-
-
-def _update_invitation(authentic_jwt, old_email, new_email):
-    try:
-        invitation = Invitations.objects.get(
-            Q(fxa_uid=authentic_jwt['sub']) | Q(email=old_email))
-        invitation.email = new_email
-        invitation.save()
-        logger.info('fxa_rp_event', extra={
-            'fxa_uid': authentic_jwt['sub'],
-            'updated_invitation_objects': invitation,
-        })
-        return invitation
-    except Invitations.DoesNotExist:
-        pass
 
 
 def _delete_invitation(authentic_jwt):
