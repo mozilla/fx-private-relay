@@ -28,7 +28,15 @@ def invitations_only(sender, **kwargs):
 
     # Accounts that have already used Private Relay should always be allowed
     try:
-        SocialAccount.objects.get(uid=fxa_uid)
+        User.objects.get(email=email)
+        return True
+    except User.DoesNotExist:
+        pass
+
+    try:
+        social_account = SocialAccount.objects.get(uid=fxa_uid)
+        social_account.user.email = social_account['email']
+        social_account.user.save()
         return True
     except SocialAccount.DoesNotExist:
         pass
