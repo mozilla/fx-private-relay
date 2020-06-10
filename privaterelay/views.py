@@ -245,9 +245,9 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
 def _update_invitation(authentic_jwt, old_email, new_email):
     try:
         invitation = Invitations.objects.get(
-            fxa_uid=authentic_jwt['sub'] | email=old_email)
-            invitation.email = new_email
-            invitation.save()
+            Q(fxa_uid=authentic_jwt['sub']) | Q(email=old_email))
+        invitation.email = new_email
+        invitation.save()
         logger.info('fxa_rp_event', extra={
             'fxa_uid': authentic_jwt['sub'],
             'updated_invitation_objects': invitation,
