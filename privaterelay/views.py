@@ -232,6 +232,7 @@ def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
         'event_key': event_key,
         'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
     })
+
     social_account.extra_data = extra_data
     social_account.save()
     social_account.user.email = new_email
