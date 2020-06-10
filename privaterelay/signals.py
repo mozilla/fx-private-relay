@@ -5,6 +5,8 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
 from django.db.models import Q
 
+from allauth.socialaccount.models import SocialAccount
+
 from .models import Invitations
 
 
@@ -23,6 +25,13 @@ def invitations_only(sender, **kwargs):
     for allowed_domain in ALLOWED_SIGNUP_DOMAINS:
         if domain_part == allowed_domain:
             return True
+
+    # Accounts that have already used Private Relay should always be allowed
+    try:
+        SocialAccount.objects.get(uid=fxa_uid)
+        return True
+    except SocialAccount.DoesNotExist:
+        pass
 
     # Explicit invitations for an email address can get in
     try:
