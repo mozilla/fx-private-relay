@@ -1118,9 +1118,10 @@ input::placeholder,
 .checkbox {
   position: absolute;
   opacity: 0;
-  top: 4px;
+  top: 0;
+  left: -4px;
   height: 24px;
-  width: 24px;
+  width: 100%;
 }
 
 .checkbox:hover + .checkbox-ui {
