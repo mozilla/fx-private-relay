@@ -108,6 +108,7 @@ SOCKETLABS_API_KEY = config('SOCKETLABS_API_KEY', None)
 SOCKETLABS_SECRET_KEY = config('SOCKETLABS_SECRET_KEY', None)
 SOCKETLABS_VALIDATION_KEY = config('SOCKETLABS_VALIDATION_KEY', None)
 
+RELAY_ALIAS_DOMAIN = config('RELAY_ALIAS_DOMAIN', None)
 RELAY_FROM_ADDRESS = config('RELAY_FROM_ADDRESS', None)
 SITE_ORIGIN = config('SITE_ORIGIN', None)
 
@@ -213,7 +214,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 
-                'emails.context_processors.relay_from_domain',
                 'privaterelay.context_processors.django_settings',
             ],
         },

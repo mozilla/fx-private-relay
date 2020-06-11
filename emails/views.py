@@ -22,7 +22,6 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
-from .context_processors import relay_from_domain
 from .models import DeletedAddress, Profile, RelayAddress
 from .utils import get_socketlabs_client, socketlabs_send
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
@@ -79,7 +78,7 @@ def _index_POST(request):
     relay_address = RelayAddress.make_relay_address(user_profile.user)
     if 'moz-extension' in request.headers.get('Origin', ''):
         address_string = '%s@%s' % (
-            relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
+            relay_address.address, settings.RELAY_ALIAS_DOMAIN
         )
         return JsonResponse({
             'id': relay_address.id,

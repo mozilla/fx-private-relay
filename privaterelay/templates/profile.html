@@ -53,7 +53,7 @@
         </div>
 
         {% for relay_address in relay_addresses %}
-          <div class="relay-email {% if relay_address.enabled %} card-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
+          <div class="relay-email {% if relay_address.enabled %} card-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ settings.RELAY_ALIAS_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
             <div class="relay-email-row card-top-row flx flx-row inset">
               <!-- alias label -->
               <div class="additional-notes hide-mobile">
@@ -84,9 +84,9 @@
                   <div class="flx flx-row al-cntr">
                     <button title="Click to copy"
                       data-id="{{ relay_address.id }}"
-                      data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}"
+                      data-clipboard-text="{{ relay_address.address }}@{{ settings.RELAY_ALIAS_DOMAIN }}"
                       class="relay-address click-copy ff-Met flx jst-cntr al-cntr">
-                        {{ relay_address.address }}@{{ RELAY_DOMAIN }}
+                        {{ relay_address.address }}@{{ settings.RELAY_ALIAS_DOMAIN }}
                         <span class="alias-copied-icon"></span>
                         <span class="alias-copied-message">Copied!</span>
                     </button>
@@ -123,7 +123,7 @@
 
                 <!-- delete email address -->
                 <section class="relay-email-column column-delete center-value">
-                  <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ RELAY_DOMAIN }}">
+                  <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ settings.RELAY_ALIAS_DOMAIN }}">
                     <input type="hidden" name="method_override" value="DELETE">
                     <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
                     <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
