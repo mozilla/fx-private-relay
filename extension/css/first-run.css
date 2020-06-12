@@ -50,6 +50,7 @@
   color: rgba(255, 255, 255, 1);
   font-family: var(--Metropolis);
   font-size: 17px;
+  font-weight: 600;
 }
 
 p.first-run-p {
@@ -59,7 +60,7 @@ p.first-run-p {
   font-weight: 500;
 }
 
-p.first-run-join-waitlist {
+.first-run-join-waitlist {
   font-size: 13px;
   line-height: 1.6;
   max-width: 300px;

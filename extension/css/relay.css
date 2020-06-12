@@ -1,3 +1,16 @@
+.new-menu-wrapper {
+  position: fixed;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 9999999999999999999999;
+  background-color:rgba(0, 0, 0, .1);
+}
+
+
 @font-face {
   font-family: "Metropolis";
   font-style: normal;
@@ -46,6 +59,7 @@
     url("/fonts/Inter/Inter-UI-Medium.woff") format("woff");
 } */
 
+.first-run,
 :root,
 .panel,
 .relay-modal-wrapper {
@@ -54,7 +68,8 @@
   --blue4: #0250bb;
   --blueHover: #003eaa;
   --blueActive: #002275;
-  --blueButtonFocus: 0 0 0 1px #0a84ff inset, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+  /* --blueButtonFocus: 0 0 0 1px #0a84ff, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3); */
+  --blueButtonFocus: 0 0 1px 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
   --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
   --grey10: hsl(240, 9%, 98%);
   --grey20: #ededf0;
@@ -68,7 +83,7 @@
   --ink: #20123a;
   --ink70: #363959;
   --InterUI: "Inter UI", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --Metropolis: "Metropolis", "SF Pro Text", "Segoe UI", Roboto, "Open Sans";
+  --Metropolis: "Metropolis", sans-serif, "SF Pro Text", "Segoe UI", Roboto, "Open Sans";
   --panelWidth: 360px;
   --panelHeight: 400px;
   --relayIconDimension: 30px;
@@ -114,6 +129,11 @@ logo-wrapper {
   min-height: 64px;
   height: 64px;
   max-height: 64px;
+}
+
+.relay-modal-content logo-wrapper {
+  border-bottom: 1px solid rgba(0, 0, 0, 0) !important;
+  justify-content: flex-start;
 }
 
 logotype {
@@ -173,12 +193,13 @@ logomark,
 }
 
 .zap::after {
-  display: block;
+  /* display: block; */
   background-position: bottom center;
   background-repeat: no-repeat;
-  background-size: 100%;
-  height: 4px;
+  background-size: contain;
+  height: 7px;
   content: "";
+  /* margin: -5px -2px -2px -2px; */
 }
 
 .zap-18::after {
@@ -269,6 +290,146 @@ logomark,
 
 /* input icon & icon messaging */
 
+
+.relay-menu {
+  width: 300px;
+  min-height: 60px;
+  border-radius: 4px;
+  background: var(--grey10);
+  background-color: var(--grey10);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: absolute;
+  padding-top: 24px;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  top: 47px;
+  right: -15px;
+  pointer-events: all;
+  animation: fadeIn .2s ease forwards;
+  box-shadow: 3px 3px 3px 3px #00000017;
+}
+
+.relay-menu::before {
+  content: "";
+  display: block;
+  position: absolute;
+  top: -7px;
+  right: 20px;
+  height: 20px;
+  width: 20px;
+  background: var(--grey10);
+  transform: rotate(45deg);
+}
+
+.alias-loading::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: block;
+  content: "";
+  background-color: #38383d21;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  background-image: url("/images/loader.svg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  animation: fadeIn 1s ease;
+}
+
+.in-page-menu-remaining-aliases {
+  font-size: 13px;
+  padding: 0 24px;
+  margin-bottom: 40px;
+  color: var(--ink70);
+}
+
+button.relay-menu-sign-up-btn,
+.in-page-menu-dashboard-link,
+.relay-menu button.in-page-menu-generate-alias-btn {
+  font-size: 14px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  border-color: rgba(0, 0, 0, 0);
+  outline: none;
+  width: 100%;
+  min-width: 100%;
+  border-radius: 2px;
+  font-family: var(--Metropolis) !important;
+  color: var(--ink) !important;
+  display: flex;
+  min-height: auto;
+  box-shadow: none;
+}
+
+.relay-menu-sign-up-btn,
+.in-page-menu-dashboard-link {
+  background-color: var(--grey20) !important;
+  border-top: 1px solid var(--grey30);
+  text-align: center;
+  justify-content: center;
+  padding: 12px 24px;
+  pointer-events: all;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.in-page-menu-dashboard-link {
+  margin: auto auto 0 auto;
+}
+
+button.in-page-menu-generate-alias-btn {
+  background-color: var(--grey10) !important;
+  text-align: left !important;
+  justify-content: flex-start;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 24px;
+  padding-right: 24px;
+  font-family: var(--Metropolis) !important;
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+}
+
+button.in-page-menu-generate-alias-btn[disabled] {
+  pointer-events: none;
+  opacity: .5;
+}
+
+.relay-menu button.in-page-menu-generate-alias-btn:hover {
+  background-color: var(--grey20) !important;
+}
+
+.relay-menu button.in-page-menu-generate-alias-btn:active {
+  background-color: var(--grey30) !important;
+}
+
+.relay-menu-sign-up-btn:hover,
+.in-page-menu-dashboard-link:hover {
+  background-color: var(--grey30) !important;
+}
+
+.in-page-menu-dashboard-link:focus,
+.relay-menu button.in-page-menu-generate-alias-btn:focus,
+.relay-menu-sign-up-btn:focus {
+  box-shadow: var(--blueButtonFocus) !important;
+}
+
+.relay-menu-sign-up-btn:active,
+.in-page-menu-dashboard-link:active {
+  background-color: var(--grey40) !important;
+}
+
+.relay-menu-sign-up-message {
+  font-size: 12px;
+  max-width: 200px;
+  display: inline-block;
+  margin: auto auto 24px auto;
+}
+
 .relay-icon {
   position: absolute;
   top: 0;
@@ -280,6 +441,7 @@ logomark,
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 0 !important;
 }
 
 .relay-email-input-wrapper {
@@ -299,11 +461,6 @@ logomark,
   box-sizing: inherit;
 }
 
-.relay-icon {
-  padding: 0 !important;
-  height: 100% !important;
-}
-
 .relay-button {
   padding: 0 !important;
   width: 30px;
@@ -319,7 +476,6 @@ logomark,
   transition: all 0.2s ease;
   margin: auto;
   pointer-events: all;
-  z-index: 99999999999999999;
 }
 
 .relay-button:hover,
@@ -331,7 +487,7 @@ button.relay-error-dismiss:hover,
 .relay-button:focus,
 button.relay-error-dismiss:focus,
 .relay-modal-close-button:focus {
-  border: 1px solid var(--grey30) !important;
+  box-shadow: var(--blueButtonFocus);
 }
 
 button.relay-error-dismiss:active,
@@ -340,49 +496,14 @@ button.relay-error-dismiss:active,
   background-color: var(--grey30) !important;
 }
 
-.relay-error-message-wrapper {
-  position: absolute;
-  z-index: 100;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  align-content: center;
-  right: 0;
-}
-
-.relay-error-message::before {
-  content: "";
-  height: 11px;
-  width: 11px;
-  border-top-left-radius: 2px;
-  background-color: rgb(249, 249, 250);
-  display: block;
-  position: absolute;
-  top: -7px;
-  right: 10px;
-  transform: rotate(45deg);
-  border-top: 1px solid var(--grey20);
-  border-left: 1px solid var(--grey20);
-}
-
 .relay-error-message {
-  margin: auto !important;
   font-size: 12px;
-  position: relative !important;
-  padding: 12px 44px 12px 20px;
-  background-color: rgb(249, 249, 250);
-  border: 1px solid var(--grey20);
-  border-radius: 4px;
-  color: rgba(0, 0, 0, .8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: row;
-  box-shadow: 0 7px 12px -3px rgba(28, 28, 29, 0.502);
-  pointer-events: none;
+  line-height: 1.5;
+  margin: 0 0 24px 24px;
 }
 
 button.relay-error-dismiss {
+  box-shadow: none;
   min-height: 22px !important;
   min-width: 22px !important;
   height: 22px !important;
@@ -400,9 +521,18 @@ button.relay-error-dismiss {
   border-radius: 50%;
   pointer-events: all !important;
   position: absolute !important;
-  top: 0;
+  top: 8px;
   right: 8px;
   bottom: 0;
-  margin-top: auto;
-  margin-bottom: auto;
+  z-index: 2;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
 }

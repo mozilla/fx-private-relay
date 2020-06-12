@@ -48,7 +48,7 @@ function showModal(modalType, newAlias=null) {
     modalContent.appendChild(modalMessage);
 
     const manageAliasesLink = document.createElement("a");
-    manageAliasesLink.textContent = "Manage Aliases";
+    manageAliasesLink.textContent = "Manage Relay Aliases";
     manageAliasesLink.classList = ["new-tab"];
     manageAliasesLink["href"] = "http://127.0.0.1:8000/accounts/profile";
     modalContent.appendChild(manageAliasesLink);
