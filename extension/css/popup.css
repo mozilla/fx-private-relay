@@ -434,6 +434,7 @@ onboarding-panel p {
   position: absolute;
   right: 0;
   left: 0;
+  bottom: 45px;
   margin: 16px auto;
 }
 

@@ -19,7 +19,7 @@ function getOnboardingPanels() {
       "tipBody":"Placeholder tip copy about how you can block emails by going to the dashboard and toggling the toggles.",
     },
     "maxAliasesPanel": {
-      "imgSrc": "/high-five.svg",
+      "imgSrc": "high-five.svg",
       "tipHeadline": "High five!",
       "tipBody": "Want more than 5 relay emails? Take our short survey and share your feedback!",
       "linkCopy": "Take the survey",
