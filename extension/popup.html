@@ -22,19 +22,27 @@
         </div>
         <ul class="settings-list">
           <li class="setting">
-            <span class="setting-label">Show Relay icon in email fields on websites</span>
+            <span class="setting-label flex-col">Show Relay icon in email fields on websites</span>
             <button title="" data-icon-visibility-option="disable-input-icon" class="toggle-icon-in-page-visibility"></button>
+          </li>
+          <li class="setting flex-col">
+            <a href="" class="setting-label">Help & Support</a>
+            <a href="" class="setting-label">Leave Feedback</a>
+          </li>
+          <li class="setting flex-col">
+            <a href="" class="setting-label">Privacy Policy</a>
+            <a href="" class="setting-label">Terms & Conditions</a>
           </li>
         </ul>
       </settings>
 
       <sign-up-panel class="sign-up-panel hidden">
-        <span class="ff-Met welcome">Welcome! Firefox Relay is beta <span class="zap zap-18">invite-only</span></span>
+        <span class="ff-Met welcome">Welcome</span>
         <p class="intro">
-          Have an invite? <a class="text-link sign-in-link close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">Sign in</a> with the email you used to join the Relay waitlist.
+          Get started by signing in with the Firefox account you used to join the Relay waitlist.
         </p>
         <a class="button sign-in-btn blue-primary-btn close-popup-after-click" href="http://127.0.0.1:8000/accounts/fxa/login/?process=login">
-          Sign In
+          Continue
         </a>
         <div class="join-waitlist-wrapper">
           <span class="">Curious about Private Relay?</span>
@@ -44,7 +52,21 @@
 
       <main-panel class="signed-in-panel hidden">
           <p class="ff-Met aliases-remaining text-center remaining-plural">You have <span class="num-aliases-remaining"></span><span class="ff-Met max-num-aliases"></span></span> relay addresses remaining</p>
-        <footer>
+          <onboarding-panel>
+            <img class="onboarding-img">
+            <h1 class="onboarding-h1"></h1>
+            <p class="onboarding-p"></p>
+
+            <div class="onboarding-pagination">
+              <button class="panel-nav previous-panel" data-direction="-1" aria-label="Show previous panel"></button>
+              <span class="panel-num ff-Met">
+                <span class="current-panel"></span>/
+                  <span class="total-panels">3</span>
+              </span>
+              <button class="panel-nav next-panel" data-direction="1" aria-label="Go to next panel"></button>
+            </div>
+          </onboarding-panel>
+          <footer>
           <a class="button new-tab close-popup-after-click footer-button" href="http://127.0.0.1:8000/accounts/profile?utm_source=addon&utm_medium=popup">Manage Relay Addresses</a>
         </footer>
       </main-panel>

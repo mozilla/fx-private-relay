@@ -2,6 +2,12 @@ const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
 
 browser.storage.local.set({ "maxNumAliases": 5 });
 browser.storage.local.set({ "showInputIcons": "show-input-icons" });
+browser.storage.local.set({ "relaySiteOrigin": RELAY_SITE_ORIGIN });
+browser.storage.local.set({ "fxaOauthFlow": `${RELAY_SITE_ORIGIN}/accounts/fxa/login/?process=login` });
+browser.runtime.onInstalled.addListener(async () => {
+  const url = browser.runtime.getURL("first-run.html");
+  await browser.tabs.create({ url });
+});
 
 async function makeRelayAddress(domain=null) {
   const apiToken = await browser.storage.local.get("apiToken");
@@ -88,6 +94,11 @@ browser.runtime.onMessage.addListener(async (m) => {
       break;
     case "updateInputIconPref":
       browser.storage.local.set({ "showInputIcons" : m.iconPref });
+      break;
+    case "openRelayHomepage":
+      browser.tabs.create({
+        url: RELAY_SITE_ORIGIN,
+      });
       break;
   }
 

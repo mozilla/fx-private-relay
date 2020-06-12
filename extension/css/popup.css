@@ -225,7 +225,7 @@ logo-wrapper,
   max-width: 300px;
   color: var(--inkLight);
   line-height: 1.3;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .hidden {
@@ -295,12 +295,12 @@ panel-content {
 }
 
 .join-waitlist-wrapper {
-  font-size: 13px;
+  font-size: 14px;
   text-align: center;
   color: var(--ink);
   line-height: 1.4;
-  margin: 0 auto 24px auto;
-  max-width: 240px;
+  margin: 0 auto 32px auto;
+  max-width: 260px;
 }
 
 .join-waitlist-link {
@@ -473,18 +473,18 @@ onboarding-panel p {
   padding: 4px;
 }
 
-.open-settings.settings-toggle:hover,
+.settings-toggle:hover,
 .panel-nav:hover {
   background-color: var(--grey30);
 }
 
-.open-settings.settings-toggle:focus,
+.settings-toggle:focus,
 .panel-nav:focus {
   box-shadow: var(--blueButtonFocus);
   opacity: 1;
 }
 
-.open-settings.settings-toggle:active,
+.settings-toggle:active,
 .panel-nav:active {
   background-color: var(--grey40);
 }
@@ -501,7 +501,7 @@ onboarding-panel p {
 
 .panel-num {
   margin: auto 12px auto;
-  width: 54px;
+  width: 55px;
 }
 
 .current-panel,
@@ -518,7 +518,7 @@ onboarding-panel p {
 }
 
 .total-panels {
-  margin-left: 8px;
+  margin-left: 5px;
   display: inline-block;
 }
 
