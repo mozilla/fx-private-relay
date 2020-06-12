@@ -285,6 +285,9 @@ def _sns_message(message_json):
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         logger.debug('ses_sent_response', extra=ses_response['MessageId'])
+        relay_address.num_forwarded += 1
+        relay_address.last_used_at = datetime.now()
+        relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
     except ClientError as e:
         logger.error('ses_client_error', extra=e.response['Error'])
         return HttpResponse("SES client error", status=400)
