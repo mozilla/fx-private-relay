@@ -10,6 +10,7 @@
   height: var(--panelHeight);
   color: var(--ink70);
   background-image: url("/images/email-tout-bg.svg");
+  overflow: hidden;
 }
 
 sign-up-panel {
