@@ -14,6 +14,7 @@ function closeRelayInPageMenu() {
   return;
 }
 
+
 function addRelayMenuToPage(relayMenuWrapper, relayInPageMenu, relayIconBtn) {
   relayMenuWrapper.appendChild(relayInPageMenu);
   document.body.appendChild(relayMenuWrapper);
@@ -24,6 +25,7 @@ function addRelayMenuToPage(relayMenuWrapper, relayInPageMenu, relayIconBtn) {
   return;
 }
 
+
 function preventDefaultBehavior(clickEvt) {
   clickEvt.stopPropagation();
   clickEvt.stopImmediatePropagation();
@@ -33,7 +35,7 @@ function preventDefaultBehavior(clickEvt) {
 
 
 function getRelayMenuEl() {
-  return document.querySelector(".relay-menu")
+  return document.querySelector(".relay-menu");
 }
 
 
@@ -89,12 +91,6 @@ function restrictOrRestorePageTabbing(tabIndexValue) {
   });
 }
 
-// function createErrorMessage(content, wrappingEl) {
-//   const errorMessage = createElementWithClassList("p", "relay-error-message");
-//   errorMessage.textContent = content;
-// }
-
-
 function createElementWithClassList(elemType, elemClass) {
   const newElem = document.createElement(elemType);
   newElem.classList.add(elemClass);
@@ -123,7 +119,6 @@ async function addRelayIconToInput(emailInput) {
   emailInputWrapper.appendChild(emailInput);
 
   const inputHeight = emailInput.offsetHeight;
-  console.log(inputHeight)
   const divEl = createElementWithClassList("div", "relay-icon");
   divEl.style.height = inputHeight+"px";
 
@@ -147,8 +142,7 @@ async function addRelayIconToInput(emailInput) {
     preventDefaultBehavior(e);
     window.addEventListener("resize", positionRelayMenu);
     window.addEventListener("scroll", positionRelayMenu);
-    document.addEventListener("keydown", handleKeydownEvents)
-
+    document.addEventListener("keydown", handleKeydownEvents);
 
     const relayInPageMenu = createElementWithClassList("div", "relay-menu");
     const relayMenuWrapper = createElementWithClassList("div", "new-menu-wrapper");
@@ -179,10 +173,9 @@ async function addRelayIconToInput(emailInput) {
         });
         closeRelayInPageMenu();
       });
-      relayInPageMenu.appendChild(signUpButton)
+      relayInPageMenu.appendChild(signUpButton);
 
       addRelayMenuToPage(relayMenuWrapper, relayInPageMenu, relayIconBtn);
-
       return;
     }
 
@@ -218,7 +211,7 @@ async function addRelayIconToInput(emailInput) {
 
     // Append menu elements to the menu
     [generateAliasBtn, remainingAliasesSpan, relayMenuDashboardLink].forEach(el => {
-      relayInPageMenu.appendChild(el)
+      relayInPageMenu.appendChild(el);
     });
 
     // Handle "Generate Relay Address" clicks
@@ -300,5 +293,4 @@ function getEmailInputsAndAddIcon() {
   });
 
   mutationObserver.observe(document.body, { childList: true, subtree: true });
-
 })();
