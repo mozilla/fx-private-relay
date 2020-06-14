@@ -912,8 +912,12 @@ input::placeholder,
 
 .relay-email-address-label:focus {
   box-shadow: var(--buttonFocus);
-  width: 200px !important;
   transition: all 0.2s ease-in-out;
+}
+
+.relay-email-address-label:focus,
+input.input-has-error {
+  width: 200px !important;
 }
 
 .saved-confirmation {

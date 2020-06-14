@@ -1,3 +1,5 @@
+/* global browser */
+
 (async function () {
   const newestVersionOfDashboard = document.querySelector(".dashboard-greeting") !== null;
   if (!newestVersionOfDashboard) {
@@ -27,7 +29,7 @@
     const defaultAliasLabelText = "Add alias label";
     const storedAliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
 
-    const aliasLabelInput = aliasCard.querySelector('input.relay-email-address-label');
+    const aliasLabelInput = aliasCard.querySelector("input.relay-email-address-label");
     const aliasLabelWrapper = aliasLabelInput.parentElement;
     aliasLabelWrapper.classList.add("show-label"); // Field is visible only to users who have the addon installed
 
@@ -40,23 +42,60 @@
       aliasLabelInput.placeholder = defaultAliasLabelText;
     }
 
-    const forbiddenCharacters = `{}()=;-<>'"`;
+    const forbiddenCharacters = `{}()=;'-<>"`;
+    const showInputErrorMessage =(errorMessageContent) => {
+      aliasLabelInput.classList.add("input-has-error");
+      aliasLabelWrapper.querySelector(".input-error").textContent = errorMessageContent;
+      aliasLabelWrapper.classList.add("show-input-error");
+      return;
+    };
+
+    const pluralSingularErrorMessage = (badCharactersInValue) => {
+      const newErrorMessage = badCharactersInValue.length === 1 ?
+      `${badCharactersInValue} is not an allowed character` :
+      `${badCharactersInValue.join(" ")} are not allowed characters`;
+      return newErrorMessage;
+    };
+
+    const checkValueForErrors = (inputValue) => {
+      // Catch copy/paste forbidden characters
+      const forbiddenCharsInLabelValue = [];
+      forbiddenCharacters.split("").forEach(badChar => {
+        if (inputValue.includes(badChar) && !forbiddenCharsInLabelValue.includes(badChar)) {
+          forbiddenCharsInLabelValue.push(badChar);
+        }
+      });
+      return forbiddenCharsInLabelValue;
+    }
+
     aliasLabelInput.addEventListener("keydown", (e) => {
-      const typedChar = e.key;
+      // Limit keystrokes when the input has errors
+      const keyChar = e.key;
       if (aliasLabelInput.classList.contains("input-has-error")) {
-        if (typedChar !== "Backspace") {
+        const charactersToAllowWhileInputHasError = ["Tab", "Backspace", "ArrowLeft", "ArrowRight"];
+        if (!charactersToAllowWhileInputHasError.includes(keyChar)) {
           e.preventDefault();
           return;
         }
+      }
+      // Show error message when forbidden keys are entered
+      if (forbiddenCharacters.includes(keyChar)) {
+        return showInputErrorMessage(`${keyChar} is not an allowed character`);
+      }
+    });
+
+    aliasLabelInput.addEventListener("keyup", (e) => {
+      const keyChar = e.key;
+      const forbiddenCharsInValue = checkValueForErrors(aliasLabelInput.value);
+      if (forbiddenCharsInValue.length === 0 && !forbiddenCharacters.includes(keyChar)) {
         aliasLabelInput.classList.remove("input-has-error");
         aliasLabelWrapper.classList.remove("show-input-error");
+        return;
       }
-      if (forbiddenCharacters.includes(typedChar)) {
-        aliasLabelInput.classList.add("input-has-error");
-        aliasLabelWrapper.querySelector(".forbidden-char").textContent = e.key;
-        aliasLabelWrapper.classList.add("show-input-error");
+      if (forbiddenCharsInValue.length > 0) {
+        return showInputErrorMessage(pluralSingularErrorMessage(forbiddenCharsInValue));
       }
-    })
+    });
 
     aliasLabelInput.addEventListener("focusout", () => {
       const newAliasLabel = aliasLabelInput.value;
@@ -64,6 +103,11 @@
       // Don't save labels containing forbidden characters
       if (aliasLabelInput.classList.contains("input-has-error")) {
         return;
+      }
+
+      const forbiddenCharsInValue = checkValueForErrors(newAliasLabel);
+      if (forbiddenCharsInValue.length > 0) {
+        return showInputErrorMessage(pluralSingularErrorMessage(forbiddenCharsInValue));
       }
 
       // Don't show saved confirmation message if the label hasn't changed
@@ -130,7 +174,7 @@ async function handlePreviousProfilePages() {
     const defaultAliasLabelText = "Add alias label";
     const storedAliasLabel = (addonRelayAddress && addonRelayAddress.hasOwnProperty("domain")) ? addonRelayAddress.domain : "";
 
-    const aliasLabelInput = aliasCard.querySelector('input.relay-email-address-label');
+    const aliasLabelInput = aliasCard.querySelector("input.relay-email-address-label");
     const aliasLabelWrapper = aliasLabelInput.parentElement;
     aliasLabelWrapper.classList.add("show-label"); // Field is visible only to users who have the addon installed
 
@@ -143,7 +187,7 @@ async function handlePreviousProfilePages() {
       aliasLabelInput.placeholder = defaultAliasLabelText;
     }
 
-    const forbiddenCharacters = `{}()=;-<>'"`;
+    const forbiddenCharacters = `{}()=;-<>"'`;
     aliasLabelInput.addEventListener("keydown", (e) => {
       const typedChar = e.key;
       if (aliasLabelInput.classList.contains("input-has-error")) {
@@ -159,7 +203,7 @@ async function handlePreviousProfilePages() {
         aliasLabelWrapper.querySelector(".forbidden-char").textContent = e.key;
         aliasLabelWrapper.classList.add("show-input-error");
       }
-    })
+    });
 
     aliasLabelInput.addEventListener("focusout", () => {
       const newAliasLabel = aliasLabelInput.value;
