@@ -27,7 +27,7 @@
           <span class="dashboard-greeting-message">Welcome, <span class="demi">{{ request.user.email }}</span>!</span>
         </div>
         <div class="flx flx-row dashboard-header inset">
-          <h2 class="section-headline dashboard-headline">Manage Email Aliases</h2>
+          <h2 class="section-headline dashboard-headline">Manage your relay addresses</h2>
           <div class="remaining-aliases-wrapper flx al-cntr jst-cntr hide-750">
             {% include "includes/remaining-aliases.html" %}
           </div>
@@ -68,7 +68,7 @@
                   <input type="hidden" name="method_override" value="PUT">
                   <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                  <span class="forwarding-label-wrapper card-small-text">{% if relay_address.enabled %} enabled {% else %} disabled {% endif %}</span>
+                  <span class="forwarding-label-wrapper card-small-text">{% if relay_address.enabled %} forwarding {% else %} blocking {% endif %}</span>
                   {% if relay_address.enabled %}
                   <button type="submit" name="enabled" value="Disable" title="Disable email forwarding for this alias" class="text-center forwarding-toggle"></button>
                   {% else %}

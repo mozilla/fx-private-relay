@@ -4,5 +4,5 @@
 
 <span class="remaining-aliases flx">
   <span class="num-remaining-aliases bold">
-    {% remaining_free_aliases relay_addresses %}</span> remaining free email {% if relay_addresses|length == 4 %}address{% else %} addresses {% endif %}
+    {% remaining_free_aliases relay_addresses %}</span> remaining {% if relay_addresses|length == 4 %}address{% else %} addresses {% endif %}
 </span>
