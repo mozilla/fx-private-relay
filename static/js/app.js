@@ -13,12 +13,12 @@ async function updateEmailForwardingPrefs(submitEvent) {
 	submitEvent.preventDefault();
 
 	const forwardingPrefForm = submitEvent.target;
-  const checkBox = forwardingPrefForm.querySelector("button");
+  const prefToggle = forwardingPrefForm.querySelector("button");
   const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
   const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']");
   const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}']`);
 
-	const analyticsLabel = (checkBox.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
+	const analyticsLabel = (prefToggle.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
 	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
 	const formData = {};
@@ -29,17 +29,17 @@ async function updateEmailForwardingPrefs(submitEvent) {
 	const response = await sendForm(forwardingPrefForm.action, formData);
 
 	if (response && response.status === 200) {
-		checkBox.classList.toggle("forwarding-disabled");
-		if (checkBox.value === "Enable") {
-      checkBox.title = "Disable email forwarding for this alias";
-      toggleLabel.textContent = "enabled";
+		prefToggle.classList.toggle("forwarding-disabled");
+		if (prefToggle.value === "Enable") {
+      prefToggle.title = "Disable email forwarding for this alias";
+      toggleLabel.textContent = "forwarding";
       wrappingEmailCard.classList.add("card-enabled");
-			return checkBox.value = "Disable";
-		} else if (checkBox.value === "Disable") {
-      checkBox.title="Enable email forwarding to this alias";
-      toggleLabel.textContent = "disabled";
+			return prefToggle.value = "Disable";
+		} else if (prefToggle.value === "Disable") {
+      prefToggle.title="Enable email forwarding to this alias";
+      toggleLabel.textContent = "blocking";
       wrappingEmailCard.classList.remove("card-enabled");
-			return checkBox.value = "Enable";
+			return prefToggle.value = "Enable";
 		}
 	}
 	return;
