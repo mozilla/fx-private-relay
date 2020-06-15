@@ -855,7 +855,7 @@ table {
   font-size: 1em;
   border-radius: 4px;
   padding: 6px 24px 6px 6px;
-  width: 156px;
+  width: 188px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -875,6 +875,10 @@ input::placeholder,
 .relay-email-address-label:placeholder-shown {
   color: var(--grey50);
   opacity: 1;
+}
+
+input:focus::placeholder {
+  opacity: 0;
 }
 
 .show-label.additional-notes {
@@ -906,7 +910,7 @@ input::placeholder,
 
 .relay-email-address-label:hover {
   background: var(--grey20);
-  width: 165px;
+  width: 192px;
   transition: all 0.1s ease-in-out;
 }
 

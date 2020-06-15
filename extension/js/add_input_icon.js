@@ -165,11 +165,11 @@ async function addRelayIconToInput(emailInput) {
 
     if (!signedInUser) {
       const signUpMessageEl = createElementWithClassList("span", "relay-menu-sign-up-message");
-      signUpMessageEl.textContent = "Please visit the Firefox Relay website to create an account or join the beta waitlist.";
+      signUpMessageEl.textContent = "Visit the Firefox Relay website to sign in, create an account, or join the beta waitlist.";
 
       relayInPageMenu.appendChild(signUpMessageEl);
       const signUpButton = createElementWithClassList("button", "relay-menu-sign-up-btn");
-      signUpButton.textContent = "Go to Firefox Relay website";
+      signUpButton.textContent = "Go to Firefox Relay";
 
       signUpButton.addEventListener("click", async(clickEvt) => {
         preventDefaultBehavior(clickEvt);
