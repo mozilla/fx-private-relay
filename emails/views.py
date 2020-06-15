@@ -258,12 +258,19 @@ def _sns_message(message_json):
 
     # scramble alias so that clients don't recognize it and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
-    wrapped_html = render_to_string('emails/wrapped_email.html', {
-        'original_html': html_content,
-        'email_to': to_address,
-        'display_email': display_email,
-        'SITE_ORIGIN': settings.SITE_ORIGIN,
-    })
+
+    message_body = {}
+    if html_content:
+        wrapped_html = render_to_string('emails/wrapped_email.html', {
+            'original_html': html_content,
+            'email_to': to_address,
+            'display_email': display_email,
+            'SITE_ORIGIN': settings.SITE_ORIGIN,
+        })
+        message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
+
+    if text_content:
+        message_body['Text'] = {'Charset': 'UTF-8', 'Data': text_content}
 
     relay_from_address, relay_from_display = _generate_relay_From(from_address)
     formatted_from_address = str(
@@ -275,10 +282,7 @@ def _sns_message(message_json):
         ses_response = ses_client.send_email(
             Destination={'ToAddresses': [relay_address.user.email]},
             Message={
-                'Body': {
-                    'Html': {'Charset': 'UTF-8', 'Data': wrapped_html},
-                    'Text': {'Charset': 'UTF-8', 'Data': text_content},
-                },
+                'Body': message_body,
                 'Subject': {'Charset': 'UTF-8', 'Data': subject},
             },
             Source=formatted_from_address,
@@ -296,6 +300,8 @@ def _sns_message(message_json):
 
 
 def _get_text_and_html_content(email_message):
+    text_content = None
+    html_content = None
     for message_payload in email_message.get_payload():
         content = message_payload.get_content()
         if message_payload.get_content_type() == 'text/plain':
