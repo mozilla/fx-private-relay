@@ -125,43 +125,13 @@ def _index_DELETE(request_data, user_profile):
 @csrf_exempt
 def sns_inbound(request):
     # We can check for some invalid values in headers before processing body
+    #Grabs message information for validation
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
-    if not topic_arn:
-        logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
-        return HttpResponse(
-            'Received SNS request without Topic ARN.', status=400
-        )
-    if topic_arn != settings.AWS_SNS_TOPIC:
-        logger.error(
-            'SNS message for wrong ARN',
-            extra={
-                'configured_arn': settings.AWS_SNS_TOPIC,
-                'received_arn': topic_arn,
-            }
-        )
-        return HttpResponse(
-            'Received SNS message for wrong topic.', status=400
-        )
-
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
-    if not message_type:
-        logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
-        return HttpResponse(
-            'Received SNS request without Message Type.', status=400
-        )
-    if message_type not in SUPPORTED_SNS_TYPES:
-        logger.error(
-            'SNS message for unsupported type',
-            extra={
-                'supported_sns_types': SUPPORTED_SNS_TYPES,
-                'message_type': message_type,
-            }
-        )
-        return HttpResponse(
-            'Received SNS message for unsupported Type: %s' % message_type,
-            status=400
-        )
-
+    
+    #Validates header
+    validate_sns_header(topic_arn, message_type)
+    
     json_body = json.loads(request.body)
     try:
         verified_json_body = verify_from_sns(json_body)
@@ -181,6 +151,43 @@ def sns_inbound(request):
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
+def validate_sns_header(topic_arn, message_type):
+    if not topic_arn:
+        logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
+        return HttpResponse(
+            'Received SNS request without Topic ARN.', status=400
+        )
+    if topic_arn != settings.AWS_SNS_TOPIC:
+        logger.error(
+            'SNS message for wrong ARN',
+            extra={
+                'configured_arn': settings.AWS_SNS_TOPIC,
+                'received_arn': topic_arn,
+            }
+        )
+        return HttpResponse(
+            'Received SNS message for wrong topic.', status=400
+        )
+    
+    if not message_type:
+        logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
+        return HttpResponse(
+            'Received SNS request without Message Type.', status=400
+        )
+    if message_type not in SUPPORTED_SNS_TYPES:
+        logger.error(
+            'SNS message for unsupported type',
+            extra={
+                'supported_sns_types': SUPPORTED_SNS_TYPES,
+                'message_type': message_type,
+            }
+        )
+        return HttpResponse(
+            'Received SNS message for unsupported Type: %s' % message_type,
+            status=400
+        )
+    
+    
 def _sns_inbound_logic(topic_arn, message_type, json_body):
     if message_type == 'SubscriptionConfirmation':
         logger.info(
@@ -194,6 +201,12 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
             extra={'json_body': json_body},
         )
         return _sns_notification(json_body)
+    
+    logger.error(
+        'SNS message type did not fall under the SNS inbound logic',
+        extra={'message_type': message_type}
+    )
+    return HttpResponse('Received SNS message with type not handled in inbound log', status=400)
 
 
 def _sns_notification(json_body):
