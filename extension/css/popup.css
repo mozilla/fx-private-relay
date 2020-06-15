@@ -466,32 +466,46 @@ onboarding-panel p {
   border-radius: 50%;
   height: 20px;
   width: 20px;
+  padding: 4px;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.panel-nav::after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
   background-position: center center;
   background-size: 90%;
   background-repeat: no-repeat;
   background-color: rgba(0, 0, 0, 0);
   background-image: url("/images/arrowhead-left.svg");
   opacity: .4;
-  padding: 4px;
+  transition: opacity 0.2s ease;
 }
 
-.settings-toggle:hover,
-.panel-nav:hover {
-  background-color: var(--grey30);
+.settings-toggle:hover::after,
+.panel-nav:hover::after {
+  opacity: .8;
+  transition: opacity 0.2s ease;
 }
 
 .settings-toggle:focus,
 .panel-nav:focus {
   box-shadow: var(--blueButtonFocus);
+}
+
+.settings-toggle:active::after,
+.panel-nav:active::after {
   opacity: 1;
+  transition: opacity 0.2s ease;
 }
 
-.settings-toggle:active,
-.panel-nav:active {
-  background-color: var(--grey40);
-}
-
-.next-panel {
+.next-panel::after {
   transform: rotate(180deg);
 }
 
