@@ -52,6 +52,10 @@
           </form>
         </div>
 
+        {% if relay_addresses|length == 0 %}
+          {% include "includes/dashboard_onboarding.html" %}
+        {% endif %}
+
         {% for relay_address in relay_addresses %}
           <div class="relay-email {% if relay_address.enabled %} card-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
             <div class="relay-email-row card-top-row flx flx-row inset">
