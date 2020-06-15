@@ -118,9 +118,14 @@ async function addRelayIconToInput(emailInput) {
   emailInput.style.paddingRight = "50px";
   emailInputWrapper.appendChild(emailInput);
 
+  const computedInputStyles = getComputedStyle(emailInput);
   const inputHeight = emailInput.offsetHeight;
+
   const divEl = createElementWithClassList("div", "relay-icon");
-  divEl.style.height = inputHeight+"px";
+  divEl.style.height = computedInputStyles.height;
+  divEl.style.top = computedInputStyles.marginTop;
+  divEl.style.bottom = computedInputStyles.marginBottom;
+
 
   const relayIconBtn = createElementWithClassList("button", "relay-button");
   relayIconBtn.id = "relay-button";

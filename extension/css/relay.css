@@ -435,9 +435,7 @@ button.in-page-menu-generate-alias-btn[disabled] {
   top: 0;
   bottom: 0;
   right: 10px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: auto;
+  margin: auto !important;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -465,6 +463,7 @@ button.in-page-menu-generate-alias-btn[disabled] {
   padding: 0 !important;
   width: 30px;
   height: 30px;
+  max-width: 30px !important;
   background-image: url("/icons/make-new-alias.png");
   background-repeat: no-repeat;
   background-position: center center;
