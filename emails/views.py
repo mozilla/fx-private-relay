@@ -302,12 +302,17 @@ def _sns_message(message_json):
 def _get_text_and_html_content(email_message):
     text_content = None
     html_content = None
-    for message_payload in email_message.get_payload():
-        content = message_payload.get_content()
-        if message_payload.get_content_type() == 'text/plain':
-            text_content = content
-        if message_payload.get_content_type() == 'text/html':
-            html_content = content
+    if email_message.is_multipart():
+        for message_payload in email_message.get_payload():
+            content = message_payload.get_content()
+            if message_payload.get_content_type() == 'text/plain':
+                text_content = content
+            if message_payload.get_content_type() == 'text/html':
+                html_content = content
+    else:
+        message_payload = email_message.get_payload()
+        if type(message_payload) == str:
+            text_content = message_payload
 
     return text_content, html_content
 
