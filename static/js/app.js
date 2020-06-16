@@ -235,6 +235,17 @@ function addEventListeners() {
     clickToCopy.addEventListener("click", copyToClipboardAndShowMessage);
   });
 
+  const oldAddressNoteObserverConfig = { characterData: true };
+  const oldAddressNoteObserverHandler = (mutations, observer) => {
+    for (const mutation of mutations) {
+      console.log(mutation);
+    }
+  };
+  const oldAddressNoteObserver = new MutationObserver(oldAddressNoteObserverHandler);
+  document.querySelectorAll(".relay-email-address-note").forEach(oldAddressNote => {
+    oldAddressNoteObserver.observe(oldAddressNote, oldAddressNoteObserverConfig);
+  });
+
   // Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
 		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
