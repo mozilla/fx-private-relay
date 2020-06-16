@@ -125,7 +125,7 @@ def _index_DELETE(request_data, user_profile):
 @csrf_exempt
 def sns_inbound(request):
     # We can check for some invalid values in headers before processing body
-    #Grabs message information for validation
+    # Grabs message information for validation
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
     
