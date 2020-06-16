@@ -129,7 +129,7 @@ def sns_inbound(request):
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
     
-    #Validates header
+    # Validates header
     validate_sns_header(topic_arn, message_type)
     
     json_body = json.loads(request.body)
