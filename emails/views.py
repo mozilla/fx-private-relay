@@ -3,6 +3,7 @@ from email import message_from_string, policy
 from email.utils import parseaddr
 from email.headerregistry import Address
 from hashlib import sha256
+from sentry_sdk import capture_message
 import json
 import logging
 import markus
@@ -206,6 +207,7 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
         'SNS message type did not fall under the SNS inbound logic',
         extra={'message_type': message_type}
     )
+    capture_message('Received SNS message with type not handled in inbound log', level="error") # Handler for Sentry
     return HttpResponse('Received SNS message with type not handled in inbound log', status=400)
 
 
