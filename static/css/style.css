@@ -871,6 +871,23 @@ table {
   margin: auto auto 0 0;
 }
 
+.legacy-addon-show-label {
+  visibility: visible;
+}
+
+.legacy-addon-show-label::after {
+  display: none !important;
+}
+
+.relay-email-address-note {
+  visibility: hidden;
+  position: absolute;
+}
+
+.legacy-addon-show-label .relay-email-address-label {
+  width: 200px;
+}
+
 input::placeholder,
 .relay-email-address-label:placeholder-shown {
   color: var(--grey50);
