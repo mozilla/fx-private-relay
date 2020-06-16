@@ -235,17 +235,6 @@ function addEventListeners() {
     clickToCopy.addEventListener("click", copyToClipboardAndShowMessage);
   });
 
-  const oldAddressNoteObserverConfig = { characterData: true };
-  const oldAddressNoteObserverHandler = (mutations, observer) => {
-    for (const mutation of mutations) {
-      console.log(mutation);
-    }
-  };
-  const oldAddressNoteObserver = new MutationObserver(oldAddressNoteObserverHandler);
-  document.querySelectorAll(".relay-email-address-note").forEach(oldAddressNote => {
-    oldAddressNoteObserver.observe(oldAddressNote, oldAddressNoteObserverConfig);
-  });
-
   // Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
 		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
@@ -290,26 +279,56 @@ function addEventListeners() {
 	});
 }
 
+function hasParent(el, selector) {
+  while (el.parentElement) {
+    el = el.parentElement;
+    if (el.classList.contains(selector)) {
+      return el;
+    }
+  }
+  return null;
+}
+
+function handleLegacyAddonLabels(legacyNoteElem) {
+  const legacyNote = legacyNoteElem.textContent;
+  const parentRelayAddressEl = hasParent(legacyNoteElem, "relay-email");
+  const labelWrapper = parentRelayAddressEl.querySelector(".additional-notes");
+  labelWrapper.classList.add("legacy-addon-show-label");
+
+  const labelInput = labelWrapper.querySelector(".relay-email-address-label");
+  labelInput.value = legacyNote;
+  labelInput.setAttribute("aria-label", `This relay address was created at ${legacyNote}`);
+  labelInput.setAttribute("readonly", "readonly");
+  return;
+}
+
 // Watch for the addon to update the dataset of <firefox-private-relay-addon></firefox-private-relay-addon>
+// and watch for older versions of the addon populating alias labels into .relay-email-address note els
 function watchForInstalledAddon() {
-	const installIndicator = document.querySelector("firefox-private-relay-addon");
+	const watchedEls = document.querySelectorAll("firefox-private-relay-addon, .relay-email-address-note");
 	const observerConfig = {
-		attributes: true,
+    attributes: true,
+    childList: true, // catches legacy addons modifying .relay-email-address-note els
 	};
 
 	const patrollerDuties = (mutations, mutationPatroller) => {
-		for (const mutation of mutations) {
-			if (mutation.type === "attributes" && isRelayAddonInstalled()) {
-				if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
-					sessionStorage.setItem("addonInstalled", "true");
-				}
-				mutationPatroller.disconnect();
-			}
-		}
+    for (const mutation of mutations) {
+      // handle legacy addon labeling
+      if (mutation.type === "childList" && mutation.target.classList.contains("relay-email-address-note")) {
+        handleLegacyAddonLabels(mutation.target);
+      }
+      if (mutation.type === "attributes" && isRelayAddonInstalled()) {
+        if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
+          sessionStorage.setItem("addonInstalled", "true");
+        }
+      }
+    }
 	};
 
-	const mutationPatroller = new MutationObserver(patrollerDuties);
-	mutationPatroller.observe(installIndicator, observerConfig);
+  const mutationPatroller = new MutationObserver(patrollerDuties);
+  watchedEls.forEach(watchedEl => {
+    mutationPatroller.observe(watchedEl, observerConfig);
+  });
 }
 
 
