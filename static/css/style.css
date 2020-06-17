@@ -1631,6 +1631,67 @@ input::placeholder,
   margin-top: 0;
 }
 
+.dashboard-onboarding-header {
+  margin: 2em auto;
+  font-size: 20px;
+  text-align: center;
+  color: var(--ink);
+}
+
+.dashboard-onboarding-list {
+  margin: auto;
+  max-width: 500px;
+  padding: 0;
+}
+
+.dashboard-onboarding-list-item {
+  margin-bottom: 3em;
+  color: var(--grey60);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.dashboard-onboarding-list-item.tip-1 {
+  position: relative;
+}
+
+.img-arrow-up {
+  position: absolute;
+  right: -172px;
+  max-width: 210px;
+  top: -83px;
+}
+
+.img-input-icon,
+.img-context-menu {
+  max-width: 300px;
+  margin: 2em auto;
+}
+
+.onboarding-num {
+  background: var(--ink70);
+  color: rgba(255, 255, 255, 1);
+  height: 32px;
+  width: 32px;
+  min-width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  margin: .25em 1em auto 0;
+}
+
+.mimic-create-alias-button {
+  background-color: var(--grey30);
+  border-radius: 2px;
+  height: 16px;
+  width: 16px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto 3px;
+}
+
 @media screen and (max-width: 1050px) {
   .home-hero {
     align-items: flex-start;
@@ -1719,6 +1780,12 @@ input::placeholder,
 
   .home-hero {
     min-height: 50vh;
+  }
+}
+
+@media screen and (max-width: 940px) {
+  .img-arrow-up {
+    display: none;
   }
 }
 
