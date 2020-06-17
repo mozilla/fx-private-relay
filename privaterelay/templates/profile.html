@@ -26,6 +26,7 @@
         <div class="dashboard-greeting">
           <span class="dashboard-greeting-message">Welcome, <span class="demi">{{ request.user.email }}</span>!</span>
         </div>
+        {% include "includes/banners.html" %}
         <div class="flx flx-row dashboard-header inset">
           <h2 class="section-headline dashboard-headline">Manage your relay addresses</h2>
           <div class="remaining-aliases-wrapper flx al-cntr jst-cntr hide-750">

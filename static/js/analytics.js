@@ -157,4 +157,12 @@ if (!_dntEnabled()) {
       }
     });
   });
+
+  document.querySelectorAll(".banner-link").forEach(outboundLink => {
+    outboundLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      sendGaPing("Outbound Link", "Click", outboundLink.textContent);
+      window.open(outboundLink.href);
+    });
+  });
 })();
