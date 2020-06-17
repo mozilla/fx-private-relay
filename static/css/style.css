@@ -212,6 +212,11 @@ button:active {
   position: relative;
 }
 
+.how-it-works-steps,
+.how-it-works-content {
+  width: 100%;
+}
+
 .how-it-works-header {
   font-size: 2em;
   margin: 0 auto 20px auto;
@@ -224,16 +229,40 @@ button:active {
   margin-bottom: 4em;
 }
 
+.step-illustration {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 300px;
+  min-width: 300px;
+  max-width: 300px;
+  border-radius: 12px;
+  border: 1px solid #AB71FF;
+  margin: 0 auto 2em auto;
+}
+
+.step-1.step-illustration {
+  background-image: url("/static/images/how-it-works/how-it-works-1.svg");
+}
+
+.step-2.step-illustration {
+  background-image: url("/static/images/how-it-works/how-it-works-2.svg");
+}
+
+.step-3.step-illustration {
+  background-image: url("/static/images/how-it-works/how-it-works-3.svg");
+}
+
 .step {
   flex-direction: column;
   flex: 0 1 31.333%;
 }
 
 .step-text {
-  padding: 0 1em;
   display: flex;
   justify-content: center;
   flex-direction: column;
+  max-width: 300px;
 }
 
 .step-headline {
@@ -249,14 +278,6 @@ button:active {
   line-height: 1.7em;
   letter-spacing: 0.009em;
   font-weight: 100;
-}
-
-.step-illustration {
-  min-height: 260px;
-  min-width: 300px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 2em;
 }
 
 .bold {
@@ -310,6 +331,7 @@ button:active {
   padding-right: 2.25em;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
 .txt-white {
@@ -1750,6 +1772,11 @@ input::placeholder,
     margin-bottom: auto;
   }
 
+  .step-text {
+    max-width: 100%;
+    padding: 0 2em;
+  }
+
   .step-body {
     line-height: 1.5;
     font-size: 0.9em;
@@ -1833,7 +1860,9 @@ input::placeholder,
   }
 
   .step-illustration {
-    margin-bottom: 1em;
+    margin-bottom: 2em;
+    width: 260px;
+    height: 260px;
   }
 
   .step-headline {
@@ -1940,10 +1969,6 @@ input::placeholder,
     border-bottom: none;
   }
 
-  .step-text {
-    padding: 1em;
-  }
-
   .waitlist-confirmation-message {
     font-size: 1em;
   }
@@ -1969,10 +1994,6 @@ input::placeholder,
     font-size: 12px;
     right: -190px;
     transform: rotate(31deg);
-  }
-
-  .step-illustration {
-    min-width: 100%;
   }
 
   .green-check,
