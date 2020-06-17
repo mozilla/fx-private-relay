@@ -123,6 +123,7 @@ SERVE_ADDON = config('SERVE_ADDON', None)
 
 # Application definition
 INSTALLED_APPS = [
+    'compressor',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -276,11 +277,22 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+STATICFILES_FINDERS = [
+  'compressor.finders.CompressorFinder',
+]
+
+COMPRESS_CSS_FILTERS = [
+  'compressor.filters.css_default.CssAbsoluteFilter',
+  'compressor.filters.cssmin.rCSSMinFilter',
+]
+
+COMPRESS_ENABLED = True
 
 SITE_ID = 1
 

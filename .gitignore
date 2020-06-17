@@ -7,4 +7,5 @@ env/
 __pycache__
 web-ext-artifacts/
 static/downloads
+static/CACHE
 htmlcov
