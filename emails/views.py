@@ -287,6 +287,10 @@ def _sns_message(message_json):
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
+        relay_header_text = ('This email was sent to your alias '
+            '{relay_address}. To stop receiving emails sent to this alias, '
+            'update the forwarding settings in your dashboard.\n'
+            '---Begin Email---\n').format(relay_address=display_email)
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': text_content}
 
     relay_from_address, relay_from_display = _generate_relay_From(from_address)
