@@ -116,8 +116,9 @@ def _index_PUT(request_data, user_profile):
 
 def _index_DELETE(request_data, user_profile):
     relay_address = _get_relay_address_from_id(request_data, user_profile)
-    # TODO?: create hard bounce receipt rule for the address
-    relay_address.delete()
+    if isinstance(relay_address, RelayAddress):
+        # TODO?: create hard bounce receipt rule for the address
+        relay_address.delete()
     return redirect('profile')
 
 
