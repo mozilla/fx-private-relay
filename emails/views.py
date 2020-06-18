@@ -312,10 +312,13 @@ def _get_text_and_html_content(email_message):
             if message_payload.get_content_type() == 'text/html':
                 html_content = content
     else:
-        message_payload = email_message.get_payload()
-        if type(message_payload) == str:
-            text_content = message_payload
+        if email_message.get_content_type() == 'text/plain':
+            text_content = email_message.get_content()
+        if email_message.get_content_type() == 'text/html':
+            html_content = email_message.get_content()
 
+    # TODO: if html_content is still None, wrap the text_content with our
+    # header and footer HTML and send that as the html_content
     return text_content, html_content
 
 
