@@ -1,16 +1,3 @@
-.new-menu-wrapper {
-  position: fixed;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  z-index: 9999999999999999999999;
-  background-color:rgba(0, 0, 0, .1);
-}
-
-
 @font-face {
   font-family: "Metropolis";
   font-style: normal;
@@ -32,33 +19,6 @@
   src: url("/fonts/Metropolis/Metropolis-Light.woff2") format("woff2");
 }
 
-/* @font-face {
-  font-family: 'Inter UI';
-  font-style: normal;
-  font-weight: 400;
-  src:
-    url("/fonts/Inter/Inter-UI-Regular.woff2") format("woff2"),
-    url("/fonts/Inter/Inter-UI-Regular.woff") format("woff");
-}
-
-@font-face {
-  font-family: 'Inter UI';
-  font-style: normal;
-  font-weight: 400;
-  src:
-    url("/fonts/Inter/Inter-UI-Regular.woff2") format("woff2"),
-    url("/fonts/Inter/Inter-UI-Regular.woff") format("woff");
-}
-
-@font-face {
-  font-family: 'Inter UI';
-  font-style: normal;
-  font-weight: 700;
-  src:
-    url("/fonts/Inter/Inter-UI-Medium.woff2") format("woff2"),
-    url("/fonts/Inter/Inter-UI-Medium.woff") format("woff");
-} */
-
 .first-run,
 :root,
 .panel,
@@ -68,7 +28,6 @@
   --blue4: #0250bb;
   --blueHover: #003eaa;
   --blueActive: #002275;
-  /* --blueButtonFocus: 0 0 0 1px #0a84ff, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3); */
   --blueButtonFocus: 0 0 1px 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
   --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
   --grey10: hsl(240, 9%, 98%);
@@ -90,6 +49,18 @@
   --violet: #9059ff;
   font-family: open-sans, sans-serif;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.new-menu-wrapper {
+  position: fixed;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 9999999999999999999999;
+  background-color:rgba(0, 0, 0, .1);
 }
 
 ::-moz-focus-inner {
@@ -193,13 +164,11 @@ logomark,
 }
 
 .zap::after {
-  /* display: block; */
   background-position: bottom center;
   background-repeat: no-repeat;
   background-size: contain;
   height: 7px;
   content: "";
-  /* margin: -5px -2px -2px -2px; */
 }
 
 .zap-18::after {
@@ -287,9 +256,7 @@ logomark,
   width: 100%;
 }
 
-
 /* input icon & icon messaging */
-
 
 .relay-menu {
   width: 300px;

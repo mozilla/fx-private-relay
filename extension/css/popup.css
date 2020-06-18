@@ -158,7 +158,6 @@ a.setting-label:active {
 
 .show-settings settings {
   visibility: visible;
-  /* opacity: 1; */
   transform: translateX(0);
   transition: all 0.3s ease;
 }
@@ -377,7 +376,6 @@ footer {
 .footer-button:focus {
   background-color: var(--grey40);
 }
-
 
 /* onboarding */
 

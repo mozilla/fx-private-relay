@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       url.searchParams.append(utmKey, params[utmKey]);
     }
     return url;
-  }
+  };
 
   joinWaitlistLink.addEventListener("click", (e) => {
     e.preventDefault();
