@@ -385,7 +385,7 @@ footer {
 
 onboarding-panel {
   font-size: 14px !important;
-  padding: 24px 30px 60px 30px;
+  padding: 24px 30px 50px 30px;
   display: flex;
   align-items: flex-start;
   height: 100%;
@@ -395,48 +395,45 @@ onboarding-panel {
 }
 
 .onboarding-h1 {
-  margin: 0 auto 12px 0;
+  margin: auto auto 8px 0;
   font-size: 16px;
 }
 
 onboarding-panel p {
   text-align: left;
-  margin: 0;
+  margin: 0 0 8px 0;
 }
 
 .onboarding-img {
-  max-height: 142px;
+  max-height: 150px;
   position: absolute;
   right: 40px;
-  bottom: 70px;
+  top: 20px;
 }
 
 .panel1 img {
   right: 30px;
-  bottom: 66px;
-  max-height: 158px;
 }
 
 .panel2 img {
   max-height: 127px;
   left: 0;
   right: 0;
+  top: 30px;
   margin: auto;
 }
 
 .panel3 img {
   max-height: 155px;
   right: 30px;
-  bottom: 64px;
 }
 
 .maxAliasesPanel img {
-  max-height: 108px;
   position: absolute;
   right: 0;
   left: 0;
-  bottom: 45px;
-  margin: 16px auto;
+  top: 44px;
+  margin: auto;
 }
 
 .maxAliasesPanel .onboarding-pagination {

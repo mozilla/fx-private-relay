@@ -15,15 +15,13 @@ function getOnboardingPanels() {
     },
     "panel3": {
       "imgSrc": "tip3-icon.svg",
-      "tipHeadline": "Placeholder tip headline",
-      "tipBody":"Placeholder tip copy about how you can block emails by going to the dashboard and toggling the toggles.",
+      "tipHeadline": "Getting too many emails?",
+      "tipBody":"Manage your relay addresses and easily toggle Forwarding to Blocking.",
     },
     "maxAliasesPanel": {
       "imgSrc": "high-five.svg",
       "tipHeadline": "High five!",
-      "tipBody": "Want more than 5 relay emails? Take our short survey and share your feedback!",
-      "linkCopy": "Take the survey",
-      "linkHref": "/",
+      "tipBody": "You’re a Firefox Relay power user!",
     }
   }
 }
@@ -57,14 +55,6 @@ function updatePanel(numRemaining, panelId) {
   tipHeadlineEl.textContent = panelToShow.tipHeadline;
   tipBodyEl.textContent = panelToShow.tipBody;
   currentPanel.textContent = `${panelId}`;
-
-  if (panelToShow.linkCopy) {
-    const surveyLink = document.createElement("a");
-    surveyLink.classList.add("survey-link");
-    surveyLink.href = panelToShow.linkHref;
-    surveyLink.textContent = panelToShow.linkCopy;
-    onboardingPanelWrapper.appendChild(surveyLink);
-  }
 }
 
 
