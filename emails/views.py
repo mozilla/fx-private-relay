@@ -97,7 +97,6 @@ def _get_relay_address_from_id(request_data, user_profile):
         )
         return relay_address
     except RelayAddress.DoesNotExist as e:
-        print(e)
         return HttpResponse("Address does not exist")
 
 
