@@ -137,6 +137,7 @@ async function addRelayIconToInput(emailInput) {
     const smallIconSize = "24px";
     relayIconBtn.style.height = smallIconSize;
     relayIconBtn.style.width = smallIconSize;
+    relayIconBtn.style.minWidth = smallIconSize;
     emailInput.style.paddingRight = "30px";
     divEl.style.right = "2px";
   }

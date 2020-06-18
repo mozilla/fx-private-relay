@@ -459,15 +459,16 @@ button.in-page-menu-generate-alias-btn[disabled] {
   box-sizing: inherit;
 }
 
-.relay-button {
+button.relay-button {
   padding: 0 !important;
   width: 30px;
   height: 30px;
   max-width: 30px !important;
+  min-width: 30px;
   background-image: url("/icons/make-new-alias.png");
   background-repeat: no-repeat;
   background-position: center center;
-  background-size: 86%;
+  background-size: 85%;
   background-color: transparent !important;
   outline: none !important;
   border-radius: 4px;
