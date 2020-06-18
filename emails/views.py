@@ -333,6 +333,7 @@ def _get_text_and_html_content(email_message):
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
+            html_content = email_message.get_content()
         if email_message.get_content_type() == 'text/html':
             html_content = email_message.get_content()
 
