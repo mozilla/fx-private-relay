@@ -15,9 +15,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   joinWaitlistLink.addEventListener("click", (e) => {
     e.preventDefault();
     const utms = {
-      "utm_source": "extension",
+      "utm_source": "fx-relay-addon",
       "utm_medium": "first-run-landing-page",
-      "utm_campaign": "join-waitlist",
+      "utm_campaign": "beta",
+      "utm_content": "join-waitlist",
     };
 
     let relayUrl = new URL(relaySiteOrigin);

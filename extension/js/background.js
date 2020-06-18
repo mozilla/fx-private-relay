@@ -4,6 +4,8 @@ browser.storage.local.set({ "maxNumAliases": 5 });
 browser.storage.local.set({ "showInputIcons": "show-input-icons" });
 browser.storage.local.set({ "relaySiteOrigin": RELAY_SITE_ORIGIN });
 browser.storage.local.set({ "fxaOauthFlow": `${RELAY_SITE_ORIGIN}/accounts/fxa/login/?process=login` });
+
+
 browser.runtime.onInstalled.addListener(async () => {
   const url = browser.runtime.getURL("first-run.html");
   await browser.tabs.create({ url });
@@ -97,10 +99,9 @@ browser.runtime.onMessage.addListener(async (m) => {
       break;
     case "openRelayHomepage":
       browser.tabs.create({
-        url: RELAY_SITE_ORIGIN,
+        url: `${RELAY_SITE_ORIGIN}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=go-to-fx-relay`,
       });
       break;
   }
-
   return response;
 });

@@ -76,8 +76,6 @@ settings {
 }
 
 a.setting-label {
-  padding-top: 12px;
-  padding-bottom: 12px;
   text-decoration: none;
 }
 
@@ -434,6 +432,7 @@ onboarding-panel p {
   left: 0;
   top: 44px;
   margin: auto;
+  max-height: 140px;
 }
 
 .maxAliasesPanel .onboarding-pagination {
