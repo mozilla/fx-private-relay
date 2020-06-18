@@ -102,6 +102,8 @@ def _get_relay_address_from_id(request_data, user_profile):
 
 def _index_PUT(request_data, user_profile):
     relay_address = _get_relay_address_from_id(request_data, user_profile)
+    if not isinstance(relay_address, RelayAddress):
+        return relay_address
     if request_data.get('enabled') == 'Disable':
         # TODO?: create a soft bounce receipt rule for the address?
         relay_address.enabled = False
