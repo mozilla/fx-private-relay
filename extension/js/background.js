@@ -7,8 +7,12 @@ browser.storage.local.set({ "fxaOauthFlow": `${RELAY_SITE_ORIGIN}/accounts/fxa/l
 
 
 browser.runtime.onInstalled.addListener(async () => {
+  const userApiToken = await browser.storage.local.get("apiToken");
+  const apiKeyInStorage = (userApiToken.hasOwnProperty("apiToken"));
   const url = browser.runtime.getURL("first-run.html");
-  await browser.tabs.create({ url });
+  if (!apiKeyInStorage) {
+    await browser.tabs.create({ url });
+  }
 });
 
 async function makeRelayAddress(domain=null) {

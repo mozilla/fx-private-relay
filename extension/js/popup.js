@@ -5,7 +5,7 @@ function getOnboardingPanels() {
     "panel1": {
       "imgSrc": "tip1-icon.svg",
       "tipHeadline": "Welcome!",
-      "tipBody": "When the Firefox Relay icon appears on a website, select it to generate a new relay address."
+      "tipBody": "When the Firefox Relay icon appears on a website, select it to generate a new relay address.",
 
     },
     "panel2": {
@@ -22,8 +22,8 @@ function getOnboardingPanels() {
       "imgSrc": "high-five.svg",
       "tipHeadline": "High five!",
       "tipBody": "You’re a Firefox Relay power user!",
-    }
-  }
+    },
+  };
 }
 
 
@@ -33,32 +33,27 @@ function showSignUpPanel() {
   return signUpOrInPanel.classList.remove("hidden");
 }
 
-function updatePanel(numRemaining, panelId) {
+
+async function showRelayPanel(tipPanelToShow) {
   const onboardingPanelWrapper = document.querySelector("onboarding-panel");
-  const onboardingPanelStrings = getOnboardingPanels();
-  let panelToShow = `panel${panelId}`;
-
-  if (numRemaining === 0) {
-    panelToShow = "maxAliasesPanel";
-  }
-
-  onboardingPanelWrapper.classList = [panelToShow];
-
-  panelToShow = onboardingPanelStrings[`${panelToShow}`];
-
   const tipImageEl = onboardingPanelWrapper.querySelector("img");
   const tipHeadlineEl = onboardingPanelWrapper.querySelector("h1");
   const tipBodyEl = onboardingPanelWrapper.querySelector("p");
   const currentPanel = onboardingPanelWrapper.querySelector(".current-panel");
+  const onboardingPanelStrings = getOnboardingPanels();
 
-  tipImageEl.src = `/images/panel-images/${panelToShow.imgSrc}`;
-  tipHeadlineEl.textContent = panelToShow.tipHeadline;
-  tipBodyEl.textContent = panelToShow.tipBody;
-  currentPanel.textContent = `${panelId}`;
-}
+  const updatePanel = (numRemaining, panelId) => {
+    const panelToShow = (numRemaining === 0) ? "maxAliasesPanel" : `panel${panelId}`;
+    onboardingPanelWrapper.classList = [panelToShow];
+    const panelStrings = onboardingPanelStrings[`${panelToShow}`];
 
+    tipImageEl.src = `/images/panel-images/${panelStrings.imgSrc}`;
+    tipHeadlineEl.textContent = panelStrings.tipHeadline;
+    tipBodyEl.textContent = panelStrings.tipBody;
+    currentPanel.textContent = `${panelId}`;
+    return;
+  };
 
-async function showRelayPanel(tipPanelToShow) {
   const { relayAddresses, maxNumAliases } = await getRemainingAliases();
   const remainingAliasMessage = document.querySelector(".aliases-remaining");
   const numRemainingEl = remainingAliasMessage.querySelector(".num-aliases-remaining");
@@ -86,26 +81,6 @@ async function showRelayPanel(tipPanelToShow) {
 
 async function getAllAliases() {
   return await browser.storage.local.get("relayAddresses");
-}
-
-
-async function makeNewAlias() {
-  const newRelayAddressResponse = await browser.runtime.sendMessage({
-    method: "makeRelayAddress",
-  });
-
-  return newRelayAddressResponse;
-}
-
-
-function copyAliasToClipboard(copyBtn) {
-  document.querySelectorAll(".alias-copied").forEach(previouslyCopiedAlias => {
-    previouslyCopiedAlias.classList.remove("alias-copied");
-    previouslyCopiedAlias.title = "Copy alias to clipboard";
-  });
-  copyBtn.classList.add("alias-copied");
-  copyBtn.title = "Alias copied to your clipboard";
-  window.navigator.clipboard.writeText(copyBtn.dataset.relayAddress);
 }
 
 
@@ -174,6 +149,17 @@ async function popup() {
       await browser.tabs.create({ url: el.href });
       window.close();
     });
+  });
+
+  const { fxaOauthFlow } = await browser.storage.local.get("fxaOauthFlow");
+  const { relaySiteOrigin } = await browser.storage.local.get("relaySiteOrigin");
+
+  document.querySelectorAll(".login-link").forEach(loginLink => {
+    loginLink.href = fxaOauthFlow;
+  });
+
+  document.querySelectorAll(".dashboard-link").forEach(dashboardLink => {
+    dashboardLink.href = `${relaySiteOrigin}/accounts/profile?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta&utm_content=manage-relay-addresses`;
   });
 }
 

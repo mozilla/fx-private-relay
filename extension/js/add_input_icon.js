@@ -209,8 +209,6 @@ async function addRelayIconToInput(emailInput) {
     relayMenuDashboardLink.textContent = "Manage Relay Addresses";
     relayMenuDashboardLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=manage-relay-addresses`;
     relayMenuDashboardLink.target = "_blank";
-    // relayInPageMenu.appendChild(generateAliasBtn);
-
 
     // Restrict tabbing to relay menu elements
     restrictOrRestorePageTabbing(-1);
