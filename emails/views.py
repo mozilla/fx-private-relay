@@ -291,7 +291,8 @@ def _sns_message(message_json):
             '{relay_address}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
             '---Begin Email---\n').format(relay_address=display_email)
-        message_body['Text'] = {'Charset': 'UTF-8', 'Data': text_content}
+        wrapped_text = relay_header_text + text_content
+        message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     relay_from_address, relay_from_display = _generate_relay_From(from_address)
     formatted_from_address = str(
