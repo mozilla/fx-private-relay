@@ -18,7 +18,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 1. Clone and change to the directory:
 
     ```sh
-    git clone git@github.com:mozilla/fx-private-relay.git
+    git clone github.com/mozilla/fx-private-relay.git
     cd fx-private-relay
     ```
 
