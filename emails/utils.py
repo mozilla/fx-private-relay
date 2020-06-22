@@ -5,6 +5,7 @@ from socketlabs.injectionapi import SocketLabsClient
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.template.defaultfilters import linebreaksbr, urlize
 
 
 logger = logging.getLogger('events')
@@ -36,3 +37,10 @@ def socketlabs_send(sl_client, sl_message):
     except Exception:
         logger.exception("exception during sl send")
         return HttpResponse("Internal Server Error", status=500)
+
+
+def urlize_and_linebreaks(text, autoescape=True):
+    return linebreaksbr(
+        urlize(text, autoescape=autoescape),
+        autoescape=autoescape
+    )
