@@ -350,6 +350,43 @@ function watchForInstalledAddon() {
 }
 
 
+function showBannersIfNecessary() {
+  if (window.clientWidth < 750) {
+    return;
+  }
+  const dashboardBanners = document.querySelector(".dashboard-banners");
+  const bg = dashboardBanners.querySelector(".banner-gradient-bg");
+  if (!dashboardBanners) {
+    return;
+  }
+  const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
+  const relayAddonIsInstalled = isRelayAddonInstalled();
+  if (browserIsFirefox && relayAddonIsInstalled) {
+    return;
+  }
+
+  const showBanner = (bannerEl) => {
+    bg.style.minHeight = "101px";
+    setTimeout(()=> {
+      bannerEl.classList.remove("hidden");
+      dashboardBanners.classList.remove("invisible");
+    }, 100);
+    return;
+  };
+
+  if (!browserIsFirefox) {
+    const firefoxBanner = dashboardBanners.querySelector(".download-fx-banner");
+    showBanner(firefoxBanner);
+    return;
+  }
+
+  if (!relayAddonIsInstalled) {
+    const relayAddonBanner = dashboardBanners.querySelector(".install-addon-banner");
+    return showBanner(relayAddonBanner);
+  }
+}
+
+
 document.addEventListener("DOMContentLoaded", () => {
   watchForInstalledAddon();
   addEventListeners();
@@ -372,6 +409,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     setHeader(win.pageYOffset);
   };
+
+  showBannersIfNecessary();
 });
 
 class GlocalMenu extends HTMLElement {
