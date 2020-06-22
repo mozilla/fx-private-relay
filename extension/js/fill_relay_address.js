@@ -1,4 +1,5 @@
-function showModal(modalType, newAlias=null) {
+async function showModal(modalType, newAlias=null) {
+  const { relaySiteOrigin } = await browser.storage.local.get("relaySiteOrigin");
   const modalWrapper = document.createElement("div");
   modalWrapper.classList = ["relay-modal-wrapper"];
 
@@ -48,15 +49,15 @@ function showModal(modalType, newAlias=null) {
     modalContent.appendChild(modalMessage);
 
     const manageAliasesLink = document.createElement("a");
-    manageAliasesLink.textContent = "Manage Aliases";
+    manageAliasesLink.textContent = "Manage Relay Addresses";
     manageAliasesLink.classList = ["new-tab"];
-    manageAliasesLink["href"] = "http://127.0.0.1:8000/accounts/profile";
+    manageAliasesLink["href"] = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_campaign=beta&utm_content=manage-relay-addresses`;
     modalContent.appendChild(manageAliasesLink);
   }
 
   const modalCloseButton = document.createElement("button");
   modalCloseButton.classList = ["relay-modal-close-button"];
-  modalCloseButton.textContent = "Got it!";
+  modalCloseButton.textContent = "Close";
 
   // Remove relay modal on button click
   modalCloseButton.addEventListener("click", () => {
