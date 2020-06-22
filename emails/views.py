@@ -25,7 +25,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
 from .models import DeletedAddress, Profile, RelayAddress
-from .utils import get_socketlabs_client, socketlabs_send
+from .utils import (
+    get_socketlabs_client,
+    socketlabs_send,
+    urlize_and_linebreaks)
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
@@ -334,7 +337,7 @@ def _get_text_and_html_content(email_message):
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
-            html_content = email_message.get_content()
+            html_content = urlize_and_linebreaks(email_message.get_content())
         if email_message.get_content_type() == 'text/html':
             html_content = email_message.get_content()
 
