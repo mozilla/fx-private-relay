@@ -60,7 +60,8 @@ def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
     relay_addresses = RelayAddress.objects.filter(user=request.user).ordery_by(
-        '-created_at')
+        '-created_at'
+    )
     fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
     avatar = fxa_account.extra_data['avatar'] if fxa_account else None
 
