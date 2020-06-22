@@ -841,6 +841,45 @@ table {
   box-shadow: var(--dropShadowDark);
   margin: auto;
   min-height: 460px;
+  position: relative;
+}
+
+.hero-slide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  opacity: 0;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  transition: opacity 0.3s ease;
+}
+
+.active-slide {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.hero-1 {
+  background-image: url("/static/images/hero-slides/hero-1.png");
+}
+
+.hero-2 {
+  background-image: url("/static/images/hero-slides/hero-2.png");
+}
+
+.hero-3 {
+  background-image: url("/static/images/hero-slides/hero-3.png");
+}
+
+.hero-4 {
+  background-image: url("/static/images/hero-slides/hero-4.png");
+}
+
+.hero-5 {
+  background-image: url("/static/images/hero-slides/hero-5.png");
 }
 
 .hero-left {
