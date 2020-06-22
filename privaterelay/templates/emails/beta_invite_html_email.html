@@ -1,1 +1,182 @@
-<a href="{{ current_domain }}">Join the beta</a>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width"/>
+    <title>Firefox Relay</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif !important;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      a.blue-link:hover {
+        color: #0250bb;
+        text-decoration: underline;
+        padding: 2px;
+        border-radius: 2px;
+      }
+
+      a.focus {
+        box-shadow: 0 0 0 1px #0a84ff, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+      }
+
+      a,
+      a:hover,
+      a:focus,
+      a:active {
+        transition: all 0.2s ease;
+      }
+
+      .relay-text {
+        line-height: 1.5;
+      }
+
+      .visit-dashboard {
+        background-color: rgb(237, 237, 240);
+      }
+
+      .visit-dashboard:hover,
+      .visit-dashboard:focus {
+        background-color: rgba(215, 215, 219, 1);
+      }
+
+      .visit-dashboard:active {
+        background-color: rgba(177, 177, 179, 1);
+      }
+
+      @media screen and (max-width: 600px) {
+        #footer-table {
+          max-width: 300px !important;
+        }
+
+        #footer-table td {
+          width: 100%;
+          max-width: 100%;
+          min-width: 100%;
+          text-align: center;
+          display: block;
+          padding: 0 !important;
+        }
+
+        #header-text {
+          padding-left: 10px !important;
+        }
+
+        #footer-table img {
+          max-width: 180px !important;
+        }
+      }
+    </style>
+  </head>
+  <body style="padding: 0; margin: 0;">
+    <table width="100%" align="center" bgcolor="#f9f9fa" style="background: #f9f9fa; padding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12px; margin-top: 0px; margin-bottom: 30px; width: 100%;"">
+      <tr>
+        <td align="center" valign="top" width="100%" style="max-width:500px; padding-top: 30px; padding-bottom: 30px;">
+          <table align="center" id="footer-table" width="100%" style="max-width: 500px; border-collapse: collapse;">
+            <tr>
+              <td align="left" style="text-align: left; padding-bottom: 30px; padding-top: 0;">
+                <img width="100%" src="{{ current_domain }}/static/images/email-images/relay-beta-logo-emails.png" style="display: inline-block; margin-bottom: 0px; width:100%; min-width: 100px; max-width: 200px;" alt="Relay Logo" />
+              </td>
+            </tr>
+            <tr>
+              <td align="left" style="text-align: left; padding-bottom: 30px; padding-top: 0;">
+                <h1 style="font-family: sans-serif; color: #20123a; margin-top: 0; margin-bottom: 8px;">The wait is over!</h1>
+                <h2 style="font-family: sans-serif; color: #20123a; margin-top: 0; margin-bottom: 8px; line-height: 1.5;">You’re invited to join the Firefox Relay closed beta, available now for Firefox desktop.</h2>
+              </td>
+            </tr>
+            <tr>
+              <td align="left" style="text-align: left; padding-bottom: 30px; padding-top: 0;">
+                <p style="font-family: sans-serif; color: #363959; margin-top: 0; margin-bottom: 8px; line-height: 1.5; font-size: 15px;">
+                  With Firefox Relay, you can quickly generate an email alias to register for websites, newsletters, offers and accounts, while keeping your real email address private and your identity safe.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td align="left" style="text-align: left; padding-bottom: 16px; padding-top: 0; padding-left: 44px;">
+                <p style="margin-top: 0; margin-bottom: 4px; color: #30123a; font-weight: bold; line-height: 1.5; font-family: sans-serif; font-size: 15px;">
+                  Cut the Spam
+                </p>
+                <p style="font-family: sans-serif; color: #363959; margin-top: 0; margin-bottom: 8px; line-height: 1.5; font-size: 15px;">
+                  Registering with an alias from Firefox Relay lets you easily manage and cut off unwanted emails from your personal dashboard.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td align="left" style="text-align: left; padding-bottom: 16px; padding-top: 0; padding-left: 44px;">
+                <p style="margin-top: 0; margin-bottom: 4px; color: #30123a; font-weight: bold; line-height: 1.5; font-family: sans-serif; font-size: 15px;">
+                  Protect Your Identity
+                </p>
+                <p style="font-family: sans-serif; color: #363959; margin-top: 0; margin-bottom: 8px; line-height: 1.5; font-size: 15px;">
+                  Combining a Private Relay alias with a strong password makes it even harder for hackers to learn your identity, even if you’ve been involved in a data breach.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td align="left" style="text-align: left; padding-bottom: 24px; padding-top: 0; padding-left: 44px;">
+                <p style="margin-top: 0; margin-bottom: 4px; color: #30123a; font-weight: bold; line-height: 1.5; font-family: sans-serif; font-size: 15px;">
+                  Maintain Anonymity
+                </p>
+                <p style="font-family: sans-serif; color: #363959; margin-top: 0; margin-bottom: 8px; line-height: 1.5; font-size: 15px;">
+                  Add another layer of personal safety from harassment online by using a Firefox Relay alias to register in forums or social platforms.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="text-align: center; padding-bottom: 16px; max-width: 200px;">
+                <table align="center" width="100%" style="max-width: 200px;">
+                  <tr>
+                    <td width="100%" class="email-button-wrapper" align="center" bgcolor="#0060df" style="width: 100%; border-radius: 8px; font-family: sans-serif;">
+                      <a class="email-button" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=email&utm_medium=get-started-btn&utm_campaign=join-beta" rel="noopener" target="_blank" style="text-align: center; text-decoration: none; color: #ffffff; padding-top: 12px; padding-right: 30px; padding-left: 30px; padding-bottom: 12px; display: inline-block; font-size: 15px; box-sizing: border-box; width: 100%;">
+                        Get Started
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="text-align:center; padding-bottom: 30px; padding-top: 0; max-width: 300px;">
+                <table align="center" width="100%" style="max-width: 300px;">
+                  <tr>
+                    <td>
+                      <p style="font-family: sans-serif; color: #363959; margin-top: 0; margin-bottom: 8px; line-height: 1.5; font-size: 13px;">
+                        <i>Please note that the Firefox Relay closed beta is currently only available in the United States.</i>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td align="left" style="text-align: left; padding-bottom: 60px; padding-top: 0; border-bottom: 1px solid #eee;">
+                <p style="font-family: sans-serif; color: #363959; margin-top: 0; margin-bottom: 8px; line-height: 1.5; font-size: 15px;">
+                  Stay safe,<br/>
+                  The Firefox Relay Team
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="text-align:center; padding-bottom: 30px; padding-top: 60px; max-width: 300px;">
+                <table align="center" width="100%" style="max-width: 300px;">
+                  <tr>
+                    <td>
+                      <p style="font-family: sans-serif; color: #363959; margin-top: 0; margin-bottom: 4px; line-height: 1.5; font-size: 12px;">Mozilla. 331 E Evelyn Ave, Mountain View, CA 94041</p>
+                      <a class="blue-link" href="https://www.mozilla.org/privacy/" rel="noopener noreferrer" target="_blank"  style="color: #0060df; text-decoration: none; line-height: 1.5; font-size: 12px; margin-top: 0; margin-bottom: 0;">Mozilla Privacy Policy</a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+         </td>
+      </tr>
+    </table>
+  </body>
+</html>

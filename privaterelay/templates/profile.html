@@ -53,6 +53,10 @@
           </form>
         </div>
 
+        {% if relay_addresses|length == 0 %}
+          {% include "includes/dashboard_onboarding.html" %}
+        {% endif %}
+
         {% for relay_address in relay_addresses %}
           <div class="relay-email {% if relay_address.enabled %} card-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
             <div class="relay-email-row card-top-row flx flx-row inset">
@@ -60,7 +64,7 @@
               <div class="additional-notes hide-mobile">
                 <input data-label="" type="text" maxlength="50" value="" aria-label="Edit the label for this alias" class="relay-email-address-label ff-Met">
                 <span class="saved-confirmation">Label saved!</span>
-                <span class="input-error"><span class="forbidden-char bold"></span> is not an allowed character.</span>
+                <span class="input-error"></span>
               </div>
 
               <!-- enable/disable email forwarding -->

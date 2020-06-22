@@ -212,6 +212,11 @@ button:active {
   position: relative;
 }
 
+.how-it-works-steps,
+.how-it-works-content {
+  width: 100%;
+}
+
 .how-it-works-header {
   font-size: 2em;
   margin: 0 auto 20px auto;
@@ -224,16 +229,40 @@ button:active {
   margin-bottom: 4em;
 }
 
+.step-illustration {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 300px;
+  min-width: 300px;
+  max-width: 300px;
+  border-radius: 12px;
+  border: 1px solid #AB71FF;
+  margin: 0 auto 2em auto;
+}
+
+.step-1.step-illustration {
+  background-image: url("/static/images/how-it-works/how-it-works-1.svg");
+}
+
+.step-2.step-illustration {
+  background-image: url("/static/images/how-it-works/how-it-works-2.svg");
+}
+
+.step-3.step-illustration {
+  background-image: url("/static/images/how-it-works/how-it-works-3.svg");
+}
+
 .step {
   flex-direction: column;
   flex: 0 1 31.333%;
 }
 
 .step-text {
-  padding: 0 1em;
   display: flex;
   justify-content: center;
   flex-direction: column;
+  max-width: 300px;
 }
 
 .step-headline {
@@ -249,14 +278,6 @@ button:active {
   line-height: 1.7em;
   letter-spacing: 0.009em;
   font-weight: 100;
-}
-
-.step-illustration {
-  min-height: 260px;
-  min-width: 300px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 2em;
 }
 
 .bold {
@@ -310,6 +331,7 @@ button:active {
   padding-right: 2.25em;
   margin-left: auto;
   margin-right: auto;
+  width: 100%;
 }
 
 .txt-white {
@@ -519,7 +541,6 @@ table {
   background-color: white;
   border-radius: 4px;
   position: relative;
-  overflow: hidden;
   transition: all 0.2s ease;
 }
 
@@ -856,7 +877,7 @@ table {
   font-size: 1em;
   border-radius: 4px;
   padding: 6px 24px 6px 6px;
-  width: 156px;
+  width: 188px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
@@ -895,6 +916,10 @@ input::placeholder,
   opacity: 1;
 }
 
+input:focus::placeholder {
+  opacity: 0;
+}
+
 .show-label.additional-notes {
   visibility: visible;
   pointer-events: all;
@@ -924,14 +949,18 @@ input::placeholder,
 
 .relay-email-address-label:hover {
   background: var(--grey20);
-  width: 165px;
+  width: 192px;
   transition: all 0.1s ease-in-out;
 }
 
 .relay-email-address-label:focus {
   box-shadow: var(--buttonFocus);
-  width: 200px !important;
   transition: all 0.2s ease-in-out;
+}
+
+.relay-email-address-label:focus,
+input.input-has-error {
+  width: 200px !important;
 }
 
 .saved-confirmation {
@@ -1482,16 +1511,22 @@ input::placeholder,
   transition: all 0.2s ease;
 }
 
-.column-forwarded,
+.num-forwarded,
+.card-enabled .column-forwarded .card-small-text,
 .card-enabled .column-blocked {
-  opacity: 0.7;
+  opacity: 1;
   transition: all 0.2s ease;
 }
 
 .num-forwarded,
 .card-enabled .num-blocked {
-  opacity: 0.4;
+  opacity: 0.3;
   transition: all 0.2s ease;
+}
+
+.column-forwarded .card-small-text,
+.card-enabled .column-blocked .card-small-text {
+  opacity: 0.5;
 }
 
 .num-remaining-aliases {
@@ -1746,6 +1781,98 @@ input::placeholder,
   background-image: url("/static/images/logos/fx-logo.svg");
 }
 
+.dashboard-onboarding-header {
+  margin: 2em auto;
+  font-size: 20px;
+  text-align: center;
+  color: var(--ink);
+}
+
+.dashboard-onboarding-list {
+  margin: auto;
+  max-width: 500px;
+  padding: 0;
+}
+
+.dashboard-onboarding-list-item {
+  margin-bottom: 3em;
+  color: var(--grey60);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.dashboard-onboarding-list-item.tip-1 {
+  position: relative;
+}
+
+.img-arrow-up {
+  position: absolute;
+  right: -172px;
+  max-width: 210px;
+  top: -83px;
+}
+
+.img-input-icon,
+.img-context-menu {
+  max-width: 300px;
+  margin: 2em auto;
+}
+
+.onboarding-num {
+  background: var(--ink70);
+  color: rgba(255, 255, 255, 1);
+  height: 32px;
+  width: 32px;
+  min-width: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  margin: .25em 1em auto 0;
+}
+
+.mimic-create-alias-button {
+  background-color: var(--grey30);
+  border-radius: 2px;
+  height: 16px;
+  width: 16px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto 3px;
+}
+
+.column-blocked {
+  position: relative;
+}
+
+.nested-grid {
+  cursor: default;
+}
+
+.blocked-description.show-message {
+  visibility: visible;
+  transition: all 0.3s ease;
+}
+
+.blocked-description {
+  position: absolute;
+  visibility: hidden;
+  bottom: -66px;
+  left: 20px;
+  font-size: 13px;
+  line-height: 1.5;
+  width: 260px;
+  background-color: var(--grey10);
+  border: 1px solid var(--grey30);
+  box-shadow: var(--dropShadowLight);
+  padding: 8px 16px;
+  border-radius: 4px;
+  z-index: 2;
+  opacity: 1;
+  transition: all 0.3s ease;
+}
+
 @media screen and (max-width: 1050px) {
   .home-hero {
     align-items: flex-start;
@@ -1804,6 +1931,11 @@ input::placeholder,
     margin-bottom: auto;
   }
 
+  .step-text {
+    max-width: 100%;
+    padding: 0 2em;
+  }
+
   .step-body {
     line-height: 1.5;
     font-size: 0.9em;
@@ -1811,6 +1943,11 @@ input::placeholder,
 
   .step-headline {
     margin-bottom: 0.75em;
+  }
+
+  .blocked-description {
+    right: 20px;
+    left: auto;
   }
 }
 
@@ -1834,6 +1971,12 @@ input::placeholder,
 
   .home-hero {
     min-height: 50vh;
+  }
+}
+
+@media screen and (max-width: 940px) {
+  .img-arrow-up {
+    display: none;
   }
 }
 
@@ -1881,7 +2024,9 @@ input::placeholder,
   }
 
   .step-illustration {
-    margin-bottom: 1em;
+    margin-bottom: 2em;
+    width: 260px;
+    height: 260px;
   }
 
   .step-headline {
@@ -1920,6 +2065,10 @@ input::placeholder,
 
   .faq {
     flex: 1 1 100%;
+  }
+
+  .blocked-description {
+    right: 0;
   }
 }
 
@@ -1988,10 +2137,6 @@ input::placeholder,
     border-bottom: none;
   }
 
-  .step-text {
-    padding: 1em;
-  }
-
   .waitlist-confirmation-message {
     font-size: 1em;
   }
@@ -2019,10 +2164,6 @@ input::placeholder,
     transform: rotate(31deg);
   }
 
-  .step-illustration {
-    min-width: 100%;
-  }
-
   .green-check,
   .grid {
     flex-direction: column;
@@ -2038,6 +2179,10 @@ input::placeholder,
 
   .invite-only-text {
     font-size: 1em;
+  }
+
+  .relay-email-card {
+    overflow: hidden;
   }
 
   .nested-grid,
@@ -2127,6 +2272,10 @@ input::placeholder,
 
   body {
     padding-top: 124px;
+  }
+
+  .blocked-description {
+    display: none;
   }
 }
 

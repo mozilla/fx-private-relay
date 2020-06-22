@@ -238,7 +238,25 @@ function addEventListeners() {
   // Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
 		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
-	});
+  });
+
+
+  if (window.outerWidth > 550) {
+    document.querySelectorAll(".column-blocked").forEach(blockedStatCol => {
+      const numBlocked = blockedStatCol.querySelector(".relay-stat-value.num-blocked");
+      const blockedDescription = blockedStatCol.querySelector(".blocked-description");
+      const blockedText = blockedStatCol.querySelector(".card-small-text");
+
+      [numBlocked, blockedText, blockedDescription].forEach(el => {
+        el.addEventListener("mouseover", (e) => {
+          blockedDescription.classList.toggle("show-message", !blockedDescription.classList.contains("show-message"));
+        });
+      });
+      blockedStatCol.addEventListener("mouseout", () => {
+        blockedDescription.classList.remove("show-message");
+      });
+    });
+  }
 
 	document.querySelectorAll(".create-new-relay").forEach(createNewRelayBtn => {
 		createNewRelayBtn.addEventListener("click", () => {

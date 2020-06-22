@@ -6,6 +6,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Firefox Relay makes it easy to create relay addresses, aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages." />
     <title>Firefox Relay</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/inter-ui.css' %}">
@@ -13,6 +14,7 @@
     <link rel="stylesheet" href="{% static 'css/fx-bento.css' %}">
     <link rel="stylesheet" href="{% static 'css/glocal-menu.css' %}">
     <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
+    <link rel=”apple-touch-icon” href="{% static 'images/logos/relay-logo-dark-200.png' %}">
   </head>
   <body data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}">
     <firefox-private-relay-addon data-addon-installed="false"></firefox-private-relay-addon>

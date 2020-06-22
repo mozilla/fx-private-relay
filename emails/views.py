@@ -3,6 +3,7 @@ from email import message_from_string, policy
 from email.utils import parseaddr
 from email.headerregistry import Address
 from hashlib import sha256
+from sentry_sdk import capture_message
 import json
 import logging
 import markus
@@ -24,7 +25,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
 from .models import DeletedAddress, Profile, RelayAddress
-from .utils import get_socketlabs_client, socketlabs_send
+from .utils import (
+    get_socketlabs_client,
+    socketlabs_send,
+    urlize_and_linebreaks)
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
@@ -97,12 +101,13 @@ def _get_relay_address_from_id(request_data, user_profile):
         )
         return relay_address
     except RelayAddress.DoesNotExist as e:
-        print(e)
         return HttpResponse("Address does not exist")
 
 
 def _index_PUT(request_data, user_profile):
     relay_address = _get_relay_address_from_id(request_data, user_profile)
+    if not isinstance(relay_address, RelayAddress):
+        return relay_address
     if request_data.get('enabled') == 'Disable':
         # TODO?: create a soft bounce receipt rule for the address?
         relay_address.enabled = False
@@ -117,51 +122,22 @@ def _index_PUT(request_data, user_profile):
 
 def _index_DELETE(request_data, user_profile):
     relay_address = _get_relay_address_from_id(request_data, user_profile)
-    # TODO?: create hard bounce receipt rule for the address
-    relay_address.delete()
+    if isinstance(relay_address, RelayAddress):
+        # TODO?: create hard bounce receipt rule for the address
+        relay_address.delete()
     return redirect('profile')
 
 
 @csrf_exempt
 def sns_inbound(request):
     # We can check for some invalid values in headers before processing body
+    # Grabs message information for validation
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
-    if not topic_arn:
-        logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
-        return HttpResponse(
-            'Received SNS request without Topic ARN.', status=400
-        )
-    if topic_arn != settings.AWS_SNS_TOPIC:
-        logger.error(
-            'SNS message for wrong ARN',
-            extra={
-                'configured_arn': settings.AWS_SNS_TOPIC,
-                'received_arn': topic_arn,
-            }
-        )
-        return HttpResponse(
-            'Received SNS message for wrong topic.', status=400
-        )
-
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
-    if not message_type:
-        logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
-        return HttpResponse(
-            'Received SNS request without Message Type.', status=400
-        )
-    if message_type not in SUPPORTED_SNS_TYPES:
-        logger.error(
-            'SNS message for unsupported type',
-            extra={
-                'supported_sns_types': SUPPORTED_SNS_TYPES,
-                'message_type': message_type,
-            }
-        )
-        return HttpResponse(
-            'Received SNS message for unsupported Type: %s' % message_type,
-            status=400
-        )
-
+    
+    # Validates header
+    validate_sns_header(topic_arn, message_type)
+    
     json_body = json.loads(request.body)
     try:
         verified_json_body = verify_from_sns(json_body)
@@ -181,6 +157,43 @@ def sns_inbound(request):
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
+def validate_sns_header(topic_arn, message_type):
+    if not topic_arn:
+        logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
+        return HttpResponse(
+            'Received SNS request without Topic ARN.', status=400
+        )
+    if topic_arn != settings.AWS_SNS_TOPIC:
+        logger.error(
+            'SNS message for wrong ARN',
+            extra={
+                'configured_arn': settings.AWS_SNS_TOPIC,
+                'received_arn': topic_arn,
+            }
+        )
+        return HttpResponse(
+            'Received SNS message for wrong topic.', status=400
+        )
+    
+    if not message_type:
+        logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
+        return HttpResponse(
+            'Received SNS request without Message Type.', status=400
+        )
+    if message_type not in SUPPORTED_SNS_TYPES:
+        logger.error(
+            'SNS message for unsupported type',
+            extra={
+                'supported_sns_types': SUPPORTED_SNS_TYPES,
+                'message_type': message_type,
+            }
+        )
+        return HttpResponse(
+            'Received SNS message for unsupported Type: %s' % message_type,
+            status=400
+        )
+    
+    
 def _sns_inbound_logic(topic_arn, message_type, json_body):
     if message_type == 'SubscriptionConfirmation':
         logger.info(
@@ -194,6 +207,13 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
             extra={'json_body': json_body},
         )
         return _sns_notification(json_body)
+    
+    logger.error(
+        'SNS message type did not fall under the SNS inbound logic',
+        extra={'message_type': message_type}
+    )
+    capture_message('Received SNS message with type not handled in inbound log', level="error") # Handler for Sentry
+    return HttpResponse('Received SNS message with type not handled in inbound log', status=400)
 
 
 def _sns_notification(json_body):
@@ -270,7 +290,12 @@ def _sns_message(message_json):
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
-        message_body['Text'] = {'Charset': 'UTF-8', 'Data': text_content}
+        relay_header_text = ('This email was sent to your alias '
+            '{relay_address}. To stop receiving emails sent to this alias, '
+            'update the forwarding settings in your dashboard.\n'
+            '---Begin Email---\n').format(relay_address=display_email)
+        wrapped_text = relay_header_text + text_content
+        message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     relay_from_address, relay_from_display = _generate_relay_From(from_address)
     formatted_from_address = str(
@@ -310,10 +335,14 @@ def _get_text_and_html_content(email_message):
             if message_payload.get_content_type() == 'text/html':
                 html_content = content
     else:
-        message_payload = email_message.get_payload()
-        if type(message_payload) == str:
-            text_content = message_payload
+        if email_message.get_content_type() == 'text/plain':
+            text_content = email_message.get_content()
+            html_content = urlize_and_linebreaks(email_message.get_content())
+        if email_message.get_content_type() == 'text/html':
+            html_content = email_message.get_content()
 
+    # TODO: if html_content is still None, wrap the text_content with our
+    # header and footer HTML and send that as the html_content
     return text_content, html_content
 
 
