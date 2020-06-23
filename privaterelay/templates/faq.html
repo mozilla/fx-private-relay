@@ -27,14 +27,42 @@
           What about spam?
         </h2>
         <p class="faq-answer">
-          We use Amazon SES as our Email Service Provider, which enforces industry standard spam controls. We also have the ability to enforce even more strict spam filtering.      </p>
+          While Relay does not filter for spam, our email partner Amazon SES does block spam and malware. If Relay forwards messages you don’t want, you can update your Relay settings to block messages from the alias forwarding them. If you see a broader problem of unwanted email from all of your aliases, please report this to us so we can consider adjusting the SES spam thresholds for this service.
+        </p>
+        <p class="faq-answer">
+          If you report these as spam, your email provider will see Relay as the source of spam, not the original sender.
+        </p>
       </section>
       <section class="faq">
         <h2 class="faq-headline">
-          What happens if I reply to a relay email?
+          Can I reply to messages using my Relay alias?
         </h2>
         <p class="faq-answer">
-          We don’t yet offer the ability to reply with the relay address. If you try, nothing will happen. We are working on additional features to let you reply with a nice message or reply anonymously to senders.
+          Relay does not yet offer the ability to reply using an alias. If you try, nothing will happen. We are working on additional features to let you <a href="https://github.com/mozilla/fx-private-relay/issues/151" rel="noopener noreferrer" class="text-link">send an automated response</a> or <a href="https://github.com/mozilla/fx-private-relay/issues/99" rel="noopener noreferrer" class="text-link">reply anonymously to senders</a>.
+        </p>
+      </section>
+      <section class="faq">
+        <h2 class="faq-headline">
+          It seems like a site will not accept my Relay address or is blocking addresses using @relay.firefox.com. Why is this happening? What can I do about it?
+        </h2>
+        <p class="faq-answer">
+          Some sites may not accept an email address that includes a subdomain (ie, the “relay” portion of @relay.firefox.com) and others have stopped accepting all addresses except those from Gmail, Hotmail, or Yahoo accounts. As Firefox Relay grows in popularity and issues more aliases, our service might be placed on a blocklist. If you are not able to use a Relay alias, please let us know
+        </p>
+      </section>
+      <section class="faq">
+        <h2 class="faq-headline">
+          Can I make up my own relay address using the @relay.firefox.com domain?
+        </h2>
+        <p class="faq-answer">
+           Not currently, but we are considering new features including letting you create your own addresses with a designated domain.
+        </p>
+      </section>
+      <section class="faq">
+        <h2 class="faq-headline">
+          What happens if Mozilla shuts down the Firefox Relay service?
+        </h2>
+        <p class="faq-answer">
+          We will provide users with advance notice that they will need to change the email address of any of their accounts that are using relay addresses.
         </p>
       </section>
     </div>

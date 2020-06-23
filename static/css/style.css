@@ -44,6 +44,8 @@ html {
 
 body {
   font-family: "Inter UI", Helvetica Neue, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   background-image: var(--darkBlueGradient);
   display: flex;
@@ -61,6 +63,21 @@ body {
 
 .text-light {
   color: var(--white);
+}
+
+.text-link {
+  color: inherit;
+  text-decoration: underline;
+  transition: all 0.2s ease;
+}
+
+.text-link:hover {
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.text-link:focus {
+  box-shadow: var(--buttonFocus);
 }
 
 .text-light-grey {
@@ -892,7 +909,7 @@ table {
 
 .hero-sub-head {
   margin: auto auto 32px 0;
-  max-width: 500px;
+  max-width: 550px;
   color: var(--grey10);
 }
 
