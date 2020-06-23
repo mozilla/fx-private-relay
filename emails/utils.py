@@ -28,7 +28,7 @@ def time_if_enabled(name):
     return timing_decorator
 
 
-def incr_if_enabled(name, value):
+def incr_if_enabled(name, value=1):
     if settings.STATSD_ENABLED:
         metrics.incr(name, value)
 
