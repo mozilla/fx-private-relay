@@ -1,7 +1,7 @@
 {
   "name": "fx-private-relay",
-  "version": "1.4.1",
-  "description": "Firefox Private Relay",
+  "version": "1.4.2",
+  "description": "Firefox Relay",
   "main": "index.js",
   "dependencies": {
     "web-ext": "^3.2.0"
@@ -9,10 +9,10 @@
   "devDependencies": {},
   "scripts": {
     "build:clean": "git checkout manifest.json js/background.js popup.html",
-    "build": "web-ext build --ignore-files .DS_Store README.* package.json package-lock.json sequence-diagram.* --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/private_relay-*.zip ../static/downloads/addon/latest/private_relay.zip",
-    "build:dev": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --ignore-files .DS_Store README.* package.json package-lock.json sequence-diagram.* --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/private_relay-*.zip ../static/downloads/addon/latest/private_relay.zip && npm run build:clean",
-    "build:stage": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --ignore-files .DS_Store README.* package.json package-lock.json sequence-diagram.* --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/private_relay-*.zip ../static/downloads/addon/latest/private_relay.zip && npm run build:clean",
-    "build:prod": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://relay.firefox.com@g'  manifest.json js/background.js popup.html && web-ext build --ignore-files .DS_Store README.* package.json package-lock.json sequence-diagram.* --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/private_relay-*.zip ../static/downloads/addon/latest/private_relay.zip && npm run build:clean",
+    "build": "web-ext build --ignore-files .DS_Store README.* package.json package-lock.json sequence-diagram.* --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/firefox_relay-*.zip ../static/downloads/addon/latest/firefox_relay.zip",
+    "build:dev": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --ignore-files .DS_Store README.* package.json package-lock.json sequence-diagram.* --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/firefox_relay-*.zip ../static/downloads/addon/latest/firefox_relay.zip && npm run build:clean",
+    "build:stage": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net@g'  manifest.json js/background.js popup.html && web-ext build --ignore-files .DS_Store README.* package.json package-lock.json sequence-diagram.* --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/firefox_relay-*.zip ../static/downloads/addon/latest/firefox_relay.zip && npm run build:clean",
+    "build:prod": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://relay.firefox.com@g'  manifest.json js/background.js popup.html && web-ext build --ignore-files .DS_Store README.* package.json package-lock.json sequence-diagram.* --overwrite-dest -s . -a ../static/downloads/addon/latest/ && mv ../static/downloads/addon/latest/firefox_relay-*.zip ../static/downloads/addon/latest/firefox_relay.zip && npm run build:clean",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
