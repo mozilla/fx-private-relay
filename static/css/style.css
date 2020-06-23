@@ -66,6 +66,7 @@ body {
 }
 
 .text-link {
+  border-radius: 2px;
   color: inherit;
   text-decoration: underline;
   transition: all 0.2s ease;
@@ -1782,7 +1783,7 @@ input.input-has-error {
   border-radius: 9px;
   padding: 2px;
   width: 100%;
-  max-width: 600px;
+  max-width: 700px;
   position: relative;
   min-height: 0;
   animation: dropShadow 1s ease forwards;
@@ -1823,14 +1824,14 @@ input.input-has-error {
 .banner-logo {
   background-position: center center;
   background-size: contain;
-  height: 60px;
-  width: 60px;
+  height: 72px;
+  width: 72px;
   background-repeat: no-repeat;
   margin: 0 .25em auto 1em;
 }
 
 .banner-relay-logo {
-  background-image: url("/static/images/logos/relay-logo-dark.svg");
+  background-image: url("/static/images/banner-addon.svg");
 }
 
 .banner-fx-logo {
