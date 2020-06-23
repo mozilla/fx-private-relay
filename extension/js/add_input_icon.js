@@ -3,7 +3,7 @@
 
 
 function closeRelayInPageMenu() {
-  const relayIconBtn = document.querySelector(".relay-button");
+  const relayIconBtn = document.querySelector(".relay-menu-open");
   relayIconBtn.classList.remove("relay-menu-open");
   const openMenuEl = document.querySelector(".new-menu-wrapper");
   openMenuEl.remove();
@@ -41,7 +41,7 @@ function getRelayMenuEl() {
 
 function positionRelayMenu() {
   const relayInPageMenu = getRelayMenuEl();
-  const relayIconBtn = document.querySelector(".relay-button");
+  const relayIconBtn = document.querySelector(".relay-menu-open");
   const newIconPosition = relayIconBtn.getBoundingClientRect();
   relayInPageMenu.style.left = (newIconPosition.x - 255) + "px";
   relayInPageMenu.style.top = (newIconPosition.top + 40) + "px";
