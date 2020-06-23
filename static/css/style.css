@@ -49,7 +49,7 @@ body {
   display: flex;
   flex-direction: column;
   margin: 0;
-  padding: 0;
+  padding: 83px 0 0 0;
   font-size: 16px;
   overscroll-behavior: contain;
 }
@@ -422,32 +422,19 @@ button:active {
 header {
   color: var(--white);
   border-bottom: 1px solid var(--inkDark);
+  background: var(--darkBlueGradient);
   box-shadow: 0 0 3px 0 var(--inkDark);
   z-index: 2;
-  transition: all 0.3s ease;
-}
-
-.fix-header {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  background: var(--darkBlueGradient);
-  box-shadow: 0 0 5px 3px var(--inkDark);
-  animation: dropHeader 0.5s ease;
-  transition: all 0.5s ease;
+  transition: all 0.3s ease;
 }
 
-@keyframes dropHeader {
-  0% {
-    opacity: 0.5;
-    transform: translateY(-60px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.fix-header {
+  box-shadow: 0 0 5px 3px var(--inkDark);
+  transition: all 0.5s ease;
 }
 
 .header-top {
