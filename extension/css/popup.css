@@ -32,6 +32,10 @@ sign-up-panel::after {
   background-size: 120%;
 }
 
+::-moz-focus-inner {
+  border: 0;
+}
+
 p {
   margin-top: 0;
   line-height: 1.5;
@@ -154,7 +158,6 @@ a.setting-label:active {
 .input-icons-disabled {
   background-color: var(--grey30);
 }
-
 
 .show-settings settings {
   visibility: visible;

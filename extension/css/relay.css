@@ -20,8 +20,9 @@
 }
 
 .first-run,
-:root,
+.new-menu-wrapper,
 .panel,
+.relay-icon,
 .relay-modal-wrapper {
   --blue2: #0090ed;
   --blue3: #0060df;
@@ -49,6 +50,15 @@
   --violet: #9059ff;
   font-family: open-sans, sans-serif;
   -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+}
+
+.relay-email-input-wrapper {
+  box-sizing: border-box !important;
+}
+
+.relay-icon ::-moz-focus-inner {
+  border: 0;
 }
 
 .new-menu-wrapper {
@@ -61,31 +71,6 @@
   width: 100%;
   z-index: 9999999999999999999999;
   background-color:rgba(0, 0, 0, .1);
-}
-
-::-moz-focus-inner {
-  border: 0;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-a {
-  font-weight: 500;
-  color: inherit;
-}
-
-button,
-button:hover,
-button:focus,
-button:active,
-a,
-a:hover,
-a:focus,
-a:active {
-  outline: none;
-  transition: all 0.2s ease;
 }
 
 .settings-header,
@@ -330,6 +315,7 @@ button.relay-menu-sign-up-btn,
   display: flex;
   min-height: auto;
   box-shadow: none;
+  box-sizing: border-box;
 }
 
 .relay-menu-sign-up-btn,
@@ -419,11 +405,6 @@ button.in-page-menu-generate-alias-btn[disabled] {
 
 .relay-email-input-wrapper > input {
   pointer-events: all;
-}
-
-.relay-email-input-wrapper,
-.relay-email-input-wrapper > input {
-  box-sizing: inherit;
 }
 
 button.relay-button {
