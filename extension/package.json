@@ -1,7 +1,7 @@
 {
   "name": "fx-private-relay",
-  "version": "1.4.1",
-  "description": "Firefox Private Relay",
+  "version": "1.4.2",
+  "description": "Firefox Relay",
   "main": "index.js",
   "dependencies": {
     "web-ext": "^3.2.0"

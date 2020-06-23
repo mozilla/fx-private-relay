@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Firefox Relay",
-  "version": "1.4.1",
+  "version": "1.4.2",
 
   "description": "Firefox Relay makes it easy to create relay addresses, aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages.",
 
