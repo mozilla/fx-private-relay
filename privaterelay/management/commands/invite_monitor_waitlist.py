@@ -58,8 +58,15 @@ def email_invited_user(invitee, invitation):
     invitation.date_sent = datetime.now(timezone.utc)
     invitation.save(update_fields=['date_sent'])
 
-    invitee.waitlists_joined['email_relay']['notified'] = True
-    invitee.save(update_fields=['waitlists_joined'])
+    # Pre-FXA subscribers may have duplicate records
+    # Select all possible invitee records and set their records to notified
+    # so we don't accidentally send multiple invite emails
+    invitee_records = MonitorSubscriber.objects.using('monitor').filter(
+        primary_email=invitee.primary_email
+    )
+    for invitee_record in invitee_records:
+        invitee_record.waitlists_joined['email_relay']['notified'] = True
+        invitee_record.save(update_fields=['waitlists_joined'])
     return response
 
 
@@ -74,7 +81,7 @@ class Command(BaseCommand):
 
         monitor_waitlist = MonitorSubscriber.objects.using('monitor').filter(
             waitlists_joined__email_relay__notified=False
-        )[:limit]
+        ).distinct('primary_email')[:limit]
 
         invites_sent = 0
         for invitee in monitor_waitlist:
