@@ -58,7 +58,6 @@ def _get_user_profile(request, api_token):
 
 
 def _index_POST(request):
-    incr_if_enabled('emails_index_post', 1)
     request_data = _get_data_from_request(request)
     api_token = request_data.get('api_token', None)
     if not api_token:
@@ -69,6 +68,7 @@ def _index_POST(request):
     if request_data.get('method_override', None) == 'DELETE':
         return _index_DELETE(request_data, user_profile)
 
+    incr_if_enabled('emails_index_post', 1)
     existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
     if existing_addresses.count() >= settings.MAX_NUM_BETA_ALIASES:
         if 'moz-extension' in request.headers.get('Origin', ''):
