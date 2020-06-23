@@ -1,3 +1,14 @@
-Join the beta at:
+The wait is over! You can start using the Firefox Relay service, available now for Firefox desktop.
 
-{{ current_domain }}
+Firefox Relay makes it easy to create aliases, randomly-generated email addresses that forward to your real inbox. Use an alias to protect your email address - and your identity - when you register for newsletters, offers, or online accounts.
+
+Protect your accounts - Using an alias with a strong password makes it hard for hackers to reuse your identity, even if you’ve been involved in a data breach.
+
+Safeguard your identity - Add a layer of safety from online harassment by using an alias to register in forums or social platforms.
+
+Manage what lands in your inbox -  Your Firefox Relay dashboard helps you track the aliases you’ve created.  If you find that an alias receives spam or unwanted messages, you can block all messages or even delete the alias right from the management page.
+
+Get started here: https://addons.mozilla.org/firefox/addon/private-relay/
+
+Stay safe,
+The Firefox Relay Team

@@ -23,7 +23,7 @@ function iterateHeroSlides() {
 
   window.setInterval(()=> {
     iterateSlides();
-  }, 3000);
+  }, 3500);
 }
 
 
