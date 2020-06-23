@@ -47,7 +47,7 @@ def index(request):
         raise PermissionDenied
     if request.method == 'POST':
         return _index_POST(request)
-    incr_if_enabled('emails_index_GET', 1)
+    incr_if_enabled('emails_index_get', 1)
     return redirect('profile')
 
 
