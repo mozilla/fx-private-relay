@@ -7,7 +7,7 @@ from django.db.models import Q
 
 from allauth.socialaccount.models import SocialAccount
 
-from .models import Invitations
+from .models import Invitations, get_invitation
 
 
 ALLOWED_SIGNUP_DOMAINS = [
@@ -43,8 +43,8 @@ def invitations_only(sender, **kwargs):
 
     # Explicit invitations for an email address can get in
     try:
-        active_invitation = Invitations.objects.get(
-            Q(email=email) | Q(fxa_uid=fxa_uid), active=True
+        active_invitation = get_invitation(
+            email=email, fxa_uid=fxa_uid, active=True
         )
         if not active_invitation.fxa_uid:
             active_invitation.fxa_uid = fxa_uid
@@ -55,8 +55,8 @@ def invitations_only(sender, **kwargs):
         return True
 
     except Invitations.DoesNotExist:
-        waitlist_invite = Invitations.objects.filter(
-            Q(email=email) | Q(fxa_uid=fxa_uid), active=False
+        waitlist_invite = = get_invitation(
+            email=email, fxa_uid=fxa_uid, active=False
         )
         inactive_invitation = waitlist_invite.first()
 

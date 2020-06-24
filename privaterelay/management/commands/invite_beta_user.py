@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.core.validators import validate_email
 
-from ...models import Invitations
+from ...models import Invitations, get_invitation
 
 
 class Command(BaseCommand):
@@ -15,9 +15,7 @@ class Command(BaseCommand):
         validate_email(email)
 
         try:
-            existing_invitation = Invitations.objects.get(
-                email=email, active=False
-            )
+            existing_invitation = get_invitation(email=email, active=False)
             existing_invitation.active = True
             existing_invitation.save(update_fields=['active'])
         except Invitations.DoesNotExist:
