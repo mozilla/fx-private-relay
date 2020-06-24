@@ -14,6 +14,24 @@ class Invitations(models.Model):
         return 'Invitation for %s' % self.email
 
 
+def get_invitation(email=None, fxa_uid=None, active=False):
+    invitations = Invitations.objects.filter(
+        Q(email=email) | Q(fxa_uid=fxa_uid), active=active
+    ).order_by('date_added')
+    if invitation.count() < 1:
+        raise Invitations.DoesNotExist
+    invitations = list(invitations)
+    oldest_invitation = invitations.pop(0)
+    for invite in invitations:
+        if oldest_invitation.email != invite.email:
+            oldest_invitation.email = invite.email
+        if oldest_invitation.fxa_uid != invite.fxa_uid:
+            oldest_invitation.fxa_uid = invite.fxa_uid
+        invite.delete()
+    oldest_invitation.save(update_fields=['email', 'fxa_uid'])
+    return oldest_invitation
+
+
 class MonitorSubscriber(models.Model):
     class Meta:
         db_table = 'subscribers'
