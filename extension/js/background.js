@@ -4,14 +4,19 @@ browser.storage.local.set({ "maxNumAliases": 5 });
 browser.storage.local.set({ "showInputIcons": "show-input-icons" });
 browser.storage.local.set({ "relaySiteOrigin": RELAY_SITE_ORIGIN });
 browser.storage.local.set({ "fxaOauthFlow": `${RELAY_SITE_ORIGIN}/accounts/fxa/login/?process=login` });
-
+browser.storage.local.set({ "firstRunShown" : false });
 
 browser.runtime.onInstalled.addListener(async () => {
+  const { firstRunShown } = await browser.storage.local.get("firstRunShown");
+  if (firstRunShown) {
+    return;
+  }
   const userApiToken = await browser.storage.local.get("apiToken");
   const apiKeyInStorage = (userApiToken.hasOwnProperty("apiToken"));
   const url = browser.runtime.getURL("first-run.html");
   if (!apiKeyInStorage) {
     await browser.tabs.create({ url });
+    browser.storage.local.set({ "firstRunShown" : true });
   }
 });
 
