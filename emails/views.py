@@ -241,6 +241,7 @@ def _sns_message(message_json):
 
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
     local_portion = to_address.split('@')[0]
+    local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
 
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
@@ -249,9 +250,16 @@ def _sns_message(message_json):
             relay_address.save(update_fields=['num_blocked'])
             return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
-        # TODO?: if sha256 of the address is in DeletedAddresses,
-        # create a hard bounce receipt rule
-        logger.error('email_relay', extra={'message_json': message_json})
+        try:
+            deleted_address = DeletedAddresses.get(
+                address_hash=local_portion_hash
+            )
+            # TODO: create a hard bounce receipt rule in SES
+        except DeletedAddresses.DoesNotExist:
+            logger.error(
+                'Received email for unknown address.',
+                extra={'to_address': to_address}
+            )
         return HttpResponse("Address does not exist", status=404)
 
     logger.info('email_relay', extra={
@@ -259,7 +267,7 @@ def _sns_message(message_json):
             relay_address.user.socialaccount_set.first().uid
         ),
         'relay_address_id': relay_address.id,
-        'relay_address': sha256(local_portion.encode('utf-8')).hexdigest(),
+        'relay_address': local_portion_hash,
         'real_address': sha256(
             relay_address.user.email.encode('utf-8')
         ).hexdigest(),
