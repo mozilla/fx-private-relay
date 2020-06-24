@@ -11,7 +11,7 @@ from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
 
 from emails.utils import get_socketlabs_client, socketlabs_send
-from ...models import Invitations, MonitorSubscriber
+from ...models import Invitations, get_invitation, MonitorSubscriber
 
 
 logger = logging.getLogger('events')
@@ -82,9 +82,10 @@ class Command(BaseCommand):
         invites_sent = 0
         for invitee in monitor_waitlist:
             try:
-                invitation = Invitations.objects.get(
+                invitation = get_invitation(
                     email=invitee.primary_email,
-                    active=True,
+                    fxa_uid=invitee.fxa_uid,
+                    active=True
                 )
                 if invitation.date_redeemed:
                     print(
