@@ -134,20 +134,17 @@ def sns_inbound(request):
     # Grabs message information for validation
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
-    
+
     # Validates header
     validate_sns_header(topic_arn, message_type)
-    
+
     json_body = json.loads(request.body)
     try:
         verified_json_body = verify_from_sns(json_body)
     except Exception:
-        logger.error(
+        capture_message(
             'SNS message with invalid signature',
-            extra={
-                'SigningCertURL': json_body['SigningCertURL'],
-                'Signature': json_body['Signature'],
-            }
+            level="error"
         )
         return HttpResponse(
             'Received SNS message with invalid signature: %s' % message_type,
@@ -174,7 +171,7 @@ def validate_sns_header(topic_arn, message_type):
         return HttpResponse(
             'Received SNS message for wrong topic.', status=400
         )
-    
+
     if not message_type:
         logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
         return HttpResponse(
@@ -192,8 +189,8 @@ def validate_sns_header(topic_arn, message_type):
             'Received SNS message for unsupported Type: %s' % message_type,
             status=400
         )
-    
-    
+
+
 def _sns_inbound_logic(topic_arn, message_type, json_body):
     if message_type == 'SubscriptionConfirmation':
         logger.info(
@@ -207,7 +204,7 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
             extra={'json_body': json_body},
         )
         return _sns_notification(json_body)
-    
+
     logger.error(
         'SNS message type did not fall under the SNS inbound logic',
         extra={'message_type': message_type}
