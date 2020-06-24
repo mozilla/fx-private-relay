@@ -6,7 +6,11 @@
   height: 100vh;
   padding: 0;
   margin: 0;
-  background-color: linear-gradient(tovar(--grey10), var(--grey20))
+  background-color: linear-gradient(tovar(--grey10), var(--grey20));
+}
+
+.first-run * {
+  box-sizing: border-box;
 }
 
 .first-run-h1 {

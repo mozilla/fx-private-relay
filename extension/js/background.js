@@ -7,11 +7,16 @@ browser.storage.local.set({ "fxaOauthFlow": `${RELAY_SITE_ORIGIN}/accounts/fxa/l
 
 
 browser.runtime.onInstalled.addListener(async () => {
+  const { firstRunShown } = await browser.storage.local.get("firstRunShown");
+  if (firstRunShown) {
+    return;
+  }
   const userApiToken = await browser.storage.local.get("apiToken");
   const apiKeyInStorage = (userApiToken.hasOwnProperty("apiToken"));
   const url = browser.runtime.getURL("first-run.html");
   if (!apiKeyInStorage) {
     await browser.tabs.create({ url });
+    browser.storage.local.set({ "firstRunShown" : true });
   }
 });
 
