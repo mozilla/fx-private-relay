@@ -7,7 +7,7 @@ from django.db.models import Q
 
 from allauth.socialaccount.models import SocialAccount
 
-from .models import Invitations, get_invitation
+from .models import get_invitation, Invitations
 
 
 ALLOWED_SIGNUP_DOMAINS = [

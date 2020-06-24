@@ -11,7 +11,7 @@ from django.core.management.base import BaseCommand
 from django.template.loader import render_to_string
 
 from emails.utils import get_socketlabs_client, socketlabs_send
-from ...models import Invitations, get_invitation, MonitorSubscriber
+from ...models import get_invitation, Invitations, MonitorSubscriber
 
 
 logger = logging.getLogger('events')

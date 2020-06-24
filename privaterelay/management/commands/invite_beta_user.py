@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from django.core.validators import validate_email
 
-from ...models import Invitations, get_invitation
+from ...models import get_invitation, Invitations
 
 
 class Command(BaseCommand):
