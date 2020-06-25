@@ -1,4 +1,4 @@
-.first-run {
+.fx-relay-first-run {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -6,7 +6,7 @@
   height: 100vh;
   padding: 0;
   margin: 0;
-  background-color: linear-gradient(tovar(--grey10), var(--grey20));
+  background-color: linear-gradient(tovar(--relayGrey10), var(--relayGrey20));
 }
 
 .first-run * {
@@ -18,7 +18,7 @@
   font-size: 36px;
   max-width: 700px;
   margin: 24vh auto 40px auto;
-  color: var(--ink);
+  color: var(--relayInk);
 }
 
 .first-run-img {
@@ -42,7 +42,7 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 36px 0;
-  color: var(--ink70);
+  color: var(--relayInk70);
 }
 
 .first-run-sign-in {
@@ -50,9 +50,9 @@
   min-height: 48px;
   border: 1px solid rgba(0, 0, 0, 0);
   min-width: 200px;
-  background-color: var(--blue3);
+  background-color: var(--relayBlue3);
   color: rgba(255, 255, 255, 1);
-  font-family: var(--Metropolis);
+  font-family: var(--relayMetropolis);
   font-size: 17px;
   font-weight: 600;
 }
@@ -71,25 +71,25 @@ p.first-run-p {
 }
 
 a {
-  color: var(--blue4);
+  color: var(--relayBlue4);
   border-radius: 2px;
 }
 
 button:hover {
-  background-color: var(--blueHover);
+  background-color: var(--relayBlueHover);
 }
 
 button:active {
-  background-color: var(--blueActive);
+  background-color: var(--relayBlueActive);
 }
 
 a:hover {
-  color: var(--blueHover);
+  color: var(--relayBlueHover);
 }
 
 button:focus,
 a:focus {
-  box-shadow: var(--blueButtonFocus);
+  box-shadow: var(--relayButtonFocus);
 }
 
 a:active {

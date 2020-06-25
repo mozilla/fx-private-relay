@@ -1,14 +1,14 @@
 async function showModal(modalType, newAlias=null) {
   const { relaySiteOrigin } = await browser.storage.local.get("relaySiteOrigin");
   const modalWrapper = document.createElement("div");
-  modalWrapper.classList = ["relay-modal-wrapper"];
+  modalWrapper.classList = ["fx-relay-modal-wrapper"];
 
   const modalContent = document.createElement("div");
-  modalContent.classList = ["relay-modal-content"];
+  modalContent.classList = ["fx-relay-modal-content"];
 
-  const logoWrapper = document.createElement("logo-wrapper");
-  const logoMark = document.createElement("logomark");
-  const logoType = document.createElement("logotype");
+  const logoWrapper = document.createElement("fx-relay-logo-wrapper");
+  const logoMark = document.createElement("fx-relay-logomark");
+  const logoType = document.createElement("fx-relay-logotype");
 
   [logoMark, logoType].forEach(customEl => {
     logoWrapper.appendChild(customEl);
@@ -17,7 +17,7 @@ async function showModal(modalType, newAlias=null) {
   modalContent.appendChild(logoWrapper);
 
   const modalAliasWrapper = document.createElement("div");
-  modalAliasWrapper.classList = ["relay-modal-message-alias-wrapper"];
+  modalAliasWrapper.classList = ["fx-relay-modal-message-alias-wrapper"];
 
   if (modalType === "new-alias") { // New alias was created, but input wasn't found.
     const modalAlias = document.createElement("span");
@@ -26,7 +26,7 @@ async function showModal(modalType, newAlias=null) {
 
     const purpleCopiedBlurb = document.createElement("span");
     purpleCopiedBlurb.textContent = "Copied!";
-    purpleCopiedBlurb.classList = ["relay-message-copied"];
+    purpleCopiedBlurb.classList = ["fx-relay-message-copied"];
 
     [modalAlias, purpleCopiedBlurb].forEach(textEl => {
       modalAliasWrapper.appendChild(textEl);
@@ -34,7 +34,7 @@ async function showModal(modalType, newAlias=null) {
 
     const modalMessage = document.createElement("span");
     modalMessage.textContent = "You just created a new alias!";
-    modalMessage.classList = ["relay-modal-message relay-modal-headline"];
+    modalMessage.classList = ["fx-relay-modal-message"];
 
     [modalAliasWrapper, modalMessage].forEach(textEl => {
       modalContent.appendChild(textEl);
@@ -45,18 +45,18 @@ async function showModal(modalType, newAlias=null) {
   if (modalType === "max-num-aliases") { // User has maxed out the number of allowed free aliases.
     const modalMessage = document.createElement("span");
     modalMessage.textContent = "You have reached the maximum number of aliases allowed during the beta phase of Private Relay.";
-    modalMessage.classList = ["relay-modal-message relay-modal-headline"];
+    modalMessage.classList = ["fx-relay-modal-message"];
     modalContent.appendChild(modalMessage);
 
     const manageAliasesLink = document.createElement("a");
     manageAliasesLink.textContent = "Manage Relay Addresses";
-    manageAliasesLink.classList = ["new-tab"];
+    manageAliasesLink.classList = ["fx-relay-new-tab"];
     manageAliasesLink["href"] = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_campaign=beta&utm_content=manage-relay-addresses`;
     modalContent.appendChild(manageAliasesLink);
   }
 
   const modalCloseButton = document.createElement("button");
-  modalCloseButton.classList = ["relay-modal-close-button"];
+  modalCloseButton.classList = ["fx-relay-modal-close-button"];
   modalCloseButton.textContent = "Close";
 
   // Remove relay modal on button click
@@ -67,7 +67,7 @@ async function showModal(modalType, newAlias=null) {
   // Remove relay modal on clicks outside of modal.
   modalWrapper.addEventListener("click", (e) => {
     const originalTarget = e.explicitOriginalTarget;
-    if (originalTarget.classList.contains("relay-modal-wrapper")) {
+    if (originalTarget.classList.contains("fx-relay-modal-wrapper")) {
       modalWrapper.remove();
     }
   });
