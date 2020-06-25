@@ -26,6 +26,7 @@ from allauth.socialaccount.providers.fxa.views import (
 )
 
 from emails.models import RelayAddress
+from emails.utils import get_post_data_from_request
 from .models import Invitations
 
 
@@ -138,9 +139,9 @@ def invitation(request):
 def waitlist(request):
     if not settings.WAITLIST_OPEN:
         raise PermissionDenied
-    json_body = json.loads(request.body)
-    email = json_body['email']
-    fxa_uid = json_body['fxa_uid']
+    request_data = get_post_data_from_request(request)
+    email = request_data['email']
+    fxa_uid = request_data['fxa_uid']
     if not email or not fxa_uid:
         return JsonResponse({}, status=400)
 
