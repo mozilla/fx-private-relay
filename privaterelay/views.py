@@ -155,11 +155,13 @@ def waitlist(request):
         if invitation.email != email:
             invitation.email = email
             invitation.save()
+        message = 'You were already on our waitlist!'
         status = 200
     except Invitations.DoesNotExist:
         Invitations.objects.create(fxa_uid=fxa_uid, email=email, active=False)
         status = 201
-    return JsonResponse({'email': email}, status=status)
+        message = 'You are added on our waitlist!'
+    return JsonResponse({'email': email, 'message': message}, status=status)
 
 
 @csrf_exempt
