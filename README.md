@@ -24,10 +24,19 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 
 2. Create and activate a virtual environment:
 
+    ubuntu: 
     ```sh
     virtualenv env
     source env/bin/activate
     ```
+    centos:
+    ```sh
+    python3 -m venv python3-virtualenv
+    source python3-virtualenv/bin/activate
+    ```
+
+    
+    
 
 3. Install requirements:
 
@@ -74,7 +83,10 @@ To enable Firefox Accounts authentication on your local server, you can use the
 
 To do so:
 
-1. Set `ADMIN_ENABLED=True` in your `.env` file
+1. Set `ADMIN_ENABLED=True` in your `.env` file. 
+```sh
+sudo nano .env
+```
 
 2. Go to [the django admin page to change the default
    site](http://127.0.0.1:8000/admin/sites/site/1/change/).
