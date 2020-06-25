@@ -26,9 +26,11 @@ from django.views.decorators.csrf import csrf_exempt
 from .context_processors import relay_from_domain
 from .models import DeletedAddress, Profile, RelayAddress
 from .utils import (
+    get_post_data_from_request,
     get_socketlabs_client,
     socketlabs_send,
-    urlize_and_linebreaks)
+    urlize_and_linebreaks
+)
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
@@ -36,15 +38,9 @@ logger = logging.getLogger('events')
 metrics = markus.get_metrics('fx-private-relay')
 
 
-def _get_data_from_request(request):
-    if request.content_type == 'application/json':
-        return json.loads(request.body)
-    return request.POST
-
-
 @csrf_exempt
 def index(request):
-    request_data = _get_data_from_request(request)
+    request_data = get_post_data_from_request(request)
     if (not request.user.is_authenticated and
         not request_data.get("api_token", False)
        ):
@@ -61,7 +57,7 @@ def _get_user_profile(request, api_token):
 
 
 def _index_POST(request):
-    request_data = _get_data_from_request(request)
+    request_data = get_post_data_from_request(request)
     api_token = request_data.get('api_token', None)
     if not api_token:
         raise PermissionDenied
