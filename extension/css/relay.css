@@ -19,49 +19,43 @@
   src: url("/fonts/Metropolis/Metropolis-Light.woff2") format("woff2");
 }
 
-.first-run,
-.new-menu-wrapper,
-.panel,
-.relay-icon,
-.relay-modal-wrapper {
-  --blue2: #0090ed;
-  --blue3: #0060df;
-  --blue4: #0250bb;
-  --blueHover: #003eaa;
-  --blueActive: #002275;
-  --blueButtonFocus: 0 0 1px 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
-  --fxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
-  --grey10: hsl(240, 9%, 98%);
-  --grey20: #ededf0;
-  --grey30: #d7d7db;
-  --grey40: #b1b1b3;
-  --grey50: #737373;
-  --grey60: #4a4a4f;
-  --grey70: #38383d;
-  --grey80: #2a2a2e;
-  --grey90: #0c0c0d;
-  --ink: #20123a;
-  --ink70: #363959;
-  --InterUI: "Inter UI", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  --Metropolis: "Metropolis", sans-serif, "SF Pro Text", "Segoe UI", Roboto, "Open Sans";
-  --panelWidth: 360px;
-  --panelHeight: 400px;
+.fx-relay-first-run,
+.fx-relay-menu-wrapper,
+.fx-relay-panel,
+.fx-relay-icon,
+.fx-relay-modal-wrapper {
+  --relayBlue3: #0060df;
+  --relayBlue4: #0250bb;
+  --relayBlueHover: #003eaa;
+  --relayBlueActive: #002275;
+  --relayButtonFocus: 0 0 1px 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
+  --relayFxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
+  --relayGrey10: hsl(240, 9%, 98%);
+  --relayGrey20: #ededf0;
+  --relayGrey30: #d7d7db;
+  --relayGrey40: #b1b1b3;
+  --relayGrey50: #737373;
+  --relayGrey60: #4a4a4f;
+  --relayGrey70: #38383d;
+  --relayGrey80: #2a2a2e;
+  --relayGrey90: #0c0c0d;
+  --relayInk: #20123a;
+  --relayInk70: #363959;
+  --relayMetropolis: "Metropolis", sans-serif, "SF Pro Text", "Segoe UI", Roboto, "Open Sans";
   --relayIconDimension: 30px;
-  --violet: #9059ff;
+  --relayViolet: #9059ff;
+
   font-family: open-sans, sans-serif;
   -moz-osx-font-smoothing: grayscale;
   box-sizing: border-box;
 }
 
-.relay-email-input-wrapper {
-  box-sizing: border-box !important;
-}
-
-.relay-icon ::-moz-focus-inner {
+.fx-relay-menu ::-moz-focus-inner,
+.fx-relay-icon ::-moz-focus-inner {
   border: 0;
 }
 
-.new-menu-wrapper {
+.fx-relay-menu-wrapper {
   position: fixed;
   height: 100%;
   top: 0;
@@ -70,29 +64,16 @@
   right: 0;
   width: 100%;
   z-index: 9999999999999999999999;
-  background-color:rgba(0, 0, 0, .1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-.settings-header,
-logo-wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 0 24px 0 24px;
-  width: 100%;
-  border-bottom: 1px solid var(--grey20);
-  min-height: 64px;
-  height: 64px;
-  max-height: 64px;
-}
-
-.relay-modal-content logo-wrapper {
+.fx-relay-modal-content fx-relay-logo-wrapper {
   border-bottom: 1px solid rgba(0, 0, 0, 0) !important;
   justify-content: flex-start;
+  display: flex;
 }
 
-logotype {
+fx-relay-logotype {
   background-image: url("/images/logotype.svg");
   margin-top: 2px;
   margin-left: 8px;
@@ -101,7 +82,7 @@ logotype {
   display: inline-flex;
 }
 
-logomark {
+fx-relay-logomark {
   content: "";
   background-image: url("/images/logomark.svg");
   width: 28px;
@@ -109,60 +90,30 @@ logomark {
   display: block;
 }
 
-.new-tab {
+.fx-relay-new-tab {
   border: none;
   outline: none;
   display: flex;
   align-items: center;
-  color: var(--ink);
-  font-family: var(--Metropolis);
+  color: var(--relayInk);
+  font-family: var(--relayMetropolis);;
   margin: auto;
   text-decoration: none;
   font-size: 16px;
 }
 
-.new-tab::after {
-  display: inline-block;
-  content: "";
-  background-image: url("/icons/open-new-tab.svg");
-  height: 16px;
-  width: 18px;
-  margin-left: 4px;
-  margin-bottom: 1px;
-}
-
-logotype,
-logomark,
-.new-tab::after {
+fx-relay-logotype,
+fx-relay-logomark {
   background-repeat: no-repeat;
   background-position: center center;
   background-size: contain;
 }
 
-.ff-Met {
-  font-family: var(--Metropolis);
+.fx-relay-font-met {
+  font-family: var(--relayMetropolis);
 }
 
-.zap {
-  display: inline-block;
-  position: relative;
-}
-
-.zap::after {
-  background-position: bottom center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  height: 7px;
-  content: "";
-}
-
-.zap-18::after {
-  background-image: url("/images/zap-18.svg");
-}
-
-/* relay in-page modal */
-
-.relay-modal-wrapper {
+.fx-relay-modal-wrapper {
   position: fixed;
   width: 100%;
   height: 100%;
@@ -176,7 +127,7 @@ logomark,
   justify-content: center;
 }
 
-.relay-modal-content {
+.fx-relay-modal-content {
   max-width: 500px;
   min-width: 400px;
   background-color: rgba(255, 255, 255, 1);
@@ -192,7 +143,7 @@ logomark,
   overflow: hidden;
 }
 
-.relay-modal-message-alias-wrapper {
+.fx-relay-modal-message-alias-wrapper {
   height: 48px;
   margin-bottom: 12px;
   font-size: 18px;
@@ -204,7 +155,7 @@ logomark,
   border-bottom: 1px solid #ededf0;
 }
 
-.relay-modal-message {
+.fx-relay-modal-message {
   font-size: 17px;
   line-height: 1.5;
   text-align: center;
@@ -213,42 +164,43 @@ logomark,
   font-family: var(--InterUI);
 }
 
-.relay-message-copied {
+.fx-relay-message-copied {
   font-size: 12px;
-  background-color: var(--violet);
+  background-color: var(--relayViolet);
   border-radius: 2px;
   padding: 3px 6px;
   color: rgba(255, 255, 255, 1);
   margin-left: 8px;
 }
 
-.relay-modal-close-button {
-  height: 48px;
-  padding:12px;
-  border-radius: 0;
-  border: 1px solid rgba(255, 255, 255, 0);
-  background: var(--grey10);
-  color: var(--ink);
-  font-size: 17px;
-  display: flex;
-  align-items: center;
-  text-align: center;
-  justify-content: center;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
+button.fx-relay-modal-close-button {
+  height: 48px !important;
+  padding: 12px !important;
+  border-radius: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0) !important;
+  background-color: var(--relayGrey20) !important;
+  color: var(--relayInk) !important;
+  font-size: 17px !important;
+  display: flex !important;
+  align-items: center !important;
+  text-align: center !important;
+  justify-content: center !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  min-width: 100%;
   width: 100%;
 }
 
 /* input icon & icon messaging */
 
-.relay-menu {
+.fx-relay-menu {
   width: 300px;
   min-height: 60px;
   border-radius: 4px;
-  background: var(--grey10);
-  background-color: var(--grey10);
+  background: var(--relayGrey10);
+  background-color: var(--relayGrey10);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -260,11 +212,11 @@ logomark,
   top: 47px;
   right: -15px;
   pointer-events: all;
-  animation: fadeIn .2s ease forwards;
+  animation: fxRelayFadeIn 0.2s ease forwards;
   box-shadow: 3px 3px 3px 3px #00000017;
 }
 
-.relay-menu::before {
+.fx-relay-menu::before {
   content: "";
   display: block;
   position: absolute;
@@ -272,11 +224,11 @@ logomark,
   right: 20px;
   height: 20px;
   width: 20px;
-  background: var(--grey10);
+  background: var(--relayGrey10);
   transform: rotate(45deg);
 }
 
-.alias-loading::after {
+.fx-relay-alias-loading::after {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -290,19 +242,19 @@ logomark,
   background-image: url("/images/loader.svg");
   background-repeat: no-repeat;
   background-position: center center;
-  animation: fadeIn 1s ease;
+  animation: fxRelayFadeIn 1s ease;
 }
 
-.in-page-menu-remaining-aliases {
+.fx-relay-menu-remaining-aliases {
   font-size: 13px;
   padding: 0 24px;
   margin-bottom: 40px;
-  color: var(--ink70);
+  color: var(--relayInk70);
 }
 
-button.relay-menu-sign-up-btn,
-.in-page-menu-dashboard-link,
-.relay-menu button.in-page-menu-generate-alias-btn {
+button.fx-relay-menu-sign-up-btn,
+.fx-relay-menu-dashboard-link,
+.fx-relay-menu button.fx-relay-menu-generate-alias-btn {
   font-size: 14px;
   border: 1px solid rgba(0, 0, 0, 0);
   border-color: rgba(0, 0, 0, 0);
@@ -310,18 +262,18 @@ button.relay-menu-sign-up-btn,
   width: 100%;
   min-width: 100%;
   border-radius: 2px;
-  font-family: var(--Metropolis) !important;
-  color: var(--ink) !important;
+  font-family: var(--relayMetropolis) !important;
+  color: var(--relayInk) !important;
   display: flex;
   min-height: auto;
   box-shadow: none;
   box-sizing: border-box;
 }
 
-.relay-menu-sign-up-btn,
-.in-page-menu-dashboard-link {
-  background-color: var(--grey20) !important;
-  border-top: 1px solid var(--grey30);
+.fx-relay-menu-sign-up-btn,
+.fx-relay-menu-dashboard-link {
+  background-color: var(--relayGrey20) !important;
+  border-top: 1px solid var(--relayGrey30);
   text-align: center;
   justify-content: center;
   padding: 12px 24px;
@@ -330,60 +282,65 @@ button.relay-menu-sign-up-btn,
   border-bottom-right-radius: 4px;
 }
 
-.in-page-menu-dashboard-link {
+.fx-relay-menu-dashboard-link {
   margin: auto auto 0 auto;
 }
 
-button.in-page-menu-generate-alias-btn {
-  background-color: var(--grey10) !important;
+button.fx-relay-menu-generate-alias-btn {
+  background-color: var(--relayGrey10) !important;
   text-align: left !important;
-  justify-content: flex-start;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  padding-left: 24px;
-  padding-right: 24px;
-  font-family: var(--Metropolis) !important;
-  color: var(--ink) !important;
+  justify-content: flex-start !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+  font-family: var(--relayMetropolis) !important;
+  color: var(--relayInk) !important;
   font-weight: 600 !important;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
-button.in-page-menu-generate-alias-btn[disabled] {
+button.fx-relay-menu-generate-alias-btn[disabled] {
   pointer-events: none;
-  opacity: .5;
+  opacity: 0.5;
 }
 
-.relay-menu button.in-page-menu-generate-alias-btn:hover {
-  background-color: var(--grey20) !important;
+.fx-relay-menu button.fx-relay-menu-generate-alias-btn:hover {
+  background-color: var(--relayGrey20) !important;
 }
 
-.relay-menu button.in-page-menu-generate-alias-btn:active {
-  background-color: var(--grey30) !important;
+.fx-relay-menu button.fx-relay-menu-generate-alias-btn:active {
+  background-color: var(--relayGrey30) !important;
 }
 
-.relay-menu-sign-up-btn:hover,
-.in-page-menu-dashboard-link:hover {
-  background-color: var(--grey30) !important;
+.fx-relay-menu-sign-up-btn:hover,
+.fx-relay-menu-dashboard-link:hover,
+.fx-relay-modal-close-button:hover {
+  background-color: var(--relayGrey30) !important;
 }
 
-.in-page-menu-dashboard-link:focus,
-.relay-menu button.in-page-menu-generate-alias-btn:focus,
-.relay-menu-sign-up-btn:focus {
-  box-shadow: var(--blueButtonFocus) !important;
+.fx-relay-menu-dashboard-link:focus,
+.fx-relay-menu button.fx-relay-menu-generate-alias-btn:focus,
+.fx-relay-menu-sign-up-btn:focus,
+.fx-relay-modal-close-button:focus {
+  box-shadow: var(--relayButtonFocus) !important;
 }
 
-.relay-menu-sign-up-btn:active,
-.in-page-menu-dashboard-link:active {
-  background-color: var(--grey40) !important;
+.fx-relay-menu-sign-up-btn:active,
+.fx-relay-menu-dashboard-link:active,
+.fx-relay-modal-close-button:active {
+  background-color: var(--relayGrey40) !important;
 }
 
-.relay-menu-sign-up-message {
+.fx-relay-menu-sign-up-message {
   font-size: 12px;
   max-width: 200px;
   display: inline-block;
   margin: auto auto 24px auto;
 }
 
-.relay-icon {
+.fx-relay-icon {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -395,19 +352,20 @@ button.in-page-menu-generate-alias-btn[disabled] {
   padding: 0 !important;
 }
 
-.relay-email-input-wrapper {
+.fx-relay-email-input-wrapper {
   position: relative;
   pointer-events: none;
   padding: 0 !important;
   width: 100%;
   z-index: 99999999999999999;
+  box-sizing: border-box;
 }
 
-.relay-email-input-wrapper > input {
+.fx-relay-email-input-wrapper > input {
   pointer-events: all;
 }
 
-button.relay-button {
+button.fx-relay-button {
   padding: 0 !important;
   width: 30px;
   height: 30px;
@@ -419,63 +377,33 @@ button.relay-button {
   background-size: 85%;
   background-color: transparent !important;
   outline: none !important;
-  border-radius: 4px;
+  border-radius: 4px !important;
   border: 1px solid rgba(255, 255, 255, 0) !important;
   transition: all 0.2s ease;
   margin: auto;
   pointer-events: all;
+  box-shadow: none !important;
 }
 
-.relay-button:hover,
-button.relay-error-dismiss:hover,
-.relay-modal-close-button:hover {
-  background-color: var(--grey20) !important;
+.fx-relay-button:hover{
+  background-color: var(--relayGrey20) !important;
 }
 
-.relay-button:focus,
-button.relay-error-dismiss:focus,
-.relay-modal-close-button:focus {
-  box-shadow: var(--blueButtonFocus);
+.fx-relay-button:focus {
+  box-shadow: var(--relayButtonFocus);
 }
 
-button.relay-error-dismiss:active,
-.relay-modal-close-button:active,
-.relay-button:active {
-  background-color: var(--grey30) !important;
+.fx-relay-button:active {
+  background-color: var(--relayGrey30) !important;
 }
 
-.relay-error-message {
+.fx-relay-error-message {
   font-size: 12px;
   line-height: 1.5;
   margin: 0 0 24px 24px;
 }
 
-button.relay-error-dismiss {
-  box-shadow: none;
-  min-height: 22px !important;
-  min-width: 22px !important;
-  height: 22px !important;
-  width: 22px !important;
-  max-width: 22px !important;
-  padding: 0 !important;
-  background-color: rgba(0, 0, 0, 0) !important;
-  display: inline-block !important;
-  border: 1px solid rgba(0, 0, 0, 0) !important;
-  outline: none;
-  background-image: url("/icons/x-close.svg");
-  background-size: 80%;
-  background-position: center center;
-  background-repeat: no-repeat;
-  border-radius: 50%;
-  pointer-events: all !important;
-  position: absolute !important;
-  top: 8px;
-  right: 8px;
-  bottom: 0;
-  z-index: 2;
-}
-
-@keyframes fadeIn {
+@keyframes fxRelayFadeIn {
   0% {
     opacity: 0;
   }
