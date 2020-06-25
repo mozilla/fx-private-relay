@@ -1,6 +1,7 @@
 import contextlib
 import markus
 import logging
+import json
 from socketlabs.injectionapi import SocketLabsClient
 
 from django.conf import settings
@@ -44,3 +45,9 @@ def urlize_and_linebreaks(text, autoescape=True):
         urlize(text, autoescape=autoescape),
         autoescape=autoescape
     )
+
+
+def get_post_data_from_request(request):
+    if request.content_type == 'application/json':
+        return json.loads(request.body)
+    return request.POST
