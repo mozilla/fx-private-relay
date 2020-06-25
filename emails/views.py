@@ -144,7 +144,8 @@ def sns_inbound(request):
     except Exception:
         capture_message(
             'SNS message with invalid signature',
-            level="error"
+            level="error",
+            stack=True
         )
         return HttpResponse(
             'Received SNS message with invalid signature: %s' % message_type,
@@ -209,7 +210,11 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
         'SNS message type did not fall under the SNS inbound logic',
         extra={'message_type': message_type}
     )
-    capture_message('Received SNS message with type not handled in inbound log', level="error") # Handler for Sentry
+    capture_message(
+        'Received SNS message with type not handled in inbound log',
+        level="error",
+        stack=True
+    )
     return HttpResponse('Received SNS message with type not handled in inbound log', status=400)
 
 
