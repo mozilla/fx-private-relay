@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="css/popup.css">
     <script src="js/popup.js"></script>
   </head>
-  <body class="panel">
+  <body class="fx-relay-panel">
     <panel-content>
-      <logo-wrapper>
-        <logomark></logomark>
-        <logotype></logotype>
+      <fx-relay-logo-wrapper>
+        <fx-relay-logomark></fx-relay-logomark>
+        <fx-relay-logotype></fx-relay-logotype>
         <button class="open-settings settings-toggle" title="Settings"></button>
-      </logo-wrapper>
+      </fx-relay-logo-wrapper>
 
       <settings>
         <div class="settings-header">
@@ -32,7 +32,7 @@
       </settings>
 
       <sign-up-panel class="sign-up-panel hidden">
-        <span class="ff-Met welcome">Welcome</span>
+        <span class="fx-relay-font-met welcome">Welcome</span>
         <p class="intro">
           Get started by signing in with the Firefox account you used to register for Firefox Relay.
         </p>
@@ -46,23 +46,23 @@
       </sign-up-panel>
 
       <main-panel class="signed-in-panel hidden">
-          <p class="ff-Met aliases-remaining text-center remaining-plural">You have <span class="num-aliases-remaining"></span><span class="ff-Met max-num-aliases"></span> aliases remaining</p>
-          <onboarding-panel>
-            <img class="onboarding-img">
-            <h1 class="onboarding-h1"></h1>
-            <p class="onboarding-p"></p>
+        <p class="fx-relay-font-met aliases-remaining remaining-plural">You have <span class="num-aliases-remaining"></span><span class="ff-Met max-num-aliases"></span>
+        <onboarding-panel>
+          <img class="onboarding-img">
+          <h1 class="onboarding-h1"></h1>
+          <p class="onboarding-p"></p>
 
-            <div class="onboarding-pagination">
-              <button class="panel-nav previous-panel" data-direction="-1" aria-label="Show previous panel"></button>
-              <span class="panel-num ff-Met">
-                <span class="current-panel"></span>/
-                  <span class="total-panels">3</span>
-              </span>
-              <button class="panel-nav next-panel" data-direction="1" aria-label="Go to next panel"></button>
-            </div>
-          </onboarding-panel>
-          <footer>
-          <a class="button new-tab close-popup-after-click footer-button dashboard-link" href="">Manage All Addresses</a>
+          <div class="onboarding-pagination">
+            <button class="panel-nav previous-panel" data-direction="-1" aria-label="Show previous panel"></button>
+            <span class="panel-num fx-relay-font-met">
+              <span class="current-panel"></span>/
+                <span class="total-panels">3</span>
+            </span>
+            <button class="panel-nav next-panel" data-direction="1" aria-label="Go to next panel"></button>
+          </div>
+        </onboarding-panel>
+        <footer>
+          <a class="button fx-relay-new-tab close-popup-after-click footer-button dashboard-link" href="">Manage All Addresses</a>
         </footer>
       </main-panel>
     </panel-content>

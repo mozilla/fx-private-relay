@@ -1,4 +1,4 @@
-.panel {
+.fx-relay-panel {
   --panelWidth: 360px;
   /* Any changes to --panelHeight should be reflected in the screen media query */
   --panelHeight: 500px;
@@ -8,9 +8,11 @@
   background-position: top center;
   width: var(--panelWidth);
   height: var(--panelHeight);
-  color: var(--ink70);
+  color: var(--relayInk70);
   background-image: url("/images/email-tout-bg.svg");
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 sign-up-panel {
@@ -23,7 +25,7 @@ sign-up-panel {
 
 sign-up-panel::after {
   height: 3px;
-  background: var(--fxGradient);
+  background: var(--relayFxGradient);
   content: "";
   position: absolute;
   lefT: 0;
@@ -55,13 +57,13 @@ settings {
   transition: all 0.5s ease;
 }
 
-.panel.sign-up .open-settings {
+.fx-relay-panel.sign-up .open-settings {
   display: none;
 }
 
 .setting {
   padding: 12px 0;
-  border-bottom: 1px solid var(--grey20);
+  border-bottom: 1px solid var(--relayGrey20);
   display: flex;
   justify-content: space-between;
 }
@@ -73,7 +75,7 @@ settings {
 .setting-label {
   display: inline-block;
   font-size: 13px;
-  color: var(--ink70);
+  color: var(--relayInk70);
   line-height: 1.4;
   padding-left: 24px;
   padding-right: 24px;
@@ -84,15 +86,15 @@ a.setting-label {
 }
 
 a.setting-label:hover {
-  background-color: var(--grey20);
+  background-color: var(--relayGrey20);
 }
 
 a.setting-label:focus {
-  box-shadow: var(--blueButtonFocus);
+  box-shadow: var(--relayButtonFocus);
 }
 
 a.setting-label:active {
-  background-color: var(--grey30);
+  background-color: var(--relayGrey30);
 }
 
 .settings-list {
@@ -109,21 +111,21 @@ a.setting-label:active {
   border: none;
   border-radius: 1.5em;
   outline: none;
-  background-color: var(--blue3);
+  background-color: var(--relayBlue3);
   background-size: 20px;
   margin: auto 24px auto auto;
 }
 
 .toggle-icon-in-page-visibility:hover {
-  background-color: var(--blueHover);
+  background-color: var(--relayBlueHover);
 }
 
 .toggle-icon-in-page-visibility:focus {
-  box-shadow: var(--blueButtonFocus);
+  box-shadow: var(--relayButtonFocus);
 }
 
 .toggle-icon-in-page-visibility:active {
-  background-color: var(--blueActive);
+  background-color: var(--relayBlueActive);
 }
 
 .toggle-icon-in-page-visibility::after {
@@ -148,15 +150,29 @@ a.setting-label:active {
 
 .input-icons-disabled:hover,
 .input-icons-disabled:focus {
-  background-color: var(--grey40);
+  background-color: var(--relayGrey40);
 }
 
 .input-icons-disabled:active {
-  background-color: var(--grey50);
+  background-color: var(--relayGrey50);
 }
 
 .input-icons-disabled {
-  background-color: var(--grey30);
+  background-color: var(--relayGrey30);
+}
+
+.settings-header,
+fx-relay-logo-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 0 24px 0 24px;
+  width: 100%;
+  border-bottom: 1px solid var(--relayGrey20);
+  min-height: 64px;
+  height: 64px;
+  max-height: 64px;
 }
 
 .show-settings settings {
@@ -165,14 +181,14 @@ a.setting-label:active {
   transition: all 0.3s ease;
 }
 
-.show-settings logo-wrapper,
+.show-settings fx-relay-logo-wrapper,
 .show-settings .signed-in-panel {
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
 }
 
-logo-wrapper,
+fx-relay-logo-wrapper,
 .signed-in-panel {
   opacity: 1;
   transition: all 0.5s ease;
@@ -183,7 +199,7 @@ logo-wrapper,
   justify-content: center;
   text-align: center;
   font-size: 18px;
-  font-family: var(--Metropolis);
+  font-family: var(--relayMetropolis);
   font-weight: 600;
 }
 
@@ -202,7 +218,7 @@ logo-wrapper,
 }
 
 .settings-toggle:focus {
-  box-shadow: var(--blueButtonFocus);
+  box-shadow: var(--relayButtonFocus);
 }
 
 .settings-toggle:active {
@@ -224,7 +240,7 @@ logo-wrapper,
 .intro {
   margin: 0 auto 16px auto;
   max-width: 300px;
-  color: var(--inkLight);
+  color: var(--relayInkLight);
   line-height: 1.3;
   font-size: 14px;
 }
@@ -261,7 +277,7 @@ panel-content {
   line-height: 1.2;
   max-width: 260px;
   text-align: center;
-  color: var(--ink);
+  color: var(--relayInk);
   margin: auto auto 8px auto;
 }
 
@@ -269,9 +285,9 @@ panel-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--blue3);
-  color: var(--ink);
-  font-family: var(--Metropolis);
+  background: var(--relayBlue3);
+  color: var(--relayInk);
+  font-family: var(--relayMetropolis);
   font-weight: 800;
   font-size: 15px;
   text-decoration: none;
@@ -284,21 +300,21 @@ panel-content {
 }
 
 .blue-primary-btn:hover {
-  background: var(--blueHover);
+  background: var(--relayBlueHover);
 }
 
 .blue-primary-btn:focus {
-  box-shadow: var(--blueButtonFocus);
+  box-shadow: var(--relayButtonFocus);
 }
 
 .blue-primary-btn:active {
-  background: var(--blueActive);
+  background: var(--relayBlueActive);
 }
 
 .join-waitlist-wrapper {
   font-size: 14px;
   text-align: center;
-  color: var(--ink);
+  color: var(--relayInk);
   line-height: 1.4;
   margin: 0 auto 32px auto;
   max-width: 260px;
@@ -309,22 +325,22 @@ panel-content {
   padding: 0;
   border-radius: 4px;
   text-decoration: none;
-  color: var(--blue4);
+  color: var(--relayBlue4);
 }
 
 .survey-link:hover,
 .join-waitlist-link:hover {
-  color: var(--blueHover);
+  color: var(--relayBlueHover);
 }
 
 .survey-link:focus,
 .join-waitlist-link:focus {
-  box-shadow: var(--blueButtonFocus) !important;
+  box-shadow: var(--relayButtonFocus) !important;
 }
 
 .survey-link:active,
 .join-waitlist-link:active {
-  color: var(--blueActive);
+  color: var(--relayBlueActive);
 }
 
 main-panel {
@@ -338,13 +354,13 @@ main-panel {
 }
 
 .aliases-remaining {
-  font-family: var(--Metropolis);
+  font-family: var(--relayMetropolis);
   font-weight: 300;
   font-size: 14px;
   margin: 0;
   padding: 8px;
   background: white;
-  border-bottom: 1px solid var(--grey20);
+  border-bottom: 1px solid var(--relayGrey20);
 }
 
 .num-aliases-remaining,
@@ -363,21 +379,21 @@ footer {
   width: 100%;
   font-size: 15px;
   padding: 4px 8px;
-  background-color: var(--grey20);
+  background-color: var(--relayGrey20);
   justify-content: center;
   min-height: 64px;
 }
 
 .footer-button:hover {
-  background-color: var(--grey30);
+  background-color: var(--relayGrey30);
 }
 
 .footer-button:active {
-  background-color: var(--grey50);
+  background-color: var(--relayGrey50);
 }
 
 .footer-button:focus {
-  background-color: var(--grey40);
+  background-color: var(--relayGrey40);
 }
 
 /* onboarding */
@@ -396,6 +412,7 @@ onboarding-panel {
 .onboarding-h1 {
   margin: auto auto 8px 0;
   font-size: 16px;
+  font-family: var(--relayMetropolis);
 }
 
 onboarding-panel p {
@@ -441,7 +458,7 @@ onboarding-panel p {
 }
 
 .survey-link {
-  color: var(--blue3);
+  color: var(--relayBlue3);
   margin: 12px auto 0 0;
   border-radius: 2px;
 }
@@ -493,7 +510,7 @@ onboarding-panel p {
 
 .settings-toggle:focus,
 .panel-nav:focus {
-  box-shadow: var(--blueButtonFocus);
+  box-shadow: var(--relayButtonFocus);
 }
 
 .settings-toggle:active::after,
@@ -538,20 +555,20 @@ onboarding-panel p {
 /* For mobile screens with a bigger height viewport than the browser popup.
    This takes the --panelHeight + 1px as its min-height. */
 @media screen and (min-height: 501px) {
-  .panel {
+  .fx-relay-panel {
     height: 100vh;
   }
 
-  logo-wrapper {
+  fx-relay-logo-wrapper {
     margin-top: 2rem;
   }
 
-  logomark {
+  fx-relay-logomark {
     width: 48px;
     height: 50px;
   }
 
-  logotype {
+  fx-relay-logotype {
     width: 70%;
     height: 50px;
   }
@@ -572,7 +589,7 @@ onboarding-panel p {
   }
 
   .text-link {
-    border-bottom: 1px solid var(--ink);
+    border-bottom: 1px solid var(--relayInk);
   }
 
   .create-account {
