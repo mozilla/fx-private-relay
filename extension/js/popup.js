@@ -11,7 +11,7 @@ function getOnboardingPanels() {
     "panel2": {
       "imgSrc": "tip2-icon.svg",
       "tipHeadline": "Don't see the icon?",
-      "tipBody":"Right click (Windows) or control+click (Mac) to open the context menu easily generate a new relay from there",
+      "tipBody":"Right-click (Windows) or Control-click (macOS) to open the context menu easily generate a new relay from there.",
     },
     "panel3": {
       "imgSrc": "tip3-icon.svg",
