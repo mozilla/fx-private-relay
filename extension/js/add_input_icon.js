@@ -130,7 +130,7 @@ async function addRelayIconToInput(emailInput) {
   const relayIconBtn = createElementWithClassList("button", "fx-relay-button");
   relayIconBtn.id = "fx-relay-button";
   relayIconBtn.type = "button";
-  relayIconBtn.title = "Generate relay address";
+  relayIconBtn.title = "Generate new alias";
 
   const relayIconHeight = 30;
   if (relayIconHeight > inputHeight) {
@@ -187,7 +187,8 @@ async function addRelayIconToInput(emailInput) {
 
     // Create "Generate Relay Address" button
     const generateAliasBtn = createElementWithClassList("button", "fx-relay-menu-generate-alias-btn");
-    generateAliasBtn.textContent = "Generate Relay Address";
+    generateAliasBtn.textContent = "Generate new alias";
+
 
 
     // Create "You have .../.. remaining relay address" message
@@ -196,18 +197,20 @@ async function addRelayIconToInput(emailInput) {
     const { maxNumAliases } = await browser.storage.local.get("maxNumAliases");
 
     const numAliasesRemaining = maxNumAliases - relayAddresses.length;
-    const addresses = (numAliasesRemaining === 1) ? "address" : "addresses";
-    remainingAliasesSpan.textContent = `You have ${numAliasesRemaining} remaining relay ${addresses}`;
+    const aliases = (numAliasesRemaining === 1) ? "alias" : "aliases";
+    remainingAliasesSpan.textContent = `You have ${numAliasesRemaining} ${aliases} remaining`;
 
     const maxNumAliasesReached = numAliasesRemaining === 0;
     if (maxNumAliasesReached) {
       generateAliasBtn.disabled = true;
     }
 
-    // Create "Manage Relay Addresses" link
+
+    // Create "Manage All Addresses" link
     const relayMenuDashboardLink = createElementWithClassList("a", "fx-relay-menu-dashboard-link");
-    relayMenuDashboardLink.textContent = "Manage Relay Addresses";
-    relayMenuDashboardLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=manage-relay-addresses`;
+    relayMenuDashboardLink.textContent = "Manage All Addresses";
+    relayMenuDashboardLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=manage-all-addresses`;
+
     relayMenuDashboardLink.target = "_blank";
 
     // Restrict tabbing to relay menu elements
@@ -218,7 +221,7 @@ async function addRelayIconToInput(emailInput) {
       relayInPageMenu.appendChild(el);
     });
 
-    // Handle "Generate Relay Address" clicks
+    // Handle "Generate New Alias" clicks
     generateAliasBtn.addEventListener("click", async(generateClickEvt) => {
       preventDefaultBehavior(generateClickEvt);
 
@@ -230,7 +233,7 @@ async function addRelayIconToInput(emailInput) {
 
       relayInPageMenu.classList.add("fx-relay-alias-loading");
 
-      // Catch edge cases where the "Generate Relay Address" button is still enabled,
+      // Catch edge cases where the "Generate New Alias" button is still enabled,
       // but the user has already reached the max number of aliases.
       if (newRelayAddressResponse.status === 402) {
         relayInPageMenu.classList.remove("fx-relay-alias-loading");
@@ -242,7 +245,8 @@ async function addRelayIconToInput(emailInput) {
         });
 
         const errorMessage = createElementWithClassList("p", "fx-relay-error-message");
-        errorMessage.textContent = `You have already created ${maxNumAliases} relay addresses`;
+        errorMessage.textContent = `You have already created ${maxNumAliases} aliases`;
+
         relayInPageMenu.insertBefore(errorMessage, relayMenuDashboardLink);
         return;
       }

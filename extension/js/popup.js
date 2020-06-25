@@ -6,12 +6,11 @@ function getOnboardingPanels() {
       "imgSrc": "tip1-icon.svg",
       "tipHeadline": "Welcome!",
       "tipBody": "When the Firefox Relay icon appears on a website, select it to generate a new relay address.",
-
     },
     "panel2": {
       "imgSrc": "tip2-icon.svg",
       "tipHeadline": "Don't see the icon?",
-      "tipBody":"Right click (Windows) or control+click (Mac) to open the context menu easily generate a new relay from there",
+      "tipBody":"Right-click (Windows) or Control-click (macOS) to open the context menu and easily generate a new relay address from there.",
     },
     "panel3": {
       "imgSrc": "tip3-icon.svg",

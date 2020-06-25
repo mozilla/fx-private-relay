@@ -83,7 +83,7 @@ async function makeRelayAddressForTargetElement(info, tab) {
 if (browser.menus) {
   browser.menus.create({
     id: "fx-private-relay-generate-alias",
-    title: "Generate Email Alias",
+    title: "Generate New Alias",
     contexts: ["editable"]
   });
 

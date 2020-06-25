@@ -44,14 +44,16 @@ async function showModal(modalType, newAlias=null) {
 
   if (modalType === "max-num-aliases") { // User has maxed out the number of allowed free aliases.
     const modalMessage = document.createElement("span");
-    modalMessage.textContent = "You have reached the maximum number of aliases allowed during the beta phase of Private Relay.";
+
+    modalMessage.textContent = "You've used all of your beta aliases.";
     modalMessage.classList = ["fx-relay-modal-message"];
     modalContent.appendChild(modalMessage);
 
     const manageAliasesLink = document.createElement("a");
-    manageAliasesLink.textContent = "Manage Relay Addresses";
+    manageAliasesLink.textContent = "Manage All Addresses";
     manageAliasesLink.classList = ["fx-relay-new-tab"];
-    manageAliasesLink["href"] = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_campaign=beta&utm_content=manage-relay-addresses`;
+    manageAliasesLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_campaign=beta&utm_content=manage-relay-addresses`;
+
     modalContent.appendChild(manageAliasesLink);
   }
 
