@@ -21,7 +21,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .context_processors import relay_from_domain
 from .models import Profile, RelayAddress
 from .utils import (
-    generate_relay_From, get_ses_client, get_socketlabs_client, ses_send_email,
+    generate_relay_From, get_socketlabs_client, ses_send_email,
     socketlabs_send, incr_if_enabled
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
@@ -281,10 +281,8 @@ def _sns_message(message_json):
     if text_content:
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': text_content}
 
-    ses_client = get_ses_client()
-    result = ses_send_email(
-        ses_client, from_address, relay_address, subject, message_body
-    )
+    result = ses_send_email(from_address, relay_address, subject, message_body)
+
     if type(result) == HttpResponse:
         return result
 

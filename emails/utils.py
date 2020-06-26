@@ -49,22 +49,15 @@ def socketlabs_send(sl_client, sl_message):
         return HttpResponse("Internal Server Error", status=500)
 
 
-@time_if_enabled('ses_client')
-def get_ses_client():
-    try:
-        return boto3.client('ses', region_name=settings.AWS_REGION)
-    except Exception:
-        logger.exception("exception during SES connect")
-
-
 @time_if_enabled('ses_send_email')
-def ses_send_email(ses_client, from_address, relay_address, subject, message_body):
+def ses_send_email(from_address, relay_address, subject, message_body):
+    emails_config = apps.get_app_config('emails')
     relay_from_address, relay_from_display = generate_relay_From(from_address)
     formatted_from_address = str(
         Address(relay_from_display, addr_spec=relay_from_address)
     )
     try:
-        ses_response = ses_client.send_email(
+        ses_response = emails_config.ses_client.send_email(
             Destination={'ToAddresses': [relay_address.user.email]},
             Message={
                 'Body': message_body,
