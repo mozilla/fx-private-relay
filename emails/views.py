@@ -313,10 +313,6 @@ def _sns_message(message_json):
 
     result = ses_send_email(from_address, relay_address, subject, message_body)
 
-    if type(result) == HttpResponse:
-        return result
-
-    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def _get_text_and_html_content(email_message):
