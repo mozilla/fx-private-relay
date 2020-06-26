@@ -141,18 +141,7 @@ def sns_inbound(request):
     validate_sns_header(topic_arn, message_type)
 
     json_body = json.loads(request.body)
-    try:
-        verified_json_body = verify_from_sns(json_body)
-    except Exception:
-        capture_message(
-            'SNS message with invalid signature',
-            level="error",
-            stack=True
-        )
-        return HttpResponse(
-            'Received SNS message with invalid signature: %s' % message_type,
-            status=401
-        )
+    verified_json_body = verify_from_sns(json_body)
 
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 

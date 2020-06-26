@@ -4,7 +4,6 @@
 import base64
 import logging
 import pem
-import six
 from urllib.request import urlopen
 
 from OpenSSL import crypto
@@ -55,12 +54,15 @@ SUPPORTED_SNS_TYPES = [
 def verify_from_sns(json_body):
     pemfile = _grab_keyfile(json_body['SigningCertURL'])
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, pemfile)
-    signature = base64.decodestring(six.b(json_body['Signature']))
+    signature = base64.decodebytes(json_body['Signature'].encode('utf-8'))
 
     hash_format = _get_hash_format(json_body['Type'])
 
     crypto.verify(
-        cert, signature, six.b(hash_format.format(**json_body)), 'sha1'
+        cert,
+        signature,
+        hash_format.format(**json_body).encode('utf-8'),
+        'sha1'
     )
     return json_body
 
