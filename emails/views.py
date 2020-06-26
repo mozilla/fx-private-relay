@@ -275,7 +275,7 @@ def _sns_message(message_json):
     })
 
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
-    subject = mail['commonHeaders']['subject']
+    subject = mail['commonHeaders'].get('subject', '')
     email_message = message_from_string(
         message_json['content'], policy=policy.default
     )
