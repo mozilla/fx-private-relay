@@ -381,17 +381,19 @@ function showBannersIfNecessary() {
   if (window.clientWidth < 750) {
     return;
   }
-  const dashboardBanners = document.querySelector(".dashboard-banners");
-  if (!dashboardBanners) {
-    return;
-  }
-  const bg = dashboardBanners.querySelector(".banner-gradient-bg");
+
   const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
   const relayAddonIsInstalled = isRelayAddonInstalled();
   if (browserIsFirefox && relayAddonIsInstalled) {
     return;
   }
 
+  const dashboardBanners = document.querySelector(".dashboard-banners");
+  if (!dashboardBanners) {
+    return;
+  }
+
+  const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   const showBanner = (bannerEl) => {
     bg.style.minHeight = "101px";
     setTimeout(()=> {
