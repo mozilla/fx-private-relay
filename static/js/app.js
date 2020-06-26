@@ -382,10 +382,10 @@ function showBannersIfNecessary() {
     return;
   }
   const dashboardBanners = document.querySelector(".dashboard-banners");
-  const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   if (!dashboardBanners) {
     return;
   }
+  const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
   const relayAddonIsInstalled = isRelayAddonInstalled();
   if (browserIsFirefox && relayAddonIsInstalled) {
