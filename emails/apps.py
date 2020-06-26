@@ -1,6 +1,9 @@
 import logging
 
+import boto3
+
 from django.apps import AppConfig
+from django.conf import settings
 
 
 logger = logging.getLogger('events')
