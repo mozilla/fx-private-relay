@@ -252,11 +252,11 @@ def _sns_message(message_json):
             return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
         try:
-            deleted_address = DeletedAddresses.get(
+            deleted_address = DeletedAddress.get(
                 address_hash=local_portion_hash
             )
             # TODO: create a hard bounce receipt rule in SES
-        except DeletedAddresses.DoesNotExist:
+        except DeletedAddress.DoesNotExist:
             logger.error(
                 'Received email for unknown address.',
                 extra={'to_address': to_address}
@@ -396,7 +396,7 @@ def _inbound_logic(json_body):
             relay_address.save(update_fields=['num_blocked'])
             return HttpResponse("Address does not exist")
     except RelayAddress.DoesNotExist as e:
-        # TODO?: if sha256 of the address is in DeletedAddresses,
+        # TODO?: if sha256 of the address is in DeletedAddress,
         # create a hard bounce receipt rule
         print(e)
         return HttpResponse("Address does not exist")
