@@ -76,6 +76,7 @@ def ses_send_email(from_address, relay_address, subject, message_body):
     except ClientError as e:
         logger.error('ses_client_error', extra=e.response['Error'])
         return HttpResponse("SES client error", status=400)
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def urlize_and_linebreaks(text, autoescape=True):
