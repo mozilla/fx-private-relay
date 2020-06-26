@@ -26,6 +26,7 @@
         <div class="dashboard-greeting">
           <span class="dashboard-greeting-message">Welcome, <span class="demi">{{ request.user.email }}</span>!</span>
         </div>
+        {% include "includes/banners.html" %}
         <div class="flx flx-row dashboard-header inset">
           <h2 class="section-headline dashboard-headline">Manage your relay addresses</h2>
           <div class="remaining-aliases-wrapper flx al-cntr jst-cntr hide-750">
@@ -43,7 +44,7 @@
             type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias"
 
             {% if relay_addresses|length == settings.MAX_NUM_BETA_ALIASES %}
-              title="Beta invite-only release allows a maximum of 5 aliases."
+              title="You have reached the address limit for our beta release."
             {% else %}
               title="Create new relay alias"
             {% endif %}
@@ -63,7 +64,7 @@
               <div class="additional-notes hide-mobile">
                 <input data-label="" type="text" maxlength="50" value="" aria-label="Edit the label for this alias" class="relay-email-address-label ff-Met">
                 <span class="saved-confirmation">Label saved!</span>
-                <span class="input-error"><span class="forbidden-char bold"></span> is not an allowed character.</span>
+                <span class="input-error"></span>
               </div>
 
               <!-- enable/disable email forwarding -->

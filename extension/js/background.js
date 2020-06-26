@@ -1,6 +1,24 @@
 const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
 
 browser.storage.local.set({ "maxNumAliases": 5 });
+browser.storage.local.set({ "showInputIcons": "show-input-icons" });
+browser.storage.local.set({ "relaySiteOrigin": RELAY_SITE_ORIGIN });
+browser.storage.local.set({ "fxaOauthFlow": `${RELAY_SITE_ORIGIN}/accounts/fxa/login/?process=login` });
+
+
+browser.runtime.onInstalled.addListener(async () => {
+  const { firstRunShown } = await browser.storage.local.get("firstRunShown");
+  if (firstRunShown) {
+    return;
+  }
+  const userApiToken = await browser.storage.local.get("apiToken");
+  const apiKeyInStorage = (userApiToken.hasOwnProperty("apiToken"));
+  const url = browser.runtime.getURL("first-run.html");
+  if (!apiKeyInStorage) {
+    await browser.tabs.create({ url });
+    browser.storage.local.set({ "firstRunShown" : true });
+  }
+});
 
 async function makeRelayAddress(domain=null) {
   const apiToken = await browser.storage.local.get("apiToken");
@@ -65,7 +83,7 @@ async function makeRelayAddressForTargetElement(info, tab) {
 if (browser.menus) {
   browser.menus.create({
     id: "fx-private-relay-generate-alias",
-    title: "Generate Email Alias",
+    title: "Generate New Alias",
     contexts: ["editable"]
   });
 
@@ -85,7 +103,14 @@ browser.runtime.onMessage.addListener(async (m) => {
     case "makeRelayAddress":
       response = await makeRelayAddress(m.domain);
       break;
+    case "updateInputIconPref":
+      browser.storage.local.set({ "showInputIcons" : m.iconPref });
+      break;
+    case "openRelayHomepage":
+      browser.tabs.create({
+        url: `${RELAY_SITE_ORIGIN}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=go-to-fx-relay`,
+      });
+      break;
   }
-
   return response;
 });

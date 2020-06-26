@@ -26,6 +26,7 @@ from allauth.socialaccount.providers.fxa.views import (
 )
 
 from emails.models import RelayAddress
+from emails.utils import get_post_data_from_request
 from .models import Invitations
 
 
@@ -59,7 +60,9 @@ def faq(request):
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
-    relay_addresses = RelayAddress.objects.filter(user=request.user)
+    relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
+        '-created_at'
+    )
     fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
     avatar = fxa_account.extra_data['avatar'] if fxa_account else None
 
@@ -136,9 +139,9 @@ def invitation(request):
 def waitlist(request):
     if not settings.WAITLIST_OPEN:
         raise PermissionDenied
-    json_body = json.loads(request.body)
-    email = json_body['email']
-    fxa_uid = json_body['fxa_uid']
+    request_data = get_post_data_from_request(request)
+    email = request_data['email']
+    fxa_uid = request_data['fxa_uid']
     if not email or not fxa_uid:
         return JsonResponse({}, status=400)
 
@@ -152,11 +155,13 @@ def waitlist(request):
         if invitation.email != email:
             invitation.email = email
             invitation.save()
+        message = 'You were already on our waitlist!'
         status = 200
     except Invitations.DoesNotExist:
         Invitations.objects.create(fxa_uid=fxa_uid, email=email, active=False)
         status = 201
-    return JsonResponse({'email': email}, status=status)
+        message = 'You are added on our waitlist!'
+    return JsonResponse({'email': email, 'message': message}, status=status)
 
 
 @csrf_exempt

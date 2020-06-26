@@ -26,7 +26,7 @@ def email_invited_user(invitee, invitation):
     # Send email invite
     sl_message = BasicMessage()
     sl_message.subject = (
-        "You're Invited to the Private Relay Beta!"
+        "Firefox Relay beta: Your invitation is here!"
     )
 
     sl_message.html_body = render_to_string(
@@ -60,6 +60,7 @@ def email_invited_user(invitee, invitation):
 
     invitee.waitlists_joined['email_relay']['notified'] = True
     invitee.save(update_fields=['waitlists_joined'])
+
     return response
 
 
@@ -74,7 +75,7 @@ class Command(BaseCommand):
 
         monitor_waitlist = MonitorSubscriber.objects.using('monitor').filter(
             waitlists_joined__email_relay__notified=False
-        )[:limit]
+        ).distinct('primary_email')[:limit]
 
         invites_sent = 0
         for invitee in monitor_waitlist:

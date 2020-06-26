@@ -1,0 +1,97 @@
+.fx-relay-first-run {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  background-color: linear-gradient(tovar(--relayGrey10), var(--relayGrey20));
+}
+
+.first-run * {
+  box-sizing: border-box;
+}
+
+.first-run-h1 {
+  text-align: center;
+  font-size: 36px;
+  max-width: 700px;
+  margin: 24vh auto 40px auto;
+  color: var(--relayInk);
+}
+
+.first-run-img {
+  min-width: 300px;
+  max-width: 300px;
+}
+
+.first-run-main {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 17px;
+  max-width: 760px;
+  margin: 0 auto auto auto;
+}
+
+.first-run-content {
+  margin-left: 48px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 36px 0;
+  color: var(--relayInk70);
+}
+
+.first-run-sign-in {
+  border-radius: 4px;
+  min-height: 48px;
+  border: 1px solid rgba(0, 0, 0, 0);
+  min-width: 200px;
+  background-color: var(--relayBlue3);
+  color: rgba(255, 255, 255, 1);
+  font-family: var(--relayMetropolis);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+p.first-run-p {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 auto 40px auto;
+  font-weight: 500;
+}
+
+.first-run-join-waitlist {
+  font-size: 13px;
+  line-height: 1.6;
+  max-width: 300px;
+}
+
+a {
+  color: var(--relayBlue4);
+  border-radius: 2px;
+}
+
+button:hover {
+  background-color: var(--relayBlueHover);
+}
+
+button:active {
+  background-color: var(--relayBlueActive);
+}
+
+a:hover {
+  color: var(--relayBlueHover);
+}
+
+button:focus,
+a:focus {
+  box-shadow: var(--relayButtonFocus);
+}
+
+a:active {
+  color: var(--blueButtonActive);
+}

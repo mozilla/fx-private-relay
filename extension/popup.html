@@ -2,44 +2,69 @@
 <html id="1">
   <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>Firefox Private Relay</title>
+    <title>Firefox Relay</title>
     <link rel="stylesheet" href="css/relay.css">
     <link rel="stylesheet" href="css/popup.css">
     <script src="js/popup.js"></script>
   </head>
-  <body class="panel">
+  <body class="fx-relay-panel">
     <panel-content>
-      <logo-wrapper>
-        <logomark></logomark>
-        <logotype></logotype>
-      </logo-wrapper>
-      <div class="sign-up-panel hidden">
-        <main>
-          <p class="intro">Create an account or <a class="text-link sign-in-link close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">sign in</a> to access your dashboard and create aliases.</p>
-          <div class="gradient-button-wrapper">
-            <a class="button create-account new-tab gradient-button close-popup-after-click" href="http://127.0.0.1:8000/?utm_source=addon&utm_medium=popup">Create Account</a>
+      <fx-relay-logo-wrapper>
+        <fx-relay-logomark></fx-relay-logomark>
+        <fx-relay-logotype></fx-relay-logotype>
+        <button class="open-settings settings-toggle" title="Settings"></button>
+      </fx-relay-logo-wrapper>
+
+      <settings>
+        <div class="settings-header">
+          <button class="close-settings settings-toggle" title="Return to main panel"></button>
+          <h1 class="settings-hl">Settings</h1>
+        </div>
+        <ul class="settings-list">
+          <li class="setting">
+            <span class="setting-label flex-col">Show Relay icon in email fields on websites</span>
+            <button title="" data-icon-visibility-option="disable-input-icon" class="toggle-icon-in-page-visibility"></button>
+          </li>
+          <li class="setting flex-col">
+            <a href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta" class="setting-label close-popup-after-click">Leave Feedback</a>
+          </li>
+        </ul>
+      </settings>
+
+      <sign-up-panel class="sign-up-panel hidden">
+        <span class="fx-relay-font-met welcome">Welcome</span>
+        <p class="intro">
+          Get started by signing in with the Firefox account you used to register for Firefox Relay.
+        </p>
+        <a class="button sign-in-btn blue-primary-btn close-popup-after-click login-link" href="">
+          Continue
+        </a>
+        <div class="join-waitlist-wrapper">
+          <span class="">Curious about Relay?</span>
+          <a href="" class="join-waitlist-link login-link">Sign up for the waitlist with your Firefox account.</a>
+        </div>
+      </sign-up-panel>
+
+      <main-panel class="signed-in-panel hidden">
+        <p class="fx-relay-font-met aliases-remaining remaining-plural">You have <span class="num-aliases-remaining"></span><span class="fx-relay-font-met max-num-aliases"></span> remaining aliases</p>
+        <onboarding-panel>
+          <img class="onboarding-img">
+          <h1 class="onboarding-h1"></h1>
+          <p class="onboarding-p"></p>
+
+          <div class="onboarding-pagination">
+            <button class="panel-nav previous-panel" data-direction="-1" aria-label="Show previous panel"></button>
+            <span class="panel-num fx-relay-font-met">
+              <span class="current-panel"></span>/
+                <span class="total-panels">3</span>
+            </span>
+            <button class="panel-nav next-panel" data-direction="1" aria-label="Go to next panel"></button>
           </div>
-        </main>
-      </div>
-      <main class="signed-in-panel hidden">
-        <alias-list>
-          <alias-list-header>
-            <span class="alias-list-header-title">Aliases</span>
-            <span class="click-to-copy-list-header">Click to copy</span>
-          </alias-list-header>
-        </alias-list>
-        <alias-creation>
-          <div class="gradient-button-wrapper">
-            <button class="create-new-alias gradient-button" type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias - No existing aliases">
-              Create New Relay Alias
-            </button>
-          </div>
-        </alias-creation>
+        </onboarding-panel>
         <footer>
-          <p class="ff-Met aliases-remaining text-center remaining-plural">You have <span class="num-aliases-remaining"></span> remaining free <span class="alias-text">aliases</span></p>
-          <a class="button new-tab close-popup-after-click footer-button" href="http://127.0.0.1:8000/accounts/profile?utm_source=addon&utm_medium=popup"></a>
+          <a class="button fx-relay-new-tab close-popup-after-click footer-button dashboard-link" href="">Manage All Addresses</a>
         </footer>
-      </main>
+      </main-panel>
     </panel-content>
   </body>
 </html>

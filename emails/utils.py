@@ -7,10 +7,12 @@ from botocore.exceptions import ClientError
 import contextlib
 import markus
 import logging
+import json
 from socketlabs.injectionapi import SocketLabsClient
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.template.defaultfilters import linebreaksbr, urlize
 
 
 logger = logging.getLogger('events')
@@ -76,10 +78,23 @@ def ses_send_email(from_address, relay_address, subject, message_body):
         return HttpResponse("SES client error", status=400)
 
 
+def urlize_and_linebreaks(text, autoescape=True):
+    return linebreaksbr(
+        urlize(text, autoescape=autoescape),
+        autoescape=autoescape
+    )
+
+
+def get_post_data_from_request(request):
+    if request.content_type == 'application/json':
+        return json.loads(request.body)
+    return request.POST
+
+
 def generate_relay_From(original_from_address):
     relay_display_name, relay_from_address = parseaddr(
         settings.RELAY_FROM_ADDRESS
     )
-    return relay_from_address, '%s via Firefox Private Relay' % (
+    return relay_from_address, '%s [via Relay]' % (
         original_from_address
     )

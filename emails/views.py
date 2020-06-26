@@ -2,6 +2,7 @@ from datetime import datetime
 from email import message_from_string, policy
 from email.utils import parseaddr
 from hashlib import sha256
+from sentry_sdk import capture_message
 import json
 import logging
 import markus
@@ -21,8 +22,14 @@ from django.views.decorators.csrf import csrf_exempt
 from .context_processors import relay_from_domain
 from .models import Profile, RelayAddress
 from .utils import (
-    generate_relay_From, get_socketlabs_client, ses_send_email,
-    socketlabs_send, incr_if_enabled
+    generate_relay_From,
+    get_post_data_from_request,
+    get_socketlabs_client,
+    incr_if_enabled,
+    ses_send_email,
+    socketlabs_send,
+
+    urlize_and_linebreaks
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -31,16 +38,10 @@ logger = logging.getLogger('events')
 metrics = markus.get_metrics('fx-private-relay')
 
 
-def _get_data_from_request(request):
-    if request.content_type == 'application/json':
-        return json.loads(request.body)
-    return request.POST
-
-
 @csrf_exempt
 def index(request):
     incr_if_enabled('emails_index', 1)
-    request_data = _get_data_from_request(request)
+    request_data = get_post_data_from_request(request)
     if (not request.user.is_authenticated and
         not request_data.get("api_token", False)
        ):
@@ -58,7 +59,7 @@ def _get_user_profile(request, api_token):
 
 
 def _index_POST(request):
-    request_data = _get_data_from_request(request)
+    request_data = get_post_data_from_request(request)
     api_token = request_data.get('api_token', None)
     if not api_token:
         raise PermissionDenied
@@ -132,7 +133,31 @@ def _index_DELETE(request_data, user_profile):
 def sns_inbound(request):
     incr_if_enabled('sns_inbound', 1)
     # We can check for some invalid values in headers before processing body
+    # Grabs message information for validation
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
+    message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
+
+    # Validates header
+    validate_sns_header(topic_arn, message_type)
+
+    json_body = json.loads(request.body)
+    try:
+        verified_json_body = verify_from_sns(json_body)
+    except Exception:
+        capture_message(
+            'SNS message with invalid signature',
+            level="error",
+            stack=True
+        )
+        return HttpResponse(
+            'Received SNS message with invalid signature: %s' % message_type,
+            status=401
+        )
+
+    return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
+
+
+def validate_sns_header(topic_arn, message_type):
     if not topic_arn:
         logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
         return HttpResponse(
@@ -150,7 +175,6 @@ def sns_inbound(request):
             'Received SNS message for wrong topic.', status=400
         )
 
-    message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
     if not message_type:
         logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
         return HttpResponse(
@@ -169,24 +193,6 @@ def sns_inbound(request):
             status=400
         )
 
-    json_body = json.loads(request.body)
-    try:
-        verified_json_body = verify_from_sns(json_body)
-    except Exception:
-        logger.error(
-            'SNS message with invalid signature',
-            extra={
-                'SigningCertURL': json_body['SigningCertURL'],
-                'Signature': json_body['Signature'],
-            }
-        )
-        return HttpResponse(
-            'Received SNS message with invalid signature: %s' % message_type,
-            status=401
-        )
-
-    return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
-
 
 def _sns_inbound_logic(topic_arn, message_type, json_body):
     if message_type == 'SubscriptionConfirmation':
@@ -202,6 +208,17 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
             extra={'json_body': json_body},
         )
         return _sns_notification(json_body)
+
+    logger.error(
+        'SNS message type did not fall under the SNS inbound logic',
+        extra={'message_type': message_type}
+    )
+    capture_message(
+        'Received SNS message with type not handled in inbound log',
+        level="error",
+        stack=True
+    )
+    return HttpResponse('Received SNS message with type not handled in inbound log', status=400)
 
 
 def _sns_notification(json_body):
@@ -233,6 +250,7 @@ def _sns_message(message_json):
 
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
     local_portion = to_address.split('@')[0]
+    local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
 
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
@@ -241,9 +259,16 @@ def _sns_message(message_json):
             relay_address.save(update_fields=['num_blocked'])
             return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
-        # TODO?: if sha256 of the address is in DeletedAddresses,
-        # create a hard bounce receipt rule
-        logger.error('email_relay', extra={'message_json': message_json})
+        try:
+            deleted_address = DeletedAddresses.get(
+                address_hash=local_portion_hash
+            )
+            # TODO: create a hard bounce receipt rule in SES
+        except DeletedAddresses.DoesNotExist:
+            logger.error(
+                'Received email for unknown address.',
+                extra={'to_address': to_address}
+            )
         return HttpResponse("Address does not exist", status=404)
 
     logger.info('email_relay', extra={
@@ -251,7 +276,7 @@ def _sns_message(message_json):
             relay_address.user.socialaccount_set.first().uid
         ),
         'relay_address_id': relay_address.id,
-        'relay_address': sha256(local_portion.encode('utf-8')).hexdigest(),
+        'relay_address': local_portion_hash,
         'real_address': sha256(
             relay_address.user.email.encode('utf-8')
         ).hexdigest(),
@@ -279,7 +304,12 @@ def _sns_message(message_json):
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
-        message_body['Text'] = {'Charset': 'UTF-8', 'Data': text_content}
+        relay_header_text = ('This email was sent to your alias '
+            '{relay_address}. To stop receiving emails sent to this alias, '
+            'update the forwarding settings in your dashboard.\n'
+            '---Begin Email---\n').format(relay_address=display_email)
+        wrapped_text = relay_header_text + text_content
+        message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     result = ses_send_email(from_address, relay_address, subject, message_body)
 
@@ -300,10 +330,14 @@ def _get_text_and_html_content(email_message):
             if message_payload.get_content_type() == 'text/html':
                 html_content = content
     else:
-        message_payload = email_message.get_payload()
-        if type(message_payload) == str:
-            text_content = message_payload
+        if email_message.get_content_type() == 'text/plain':
+            text_content = email_message.get_content()
+            html_content = urlize_and_linebreaks(email_message.get_content())
+        if email_message.get_content_type() == 'text/html':
+            html_content = email_message.get_content()
 
+    # TODO: if html_content is still None, wrap the text_content with our
+    # header and footer HTML and send that as the html_content
     return text_content, html_content
 
 
