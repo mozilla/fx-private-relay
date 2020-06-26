@@ -1,7 +1,6 @@
 from datetime import datetime
 from email import message_from_string, policy
 from email.utils import parseaddr
-from email.headerregistry import Address
 from hashlib import sha256
 from sentry_sdk import capture_message
 import json
@@ -9,9 +8,6 @@ import logging
 import markus
 import re
 
-import boto3
-from botocore.exceptions import ClientError
-from decouple import config
 from socketlabs.injectionapi.message.basicmessage import BasicMessage
 from socketlabs.injectionapi.message.emailaddress import EmailAddress
 
@@ -19,16 +15,20 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
-from .models import DeletedAddress, Profile, RelayAddress
+from .models import Profile, RelayAddress
 from .utils import (
+    generate_relay_From,
     get_post_data_from_request,
     get_socketlabs_client,
+    incr_if_enabled,
+    ses_send_email,
     socketlabs_send,
+
     urlize_and_linebreaks
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
@@ -40,6 +40,7 @@ metrics = markus.get_metrics('fx-private-relay')
 
 @csrf_exempt
 def index(request):
+    incr_if_enabled('emails_index', 1)
     request_data = get_post_data_from_request(request)
     if (not request.user.is_authenticated and
         not request_data.get("api_token", False)
@@ -47,6 +48,7 @@ def index(request):
         raise PermissionDenied
     if request.method == 'POST':
         return _index_POST(request)
+    incr_if_enabled('emails_index_get', 1)
     return redirect('profile')
 
 
@@ -67,6 +69,7 @@ def _index_POST(request):
     if request_data.get('method_override', None) == 'DELETE':
         return _index_DELETE(request_data, user_profile)
 
+    incr_if_enabled('emails_index_post', 1)
     existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
     if existing_addresses.count() >= settings.MAX_NUM_BETA_ALIASES:
         if 'moz-extension' in request.headers.get('Origin', ''):
@@ -96,11 +99,12 @@ def _get_relay_address_from_id(request_data, user_profile):
             user=user_profile.user
         )
         return relay_address
-    except RelayAddress.DoesNotExist as e:
+    except RelayAddress.DoesNotExist:
         return HttpResponse("Address does not exist")
 
 
 def _index_PUT(request_data, user_profile):
+    incr_if_enabled('emails_index_put', 1)
     relay_address = _get_relay_address_from_id(request_data, user_profile)
     if not isinstance(relay_address, RelayAddress):
         return relay_address
@@ -117,6 +121,7 @@ def _index_PUT(request_data, user_profile):
 
 
 def _index_DELETE(request_data, user_profile):
+    incr_if_enabled('emails_index_delete', 1)
     relay_address = _get_relay_address_from_id(request_data, user_profile)
     if isinstance(relay_address, RelayAddress):
         # TODO?: create hard bounce receipt rule for the address
@@ -126,6 +131,7 @@ def _index_DELETE(request_data, user_profile):
 
 @csrf_exempt
 def sns_inbound(request):
+    incr_if_enabled('sns_inbound', 1)
     # We can check for some invalid values in headers before processing body
     # Grabs message information for validation
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
@@ -196,6 +202,7 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
         )
         return HttpResponse('Logged SubscribeURL', status=200)
     if message_type == 'Notification':
+        incr_if_enabled('sns_inbound_Notification', 1)
         logger.info(
             'SNS Notification',
             extra={'json_body': json_body},
@@ -232,6 +239,7 @@ def _sns_notification(json_body):
 
 
 def _sns_message(message_json):
+    incr_if_enabled('sns_inbound_Notification_Received', 1)
     mail = message_json['mail']
     if 'commonHeaders' not in mail:
         logger.error('SNS message without commonHeaders')
@@ -303,31 +311,8 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
-    relay_from_address, relay_from_display = _generate_relay_From(from_address)
-    formatted_from_address = str(
-        Address(relay_from_display, addr_spec=relay_from_address)
-    )
+    return ses_send_email(from_address, relay_address, subject, message_body)
 
-    ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
-    try:
-        ses_response = ses_client.send_email(
-            Destination={'ToAddresses': [relay_address.user.email]},
-            Message={
-                'Body': message_body,
-                'Subject': {'Charset': 'UTF-8', 'Data': subject},
-            },
-            Source=formatted_from_address,
-            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
-        )
-        logger.debug('ses_sent_response', extra=ses_response['MessageId'])
-        relay_address.num_forwarded += 1
-        relay_address.last_used_at = datetime.now()
-        relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
-    except ClientError as e:
-        logger.error('ses_client_error', extra=e.response['Error'])
-        return HttpResponse("SES client error", status=400)
-
-    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def _get_text_and_html_content(email_message):
@@ -427,7 +412,7 @@ def _inbound_logic(json_body):
     sl_message.html_body = wrapped_html
     sl_message.plain_text_body = text
 
-    relay_from_address, relay_from_display = _generate_relay_From(from_address)
+    relay_from_address, relay_from_display = generate_relay_From(from_address)
     sl_message.from_email_address = EmailAddress(
         relay_from_address, relay_from_display
     )
@@ -444,12 +429,3 @@ def _inbound_logic(json_body):
     relay_address.last_used_at = datetime.now()
     relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
     return HttpResponse("Created", status=201)
-
-
-def _generate_relay_From(original_from_address):
-    relay_display_name, relay_from_address = parseaddr(
-        settings.RELAY_FROM_ADDRESS
-    )
-    return relay_from_address, '%s [via Relay]' % (
-        original_from_address
-    )
