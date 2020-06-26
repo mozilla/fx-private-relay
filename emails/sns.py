@@ -58,7 +58,12 @@ def verify_from_sns(json_body):
 
     hash_format = _get_hash_format(json_body['Type'])
 
-    crypto.verify(cert, signature, hash_format.format(**json_body), 'sha1')
+    crypto.verify(
+        cert,
+        signature,
+        hash_format.format(**json_body).encode('utf-8'),
+        'sha1'
+    )
     return json_body
 
 
