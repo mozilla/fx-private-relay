@@ -311,7 +311,7 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
-    result = ses_send_email(from_address, relay_address, subject, message_body)
+    return ses_send_email(from_address, relay_address, subject, message_body)
 
 
 
