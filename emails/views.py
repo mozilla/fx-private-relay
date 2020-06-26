@@ -20,7 +20,7 @@ from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
-from .models import Profile, RelayAddress
+from .models import DeletedAddress, Profile, RelayAddress
 from .utils import (
     generate_relay_From,
     get_post_data_from_request,
@@ -260,7 +260,7 @@ def _sns_message(message_json):
             return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
         try:
-            deleted_address = DeletedAddress.get(
+            deleted_address = DeletedAddress.objects.get(
                 address_hash=local_portion_hash
             )
             # TODO: create a hard bounce receipt rule in SES
