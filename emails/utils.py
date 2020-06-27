@@ -2,7 +2,6 @@ from datetime import datetime
 from email.headerregistry import Address
 from email.utils import parseaddr
 
-import boto3
 from botocore.exceptions import ClientError
 import contextlib
 import markus
@@ -10,6 +9,7 @@ import logging
 import json
 from socketlabs.injectionapi import SocketLabsClient
 
+from django.apps import apps
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
