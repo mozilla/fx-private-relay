@@ -177,14 +177,14 @@ function deleteAliasConfirmation(submitEvent) {
 
 // Checks for changes made to <firefox-private-relay-addon></firefox-private-relay-add-on> by the addon.
 function isRelayAddonInstalled() {
-	const installationIndicator = document.querySelector("firefox-private-relay-addon");
-	return (installationIndicator.dataset.addonInstalled === "true" || isAddonInstallInSessionStorage());
+  const installationIndicator = document.querySelector("firefox-private-relay-addon");
+	return (installationIndicator.dataset.addonInstalled === "true" || isAddonInstallInLocalStorage());
 }
 
 
-// Looks for previously saved installation note in sessionStorage
-function isAddonInstallInSessionStorage() {
-	return (sessionStorage && sessionStorage.getItem("addonInstalled", "true"));
+// Looks for previously saved installation note in localStorage
+function isAddonInstallInLocalStorage() {
+	return (localStorage && localStorage.getItem("fxRelayAddonInstalled"));
 }
 
 
@@ -350,22 +350,17 @@ function handleLegacyAddonLabels(legacyNoteElem) {
 // Watch for the addon to update the dataset of <firefox-private-relay-addon></firefox-private-relay-addon>
 // and watch for older versions of the addon populating alias labels into .relay-email-address note els
 function watchForInstalledAddon() {
-	const watchedEls = document.querySelectorAll("firefox-private-relay-addon, .relay-email-address-note");
-	const observerConfig = {
+  const watchedEls = document.querySelectorAll("firefox-private-relay-addon, .relay-email-address-note");
+  const observerConfig = {
     attributes: true,
     childList: true, // catches legacy addons modifying .relay-email-address-note els
 	};
 
-	const patrollerDuties = (mutations, mutationPatroller) => {
+  const patrollerDuties = (mutations, mutationPatroller) => {
     for (const mutation of mutations) {
       // handle legacy addon labeling
       if (mutation.type === "childList" && mutation.target.classList.contains("relay-email-address-note")) {
         handleLegacyAddonLabels(mutation.target);
-      }
-      if (mutation.type === "attributes" && isRelayAddonInstalled()) {
-        if (sessionStorage && !sessionStorage.getItem("addonInstalled", "true")) {
-          sessionStorage.setItem("addonInstalled", "true");
-        }
       }
     }
 	};
@@ -383,8 +378,7 @@ function showBannersIfNecessary() {
   }
 
   const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
-  const relayAddonIsInstalled = isRelayAddonInstalled();
-  if (browserIsFirefox && relayAddonIsInstalled) {
+  if (browserIsFirefox && isRelayAddonInstalled()) {
     return;
   }
 
@@ -395,11 +389,13 @@ function showBannersIfNecessary() {
 
   const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   const showBanner = (bannerEl) => {
-    bg.style.minHeight = "101px";
     setTimeout(()=> {
-      bannerEl.classList.remove("hidden");
-      dashboardBanners.classList.remove("invisible");
-    }, 100);
+      if (!isRelayAddonInstalled()) {
+        bg.style.minHeight = "101px";
+        bannerEl.classList.remove("hidden");
+        dashboardBanners.classList.remove("invisible");
+      }
+    }, 500);
     return;
   };
 
@@ -408,11 +404,8 @@ function showBannersIfNecessary() {
     showBanner(firefoxBanner);
     return;
   }
-
-  if (!relayAddonIsInstalled) {
-    const relayAddonBanner = dashboardBanners.querySelector(".install-addon-banner");
-    return showBanner(relayAddonBanner);
-  }
+  const relayAddonBanner = dashboardBanners.querySelector(".install-addon-banner");
+  return showBanner(relayAddonBanner);
 }
 
 
@@ -438,7 +431,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     setHeader(win.pageYOffset);
   };
-
   showBannersIfNecessary();
 });
 
