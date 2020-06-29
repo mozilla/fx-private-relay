@@ -281,7 +281,9 @@ def _sns_message(message_json):
         message_json['content'], policy=policy.default
     )
 
-    text_content, html_content = _get_text_and_html_content(email_message)
+    text_content, html_content, has_attachment = _get_text_and_html_content(
+        email_message
+    )
 
     # scramble alias so that clients don't recognize it and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
@@ -313,6 +315,7 @@ def _sns_message(message_json):
 def _get_text_and_html_content(email_message):
     text_content = None
     html_content = None
+    has_attachment = False
     if email_message.is_multipart():
         for part in email_message.walk():
             try:
@@ -322,6 +325,7 @@ def _get_text_and_html_content(email_message):
                 if part.get_content_type() == 'text/html':
                     html_content = content
                 if part.is_attachment():
+                    has_attachment = True
                     incr_if_enabled('email_with_attachment', 1)
             except KeyError:
                 # log the un-handled content type but don't stop processing
@@ -338,7 +342,7 @@ def _get_text_and_html_content(email_message):
 
     # TODO: if html_content is still None, wrap the text_content with our
     # header and footer HTML and send that as the html_content
-    return text_content, html_content
+    return text_content, html_content, has_attachment
 
 
 @csrf_exempt
