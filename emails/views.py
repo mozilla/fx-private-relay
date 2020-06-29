@@ -42,9 +42,11 @@ metrics = markus.get_metrics('fx-private-relay')
 def index(request):
     incr_if_enabled('emails_index', 1)
     request_data = get_post_data_from_request(request)
-    if (not request.user.is_authenticated and
+    is_not_validated_user = (
+        not request.user.is_authenticated and
         not request_data.get("api_token", False)
-       ):
+    )
+    if is_not_validated_user:
         raise PermissionDenied
     if request.method == 'POST':
         return _index_POST(request)
@@ -207,7 +209,10 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
         level="error",
         stack=True
     )
-    return HttpResponse('Received SNS message with type not handled in inbound log', status=400)
+    return HttpResponse(
+        'Received SNS message with type not handled in inbound log',
+        status=400
+    )
 
 
 def _sns_notification(json_body):
@@ -250,7 +255,7 @@ def _sns_message(message_json):
             return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
         try:
-            deleted_address = DeletedAddress.objects.get(
+            DeletedAddress.objects.get(
                 address_hash=local_portion_hash
             )
             incr_if_enabled('email_for_deleted_address', 1)
@@ -285,7 +290,8 @@ def _sns_message(message_json):
         email_message
     )
 
-    # scramble alias so that clients don't recognize it and apply default link styles
+    # scramble alias so that clients don't recognize it
+    # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
 
     message_body = {}
@@ -320,7 +326,6 @@ def _sns_message(message_json):
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     return ses_send_email(from_address, relay_address, subject, message_body)
-
 
 
 def _get_text_and_html_content(email_message):
@@ -361,8 +366,11 @@ def inbound(request):
     if _get_secret_key(request) != settings.SOCKETLABS_SECRET_KEY:
         return HttpResponse("Unauthorized", status=401)
 
-    if (request.content_type == 'application/x-www-form-urlencoded' and
-        request.POST['Type'] == 'Validation'):
+    is_key_validation = (
+        request.content_type == 'application/x-www-form-urlencoded' and
+        request.POST['Type'] == 'Validation'
+    )
+    if is_key_validation:
         return HttpResponse(settings.SOCKETLABS_VALIDATION_KEY)
 
     if request.content_type != 'application/json':
@@ -419,7 +427,8 @@ def _inbound_logic(json_body):
     sl_message = BasicMessage()
     sl_message.subject = subject
 
-    # scramble alias so that clients don't recognize it and apply default link styles
+    # scramble alias so that clients don't recognize it
+    # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', email_to)
     wrapped_html = render_to_string('emails/wrapped_email.html', {
         'original_html': html,
