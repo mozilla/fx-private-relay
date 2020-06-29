@@ -308,12 +308,19 @@ def _get_text_and_html_content(email_message):
     text_content = None
     html_content = None
     if email_message.is_multipart():
-        for message_payload in email_message.get_payload():
-            content = message_payload.get_content()
-            if message_payload.get_content_type() == 'text/plain':
-                text_content = content
-            if message_payload.get_content_type() == 'text/html':
-                html_content = content
+        for part in email_message.walk():
+            try:
+                content = part.get_content()
+                if part.get_content_type() == 'text/plain':
+                    text_content = content
+                if part.get_content_type() == 'text/html':
+                    html_content = content
+            except KeyError:
+                # log the un-handled content type but don't stop processing
+                logger.error(
+                    'part.get_content()',
+                    extra={'type': part.get_content_type()}
+                )
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
