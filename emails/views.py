@@ -296,6 +296,7 @@ def _sns_message(message_json):
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
+            'has_attachment': has_attachment,
         })
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
