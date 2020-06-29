@@ -244,6 +244,7 @@ def _sns_message(message_json):
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
         if not relay_address.enabled:
+            incr_if_enabled('email_for_disabled_address', 1)
             relay_address.num_blocked += 1
             relay_address.save(update_fields=['num_blocked'])
             return HttpResponse("Address is temporarily disabled.")
@@ -252,14 +253,17 @@ def _sns_message(message_json):
             deleted_address = DeletedAddress.objects.get(
                 address_hash=local_portion_hash
             )
+            incr_if_enabled('email_for_deleted_address', 1)
             # TODO: create a hard bounce receipt rule in SES
         except DeletedAddress.DoesNotExist:
+            incr_if_enabled('email_for_unknown_address', 1)
             logger.error(
                 'Received email for unknown address.',
                 extra={'to_address': to_address}
             )
         return HttpResponse("Address does not exist", status=404)
 
+    incr_if_enabled('email_for_active_address', 1)
     logger.info('email_relay', extra={
         'fxa_uid': (
             relay_address.user.socialaccount_set.first().uid
@@ -284,6 +288,7 @@ def _sns_message(message_json):
 
     message_body = {}
     if html_content:
+        incr_if_enabled('email_with_html_content', 1)
         wrapped_html = render_to_string('emails/wrapped_email.html', {
             'original_html': html_content,
             'email_to': to_address,
@@ -293,6 +298,7 @@ def _sns_message(message_json):
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
+        incr_if_enabled('email_with_text_content', 1)
         relay_header_text = ('This email was sent to your alias '
             '{relay_address}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
@@ -315,6 +321,8 @@ def _get_text_and_html_content(email_message):
                     text_content = content
                 if part.get_content_type() == 'text/html':
                     html_content = content
+                if part.is_attachment():
+                    incr_if_enabled('email_with_attachment', 1)
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
