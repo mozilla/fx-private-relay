@@ -302,10 +302,20 @@ def _sns_message(message_json):
 
     if text_content:
         incr_if_enabled('email_with_text_content', 1)
-        relay_header_text = ('This email was sent to your alias '
+        attachment_not_supported = ''
+        if has_attachment:
+            attachment_not_supported = (
+                'Relay detected an attachment, but attachments are currently '
+                'NOT supported.\n'
+            )
+        relay_header_text = (
+            'This email was sent to your alias '
             '{relay_address}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
-            '---Begin Email---\n').format(relay_address=display_email)
+            '{extra_msg}---Begin Email---\n'
+        ).format(
+            relay_address=display_email, extra_msg=attachment_not_supported
+        )
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
