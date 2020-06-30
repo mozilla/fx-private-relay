@@ -42,9 +42,11 @@ metrics = markus.get_metrics('fx-private-relay')
 def index(request):
     incr_if_enabled('emails_index', 1)
     request_data = get_post_data_from_request(request)
-    if (not request.user.is_authenticated and
-        not request_data.get("api_token", False)
-       ):
+    is_validated_user = (
+        request.user.is_authenticated and
+        request_data.get("api_token", False)
+    )
+    if not is_validated_user:
         raise PermissionDenied
     if request.method == 'POST':
         return _index_POST(request)
