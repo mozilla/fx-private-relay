@@ -47,7 +47,7 @@ def index(request):
         request_data.get("api_token", False)
     )
     if not is_validated_user:
-        raise PermissionDenied
+        return redirect('profile')
     if request.method == 'POST':
         return _index_POST(request)
     incr_if_enabled('emails_index_get', 1)
