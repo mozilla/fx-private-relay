@@ -32,56 +32,60 @@ if (typeof(sendGaPing) === "undefined") {
 }
 
 async function updateEmailForwardingPrefs(submitEvent) {
-	submitEvent.preventDefault();
+  submitEvent.preventDefault();
 
-	const forwardingPrefForm = submitEvent.target;
+  const forwardingPrefForm = submitEvent.target;
   const prefToggle = forwardingPrefForm.querySelector("button");
   const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
   const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']");
   const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}']`);
 
-	const analyticsLabel = (prefToggle.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
-	sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
+  const analyticsLabel = (prefToggle.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
+  sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
-	const formData = {};
-	Array.from(forwardingPrefForm.elements).forEach(elem => {
-		formData[elem.name] = elem.value;
-	});
+  const formData = {};
+  Array.from(forwardingPrefForm.elements).forEach(elem => {
+    formData[elem.name] = elem.value;
+  });
 
-	const response = await sendForm(forwardingPrefForm.action, formData);
-
-	if (response && response.status === 200) {
-		prefToggle.classList.toggle("forwarding-disabled");
-		if (prefToggle.value === "Enable") {
-      prefToggle.title = "Disable email forwarding for this alias";
-      toggleLabel.textContent = "forwarding";
-      wrappingEmailCard.classList.add("card-enabled");
-			return prefToggle.value = "Disable";
-		} else if (prefToggle.value === "Disable") {
-      prefToggle.title="Enable email forwarding to this alias";
-      toggleLabel.textContent = "blocking";
-      wrappingEmailCard.classList.remove("card-enabled");
-			return prefToggle.value = "Enable";
-		}
-	}
-	return;
+  try {
+    const response = await sendForm(forwardingPrefForm.action, formData);
+    if (response && response.status === 200) {
+      prefToggle.classList.toggle("forwarding-disabled");
+      if (prefToggle.value === "Enable") {
+        prefToggle.title = "Disable email forwarding for this alias";
+        toggleLabel.textContent = "forwarding";
+        wrappingEmailCard.classList.add("card-enabled");
+        return prefToggle.value = "Disable";
+      } else if (prefToggle.value === "Disable") {
+        prefToggle.title="Enable email forwarding to this alias";
+        toggleLabel.textContent = "blocking";
+        wrappingEmailCard.classList.remove("card-enabled");
+        return prefToggle.value = "Enable";
+      }
+    }
+  } catch(e) {
+    const siteOrigin = document.body.dataset.siteOrigin;
+    const signInUrl = new URL("/accounts/fxa/login/?process=login", siteOrigin);
+    return window.location = signInUrl.href;
+  }
 }
 
 async function sendForm(formAction, formData) {
-	try {
-		return fetch(formAction, {
-			headers: {
-				"Content-Type": "application/json",
-				"X-Requested-With": "XMLHttpRequest",
+  try {
+    return fetch(formAction, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
         "X-CSRFToken": formData.csrfmiddlewaretoken,
-			},
-			credentials: "include",
-			mode: "same-origin",
-			method: "POST",
-			body: JSON.stringify(formData),
-		});
-	} catch(e) {
-		throw e;
+      },
+      credentials: "include",
+      mode: "same-origin",
+      method: "POST",
+      body: JSON.stringify(formData),
+    });
+  } catch(e) {
+    throw e;
 	}
 }
 
