@@ -346,7 +346,7 @@ function handleLegacyAddonLabels(legacyNoteElem) {
 
   const labelInput = labelWrapper.querySelector(".relay-email-address-label");
   labelInput.value = legacyNote;
-  labelInput.setAttribute("aria-label", `This relay address was created at ${legacyNote}`);
+  labelInput.setAttribute("aria-label", `This Relay alias was created at ${legacyNote}`);
   labelInput.setAttribute("readonly", "readonly");
   return;
 }
