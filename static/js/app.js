@@ -268,18 +268,18 @@ function addEventListeners() {
 
 
   if (window.outerWidth > 550) {
-    document.querySelectorAll(".column-blocked").forEach(blockedStatCol => {
-      const numBlocked = blockedStatCol.querySelector(".relay-stat-value.num-blocked");
-      const blockedDescription = blockedStatCol.querySelector(".blocked-description");
-      const blockedText = blockedStatCol.querySelector(".card-small-text");
+    document.querySelectorAll(".relay-stat").forEach(statCol => {
+      const stat = statCol.querySelector(".relay-stat-value");
+      const statDescription = statCol.querySelector(".stat-description");
+      const statLabel = statCol.querySelector(".card-small-text");
 
-      [numBlocked, blockedText, blockedDescription].forEach(el => {
-        el.addEventListener("mouseover", (e) => {
-          blockedDescription.classList.toggle("show-message", !blockedDescription.classList.contains("show-message"));
+      [stat, statLabel, statDescription].forEach(el => {
+        el.addEventListener("mouseenter", (e) => {
+          statDescription.classList.toggle("show-message", !statDescription.classList.contains("show-message"));
         });
       });
-      blockedStatCol.addEventListener("mouseout", () => {
-        blockedDescription.classList.remove("show-message");
+      statCol.addEventListener("mouseout", () => {
+        statDescription.classList.remove("show-message");
       });
     });
   }

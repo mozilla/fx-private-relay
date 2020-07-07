@@ -1887,7 +1887,7 @@ input.input-has-error {
   margin: auto 3px;
 }
 
-.column-blocked {
+.relay-stat {
   position: relative;
 }
 
@@ -1895,18 +1895,14 @@ input.input-has-error {
   cursor: default;
 }
 
-.blocked-description.show-message {
-  visibility: visible;
-  transition: all 0.3s ease;
-}
-
-.blocked-description {
+.stat-description {
   position: absolute;
   visibility: hidden;
-  bottom: -66px;
-  left: 20px;
+  transform: translateY(O);
+  bottom: -70px;
+  right: 19px;
   font-size: 13px;
-  line-height: 1.5;
+  line-height: 1.25;
   width: 260px;
   background-color: var(--grey10);
   border: 1px solid var(--grey30);
@@ -1914,8 +1910,35 @@ input.input-has-error {
   padding: 8px 16px;
   border-radius: 4px;
   z-index: 2;
+  opacity: 0;
+  transition: all 0.2s ease !important;
+}
+
+.stat-description.show-message {
+  transform: translateY(3px);
+  visibility: visible;
   opacity: 1;
   transition: all 0.3s ease;
+}
+
+.stat-description.blocked-description {
+  right: 10px;
+}
+
+.stat-description::before {
+  transform: rotate(45deg);
+  display: block;
+  content: "";
+  height: 12px;
+  width: 12px;
+  border-radius: 2px;
+  background-color: var(--grey10);
+  border-top: 1px solid var(--grey30);
+  border-left: 1px solid var(--grey30);
+  position: absolute;
+  top: -7px;
+  right: 14px;
+  z-index: -1;
 }
 
 @media screen and (max-width: 1050px) {
@@ -1988,11 +2011,6 @@ input.input-has-error {
 
   .step-headline {
     margin-bottom: 0.75em;
-  }
-
-  .blocked-description {
-    right: 20px;
-    left: auto;
   }
 }
 
@@ -2096,7 +2114,7 @@ input.input-has-error {
     display: flex !important;
   }
 
-  .emaining-aliases {
+  .remaining-aliases {
     margin: auto 8px;
   }
 
@@ -2112,8 +2130,10 @@ input.input-has-error {
     flex: 1 1 100%;
   }
 
-  .blocked-description {
-    right: 0;
+  .stat-description,
+  .stat-description.blocked-description {
+    right: -12px;
+    top: 30px;
   }
 }
 
@@ -2319,7 +2339,7 @@ input.input-has-error {
     padding-top: 124px;
   }
 
-  .blocked-description {
+  .stat-description {
     display: none;
   }
 }
