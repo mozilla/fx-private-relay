@@ -215,7 +215,10 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
         level="error",
         stack=True
     )
-    return HttpResponse('Received SNS message with type not handled in inbound log', status=400)
+    return HttpResponse(
+        'Received SNS message with type not handled in inbound log',
+        status=400
+    )
 
 
 def _sns_notification(json_body):
@@ -258,7 +261,7 @@ def _sns_message(message_json):
             return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
         try:
-            deleted_address = DeletedAddress.objects.get(
+            DeletedAddress.objects.get(
                 address_hash=local_portion_hash
             )
             incr_if_enabled('email_for_deleted_address', 1)
@@ -289,9 +292,12 @@ def _sns_message(message_json):
         message_json['content'], policy=policy.default
     )
 
-    text_content, html_content = _get_text_and_html_content(email_message)
+    text_content, html_content, has_attachment = _get_text_and_html_content(
+        email_message
+    )
 
-    # scramble alias so that clients don't recognize it and apply default link styles
+    # scramble alias so that clients don't recognize it
+    # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
 
     message_body = {}
@@ -302,25 +308,36 @@ def _sns_message(message_json):
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
+            'has_attachment': has_attachment,
         })
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
         incr_if_enabled('email_with_text_content', 1)
-        relay_header_text = ('This email was sent to your alias '
+        attachment_not_supported = ''
+        if has_attachment:
+            attachment_not_supported = (
+                'Relay detected an attachment, but attachments are currently '
+                'NOT supported.\n'
+            )
+        relay_header_text = (
+            'This email was sent to your alias '
             '{relay_address}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
-            '---Begin Email---\n').format(relay_address=display_email)
+            '{extra_msg}---Begin Email---\n'
+        ).format(
+            relay_address=display_email, extra_msg=attachment_not_supported
+        )
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     return ses_send_email(from_address, relay_address, subject, message_body)
 
 
-
 def _get_text_and_html_content(email_message):
     text_content = None
     html_content = None
+    has_attachment = False
     if email_message.is_multipart():
         for part in email_message.walk():
             try:
@@ -330,6 +347,7 @@ def _get_text_and_html_content(email_message):
                 if part.get_content_type() == 'text/html':
                     html_content = content
                 if part.is_attachment():
+                    has_attachment = True
                     incr_if_enabled('email_with_attachment', 1)
             except KeyError:
                 # log the un-handled content type but don't stop processing
@@ -346,7 +364,7 @@ def _get_text_and_html_content(email_message):
 
     # TODO: if html_content is still None, wrap the text_content with our
     # header and footer HTML and send that as the html_content
-    return text_content, html_content
+    return text_content, html_content, has_attachment
 
 
 @csrf_exempt
@@ -354,8 +372,11 @@ def inbound(request):
     if _get_secret_key(request) != settings.SOCKETLABS_SECRET_KEY:
         return HttpResponse("Unauthorized", status=401)
 
-    if (request.content_type == 'application/x-www-form-urlencoded' and
-        request.POST['Type'] == 'Validation'):
+    is_key_validation = (
+        request.content_type == 'application/x-www-form-urlencoded' and
+        request.POST['Type'] == 'Validation'
+    )
+    if is_key_validation:
         return HttpResponse(settings.SOCKETLABS_VALIDATION_KEY)
 
     if request.content_type != 'application/json':
@@ -412,7 +433,8 @@ def _inbound_logic(json_body):
     sl_message = BasicMessage()
     sl_message.subject = subject
 
-    # scramble alias so that clients don't recognize it and apply default link styles
+    # scramble alias so that clients don't recognize it
+    # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', email_to)
     wrapped_html = render_to_string('emails/wrapped_email.html', {
         'original_html': html,
