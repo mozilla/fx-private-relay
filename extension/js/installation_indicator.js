@@ -3,6 +3,7 @@
 // makes content changes if the addon has been installed.
 
 (() => {
+  localStorage.setItem("fxRelayAddonInstalled", "true");
   document.querySelectorAll("firefox-private-relay-addon").forEach(el => {
     el.dataset.addonInstalled = "true";
   });
