@@ -29,7 +29,7 @@
 					</div>
 				</div>
 				<div class="glocal-site-options">
-					<form method="post" action="{% url 'account_logout' %}">
+					<form class="glocal-sign-out-form" method="post" action="{% url 'account_logout' %}">
 						{% csrf_token %}
 						{% if redirect_field_value %}
 							<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
