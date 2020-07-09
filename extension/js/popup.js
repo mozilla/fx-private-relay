@@ -66,6 +66,7 @@ async function showRelayPanel(tipPanelToShow) {
 
   document.querySelectorAll(".panel-nav").forEach(navBtn => {
     navBtn.addEventListener("click", () => {
+      sendRelayEvent("Panel", "click", "panel-navigation-arrow");
       // pointer events are disabled in popup CSS for the "previous" button on panel 1
       // and the "next" button on panel 3
       const nextPanel = (navBtn.dataset.direction === "-1") ? -1 : 1;
@@ -74,7 +75,12 @@ async function showRelayPanel(tipPanelToShow) {
   });
 
   const relayPanel = document.querySelector(".signed-in-panel");
-  return relayPanel.classList.remove("hidden");
+  relayPanel.classList.remove("hidden");
+
+  if (numRemaining === 0) {
+    return sendRelayEvent("Panel", "viewed-panel", "panel-max-aliases");
+  }
+  return sendRelayEvent("Panel","viewed-panel", "authenticated-user-panel");
 }
 
 
@@ -95,6 +101,10 @@ function enableSettingsPanel() {
   settingsToggles.forEach(toggle => {
     toggle.addEventListener("click", () => {
       document.body.classList.toggle("show-settings");
+      const eventLabel = document.body.classList.contains("show-settings") ? "opened-settings" : "closed-settings";
+      if (document.body.classList.contains("show-settings")) {
+        sendRelayEvent("Panel", "click", eventLabel);
+      }
     });
   });
 }
@@ -123,6 +133,7 @@ async function enableInputIconDisabling() {
       method: "updateInputIconPref",
       iconPref: userIconPreference,
     });
+    sendRelayEvent("Panel", "click", userIconPreference);
     return stylePrefToggle(userIconPreference);
   });
 
@@ -130,9 +141,11 @@ async function enableInputIconDisabling() {
 
 
 async function popup() {
+  sendRelayEvent("Panel", "opened-panel", "any-panel");
   const userApiToken = await browser.storage.local.get("apiToken");
   const signedInUser = (userApiToken.hasOwnProperty("apiToken"));
   if (!signedInUser) {
+    sendRelayEvent("Panel", "viewed-panel", "unauthenticated-user-panel");
     showSignUpPanel();
   }
 
@@ -145,6 +158,9 @@ async function popup() {
   document.querySelectorAll(".close-popup-after-click").forEach(el => {
     el.addEventListener("click", async (e) => {
       e.preventDefault();
+      if (e.target.dataset.eventLabel && e.target.dataset.eventAction) {
+        sendRelayEvent("Panel", e.target.dataset.eventAction, e.target.dataset.eventLabel);
+      }
       await browser.tabs.create({ url: el.href });
       window.close();
     });

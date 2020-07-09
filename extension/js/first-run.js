@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   oauthEntryPoints.forEach(el => {
     el.addEventListener("click", (e) => {
       e.preventDefault();
+      sendRelayEvent("First Run", "click", e.target.dataset.eventLabel);
       return window.open(openFxaFlow);
     });
   });

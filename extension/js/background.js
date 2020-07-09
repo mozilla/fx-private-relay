@@ -41,7 +41,7 @@ async function getOrMakeGAUUID() {
 
 
 async function sendMetricsEvent(eventData) {
-  if (navigator.doNotTrack) {
+  if (navigator.doNotTrack === "1") {
     return;
   }
   const ga_uuid = await getOrMakeGAUUID();
