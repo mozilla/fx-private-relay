@@ -1,3 +1,4 @@
+from datetime import datetime
 from hashlib import sha256
 import random
 import string
@@ -10,6 +11,9 @@ from django.db import models
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
+    address_last_deleted = models.DateTimeField(
+        blank=True, null=True, db_index=True
+    )
 
     def __str__(self):
         return '%s Profile' % self.user
@@ -30,7 +34,8 @@ class RelayAddress(models.Model):
     )
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    last_modified_at = models.DateTimeField(auto_now=True, db_index=True)
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveSmallIntegerField(default=0)
     num_blocked = models.PositiveSmallIntegerField(default=0)
@@ -48,6 +53,9 @@ class RelayAddress(models.Model):
             num_spam=self.num_spam,
         )
         deleted_address.save()
+        profile = Profile.objects.get(user=self.user)
+        profile.address_last_deleted = datetime.now()
+        profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
     def make_relay_address(user, num_tries=0):
