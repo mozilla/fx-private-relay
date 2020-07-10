@@ -5,17 +5,17 @@ function getOnboardingPanels() {
     "panel1": {
       "imgSrc": "tip1-icon.svg",
       "tipHeadline": "Welcome!",
-      "tipBody": "When the Firefox Relay icon appears on a website, select it to generate a new relay address.",
+      "tipBody": "When the Firefox Relay icon appears on a website, select it to generate a new alias.",
     },
     "panel2": {
       "imgSrc": "tip2-icon.svg",
       "tipHeadline": "Don't see the icon?",
-      "tipBody":"Right-click (Windows) or Control-click (macOS) to open the context menu and easily generate a new relay address from there.",
+      "tipBody":"Right-click (Windows) or Control-click (macOS) on form fields to access the context menu and generate an alias from there.",
     },
     "panel3": {
       "imgSrc": "tip3-icon.svg",
       "tipHeadline": "Getting too many emails?",
-      "tipBody":"Manage your relay addresses and easily toggle Forwarding to Blocking.",
+      "tipBody":"Manage your Relay aliases and easily toggle Forwarding to Blocking.",
     },
     "maxAliasesPanel": {
       "imgSrc": "high-five.svg",
