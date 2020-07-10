@@ -206,9 +206,9 @@ async function addRelayIconToInput(emailInput) {
     }
 
 
-    // Create "Manage All Addresses" link
+    // Create "Manage All Aliases" link
     const relayMenuDashboardLink = createElementWithClassList("a", "fx-relay-menu-dashboard-link");
-    relayMenuDashboardLink.textContent = "Manage All Addresses";
+    relayMenuDashboardLink.textContent = "Manage All Aliases";
     relayMenuDashboardLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=manage-all-addresses`;
 
     relayMenuDashboardLink.target = "_blank";

@@ -3,7 +3,7 @@
   "name": "Firefox Relay",
   "version": "1.4.2",
 
-  "description": "Firefox Relay makes it easy to create relay addresses, aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages.",
+  "description": "Firefox Relay makes it easy to create email aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages.",
 
   "icons": {
     "48": "icons/placeholder-logo-beta.png"
