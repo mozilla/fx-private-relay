@@ -1,8 +1,8 @@
-async function sendRelayEvent(categoryId, eventAction, eventLabel) {
+async function sendRelayEvent(eventCategory, eventAction, eventLabel) {
   return await browser.runtime.sendMessage({
     method: "sendMetricsEvent",
     eventData: {
-      category: `Extension: ${categoryId}`,
+      category: `Extension: ${eventCategory}`,
       action: eventAction,
       label: eventLabel,
     },
