@@ -1,37 +1,51 @@
 .fx-relay-first-run {
+  --imgHeight: 280px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  padding: 0;
+  padding: 40px 20px;
   margin: 0;
   background-color: linear-gradient(tovar(--relayGrey10), var(--relayGrey20));
 }
 
-.first-run * {
-  box-sizing: border-box;
+.drop-zap {
+  display: inline-block;
+  position: relative;
+}
+
+.drop-zap::after {
+  background-image: url("/images/zap-18.svg");
+  background-position: center center;
+  background-repeat: no-repeat;
+  height: 17px;
+  width: 100%;
+  content: "";
+  position: absolute;
+  bottom: -16px;
+  left: 0;
 }
 
 .first-run-h1 {
   text-align: center;
-  font-size: 36px;
-  max-width: 700px;
-  margin: 24vh auto 40px auto;
+  font-size: 48px;
+  margin: 16vh auto 40px auto;
   color: var(--relayInk);
+  line-height: 1.1;
 }
 
 .first-run-img {
-  min-width: 300px;
-  max-width: 300px;
+  min-width: var(--imgHeight);
+  max-width: var(--imgHeight);
 }
 
 .first-run-main {
   display: flex;
   flex-direction: row;
   align-items: center;
-  font-size: 17px;
-  max-width: 760px;
+  font-size: 18px;
+  max-width: 716px;
   margin: 0 auto auto auto;
 }
 
@@ -43,6 +57,7 @@
   align-items: flex-start;
   padding: 36px 0;
   color: var(--relayInk70);
+  box-sizing: border-box;
 }
 
 .first-run-sign-in {
@@ -53,12 +68,12 @@
   background-color: var(--relayBlue3);
   color: rgba(255, 255, 255, 1);
   font-family: var(--relayMetropolis);
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
+  margin-bottom: 12px;
 }
 
 p.first-run-p {
-  font-size: 15px;
   line-height: 1.6;
   margin: 0 auto 40px auto;
   font-weight: 500;
@@ -67,7 +82,8 @@ p.first-run-p {
 .first-run-join-waitlist {
   font-size: 13px;
   line-height: 1.6;
-  max-width: 300px;
+  max-width: 360px;
+  margin-bottom: 0;
 }
 
 a {
@@ -94,4 +110,53 @@ a:focus {
 
 a:active {
   color: var(--blueButtonActive);
+}
+
+.show-700 {
+  display: none;
+}
+
+
+@media screen and (max-width: 700px) {
+  .fx-relay-first-run {
+    --imgHeight: 200px;
+  }
+
+  .hide-700 {
+    display: none;
+  }
+
+  .show-700 {
+    display: block;
+    margin: 12px auto 40px auto;
+  }
+
+  .first-run-content {
+    height: auto;
+    padding: 12px 0;
+  }
+
+  main.first-run-main {
+    flex-direction: column;
+  }
+
+  .first-run-join-waitlist,
+  .first-run-sign-in,
+  .first-run-content {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+
+  .first-run-join-waitlist {
+    max-width: 400px;
+  }
+
+  .first-run-main {
+    margin: auto;
+  }
+
+  p.first-run-p {
+    max-width: 550px;
+  }
 }
