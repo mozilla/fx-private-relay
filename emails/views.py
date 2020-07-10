@@ -248,6 +248,13 @@ def _sns_message(message_json):
             status=400
         )
 
+    if 'to' not in mail['commonHeaders']:
+        logger.error('SNS message without commonHeaders "to".')
+        return HttpResponse(
+            'Received SNS notification without commonHeaders "to".',
+            status=400
+        )
+
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
     local_portion = to_address.split('@')[0]
     local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
