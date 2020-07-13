@@ -164,4 +164,13 @@ if (!_dntEnabled()) {
       window.open(outboundLink.href);
     });
   });
+
+  const glocalSignOutBtn = document.querySelector(".glocal-sign-out-form");
+  if (glocalSignOutBtn) {
+    glocalSignOutBtn.addEventListener("submit", (e) => {
+      e.preventDefault();
+      sendGaPing("Sign Out", "Click", "Website Sign Out");
+      e.target.submit();
+    });
+  }
 })();

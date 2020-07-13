@@ -56,7 +56,7 @@ async function showModal(modalType, newAlias=null) {
     modalContent.appendChild(modalMessage);
 
     const manageAliasesLink = document.createElement("a");
-    manageAliasesLink.textContent = "Manage All Addresses";
+    manageAliasesLink.textContent = "Manage All Aliases";
     manageAliasesLink.classList = ["fx-relay-new-tab"];
     manageAliasesLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_campaign=beta&utm_content=manage-relay-addresses`;
 

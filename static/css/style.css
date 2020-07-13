@@ -1684,8 +1684,12 @@ input.input-has-error {
 }
 
 .faq {
+  margin-bottom: 3em;
+}
+
+.faq-col {
   flex: 0 1 46%;
-  margin: 0 0 2em 0;
+  margin: 0;
 }
 
 .faqs-headline {
@@ -1864,7 +1868,7 @@ input.input-has-error {
 }
 
 .onboarding-num {
-  background: var(--ink70);
+  background: var(--ink);
   color: rgba(255, 255, 255, 1);
   height: 32px;
   width: 32px;
@@ -2126,7 +2130,7 @@ input.input-has-error {
     flex-direction: column;
   }
 
-  .faq {
+  .faq-col {
     flex: 1 1 100%;
   }
 
