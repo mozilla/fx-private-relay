@@ -60,6 +60,11 @@ async function showModal(modalType, newAlias=null) {
     manageAliasesLink.classList = ["fx-relay-new-tab"];
     manageAliasesLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_campaign=beta&utm_content=manage-relay-addresses`;
 
+    manageAliasesLink.addEventListener("click", async(e) => {
+      e.preventDefault();
+      sendModalEvent("click", "modal-manage-all-aliases-btn");
+      return await browser.tabs.create({ url: e.target.href });
+    });
     modalContent.appendChild(manageAliasesLink);
   }
 

@@ -127,6 +127,11 @@ if (browser.menus) {
   browser.menus.onClicked.addListener( async (info, tab) => {
     switch (info.menuItemId) {
       case "fx-private-relay-generate-alias":
+        sendMetricsEvent({
+          category: "Extension: Context Menu",
+          action: "click",
+          label: "context-menu-generate-alias"
+        });
         await makeRelayAddressForTargetElement(info, tab);
         break;
     }

@@ -222,7 +222,7 @@ async function addRelayIconToInput(emailInput) {
     relayMenuDashboardLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=manage-all-addresses`;
     relayMenuDashboardLink.target = "_blank";
     relayMenuDashboardLink.addEventListener("click", () => {
-      sendInPageEvent("click", "input-menu-manage-all-addresses-btn");
+      sendInPageEvent("click", "input-menu-manage-all-aliases-btn");
     });
 
     // Restrict tabbing to relay menu elements
