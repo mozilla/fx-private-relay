@@ -28,7 +28,7 @@
         </div>
         {% include "includes/banners.html" %}
         <div class="flx flx-row dashboard-header inset">
-          <h2 class="section-headline dashboard-headline">Manage your relay addresses</h2>
+          <h2 class="section-headline dashboard-headline">Manage your Relay aliases</h2>
           <div class="remaining-aliases-wrapper flx al-cntr jst-cntr hide-750">
             {% include "includes/remaining-aliases.html" %}
           </div>
@@ -41,12 +41,12 @@
             <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
             <button
             class="dash-create-new-relay flx al-cntr jst-cntr {%if relay_addresses|length == settings.MAX_NUM_BETA_ALIASES %} btn-disabled {% endif %}"
-            type="submit" value="Generate new relay address" data-event-label="Create New Relay Alias"
+            type="submit" value="Generate new alias" data-event-label="Create New Relay Alias"
 
             {% if relay_addresses|length == settings.MAX_NUM_BETA_ALIASES %}
-              title="You have reached the address limit for our beta release."
+              title="You have reached the alias limit for our beta release."
             {% else %}
-              title="Create new relay alias"
+              title="Create new Relay alias"
             {% endif %}
             >
             </button>
@@ -133,7 +133,7 @@
                     <input type="hidden" name="method_override" value="DELETE">
                     <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
                     <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                    <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this relay address">
+                    <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this alias">
                       <span class="remove-label relay-email-label card-small-text">Delete</span>
                     </button>
                   </form>
