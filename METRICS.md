@@ -1,12 +1,14 @@
 _Last updated: May 20 2020_
+&nbsp;
+&nbsp;
 
-# Firefox Private Relay Analytics Plan
+# Firefox Relay Analytics Plan
 
-This is the Analytics plan for Firefox Private Relay. It documents our use of Google Analytics and what we do with the information we collect.
+This is the Analytics plan for Firefox Relay. It documents our use of Google Analytics and what we do with the information we collect.
 
 ## Analysis
 
-**Private Relay uses Google Analytics to collect and organize data. We do this to get a better understanding of what is working, and where we still have work to do.**
+**Relay uses Google Analytics to collect and organize data. We do this to get a better understanding of what is working, and where we still have work to do.**
 
 **Captured data also helps provide answers to the following questions:**
 
@@ -14,9 +16,9 @@ This is the Analytics plan for Firefox Private Relay. It documents our use of Go
 
 >From which country does the majority of our traffic originate?
 
->Which browsers are most commonly used to access the Firefox Private Relay website?
+>Which browsers are most commonly used to access the Firefox Relay website?
 
->Which devices are most commonly used to access the Firefox Private Relay website?
+>Which devices are most commonly used to access the Firefox Relay website?
 
 **User Behavior:**
 
@@ -24,14 +26,76 @@ This is the Analytics plan for Firefox Private Relay. It documents our use of Go
 
 >Do users create aliases?
 
+>How do users create aliases? From the Relay website dashboard? The context menu? The input icon?
+
+>Do users open the extension panel?
+
 >Do users change the forwarding settings for their aliases?
 
->Do users who have not installed the Private Relay add-on, choose to install the add-on?
+>Do users who have not installed the Relay add-on, choose to install the add-on?
 
 >Do users who have not received invitations to the beta choose to join the beta waitlist?
 
+&nbsp;
 
-## Collection
+## Extension Event Collection
+Events are reported using [Google Analytics Measurement Protocol](https://developers.google.com/analytics/devguides/collection/protocol/v1).
+
+We collect data for the following extension events:
+
+### Panel events:
+
+- When the panel is opened
+
+- A ping describing which panel was viewed (unauthenticated user panel, authenticated user panel, or the "High Five!" panel)
+
+- When outbound links and buttons in the panel are clicked (Join the Waitlist, Leave Feedback, Manage All Aliases)
+
+- When extension settings are changed via the settings panel
+
+- When the settings icon is clicked
+
+- When panel navigation arrow icons are clicked
+
+
+### In-page events:
+
+- When the Relay icon is injected into an email input
+
+- When the Relay icon is clicked
+
+- When "Generate new alias" is clicked
+
+- When "Manage All Aliases" is clicked
+
+- When the Relay icon is clicked by an unauthenticated user
+
+- When the Relay icon is clicked by a user who has already reached the maximum number of allowed aliases
+
+
+### Post-install page events:
+
+- When the user clicks an outbound link or button
+
+
+### Context Menu events:
+
+- When an alias is generated via the context menu
+
+
+### Modal events:
+
+- When the modal opens
+
+- When the modal is closed
+
+- When "Manage All Aliases" is clicked
+
+
+
+&nbsp;
+
+## Website Event Collection
 
 Events are reported using [Google Analytics](https://developers.google.com/analytics/devguides/collection/analyticsjs).
 
@@ -43,7 +107,7 @@ We collect data for the following events:
 
 - When a user deletes an alias
 
-- When a user clicks the delete alias icon and is presented with the Confirm/Delete tooltip.
+- When a user clicks the delete alias icon and is presented with the Confirm/Delete tooltip
 
 - When a user clicks Cancel in the Confirm/Delete Alias tooltip
 
@@ -92,10 +156,10 @@ We collect data for the following events:
 
 ## Opt Out of Google Analytics Tracking
 
-**Firefox Private Relay detects and respects user privacy and honors DNT headers.**
+**Firefox Relay detects and respects user privacy and honors DNT headers.**
 
 Before initializing Google Analytics, we check the user's browser settings for a **DNT** signal. If the **DNT** header is enabled, Analytics is never initialized and is not used to collect data for that session.
 
->[How Firefox Private Relay detects and respects DNT.](https://github.com/schalkneethling/dnt-helper)
+>[How Firefox Relay detects and respects DNT.](https://github.com/schalkneethling/dnt-helper)
 
 >[How do I turn on the Do Not Track feature?](https://support.mozilla.org/en-US/kb/how-do-i-turn-do-not-track-feature)
