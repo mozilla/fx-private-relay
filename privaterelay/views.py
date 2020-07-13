@@ -4,6 +4,7 @@ import json
 import logging
 import os
 
+from google_measurement_protocol import event, report
 from jwt import JWT, jwk_from_dict
 from requests_oauthlib import OAuth2Session
 import sentry_sdk
@@ -162,6 +163,23 @@ def waitlist(request):
         status = 201
         message = 'You are added on our waitlist!'
     return JsonResponse({'email': email, 'message': message}, status=status)
+
+
+@csrf_exempt
+def metrics_event(request):
+    request_data = json.loads(request.body)
+    if 'ga_uuid' not in request_data:
+        return JsonResponse({'msg': 'No GA uuid found'}, status=404)
+    event_data = event(
+        request_data.get('category', None),
+        request_data.get('action', None),
+        request_data.get('label', None),
+        request_data.get('value', None),
+    )
+    report(
+        settings.GOOGLE_ANALYTICS_ID, request_data.get('ga_uuid'), event_data
+    )
+    return JsonResponse({'msg': 'OK'}, status=200)
 
 
 @csrf_exempt

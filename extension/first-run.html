@@ -5,6 +5,7 @@
     <title>Firefox Relay: By invitation only</title>
     <link rel="stylesheet" href="/css/relay.css" />
     <link rel="stylesheet" href = "/css/first-run.css" />
+    <script src="/js/metrics.js"></script>
     <script src="/js/first-run.js"></script>
   </head>
   <body class="fx-relay-first-run">
@@ -14,8 +15,8 @@
       <div class="first-run-content">
         <h1 class="first-run-h1 fx-relay-font-met show-700">Firefox Relay: <span class="drop-zap">By invitation only</span></h1>
         <p class="first-run-p">You’ve successfully installed the Firefox Relay add-on. To get started, sign in to your Firefox account to validate your invitation.</p>
-        <button id="first-run-sign-in" class="first-run-sign-in open-oauth">Sign In</button>
-        <p class="first-run-join-waitlist">(Don’t have an invite? <a target="_blank" id="first-run-join-waitlist-link" class="first-run-join-waitlist-link open-oauth" href=""> Join the waitlist with a Firefox Account</a>. The next round of invitations go out soon.)</p>
+        <button id="first-run-sign-in" class="first-run-sign-in open-oauth" data-event-label="first-run-sign-in">Sign In</button>
+        <p class="first-run-join-waitlist">(Don’t have an invite? <a target="_blank" id="first-run-join-waitlist-link" class="first-run-join-waitlist-link open-oauth" href="" data-event-label="first-run-join-waitlist"> Join the waitlist with a Firefox Account</a>. The next round of invitations go out soon.)</p>
       </div>
     </main>
   </body>

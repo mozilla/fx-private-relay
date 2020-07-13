@@ -42,7 +42,13 @@ async function showModal(modalType, newAlias=null) {
     window.navigator.clipboard.writeText(newAlias);
   }
 
+  const sendModalEvent = (evtAction, evtLabel) => {
+    return sendRelayEvent("Modal", evtAction, evtLabel);
+  };
+
   if (modalType === "max-num-aliases") { // User has maxed out the number of allowed free aliases.
+
+    sendModalEvent("viewed-modal", "modal-max-aliases");
     const modalMessage = document.createElement("span");
 
     modalMessage.textContent = "You've used all of your beta aliases.";
@@ -54,6 +60,11 @@ async function showModal(modalType, newAlias=null) {
     manageAliasesLink.classList = ["fx-relay-new-tab"];
     manageAliasesLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_campaign=beta&utm_content=manage-relay-addresses`;
 
+    manageAliasesLink.addEventListener("click", async(e) => {
+      e.preventDefault();
+      sendModalEvent("click", "modal-manage-all-aliases-btn");
+      return await browser.tabs.create({ url: e.target.href });
+    });
     modalContent.appendChild(manageAliasesLink);
   }
 
@@ -63,6 +74,7 @@ async function showModal(modalType, newAlias=null) {
 
   // Remove relay modal on button click
   modalCloseButton.addEventListener("click", () => {
+    sendModalEvent("closed-modal", "modal-closed-btn");
     modalWrapper.remove();
   });
 
@@ -70,6 +82,7 @@ async function showModal(modalType, newAlias=null) {
   modalWrapper.addEventListener("click", (e) => {
     const originalTarget = e.explicitOriginalTarget;
     if (originalTarget.classList.contains("fx-relay-modal-wrapper")) {
+      sendModalEvent("closed-modal", "modal-closed-outside-click");
       modalWrapper.remove();
     }
   });

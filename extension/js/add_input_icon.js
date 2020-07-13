@@ -142,8 +142,14 @@ async function addRelayIconToInput(emailInput) {
     divEl.style.right = "2px";
   }
 
+  const sendInPageEvent = (evtAction, evtLabel) => {
+    sendRelayEvent("In-page", evtAction, evtLabel);
+  }
+
 
   relayIconBtn.addEventListener("click", async(e) => {
+
+    sendInPageEvent("input-icon-clicked", "input-icon")
 
     preventDefaultBehavior(e);
     window.addEventListener("resize", positionRelayMenu);
@@ -177,14 +183,17 @@ async function addRelayIconToInput(emailInput) {
         await browser.runtime.sendMessage({
           method: "openRelayHomepage",
         });
+        sendInPageEvent("click", "input-menu-sign-up-btn");
         closeRelayInPageMenu();
       });
       relayInPageMenu.appendChild(signUpButton);
 
       addRelayMenuToPage(relayMenuWrapper, relayInPageMenu, relayIconBtn);
+      sendInPageEvent("viewed-menu", "unauthenticated-user-input-menu")
       return;
     }
 
+    sendInPageEvent("viewed-menu", "authenticated-user-input-menu")
     // Create "Generate Relay Address" button
     const generateAliasBtn = createElementWithClassList("button", "fx-relay-menu-generate-alias-btn");
     generateAliasBtn.textContent = "Generate new alias";
@@ -203,6 +212,7 @@ async function addRelayIconToInput(emailInput) {
     const maxNumAliasesReached = numAliasesRemaining === 0;
     if (maxNumAliasesReached) {
       generateAliasBtn.disabled = true;
+      sendInPageEvent("viewed-menu", "input-menu-max-aliases-message")
     }
 
 
@@ -210,8 +220,10 @@ async function addRelayIconToInput(emailInput) {
     const relayMenuDashboardLink = createElementWithClassList("a", "fx-relay-menu-dashboard-link");
     relayMenuDashboardLink.textContent = "Manage All Aliases";
     relayMenuDashboardLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=manage-all-addresses`;
-
     relayMenuDashboardLink.target = "_blank";
+    relayMenuDashboardLink.addEventListener("click", () => {
+      sendInPageEvent("click", "input-menu-manage-all-aliases-btn");
+    });
 
     // Restrict tabbing to relay menu elements
     restrictOrRestorePageTabbing(-1);
@@ -221,8 +233,10 @@ async function addRelayIconToInput(emailInput) {
       relayInPageMenu.appendChild(el);
     });
 
+
     // Handle "Generate New Alias" clicks
     generateAliasBtn.addEventListener("click", async(generateClickEvt) => {
+      sendInPageEvent("click", "input-menu-generate-alias");
       preventDefaultBehavior(generateClickEvt);
 
       // Attempt to create a new alias
@@ -263,6 +277,7 @@ async function addRelayIconToInput(emailInput) {
 
   divEl.appendChild(relayIconBtn);
   emailInputWrapper.appendChild(divEl);
+  sendInPageEvent("input-icon-injected", "input-icon");
 }
 
 function getEmailInputsAndAddIcon() {

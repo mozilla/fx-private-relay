@@ -20,6 +20,43 @@ browser.runtime.onInstalled.addListener(async () => {
   }
 });
 
+
+// https://stackoverflow.com/a/2117523
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
+}
+
+
+async function getOrMakeGAUUID() {
+  const { ga_uuid } = await browser.storage.local.get("ga_uuid");
+  if (ga_uuid) {
+    return ga_uuid;
+  }
+  const newGAUUID = uuidv4();
+  await browser.storage.local.set({ "ga_uuid": newGAUUID });
+  return newGAUUID;
+}
+
+
+async function sendMetricsEvent(eventData) {
+  if (navigator.doNotTrack === "1") {
+    return;
+  }
+  const ga_uuid = await getOrMakeGAUUID();
+  const eventDataWithGAUUID = Object.assign({ga_uuid}, eventData);
+  const sendMetricsEventUrl = `${RELAY_SITE_ORIGIN}/metrics-event`;
+  fetch(sendMetricsEventUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(eventDataWithGAUUID),
+  });
+}
+
+
 async function makeRelayAddress(domain=null) {
   const apiToken = await browser.storage.local.get("apiToken");
 
@@ -90,6 +127,11 @@ if (browser.menus) {
   browser.menus.onClicked.addListener( async (info, tab) => {
     switch (info.menuItemId) {
       case "fx-private-relay-generate-alias":
+        sendMetricsEvent({
+          category: "Extension: Context Menu",
+          action: "click",
+          label: "context-menu-generate-alias"
+        });
         await makeRelayAddressForTargetElement(info, tab);
         break;
     }
@@ -110,6 +152,9 @@ browser.runtime.onMessage.addListener(async (m) => {
       browser.tabs.create({
         url: `${RELAY_SITE_ORIGIN}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=go-to-fx-relay`,
       });
+      break;
+    case "sendMetricsEvent":
+      response = await sendMetricsEvent(m.eventData);
       break;
   }
   return response;

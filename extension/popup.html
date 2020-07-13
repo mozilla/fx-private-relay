@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="css/relay.css">
     <link rel="stylesheet" href="css/popup.css">
     <script src="js/popup.js"></script>
+    <script src="js/metrics.js"></script>
   </head>
   <body class="fx-relay-panel">
     <panel-content>
@@ -26,7 +27,7 @@
             <button title="" data-icon-visibility-option="disable-input-icon" class="toggle-icon-in-page-visibility"></button>
           </li>
           <li class="setting flex-col">
-            <a href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta" class="setting-label close-popup-after-click">Leave Feedback</a>
+            <a href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta" class="setting-label close-popup-after-click" data-event-action="click" data-event-label="panel-leave-feedback-link">Leave Feedback</a>
           </li>
         </ul>
       </settings>
@@ -36,12 +37,12 @@
         <p class="intro">
           Get started by signing in with the Firefox account you used to register for Firefox Relay.
         </p>
-        <a class="button sign-in-btn blue-primary-btn close-popup-after-click login-link" href="">
+        <a class="button sign-in-btn blue-primary-btn close-popup-after-click login-link" data-event-action="click" data-event-label="panel-continue-btn" href="">
           Continue
         </a>
         <div class="join-waitlist-wrapper">
           <span class="">Curious about Relay?</span>
-          <a href="" class="join-waitlist-link login-link">Sign up for the waitlist with your Firefox account.</a>
+          <a href="" class="join-waitlist-link login-link close-popup-after-click" data-event-action="click" data-event-label="panel-join-waitlist-link" >Sign up for the waitlist with your Firefox account.</a>
         </div>
       </sign-up-panel>
 
@@ -62,7 +63,7 @@
           </div>
         </onboarding-panel>
         <footer>
-          <a class="button fx-relay-new-tab close-popup-after-click footer-button dashboard-link" href="">Manage All Aliases</a>
+          <a class="button fx-relay-new-tab close-popup-after-click footer-button dashboard-link" href="" data-event-action="click" data-event-label="panel-manage-all-aliases-btn">Manage All Aliases</a>
         </footer>
       </main-panel>
     </panel-content>
