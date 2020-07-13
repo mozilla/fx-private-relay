@@ -18,7 +18,7 @@ def get_invitation(email=None, fxa_uid=None, active=False):
     invitations = Invitations.objects.filter(
         Q(email=email) | Q(fxa_uid=fxa_uid), active=active
     ).order_by('date_added')
-    if invitation.count() < 1:
+    if invitations.count() < 1:
         raise Invitations.DoesNotExist
     invitations = list(invitations)
     oldest_invitation = invitations.pop(0)
