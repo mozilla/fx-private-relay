@@ -26,7 +26,7 @@ def email_invited_user(invitee, invitation):
     # Send email invite
     sl_message = BasicMessage()
     sl_message.subject = (
-        "Firefox Relay beta: Your invitation is here!"
+        "Keep your email address safe from hackers and trackers with Firefox Relay"
     )
 
     sl_message.html_body = render_to_string(
