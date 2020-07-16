@@ -122,7 +122,7 @@ def _index_PUT(request_data, user_profile):
     elif request_data.get('enabled') == 'Enable':
         # TODO?: remove soft bounce receipt rule for the address?
         relay_address.enabled = True
-    relay_address.save(update_fields=['enabled'])
+    relay_address.save()
 
     forwardingStatus = {'enabled': relay_address.enabled}
     return JsonResponse(forwardingStatus)
