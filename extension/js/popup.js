@@ -150,7 +150,7 @@ async function enableDataOptOut() {
       return;
     }
     dataCollectionPrefToggle.classList.add("data-disabled");
-    dataCollectionPrefToggle.title = "Enable data collection";
+    dataCollectionPrefToggle.title = "Allow data collection";
     dataCollectionPrefToggle.classList.add("data-disabled");
     dataCollectionPrefToggle.dataset.collectionPreference = "data-enabled";
   };

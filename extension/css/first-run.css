@@ -152,11 +152,10 @@ a:active {
 .modal-content {
   background: rgba(255, 255, 255, 1);
   box-shadow: 0 12px 18px 2px rgba(34,0,51,.04), 0 6px 22px 4px rgba(7,48,114,.12), 0 6px 10px -4px rgba(14,13,26,.12);
-  border-radius: 16px;
+  border-radius: 8px;
   overflow: hidden;
   width: 100%;
   max-width: 800px;
-  min-height: 50vh;
 }
 
 .modal-h1 {
@@ -168,6 +167,7 @@ a:active {
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: var(--relayInk);
 }
 
 .modal-h1::after {
@@ -179,11 +179,15 @@ a:active {
 }
 
 .modal-copy {
-  padding: 1rem 2rem 2rem 2rem;
+  padding: 1rem 2rem 3rem 2rem;
   color: var(--relayGrey70);
   max-width: 660px;
   margin: auto;
-  line-height: 1.3;
+  line-height: 1.5;
+}
+
+.modal-copy-p {
+  margin-bottom: 1.5rem;
 }
 
 .collection-options {
@@ -194,7 +198,6 @@ a:active {
 
 .collection-opt {
   padding: 1rem;
-  min-height: 80px;
   max-width: 49%;
   width: 49%;
   border-radius: 8px;
@@ -204,6 +207,7 @@ a:active {
 
 .privacy-modal {
   opacity: 1;
+  margin: auto 1rem;
   transform: translateY(0%) scale(100%);
   transition: all 0.2s ease-out;
 }
@@ -257,5 +261,21 @@ a:active {
 
   p.first-run-p {
     max-width: 550px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .collection-options {
+    flex-direction: column;
+  }
+
+  .opt-enable {
+    margin-bottom: .5rem;
+  }
+
+  .collection-opt {
+    width: 100%;
+    max-width: 100%;
+    text-align: center;
   }
 }
