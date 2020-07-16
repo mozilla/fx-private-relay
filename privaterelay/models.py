@@ -21,4 +21,5 @@ class MonitorSubscriber(models.Model):
 
     primary_email = models.CharField(max_length=255)
     fxa_uid = models.CharField(max_length=255)
+    breaches_last_shown = models.DateTimeField()
     waitlists_joined = JSONField()

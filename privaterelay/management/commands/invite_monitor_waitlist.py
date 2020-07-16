@@ -73,9 +73,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         limit = options['limit'][0]
 
-        monitor_waitlist = MonitorSubscriber.objects.using('monitor').filter(
-            waitlists_joined__email_relay__notified=False
-        ).distinct('primary_email')[:limit]
+        monitor_waitlist = (MonitorSubscriber.objects.using('monitor')
+            .filter(waitlists_joined__email_relay__notified=False)
+            .order_by('-breaches_last_shown')
+            [:limit]
+        )
 
         invites_sent = 0
         for invitee in monitor_waitlist:
