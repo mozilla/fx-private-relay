@@ -103,7 +103,7 @@ a.setting-label:active {
   margin: 0;
 }
 
-.toggle-icon-in-page-visibility {
+.toggle {
   height: 16px;
   width: 28px;
   position: relative;
@@ -116,19 +116,19 @@ a.setting-label:active {
   margin: auto 24px auto auto;
 }
 
-.toggle-icon-in-page-visibility:hover {
+.toggle:hover {
   background-color: var(--relayBlueHover);
 }
 
-.toggle-icon-in-page-visibility:focus {
+.toggle:focus {
   box-shadow: var(--relayButtonFocus);
 }
 
-.toggle-icon-in-page-visibility:active {
+.toggle:active {
   background-color: var(--relayBlueActive);
 }
 
-.toggle-icon-in-page-visibility::after {
+.toggle::after {
   content: "";
   height: 10px;
   width: 10px;
@@ -142,21 +142,26 @@ a.setting-label:active {
   transition: all 0.2s ease;
 }
 
+.data-disabled::after,
 .input-icons-disabled::after {
   left: 4px;
   right: 18px;
   transition: all 0.2s ease;
 }
 
+.data-disabled:hover,
+.data-disabled:focus,
 .input-icons-disabled:hover,
 .input-icons-disabled:focus {
   background-color: var(--relayGrey40);
 }
 
+.data-disabled:active,
 .input-icons-disabled:active {
   background-color: var(--relayGrey50);
 }
 
+.data-disabled,
 .input-icons-disabled {
   background-color: var(--relayGrey30);
 }

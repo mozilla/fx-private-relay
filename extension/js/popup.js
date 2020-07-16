@@ -140,6 +140,33 @@ async function enableInputIconDisabling() {
 }
 
 
+async function enableDataOptOut() {
+  const dataCollectionPrefToggle = document.querySelector(".toggle.data-collection");
+  const stylePrefToggle = (userPref) => {
+    if (userPref === "data-enabled") {
+      dataCollectionPrefToggle.classList.remove("data-disabled");
+      dataCollectionPrefToggle.title = "Disable data collection";
+      dataCollectionPrefToggle.dataset.collectionPreference = "data-disabled";
+      return;
+    }
+    dataCollectionPrefToggle.classList.add("data-disabled");
+    dataCollectionPrefToggle.title = "Enable data collection";
+    dataCollectionPrefToggle.classList.add("data-disabled");
+    dataCollectionPrefToggle.dataset.collectionPreference = "data-enabled";
+  };
+
+
+  const { dataCollection } = await browser.storage.local.get("dataCollection");
+  stylePrefToggle(dataCollection);
+
+  dataCollectionPrefToggle.addEventListener("click", async(e) => {
+    const collectionPreference = e.target.dataset.collectionPreference;
+    await browser.storage.local.set({ "dataCollection" : collectionPreference });
+    stylePrefToggle(collectionPreference);
+  });
+}
+
+
 async function popup() {
   sendRelayEvent("Panel", "opened-panel", "any-panel");
   const userApiToken = await browser.storage.local.get("apiToken");
@@ -153,6 +180,7 @@ async function popup() {
     showRelayPanel(1);
     enableSettingsPanel();
     enableInputIconDisabling();
+    enableDataOptOut();
   }
 
   document.querySelectorAll(".close-popup-after-click").forEach(el => {
