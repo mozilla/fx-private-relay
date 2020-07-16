@@ -23,6 +23,15 @@
         border-radius: 2px;
       }
 
+      .email-button-wrapper {
+        transition: all 0.2s ease;
+      }
+
+      .email-button-wrapper:hover {
+        background-color: #0250bb;
+        transition: all 0.2s ease;
+      }
+
       a.focus {
         box-shadow: 0 0 0 1px #0a84ff, 0 0 0 1px #0a84ff, 0 0 0 4px rgba(10, 132, 255, 0.3);
       }
@@ -38,42 +47,13 @@
         line-height: 1.5;
       }
 
-      .visit-dashboard {
-        background-color: rgb(237, 237, 240);
-      }
-
-      .visit-dashboard:hover,
-      .visit-dashboard:focus {
-        background-color: rgba(215, 215, 219, 1);
-      }
-
-      .visit-dashboard:active {
-        background-color: rgba(177, 177, 179, 1);
-      }
-
-      .show-mobile {
-        display: none;
-      }
-
       @media screen and (max-width: 600px) {
-        .show-mobile {
-          display: block;
-        }
-
         #footer-table td {
           width: 100%;
           max-width: 100%;
           min-width: 100%;
           text-align: center;
           display: block;
-        }
-
-        #header-text {
-          padding-left: 10px !important;
-        }
-
-        #footer-table img {
-          max-width: 180px !important;
         }
 
         .pad-left {
