@@ -41,9 +41,17 @@ async function getOrMakeGAUUID() {
 
 
 async function sendMetricsEvent(eventData) {
-  if (navigator.doNotTrack === "1") {
+  const doNotTrackIsEnabled = (navigator.doNotTrack === "1");
+  const { dataCollection } = await browser.storage.local.get("dataCollection");
+
+  if (!dataCollection) {
+    browser.storage.local.set({ "dataCollection": "data-enabled" });
+  }
+
+  if (dataCollection !== "data-enabled" || doNotTrackIsEnabled) {
     return;
   }
+
   const ga_uuid = await getOrMakeGAUUID();
   const eventDataWithGAUUID = Object.assign({ga_uuid}, eventData);
   const sendMetricsEventUrl = `${RELAY_SITE_ORIGIN}/metrics-event`;
@@ -61,6 +69,7 @@ async function makeRelayAddress(domain=null) {
   const apiToken = await browser.storage.local.get("apiToken");
 
   if (!apiToken.apiToken) {
+
     browser.tabs.create({
       url: RELAY_SITE_ORIGIN,
     });

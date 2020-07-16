@@ -89,23 +89,42 @@ p.first-run-p {
 a {
   color: var(--relayBlue4);
   border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.opt-enable {
+  background-color: var(--relayBlue3);
+  color: rgba(255, 255, 255, 1);
+  transition: all 0.2s ease;
 }
 
 button:hover {
   background-color: var(--relayBlueHover);
+  transition: all 0.2s ease;
 }
 
 button:active {
   background-color: var(--relayBlueActive);
+  transition: all 0.2s ease;
 }
 
 a:hover {
   color: var(--relayBlueHover);
+  transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+  background-color: var(--relayGrey30);
+}
+
+.close-modal:active {
+  background-color: var(--relayGrey40);
 }
 
 button:focus,
 a:focus {
   box-shadow: var(--relayButtonFocus);
+  transition: all 0.2s ease;
 }
 
 a:active {
@@ -116,6 +135,86 @@ a:active {
   display: none;
 }
 
+.modal {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, .9);
+  z-index: 2;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 12px 18px 2px rgba(34,0,51,.04), 0 6px 22px 4px rgba(7,48,114,.12), 0 6px 10px -4px rgba(14,13,26,.12);
+  border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  max-width: 800px;
+  min-height: 50vh;
+}
+
+.modal-h1 {
+  margin: 8px 0 0 0;
+  text-align: center;
+  font-family: var(--relayMetropolis);
+  font-size: 25px;
+  line-height: 68px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.modal-h1::after {
+  width: 100%;
+  height: 2px;
+  background: var(--relayFxGradient);
+  content: "";
+  display: block;
+}
+
+.modal-copy {
+  padding: 1rem 2rem 2rem 2rem;
+  color: var(--relayGrey70);
+  max-width: 660px;
+  margin: auto;
+  line-height: 1.3;
+}
+
+.collection-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.collection-opt {
+  padding: 1rem;
+  min-height: 80px;
+  max-width: 49%;
+  width: 49%;
+  border-radius: 8px;
+  font-size: 17px;
+  border: 0px transparent;
+}
+
+.privacy-modal {
+  opacity: 1;
+  transform: translateY(0%) scale(100%);
+  transition: all 0.2s ease-out;
+}
+
+.hide-modal {
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(1%) scale(90%);
+  transition: all 0.2s ease-out;
+}
 
 @media screen and (max-width: 700px) {
   .fx-relay-first-run {
