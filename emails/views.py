@@ -257,6 +257,11 @@ def _sns_message(message_json):
 
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
     local_portion = to_address.split('@')[0]
+
+    if local_portion == 'noreply':
+        incr_if_enabled('email_for_noreply_address', 1)
+        return HttpResponse('noreply address is not supported.')
+
     local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
 
     try:
