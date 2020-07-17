@@ -5,7 +5,6 @@ from hashlib import sha256
 from sentry_sdk import capture_message
 import json
 import logging
-import markus
 import re
 
 from socketlabs.injectionapi.message.basicmessage import BasicMessage
@@ -35,7 +34,6 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
 logger = logging.getLogger('events')
-metrics = markus.get_metrics('fx-private-relay')
 
 
 @csrf_exempt
@@ -43,7 +41,7 @@ def index(request):
     incr_if_enabled('emails_index', 1)
     request_data = get_post_data_from_request(request)
     is_validated_create = (
-        request_data.get('method_override', None) == None and
+        request_data.get('method_override', None) is None and
         request_data.get("api_token", False)
     )
     is_validated_user = (
