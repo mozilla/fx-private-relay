@@ -19,11 +19,12 @@
   background-image: url("/images/zap-18.svg");
   background-position: center center;
   background-repeat: no-repeat;
-  height: 17px;
-  width: 100%;
+  background-size: contain;
+  height: 18px;
+  width: 103%;
   content: "";
   position: absolute;
-  bottom: -16px;
+  bottom: -15px;
   left: 0;
 }
 
