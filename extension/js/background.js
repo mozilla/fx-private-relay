@@ -45,7 +45,7 @@ async function sendMetricsEvent(eventData) {
   const { dataCollection } = await browser.storage.local.get("dataCollection");
 
   if (!dataCollection) {
-    browser.storage.local.set({ "dataCollection": "data-disabled" });
+    browser.storage.local.set({ "dataCollection": "data-enabled" });
   }
 
   if (dataCollection !== "data-enabled" || doNotTrackIsEnabled) {

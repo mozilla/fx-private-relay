@@ -57,10 +57,6 @@ settings {
   transition: all 0.5s ease;
 }
 
-.fx-relay-panel.sign-up .open-settings {
-  display: none;
-}
-
 .setting {
   padding: 12px 0;
   border-bottom: 1px solid var(--relayGrey20);
@@ -101,69 +97,6 @@ a.setting-label:active {
   padding: 0;
   list-style-type: none;
   margin: 0;
-}
-
-.toggle {
-  height: 16px;
-  width: 28px;
-  position: relative;
-  overflow: hidden;
-  border: none;
-  border-radius: 1.5em;
-  outline: none;
-  background-color: var(--relayBlue3);
-  background-size: 20px;
-  margin: auto 24px auto auto;
-}
-
-.toggle:hover {
-  background-color: var(--relayBlueHover);
-}
-
-.toggle:focus {
-  box-shadow: var(--relayButtonFocus);
-}
-
-.toggle:active {
-  background-color: var(--relayBlueActive);
-}
-
-.toggle::after {
-  content: "";
-  height: 10px;
-  width: 10px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 1);
-  position: absolute;
-  top: 0px;
-  bottom: 0;
-  margin: auto;
-  right: 4px;
-  transition: all 0.2s ease;
-}
-
-.data-disabled::after,
-.input-icons-disabled::after {
-  left: 4px;
-  right: 18px;
-  transition: all 0.2s ease;
-}
-
-.data-disabled:hover,
-.data-disabled:focus,
-.input-icons-disabled:hover,
-.input-icons-disabled:focus {
-  background-color: var(--relayGrey40);
-}
-
-.data-disabled:active,
-.input-icons-disabled:active {
-  background-color: var(--relayGrey50);
-}
-
-.data-disabled,
-.input-icons-disabled {
-  background-color: var(--relayGrey30);
 }
 
 .settings-header,
