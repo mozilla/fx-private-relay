@@ -103,6 +103,6 @@ workflows:
             - test
           filters:
             tags:
-              ignore: /.*-addon/
+              ignore: /addon-.*/
             branches:
               only: master
