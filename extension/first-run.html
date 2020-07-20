@@ -5,6 +5,7 @@
     <title>Firefox Relay: By invitation only</title>
     <link rel="stylesheet" href="/css/relay.css" />
     <link rel="stylesheet" href = "/css/first-run.css" />
+    <script src="/js/data-opt-out-toggle.js"></script>
     <script src="/js/metrics.js"></script>
     <script src="/js/first-run.js"></script>
   </head>
@@ -14,9 +15,16 @@
       <img class="first-run-img" src="/images/first-run-export.svg" alt="" aria-hidden="true">
       <div class="first-run-content">
         <h1 class="first-run-h1 fx-relay-font-met show-700">Firefox Relay: <span class="drop-zap">By invitation only</span></h1>
-        <p class="first-run-p">You’ve successfully installed the Firefox Relay add-on. To get started, sign in to your Firefox account to validate your invitation.</p>
-        <button id="first-run-sign-in" class="first-run-sign-in open-oauth" data-event-label="first-run-sign-in">Sign In</button>
-        <p class="first-run-join-waitlist">(Don’t have an invite? <a target="_blank" id="first-run-join-waitlist-link" class="first-run-join-waitlist-link open-oauth" href="" data-event-label="first-run-join-waitlist"> Join the waitlist with a Firefox Account</a>. The next round of invitations go out soon.)</p>
+        <div class="first-run-copy-wrapper">
+          <p class="first-run-p">You’ve successfully installed the Firefox Relay add-on. To get started, sign in to your Firefox account to validate your invitation.</p>
+          <div class="collection-options">
+            <span class="setting-label flex-col">Allow Mozilla to collect information about how you use this extension.</span>
+            <button title="" class="data-collection fx-relay-toggle"></button>
+          </div>
+          <p class="pref-p">Collecting interaction data when you do things like click the Relay icon in your toolbar or create a new alias helps us learn what is working well and where we can improve. You can always turn this off in the Settings panel.</p>
+          <button id="first-run-sign-in" class="first-run-sign-in open-oauth" data-event-label="first-run-sign-in">Sign In</button>
+          <p class="first-run-join-waitlist">(Don’t have an invite? <a target="_blank" id="first-run-join-waitlist-link" class="first-run-join-waitlist-link open-oauth" href="" data-event-label="first-run-join-waitlist"> Join the waitlist with a Firefox Account</a>. The next round of invitations go out soon.)</p>
+        </div>
       </div>
     </main>
   </body>

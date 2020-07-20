@@ -19,18 +19,19 @@
   background-image: url("/images/zap-18.svg");
   background-position: center center;
   background-repeat: no-repeat;
-  height: 17px;
-  width: 100%;
+  background-size: contain;
+  height: 18px;
+  width: 103%;
   content: "";
   position: absolute;
-  bottom: -16px;
+  bottom: -15px;
   left: 0;
 }
 
 .first-run-h1 {
   text-align: center;
-  font-size: 48px;
-  margin: 16vh auto 40px auto;
+  font-size: 50px;
+  margin: 14vh auto 2rem auto;
   color: var(--relayInk);
   line-height: 1.1;
 }
@@ -38,6 +39,7 @@
 .first-run-img {
   min-width: var(--imgHeight);
   max-width: var(--imgHeight);
+  margin: 3rem auto auto auto;
 }
 
 .first-run-main {
@@ -75,7 +77,7 @@
 
 p.first-run-p {
   line-height: 1.6;
-  margin: 0 auto 40px auto;
+  margin: 0 auto 1.5rem auto;
   font-weight: 500;
 }
 
@@ -89,23 +91,28 @@ p.first-run-p {
 a {
   color: var(--relayBlue4);
   border-radius: 2px;
+  transition: all 0.2s ease;
 }
 
 button:hover {
   background-color: var(--relayBlueHover);
+  transition: all 0.2s ease;
 }
 
 button:active {
   background-color: var(--relayBlueActive);
+  transition: all 0.2s ease;
 }
 
 a:hover {
   color: var(--relayBlueHover);
+  transition: all 0.2s ease;
 }
 
 button:focus,
 a:focus {
   box-shadow: var(--relayButtonFocus);
+  transition: all 0.2s ease;
 }
 
 a:active {
@@ -116,6 +123,39 @@ a:active {
   display: none;
 }
 
+.pref-p {
+  margin-bottom: 2rem;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.collection-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: .5rem;
+}
+
+.setting-label {
+  max-width: 300px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.fx-relay-toggle {
+  margin-top: .25rem;
+  margin-right: 0;
+  height: 18px;
+  width: 32px;
+}
+
+.fx-relay-toggle::after {
+  height: 12px;
+  width: 12px;
+}
 
 @media screen and (max-width: 700px) {
   .fx-relay-first-run {
@@ -128,24 +168,17 @@ a:active {
 
   .show-700 {
     display: block;
-    margin: 12px auto 40px auto;
+    margin: 12px auto 3rem auto;
   }
 
   .first-run-content {
     height: auto;
     padding: 12px 0;
+    margin: auto;
   }
 
   main.first-run-main {
     flex-direction: column;
-  }
-
-  .first-run-join-waitlist,
-  .first-run-sign-in,
-  .first-run-content {
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
   }
 
   .first-run-join-waitlist {
@@ -156,7 +189,18 @@ a:active {
     margin: auto;
   }
 
-  p.first-run-p {
-    max-width: 550px;
+  .first-run-copy-wrapper {
+    max-width: 400px;
+    margin: auto;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .opt-enable {
+    margin-bottom: .5rem;
+  }
+
+  .first-run-h1 {
+    font-size: 36px;
   }
 }

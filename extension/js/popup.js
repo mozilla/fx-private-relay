@@ -1,4 +1,5 @@
 /* global browser */
+/* global enableDataOptOut */
 
 function getOnboardingPanels() {
   return {
@@ -151,9 +152,11 @@ async function popup() {
 
   if (signedInUser) {
     showRelayPanel(1);
-    enableSettingsPanel();
-    enableInputIconDisabling();
   }
+
+  enableSettingsPanel();
+  enableDataOptOut();
+  enableInputIconDisabling();
 
   document.querySelectorAll(".close-popup-after-click").forEach(el => {
     el.addEventListener("click", async (e) => {
