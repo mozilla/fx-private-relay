@@ -1,4 +1,5 @@
 import logging
+import os
 
 import boto3
 
@@ -20,6 +21,17 @@ class EmailsConfig(AppConfig):
             )
         except Exception:
             logger.exception("exception during SES connect")
+
+        badwords = []
+        # badwords file from:
+        # https://www.cs.cmu.edu/~biglou/resources/bad-words.txt
+        badwords_file_path = os.path.join(
+            settings.BASE_DIR, 'emails', 'badwords.txt'
+        )
+        with open(badwords_file_path, 'r') as badwords_file:
+            for word in badwords_file:
+                badwords.append(word)
+        self.badwords = badwords
 
     def ready(self):
         import emails.signals

@@ -4,8 +4,12 @@ import random
 import string
 import uuid
 
+from django.apps import apps
 from django.contrib.auth.models import User
 from django.db import models
+
+
+emails_config = apps.get_app_config('emails')
 
 
 class Profile(models.Model):
@@ -62,13 +66,17 @@ class RelayAddress(models.Model):
         if num_tries >= 5:
             raise CannotMakeAddressException
         relay_address = RelayAddress.objects.create(user=user)
+        address_contains_badword = any(
+            badword in relay_address.address
+            for badword in emails_config.badwords
+        )
         address_hash = sha256(
             relay_address.address.encode('utf-8')
         ).hexdigest()
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash
         ).count()
-        if address_already_deleted > 0:
+        if address_already_deleted > 0 or address_contains_badword:
             relay_address.delete()
             num_tries += 1
             return RelayAddress.make_relay_address(user, num_tries)
