@@ -3,7 +3,6 @@ from datetime import datetime, timezone
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import User
-from django.db.models import Q
 
 from allauth.socialaccount.models import SocialAccount
 
@@ -55,10 +54,13 @@ def invitations_only(sender, **kwargs):
         return True
 
     except Invitations.DoesNotExist:
-        waitlist_invite = get_invitation(
-            email=email, fxa_uid=fxa_uid, active=False
-        )
-        inactive_invitation = waitlist_invite.first()
+        try:
+            waitlist_invite = get_invitation(
+                email=email, fxa_uid=fxa_uid, active=False
+            )
+            inactive_invitation = waitlist_invite.first()
+        except Invitations.DoesNotExist:
+            inactive_invitation = None
 
         # Not mozilla domain; no invitation
         if settings.WAITLIST_OPEN:

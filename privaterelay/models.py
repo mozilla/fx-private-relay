@@ -1,5 +1,6 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models import Q
 
 
 class Invitations(models.Model):
@@ -15,11 +16,14 @@ class Invitations(models.Model):
 
 
 def get_invitation(email=None, fxa_uid=None, active=False):
+    local_args = locals()
     invitations = Invitations.objects.filter(
         Q(email=email) | Q(fxa_uid=fxa_uid), active=active
     ).order_by('date_added')
     if invitations.count() < 1:
-        raise Invitations.DoesNotExist
+        raise Invitations.DoesNotExist(
+            'get_invitation found no invitation for args: %s' % local_args
+        )
     invitations = list(invitations)
     oldest_invitation = invitations.pop(0)
     for invite in invitations:
