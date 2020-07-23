@@ -196,7 +196,7 @@ async function addRelayIconToInput(emailInput) {
     sendInPageEvent("viewed-menu", "authenticated-user-input-menu")
     // Create "Generate Relay Address" button
     const generateAliasBtn = createElementWithClassList("button", "fx-relay-menu-generate-alias-btn");
-    generateAliasBtn.textContent = "Generate new alias";
+    generateAliasBtn.textContent = "Generate New Alias";
 
 
 
