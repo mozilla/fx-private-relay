@@ -23,14 +23,20 @@ def email_invited_user(invitation):
                "hackers and trackers")
     message_body = {}
 
-    message_body['Html'] = {'Charset': 'UTF-8', 'Data': render_to_string(
-        'emails/beta_invite_html_email.html',
-        context,
-    )}
-    message_body['Text'] = {'Charset': 'UTF-8', 'Data': render_to_string(
-        'emails/beta_invite_text_email.txt',
-        context,
-    )}
+    message_body['Html'] = {
+        'Charset': 'UTF-8',
+        'Data': render_to_string(
+            'emails/beta_invite_html_email.html',
+            context
+        )
+    }
+    message_body['Text'] = {
+        'Charset': 'UTF-8', 
+        'Data': render_to_string(
+            'emails/beta_invite_text_email.txt',
+            context
+        )
+    }
 
     relay_display_name, relay_from_address = parseaddr(
         settings.RELAY_FROM_ADDRESS
