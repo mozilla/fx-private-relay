@@ -1,12 +1,12 @@
+import contextlib
 from datetime import datetime
 from email.headerregistry import Address
 from email.utils import parseaddr
+import json
 
 from botocore.exceptions import ClientError
-import contextlib
 import markus
 import logging
-import json
 from socketlabs.injectionapi import SocketLabsClient
 
 from django.apps import apps
