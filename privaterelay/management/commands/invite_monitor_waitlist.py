@@ -19,7 +19,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         limit = options['limit'][0]
 
-        monitor_waitlist = (MonitorSubscriber.objects.using('monitor')
+        monitor_waitlist = (
+            MonitorSubscriber.objects.using('monitor')
             .filter(waitlists_joined__email_relay__notified=False)
             .order_by('-breaches_last_shown')
             [:limit]

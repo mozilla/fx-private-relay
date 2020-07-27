@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
         invites_sent = 0
         for invitation in relay_waitlist_invitees:
-            invitation.active=True
+            invitation.active = True
             invitation.save()
             print("Sending invite email to %s" % invitation.email)
             response = email_invited_user(invitation)
