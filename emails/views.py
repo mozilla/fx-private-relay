@@ -25,7 +25,7 @@ from .utils import (
     get_post_data_from_request,
     get_socketlabs_client,
     incr_if_enabled,
-    ses_send_email,
+    ses_relay_email,
     socketlabs_send,
 
     urlize_and_linebreaks
@@ -341,7 +341,7 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
-    return ses_send_email(from_address, relay_address, subject, message_body)
+    return ses_relay_email(from_address, relay_address, subject, message_body)
 
 
 def _get_text_and_html_content(email_message):

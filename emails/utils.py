@@ -52,31 +52,45 @@ def socketlabs_send(sl_client, sl_message):
 
 
 @time_if_enabled('ses_send_email')
-def ses_send_email(from_address, relay_address, subject, message_body):
+def ses_send_email(from_address, to_address, subject, message_body):
     emails_config = apps.get_app_config('emails')
-    relay_from_address, relay_from_display = generate_relay_From(from_address)
-    formatted_from_address = str(
-        Address(relay_from_display, addr_spec=relay_from_address)
-    )
     try:
         ses_response = emails_config.ses_client.send_email(
-            Destination={'ToAddresses': [relay_address.user.email]},
+            Destination={'ToAddresses': [to_address]},
             Message={
                 'Body': message_body,
                 'Subject': {'Charset': 'UTF-8', 'Data': subject},
             },
-            Source=formatted_from_address,
+            Source=from_address,
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         logger.debug('ses_sent_response', extra=ses_response['MessageId'])
-        relay_address.num_forwarded += 1
-        relay_address.last_used_at = datetime.now()
-        relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
         incr_if_enabled('ses_send_email', 1)
     except ClientError as e:
         logger.error('ses_client_error', extra=e.response['Error'])
         return HttpResponse("SES client error", status=400)
     return HttpResponse("Sent email to final recipient.", status=200)
+
+
+def ses_relay_email(from_address, relay_address, subject, message_body):
+    relay_from_address, relay_from_display = generate_relay_From(from_address)
+    formatted_from_address = str(
+        Address(relay_from_display, addr_spec=relay_from_address)
+    )
+    try:
+        response = ses_send_email(
+            formatted_from_address,
+            relay_address.user.email,
+            subject,
+            message_body
+        )
+        relay_address.num_forwarded += 1
+        relay_address.last_used_at = datetime.now()
+        relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
+        return response
+    except ClientError as e:
+        logger.error('ses_client_error', extra=e.response['Error'])
+        return HttpResponse("SES client error", status=400)
 
 
 def urlize_and_linebreaks(text, autoescape=True):
