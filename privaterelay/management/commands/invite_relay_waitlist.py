@@ -31,7 +31,7 @@ def email_invited_user(invitation):
         )
     }
     message_body['Text'] = {
-        'Charset': 'UTF-8', 
+        'Charset': 'UTF-8',
         'Data': render_to_string(
             'emails/beta_invite_text_email.txt',
             context
