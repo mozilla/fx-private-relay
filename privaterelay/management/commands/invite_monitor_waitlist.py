@@ -1,64 +1,13 @@
-from datetime import datetime, timezone
-from email.utils import parseaddr
+from datetime import datetime
 import logging
 
-from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.template.loader import render_to_string
 
-from emails.utils import ses_send_email
+from emails.utils import email_invited_user
 from ...models import Invitations, MonitorSubscriber
 
 
 logger = logging.getLogger('events')
-
-
-def email_invited_user(invitee, invitation):
-    context = {
-        'email': invitee.primary_email,
-        'current_domain': settings.SITE_ORIGIN,
-    }
-
-    subject = ("Firefox Relay beta: Protect your real email address from "
-               "hackers and trackers")
-
-    message_body = {}
-
-    message_body['Html'] = {
-        'Charset': 'UTF-8',
-        'Data': render_to_string(
-            'emails/beta_invite_html_email.html',
-            context
-        )
-    }
-    message_body['Text'] = {
-        'Charset': 'UTF-8',
-        'Data': render_to_string(
-            'emails/beta_invite_text_email.txt',
-            context
-        )
-    }
-
-    relay_display_name, relay_from_address = parseaddr(
-        settings.RELAY_FROM_ADDRESS
-    )
-    from_address = '%s <%s>' % (relay_display_name, relay_from_address)
-
-    response = ses_send_email(
-        from_address, invitee.primary_email, subject, message_body
-    )
-
-    if not response.status_code == 200:
-        logger.error('ses_error', extra=response)
-        return response
-
-    invitation.date_sent = datetime.now(timezone.utc)
-    invitation.save(update_fields=['date_sent'])
-
-    invitee.waitlists_joined['email_relay']['notified'] = True
-    invitee.save(update_fields=['waitlists_joined'])
-
-    return response
 
 
 class Command(BaseCommand):
@@ -104,7 +53,7 @@ class Command(BaseCommand):
                 )
 
             print("Sending invite email to %s" % invitee.primary_email)
-            response = email_invited_user(invitee, invitation)
+            response = email_invited_user(invitation, invitee)
             if not response.status_code == 200:
                 continue
             invites_sent += 1

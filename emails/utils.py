@@ -1,5 +1,5 @@
 import contextlib
-from datetime import datetime
+from datetime import datetime, timezone
 from email.headerregistry import Address
 from email.utils import parseaddr
 import json
@@ -13,6 +13,7 @@ from django.apps import apps
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
+from django.template.loader import render_to_string
 
 
 logger = logging.getLogger('events')
@@ -113,3 +114,53 @@ def generate_relay_From(original_from_address):
     return relay_from_address, '%s [via Relay]' % (
         original_from_address
     )
+
+
+def email_invited_user(invitation, invitee=None):
+    email = invitee.primary_email if invitee else invitation.email
+    context = {
+        'email': email,
+        'current_domain': settings.SITE_ORIGIN,
+    }
+
+    subject = ("Firefox Relay beta: Protect your real email address from "
+               "hackers and trackers")
+
+    message_body = {}
+
+    message_body['Html'] = {
+        'Charset': 'UTF-8',
+        'Data': render_to_string(
+            'emails/beta_invite_html_email.html',
+            context
+        )
+    }
+    message_body['Text'] = {
+        'Charset': 'UTF-8',
+        'Data': render_to_string(
+            'emails/beta_invite_text_email.txt',
+            context
+        )
+    }
+
+    relay_display_name, relay_from_address = parseaddr(
+        settings.RELAY_FROM_ADDRESS
+    )
+    from_address = '%s <%s>' % (relay_display_name, relay_from_address)
+
+    response = ses_send_email(
+        from_address, email, subject, message_body
+    )
+
+    if not response.status_code == 200:
+        logger.error('ses_error', extra=response)
+        return response
+
+    invitation.date_sent = datetime.now(timezone.utc)
+    invitation.save(update_fields=['date_sent'])
+
+    if invitee:
+        invitee.waitlists_joined['email_relay']['notified'] = True
+        invitee.save(update_fields=['waitlists_joined'])
+
+    return response
