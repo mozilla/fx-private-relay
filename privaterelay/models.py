@@ -27,9 +27,9 @@ def get_invitation(email=None, fxa_uid=None, active=False):
     invitations = list(invitations)
     oldest_invitation = invitations.pop(0)
     for invite in invitations:
-        if oldest_invitation.email != invite.email:
+        if invite.email and oldest_invitation.email != invite.email:
             oldest_invitation.email = invite.email
-        if oldest_invitation.fxa_uid != invite.fxa_uid:
+        if  invite.fxa_uid and oldest_invitation.fxa_uid != invite.fxa_uid:
             oldest_invitation.fxa_uid = invite.fxa_uid
         invite.delete()
     oldest_invitation.save(update_fields=['email', 'fxa_uid'])
