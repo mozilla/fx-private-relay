@@ -55,10 +55,9 @@ def invitations_only(sender, **kwargs):
 
     except Invitations.DoesNotExist:
         try:
-            waitlist_invite = get_invitation(
+            inactive_invitation = get_invitation(
                 email=email, fxa_uid=fxa_uid, active=False
             )
-            inactive_invitation = waitlist_invite
         except Invitations.DoesNotExist:
             inactive_invitation = None
 
