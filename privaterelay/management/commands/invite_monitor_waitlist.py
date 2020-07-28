@@ -45,14 +45,23 @@ class Command(BaseCommand):
                     invitee.save(update_fields=['waitlists_joined'])
                     continue
             except Invitations.DoesNotExist:  # no invitation
-                print("Creating invitation for %s" % invitee.primary_email)
-                invitation = Invitations.objects.create(
-                    email=invitee.primary_email,
-                    fxa_uid=invitee.fxa_uid,
-                    active=True,
-                    date_added=datetime.now(),
-                    date_redeemed=None
-                )
+                try:
+                    invitation = get_invitation(
+                        email=invitee.primary_email,
+                        fxa_uid=invitee.fxa_uid,
+                        active=False
+                    )
+                    invitation.active = True
+                    invitation.save()
+                except Invitations.DoesNotExist:  # no invitation
+                    print("Creating invitation for %s" % invitee.primary_email)
+                    invitation = Invitations.objects.create(
+                        email=invitee.primary_email,
+                        fxa_uid=invitee.fxa_uid,
+                        active=True,
+                        date_added=datetime.now(),
+                        date_redeemed=None
+                    )
 
             print("Sending invite email to %s" % invitee.primary_email)
             response = email_invited_user(invitation, invitee)
