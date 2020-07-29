@@ -343,9 +343,6 @@ def _get_text_and_html_content(email_message):
     if email_message.is_multipart():
         for part in email_message.walk():
             try:
-                # multipart/* are just containers
-                if part.get_content_maintype() == 'multipart':
-                    continue
                 if part.get_content_type() == 'text/plain':
                     text_content = part.get_content()
                 if part.get_content_type() == 'text/html':
