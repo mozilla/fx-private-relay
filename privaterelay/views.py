@@ -14,7 +14,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import connections
-from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -28,7 +27,7 @@ from allauth.socialaccount.providers.fxa.views import (
 
 from emails.models import RelayAddress
 from emails.utils import get_post_data_from_request
-from .models import Invitations
+from .models import Invitations, get_invitation
 
 
 FXA_PROFILE_CHANGE_EVENT = (
@@ -147,8 +146,8 @@ def waitlist(request):
         return JsonResponse({}, status=400)
 
     try:
-        invitation =  Invitations.objects.get(
-            Q(fxa_uid=fxa_uid) | Q(email=email), active=False
+        invitation = get_invitation(
+            email=email, fxa_uid=fxa_uid, active=False
         )
         if not invitation.fxa_uid:
             invitation.fxa_uid = fxa_uid
