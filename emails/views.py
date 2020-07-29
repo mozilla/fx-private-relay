@@ -4,6 +4,8 @@ from hashlib import sha256
 from sentry_sdk import capture_message
 import json
 import logging
+import mimetypes
+import os
 import re
 
 from django.conf import settings
@@ -360,6 +362,19 @@ def _get_text_and_html_content(email_message):
                     'part.get_content()',
                     extra={'type': part.get_content_type()}
                 )
+        for part in email_message.iter_attachments():
+            fn = part.get_filename()
+            if fn:
+                extension = os.path.splitext(part.get_filename())[1]
+            else:
+                extension = mimetypes.guess_extension(part.get_content_type())
+            logger.error(
+                'part.get_content()',
+                extra={
+                    'content-type': part.get_content_type(),
+                    'part': part
+                }
+            )
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
