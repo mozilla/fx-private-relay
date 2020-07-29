@@ -350,6 +350,11 @@ def _get_text_and_html_content(email_message):
                 if part.is_attachment():
                     has_attachment = True
                     incr_if_enabled('email_with_attachment', 1)
+                    capture_message(
+                        'Email with attachment',
+                        level="error",
+                        stack=True
+                    )
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
