@@ -379,7 +379,7 @@ def _get_text_and_html_content(email_message):
                 'part.get_content()',
                 extra={
                     'content-type': part.get_content_type(),
-                    'part': part
+                    'file-name': part.get_filename()
                 }
             )
     else:
