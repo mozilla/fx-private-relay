@@ -358,8 +358,10 @@ def _get_text_and_html_content(email_message):
                     has_attachment = True
                     incr_if_enabled('email_with_attachment', 1)
                     logger.error(
-                        'Received SNS message with type not handled in inbound log',
-                        extra={'part': part}
+                        'Attachment found in email',
+                        extra={
+                            'content-type': part.get_content_type(),
+                        }
                     )
             except KeyError:
                 # log the un-handled content type but don't stop processing
