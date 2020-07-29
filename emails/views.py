@@ -349,6 +349,11 @@ def _get_text_and_html_content(email_message):
                     text_content = part.get_content()
                 if part.get_content_type() == 'text/html':
                     html_content = part.get_content()
+                if part.get_content_type() == 'application/pdf':
+                    logger.error(
+                        'Pdf attachment',
+                        extra={'file-name': part.get_filename()}
+                    )
                 if part.is_attachment():
                     has_attachment = True
                     incr_if_enabled('email_with_attachment', 1)
