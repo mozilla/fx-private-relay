@@ -7,6 +7,7 @@ import logging
 import mimetypes
 import os
 import re
+import tempfile
 
 from django.conf import settings
 from django.contrib import messages
@@ -362,13 +363,16 @@ def _get_text_and_html_content(email_message):
                         extension = os.path.splitext(part.get_filename())[1]
                     else:
                         extension = mimetypes.guess_extension(part.get_content_type())
-                    payload = part.get_payload()
+                    with tempfile.NamedTemporaryFile(suffix=extension) as f:
+                            f.write(part.get_content())
+                            file_size = f.tell()
+                            f.close()
                     logger.error(
                         'Attachment found in email',
                         extra={
                             'attachment-type': part.get_content_type(),
                             'extension': extension,
-                            'payload': payload
+                            'file-size': file_size
                         }
                     )
             except KeyError:
