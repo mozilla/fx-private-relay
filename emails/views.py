@@ -363,6 +363,7 @@ def _get_text_and_html_content(email_message):
                         extension = os.path.splitext(part.get_filename())[1]
                     else:
                         extension = mimetypes.guess_extension(part.get_content_type())
+                    payload = part.get_payload(decode=True)
                     with tempfile.NamedTemporaryFile(suffix=extension) as f:
                             f.write(part.get_content())
                             file_size = f.tell()
@@ -372,7 +373,8 @@ def _get_text_and_html_content(email_message):
                         extra={
                             'attachment-type': part.get_content_type(),
                             'extension': extension,
-                            'file-size': file_size
+                            'file-size': file_size,
+                            'payload-size': len(payload)
                         }
                     )
             except KeyError:
