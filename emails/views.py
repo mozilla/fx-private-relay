@@ -357,10 +357,18 @@ def _get_text_and_html_content(email_message):
                 if part.is_attachment():
                     has_attachment = True
                     incr_if_enabled('email_with_attachment', 1)
+                    fn = part.get_filename()
+                    if fn:
+                        extension = os.path.splitext(part.get_filename())[1]
+                    else:
+                        extension = mimetypes.guess_extension(part.get_content_type())
+                    payload = part.get_payload()
                     logger.error(
                         'Attachment found in email',
                         extra={
-                            'content-type': part.get_content_type(),
+                            'attachment-type': part.get_content_type(),
+                            'extension': extension,
+                            'payload': payload
                         }
                     )
             except KeyError:
@@ -369,19 +377,6 @@ def _get_text_and_html_content(email_message):
                     'part.get_content()',
                     extra={'type': part.get_content_type()}
                 )
-        for part in email_message.iter_attachments():
-            fn = part.get_filename()
-            if fn:
-                extension = os.path.splitext(part.get_filename())[1]
-            else:
-                extension = mimetypes.guess_extension(part.get_content_type())
-            logger.error(
-                'part.get_content()',
-                extra={
-                    'content-type': part.get_content_type(),
-                    'file-name': part.get_filename()
-                }
-            )
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
