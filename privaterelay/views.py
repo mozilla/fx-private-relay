@@ -6,6 +6,7 @@ import os
 
 from google_measurement_protocol import event, report
 from jwt import JWT, jwk_from_dict
+from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from requests_oauthlib import OAuth2Session
 import sentry_sdk
 
@@ -246,7 +247,11 @@ def _get_event_keys_from_jwt(authentic_jwt):
 
 def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
     client = _get_oauth2_session(social_account)
-    resp = client.get(FirefoxAccountsOAuth2Adapter.profile_url)
+    try:
+        resp = client.get(FirefoxAccountsOAuth2Adapter.profile_url)
+    except CustomOAuth2Error as e:
+        sentry_sdk.capture_exception(e)
+        return HttpResponse('202 Accepted', status=202)
 
     extra_data = resp.json()
     new_email = extra_data['email']
