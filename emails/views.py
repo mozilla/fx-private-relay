@@ -365,7 +365,8 @@ def _get_text_and_html_content(email_message):
                         extension = mimetypes.guess_extension(part.get_content_type())
                     payload = part.get_payload(decode=True)
                     with tempfile.NamedTemporaryFile(suffix=extension) as f:
-                            f.write(part.get_content())
+                            # f.write(part.get_content())
+                            f.write(payload)
                             file_size = f.tell()
                             f.close()
                     logger.error(
