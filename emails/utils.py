@@ -36,11 +36,9 @@ def incr_if_enabled(name, value=1):
         metrics.incr(name, value)
 
 
-def histogram_tag_if_enabled(name, value, tags=None):
+def histogram_if_enabled(name, value, tags=None):
     if settings.STATSD_ENABLED:
-        metrics.histogram(
-            name, value=value, tags=None
-        )
+        metrics.histogram(name, value=value, tags=None)
 
 
 @time_if_enabled('socketlabs_client')

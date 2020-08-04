@@ -23,6 +23,7 @@ from .models import DeletedAddress, Profile, RelayAddress
 from .utils import (
     get_post_data_from_request,
     incr_if_enabled,
+    histogram_if_enabled,
     ses_relay_email,
     urlize_and_linebreaks
 )
@@ -340,6 +341,35 @@ def _sns_message(message_json):
     return ses_relay_email(from_address, relay_address, subject, message_body)
 
 
+def _get_attachment_metrics(part):
+    incr_if_enabled('email_with_attachment', 1)
+    fn = part.get_filename()
+    if fn:
+        extension = os.path.splitext(fn)[1]
+    else:
+        extension = mimetypes.guess_extension(
+            part.get_content_type()
+        )
+    payload = part.get_payload(decode=True)
+    logger.error(
+        'Attachment found in email',
+        extra={
+            'content-type': part.get_content_type(),
+            'extension': extension,
+            'payload-size': len(payload)
+        }
+    )
+    tag_type = 'attachment'
+    attachment_extension_tag = generate_tag(tag_type, part.get_content_type())
+    attachment_content_type_tag = generate_tag(tag_type, extension)
+    histogram_if_enabled(
+        'attachment.size',
+        len(payload),
+        [attachment_extension_tag, attachment_content_type_tag]
+    )
+    return part.get_content_type(), extension, len(payload)
+
+
 def _get_text_and_html_content(email_message):
     text_content = None
     html_content = None
@@ -354,33 +384,7 @@ def _get_text_and_html_content(email_message):
                     html_content = part.get_content()
                 if part.is_attachment():
                     has_attachment = True
-                    incr_if_enabled('email_with_attachment', 1)
-                    fn = part.get_filename()
-                    if fn:
-                        extension = os.path.splitext(part.get_filename())[1]
-                    else:
-                        extension = mimetypes.guess_extension(
-                            part.get_content_type()
-                        )
-                    payload = part.get_payload(decode=True)
-                    logger.error(
-                        'Attachment found in email',
-                        extra={
-                            'content-type': part.get_content_type(),
-                            'extension': extension,
-                            'payload-size': len(payload)
-                        }
-                    )
-                    tag_type = 'attachment'
-                    attachment_extension = generate_tag(
-                        tag_type, part.get_content_type()
-                    )
-                    attachment_content_type = generate_tag(tag_type, extension)
-                    historgram_if_enabled(
-                        'attachment.size',
-                        len(payload),
-                        [attachment_extension, attachment_content_type]
-                    )
+                    _get_attachment_metrics(part)
                     email_count += 1
             except KeyError:
                 # log the un-handled content type but don't stop processing
@@ -388,7 +392,7 @@ def _get_text_and_html_content(email_message):
                     'part.get_content()',
                     extra={'type': part.get_content_type()}
                 )
-        historgram_if_enabled('attachment.count_per_email', email_count)
+        histogram_if_enabled('attachment.count_per_email', email_count)
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
