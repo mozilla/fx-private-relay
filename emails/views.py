@@ -8,6 +8,8 @@ import mimetypes
 import os
 import re
 
+from markus.utils import generate_tag
+
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -343,6 +345,7 @@ def _get_text_and_html_content(email_message):
     html_content = None
     has_attachment = False
     if email_message.is_multipart():
+        email_count = 0
         for part in email_message.walk():
             try:
                 if part.get_content_type() == 'text/plain':
@@ -368,12 +371,24 @@ def _get_text_and_html_content(email_message):
                             'payload-size': len(payload)
                         }
                     )
+                    tag_type = 'attachment'
+                    attachment_extension = generate_tag(
+                        tag_type, part.get_content_type()
+                    )
+                    attachment_content_type = generate_tag(tag_type, extension)
+                    historgram_if_enabled(
+                        'attachment.size',
+                        len(payload),
+                        [attachment_extension, attachment_content_type]
+                    )
+                    email_count += 1
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
                     'part.get_content()',
                     extra={'type': part.get_content_type()}
                 )
+        historgram_if_enabled('attachment.count_per_email', email_count)
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
