@@ -15,6 +15,7 @@ emails_config = apps.get_app_config('emails')
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
+    num_address_deleted = models.PositiveIntegerField(default=0)
     address_last_deleted = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
@@ -59,6 +60,7 @@ class RelayAddress(models.Model):
         deleted_address.save()
         profile = Profile.objects.get(user=self.user)
         profile.address_last_deleted = datetime.now()
+        profile.num_address_deleted += 1
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
