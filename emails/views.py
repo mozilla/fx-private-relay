@@ -4,7 +4,11 @@ from hashlib import sha256
 from sentry_sdk import capture_message
 import json
 import logging
+import mimetypes
+import os
 import re
+
+from markus.utils import generate_tag
 
 from django.conf import settings
 from django.contrib import messages
@@ -19,6 +23,7 @@ from .models import DeletedAddress, Profile, RelayAddress
 from .utils import (
     get_post_data_from_request,
     incr_if_enabled,
+    histogram_if_enabled,
     ses_relay_email,
     urlize_and_linebreaks
 )
@@ -336,11 +341,41 @@ def _sns_message(message_json):
     return ses_relay_email(from_address, relay_address, subject, message_body)
 
 
+def _get_attachment_metrics(part):
+    incr_if_enabled('email_with_attachment', 1)
+    fn = part.get_filename()
+    ct = part.get_content_type()
+    payload = part.get_payload(decode=True)
+    payload_size = len(payload)
+    if fn:
+        extension = os.path.splitext(fn)[1]
+    else:
+        extension = mimetypes.guess_extension(ct)
+    logger.error(
+        'Attachment found in email',
+        extra={
+            'content-type': ct,
+            'extension': extension,
+            'payload-size': payload_size
+        }
+    )
+    tag_type = 'attachment'
+    attachment_extension_tag = generate_tag(tag_type, extension)
+    attachment_content_type_tag = generate_tag(tag_type, ct)
+    histogram_if_enabled(
+        'attachment.size',
+        payload_size,
+        [attachment_extension_tag, attachment_content_type_tag]
+    )
+    return ct, extension, payload_size
+
+
 def _get_text_and_html_content(email_message):
     text_content = None
     html_content = None
     has_attachment = False
     if email_message.is_multipart():
+        email_attachment_count = 0
         for part in email_message.walk():
             try:
                 if part.get_content_type() == 'text/plain':
@@ -349,13 +384,17 @@ def _get_text_and_html_content(email_message):
                     html_content = part.get_content()
                 if part.is_attachment():
                     has_attachment = True
-                    incr_if_enabled('email_with_attachment', 1)
+                    _get_attachment_metrics(part)
+                    email_attachment_count += 1
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
                     'part.get_content()',
                     extra={'type': part.get_content_type()}
                 )
+        histogram_if_enabled(
+            'attachment.count_per_email', email_attachment_count
+        )
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
