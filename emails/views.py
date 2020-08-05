@@ -356,7 +356,7 @@ def _get_attachment_metrics(part):
         extra={
             'content-type': part.get_content_type(),
             'extension': extension,
-            'payload-size': len(payload)
+            'payload-size': payload_size
         }
     )
     tag_type = 'attachment'
