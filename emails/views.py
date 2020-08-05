@@ -366,7 +366,7 @@ def _get_attachment_metrics(part):
         payload_size,
         [attachment_extension_tag, attachment_content_type_tag]
     )
-    return part.get_content_type(), extension, len(payload)
+    return ct, extension, payload_size
 
 
 def _get_text_and_html_content(email_message):
