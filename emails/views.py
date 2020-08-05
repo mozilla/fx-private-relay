@@ -353,7 +353,7 @@ def _get_attachment_metrics(part):
     logger.error(
         'Attachment found in email',
         extra={
-            'content-type': part.get_content_type(),
+            'content-type': ct,
             'extension': extension,
             'payload-size': payload_size
         }
