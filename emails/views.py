@@ -364,7 +364,7 @@ def _get_attachment_metrics(part):
     attachment_content_type_tag = generate_tag(tag_type, extension)
     histogram_if_enabled(
         'attachment.size',
-        len(payload),
+        payload_size,
         [attachment_extension_tag, attachment_content_type_tag]
     )
     return part.get_content_type(), extension, len(payload)
