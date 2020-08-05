@@ -344,6 +344,9 @@ def _sns_message(message_json):
 def _get_attachment_metrics(part):
     incr_if_enabled('email_with_attachment', 1)
     fn = part.get_filename()
+    ct = part.get_content_type()
+    payload = part.get_payload(decode=True)
+    payload_size = len(payload)
     if fn:
         extension = os.path.splitext(fn)[1]
     else:
