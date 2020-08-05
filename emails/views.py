@@ -350,7 +350,6 @@ def _get_attachment_metrics(part):
         extension = mimetypes.guess_extension(
             part.get_content_type()
         )
-    payload = part.get_payload(decode=True)
     logger.error(
         'Attachment found in email',
         extra={
