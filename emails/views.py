@@ -359,7 +359,7 @@ def _get_attachment_metrics(part):
         }
     )
     tag_type = 'attachment'
-    attachment_extension_tag = generate_tag(tag_type, part.get_content_type())
+    attachment_extension_tag = generate_tag(tag_type, ct)
     attachment_content_type_tag = generate_tag(tag_type, extension)
     histogram_if_enabled(
         'attachment.size',
