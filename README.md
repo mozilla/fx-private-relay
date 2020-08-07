@@ -12,7 +12,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 ### Requirements
 * python 3.7 (suggest using
   [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/))
-* [SocketLabs Server](https://www.socketlabs.com/signup/)
+* [SES](https://aws.amazon.com/ses/) if you want to send real emails
 
 ### Install and Run the Site Locally
 1. Clone and change to the directory:
@@ -95,51 +95,8 @@ Now you can sign into [http://127.0.0.1:8000/](http://127.0.0.1:8000/) with an
 FxA. Remember: you'll need to use an account on oauth-stable.dev.lcip.org, not
 the production accounts.firefox.com.
 
-#### Enable SocketLabs Inbound API
-
-If you want to enable [SocketLabs Inbound
-API](https://inbound.docs.socketlabs.com/v1/documentation/introduction) to
-deliver email messages to your local server, you will need a domain where you
-can set MX records, and something like [ngrok](https://ngrok.com/) to forward
-public URLs to your local server.
-
-1. In your DNS, add an MX record
-   * Priority: 10
-   * Value: mx.socketlabs.com
-
-2. In your SocketLabs account, add a new server. ("Free" includes 500 messages
-   per month.)
-
-3. Under "Injection API", copy the Injection API Key into your
-   `SOCKETLABS_API_KEY` env var
-
-4. Under "For Developers", choose "Inbound API", and enable Inbound Parsing.
-
-5. Copy the Secret Key into your `SOCKETLABS_SECRET_KEY` env var
-
-6. Copy the Validation Key into your `SOCKETLABS_VALIDATION_KEY` env var
-
-7. Restart your `runserver` process
-
-8. With your server running on `127.0.0.1:8000`, use `ngrok` to forward a
-   public domain to it:
-   * ngrok http 127.0.0.1:8000
-     * You should see output like `Forwarding https://bec216e2.ngrok.io -> http://127.0.0.1:8000`
-
-9. On the Inbound API screen, set the Endpoint URL to your ngrok domain,
-   followed by `/emails/inbound`
-   (e.g., https://bec216e2.ngrok.io/emails/inbound), and click "Validate".
-   * It should say "Your Endpoint URL is valid"
-
-10. At the "Add Address/Domains" prompt, enter your domain where you set the MX
-    records.
-    * @domain should show up under "Current Entries"
-
-11. Click "Update"
-
-12. Test sending an email to test@domain
-    * You should see SocketLabs send the request to your local `runserver`
-    process thru your public ngrok URL.
+#### Enable SES
+TODO
 
 
 ### Install and run the add-on locally
