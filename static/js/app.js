@@ -284,21 +284,23 @@ function addEventListeners() {
     });
   }
 
-	document.querySelectorAll(".create-new-relay").forEach(createNewRelayBtn => {
-		createNewRelayBtn.addEventListener("click", () => {
-			sendGaPing("Create New Relay Alias", "Click", createNewRelayBtn.dataset.analyticsLabel);
-		});
-	});
-
   const joinWaitlistForm = document.querySelector("#join-waitlist-form");
   if (joinWaitlistForm) {
     joinWaitlistForm.addEventListener("submit", addEmailToWaitlist);
   }
 
-  const disabledDashboardButton = document.querySelector(".btn-disabled");
-  if (disabledDashboardButton) {
-    disabledDashboardButton.addEventListener("click", (e) => {
+  const generateAliasForm = document.querySelector(".dash-create");
+  if (generateAliasForm) {
+    generateAliasForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      const submitBtn = generateAliasForm.querySelector("button[type='submit']");
+      if (submitBtn.classList.contains("btn-disabled")) {
+        sendGaPing("Generate New Alias", "Engage", "btn-disabled");
+        return;
+      }
+
+      sendGaPing("Generate New Alias", "Engage", "btn-enabled");
+      e.target.submit();
     });
   }
 
