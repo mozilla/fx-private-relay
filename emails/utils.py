@@ -160,8 +160,10 @@ def ses_send_raw_email(
         print(e.response['Error']['Message'])
         return HttpResponse("SES client error", status=400)
     else:
-        print("Email sent! Message ID:"),
-        print(response['MessageId'])
+        logger.info("Email sent!", extra={
+            'FileName': os.path.basename(attachment),
+            'FileDeleted': os.path.exists(ATTACHMENT.name),
+            'MessageId': response['MessageId']})
         return HttpResponse("Sent email to final recipient.", status=200)
 
 
