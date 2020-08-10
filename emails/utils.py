@@ -1,8 +1,12 @@
 import contextlib
 from datetime import datetime, timezone
 from email.headerregistry import Address
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.application import MIMEApplication
 from email.utils import parseaddr
 import json
+import os
 
 from botocore.exceptions import ClientError
 import markus
@@ -78,7 +82,91 @@ def ses_send_email(from_address, to_address, subject, message_body):
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def ses_relay_email(from_address, relay_address, subject, message_body):
+def ses_send_raw_email(
+        from_address, to_address, subject, message_body, attachments):
+    SENDER = from_address
+    RECIPIENT = to_address
+
+    # Specify a configuration set. If you do not want to use a configuration
+    # set, comment the following variable, and the
+    # ConfigurationSetName=CONFIGURATION_SET argument below.
+    # CONFIGURATION_SET = "ConfigSet"
+
+    SUBJECT = subject
+    # The email body for recipients with non-HTML email clients.
+    BODY_TEXT = message_body['Text']['Data']
+    # The HTML body of the email.
+    BODY_HTML = message_body['Html']['Data']
+    # The character encoding for the email.
+    CHARSET = "UTF-8"
+
+    # Create a multipart/mixed parent container.
+    msg = MIMEMultipart('mixed')
+    # Add subject, from and to lines.
+    msg['Subject'] = SUBJECT
+    msg['From'] = SENDER
+    msg['To'] = RECIPIENT
+
+    # Create a multipart/alternative child container.
+    msg_body = MIMEMultipart('alternative')
+
+    # Encode the text and HTML content and set the character encoding. This step is
+    # necessary if you're sending a message with characters outside the ASCII range.
+    textpart = MIMEText(BODY_TEXT.encode(CHARSET), 'plain', CHARSET)
+    htmlpart = MIMEText(BODY_HTML.encode(CHARSET), 'html', CHARSET)
+
+    # Add the text and HTML parts to the child container.
+    msg_body.attach(textpart)
+    msg_body.attach(htmlpart)
+
+    # Attach the multipart/alternative child container to the multipart/mixed
+    # parent container.
+    msg.attach(msg_body)
+
+    # attach attachments
+    for attachment in attachments:
+        # The full path to the file that will be attached to the email.
+        ATTACHMENT = open(attachment, 'rb').read()
+        # Define the attachment part and encode it using MIMEApplication.
+        att = MIMEApplication(ATTACHMENT)
+
+        # Add a header to tell the email client to treat this part as an attachment,
+        # and to give the attachment a name.
+        att.add_header(
+            'Content-Disposition',
+            'attachment',
+            filename=os.path.basename(ATTACHMENT)
+        )
+        # Add the attachment to the parent container.
+        msg.attach(att)
+        ATTACHMENT.close()
+        os.unlink(ATTACHMENT.name)
+
+    try:
+        # Provide the contents of the email.
+        emails_config = apps.get_app_config('emails')
+        response = emails_config.ses_client.send_raw_email(
+            Source=SENDER,
+            Destinations=[
+                RECIPIENT
+            ],
+            RawMessage={
+                'Data': msg.as_string(),
+            },
+            # ConfigurationSetName=CONFIGURATION_SET
+        )
+    # Display an error if something goes wrong.
+    except ClientError as e:
+        print(e.response['Error']['Message'])
+        return HttpResponse("SES client error", status=400)
+    else:
+        print("Email sent! Message ID:"),
+        print(response['MessageId'])
+        return HttpResponse("Sent email to final recipient.", status=200)
+
+
+def ses_relay_email(
+        from_address, relay_address, subject, message_body, attachments):
     relay_from_address, relay_from_display = generate_relay_From(from_address)
     formatted_from_address = str(
         Address(relay_from_display, addr_spec=relay_from_address)
