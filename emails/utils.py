@@ -135,7 +135,7 @@ def ses_send_raw_email(
         att.add_header(
             'Content-Disposition',
             'attachment',
-            filename=os.path.basename(ATTACHMENT)
+            filename=os.path.basename(attachment)
         )
         # Add the attachment to the parent container.
         msg.attach(att)
