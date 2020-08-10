@@ -7,6 +7,7 @@ import logging
 import mimetypes
 import os
 import re
+import tempfile
 
 from markus.utils import generate_tag
 
@@ -299,7 +300,7 @@ def _sns_message(message_json):
         message_json['content'], policy=policy.default
     )
 
-    text_content, html_content, has_attachment = _get_text_and_html_content(
+    text_content, html_content, has_attachment, attachments = _get_text_and_html_content(
         email_message
     )
 
@@ -338,7 +339,9 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
-    return ses_relay_email(from_address, relay_address, subject, message_body)
+    return ses_relay_email(
+        from_address, relay_address, subject, message_body, attachments
+    )
 
 
 def _get_attachment_metrics(part):
@@ -367,13 +370,22 @@ def _get_attachment_metrics(part):
         payload_size,
         [attachment_extension_tag, attachment_content_type_tag]
     )
-    return ct, extension, payload_size
+
+    attachment = tempfile.NamedTemporaryFile(
+        suffix=extension,
+        prefix=os.path.splitext(fn)[0],
+        delete=False
+    )
+    attachment.write(payload)
+    attachment.close()
+    return attachment.name, ct, extension, payload_size
 
 
 def _get_text_and_html_content(email_message):
     text_content = None
     html_content = None
     has_attachment = False
+    attachments = []
     if email_message.is_multipart():
         email_attachment_count = 0
         for part in email_message.walk():
@@ -384,7 +396,8 @@ def _get_text_and_html_content(email_message):
                     html_content = part.get_content()
                 if part.is_attachment():
                     has_attachment = True
-                    _get_attachment_metrics(part)
+                    attachment_name, _, _, _ = _get_attachment_metrics(part)
+                    attachments.append(attachment_name)
                     email_attachment_count += 1
             except KeyError:
                 # log the un-handled content type but don't stop processing
@@ -404,4 +417,4 @@ def _get_text_and_html_content(email_message):
 
     # TODO: if html_content is still None, wrap the text_content with our
     # header and footer HTML and send that as the html_content
-    return text_content, html_content, has_attachment
+    return text_content, html_content, has_attachment, attachments
