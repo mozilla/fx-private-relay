@@ -126,9 +126,9 @@ def ses_send_raw_email(
     # attach attachments
     for attachment in attachments:
         # The full path to the file that will be attached to the email.
-        ATTACHMENT = open(attachment, 'rb').read()
-        # Define the attachment part and encode it using MIMEApplication.
-        att = MIMEApplication(ATTACHMENT)
+        with open(attachment, 'rb') as f:
+            # Define the attachment part and encode it using MIMEApplication.
+            att = MIMEApplication(f.read())
 
         # Add a header to tell the email client to treat this part as an attachment,
         # and to give the attachment a name.
@@ -139,8 +139,7 @@ def ses_send_raw_email(
         )
         # Add the attachment to the parent container.
         msg.attach(att)
-        ATTACHMENT.close()
-        os.unlink(ATTACHMENT.name)
+        os.unlink(attachment)
 
     try:
         # Provide the contents of the email.
