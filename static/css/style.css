@@ -226,7 +226,6 @@ button:active {
 }
 
 .home-hero {
-  min-height: 74vh;
   margin: 0 auto 6em auto;
   position: relative;
 }
