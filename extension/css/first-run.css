@@ -16,16 +16,14 @@
 }
 
 .drop-zap::after {
-  background-image: url("/images/zap-18.svg");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  height: 18px;
-  width: 103%;
+  background: var(--relayFxGradient);
+  border-radius: 4px;
+  height: 3px;
   content: "";
   position: absolute;
-  bottom: -15px;
-  left: 0;
+  bottom: 0;
+  left: -2px;
+  right: -2px;
 }
 
 .first-run-h1 {
@@ -79,13 +77,6 @@ p.first-run-p {
   line-height: 1.6;
   margin: 0 auto 1.5rem auto;
   font-weight: 500;
-}
-
-.first-run-join-waitlist {
-  font-size: 13px;
-  line-height: 1.6;
-  max-width: 360px;
-  margin-bottom: 0;
 }
 
 a {
@@ -179,10 +170,6 @@ a:active {
 
   main.first-run-main {
     flex-direction: column;
-  }
-
-  .first-run-join-waitlist {
-    max-width: 400px;
   }
 
   .first-run-main {
