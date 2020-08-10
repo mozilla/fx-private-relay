@@ -141,7 +141,7 @@ def ses_send_raw_email(
         msg.attach(att)
         os.unlink(attachment)
         logger.info(
-            'Attachment attached'
+            'Attachment attached',
             extra={
                 'FileName': os.path.basename(attachment),
                 'FileDeleted': os.path.exists(attachment),
