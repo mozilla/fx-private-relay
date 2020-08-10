@@ -140,6 +140,13 @@ def ses_send_raw_email(
         # Add the attachment to the parent container.
         msg.attach(att)
         os.unlink(attachment)
+        logger.info(
+            'Attachment attached'
+            extra={
+                'FileName': os.path.basename(attachment),
+                'FileDeleted': os.path.exists(attachment),
+            }
+        )
 
     try:
         # Provide the contents of the email.
@@ -159,10 +166,7 @@ def ses_send_raw_email(
         print(e.response['Error']['Message'])
         return HttpResponse("SES client error", status=400)
     else:
-        logger.info("Email sent!", extra={
-            'FileName': os.path.basename(attachment),
-            'FileDeleted': os.path.exists(ATTACHMENT.name),
-            'MessageId': response['MessageId']})
+        logger.info("Email sent!", extra={'MessageId': response['MessageId']})
         return HttpResponse("Sent email to final recipient.", status=200)
 
 
