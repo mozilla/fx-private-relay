@@ -172,12 +172,21 @@ def ses_relay_email(
         Address(relay_from_display, addr_spec=relay_from_address)
     )
     try:
-        response = ses_send_email(
-            formatted_from_address,
-            relay_address.user.email,
-            subject,
-            message_body
-        )
+        if attachments:
+            response = ses_send_raw_email(
+                formatted_from_address,
+                relay_address.user.email,
+                subject,
+                message_body,
+                attachments
+            )
+        else:
+            response = ses_send_email(
+                formatted_from_address,
+                relay_address.user.email,
+                subject,
+                message_body
+            )
         relay_address.num_forwarded += 1
         relay_address.last_used_at = datetime.now()
         relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
