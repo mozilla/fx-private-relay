@@ -124,9 +124,9 @@ def ses_send_raw_email(
     msg.attach(msg_body)
 
     # attach attachments
-    for attachment in attachments:
+    for temp_att_name, actual_att_name in attachments:
         # The full path to the file that will be attached to the email.
-        with open(attachment, 'rb') as f:
+        with open(temp_att_name, 'rb') as f:
             # Define the attachment part and encode it using MIMEApplication.
             att = MIMEApplication(f.read())
 
@@ -135,16 +135,16 @@ def ses_send_raw_email(
         att.add_header(
             'Content-Disposition',
             'attachment',
-            filename=os.path.basename(attachment)
+            filename=actual_att_name
         )
         # Add the attachment to the parent container.
         msg.attach(att)
-        os.unlink(attachment)
+        os.unlink(temp_att_name)
         logger.info(
             'Attachment attached',
             extra={
-                'FileName': os.path.basename(attachment),
-                'FileDeleted': os.path.exists(attachment),
+                'FileName': os.path.basename(actual_att_name),
+                'FileExists': os.path.exists(temp_att_name),
             }
         )
 

@@ -378,14 +378,14 @@ def _get_attachment_metrics(part):
     )
     attachment.write(payload)
     attachment.close()
-    return attachment.name, ct, extension, payload_size
+    return attachment.name, fn, ct
 
 
 def _get_text_and_html_content(email_message):
     text_content = None
     html_content = None
     has_attachment = False
-    attachments = []
+    attachments = {}
     if email_message.is_multipart():
         email_attachment_count = 0
         for part in email_message.walk():
@@ -396,8 +396,10 @@ def _get_text_and_html_content(email_message):
                     html_content = part.get_content()
                 if part.is_attachment():
                     has_attachment = True
-                    attachment_name, _, _, _ = _get_attachment_metrics(part)
-                    attachments.append(attachment_name)
+                    temp_att_name, actual_att_name, _ = (
+                        _get_attachment_metrics(part)
+                    )
+                    attachments[temp_att_name] = actual_att_name
                     email_attachment_count += 1
             except KeyError:
                 # log the un-handled content type but don't stop processing
