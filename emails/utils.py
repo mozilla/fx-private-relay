@@ -7,7 +7,6 @@ import json
 from botocore.exceptions import ClientError
 import markus
 import logging
-from socketlabs.injectionapi import SocketLabsClient
 
 from django.apps import apps
 from django.conf import settings
@@ -39,22 +38,6 @@ def incr_if_enabled(name, value=1):
 def histogram_if_enabled(name, value, tags=None):
     if settings.STATSD_ENABLED:
         metrics.histogram(name, value=value, tags=None)
-
-
-@time_if_enabled('socketlabs_client')
-def get_socketlabs_client():
-    return SocketLabsClient(
-        settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
-    )
-
-
-@time_if_enabled('socketlabs_client_send')
-def socketlabs_send(sl_client, sl_message):
-    try:
-        return sl_client.send(sl_message)
-    except Exception:
-        logger.exception("exception during sl send")
-        return HttpResponse("Internal Server Error", status=500)
 
 
 @time_if_enabled('ses_send_email')
