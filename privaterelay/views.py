@@ -247,6 +247,7 @@ def _get_event_keys_from_jwt(authentic_jwt):
 
 def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
     client = _get_oauth2_session(social_account)
+    # TODO: more graceful handling of profile fetch failures
     try:
         resp = client.get(FirefoxAccountsOAuth2Adapter.profile_url)
     except CustomOAuth2Error as e:
@@ -254,7 +255,13 @@ def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
         return HttpResponse('202 Accepted', status=202)
 
     extra_data = resp.json()
-    new_email = extra_data['email']
+
+    try:
+        new_email = extra_data['email']
+    except KeyError as e:
+        sentry_sdk.capture_exception(e)
+        return HttpResponse('202 Accepted', status=202)
+
     logger.info('fxa_rp_event', extra={
         'fxa_uid': authentic_jwt['sub'],
         'event_key': event_key,
