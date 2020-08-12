@@ -1915,6 +1915,10 @@ input.input-has-error {
     right: -12px;
     top: 30px;
   }
+
+  .footer-link {
+    margin: auto 1em auto auto;
+  }
 }
 
 @media screen and (max-width: 600px) {
