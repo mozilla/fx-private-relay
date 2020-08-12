@@ -64,6 +64,7 @@ def ses_send_email(from_address, to_address, subject, message_body):
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
+@time_if_enabled('ses_send_email')
 def ses_send_raw_email(
         from_address, to_address, subject, message_body, attachments):
     SENDER = from_address
@@ -134,6 +135,8 @@ def ses_send_raw_email(
                 'Data': msg.as_string(),
             },
         )
+        logger.debug('ses_sent_response', extra=response['MessageId'])
+        incr_if_enabled('ses_send_email', 1)
     except ClientError as e:
         logger.error('ses_client_error_raw_email', extra=e.response['Error'])
         return HttpResponse("SES client error on Raw Email", status=400)
