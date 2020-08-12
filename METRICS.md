@@ -34,8 +34,6 @@ This is the Analytics plan for Firefox Relay. It documents our use of Google Ana
 
 >Do users who have not installed the Relay add-on, choose to install the add-on?
 
->Do users who have not received invitations to the beta choose to join the beta waitlist?
-
 &nbsp;
 
 ## Extension Event Collection

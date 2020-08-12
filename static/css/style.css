@@ -430,8 +430,8 @@ button:active {
   font-size: 1em;
   transform: rotate(40deg);
   position: absolute;
-  top: 60px;
-  right: -190px;
+  top: 40px;
+  right: -155px;
 }
 
 .beta-banner-content {
@@ -1352,170 +1352,6 @@ input.input-has-error {
   margin-left: 0.5em;
 }
 
-.auth-error-wrapper {
-  padding: 4em 2em;
-  width: 100%;
-  max-width: 600px;
-}
-
-.waitlist-closed-wrapper {
-  max-width: 800px;
-}
-
-.waitlist-closed-message {
-  max-width: 650px;
-  margin: auto;
-  line-height: 1.5;
-}
-
-.invite-only-content {
-  line-height: 1.4;
-  margin: auto auto auto 0;
-  color: var(--grey10);
-  position: relative;
-  justify-content: center;
-  text-align: center;
-  align-items: center;
-}
-
-.invite-only-hl {
-  font-weight: 700;
-  margin: 0 auto 1em auto;
-  text-align: center;
-  font-size: 3em;
-  line-height: 1.2;
-  color: rgba(255, 255, 255, 1);
-}
-
-.invite-only-text {
-  font-size: 1.1em;
-  margin: 0 auto 2em auto;
-}
-
-.user-avatar {
-  min-height: 32px; /* prevents jumping while loading */
-  max-width: 32px;
-}
-
-.join-waitlist-submit,
-.join-waitlist-form {
-  margin: auto;
-}
-
-.avatar-email-wrapper {
-  margin: auto auto 2em auto;
-}
-
-.waitlist-user-email {
-  font-weight: 600;
-  color: var(--grey20);
-  margin: auto auto auto 12px;
-}
-
-.invite-only-wrapper::after {
-  width: 100%;
-  height: 100%;
-  content: "";
-  display: block;
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.2s ease;
-}
-
-.invite-only-wrapper.adding-email::after {
-  opacity: 0.3;
-  transition: all 0.2s ease;
-}
-
-.invite-only-wrapper.show-error::after {
-  opacity: 0 !important;
-}
-
-.waitlist-error,
-.user-on-waitlist-content,
-.show-error .join-waitlist-content,
-.user-on-waitlist .join-waitlist-content {
-  visibility: hidden;
-  opacity: 0;
-  transition: all 0.2s ease;
-}
-
-.waitlist-error,
-.user-on-waitlist-content {
-  position: absolute;
-  margin: auto;
-  top: 0;
-}
-
-.show-error .waitlist-error,
-.user-on-waitlist .user-on-waitlist-content {
-  visibility: visible;
-  opacity: 1;
-}
-
-.zap-16 {
-  position: relative;
-  display: inline-block;
-}
-
-.zap-16::after {
-  height: 11px;
-  display: block;
-  background: url("/static/images/zap-16.svg");
-  background-size: contain;
-  background-repeat: no-repeat;
-  content: "";
-  position: absolute;
-  bottom: -3;
-  left: 0;
-  right: 0;
-}
-
-.waitlist-confirmation-hl {
-  font-size: 1.25em;
-  font-weight: 700;
-  margin: 1em auto 1.15em auto;
-}
-
-.green-check {
-  align-items: flex-start;
-  margin: auto auto 1em auto;
-}
-
-.green-check::before {
-  content: "";
-  display: block;
-  background-color: #2ac3a2;
-  border: 2px solid #3fe1b0;
-  background-image: url("/static/images/white-check.svg");
-  background-size: 20px;
-  background-repeat: no-repeat;
-  background-position: center center;
-  height: 30px;
-  width: 30px;
-  min-width: 30px;
-  margin: auto .75em auto auto;
-  border-radius: 50%;
-}
-
-.waitlist-confirmation-message {
-  margin: auto;
-}
-
-.file-an-issue {
-  text-decoration: underline;
-}
-
-.file-an-issue:hover,
-.file-an-issue:focus {
-  color: var(--grey30);
-}
-
-.file-an-issue:active {
-  color: var(--grey40);
-}
-
 .show-750,
 .show-mobile {
   display: none !important;
@@ -1904,17 +1740,6 @@ input.input-has-error {
     flex-direction: column;
   }
 
-  .beta-banner {
-    top: 50px;
-    font-size: 14px;
-    right: -190px;
-  }
-
-  .beta-banner-content {
-    padding-top: 16px;
-    padding-bottom: 16px;
-  }
-
   .hero-left {
     padding: 2em;
     margin-bottom: 2em;
@@ -2157,14 +1982,6 @@ input.input-has-error {
     border-bottom: none;
   }
 
-  .waitlist-confirmation-message {
-    font-size: 1em;
-  }
-
-  .waitlist-confirmation-hl {
-    margin-top: 2em;
-  }
-
   .modal-content {
     left: 1em;
     right: 1em;
@@ -2194,26 +2011,14 @@ input.input-has-error {
 
   .beta-banner {
     top: 23px;
-    font-size: 12px;
-    right: -190px;
+    font-size: 15px;
     transform: rotate(31deg);
+    right: -168px;
   }
 
-  .green-check,
-  .grid {
-    flex-direction: column;
-  }
-
-  .invite-only-hl {
-    font-size: 2em;
-  }
-
-  .green-check::before {
-    margin: auto;
-  }
-
-  .invite-only-text {
-    font-size: 1em;
+  .beta-banner-content {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
   .relay-email-card {
