@@ -300,8 +300,8 @@ def _sns_message(message_json):
         message_json['content'], policy=policy.default
     )
 
-    text_content, html_content, has_attachment, attachments = _get_text_and_html_content(
-        email_message
+    text_content, html_content, has_attachment, attachments = (
+        _get_text_and_html_content(email_message)
     )
 
     # scramble alias so that clients don't recognize it
