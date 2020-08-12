@@ -387,7 +387,6 @@ def _get_text_and_html_content(email_message):
     has_attachment = False
     attachments = {}
     if email_message.is_multipart():
-        email_attachment_count = 0
         for part in email_message.walk():
             try:
                 if part.get_content_type() == 'text/plain':
@@ -400,7 +399,6 @@ def _get_text_and_html_content(email_message):
                         _get_attachment_metrics(part)
                     )
                     attachments[temp_att_name] = actual_att_name
-                    email_attachment_count += 1
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
@@ -408,7 +406,7 @@ def _get_text_and_html_content(email_message):
                     extra={'type': part.get_content_type()}
                 )
         histogram_if_enabled(
-            'attachment.count_per_email', email_attachment_count
+            'attachment.count_per_email', len(attachments)
         )
     else:
         if email_message.get_content_type() == 'text/plain':

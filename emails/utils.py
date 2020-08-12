@@ -69,18 +69,9 @@ def ses_send_raw_email(
         from_address, to_address, subject, message_body, attachments):
     SENDER = from_address
     RECIPIENT = to_address
-
-    # Specify a configuration set. If you do not want to use a configuration
-    # set, comment the following variable, and the
-    # ConfigurationSetName=CONFIGURATION_SET argument below.
-    # CONFIGURATION_SET = "ConfigSet"
-
     SUBJECT = subject
-    # The email body for recipients with non-HTML email clients.
     BODY_TEXT = message_body['Text']['Data']
-    # The HTML body of the email.
     BODY_HTML = message_body['Html']['Data']
-    # The character encoding for the email.
     CHARSET = "UTF-8"
 
     # Create a multipart/mixed parent container.
@@ -93,8 +84,9 @@ def ses_send_raw_email(
     # Create a multipart/alternative child container.
     msg_body = MIMEMultipart('alternative')
 
-    # Encode the text and HTML content and set the character encoding. This step is
-    # necessary if you're sending a message with characters outside the ASCII range.
+    # Encode the text and HTML content and set the character encoding.
+    # This step is necessary if you're sending a message with characters
+    # outside the ASCII range.
     textpart = MIMEText(BODY_TEXT.encode(CHARSET), 'plain', CHARSET)
     htmlpart = MIMEText(BODY_HTML.encode(CHARSET), 'html', CHARSET)
 
@@ -108,13 +100,12 @@ def ses_send_raw_email(
 
     # attach attachments
     for temp_att_name, actual_att_name in attachments.items():
-        # The full path to the file that will be attached to the email.
         with open(temp_att_name, 'rb') as f:
             # Define the attachment part and encode it using MIMEApplication.
             att = MIMEApplication(f.read())
 
-        # Add a header to tell the email client to treat this part as an attachment,
-        # and to give the attachment a name.
+        # Add a header to tell the email client to treat this
+        # part as an attachment, and to give the attachment a name.
         att.add_header(
             'Content-Disposition',
             'attachment',
@@ -123,13 +114,14 @@ def ses_send_raw_email(
         # Add the attachment to the parent container.
         msg.attach(att)
         os.unlink(temp_att_name)
-        logger.info(
-            'Attachment attached',
-            extra={
-                'FileName': os.path.basename(actual_att_name),
-                'FileExists': os.path.exists(temp_att_name),
-            }
-        )
+        if os.path.exists(temp_att_name):
+            logger.info(
+                'Attachment not removed from temporary storage',
+                extra={
+                    'FileExists': os.path.exists(temp_att_name),
+                    'TemporaryPath': temp_att_name
+                }
+            )
 
     try:
         # Provide the contents of the email.
@@ -142,15 +134,11 @@ def ses_send_raw_email(
             RawMessage={
                 'Data': msg.as_string(),
             },
-            # ConfigurationSetName=CONFIGURATION_SET
         )
-    # Display an error if something goes wrong.
     except ClientError as e:
-        print(e.response['Error']['Message'])
-        return HttpResponse("SES client error", status=400)
-    else:
-        logger.info("Email sent!", extra={'MessageId': response['MessageId']})
-        return HttpResponse("Sent email to final recipient.", status=200)
+        logger.error('ses_client_error_raw_email', extra=e.response['Error'])
+        return HttpResponse("SES client error on Raw Email", status=400)
+    return HttpResponse("Sent email to final recipient.", status=200)
 
 
 def ses_relay_email(
