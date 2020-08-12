@@ -554,6 +554,10 @@ table {
   transition: all 0.2s ease;
 }
 
+.relay-email-column {
+  max-width: 100%;
+}
+
 .center-value {
   flex-direction: column;
   justify-content: center;
@@ -573,12 +577,13 @@ table {
   height: 100%; /* expand clickable area of relay address */
   display: block;
   position: relative;
-  max-width: 300px;
+  max-width: 100%;
   text-overflow: ellipsis;
   overflow: hidden;
   border-radius: 0;
   padding: 2px 70px 2px 0; /* makes room for click to copy icon and copied message */
   color: var(--grey80);
+  white-space: nowrap;
 }
 
 .relay-address:hover,
@@ -672,6 +677,10 @@ table {
 .relay-email-row {
   justify-content: space-between;
   align-items: center;
+}
+
+.alias-stats-wrapper {
+  margin: auto 0 auto auto;
 }
 
 .relay-stat {
@@ -1062,6 +1071,8 @@ input.input-has-error {
   background-color: rgba(255, 255, 255, 1);
   border-radius: 4px;
   z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .toggle-details-visibility {
