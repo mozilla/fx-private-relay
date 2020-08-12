@@ -28,7 +28,6 @@ from allauth.socialaccount.providers.fxa.views import (
 
 from emails.models import RelayAddress
 from emails.utils import get_post_data_from_request
-from .models import Invitations, get_invitation
 
 
 FXA_PROFILE_CHANGE_EVENT = (
@@ -106,65 +105,6 @@ def lbheartbeat(request):
     return HttpResponse('200 OK', status=200)
 
 
-def invitation(request):
-    active_accounts_count = User.objects.count()
-    if active_accounts_count >= settings.MAX_ACTIVE_ACCOUNTS:
-        return render(
-            request, 'socialaccount/authentication_error.html',
-            context={
-                'error_message': 'There are too many active accounts on '
-                'Relay. Please try again later.'
-            },
-            status=403,
-        )
-
-    if settings.ALPHA_INVITE_TOKEN is None:
-        return render(
-            request, 'socialaccount/authentication_error.html',
-            context={'error_message': 'Invitations are currently closed.'},
-            status=403,
-        )
-
-    if request.GET.get('alpha_token') != settings.ALPHA_INVITE_TOKEN:
-        return render(
-            request, 'socialaccount/authentication_error.html',
-            context={'error_message': 'Invalid alpha token.'},
-            status=403,
-        )
-
-    request.session['alpha_token'] = request.GET.get('alpha_token')
-    return redirect('/')
-
-
-@require_http_methods(['POST'])
-def waitlist(request):
-    if not settings.WAITLIST_OPEN:
-        raise PermissionDenied
-    request_data = get_post_data_from_request(request)
-    email = request_data['email']
-    fxa_uid = request_data['fxa_uid']
-    if not email or not fxa_uid:
-        return JsonResponse({}, status=400)
-
-    try:
-        invitation = get_invitation(
-            email=email, fxa_uid=fxa_uid, active=False
-        )
-        if not invitation.fxa_uid:
-            invitation.fxa_uid = fxa_uid
-            invitation.save()
-        if invitation.email != email:
-            invitation.email = email
-            invitation.save()
-        message = 'You were already on our waitlist!'
-        status = 200
-    except Invitations.DoesNotExist:
-        Invitations.objects.create(fxa_uid=fxa_uid, email=email, active=False)
-        status = 201
-        message = 'You are added on our waitlist!'
-    return JsonResponse({'email': email, 'message': message}, status=status)
-
-
 @csrf_exempt
 def metrics_event(request):
     request_data = json.loads(request.body)
@@ -190,13 +130,6 @@ def fxa_rp_events(request):
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
     except SocialAccount.DoesNotExist as e:
-        # we received an FXA event for an FXA not in our DB;
-        # If the user joined the waitlist, we didn't create a social_account,
-        # but we did create an Invitations object. Delete it if necessary.
-        for event_key in event_keys:
-            if (event_key == FXA_DELETE_EVENT):
-                _delete_invitation(authentic_jwt)
-
         # capture an exception in sentry, but don't error, or FXA will retry
         sentry_sdk.capture_exception(e)
         return HttpResponse('202 Accepted', status=202)
@@ -247,6 +180,7 @@ def _get_event_keys_from_jwt(authentic_jwt):
 
 def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
     client = _get_oauth2_session(social_account)
+    # TODO: more graceful handling of profile fetch failures
     try:
         resp = client.get(FirefoxAccountsOAuth2Adapter.profile_url)
     except CustomOAuth2Error as e:
@@ -254,7 +188,13 @@ def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
         return HttpResponse('202 Accepted', status=202)
 
     extra_data = resp.json()
-    new_email = extra_data['email']
+
+    try:
+        new_email = extra_data['email']
+    except KeyError as e:
+        sentry_sdk.capture_exception(e)
+        return HttpResponse('202 Accepted', status=202)
+
     logger.info('fxa_rp_event', extra={
         'fxa_uid': authentic_jwt['sub'],
         'event_key': event_key,
@@ -275,26 +215,11 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
     # to create hard bounce receipt rules in SES,
     # because cascade deletes like this don't necessarily call delete()
     deleted_user_objects = social_account.user.delete()
-    deleted_invitation_objects = _delete_invitation(authentic_jwt)
     logger.info('fxa_rp_event', extra={
         'fxa_uid': authentic_jwt['sub'],
         'event_key': event_key,
         'deleted_user_objects': deleted_user_objects,
-        'deleted_invitation_objects': deleted_invitation_objects,
     })
-
-
-def _delete_invitation(authentic_jwt):
-    try:
-        invitation = Invitations.objects.get(fxa_uid=authentic_jwt['sub'])
-        deleted_invitation_objects = invitation.delete()
-        logger.info('fxa_rp_event', extra={
-            'fxa_uid': authentic_jwt['sub'],
-            'deleted_invitation_objects': deleted_invitation_objects,
-        })
-        return deleted_invitation_objects
-    except Invitations.DoesNotExist:
-        pass
 
 
 # use "raw" requests_oauthlib to automatically refresh the access token

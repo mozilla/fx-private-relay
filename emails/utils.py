@@ -11,7 +11,6 @@ import os
 from botocore.exceptions import ClientError
 import markus
 import logging
-from socketlabs.injectionapi import SocketLabsClient
 
 from django.apps import apps
 from django.conf import settings
@@ -43,22 +42,6 @@ def incr_if_enabled(name, value=1):
 def histogram_if_enabled(name, value, tags=None):
     if settings.STATSD_ENABLED:
         metrics.histogram(name, value=value, tags=None)
-
-
-@time_if_enabled('socketlabs_client')
-def get_socketlabs_client():
-    return SocketLabsClient(
-        settings.SOCKETLABS_SERVER_ID, settings.SOCKETLABS_API_KEY
-    )
-
-
-@time_if_enabled('socketlabs_client_send')
-def socketlabs_send(sl_client, sl_message):
-    try:
-        return sl_client.send(sl_message)
-    except Exception:
-        logger.exception("exception during sl send")
-        return HttpResponse("Internal Server Error", status=500)
 
 
 @time_if_enabled('ses_send_email')
@@ -221,53 +204,3 @@ def generate_relay_From(original_from_address):
     return relay_from_address, '%s [via Relay]' % (
         original_from_address
     )
-
-
-def email_invited_user(invitation, invitee=None):
-    email = invitee.primary_email if invitee else invitation.email
-    context = {
-        'email': email,
-        'current_domain': settings.SITE_ORIGIN,
-    }
-
-    subject = ("Firefox Relay beta: Protect your real email address from "
-               "hackers and trackers")
-
-    message_body = {}
-
-    message_body['Html'] = {
-        'Charset': 'UTF-8',
-        'Data': render_to_string(
-            'emails/beta_invite_html_email.html',
-            context
-        )
-    }
-    message_body['Text'] = {
-        'Charset': 'UTF-8',
-        'Data': render_to_string(
-            'emails/beta_invite_text_email.txt',
-            context
-        )
-    }
-
-    relay_display_name, relay_from_address = parseaddr(
-        settings.RELAY_FROM_ADDRESS
-    )
-    from_address = '%s <%s>' % (relay_display_name, relay_from_address)
-
-    response = ses_send_email(
-        from_address, email, subject, message_body
-    )
-
-    if not response.status_code == 200:
-        logger.error('ses_error', extra=response)
-        return response
-
-    invitation.date_sent = datetime.now(timezone.utc)
-    invitation.save(update_fields=['date_sent'])
-
-    if invitee:
-        invitee.waitlists_joined['email_relay']['notified'] = True
-        invitee.save(update_fields=['waitlists_joined'])
-
-    return response

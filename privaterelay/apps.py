@@ -18,8 +18,3 @@ class PrivateRelayConfig(AppConfig):
         )
         resp_json = resp.json()
         self.fxa_verifying_keys = resp_json['keys']
-
-        from allauth.socialaccount.signals import pre_social_login
-        from .signals import invitations_only
-
-        pre_social_login.connect(invitations_only)

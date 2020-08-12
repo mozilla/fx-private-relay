@@ -16,16 +16,14 @@
 }
 
 .drop-zap::after {
-  background-image: url("/images/zap-18.svg");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: contain;
-  height: 18px;
-  width: 103%;
+  background: var(--relayFxGradient);
+  border-radius: 4px;
+  height: 3px;
   content: "";
   position: absolute;
-  bottom: -15px;
-  left: 0;
+  bottom: 0;
+  left: -2px;
+  right: -2px;
 }
 
 .first-run-h1 {
@@ -81,13 +79,6 @@ p.first-run-p {
   font-weight: 500;
 }
 
-.first-run-join-waitlist {
-  font-size: 13px;
-  line-height: 1.6;
-  max-width: 360px;
-  margin-bottom: 0;
-}
-
 a {
   color: var(--relayBlue4);
   border-radius: 2px;
@@ -124,6 +115,7 @@ a:active {
 }
 
 .pref-p {
+  margin-top: 0;
   margin-bottom: 2rem;
   font-size: 15px;
   line-height: 1.5;
@@ -135,7 +127,7 @@ a:active {
   align-items: center;
   width: 100%;
   max-width: 400px;
-  margin-bottom: .5rem;
+  margin-bottom: 1.5rem;
 }
 
 .setting-label {
@@ -179,10 +171,6 @@ a:active {
 
   main.first-run-main {
     flex-direction: column;
-  }
-
-  .first-run-join-waitlist {
-    max-width: 400px;
   }
 
   .first-run-main {

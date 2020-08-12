@@ -89,9 +89,8 @@ async function sendForm(formAction, formData) {
 	}
 }
 
-function copyToClipboardAndShowMessage(e) {
-  const aliasCopyBtn = e.target;
-  const aliasToCopy = aliasCopyBtn.dataset.clipboardText;
+function copyToClipboardAndShowMessage(triggeringEl) {
+  const aliasCopyBtn = triggeringEl;
   const previouslyCopiedAlias = document.querySelector(".alias-copied");
   if (previouslyCopiedAlias) {
     previouslyCopiedAlias.classList.remove("alias-copied");
@@ -99,7 +98,7 @@ function copyToClipboardAndShowMessage(e) {
   }
   aliasCopyBtn.classList.add("alias-copied");
   aliasCopyBtn.title="Alias copied to clipboard";
-  return navigator.clipboard.writeText(aliasToCopy);
+  return;
 }
 
 
@@ -191,42 +190,6 @@ function isAddonInstallInLocalStorage() {
 	return (localStorage && localStorage.getItem("fxRelayAddonInstalled"));
 }
 
-
-async function addEmailToWaitlist(e) {
-  e.preventDefault();
-  const waitlistForm = e.target;
-  const submitBtn = waitlistForm.querySelector(".button");
-  const waitlistWrapper = document.querySelector(".invite-only-wrapper");
-  waitlistWrapper.classList.add("adding-email");
-  submitBtn.classList.add("loading");
-
-  const formData = {
-    "csrfmiddlewaretoken": waitlistForm[0].value,
-    "email": waitlistForm[1].value,
-    "fxa_uid": waitlistForm[2].value,
-  };
-
-  try {
-    const response = await sendForm(waitlistForm.action, formData);
-    if (response && (response.status === 200 || response.status === 201)) {
-      setTimeout(()=> {
-        waitlistWrapper.classList.add("user-on-waitlist");
-        waitlistWrapper.classList.remove("adding-email");
-      }, 500);
-    } else {
-      throw "Response was not 200 or 201";
-    }
-
-  }
-  catch (e) {
-    sendGaPing("Errors", "Join Waitlist", "Join Waitlist");
-    waitlistWrapper.classList.add("show-error");
-  }
-
-	return;
-}
-
-
 function toggleAliasCardDetailsVisibility(aliasCard) {
   const detailsWrapper = aliasCard.querySelector(".details-wrapper");
   aliasCard.classList.toggle("show-card-details");
@@ -257,10 +220,6 @@ function addEventListeners() {
     deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
   });
 
-  document.querySelectorAll(".relay-address.click-copy").forEach(clickToCopy => {
-    clickToCopy.addEventListener("click", copyToClipboardAndShowMessage);
-  });
-
   // Email forwarding toggles
 	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
 		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
@@ -282,11 +241,6 @@ function addEventListeners() {
         statDescription.classList.remove("show-message");
       });
     });
-  }
-
-  const joinWaitlistForm = document.querySelector("#join-waitlist-form");
-  if (joinWaitlistForm) {
-    joinWaitlistForm.addEventListener("submit", addEmailToWaitlist);
   }
 
   const generateAliasForm = document.querySelector(".dash-create");
@@ -501,3 +455,9 @@ class GlocalMenu extends HTMLElement {
 }
 
 customElements.define("glocal-menu", GlocalMenu);
+const copyAliasBtn = new ClipboardJS(".relay-address");
+
+
+copyAliasBtn.on("success", (e) => {
+  copyToClipboardAndShowMessage(e.trigger);
+});

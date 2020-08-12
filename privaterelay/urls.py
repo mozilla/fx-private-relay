@@ -32,8 +32,6 @@ urlpatterns = [
 
     path('accounts/profile/', views.profile, name='profile'),
     path('accounts/', include('allauth.urls')),
-    path('invitation/', views.invitation, name='invitation'),
-    path('waitlist/', views.waitlist, name='waitlist'),
     path('faq', views.faq, name='faq'),
     path('', views.home, name='home'),
 ]
