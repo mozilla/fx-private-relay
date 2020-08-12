@@ -683,6 +683,10 @@ table {
   margin: auto 0 auto auto;
 }
 
+.stat-br {
+  margin-bottom: .5em;
+}
+
 .relay-stat {
   flex-direction: column-reverse;
 }
@@ -1726,6 +1730,15 @@ input.input-has-error {
   top: -7px;
   right: 14px;
   z-index: -1;
+}
+
+.forwarding-description {
+  top: 50px;
+  bottom: auto;
+}
+
+.stat-br {
+  margin-bottom: .5em;
 }
 
 @media screen and (max-width: 1050px) {
