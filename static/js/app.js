@@ -89,9 +89,8 @@ async function sendForm(formAction, formData) {
 	}
 }
 
-function copyToClipboardAndShowMessage(e) {
-  const aliasCopyBtn = e.target;
-  const aliasToCopy = aliasCopyBtn.dataset.clipboardText;
+function copyToClipboardAndShowMessage(triggeringEl) {
+  const aliasCopyBtn = triggeringEl;
   const previouslyCopiedAlias = document.querySelector(".alias-copied");
   if (previouslyCopiedAlias) {
     previouslyCopiedAlias.classList.remove("alias-copied");
@@ -99,7 +98,7 @@ function copyToClipboardAndShowMessage(e) {
   }
   aliasCopyBtn.classList.add("alias-copied");
   aliasCopyBtn.title="Alias copied to clipboard";
-  return navigator.clipboard.writeText(aliasToCopy);
+  return;
 }
 
 
@@ -255,10 +254,6 @@ function addEventListeners() {
     });
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
     deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
-  });
-
-  document.querySelectorAll(".relay-address.click-copy").forEach(clickToCopy => {
-    clickToCopy.addEventListener("click", copyToClipboardAndShowMessage);
   });
 
   // Email forwarding toggles
@@ -501,3 +496,9 @@ class GlocalMenu extends HTMLElement {
 }
 
 customElements.define("glocal-menu", GlocalMenu);
+const copyAliasBtn = new ClipboardJS(".relay-address");
+
+
+copyAliasBtn.on("success", (e) => {
+  copyToClipboardAndShowMessage(e.trigger);
+});
