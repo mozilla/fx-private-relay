@@ -99,6 +99,14 @@ a.setting-label:active {
   margin: 0;
 }
 
+.setting-link {
+  margin-bottom: 12px;
+}
+
+.setting-link:last-of-type {
+  margin-bottom: 0;
+}
+
 .settings-header,
 fx-relay-logo-wrapper {
   display: flex;
