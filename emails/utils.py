@@ -124,7 +124,7 @@ def ses_send_raw_email(
     msg.attach(msg_body)
 
     # attach attachments
-    for temp_att_name, actual_att_name in attachments:
+    for temp_att_name, actual_att_name in attachments.items:
         # The full path to the file that will be attached to the email.
         with open(temp_att_name, 'rb') as f:
             # Define the attachment part and encode it using MIMEApplication.
