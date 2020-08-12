@@ -16,7 +16,6 @@ from django.apps import apps
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
-from django.template.loader import render_to_string
 
 
 logger = logging.getLogger('events')
@@ -164,7 +163,7 @@ def ses_relay_email(
                 message_body
             )
         relay_address.num_forwarded += 1
-        relay_address.last_used_at = datetime.now()
+        relay_address.last_used_at = datetime.now(timezone.utc)
         relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
         return response
     except ClientError as e:
