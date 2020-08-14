@@ -289,9 +289,18 @@ function getEmailInputsAndAddIcon() {
   }
 }
 
+async function areInputIconsEnabled() {
+  const { showInputIcons } = await browser.storage.local.get("showInputIcons");
+  if (!showInputIcons) {
+    browser.storage.local.set({ "showInputIcons" : "show-input-icons"})
+    return true;
+  }
+  return (showInputIcons === "show-input-icons");
+}
+
 (async function() {
-  const inputIconPref = await browser.storage.local.get("showInputIcons");
-  if (inputIconPref.showInputIcons !== "show-input-icons") {
+  const inputIconsAreEnabled = await areInputIconsEnabled();
+  if (!inputIconsAreEnabled) {
     return;
   }
   // Catch all immediately findable email inputs

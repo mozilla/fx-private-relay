@@ -1,5 +1,6 @@
 /* global browser */
 /* global enableDataOptOut */
+/* global areInputIconsEnabled */
 
 function getOnboardingPanels() {
   return {
@@ -125,8 +126,9 @@ async function enableInputIconDisabling() {
   };
 
 
-  const areInputIconsEnabled = await browser.storage.local.get("showInputIcons");
-  stylePrefToggle(areInputIconsEnabled.showInputIcons);
+  const iconsAreEnabled = await areInputIconsEnabled();
+  const userIconChoice = iconsAreEnabled ? "show-input-icons" : "hide-input-icons";
+  stylePrefToggle(userIconChoice);
 
   inputIconVisibilityToggle.addEventListener("click", async() => {
     const userIconPreference = (inputIconVisibilityToggle.dataset.iconVisibilityOption === "disable-input-icon") ? "hide-input-icons" : "show-input-icons";
