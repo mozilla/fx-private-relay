@@ -3,7 +3,6 @@ const RELAY_SITE_ORIGIN = "http://127.0.0.1:8000";
 browser.storage.local.set({ "maxNumAliases": 5 });
 browser.storage.local.set({ "showInputIcons": "show-input-icons" });
 browser.storage.local.set({ "relaySiteOrigin": RELAY_SITE_ORIGIN });
-browser.storage.local.set({ "fxaOauthFlow": `${RELAY_SITE_ORIGIN}/accounts/fxa/login/?process=login` });
 
 
 browser.runtime.onInstalled.addListener(async () => {

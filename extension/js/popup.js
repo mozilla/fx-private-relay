@@ -169,11 +169,10 @@ async function popup() {
     });
   });
 
-  const { fxaOauthFlow } = await browser.storage.local.get("fxaOauthFlow");
   const { relaySiteOrigin } = await browser.storage.local.get("relaySiteOrigin");
 
   document.querySelectorAll(".login-link").forEach(loginLink => {
-    loginLink.href = fxaOauthFlow;
+    loginLink.href = `${relaySiteOrigin}/accounts/profile?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta&utm_content=popup-continue-btn`;
   });
 
   document.querySelectorAll(".dashboard-link").forEach(dashboardLink => {
