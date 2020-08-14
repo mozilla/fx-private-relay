@@ -71,6 +71,9 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0) !important;
   justify-content: flex-start;
   display: flex;
+  width: 100%;
+  margin: 1rem auto 2rem 1rem;
+
 }
 
 fx-relay-logotype {
@@ -100,6 +103,19 @@ fx-relay-logomark {
   margin: auto;
   text-decoration: none;
   font-size: 16px;
+}
+
+.fx-relay-modal-manage-aliases {
+  margin-top: 2rem;
+  height: 48px;
+  border-top: 1px solid #eee;
+  width: 100% !important;
+  text-align: center !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-content: center !important;
+  align-items: center !important;
+  text-decoration: none !important;
 }
 
 fx-relay-logotype,
@@ -132,7 +148,7 @@ fx-relay-logomark {
   min-width: 400px;
   background-color: rgba(255, 255, 255, 1);
   border-radius: 8px;
-  padding: 2rem 2rem calc(50px + 2rem) 2rem;
+  padding: 0;
   box-shadow: 0 7px 12px -3px rgba(28, 28, 29, 0.502);
   display: flex;
   flex-direction: column;
@@ -143,34 +159,14 @@ fx-relay-logomark {
   overflow: hidden;
 }
 
-.fx-relay-modal-message-alias-wrapper {
-  height: 48px;
-  margin-bottom: 12px;
-  font-size: 18px;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  border-bottom: 1px solid #ededf0;
-}
-
 .fx-relay-modal-message {
-  font-size: 17px;
+  font-size: 18px !important;
+  max-width: 250px;
   line-height: 1.5;
   text-align: center;
   color: #2b1e44d6;
-  margin-bottom: 32px;
+  margin-bottom: 1rem;
   font-family: var(--InterUI);
-}
-
-.fx-relay-message-copied {
-  font-size: 12px;
-  background-color: var(--relayViolet);
-  border-radius: 2px;
-  padding: 3px 6px;
-  color: rgba(255, 255, 255, 1);
-  margin-left: 8px;
 }
 
 button.fx-relay-modal-close-button {
@@ -181,16 +177,8 @@ button.fx-relay-modal-close-button {
   background-color: var(--relayGrey20) !important;
   color: var(--relayInk) !important;
   font-size: 17px !important;
-  display: flex !important;
-  align-items: center !important;
-  text-align: center !important;
-  justify-content: center !important;
-  position: absolute !important;
-  bottom: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  min-width: 100%;
-  width: 100%;
+  min-width: 100% !important;
+  width: 100% !important;
 }
 
 /* input icon & icon messaging */
@@ -388,14 +376,18 @@ button.fx-relay-button {
   box-shadow: none !important;
 }
 
-.fx-relay-button:hover{
+
+.fx-relay-new-tab:hover,
+.fx-relay-button:hover {
   background-color: var(--relayGrey20) !important;
 }
 
+.fx-relay-new-tab:focus,
 .fx-relay-button:focus {
   box-shadow: var(--relayButtonFocus);
 }
 
+.fx-relay-new-tab:active,
 .fx-relay-button:active {
   background-color: var(--relayGrey30) !important;
 }
