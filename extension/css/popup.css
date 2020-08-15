@@ -502,10 +502,6 @@ onboarding-panel p {
     font-size: 1rem;
   }
 
-  .message-copied {
-    font-size: 0.8rem;
-  }
-
   .text-link {
     border-bottom: 1px solid var(--relayInk);
   }

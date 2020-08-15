@@ -1,5 +1,6 @@
 /* global browser */
 /* global enableDataOptOut */
+/* global areInputIconsEnabled */
 
 function getOnboardingPanels() {
   return {
@@ -125,8 +126,9 @@ async function enableInputIconDisabling() {
   };
 
 
-  const areInputIconsEnabled = await browser.storage.local.get("showInputIcons");
-  stylePrefToggle(areInputIconsEnabled.showInputIcons);
+  const iconsAreEnabled = await areInputIconsEnabled();
+  const userIconChoice = iconsAreEnabled ? "show-input-icons" : "hide-input-icons";
+  stylePrefToggle(userIconChoice);
 
   inputIconVisibilityToggle.addEventListener("click", async() => {
     const userIconPreference = (inputIconVisibilityToggle.dataset.iconVisibilityOption === "disable-input-icon") ? "hide-input-icons" : "show-input-icons";
@@ -169,11 +171,10 @@ async function popup() {
     });
   });
 
-  const { fxaOauthFlow } = await browser.storage.local.get("fxaOauthFlow");
   const { relaySiteOrigin } = await browser.storage.local.get("relaySiteOrigin");
 
   document.querySelectorAll(".login-link").forEach(loginLink => {
-    loginLink.href = fxaOauthFlow;
+    loginLink.href = `${relaySiteOrigin}/accounts/profile?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta&utm_content=popup-continue-btn`;
   });
 
   document.querySelectorAll(".dashboard-link").forEach(dashboardLink => {
