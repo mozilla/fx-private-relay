@@ -348,7 +348,6 @@ button.fx-relay-menu-generate-alias-btn[disabled] {
   pointer-events: none;
   padding: 0 !important;
   width: 100%;
-  z-index: 99999999999999999;
   box-sizing: border-box;
 }
 
