@@ -683,10 +683,6 @@ table {
   margin: auto 0 auto auto;
 }
 
-.stat-br {
-  margin-bottom: .5em;
-}
-
 .relay-stat {
   flex-direction: column-reverse;
 }
@@ -1694,7 +1690,6 @@ input.input-has-error {
   right: 19px;
   font-size: 13px;
   line-height: 1.25;
-  width: 260px;
   background-color: var(--grey10);
   border: 1px solid var(--grey30);
   box-shadow: var(--dropShadowLight);
@@ -1714,6 +1709,7 @@ input.input-has-error {
 
 .stat-description.blocked-description {
   right: 10px;
+  width: 260px;
 }
 
 .stat-description::before {
@@ -1734,11 +1730,13 @@ input.input-has-error {
 
 .forwarding-description {
   top: 50px;
+  width: 346px;
   bottom: auto;
 }
 
-.stat-br {
-  margin-bottom: .5em;
+.fwd-note {
+  display: inline-block;
+  padding-top: .25em;
 }
 
 @media screen and (max-width: 1050px) {
