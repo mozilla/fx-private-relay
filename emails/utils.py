@@ -100,7 +100,7 @@ def generate_relay_From(original_from_address):
     relay_display_name, relay_from_address = parseaddr(
         settings.RELAY_FROM_ADDRESS
     )
-    encoded_original_address = Header(
+    display_name = Header(
         '%s [via Relay]' % (original_from_address), 'UTF-8'
     )
-    return relay_from_address, encoded_original_address
+    return relay_from_address, display_name.encode()
