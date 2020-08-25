@@ -296,7 +296,7 @@ def _sns_message(message_json):
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders'].get('subject', '')
     email_message = message_from_string(
-        message_json['content'] # , policy=policy.default
+        message_json['content'], policy.EmailPolicy(utf8=False)
     )
 
     text_content, html_content, has_attachment = _get_text_and_html_content(
