@@ -385,8 +385,8 @@ def _get_text_and_html_content(email_message):
                     content = part.get_payload(decode=True)
                     decoded_content = content.decode()
                     logger.error(
-                        'Decode HTML content'
-                        {
+                        'Decode HTML content',
+                        extra={
                             'html-content' : html_content,
                             'content': content,
                             'decoded-content': decoded_content
