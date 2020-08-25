@@ -380,6 +380,16 @@ def _get_text_and_html_content(email_message):
             try:
                 if part.get_content_type() == 'text/plain':
                     text_content = part.get_content()
+                    payload_text = part.get_payload(decode=True)
+                    decoded_payload_text = payload_text.decode()
+                    logger.error(
+                        'Decode text content',
+                        extra={
+                            'text-content' : text_content,
+                            'payload': payload_text,
+                            'decoded-content': decoded_payload_text
+                        }
+                    )
                 if part.get_content_type() == 'text/html':
                     html_content = part.get_content()
                     content = part.get_payload(decode=True)
