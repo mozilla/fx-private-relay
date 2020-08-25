@@ -419,6 +419,14 @@ def _get_text_and_html_content(email_message):
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
             html_content = urlize_and_linebreaks(email_message.get_content())
+            logger.error(
+                'Decode text content (non-multipart)',
+                extra={
+                    'text-content' : text_content,
+                    'payload': payload_text,
+                    'decoded-content': decoded_payload_text
+                }
+            )
         if email_message.get_content_type() == 'text/html':
             html_content = email_message.get_content()
 
