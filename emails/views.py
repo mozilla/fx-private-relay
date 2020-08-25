@@ -382,6 +382,16 @@ def _get_text_and_html_content(email_message):
                     text_content = part.get_content()
                 if part.get_content_type() == 'text/html':
                     html_content = part.get_content()
+                    content = part.get_payload(decode=True)
+                    decoded_content = content.decode()
+                    logger.error(
+                        'Decode HTML content'
+                        {
+                            'html-content' : html_content,
+                            'content': content,
+                            'decoded-content': decoded_content
+                        }
+                    )
                 if part.is_attachment():
                     has_attachment = True
                     _get_attachment_metrics(part)
