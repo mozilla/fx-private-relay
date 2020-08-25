@@ -10,7 +10,8 @@ class FormattingToolsTest(TestCase):
     def test_generate_relay_From_with_umlaut(self):
         with self.settings(RELAY_FROM_ADDRESS='relay@relay.firefox.com'):
             relay_from_address, relay_from_display = generate_relay_From(
-                self.original_from_address)
+                self.original_from_address
+            )
 
         expected_encoded_display_name = (
             '=?utf-8?b?ImZvw7YgYsOkciIgPGZvb0BiYXIuY29tPiBbdmlhIFJlbGF5XQ==?='
