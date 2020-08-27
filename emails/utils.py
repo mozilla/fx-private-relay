@@ -56,7 +56,6 @@ def ses_send_email(from_address, to_address, subject, message_body):
             Source=from_address,
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
-        logger.debug('ses_sent_response', extra=ses_response['MessageId'])
         incr_if_enabled('ses_send_email', 1)
     except ClientError as e:
         logger.error('ses_client_error', extra=e.response['Error'])
@@ -68,19 +67,17 @@ def ses_send_email(from_address, to_address, subject, message_body):
 def ses_send_raw_email(
         from_address, to_address, subject, message_body, attachments
 ):
-    SENDER = from_address
-    RECIPIENT = to_address
-    SUBJECT = subject
-    BODY_TEXT = message_body['Text']['Data']
-    BODY_HTML = message_body['Html']['Data']
-    CHARSET = "UTF-8"
+    # Message body should always be a string, NOT bytes object
+    body_text = message_body['Text']['Data']
+    body_html = message_body['Html']['Data']
+    charset = "UTF-8"
 
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart('mixed')
     # Add subject, from and to lines.
-    msg['Subject'] = SUBJECT
-    msg['From'] = SENDER
-    msg['To'] = RECIPIENT
+    msg['Subject'] = subject
+    msg['From'] = from_address
+    msg['To'] = to_address
 
     # Create a multipart/alternative child container.
     msg_body = MIMEMultipart('alternative')
@@ -88,8 +85,8 @@ def ses_send_raw_email(
     # Encode the text and HTML content and set the character encoding.
     # This step is necessary if you're sending a message with characters
     # outside the ASCII range.
-    textpart = MIMEText(BODY_TEXT.encode(CHARSET), 'plain', CHARSET)
-    htmlpart = MIMEText(BODY_HTML.encode(CHARSET), 'html', CHARSET)
+    textpart = MIMEText(body_text.encode(charset), 'plain', charset)
+    htmlpart = MIMEText(body_html.encode(charset), 'html', charset)
 
     # Add the text and HTML parts to the child container.
     msg_body.attach(textpart)
@@ -128,9 +125,9 @@ def ses_send_raw_email(
         # Provide the contents of the email.
         emails_config = apps.get_app_config('emails')
         response = emails_config.ses_client.send_raw_email(
-            Source=SENDER,
+            Source=from_address,
             Destinations=[
-                RECIPIENT
+                to_address
             ],
             RawMessage={
                 'Data': msg.as_string(),
