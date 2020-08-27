@@ -4,8 +4,6 @@
 
 function getFxAppLinkInfo(localizedBentoStrings, referringSiteURL) {
   return [
-    // Send is temporarily removed from the bento menu
-    // [localizedBentoStrings.fxSend, "https://send.firefox.com/", "fx-send"],
     [localizedBentoStrings.fxMonitor, "https://monitor.firefox.com/", "fx-monitor"],
     [localizedBentoStrings.pocket, "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447", "pocket"],
     [localizedBentoStrings.fxDesktop, `https://www.mozilla.org/firefox/new/?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`, "fx-desktop"],

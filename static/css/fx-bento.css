@@ -169,10 +169,6 @@ a.fx-bento-app-link {
   background-position-x: -18px;
 }
 
-.fx-bento-app-link-span.fx-send::before {
-  background-position-x: -71px;
-}
-
 .fx-bento-app-link-span.fx-monitor::before {
   background-position-x: -88px;
 }
@@ -363,11 +359,6 @@ body.hide-bento firefox-apps > button {
 
   .fx-bento-app-link-span.pocket::before {
     background-position-x: -26px;
-  }
-
-  .fx-bento-app-link-span.fx-send::before {
-    background-position-x: -107px;
-    width: calc(var(--appIconHeight) + 1px);
   }
 
   .fx-bento-app-link-span.fx-monitor::before {
