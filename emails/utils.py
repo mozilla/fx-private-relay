@@ -66,7 +66,8 @@ def ses_send_email(from_address, to_address, subject, message_body):
 
 @time_if_enabled('ses_send_email')
 def ses_send_raw_email(
-        from_address, to_address, subject, message_body, attachments):
+        from_address, to_address, subject, message_body, attachments
+):
     SENDER = from_address
     RECIPIENT = to_address
     SUBJECT = subject
@@ -144,7 +145,8 @@ def ses_send_raw_email(
 
 
 def ses_relay_email(
-        from_address, relay_address, subject, message_body, attachments):
+        from_address, relay_address, subject, message_body, attachments
+):
     relay_from_address, relay_from_display = generate_relay_From(from_address)
     formatted_from_address = str(
         Address(relay_from_display, addr_spec=relay_from_address)
