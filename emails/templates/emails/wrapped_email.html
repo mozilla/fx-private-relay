@@ -39,9 +39,6 @@
               <td width="100%" align="center" style="line-height: 150%;">
                 <p style="color: #363959; font-size: 13px; font-family: sans-serif; margin-top: 0; margin-bottom: 0;">
                   This message was forwarded from <span style="font-family: sans-serif; font-weight: bolder; color: #20123a; text-decoration: none; font-size: 13px;">{{ display_email|safe }}</span> by <a href="{{ SITE_ORIGIN }}" target="_blank" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">Firefox Relay</a>.
-                  {% if has_attachment %}
-                    <br>Relay detected an attachment, but attachments are currently <b>not</b> supported.
-                  {% endif %}
                 </p>
               </td>
             </tr>

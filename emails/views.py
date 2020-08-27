@@ -300,9 +300,7 @@ def _sns_message(message_json):
         message_json['content'], policy=policy.default
     )
 
-    text_content, html_content, has_attachment, attachments = (
-        _get_all_contents(email_message)
-    )
+    text_content, html_content, attachments = _get_all_contents(email_message)
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -316,18 +314,12 @@ def _sns_message(message_json):
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
-            'has_attachment': has_attachment,
         })
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
         incr_if_enabled('email_with_text_content', 1)
         attachment_not_supported = ''
-        if has_attachment:
-            attachment_not_supported = (
-                'Relay detected an attachment, but attachments are currently '
-                'NOT supported.\n'
-            )
         relay_header_text = (
             'This email was sent to your alias '
             '{relay_address}. To stop receiving emails sent to this alias, '
@@ -384,7 +376,6 @@ def _get_attachment_metrics(part):
 def _get_all_contents(email_message):
     text_content = None
     html_content = None
-    has_attachment = False
     attachments = {}
     if email_message.is_multipart():
         for part in email_message.walk():
@@ -394,7 +385,6 @@ def _get_all_contents(email_message):
                 if part.get_content_type() == 'text/html':
                     html_content = part.get_content()
                 if part.is_attachment():
-                    has_attachment = True
                     temp_att_name, actual_att_name, _ = (
                         _get_attachment_metrics(part)
                     )
@@ -417,4 +407,4 @@ def _get_all_contents(email_message):
 
     # TODO: if html_content is still None, wrap the text_content with our
     # header and footer HTML and send that as the html_content
-    return text_content, html_content, has_attachment, attachments
+    return text_content, html_content, attachments
