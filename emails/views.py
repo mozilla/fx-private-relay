@@ -1,5 +1,5 @@
 from email import message_from_string, policy
-from email.utils import parseaddr, _string_transform
+from email.utils import parseaddr
 from hashlib import sha256
 from sentry_sdk import capture_message
 import json
