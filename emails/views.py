@@ -1,5 +1,5 @@
 from email import message_from_string, policy
-from email.utils import parseaddr
+from email.utils import parseaddr, _string_transform
 from hashlib import sha256
 from sentry_sdk import capture_message
 import json
@@ -296,7 +296,7 @@ def _sns_message(message_json):
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders'].get('subject', '')
     email_message = message_from_string(
-        message_json['content'], policy.EmailPolicy(utf8=False)
+        message_json['content'], policy.default
     )
 
     text_content, html_content, has_attachment = _get_text_and_html_content(
@@ -380,28 +380,8 @@ def _get_text_and_html_content(email_message):
             try:
                 if part.get_content_type() == 'text/plain':
                     text_content = part.get_content()
-                    payload_text = part.get_payload(decode=True)
-                    decoded_payload_text = payload_text.decode()
-                    logger.error(
-                        'Decode text content',
-                        extra={
-                            'text-content' : text_content,
-                            'payload': payload_text,
-                            'decoded-content': decoded_payload_text
-                        }
-                    )
                 if part.get_content_type() == 'text/html':
                     html_content = part.get_content()
-                    content = part.get_payload(decode=True)
-                    decoded_content = content.decode()
-                    logger.error(
-                        'Decode HTML content',
-                        extra={
-                            'html-content' : html_content,
-                            'content': content,
-                            'decoded-content': decoded_content
-                        }
-                    )
                 if part.is_attachment():
                     has_attachment = True
                     _get_attachment_metrics(part)
@@ -419,16 +399,6 @@ def _get_text_and_html_content(email_message):
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
             html_content = urlize_and_linebreaks(email_message.get_content())
-            payload_text = email_message.get_payload(decode=True)
-            decoded_payload_text = email_message.decode()
-            logger.error(
-                'Decode text content (non-multipart)',
-                extra={
-                    'text-content' : text_content,
-                    'payload': payload_text,
-                    'decoded-content': decoded_payload_text
-                }
-            )
         if email_message.get_content_type() == 'text/html':
             html_content = email_message.get_content()
 
