@@ -301,7 +301,7 @@ def _sns_message(message_json):
     )
 
     text_content, html_content, has_attachment, attachments = (
-        _get_text_and_html_content(email_message)
+        _get_all_contents(email_message)
     )
 
     # scramble alias so that clients don't recognize it
@@ -381,7 +381,7 @@ def _get_attachment_metrics(part):
     return attachment.name, fn, ct
 
 
-def _get_text_and_html_content(email_message):
+def _get_all_contents(email_message):
     text_content = None
     html_content = None
     has_attachment = False
