@@ -122,9 +122,14 @@ async function addRelayIconToInput(emailInput) {
   const inputHeight = emailInput.offsetHeight;
 
   const divEl = createElementWithClassList("div", "fx-relay-icon");
-  divEl.style.height = computedInputStyles.height;
-  divEl.style.top = computedInputStyles.marginTop;
-  divEl.style.bottom = computedInputStyles.marginBottom;
+
+  const bottomMargin = parseInt(computedInputStyles.getPropertyValue("margin-bottom"), 10);
+  const topMargin = parseInt(computedInputStyles.getPropertyValue("margin-top"), 10);
+
+  divEl.style.height = computedInputStyles.height - bottomMargin - topMargin + "px"
+
+  divEl.style.top = topMargin ;
+  divEl.style.bottom = `${bottomMargin}px`;
 
 
   const relayIconBtn = createElementWithClassList("button", "fx-relay-button");
