@@ -1,5 +1,6 @@
 import contextlib
 from datetime import datetime, timezone
+from email.header import Header
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -186,6 +187,7 @@ def generate_relay_From(original_from_address):
     relay_display_name, relay_from_address = parseaddr(
         settings.RELAY_FROM_ADDRESS
     )
-    return relay_from_address, '%s [via Relay]' % (
-        original_from_address
+    display_name = Header(
+        '%s [via Relay]' % (original_from_address), 'UTF-8'
     )
+    return relay_from_address, display_name.encode()

@@ -1690,7 +1690,6 @@ input.input-has-error {
   right: 19px;
   font-size: 13px;
   line-height: 1.25;
-  width: 260px;
   background-color: var(--grey10);
   border: 1px solid var(--grey30);
   box-shadow: var(--dropShadowLight);
@@ -1710,6 +1709,7 @@ input.input-has-error {
 
 .stat-description.blocked-description {
   right: 10px;
+  width: 260px;
 }
 
 .stat-description::before {
@@ -1726,6 +1726,17 @@ input.input-has-error {
   top: -7px;
   right: 14px;
   z-index: -1;
+}
+
+.forwarding-description {
+  top: 50px;
+  width: 346px;
+  bottom: auto;
+}
+
+.fwd-note {
+  display: inline-block;
+  padding-top: .25em;
 }
 
 @media screen and (max-width: 1050px) {
@@ -1914,6 +1925,10 @@ input.input-has-error {
   .stat-description.blocked-description {
     right: -12px;
     top: 30px;
+  }
+
+  .footer-link {
+    margin: auto 1em auto auto;
   }
 }
 
