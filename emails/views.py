@@ -366,8 +366,7 @@ def _get_attachment_metrics(part):
     attachment = SpooledTemporaryFile(
         max_size=150*1000,  # 150KB max from SES
         suffix=extension,
-        prefix=os.path.splitext(fn)[0],
-        delete=False
+        prefix=os.path.splitext(fn)[0]
     )
     attachment.write(payload)
     return fn, attachment
