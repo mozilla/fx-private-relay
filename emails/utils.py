@@ -97,10 +97,9 @@ def ses_send_raw_email(
     msg.attach(msg_body)
 
     # attach attachments
-    for temp_att_name, actual_att_name in attachments.items():
-        with open(temp_att_name, 'rb') as f:
-            # Define the attachment part and encode it using MIMEApplication.
-            att = MIMEApplication(f.read())
+    for actual_att_name, attachment in attachments.items():
+        # Define the attachment part and encode it using MIMEApplication.
+        att = MIMEApplication(attachment.read())
 
         # Add a header to tell the email client to treat this
         # part as an attachment, and to give the attachment a name.
@@ -111,15 +110,13 @@ def ses_send_raw_email(
         )
         # Add the attachment to the parent container.
         msg.attach(att)
-        os.unlink(temp_att_name)
-        if os.path.exists(temp_att_name):
-            logger.info(
-                'Attachment not removed from temporary storage',
-                extra={
-                    'FileExists': os.path.exists(temp_att_name),
-                    'TemporaryPath': temp_att_name
-                }
-            )
+        attachment.close()
+        logger.info(
+            'Attachment not removed from temporary storage',
+            extra={
+                'AttachmentClosed': attachment.closed,
+            }
+        )
 
     try:
         # Provide the contents of the email.

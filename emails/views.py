@@ -2,12 +2,12 @@ from email import message_from_string, policy
 from email.utils import parseaddr
 from hashlib import sha256
 from sentry_sdk import capture_message
+from tempfile import SpooledTemporaryFile
 import json
 import logging
 import mimetypes
 import os
 import re
-import tempfile
 
 from markus.utils import generate_tag
 
@@ -363,14 +363,14 @@ def _get_attachment_metrics(part):
         [attachment_extension_tag, attachment_content_type_tag]
     )
 
-    attachment = tempfile.NamedTemporaryFile(
+    attachment = SpooledTemporaryFile(
+        max_size=150*1000,  # 150KB max from SES
         suffix=extension,
         prefix=os.path.splitext(fn)[0],
         delete=False
     )
     attachment.write(payload)
-    attachment.close()
-    return attachment.name, fn, ct
+    return fn, attachment
 
 
 def _get_all_contents(email_message):
@@ -385,10 +385,10 @@ def _get_all_contents(email_message):
                 if part.get_content_type() == 'text/html':
                     html_content = part.get_content()
                 if part.is_attachment():
-                    temp_att_name, actual_att_name, _ = (
+                    att_name, att = (
                         _get_attachment_metrics(part)
                     )
-                    attachments[temp_att_name] = actual_att_name
+                    attachments[att_name] = att
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
