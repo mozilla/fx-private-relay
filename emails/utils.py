@@ -100,6 +100,7 @@ def ses_send_raw_email(
     # attach attachments
     for actual_att_name, attachment in attachments.items():
         # Define the attachment part and encode it using MIMEApplication.
+        attachment.seek(0)
         att = MIMEApplication(attachment.read())
 
         # Add a header to tell the email client to treat this
