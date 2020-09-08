@@ -113,12 +113,6 @@ def ses_send_raw_email(
         # Add the attachment to the parent container.
         msg.attach(att)
         attachment.close()
-        logger.info(
-            'Attachment not removed from temporary storage',
-            extra={
-                'AttachmentClosed': attachment.closed,
-            }
-        )
 
     try:
         # Provide the contents of the email.
