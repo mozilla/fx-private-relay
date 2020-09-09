@@ -346,14 +346,6 @@ def _get_attachment_metrics(part):
         extension = os.path.splitext(fn)[1]
     else:
         extension = mimetypes.guess_extension(ct)
-    logger.error(
-        'Attachment found in email',
-        extra={
-            'content-type': ct,
-            'extension': extension,
-            'payload-size': payload_size
-        }
-    )
     tag_type = 'attachment'
     attachment_extension_tag = generate_tag(tag_type, extension)
     attachment_content_type_tag = generate_tag(tag_type, ct)
