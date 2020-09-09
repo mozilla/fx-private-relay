@@ -336,7 +336,7 @@ def _sns_message(message_json):
     )
 
 
-def _get_attachment_metrics(part):
+def _get_attachment(part):
     incr_if_enabled('email_with_attachment', 1)
     fn = part.get_filename()
     ct = part.get_content_type()
@@ -377,7 +377,7 @@ def _get_all_contents(email_message):
                     html_content = part.get_content()
                 if part.is_attachment():
                     att_name, att = (
-                        _get_attachment_metrics(part)
+                        _get_attachment(part)
                     )
                     attachments[att_name] = att
             except KeyError:
