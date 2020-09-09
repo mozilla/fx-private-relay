@@ -2,6 +2,7 @@ from email import message_from_string, policy
 from email.utils import parseaddr
 from hashlib import sha256
 from sentry_sdk import capture_message
+from tempfile import SpooledTemporaryFile
 import json
 import logging
 import mimetypes
@@ -299,9 +300,7 @@ def _sns_message(message_json):
         message_json['content'], policy=policy.default
     )
 
-    text_content, html_content, has_attachment = _get_text_and_html_content(
-        email_message
-    )
+    text_content, html_content, attachments = _get_all_contents(email_message)
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -315,18 +314,12 @@ def _sns_message(message_json):
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
-            'has_attachment': has_attachment,
         })
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
         incr_if_enabled('email_with_text_content', 1)
         attachment_not_supported = ''
-        if has_attachment:
-            attachment_not_supported = (
-                'Relay detected an attachment, but attachments are currently '
-                'NOT supported.\n'
-            )
         relay_header_text = (
             'This email was sent to your alias '
             '{relay_address}. To stop receiving emails sent to this alias, '
@@ -338,7 +331,9 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
-    return ses_relay_email(from_address, relay_address, subject, message_body)
+    return ses_relay_email(
+        from_address, relay_address, subject, message_body, attachments
+    )
 
 
 def _get_attachment_metrics(part):
@@ -367,15 +362,21 @@ def _get_attachment_metrics(part):
         payload_size,
         [attachment_extension_tag, attachment_content_type_tag]
     )
-    return ct, extension, payload_size
+
+    attachment = SpooledTemporaryFile(
+        max_size=150*1000,  # 150KB max from SES
+        suffix=extension,
+        prefix=os.path.splitext(fn)[0]
+    )
+    attachment.write(payload)
+    return fn, attachment
 
 
-def _get_text_and_html_content(email_message):
+def _get_all_contents(email_message):
     text_content = None
     html_content = None
-    has_attachment = False
+    attachments = {}
     if email_message.is_multipart():
-        email_attachment_count = 0
         for part in email_message.walk():
             try:
                 if part.get_content_type() == 'text/plain':
@@ -383,9 +384,10 @@ def _get_text_and_html_content(email_message):
                 if part.get_content_type() == 'text/html':
                     html_content = part.get_content()
                 if part.is_attachment():
-                    has_attachment = True
-                    _get_attachment_metrics(part)
-                    email_attachment_count += 1
+                    att_name, att = (
+                        _get_attachment_metrics(part)
+                    )
+                    attachments[att_name] = att
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
@@ -393,7 +395,7 @@ def _get_text_and_html_content(email_message):
                     extra={'type': part.get_content_type()}
                 )
         histogram_if_enabled(
-            'attachment.count_per_email', email_attachment_count
+            'attachment.count_per_email', len(attachments)
         )
     else:
         if email_message.get_content_type() == 'text/plain':
@@ -404,4 +406,4 @@ def _get_text_and_html_content(email_message):
 
     # TODO: if html_content is still None, wrap the text_content with our
     # header and footer HTML and send that as the html_content
-    return text_content, html_content, has_attachment
+    return text_content, html_content, attachments
