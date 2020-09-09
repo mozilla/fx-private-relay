@@ -17,6 +17,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
@@ -319,14 +320,17 @@ def _sns_message(message_json):
 
     if text_content:
         incr_if_enabled('email_with_text_content', 1)
-        attachment_not_supported = ''
+        attachment_msg = (
+            'Emails with a maximum size (including headers) of 150KB '
+            'have attachments support. To learn more visit {site}{faq}\n'
+        ).format(site=settings.SITE_ORIGIN, faq=reverse('faq'))
         relay_header_text = (
             'This email was sent to your alias '
             '{relay_address}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
             '{extra_msg}---Begin Email---\n'
         ).format(
-            relay_address=display_email, extra_msg=attachment_not_supported
+            relay_address=display_email, extra_msg=attachment_msg
         )
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
