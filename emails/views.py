@@ -390,7 +390,7 @@ def _get_all_contents(email_message):
         histogram_if_enabled(
             'attachment.count_per_email', len(attachments)
         )
-        if text_content and html_content is None:
+        if text_content is not None and html_content is None:
             html_content = urlize_and_linebreaks(text_content)
     else:
         if email_message.get_content_type() == 'text/plain':
