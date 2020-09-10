@@ -371,15 +371,16 @@ def _get_all_contents(email_message):
     if email_message.is_multipart():
         for part in email_message.walk():
             try:
-                if part.get_content_type() == 'text/plain':
-                    text_content = part.get_content()
-                if part.get_content_type() == 'text/html':
-                    html_content = part.get_content()
                 if part.is_attachment():
                     att_name, att = (
                         _get_attachment(part)
                     )
                     attachments[att_name] = att
+                    continue
+                if part.get_content_type() == 'text/plain':
+                    text_content = part.get_content()
+                if part.get_content_type() == 'text/html':
+                    html_content = part.get_content()
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
