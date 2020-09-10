@@ -326,7 +326,7 @@ def _sns_message(message_json):
             'update the forwarding settings in your dashboard.\n'
             '{extra_msg}---Begin Email---\n'
         ).format(
-            relay_address=display_email, extra_msg=attachment_not_supported
+            relay_address=to_address, extra_msg=attachment_not_supported
         )
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
