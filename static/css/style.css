@@ -500,7 +500,6 @@ ul {
 
 .header-link:hover,
 .header-link:focus,
-
 .footer-link:hover,
 .footer-link:focus {
   opacity: 0.9;
@@ -683,10 +682,6 @@ table {
   margin: auto 0 auto auto;
 }
 
-.relay-stat {
-  flex-direction: column-reverse;
-}
-
 .relay-stat-value {
   font-size: 24px;
   line-height: 1;
@@ -757,6 +752,7 @@ table {
 
 .num-remaining-aliases {
   font-weight: 600;
+  margin-right: 4px;
 }
 
 .dash-create-new-relay {
@@ -1383,10 +1379,6 @@ input.input-has-error {
   opacity: 0.5;
 }
 
-.num-remaining-aliases {
-  margin-right: 4px;
-}
-
 .mobile-menu {
   position: relative;
   z-index: 1;
@@ -1533,7 +1525,7 @@ input.input-has-error {
 }
 
 .dashboard-banners.drop-shadow {
-  box-shadow: 0 12px 18px 2px rgba(34,0,51,.04),0 6px 22px 4px rgba(7,48,114,.12),0 6px 10px -4px rgba(14,13,26,.12);
+  box-shadow: 0 12px 18px 2px rgba(34, 0, 51, .04), 0 6px 22px 4px rgba(7, 48, 114, .12), 0 6px 10px -4px rgba(14, 13, 26, .12);
 }
 
 .banner-content.invisible {
@@ -1550,7 +1542,7 @@ input.input-has-error {
 .banner-hl {
   font-size: 18px;
   font-weight: 700;
-  color: var(--ink)
+  color: var(--ink);
 }
 
 .banner-hl,
@@ -1559,7 +1551,7 @@ input.input-has-error {
 }
 
 .banner-sub {
-  color:#20123abd;
+  color: #20123abd;
   font-size: 15px;
   line-height: 1.4;
 }
@@ -1675,6 +1667,7 @@ input.input-has-error {
 }
 
 .relay-stat {
+  flex-direction: column-reverse;
   position: relative;
 }
 

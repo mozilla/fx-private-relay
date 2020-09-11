@@ -1,0 +1,17 @@
+{
+  "extends": "stylelint-config-standard",
+  "ignoreFiles": ["static/css/*.min.css"],
+  "rules": {
+    "color-hex-case": null,
+    "color-hex-length": null,
+    "declaration-colon-newline-after": null,
+    "indentation": null,
+    "no-descending-specificity": null,
+    "number-leading-zero": null,
+    "rule-empty-line-before": null,
+    "selector-list-comma-newline-after": null,
+    "selector-type-no-unknown": [true, { "ignore": ["custom-elements"] }],
+    "value-list-comma-newline-after": null,
+    "value-keyword-case": null
+  }
+}

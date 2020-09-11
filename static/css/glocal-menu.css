@@ -40,14 +40,14 @@ glocal-menu {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, 0);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 5px rgba(255, 255, 255, 0);
   padding: 0;
   border: none;
   transition: all 0.2s ease;
 }
 
 .avatar-wrapper:hover {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, .3);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0 5px rgba(255, 255, 255, .3);
   transition: all 0.2s ease;
 }
 

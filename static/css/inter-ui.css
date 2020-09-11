@@ -2,8 +2,7 @@
   font-family: 'Inter UI';
   font-style: normal;
   font-weight: 400;
-  src:
-    local("arial"), local("Inter UI"),url("/static/fonts/Inter/Inter-UI-Regular.woff2") format("woff2");
+  src: local("arial"), local("Inter UI"), url("/static/fonts/Inter/Inter-UI-Regular.woff2") format("woff2");
   font-display: swap;
 }
 
@@ -11,7 +10,6 @@
   font-family: 'Inter UI';
   font-style: normal;
   font-weight: 700;
-  src:
-    local("arial"), local("Inter UI"), url("/static/fonts/Inter/Inter-UI-Bold.woff2") format("woff2");
+  src: local("arial"), local("Inter UI"), url("/static/fonts/Inter/Inter-UI-Bold.woff2") format("woff2");
   font-display: swap;
 }
