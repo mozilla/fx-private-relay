@@ -1,7 +1,3 @@
-/* global browser */
-/* global enableDataOptOut */
-/* global areInputIconsEnabled */
-
 function getOnboardingPanels() {
   return {
     "panel1": {

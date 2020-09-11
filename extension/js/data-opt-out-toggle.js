@@ -1,6 +1,8 @@
 "use strict";
 
+/* exported enableDataOptOut */
 
+// eslint-disable-next-line no-redeclare
 async function enableDataOptOut() {
   const dataCollectionPrefToggle = document.querySelector(".data-collection");
   const stylePrefToggle = (userPref) => {

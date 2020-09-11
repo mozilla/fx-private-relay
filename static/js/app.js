@@ -1,5 +1,3 @@
-/* global sendGaPing */
-
 function dismissNotification() {
 	const notification = document.querySelector(".js-notification");
 	notification.classList.toggle("hidden");
@@ -72,6 +70,7 @@ async function updateEmailForwardingPrefs(submitEvent) {
 }
 
 async function sendForm(formAction, formData) {
+  // eslint-disable-next-line no-useless-catch
   try {
     return fetch(formAction, {
       headers: {
