@@ -68,9 +68,6 @@ def ses_send_email(from_address, to_address, subject, message_body):
 def ses_send_raw_email(
         from_address, to_address, subject, message_body, attachments
 ):
-    # Message body should always be a string, NOT bytes object
-    body_text = message_body['Text']['Data']
-    body_html = message_body['Html']['Data']
     charset = "UTF-8"
 
     # Create a multipart/mixed parent container.
@@ -86,12 +83,14 @@ def ses_send_raw_email(
     # Encode the text and HTML content and set the character encoding.
     # This step is necessary if you're sending a message with characters
     # outside the ASCII range.
-    textpart = MIMEText(body_text.encode(charset), 'plain', charset)
-    htmlpart = MIMEText(body_html.encode(charset), 'html', charset)
-
-    # Add the text and HTML parts to the child container.
-    msg_body.attach(textpart)
-    msg_body.attach(htmlpart)
+    if 'Text' in message_body:
+        body_text = message_body['Text']['Data']
+        textpart = MIMEText(body_text.encode(charset), 'plain', charset)
+        msg_body.attach(textpart)
+    if 'Html' in message_body:
+        body_html = message_body['Html']['Data']
+        htmlpart = MIMEText(body_html.encode(charset), 'html', charset)
+        msg_body.attach(htmlpart)
 
     # Attach the multipart/alternative child container to the multipart/mixed
     # parent container.

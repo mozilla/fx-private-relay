@@ -332,7 +332,7 @@ def _sns_message(message_json):
             'update the forwarding settings in your dashboard.\n'
             '{extra_msg}---Begin Email---\n'
         ).format(
-            relay_address=display_email, extra_msg=attachment_msg
+            relay_address=to_address, extra_msg=attachment_msg
         )
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
@@ -377,15 +377,16 @@ def _get_all_contents(email_message):
     if email_message.is_multipart():
         for part in email_message.walk():
             try:
-                if part.get_content_type() == 'text/plain':
-                    text_content = part.get_content()
-                if part.get_content_type() == 'text/html':
-                    html_content = part.get_content()
                 if part.is_attachment():
                     att_name, att = (
                         _get_attachment(part)
                     )
                     attachments[att_name] = att
+                    continue
+                if part.get_content_type() == 'text/plain':
+                    text_content = part.get_content()
+                if part.get_content_type() == 'text/html':
+                    html_content = part.get_content()
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
@@ -395,6 +396,8 @@ def _get_all_contents(email_message):
         histogram_if_enabled(
             'attachment.count_per_email', len(attachments)
         )
+        if text_content is not None and html_content is None:
+            html_content = urlize_and_linebreaks(text_content)
     else:
         if email_message.get_content_type() == 'text/plain':
             text_content = email_message.get_content()
