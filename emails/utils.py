@@ -182,6 +182,6 @@ def generate_relay_From(original_from_address):
         settings.RELAY_FROM_ADDRESS
     )
     display_name = Header(
-        '%s [via Relay]' % (original_from_address), 'UTF-8'
+        '"' + quote('%s [via Relay]' % (original_from_address)) + '"', 'UTF-8'
     )
     return relay_from_address, display_name.encode()
