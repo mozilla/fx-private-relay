@@ -323,8 +323,8 @@ def _sns_message(message_json):
     if text_content:
         incr_if_enabled('email_with_text_content', 1)
         attachment_msg = (
-            'Emails with a maximum size (including headers) of 150KB '
-            'have attachments support. To learn more visit {site}{faq}\n'
+            'Firefox Relay supports email forwarding (including attachments) '
+            'of email up to 150KB in size. To learn more visit {site}{faq}\n'
         ).format(site=settings.SITE_ORIGIN, faq=reverse('faq'))
         relay_header_text = (
             'This email was sent to your alias '
