@@ -14,7 +14,7 @@ class FormattingToolsTest(TestCase):
             )
 
         expected_encoded_display_name = (
-            '=?utf-8?b?IlwiZm/DtiBiw6RyXCIgPGZvb0BiYXIuY29tPiBbdmlhIFJlbGF5XSI=?='
+            '=?utf-8?b?IiJmb8O2IGLDpHIiIDxmb29AYmFyLmNvbT4gW3ZpYSBSZWxheV0i?='
         )
         assert relay_from_address == 'relay@relay.firefox.com'
         assert relay_from_display == expected_encoded_display_name
