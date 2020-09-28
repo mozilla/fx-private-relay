@@ -5,7 +5,7 @@ import logging
 import os
 
 from google_measurement_protocol import event, report
-from jwt import JWT, jwk_from_dict
+import jwt
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from requests_oauthlib import OAuth2Session
 import sentry_sdk
@@ -38,7 +38,6 @@ FXA_DELETE_EVENT = (
 )
 
 logger = logging.getLogger('events')
-jwt_instance = JWT()
 
 
 def home(request):
@@ -124,8 +123,8 @@ def metrics_event(request):
 
 @csrf_exempt
 def fxa_rp_events(request):
-    jwt = _parse_jwt_from_request(request)
-    authentic_jwt = _authenticate_fxa_jwt(jwt)
+    req_jwt = _parse_jwt_from_request(request)
+    authentic_jwt = _authenticate_fxa_jwt(req_jwt)
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
@@ -151,25 +150,40 @@ def fxa_rp_events(request):
 
 def _parse_jwt_from_request(request):
     request_auth = request.headers['Authorization']
-    jwt = request_auth.split('Bearer ')[1]
-    return jwt
+    return request_auth.split('Bearer ')[1]
 
 
-def _authenticate_fxa_jwt(jwt):
+def _authenticate_fxa_jwt(req_jwt):
     private_relay_config = apps.get_app_config('privaterelay')
-    for verifying_key_json in private_relay_config.fxa_verifying_keys:
-        verifying_key = jwk_from_dict(verifying_key_json)
-        return jwt_instance.decode(jwt, verifying_key)
+    authentic_jwt = _verify_jwt_with_fxa_key(req_jwt, private_relay_config)
+
+    if not authentic_jwt:
+        # FXA key may be old? re-fetch FXA keys and try again
+        private_relay_config.ready()
+        authentic_jwt = _verify_jwt_with_fxa_key(req_jwt, private_relay_config)
+        if not authentic_jwt:
+            raise Exception("Could not authenticate JWT with FXA key.")
+        return authentic_jwt
+
+    return authentic_jwt
+
+
+def _verify_jwt_with_fxa_key(req_jwt, private_relay_config):
+    social_app = SocialApp.objects.get(provider='fxa')
+    for verifying_key in private_relay_config.fxa_verifying_keys:
+        if verifying_key['alg'] == 'RS256':
+            verifying_key = jwt.algorithms.RSAAlgorithm.from_jwk(
+                json.dumps(verifying_key)
+            )
+            return jwt.decode(
+                req_jwt,
+                verifying_key,
+                audience=social_app.client_id,
+                algorithms=['RS256']
+            )
 
 
 def _get_account_from_jwt(authentic_jwt):
-    # Validate the jwt is for this client
-    social_app = SocialApp.objects.get(provider='fxa')
-    if authentic_jwt['aud'] != social_app.client_id:
-        raise PermissionDenied(
-            "JWT client ID does not match this application."
-        )
-    # Validate the jwt is for a user in this application
     social_account_uid = authentic_jwt['sub']
     return SocialAccount.objects.get(uid=social_account_uid)
 
