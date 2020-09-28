@@ -299,6 +299,13 @@ def _sns_message(message_json):
     email_message = message_from_string(
         message_json['content'], policy=policy.default
     )
+    bytes_email_message = message_from_bytes(
+        message_json['content'], policy=policy.default
+    )
+    logger.error('body_message', extra={
+        'message_from_string': email_message,
+        'message_from_bytes': bytes_email_message
+    })
 
     text_content, html_content, attachments = _get_all_contents(email_message)
 
