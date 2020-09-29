@@ -300,7 +300,7 @@ def _sns_message(message_json):
         message_json['content'], policy=policy.default
     )
     bytes_email_message = message_from_bytes(
-        message_json['content'], policy=policy.default
+        message_json['content'].encode('utf-8'), policy=policy.default
     )
     logger.error('body_message', extra={
         'message_from_string': email_message,
