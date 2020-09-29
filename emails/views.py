@@ -1,4 +1,4 @@
-from email import message_from_string, policy
+from email import message_from_bytes, message_from_string, policy
 from email.utils import parseaddr
 from hashlib import sha256
 from sentry_sdk import capture_message
