@@ -163,7 +163,6 @@ def _authenticate_fxa_jwt(req_jwt):
         authentic_jwt = _verify_jwt_with_fxa_key(req_jwt, private_relay_config)
         if not authentic_jwt:
             raise Exception("Could not authenticate JWT with FXA key.")
-        return authentic_jwt
 
     return authentic_jwt
 
