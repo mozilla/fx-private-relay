@@ -4,7 +4,7 @@
   "description": "Firefox Relay",
   "main": "index.js",
   "dependencies": {
-    "web-ext": "^3.2.0"
+    "web-ext": "^5.2.0"
   },
   "devDependencies": {},
   "scripts": {
