@@ -12,6 +12,11 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 ### Requirements
 * python 3.7 (suggest using
   [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/))
+* Postgres - even if you are using sqlite for development, requirements.txt installs
+  psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites). The 
+  following should work:
+    * On Ubuntu: `sudo apt install postgresql libpq-dev`
+    * On OSX: `brew install postgresql libpq`
 * [SES](https://aws.amazon.com/ses/) if you want to send real emails
 
 ### Install and Run the Site Locally
