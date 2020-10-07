@@ -459,6 +459,12 @@ header {
   transition: all 0.5s ease;
 }
 
+.recruitment-banner {
+  background-color: #f9f9fa;
+  padding: .5em;
+  text-align: center;
+}
+
 .header-top {
   z-index: 2;
 }
