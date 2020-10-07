@@ -322,7 +322,7 @@ def _sns_message(message_json):
     if html_content:
         incr_if_enabled('email_with_html_content', 1)
         wrapped_html = render_to_string('emails/wrapped_email.html', {
-            'original_html': html_content,
+            'original_html': b_html_content.decode('UTF-8'),
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
@@ -340,7 +340,7 @@ def _sns_message(message_json):
         ).format(
             relay_address=to_address, extra_msg=attachment_not_supported
         )
-        wrapped_text = relay_header_text + text_content
+        wrapped_text = relay_header_text + b_text_content.decode('UTF-8')
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     return ses_relay_email(
