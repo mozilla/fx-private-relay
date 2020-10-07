@@ -310,8 +310,10 @@ def _sns_message(message_json):
     logger.error('body_message', extra={
         'string-text': text_content,
         'bytes-text': b_text_content,
+        'bytes-text-type': type(b_text_content),
         'string-html': html_content,
         'bytes-html': b_html_content,
+        'bytes-html-type': type(b_html_content),
         'string-attachments': attachments,
         'bytes-attachments': b_attachments
     })
@@ -342,7 +344,7 @@ def _sns_message(message_json):
         ).format(
             relay_address=to_address, extra_msg=attachment_not_supported
         )
-        wrapped_text = relay_header_text + b_text_content.decode('UTF-8')
+        wrapped_text = relay_header_text + b_text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     return ses_relay_email(
