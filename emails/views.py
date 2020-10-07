@@ -310,6 +310,8 @@ def _sns_message(message_json):
     logger.error('body_message', extra={
         'string-text': text_content,
         'bytes-text': b_text_content,
+        'string-html': html_content,
+        'bytes-html': b_html_content,
         'string-attachments': attachments,
         'bytes-attachments': b_attachments
     })
@@ -322,7 +324,7 @@ def _sns_message(message_json):
     if html_content:
         incr_if_enabled('email_with_html_content', 1)
         wrapped_html = render_to_string('emails/wrapped_email.html', {
-            'original_html': b_html_content.decode('UTF-8'),
+            'original_html': b_html_content,
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
