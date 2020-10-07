@@ -209,6 +209,24 @@ function toggleAliasCardDetailsVisibility(aliasCard) {
   window.removeEventListener("resize", resizeAliasDetails);
 }
 
+function recruitmentLogic() {
+  const recruitmentBannerLink = document.querySelector('#recruitment-banner');
+  if (!recruitmentBannerLink) {
+    return;
+  }
+
+  const recruited = document.cookie.split('; ').some((item) => item.trim().startsWith('recruited='));
+  if (recruited) {
+    recruitmentBannerLink.parentElement.remove();
+    return;
+  }
+
+  recruitmentBannerLink.addEventListener("click", () => {
+    const date = new Date();
+    date.setTime(date.getTime() + 30*24*60*60*1000)
+    document.cookie = "recruited=true; expires=" + date.toUTCString();
+  });
+}
 
 function addEventListeners() {
   document.querySelectorAll(".relay-email-card").forEach(aliasCard => {
@@ -391,6 +409,8 @@ document.addEventListener("DOMContentLoaded", () => {
     setHeader(win.pageYOffset);
   };
   showBannersIfNecessary();
+
+  recruitmentLogic();
 });
 
 class GlocalMenu extends HTMLElement {
