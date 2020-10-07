@@ -302,12 +302,17 @@ def _sns_message(message_json):
     bytes_email_message = message_from_bytes(
         message_json['content'].encode('utf-8'), policy=policy.default
     )
-    logger.error('body_message', extra={
-        'message_from_string': email_message,
-        'message_from_bytes': bytes_email_message
-    })
 
     text_content, html_content, attachments = _get_all_contents(email_message)
+    b_text_content, b_html_content, b_attachments = _get_all_contents(
+        bytes_email_message
+    )
+    logger.error('body_message', extra={
+        'string-text': text_content,
+        'bytes-text': b_text_content,
+        'string-attachments': attachments,
+        'bytes-attachments': b_attachments
+    })
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
