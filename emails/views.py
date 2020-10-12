@@ -309,7 +309,7 @@ def _sns_message(message_json):
     )
     logger.error('body_message', extra={
         'message-json': message_json,
-        'message-json-content': message_json['json'],
+        'message-json-content': message_json['content'],
         'string-text': text_content,
         'bytes-text': b_text_content,
         'bytes-text-type': type(b_text_content),
