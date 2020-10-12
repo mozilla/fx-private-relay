@@ -310,7 +310,7 @@ def _sns_message(message_json):
     strip_texts = []
     for item in mail['headers']:
         for k, v in item.items():
-            strip_texts.append(': '.join([k, b]))
+            strip_texts.append(': '.join([k, v]))
     stripped_content = message_json['content']
     for item in strip_texts:
         stipped_content = stripped_content.replace(item, '')
