@@ -307,9 +307,16 @@ def _sns_message(message_json):
     b_text_content, b_html_content, b_attachments = _get_all_contents(
         bytes_email_message
     )
+    strip_texts = []
+    for item in mail['headers']:
+        for k, v in item.items():
+            strip_text.append(': '.join([k, b]))
+    stripped_content = message_json['content']
+    for item in strip_texts:
+        stipped_content = stripped_content.replace(item, '')
     logger.error('body_message', extra={
         'message-json': message_json,
-        'message-json-content': message_json['content'],
+        'message-json-content': stripped_content.lstrip(),
         'string-text': text_content,
         'bytes-text': b_text_content,
         'bytes-text-type': type(b_text_content),
