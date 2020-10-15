@@ -8,10 +8,10 @@ django-referrer-policy==1.0
 dockerflow==2020.6.0
 google-measurement-protocol==1.0.0
 gunicorn==19.9.0
-jwt==0.6.1
 markus[datadog]==2.1.0
 pem==20.1.0
 psycopg2==2.8.4
+PyJWT==1.7.1
 python-decouple==3.1
 pyOpenSSL==19.1.0
 requests==2.23.0

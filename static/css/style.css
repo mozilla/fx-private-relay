@@ -771,7 +771,7 @@ table {
 }
 
 .generate-new-relay-icon {
-  background-image: url("/static/images/plus-sign.svg");
+  background-image: url("/static/images/plus-sign-white.svg");
   background-position: center center;
   background-repeat: no-repeat;
   width: 1.5em;
