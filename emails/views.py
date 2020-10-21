@@ -302,15 +302,11 @@ def _sns_message(message_json):
 
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders'].get('subject', '')
-    email_message = message_from_string(
-        message_json['content'], policy=policy.default
-    )
     bytes_email_message = message_from_bytes(
         message_json['content'].encode('utf-8'), policy=policy.default
     )
 
-    text_content, html_content, attachments = _get_all_contents(email_message)
-    b_text_content, b_html_content, b_attachments = _get_all_contents(
+    text_content, html_content, attachments = _get_all_contents(
         bytes_email_message
     )
     strip_texts = []
@@ -320,18 +316,6 @@ def _sns_message(message_json):
     stripped_content = message_json['content']
     for item in strip_texts:
         stipped_content = stripped_content.replace(item, '')
-    logger.error('body_message', extra={
-        'message-json': message_json,
-        'message-json-content': stripped_content.lstrip(),
-        'string-text': text_content,
-        'bytes-text': b_text_content,
-        'bytes-text-type': type(b_text_content),
-        'string-html': html_content,
-        'bytes-html': b_html_content,
-        'bytes-html-type': type(b_html_content),
-        'string-attachments': attachments,
-        'bytes-attachments': b_attachments
-    })
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -341,7 +325,7 @@ def _sns_message(message_json):
     if html_content:
         incr_if_enabled('email_with_html_content', 1)
         wrapped_html = render_to_string('emails/wrapped_email.html', {
-            'original_html': b_html_content,
+            'original_html': html_content,
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
@@ -364,7 +348,7 @@ def _sns_message(message_json):
         ).format(
             relay_address=to_address, extra_msg=attachment_msg
         )
-        wrapped_text = relay_header_text + b_text_content
+        wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     return ses_relay_email(
