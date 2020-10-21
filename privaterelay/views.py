@@ -168,6 +168,8 @@ def _authenticate_fxa_jwt(req_jwt):
 
 
 def _verify_jwt_with_fxa_key(req_jwt, private_relay_config):
+    if not private_relay_config.fxa_verifying_keys:
+        raise Exception("FXA verifying keys are not available.")
     social_app = SocialApp.objects.get(provider='fxa')
     for verifying_key in private_relay_config.fxa_verifying_keys:
         if verifying_key['alg'] == 'RS256':
