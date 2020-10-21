@@ -462,12 +462,18 @@ header {
 .recruitment-banner {
   text-align: center;
   position: relative;
+  padding: 1em;
 }
 
 #recruitment-banner {
   color: #FFFFFF;
+  text-decoration: none;
+  font-family: var(--metropolis);
+  display: inline-block;
+}
+
+#recruitment-banner:hover {
   text-decoration: underline;
-  padding: .75em;
 }
 
 .recruitment-banner::after {
