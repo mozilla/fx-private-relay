@@ -1,3 +1,5 @@
+/* exported sendGaPing */
+
 /**
  * Returns true or false based on whether doNotTack is enabled. It also takes into account the
  * anomalies, such as !bugzilla 887703, which effect versions of Fx 31 and lower. It also handles
@@ -92,6 +94,7 @@ function handleIntersectingElem(entries, analyticsObserver) {
 	});
 }
 
+// eslint-disable-next-line no-redeclare
 function sendGaPing(eventCategory, eventAction, eventLabel) {
   if (isGoogleAnalyticsAvailable()) {
     return ga("send", "event", eventCategory, eventAction, eventLabel);

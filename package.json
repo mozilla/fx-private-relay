@@ -1,0 +1,26 @@
+{
+  "name": "fx-private-relay",
+  "description": "Private Relay provides generated email addresses to use in place of personal email addresses.",
+  "version": "1.0.0",
+  "author": "Mozilla",
+  "bugs": {
+    "url": "https://github.com/mozilla/fx-private-relay/issues"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^7.8.1"
+  },
+  "homepage": "https://github.com/mozilla/fx-private-relay#readme",
+  "keywords": [],
+  "license": "MPL-2.0",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozilla/fx-private-relay.git"
+  },
+  "scripts": {
+    "lint": "npm run lint:js",
+    "lint:js": "eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

@@ -14,9 +14,11 @@ from markus.utils import generate_tag
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
@@ -74,16 +76,20 @@ def _index_POST(request):
         return _index_DELETE(request_data, user_profile)
 
     incr_if_enabled('emails_index_post', 1)
-    existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
-    if existing_addresses.count() >= settings.MAX_NUM_BETA_ALIASES:
-        if 'moz-extension' in request.headers.get('Origin', ''):
-            return HttpResponse('Payment Required', status=402)
-        messages.error(
-            request, "You already have 5 email addresses. Please upgrade."
-        )
-        return redirect('profile')
 
-    relay_address = RelayAddress.make_relay_address(user_profile.user)
+    with transaction.atomic():
+        locked_profile = Profile.objects.select_for_update().get(
+            user=user_profile.user
+        )
+        if locked_profile.num_active_address >= settings.MAX_NUM_BETA_ALIASES:
+            if 'moz-extension' in request.headers.get('Origin', ''):
+                return HttpResponse('Payment Required', status=402)
+            messages.error(
+                request, "You already have 5 email addresses. Please upgrade."
+            )
+            return redirect('profile')
+        relay_address = RelayAddress.make_relay_address(locked_profile.user)
+
     if 'moz-extension' in request.headers.get('Origin', ''):
         address_string = '%s@%s' % (
             relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
@@ -339,19 +345,24 @@ def _sns_message(message_json):
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
+            'has_attachment': bool(attachments),
+            'faq_page': settings.SITE_ORIGIN + reverse('faq')
         })
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
         incr_if_enabled('email_with_text_content', 1)
-        attachment_not_supported = ''
+        attachment_msg = (
+            'Firefox Relay supports email forwarding (including attachments) '
+            'of email up to 150KB in size. To learn more visit {site}{faq}\n'
+        ).format(site=settings.SITE_ORIGIN, faq=reverse('faq'))
         relay_header_text = (
             'This email was sent to your alias '
             '{relay_address}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
             '{extra_msg}---Begin Email---\n'
         ).format(
-            relay_address=to_address, extra_msg=attachment_not_supported
+            relay_address=to_address, extra_msg=attachment_msg
         )
         wrapped_text = relay_header_text + b_text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
