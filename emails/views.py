@@ -1,4 +1,4 @@
-from email import message_from_string, policy
+from email import message_from_bytes, message_from_string, policy
 from email.utils import parseaddr
 from hashlib import sha256
 from sentry_sdk import capture_message
@@ -302,11 +302,20 @@ def _sns_message(message_json):
 
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders'].get('subject', '')
-    email_message = message_from_string(
-        message_json['content'], policy=policy.default
+    bytes_email_message = message_from_bytes(
+        message_json['content'].encode('utf-8'), policy=policy.default
     )
 
-    text_content, html_content, attachments = _get_all_contents(email_message)
+    text_content, html_content, attachments = _get_all_contents(
+        bytes_email_message
+    )
+    strip_texts = []
+    for item in mail['headers']:
+        for k, v in item.items():
+            strip_texts.append(': '.join([k, v]))
+    stripped_content = message_json['content']
+    for item in strip_texts:
+        stipped_content = stripped_content.replace(item, '')
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
