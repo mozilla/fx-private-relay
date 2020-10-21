@@ -76,7 +76,6 @@ def _index_POST(request):
         return _index_DELETE(request_data, user_profile)
 
     incr_if_enabled('emails_index_post', 1)
-    existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
 
     with transaction.atomic():
         profile = Profile.objects.select_for_update().get(
