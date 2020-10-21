@@ -78,7 +78,7 @@ def _index_POST(request):
     incr_if_enabled('emails_index_post', 1)
 
     with transaction.atomic():
-        profile = Profile.objects.select_for_update().get(
+        locked_profile = Profile.objects.select_for_update().get(
             user=user_profile.user
         )
         if profile.num_active_address >= settings.MAX_NUM_BETA_ALIASES:
@@ -88,7 +88,7 @@ def _index_POST(request):
                 request, "You already have 5 email addresses. Please upgrade."
             )
             return redirect('profile')
-        relay_address = RelayAddress.make_relay_address(profile.user)
+        relay_address = RelayAddress.make_relay_address(locked_profile.user)
 
     if 'moz-extension' in request.headers.get('Origin', ''):
         address_string = '%s@%s' % (
