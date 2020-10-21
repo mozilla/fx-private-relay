@@ -23,6 +23,10 @@ class Profile(models.Model):
     def __str__(self):
         return '%s Profile' % self.user
 
+    @property
+    def num_active_address(self):
+        return RelayAddress.objects.filter(self.user).count()
+
 
 def address_default():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))

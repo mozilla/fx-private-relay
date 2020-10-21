@@ -14,6 +14,7 @@ from markus.utils import generate_tag
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
@@ -76,15 +77,20 @@ def _index_POST(request):
 
     incr_if_enabled('emails_index_post', 1)
     existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
-    if existing_addresses.count() >= settings.MAX_NUM_BETA_ALIASES:
-        if 'moz-extension' in request.headers.get('Origin', ''):
-            return HttpResponse('Payment Required', status=402)
-        messages.error(
-            request, "You already have 5 email addresses. Please upgrade."
-        )
-        return redirect('profile')
 
-    relay_address = RelayAddress.make_relay_address(user_profile.user)
+    with transaction.atomic():
+        profile = Profile.objects.select_for_update().get(
+            user=user_profile.user
+        )
+        if profile.num_active_address >= settings.MAX_NUM_BETA_ALIASES:
+            if 'moz-extension' in request.headers.get('Origin', ''):
+                return HttpResponse('Payment Required', status=402)
+            messages.error(
+                request, "You already have 5 email addresses. Please upgrade."
+            )
+            return redirect('profile')
+        relay_address = RelayAddress.make_relay_address(profile.user)
+
     if 'moz-extension' in request.headers.get('Origin', ''):
         address_string = '%s@%s' % (
             relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
