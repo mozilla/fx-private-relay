@@ -25,7 +25,7 @@ class Profile(models.Model):
 
     @property
     def num_active_address(self):
-        return RelayAddress.objects.filter(self.user).count()
+        return RelayAddress.objects.filter(user=self.user).count()
 
 
 def address_default():
