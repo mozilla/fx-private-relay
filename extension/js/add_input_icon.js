@@ -1,6 +1,4 @@
-/* global browser */
-/* global fillInputWithAlias */
-
+/* exported areInputIconsEnabled */
 
 function closeRelayInPageMenu() {
   const relayIconBtn = document.querySelector(".fx-relay-menu-open");
@@ -289,6 +287,7 @@ function getEmailInputsAndAddIcon() {
   }
 }
 
+// eslint-disable-next-line no-redeclare
 async function areInputIconsEnabled() {
   const { showInputIcons } = await browser.storage.local.get("showInputIcons");
   if (!showInputIcons) {

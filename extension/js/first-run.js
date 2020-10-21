@@ -1,7 +1,5 @@
 "use strict";
 
-/* global enableDataOptOut */
-
 document.addEventListener("DOMContentLoaded", async () => {
   const { relaySiteOrigin } = await browser.storage.local.get("relaySiteOrigin");
 

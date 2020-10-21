@@ -86,7 +86,7 @@ async function makeRelayAddress(domain=null) {
     // FIXME: can this just return newRelayAddressResponse ?
     return {status: 402};
   }
-  newRelayAddressJson = await newRelayAddressResponse.json();
+  let newRelayAddressJson = await newRelayAddressResponse.json();
   if (domain) {
     newRelayAddressJson.domain = domain;
   }

@@ -1,7 +1,5 @@
 "use strict";
 
-/* global ga */
-
 function getFxAppLinkInfo(localizedBentoStrings, referringSiteURL) {
   return [
     [localizedBentoStrings.fxMonitor, "https://monitor.firefox.com/", "fx-monitor"],
