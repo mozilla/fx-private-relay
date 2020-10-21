@@ -1,3 +1,4 @@
+{% load compress %}
 {% load socialaccount %}
 {% load static %}
 
@@ -8,11 +9,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Firefox Relay makes it easy to create email aliases, aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages." />
     <title>Firefox Relay</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="{% static 'css/inter-ui.css' %}">
-    <link rel="stylesheet" href="{% static 'css/metropolis.css' %}">
-    <link rel="stylesheet" href="{% static 'css/fx-bento.css' %}">
-    <link rel="stylesheet" href="{% static 'css/glocal-menu.css' %}">
+    {% compress css %}
+      <link rel="stylesheet" href="{% static 'css/style.css' %}">
+      <link rel="stylesheet" href="{% static 'css/inter-ui.css' %}">
+      <link rel="stylesheet" href="{% static 'css/metropolis.css' %}">
+      <link rel="stylesheet" href="{% static 'css/fx-bento.css' %}">
+      <link rel="stylesheet" href="{% static 'css/glocal-menu.css' %}">
+    {% endcompress %}
     <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
     <link rel=”apple-touch-icon” href="{% static 'images/logos/relay-logo-dark-200.png' %}">
   </head>
@@ -24,9 +27,11 @@
     {% endblock %}
 
     {% include "includes/footer.html" %}
-    <script type="text/javascript" src="{% static 'js/clipboard.min.js' %}" charset="utf-8"></script>
-    <script src="{% static 'js/fx-bento.js' %}"></script>
-    <script src="{% static 'js/app.js' %}"></script>
-    <script src="{% static 'js/analytics.js' %}"></script>
+    {% compress js %}
+      <script type="text/javascript" src="{% static 'js/clipboard.min.js' %}" charset="utf-8"></script>
+      <script src="{% static 'js/fx-bento.js' %}"></script>
+      <script src="{% static 'js/app.js' %}"></script>
+      <script src="{% static 'js/analytics.js' %}"></script>
+    {% endcompress %}
   </body>
 </html>
