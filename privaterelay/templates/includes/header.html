@@ -5,11 +5,11 @@
 
 <header class="flx flx-col spc-btwn">
 
-  <div class="recruitment-banner">
-    {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" %}
+  {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" %}
+    <div class="recruitment-banner">
       <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-funnel-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
-    {% endif %}
-  </div>
+    </div>
+  {% endif %}
 
   <div class="flx flx-row spc-btwn row-full-width header-top">
     <a href="/" class="flx flx-row logo-wrapper" aria-label="Firefox Relay">
