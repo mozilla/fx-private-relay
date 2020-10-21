@@ -81,7 +81,7 @@ def _index_POST(request):
         locked_profile = Profile.objects.select_for_update().get(
             user=user_profile.user
         )
-        if profile.num_active_address >= settings.MAX_NUM_BETA_ALIASES:
+        if locked_profile.num_active_address >= settings.MAX_NUM_BETA_ALIASES:
             if 'moz-extension' in request.headers.get('Origin', ''):
                 return HttpResponse('Payment Required', status=402)
             messages.error(
