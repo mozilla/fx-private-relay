@@ -17,7 +17,7 @@ COPY .env-dist /app/.env
 
 RUN pip install -r requirements.txt
 
-RUN mkdir -p /app/staticfiles
+RUN mkdir -p /app/static
 RUN python manage.py collectstatic --no-input -v 2
 
 ENTRYPOINT ["/app/.local/bin/gunicorn"]
