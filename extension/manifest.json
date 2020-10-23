@@ -56,6 +56,12 @@
       "<all_urls>",
       "storage",
       "contextMenus"
+  ],
+
+  "web_accessible_resources": [
+      "fonts/*",
+      "images/*",
+      "icons/*"
   ]
 
 }

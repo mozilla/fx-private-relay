@@ -361,7 +361,7 @@ button.fx-relay-button {
   height: 30px;
   max-width: 30px !important;
   min-width: 30px;
-  background-image: url("/icons/make-new-alias.png");
+  background-image: url("moz-extension://__MSG_@@extension_id__/icons/make-new-alias.png"), url("chrome-extension://__MSG_@@extension_id__/icons/make-new-alias.png");
   background-repeat: no-repeat;
   background-position: center center;
   background-size: 85%;
