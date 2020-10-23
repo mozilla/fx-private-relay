@@ -17,7 +17,7 @@
   },
 
   "background": {
-      "scripts": ["js/background.js"]
+      "scripts": ["js/browser-polyfill.js", "js/background.js"]
   },
 
   "browser_action": {
@@ -40,13 +40,13 @@
       "matches": [
           "http://127.0.0.1/accounts/profile/**"
       ],
-      "js": ["js/get_profile_data.js"]
+      "js": ["js/browser-polyfill.js", "js/get_profile_data.js"]
     },
     {
       "matches": [
           "<all_urls>"
       ],
-      "js": ["js/add_input_icon.js", "js/fill_relay_address.js", "js/metrics.js"],
+      "js": ["js/browser-polyfill.js", "js/add_input_icon.js", "js/fill_relay_address.js", "js/metrics.js"],
       "css": ["css/relay.css"],
       "all_frames": true
     }
@@ -55,7 +55,7 @@
   "permissions": [
       "<all_urls>",
       "storage",
-      "menus"
+      "contextMenus"
   ]
 
 }
