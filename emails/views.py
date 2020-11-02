@@ -1,4 +1,4 @@
-from email import message_from_string, policy
+from email import message_from_bytes, message_from_string, policy
 from email.utils import parseaddr
 from hashlib import sha256
 from sentry_sdk import capture_message
@@ -14,9 +14,11 @@ from markus.utils import generate_tag
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
@@ -74,16 +76,20 @@ def _index_POST(request):
         return _index_DELETE(request_data, user_profile)
 
     incr_if_enabled('emails_index_post', 1)
-    existing_addresses = RelayAddress.objects.filter(user=user_profile.user)
-    if existing_addresses.count() >= settings.MAX_NUM_BETA_ALIASES:
-        if 'moz-extension' in request.headers.get('Origin', ''):
-            return HttpResponse('Payment Required', status=402)
-        messages.error(
-            request, "You already have 5 email addresses. Please upgrade."
-        )
-        return redirect('profile')
 
-    relay_address = RelayAddress.make_relay_address(user_profile.user)
+    with transaction.atomic():
+        locked_profile = Profile.objects.select_for_update().get(
+            user=user_profile.user
+        )
+        if locked_profile.num_active_address >= settings.MAX_NUM_BETA_ALIASES:
+            if 'moz-extension' in request.headers.get('Origin', ''):
+                return HttpResponse('Payment Required', status=402)
+            messages.error(
+                request, "You already have 5 email addresses. Please upgrade."
+            )
+            return redirect('profile')
+        relay_address = RelayAddress.make_relay_address(locked_profile.user)
+
     if 'moz-extension' in request.headers.get('Origin', ''):
         address_string = '%s@%s' % (
             relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
@@ -296,11 +302,20 @@ def _sns_message(message_json):
 
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders'].get('subject', '')
-    email_message = message_from_string(
-        message_json['content'], policy=policy.default
+    bytes_email_message = message_from_bytes(
+        message_json['content'].encode('utf-8'), policy=policy.default
     )
 
-    text_content, html_content, attachments = _get_all_contents(email_message)
+    text_content, html_content, attachments = _get_all_contents(
+        bytes_email_message
+    )
+    strip_texts = []
+    for item in mail['headers']:
+        for k, v in item.items():
+            strip_texts.append(': '.join([k, v]))
+    stripped_content = message_json['content']
+    for item in strip_texts:
+        stipped_content = stripped_content.replace(item, '')
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -314,19 +329,24 @@ def _sns_message(message_json):
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
+            'has_attachment': bool(attachments),
+            'faq_page': settings.SITE_ORIGIN + reverse('faq')
         })
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
         incr_if_enabled('email_with_text_content', 1)
-        attachment_not_supported = ''
+        attachment_msg = (
+            'Firefox Relay supports email forwarding (including attachments) '
+            'of email up to 150KB in size. To learn more visit {site}{faq}\n'
+        ).format(site=settings.SITE_ORIGIN, faq=reverse('faq'))
         relay_header_text = (
             'This email was sent to your alias '
             '{relay_address}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
             '{extra_msg}---Begin Email---\n'
         ).format(
-            relay_address=to_address, extra_msg=attachment_not_supported
+            relay_address=to_address, extra_msg=attachment_msg
         )
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}

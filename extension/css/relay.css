@@ -349,7 +349,6 @@ button.fx-relay-menu-generate-alias-btn[disabled] {
   padding: 0 !important;
   width: 100%;
   z-index: 99999999999999999;
-  box-sizing: border-box;
 }
 
 .fx-relay-email-input-wrapper > input {

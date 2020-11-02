@@ -12,10 +12,11 @@ EXPOSE 8000
 
 USER app
 
-COPY . /app
-COPY .env-dist /app/.env
-
+COPY --chown=app ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
+
+COPY --chown=app . /app
+COPY --chown=app .env-dist /app/.env
 
 RUN mkdir -p /app/staticfiles
 RUN python manage.py collectstatic --no-input -v 2

@@ -16,5 +16,6 @@ class PrivateRelayConfig(AppConfig):
             '%s/jwks' %
             settings.SOCIALACCOUNT_PROVIDERS['fxa']['OAUTH_ENDPOINT']
         )
-        resp_json = resp.json()
-        self.fxa_verifying_keys = resp_json['keys']
+        if resp.status_code == 200:
+            resp_json = resp.json()
+            self.fxa_verifying_keys = resp_json['keys']

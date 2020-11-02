@@ -66,6 +66,7 @@ async function showModal(modalType) {
 }
 
 
+// eslint-disable-next-line no-redeclare
 function fillInputWithAlias(emailInput, relayAlias) {
   emailInput.value = relayAlias.address;
   emailInput.dispatchEvent(new InputEvent("relay-address", {

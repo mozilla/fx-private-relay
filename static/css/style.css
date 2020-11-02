@@ -459,6 +459,35 @@ header {
   transition: all 0.5s ease;
 }
 
+.recruitment-banner {
+  text-align: center;
+  position: relative;
+  padding: 1em;
+}
+
+#recruitment-banner {
+  color: #FFFFFF;
+  text-decoration: none;
+  font-family: var(--metropolis);
+  display: inline-block;
+}
+
+#recruitment-banner:hover {
+  text-decoration: underline;
+}
+
+.recruitment-banner::after {
+  height: 1px;
+  background: var(--fxGradient);
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: .3;
+}
+
 .header-top {
   z-index: 2;
 }
@@ -767,7 +796,7 @@ table {
 }
 
 .generate-new-relay-icon {
-  background-image: url("/static/images/plus-sign.svg");
+  background-image: url("/static/images/plus-sign-white.svg");
   background-position: center center;
   background-repeat: no-repeat;
   width: 1.5em;

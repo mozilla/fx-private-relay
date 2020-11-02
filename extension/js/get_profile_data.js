@@ -1,5 +1,3 @@
-/* global browser */
-
 (async function () {
   // Get the api token from the account profile page
   const profileMainElement = document.querySelector("#profile-main");
@@ -38,6 +36,7 @@
       aliasLabelInput.placeholder = defaultAliasLabelText;
     }
 
+    // eslint-disable-next-line quotes
     const forbiddenCharacters = `{}()=;'-<>"`;
     const showInputErrorMessage =(errorMessageContent) => {
       aliasLabelInput.classList.add("input-has-error");
