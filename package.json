@@ -8,7 +8,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "stylelint": "^13.7.0",
+    "eslint": "^7.8.1",
+    "stylelint": "^13.7.2",
     "stylelint-config-standard": "^20.0.0"
   },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme",
@@ -20,7 +21,7 @@
     "url": "git+https://github.com/mozilla/fx-private-relay.git"
   },
   "scripts": {
-    "lint": "npm run lint:js",
+    "lint": "npm run lint:js && npm run lint:css",
     "lint:css": "stylelint 'static/css/**/*.css'",
     "lint:js": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1"
