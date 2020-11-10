@@ -13,7 +13,15 @@
       data-event-category="Sign In Buttons"
       data-event-label="sign-in-btn-header"
       class="sign-in button btn-transparent"
-      href="{% provider_login_url 'fxa' process='login' %}">Sign In</a>
+      href="{% provider_login_url 'fxa' process='login' %}">Sign In with FXA</a>
+    <a
+      data-entrypoint="relay-sign-in-header"
+      data-form_type="button"
+      data-ga="send-ga-funnel-pings"
+      data-event-category="Sign In Buttons"
+      data-event-label="sign-in-btn-header"
+      class="sign-in button btn-transparent"
+      href="{% provider_login_url 'google' process='login' %}">Sign In with Google</a>
 	{% else %}
 		{% get_social_accounts request.user as accounts %}
 		<glocal-menu class="glocal-menu">

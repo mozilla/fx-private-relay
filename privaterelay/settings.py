@@ -135,6 +135,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.fxa',
+    'allauth.socialaccount.providers.google',
 
     'privaterelay.apps.PrivateRelayConfig',
 ]
@@ -290,6 +291,10 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {'access_type': 'offline'},
         'OAUTH_ENDPOINT': config('FXA_OAUTH_ENDPOINT', 'https://oauth.accounts.firefox.com/v1'),
         'PROFILE_ENDPOINT': config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'),
+    },
+    'google': {
+        'SCOPE': ['profile', 'email',],
+        'AUTH_PARAMS': {'access_type': 'online',}
     }
 }
 
