@@ -11,7 +11,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 ## Development
 ### Requirements
 * python 3.7 (suggest using
-  [virtualenv](http://docs.python-guide.org/en/latest/dev/virtualenvs/))
+  [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
 * Postgres - even if you are using sqlite for development, requirements.txt installs
   psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites). The 
   following should work:
@@ -41,7 +41,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
     ```
 
 4. Copy `.env` file for
-   [`decouple`](https://pypi.python.org/pypi/python-decouple) config:
+   [`decouple`](https://pypi.org/project/python-decouple/) config:
 
     ```sh
     cp .env-dist .env
