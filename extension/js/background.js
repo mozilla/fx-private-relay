@@ -98,9 +98,75 @@ async function makeRelayAddress(domain=null) {
   return newRelayAddressJson;
 }
 
+async function makeRelayCreditCard(domain=null) {
+  const apiToken = await browser.storage.local.get("apiToken");
+
+  if (!apiToken.apiToken) {
+
+    browser.tabs.create({
+      url: RELAY_SITE_ORIGIN,
+    });
+    return;
+  }
+
+  const newRelayAddressUrl = `${RELAY_SITE_ORIGIN}/credit-cards/`;
+  const newRelayAddressResponse = await fetch(newRelayAddressUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: `api_token=${apiToken.apiToken}`,
+    data: {
+      "card_name": domain,
+      "funding_source": "706f8c65-ed59-443c-886f-477fefb8d73d",
+    }
+  });
+  if (newRelayAddressResponse.status === 402) {
+    // FIXME: can this just return newRelayAddressResponse ?
+    return {status: 402};
+  }
+  let newRelayAddressJson = await newRelayAddressResponse.json();
+  console.log(newRelayAddress)
+  if (domain) {
+    newRelayAddressJson.domain = domain;
+  }
+  // TODO: put this into an updateLocalAddresses() function
+  // const localStorageRelayAddresses = await browser.storage.local.get("relayAddresses");
+  // const localRelayAddresses = (Object.keys(localStorageRelayAddresses).length === 0) ? {relayAddresses: []} : localStorageRelayAddresses;
+  // const updatedLocalRelayAddresses = localRelayAddresses.relayAddresses.concat([newRelayAddressJson]);
+  // browser.storage.local.set({relayAddresses: updatedLocalRelayAddresses});
+  return newRelayAddressJson;
+}
+
 async function makeRelayAddressForTargetElement(info, tab) {
   const pageUrl = new URL(info.pageUrl);
   const newRelayAddress = await makeRelayAddress(pageUrl.hostname);
+
+  if (newRelayAddress.status === 402) {
+    browser.tabs.sendMessage(
+      tab.id,
+      {
+        type: "showMaxNumAliasesMessage",
+      });
+    return;
+  }
+
+  browser.tabs.sendMessage(
+      tab.id,
+      {
+        type: "fillTargetWithRelayAddress",
+        targetElementId : info.targetElementId,
+        relayAddress: newRelayAddress,
+      },
+      {
+        frameId: info.frameId,
+    },
+  );
+}
+
+async function makeRelayCreditCardForTargetElement(info, tab) {
+  const pageUrl = new URL(info.pageUrl);
+  const newRelayAddress = await makeRelayCreditCard(pageUrl.hostname);
 
   if (newRelayAddress.status === 402) {
     browser.tabs.sendMessage(
@@ -131,6 +197,12 @@ if (browser.menus) {
     contexts: ["editable"]
   });
 
+  browser.menus.create({
+    id: "fx-private-relay-generate-alias-credit-card",
+    title: "Generate New Credit Card",
+    contexts: ["editable"]
+  });
+
   browser.menus.onClicked.addListener( async (info, tab) => {
     switch (info.menuItemId) {
       case "fx-private-relay-generate-alias":
@@ -140,6 +212,14 @@ if (browser.menus) {
           label: "context-menu-generate-alias"
         });
         await makeRelayAddressForTargetElement(info, tab);
+        break;
+      case "fx-private-relay-generate-alias-credit-card":
+        sendMetricsEvent({
+          category: "Extension: Context Menu",
+          action: "click",
+          label: "context-menu-generate-alias"
+        });
+        await makeRelayCreditCardForTargetElement(info, tab);
         break;
     }
   });
@@ -151,6 +231,9 @@ browser.runtime.onMessage.addListener(async (m) => {
   switch (m.method) {
     case "makeRelayAddress":
       response = await makeRelayAddress(m.domain);
+      break;
+    case "makeRelayCreditCard":
+      response = await makeRelayCreditCard(m.domain);
       break;
     case "updateInputIconPref":
       browser.storage.local.set({ "showInputIcons" : m.iconPref });
