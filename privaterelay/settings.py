@@ -113,6 +113,9 @@ RECRUITMENT_BANNER_TEXT = config('RECRUITMENT_BANNER_TEXT', None)
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)
 
+CREDIT_CARDS_ENABLED = config('CREDIT_CARDS_ENABLED', None)
+PRIVACY_TOKEN = config('PRIVACY_TOKEN', None)
+
 STATSD_ENABLED = config('DJANGO_STATSD_ENABLED', False, cast=bool)
 STATSD_HOST = config('DJANGO_STATSD_HOST', '127.0.0.1')
 STATSD_PORT = config('DJANGO_STATSD_PORT', '8125')
@@ -159,6 +162,10 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
         'phones.apps.PhonesConfig',
     ]
 
+if CREDIT_CARDS_ENABLED:
+    INSTALLED_APPS += [
+        'credit_cards.apps.CreditCardsConfig',
+    ]
 
 def download_xpis(headers, path, url):
     if path.endswith('.xpi'):
@@ -198,12 +205,13 @@ MIDDLEWARE += [
 
 ROOT_URLCONF = 'privaterelay.urls'
 
+TEMPLATE_DIRS = [os.path.join(BASE_DIR, 'privaterelay', 'templates')]
+if CREDIT_CARDS_ENABLED:
+    TEMPLATE_DIRS.append(os.path.join(BASE_DIR, 'credit_cards', 'templates'))
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'privaterelay', 'templates'),
-        ],
+        'DIRS': TEMPLATE_DIRS,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
