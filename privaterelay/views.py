@@ -26,6 +26,8 @@ from allauth.socialaccount.providers.fxa.views import (
     FirefoxAccountsOAuth2Adapter
 )
 
+from credit_cards.models import FundingSource
+from credit_cards.forms import FundingSourceForm, RelayCardForm
 from emails.models import RelayAddress
 from emails.utils import get_post_data_from_request
 
@@ -62,11 +64,26 @@ def profile(request):
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
     )
+    funding_sources = FundingSource.objects.filter(user=request.user).order_by(
+        '-created_at'
+    )
+    relay_cards = []
+    for fs in funding_sources:
+        relay_cards += FundingSource.fetch_credit_card(str(fs.token_uuid))
     fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
     avatar = fxa_account.extra_data['avatar'] if fxa_account else None
-
+    relay_card_form = RelayCardForm(
+        choices=funding_sources.values_list(
+            'token_uuid', 'account_name'
+        ).order_by('account_name')
+    )
     return render(request, 'profile.html', {
-        'relay_addresses': relay_addresses, 'avatar': avatar
+        'relay_addresses': relay_addresses,
+        'funding_sources': funding_sources,
+        'funding_source_form': FundingSourceForm(),
+        'relay_cards': relay_cards,
+        'relay_card_form': relay_card_form,
+        'avatar': avatar
     })
 
 

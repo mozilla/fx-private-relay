@@ -1,0 +1,125 @@
+<div class="alias-list">
+  <div class="flx flx-row dashboard-header inset">
+    <h2 class="section-headline dashboard-headline">Manage your funding sources</h2>
+    <div class="remaining-aliases-wrapper flx al-cntr jst-cntr hide-750">
+      {% include "includes/remaining-aliases.html" %}
+    </div>
+  </div>
+  <div class="flx flx-row flx-end inset wrap-col-600">
+    <div class="show-750 flx al-cntr">
+      {% include "includes/remaining-aliases.html" %}
+    </div>
+    <form action="/credit-cards/funding-source/" class="dash-create" method="POST">
+      <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+      {% csrf_token %}
+      {{ funding_source_form }}
+      <button
+      class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr {%if funding_sources|length == settings.MAX_NUM_BETA_ALIASES %} btn-disabled {% endif %}"
+      type="submit" value="Adding funding source" data-event-label="Add Funding Source"
+
+      {% if relay_funding_sources|length == settings.MAX_NUM_BETA_ALIASES %}
+        title="You have reached the funding source limit for our beta release."
+      {% else %}
+        title="Add funding source"
+      {% endif %}
+      >
+      <span class="generate-new-relay-icon"></span>
+      <span class="generate-new-alias-text">Add Funding Source</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- {% if funding_sources|length == 0 %}
+    {% include "includes/dashboard_onboarding.html" %}
+  {% endif %} -->
+
+  {% for funding_source in funding_sources %}
+    <div class="relay-email {% if relay_card.enabled %} card-enabled {% endif %}" data-relay-address="{{ funding_source.account_name }}" data-relay-address-id="{{ relay_card.last_four }}">
+      <div class="relay-email-row card-top-row flx flx-row inset">
+        <!-- alias label -->
+        <div class="additional-notes hide-mobile">
+          <input data-label="" type="text" maxlength="50" value="" aria-label="Edit the label for this alias" class="relay-email-address-label ff-Met">
+          <span class="saved-confirmation">Label saved!</span>
+          <span class="input-error"></span>
+        </div>
+
+        <!-- enable/disable email forwarding -->
+        <div class="relay-email-column flx flx-row email-forwarding">
+          <form action="{% url 'emails-index' %}" method="POST" class="flx flx-row al-cntr email-forwarding-form">
+            <input type="hidden" name="method_override" value="PUT">
+            <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+            <input type="hidden" name="relay_card_id" value="{{ relay_card.id }}">
+            <span class="forwarding-label-wrapper card-small-text">{% if relay_card.enabled %} forwarding {% else %} blocking {% endif %}</span>
+            {% if relay_card.enabled %}
+            <button type="submit" name="enabled" value="Disable" title="Disable email forwarding for this alias" class="text-center forwarding-toggle"></button>
+            {% else %}
+            <button type="submit" name="enabled" value="Enable" title="Enable email forwarding for this alias" class="text-center forwarding-disabled forwarding-toggle"></button>
+            {% endif %}
+          </form>
+        </div> <!--end enable/disable toggle -->
+      </div>
+      <div class="relay-email-card drop-shadow-light flx flx-col">
+        <div class="relay-email-row card-middle-row card-row flx flx-row">
+          <!--relay address-->
+          <div class="relay-email-column flx flx-col">
+            <span class="relay-email-address-note"></span>
+            <div class="flx flx-row al-cntr">
+              <button title="Click to copy"
+                data-id="{{ relay_card.id }}"
+                data-clipboard-text="{{ relay_card.address }}@{{ RELAY_DOMAIN }}"
+                class="relay-address click-copy ff-Met flx jst-cntr al-cntr">
+                  {{ funding_source.account_name }}
+                  <span class="alias-copied-icon"></span>
+                  <span class="alias-copied-message">Copied!</span>
+              </button>
+            </div>
+            <button class="toggle-details-visibility card-small-text">
+              <span class="show-details-label detail-label flx">Show Details</span>
+              <span class="hide-details-label detail-label flx">Hide Details</span>
+              <span class="detail-label-icon"></span>
+            </button>
+          </div>
+          <div class="relay-email-column alias-stats-wrapper">
+            <div class="nested-grid flx flx-row hide-mobile">
+              {% include "includes/alias-stats.html" %}
+            </div>
+          </div>
+        </div><!-- end row -->
+        <div class="relay-email-row card-row details-wrapper flx">
+          <div class="show-mobile nested-grid flx flx-row">
+            {% include "includes/alias-stats.html" %}
+          </div>
+          <div class="details-row">
+            <section class="relay-email-column details-column flx flx-col">
+              <span class="card-small-text created-label">Created:</span>
+              <span class="email-value card-small-text text-dark">{{ funding_source.created_at|date:"M j, Y" }}</span>
+            </section>
+
+            <!-- funding source token -->
+            <section class="relay-email-column hide-mobile details-column flx flx-col">
+              <span class="relay-email-label email-forwarding-label card-small-text">Funding Token</span>
+              <span class="text-dark demi primary-email-address card-small-text">{{ funding_source.token_uuid }}</span>
+            </section>
+          </div>
+
+
+          <!-- delete email address -->
+          <section class="relay-email-column column-delete center-value">
+            <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr" data-delete-relay="{{ relay_card.address }}@{{ RELAY_DOMAIN }}">
+              <input type="hidden" name="method_override" value="DELETE">
+              <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+              <input type="hidden" name="relay_card_id" value="{{ relay_card.id }}">
+              <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this alias">
+                <span class="remove-label relay-email-label card-small-text">Delete</span>
+              </button>
+            </form>
+          </section> <!--end delete-->
+
+        </div><!--row-end-->
+      </div> <!-- end card-->
+    </div> <!-- end relay-email-->
+  {% endfor %}
+  <div> <!-- informtaion footer -->
+    Firefox Relay does not store any of your banking information. All this information is passed to Privacy.com
+  </div> <!-- end informtaion footer -->
+</div><!-- end dashboard-container -->

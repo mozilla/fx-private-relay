@@ -56,3 +56,8 @@ if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
     urlpatterns += [
         path('phones/', include('phones.urls')),
     ]
+
+if settings.CREDIT_CARDS_ENABLED:
+    urlpatterns += [
+        path('credit-cards/', include('credit_cards.urls')),
+    ]
