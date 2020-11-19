@@ -46,7 +46,7 @@
       "matches": [
           "<all_urls>"
       ],
-      "js": ["js/add_input_icon.js", "js/fill_relay_address.js", "js/metrics.js"],
+      "js": ["js/fathom.js", "js/email_detector.js", "js/add_input_icon.js", "js/fill_relay_address.js", "js/metrics.js"],
       "css": ["css/relay.css"],
       "all_frames": true
     }

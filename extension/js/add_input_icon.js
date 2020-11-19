@@ -283,9 +283,9 @@ async function addRelayIconToInput(emailInput) {
   sendInPageEvent("input-icon-injected", "input-icon");
 }
 
-function getEmailInputsAndAddIcon() {
-  const getEmailInputs = document.querySelectorAll("input[type='email']");
-  for (const emailInput of getEmailInputs) {
+function getEmailInputsAndAddIcon(domRoot) {
+  const emailInputs = detectEmailInputs(domRoot);
+  for (const emailInput of emailInputs) {
     if (!emailInput.parentElement.classList.contains("fx-relay-email-input-wrapper")) {
       addRelayIconToInput(emailInput);
     }
@@ -308,22 +308,19 @@ async function areInputIconsEnabled() {
     return;
   }
   // Catch all immediately findable email inputs
-  getEmailInputsAndAddIcon();
+  getEmailInputsAndAddIcon(document);
 
   // Catch email inputs that only become findable after
   // the entire page (including JS/CSS/images/etc) is fully loaded.
   window.addEventListener("load", () => {
-    getEmailInputsAndAddIcon();
+    getEmailInputsAndAddIcon(document);
   });
 
   // Create a MutationObserver to watch for dynamically generated email inputs
   const mutationObserver = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
       if (mutation.target.tagName === "FORM") {
-        const emailInput = mutation.target.querySelector("input[type='email']");
-        if (emailInput && !emailInput.parentElement.classList.contains("fx-relay-email-input-wrapper")) {
-          addRelayIconToInput(emailInput);
-        }
+        getEmailInputsAndAddIcon(mutation.target);
       }
     });
   });
