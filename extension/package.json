@@ -1,6 +1,6 @@
 {
   "name": "fx-private-relay",
-  "version": "1.4.6",
+  "version": "1.4.7",
   "description": "Firefox Relay",
   "main": "index.js",
   "dependencies": {
