@@ -5,7 +5,6 @@
  module.exports = {
   // Global options:
   sourceDir: ".",
-  artifactsDir: "../static/downloads/addon/latest/",
   verbose: false,
 
   // Command options:
