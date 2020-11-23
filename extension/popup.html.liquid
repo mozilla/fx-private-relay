@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html id="1">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <title>Firefox Relay</title>
+    <link rel="stylesheet" href="css/relay.css">
+    <link rel="stylesheet" href="css/popup.css">
+    <script src="/js/data-opt-out-toggle.js"></script>
+    <script src="js/add_input_icon.js"></script>
+    <script src="js/popup.js"></script>
+    <script src="js/metrics.js"></script>
+  </head>
+  <body class="fx-relay-panel">
+    <panel-content>
+      <fx-relay-logo-wrapper>
+        <fx-relay-logomark></fx-relay-logomark>
+        <fx-relay-logotype></fx-relay-logotype>
+        <button class="open-settings settings-toggle" title="Settings"></button>
+      </fx-relay-logo-wrapper>
+
+      <settings>
+        <div class="settings-header">
+          <button class="close-settings settings-toggle" title="Return to main panel"></button>
+          <h1 class="settings-hl">Settings</h1>
+        </div>
+        <ul class="settings-list">
+          <li class="setting">
+            <span class="setting-label flex-col">Show Relay icon in email fields on websites</span>
+            <button title="" data-icon-visibility-option="disable-input-icon" class="toggle-icon-in-page-visibility fx-relay-toggle"></button>
+          </li>
+          <li class="setting">
+            <span class="setting-label flex-col">Allow Mozilla to collect interaction data</span>
+            <button title="" class="data-collection fx-relay-toggle"></button>
+          </li>
+          <li class="setting flex-col">
+            <a href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta" class="setting-label setting-link close-popup-after-click" data-event-action="click" data-event-label="panel-leave-feedback-link">Leave Feedback</a>
+            <a href="https://www.mozilla.org/privacy/firefox-relay/?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta" class="setting-label setting-link close-popup-after-click" data-event-action="click" data-event-label="panel-privacy-link">Privacy</a>
+            <a href="https://www.mozilla.org/about/legal/terms/firefox-relay/?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta" class="setting-label setting-link close-popup-after-click" data-event-action="click" data-event-label="panel-terms-of-service">Terms of Service</a>
+          </li>
+        </ul>
+      </settings>
+
+      <sign-up-panel class="sign-up-panel hidden">
+        <span class="fx-relay-font-met welcome">Welcome</span>
+        <p class="intro">
+          Get started by signing in to Relay with your Firefox account.
+        </p>
+        <a class="button sign-in-btn blue-primary-btn close-popup-after-click login-link" data-event-action="click" data-event-label="panel-continue-btn" href="">
+          Continue
+        </a>
+      </sign-up-panel>
+
+      <main-panel class="signed-in-panel hidden">
+        <p class="fx-relay-font-met aliases-remaining remaining-plural">You have <span class="num-aliases-remaining"></span><span class="fx-relay-font-met max-num-aliases"></span> remaining aliases</p>
+        <onboarding-panel>
+          <img class="onboarding-img">
+          <h1 class="onboarding-h1"></h1>
+          <p class="onboarding-p"></p>
+
+          <div class="onboarding-pagination">
+            <button class="panel-nav previous-panel" data-direction="-1" aria-label="Show previous panel"></button>
+            <span class="panel-num fx-relay-font-met">
+              <span class="current-panel"></span>/
+                <span class="total-panels">3</span>
+            </span>
+            <button class="panel-nav next-panel" data-direction="1" aria-label="Go to next panel"></button>
+          </div>
+        </onboarding-panel>
+        <footer>
+          <a class="button fx-relay-new-tab close-popup-after-click footer-button dashboard-link" href="" data-event-action="click" data-event-label="panel-manage-all-aliases-btn">Manage All Aliases</a>
+        </footer>
+      </main-panel>
+    </panel-content>
+  </body>
+</html>

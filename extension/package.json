@@ -8,11 +8,12 @@
   },
   "devDependencies": {},
   "scripts": {
-    "build": "web-ext build && npm run build:clean",
-    "build:clean": "git checkout manifest.json js/background.js popup.html",
-    "build:dev": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net@g' manifest.json js/background.js popup.html && npm run build",
-    "build:stage": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net@g' manifest.json js/background.js popup.html && npm run build",
-    "build:prod": "npm run build:clean && sed -i '' 's/:8000//g'  manifest.json js/background.js popup.html && sed -i '' 's@http://127.0.0.1@https://relay.firefox.com@g' manifest.json js/background.js popup.html && npm run build",
+    "build": "node compile && web-ext build",
+    "build:local": "PORT=:8000 npm run build",
+    "build:dev": "HOST=https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net npm run build",
+    "build:stage": "HOST=https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net npm run build",
+    "build:prod": "HOST=https://relay.firefox.com npm run build",
+    "prebuild": "# npm run lint",
     "lint": "web-ext lint",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -31,5 +32,20 @@
   "bugs": {
     "url": "https://github.com/mozilla/fx-private-relay/issues"
   },
-  "homepage": "https://github.com/mozilla/fx-private-relay#readme"
+  "homepage": "https://github.com/mozilla/fx-private-relay#readme",
+  "webExt": {
+    "sourceDir": ".",
+    "verbose": false,
+    "build": {
+      "overwriteDest": true
+    },
+    "ignoreFiles": [
+      ".DS_Store",
+      "**/*.liquid",
+      "README.*",
+      "package.json",
+      "package-lock.json",
+      "sequence-diagram.*"
+    ]
+  }
 }

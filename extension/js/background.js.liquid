@@ -1,4 +1,4 @@
-const RELAY_SITE_ORIGIN = "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net";
+const RELAY_SITE_ORIGIN = "{{host}}{{port}}";
 
 browser.storage.local.set({ "maxNumAliases": 5 });
 browser.storage.local.set({ "relaySiteOrigin": RELAY_SITE_ORIGIN });

@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Firefox Relay",
-  "version": "1.4.7",
+  "version": "{{ version }}",
 
   "description": "Firefox Relay makes it easy to create email aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages.",
 
@@ -30,11 +30,11 @@
 
   "content_scripts": [
     {
-      "matches": ["https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/**"],
+      "matches": ["{{ host }}/**"],
       "js": ["js/installation_indicator.js"]
     },
     {
-      "matches": ["https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/**"],
+      "matches": ["{{ host }}/accounts/profile/**"],
       "js": ["js/get_profile_data.js"]
     },
     {

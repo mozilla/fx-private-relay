@@ -8,3 +8,8 @@ __pycache__
 web-ext-artifacts/
 static/downloads
 htmlcov
+
+## Generated from .liquid templates...
+extension/manifest.json
+extension/popup.html
+extension/js/background.js
