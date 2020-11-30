@@ -40,10 +40,10 @@
           <form action="/emails/" class="dash-create" method="POST">
             <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
             <button
-            class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr {%if relay_addresses|length == settings.MAX_NUM_BETA_ALIASES %} btn-disabled {% endif %}"
+            class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr {%if relay_addresses|length == settings.MAX_NUM_FREE_ALIASES %} btn-disabled {% endif %}"
             type="submit" value="Generate new alias" data-event-label="Create New Relay Alias"
 
-            {% if relay_addresses|length == settings.MAX_NUM_BETA_ALIASES %}
+            {% if relay_addresses|length == settings.MAX_NUM_FREE_ALIASES %}
               title="You have reached the alias limit for our beta release."
             {% else %}
               title="Generate new alias"
