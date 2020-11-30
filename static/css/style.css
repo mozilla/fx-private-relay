@@ -413,34 +413,6 @@ button:active {
   min-width: 180px;
 }
 
-.beta-banner-container {
-  height: 500px;
-  width: 500px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  overflow: hidden;
-}
-
-.beta-banner {
-  background: var(--fxGradient);
-  padding: 2px 0;
-  color: rgba(255, 255, 255, 1);
-  font-weight: 800;
-  font-size: 1em;
-  transform: rotate(40deg);
-  position: absolute;
-  top: 40px;
-  right: -155px;
-}
-
-.beta-banner-content {
-  background: var(--darkBlueGradient);
-  padding: 20px 200px;
-  opacity: 0.95;
-  box-shadow: 4px 3px 9px 1px rgba(0, 0, 0, 0.1);
-}
-
 header {
   color: var(--white);
   border-bottom: 1px solid var(--inkDark);
@@ -2051,18 +2023,6 @@ input.input-has-error {
 
   .remaining-aliases {
     margin-top: .5em;
-  }
-
-  .beta-banner {
-    top: 23px;
-    font-size: 15px;
-    transform: rotate(31deg);
-    right: -168px;
-  }
-
-  .beta-banner-content {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
   }
 
   .relay-email-card {
