@@ -395,7 +395,7 @@ button:active {
 }
 
 .fx-private-relay-logomark {
-  background-image: url("/static/images/placeholder-logo-beta.svg");
+  background-image: url("/static/images/placeholder-logo.svg");
   background-repeat: no-repeat;
   background-position: left center;
   background-size: contain;

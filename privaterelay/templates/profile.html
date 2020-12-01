@@ -44,7 +44,7 @@
             type="submit" value="Generate new alias" data-event-label="Create New Relay Alias"
 
             {% if relay_addresses|length == settings.MAX_NUM_FREE_ALIASES %}
-              title="You have reached the alias limit for our beta release."
+              title="You have reached the alias limit."
             {% else %}
               title="Generate new alias"
             {% endif %}
