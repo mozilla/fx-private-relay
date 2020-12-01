@@ -23,14 +23,14 @@ async function showModal(modalType) {
   sendModalEvent("viewed-modal", "modal-max-aliases");
   const modalMessage = document.createElement("span");
 
-  modalMessage.textContent = "You've reached the alias limit for our beta release.";
+  modalMessage.textContent = "You've reached the alias limit.";
   modalMessage.classList = ["fx-relay-modal-message"];
   modalContent.appendChild(modalMessage);
 
   const manageAliasesLink = document.createElement("a");
   manageAliasesLink.textContent = "Manage All Aliases";
   manageAliasesLink.classList = ["fx-relay-new-tab fx-relay-modal-manage-aliases"];
-  manageAliasesLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_campaign=beta&utm_content=manage-relay-addresses`;
+  manageAliasesLink.href = `${relaySiteOrigin}?utm_source=fx-relay-addon&utm_medium=context-menu-modal&utm_content=manage-relay-addresses`;
 
   manageAliasesLink.addEventListener("click", async(e) => {
     e.preventDefault();
