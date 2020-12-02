@@ -6,7 +6,7 @@
   "description": "Firefox Relay makes it easy to create email aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages.",
 
   "icons": {
-    "48": "icons/placeholder-logo-beta.png"
+    "48": "icons/placeholder-logo.png"
   },
 
   "browser_specific_settings": {
@@ -23,7 +23,7 @@
   "browser_action": {
       "browser_style": true,
       "default_icon": {
-          "32": "icons/placeholder-logo-beta.png"
+          "32": "icons/placeholder-logo.png"
       },
       "default_popup": "popup.html"
   },

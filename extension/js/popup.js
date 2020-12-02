@@ -170,11 +170,11 @@ async function popup() {
   const { relaySiteOrigin } = await browser.storage.local.get("relaySiteOrigin");
 
   document.querySelectorAll(".login-link").forEach(loginLink => {
-    loginLink.href = `${relaySiteOrigin}/accounts/profile?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta&utm_content=popup-continue-btn`;
+    loginLink.href = `${relaySiteOrigin}/accounts/profile?utm_source=fx-relay-addon&utm_medium=popup&utm_content=popup-continue-btn`;
   });
 
   document.querySelectorAll(".dashboard-link").forEach(dashboardLink => {
-    dashboardLink.href = `${relaySiteOrigin}/accounts/profile?utm_source=fx-relay-addon&utm_medium=popup&utm_campaign=beta&utm_content=manage-relay-addresses`;
+    dashboardLink.href = `${relaySiteOrigin}/accounts/profile?utm_source=fx-relay-addon&utm_medium=popup&utm_content=manage-relay-addresses`;
   });
 }
 

@@ -157,7 +157,7 @@ browser.runtime.onMessage.addListener(async (m) => {
       break;
     case "openRelayHomepage":
       browser.tabs.create({
-        url: `${RELAY_SITE_ORIGIN}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_campaign=beta&utm_content=go-to-fx-relay`,
+        url: `${RELAY_SITE_ORIGIN}?utm_source=fx-relay-addon&utm_medium=input-menu&utm_content=go-to-fx-relay`,
       });
       break;
     case "sendMetricsEvent":
