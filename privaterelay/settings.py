@@ -219,7 +219,7 @@ TEMPLATES = [
     },
 ]
 
-MAX_NUM_FREE_ALIASES = config('MAX_NUM_FREE_ALIASES', None, cast=int)
+MAX_NUM_FREE_ALIASES = config('MAX_NUM_FREE_ALIASES', 5, cast=int)
 
 WSGI_APPLICATION = 'privaterelay.wsgi.application'
 
