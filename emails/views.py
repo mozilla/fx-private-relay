@@ -330,7 +330,9 @@ def _sns_message(message_json):
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
             'has_attachment': bool(attachments),
-            'faq_page': settings.SITE_ORIGIN + reverse('faq')
+            'faq_page': settings.SITE_ORIGIN + reverse('faq'),
+            'survey_text': settings.RECRUITMENT_BANNER_TEXT,
+            'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK
         })
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
