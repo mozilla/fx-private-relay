@@ -41,6 +41,10 @@
                   This message was forwarded from <span style="font-family: sans-serif; font-weight: bolder; color: #20123a; text-decoration: none; font-size: 13px;">{{ display_email|safe }}</span> by <a href="{{ SITE_ORIGIN }}" target="_blank" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">Firefox Relay</a>.
                   {% if has_attachment %}
                     <br>Firefox Relay supports email forwarding (including attachments) of email up to 150KB in size. To learn more check our <a href="{{ faq_page }}" target="_blank" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">FAQ page</a>.
+                  {% else %}
+                    {% if survey_text and survey_link %}
+                    <br><a href="{{ survey_link }}" target="_blank" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">{{ survey_text }}</a>.
+                    {% endif %}
                   {% endif %}
                 </p>
               </td>
