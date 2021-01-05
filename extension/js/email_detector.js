@@ -31,9 +31,9 @@ function attrsMatch(element, attrs, regex) {
  */
 function labelForInputMatches(element, regex) {
     // First check for labels correctly associated with the <input> element
-    let num = 0;
     for (const label of Array.from(element.labels)) {
-        num += numRegexMatches(regex, label.innerText);
+        const numFound = numRegexMatches(regex, label.innerText);
+        if (numFound > 0) return true;
     }
 
     // Then check for a common mistake found in the training set: using the
@@ -42,12 +42,13 @@ function labelForInputMatches(element, regex) {
     if (element.name.length > 0 && form !== null) { // look at nearby elements in general, not just in parent form?
         for (const label of Array.from(form.getElementsByTagName("label"))) {
             if (label.htmlFor.length > 0 && (label.htmlFor === element.name)) {
-                num += numRegexMatches(regex, label.innerText);
+                const numFound = numRegexMatches(regex, label.innerText);
+                if (numFound > 0) return true;
             }
         }
     }
 
-    return num > 0;
+    return false;
 }
 
 const emailRegex = /email|e-mail/gi;
