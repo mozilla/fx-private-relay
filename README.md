@@ -92,7 +92,7 @@ superuser account you created above, and add a social app for Firefox Accounts:
 
    * Provider: Firefox Accounts
    * Name: oauth-stable.dev.lcip.org
-   * Client id: 7477974d5019bdaf
+   * Client id: 9ebfe2c2f9ea3c58
    * Secret key: ping groovecoder for this
    * Sites: 127.0.0.1:8000 -> Chosen sites
 
