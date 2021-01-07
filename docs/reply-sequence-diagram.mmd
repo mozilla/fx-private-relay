@@ -1,0 +1,21 @@
+sequenceDiagram
+    autonumber
+    Sender MTA->>relay.firefox.com: To: abc123@relay.firefox.com <br> Reply-To: replies@sender.com <br> Message-Id: 123
+    Note right of relay.firefox.com: get_reply_address(<br>To=abc123@relay.firefox.com,<br>Reply-To=replies@sender.com<br>Message-Id: 123)<br>realuser@mail.com, reply456
+    rect rgb(192, 192, 192)
+        relay.firefox.com->relay.firefox.com: get_reply_address(<br>To=abc123@relay.firefox.com,<br>Reply-To=replies@sender.com<br>Message-Id: 123)
+        relay.firefox.com->relay.firefox.com: realuser@mail.com, reply456
+    end
+    relay.firefox.com->>Receiver MTA: To: realuser@mail.com <br> Reply-To: reply456@relay.firefox.com <br> Message-Id: 456
+    rect rgb(192, 192, 192)
+        relay.firefox.com->relay.firefox.com: store_message_ids(<br>inbound_Message-Id: 123,<br>outbound_Message-Id: 456)
+    end
+    Receiver MTA->>relay.firefox.com: To: reply456@relay.firefox.com <br> In-Reply-To: 456 <br> Message-Id: 789
+    rect rgb(192, 192, 192)
+        relay.firefox.com->relay.firefox.com: get_sender_address(<br>To: reply456@relay.firefox.com)
+        relay.firefox.com->relay.firefox.com: replies@sender.com
+        relay.firefox.com->relay.firefox.com: get_sender_message_id(<br>In-Reply-To: 456)
+        relay.firefox.com->relay.firefox.com: 123
+        relay.firefox.com->>Sender MTA: To: replies@sender.com <br> From: abc123@relay.firefox.com <br> Reply-To: abc123@relay.firefox.com <br> Message-Id: ABC <br> In-Reply-To: 123
+        relay.firefox.com->>relay.firefox.com: Store: <br> (inbound_Message-Id: 789, outbound_Message-Id: ABC)
+    end

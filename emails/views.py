@@ -262,6 +262,8 @@ def _sns_message(message_json):
             status=400
         )
 
+    from_address = parseaddr(mail['commonHeaders']['from'])[1]
+    reply_to_address = parseaddr(mail['commonHeaders']['reply_to'])[1]
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
     local_portion = to_address.split('@')[0]
 
@@ -273,13 +275,35 @@ def _sns_message(message_json):
 
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
+        '''
+        reply_address = ReplyAddress.objects.get_or_create(
+            relay_address=relay_address, sender_reply_to=reply_to_address
+        )
+        replace Reply-To: with reply_address.address
+        '''
+
+        if not relay_address.enabled:
+            incr_if_enabled('email_for_disabled_address', 1)
+            relay_address.num_blocked += 1
+            relay_address.save(update_fields=['num_blocked'])
+            return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
+        '''
+        try:
+            reply_address = ReplyAddress.objects.get(address=local_portion)
+            replace From: and Reply-To: with reply_address.relay_address.address
+            replace To: with reply_address.sender_reply_to
+            incr_if_enabled('email_for_reply_address', 1)
+        except ReplyAddress.DoesNotExist:
+            return HttpResponse("Address does not exist", status=404)
+        '''
         try:
             DeletedAddress.objects.get(
                 address_hash=local_portion_hash
             )
             incr_if_enabled('email_for_deleted_address', 1)
             # TODO: create a hard bounce receipt rule in SES
+            return HttpResponse("Address deleted.", status=404)
         except DeletedAddress.DoesNotExist:
             incr_if_enabled('email_for_unknown_address', 1)
             logger.error(
@@ -289,6 +313,8 @@ def _sns_message(message_json):
         except DeletedAddress.MultipleObjectsReturned:
             # not sure why this happens on stage but let's handle it
             incr_if_enabled('email_for_deleted_address_multiple', 1)
+
+
         return HttpResponse("Address does not exist", status=404)
 
     # first see if this user is over bounce limits
@@ -328,7 +354,6 @@ def _sns_message(message_json):
         ).hexdigest(),
     })
 
-    from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders'].get('subject', '')
     bytes_email_message = message_from_bytes(
         message_json['content'].encode('utf-8'), policy=policy.default
