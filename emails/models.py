@@ -36,6 +36,17 @@ class CannotMakeAddressException(Exception):
     pass
 
 
+'''
+class ReplyAddress(models.Model):
+    address = models.CharField(
+        max_length=64, default=address_default, unique=True
+    )
+    sender = models.CharField(
+        max_length=64, default=address_default, unique=True
+    )
+    relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE)
+'''
+
 class RelayAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(
