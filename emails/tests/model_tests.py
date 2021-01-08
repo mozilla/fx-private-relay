@@ -39,7 +39,7 @@ class RelayAddressTest(TestCase):
     @patch.multiple('string', ascii_lowercase='a', digits='')
     def test_make_relay_address_doesnt_make_dupe_of_deleted(self):
         test_hash = sha256('aaaaaaaaa'.encode('utf-8')).hexdigest()
-        deleted_address = DeletedAddress.objects.create(address_hash=test_hash)
+        DeletedAddress.objects.create(address_hash=test_hash)
         try:
             RelayAddress.make_relay_address(self.user)
         except CannotMakeAddressException:

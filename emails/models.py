@@ -19,6 +19,12 @@ class Profile(models.Model):
     address_last_deleted = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
+    last_soft_bounce = models.DateTimeField(
+        blank=True, null=True, db_index=True
+    )
+    last_hard_bounce = models.DateTimeField(
+        blank=True, null=True, db_index=True
+    )
 
     def __str__(self):
         return '%s Profile' % self.user
