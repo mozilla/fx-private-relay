@@ -1,4 +1,5 @@
-from email import message_from_bytes, message_from_string, policy
+from datetime import datetime, timedelta, timezone
+from email import message_from_bytes, policy
 from email.utils import parseaddr
 from hashlib import sha256
 from sentry_sdk import capture_message
@@ -13,6 +14,7 @@ from markus.utils import generate_tag
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
@@ -225,8 +227,9 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
 
 def _sns_notification(json_body):
     message_json = json.loads(json_body['Message'])
-    notification_type = message_json['notificationType']
-    if notification_type != 'Received':
+    event_type = message_json.get('eventType')
+    notification_type = message_json.get('notificationType')
+    if notification_type != 'Received' and event_type != 'Bounce':
         logger.error(
             'SNS notification for unsupported type',
             extra={'notification_type': notification_type},
@@ -243,6 +246,8 @@ def _sns_notification(json_body):
 def _sns_message(message_json):
     incr_if_enabled('sns_inbound_Notification_Received', 1)
     mail = message_json['mail']
+    if message_json.get('eventType') == 'Bounce':
+        return _handle_bounce(message_json)
     if 'commonHeaders' not in mail:
         logger.error('SNS message without commonHeaders')
         return HttpResponse(
@@ -268,11 +273,6 @@ def _sns_message(message_json):
 
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
-        if not relay_address.enabled:
-            incr_if_enabled('email_for_disabled_address', 1)
-            relay_address.num_blocked += 1
-            relay_address.save(update_fields=['num_blocked'])
-            return HttpResponse("Address is temporarily disabled.")
     except RelayAddress.DoesNotExist:
         try:
             DeletedAddress.objects.get(
@@ -287,6 +287,31 @@ def _sns_message(message_json):
                 extra={'to_address': to_address}
             )
         return HttpResponse("Address does not exist", status=404)
+
+    # first see if this user is over bounce limits
+    user_profile = relay_address.user.profile_set.first()
+    last_soft_bounce = user_profile.last_soft_bounce
+    last_soft_bounce_allowed = (
+        datetime.now(timezone.utc) -
+        timedelta(days=settings.SOFT_BOUNCE_ALLOWED_DAYS)
+    )
+    if last_soft_bounce and last_soft_bounce > last_soft_bounce_allowed:
+        incr_if_enabled('email_suppressed_for_soft_bounce', 1)
+        return HttpResponse("Address is temporarily disabled.")
+    last_hard_bounce = user_profile.last_hard_bounce
+    last_hard_bounce_allowed = (
+        datetime.now(timezone.utc) -
+        timedelta(days=settings.HARD_BOUNCE_ALLOWED_DAYS)
+    )
+    if last_hard_bounce and last_hard_bounce > last_hard_bounce_allowed:
+        incr_if_enabled('email_suppressed_for_hard_bounce', 1)
+        return HttpResponse("Address is temporarily disabled.")
+
+    if not relay_address.enabled:
+        incr_if_enabled('email_for_disabled_address', 1)
+        relay_address.num_blocked += 1
+        relay_address.save(update_fields=['num_blocked'])
+        return HttpResponse("Address is temporarily disabled.")
 
     incr_if_enabled('email_for_active_address', 1)
     logger.info('email_relay', extra={
@@ -315,7 +340,7 @@ def _sns_message(message_json):
             strip_texts.append(': '.join([k, v]))
     stripped_content = message_json['content']
     for item in strip_texts:
-        stipped_content = stripped_content.replace(item, '')
+        stripped_content = stripped_content.replace(item, '')
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -356,6 +381,35 @@ def _sns_message(message_json):
     return ses_relay_email(
         from_address, relay_address, subject, message_body, attachments
     )
+
+
+def _handle_bounce(message_json):
+    incr_if_enabled('email_bounce', 1)
+    bounce = message_json.get('bounce')
+    bounced_recipients = bounce.get('bouncedRecipients')
+    for recipient in bounced_recipients:
+        try:
+            user = User.objects.get(email=recipient.get('emailAddress'))
+            profile = user.profile_set.first()
+        except User.DoesNotExist:
+            incr_if_enabled('email_bounce_relay_user_gone', 1)
+            # TODO: handle bounce for a user who no longer exists
+            # add to SES account-wide suppression list?
+            return HttpResponse("Address does not exist", status=404)
+        now = datetime.now(timezone.utc)
+        incr_if_enabled(
+            'email_bounce_%s_%s' % (
+                bounce.get('bounceType'), bounce.get('bounceSubType')
+            ),
+            1
+        )
+        if bounce.get('bounceType') == 'Permanent':
+            profile.last_hard_bounce = now
+        if bounce.get('bounceType') == 'Transient':
+            profile.last_soft_bounce = now
+            # TODO: handle sub-types: 'MessageTooLarge', 'AttachmentRejected', 'ContentRejected'
+        profile.save()
+    return HttpResponse("OK", status=200)
 
 
 def _get_attachment(part):

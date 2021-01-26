@@ -47,7 +47,7 @@ if settings.ADMIN_ENABLED:
         path('admin/', admin.site.urls),
     ]
 
-if settings.SOCKETLABS_API_KEY:
+if settings.AWS_SES_CONFIGSET and settings.AWS_SNS_TOPIC:
     urlpatterns += [
         path('emails/', include('emails.urls')),
     ]
