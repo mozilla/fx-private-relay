@@ -135,10 +135,7 @@ def ses_send_raw_email(
 def ses_relay_email(
         from_address, relay_address, subject, message_body, attachments
 ):
-    relay_from_address, relay_from_display = generate_relay_From(from_address)
-    formatted_from_address = str(
-        Address(relay_from_display, addr_spec=relay_from_address)
-    )
+    formatted_from_address = generate_relay_From(from_address)
     try:
         if attachments:
             response = ses_send_raw_email(
@@ -181,7 +178,17 @@ def generate_relay_From(original_from_address):
     relay_display_name, relay_from_address = parseaddr(
         settings.RELAY_FROM_ADDRESS
     )
+    # RFC 2822 says email header lines should only be 78 chars long.
+    # Encoding display names to longer than 78 chars will add wrap
+    # characters which are unsafe. (See https://bugs.python.org/issue39073)
+    # So, truncate the original sender to 32 chars so we can add "[via Relay]"
+    # and encode it all.
+    if len(original_from_address) > 36:
+        original_from_address = '%s ...' % original_from_address[:32]
     display_name = Header(
         '"%s [via Relay]"' % (original_from_address), 'UTF-8'
     )
-    return relay_from_address, display_name.encode()
+    formatted_from_address = str(
+        Address(display_name.encode(), addr_spec=relay_from_address)
+    )
+    return formatted_from_address
