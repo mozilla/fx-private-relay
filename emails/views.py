@@ -286,6 +286,9 @@ def _sns_message(message_json):
                 'Received email for unknown address.',
                 extra={'to_address': to_address}
             )
+        except DeletedAddress.MultipleObjectsReturned:
+            # not sure why this happens on stage but let's handle it
+            incr_if_enabled('email_for_deleted_address_multiple', 1)
         return HttpResponse("Address does not exist", status=404)
 
     # first see if this user is over bounce limits
