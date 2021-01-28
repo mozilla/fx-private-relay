@@ -22,17 +22,25 @@ class FormattingToolsTest(TestCase):
         )
         assert formatted_from_address == expected_formatted_from
 
-    def test_generate_relay_From_with_really_long_address(self):
-        original_from_address = ''.join((
-            'a really long from address that is more ',
-            'than 78 characters because rfc2822 says to start inserting wrap',
-            'characters that could be unsafe <evil@evil.com>',
-        ))
+    def test_generate_relay_From_with_realistic_address(self):
+        original_from_address = 'something real <somethingreal@protonmail.com>'
         formatted_from_address = generate_relay_From(original_from_address)
 
         expected_encoded_display_name = (
-            '=?utf-8?q?=22a_really_long_from_address_that'
-            '__=2E=2E=2E_=5Bvia_Relay=5D=22?='
+            '=?utf-8?q?=22something_real_=3Csomethingreal=40protonmail=2Ecom'
+            '=3E_=5Bvia_Relay=5D=22?='
+        )
+        expected_formatted_from = '%s %s' % (
+            expected_encoded_display_name, '<%s>' % self.relay_from
+        )
+        assert formatted_from_address == expected_formatted_from
+
+    def test_generate_relay_From_with_rfc_2822_invalid_address(self):
+        original_from_address = 'l%sng <long@long.com>' % ('o'*999)
+        formatted_from_address = generate_relay_From(original_from_address)
+
+        expected_encoded_display_name = (
+            '=?utf-8?q?=22l%s_=2E=2E=2E_=5Bvia_Relay=5D=22?=' % ('o'*899)
         )
         expected_formatted_from = '%s %s' % (
             expected_encoded_display_name, '<%s>' % self.relay_from
