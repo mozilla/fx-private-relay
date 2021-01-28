@@ -178,17 +178,19 @@ def generate_relay_From(original_from_address):
     relay_display_name, relay_from_address = parseaddr(
         settings.RELAY_FROM_ADDRESS
     )
-    # RFC 2822 says email header lines should only be 78 chars long.
-    # Encoding display names to longer than 78 chars will add wrap
+    # RFC 2822 says email header lines must not be more than 998 chars long.
+    # Encoding display names to longer than 998 chars will add wrap
     # characters which are unsafe. (See https://bugs.python.org/issue39073)
-    # So, truncate the original sender to 32 chars so we can add "[via Relay]"
-    # and encode it all.
-    if len(original_from_address) > 36:
-        original_from_address = '%s ...' % original_from_address[:32]
+    # So, truncate the original sender to 900 chars so we can add our
+    # "[via Relay] <relayfrom>" and encode it all.
+    if len(original_from_address) > 998:
+        original_from_address = '%s ...' % original_from_address[:900]
     display_name = Header(
         '"%s [via Relay]"' % (original_from_address), 'UTF-8'
     )
     formatted_from_address = str(
-        Address(display_name.encode(), addr_spec=relay_from_address)
+        Address(
+            display_name.encode(maxlinelen=998), addr_spec=relay_from_address
+        )
     )
     return formatted_from_address
