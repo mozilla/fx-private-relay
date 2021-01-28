@@ -178,7 +178,8 @@ def generate_relay_From(original_from_address):
     relay_display_name, relay_from_address = parseaddr(
         settings.RELAY_FROM_ADDRESS
     )
-    # RFC 2822 says email header lines must not be more than 998 chars long.
+    # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
+    # says email header lines must not be more than 998 chars long.
     # Encoding display names to longer than 998 chars will add wrap
     # characters which are unsafe. (See https://bugs.python.org/issue39073)
     # So, truncate the original sender to 900 chars so we can add our
