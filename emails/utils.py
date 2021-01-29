@@ -186,6 +186,14 @@ def generate_relay_From(original_from_address):
     # "[via Relay] <relayfrom>" and encode it all.
     if len(original_from_address) > 998:
         original_from_address = '%s ...' % original_from_address[:900]
+    # line breaks in From: will encode to unsafe chars, so strip them.
+    original_from_address = (
+        original_from_address
+            .replace('\u2028', '')
+            .replace('\r', '')
+            .replace('\n', '')
+    )
+
     display_name = Header(
         '"%s [via Relay]"' % (original_from_address), 'UTF-8'
     )

@@ -46,3 +46,16 @@ class FormattingToolsTest(TestCase):
             expected_encoded_display_name, '<%s>' % self.relay_from
         )
         assert formatted_from_address == expected_formatted_from
+
+    def test_generate_relay_From_with_linebreak_chars(self):
+        original_from_address = '"Ter\ry \n ct\u2028" <info@a...t.org>'
+        formatted_from_address = generate_relay_From(original_from_address)
+
+        expected_encoded_display_name = (
+            '=?utf-8?b?IiJUZXJ5ICBjdCIgPGluZm9AYS4uLnQub3JnPiBbdmlhIFJlbGF5XSI'
+            '=?='
+        )
+        expected_formatted_from = '%s %s' % (
+            expected_encoded_display_name, '<%s>' % self.relay_from
+        )
+        assert formatted_from_address == expected_formatted_from
