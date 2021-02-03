@@ -1,5 +1,3 @@
-/* exported areInputIconsEnabled */
-
 function closeRelayInPageMenu() {
   const relayIconBtn = document.querySelector(".fx-relay-menu-open");
   relayIconBtn.classList.remove("fx-relay-menu-open");
@@ -290,16 +288,6 @@ function getEmailInputsAndAddIcon(domRoot) {
       addRelayIconToInput(emailInput);
     }
   }
-}
-
-// eslint-disable-next-line no-redeclare
-async function areInputIconsEnabled() {
-  const { showInputIcons } = await browser.storage.local.get("showInputIcons");
-  if (!showInputIcons) {
-    browser.storage.local.set({ "showInputIcons" : "show-input-icons"})
-    return true;
-  }
-  return (showInputIcons === "show-input-icons");
 }
 
 (async function() {
