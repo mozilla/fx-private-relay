@@ -84,7 +84,7 @@ def _index_POST(request):
             user=user_profile.user
         )
         if locked_profile.num_active_address >= settings.MAX_NUM_FREE_ALIASES:
-            if 'moz-extension' in request.headers.get('Origin', ''):
+            if not settings.SITE_ORIGIN in request.headers.get('Origin', ''):
                 return HttpResponse('Payment Required', status=402)
             messages.error(
                 request, "You already have 5 email addresses. Please upgrade."
@@ -92,7 +92,7 @@ def _index_POST(request):
             return redirect('profile')
         relay_address = RelayAddress.make_relay_address(locked_profile.user)
 
-    if 'moz-extension' in request.headers.get('Origin', ''):
+    if not settings.SITE_ORIGIN in request.headers.get('Origin', ''):
         address_string = '%s@%s' % (
             relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
         )
