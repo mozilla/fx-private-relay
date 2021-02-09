@@ -64,10 +64,18 @@ def profile(request):
     )
     fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
     avatar = fxa_account.extra_data['avatar'] if fxa_account else None
+    context = {'relay_addresses': relay_addresses, 'avatar': avatar}
 
-    return render(request, 'profile.html', {
-        'relay_addresses': relay_addresses, 'avatar': avatar
-    })
+    profile = request.user.profile_set.first()
+    bounce_status = profile.check_bounce_pause()
+    if bounce_status.paused:
+        context.update({
+            'last_bounce_type': bounce_status.type,
+            'last_bounce_date': profile.last_bounce_date,
+            'next_email_try': profile.next_email_try
+        })
+
+    return render(request, 'profile.html', context)
 
 
 def version(request):
