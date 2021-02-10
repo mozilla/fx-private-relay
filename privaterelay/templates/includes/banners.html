@@ -1,3 +1,15 @@
+    {% if last_bounce_type %}
+<div class="dashboard-banners flx hide-750">
+  <div class="banner-gradient-bg">
+    <div class="bounced-email-banner banner-content flx flx-row">
+      <div class="banner-copy flx flx-col">
+        <p class="banner-hl ff-Met">Relay couldn't deliver your email.</p>
+        <p class="banner-sub">We are currently unable to send email to {{ request.user.email }}. We received a <em>{{ last_bounce_type }}</em> "bounce" from your email provider when trying to forward emails to you. This can happen if Relay couldn't connect to your email provider, or if your mailbox was full. We will try again on {{ next_email_try|date:"SHORT_DATETIME_FORMAT" }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+    {% else %}
 <div class="dashboard-banners flx invisible hide-750">
   <div class="banner-gradient-bg">
     <div class="download-fx-banner banner-content flx flx-row hidden">
@@ -18,3 +30,4 @@
     </div>
   </div>
 </div>
+    {% endif %}

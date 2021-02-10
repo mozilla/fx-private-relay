@@ -1,15 +1,20 @@
-from datetime import datetime
+from collections import namedtuple
+from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import random
 import string
 import uuid
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
 
 emails_config = apps.get_app_config('emails')
+
+
+BounceStatus = namedtuple('BounceStatus', 'paused type')
 
 
 class Profile(models.Model):
@@ -32,6 +37,51 @@ class Profile(models.Model):
     @property
     def num_active_address(self):
         return RelayAddress.objects.filter(user=self.user).count()
+
+    def check_bounce_pause(self):
+        if self.last_hard_bounce:
+            last_hard_bounce_allowed = (
+                datetime.now(timezone.utc) -
+                timedelta(days=settings.HARD_BOUNCE_ALLOWED_DAYS)
+            )
+            if self.last_hard_bounce > last_hard_bounce_allowed:
+                return BounceStatus(True, 'hard')
+            self.last_hard_bounce = None
+            self.save()
+        if self.last_soft_bounce:
+            last_soft_bounce_allowed = (
+                datetime.now(timezone.utc) -
+                timedelta(days=settings.SOFT_BOUNCE_ALLOWED_DAYS)
+            )
+            if self.last_soft_bounce > last_soft_bounce_allowed:
+                return BounceStatus(True, 'soft')
+            self.last_soft_bounce = None
+            self.save()
+        return BounceStatus(False, '')
+
+    @property
+    def next_email_try(self):
+        bounce_pause, bounce_type = self.check_bounce_pause()
+
+        if not bounce_pause:
+            return datetime.now(timezone.utc)
+
+        if bounce_type == 'soft':
+            return self.last_soft_bounce + timedelta(
+                days=settings.SOFT_BOUNCE_ALLOWED_DAYS
+            )
+
+        return self.last_hard_bounce + timedelta(
+            days=settings.HARD_BOUNCE_ALLOWED_DAYS
+        )
+
+    @property
+    def last_bounce_date(self):
+        if self.last_hard_bounce:
+            return self.last_hard_bounce
+        if self.last_soft_bounce:
+            return self.last_soft_bounce
+        return None
 
 
 def address_default():

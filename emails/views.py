@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.utils import parseaddr
 from hashlib import sha256
@@ -293,21 +293,9 @@ def _sns_message(message_json):
 
     # first see if this user is over bounce limits
     user_profile = relay_address.user.profile_set.first()
-    last_soft_bounce = user_profile.last_soft_bounce
-    last_soft_bounce_allowed = (
-        datetime.now(timezone.utc) -
-        timedelta(days=settings.SOFT_BOUNCE_ALLOWED_DAYS)
-    )
-    if last_soft_bounce and last_soft_bounce > last_soft_bounce_allowed:
-        incr_if_enabled('email_suppressed_for_soft_bounce', 1)
-        return HttpResponse("Address is temporarily disabled.")
-    last_hard_bounce = user_profile.last_hard_bounce
-    last_hard_bounce_allowed = (
-        datetime.now(timezone.utc) -
-        timedelta(days=settings.HARD_BOUNCE_ALLOWED_DAYS)
-    )
-    if last_hard_bounce and last_hard_bounce > last_hard_bounce_allowed:
-        incr_if_enabled('email_suppressed_for_hard_bounce', 1)
+    bounce_paused, bounce_type = user_profile.check_bounce_pause()
+    if bounce_paused:
+        incr_if_enabled('email_suppressed_for_%s_bounce' % bounce_type, 1)
         return HttpResponse("Address is temporarily disabled.")
 
     if not relay_address.enabled:
