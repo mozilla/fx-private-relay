@@ -431,24 +431,38 @@ header {
   transition: all 0.5s ease;
 }
 
-.recruitment-banner {
+.recruitment-banner, .micro-survey-banner {
   text-align: center;
   position: relative;
   padding: 1em;
 }
 
-#recruitment-banner {
+#micro-survey-options {
+  padding: 0;
+}
+
+.nps-bookend {
   color: #FFFFFF;
   text-decoration: none;
   font-family: var(--metropolis);
   display: inline-block;
+  padding: 0 1em;
 }
 
-#recruitment-banner:hover {
+#recruitment-banner, .micro-survey-option {
+  color: #FFFFFF;
+  text-decoration: none;
+  font-family: var(--metropolis);
+  display: inline-block;
+  padding: 0 1em;
+}
+
+#recruitment-banner:hover, .micro-survey-option:hover {
+  cursor: pointer;
   text-decoration: underline;
 }
 
-.recruitment-banner::after {
+.recruitment-banner::after, .micro-survey-banner::after {
   height: 1px;
   background: var(--fxGradient);
   content: "";
@@ -1834,6 +1848,10 @@ input.input-has-error {
 @media screen and (max-width: 800px) {
   .relay-stat {
     margin-left: 2em;
+  }
+
+  #micro-survey-banner {
+    display: none;
   }
 }
 

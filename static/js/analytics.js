@@ -117,6 +117,106 @@ function openOauth(clickEvt, entrypointElem) {
   window.location.assign(url);
 }
 
+function setSurveyedCookie() {
+  const date = new Date();
+  date.setTime(date.getTime() + 30*24*60*60*1000)
+  document.cookie = "surveyed=true; expires=" + date.toUTCString();
+  const microSurveyBanner = document.getElementById("micro-survey-banner");
+  if (microSurveyBanner) {
+    microSurveyBanner.remove();
+  }
+}
+
+function analyticsSurveyLogic() {
+
+  if (!isGoogleAnalyticsAvailable) {
+    return;
+  }
+
+  const microSurveyBanner = document.getElementById("micro-survey-banner");
+  if (!microSurveyBanner) {
+    return;
+  }
+
+  const alreadySurveyed = document.cookie.split("; ").some((item) => item.trim().startsWith("surveyed="));
+  if (alreadySurveyed) {
+    microSurveyBanner.remove();
+    return;
+  }
+
+  const surveyPrompt = document.getElementById("micro-survey-prompt");
+  const surveyType = surveyPrompt.dataset.surveyType;
+  const surveyOptions = document.getElementById("micro-survey-options");
+  switch (surveyType) {
+    case "nps": {
+      const notLikely = document.createElement("li");
+      notLikely.textContent = "Not likely";
+      notLikely.classList = "nps-bookend";
+      surveyOptions.appendChild(notLikely);
+      Array.from([...Array(10).keys()], (x, i) => i + 1).forEach(option => {
+        const li = document.createElement("li");
+        li.classList = "micro-survey-option";
+        li.textContent = option;
+        li.dataset.eventCategory = "NPS Survey";
+        li.dataset.eventAction = "submitted";
+        li.dataset.eventValue = option;
+        if (option < 7) {
+          li.dataset.eventLabel = "detractor";
+          li.dataset.npsValue = -1;
+        } else if (option < 9) {
+          li.dataset.eventLabel = "passive";
+          li.dataset.npsValue = 0;
+        } else {
+          li.dataset.eventLabel = "promoter";
+          li.dataset.npsValue = 1;
+        }
+        li.dataset.ga = "send-ga-funnel-pings";
+        li.addEventListener("click", (evt) => {
+          const eventData = li.dataset;
+          ga("send", "event",
+            eventData.eventCategory,
+            eventData.eventAction,
+            eventData.eventLabel,
+            eventData.eventValue,
+            {
+              dimension1: eventData.eventLabel,
+              metric1: 1,
+              metric2: eventData.eventValue,
+              metric3: eventData.npsValue,
+            }
+          );
+        });
+
+        li.addEventListener("click", setSurveyedCookie);
+        surveyOptions.appendChild(li);
+      });
+      const veryLikely = document.createElement("li");
+      veryLikely.textContent = "Very likely";
+      veryLikely.classList = "nps-bookend";
+      surveyOptions.appendChild(veryLikely);
+    break;
+    }
+    case "pmf": {
+      const options = [
+        "Very disappointed", "Somewhat disappointed", "I wouldn't care"
+      ];
+      options.forEach(option => {
+        const li = document.createElement("li");
+        li.classList = "micro-survey-option";
+        li.textContent = option;
+        li.dataset.eventCategory = "PMF Survey";
+        li.dataset.eventAction = "submitted";
+        li.dataset.eventLabel = option;
+        li.dataset.ga = "send-ga-funnel-pings";
+        li.addEventListener("click", setSurveyedCookie);
+        surveyOptions.appendChild(li);
+      });
+      break;
+    }
+  }
+  resetBodyPadding();
+}
+
 
 (()=> {
 // Check for DoNotTrack header before running GA script
@@ -131,6 +231,8 @@ if (!_dntEnabled()) {
     ga("set", "transport", "beacon");
     ga("send", "pageview");
 }
+
+  analyticsSurveyLogic();
 
   const analyticsEventTriggers = document.querySelectorAll("[data-ga='send-ga-funnel-pings']");
 
@@ -154,8 +256,10 @@ if (!_dntEnabled()) {
       if (eventData["entrypoint"]) {
         openOauth(evt, eventTriggeringElem);
       }
+      const eventAction = eventData.eventAction || "Engage";
+      const eventValue = eventData.eventValue || null;
       if (isGoogleAnalyticsAvailable()) {
-        ga("send", "event", eventData.eventCategory, "Engage",  eventData.eventLabel);
+        ga("send", "event", eventData.eventCategory, eventAction,  eventData.eventLabel, eventValue);
       }
     });
   });
