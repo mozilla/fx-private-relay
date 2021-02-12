@@ -163,10 +163,10 @@ function analyticsSurveyLogic() {
         li.dataset.eventCategory = "NPS Survey";
         li.dataset.eventAction = "submitted";
         li.dataset.eventValue = option + 1;
-        if (option < 7) {
+        if (option < 6) {
           li.dataset.eventLabel = "detractor";
           li.dataset.npsValue = -1;
-        } else if (option < 9) {
+        } else if (option < 8) {
           li.dataset.eventLabel = "passive";
           li.dataset.npsValue = 0;
         } else {
