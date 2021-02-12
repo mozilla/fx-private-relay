@@ -144,6 +144,9 @@ function analyticsSurveyLogic() {
     return;
   }
 
+  // Unhide the micro survey
+  microSurveyBanner.classList.remove("hidden");
+
   const surveyPrompt = document.getElementById("micro-survey-prompt");
   const surveyType = surveyPrompt.dataset.surveyType;
   const surveyOptions = document.getElementById("micro-survey-options");

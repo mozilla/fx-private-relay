@@ -10,7 +10,7 @@
       <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-funnel-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
     </div>
   {% elif not request.user.is_anonymous %}
-    <div id="micro-survey-banner" class="micro-survey-banner">
+    <div id="micro-survey-banner" class="micro-survey-banner hidden">
       {% now "s" as now_second %}
       {% if now_second|divisibleby:2 %}
         <span id="micro-survey-prompt" data-survey-type="nps">On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?</span>
