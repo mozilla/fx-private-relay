@@ -153,7 +153,7 @@ function analyticsSurveyLogic() {
       notLikely.textContent = "Not likely";
       notLikely.classList = "nps-bookend";
       surveyOptions.appendChild(notLikely);
-      Array.from([...Array(10).keys()], (x, i) => i + 1).forEach(option => {
+      [...Array(11).keys()].forEach(option => {
         const li = document.createElement("li");
         li.classList = "micro-survey-option";
         li.textContent = option;
@@ -210,6 +210,28 @@ function analyticsSurveyLogic() {
         li.dataset.ga = "send-ga-funnel-pings";
         li.addEventListener("click", setSurveyedCookie);
         surveyOptions.appendChild(li);
+      });
+      break;
+    }
+    case "usability":
+    case "credibility":
+    case "appearance": {
+      const options = [
+        "Strongly disagree", "Disagree", "Agree", "Strongly agree"
+      ];
+      let eventValue = 1;
+      options.forEach(option => {
+        const li = document.createElement("li");
+        li.classList = "micro-survey-option";
+        li.textContent = option;
+        li.dataset.eventCategory = "PMF Survey";
+        li.dataset.eventAction = "submitted";
+        li.dataset.eventLabel = option;
+        li.dataset.eventValue = eventValue;
+        li.dataset.ga = "send-ga-funnel-pings";
+        li.addEventListener("click", setSurveyedCookie);
+        surveyOptions.appendChild(li);
+        eventValue++;
       });
       break;
     }

@@ -11,9 +11,18 @@
     </div>
   {% elif not request.user.is_anonymous %}
     <div id="micro-survey-banner" class="micro-survey-banner">
-      {% now "s" as now_second %}
-      {% if now_second|divisibleby:2 %}
+      {% now "U" as now_second %}
+      {% if now_second|last == "1" or now_second|last == "6" %}
         <span id="micro-survey-prompt" data-survey-type="nps">On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?</span>
+        <ul id="micro-survey-options"></ul>
+      {% elif now_second|last == "2" or now_second|last == "7" %}
+        <span id="micro-survey-prompt" data-survey-type="usability">Is Relay easy to use?</span>
+        <ul id="micro-survey-options"></ul>
+      {% elif now_second|last == "3" or now_second|last == "8" %}
+        <span id="micro-survey-prompt" data-survey-type="credibility">Do you feel confident using Relay?</span>
+        <ul id="micro-survey-options"></ul>
+      {% elif now_second|last == "4" or now_second|last == "9" %}
+        <span id="micro-survey-prompt" data-survey-type="appearance">Does Relay have a clean and simple presentation?</span>
         <ul id="micro-survey-options"></ul>
       {% else %}
         <span id="micro-survey-prompt" data-survey-type="pmf">How would you feel if you could no longer use Relay?</span>
