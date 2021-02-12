@@ -14,10 +14,10 @@
       {% now "s" as now_second %}
       {% if now_second|divisibleby:2 %}
         <span id="micro-survey-prompt" data-survey-type="nps">On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?</span>
-        <ul id="micro-survey-options"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-nps"></ul>
       {% else %}
         <span id="micro-survey-prompt" data-survey-type="pmf">How would you feel if you could no longer use Relay?</span>
-        <ul id="micro-survey-options"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
       {% endif %}
     </div>
   {% endif %}
