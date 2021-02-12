@@ -156,10 +156,10 @@ function analyticsSurveyLogic() {
       notLikely.textContent = "Not likely";
       notLikely.classList = "nps-bookend";
       surveyOptions.appendChild(notLikely);
-      [...Array(11).keys()].forEach(option => {
+      [...Array(10).keys()].forEach(option => {
         const li = document.createElement("li");
         li.classList = "micro-survey-option";
-        li.textContent = option;
+        li.textContent = option + 1;
         li.dataset.eventCategory = "NPS Survey";
         li.dataset.eventAction = "submitted";
         li.dataset.eventValue = option;
