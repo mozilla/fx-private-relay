@@ -162,7 +162,7 @@ function analyticsSurveyLogic() {
         li.textContent = option + 1;
         li.dataset.eventCategory = "NPS Survey";
         li.dataset.eventAction = "submitted";
-        li.dataset.eventValue = option;
+        li.dataset.eventValue = option + 1;
         if (option < 7) {
           li.dataset.eventLabel = "detractor";
           li.dataset.npsValue = -1;
