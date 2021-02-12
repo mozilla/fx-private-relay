@@ -10,23 +10,23 @@
       <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-funnel-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
     </div>
   {% elif not request.user.is_anonymous %}
-    <div id="micro-survey-banner" class="micro-survey-banner">
+    <div id="micro-survey-banner" class="micro-survey-banner hidden">
       {% now "U" as now_second %}
       {% if now_second|last == "1" or now_second|last == "6" %}
         <span id="micro-survey-prompt" data-survey-type="nps">On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?</span>
-        <ul id="micro-survey-options"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-nps"></ul>
       {% elif now_second|last == "2" or now_second|last == "7" %}
         <span id="micro-survey-prompt" data-survey-type="usability">Is Relay easy to use?</span>
-        <ul id="micro-survey-options"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
       {% elif now_second|last == "3" or now_second|last == "8" %}
         <span id="micro-survey-prompt" data-survey-type="credibility">Do you feel confident using Relay?</span>
-        <ul id="micro-survey-options"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
       {% elif now_second|last == "4" or now_second|last == "9" %}
         <span id="micro-survey-prompt" data-survey-type="appearance">Does Relay have a clean and simple presentation?</span>
-        <ul id="micro-survey-options"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
       {% else %}
         <span id="micro-survey-prompt" data-survey-type="pmf">How would you feel if you could no longer use Relay?</span>
-        <ul id="micro-survey-options"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
       {% endif %}
     </div>
   {% endif %}

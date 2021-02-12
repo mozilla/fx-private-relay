@@ -437,16 +437,57 @@ header {
   padding: 1em;
 }
 
-#micro-survey-options {
-  padding: 0;
+.micro-survey-banner {
+  background: rgba(255,255,255,0.1);
 }
+
+.micro-survey-banner.hidden {
+  display: none;
+}
+
+.micro-survey-options {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.micro-survey-options .micro-survey-option {
+  border-radius: 4px;
+  margin-right: 1rem;
+  background-color: var(--violet4);
+  transition: background 0.1s ease-out;
+}
+
+.micro-survey-options .micro-survey-option:hover {
+  background-color: var(--blue3);
+}
+
+
+.micro-survey-options-nps .micro-survey-option {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.micro-survey-options-pmf .micro-survey-option {
+    padding: 0.5rem 0.75rem;
+}
+
+.micro-survey-options li:last-child  {
+  margin-right: 0;
+}
+
 
 .nps-bookend {
   color: #FFFFFF;
   text-decoration: none;
   font-family: var(--metropolis);
   display: inline-block;
-  padding: 0 1em;
+  margin-right: 1rem;
 }
 
 #recruitment-banner, .micro-survey-option {
