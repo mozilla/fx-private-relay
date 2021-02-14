@@ -464,7 +464,7 @@ header {
 }
 
 
-.micro-survey-options-nps .micro-survey-option {
+.micro-survey-options-numeric .micro-survey-option {
     width: 2.5rem;
     height: 2.5rem;
     display: flex;
@@ -473,7 +473,7 @@ header {
 }
 
 
-.micro-survey-options-pmf .micro-survey-option {
+.micro-survey-options-likert .micro-survey-option {
     padding: 0.5rem 0.75rem;
 }
 

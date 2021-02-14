@@ -14,19 +14,19 @@
       {% now "U" as now_second %}
       {% if now_second|last == "1" or now_second|last == "6" %}
         <span id="micro-survey-prompt" data-survey-type="nps">On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-nps"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-numeric"></ul>
       {% elif now_second|last == "2" or now_second|last == "7" %}
         <span id="micro-survey-prompt" data-survey-type="usability">Is Relay easy to use?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
       {% elif now_second|last == "3" or now_second|last == "8" %}
-        <span id="micro-survey-prompt" data-survey-type="credibility">Do you feel confident using Relay?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
+        <span id="micro-survey-prompt" data-survey-type="credibility">Do you feel Relay is trustworthy?</span>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
       {% elif now_second|last == "4" or now_second|last == "9" %}
         <span id="micro-survey-prompt" data-survey-type="appearance">Does Relay have a clean and simple presentation?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
       {% else %}
         <span id="micro-survey-prompt" data-survey-type="pmf">How would you feel if you could no longer use Relay?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-pmf"></ul>
+        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
       {% endif %}
     </div>
   {% endif %}
