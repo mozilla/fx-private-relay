@@ -113,8 +113,12 @@ def lbheartbeat(request):
 
 
 @csrf_exempt
+@require_http_methods(["POST"])
 def metrics_event(request):
-    request_data = json.loads(request.body)
+    try:
+        request_data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'msg': 'Could not decode JSON'}, status=415)
     if 'ga_uuid' not in request_data:
         return JsonResponse({'msg': 'No GA uuid found'}, status=404)
     event_data = event(
