@@ -220,7 +220,7 @@ function analyticsSurveyLogic() {
     case "credibility":
     case "appearance": {
       const options = [
-        "Strongly disagree", "Disagree", "Agree", "Strongly agree"
+        "Strongly disagree", "Disagree", "Unsure", "Agree", "Strongly agree"
       ];
       let eventValue = 1;
       options.forEach(option => {
