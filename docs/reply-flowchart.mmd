@@ -1,0 +1,13 @@
+graph TD
+    A[Email] --> B{"Is In-Reply-To present?"}
+    B --> |Yes| E{"Does a Reply record exist for sha(In-Reply-To)?"}
+    B --> |No| D[[relay_email]]
+    E --> |Yes| F{"Is the email To: replies@relay.firefox.com"}
+    E --> |No| G[[ERROR: Invalid In-Reply-To value]]
+    D --> H[["make_reply_record:<br>relay_id, inbound_id, sha(outbound_id), encrypted(Reply-To)"]]
+    F --> |"Yes; email is from relay user to outside sender"| I[[Decrypt Reply.encrypted_reply_to with In-Reply-To value as key.]]
+    I --> K[["Set<br>To:&lt;decrypted Reply-To&gt;<br>From: relay123@relay.firefox.com<br>Reply-To: relay123@relay.firefox.com"]]
+    F --> |"No; email is from outside sender to relay user"| J[["Set<br>Reply-To: replies@relay.firefox.com"]]
+    J --> L[[Set<br>In-Reply-To: Reply.inbound_id]]
+    K --> L
+    L --> D
