@@ -173,7 +173,6 @@ function analyticsSurveyLogic() {
           li.dataset.eventLabel = "promoter";
           li.dataset.npsValue = 1;
         }
-        li.dataset.ga = "send-ga-funnel-pings";
         li.addEventListener("click", (evt) => {
           const eventData = li.dataset;
           ga("send", "event",
@@ -210,8 +209,16 @@ function analyticsSurveyLogic() {
         li.dataset.eventCategory = "PMF Survey";
         li.dataset.eventAction = "submitted";
         li.dataset.eventLabel = option;
-        li.dataset.ga = "send-ga-funnel-pings";
         li.addEventListener("click", setSurveyedCookie);
+        li.addEventListener("click", (evt) => {
+          const eventData = li.dataset;
+          ga("send", "event",
+            eventData.eventCategory,
+            eventData.eventAction,
+            eventData.eventLabel,
+            eventData.eventValue,
+          );
+        });
         surveyOptions.appendChild(li);
       });
       break;
@@ -238,11 +245,10 @@ function analyticsSurveyLogic() {
         const li = document.createElement("li");
         li.classList = "micro-survey-option";
         li.textContent = option;
-        li.dataset.eventCategory = "SUPR-Q Survey";
+        li.dataset.eventCategory = `SUPR-Q Survey ${surveyType}`;
         li.dataset.eventAction = "submitted";
         li.dataset.eventLabel = option;
         li.dataset.eventValue = eventValue;
-        li.dataset.ga = "send-ga-funnel-pings";
         li.addEventListener("click", setSurveyedCookie);
         li.addEventListener("click", (evt) => {
           const eventData = li.dataset;
@@ -257,9 +263,9 @@ function analyticsSurveyLogic() {
             eventData.eventValue,
             gaFieldsObject
           );
-          surveyOptions.appendChild(li);
-          eventValue++;
         });
+        eventValue++;
+        surveyOptions.appendChild(li);
       });
       break;
     }
@@ -272,10 +278,15 @@ function analyticsSurveyLogic() {
 // Check for DoNotTrack header before running GA script
 
 if (!_dntEnabled()) {
+  const jsPath = document.body.dataset.debug ? "analytics_debug.js" : "analytics.js";
   (function(i,s,o,g,r,a,m){i["GoogleAnalyticsObject"]=r;i[r]=i[r]||function(){
     (i[r].q=i[r].q||[]).push(arguments);},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m);
-    })(window,document,"script","https://www.google-analytics.com/analytics.js","ga");
+    })(window,document,"script",`https://www.google-analytics.com/${jsPath}`,"ga");
+
+  if (document.body.dataset.debug) {
+    window.ga_debug = {trace: true};
+  }
     ga("create", document.body.dataset.googleAnalyticsId);
     ga("set", "anonymizeIp", true);
     ga("set", "transport", "beacon");
