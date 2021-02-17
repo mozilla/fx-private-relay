@@ -72,6 +72,8 @@ def _index_POST(request):
     if not api_token:
         raise PermissionDenied
     user_profile = _get_user_profile(request, api_token)
+    if not user_profile.user.is_active:
+        raise PermissionDenied
     if request_data.get('method_override', None) == 'PUT':
         return _index_PUT(request_data, user_profile)
     if request_data.get('method_override', None) == 'DELETE':
