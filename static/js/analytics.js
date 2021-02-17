@@ -219,6 +219,17 @@ function analyticsSurveyLogic() {
     case "usability":
     case "credibility":
     case "appearance": {
+      let countMetric = "metric4";
+      let rankMetric = "metric5";
+      if (surveyType === "credibility") {
+        countMetric = "metric6";
+        rankMetric = "metric7";
+      }
+      if (surveyType === "appearance") {
+        countMetric = "metric8";
+        rankMetric = "metric9";
+      }
+
       const options = [
         "Strongly disagree", "Disagree", "Unsure", "Agree", "Strongly agree"
       ];
@@ -227,14 +238,28 @@ function analyticsSurveyLogic() {
         const li = document.createElement("li");
         li.classList = "micro-survey-option";
         li.textContent = option;
-        li.dataset.eventCategory = "PMF Survey";
+        li.dataset.eventCategory = "SUPR-Q Survey";
         li.dataset.eventAction = "submitted";
         li.dataset.eventLabel = option;
         li.dataset.eventValue = eventValue;
         li.dataset.ga = "send-ga-funnel-pings";
         li.addEventListener("click", setSurveyedCookie);
-        surveyOptions.appendChild(li);
-        eventValue++;
+        li.addEventListener("click", (evt) => {
+          const eventData = li.dataset;
+          const gaFieldsObject = {
+              [countMetric]: 1,
+              [rankMetric]: eventData.eventValue
+          };
+          ga("send", "event",
+            eventData.eventCategory,
+            eventData.eventAction,
+            eventData.eventLabel,
+            eventData.eventValue,
+            gaFieldsObject
+          );
+          surveyOptions.appendChild(li);
+          eventValue++;
+        });
       });
       break;
     }
