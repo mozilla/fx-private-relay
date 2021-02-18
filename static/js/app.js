@@ -216,12 +216,12 @@ function resetBodyPadding() {
 }
 
 function recruitmentLogic() {
-  const recruitmentBannerLink = document.querySelector('#recruitment-banner');
+  const recruitmentBannerLink = document.querySelector("#recruitment-banner");
   if (!recruitmentBannerLink) {
     return;
   }
 
-  const recruited = document.cookie.split('; ').some((item) => item.trim().startsWith('recruited='));
+  const recruited = document.cookie.split("; ").some((item) => item.trim().startsWith("recruited="));
   if (recruited) {
     recruitmentBannerLink.parentElement.remove();
     return;
