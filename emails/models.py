@@ -83,6 +83,27 @@ class Profile(models.Model):
             return self.last_soft_bounce
         return None
 
+    @property
+    def at_max_free_aliases(self):
+        relay_addresses_count = RelayAddress.objects.filter(
+            user=self.user
+        ).count()
+        return relay_addresses_count >= settings.MAX_NUM_FREE_ALIASES
+
+    @property
+    def has_unlimited(self):
+        social_account = self.user.socialaccount_set.filter(
+            provider='fxa'
+        ).first()
+        if not social_account:
+            return False
+        fxa_profile_data = social_account.extra_data
+        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
+            if sub in fxa_profile_data.get('subscriptions', []):
+                return True
+        return False
+
+
 
 def address_default():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))

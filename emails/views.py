@@ -85,11 +85,13 @@ def _index_POST(request):
         locked_profile = Profile.objects.select_for_update().get(
             user=user_profile.user
         )
-        if locked_profile.num_active_address >= settings.MAX_NUM_FREE_ALIASES:
+        if locked_profile.at_max_free_aliases and not locked_profile.has_unlimited:
             if not settings.SITE_ORIGIN in request.headers.get('Origin', ''):
                 return HttpResponse('Payment Required', status=402)
             messages.error(
-                request, "You already have 5 email addresses. Please upgrade."
+                request,
+                "You already have %s email addresses. Please upgrade." %
+                settings.MAX_NUM_FREE_ALIASES
             )
             return redirect('profile')
         relay_address = RelayAddress.make_relay_address(locked_profile.user)

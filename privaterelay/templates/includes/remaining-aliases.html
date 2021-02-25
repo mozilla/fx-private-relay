@@ -4,5 +4,14 @@
 
 <span class="remaining-aliases flx">
   <span class="num-remaining-aliases bold">
-    {% remaining_free_aliases relay_addresses %}</span> remaining {% if relay_addresses|length == 4 %}alias{% else %} aliases {% endif %}
+    {% with request.user.profile_set.first as user_profile %}
+    {% if user_profile.has_unlimited %}
+    {{ relay_addresses|length }} aliases. You can make unlimited!
+    {% else %}
+        <p>{% remaining_free_aliases relay_addresses %}</span> remaining {% if relay_addresses|length == 4 %}alias{% else %} aliases {% endif %}</p>
+        {% if settings.PREMIUM_ENABLED %}
+        <a href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank">Buy unlimited aliases</a>
+        {% endif %}
+    {% endif %}
+    {% endwith %}
 </span>

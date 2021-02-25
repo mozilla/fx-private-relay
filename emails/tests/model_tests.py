@@ -1,10 +1,13 @@
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
+import random
 from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
+
+from allauth.socialaccount.models import SocialAccount
 
 from model_bakery import baker
 
@@ -224,3 +227,20 @@ class ProfileTest(TestCase):
         self.profile.save()
 
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
+
+    def test_has_unlimited_default_False(self):
+        assert self.profile.has_unlimited == False
+
+    def test_has_unlimited_with_unlimited_subsription_returns_True(self):
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = baker.make(Profile, user=premium_user)
+        assert premium_profile.has_unlimited == True
