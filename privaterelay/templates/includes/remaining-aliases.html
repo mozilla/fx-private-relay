@@ -5,7 +5,7 @@
 <span class="remaining-aliases flx">
   <span class="num-remaining-aliases bold">
     {% with request.user.profile_set.first as user_profile %}
-    {% if user_profile.has_unlimited %}
+    {% if settings.PREMIUM_ENABLED and user_profile.has_unlimited %}
     {{ relay_addresses|length }} aliases. You can make unlimited!
     {% else %}
         <p>{% remaining_free_aliases relay_addresses %}</span> remaining {% if relay_addresses|length == 4 %}alias{% else %} aliases {% endif %}</p>

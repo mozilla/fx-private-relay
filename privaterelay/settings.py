@@ -223,7 +223,7 @@ PREMIUM_ENABLED = config('PREMIUM_ENABLED', default=False, cast=bool)
 PREMIUM_PROD_ID = config('PREMIUM_PROD_ID', '', cast=str)
 PREMIUM_PRICE_ID = config('PREMIUM_PRICE_ID', '', cast=str)
 SUBSCRIPTIONS_WITH_UNLIMITED = config(
-    'SUBSCRIPTIONS_WITH_UNLIMITED', default=[]
+    'SUBSCRIPTIONS_WITH_UNLIMITED', default=""
 )
 
 SOFT_BOUNCE_ALLOWED_DAYS = config('SOFT_BOUNCE_ALLOWED_DAYS', 1, cast=int)

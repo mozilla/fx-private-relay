@@ -31,6 +31,7 @@
       </div>
     </div>
   </div>
+    {% if settings.PREMIUM_ENABLED %}
     {% with request.user.profile_set.first as user_profile %}
     {% if not user_profile.has_unlimited %}
   <div class="banner-gradient-bg">
@@ -72,5 +73,6 @@
   </div>
   {% endif %}
   {% endwith %}
+  {% endif %}
 </div>
   {% endif %}
