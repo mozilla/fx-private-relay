@@ -132,15 +132,14 @@ def ses_send_raw_email(
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def ses_relay_email(
-        from_address, relay_address, subject, message_body, attachments
-):
+def ses_relay_email(user_profile, from_address, subject,
+                    message_body, attachments, relay_address=None):
     formatted_from_address = generate_relay_From(from_address)
     try:
         if attachments:
             response = ses_send_raw_email(
                 formatted_from_address,
-                relay_address.user.email,
+                user_profile.user.email,
                 subject,
                 message_body,
                 attachments
@@ -148,13 +147,16 @@ def ses_relay_email(
         else:
             response = ses_send_email(
                 formatted_from_address,
-                relay_address.user.email,
+                user_profile.user.email,
                 subject,
                 message_body
             )
-        relay_address.num_forwarded += 1
-        relay_address.last_used_at = datetime.now(timezone.utc)
-        relay_address.save(update_fields=['num_forwarded', 'last_used_at'])
+        if relay_address:
+            relay_address.num_forwarded += 1
+            relay_address.last_used_at = datetime.now(timezone.utc)
+            relay_address.save(
+                update_fields=['num_forwarded', 'last_used_at']
+            )
         return response
     except ClientError as e:
         logger.error('ses_client_error', extra=e.response['Error'])

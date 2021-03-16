@@ -273,36 +273,30 @@ def _sns_message(message_json):
         incr_if_enabled('email_for_noreply_address', 1)
         return HttpResponse('noreply address is not supported.')
 
-    local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
+    domain_portion = to_address.split('@')[1]
 
     try:
-        relay_address = RelayAddress.objects.get(address=local_portion)
-    except RelayAddress.DoesNotExist:
-        try:
-            DeletedAddress.objects.get(
-                address_hash=local_portion_hash
-            )
-            incr_if_enabled('email_for_deleted_address', 1)
-            # TODO: create a hard bounce receipt rule in SES
-        except DeletedAddress.DoesNotExist:
-            incr_if_enabled('email_for_unknown_address', 1)
-            logger.error(
-                'Received email for unknown address.',
-                extra={'to_address': to_address}
-            )
-        except DeletedAddress.MultipleObjectsReturned:
-            # not sure why this happens on stage but let's handle it
-            incr_if_enabled('email_for_deleted_address_multiple', 1)
+        user_profile, relay_address = _get_profile_and_relay_address(
+            local_portion, domain_portion
+        )
+    except Exception:
         return HttpResponse("Address does not exist", status=404)
 
+    address_hash = sha256(to_address.encode('utf-8')).hexdigest()
+    logger.info("address_hash %s" % address_hash, extra={'address_hash': address_hash})
+    print("address_hash %s" % address_hash)
+
     # first see if this user is over bounce limits
-    user_profile = relay_address.user.profile_set.first()
     bounce_paused, bounce_type = user_profile.check_bounce_pause()
     if bounce_paused:
+        logger.info("bounce_paused")
+        print("bounce_paused")
         incr_if_enabled('email_suppressed_for_%s_bounce' % bounce_type, 1)
         return HttpResponse("Address is temporarily disabled.")
 
-    if not relay_address.enabled:
+    if relay_address and not relay_address.enabled:
+        logger.info("relay_address not enabled")
+        print("relay_address not enabled")
         incr_if_enabled('email_for_disabled_address', 1)
         relay_address.num_blocked += 1
         relay_address.save(update_fields=['num_blocked'])
@@ -311,12 +305,11 @@ def _sns_message(message_json):
     incr_if_enabled('email_for_active_address', 1)
     logger.info('email_relay', extra={
         'fxa_uid': (
-            relay_address.user.socialaccount_set.first().uid
+            user_profile.user.socialaccount_set.first().uid
         ),
-        'relay_address_id': relay_address.id,
-        'relay_address': local_portion_hash,
+        'relay_address': address_hash,
         'real_address': sha256(
-            relay_address.user.email.encode('utf-8')
+            user_profile.user.email.encode('utf-8')
         ).hexdigest(),
     })
 
@@ -374,8 +367,53 @@ def _sns_message(message_json):
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     return ses_relay_email(
-        from_address, relay_address, subject, message_body, attachments
+        user_profile, from_address, subject,
+        message_body, attachments, relay_address
     )
+
+
+def _get_profile_and_relay_address(local_portion, domain_portion):
+    print("_get_profile_and_relay_address(%s, %s)" % (local_portion, domain_portion))
+    logger.info("_get_profile_and_relay_address(%s, %s)" % (local_portion, domain_portion))
+    # TODO: change SITE_ORIGIN to drop the scheme part before this check
+    if not domain_portion == settings.SITE_ORIGIN:
+        address_subdomain = domain_portion.split('.')[0]
+        try:
+            user_profile = Profile.objects.get(subdomain=address_subdomain)
+            logger.info("address_subdomain: %s" % address_subdomain, extra={
+                'address_subdomain': address_subdomain
+            })
+            print("address_subdomain: %s" % address_subdomain)
+            logger.info("user_profile: %s" % user_profile, extra={
+                'user_profile': user_profile
+            })
+            print("user_profile: %s" % user_profile)
+            return user_profile, None
+        except Profile.DoesNotExist:
+            pass
+
+    try:
+        relay_address = RelayAddress.objects.get(address=local_portion)
+        user_profile = relay_address.user.profile_set.first()
+        return user_profile, relay_address
+    except RelayAddress.DoesNotExist:
+        local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
+        try:
+            DeletedAddress.objects.get(
+                address_hash=local_portion_hash
+            )
+            incr_if_enabled('email_for_deleted_address', 1)
+            # TODO: create a hard bounce receipt rule in SES
+        except DeletedAddress.DoesNotExist:
+            incr_if_enabled('email_for_unknown_address', 1)
+            logger.error(
+                'Received email for unknown address.',
+                extra={'to_address': to_address}
+            )
+        except DeletedAddress.MultipleObjectsReturned:
+            # not sure why this happens on stage but let's handle it
+            incr_if_enabled('email_for_deleted_address_multiple', 1)
+        raise Exception("Address does not exist")
 
 
 def _handle_bounce(message_json):

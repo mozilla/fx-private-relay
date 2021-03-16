@@ -13,4 +13,8 @@ def remaining_free_aliases(aliases):
 
 @register.simple_tag
 def user_email_domain(user_profile):
-    return "%s.%s" % (user_profile.subdomain, urlparse(settings.SITE_ORIGIN).netloc)
+    mail_domain = urlparse(settings.SITE_ORIGIN).netloc
+    # on heroku with settings.DEBUG we need to add "mail" prefix
+    if settings.DEBUG:
+        mail_domain = 'mail.%s' % mail_domain
+    return "%s.%s" % (user_profile.subdomain, mail_domain)
