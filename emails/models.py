@@ -30,6 +30,9 @@ class Profile(models.Model):
     last_hard_bounce = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
+    subdomain = models.CharField(
+        blank=True, null=True, unique=True, max_length=12, db_index=True
+    )
 
     def __str__(self):
         return '%s Profile' % self.user

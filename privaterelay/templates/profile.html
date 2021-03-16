@@ -8,6 +8,8 @@
 
 {% get_social_accounts request.user as accounts %}
 
+{% include "includes/messages.html" with messages=messages %}
+
 <main id="profile-main" class="container bg-light env-bg dashboard-container container" data-api-token="{{ user.profile_set.first.api_token }}">
   <div class="main-list flx flx-col jst-cntr">
     {% if messages %}

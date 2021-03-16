@@ -12,7 +12,9 @@ import sentry_sdk
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.http import HttpResponse, JsonResponse
@@ -76,6 +78,24 @@ def profile(request):
         })
 
     return render(request, 'profile.html', context)
+
+
+@require_http_methods(["POST"])
+def profile_subdomain(request):
+    if (not request.user or request.user.is_anonymous):
+        return redirect(reverse('fxa_login'))
+    profile = request.user.profile_set.first()
+    if not profile.has_unlimited:
+        messages.error(
+            request, "You must be a premium subscriber to set a domain."
+        )
+        return redirect(reverse('profile'))
+    if not profile.subdomain is None:
+        messages.error(request, "You cannot change your domain.")
+        return redirect(reverse('profile'))
+    profile.subdomain = request.POST['subdomain']
+    profile.save()
+    return redirect(reverse('profile'))
 
 
 def version(request):
