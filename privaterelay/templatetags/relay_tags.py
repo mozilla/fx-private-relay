@@ -13,4 +13,4 @@ def remaining_free_aliases(aliases):
 
 @register.simple_tag
 def user_email_domain(user_profile):
-    return "%s@%s" % (user_profile.subdomain, urlparse(settings.SITE_ORIGIN).netloc)
+    return "%s.%s" % (user_profile.subdomain, urlparse(settings.SITE_ORIGIN).netloc)
