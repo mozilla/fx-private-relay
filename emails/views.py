@@ -208,10 +208,6 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
         return HttpResponse('Logged SubscribeURL', status=200)
     if message_type == 'Notification':
         incr_if_enabled('sns_inbound_Notification', 1)
-        logger.info(
-            'SNS Notification',
-            extra={'json_body': json_body},
-        )
         return _sns_notification(json_body)
 
     logger.error(
@@ -283,20 +279,14 @@ def _sns_message(message_json):
         return HttpResponse("Address does not exist", status=404)
 
     address_hash = sha256(to_address.encode('utf-8')).hexdigest()
-    logger.info("address_hash %s" % address_hash, extra={'address_hash': address_hash})
-    print("address_hash %s" % address_hash)
 
     # first see if this user is over bounce limits
     bounce_paused, bounce_type = user_profile.check_bounce_pause()
     if bounce_paused:
-        logger.info("bounce_paused")
-        print("bounce_paused")
         incr_if_enabled('email_suppressed_for_%s_bounce' % bounce_type, 1)
         return HttpResponse("Address is temporarily disabled.")
 
     if relay_address and not relay_address.enabled:
-        logger.info("relay_address not enabled")
-        print("relay_address not enabled")
         incr_if_enabled('email_for_disabled_address', 1)
         relay_address.num_blocked += 1
         relay_address.save(update_fields=['num_blocked'])
@@ -373,21 +363,12 @@ def _sns_message(message_json):
 
 
 def _get_profile_and_relay_address(local_portion, domain_portion):
-    print("_get_profile_and_relay_address(%s, %s)" % (local_portion, domain_portion))
-    logger.info("_get_profile_and_relay_address(%s, %s)" % (local_portion, domain_portion))
-    # TODO: change SITE_ORIGIN to drop the scheme part before this check
-    if not domain_portion == settings.SITE_ORIGIN:
+    if not domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
         address_subdomain = domain_portion.split('.')[0]
         try:
             user_profile = Profile.objects.get(subdomain=address_subdomain)
-            logger.info("address_subdomain: %s" % address_subdomain, extra={
-                'address_subdomain': address_subdomain
-            })
-            print("address_subdomain: %s" % address_subdomain)
-            logger.info("user_profile: %s" % user_profile, extra={
-                'user_profile': user_profile
-            })
-            print("user_profile: %s" % user_profile)
+            # TODO: create a DomainAddress for this local_portion if needed
+            # TODO: update DomainAddress.last_emailed_at
             return user_profile, None
         except Profile.DoesNotExist:
             pass

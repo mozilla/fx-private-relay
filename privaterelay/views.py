@@ -64,6 +64,7 @@ def profile(request):
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
     )
+    # TODO: get the user's DomainAddress objects too
     fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
     avatar = fxa_account.extra_data['avatar'] if fxa_account else None
     context = {'relay_addresses': relay_addresses, 'avatar': avatar}
