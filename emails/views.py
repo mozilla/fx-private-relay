@@ -272,7 +272,10 @@ def _sns_message(message_json):
     domain_portion = to_address.split('@')[1]
 
     try:
-        user_profile, relay_address = _get_profile_and_relay_address(
+        # FIXME: this ambiguous return of either
+        # RelayAddress or DomainAddress types makes the Rustacean in me throw
+        # up a bit.
+        user_profile, address = _get_profile_and_address(
             local_portion, domain_portion
         )
     except Exception:
@@ -286,10 +289,10 @@ def _sns_message(message_json):
         incr_if_enabled('email_suppressed_for_%s_bounce' % bounce_type, 1)
         return HttpResponse("Address is temporarily disabled.")
 
-    if relay_address and not relay_address.enabled:
+    if address and not address.enabled:
         incr_if_enabled('email_for_disabled_address', 1)
-        relay_address.num_blocked += 1
-        relay_address.save(update_fields=['num_blocked'])
+        address.num_blocked += 1
+        address.save(update_fields=['num_blocked'])
         return HttpResponse("Address is temporarily disabled.")
 
     incr_if_enabled('email_for_active_address', 1)
@@ -297,7 +300,7 @@ def _sns_message(message_json):
         'fxa_uid': (
             user_profile.user.socialaccount_set.first().uid
         ),
-        'relay_address': address_hash,
+        'address': address_hash,
         'real_address': sha256(
             user_profile.user.email.encode('utf-8')
         ).hexdigest(),
@@ -347,29 +350,32 @@ def _sns_message(message_json):
         ).format(site=settings.SITE_ORIGIN, faq=reverse('faq'))
         relay_header_text = (
             'This email was sent to your alias '
-            '{relay_address}. To stop receiving emails sent to this alias, '
+            '{alias}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
             '{extra_msg}---Begin Email---\n'
         ).format(
-            relay_address=to_address, extra_msg=attachment_msg
+            alias=to_address, extra_msg=attachment_msg
         )
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     return ses_relay_email(
         user_profile, from_address, subject,
-        message_body, attachments, relay_address
+        message_body, attachments, address, address
     )
 
 
-def _get_profile_and_relay_address(local_portion, domain_portion):
+def _get_profile_and_address(local_portion, domain_portion):
     if not domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
         address_subdomain = domain_portion.split('.')[0]
         try:
             user_profile = Profile.objects.get(subdomain=address_subdomain)
-            # TODO: create a DomainAddress for this local_portion if needed
-            # TODO: update DomainAddress.last_emailed_at
-            return user_profile, None
+            domain_address = DomainAddress.objects.get_or_create(
+                user=user_profile.user, address=local_portion
+            )
+            domain_address.last_emailed_at = datetime.now(timezone.utc)
+            domain_address.save()
+            return user_profile, domain_address
         except Profile.DoesNotExist:
             pass
 

@@ -181,13 +181,11 @@ class DeletedAddress(models.Model):
 
 class DomainAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address = models.CharField(
-        max_length=64, default=address_default, unique=True
-    )
+    address = models.CharField(max_length=64, unique=True)
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
     first_emailed_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    last_emailed_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    last_used_at = models.DateTimeField(auto_now_add=True, db_index=True)
     last_modified_at = models.DateTimeField(auto_now=True, db_index=True)
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveSmallIntegerField(default=0)
