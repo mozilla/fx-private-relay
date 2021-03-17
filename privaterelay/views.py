@@ -28,7 +28,7 @@ from allauth.socialaccount.providers.fxa.views import (
     FirefoxAccountsOAuth2Adapter
 )
 
-from emails.models import RelayAddress
+from emails.models import DomainAddress, RelayAddress
 from emails.utils import get_post_data_from_request
 
 
@@ -64,10 +64,16 @@ def profile(request):
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
     )
-    # TODO: get the user's DomainAddress objects too
+    domain_addresses = DomainAddress.objects.filter(user=request.user).order_by(
+        '-last_emailed_at'
+    )
     fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
     avatar = fxa_account.extra_data['avatar'] if fxa_account else None
-    context = {'relay_addresses': relay_addresses, 'avatar': avatar}
+    context = {
+        'relay_addresses': relay_addresses,
+        'avatar': avatar,
+        'domain_addresses': domain_addresses,
+    }
 
     profile = request.user.profile_set.first()
     bounce_status = profile.check_bounce_pause()
