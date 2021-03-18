@@ -35,9 +35,13 @@ from emails.utils import get_post_data_from_request
 FXA_PROFILE_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/profile-change'
 )
+FXA_SUBSCRIPTION_CHANGE_EVENT = (
+    'https://schemas.accounts.firefox.com/event/subscription-state-change'
+)
 FXA_DELETE_EVENT = (
     'https://schemas.accounts.firefox.com/event/delete-user'
 )
+PROFILE_EVENTS = [FXA_PROFILE_CHANGE_EVENT, FXA_SUBSCRIPTION_CHANGE_EVENT]
 
 logger = logging.getLogger('events')
 
@@ -61,6 +65,11 @@ def faq(request):
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
+    if request.GET.get('fxa_refresh') == 1:
+        social_account = request.user.socialaccount_set.filter(
+            provider='fxa'
+        ).first()
+        _handle_fxa_profile_change(social_account)
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
     )
@@ -173,14 +182,14 @@ def fxa_rp_events(request):
         return HttpResponse('202 Accepted', status=202)
 
     for event_key in event_keys:
-        if (event_key == FXA_PROFILE_CHANGE_EVENT):
+        if (event_key in PROFILE_EVENTS):
             if settings.DEBUG:
                 logger.info('fxa_profile_update', extra={
                     'jwt': authentic_jwt,
                     'event_key': event_key,
                 })
             _handle_fxa_profile_change(
-                authentic_jwt, social_account, event_key
+                social_account, authentic_jwt, event_key
             )
         if (event_key == FXA_DELETE_EVENT):
             _handle_fxa_delete(authentic_jwt, social_account, event_key)
@@ -232,7 +241,9 @@ def _get_event_keys_from_jwt(authentic_jwt):
     return authentic_jwt['events'].keys()
 
 
-def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
+def _handle_fxa_profile_change(
+    social_account, authentic_jwt=None, event_key=None
+):
     client = _get_oauth2_session(social_account)
     # TODO: more graceful handling of profile fetch failures
     try:
@@ -249,11 +260,12 @@ def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
         sentry_sdk.capture_exception(e)
         return HttpResponse('202 Accepted', status=202)
 
-    logger.info('fxa_rp_event', extra={
-        'fxa_uid': authentic_jwt['sub'],
-        'event_key': event_key,
-        'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
-    })
+    if authentic_jwt and event_key:
+        logger.info('fxa_rp_event', extra={
+            'fxa_uid': authentic_jwt['sub'],
+            'event_key': event_key,
+            'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
+        })
 
     social_account.extra_data = extra_data
     social_account.save()
