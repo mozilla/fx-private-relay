@@ -264,13 +264,16 @@ def _sns_message(message_json):
         )
 
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
+    logger.error('to_address: %s' % to_address)
     local_portion = to_address.split('@')[0]
+    logger.error('local_portion: %s' % local_portion)
 
     if local_portion == 'noreply':
         incr_if_enabled('email_for_noreply_address', 1)
         return HttpResponse('noreply address is not supported.')
 
     domain_portion = to_address.split('@')[1]
+    logger.error('domain_portion: %s' % domain_portion)
 
     try:
         # FIXME: this ambiguous return of either
@@ -279,6 +282,8 @@ def _sns_message(message_json):
         user_profile, address = _get_profile_and_address(
             local_portion, domain_portion
         )
+        logger.error('user_profile: %s' % user_profile)
+        logger.error('address: %s' % address)
     except Exception:
         return HttpResponse("Address does not exist", status=404)
 
@@ -291,6 +296,7 @@ def _sns_message(message_json):
         return HttpResponse("Address is temporarily disabled.")
 
     if address and not address.enabled:
+        logger.error('address not enabled')
         incr_if_enabled('email_for_disabled_address', 1)
         address.num_blocked += 1
         address.save(update_fields=['num_blocked'])
@@ -308,7 +314,9 @@ def _sns_message(message_json):
     })
 
     from_address = parseaddr(mail['commonHeaders']['from'])[1]
+    logger.error('from_address: %s' % from_address)
     subject = mail['commonHeaders'].get('subject', '')
+    logger.error('subject: %s' % subject)
     bytes_email_message = message_from_bytes(
         message_json['content'].encode('utf-8'), policy=policy.default
     )
@@ -369,11 +377,14 @@ def _sns_message(message_json):
 def _get_profile_and_address(local_portion, domain_portion):
     if not domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
         address_subdomain = domain_portion.split('.')[0]
+        logger.error('address_subdomain: %s' % address_subdomain)
         try:
             user_profile = Profile.objects.get(subdomain=address_subdomain)
+            logger.error('user_profile: %s' % user_profile)
             domain_address = DomainAddress.objects.get_or_create(
                 user=user_profile.user, address=local_portion
             )
+            logger.error('domain_address: %s' % domain_address)
             domain_address.last_emailed_at = datetime.now(timezone.utc)
             domain_address.save()
             return user_profile, domain_address
