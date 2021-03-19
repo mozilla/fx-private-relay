@@ -2,14 +2,15 @@ from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.utils import parseaddr
 from hashlib import sha256
-from sentry_sdk import capture_message
-from tempfile import SpooledTemporaryFile
 import json
 import logging
 import mimetypes
 import os
 import re
+from tempfile import SpooledTemporaryFile
+from urllib.parse import urlparse
 
+from sentry_sdk import capture_message
 from markus.utils import generate_tag
 
 from django.conf import settings
