@@ -208,18 +208,18 @@
                 </div>
                 <div class="relay-email-column alias-stats-wrapper">
                   <div class="nested-grid flx flx-row hide-mobile">
-                    {% include "includes/alias-stats.html" %}
+                    {% include "includes/alias-stats.html" with relay_address=domain_address only %}
                   </div>
                 </div>
               </div><!-- end row -->
               <div class="relay-email-row card-row details-wrapper flx">
                 <div class="show-mobile nested-grid flx flx-row">
-                  {% include "includes/alias-stats.html" %}
+                    {% include "includes/alias-stats.html" with relay_address=domain_address only %}
                 </div>
                 <div class="details-row">
                   <section class="relay-email-column details-column flx flx-col">
-                    <span class="card-small-text created-label">Created:</span>
-                    <span class="email-value card-small-text text-dark">{{ domain_address.created_at|date:"M j, Y" }}</span>
+                    <span class="card-small-text created-label">First emailed:</span>
+                    <span class="email-value card-small-text text-dark">{{ domain_address.first_emailed_at|date:"M j, Y" }}</span>
                   </section>
 
                   <!-- forwarding message -->
