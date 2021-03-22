@@ -369,7 +369,7 @@ def _sns_message(message_json):
 
     return ses_relay_email(
         user_profile, from_address, subject,
-        message_body, attachments, address, address
+        message_body, attachments, address,
     )
 
 
