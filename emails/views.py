@@ -380,7 +380,7 @@ def _get_profile_and_address(to_address, local_portion, domain_portion):
         try:
             user_profile = Profile.objects.get(subdomain=address_subdomain)
             logger.error('user_profile: %s' % user_profile)
-            domain_address = DomainAddress.objects.get_or_create(
+            domain_address, created = DomainAddress.objects.get_or_create(
                 user=user_profile.user, address=local_portion
             )
             logger.error('domain_address: %s' % domain_address)
