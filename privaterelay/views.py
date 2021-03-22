@@ -74,7 +74,7 @@ def profile(request):
         '-created_at'
     )
     domain_addresses = DomainAddress.objects.filter(user=request.user).order_by(
-        '-last_emailed_at'
+        '-last_used_at'
     )
     fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
     avatar = fxa_account.extra_data['avatar'] if fxa_account else None

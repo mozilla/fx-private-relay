@@ -377,7 +377,7 @@ def _get_profile_and_address(to_address, local_portion, domain_portion):
             domain_address, created = DomainAddress.objects.get_or_create(
                 user=user_profile.user, address=local_portion
             )
-            domain_address.last_emailed_at = datetime.now(timezone.utc)
+            domain_address.last_used_at = datetime.now(timezone.utc)
             domain_address.save()
             return user_profile, domain_address
         except Profile.DoesNotExist:
