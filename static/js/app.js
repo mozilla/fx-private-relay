@@ -35,7 +35,7 @@ async function updateEmailForwardingPrefs(submitEvent) {
   const forwardingPrefForm = submitEvent.target;
   const prefToggle = forwardingPrefForm.querySelector("button");
   const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
-  const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']");
+  const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']") || forwardingPrefForm.querySelector("[name='domain_address_id']");
   const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}']`);
 
   const analyticsLabel = (prefToggle.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";

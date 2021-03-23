@@ -112,40 +112,41 @@ def _index_POST(request):
     return redirect('profile')
 
 
-def _get_relay_address_from_id(request_data, user_profile):
-    try:
+def _get_address_from_id(request_data, user_profile):
+    if request_data.get('relay_address_id', False):
         relay_address = RelayAddress.objects.get(
             id=request_data['relay_address_id'],
             user=user_profile.user
         )
         return relay_address
-    except RelayAddress.DoesNotExist:
-        return HttpResponse("Address does not exist")
+    domain_address = DomainAddress.objects.get(
+        id=request_data['domain_address_id'],
+        user=user_profile.user
+    )
+    return domain_address
+
 
 
 def _index_PUT(request_data, user_profile):
     incr_if_enabled('emails_index_put', 1)
-    relay_address = _get_relay_address_from_id(request_data, user_profile)
-    if not isinstance(relay_address, RelayAddress):
-        return relay_address
+    address = _get_address_from_id(request_data, user_profile)
     if request_data.get('enabled') == 'Disable':
         # TODO?: create a soft bounce receipt rule for the address?
-        relay_address.enabled = False
+        address.enabled = False
     elif request_data.get('enabled') == 'Enable':
         # TODO?: remove soft bounce receipt rule for the address?
-        relay_address.enabled = True
-    relay_address.save()
+        address.enabled = True
+    address.save()
 
-    forwardingStatus = {'enabled': relay_address.enabled}
+    forwardingStatus = {'enabled': address.enabled}
     return JsonResponse(forwardingStatus)
 
 
 def _index_DELETE(request_data, user_profile):
     incr_if_enabled('emails_index_delete', 1)
-    relay_address = _get_relay_address_from_id(request_data, user_profile)
-    if isinstance(relay_address, RelayAddress):
-        # TODO?: create hard bounce receipt rule for the address
-        relay_address.delete()
+    address = _get_address_from_id(request_data, user_profile)
+    # TODO?: create hard bounce receipt rule for the address
+    address.delete()
     return redirect('profile')
 
 
