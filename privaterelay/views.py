@@ -241,11 +241,10 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
     # TODO: Loop over the user's relay addresses and manually call delete()
     # to create hard bounce receipt rules in SES,
     # because cascade deletes like this don't necessarily call delete()
-    deleted_user_objects = social_account.user.delete()
+    social_account.user.delete()
     logger.info('fxa_rp_event', extra={
         'fxa_uid': authentic_jwt['sub'],
         'event_key': event_key,
-        'deleted_user_objects': deleted_user_objects,
     })
 
 
