@@ -132,14 +132,14 @@ def ses_send_raw_email(
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def ses_relay_email(user_profile, from_address, subject,
-                    message_body, attachments, address):
+def ses_relay_email(from_address, address, subject,
+                    message_body, attachments, user_email):
     formatted_from_address = generate_relay_From(from_address)
     try:
         if attachments:
             response = ses_send_raw_email(
                 formatted_from_address,
-                user_profile.user.email,
+                user_email,
                 subject,
                 message_body,
                 attachments
@@ -147,7 +147,7 @@ def ses_relay_email(user_profile, from_address, subject,
         else:
             response = ses_send_email(
                 formatted_from_address,
-                user_profile.user.email,
+                user_email,
                 subject,
                 message_body
             )

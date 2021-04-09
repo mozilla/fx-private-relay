@@ -280,9 +280,13 @@ def _sns_message(message_json):
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        user_profile, address = _get_profile_and_address(
-            to_address, local_portion, domain_portion
-        )
+        if domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
+            address = _get_relay_address(to_address, local_portion)
+            user_profile = address.user.profile_set.first()
+        else:
+            user_profile, address = _get_profile_and_domain_address(
+                to_address, local_portion, domain_portion
+            )
     except Exception:
         return HttpResponse("Address does not exist", status=404)
 
@@ -365,29 +369,35 @@ def _sns_message(message_json):
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     return ses_relay_email(
-        user_profile, from_address, subject,
-        message_body, attachments, address,
+        from_address, address, subject,
+        message_body, attachments, user_profile.user.email,
     )
 
+def _get_profile_and_domain_address(to_address, local_portion, domain_portion):
+    address_subdomain = domain_portion.split('.')[0]
+    try:
+        user_profile = Profile.objects.get(subdomain=address_subdomain)
+        domain_address = DomainAddress.objects.get(user=user_profile.user, address=local_portion)
+        if not domain_address:
+            # TODO: We may want to consider flows when a user generating alias on a fly was unable to
+            # receive an email due to the following exceptions
+            try:
+                domain_address = DomainAddress.make_domain_address(user_profile.user,)
+            except CannotMakeAddressException:
+                raise Exception('Address not allowed')
+            except DeletedDomainAddressException:
+                raise Exception('Failed to create address')
+        domain_address.last_used_at = datetime.now(timezone.utc)
+        domain_address.save()
+        return user_profile, domain_address
+    except Profile.DoesNotExist:
+        incr_if_enabled('email_for_dne_subdomain', 1)
+        raise Exception("Address does not exist")
 
-def _get_profile_and_address(to_address, local_portion, domain_portion):
-    if not domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
-        address_subdomain = domain_portion.split('.')[0]
-        try:
-            user_profile = Profile.objects.get(subdomain=address_subdomain)
-            domain_address, created = DomainAddress.objects.get_or_create(
-                user=user_profile.user, address=local_portion
-            )
-            domain_address.last_used_at = datetime.now(timezone.utc)
-            domain_address.save()
-            return user_profile, domain_address
-        except Profile.DoesNotExist:
-            pass
-
+def _get_relay_address(to_address, local_portion):
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
-        user_profile = relay_address.user.profile_set.first()
-        return user_profile, relay_address
+        return relay_address
     except RelayAddress.DoesNotExist:
         local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
         try:
