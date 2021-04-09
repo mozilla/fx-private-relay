@@ -194,3 +194,12 @@ class DomainAddress(models.Model):
 
     def __str__(self):
         return self.address
+class DeletedDomainAddress(models.Model):
+    address_hash = models.CharField(max_length=64, db_index=True)
+    domain_hash = models.CharField(max_length=64, db_index=True)
+    num_forwarded = models.PositiveSmallIntegerField(default=0)
+    num_blocked = models.PositiveSmallIntegerField(default=0)
+    num_spam = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return self.address_hash
