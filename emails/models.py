@@ -95,14 +95,14 @@ class Profile(models.Model):
 
     @property
     def has_unlimited(self):
-        social_account = self.user.socialaccount_set.filter(
+        fxa_account = self.user.socialaccount_set.filter(
             provider='fxa'
         ).first()
-        if not social_account:
+        if not fxa_account:
             return False
-        fxa_profile_data = social_account.extra_data
+        user_subscriptions = fxa_account.extra_data.get('subscriptions', [])
         for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
-            if sub in fxa_profile_data.get('subscriptions', []):
+            if sub in user_subscriptions:
                 return True
         return False
 
@@ -113,6 +113,9 @@ def address_default():
 
 
 class CannotMakeAddressException(Exception):
+    pass
+
+class DeletedDomainAddressException(Exception):
     pass
 
 
@@ -194,6 +197,31 @@ class DomainAddress(models.Model):
 
     def __str__(self):
         return self.address
+
+    def make_domain_address(user, num_tries=0):
+        domain_address = DomainAddress.objects.create(user=user)
+        address_contains_badword = any(
+            badword in domain_address.address
+            for badword in emails_config.badwords
+        )
+        address_hash = sha256(
+            domain_address.address.encode('utf-8')
+        ).hexdigest()
+        user_subdomain = Profile.objects.get(user=user).subdomain
+        if not user_subdomain or address_contains_badword:
+            # FIXME: Should we restrict users to create alias with bad words?
+            raise CannotMakeAddressException
+        domain_hash = sha256(
+            user_profile.subdomain.encode('utf-8')
+        ).hexdigest()
+        address_already_deleted = DeletedDomainAddress.objects.filter(
+            address_hash=address_hash, domain_hash=domain_hash
+        ).count()
+        if address_already_deleted > 0:
+            raise DeletedDomainAddressException
+        return domain_address
+
+
 class DeletedDomainAddress(models.Model):
     address_hash = models.CharField(max_length=64, db_index=True)
     domain_hash = models.CharField(max_length=64, db_index=True)
