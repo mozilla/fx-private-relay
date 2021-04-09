@@ -81,8 +81,7 @@ REFERRER_POLICY = 'strict-origin-when-cross-origin'
 ALLOWED_HOSTS = []
 DJANGO_ALLOWED_HOST = config('DJANGO_ALLOWED_HOST', None)
 if DJANGO_ALLOWED_HOST:
-    for host in DJANGO_ALLOWED_HOST.split(','):
-        ALLOWED_HOSTS += [host]
+    ALLOWED_HOSTS += DJANGO_ALLOWED_HOST.split(','):
 DJANGO_ALLOWED_SUBNET = config('DJANGO_ALLOWED_SUBNET', None)
 if DJANGO_ALLOWED_SUBNET:
     ALLOWED_HOSTS += [
