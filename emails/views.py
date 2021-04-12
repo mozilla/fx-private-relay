@@ -75,10 +75,13 @@ def _index_POST(request):
     user_profile = _get_user_profile(request, api_token)
     if not user_profile.user.is_active:
         raise PermissionDenied
-    if request_data.get('method_override', None) == 'PUT':
-        return _index_PUT(request_data, user_profile)
-    if request_data.get('method_override', None) == 'DELETE':
-        return _index_DELETE(request_data, user_profile)
+    try:
+        if request_data.get('method_override', None) == 'PUT':
+            return _index_PUT(request_data, user_profile)
+        if request_data.get('method_override', None) == 'DELETE':
+            return _index_DELETE(request_data, user_profile)
+    except (RelayAddress.DoesNotExist, DomainAddress.DoesNotExist):
+        return HttpResponse("Address does not exist", status=404)
 
     incr_if_enabled('emails_index_post', 1)
 
@@ -280,9 +283,8 @@ def _sns_message(message_json):
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        user_profile, address = _get_profile_and_address(
-            to_address, local_portion, domain_portion
-        )
+        address = _get_address(to_address, local_portion, domain_portion)
+        user_profile = address.user.profile_set.first()
     except Exception:
         return HttpResponse("Address does not exist", status=404)
 
@@ -302,9 +304,7 @@ def _sns_message(message_json):
 
     incr_if_enabled('email_for_active_address', 1)
     logger.info('email_relay', extra={
-        'fxa_uid': (
-            user_profile.user.socialaccount_set.first().uid
-        ),
+        'fxa_uid': user_profile.fxa.uid,
         'address': address_hash,
         'real_address': sha256(
             user_profile.user.email.encode('utf-8')
@@ -370,7 +370,9 @@ def _sns_message(message_json):
     )
 
 
-def _get_profile_and_address(to_address, local_portion, domain_portion):
+def _get_address(to_address, local_portion, domain_portion):
+    # if the domain is not the site's 'top' relay domain,
+    # it may be for a user's subdomain
     if not domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
         address_subdomain = domain_portion.split('.')[0]
         try:
@@ -380,14 +382,15 @@ def _get_profile_and_address(to_address, local_portion, domain_portion):
             )
             domain_address.last_used_at = datetime.now(timezone.utc)
             domain_address.save()
-            return user_profile, domain_address
+            return domain_address
         except Profile.DoesNotExist:
+            # TODO throw up a not-found error
             pass
 
+    # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
         relay_address = RelayAddress.objects.get(address=local_portion)
-        user_profile = relay_address.user.profile_set.first()
-        return user_profile, relay_address
+        return relay_address
     except RelayAddress.DoesNotExist:
         local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
         try:

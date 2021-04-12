@@ -94,13 +94,14 @@ class Profile(models.Model):
         return relay_addresses_count >= settings.MAX_NUM_FREE_ALIASES
 
     @property
+    def fxa(self):
+        return self.user.socialaccount_set.filter(provider='fxa').first()
+
+    @property
     def has_unlimited(self):
-        social_account = self.user.socialaccount_set.filter(
-            provider='fxa'
-        ).first()
-        if not social_account:
+        if not self.fxa:
             return False
-        fxa_profile_data = social_account.extra_data
+        fxa_profile_data = self.fxa.extra_data
         for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
             if sub in fxa_profile_data.get('subscriptions', []):
                 return True

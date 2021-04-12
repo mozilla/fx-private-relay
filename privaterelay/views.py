@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from hashlib import sha256
 import json
 import logging
@@ -55,8 +56,8 @@ def home(request):
 def faq(request):
   if (not request.user or request.user.is_anonymous):
     return render(request, 'faq.html')
-  fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
-  avatar = fxa_account.extra_data['avatar'] if fxa_account else None
+  fxa = _get_fxa(request)
+  avatar = fxa.extra_data['avatar'] if fxa else None
   return render(request, 'faq.html', {
     'avatar': avatar
   })
@@ -66,18 +67,16 @@ def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
     if request.GET.get('fxa_refresh') == 1:
-        social_account = request.user.socialaccount_set.filter(
-            provider='fxa'
-        ).first()
-        _handle_fxa_profile_change(social_account)
+        fxa = _get_fxa(request)
+        _handle_fxa_profile_change(fxa)
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
     )
     domain_addresses = DomainAddress.objects.filter(user=request.user).order_by(
         '-last_used_at'
     )
-    fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
-    avatar = fxa_account.extra_data['avatar'] if fxa_account else None
+    fxa = _get_fxa(request)
+    avatar = fxa.extra_data['avatar'] if fxa else None
     context = {
         'relay_addresses': relay_addresses,
         'avatar': avatar,
@@ -96,6 +95,11 @@ def profile(request):
     return render(request, 'profile.html', context)
 
 
+@lru_cache(maxsize=None)
+def _get_fxa(request):
+    return request.user.socialaccount_set.filter(provider='fxa').first()
+
+
 @require_http_methods(["POST"])
 def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
@@ -106,7 +110,7 @@ def profile_subdomain(request):
             request, "You must be a premium subscriber to set a domain."
         )
         return redirect(reverse('profile'))
-    if not profile.subdomain is None:
+    if profile.subdomain is not None:
         messages.error(request, "You cannot change your domain.")
         return redirect(reverse('profile'))
     profile.subdomain = request.POST['subdomain']
