@@ -369,7 +369,7 @@ def _sns_message(message_json):
         message_body, attachments, user_profile.user.email,
     )
 
-def _get_profile_and_domain_address(to_address, local_portion, domain_portion):
+def _get_domain_address(to_address, local_portion, domain_portion):
     address_subdomain = domain_portion.split('.')[0]
     try:
         user_profile = Profile.objects.get(subdomain=address_subdomain)
@@ -385,7 +385,7 @@ def _get_profile_and_domain_address(to_address, local_portion, domain_portion):
                 raise Exception('Failed to create address')
         domain_address.last_used_at = datetime.now(timezone.utc)
         domain_address.save()
-        return user_profile, domain_address
+        return user_profile
     except Profile.DoesNotExist:
         incr_if_enabled('email_for_dne_subdomain', 1)
         raise Exception("Address does not exist")
@@ -394,18 +394,7 @@ def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
     if not domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
-        address_subdomain = domain_portion.split('.')[0]
-        try:
-            user_profile = Profile.objects.get(subdomain=address_subdomain)
-            domain_address, created = DomainAddress.objects.get_or_create(
-                user=user_profile.user, address=local_portion
-            )
-            domain_address.last_used_at = datetime.now(timezone.utc)
-            domain_address.save()
-            return domain_address
-        except Profile.DoesNotExist:
-            # TODO throw up a not-found error
-            pass
+        return _get_domain_address(to_address, local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
