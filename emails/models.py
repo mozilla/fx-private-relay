@@ -188,6 +188,7 @@ class DomainAddress(models.Model):
     address = models.CharField(max_length=64, unique=True)
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     first_emailed_at = models.DateTimeField(auto_now_add=True, db_index=True)
     last_used_at = models.DateTimeField(auto_now_add=True, db_index=True)
     last_modified_at = models.DateTimeField(auto_now=True, db_index=True)
@@ -221,14 +222,3 @@ class DomainAddress(models.Model):
         if address_already_deleted > 0:
             raise DeletedDomainAddressException
         return domain_address
-
-
-class DeletedDomainAddress(models.Model):
-    address_hash = models.CharField(max_length=64, db_index=True)
-    domain_hash = models.CharField(max_length=64, db_index=True)
-    num_forwarded = models.PositiveSmallIntegerField(default=0)
-    num_blocked = models.PositiveSmallIntegerField(default=0)
-    num_spam = models.PositiveSmallIntegerField(default=0)
-
-    def __str__(self):
-        return self.address_hash
