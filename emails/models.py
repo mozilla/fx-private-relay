@@ -116,9 +116,6 @@ def address_default():
 class CannotMakeAddressException(Exception):
     pass
 
-class DeletedDomainAddressException(Exception):
-    pass
-
 
 class RelayAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -206,19 +203,16 @@ class DomainAddress(models.Model):
             badword in domain_address.address
             for badword in emails_config.badwords
         )
-        address_hash = sha256(
-            domain_address.address.encode('utf-8')
-        ).hexdigest()
         user_subdomain = Profile.objects.get(user=user).subdomain
         if not user_subdomain or address_contains_badword:
             # FIXME: Should we restrict users to create alias with bad words?
             raise CannotMakeAddressException
-        domain_hash = sha256(
-            user_profile.subdomain.encode('utf-8')
+        address_hash = sha256(
+            '{}@{}'.format(domain_address.address, user_subdomain).encode('utf-8')
         ).hexdigest()
-        address_already_deleted = DeletedDomainAddress.objects.filter(
-            address_hash=address_hash, domain_hash=domain_hash
+        address_already_deleted = DeletedAddress.objects.filter(
+            address_hash=address_hash
         ).count()
         if address_already_deleted > 0:
-            raise DeletedDomainAddressException
+            raise CannotMakeAddressException
         return domain_address
