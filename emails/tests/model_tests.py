@@ -247,3 +247,36 @@ class ProfileTest(TestCase):
         )
         premium_profile = baker.make(Profile, user=premium_user)
         assert premium_profile.has_unlimited == True
+
+
+class DomainAddressTest(TestCase):
+    def setUp(self):
+        self.subdomain = 'test'
+        self.user = baker.make(User)
+        self.user_profile = Profile.objects.get(user=self.user)
+        self.user_profile.subdomain = self.subdomain
+        self.user_profile.save()
+
+    def test_make_relay_address_assigns_to_user(self):
+        domain_address = DomainAddress.make_domain_address(self.user)
+        assert domain_address.user == self.user
+
+    def test_make_relay_address_makes_different_addresses(self):
+        for i in range(5):
+            DomainAddress.make_domain_address(self.user)
+        domain_addresses = DomainAddress.objects.filter(user=self.user).values_list("address", flat=True)
+        assert len(set(domain_addresses)) == 5 # checks that there are 5 unique DomainAddress
+
+    def test_make_relay_address_makes_requested_address(self):
+        domain_address = DomainAddress.make_domain_address(self.user, 'testing')
+        assert domain_address.address == 'testing'
+
+    @patch.multiple('string', ascii_lowercase='a', digits='')
+    def test_make_relay_address_doesnt_make_dupe_of_deleted(self):
+        test_hash = sha256(f'aaaaaaaaa@{self.subdomain}'.encode('utf-8')).hexdigest()
+        DeletedAddress.objects.create(address_hash=test_hash)
+        try:
+            DomainAddress.make_domain_address(self.user)
+        except CannotMakeAddressException:
+            return
+        self.fail("Should have raise CannotMakeAddressException")
