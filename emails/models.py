@@ -197,12 +197,15 @@ class DomainAddress(models.Model):
     def __str__(self):
         return self.address
 
-    def make_domain_address(user, num_tries=0):
-        domain_address = DomainAddress.objects.create(user=user)
+    def make_domain_address(user, address=None):
+        if address is None:
+            address = address_default()
+        domain_address = DomainAddress.objects.create(user=user, address=address)
         address_contains_badword = any(
             badword in domain_address.address
             for badword in emails_config.badwords
         )
+        
         user_subdomain = Profile.objects.get(user=user).subdomain
         if not user_subdomain or address_contains_badword:
             # FIXME: Should we restrict users to create alias with bad words?
