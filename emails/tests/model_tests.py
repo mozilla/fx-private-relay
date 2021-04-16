@@ -12,7 +12,10 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 
 from ..models import (
-    CannotMakeAddressException, DeletedAddress, RelayAddress,
+    CannotMakeAddressException,
+    DeletedAddress,
+    DomainAddress,
+    RelayAddress,
     Profile
 )
 
@@ -25,12 +28,12 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.make_relay_address(self.user)
         assert relay_address.user == self.user
 
-    # TODO: FIXME? this is dumb
     def test_make_relay_address_makes_different_addresses(self):
-        relay_addresses = []
         for i in range(1000):
-            relay_addresses.append(RelayAddress.make_relay_address(self.user))
-        assert len(relay_addresses) == len(set(relay_addresses))
+            RelayAddress.make_relay_address(self.user)
+        # check that the address is unique (deeper assertion that the generated aliases are unique)
+        relay_addresses = RelayAddress.objects.filter(user=self.user).values_list("address", flat=True)
+        assert len(relay_addresses) == 1000
 
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress)
