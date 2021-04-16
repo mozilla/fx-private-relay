@@ -31,6 +31,11 @@ urlpatterns = [
     path('metrics-event', views.metrics_event),
 
     path('accounts/profile/', views.profile, name='profile'),
+    path(
+        'accounts/profile/subdomain',
+        views.profile_subdomain,
+        name='profile_subdomain'
+    ),
     path('accounts/', include('allauth.urls')),
     path('faq', views.faq, name='faq'),
     path('', views.home, name='home'),

@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from hashlib import sha256
 import json
 import logging
@@ -12,7 +13,9 @@ import sentry_sdk
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.http import HttpResponse, JsonResponse
@@ -26,16 +29,20 @@ from allauth.socialaccount.providers.fxa.views import (
     FirefoxAccountsOAuth2Adapter
 )
 
-from emails.models import RelayAddress
+from emails.models import DomainAddress, RelayAddress
 from emails.utils import get_post_data_from_request
 
 
 FXA_PROFILE_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/profile-change'
 )
+FXA_SUBSCRIPTION_CHANGE_EVENT = (
+    'https://schemas.accounts.firefox.com/event/subscription-state-change'
+)
 FXA_DELETE_EVENT = (
     'https://schemas.accounts.firefox.com/event/delete-user'
 )
+PROFILE_EVENTS = [FXA_PROFILE_CHANGE_EVENT, FXA_SUBSCRIPTION_CHANGE_EVENT]
 
 logger = logging.getLogger('events')
 
@@ -49,8 +56,8 @@ def home(request):
 def faq(request):
   if (not request.user or request.user.is_anonymous):
     return render(request, 'faq.html')
-  fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
-  avatar = fxa_account.extra_data['avatar'] if fxa_account else None
+  fxa = _get_fxa(request)
+  avatar = fxa.extra_data['avatar'] if fxa else None
   return render(request, 'faq.html', {
     'avatar': avatar
   })
@@ -59,12 +66,22 @@ def faq(request):
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
+    if request.GET.get('fxa_refresh') == 1:
+        fxa = _get_fxa(request)
+        _handle_fxa_profile_change(fxa)
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
     )
-    fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
-    avatar = fxa_account.extra_data['avatar'] if fxa_account else None
-    context = {'relay_addresses': relay_addresses, 'avatar': avatar}
+    domain_addresses = DomainAddress.objects.filter(user=request.user).order_by(
+        '-last_used_at'
+    )
+    fxa = _get_fxa(request)
+    avatar = fxa.extra_data['avatar'] if fxa else None
+    context = {
+        'relay_addresses': relay_addresses,
+        'avatar': avatar,
+        'domain_addresses': domain_addresses,
+    }
 
     profile = request.user.profile_set.first()
     bounce_status = profile.check_bounce_pause()
@@ -76,6 +93,29 @@ def profile(request):
         })
 
     return render(request, 'profile.html', context)
+
+
+@lru_cache(maxsize=None)
+def _get_fxa(request):
+    return request.user.socialaccount_set.filter(provider='fxa').first()
+
+
+@require_http_methods(["POST"])
+def profile_subdomain(request):
+    if (not request.user or request.user.is_anonymous):
+        return redirect(reverse('fxa_login'))
+    profile = request.user.profile_set.first()
+    if not profile.has_unlimited:
+        messages.error(
+            request, "You must be a premium subscriber to set a domain."
+        )
+        return redirect(reverse('profile'))
+    if profile.subdomain is not None:
+        messages.error(request, "You cannot change your domain.")
+        return redirect(reverse('profile'))
+    profile.subdomain = request.POST['subdomain']
+    profile.save()
+    return redirect(reverse('profile'))
 
 
 def version(request):
@@ -146,14 +186,14 @@ def fxa_rp_events(request):
         return HttpResponse('202 Accepted', status=202)
 
     for event_key in event_keys:
-        if (event_key == FXA_PROFILE_CHANGE_EVENT):
+        if (event_key in PROFILE_EVENTS):
             if settings.DEBUG:
                 logger.info('fxa_profile_update', extra={
                     'jwt': authentic_jwt,
                     'event_key': event_key,
                 })
             _handle_fxa_profile_change(
-                authentic_jwt, social_account, event_key
+                social_account, authentic_jwt, event_key
             )
         if (event_key == FXA_DELETE_EVENT):
             _handle_fxa_delete(authentic_jwt, social_account, event_key)
@@ -205,7 +245,9 @@ def _get_event_keys_from_jwt(authentic_jwt):
     return authentic_jwt['events'].keys()
 
 
-def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
+def _handle_fxa_profile_change(
+    social_account, authentic_jwt=None, event_key=None
+):
     client = _get_oauth2_session(social_account)
     # TODO: more graceful handling of profile fetch failures
     try:
@@ -222,11 +264,12 @@ def _handle_fxa_profile_change(authentic_jwt, social_account, event_key):
         sentry_sdk.capture_exception(e)
         return HttpResponse('202 Accepted', status=202)
 
-    logger.info('fxa_rp_event', extra={
-        'fxa_uid': authentic_jwt['sub'],
-        'event_key': event_key,
-        'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
-    })
+    if authentic_jwt and event_key:
+        logger.info('fxa_rp_event', extra={
+            'fxa_uid': authentic_jwt['sub'],
+            'event_key': event_key,
+            'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
+        })
 
     social_account.extra_data = extra_data
     social_account.save()

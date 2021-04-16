@@ -1,15 +1,21 @@
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
+import random
 from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 
+from allauth.socialaccount.models import SocialAccount
+
 from model_bakery import baker
 
 from ..models import (
-    CannotMakeAddressException, DeletedAddress, RelayAddress,
+    CannotMakeAddressException,
+    DeletedAddress,
+    DomainAddress,
+    RelayAddress,
     Profile
 )
 
@@ -22,12 +28,12 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.make_relay_address(self.user)
         assert relay_address.user == self.user
 
-    # TODO: FIXME? this is dumb
     def test_make_relay_address_makes_different_addresses(self):
-        relay_addresses = []
         for i in range(1000):
-            relay_addresses.append(RelayAddress.make_relay_address(self.user))
-        assert len(relay_addresses) == len(set(relay_addresses))
+            RelayAddress.make_relay_address(self.user)
+        # check that the address is unique (deeper assertion that the generated aliases are unique)
+        relay_addresses = RelayAddress.objects.filter(user=self.user).values_list("address", flat=True)
+        assert len(relay_addresses) == 1000
 
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress)
@@ -224,3 +230,53 @@ class ProfileTest(TestCase):
         self.profile.save()
 
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
+
+    def test_has_unlimited_default_False(self):
+        assert self.profile.has_unlimited == False
+
+    def test_has_unlimited_with_unlimited_subsription_returns_True(self):
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = baker.make(Profile, user=premium_user)
+        assert premium_profile.has_unlimited == True
+
+
+class DomainAddressTest(TestCase):
+    def setUp(self):
+        self.subdomain = 'test'
+        self.user = baker.make(User)
+        self.user_profile = Profile.objects.get(user=self.user)
+        self.user_profile.subdomain = self.subdomain
+        self.user_profile.save()
+
+    def test_make_relay_address_assigns_to_user(self):
+        domain_address = DomainAddress.make_domain_address(self.user)
+        assert domain_address.user == self.user
+
+    def test_make_relay_address_makes_different_addresses(self):
+        for i in range(5):
+            DomainAddress.make_domain_address(self.user)
+        domain_addresses = DomainAddress.objects.filter(user=self.user).values_list("address", flat=True)
+        assert len(set(domain_addresses)) == 5 # checks that there are 5 unique DomainAddress
+
+    def test_make_relay_address_makes_requested_address(self):
+        domain_address = DomainAddress.make_domain_address(self.user, 'testing')
+        assert domain_address.address == 'testing'
+
+    @patch.multiple('string', ascii_lowercase='a', digits='')
+    def test_make_relay_address_doesnt_make_dupe_of_deleted(self):
+        test_hash = sha256(f'aaaaaaaaa@{self.subdomain}'.encode('utf-8')).hexdigest()
+        DeletedAddress.objects.create(address_hash=test_hash)
+        try:
+            DomainAddress.make_domain_address(self.user)
+        except CannotMakeAddressException:
+            return
+        self.fail("Should have raise CannotMakeAddressException")

@@ -30,6 +30,9 @@ class Profile(models.Model):
     last_hard_bounce = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
+    subdomain = models.CharField(
+        blank=True, null=True, unique=True, max_length=12, db_index=True
+    )
 
     def __str__(self):
         return '%s Profile' % self.user
@@ -82,6 +85,28 @@ class Profile(models.Model):
         if self.last_soft_bounce:
             return self.last_soft_bounce
         return None
+
+    @property
+    def at_max_free_aliases(self):
+        relay_addresses_count = RelayAddress.objects.filter(
+            user=self.user
+        ).count()
+        return relay_addresses_count >= settings.MAX_NUM_FREE_ALIASES
+
+    @property
+    def fxa(self):
+        return self.user.socialaccount_set.filter(provider='fxa').first()
+
+    @property
+    def has_unlimited(self):
+        if not self.fxa:
+            return False
+        user_subscriptions = self.fxa.extra_data.get('subscriptions', [])
+        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
+            if sub in user_subscriptions:
+                return True
+        return False
+
 
 
 def address_default():
@@ -153,3 +178,44 @@ class DeletedAddress(models.Model):
 
     def __str__(self):
         return self.address_hash
+
+
+class DomainAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    address = models.CharField(max_length=64, unique=True)
+    enabled = models.BooleanField(default=True)
+    description = models.CharField(max_length=64, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    first_emailed_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    last_used_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    last_modified_at = models.DateTimeField(auto_now=True, db_index=True)
+    last_used_at = models.DateTimeField(blank=True, null=True)
+    num_forwarded = models.PositiveSmallIntegerField(default=0)
+    num_blocked = models.PositiveSmallIntegerField(default=0)
+    num_spam = models.PositiveSmallIntegerField(default=0)
+
+    def __str__(self):
+        return self.address
+
+    def make_domain_address(user, address=None):
+        if address is None:
+            address = address_default()
+        domain_address = DomainAddress.objects.create(user=user, address=address)
+        address_contains_badword = any(
+            badword in domain_address.address
+            for badword in emails_config.badwords
+        )
+        
+        user_subdomain = Profile.objects.get(user=user).subdomain
+        if not user_subdomain or address_contains_badword:
+            # FIXME: Should we restrict users to create alias with bad words?
+            raise CannotMakeAddressException
+        address_hash = sha256(
+            '{}@{}'.format(domain_address.address, user_subdomain).encode('utf-8')
+        ).hexdigest()
+        address_already_deleted = DeletedAddress.objects.filter(
+            address_hash=address_hash
+        ).count()
+        if address_already_deleted > 0:
+            raise CannotMakeAddressException
+        return domain_address
