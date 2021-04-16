@@ -3,7 +3,7 @@ Django==2.2.20
 dj-database-url==0.5.0
 django-allauth==0.39.1
 django-csp==3.5
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
 django-referrer-policy==1.0
 dockerflow==2020.6.0
 google-measurement-protocol==1.0.0
