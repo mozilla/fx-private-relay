@@ -282,7 +282,7 @@ class DomainAddressTest(TestCase):
         self.fail("Should have raise CannotMakeAddressException")
 
     def test_delete_adds_deleted_address_object(self):
-        domain_address = baker.make(DomainAddress)
+        domain_address = baker.make(DomainAddress, user=self.user)
         domain_address_hash = sha256(
             f'{domain_address}@{self.subdomain}'.encode('utf-8')
         ).hexdigest()

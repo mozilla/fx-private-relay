@@ -222,16 +222,16 @@ class DomainAddress(models.Model):
 
     def delete(self, *args, **kwargs):
         # TODO: create hard bounce receipt rule in AWS for the address
+        profile = Profile.objects.get(user=self.user)
         deleted_address = DeletedAddress.objects.create(
             address_hash=sha256(
-                f'{self.address}@{self.subdomain}'.encode('utf-8')
+                f'{self.address}@{profile.subdomain}'.encode('utf-8')
             ).hexdigest(),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
         )
         deleted_address.save()
-        profile = Profile.objects.get(user=self.user)
         profile.address_last_deleted = datetime.now()
         profile.num_address_deleted += 1
         profile.save()
