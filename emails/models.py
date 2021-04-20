@@ -200,9 +200,8 @@ class DomainAddress(models.Model):
     def make_domain_address(user, address=None):
         if address is None:
             address = address_default()
-        domain_address = DomainAddress.objects.create(user=user, address=address)
         address_contains_badword = any(
-            badword in domain_address.address
+            badword in address
             for badword in emails_config.badwords
         )
         
@@ -211,13 +210,14 @@ class DomainAddress(models.Model):
             # FIXME: Should we restrict users to create alias with bad words?
             raise CannotMakeAddressException
         address_hash = sha256(
-            '{}@{}'.format(domain_address.address, user_subdomain).encode('utf-8')
+            '{}@{}'.format(address, user_subdomain).encode('utf-8')
         ).hexdigest()
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash
         ).count()
         if address_already_deleted > 0:
             raise CannotMakeAddressException
+        domain_address = DomainAddress.objects.create(user=user, address=address)
         return domain_address
 
     def delete(self, *args, **kwargs):
