@@ -657,6 +657,12 @@ table {
   text-decoration: none !important;
 }
 
+
+.relay-address.alias-copied.alias-copied-fadeout .alias-copied-message {
+  opacity: 0 !important;
+}
+
+
 .alias-copied-icon {
   width: 18px;
   height: 18px;
@@ -694,6 +700,7 @@ table {
   color: var(--white);
   font-size: 14px;
   right: 0;
+  transition: opacity 2s ease-out;
 }
 
 .alias-copied .alias-copied-message {
