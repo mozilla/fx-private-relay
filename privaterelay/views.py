@@ -37,6 +37,7 @@ from emails.models import (
 )
 from emails.utils import get_post_data_from_request
 
+from .ftl_bundles import main as main_bundle
 
 FXA_PROFILE_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/profile-change'
@@ -55,7 +56,9 @@ logger = logging.getLogger('events')
 def home(request):
     if (request.user and not request.user.is_anonymous):
         return redirect(reverse('profile'))
-    return render(request, 'home.html')
+    return render(request, 'home.html', {
+        'ftl_bundle': main_bundle,
+    })
 
 
 def faq(request):

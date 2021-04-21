@@ -1,8 +1,11 @@
 {% load socialaccount %}
 {% load static %}
+{% load ftl %}
+{% ftlconf mode=ftl_mode %}
+
 
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="{{ request.LANGUAGE_CODE }}" dir="ltr">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
