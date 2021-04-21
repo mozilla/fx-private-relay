@@ -4,6 +4,6 @@
 
 ### URL: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/
 
-home-hero-headline = Hide your real email address to help protect your identity
+home-hero-headline = [EN] Hide your real email address to help protect your identity
 home-hero-copy = { -brand-name-firefox-relay } makes it easy to create aliases, randomly generated email addresses that forward to your real inbox. Use it to protect your online accounts - and your identity - from hackers. Sign in with your { -brand-firefox } account to get started.
 home-hero-cta = Sign In
