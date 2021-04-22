@@ -15,9 +15,18 @@ from ..models import (
     CannotMakeAddressException,
     DeletedAddress,
     DomainAddress,
+    has_bad_words,
     RelayAddress,
     Profile
 )
+
+
+class MiscEmailModelsTest(TestCase):
+    def test_has_bad_words_with_bad_words(self):
+        assert has_bad_words('angry')
+
+    def test_has_bad_words_without_bad_words(self):
+        assert not has_bad_words('happy')
 
 
 class RelayAddressTest(TestCase):

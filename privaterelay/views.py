@@ -29,7 +29,11 @@ from allauth.socialaccount.providers.fxa.views import (
     FirefoxAccountsOAuth2Adapter
 )
 
-from emails.models import DomainAddress, RelayAddress
+from emails.models import (
+    DomainAddress,
+    has_bad_words,
+    RelayAddress
+)
 from emails.utils import get_post_data_from_request
 
 
@@ -107,13 +111,18 @@ def profile_subdomain(request):
     profile = request.user.profile_set.first()
     if not profile.has_unlimited:
         messages.error(
-            request, "You must be a premium subscriber to set a domain."
+            request, "You must be a premium subscriber to set a subdomain."
         )
         return redirect(reverse('profile'))
     if profile.subdomain is not None:
-        messages.error(request, "You cannot change your domain.")
+        messages.error(request, "You cannot change your subdomain.")
         return redirect(reverse('profile'))
-    profile.subdomain = request.POST['subdomain']
+    subdomain = request.POST['subdomain']
+    subdomain_exists = Profile.objects.filter(subdomain=subdomain)
+    if has_bad_words(subdomain) or subdomain_exists:
+        messages.error(request, "Subdomain could not be created, try using a different value.")
+        return redirect(reverse('profile'))
+    profile.subdomain = subdomain_exists
     profile.save()
     return redirect(reverse('profile'))
 

@@ -112,6 +112,11 @@ class Profile(models.Model):
 def address_default():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
 
+def has_bad_words(value):
+    return any(
+        badword in value
+        for badword in emails_config.badwords
+    )
 
 class CannotMakeAddressException(Exception):
     pass
@@ -153,10 +158,7 @@ class RelayAddress(models.Model):
         if num_tries >= 5:
             raise CannotMakeAddressException
         relay_address = RelayAddress.objects.create(user=user)
-        address_contains_badword = any(
-            badword in relay_address.address
-            for badword in emails_config.badwords
-        )
+        address_contains_badword = has_bad_words(relay_address.address)
         address_hash = sha256(
             relay_address.address.encode('utf-8')
         ).hexdigest()
@@ -198,12 +200,10 @@ class DomainAddress(models.Model):
         return self.address
 
     def make_domain_address(user, address=None):
+        address_contains_badword = False
         if address is None:
             address = address_default()
-        address_contains_badword = any(
-            badword in address
-            for badword in emails_config.badwords
-        )
+            address_contains_badword = has_bad_words(address)
         
         user_subdomain = Profile.objects.get(user=user).subdomain
         if not user_subdomain or address_contains_badword:
