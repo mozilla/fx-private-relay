@@ -15,19 +15,19 @@
     <div id="micro-survey-banner" class="micro-survey-banner hidden">
       {% now "U" as now_second %}
       {% if now_second|last == "1" or now_second|last == "6" %}
-        <span id="micro-survey-prompt" data-survey-type="nps">On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?</span>
+        <span id="micro-survey-prompt" data-survey-type="nps">{% ftlmsg 'survey-question-1' %}</span>
         <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-numeric"></ul>
       {% elif now_second|last == "2" or now_second|last == "7" %}
-        <span id="micro-survey-prompt" data-survey-type="usability">Is Relay easy to use?</span>
+        <span id="micro-survey-prompt" data-survey-type="usability">{% ftlmsg 'survey-question-2' %}</span>
         <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
       {% elif now_second|last == "3" or now_second|last == "8" %}
-        <span id="micro-survey-prompt" data-survey-type="credibility">Do you feel Relay is trustworthy?</span>
+        <span id="micro-survey-prompt" data-survey-type="credibility">{% ftlmsg 'survey-question-3' %}</span>
         <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
       {% elif now_second|last == "4" or now_second|last == "9" %}
-        <span id="micro-survey-prompt" data-survey-type="appearance">Does Relay have a clean and simple presentation?</span>
+        <span id="micro-survey-prompt" data-survey-type="appearance">{% ftlmsg 'survey-question-4' %}</span>
         <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
       {% else %}
-        <span id="micro-survey-prompt" data-survey-type="pmf">How would you feel if you could no longer use Relay?</span>
+        <span id="micro-survey-prompt" data-survey-type="pmf">{% ftlmsg 'survey-question-5' %}</span>
         <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
       {% endif %}
     </div>

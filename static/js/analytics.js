@@ -153,6 +153,7 @@ function analyticsSurveyLogic() {
   switch (surveyType) {
     case "nps": {
       const notLikely = document.createElement("li");
+      // TODO: Translate these strings
       notLikely.textContent = "Not likely";
       notLikely.classList = "nps-bookend";
       surveyOptions.appendChild(notLikely);
@@ -193,6 +194,7 @@ function analyticsSurveyLogic() {
         surveyOptions.appendChild(li);
       });
       const veryLikely = document.createElement("li");
+      // TODO: Translate these strings
       veryLikely.textContent = "Very likely";
       veryLikely.classList = "nps-bookend";
       surveyOptions.appendChild(veryLikely);

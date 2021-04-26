@@ -1,17 +1,24 @@
 {% load static %}
 {% load relay_tags %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
+{% remaining_free_aliases relay_addresses as remaining_free_aliases_count %}
 
 <span class="remaining-aliases flx">
   <span class="num-remaining-aliases bold">
     {% with request.user.profile_set.first as user_profile %}
-    {% if settings.PREMIUM_ENABLED and user_profile.has_unlimited %}
-    {{ relay_addresses|length }} aliases. You can make unlimited!
-    {% else %}
-        <p>{% remaining_free_aliases relay_addresses %}</span> remaining {% if relay_addresses|length == 4 %}alias{% else %} aliases {% endif %}</p>
-        {% if settings.PREMIUM_ENABLED %}
-        <a href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank">Buy unlimited aliases</a>
-        {% endif %}
-    {% endif %}
+      {% if settings.PREMIUM_ENABLED and user_profile.has_unlimited %}
+        {% ftlmsg 'remaining-aliases-promo-label' number=relay_addresses|length %}
+      {% else %}
+          {% if relay_addresses|length == 4 %}
+            {% ftlmsg 'remaining-aliases-label-html' number=remaining_free_aliases_count %}
+          {% else %}
+            {% ftlmsg 'remaining-aliases-label-plural-html' number=remaining_free_aliases_count %}
+          {% endif %}
+          {% if settings.PREMIUM_ENABLED %}
+            <a href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank">{% ftlmsg 'remaining-aliases-cta' %}</a>
+          {% endif %}
+      {% endif %}
     {% endwith %}
 </span>
