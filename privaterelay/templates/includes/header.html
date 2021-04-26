@@ -1,5 +1,7 @@
 {% load i18n %}
 {% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -37,16 +39,16 @@
       <div class="fx-private-relay-logotype"></div>
     </a>
     <nav class="flx flx-row ff-Met al-cntr header-nav hide-mobile">
-      <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} header-link" href="/">Home</a>
-      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} header-link" href="/faq">FAQ</a>
+      <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} header-link" href="/">{% ftlmsg 'nav-home' %}</a>
+      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} header-link" href="/faq">{% ftlmsg 'nav-faq' %}</a>
     </nav>
     {% include "includes/login.html" %}
   </div>
   <nav class="flx flx-col ff-Met al-cntr mobile-menu show-mobile">
-    <button class="mobile-menu-toggle full-width ff-Met" aria-label="Open mobile menu"><span class="mobile-menu-label">Menu</span></button>
+    <button class="mobile-menu-toggle full-width ff-Met" aria-label="Open mobile menu"><span class="mobile-menu-label">{% ftlmsg 'nav-menu' %}</span></button>
     <div class="mobile-menu-links flx flx-col">
-      <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} mobile-menu-link mobile-home-link" href="/">Home</a>
-      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} mobile-menu-link" href="/faq">FAQ</a>
+      <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} mobile-menu-link mobile-home-link" href="/">{% ftlmsg 'nav-home' %}</a>
+      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} mobile-menu-link" href="/faq">{% ftlmsg 'nav-faq' %}</a>
     </div>
     </nav>
 </header>

@@ -10,12 +10,18 @@
 -brand-name-firefox-account = Firefox Account
 -brand-name-firefox-browser = Firefox Browser
 
-### Navigation 
-
+### Header 
 logo-alt= { -brand-name-firefox-relay }
+nav-menu = Menu
 nav-home = Home
 # FAQ stands for Frequently Asked Questions. The intent of this page is to answer commonly asked questions.
 nav-faq = FAQ
+
+### Footer
+nav-footer-privacy = Privacy
+nav-footer-relay-terms = Relay Terms
+nav-footer-legal = Legal
+
 
 ### Home Page
 ### URL: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/
