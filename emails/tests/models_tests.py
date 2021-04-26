@@ -12,6 +12,7 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 
 from ..models import (
+    address_hash,
     CannotMakeAddressException,
     DeletedAddress,
     DomainAddress,
@@ -27,6 +28,17 @@ class MiscEmailModelsTest(TestCase):
 
     def test_has_bad_words_without_bad_words(self):
         assert not has_bad_words('happy')
+
+    def test_address_hash_without_subdomain(self):
+        address = 'aaaaaaaaa'
+        expected_hash = sha256(f'{address}'.encode('utf-8')).hexdigest()
+        assert address_hash(address) == expected_hash
+    
+    def test_address_hash_with_subdomain(self):
+        address = 'aaaaaaaaa'
+        subdomain = 'test'
+        expected_hash = sha256(f'{address}@{subdomain}'.encode('utf-8')).hexdigest()
+        assert address_hash(address, subdomain) == expected_hash
 
 
 class RelayAddressTest(TestCase):

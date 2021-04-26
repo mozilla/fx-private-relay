@@ -108,6 +108,14 @@ class Profile(models.Model):
         return False
 
 
+def address_hash(address, subdomain=None):
+    if subdomain:
+        return sha256(
+            f'{address}@{subdomain}'.encode('utf-8')
+        ).hexdigest()
+    return sha256(
+            f'{address}'.encode('utf-8')
+        ).hexdigest()
 
 def address_default():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
@@ -142,7 +150,7 @@ class RelayAddress(models.Model):
     def delete(self, *args, **kwargs):
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
-            address_hash=sha256(self.address.encode('utf-8')).hexdigest(),
+            address_hash=address_hash(self.address),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
@@ -158,12 +166,9 @@ class RelayAddress(models.Model):
         if num_tries >= 5:
             raise CannotMakeAddressException
         relay_address = RelayAddress.objects.create(user=user)
-        address_contains_badword = has_bad_words(relay_address.address)
-        address_hash = sha256(
-            relay_address.address.encode('utf-8')
-        ).hexdigest()
+        address_contains_badword = has_bad_words(relay_address.address)        
         address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash
+            address_hash=address_hash(relay_address.address)
         ).count()
         if address_already_deleted > 0 or address_contains_badword:
             relay_address.delete()
@@ -199,6 +204,10 @@ class DomainAddress(models.Model):
     def __str__(self):
         return self.address
 
+    @property
+    def user_profile(self):
+        return Profile.objects.get(user=self.user)
+
     def make_domain_address(user, address=None):
         address_contains_badword = False
         if address is None:
@@ -209,11 +218,8 @@ class DomainAddress(models.Model):
         if not user_subdomain or address_contains_badword:
             # FIXME: Should we restrict users to create alias with bad words?
             raise CannotMakeAddressException
-        address_hash = sha256(
-            '{}@{}'.format(address, user_subdomain).encode('utf-8')
-        ).hexdigest()
         address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash
+            address_hash=address_hash(address, user_subdomain)
         ).count()
         if address_already_deleted > 0:
             raise CannotMakeAddressException
@@ -224,9 +230,7 @@ class DomainAddress(models.Model):
         # TODO: create hard bounce receipt rule in AWS for the address
         profile = Profile.objects.get(user=self.user)
         deleted_address = DeletedAddress.objects.create(
-            address_hash=sha256(
-                f'{self.address}@{profile.subdomain}'.encode('utf-8')
-            ).hexdigest(),
+            address_hash=address_hash(self.address, self.user_profile.subdomain),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
