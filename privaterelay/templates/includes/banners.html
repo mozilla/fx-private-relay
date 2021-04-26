@@ -70,7 +70,8 @@
       <div class="banner-copy flx flx-col">
         <p class="banner-hl ff-Met">{% ftlmsg 'banner-choose-subdomain-label' %}</p>
         <p class="banner-sub">{{ user_profile.subdomain }}</p>
-        <p>{% ftlmsg 'banner-choose-subdomain-label' subdomain='{user_email_domain} {user_profile}' %}</p>
+        {% user_email_domain user_profile as user_subdomain %}
+        <p>{% ftlmsg 'banner-choose-subdomain-label' subdomain=user_subdomain %}</p>
       </div>
     </div>
   </div>
