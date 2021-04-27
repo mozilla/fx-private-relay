@@ -1,22 +1,21 @@
 {% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
 <div class="modal modal-bg fade-in">
   <div class="modal modal-content drop-shadow-light">
-    <h2 class="modal-headline">Permanently delete this alias?</h2>
+    <h2 class="modal-headline">{% ftlmsg 'modal-delete-headline' %}</h2>
     <span class="alias-to-delete demi"></span>
-    <p class="modal-message">
-      Once you delete this alias, it cannot be recovered. Firefox Relay will no longer forward messages sent to <span class="alias-to-delete"></span>, including messages that allow you to reset lost passwords.
-    </p>
-    <p class="warning-text  delete-tip modal-message">
-      If you use this alias to log in to sites you care about, you should update your login with a different email address before you delete this one.
-    </p>
+    <p class="modal-message">{% ftlmsg 'modal-delete-warning-recovery-html' attrs='class="alias-to-delete"' %}</p>
+    <p class="warning-text  delete-tip modal-message">{% ftlmsg 'modal-delete-warning-upgrade' %}</p>
     <div class="flx flx-row checkbox-wrapper">
       <input type="checkbox" class="checkbox delete-modal" />
       <span class="checkbox-ui"></span>
-      <label class="checkbox-label">Yes, I want to delete this alias</label>
+      <label class="checkbox-label">{% ftlmsg 'modal-delete-confirmation' %}</label>
     </div>
     <div class="fx flx-row confirm-delete-actions">
-      <button class="cancel-delete confirm-delete-action delete-modal">Cancel</button>
-      <button class="confirm-delete confirm-delete-action delete-modal" disabled="true">Delete</button>
+      <button class="cancel-delete confirm-delete-action delete-modal">{% ftlmsg 'profile-label-cancel' %}</button>
+      <button class="confirm-delete confirm-delete-action delete-modal" disabled="true">{% ftlmsg 'profile-label-delete' %}</button>
     </div>
   </div>
 </div>

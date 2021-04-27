@@ -1,13 +1,15 @@
 {% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 <!-- blocked emails -->
 <div class="column-blocked center-value relay-stat">
-  <span class="relay-email-label card-small-text">Blocked</span>
+  <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-blocked' %}</span>
   <span class="email-value relay-stat-value num-blocked">{{ relay_address.num_blocked }}</span>
-  <span class="blocked-description stat-description">Firefox Relay will delete messages before they can reach your inbox when you select blocking for this alias.</span>
+  <span class="blocked-description stat-description">{% ftlmsg 'profile-blocked-copy' %}</span>
 </div>
 <!-- forwarded emails -->
 <div class="column-forwarded center-value relay-stat">
-  <span class="relay-email-label card-small-text">Forwarded</span>
+  <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-forwarded' %}</span>
   <span class="email-value relay-stat-value num-forwarded">{{ relay_address.num_forwarded }}</span>
-  <span class="forwarding-description stat-description">Firefox Relay will send messages to your inbox when you select forwarding for this alias. <br /><span class="fwd-note"><span class="bold ff-Met">Note:</span> Email (including attachments) larger than 150KB are not currently supported and will not be forwarded.</span></span>
+  <span class="forwarding-description stat-description">{% ftlmsg 'profile-forwarded-copy-html' %}</span>
 </div>
