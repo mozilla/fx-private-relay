@@ -269,6 +269,31 @@ class ProfileTest(TestCase):
         premium_profile = baker.make(Profile, user=premium_user)
         assert premium_profile.has_unlimited == True
 
+    def test_add_subdomain_to_new_unlimited_profile(self):
+        subdomain = 'test'
+        premium_profile = baker.make(Profile)
+        assert premium_profile.add_subdomain(subdomain) == subdomain
+
+    def test_add_subdomain_to_unlimited_profile_with_subdomain_raises_exception(self):
+        subdomain = 'test'
+        premium_profile = baker.make(Profile, subdomain=subdomain)
+        try:
+            premium_profile.add_subdomain(subdomain)
+        except CannotMakeSubdomainException as e:
+            assert e.message == 'You cannot change your subdomain.'
+            return
+        self.fail("Should have raised CannotMakeSubdomainException")
+    
+    def test_add_subdomain_to_unlimited_profile_with_badword_subdomain_raises_exception(self):
+        subdomain = 'angry'
+        premium_profile = baker.make(Profile)
+        try:
+            premium_profile.add_subdomain(subdomain)
+        except CannotMakeSubdomainException as e:
+            assert e.message == 'Subdomain could not be created, try using a different value.'
+            return
+        self.fail("Should have raised CannotMakeSubdomainException")
+
 
 class DomainAddressTest(TestCase):
     def setUp(self):

@@ -30,6 +30,7 @@ from allauth.socialaccount.providers.fxa.views import (
 )
 
 from emails.models import (
+    CannotMakeSubdomainException,
     DomainAddress,
     has_bad_words,
     RelayAddress
@@ -111,19 +112,12 @@ def profile_subdomain(request):
     profile = request.user.profile_set.first()
     if not profile.has_unlimited:
         messages.error(
-            request, "You must be a premium subscriber to set a subdomain."
+            request, 'You must be a premium subscriber to set a subdomain.'
         )
-        return redirect(reverse('profile'))
-    if profile.subdomain is not None:
-        messages.error(request, "You cannot change your subdomain.")
-        return redirect(reverse('profile'))
-    subdomain = request.POST['subdomain']
-    subdomain_exists = Profile.objects.filter(subdomain=subdomain)
-    if has_bad_words(subdomain) or subdomain_exists:
-        messages.error(request, "Subdomain could not be created, try using a different value.")
-        return redirect(reverse('profile'))
-    profile.subdomain = subdomain_exists
-    profile.save()
+    try:
+        profile.add_subdomain(request.POST.get('subdomain', None))
+    except CannotMakeSubdomainException as e:
+        message.error(request, e.message)
     return redirect(reverse('profile'))
 
 

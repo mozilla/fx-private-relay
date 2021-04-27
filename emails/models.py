@@ -107,6 +107,17 @@ class Profile(models.Model):
                 return True
         return False
 
+    def add_subdomain(self, subdomain):
+        # checking for premium user happens before this funciton is called
+        if self.subdomain is not None:
+            raise CannotMakeSubdomainException('You cannot change your subdomain.')
+        subdomain_exists = Profile.objects.filter(subdomain=subdomain)
+        if not subdomain or has_bad_words(subdomain) or subdomain_exists:
+            raise CannotMakeSubdomainException('Subdomain could not be created, try using a different value.')
+        self.subdomain = subdomain
+        self.save()
+        return subdomain
+
 
 def address_hash(address, subdomain=None):
     if subdomain:
@@ -125,6 +136,17 @@ def has_bad_words(value):
         badword in value
         for badword in emails_config.badwords
     )
+
+class CannotMakeSubdomainException(Exception):
+    """Exception raised by Profile due to error on subdomain creation.
+
+    Attributes:
+        message -- optional explanation of the error
+    """
+
+    def __init__(self, message=None):
+        self.message = message
+
 
 class CannotMakeAddressException(Exception):
     pass
@@ -216,7 +238,6 @@ class DomainAddress(models.Model):
         
         user_subdomain = Profile.objects.get(user=user).subdomain
         if not user_subdomain or address_contains_badword:
-            # FIXME: Should we restrict users to create alias with bad words?
             raise CannotMakeAddressException
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(address, user_subdomain)
