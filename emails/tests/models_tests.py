@@ -14,6 +14,7 @@ from model_bakery import baker
 from ..models import (
     address_hash,
     CannotMakeAddressException,
+    CannotMakeSubdomainException,
     DeletedAddress,
     DomainAddress,
     has_bad_words,
@@ -309,13 +310,20 @@ class DomainAddressTest(TestCase):
 
     def test_make_domain_address_makes_different_addresses(self):
         for i in range(5):
-            DomainAddress.make_domain_address(self.user)
+            domain_address = DomainAddress.make_domain_address(self.user)
+            assert domain_address.first_emailed_at is None
         domain_addresses = DomainAddress.objects.filter(user=self.user).values_list("address", flat=True)
         assert len(set(domain_addresses)) == 5 # checks that there are 5 unique DomainAddress
 
     def test_make_domain_address_makes_requested_address(self):
         domain_address = DomainAddress.make_domain_address(self.user, 'testing')
         assert domain_address.address == 'testing'
+        assert domain_address.first_emailed_at is None
+
+    def test_make_domain_address_makes_requested_address_via_email(self):
+        domain_address = DomainAddress.make_domain_address(self.user, 'testing', True)
+        assert domain_address.address == 'testing'
+        assert domain_address.first_emailed_at is not None
 
     @patch.multiple('string', ascii_lowercase='a', digits='')
     def test_make_domain_address_doesnt_make_dupe_of_deleted(self):

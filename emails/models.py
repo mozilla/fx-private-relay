@@ -215,7 +215,7 @@ class DomainAddress(models.Model):
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
-    first_emailed_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    first_emailed_at = models.DateTimeField(null=True, db_index=True)
     last_used_at = models.DateTimeField(auto_now_add=True, db_index=True)
     last_modified_at = models.DateTimeField(auto_now=True, db_index=True)
     last_used_at = models.DateTimeField(blank=True, null=True)
@@ -230,9 +230,13 @@ class DomainAddress(models.Model):
     def user_profile(self):
         return Profile.objects.get(user=self.user)
 
-    def make_domain_address(user, address=None):
+    def make_domain_address(user, address=None, made_via_email=False):
         address_contains_badword = False
         if address is None:
+            # FIXME: if the alias is randomly generated and has bad words
+            # we should retry like make_relay_address does
+            # not fixing this now because not sure randomly generated
+            # DomainAlias will be a feature
             address = address_default()
             address_contains_badword = has_bad_words(address)
         
@@ -245,6 +249,10 @@ class DomainAddress(models.Model):
         if address_already_deleted > 0:
             raise CannotMakeAddressException
         domain_address = DomainAddress.objects.create(user=user, address=address)
+        if made_via_email:
+            # update first_emailed_at indicating alias generation impromptu.
+            domain_address.first_emailed_at = datetime.now(timezone.utc)
+            domain_address.save()
         return domain_address
 
     def delete(self, *args, **kwargs):
