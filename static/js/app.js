@@ -91,27 +91,19 @@ async function sendForm(formAction, formData) {
 function copyToClipboardAndShowMessage(triggeringEl) {
   const aliasCopyBtn = triggeringEl;
   const previouslyCopiedAlias = document.querySelector(".alias-copied");
-  
-  if (previouslyCopiedAlias) {
+
+  if (previouslyCopiedAlias || previouslyCopiedAlias == triggeringEl) {
     previouslyCopiedAlias.classList.remove("alias-copied", "alias-copied-fadeout");
     previouslyCopiedAlias.title = "Copy alias to clipboard";
   }
-  
-  aliasCopyBtn.classList.add("alias-copied");
-  aliasCopyBtn.title="Alias copied to clipboard";
 
-  // Countdown timer to fade out the "Copied" message after 5 seconds of being displayed
-  let copyMessageCountdown = 0;
-  const copyMessageCountdownInterval = setInterval(function() {
-      copyMessageCountdown++;
-      if (copyMessageCountdown == 5) {
-          aliasCopyBtn.classList.add("alias-copied-fadeout");
-      } else if (copyMessageCountdown == 7) {
-          aliasCopyBtn.classList.remove("alias-copied", "alias-copied-fadeout");
-          aliasCopyBtn.title = "Copy alias to clipboard";
-          clearInterval(copyMessageCountdownInterval);
-      }
-  }, 1000);
+  setTimeout(() => { 
+    triggeringEl.classList.add("alias-copied", "alias-copied-fadeout");
+    triggeringEl.title="Alias copied to clipboard";
+   }, 10);
+
+  
+  
 
   return;
 }
