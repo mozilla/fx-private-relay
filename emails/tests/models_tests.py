@@ -346,6 +346,17 @@ class DomainAddressTest(TestCase):
     def setUp(self):
         self.subdomain = 'test'
         self.user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=self.user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        # get rather than create profile since profile is auto-generated
+        # when user is created
         self.user_profile = Profile.objects.get(user=self.user)
         self.user_profile.subdomain = self.subdomain
         self.user_profile.save()
@@ -355,6 +366,9 @@ class DomainAddressTest(TestCase):
         assert domain_address.user == self.user
 
     def test_make_domain_address_makes_different_addresses(self):
+        # FIXME: sometimes this test will fail because it randomly generates
+        # alias with bad words. See make_domain_address for why this has
+        # not been fixed yet
         for i in range(5):
             domain_address = DomainAddress.make_domain_address(self.user)
             assert domain_address.first_emailed_at is None
@@ -371,13 +385,52 @@ class DomainAddressTest(TestCase):
         assert domain_address.address == 'testing'
         assert domain_address.first_emailed_at is not None
 
+    def test_make_domain_address_non_premium_user(self):
+        non_preimum_user = baker.make(User)
+        try:
+            DomainAddress.make_domain_address(non_preimum_user)
+        except CannotMakeAddressException as e:
+            assert e.message == NOT_PREMIUM_USER_ERR_MSG
+            return
+        self.fail("Should have raise CannotMakeAddressException")
+    
+    def test_make_domain_address_valid_premium_user_with_no_subdomain(self):
+        user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        user_profile = Profile.objects.get(user=user)        
+        try:
+            DomainAddress.make_domain_address(user)
+        except CannotMakeAddressException as e:
+            assert e.message == 'You must select a subdomain before creating email address with subdomain.'
+            return
+        self.fail("Should have raise CannotMakeAddressException")
+
     @patch.multiple('string', ascii_lowercase='a', digits='')
     def test_make_domain_address_doesnt_make_dupe_of_deleted(self):
         test_hash = sha256(f'aaaaaaaaa@{self.subdomain}'.encode('utf-8')).hexdigest()
         DeletedAddress.objects.create(address_hash=test_hash)
         try:
             DomainAddress.make_domain_address(self.user)
-        except CannotMakeAddressException:
+        except CannotMakeAddressException as e:
+            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
+            return
+        self.fail("Should have raise CannotMakeAddressException")
+
+    @patch('emails.models.address_default')
+    def test_make_domain_address_doesnt_make_randomly_generated_bad_word_alias(self, address_default_mocked):
+        address_default_mocked.return_value = 'angry0123'
+        try:
+            DomainAddress.make_domain_address(self.user)
+        except CannotMakeAddressException as e:
+            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             return
         self.fail("Should have raise CannotMakeAddressException")
 

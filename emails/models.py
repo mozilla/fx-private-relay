@@ -101,6 +101,8 @@ class Profile(models.Model):
 
     @property
     def has_unlimited(self):
+        # FIXME: as we don't have all the tiers defined we are over-defining
+        # this to mark the user as a premium user as well
         if not self.fxa:
             return False
         user_subscriptions = self.fxa.extra_data.get('subscriptions', [])
@@ -152,7 +154,14 @@ class CannotMakeSubdomainException(Exception):
 
 
 class CannotMakeAddressException(Exception):
-    pass
+    """Exception raised by RelayAddress or DomainAddress due to error on alias creation.
+
+    Attributes:
+        message -- optional explanation of the error
+    """
+
+    def __init__(self, message=None):
+        self.message = message
 
 
 class RelayAddress(models.Model):
@@ -182,7 +191,7 @@ class RelayAddress(models.Model):
         )
         deleted_address.save()
         profile = Profile.objects.get(user=self.user)
-        profile.address_last_deleted = datetime.now()
+        profile.address_last_deleted = datetime.now(timezone.utc)
         profile.num_address_deleted += 1
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
@@ -234,6 +243,16 @@ class DomainAddress(models.Model):
         return Profile.objects.get(user=self.user)
 
     def make_domain_address(user, address=None, made_via_email=False):
+        user_profile = Profile.objects.get(user=user)
+        if not user_profile.has_unlimited:
+            raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG)
+        
+        user_subdomain = Profile.objects.get(user=user).subdomain
+        if not user_subdomain:
+            raise CannotMakeAddressException(
+                'You must select a subdomain before creating email address with subdomain.'
+            )
+        
         address_contains_badword = False
         if address is None:
             # FIXME: if the alias is randomly generated and has bad words
@@ -241,16 +260,16 @@ class DomainAddress(models.Model):
             # not fixing this now because not sure randomly generated
             # DomainAlias will be a feature
             address = address_default()
+            # Only check for bad words if randomly generated
             address_contains_badword = has_bad_words(address)
-        
-        user_subdomain = Profile.objects.get(user=user).subdomain
-        if not user_subdomain or address_contains_badword:
-            raise CannotMakeAddressException
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(address, user_subdomain)
         ).count()
-        if address_already_deleted > 0:
-            raise CannotMakeAddressException
+        if address_contains_badword or address_already_deleted > 0:
+            raise CannotMakeAddressException(
+                TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
+            )
+
         domain_address = DomainAddress.objects.create(user=user, address=address)
         if made_via_email:
             # update first_emailed_at indicating alias generation impromptu.
@@ -268,7 +287,7 @@ class DomainAddress(models.Model):
             num_spam=self.num_spam,
         )
         deleted_address.save()
-        profile.address_last_deleted = datetime.now()
+        profile.address_last_deleted = datetime.now(timezone.utc)
         profile.num_address_deleted += 1
         profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)

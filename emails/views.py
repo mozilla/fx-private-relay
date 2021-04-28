@@ -377,14 +377,9 @@ def _get_domain_address(to_address, local_portion, domain_portion):
         if not domain_address:
             # TODO: We may want to consider flows when a user generating alias on a fly was unable to
             # receive an email due to the following exceptions
-            try:
-                domain_address = DomainAddress.make_domain_address(
-                    user_profile.user, local_portion, True
-                )
-            except CannotMakeAddressException:
-                raise Exception('Address not allowed')
-            except DeletedDomainAddressException:
-                raise Exception('Failed to create address')
+            domain_address = DomainAddress.make_domain_address(
+                user_profile.user, local_portion, True
+            )
         domain_address.last_used_at = datetime.now(timezone.utc)
         domain_address.save()
         return user_profile
