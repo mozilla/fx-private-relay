@@ -55,8 +55,8 @@ SESSION_COOKIE_SECURE = config(
 # maps fxa profile hosts to respective avatar hosts for CSP
 AVATAR_IMG_SRC_MAP = {
     'https://stable.dev.lcip.org/profile/v1':   'stable.dev.lcip.org',
-    'https://profile.stage.mozaws.net/v1':      'mozillausercontent.com',
-    'https://profile.accounts.firefox.com/v1':  'firefoxusercontent.com',
+    'https://profile.stage.mozaws.net/v1':      'profile.stage.firefox.com',
+    'https://profile.accounts.firefox.com/v1':  'profile.accounts.firefox.com',
 }
 AVATAR_IMG_SRC = AVATAR_IMG_SRC_MAP[config(
     'FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'
