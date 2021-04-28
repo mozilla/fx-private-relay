@@ -91,12 +91,20 @@ async function sendForm(formAction, formData) {
 function copyToClipboardAndShowMessage(triggeringEl) {
   const aliasCopyBtn = triggeringEl;
   const previouslyCopiedAlias = document.querySelector(".alias-copied");
-  if (previouslyCopiedAlias) {
-    previouslyCopiedAlias.classList.remove("alias-copied");
+
+  if (previouslyCopiedAlias || previouslyCopiedAlias == triggeringEl) {
+    previouslyCopiedAlias.classList.remove("alias-copied", "alias-copied-fadeout");
     previouslyCopiedAlias.title = "Copy alias to clipboard";
   }
-  aliasCopyBtn.classList.add("alias-copied");
-  aliasCopyBtn.title="Alias copied to clipboard";
+
+  setTimeout(() => { 
+    triggeringEl.classList.add("alias-copied", "alias-copied-fadeout");
+    triggeringEl.title="Alias copied to clipboard";
+   }, 10);
+
+  
+  
+
   return;
 }
 

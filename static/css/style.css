@@ -653,8 +653,32 @@ table {
 }
 
 .relay-address.alias-copied {
-  opacity: 1 !important;
   text-decoration: none !important;
+}
+
+.alias-copied-fadeout .alias-copied-message {
+  animation-duration: 4s;
+  animation-name: fadeOut;
+  animation-fill-mode: forwards;
+}
+
+.alias-copied-fadeout .alias-copied-icon {
+  opacity: 0;
+  animation-delay: 3s;
+  animation-duration: 0.1s;
+  animation-name: fadeOut;
+  animation-direction: reverse;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 .alias-copied-icon {
@@ -677,12 +701,7 @@ table {
   pointer-events: none;
 }
 
-.alias-copied .alias-copied-icon {
-  display: none;
-}
-
-.alias-copied-message,
-.alias-copied .alias-copied-icon {
+.alias-copied-message {
   visibility: hidden;
 }
 
@@ -694,6 +713,7 @@ table {
   color: var(--white);
   font-size: 14px;
   right: 0;
+  transition: opacity 2s ease-out;
 }
 
 .alias-copied .alias-copied-message {
