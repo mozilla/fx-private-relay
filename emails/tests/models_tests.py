@@ -46,19 +46,59 @@ class MiscEmailModelsTest(TestCase):
 
 class RelayAddressTest(TestCase):
     def setUp(self):
-        self.user = baker.make(User)
+        user = baker.make(User)
+        self.user_profile = Profile.objects.get(user=user)
 
     def test_make_relay_address_assigns_to_user(self):
-        relay_address = RelayAddress.make_relay_address(self.user)
-        assert relay_address.user == self.user
+        relay_address = RelayAddress.make_relay_address(self.user_profile)
+        assert relay_address.user == self.user_profile.user
 
     def test_make_relay_address_makes_different_addresses(self):
+        user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        user_profile = Profile.objects.get(user=user)
         for i in range(1000):
-            RelayAddress.make_relay_address(self.user)
+            RelayAddress.make_relay_address(user_profile)
         # check that the address is unique (deeper assertion that the generated aliases are unique)
-        relay_addresses = RelayAddress.objects.filter(user=self.user).values_list("address", flat=True)
+        relay_addresses = RelayAddress.objects.filter(user=user).values_list("address", flat=True)
         assert len(relay_addresses) == 1000
-
+    
+    def test_make_relay_address_premium_user_can_exceed_limit(self):
+        user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        user_profile = Profile.objects.get(user=user)
+        for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
+            RelayAddress.make_relay_address(user_profile)
+        relay_addresses = RelayAddress.objects.filter(user=user).values_list("address", flat=True)
+        assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES + 1
+    
+    def test_make_relay_address_non_premium_user_cannot_pass_limit(self):
+        try:
+            for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
+                RelayAddress.make_relay_address(self.user_profile)
+        except CannotMakeAddressException as e:
+            assert e.message == NOT_PREMIUM_USER_ERR_MSG
+            relay_addresses = RelayAddress.objects.filter(user=self.user_profile.user).values_list("address", flat=True)
+            assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES
+            return
+        self.fail("Should have raised CannotMakeSubdomainException")
+        
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress)
         address_hash = sha256(
@@ -76,7 +116,7 @@ class RelayAddressTest(TestCase):
         test_hash = sha256('aaaaaaaaa'.encode('utf-8')).hexdigest()
         DeletedAddress.objects.create(address_hash=test_hash)
         try:
-            RelayAddress.make_relay_address(self.user)
+            RelayAddress.make_relay_address(self.user_profile)
         except CannotMakeAddressException:
             return
         self.fail("Should have raise CannotMakeAddressException")

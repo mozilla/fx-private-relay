@@ -196,10 +196,15 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def make_relay_address(user, num_tries=0):
+    def make_relay_address(user_profile, num_tries=0):
+        if (
+            user_profile.at_max_free_aliases
+            and not user_profile.has_unlimited
+        ):
+            raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG)
         if num_tries >= 5:
             raise CannotMakeAddressException
-        relay_address = RelayAddress.objects.create(user=user)
+        relay_address = RelayAddress.objects.create(user=user_profile.user)
         address_contains_badword = has_bad_words(relay_address.address)        
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(relay_address.address)
@@ -207,7 +212,7 @@ class RelayAddress(models.Model):
         if address_already_deleted > 0 or address_contains_badword:
             relay_address.delete()
             num_tries += 1
-            return RelayAddress.make_relay_address(user, num_tries)
+            return RelayAddress.make_relay_address(user_profile, num_tries)
         return relay_address
 
 
