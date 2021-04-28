@@ -110,10 +110,6 @@ def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
-    if not profile.has_unlimited:
-        messages.error(
-            request, 'You must be a premium subscriber to set a subdomain.'
-        )
     try:
         profile.add_subdomain(request.POST.get('subdomain', None))
     except CannotMakeSubdomainException as e:

@@ -18,8 +18,10 @@ from ..models import (
     DeletedAddress,
     DomainAddress,
     has_bad_words,
+    NOT_PREMIUM_USER_ERR_MSG,
+    Profile,
     RelayAddress,
-    Profile
+    TRY_DIFFERENT_VALUE_ERR_MSG,
 )
 
 
@@ -272,12 +274,45 @@ class ProfileTest(TestCase):
 
     def test_add_subdomain_to_new_unlimited_profile(self):
         subdomain = 'test'
-        premium_profile = baker.make(Profile)
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
         assert premium_profile.add_subdomain(subdomain) == subdomain
+
+    def test_add_subdomain_to_non_premium_user_raises_exception(self):
+        subdomain = 'test'
+        premium_profile = baker.make(Profile)
+        try:
+            premium_profile.add_subdomain(subdomain)
+        except CannotMakeSubdomainException as e:
+            assert e.message == NOT_PREMIUM_USER_ERR_MSG
+            return
+        self.fail("Should have raised CannotMakeSubdomainException")
 
     def test_add_subdomain_to_unlimited_profile_with_subdomain_raises_exception(self):
         subdomain = 'test'
-        premium_profile = baker.make(Profile, subdomain=subdomain)
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
+        premium_profile.subdomain = subdomain
+        premium_profile.save()
+
         try:
             premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
@@ -287,11 +322,22 @@ class ProfileTest(TestCase):
     
     def test_add_subdomain_to_unlimited_profile_with_badword_subdomain_raises_exception(self):
         subdomain = 'angry'
-        premium_profile = baker.make(Profile)
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
+
         try:
             premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
-            assert e.message == 'Subdomain could not be created, try using a different value.'
+            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Subdomain')
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 

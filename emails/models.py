@@ -16,6 +16,8 @@ emails_config = apps.get_app_config('emails')
 
 BounceStatus = namedtuple('BounceStatus', 'paused type')
 
+NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to set a subdomain.'
+TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
 
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -108,12 +110,13 @@ class Profile(models.Model):
         return False
 
     def add_subdomain(self, subdomain):
-        # checking for premium user happens before this funciton is called
+        if not self.has_unlimited:
+            raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG)
         if self.subdomain is not None:
             raise CannotMakeSubdomainException('You cannot change your subdomain.')
         subdomain_exists = Profile.objects.filter(subdomain=subdomain)
         if not subdomain or has_bad_words(subdomain) or subdomain_exists:
-            raise CannotMakeSubdomainException('Subdomain could not be created, try using a different value.')
+            raise CannotMakeSubdomainException(TRY_DIFFERENT_VALUE_ERR_MSG.format('Subdomain'))
         self.subdomain = subdomain
         self.save()
         return subdomain
