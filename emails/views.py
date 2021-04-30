@@ -25,7 +25,13 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
-from .models import DeletedAddress, DomainAddress, Profile, RelayAddress
+from .models import (
+    CannotMakeAddressException,
+    DeletedAddress,
+    DomainAddress,
+    Profile,
+    RelayAddress
+)
 from .utils import (
     get_post_data_from_request,
     incr_if_enabled,
@@ -126,7 +132,6 @@ def _get_address_from_id(request_data, user_profile):
         user=user_profile.user
     )
     return domain_address
-
 
 
 def _index_PUT(request_data, user_profile):
@@ -368,6 +373,7 @@ def _sns_message(message_json):
         message_body, attachments, user_profile.user.email,
     )
 
+
 def _get_domain_address(to_address, local_portion, domain_portion):
     address_subdomain = domain_portion.split('.')[0]
     try:
@@ -386,6 +392,7 @@ def _get_domain_address(to_address, local_portion, domain_portion):
     except Profile.DoesNotExist:
         incr_if_enabled('email_for_dne_subdomain', 1)
         raise Exception("Address does not exist")
+
 
 def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,

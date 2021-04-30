@@ -19,6 +19,7 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to set a subdomain.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
 
+
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
@@ -133,14 +134,17 @@ def address_hash(address, subdomain=None):
             f'{address}'.encode('utf-8')
         ).hexdigest()
 
+
 def address_default():
     return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
+
 
 def has_bad_words(value):
     return any(
         badword in value
         for badword in emails_config.badwords
     )
+
 
 class CannotMakeSubdomainException(Exception):
     """Exception raised by Profile due to error on subdomain creation.
@@ -205,7 +209,7 @@ class RelayAddress(models.Model):
         if num_tries >= 5:
             raise CannotMakeAddressException
         relay_address = RelayAddress.objects.create(user=user_profile.user)
-        address_contains_badword = has_bad_words(relay_address.address)        
+        address_contains_badword = has_bad_words(relay_address.address)
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(relay_address.address)
         ).count()
@@ -250,13 +254,13 @@ class DomainAddress(models.Model):
     def make_domain_address(user_profile, address=None, made_via_email=False):
         if not user_profile.has_unlimited:
             raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG)
-        
+
         user_subdomain = Profile.objects.get(user=user_profile.user).subdomain
         if not user_subdomain:
             raise CannotMakeAddressException(
                 'You must select a subdomain before creating email address with subdomain.'
             )
-        
+
         address_contains_badword = False
         if address is None:
             # FIXME: if the alias is randomly generated and has bad words

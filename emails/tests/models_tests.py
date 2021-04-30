@@ -37,7 +37,7 @@ class MiscEmailModelsTest(TestCase):
         address = 'aaaaaaaaa'
         expected_hash = sha256(f'{address}'.encode('utf-8')).hexdigest()
         assert address_hash(address) == expected_hash
-    
+
     def test_address_hash_with_subdomain(self):
         address = 'aaaaaaaaa'
         subdomain = 'test'
@@ -55,7 +55,7 @@ class RelayAddressTest(TestCase):
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
         )
-        socialaccount = baker.make(
+        baker.make(
             SocialAccount,
             user=self.premium_user,
             provider='fxa',
@@ -75,7 +75,7 @@ class RelayAddressTest(TestCase):
             user=self.premium_user
         ).values_list("address", flat=True)
         assert len(set(relay_addresses)) == 1000
-    
+
     def test_make_relay_address_premium_user_can_exceed_limit(self):
         for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
             RelayAddress.make_relay_address(self.premium_user_profile)
@@ -83,7 +83,7 @@ class RelayAddressTest(TestCase):
             user=self.premium_user
         ).values_list("address", flat=True)
         assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES + 1
-    
+
     def test_make_relay_address_non_premium_user_cannot_pass_limit(self):
         try:
             for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
@@ -96,7 +96,7 @@ class RelayAddressTest(TestCase):
             assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES
             return
         self.fail("Should have raised CannotMakeSubdomainException")
-        
+
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress)
         address_hash = sha256(
@@ -301,7 +301,7 @@ class ProfileTest(TestCase):
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
         )
-        socialaccount = baker.make(
+        baker.make(
             SocialAccount,
             user=premium_user,
             provider='fxa',
@@ -316,7 +316,7 @@ class ProfileTest(TestCase):
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
         )
-        socialaccount = baker.make(
+        baker.make(
             SocialAccount,
             user=premium_user,
             provider='fxa',
@@ -341,7 +341,7 @@ class ProfileTest(TestCase):
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
         )
-        socialaccount = baker.make(
+        baker.make(
             SocialAccount,
             user=premium_user,
             provider='fxa',
@@ -357,14 +357,14 @@ class ProfileTest(TestCase):
             assert e.message == 'You cannot change your subdomain.'
             return
         self.fail("Should have raised CannotMakeSubdomainException")
-    
+
     def test_add_subdomain_to_unlimited_profile_with_badword_subdomain_raises_exception(self):
         subdomain = 'angry'
         premium_user = baker.make(User)
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
         )
-        socialaccount = baker.make(
+        baker.make(
             SocialAccount,
             user=premium_user,
             provider='fxa',
@@ -387,7 +387,7 @@ class DomainAddressTest(TestCase):
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
         )
-        socialaccount = baker.make(
+        baker.make(
             SocialAccount,
             user=self.user,
             provider='fxa',
@@ -414,7 +414,8 @@ class DomainAddressTest(TestCase):
         domain_addresses = DomainAddress.objects.filter(
             user=self.user
         ).values_list("address", flat=True)
-        assert len(set(domain_addresses)) == 5 # checks that there are 5 unique DomainAddress
+        # checks that there are 5 unique DomainAddress
+        assert len(set(domain_addresses)) == 5
 
     def test_make_domain_address_makes_requested_address(self):
         domain_address = DomainAddress.make_domain_address(self.user_profile, 'testing')
@@ -434,19 +435,19 @@ class DomainAddressTest(TestCase):
             assert e.message == NOT_PREMIUM_USER_ERR_MSG
             return
         self.fail("Should have raise CannotMakeAddressException")
-    
+
     def test_make_domain_address_valid_premium_user_with_no_subdomain(self):
         user = baker.make(User)
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
         )
-        socialaccount = baker.make(
+        baker.make(
             SocialAccount,
             user=user,
             provider='fxa',
             extra_data={'subscriptions': [random_sub]}
         )
-        user_profile = Profile.objects.get(user=user)        
+        user_profile = Profile.objects.get(user=user)
         try:
             DomainAddress.make_domain_address(user_profile)
         except CannotMakeAddressException as e:
