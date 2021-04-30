@@ -82,13 +82,14 @@ def profile(request):
     )
     fxa = _get_fxa(request)
     avatar = fxa.extra_data['avatar'] if fxa else None
+    profile = request.user.profile_set.first()
     context = {
         'relay_addresses': relay_addresses,
         'avatar': avatar,
         'domain_addresses': domain_addresses,
+        'user_profile': profile,
     }
 
-    profile = request.user.profile_set.first()
     bounce_status = profile.check_bounce_pause()
     if bounce_status.paused:
         context.update({
@@ -96,7 +97,6 @@ def profile(request):
             'last_bounce_date': profile.last_bounce_date,
             'next_email_try': profile.next_email_try
         })
-
     return render(request, 'profile.html', context)
 
 

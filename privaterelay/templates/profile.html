@@ -2,7 +2,6 @@
 
 {% load socialaccount %}
 {% load static %}
-{% load relay_tags %}
 
 {% block content %}
 
@@ -10,7 +9,7 @@
 
 {% include "includes/messages.html" with messages=messages %}
 
-<main id="profile-main" class="container bg-light env-bg dashboard-container container" data-api-token="{{ user.profile_set.first.api_token }}">
+<main id="profile-main" class="container bg-light env-bg dashboard-container container" data-api-token="{{ user_profile.api_token }}">
   <div class="main-list flx flx-col jst-cntr">
     {% if messages %}
       <div class="messages profile-messages hidden">
@@ -40,8 +39,7 @@
             {% include "includes/remaining-aliases.html" %}
           </div>
           <form action="/emails/" class="dash-create" method="POST">
-            <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
-            {% with request.user.profile_set.first as user_profile %}
+            <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
             {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
             <button
                 class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr btn-disabled"
@@ -62,7 +60,6 @@
             <span class="generate-new-relay-icon"></span>
             <span class="generate-new-alias-text">Generate New Alias</span>
             </button>
-            {% endwith %}
           </form>
         </div>
 
@@ -84,7 +81,7 @@
               <div class="relay-email-column flx flx-row email-forwarding">
                 <form action="{% url 'emails-index' %}" method="POST" class="flx flx-row al-cntr email-forwarding-form">
                   <input type="hidden" name="method_override" value="PUT">
-                  <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+                  <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
                   <span class="forwarding-label-wrapper card-small-text">{% if relay_address.enabled %} forwarding {% else %} blocking {% endif %}</span>
                   {% if relay_address.enabled %}
@@ -144,7 +141,7 @@
                 <section class="relay-email-column column-delete center-value">
                   <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ RELAY_DOMAIN }}">
                     <input type="hidden" name="method_override" value="DELETE">
-                    <input type="hidden" name="api_token" value="{{ user.profile_set.first.api_token }}">
+                    <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                     <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
                     <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this alias">
                       <span class="remove-label relay-email-label card-small-text">Delete</span>
