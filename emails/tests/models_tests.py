@@ -71,13 +71,17 @@ class RelayAddressTest(TestCase):
         for i in range(1000):
             RelayAddress.make_relay_address(self.premium_user_profile)
         # check that the address is unique (deeper assertion that the generated aliases are unique)
-        relay_addresses = RelayAddress.objects.filter(user=self.premium_user).values_list("address", flat=True)
+        relay_addresses = RelayAddress.objects.filter(
+            user=self.premium_user
+        ).values_list("address", flat=True)
         assert len(set(relay_addresses)) == 1000
     
     def test_make_relay_address_premium_user_can_exceed_limit(self):
         for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
             RelayAddress.make_relay_address(self.premium_user_profile)
-        relay_addresses = RelayAddress.objects.filter(user=self.premium_user).values_list("address", flat=True)
+        relay_addresses = RelayAddress.objects.filter(
+            user=self.premium_user
+        ).values_list("address", flat=True)
         assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES + 1
     
     def test_make_relay_address_non_premium_user_cannot_pass_limit(self):
@@ -86,7 +90,9 @@ class RelayAddressTest(TestCase):
                 RelayAddress.make_relay_address(self.user_profile)
         except CannotMakeAddressException as e:
             assert e.message == NOT_PREMIUM_USER_ERR_MSG
-            relay_addresses = RelayAddress.objects.filter(user=self.user_profile.user).values_list("address", flat=True)
+            relay_addresses = RelayAddress.objects.filter(
+                user=self.user_profile.user
+            ).values_list("address", flat=True)
             assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES
             return
         self.fail("Should have raised CannotMakeSubdomainException")
@@ -405,7 +411,9 @@ class DomainAddressTest(TestCase):
         for i in range(5):
             domain_address = DomainAddress.make_domain_address(self.user_profile)
             assert domain_address.first_emailed_at is None
-        domain_addresses = DomainAddress.objects.filter(user=self.user).values_list("address", flat=True)
+        domain_addresses = DomainAddress.objects.filter(
+            user=self.user
+        ).values_list("address", flat=True)
         assert len(set(domain_addresses)) == 5 # checks that there are 5 unique DomainAddress
 
     def test_make_domain_address_makes_requested_address(self):
@@ -442,7 +450,10 @@ class DomainAddressTest(TestCase):
         try:
             DomainAddress.make_domain_address(user_profile)
         except CannotMakeAddressException as e:
-            assert e.message == 'You must select a subdomain before creating email address with subdomain.'
+            excpected_err_msg = (
+                'You must select a subdomain before creating email address with subdomain.'
+            )
+            assert e.message == excpected_err_msg
             return
         self.fail("Should have raise CannotMakeAddressException")
 
@@ -458,7 +469,7 @@ class DomainAddressTest(TestCase):
         self.fail("Should have raise CannotMakeAddressException")
 
     @patch('emails.models.address_default')
-    def test_make_domain_address_doesnt_make_randomly_generated_bad_word_alias(self, address_default_mocked):
+    def test_make_domain_address_doesnt_randomly_generate_bad_word(self, address_default_mocked):
         address_default_mocked.return_value = 'angry0123'
         try:
             DomainAddress.make_domain_address(self.user_profile)
