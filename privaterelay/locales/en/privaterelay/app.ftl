@@ -15,6 +15,11 @@
 -brand-name-firefox-monitor = Firefox Monitor
 -brand-name-pocket = Pocket
 
+### Meta Data
+
+meta-title = { -brand-name-firefox-relay }
+meta-description = { -brand-name-firefox-relay } makes it easy to create email aliases, aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages.
+
 ### Header 
 logo-alt= { -brand-name-firefox-relay }
 nav-menu = Menu
@@ -26,6 +31,7 @@ nav-profile-sign-in = Sign In
 nav-profile-manage-fxa = Manage your { -brand-name-firefox-account }
 nav-profile-sign-out = Sign Out
 nav-profile-sign-out-relay = Sign Out of { -brand-name-relay }
+nav-profile-sign-out-confirm = Are you sure you want to sign out?
 
 ### Footer
 nav-footer-privacy = Privacy
