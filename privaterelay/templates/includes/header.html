@@ -16,19 +16,44 @@
       {% now "U" as now_second %}
       {% if now_second|last == "1" or now_second|last == "6" %}
         <span id="micro-survey-prompt" data-survey-type="nps">{% ftlmsg 'survey-question-1' %}</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-numeric"></ul>
+        <ul id="micro-survey-options"
+        data-survey-option-very-likely-translated="{% ftlmsg 'survey-option-very-likely' %}"
+        data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-not-likely' %}"
+        class="micro-survey-options micro-survey-options-numeric"></ul>
       {% elif now_second|last == "2" or now_second|last == "7" %}
         <span id="micro-survey-prompt" data-survey-type="usability">{% ftlmsg 'survey-question-2' %}</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
+        <ul id="micro-survey-options"
+        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
+        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
+        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
+        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
+        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
+        class="micro-survey-options micro-survey-options-likert"></ul>
       {% elif now_second|last == "3" or now_second|last == "8" %}
         <span id="micro-survey-prompt" data-survey-type="credibility">{% ftlmsg 'survey-question-3' %}</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
+        <ul id="micro-survey-options"
+        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
+        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
+        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
+        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
+        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
+        class="micro-survey-options micro-survey-options-likert"></ul>
       {% elif now_second|last == "4" or now_second|last == "9" %}
         <span id="micro-survey-prompt" data-survey-type="appearance">{% ftlmsg 'survey-question-4' %}</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
+        <ul id="micro-survey-options"
+        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
+        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
+        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
+        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
+        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
+        class="micro-survey-options micro-survey-options-likert"></ul>
       {% else %}
         <span id="micro-survey-prompt" data-survey-type="pmf">{% ftlmsg 'survey-question-5' %}</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
+        <ul id="micro-survey-options" 
+        data-survey-option-i-wouldnt-care-translated="{% ftlmsg 'survey-option-i-wouldnt-care' %}"
+        data-survey-option-somewhat-disappointed-translated="{% ftlmsg 'survey-option-somewhat-disappointed' %}"
+        data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-very-disappointed' %}"
+        class="micro-survey-options micro-survey-options-likert"></ul>
       {% endif %}
     </div>
   {% endif %}

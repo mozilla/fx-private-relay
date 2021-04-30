@@ -195,3 +195,13 @@ survey-question-3 = Do you feel Relay is trustworthy?
 survey-question-4 = Does Relay have a clean and simple presentation?
 survey-question-5 = How would you feel if you could no longer use Relay?
 
+survey-option-strongly-disagree = Strongly disagree
+survey-option-disagree = Disagree
+survey-option-unsure = Unsure
+survey-option-agree = Agree
+survey-option-strongly-agree = Strongly agree
+survey-option-i-wouldnt-care = I wouldn't care
+survey-option-somewhat-disappointed = Somewhat disappointed
+survey-option-very-disappointed = Very disappointed
+survey-option-very-likely = Very likely
+survey-option-not-likely = Not likely
