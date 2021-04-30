@@ -394,7 +394,7 @@ class DomainAddressTest(TestCase):
         self.user_profile.save()
 
     def test_make_domain_address_assigns_to_user(self):
-        domain_address = DomainAddress.make_domain_address(self.user)
+        domain_address = DomainAddress.make_domain_address(self.user_profile)
         assert domain_address.user == self.user
 
     @skip(reason="test not reliable, look at FIXME comment")
@@ -403,25 +403,25 @@ class DomainAddressTest(TestCase):
         # alias with bad words. See make_domain_address for why this has
         # not been fixed yet
         for i in range(5):
-            domain_address = DomainAddress.make_domain_address(self.user)
+            domain_address = DomainAddress.make_domain_address(self.user_profile)
             assert domain_address.first_emailed_at is None
         domain_addresses = DomainAddress.objects.filter(user=self.user).values_list("address", flat=True)
         assert len(set(domain_addresses)) == 5 # checks that there are 5 unique DomainAddress
 
     def test_make_domain_address_makes_requested_address(self):
-        domain_address = DomainAddress.make_domain_address(self.user, 'testing')
+        domain_address = DomainAddress.make_domain_address(self.user_profile, 'testing')
         assert domain_address.address == 'testing'
         assert domain_address.first_emailed_at is None
 
     def test_make_domain_address_makes_requested_address_via_email(self):
-        domain_address = DomainAddress.make_domain_address(self.user, 'testing', True)
+        domain_address = DomainAddress.make_domain_address(self.user_profile, 'testing', True)
         assert domain_address.address == 'testing'
         assert domain_address.first_emailed_at is not None
 
     def test_make_domain_address_non_premium_user(self):
-        non_preimum_user = baker.make(User)
+        non_preimum_user_profile = baker.make(Profile)
         try:
-            DomainAddress.make_domain_address(non_preimum_user)
+            DomainAddress.make_domain_address(non_preimum_user_profile)
         except CannotMakeAddressException as e:
             assert e.message == NOT_PREMIUM_USER_ERR_MSG
             return
@@ -440,7 +440,7 @@ class DomainAddressTest(TestCase):
         )
         user_profile = Profile.objects.get(user=user)        
         try:
-            DomainAddress.make_domain_address(user)
+            DomainAddress.make_domain_address(user_profile)
         except CannotMakeAddressException as e:
             assert e.message == 'You must select a subdomain before creating email address with subdomain.'
             return
@@ -451,7 +451,7 @@ class DomainAddressTest(TestCase):
         test_hash = address_hash('aaaaaaaaa', self.subdomain)
         DeletedAddress.objects.create(address_hash=test_hash)
         try:
-            DomainAddress.make_domain_address(self.user)
+            DomainAddress.make_domain_address(self.user_profile)
         except CannotMakeAddressException as e:
             assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             return
@@ -461,7 +461,7 @@ class DomainAddressTest(TestCase):
     def test_make_domain_address_doesnt_make_randomly_generated_bad_word_alias(self, address_default_mocked):
         address_default_mocked.return_value = 'angry0123'
         try:
-            DomainAddress.make_domain_address(self.user)
+            DomainAddress.make_domain_address(self.user_profile)
         except CannotMakeAddressException as e:
             assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             return

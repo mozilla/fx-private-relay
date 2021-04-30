@@ -247,12 +247,11 @@ class DomainAddress(models.Model):
     def user_profile(self):
         return Profile.objects.get(user=self.user)
 
-    def make_domain_address(user, address=None, made_via_email=False):
-        user_profile = Profile.objects.get(user=user)
+    def make_domain_address(user_profile, address=None, made_via_email=False):
         if not user_profile.has_unlimited:
             raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG)
         
-        user_subdomain = Profile.objects.get(user=user).subdomain
+        user_subdomain = Profile.objects.get(user=user_profile.user).subdomain
         if not user_subdomain:
             raise CannotMakeAddressException(
                 'You must select a subdomain before creating email address with subdomain.'
@@ -275,7 +274,7 @@ class DomainAddress(models.Model):
                 TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             )
 
-        domain_address = DomainAddress.objects.create(user=user, address=address)
+        domain_address = DomainAddress.objects.create(user=user_profile.user, address=address)
         if made_via_email:
             # update first_emailed_at indicating alias generation impromptu.
             domain_address.first_emailed_at = datetime.now(timezone.utc)

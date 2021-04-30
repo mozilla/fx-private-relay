@@ -377,7 +377,7 @@ def _get_domain_address(to_address, local_portion, domain_portion):
             # TODO: We may want to consider flows when a user generating alias on a fly was unable to
             # receive an email due to the following exceptions
             domain_address = DomainAddress.make_domain_address(
-                user_profile.user, local_portion, True
+                user_profile, local_portion, True
             )
         domain_address.last_used_at = datetime.now(timezone.utc)
         domain_address.save()
