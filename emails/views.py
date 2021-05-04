@@ -103,8 +103,7 @@ def _index_POST(request):
                 return HttpResponse(e.message, status=402)
             messages.error(
                 request,
-                "You already have %s email addresses. Please upgrade." %
-                settings.MAX_NUM_FREE_ALIASES
+                e.message
             )
             return redirect('profile')
 
