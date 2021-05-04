@@ -16,7 +16,7 @@ emails_config = apps.get_app_config('emails')
 
 BounceStatus = namedtuple('BounceStatus', 'paused type')
 
-NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to set a subdomain.'
+NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
 
 
@@ -114,7 +114,7 @@ class Profile(models.Model):
 
     def add_subdomain(self, subdomain):
         if not self.has_unlimited:
-            raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG)
+            raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain'))
         if self.subdomain is not None:
             raise CannotMakeSubdomainException('You cannot change your subdomain.')
         subdomain_exists = Profile.objects.filter(subdomain=subdomain)
@@ -205,7 +205,10 @@ class RelayAddress(models.Model):
             user_profile.at_max_free_aliases
             and not user_profile.has_unlimited
         ):
-            raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG)
+            hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
+            raise CannotMakeAddressException(
+                NOT_PREMIUM_USER_ERR_MSG.format(hit_limit)
+            )
         if num_tries >= 5:
             raise CannotMakeAddressException
         relay_address = RelayAddress.objects.create(user=user_profile.user)
@@ -253,7 +256,9 @@ class DomainAddress(models.Model):
 
     def make_domain_address(user_profile, address=None, made_via_email=False):
         if not user_profile.has_unlimited:
-            raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG)
+            raise CannotMakeAddressException(
+                NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
+            )
 
         user_subdomain = Profile.objects.get(user=user_profile.user).subdomain
         if not user_subdomain:
@@ -262,7 +267,7 @@ class DomainAddress(models.Model):
             )
 
         address_contains_badword = False
-        if address is None:
+        if not address:
             # FIXME: if the alias is randomly generated and has bad words
             # we should retry like make_relay_address does
             # not fixing this now because not sure randomly generated

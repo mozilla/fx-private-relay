@@ -89,7 +89,9 @@ class RelayAddressTest(TestCase):
             for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
                 RelayAddress.make_relay_address(self.user_profile)
         except CannotMakeAddressException as e:
-            assert e.message == NOT_PREMIUM_USER_ERR_MSG
+            assert e.message == NOT_PREMIUM_USER_ERR_MSG.format(
+                f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
+            )
             relay_addresses = RelayAddress.objects.filter(
                 user=self.user_profile.user
             ).values_list("address", flat=True)
@@ -331,7 +333,7 @@ class ProfileTest(TestCase):
         try:
             non_premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
-            assert e.message == NOT_PREMIUM_USER_ERR_MSG
+            assert e.message == NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain')
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
@@ -432,7 +434,7 @@ class DomainAddressTest(TestCase):
         try:
             DomainAddress.make_domain_address(non_preimum_user_profile)
         except CannotMakeAddressException as e:
-            assert e.message == NOT_PREMIUM_USER_ERR_MSG
+            assert e.message == NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
             return
         self.fail("Should have raise CannotMakeAddressException")
 

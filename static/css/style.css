@@ -2274,3 +2274,49 @@ input.input-has-error {
     opacity: 1;
   }
 }
+
+.messages.home-messages {
+  background: var(--warningRed);
+}
+
+ul.messages {
+  max-height: 50px;
+  display: flex;
+  border-radius: 8px;
+  padding: 0;
+}
+
+.js-notification {
+  position: relative;
+  width: 100%;
+  padding: 1rem;
+  align-items: center;
+  display: flex;
+  
+  border-radius: 8px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.dismiss {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 1rem;
+  margin: auto;
+  outline: none;
+  border: none;
+  background: var(--lightestGray);
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
+  padding: 5px;
+}
+
+.home-messages span {
+  color: #fff;
+}
+
+.home-messages path {
+  fill: #fff;
+}

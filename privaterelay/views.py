@@ -113,7 +113,7 @@ def profile_subdomain(request):
     try:
         profile.add_subdomain(request.POST.get('subdomain', None))
     except CannotMakeSubdomainException as e:
-        message.error(request, e.message)
+        messages.error(request, e.message)
     return redirect(reverse('profile'))
 
 

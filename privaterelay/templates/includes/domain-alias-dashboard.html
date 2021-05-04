@@ -6,20 +6,20 @@
   <div class="remaining-aliases-wrapper flx al-cntr jst-cntr hide-750"></div>
   <span class="remaining-aliases flx">
     <span class="num-remaining-aliases bold">
-      {{ relay_addresses|length }} aliases. You can make unlimited!
+      {{ domain_addresses|length }} aliases. You can make unlimited!
     </span>
   </span>
 </div>
 <div class="flx flx-row flx-end inset wrap-col-600">
   <form action="/emails/" class="dash-create" method="POST">
     <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
-    {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
+    {% if user_profile.has_unlimited and not user_profile.subdomain %}
     <button
         class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr btn-disabled"
-        title="You have reached the alias limit."
+        title="You must choose a subdomain before generating aliases."
         type="submit"
         value="Generate new alias"
-        data-event-label="Create New Relay Alias"
+        data-event-label="Create New Domain Alias"
     >
     {% else %}
     <button
@@ -27,7 +27,7 @@
         title="Generate new alias"
         type="submit"
         value="Generate new alias"
-        data-event-label="Create New Relay Alias"
+        data-event-label="Create New Domain Alias"
     >
     {% endif %}
     <span class="generate-new-relay-icon"></span>
