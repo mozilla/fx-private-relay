@@ -205,7 +205,7 @@ class RelayAddress(models.Model):
             user_profile.at_max_free_aliases
             and not user_profile.has_unlimited
         ):
-            hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} alises'
+            hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
             raise CannotMakeAddressException(
                 NOT_PREMIUM_USER_ERR_MSG.format(hit_limit)
             )
@@ -267,7 +267,7 @@ class DomainAddress(models.Model):
             )
 
         address_contains_badword = False
-        if address is None:
+        if not address:
             # FIXME: if the alias is randomly generated and has bad words
             # we should retry like make_relay_address does
             # not fixing this now because not sure randomly generated
