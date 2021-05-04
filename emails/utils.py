@@ -7,7 +7,6 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
 import json
-import os
 
 from botocore.exceptions import ClientError
 import markus
@@ -48,7 +47,7 @@ def histogram_if_enabled(name, value, tags=None):
 def ses_send_email(from_address, to_address, subject, message_body):
     emails_config = apps.get_app_config('emails')
     try:
-        ses_response = emails_config.ses_client.send_email(
+        emails_config.ses_client.send_email(
             Destination={'ToAddresses': [to_address]},
             Message={
                 'Body': message_body,
@@ -116,7 +115,7 @@ def ses_send_raw_email(
     try:
         # Provide the contents of the email.
         emails_config = apps.get_app_config('emails')
-        response = emails_config.ses_client.send_raw_email(
+        emails_config.ses_client.send_raw_email(
             Source=from_address,
             Destinations=[
                 to_address
@@ -190,9 +189,9 @@ def generate_relay_From(original_from_address):
     # line breaks in From: will encode to unsafe chars, so strip them.
     original_from_address = (
         original_from_address
-            .replace('\u2028', '')
-            .replace('\r', '')
-            .replace('\n', '')
+        .replace('\u2028', '')
+        .replace('\r', '')
+        .replace('\n', '')
     )
 
     display_name = Header(

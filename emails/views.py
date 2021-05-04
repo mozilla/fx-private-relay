@@ -25,7 +25,13 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
-from .models import DeletedAddress, DomainAddress, Profile, RelayAddress
+from .models import (
+    CannotMakeAddressException,
+    DeletedAddress,
+    DomainAddress,
+    Profile,
+    RelayAddress
+)
 from .utils import (
     get_post_data_from_request,
     incr_if_enabled,
@@ -89,19 +95,18 @@ def _index_POST(request):
         locked_profile = Profile.objects.select_for_update().get(
             user=user_profile.user
         )
-        if (
-            locked_profile.at_max_free_aliases
-            and not locked_profile.has_unlimited
-        ):
+        try:
+            relay_address = RelayAddress.make_relay_address(locked_profile)
+        except CannotMakeAddressException as e:
             if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
-                return HttpResponse('Payment Required', status=402)
+                # add-on request
+                return HttpResponse(e.message, status=402)
             messages.error(
                 request,
                 "You already have %s email addresses. Please upgrade." %
                 settings.MAX_NUM_FREE_ALIASES
             )
             return redirect('profile')
-        relay_address = RelayAddress.make_relay_address(locked_profile.user)
 
     if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
         address_string = '%s@%s' % (
@@ -127,7 +132,6 @@ def _get_address_from_id(request_data, user_profile):
         user=user_profile.user
     )
     return domain_address
-
 
 
 def _index_PUT(request_data, user_profile):
@@ -369,26 +373,26 @@ def _sns_message(message_json):
         message_body, attachments, user_profile.user.email,
     )
 
+
 def _get_domain_address(to_address, local_portion, domain_portion):
     address_subdomain = domain_portion.split('.')[0]
     try:
         user_profile = Profile.objects.get(subdomain=address_subdomain)
         domain_address = DomainAddress.objects.get(user=user_profile.user, address=local_portion)
         if not domain_address:
-            # TODO: We may want to consider flows when a user generating alias on a fly was unable to
+            # TODO: We may want to consider flows when
+            # a user generating alias on a fly was unable to
             # receive an email due to the following exceptions
-            try:
-                domain_address = DomainAddress.make_domain_address(user_profile.user, local_portion)
-            except CannotMakeAddressException:
-                raise Exception('Address not allowed')
-            except DeletedDomainAddressException:
-                raise Exception('Failed to create address')
+            domain_address = DomainAddress.make_domain_address(
+                user_profile, local_portion, True
+            )
         domain_address.last_used_at = datetime.now(timezone.utc)
         domain_address.save()
         return user_profile
     except Profile.DoesNotExist:
         incr_if_enabled('email_for_dne_subdomain', 1)
         raise Exception("Address does not exist")
+
 
 def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,

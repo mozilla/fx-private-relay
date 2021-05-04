@@ -29,7 +29,12 @@ from allauth.socialaccount.providers.fxa.views import (
     FirefoxAccountsOAuth2Adapter
 )
 
-from emails.models import DomainAddress, RelayAddress
+from emails.models import (
+    CannotMakeSubdomainException,
+    DomainAddress,
+    has_bad_words,
+    RelayAddress
+)
 from emails.utils import get_post_data_from_request
 
 
@@ -77,13 +82,14 @@ def profile(request):
     )
     fxa = _get_fxa(request)
     avatar = fxa.extra_data['avatar'] if fxa else None
+    profile = request.user.profile_set.first()
     context = {
         'relay_addresses': relay_addresses,
         'avatar': avatar,
         'domain_addresses': domain_addresses,
+        'user_profile': profile,
     }
 
-    profile = request.user.profile_set.first()
     bounce_status = profile.check_bounce_pause()
     if bounce_status.paused:
         context.update({
@@ -91,7 +97,6 @@ def profile(request):
             'last_bounce_date': profile.last_bounce_date,
             'next_email_try': profile.next_email_try
         })
-
     return render(request, 'profile.html', context)
 
 
@@ -105,16 +110,10 @@ def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
-    if not profile.has_unlimited:
-        messages.error(
-            request, "You must be a premium subscriber to set a domain."
-        )
-        return redirect(reverse('profile'))
-    if profile.subdomain is not None:
-        messages.error(request, "You cannot change your domain.")
-        return redirect(reverse('profile'))
-    profile.subdomain = request.POST['subdomain']
-    profile.save()
+    try:
+        profile.add_subdomain(request.POST.get('subdomain', None))
+    except CannotMakeSubdomainException as e:
+        message.error(request, e.message)
     return redirect(reverse('profile'))
 
 
