@@ -56,9 +56,7 @@ logger = logging.getLogger('events')
 def home(request):
     if (request.user and not request.user.is_anonymous):
         return redirect(reverse('profile'))
-    return render(request, 'home.html', {
-        'ftl_bundle': main_bundle,
-    })
+    return render(request, 'home.html')
 
 
 def faq(request):

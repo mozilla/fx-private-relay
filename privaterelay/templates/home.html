@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
 {% load socialaccount %}
 
 {% block content %}
 
 {% include "includes/messages.html" %}
-
-{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 <main data-landing-page="" class="flx row-full-width home-hero">
 	<div class="flx flx-row hero-content">

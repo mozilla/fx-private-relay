@@ -2,11 +2,9 @@
 {% load static %}
 {% load socialaccount %}
 {% load ftl %}
-
-
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 {% block content %}
-{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
   <main class="flx flx-col container faqs-wrapper">
     <h1 class="faqs-headline">{% ftlmsg 'faq-headline' %}</h1>
     <div class="faqs flx flx-row spc-btwn">

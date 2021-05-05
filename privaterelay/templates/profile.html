@@ -4,10 +4,9 @@
 {% load static %}
 {% load relay_tags %}
 {% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 {% block content %}
-
-{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 {% get_social_accounts request.user as accounts %}
 
