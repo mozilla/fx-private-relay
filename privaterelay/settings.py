@@ -30,6 +30,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # defaulting to blank to be production-broken by default
 SECRET_KEY = config('SECRET_KEY', None, cast=str)
 
+ON_HEROKU = config('ON_HEROKU', False, cast=bool)
 DEBUG = config('DEBUG', False, cast=bool)
 if DEBUG:
     INTERNAL_IPS = config(
