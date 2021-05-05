@@ -8,7 +8,6 @@ import mimetypes
 import os
 import re
 from tempfile import SpooledTemporaryFile
-from urllib.parse import urlparse
 
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
@@ -33,6 +32,7 @@ from .models import (
     RelayAddress
 )
 from .utils import (
+    get_email_domain_from_settings,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
@@ -396,7 +396,16 @@ def _get_domain_address(to_address, local_portion, domain_portion):
 def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
-    if not domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
+    email_domain = get_email_domain_from_settings()
+    logger.info(
+        '_get_address', extra={
+            'settings_email_domain': email_domain,
+            'to_address': to_address,
+            'local_portion': local_portion,
+            'domain_portion': domain_portion
+        }
+    )
+    if not domain_portion == email_domain:
         return _get_domain_address(to_address, local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
