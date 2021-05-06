@@ -37,8 +37,6 @@ from emails.models import (
 )
 from emails.utils import get_post_data_from_request
 
-from .ftl_bundles import main as main_bundle
-
 FXA_PROFILE_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/profile-change'
 )
