@@ -391,7 +391,7 @@ def _get_domain_address(to_address, local_portion, domain_portion):
             )
         domain_address.last_used_at = datetime.now(timezone.utc)
         domain_address.save()
-        return user_profile
+        return domain_address
     except Profile.DoesNotExist:
         incr_if_enabled('email_for_dne_subdomain', 1)
         raise Exception("Address does not exist")
