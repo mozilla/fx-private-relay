@@ -377,8 +377,12 @@ def _get_domain_address(to_address, local_portion, domain_portion):
     address_subdomain = domain_portion.split('.')[0]
     try:
         user_profile = Profile.objects.get(subdomain=address_subdomain)
-        domain_address = DomainAddress.objects.get(user=user_profile.user, address=local_portion)
-        if not domain_address:
+        # filter DomainAddress because it may not exist
+        # which will throw an error with get()
+        domain_address = DomainAddress.objects.filter(
+            user=user_profile.user, address=local_portion
+        ).first()
+        if domain_address is None:
             # TODO: We may want to consider flows when
             # a user generating alias on a fly was unable to
             # receive an email due to the following exceptions
