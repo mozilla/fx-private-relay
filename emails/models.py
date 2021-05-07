@@ -235,7 +235,7 @@ class DeletedAddress(models.Model):
 
 class DomainAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address = models.CharField(max_length=64, unique=True)
+    address = models.CharField(max_length=64)
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
