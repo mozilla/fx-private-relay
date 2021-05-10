@@ -68,10 +68,10 @@ class FormattingToolsTest(TestCase):
 
     @override_settings(ON_HEROKU=True, SITE_ORIGIN='https://test.com')
     def test_get_email_domain_from_settings_on_heroku(self):
-        email_network_locality = get_email_domain_from_settings()
-        assert 'mail.test.com' == email_network_locality
+        email_domain = get_email_domain_from_settings()
+        assert 'mail.test.com' == email_domain
 
     @override_settings(ON_HEROKU=False, SITE_ORIGIN='https://test.com')
     def test_get_email_domain_from_settings_not_on_heroku(self):
-        email_network_locality = get_email_domain_from_settings()
-        assert 'test.com' == email_network_locality
+        email_domain = get_email_domain_from_settings()
+        assert 'test.com' == email_domain
