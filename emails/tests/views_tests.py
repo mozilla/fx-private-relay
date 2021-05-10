@@ -2,12 +2,24 @@ from datetime import datetime, timezone
 import json
 import os
 from unittest import skip
+from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import Client, TestCase
+from django.test import (
+    Client,
+    override_settings,
+    TestCase,
+)
 
 from model_bakery import baker
+
+from emails.models import (
+    address_hash,
+    DeletedAddress,
+    RelayAddress,
+)
+from emails.views import _get_address
 
 
 def _get_bounce_payload(bounce_type):
@@ -55,3 +67,83 @@ class BounceHandlingTest(TestCase):
         assert resp.status_code == 200
         profile = self.user.profile_set.first()
         assert profile.last_soft_bounce >= pre_request_datetime
+
+
+@override_settings(SITE_ORIGIN='https://test.com', ON_HEROKU=False)
+class GetAddressTest(TestCase):
+    def setUp(self):
+        self.service_domain = 'test.com'
+        self.local_portion = 'foo'
+
+    # @patch('emails.utils.get_email_domain_from_settings')
+    @patch('emails.views._get_domain_address')
+    def test_get_address_with_domain_address(self, _get_domain_address_mocked):
+        expected = 'DomainAddress'
+        _get_domain_address_mocked.return_value = expected
+        # email_domain_mocked.return_value = service_domain
+
+        actual = _get_address(
+            to_address=f'{self.local_portion}@subdomain.{self.service_domain}',
+            local_portion=self.local_portion,
+            domain_portion=f'subdomain.{self.service_domain}'
+        )
+        assert actual == expected
+
+    def test_get_address_with_relay_address(self):
+        local_portion = 'foo'
+        relay_address = baker.make(RelayAddress, address=local_portion)
+
+        actual = _get_address(
+            to_address=f'{self.local_portion}@{self.service_domain}',
+            local_portion=f'{self.local_portion}',
+            domain_portion=f'{self.service_domain}'
+        )
+        assert actual == relay_address
+
+    @patch('emails.views.incr_if_enabled')
+    def test_get_address_with_deleted_relay_address(self, incr_mocked):
+        hashed_address = address_hash(self.local_portion)
+        baker.make(DeletedAddress, address_hash=hashed_address)
+
+        try:
+            _get_address(
+                to_address=f'{self.local_portion}@{self.service_domain}',
+                local_portion=self.local_portion,
+                domain_portion=f'{self.service_domain}'
+            )
+        except Exception as e:
+            assert e.args[0] == 'Address does not exist'
+            incr_mocked.assert_called_once_with('email_for_deleted_address', 1)
+
+    @patch('emails.views.incr_if_enabled')
+    @patch('emails.views.logger')
+    def test_get_address_with_relay_address_does_not_exist(self, logging_mocked, incr_mocked):
+        try:
+            _get_address(
+                to_address=f'{self.local_portion}@{self.service_domain}',
+                local_portion={self.local_portion},
+                domain_portion=f'{self.service_domain}'
+            )
+        except Exception as e:
+            assert e.args[0] == 'Address does not exist'
+            logging_mocked.error.assert_called_once_with(
+                'Received email for unknown address.',
+                extra={'to_address': f'{self.local_portion}@{self.service_domain}'},
+            )
+            incr_mocked.assert_called_once_with('email_for_unknown_address', 1)
+
+    @patch('emails.views.incr_if_enabled')
+    def test_get_address_with_deleted_relay_address_multiple(self, incr_mocked):
+        hashed_address = address_hash(self.local_portion)
+        baker.make(DeletedAddress, address_hash=hashed_address)
+        baker.make(DeletedAddress, address_hash=hashed_address)
+
+        try:
+            _get_address(
+                to_address=f'{self.local_portion}@{self.service_domain}',
+                local_portion=self.local_portion,
+                domain_portion=f'{self.service_domain}'
+            )
+        except Exception as e:
+            assert e.args[0] == 'Address does not exist'
+            incr_mocked.assert_called_once_with('email_for_deleted_address_multiple', 1)

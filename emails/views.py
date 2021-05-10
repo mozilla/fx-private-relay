@@ -8,7 +8,6 @@ import mimetypes
 import os
 import re
 from tempfile import SpooledTemporaryFile
-from urllib.parse import urlparse
 
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
@@ -26,6 +25,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
 from .models import (
+    address_hash,
     CannotMakeAddressException,
     DeletedAddress,
     DomainAddress,
@@ -33,6 +33,7 @@ from .models import (
     RelayAddress
 )
 from .utils import (
+    get_email_domain_from_settings,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
@@ -377,8 +378,12 @@ def _get_domain_address(to_address, local_portion, domain_portion):
     address_subdomain = domain_portion.split('.')[0]
     try:
         user_profile = Profile.objects.get(subdomain=address_subdomain)
-        domain_address = DomainAddress.objects.get(user=user_profile.user, address=local_portion)
-        if not domain_address:
+        # filter DomainAddress because it may not exist
+        # which will throw an error with get()
+        domain_address = DomainAddress.objects.filter(
+            user=user_profile.user, address=local_portion
+        ).first()
+        if domain_address is None:
             # TODO: We may want to consider flows when
             # a user generating alias on a fly was unable to
             # receive an email due to the following exceptions
@@ -387,7 +392,7 @@ def _get_domain_address(to_address, local_portion, domain_portion):
             )
         domain_address.last_used_at = datetime.now(timezone.utc)
         domain_address.save()
-        return user_profile
+        return domain_address
     except Profile.DoesNotExist:
         incr_if_enabled('email_for_dne_subdomain', 1)
         raise Exception("Address does not exist")
@@ -396,7 +401,8 @@ def _get_domain_address(to_address, local_portion, domain_portion):
 def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
-    if not domain_portion == urlparse(settings.SITE_ORIGIN).netloc:
+    email_domain = get_email_domain_from_settings()
+    if not domain_portion == email_domain:
         return _get_domain_address(to_address, local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
@@ -404,10 +410,9 @@ def _get_address(to_address, local_portion, domain_portion):
         relay_address = RelayAddress.objects.get(address=local_portion)
         return relay_address
     except RelayAddress.DoesNotExist:
-        local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
         try:
             DeletedAddress.objects.get(
-                address_hash=local_portion_hash
+                address_hash=address_hash(local_portion)
             )
             incr_if_enabled('email_for_deleted_address', 1)
             # TODO: create a hard bounce receipt rule in SES

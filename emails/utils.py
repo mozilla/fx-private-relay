@@ -16,6 +16,7 @@ from django.apps import apps
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
+from urllib.parse import urlparse
 
 
 logger = logging.getLogger('events')
@@ -41,6 +42,15 @@ def incr_if_enabled(name, value=1):
 def histogram_if_enabled(name, value, tags=None):
     if settings.STATSD_ENABLED:
         metrics.histogram(name, value=value, tags=None)
+
+
+def get_email_domain_from_settings():
+    email_network_locality = urlparse(settings.SITE_ORIGIN).netloc
+    # on Heroku we need to add "mail" prefix
+    # because we can’t publish MX records on Heroku
+    if settings.ON_HEROKU:
+        email_network_locality = f'mail.{email_network_locality}'
+    return email_network_locality
 
 
 @time_if_enabled('ses_send_email')

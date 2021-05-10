@@ -1,9 +1,15 @@
 from email.utils import parseaddr
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import (
+    TestCase,
+    override_settings
+)
 
-from emails.utils import generate_relay_From
+from emails.utils import (
+    generate_relay_From,
+    get_email_domain_from_settings,
+)
 
 
 class FormattingToolsTest(TestCase):
@@ -59,3 +65,13 @@ class FormattingToolsTest(TestCase):
             expected_encoded_display_name, '<%s>' % self.relay_from
         )
         assert formatted_from_address == expected_formatted_from
+
+    @override_settings(ON_HEROKU=True, SITE_ORIGIN='https://test.com')
+    def test_get_email_domain_from_settings_on_heroku(self):
+        email_domain = get_email_domain_from_settings()
+        assert 'mail.test.com' == email_domain
+
+    @override_settings(ON_HEROKU=False, SITE_ORIGIN='https://test.com')
+    def test_get_email_domain_from_settings_not_on_heroku(self):
+        email_domain = get_email_domain_from_settings()
+        assert 'test.com' == email_domain
