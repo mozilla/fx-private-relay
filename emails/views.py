@@ -25,6 +25,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .context_processors import relay_from_domain
 from .models import (
+    address_hash,
     CannotMakeAddressException,
     DeletedAddress,
     DomainAddress,
@@ -409,10 +410,9 @@ def _get_address(to_address, local_portion, domain_portion):
         relay_address = RelayAddress.objects.get(address=local_portion)
         return relay_address
     except RelayAddress.DoesNotExist:
-        local_portion_hash = sha256(local_portion.encode('utf-8')).hexdigest()
         try:
             DeletedAddress.objects.get(
-                address_hash=local_portion_hash
+                address_hash=address_hash(local_portion)
             )
             incr_if_enabled('email_for_deleted_address', 1)
             # TODO: create a hard bounce receipt rule in SES
