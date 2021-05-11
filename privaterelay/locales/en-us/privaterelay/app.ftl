@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-### Brands
-### Dev Note: When adding to this section, use this file for naming conventions: https://github.com/mozilla/bedrock/blob/master/l10n/en/brands.ftl
+# Brands
+# Dev Note: When adding to this section, use this file for naming conventions: https://github.com/mozilla/bedrock/blob/master/l10n/en/brands.ftl
 
 -brand-name-firefox = Firefox
 -brand-name-firefox-relay = Firefox Relay
@@ -15,28 +15,32 @@
 -brand-name-firefox-monitor = Firefox Monitor
 -brand-name-pocket = Pocket
 
-### Meta Data
+## Meta Data
 
 meta-title = { -brand-name-firefox-relay }
 meta-description = { -brand-name-firefox-relay } makes it easy to create email aliases, aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages.
 
-### Header 
+## Header 
+
 logo-alt= { -brand-name-firefox-relay }
 nav-menu = Menu
 nav-home = Home
+
 # FAQ stands for Frequently Asked Questions. The intent of this page is to answer commonly asked questions.
 nav-faq = FAQ
-
 nav-profile-sign-in = Sign In
 nav-profile-manage-fxa = Manage your { -brand-name-firefox-account }
 nav-profile-sign-out = Sign Out
 nav-profile-sign-out-relay = Sign Out of { -brand-name-relay }
 nav-profile-sign-out-confirm = Are you sure you want to sign out?
 
-### Footer
+## Footer
+
 nav-footer-privacy = Privacy
 nav-footer-relay-terms = { -brand-name-relay } Terms
 nav-footer-legal = Legal
+
+## Bento Menu
 
 bento-button-title = { -brand-name-firefox } apps and services
 fx-makes-tech = { -brand-name-firefox } is tech that fights for your online privacy.
@@ -48,8 +52,7 @@ fx-monitor = { -brand-name-firefox-monitor }
 fx-pocket = { -brand-name-pocket }
 mobileCloseBentoButtonTitle = Close menu
 
-### Home Page
-### URL: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/
+## Home Page - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/
 
 home-hero-headline = Hide your real email address to help protect your identity
 home-hero-copy = { -brand-name-firefox-relay } makes it easy to create aliases, randomly generated email addresses that forward to your real inbox. Use it to protect your online accounts - and your identity - from hackers. Sign in with your { -brand-name-firefox-account } to get started.
@@ -74,27 +77,31 @@ hero-image-copy-protect-html = …so you can <strong>protect your real email</st
 hero-image-copy-control-html = Now <em>you're in control</em> of what's arriving to your inbox!
 
 
-### FAQ Page
-### URL: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/faq
+## FAQ Page - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/faq
 
 faq-headline = Frequently Asked Questions
 faq-question-1-question = What about spam?
+
 # Variables:
 #   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
 #   $attrs (string) - specific attributes added to external links
 faq-question-1-answer-html = While { -brand-name-relay } does not filter for spam, our email partner Amazon SES does block spam and malware. If { -brand-name-relay } forwards messages you don’t want, you can update your { -brand-name-relay } settings to block messages from the alias forwarding them. <br/><br/> If you see a broader problem of unwanted email from all of your aliases, please <a  href="{ $url }" { $attrs }>report this to us</a> so we can consider adjusting the SES spam thresholds for this service. <br/><br/> If you report these as spam, your email provider will see { -brand-name-relay } as the source of spam, not the original sender.
 faq-question-2-question = Why won’t a site accept my { -brand-name-relay } alias?
+
 # Variables:
 #   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
 #   $attrs (string) - specific attributes added to external links
 faq-question-2-answer-html = Some sites may not accept an email address that includes a subdomain (ie, the “relay” portion of @relay.firefox.com) and others have stopped accepting all addresses except those from Gmail, Hotmail, or Yahoo accounts. As { -brand-name-firefox-relay } grows in popularity and issues more aliases, our service might be placed on a blocklist. If you are not able to use a { -brand-name-relay } alias, <a  href="{ $url }" { $attrs }>please let us know</a>.
+
 faq-question-3-question = Is { -brand-name-relay } available only in the US?
 faq-question-3-answer = The site is currently only available in English, but you can use the service anywhere.
 faq-question-4-question = Can I reply to messages using my { -brand-name-relay } alias?
+
 # Variables:
 #   $url (url) - https://github.com/mozilla/fx-private-relay/issues/99
 #   $attrs (string) - specific attributes added to external links
 faq-question-4-answer-html = { -brand-name-relay } does not yet offer the ability to reply using an alias. If you try, nothing will happen. We are planning an additional feature to let you <a href="{ $url }" {$attrs}>reply anonymously to senders</a>.
+
 faq-question-5-question = Can I make up my own { -brand-name-relay } alias using the @relay.firefox.com domain?
 faq-question-5-answer = Not currently, but we are considering new features including letting you create your own alias with a designated domain.
 faq-question-6-question = What happens if { -brand-name-mozilla } shuts down the { -brand-name-firefox-relay } service?
@@ -102,8 +109,7 @@ faq-question-6-answer = We will give you advance notice that you need to change 
 faq-question-7-question = What if an email sent to my alias contains an attachment?
 faq-question-7-answer = We now support attachment forwarding. However, there is a 150KB limit for email forwarding using { -brand-name-relay }. Any emails larger than 150KB will not be forwarded.
 
-### Profile Page (Logged In)
-### URL: https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
+## Profile Page (Logged In) - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
 
 # Variables:
 #   $email (string) - User email address
@@ -111,13 +117,10 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 profile-label-welcome = Welcome, { $email }!
 profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your Domain aliases
-
 profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to 150KB in size
-
 profile-promo-premium-headline = Go premium for more features.
 profile-promo-premium-copy = With { -brand-name-relay } Premium, you get your own email domain.
 profile-promo-premium-cta = Buy Premium
-
 profile-label-saved = Label saved!
 profile-label-generate-new-alias = Generate New Alias
 profile-label-delete = Delete
@@ -135,8 +138,10 @@ profile-label-cancel = Cancel
 profile-blocked-copy = { -brand-name-firefox-relay } will delete messages before they can reach your inbox when you select blocking for this alias.
 profile-forwarded-copy-html = { -brand-name-firefox-relay } will send messages to your inbox when you select forwarding for this alias. <br /><span class="fwd-note"><span class="bold ff-Met">Note:</span> Email (including attachments) larger than 150KB are not currently supported and will not be forwarded.
 
-# Banner Messages (displayed on the profile page)
+## Banner Messages (displayed on the profile page) - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
+
 banner-bounced-headline = { -brand-name-relay } couldn't deliver your email.
+
 # Variables:
 #   $username (string) - Username
 #   $bounce_type (string) - Type of bounced email
@@ -146,20 +151,16 @@ banner-bounced-copy = We are currently unable to send email to { $user }. We rec
 banner-download-firefox-headline = { -brand-name-relay } is even better in { -brand-name-firefox }
 banner-download-firefox-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-firefox-cta = Get { -brand-name-firefox }
-
 banner-download-install-add-on-headline = Looks like you haven't installed the add-on... yet!
 banner-download-install-add-on-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-install-add-on-cta = Get the add-on for { -brand-name-firefox }
-
-
 banner-premium-headline = Go premium for more features.
 banner-premium-copy = With { -brand-name-relay } Premium, you get unlimited email addresses and your own email domain.
 banner-premium-cta = Buy Premium
-
 banner-choose-subdomain-headline = Choose your own domain
 banner-choose-subdomain-copy = You can choose your own domain for "wildcard" aliases. NOTE: YOU CANNOT CHANGE THIS LATER!
-
 banner-choose-subdomain-label = Your domain is:
+
 # Variables:
 # $subdomain (url) - User-set subdomain
 banner-choose-subdomain-label = You can make up any address @{ $subdomain }
@@ -171,30 +172,32 @@ remaining-aliases-promo-label = { $number } aliases. You can make unlimited!
 # Variables:
 # $number (number) - User-set subdomain
 remaining-aliases-label-html = <span>{ $number }</span> remaining alias
+
 # Variables:
 # $number (number) - User-set subdomain
 remaining-aliases-label-plural-html = <span>{ $number }</span> remaining aliases
 
 remaining-aliases-cta = Buy unlimited aliases
-
 onboarding-headline = Three ways to create an alias
 onboarding-tip-1 = Right here - just select the button in the upper right corner
 onboarding-tip-2 = By selecting the { -brand-name-firefox-relay } icon when it appears in email fields
 onboarding-tip-3 = Via the context menu, just right-click (Windows) or Control-click (macOS) on form fields to access the menu and generate an alias
-
 modal-delete-headline = Permanently delete this alias?
+
 # Variables:
 #   $attrs (string) - specific attributes added to HTML element
 modal-delete-warning-recovery-html = Once you delete this alias, it cannot be recovered. { -brand-name-firefox-relay } will no longer forward messages sent to <span { $attrs }></span>, including messages that allow you to reset lost passwords.
+
 modal-delete-warning-upgrade = If you use this alias to log in to sites you care about, you should update your login with a different email address before you delete this one.
 modal-delete-confirmation = Yes, I want to delete this alias
+
+## Evergreen Survey (displayed on the profile page) - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
 
 survey-question-1 = On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?
 survey-question-2 = Is Relay easy to use?
 survey-question-3 = Do you feel Relay is trustworthy?
 survey-question-4 = Does Relay have a clean and simple presentation?
 survey-question-5 = How would you feel if you could no longer use Relay?
-
 survey-option-strongly-disagree = Strongly disagree
 survey-option-disagree = Disagree
 survey-option-unsure = Unsure
