@@ -65,7 +65,7 @@ how-it-works-step-1-headline = Install the extension
 # Variables:
 #   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
 #   $attrs (string) - specific attributes added to external links
-how-it-works-step-1-copy-html = <a href="{ $addon }" { $attrs }>Download the { -brand-name-relay } extension for { -brand-name-firefox }</a>. Select the icon that appears on your { -brand-name-firefox } toolbar to access the sign in page. Sign in with your { -brand-name-firefox-account } to get started.
+how-it-works-step-1-copy-html = <a href="{ $url }" { $attrs }>Download the { -brand-name-relay } extension for { -brand-name-firefox }</a>. Select the icon that appears on your { -brand-name-firefox } toolbar to access the sign in page. Sign in with your { -brand-name-firefox-account } to get started.
 how-it-works-step-2-headline = Create a new alias
 how-it-works-step-2-copy = As you browse, the { -brand-name-relay } icon will appear in form fields where sites ask for your email address. Select it to generate a new, random address that ends in @relay.firefox.com. { -brand-name-relay } will forward messages to the primary email address associated with your account.
 how-it-works-step-3-headline = Manage your account
@@ -113,8 +113,8 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 
 # Variables:
 #   $email (string) - User email address
-#   $attrs (string) - specific attributes added to HTML element
 profile-label-welcome = Welcome, { $email }!
+
 profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your Domain aliases
 profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to 150KB in size
@@ -145,8 +145,8 @@ banner-bounced-headline = { -brand-name-relay } couldn't deliver your email.
 # Variables:
 #   $username (string) - Username
 #   $bounce_type (string) - Type of bounced email
-#   $date (string) - next_email_try
-banner-bounced-copy = We are currently unable to send email to { $user }. We received a <em>{ $bounce_type }</em> "bounce" from your email provider when trying to forward emails to you. This can happen if { -brand-name-relay } couldn't connect to your email provider, or if your mailbox was full. We will try again on { $date }.
+#   $date (string) - A date for the next time the services tries to resend the email
+banner-bounced-copy = We are currently unable to send email to { $username }. We received a <em>{ $bounce_type }</em> "bounce" from your email provider when trying to forward emails to you. This can happen if { -brand-name-relay } couldn't connect to your email provider, or if your mailbox was full. We will try again on { $date }.
 
 banner-download-firefox-headline = { -brand-name-relay } is even better in { -brand-name-firefox }
 banner-download-firefox-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
@@ -169,12 +169,10 @@ banner-choose-subdomain-label = You can make up any address @{ $subdomain }
 # $number (number) - User-set subdomain
 remaining-aliases-promo-label = { $number } aliases. You can make unlimited!
 
-# Variables:
-# $number (number) - User-set subdomain
-remaining-aliases-label-html = <span>{ $number }</span> remaining alias
+remaining-aliases-label-html = <span>1</span> remaining alias
 
 # Variables:
-# $number (number) - User-set subdomain
+# $number (number) - Number of remaining aliases. This will always be more than 1. 
 remaining-aliases-label-plural-html = <span>{ $number }</span> remaining aliases
 
 remaining-aliases-cta = Buy unlimited aliases

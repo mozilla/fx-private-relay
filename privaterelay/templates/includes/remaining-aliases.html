@@ -12,7 +12,7 @@
         {% ftlmsg 'remaining-aliases-promo-label' number=relay_addresses|length %}
       {% else %}
           {% if relay_addresses|length == 4 %}
-            {% ftlmsg 'remaining-aliases-label-html' number=remaining_free_aliases_count %}
+            {% ftlmsg 'remaining-aliases-label-html' %}
           {% else %}
             {% ftlmsg 'remaining-aliases-label-plural-html' number=remaining_free_aliases_count %}
           {% endif %}
