@@ -2275,6 +2275,10 @@ input.input-has-error {
   }
 }
 
+.messages > div {
+  background-color: var(--grey50);
+}
+
 .messages .success {
   background-color: var(--blue7);
 }
