@@ -2275,8 +2275,16 @@ input.input-has-error {
   }
 }
 
-.messages.home-messages {
-  background: var(--warningRed);
+.messages > div {
+  background-color: var(--grey50);
+}
+
+.messages .success {
+  background-color: var(--blue7);
+}
+
+.messages .error {
+  background-color: var(--warningRed);
 }
 
 ul.messages {
@@ -2306,7 +2314,7 @@ ul.messages {
   margin: auto;
   outline: none;
   border: none;
-  background: var(--lightestGray);
+  background: rgba(0, 0, 0, 0.5);
   height: 32px;
   width: 32px;
   border-radius: 50%;
