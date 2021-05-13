@@ -240,6 +240,21 @@ DATABASES = {
         default="sqlite:///%s" % os.path.join(BASE_DIR, 'db.sqlite3')
     )
 }
+
+REDIS_CACHE_URL = config('REDIS_CACHE_URL', '', cast=str)
+if REDIS_CACHE_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_CACHE_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            }
+        }
+    }
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+    SESSION_CACHE_ALIAS = 'default'
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
