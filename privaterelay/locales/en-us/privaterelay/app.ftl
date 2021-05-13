@@ -59,7 +59,6 @@ home-hero-headline = Hide your real email address to help protect your identity
 home-hero-copy = { -brand-name-firefox-relay } makes it easy to create aliases, randomly generated email addresses that forward to your real inbox.
     Use it to protect your online accounts - and your identity - from hackers. Sign in with your { -brand-name-firefox-account } to get started.
 home-hero-cta = Sign in
-
 how-it-works-headline = How It Works
 how-it-works-subheadline = Protect your personal identity everywhere you use the { -brand-name-firefox-browser }.
 how-it-works-step-1-headline = Install the extension
@@ -78,12 +77,10 @@ how-it-works-step-3-headline = Manage your account
 how-it-works-step-3-copy = Sign in to the { -brand-name-relay } website to keep track of the aliases you’ve created.
     If you find that one receives spam or unwanted messages, you can block all messages or even delete the alias, 
     right from the management page.
-
 hero-image-copy-trust = Can you even trust this company with your personal email?
 hero-image-copy-unique-html = <strong>Use a unique relay address</strong> for every new account…
 hero-image-copy-protect-html = …so you can <strong>protect your real email</strong> from tracking and spam.
 hero-image-copy-control-html = Now <em>you’re in control</em> of what’s arriving to your inbox!
-
 
 ## FAQ Page - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/faq
 
@@ -96,7 +93,6 @@ faq-question-1-question = What about spam?
 faq-question-1-answer-html = While { -brand-name-relay } does not filter for spam, our email partner Amazon SES does block spam and malware. 
     If { -brand-name-relay } forwards messages you don’t want, you can update your { -brand-name-relay } settings to block messages from the alias forwarding them. <br/><br/> 
     If you see a broader problem of unwanted email from all of your aliases, please <a href="{ $url }" { $attrs }>report this to us</a> so we can consider adjusting the SES spam thresholds for this service. If you report these as spam, your email provider will see { -brand-name-relay } as the source of spam, not the original sender.
-
 faq-question-2-question = Why won’t a site accept my { -brand-name-relay } alias?
 
 # Variables:
@@ -105,7 +101,6 @@ faq-question-2-question = Why won’t a site accept my { -brand-name-relay } ali
 faq-question-2-answer-html = Some sites may not accept an email address that includes a subdomain (ie, the “relay” portion of @relay.firefox.com) and others have stopped accepting all addresses except those from Gmail, Hotmail, or Yahoo accounts. 
     As { -brand-name-firefox-relay } grows in popularity and issues more aliases, our service might be placed on a blocklist. 
     If you are not able to use a { -brand-name-relay } alias, <a href="{ $url }" { $attrs }>please let us know</a>.
-
 faq-question-3-question = Is { -brand-name-relay } available only in the US?
 faq-question-3-answer = The site is currently only available in English, but you can use the service anywhere.
 faq-question-4-question = Can I reply to messages using my { -brand-name-relay } alias?
@@ -115,7 +110,6 @@ faq-question-4-question = Can I reply to messages using my { -brand-name-relay }
 #   $attrs (string) - specific attributes added to external links
 faq-question-4-answer-html = { -brand-name-relay } does not yet offer the ability to reply using an alias. 
     If you try, nothing will happen. We are planning an additional feature to let you <a href="{ $url }" {$attrs}>reply anonymously to senders</a>.
-
 faq-question-5-question = Can I make up my own { -brand-name-relay } alias using the @relay.firefox.com domain?
 faq-question-5-answer = Not currently, but we are considering new features including letting you create your own alias with a designated domain.
 faq-question-6-question = What happens if { -brand-name-mozilla } shuts down the { -brand-name-firefox-relay } service?
@@ -129,7 +123,6 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 # Variables:
 #   $email (string) - User email address
 profile-label-welcome = Welcome, { $email }!
-
 profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your Domain aliases
 profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to 150KB in size
@@ -139,8 +132,14 @@ profile-promo-premium-cta = Buy Premium
 profile-label-saved = Label saved!
 profile-label-generate-new-alias = Generate New Alias
 profile-label-delete = Delete
-profile-label-forward-emails = Forward emails to
+
+# This string is followed by an email address
+profile-label-forward-emails = Forward emails to:
+
+# This string is followed by date
 profile-label-first-emailed = First emailed:
+
+# This string is followed by date:
 profile-label-created = Created:
 profile-label-details-show = Show Details
 profile-label-details-hide = Hide Details
@@ -165,7 +164,6 @@ banner-bounced-headline = { -brand-name-relay } couldn’t deliver your email.
 banner-bounced-copy = We are currently unable to send email to { $username }. 
     We received a <em>{ $bounce_type }</em> “bounce” from your email provider when trying to forward emails to you. 
     This can happen if { -brand-name-relay } couldn’t connect to your email provider, or if your mailbox was full. We will try again on { $date }.
-
 banner-download-firefox-headline = { -brand-name-relay } is even better in { -brand-name-firefox }
 banner-download-firefox-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-firefox-cta = Get { -brand-name-firefox }
@@ -177,6 +175,8 @@ banner-premium-copy = With { -brand-name-relay } Premium, you get unlimited emai
 banner-premium-cta = Buy Premium
 banner-choose-subdomain-headline = Choose your own domain
 banner-choose-subdomain-copy = You can choose your own domain for “wildcard” aliases. NOTE: YOU CANNOT CHANGE THIS LATER!
+
+# This string is followed by name (string) that the user chooses
 banner-choose-subdomain-label = Your domain is:
 
 # Variables:
@@ -192,7 +192,6 @@ remaining-aliases-label-html = <span>1</span> remaining alias
 # Variables:
 # $number (number) - Number of remaining aliases. This will always be more than 1. 
 remaining-aliases-label-plural-html = <span>{ $number }</span> remaining aliases
-
 remaining-aliases-cta = Buy unlimited aliases
 onboarding-headline = Three ways to create an alias
 onboarding-tip-1 = Right here - just select the button in the upper right corner
@@ -204,18 +203,17 @@ modal-delete-headline = Permanently delete this alias?
 #   $attrs (string) - specific attributes added to HTML element
 modal-delete-warning-recovery-html = Once you delete this alias, it cannot be recovered. 
     { -brand-name-firefox-relay } will no longer forward messages sent to <span { $attrs }></span>, including messages that allow you to reset lost passwords.
-
 modal-delete-warning-upgrade = If you use this alias to log in to sites you care about, 
     you should update your login with a different email address before you delete this one.
 modal-delete-confirmation = Yes, I want to delete this alias
 
 ## Evergreen Survey (displayed on the profile page) - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
 
-survey-question-1 = On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?
-survey-question-2 = Is Relay easy to use?
-survey-question-3 = Do you feel Relay is trustworthy?
-survey-question-4 = Does Relay have a clean and simple presentation?
-survey-question-5 = How would you feel if you could no longer use Relay?
+survey-question-1 = On a scale from 1-10, how likely are you to recommend { -brand-name-relay } to a friend or colleague?
+survey-question-2 = Is { -brand-name-relay } easy to use?
+survey-question-3 = Do you feel { -brand-name-relay } is trustworthy?
+survey-question-4 = Does { -brand-name-relay } have a clean and simple presentation?
+survey-question-5 = How would you feel if you could no longer use { -brand-name-relay }?
 survey-option-strongly-disagree = Strongly disagree
 survey-option-disagree = Disagree
 survey-option-unsure = Unsure
