@@ -124,7 +124,7 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 #   $email (string) - User email address
 profile-label-welcome = Welcome, { $email }!
 profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
-profile-headline-manage-domain = Manage your Domain aliases
+profile-headline-manage-domain = Manage your domain aliases
 profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to 150KB in size
 profile-promo-premium-headline = Go premium for more features.
 profile-promo-premium-copy = With { -brand-name-relay } Premium, you get your own email domain.
@@ -143,6 +143,8 @@ profile-label-first-emailed = First emailed:
 profile-label-created = Created:
 profile-label-details-show = Show Details
 profile-label-details-hide = Hide Details
+
+# This string is a label for a toggle (on/off) switch  
 profile-label-forwarding = forwarding
 profile-label-blocking = blocking
 profile-label-copied = Copied!
@@ -150,8 +152,10 @@ profile-label-blocked = Blocked
 profile-label-forwarded = Forwarded
 profile-label-cancel = Cancel
 profile-blocked-copy = { -brand-name-firefox-relay } will delete messages before they can reach your inbox when you select blocking for this alias.
-profile-forwarded-copy-html = { -brand-name-firefox-relay } will send messages to your inbox when you select forwarding for this alias. <br />
-    <span class="fwd-note"><span class="bold ff-Met">Note:</span> Email (including attachments) larger than 150KB are not currently supported and will not be forwarded.
+profile-forwarded-copy = { -brand-name-firefox-relay } will send messages to your inbox when you select forwarding for this alias.
+profile-forwarded-note = Note:
+profile-forwarded-note-copy = Email (including attachments) larger than 150KB are not currently supported and will not be forwarded.
+
 
 ## Banner Messages (displayed on the profile page) - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
 

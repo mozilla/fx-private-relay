@@ -11,5 +11,10 @@
 <div class="column-forwarded center-value relay-stat">
   <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-forwarded' %}</span>
   <span class="email-value relay-stat-value num-forwarded">{{ relay_address.num_forwarded }}</span>
-  <span class="forwarding-description stat-description">{% ftlmsg 'profile-forwarded-copy-html' %}</span>
+  <span class="forwarding-description stat-description">
+    {% ftlmsg 'profile-forwarded-copy' %}
+    <p>
+      <strong>{% ftlmsg 'profile-forwarded-note' %}</strong> {% ftlmsg 'profile-forwarded-note-copy' %}
+    </p>
+  </span>
 </div>
