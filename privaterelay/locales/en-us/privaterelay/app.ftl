@@ -51,9 +51,9 @@ fx-lockwise = { -brand-name-firefox-lockwise }
 fx-mobile = { -brand-name-firefox-browser } for Mobile
 fx-monitor = { -brand-name-firefox-monitor }
 fx-pocket = { -brand-name-pocket }
-mobileCloseBentoButtonTitle = Close menu
+bento-button-close-label = Close menu
 
-## Home Page - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/
+## Home Page
 
 home-hero-headline = Hide your real email address to help protect your identity
 home-hero-copy = { -brand-name-firefox-relay } makes it easy to create aliases, randomly generated email addresses that forward to your real inbox.
@@ -82,7 +82,7 @@ hero-image-copy-unique-html = <strong>Use a unique relay address</strong> for ev
 hero-image-copy-protect-html = …so you can <strong>protect your real email</strong> from tracking and spam.
 hero-image-copy-control-html = Now <em>you’re in control</em> of what’s arriving to your inbox!
 
-## FAQ Page - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/faq
+## FAQ Page
 
 faq-headline = Frequently Asked Questions
 faq-question-1-question = What about spam?
@@ -118,7 +118,7 @@ faq-question-7-question = What if an email sent to my alias contains an attachme
 faq-question-7-answer = We now support attachment forwarding. However, there is a 150KB limit for email forwarding using { -brand-name-relay }. 
     Any emails larger than 150KB will not be forwarded.
 
-## Profile Page (Logged In) - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
+## Profile Page (Logged In)
 
 # Variables:
 #   $email (string) - User email address
@@ -157,7 +157,7 @@ profile-forwarded-note = Note:
 profile-forwarded-note-copy = Email (including attachments) larger than 150KB are not currently supported and will not be forwarded.
 
 
-## Banner Messages (displayed on the profile page) - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
+## Banner Messages (displayed on the profile page)
 
 banner-bounced-headline = { -brand-name-relay } couldn’t deliver your email.
 
@@ -171,7 +171,7 @@ banner-bounced-copy = We are currently unable to send email to { $username }.
 banner-download-firefox-headline = { -brand-name-relay } is even better in { -brand-name-firefox }
 banner-download-firefox-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-firefox-cta = Get { -brand-name-firefox }
-banner-download-install-extension-headline = Looks like you haven’t installed the extension…yet!
+banner-download-install-extension-headline = Looks like you haven’t installed the extension!
 banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-install-extension-cta = Get the extension for { -brand-name-firefox }
 banner-premium-headline = Go premium for more features.
@@ -209,9 +209,9 @@ modal-delete-warning-recovery-html = Once you delete this alias, it cannot be re
     { -brand-name-firefox-relay } will no longer forward messages sent to <span { $attrs }></span>, including messages that allow you to reset lost passwords.
 modal-delete-warning-upgrade = If you use this alias to log in to sites you care about, 
     you should update your login with a different email address before you delete this one.
-modal-delete-confirmation = Yes, I want to delete this alias
+modal-delete-confirmation = Yes, I want to delete this alias.
 
-## Evergreen Survey (displayed on the profile page) - https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net/accounts/profile/
+## Evergreen Survey (displayed on the profile page)
 
 survey-question-1 = On a scale from 1-10, how likely are you to recommend { -brand-name-relay } to a friend or colleague?
 survey-question-2 = Is { -brand-name-relay } easy to use?
