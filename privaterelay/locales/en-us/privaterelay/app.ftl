@@ -16,6 +16,9 @@
 -brand-name-firefox-monitor = Firefox Monitor
 -brand-name-pocket = Pocket
 
+# The file size limit for emails forwarded through the Relay service. KB is an abbreviation for kilobyte.  
+-email-size-limit = 150KB
+
 ## Meta Data
 
 meta-title = { -brand-name-firefox-relay }
@@ -115,8 +118,8 @@ faq-question-5-answer = Not currently, but we are considering new features inclu
 faq-question-6-question = What happens if { -brand-name-mozilla } shuts down the { -brand-name-firefox-relay } service?
 faq-question-6-answer = We will give you advance notice that you need to change the email address of any accounts that are using { -brand-name-relay } aliases.
 faq-question-7-question = What if an email sent to my alias contains an attachment?
-faq-question-7-answer = We now support attachment forwarding. However, there is a 150KB limit for email forwarding using { -brand-name-relay }. 
-    Any emails larger than 150KB will not be forwarded.
+faq-question-7-answer = We now support attachment forwarding. However, there is a { -email-size-limit } limit for email forwarding using { -brand-name-relay }. 
+    Any emails larger than { -email-size-limit } will not be forwarded.
 
 ## Profile Page (Logged In)
 
@@ -125,7 +128,7 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 profile-label-welcome = Welcome, { $email }!
 profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your domain aliases
-profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to 150KB in size
+profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to { -email-size-limit } in size
 profile-promo-premium-headline = Go premium for more features.
 profile-promo-premium-copy = With { -brand-name-relay } Premium, you get your own email domain.
 profile-promo-premium-cta = Buy Premium
@@ -154,7 +157,7 @@ profile-label-cancel = Cancel
 profile-blocked-copy = { -brand-name-firefox-relay } will delete messages before they can reach your inbox when you select blocking for this alias.
 profile-forwarded-copy = { -brand-name-firefox-relay } will send messages to your inbox when you select forwarding for this alias.
 profile-forwarded-note = Note:
-profile-forwarded-note-copy = Email (including attachments) larger than 150KB are not currently supported and will not be forwarded.
+profile-forwarded-note-copy = Email (including attachments) larger than { -email-size-limit } are not currently supported and will not be forwarded.
 
 
 ## Banner Messages (displayed on the profile page)
