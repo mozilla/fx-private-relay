@@ -195,15 +195,17 @@ banner-choose-subdomain-label = Your domain is:
 # $subdomain (url) - User-set subdomain
 banner-choose-subdomain-label = You can make up any address @{ $subdomain }
 
-# Variables:
-# $number (number) - User-set subdomain
-remaining-aliases-promo-label = { $number } aliases. You can make unlimited!
 
-remaining-aliases-label-html = <span>1</span> remaining alias
+remaining-aliases-promo-label = { $number -> 
+    [one] { $number } remaining alias. 
+   *[other] { $number } remaining aliases.
+}
 
-# Variables:
-# $number (number) - Number of remaining aliases. This will always be more than 1. 
-remaining-aliases-label-plural-html = <span>{ $number }</span> remaining aliases
+remaining-aliases-promo-label-unlimited = { $number -> 
+    [one] { $number } alias. You can make unlimited!
+   *[other] { $number } aliases. You can make unlimited!
+}
+
 remaining-aliases-cta = Buy unlimited aliases
 onboarding-headline = Three ways to create an alias
 onboarding-tip-1 = Right here - just select the button in the upper right corner

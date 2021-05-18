@@ -9,13 +9,9 @@
   <span class="num-remaining-aliases bold">
     {% with request.user.profile_set.first as user_profile %}
       {% if settings.PREMIUM_ENABLED and user_profile.has_unlimited %}
-        {% ftlmsg 'remaining-aliases-promo-label' number=relay_addresses|length %}
+        {% ftlmsg 'remaining-aliases-promo-label-unlimited' number=relay_addresses|length %}
       {% else %}
-          {% if relay_addresses|length == 4 %}
-            {% ftlmsg 'remaining-aliases-label-html' %}
-          {% else %}
-            {% ftlmsg 'remaining-aliases-label-plural-html' number=remaining_free_aliases_count %}
-          {% endif %}
+          {% ftlmsg 'remaining-aliases-promo-label' number=remaining_free_aliases_count %}
           {% if settings.PREMIUM_ENABLED %}
             <a href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank">{% ftlmsg 'remaining-aliases-cta' %}</a>
           {% endif %}
