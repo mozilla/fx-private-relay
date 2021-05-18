@@ -86,7 +86,7 @@ how-it-works-step-3-copy = Sign in to the { -brand-name-relay } website to keep 
     If you find that one receives spam or unwanted messages, you can block all messages or even delete the alias, 
     right from the management page.
 hero-image-copy-trust = Can you even trust this company with your personal email?
-hero-image-copy-unique-html = <strong>Use a unique relay address</strong> for every new account…
+hero-image-copy-unique-html = <strong>Use a unique relay address</strong> for every new account …
 hero-image-copy-protect-html = …so you can <strong>protect your real email</strong> from tracking and spam.
 hero-image-copy-control-html = Now <em>you’re in control</em> of what’s arriving to your inbox!
 
