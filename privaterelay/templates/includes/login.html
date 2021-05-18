@@ -20,11 +20,11 @@
 		{% get_social_accounts request.user as accounts %}
 		<glocal-menu class="glocal-menu">
 			<button class="avatar-wrapper" aria-label="Open Menu">
-				<img class="avatar" src="{{ avatar }}" alt="Firefox Account Avatar" />
+				<img class="avatar" src="{{ avatar }}" alt="{% ftlmsg 'nav-profile-image-alt' %}" />
 			</button>
 			<div class="glocal-menu-wrapper">
 				<div class="glocal-menu-header">
-					<img class="glocal-small-avatar" alt="Firefox Account Avatar" src="{{ avatar }}" />
+					<img class="glocal-small-avatar" alt="{% ftlmsg 'nav-profile-image-alt' %}" src="{{ avatar }}" />
 					<div class="glocal-account-info">
 						<span class="glocal-fxa-email">{{ request.user.email }}</span>
             <a href="{{ settings.FXA_SETTINGS_URL }}" class="glocal-fxa-settings-link">{% ftlmsg 'nav-profile-manage-fxa' %}</a>

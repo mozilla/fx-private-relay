@@ -9,13 +9,17 @@
 -brand-name-firefox = Firefox
 -brand-name-firefox-relay = Firefox Relay
 -brand-name-relay = Relay
--brand-name-firefox-account = Firefox Account
 -brand-name-firefox-browser = Firefox Browser
 -brand-name-mozilla = Mozilla
 -brand-name-firefox-lockwise = Firefox Lockwise
 -brand-name-firefox-monitor = Firefox Monitor
 -brand-name-pocket = Pocket
-
+-brand-name-firefox-account = 
+    { $capitalization ->
+        *[lowercase] Firefox account
+        [uppercase] Firefox Account
+    }
+    
 # The file size limit for emails forwarded through the Relay service. KB is an abbreviation for kilobyte.  
 -email-size-limit = 150KB
 
@@ -33,10 +37,11 @@ nav-home = Home
 # FAQ stands for Frequently Asked Questions. The intent of this page is to answer commonly asked questions.
 nav-faq = FAQ
 nav-profile-sign-in = Sign In
-nav-profile-manage-fxa = Manage your { -brand-name-firefox-account }
+nav-profile-manage-fxa = Manage your { -brand-name-firefox-account(capitalization: "uppercase") }
 nav-profile-sign-out = Sign Out
 nav-profile-sign-out-relay = Sign Out of { -brand-name-relay }
 nav-profile-sign-out-confirm = Are you sure you want to sign out?
+nav-profile-image-alt = { -brand-name-firefox-account(capitalization: "uppercase") } Avatar
 
 ## Footer
 
