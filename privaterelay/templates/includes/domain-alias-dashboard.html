@@ -1,4 +1,7 @@
+
 {% load relay_tags %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 {% if user_profile.has_unlimited %}
 <div class="alias-list">
 <div class="flx flx-row dashboard-header inset">
@@ -124,7 +127,9 @@
         {% endfor %}
       </div>
 {% else %}
-    <p class="banner-hl ff-Met">Go premium for more features.</p>
-    <p class="banner-sub">With Relay Premium, you get your own email domain.</p>
-    <a class="banner-link ff-Met" href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">Buy Premium</a>
+    <p class="banner-hl ff-Met">{% ftlmsg 'profile-promo-upgrade-headline' %}</p>
+    <p class="banner-sub">{% ftlmsg 'profile-promo-upgrade-copy' %}</p>
+    <a class="banner-link ff-Met"
+      href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
+      target="_blank" rel="noopener noreferrer">{% ftlmsg 'profile-promo-upgrade-cta' %}</a>
 {% endif %}

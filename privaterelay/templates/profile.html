@@ -246,11 +246,6 @@
                 </div> <!-- end card-->
               </div> <!-- end relay-email-->
             {% endfor %}
-          {% else %}
-              <p class="banner-hl ff-Met">{% ftlmsg 'profile-promo-upgrade-headline' %}</p>
-              <p class="banner-sub">{% ftlmsg 'profile-promo-upgrade-copy' %}</p>
-              <a class="banner-link ff-Met" href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'profile-promo-upgrade-cta' %}</a>
-
           {% endif %}
         {% endwith %}
 
