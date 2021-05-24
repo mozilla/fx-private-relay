@@ -1642,7 +1642,7 @@ input.input-has-error {
 
 .banner-gradient-bg {
   background: var(--fxGradient);
-  margin: 0 auto;
+  margin: 0 auto 2rem;
   border-radius: 9px;
   padding: 2px;
   width: 100%;
