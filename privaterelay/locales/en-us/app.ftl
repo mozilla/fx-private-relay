@@ -16,12 +16,9 @@
 -brand-name-pocket = Pocket
 -brand-name-firefox-account = 
     { $capitalization ->
-        *[lowercase] Firefox account
+       *[lowercase] Firefox account
         [uppercase] Firefox Account
     }
-    
-# The file size limit for emails forwarded through the Relay service. KB is an abbreviation for kilobyte.  
--email-size-limit = 150KB
 
 ## Meta Data
 
@@ -87,14 +84,14 @@ how-it-works-step-3-copy = Sign in to the { -brand-name-relay } website to keep 
     right from the management page.
 hero-image-copy-trust = Can you even trust this company with your personal email?
 hero-image-copy-unique-html = <strong>Use a unique relay address</strong> for every new account …
-hero-image-copy-protect-html = …so you can <strong>protect your real email</strong> from tracking and spam.
+hero-image-copy-protect-html = … so you can <strong>protect your real email</strong> from tracking and spam.
 hero-image-copy-control-html = Now <em>you’re in control</em> of what’s arriving to your inbox!
 
 ## FAQ Page
 
 faq-headline = Frequently Asked Questions
 faq-question-1-question = What about spam?
-faq-question-1-answer-a = While { -brand-name-relay } does not filter for spam, our email partner Amazon SES does block spam and malware. If { -brand-name-relay } forwards messages you don’t want, you can update your { -brand-name-relay } settings to block messages from the alias forwarding them.  
+faq-question-1-answer-a-html = While { -brand-name-relay } does not filter for spam, our email partner Amazon SES does block spam and malware. If { -brand-name-relay } forwards messages you don’t want, you can update your { -brand-name-relay } settings to block messages from the alias forwarding them.  
 
 # Variables:
 #   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
@@ -105,12 +102,20 @@ faq-question-2-question = Why won’t a site accept my { -brand-name-relay } ali
 # Variables:
 #   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
 #   $attrs (string) - specific attributes added to external links
-faq-question-2-answer-html = Some sites may not accept an email address that includes a subdomain (ie, the “relay” portion of @relay.firefox.com) and others have stopped accepting all addresses except those from Gmail, Hotmail, or Yahoo accounts. 
+faq-question-2-answer-html = Some sites may not accept an email address that includes a subdomain (i.e., the “relay” portion of @relay.firefox.com) and others have stopped accepting all addresses except those from Gmail, Hotmail, or Yahoo accounts. 
     As { -brand-name-firefox-relay } grows in popularity and issues more aliases, our service might be placed on a blocklist. 
     If you are not able to use a { -brand-name-relay } alias, <a href="{ $url }" { $attrs }>please let us know</a>.
 faq-question-3-question = Is { -brand-name-relay } available only in the US?
 faq-question-3-answer = The site is currently only available in English, but you can use the service anywhere.
 faq-question-4-question = Can I reply to messages using my { -brand-name-relay } alias?
+
+    
+# String used to display the attachment limit, e.g. 150 KB
+# Variables:
+#  $size (number): maximum size for attachments
+#  $unit (string): unit of measurement (e.g. KB for Kilobyte)
+email-size-limit = { $size } { $unit }
+unit-kb = KB
 
 # Variables:
 #   $url (url) - https://github.com/mozilla/fx-private-relay/issues/99
@@ -122,8 +127,7 @@ faq-question-5-answer = Not currently, but we are considering new features inclu
 faq-question-6-question = What happens if { -brand-name-mozilla } shuts down the { -brand-name-firefox-relay } service?
 faq-question-6-answer = We will give you advance notice that you need to change the email address of any accounts that are using { -brand-name-relay } aliases.
 faq-question-7-question = What if an email sent to my alias contains an attachment?
-faq-question-7-answer = We now support attachment forwarding. However, there is a { -email-size-limit } limit for email forwarding using { -brand-name-relay }. 
-    Any emails larger than { -email-size-limit } will not be forwarded.
+faq-question-7-answer = We now support attachment forwarding. However, there is a { email-size-limit } limit for email forwarding using { -brand-name-relay }. Any emails larger than { email-size-limit } will not be forwarded.
 
 ## Profile Page (Logged In)
 
@@ -132,7 +136,7 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 profile-label-welcome = Welcome, { $email }!
 profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your domain aliases
-profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to { -email-size-limit } in size
+profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to { email-size-limit } in size
 profile-promo-upgrade-headline = Upgrade for even more features.
 profile-promo-upgrade-copy = Upgrade { -brand-name-relay } to get unlimited email addresses and your own email domain.
 profile-promo-upgrade-cta = Upgrade { -brand-name-relay }
@@ -161,7 +165,7 @@ profile-label-cancel = Cancel
 profile-blocked-copy = { -brand-name-firefox-relay } will delete messages before they can reach your inbox when you select blocking for this alias.
 profile-forwarded-copy = { -brand-name-firefox-relay } will send messages to your inbox when you select forwarding for this alias.
 profile-forwarded-note = Note:
-profile-forwarded-note-copy = Email (including attachments) larger than { -email-size-limit } are not currently supported and will not be forwarded.
+profile-forwarded-note-copy = Email (including attachments) larger than { email-size-limit } are not currently supported and will not be forwarded.
 
 
 ## Banner Messages (displayed on the profile page)
