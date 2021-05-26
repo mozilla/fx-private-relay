@@ -15,38 +15,42 @@
   </div>
 </div>
     {% else %}
-<div class="dashboard-banners flx invisible hide-750">
-  <div class="banner-gradient-bg">
-    <div class="download-fx-banner banner-content flx flx-row hidden">
-      <div class="banner-fx-logo banner-logo"></div>
-      <div class="banner-copy flx flx-col">
-        <p class="banner-hl ff-Met">{% ftlmsg 'banner-download-firefox-headline' %}</p>
-        <p class="banner-sub">{% ftlmsg 'banner-download-firefox-copy' %}</p>
-        <a class="banner-link ff-Met" href="https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-download-firefox-cta' %}</a>
+<div class="dashboard-banners invisible hide-750">
+  <div class="flx">
+    <div class="banner-gradient-bg">
+      <div class="download-fx-banner banner-content flx flx-row hidden">
+        <div class="banner-fx-logo banner-logo"></div>
+        <div class="banner-copy flx flx-col">
+          <p class="banner-hl ff-Met">{% ftlmsg 'banner-download-firefox-headline' %}</p>
+          <p class="banner-sub">{% ftlmsg 'banner-download-firefox-copy' %}</p>
+          <a class="banner-link ff-Met" href="https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-download-firefox-cta' %}</a>
+        </div>
       </div>
-    </div>
-    <div class="install-addon-banner banner-content flx flx-row hidden">
-      <div class="banner-relay-logo banner-logo"></div>
-      <div class="banner-copy flx flx-col">
-        <p class="banner-hl ff-Met">{% ftlmsg 'banner-download-install-extension-headline' %}</p>
-        <p class="banner-sub">{% ftlmsg 'banner-download-install-extension-copy' %}</p>
-        <a class="banner-link ff-Met" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-download-install-extension-cta' %}</a>
+      <div class="install-addon-banner banner-content flx flx-row hidden">
+        <div class="banner-relay-logo banner-logo"></div>
+        <div class="banner-copy flx flx-col">
+          <p class="banner-hl ff-Met">{% ftlmsg 'banner-download-install-extension-headline' %}</p>
+          <p class="banner-sub">{% ftlmsg 'banner-download-install-extension-copy' %}</p>
+          <a class="banner-link ff-Met" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-download-install-extension-cta' %}</a>
+        </div>
       </div>
     </div>
   </div>
     {% if settings.PREMIUM_ENABLED %}
     {% with request.user.profile_set.first as user_profile %}
     {% if not user_profile.has_unlimited %}
-  <div class="banner-gradient-bg">
-    <div class="go-premium-banner banner-content flx flx-row">
-      <div class="banner-relay-logo banner-logo"></div>
-      <div class="banner-copy flx flx-col">
-        <p class="banner-hl ff-Met">{% ftlmsg 'banner-upgrade-headline' %}</p>
-        <p class="banner-sub">{% ftlmsg 'banner-upgrade-copy' %}</p>
-        <a class="banner-link ff-Met" href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
+    <div class="flx">
+      <div class="banner-gradient-bg">
+        <div class="go-premium-banner banner-content flx flx-row">
+          <div class="banner-relay-logo banner-logo"></div>
+          <div class="banner-copy flx flx-col">
+            <p class="banner-hl ff-Met">{% ftlmsg 'banner-upgrade-headline' %}</p>
+            <p class="banner-sub">{% ftlmsg 'banner-upgrade-copy' %}</p>
+            <a class="banner-link ff-Met" href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 </div>
   {% elif not user_profile.subdomain %}
   <div class="banner-gradient-bg">
