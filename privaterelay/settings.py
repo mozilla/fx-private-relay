@@ -55,17 +55,13 @@ SESSION_COOKIE_SECURE = config(
 )
 # maps fxa profile hosts to respective avatar hosts for CSP
 AVATAR_IMG_SRC_MAP = {
-    'https://stable.dev.lcip.org/profile/v1':      [
-        'stable.dev.lcip.org',
-        'https://stable.dev.lcip.org/profile/v1/avatar/w',
-    ],
     'https://profile.stage.mozaws.net/v1':      [
         'mozillausercontent.com',
-        'https://profile.stage.mozaws.net/v1/avatar/w',
+        'https://profile.stage.mozaws.net',
     ],
     'https://profile.accounts.firefox.com/v1':  [
         'firefoxusercontent.com',
-        'https://profile.accounts.firefox.com/v1/avatar/w',
+        'https://profile.accounts.firefox.com',
     ],
 }
 AVATAR_IMG_SRC = AVATAR_IMG_SRC_MAP[config(
@@ -83,7 +79,7 @@ CSP_SCRIPT_SRC = (
 )
 CSP_STYLE_SRC = ("'self'",)
 CSP_IMG_SRC = ["'self'"] + AVATAR_IMG_SRC
-REFERRER_POLICY = 'strict-origin-when-cross-origin' \
+REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 ALLOWED_HOSTS = []
 DJANGO_ALLOWED_HOST = config('DJANGO_ALLOWED_HOST', None)
