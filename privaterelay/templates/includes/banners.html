@@ -12,35 +12,41 @@
   </div>
 </div>
     {% else %}
-<div class="dashboard-banners flx invisible hide-750">
-  <div class="banner-gradient-bg">
-    <div class="download-fx-banner banner-content flx flx-row hidden">
-      <div class="banner-fx-logo banner-logo"></div>
-      <div class="banner-copy flx flx-col">
-        <p class="banner-hl ff-Met">Relay is even better in Firefox</p>
-        <p class="banner-sub">The Relay extension for Firefox Browser makes creating aliases even easier.</p>
-        <a class="banner-link ff-Met" href="https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx" target="_blank" rel="noopener noreferrer">Get Firefox</a>
+<div class="dashboard-banners invisible hide-750">
+  <div class="flx">
+    <div class="banner-gradient-bg">
+      <div class="download-fx-banner banner-content flx flx-row hidden">
+        <div class="banner-fx-logo banner-logo"></div>
+        <div class="banner-copy flx flx-col">
+          <p class="banner-hl ff-Met">Relay is even better in Firefox</p>
+          <p class="banner-sub">The Relay extension for Firefox Browser makes creating aliases even easier.</p>
+          <a class="banner-link ff-Met" href="https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx" target="_blank" rel="noopener noreferrer">Get Firefox</a>
+        </div>
       </div>
-    </div>
-    <div class="install-addon-banner banner-content flx flx-row hidden">
-      <div class="banner-relay-logo banner-logo"></div>
-      <div class="banner-copy flx flx-col">
-        <p class="banner-hl ff-Met">Looks like you haven't installed the add-on... yet!</p>
-        <p class="banner-sub">The Relay extension for Firefox Browser makes creating aliases even easier.</p>
-        <a class="banner-link ff-Met" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon" target="_blank" rel="noopener noreferrer">Get the add-on for Firefox</a>
+      <div class="install-addon-banner banner-content flx flx-row hidden">
+        <div class="banner-relay-logo banner-logo"></div>
+        <div class="banner-copy flx flx-col">
+          <p class="banner-hl ff-Met">Looks like you haven't installed the add-on... yet!</p>
+          <p class="banner-sub">The Relay extension for Firefox Browser makes creating aliases even easier.</p>
+          <a class="banner-link ff-Met" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon" target="_blank" rel="noopener noreferrer">Get the add-on for Firefox</a>
+        </div>
       </div>
     </div>
   </div>
     {% if settings.PREMIUM_ENABLED %}
     {% with request.user.profile_set.first as user_profile %}
     {% if not user_profile.has_unlimited %}
-  <div class="banner-gradient-bg">
-    <div class="go-premium-banner banner-content flx flx-row">
-      <div class="banner-relay-logo banner-logo"></div>
-      <div class="banner-copy flx flx-col">
-        <p class="banner-hl ff-Met">Go premium for more features.</p>
-        <p class="banner-sub">With Relay Premium, you get unlimited email addresses and your own email domain.</p>
-        <a class="banner-link ff-Met" href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">Buy Premium</a>
+  <div class="flx">
+    <div class="banner-gradient-bg">
+      <div class="go-premium-banner banner-content flx flx-row">
+        <div class="banner-relay-logo banner-logo"></div>
+        <div class="banner-copy flx flx-col">
+          <p class="banner-hl ff-Met">Go premium for more features.</p>
+          <p class="banner-sub">With Relay Premium, you get unlimited email addresses and your own email domain.</p>
+          <a class="banner-link ff-Met"
+            href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
+            target="_blank" rel="noopener noreferrer">Buy Premium</a>
+        </div>
       </div>
     </div>
   </div>
