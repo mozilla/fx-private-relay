@@ -115,7 +115,6 @@ faq-question-4-question = Can I reply to messages using my { -brand-name-relay }
 #  $size (number): maximum size for attachments
 #  $unit (string): unit of measurement (e.g. KB for Kilobyte)
 email-size-limit = { $size } { $unit }
-unit-kb = KB
 
 # Variables:
 #   $url (url) - https://github.com/mozilla/fx-private-relay/issues/99
