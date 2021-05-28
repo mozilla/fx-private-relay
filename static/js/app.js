@@ -257,23 +257,6 @@ function addEventListeners() {
     });
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
     deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
-
-    if (window.outerWidth > 550) {
-      aliasCard.querySelectorAll(".relay-stat").forEach(statCol => {
-        const stat = statCol.querySelector(".relay-stat-value");
-        const statDescription = statCol.querySelector(".stat-description");
-        const statLabel = statCol.querySelector(".card-small-text");
-  
-        [stat, statLabel, statDescription].forEach(el => {
-          el.addEventListener("mouseenter", (e) => {
-            statDescription.classList.toggle("show-message", !statDescription.classList.contains("show-message"));
-          });
-        });
-        statCol.addEventListener("mouseout", () => {
-          statDescription.classList.remove("show-message");
-        });
-      });
-    }
   });
 
   // Email forwarding toggles

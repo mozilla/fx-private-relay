@@ -1776,11 +1776,21 @@ input.input-has-error {
   transition: all 0.2s ease !important;
 }
 
-.stat-description.show-message {
-  transform: translateY(3px);
-  visibility: visible;
-  opacity: 1;
-  transition: all 0.3s ease;
+.stat-description p {
+  margin-bottom: 0;
+}
+
+.stat-description strong {
+  font-family: var(--metropolis);
+}
+
+@media screen and (min-width: 550px) {
+  .relay-stat:hover .stat-description, .stat-description.show-message {
+    transform: translateY(3px);
+    visibility: visible;
+    opacity: 1;
+    transition: all 0.3s ease;
+  }
 }
 
 .stat-description.blocked-description {

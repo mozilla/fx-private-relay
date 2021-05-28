@@ -1,61 +1,47 @@
 {% extends "base.html" %}
 {% load static %}
 {% load socialaccount %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 {% block content %}
   <main class="flx flx-col container faqs-wrapper">
-    <h1 class="faqs-headline">Frequently Asked Questions</h1>
+    <h1 class="faqs-headline">{% ftlmsg 'faq-headline' %}</h1>
     <div class="faqs flx flx-row spc-btwn">
       <div class="faq-col flx flx-col">
         <section class="faq">
-          <h2 class="faq-headline">What about spam?</h2>
+          <h2 class="faq-headline">{% ftlmsg 'faq-question-1-question' %}</h2>
           <p class="faq-answer">
-            While Relay does not filter for spam, our email partner Amazon SES does block spam and malware. If Relay forwards messages you don’t want, you can update your Relay settings to block messages from the alias forwarding them.
-          </p>
-          <p class="faq-answer">
-            If you see a broader problem of unwanted email from all of your aliases, please <a class="text-link" rel="noopener" href="https://addons.mozilla.org/firefox/addon/private-relay/" target="_blank">report this to us</a> so we can consider adjusting the SES spam thresholds for this service.
-          </p>
-          <p class="faq-answer">
-            If you report these as spam, your email provider will see Relay as the source of spam, not the original sender.
+            {% ftlmsg 'faq-question-1-answer-a-html' %} 
+            <br/><br/>
+            {% ftlmsg 'faq-question-1-answer-b-html' url='https://addons.mozilla.org/firefox/addon/private-relay/' attrs='target="_blank" rel="noopener" class="text-link"' %}
           </p>
         </section>
         <section class="faq">
-          <h2 class="faq-headline">Why won’t a site accept my Relay alias?</h2>
-          <p class="faq-answer">
-            Some sites may not accept an email address that includes a subdomain (ie, the “relay” portion of @relay.firefox.com) and others have stopped accepting all addresses except those from Gmail, Hotmail, or Yahoo accounts. As Firefox Relay grows in popularity and issues more aliases, our service might be placed on a blocklist. If you are not able to use a Relay alias, <a class="text-link" rel="noopener" href="https://addons.mozilla.org/firefox/addon/private-relay/" target="_blank">please let us know</a>.
-          </p>
+          <h2 class="faq-headline">{% ftlmsg 'faq-question-2-question' %}</h2>
+          <p class="faq-answer">{% ftlmsg 'faq-question-2-answer-html' url='https://addons.mozilla.org/firefox/addon/private-relay/' attrs='target="_blank" rel="noopener" class="text-link"' %}</p>
         </section>
       </div>
       <div class="faq-col flx flx-col">
         <section class="faq">
-          <h2 class="faq-headline">Is Relay available only in the US?</h2>
-          <p class="faq-answer">
-            The site is currently only available in English, but you can use the service anywhere.
-          </p>
+          <h2 class="faq-headline">{% ftlmsg 'faq-question-3-question' %}</h2>
+          <p class="faq-answer">{% ftlmsg 'faq-question-3-answer' %}</p>
         </section>
         <section class="faq">
-          <h2 class="faq-headline">Can I reply to messages using my Relay alias?</h2>
-          <p class="faq-answer">
-            Relay does not yet offer the ability to reply using an alias. If you try, nothing will happen. We are planning an additional feature to let you <a href="https://github.com/mozilla/fx-private-relay/issues/99" rel="noopener noreferrer" class="text-link">reply anonymously to senders</a>.
-          </p>
+          <h2 class="faq-headline">{% ftlmsg 'faq-question-4-question' %}</h2>
+          <p class="faq-answer">{% ftlmsg 'faq-question-4-answer-html' url='https://github.com/mozilla/fx-private-relay/issues/99' attrs='rel="noopener noreferrer" class="text-link"' %}</p>
         </section>
         <section class="faq">
-          <h2 class="faq-headline">Can I make up my own Relay alias using the @relay.firefox.com domain?</h2>
-          <p class="faq-answer">
-            Not currently, but we are considering new features including letting you create your own alias with a designated domain.
-          </p>
+          <h2 class="faq-headline">{% ftlmsg 'faq-question-5-question' %}</h2>
+          <p class="faq-answer">{% ftlmsg 'faq-question-5-answer' %}</p>
         </section>
         <section class="faq">
-          <h2 class="faq-headline">What happens if Mozilla shuts down the Firefox Relay service?</h2>
-          <p class="faq-answer">
-            We will give you advance notice that you need to change the email address of any accounts that are using Relay aliases.
-          </p>
+          <h2 class="faq-headline">{% ftlmsg 'faq-question-6-question' %}</h2>
+          <p class="faq-answer">{% ftlmsg 'faq-question-6-answer' %}</p>
         </section>
         <section class="faq">
-          <h2 class="faq-headline">What if an email sent to my alias contains an attachment?</h2>
-          <p class="faq-answer">
-            We now support attachment forwarding. However, there is a 150KB limit for email forwarding using Relay. Any emails larger than 150KB will not be forwarded.
-          </p>
+          <h2 class="faq-headline">{% ftlmsg 'faq-question-7-question' %}</h2>
+          <p class="faq-answer">{% ftlmsg 'faq-question-7-answer' size='150' unit='KB' %}</p>
         </section>
       </div>
     </div>

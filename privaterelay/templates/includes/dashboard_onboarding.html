@@ -1,25 +1,28 @@
 {% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<h2 class="dashboard-onboarding-header">Three ways to create an alias</h2>
+
+<h2 class="dashboard-onboarding-header">{% ftlmsg 'onboarding-headline' %}</h2>
 <ol class="dashboard-onboarding-list">
   <li class="dashboard-onboarding-list-item tip-1 flx flx-col">
     <div class="flx flx-row al-cntr">
       <span class="onboarding-num">1</span>
-      <span>Right here - just select the button in the upper right corner</span>
+      <span>{% ftlmsg 'onboarding-tip-1' %}</span>
     </div>
     <img class="onboarding-img img-arrow-up" src="{% static 'images/dashboard-onboarding/tip1-icon.svg' %}" aria-hidden="true" alt="">
   </li>
   <li class="dashboard-onboarding-list-item tip-2 flx flx-col">
     <div class="flx flx-row al-cntr">
       <span class="onboarding-num">2</span>
-      <span>By selecting the Firefox Relay icon when it appears in email fields</span>
+      <span>{% ftlmsg 'onboarding-tip-2' %}</span>
     </div>
     <img class="onboarding-img img-input-icon" src="{% static 'images/dashboard-onboarding/input-icon.svg' %}" alt="Where possible, a button to create a new alias will appear inside a form's email input.">
   </li>
   <li class="dashboard-onboarding-list-item tip-3 flx flx-col">
     <div class="flx flx-row al-cntr">
       <span class="onboarding-num">3</span>
-      <span>Via the context menu, just right-click (Windows) or Control-click (macOS) on form fields to access the menu and generate an alias</span>
+      <span>{% ftlmsg 'onboarding-tip-3' %}</span>
     </div>
     <img class="onboarding-img img-context-menu" src="{% static 'images/dashboard-onboarding/context-menu.svg' %}" aria-hidden="true">
   </li>

@@ -153,7 +153,7 @@ function analyticsSurveyLogic() {
   switch (surveyType) {
     case "nps": {
       const notLikely = document.createElement("li");
-      notLikely.textContent = "Not likely";
+      notLikely.textContent = surveyOptions.dataset.surveyOptionNotLikelyTranslated;
       notLikely.classList = "nps-bookend";
       surveyOptions.appendChild(notLikely);
       [...Array(10).keys()].forEach(option => {
@@ -193,14 +193,21 @@ function analyticsSurveyLogic() {
         surveyOptions.appendChild(li);
       });
       const veryLikely = document.createElement("li");
-      veryLikely.textContent = "Very likely";
+      veryLikely.textContent = surveyOptions.dataset.surveyOptionVeryLikelyTranslated;
       veryLikely.classList = "nps-bookend";
       surveyOptions.appendChild(veryLikely);
     break;
     }
     case "pmf": {
-      const options = [
+      let optionBuildIndex = 0;
+      // These labels are used for GA, and should remain in English 
+      const optionEventLabels = [
         "Very disappointed", "Somewhat disappointed", "I wouldn't care"
+      ];
+      const options = [
+        surveyOptions.dataset.surveyOptionNotLikelyTranslated, // "Very disappointed"
+        surveyOptions.dataset.surveyOptionSomewhatDisappointedTranslated, // "Somewhat disappointed"
+        surveyOptions.dataset.surveyOptionIWouldntCareTranslated // "I wouldn't care"
       ];
       options.forEach(option => {
         const li = document.createElement("li");
@@ -208,7 +215,7 @@ function analyticsSurveyLogic() {
         li.textContent = option;
         li.dataset.eventCategory = "PMF Survey";
         li.dataset.eventAction = "submitted";
-        li.dataset.eventLabel = option;
+        li.dataset.eventLabel = optionEventLabels[optionBuildIndex];
         li.addEventListener("click", setSurveyedCookie);
         li.addEventListener("click", (evt) => {
           const eventData = li.dataset;
@@ -220,6 +227,7 @@ function analyticsSurveyLogic() {
           );
         });
         surveyOptions.appendChild(li);
+        optionBuildIndex++;
       });
       break;
     }
@@ -237,8 +245,17 @@ function analyticsSurveyLogic() {
         rankMetric = "metric9";
       }
 
-      const options = [
+      let optionBuildIndex = 0;
+      // These labels are used for GA, and should remain in English 
+      const optionEventLabels = [
         "Strongly disagree", "Disagree", "Unsure", "Agree", "Strongly agree"
+      ];
+      const options = [
+        surveyOptions.dataset.surveyOptionStronglyDisagreeTranslated, // Strongly disagree
+        surveyOptions.dataset.surveyOptionDisagreeTranslated, // Disagree
+        surveyOptions.dataset.surveyOptionUnsureTranslated, // Unsure
+        surveyOptions.dataset.surveyOptionAgreeTranslated, // Agree
+        surveyOptions.dataset.surveyOptionStronglyAgreeTranslated, // Strongly agree"
       ];
       let eventValue = 1;
       options.forEach(option => {
@@ -247,7 +264,7 @@ function analyticsSurveyLogic() {
         li.textContent = option;
         li.dataset.eventCategory = `SUPR-Q Survey ${surveyType}`;
         li.dataset.eventAction = "submitted";
-        li.dataset.eventLabel = option;
+        li.dataset.eventLabel = optionEventLabels[optionBuildIndex];
         li.dataset.eventValue = eventValue;
         li.addEventListener("click", setSurveyedCookie);
         li.addEventListener("click", (evt) => {
@@ -265,6 +282,7 @@ function analyticsSurveyLogic() {
           );
         });
         eventValue++;
+        optionBuildIndex++;
         surveyOptions.appendChild(li);
       });
       break;

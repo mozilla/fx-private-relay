@@ -1,13 +1,15 @@
 {% load socialaccount %}
 {% load static %}
+{% load ftl %}
+{% ftlconf mode=ftl_mode bundle='privaterelay.ftl_bundles.main' %}
 
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="{{ request.LANGUAGE_CODE }}" dir="ltr">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Firefox Relay makes it easy to create email aliases, aliases that forward to your real inbox. Use it to protect your online accounts from hackers and unwanted messages." />
-    <title>Firefox Relay</title>
+    <meta name="description" content="{% ftlmsg 'meta-description' %}" />
+    <title>{% ftlmsg 'meta-title' %}</title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/inter-ui.css' %}">
     <link rel="stylesheet" href="{% static 'css/metropolis.css' %}">

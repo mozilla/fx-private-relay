@@ -130,6 +130,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.staticfiles',
 
+    'django_ftl.apps.DjangoFtlConfig',
+
     'dockerflow.django',
 
     'allauth',
@@ -191,6 +193,9 @@ MIDDLEWARE += [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    "django.middleware.locale.LocaleMiddleware",
+    "django_ftl.middleware.activate_from_request_language_code",
+
     'csp.middleware.CSPMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
@@ -215,6 +220,7 @@ TEMPLATES = [
 
                 'emails.context_processors.relay_from_domain',
                 'privaterelay.context_processors.django_settings',
+                'privaterelay.context_processors.ftl_mode',
             ],
         },
     },

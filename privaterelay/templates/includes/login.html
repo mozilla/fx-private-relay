@@ -1,5 +1,7 @@
 {% load socialaccount %}
 {% load relay_tags %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 {% block content %}
 
@@ -13,19 +15,19 @@
       data-event-category="Sign In Buttons"
       data-event-label="sign-in-btn-header"
       class="sign-in button btn-transparent"
-      href="{% provider_login_url 'fxa' process='login' %}">Sign In</a>
+      href="{% provider_login_url 'fxa' process='login' %}">{% ftlmsg 'nav-profile-sign-in' %}</a>
 	{% else %}
 		{% get_social_accounts request.user as accounts %}
 		<glocal-menu class="glocal-menu">
 			<button class="avatar-wrapper" aria-label="Open Menu">
-				<img class="avatar" src="{{ avatar }}" alt="Firefox Account Avatar" />
+				<img class="avatar" src="{{ avatar }}" alt="{% ftlmsg 'nav-profile-image-alt' %}" />
 			</button>
 			<div class="glocal-menu-wrapper">
 				<div class="glocal-menu-header">
-					<img class="glocal-small-avatar" alt="Firefox Account Avatar" src="{{ avatar }}" />
+					<img class="glocal-small-avatar" alt="{% ftlmsg 'nav-profile-image-alt' %}" src="{{ avatar }}" />
 					<div class="glocal-account-info">
 						<span class="glocal-fxa-email">{{ request.user.email }}</span>
-            <a href="{{ settings.FXA_SETTINGS_URL }}" class="glocal-fxa-settings-link">Manage your Firefox Account</a>
+            <a href="{{ settings.FXA_SETTINGS_URL }}" class="glocal-fxa-settings-link">{% ftlmsg 'nav-profile-manage-fxa' %}</a>
 					</div>
 				</div>
 				<div class="glocal-site-options">
@@ -34,7 +36,7 @@
 						{% if redirect_field_value %}
 							<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
 						{% endif %}
-						<button class="glocal-sign-out glocal-site-option" type="submit">Sign Out of Relay</button>
+						<button class="glocal-sign-out glocal-site-option" type="submit">{% ftlmsg 'nav-profile-sign-out-relay' %}</button>
 					</form>
 				</div>
 			</div>
@@ -44,7 +46,7 @@
 			{% if redirect_field_value %}
 				<input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
 			{% endif %}
-			<button class="sign-in button btn-transparent" type="submit">Sign Out</button>
+			<button class="sign-in button btn-transparent" type="submit">{% ftlmsg 'nav-profile-sign-out' %}</button>
 		</form>
 	{% endif %}
 </div>

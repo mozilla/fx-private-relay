@@ -1,5 +1,7 @@
 {% load i18n %}
 {% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 {% get_current_language as LANGUAGE_CODE %}
 
@@ -13,20 +15,45 @@
     <div id="micro-survey-banner" class="micro-survey-banner hidden">
       {% now "U" as now_second %}
       {% if now_second|last == "1" or now_second|last == "6" %}
-        <span id="micro-survey-prompt" data-survey-type="nps">On a scale from 1-10, how likely are you to recommend Relay to a friend or colleague?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-numeric"></ul>
+        <span id="micro-survey-prompt" data-survey-type="nps">{% ftlmsg 'survey-question-1' %}</span>
+        <ul id="micro-survey-options"
+        data-survey-option-very-likely-translated="{% ftlmsg 'survey-option-very-likely' %}"
+        data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-not-likely' %}"
+        class="micro-survey-options micro-survey-options-numeric"></ul>
       {% elif now_second|last == "2" or now_second|last == "7" %}
-        <span id="micro-survey-prompt" data-survey-type="usability">Is Relay easy to use?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
+        <span id="micro-survey-prompt" data-survey-type="usability">{% ftlmsg 'survey-question-2' %}</span>
+        <ul id="micro-survey-options"
+        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
+        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
+        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
+        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
+        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
+        class="micro-survey-options micro-survey-options-likert"></ul>
       {% elif now_second|last == "3" or now_second|last == "8" %}
-        <span id="micro-survey-prompt" data-survey-type="credibility">Do you feel Relay is trustworthy?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
+        <span id="micro-survey-prompt" data-survey-type="credibility">{% ftlmsg 'survey-question-3' %}</span>
+        <ul id="micro-survey-options"
+        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
+        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
+        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
+        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
+        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
+        class="micro-survey-options micro-survey-options-likert"></ul>
       {% elif now_second|last == "4" or now_second|last == "9" %}
-        <span id="micro-survey-prompt" data-survey-type="appearance">Does Relay have a clean and simple presentation?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
+        <span id="micro-survey-prompt" data-survey-type="appearance">{% ftlmsg 'survey-question-4' %}</span>
+        <ul id="micro-survey-options"
+        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
+        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
+        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
+        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
+        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
+        class="micro-survey-options micro-survey-options-likert"></ul>
       {% else %}
-        <span id="micro-survey-prompt" data-survey-type="pmf">How would you feel if you could no longer use Relay?</span>
-        <ul id="micro-survey-options" class="micro-survey-options micro-survey-options-likert"></ul>
+        <span id="micro-survey-prompt" data-survey-type="pmf">{% ftlmsg 'survey-question-5' %}</span>
+        <ul id="micro-survey-options" 
+        data-survey-option-i-wouldnt-care-translated="{% ftlmsg 'survey-option-i-wouldnt-care' %}"
+        data-survey-option-somewhat-disappointed-translated="{% ftlmsg 'survey-option-somewhat-disappointed' %}"
+        data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-very-disappointed' %}"
+        class="micro-survey-options micro-survey-options-likert"></ul>
       {% endif %}
     </div>
   {% endif %}
@@ -37,16 +64,16 @@
       <div class="fx-private-relay-logotype"></div>
     </a>
     <nav class="flx flx-row ff-Met al-cntr header-nav hide-mobile">
-      <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} header-link" href="/">Home</a>
-      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} header-link" href="/faq">FAQ</a>
+      <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} header-link" href="/">{% ftlmsg 'nav-home' %}</a>
+      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} header-link" href="/faq">{% ftlmsg 'nav-faq' %}</a>
     </nav>
     {% include "includes/login.html" %}
   </div>
   <nav class="flx flx-col ff-Met al-cntr mobile-menu show-mobile">
-    <button class="mobile-menu-toggle full-width ff-Met" aria-label="Open mobile menu"><span class="mobile-menu-label">Menu</span></button>
+    <button class="mobile-menu-toggle full-width ff-Met" aria-label="Open mobile menu"><span class="mobile-menu-label">{% ftlmsg 'nav-menu' %}</span></button>
     <div class="mobile-menu-links flx flx-col">
-      <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} mobile-menu-link mobile-home-link" href="/">Home</a>
-      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} mobile-menu-link" href="/faq">FAQ</a>
+      <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} mobile-menu-link mobile-home-link" href="/">{% ftlmsg 'nav-home' %}</a>
+      <a class="{% if request.path == '/faq' %} active-header-link {% endif %} mobile-menu-link" href="/faq">{% ftlmsg 'nav-faq' %}</a>
     </div>
     </nav>
 </header>
