@@ -11,6 +11,7 @@
 -brand-name-relay = Relay
 -brand-name-firefox-browser = Firefox Browser
 -brand-name-mozilla = Mozilla
+-brand-name-mozilla-privacy-pack = Mozilla Privacy Pack
 -brand-name-firefox-lockwise = Firefox Lockwise
 -brand-name-firefox-monitor = Firefox Monitor
 -brand-name-pocket = Pocket
@@ -184,9 +185,9 @@ banner-download-firefox-cta = Get { -brand-name-firefox }
 banner-download-install-extension-headline = Looks like you haven’t installed the extension!
 banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-install-extension-cta = Get the extension for { -brand-name-firefox }
-banner-upgrade-headline = Upgrade { -brand-name-relay } for more features.
-banner-upgrade-copy = Upgrading gets you unlimited email addresses and your own email domain.
-banner-upgrade-cta = Upgrade { -brand-name-relay }
+banner-upgrade-headline = Buy { -brand-name-mozilla-privacy-pack } for more protection!
+banner-upgrade-copy = With { -brand-name-mozilla-privacy-pack } you get unlimited email address and your own email domain.
+banner-upgrade-cta = Upgrade to { -brand-name-mozilla-privacy-pack } now!
 banner-choose-subdomain-headline = Choose your own domain
 banner-choose-subdomain-copy = You can choose your own domain for “wildcard” aliases. NOTE: YOU CANNOT CHANGE THIS LATER!
 
