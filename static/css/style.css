@@ -32,6 +32,9 @@
   --violet4: #7542e5;
   --warningRed: #d70022;
   --white: #fff;
+  --background: #F5F7F9;
+  --dashboardMaxWith: 830px;
+  --bannerGray: #42425A;
 }
 
 * {
@@ -521,7 +524,7 @@ header {
 
 .main-list {
   min-height: 50vh;
-  max-width: 900px;
+  max-width: var(--dashboardMaxWith);
   margin: auto;
   justify-content: flex-start;
 }
@@ -572,13 +575,7 @@ ul {
 .dashboard-container {
   min-height: 81vh;
   height: 100%;
-}
-
-.env-bg {
-  background-image: url(/static/images/email-tout-bg.svg);
-  background-position: center center;
-  background-size: cover;
-  background-repeat: no-repeat;
+  background-color: var(--background);
 }
 
 .dashboard-header {
@@ -1115,9 +1112,9 @@ input.input-has-error {
 }
 
 .dashboard-greeting {
-  text-align: center;
-  padding: 2em 0;
-  font-size: 1em;
+  text-align: left;
+  padding: 2rem 0 1rem;
+  font-size: 1rem;
   font-family: var(--metropolis);
 }
 
@@ -1292,7 +1289,7 @@ input.input-has-error {
 }
 
 .checkbox:checked + .checkbox-ui {
-  background-color: #0060df;
+  background-color: var(--blue3);
   background-image: url("/static/images/check.svg");
   background-position: center center;
   background-repeat: no-repeat;
@@ -1624,7 +1621,7 @@ input.input-has-error {
 }
 
 .banner-hl {
-  font-size: 18px;
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--ink)
 }
@@ -1635,8 +1632,8 @@ input.input-has-error {
 }
 
 .banner-sub {
-  color:#20123abd;
-  font-size: 15px;
+  color: var(--bannerGray);
+  font-size: 1rem;
   line-height: 1.4;
 }
 
@@ -1646,21 +1643,21 @@ input.input-has-error {
   border-radius: 9px;
   padding: 2px;
   width: 100%;
-  max-width: 700px;
   position: relative;
   min-height: 0;
 }
 
 .banner-content {
   opacity: 1;
-  background: var(--grey10);
+  background: var(--white);
   border-radius: 7px;
-  padding: 2em 1em;
+  padding: 2em 1.25em 2em 0;
   width: 100%;
+  position: relative;
 }
 
 .banner-copy {
-  padding: 0 1em;
+  padding: 0;
 }
 
 .banner-link {
@@ -1668,6 +1665,8 @@ input.input-has-error {
   margin: 0 auto 0 -2px;
   padding: 2px;
   border-radius: 2px;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .banner-link:hover {
@@ -1684,20 +1683,42 @@ input.input-has-error {
 }
 
 .banner-logo {
-  background-position: center center;
+  background-position: top center;
   background-size: contain;
-  height: 72px;
-  width: 72px;
+  height: 60px;
+  width: 60px;
+  min-height: 60px;
+  min-width: 60px;
   background-repeat: no-repeat;
-  margin: 0 .25em auto 1em;
+  margin: 0 1.25rem 0 2.5rem;
 }
 
 .banner-relay-logo {
+  background: none;
+  position: relative;
+}
+
+.banner-relay-logo::after {
+  content: "";
+  width: 70px;
+  height: 60px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
   background-image: url("/static/images/banner-addon.svg");
+  background-repeat: no-repeat;
+  background-position: top center;
+  background-size: contain;
 }
 
 .banner-fx-logo {
   background-image: url("/static/images/logos/fx-logo.svg");
+}
+
+/* TODO: Replace MPP logo */
+.banner-mpp-logo {
+  background-image: url("/static/images/logos/mpp-temp-icon.png");
 }
 
 .dashboard-onboarding-header {
@@ -1927,6 +1948,10 @@ input.input-has-error {
 }
 
 @media screen and (max-width: 750px) {
+  .dashboard-greeting {
+    text-align: center;
+  }
+  
   .wrap-col-600 {
     justify-content: space-between;
   }
@@ -2019,6 +2044,23 @@ input.input-has-error {
 
   .footer-link {
     margin: auto 1em auto auto;
+  }
+
+  .banner-logo {
+    position: absolute;
+    margin: 0;
+  }
+
+  .banner-content {
+    padding-left: 1.25rem;
+  }
+
+  .banner-hl {
+    padding-left: calc(60px + 1.25rem);
+    display: flex;
+    align-items: center;
+    min-height: calc(60px + 0.5rem);
+    margin: 0;
   }
 }
 
