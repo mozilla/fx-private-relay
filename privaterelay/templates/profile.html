@@ -157,9 +157,16 @@
           </div> <!-- end relay-email-->
         {% endfor %}
 
-        <h2 class="section-headline dashboard-headline">{% ftlmsg 'profile-headline-manage-domain' %}</h2>
+        <div> <!-- informtaion footer -->
+          {% ftlmsg 'profile-supports-email-forwarding' size='150' unit='KB' %}
+        </div> <!-- end informtaion footer -->
+
+
         {% with request.user.profile_set.first as user_profile %}
           {% if user_profile.has_unlimited %}
+            <div class="flx flx-row dashboard-header">
+              <h2 class="section-headline dashboard-headline">{% ftlmsg 'profile-headline-manage-domain' %}</h2>
+            </div>
             {% for domain_address in domain_addresses %}
               <div class="relay-email {% if domain_address.enabled %} card-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{% user_email_domain user_profile %}" data-relay-address-id="{{ domain_address.id }}">
                 <div class="relay-email-row card-top-row flx flx-row inset">
@@ -249,14 +256,12 @@
           {% endif %}
         {% endwith %}
 
+      </div><!-- end dashboard-container -->
+
         {% if settings.PREMIUM_ENABLED %}
           {% include "includes/domain-alias-dashboard.html" %}
         {% endif %}
-
-        <div> <!-- informtaion footer -->
-          {% ftlmsg 'profile-supports-email-forwarding' size='150' unit='KB' %}
-        </div> <!-- end informtaion footer -->
-      </div><!-- end dashboard-container -->
+      
     </div>
   </div>
 </main>
