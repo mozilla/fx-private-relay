@@ -379,6 +379,15 @@ button:active {
   opacity: 0.9;
 }
 
+.btn-blue {
+  background-color: var(--blue3);
+  color: var(--white);
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  display: inline-block;
+  border-radius: 4px;
+}
+
 .sign-in {
   padding: 0.75em 1.25em;
   font-weight: 400;
@@ -527,6 +536,9 @@ header {
   max-width: var(--dashboardMaxWith);
   margin: auto;
   justify-content: flex-start;
+  padding-bottom: 6rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
 }
 
 footer {
@@ -576,6 +588,9 @@ ul {
   min-height: 81vh;
   height: 100%;
   background-color: var(--background);
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
 }
 
 .dashboard-header {
@@ -591,6 +606,35 @@ ul {
   font-size: 1.5em;
   margin: auto auto 0 0;
 }
+
+.dashboard-mpp-promo {
+  background-color: var(--white);
+}
+
+.dashboard-mpp-promo-container {
+  max-width: var(--dashboardMaxWith);
+  margin: auto;
+  padding: 2rem 1.5rem;
+}
+
+.dashboard-mpp-promo h3 {
+  font-size: 1.75rem;
+  line-height: 2rem;
+  margin: 0;
+  padding: 0;
+  font-weight: 700;
+  max-width: 400px;
+}
+
+.dashboard-mpp-promo h3 strong {
+  display: inline-block;
+}
+
+.dashboard-mpp-promo p {
+  max-width: 400px;
+}
+
+
 
 main,
 table {
@@ -2092,9 +2136,14 @@ input.input-has-error {
     --hPadding: 1.5em;
   }
 
-  .container {
+  .container, .main-list, .dashboard-mpp-promo-container {
     padding-left: 1.5em;
     padding-right: 1.5em;
+  }
+
+  .dashboard-container {
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .home-hero-headline {

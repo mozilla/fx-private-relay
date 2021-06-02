@@ -127,9 +127,23 @@
         {% endfor %}
       </div>
 {% else %}
-    <p class="banner-hl ff-Met">{% ftlmsg 'profile-promo-upgrade-headline' %}</p>
+    <div class="dashboard-mpp-promo">
+      <div class="dashboard-mpp-promo-container inset">
+        <h3>
+          {% ftlmsg 'banner-pack-upgrade-headline-html' %}
+        </h3>
+        <p>
+          {% ftlmsg 'banner-pack-upgrade-copy' %}
+        </p>
+        <a class="btn-blue" target="_blank" rel="noopener noreferrer"
+         href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}">
+          {% ftlmsg 'banner-pack-upgrade-cta' %}  
+        </a>
+      </div>
+    </div>
+    <!-- <p class="banner-hl ff-Met">{% ftlmsg 'profile-promo-upgrade-headline' %}</p>
     <p class="banner-sub">{% ftlmsg 'profile-promo-upgrade-copy' %}</p>
     <a class="banner-link ff-Met"
       href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
-      target="_blank" rel="noopener noreferrer">{% ftlmsg 'profile-promo-upgrade-cta' %}</a>
+      target="_blank" rel="noopener noreferrer">{% ftlmsg 'profile-promo-upgrade-cta' %}</a> -->
 {% endif %}

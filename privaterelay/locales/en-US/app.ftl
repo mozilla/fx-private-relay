@@ -191,6 +191,10 @@ banner-upgrade-cta = Upgrade to { -brand-name-mozilla-privacy-pack } now!
 banner-choose-subdomain-headline = Choose your own domain
 banner-choose-subdomain-copy = You can choose your own domain for “wildcard” aliases. NOTE: YOU CANNOT CHANGE THIS LATER!
 
+banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-mozilla-privacy-pack }</strong> to get more protection.
+banner-pack-upgrade-copy = Unlimited email aliases, your own email domain, monitor your email for data breaches, VPN included
+banner-pack-upgrade-cta = Upgrade Now!
+
 # This string is followed by name (string) that the user chooses
 banner-choose-subdomain-label = Your domain is:
 
