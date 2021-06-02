@@ -46,7 +46,7 @@ html {
 }
 
 body {
-  font-family: "Inter UI", Helvetica Neue, Helvetica, Arial, sans-serif;
+  font-family: "Inter", Helvetica Neue, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -703,7 +703,7 @@ table {
 }
 
 .alias-copied-message {
-  font-family: "Inter UI", Arial, Helvetica, sans-serif;
+  font-family: "Inter", Arial, Helvetica, sans-serif;
   background-color: var(--violet3);
   padding: 2px 4px;
   border-radius: 4px;
