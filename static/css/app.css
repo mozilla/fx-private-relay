@@ -511,7 +511,9 @@ ul {
   margin: auto auto 0 0; }
 
 .dashboard-mpp-promo {
-  background-color: var(--white); }
+  background: url(/static/images/polygon-background-small.png) center right no-repeat;
+  background-color: var(--white);
+  background-size: contain; }
 
 .dashboard-mpp-promo-container {
   max-width: var(--dashboardMaxWith);
