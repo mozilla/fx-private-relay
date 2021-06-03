@@ -128,9 +128,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.sites',
+
+    'django_gulp',
+
     'django.contrib.staticfiles',
 
     'django_ftl.apps.DjangoFtlConfig',
+
 
     'dockerflow.django',
 

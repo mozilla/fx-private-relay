@@ -8,7 +8,13 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^7.8.1"
+    "@mozilla-protocol/core": "^14.0.3",
+    "del": "^6.0.0",
+    "eslint": "^7.8.1",
+    "gulp": "^4.0.2",
+    "gulp-if": "^3.0.0",
+    "gulp-sass": "^4.1.0",
+    "merge-stream": "^2.0.0"
   },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme",
   "keywords": [],
