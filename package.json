@@ -6,7 +6,6 @@
   "bugs": {
     "url": "https://github.com/mozilla/fx-private-relay/issues"
   },
-  "dependencies": {},
   "devDependencies": {
     "@mozilla-protocol/core": "^14.0.3",
     "del": "^6.0.0",
