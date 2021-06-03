@@ -8,3 +8,4 @@ __pycache__
 web-ext-artifacts/
 static/downloads
 htmlcov
+static/scss/libs
