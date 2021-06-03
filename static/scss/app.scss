@@ -1,13 +1,19 @@
 // Protocol
 // @import "libs/protocol/protocol";
 
+// Includes
+@import "includes/variables";
+@import "includes/utils";
+@import "includes/fonts/inter-ui";
+@import "includes/fonts/metropolis";
+
+// Components
+@import "components/buttons";
+
 // Previous Styles
 @import "partials/main";
 @import "partials/dashboard";
 
-@import 'includes/fonts/inter-ui';
-@import 'includes/fonts/metropolis';
-
-@import 'partials/fx-bento';
-@import 'partials/glocal-menu';
+@import "partials/fx-bento";
+@import "partials/glocal-menu";
 

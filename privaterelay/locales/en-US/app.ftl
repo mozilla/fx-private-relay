@@ -143,6 +143,7 @@ profile-promo-upgrade-cta = Upgrade { -brand-name-relay }
 profile-label-saved = Label saved!
 profile-label-generate-new-alias = Generate New Alias
 profile-label-delete = Delete
+profile-label-upgrade = Get unlimited aliases
 
 # This string is followed by an email address
 profile-label-forward-emails = Forward emails to:
@@ -204,8 +205,8 @@ banner-choose-subdomain-label = You can make up any address @{ $subdomain }
 
 
 remaining-aliases-promo-label = { $number -> 
-    [one] { $number } remaining alias. 
-   *[other] { $number } remaining aliases.
+    [one] { $number } remaining alias
+   *[other] { $number } remaining aliases
 }
 
 remaining-aliases-promo-label-unlimited = { $number -> 

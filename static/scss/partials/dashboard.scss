@@ -43,12 +43,15 @@
         display: block;
         text-align: center;
         font-size: 2rem;
+        font-weight: 800;
     }
     .label {
         font-size: 1rem;
         display: block;
         color: #666666;
         line-height: 1rem;
+        font-weight: 400;
+        margin-bottom: 0.25rem;
     }
     &:last-child {
         border-right: 0;

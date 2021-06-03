@@ -12,9 +12,6 @@
         {% ftlmsg 'remaining-aliases-promo-label-unlimited' number=relay_addresses|length %}
       {% else %}
           {% ftlmsg 'remaining-aliases-promo-label' number=remaining_free_aliases_count %}
-          {% if settings.PREMIUM_ENABLED %}
-            <a href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank">{% ftlmsg 'remaining-aliases-cta' %}</a>
-          {% endif %}
       {% endif %}
     {% endwith %}
 </span>
