@@ -608,7 +608,10 @@ ul {
 }
 
 .dashboard-mpp-promo {
+  
+  background: url(/static/images/polygon-background-small.png) center right no-repeat;
   background-color: var(--white);
+  background-size: contain;
 }
 
 .dashboard-mpp-promo-container {
