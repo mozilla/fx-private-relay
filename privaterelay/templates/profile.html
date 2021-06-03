@@ -25,9 +25,9 @@
         </div>
       </div>
       <ul class="mpp-dashbaord-header-stats">
-        <li><span class="label">Email aliases used</span> <span>#</span> </li>
-        <li><span class="label">Emails Blocked</span> <span>#</span> </li>
-        <li><span class="label">Emails Forwarded</span> <span>#</span> </li>
+        <li><span class="label">Email aliases used</span> <span>5</span> </li>
+        <li><span class="label">Emails Blocked</span> <span>3</span> </li>
+        <li><span class="label">Emails Forwarded</span> <span>48</span> </li>
       </ul>
     </div>
   </div>
@@ -65,13 +65,18 @@
           <form action="/emails/" class="dash-create" method="POST">
             <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
             {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
-            <button
-                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr btn-disabled"
-                title="You have reached the alias limit."
-                type="submit"
-                value="Generate new alias"
-                data-event-label="Create New Relay Alias"
+            <a
+                href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
+                target="_blank"
+                rel="noopener noreferrer""
+                class="btn-blue btn-blue--ghost"
+                data-event-label="Upgrade"
             >
+              <span class="generate-new-alias-text">
+                {% ftlmsg 'profile-label-upgrade' %}
+              </span>
+            </a>
+
             {% else %}
             <button
                 class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr"
@@ -80,10 +85,13 @@
                 value="Generate new alias"
                 data-event-label="Create New Relay Alias"
             >
-            {% endif %}
-            <span class="generate-new-relay-icon"></span>
-            <span class="generate-new-alias-text">{% ftlmsg 'profile-label-generate-new-alias' %}</span>
+              <span class="generate-new-relay-icon"></span>
+              <span class="generate-new-alias-text">
+              {% ftlmsg 'profile-label-generate-new-alias' %}</span>
             </button>
+            {% endif %}
+            
+            
           </form>
         </div>
 
