@@ -1,6 +1,6 @@
 {% load static %}
 {% load ftl %}
-{% ftlconf mode=ftl_mode bundle='privaterelay.ftl_bundles.main' %}
+{% ftlconf mode='server' bundle='privaterelay.ftl_bundles.main' %}
 <!-- blocked emails -->
 <div class="column-blocked center-value relay-stat">
   <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-blocked' %}</span>
