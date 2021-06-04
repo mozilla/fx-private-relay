@@ -1,14 +1,22 @@
-.btn-blue {
+.btn {
   appearance: none;
   border: 0;
-  background-color: var(--blue3);
-  color: var(--white);
   font-weight: 600;
   padding: 0.5rem 1rem;
   display: inline-block;
   border-radius: 4px;
   cursor: pointer;
   font-family: $metropolis;
+}
+
+.btn--gray {
+  border: 1px solid #CCCCCC;
+  color: var(--blue3);
+}
+
+.btn--blue { 
+  background-color: var(--blue3);
+  color: var(--white);
 }
 
 .btn-blue--ghost {

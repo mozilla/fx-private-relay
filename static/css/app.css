@@ -197,17 +197,79 @@ explicitly, e.g.
   src: local("Metropolis-Light"), url("/static/fonts/Metropolis/Metropolis-Light.woff2") format("woff2");
   font-display: swap; }
 
-.btn-blue {
+.mpp-choose-subdomain {
+  background: var(--white);
+  border-radius: 7px;
+  padding: 2em 1.25em;
+  width: 100%; }
+  .mpp-choose-subdomain img {
+    display: none;
+    max-width: 100%;
+    height: auto;
+    align-self: center;
+    max-width: 280px;
+    padding: 0 2rem; }
+  .mpp-choose-subdomain h2 {
+    font-size: 1.25rem;
+    margin: 0 0 .5rem;
+    padding: 0; }
+  .mpp-choose-subdomain p {
+    margin: 0 0 1rem;
+    padding: 0; }
+  .mpp-choose-subdomain form {
+    margin-bottom: 1rem; }
+  .mpp-choose-subdomain input {
+    width: 100%;
+    display: block;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem; }
+    .mpp-choose-subdomain input[type='text'] {
+      border: 1px solid #CCCCCC;
+      width: 100%; }
+  .mpp-choose-subdomain .warning {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--warningRed); }
+  .mpp-choose-subdomain .border {
+    border-left: 1px solid #ECECEC;
+    display: none; }
+
+@media screen and (min-width: 540px) {
+  .mpp-choose-subdomain form {
+    display: flex; }
+    .mpp-choose-subdomain form input {
+      width: auto; }
+      .mpp-choose-subdomain form input[type='submit'] {
+        margin-left: 1rem; } }
+
+@media screen and (min-width: 768px) {
+  .mpp-choose-subdomain {
+    display: flex; }
+    .mpp-choose-subdomain img {
+      display: block; }
+    .mpp-choose-subdomain .border {
+      display: block; }
+    .mpp-choose-subdomain .mpp-choose-subdomain-form {
+      padding-left: 2rem; } }
+
+.btn {
   appearance: none;
   border: 0;
-  background-color: var(--blue3);
-  color: var(--white);
   font-weight: 600;
   padding: 0.5rem 1rem;
   display: inline-block;
   border-radius: 4px;
   cursor: pointer;
   font-family: "Metropolis", Arial, Helvetica, sans-serif; }
+
+.btn--gray {
+  border: 1px solid #CCCCCC;
+  color: var(--blue3); }
+
+.btn--blue {
+  background-color: var(--blue3);
+  color: var(--white); }
 
 .btn-blue--ghost {
   border: 2px solid var(--blue3);
