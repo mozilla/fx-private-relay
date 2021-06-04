@@ -53,7 +53,21 @@
     </div>
 </div>
   {% elif not user_profile.subdomain %}
-  <div class="banner-gradient-bg">
+  <div class="mpp-choose-subdomain">
+    <img src="/static/images/choose-subdomain.png" alt="">
+    <div class="border"></div>
+    <div class="mpp-choose-subdomain-form">
+      <h2>Get your email domain for your aliases</h2>
+      <p>You can choose your own domain for “wildcard” aliases.</p>
+      <form method="post" action="{% url 'profile_subdomain' %}">
+          {% csrf_token %}
+          <input type="text" placeholder="Search your new domain" name="subdomain">
+          <input class="btn btn--gray" type="submit" value="Get it">
+      </form>
+      <p class="warning">NOTE: YOU CANNOT CHANGE THIS LATER!</p>
+    </div>
+  </div>
+  <!-- <div class="banner-gradient-bg">
     <div class="choose-subdomain-banner banner-content flx flx-row">
       <div class="banner-relay-logo banner-logo"></div>
       <div class="banner-copy flx flx-col">
@@ -66,7 +80,7 @@
         </form>
       </div>
     </div>
-  </div>
+  </div> -->
     {% else %}
   <div class="banner-gradient-bg">
     <div class="show-subdomain-banner banner-content flx flx-row">

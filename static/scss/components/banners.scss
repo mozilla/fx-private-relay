@@ -1,0 +1,75 @@
+.mpp-choose-subdomain {
+    background: var(--white);
+    border-radius: 7px;
+    padding: 2em 1.25em;
+    width: 100%;
+    img {
+        display: none;
+        max-width: 100%;
+        height: auto;
+        align-self: center;
+        max-width: 280px;
+        padding: 0 2rem;    
+    }
+    h2 {
+        font-size: 1.25rem;
+        margin: 0 0 .5rem;
+        padding: 0;
+    }
+    p {
+        margin: 0 0 1rem;
+        padding: 0;
+    }
+    form {
+        margin-bottom: 1rem;
+    }
+    input {
+        width: 100%;
+        display: block;
+        border-radius: 4px;
+        padding: 0.5rem 1rem;
+        margin-bottom: 0.5rem;
+        &[type='text'] {
+            border: 1px solid #CCCCCC;
+            width: 100%;
+        }
+        
+    }
+    .warning {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--warningRed);
+    }
+    .border {
+        border-left:  1px solid #ECECEC;
+        display: none;
+    }
+}
+
+@media screen and (min-width: 540px) {
+    .mpp-choose-subdomain form {   
+        display: flex;
+        input {
+            width: auto;
+            &[type='submit'] {
+                margin-left: 1rem;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 768px) {
+    .mpp-choose-subdomain {   
+        display: flex;
+        img {
+            display: block;
+        }
+        .border {
+            display: block;
+        }
+        .mpp-choose-subdomain-form {
+            padding-left: 2rem;
+        }
+    }
+    
+}
