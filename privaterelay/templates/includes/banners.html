@@ -57,14 +57,14 @@
     <img src="/static/images/choose-subdomain.png" alt="">
     <div class="border"></div>
     <div class="mpp-choose-subdomain-form">
-      <h2>Get your email domain for your aliases</h2>
-      <p>You can choose your own domain for “wildcard” aliases.</p>
+      <h2>{% ftlmsg 'banner-choose-subdomain-headline-aliases' %}</h2>
+      <p>{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
       <form method="post" action="{% url 'profile_subdomain' %}">
           {% csrf_token %}
           <input type="text" placeholder="Search your new domain" name="subdomain">
           <input class="btn btn--gray" type="submit" value="Get it">
       </form>
-      <p class="warning">NOTE: YOU CANNOT CHANGE THIS LATER!</p>
+      <p class="warning">{% ftlmsg 'banner-choose-subdomain-warning' %}</p>
     </div>
   </div>
   <!-- <div class="banner-gradient-bg">
