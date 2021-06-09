@@ -368,7 +368,7 @@ function showBannersIfNecessary() {
     return;
   }
 
-  const bg = dashboardBanners.querySelector(".banner-gradient-bg.addon");
+  const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   const showBanner = (bannerEl) => {
     setTimeout(()=> {
       if (!isRelayAddonInstalled()) {
