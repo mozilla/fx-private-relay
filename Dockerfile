@@ -1,6 +1,8 @@
 FROM python:3.7.9
 
-RUN apt-get update && apt-get -y install libpq-dev \ npm
+RUN apt-get update && apt-get -y install libpq-dev
+RUN apt-get install -y nodejs
+RUN apt-get install -y npm
 RUN pip install --upgrade pip
 
 RUN groupadd --gid 10001 app && \
