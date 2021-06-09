@@ -1,4 +1,3 @@
-
 {% load relay_tags %}
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
@@ -12,7 +11,7 @@
           {% ftlmsg 'banner-pack-upgrade-copy' %}
         </p>
         <a class="btn btn--blue" target="_blank" rel="noopener noreferrer"
-         href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}">
+         href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}">
           {% ftlmsg 'banner-pack-upgrade-cta' %}  
         </a>
       </div>

@@ -46,7 +46,7 @@
           <div class="banner-copy flx flx-col">
             <p class="banner-hl ff-Met">{% ftlmsg 'banner-upgrade-headline' %}</p>
             <p class="banner-sub">{% ftlmsg 'banner-upgrade-copy' %}</p>
-            <a class="banner-link ff-Met" href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
+            <a class="banner-link ff-Met" href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
           </div>
         </div>
       </div>
@@ -67,20 +67,6 @@
       <p class="warning">{% ftlmsg 'banner-choose-subdomain-warning' %}</p>
     </div>
   </div>
-  <!-- <div class="banner-gradient-bg">
-    <div class="choose-subdomain-banner banner-content flx flx-row">
-      <div class="banner-relay-logo banner-logo"></div>
-      <div class="banner-copy flx flx-col">
-        <p class="banner-hl ff-Met">{% ftlmsg 'banner-choose-subdomain-headline' %}</p>
-        <p class="banner-sub">{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
-        <form method="post" action="{% url 'profile_subdomain' %}">
-          {% csrf_token %}
-          <input type="text" name="subdomain">
-          <input type="submit">
-        </form>
-      </div>
-    </div>
-  </div> -->
     {% else %}
   <div class="banner-gradient-bg">
     <div class="show-subdomain-banner banner-content flx flx-row">
@@ -89,7 +75,6 @@
         <p class="banner-hl ff-Met">{% ftlmsg 'banner-choose-subdomain-label' %}</p>
         <p class="banner-sub">{{ user_profile.subdomain }}</p>
         {% user_email_domain user_profile %}
-        <!-- {% user_email_domain user_profile as user_subdomain %} -->
         <p>{% ftlmsg 'banner-choose-subdomain-label' subdomain=user_subdomain %}</p>
       </div>
     </div>
