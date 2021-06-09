@@ -1,6 +1,6 @@
 FROM python:3.7.9
 
-RUN apt-get update && apt-get -y install libpq-dev
+RUN apt-get update && apt-get -y install libpq-dev \ npm
 RUN pip install --upgrade pip
 
 RUN groupadd --gid 10001 app && \
@@ -14,6 +14,9 @@ USER app
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
+
+RUN echo "Node: " && node -v
+RUN echo "NPM: " && npm -v
 
 COPY package*.json ./
 RUN npm install
