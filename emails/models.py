@@ -112,6 +112,20 @@ class Profile(models.Model):
                 return True
         return False
 
+    @property
+    def emails_forwarded(self):
+        relay_addresses_forwarded = RelayAddress.objects.filter(
+            user=self.user
+        ).values('num_forwarded')
+        return sum(forwarded['num_forwarded'] for forwarded in relay_addresses_forwarded)
+
+    @property
+    def emails_blocked(self):
+        relay_addresses_blocked = RelayAddress.objects.filter(
+            user=self.user
+        ).values('num_blocked')
+        return sum(blocked['num_blocked'] for blocked in relay_addresses_blocked)
+
     def add_subdomain(self, subdomain):
         if not self.has_unlimited:
             raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain'))
