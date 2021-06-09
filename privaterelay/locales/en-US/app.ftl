@@ -133,7 +133,7 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 
 # Variables:
 #   $email (string) - User email address
-profile-label-welcome-html = <span>Welcome,</span> { $email }! = Welcome, { $email }!
+profile-label-welcome-html = <span>Welcome,</span> { $email }!
 profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your domain aliases
 profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to { email-size-limit } in size
