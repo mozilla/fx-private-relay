@@ -15,6 +15,9 @@
     "gulp-sass": "^4.1.0",
     "merge-stream": "^2.0.0"
   },
+  "engines": {
+    "node": "14.x"
+  },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme",
   "keywords": [],
   "license": "MPL-2.0",
