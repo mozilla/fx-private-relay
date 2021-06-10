@@ -47,7 +47,7 @@ const buildTask = gulp.series(
 
 gulp.task('build', buildTask);
 
-gulp.task('default', () => {
+gulp.task('default', async () => {
     // Build on first run
     gulp.series('build');
     
