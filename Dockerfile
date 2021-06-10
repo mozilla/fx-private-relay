@@ -1,11 +1,8 @@
-FROM node:14 AS builder
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-
 FROM python:3.7.9
 
 RUN apt-get update && apt-get -y install libpq-dev
+RUN apt-get install -y nodejs
+RUN apt-get install -y npm
 RUN pip install --upgrade pip
 
 RUN groupadd --gid 10001 app && \
@@ -16,11 +13,13 @@ WORKDIR /app
 EXPOSE 8000
 
 USER app
-ENV PATH /app/.local/bin:$PATH
-COPY --from=builder --chown=app /app/node_modules ./node_modules
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
+
+COPY package*.json ./
+RUN npm install
+
 COPY --chown=app . /app
 COPY --chown=app .env-dist /app/.env
 
