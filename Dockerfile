@@ -1,8 +1,8 @@
 FROM python:3.7.9
 
-RUN apt-get update && apt-get -y install libpq-dev
+RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y libpq-dev
 RUN apt-get install -y nodejs
-RUN apt-get install -y npm
 RUN pip install --upgrade pip
 
 RUN groupadd --gid 10001 app && \
