@@ -5,25 +5,26 @@ const merge = require('merge-stream');
 
 // directory for building LESS, SASS, and bundles
 const buildDir = 'static/scss/libs/';
+const finalDir = 'static/css/';
 
 // Compile all SASS/SCSS into => app.scss
 gulp.task('styles', () => {
     return gulp.src('static/scss/app.scss')
         .pipe(sass().on('error', sass.logError))
-        .pipe(gulp.dest('./static/css/'));
+        .pipe(gulp.dest(finalDir));
 });
 
 // Clean out compiled CSS folder
 gulp.task('clean', () => {
     return del([
-        'static/css/*',
+        finalDir
     ]);
 });
 
 // On setup, remove 
 gulp.task('setup', () => {
     return del([
-        'static/css/*',
+        finalDir,
         buildDir,
     ]);
 });
@@ -39,17 +40,17 @@ function assetsCopy() {
     ]);
 }
 
-const buildTask = gulp.series(
+const buildTask = gulp.series([
     'setup',
     assetsCopy,
     'styles',
-);
+]);
 
 gulp.task('build', buildTask);
 
 gulp.task('default', async () => {
     // Build on first run
-    gulp.series('build');
+    gulp.series(buildTask);
     
     // Watch for SCSS changes
     gulp.watch('static/scss/**/*.scss', (done) => {
