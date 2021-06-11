@@ -42,6 +42,8 @@ function assetsCopy(cb) {
     cb();
 }
 
+exports.build = series(reset, assetsCopy, styles);
+
 exports.default = series(
     reset, assetsCopy, styles, function() {
         // You can use a single task
