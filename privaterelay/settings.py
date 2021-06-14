@@ -128,9 +128,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.sites',
+
+    'django_gulp',
+
     'django.contrib.staticfiles',
 
     'django_ftl.apps.DjangoFtlConfig',
+
 
     'dockerflow.django',
 
@@ -327,6 +331,7 @@ SOCIALACCOUNT_PROVIDERS = {
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 
 FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', 'https://accounts.firefox.com/settings')
+FXA_SUBSCRIPTIONS_URL = config('FXA_SUBSCRIPTIONS_URL', 'https://accounts.firefox.com/subscriptions')
 
 LOGGING = {
     'version': 1,

@@ -11,6 +11,7 @@
 -brand-name-relay = Relay
 -brand-name-firefox-browser = Firefox Browser
 -brand-name-mozilla = Mozilla
+-brand-name-mozilla-privacy-pack = Mozilla Privacy Pack
 -brand-name-firefox-lockwise = Firefox Lockwise
 -brand-name-firefox-monitor = Firefox Monitor
 -brand-name-pocket = Pocket
@@ -132,7 +133,7 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 
 # Variables:
 #   $email (string) - User email address
-profile-label-welcome = Welcome, { $email }!
+profile-label-welcome-html = <span>Welcome,</span> { $email }!
 profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your domain aliases
 profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to { email-size-limit } in size
@@ -142,6 +143,8 @@ profile-promo-upgrade-cta = Upgrade { -brand-name-relay }
 profile-label-saved = Label saved!
 profile-label-generate-new-alias = Generate New Alias
 profile-label-delete = Delete
+profile-label-upgrade = Get unlimited aliases
+profile-label-create-domain = Create your Email Domain
 
 # This string is followed by an email address
 profile-label-forward-emails = Forward emails to:
@@ -165,7 +168,9 @@ profile-blocked-copy = { -brand-name-firefox-relay } will delete messages before
 profile-forwarded-copy = { -brand-name-firefox-relay } will send messages to your inbox when you select forwarding for this alias.
 profile-forwarded-note = Note:
 profile-forwarded-note-copy = Email (including attachments) larger than { email-size-limit } are not currently supported and will not be forwarded.
-
+profile-stat-label-blocked = Emails Blocked
+profile-stat-label-forwarded = Emails Forwarded
+profile-stat-label-aliases-used = Email aliases used
 
 ## Banner Messages (displayed on the profile page)
 
@@ -184,11 +189,18 @@ banner-download-firefox-cta = Get { -brand-name-firefox }
 banner-download-install-extension-headline = Looks like you haven’t installed the extension!
 banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-install-extension-cta = Get the extension for { -brand-name-firefox }
-banner-upgrade-headline = Upgrade { -brand-name-relay } for more features.
-banner-upgrade-copy = Upgrading gets you unlimited email addresses and your own email domain.
-banner-upgrade-cta = Upgrade { -brand-name-relay }
+banner-upgrade-headline = Buy { -brand-name-mozilla-privacy-pack } for more protection!
+banner-upgrade-copy = With { -brand-name-mozilla-privacy-pack } you get unlimited email address and your own email domain.
+banner-upgrade-cta = Upgrade to { -brand-name-mozilla-privacy-pack } now!
 banner-choose-subdomain-headline = Choose your own domain
-banner-choose-subdomain-copy = You can choose your own domain for “wildcard” aliases. NOTE: YOU CANNOT CHANGE THIS LATER!
+banner-choose-subdomain-headline-aliases = Get your email domain for your aliases
+banner-choose-subdomain-copy = You can choose your own domain for “wildcard” aliases.
+banner-choose-subdomain-warning = NOTE: YOU CANNOT CHANGE THIS LATER!
+banner-choose-subdomain-input-placeholder = banner-choose-subdomain-warning
+
+banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-mozilla-privacy-pack }</strong> to get more protection.
+banner-pack-upgrade-copy = Unlimited email aliases, your own email domain, monitor your email for data breaches, VPN included
+banner-pack-upgrade-cta = Upgrade Now!
 
 # This string is followed by name (string) that the user chooses
 banner-choose-subdomain-label = Your domain is:
@@ -199,8 +211,8 @@ banner-choose-subdomain-label = You can make up any address @{ $subdomain }
 
 
 remaining-aliases-promo-label = { $number -> 
-    [one] { $number } remaining alias. 
-   *[other] { $number } remaining aliases.
+    [one] { $number } remaining alias
+   *[other] { $number } remaining aliases
 }
 
 remaining-aliases-promo-label-unlimited = { $number -> 
@@ -213,6 +225,7 @@ onboarding-headline = Three ways to create an alias
 onboarding-tip-1 = Right here - just select the button in the upper right corner
 onboarding-tip-2 = By selecting the { -brand-name-firefox-relay } icon when it appears in email fields
 onboarding-tip-3 = Via the context menu, just right-click (Windows) or Control-click (macOS) on form fields to access the menu and generate an alias
+modal-rename-alias-saved = Label saved!
 modal-delete-headline = Permanently delete this alias?
 
 # Variables:

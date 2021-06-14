@@ -15,9 +15,9 @@
   </div>
 </div>
     {% else %}
-<div class="dashboard-banners invisible hide-750">
-  <div class="flx">
-    <div class="banner-gradient-bg">
+<div class="dashboard-banners invisible">
+  <div class="flx hide-750">
+    <div class="banner-gradient-bg addon">
       <div class="download-fx-banner banner-content flx flx-row hidden">
         <div class="banner-fx-logo banner-logo"></div>
         <div class="banner-copy flx flx-col">
@@ -42,29 +42,29 @@
     <div class="flx">
       <div class="banner-gradient-bg">
         <div class="go-premium-banner banner-content flx flx-row">
-          <div class="banner-relay-logo banner-logo"></div>
+          <div class="banner-mpp-logo banner-logo"></div>
           <div class="banner-copy flx flx-col">
             <p class="banner-hl ff-Met">{% ftlmsg 'banner-upgrade-headline' %}</p>
             <p class="banner-sub">{% ftlmsg 'banner-upgrade-copy' %}</p>
-            <a class="banner-link ff-Met" href="https://accounts.stage.mozaws.net/subscriptions/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
+            <a class="banner-link ff-Met" href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
           </div>
         </div>
       </div>
     </div>
 </div>
   {% elif not user_profile.subdomain %}
-  <div class="banner-gradient-bg">
-    <div class="choose-subdomain-banner banner-content flx flx-row">
-      <div class="banner-relay-logo banner-logo"></div>
-      <div class="banner-copy flx flx-col">
-        <p class="banner-hl ff-Met">{% ftlmsg 'banner-choose-subdomain-headline' %}</p>
-        <p class="banner-sub">{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
-        <form method="post" action="{% url 'profile_subdomain' %}">
+  <div class="mpp-choose-subdomain">
+    <img src="/static/images/choose-subdomain.png" alt="">
+    <div class="border"></div>
+    <div class="mpp-choose-subdomain-form">
+      <h2>{% ftlmsg 'banner-choose-subdomain-headline-aliases' %}</h2>
+      <p>{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
+      <form method="post" action="{% url 'profile_subdomain' %}">
           {% csrf_token %}
-          <input type="text" name="subdomain">
-          <input type="submit">
-        </form>
-      </div>
+          <input type="text" placeholder="Search your new domain" name="subdomain">
+          <input class="btn btn--gray" type="submit" value="Get it">
+      </form>
+      <p class="warning">{% ftlmsg 'banner-choose-subdomain-warning' %}</p>
     </div>
   </div>
     {% else %}
@@ -74,7 +74,7 @@
       <div class="banner-copy flx flx-col">
         <p class="banner-hl ff-Met">{% ftlmsg 'banner-choose-subdomain-label' %}</p>
         <p class="banner-sub">{{ user_profile.subdomain }}</p>
-        {% user_email_domain user_profile as user_subdomain %}
+        {% user_email_domain user_profile %}
         <p>{% ftlmsg 'banner-choose-subdomain-label' subdomain=user_subdomain %}</p>
       </div>
     </div>

@@ -6,5 +6,7 @@ package-lock.json
 env/
 __pycache__
 web-ext-artifacts/
-static/downloads
 htmlcov
+static/downloads
+static/css
+static/scss/libs

@@ -18,6 +18,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
     * On Ubuntu: `sudo apt install postgresql libpq-dev`
     * On OSX: `brew install postgresql libpq`
 * [SES](https://aws.amazon.com/ses/) if you want to send real emails
+* [NPM](https://www.npmjs.com/) and [Gulp](https://gulpjs.com/) to compile SCSS
 
 ### Install and Run the Site Locally
 1. Clone and change to the directory:
@@ -34,11 +35,16 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
     source env/bin/activate
     ```
 
-3. Install requirements:
+3. Install Pyhton and Node requirements:
 
     ```sh
     pip install -r requirements.txt
     ```
+
+    ```sh
+    npm install
+    ```
+
 
 4. Copy `.env` file for
    [`decouple`](https://pypi.org/project/python-decouple/) config:
