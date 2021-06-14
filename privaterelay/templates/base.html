@@ -14,12 +14,14 @@
     <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
     <link rel=”apple-touch-icon” href="{% static 'images/logos/relay-logo-dark-200.png' %}">
     
-    <meta property="og:url"                content="{{ request.path }}" />
-    <meta property="og:type"               content="website" />
-    <meta property="og:title"              content="{% ftlmsg 'meta-title' %}" />
-    <meta property="og:description"        content="{% ftlmsg 'meta-description' %}" />
-    <meta property="og:image"              content="{{request.scheme}}://{{request.META.HTTP_HOST}}{% static 'images/share-relay.jpg' %}" />
-        
+    <!-- Open Graph Tags -->
+    <meta property="og:url" content="{{request.scheme}}://{{request.META.HTTP_HOST}}{{ request.path }}" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{% ftlmsg 'meta-title' %}" />
+    <meta property="og:description" content="{% ftlmsg 'meta-description' %}" />
+    <meta property="og:image" content="{{request.scheme}}://{{request.META.HTTP_HOST}}{% static 'images/share-relay.jpg' %}" />
+    
+    <!-- Twitter Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@firefox">
     <meta name="twitter:title" content="{% ftlmsg 'meta-title' %}">
