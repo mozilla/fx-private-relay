@@ -105,6 +105,7 @@ AWS_SES_CONFIGSET = config('AWS_SES_CONFIGSET', None)
 
 RELAY_FROM_ADDRESS = config('RELAY_FROM_ADDRESS', None)
 SITE_ORIGIN = config('SITE_ORIGIN', None)
+PRIVACY_HOST = config('PRIVACY_HOST', None)
 GOOGLE_ANALYTICS_ID = config('GOOGLE_ANALYTICS_ID', None)
 RECRUITMENT_BANNER_LINK = config('RECRUITMENT_BANNER_LINK', None)
 RECRUITMENT_BANNER_TEXT = config('RECRUITMENT_BANNER_TEXT', None)
@@ -123,6 +124,7 @@ SERVE_ADDON = config('SERVE_ADDON', None)
 
 # Application definition
 INSTALLED_APPS = [
+    # django apps
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -130,19 +132,18 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'django_gulp',
-
     'django.contrib.staticfiles',
 
-    'django_ftl.apps.DjangoFtlConfig',
-
-
-    'dockerflow.django',
-
+    # dependencies
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.fxa',
+    'django_ftl.apps.DjangoFtlConfig',
+    'django_hosts',
+    'dockerflow.django',
 
+    # local apps
     'privaterelay.apps.PrivateRelayConfig',
 ]
 
@@ -180,7 +181,9 @@ def _get_initial_middleware():
         ]
     return []
 
-MIDDLEWARE = _get_initial_middleware()
+MIDDLEWARE = [
+    'django_hosts.middleware.HostsRequestMiddleware'
+] + _get_initial_middleware()
 
 if DEBUG:
     MIDDLEWARE += [
@@ -204,8 +207,12 @@ MIDDLEWARE += [
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
     'privaterelay.middleware.FxAToRequest',
+
+    'django_hosts.middleware.HostsResponseMiddleware'
 ]
 
+ROOT_HOSTCONF = 'privaterelay.hosts'
+DEFAULT_HOST = 'relay'
 ROOT_URLCONF = 'privaterelay.urls'
 
 TEMPLATES = [
@@ -216,6 +223,9 @@ TEMPLATES = [
         ],
         'APP_DIRS': True,
         'OPTIONS': {
+            'builtins': [
+                'django_hosts.templatetags.hosts_override',
+            ],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
