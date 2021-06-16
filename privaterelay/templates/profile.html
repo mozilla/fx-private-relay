@@ -20,9 +20,24 @@
         <div class="mpp-dashbaord-header-name">
           {% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
         </div>
-        <div class="mpp-dashbaord-header-action">
-          <button class="mpp-action-link"> <img src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}</button>
-        </div>
+        {% if not user_profile.subdomain %}
+          <div class="mpp-dashbaord-header-action">
+            <button class="mpp-action-link"> <img class="margin-right" src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}</button>
+          </div>
+        {% else %}
+          <div class="mpp-dashbaord-header-action">
+            <div class="mpp-action-link mpp-action-tooltip">
+              {% ftlmsg 'profile-label-domain' %} {{ user_profile.subdomain }}
+              <img class="margin-left" src="/static/images/icon-info.svg" alt="informtaion">
+              <div class="mpp-action-tooltip-hover">
+                <div class="mpp-action-tooltip-hover-wrapper">
+                  {% ftlmsg 'profile-label-domain-tooltip' %}
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        {% endif %}
       </div>
       <ul class="mpp-dashbaord-header-stats">
         <li><span class="label">{% ftlmsg 'profile-stat-label-aliases-used' %}</span> <span>{{relay_addresses|length}}</span> </li>
