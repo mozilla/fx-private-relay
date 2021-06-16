@@ -1,8 +1,14 @@
+FROM node:14 AS builder
+WORKDIR /app
+COPY package*.json ./
+COPY gulpfile.js ./
+COPY static ./static/
+RUN npm install
+RUN ./node_modules/.bin/gulp build
+
 FROM python:3.7.9
 
-RUN curl -fsSL https://deb.nodesource.com/setup_14.x | bash -
-RUN apt-get install -y libpq-dev
-RUN apt-get install -y nodejs
+RUN apt-get update && apt-get install -y libpq-dev
 RUN pip install --upgrade pip
 
 RUN groupadd --gid 10001 app && \
@@ -13,13 +19,10 @@ WORKDIR /app
 EXPOSE 8000
 
 USER app
+COPY --from=builder --chown=app /app/static ./static
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
-
-COPY package*.json ./
-RUN npm install
-
 COPY --chown=app . /app
 COPY --chown=app .env-dist /app/.env
 
