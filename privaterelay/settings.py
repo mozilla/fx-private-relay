@@ -311,6 +311,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
 
+# for stage/prod, we run "gulp build" in docker.
+# squelch django-gulp so it doesn't run gulp during collectstatic:
+GULP_PRODUCTION_COMMAND = ''
+
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (

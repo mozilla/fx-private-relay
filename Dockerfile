@@ -1,7 +1,10 @@
 FROM node:14 AS builder
 WORKDIR /app
 COPY package*.json ./
+COPY gulpfile.js ./
+COPY static ./static/
 RUN npm install
+RUN ./node_modules/.bin/gulp build
 
 FROM python:3.7.9
 
@@ -17,7 +20,7 @@ EXPOSE 8000
 
 USER app
 ENV PATH /app/.local/bin:$PATH
-COPY --from=builder --chown=app /app/node_modules ./node_modules
+COPY --from=builder --chown=app /app/static ./static
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
