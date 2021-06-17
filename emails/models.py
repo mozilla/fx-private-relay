@@ -101,6 +101,12 @@ class Profile(models.Model):
         return self.user.socialaccount_set.filter(provider='fxa').first()
 
     @property
+    def display_name(self):
+        # if display name is not set on FxA the
+        # displayName key will not exist on the extra_data
+        return self.fxa.extra_data.get('displayName')
+
+    @property
     def has_unlimited(self):
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
