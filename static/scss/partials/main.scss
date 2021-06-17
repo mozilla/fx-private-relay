@@ -57,6 +57,15 @@ body {
   padding: 83px 0 0 0;
   font-size: 16px;
   overscroll-behavior: contain;
+  line-height: 1.2;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--grey10);
+}
+
+:visited:hover, :visited:focus, :visited:active {
+  color: var(--grey10);
 }
 
 .loading {
@@ -69,7 +78,7 @@ body {
   color: var(--white);
 }
 
-.text-link {
+.text-link, .text-link:link {
   border-radius: 2px;
   color: inherit;
   text-decoration: underline;
@@ -120,7 +129,7 @@ h2,
   margin: 0;
 }
 
-a {
+a, :link, button {
   text-decoration: none;
 }
 
@@ -303,7 +312,6 @@ button:active {
   font-size: 1em;
   line-height: 1.7em;
   letter-spacing: 0.009em;
-  font-weight: 100;
 }
 
 .bold {
@@ -380,7 +388,7 @@ button:active {
 }
 
 .sign-in {
-  padding: 0.75em 1.25em;
+  padding: 0.75rem 1.25rem;
   font-weight: 400;
   display: flex;
   margin: auto;
