@@ -135,7 +135,6 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 # Variables:
 #   $email (string) - User email address
 profile-label-welcome-html = <span>Welcome,</span> { $email }!
-profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your domain aliases
 profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to { email-size-limit } in size
 profile-promo-upgrade-headline = Upgrade for even more features.
@@ -211,17 +210,6 @@ banner-choose-subdomain-label = Your domain is:
 # Variables:
 # $subdomain (url) - User-set subdomain
 banner-choose-subdomain-label = You can make up any address @{ $subdomain }
-
-
-remaining-aliases-promo-label = { $number -> 
-    [one] { $number } remaining alias
-   *[other] { $number } remaining aliases
-}
-
-remaining-aliases-promo-label-unlimited = { $number -> 
-    [one] { $number } alias. You can make unlimited!
-   *[other] { $number } aliases. You can make unlimited!
-}
 
 remaining-aliases-cta = Buy unlimited aliases
 onboarding-headline = Three ways to create an alias

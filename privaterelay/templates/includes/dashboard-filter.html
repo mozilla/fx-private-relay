@@ -24,5 +24,36 @@
     </div>
     <div class="c-filter-action">
         <!-- Button -->
+        <form action="/emails/" class="dash-create" method="POST">
+            <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
+            {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
+            <a
+                href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
+                target="_blank"
+                rel="noopener noreferrer""
+                class="btn btn-blue--ghost"
+                data-event-label="Upgrade"
+            >
+              <span class="generate-new-alias-text">
+                {% ftlmsg 'profile-label-upgrade' %}
+              </span>
+            </a>
+
+            {% else %}
+            <button
+                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr"
+                title="Generate new alias"
+                type="submit"
+                value="Generate new alias"
+                data-event-label="Create New Relay Alias"
+            >
+              <span class="generate-new-relay-icon"></span>
+              <span class="generate-new-alias-text">
+              {% ftlmsg 'profile-label-generate-new-alias' %}</span>
+            </button>
+            {% endif %}
+            
+            
+          </form>
     </div>
 </div>
