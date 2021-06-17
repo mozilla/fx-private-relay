@@ -1,5 +1,7 @@
 .c-filter {
     display: flex;
+    align-items: center;
+    margin-bottom: $spacing-md;
     @media screen and (min-width: 768px) {
         justify-content: flex-end;
     }
@@ -8,15 +10,18 @@
 // Search Bar
 
 .c-filter-search {
-    align-self: flex-start;
+
     form {
         display: none;
     }
     input[type="search"] {
         background-image: url(/static/images/icon-search.svg);
+        margin-bottom: 0;
     }
-    @media screen and (min-width: 768px) {
-        margin-right: auto;
+
+    @media #{$mq-md} {
+        align-self: flex-start;
+         margin-right: auto;
         form {
             display: block;
         }
@@ -24,5 +29,18 @@
             display: none;
         }
     }
+
+    
+
 }
 
+.c-filter-action {
+    margin-left: auto;
+    @media #{$mq-md} {
+        margin-left: 0;
+    }
+}
+
+.c-filter-date, .c-filter-cateogry {
+    margin-left: $spacing-md;
+}

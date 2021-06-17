@@ -33,7 +33,7 @@
   --warningRed: #d70022;
   --white: #fff;
   --background: #F5F7F9;
-  --dashboardMaxWith: 830px;
+  --dashboardMaxWith: calc(830px + 3rem);
   --bannerGray: #42425A;
 }
 
@@ -75,7 +75,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .text-light {
-  color: var(--white);
+  color: $color-white;
 }
 
 .text-link, .text-link:link {
@@ -140,7 +140,7 @@ a, :link, button {
 .header-link {
   border-radius: 4px;
   padding: 4px 6px;
-  color: #fff !important;
+  color: $color-white !important;
   margin-left: 1em;
 }
 
@@ -195,7 +195,7 @@ button:active {
   color: rgba(255, 255, 255, 1);
   border: none;
   outline: none;
-  background-color: var(--blue3);
+  background-color: $color-blue-50;
   background-position: center center;
   border-radius: 2px;
   min-height: 32px;
@@ -369,7 +369,7 @@ button:active {
 }
 
 .txt-white {
-  color: #fff;
+  color: $color-white;
 }
 
 .text-center {
@@ -379,7 +379,7 @@ button:active {
 .btn-transparent {
   border-width: 2px;
   border-radius: 8px;
-  border-color: #fff;
+  border-color: $color-white;
   color: inherit;
 }
 
@@ -425,7 +425,7 @@ button:active {
 }
 
 header {
-  color: var(--white);
+  color: $color-white;
   border-bottom: 1px solid var(--inkDark);
   background: var(--darkBlueGradient);
   box-shadow: 0 0 3px 0 var(--inkDark);
@@ -471,7 +471,7 @@ header {
 }
 
 .micro-survey-options .micro-survey-option:hover {
-  background-color: var(--blue3);
+  background-color: $color-blue-50;
 }
 
 
@@ -494,7 +494,7 @@ header {
 
 
 .nps-bookend {
-  color: #FFFFFF;
+  color: $color-white;
   text-decoration: none;
   font-family: var(--metropolis);
   display: inline-block;
@@ -502,7 +502,7 @@ header {
 }
 
 #recruitment-banner, .micro-survey-option {
-  color: #FFFFFF;
+  color: $color-white;
   text-decoration: none;
   font-family: var(--metropolis);
   display: inline-block;
@@ -536,8 +536,10 @@ header {
   margin: auto;
   justify-content: flex-start;
   padding-bottom: 6rem;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: $spacing-md;
+  padding-right: $spacing-md;
+  // padding-left: 1.5rem;
+  // padding-right: 1.5rem;
 }
 
 footer {
@@ -563,7 +565,7 @@ ul {
   padding: 4px;
   border-radius: 4px;
   text-decoration: none;
-  color: var(--white);
+  color: $color-white;
   font-family: var(--metropolis);
   margin: auto 2em auto auto;
 }
@@ -586,7 +588,7 @@ ul {
 .dashboard-container {
   min-height: 81vh;
   height: 100%;
-  background-color: var(--background);
+  background-color: $color-mpp-background;
   padding-left: 0;
   padding-right: 0;
   padding-bottom: 0;
@@ -609,7 +611,7 @@ ul {
 .dashboard-mpp-promo {
   
   background: url(/static/images/polygon-background-small.png) center right no-repeat;
-  background-color: var(--white);
+  background-color: $color-white;
   background-size: contain;
 }
 
@@ -644,11 +646,11 @@ table {
 }
 
 .relay-email-card {
-  --hPadding: 2.5em;
+  // --hPadding: 2.5em;
 
-  margin-bottom: 2em;
-  background-color: white;
-  border-radius: 4px;
+  // margin-bottom: 2em;
+  // background-color: white;
+  // border-radius: 4px;
   position: relative;
   transition: all 0.2s ease;
 }
@@ -669,8 +671,8 @@ table {
   background: transparent;
   text-align: left;
   border: none;
-  margin-right: 0.75em;
-  margin-bottom: 8px;
+  // margin-right: 0.75em;
+  // margin-bottom: 8px;
   font-weight: 600;
   cursor: default;
   height: 100%; /* expand clickable area of relay address */
@@ -753,7 +755,7 @@ table {
   background-color: var(--violet3);
   padding: 2px 4px;
   border-radius: 4px;
-  color: var(--white);
+  color: $color-white;
   font-size: 14px;
   right: 0;
   transition: opacity 2s ease-out;
@@ -761,31 +763,6 @@ table {
 
 .alias-copied .alias-copied-message {
   visibility: visible;
-}
-
-.delete-relay-email-button {
-  outline: none !important;
-  border: 1px solid transparent;
-  background-color: rgba(255, 255, 255, 1);
-  border-radius: 4px;
-  height: 36px;
-  padding-right: 16px;
-  padding-left: 16px;
-  display: flex;
-  align-items: center;
-}
-
-.delete-relay-email-button:hover {
-  background-color: var(--grey10);
-}
-
-.delete-relay-email-button:focus {
-  border: 1px solid var(--grey30);
-  outline: none;
-}
-
-.delete-relay-email-button:active {
-  background-color: var(--grey30);
 }
 
 .column-delete {
@@ -822,7 +799,7 @@ table {
   border: none;
   border-radius: 1.5em;
   outline: none;
-  background-color: var(--blue3);
+  background-color: $color-blue-50;
   background-size: 20px;
   margin: auto 0;
 }
@@ -883,7 +860,7 @@ table {
   padding: 0 .75em 0 .25em;
   margin-left: 1em;
   overflow: hidden;
-  background-color: var(--blue3);
+  background-color: $color-blue-50;
   color: rgba(255, 255, 255, 1);
   border: 1px solid transparent;
   font-family: var(--metropolis);
@@ -1001,7 +978,7 @@ table {
   color: var(--textDark);
 }
 
-.relay-email-address-label {
+input.relay-email-address-label {
   color: var(--grey50);
   display: flex;
   font-weight: 500;
@@ -1016,6 +993,13 @@ table {
   white-space: nowrap;
   overflow: hidden;
   transition: all 0.2s ease;
+  // Reset styles from protocol
+  background-color: none;
+  min-width: 0;
+  border-radius: 0;
+  border: 0;
+  margin: 0;
+  list-style: inherit;
 }
 
 .additional-notes {
@@ -1025,6 +1009,7 @@ table {
   visibility: hidden;
   pointer-events: none;
   margin: auto auto 0 0;
+  display: none;
 }
 
 .legacy-addon-show-label {
@@ -1057,6 +1042,7 @@ input:focus::placeholder {
 .show-label.additional-notes {
   visibility: visible;
   pointer-events: all;
+  display: flex;
 }
 
 .additional-notes::after {
@@ -1173,7 +1159,7 @@ input.input-has-error {
 }
 
 .relay-email {
-  --emailCardPadding: 16px;
+  // --emailCardPadding: 16px;
 }
 
 .card-top-row {
@@ -1185,21 +1171,17 @@ input.input-has-error {
 }
 
 .card-middle-row {
-  background-color: rgba(255, 255, 255, 1);
-  border-radius: 4px;
+  // background-color: rgba(255, 255, 255, 1);
+  // border-radius: 4px;
   display: flex;
   flex-wrap: wrap;
 }
 
 .toggle-details-visibility {
-  background: transparent;
-  height: 16px;
-  position: relative;
-  outline: none;
-  border: none;
-  padding: 0;
-  margin: auto auto 0 0;
-  min-width: 120px;
+    background: transparent;
+    appearance: none;
+    outline: none;
+    border: none;
 }
 
 .toggle-details-visibility:hover .detail-label,
@@ -1207,26 +1189,33 @@ input.input-has-error {
   text-decoration: underline;
 }
 
-.detail-label {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  min-width: 116px;
-  align-items: center;
-}
+// .detail-label {
+//   position: absolute;
+//   top: 0;
+//   bottom: 0;
+//   left: 0;
+//   min-width: 116px;
+//   align-items: center;
+// }
 
 .detail-label-icon {
-  height: 14px;
-  width: 14px;
-  background-image: url("/static/images/arrowhead.svg");
-  background-size: contain;
-  display: inline-block;
-  transform-origin: center;
-  margin-left: 6px;
-  position: absolute;
-  right: 0;
-  top: 1px;
+  // height: 14px;
+  width: 1rem;
+  display: flex;
+  align-items: center;
+  height: 1rem;
+  img {
+    display: block;
+    width: 100%;
+  }
+  // background-image: url("/static/images/arrowhead.svg");
+  // background-size: contain;
+  // display: block;
+  // transform-origin: center;
+  // // margin-left: 6px;
+  // position: absolute;
+  // // right: 0;
+  // // top: 1px;
   transition: all 0.2s ease-in-out;
 }
 
@@ -1332,7 +1321,7 @@ input.input-has-error {
 }
 
 .checkbox:checked + .checkbox-ui {
-  background-color: var(--blue3);
+  background-color: $color-blue-50;
   background-image: url("/static/images/check.svg");
   background-position: center center;
   background-repeat: no-repeat;
@@ -1473,8 +1462,8 @@ input.input-has-error {
   display: none !important;
 }
 
-.card-enabled .num-forwarded,
-.card-enabled .column-forwarded,
+.is-enabled .num-forwarded,
+.is-enabled .column-forwarded,
 .num-blocked,
 .column-blocked {
   opacity: 1;
@@ -1482,20 +1471,20 @@ input.input-has-error {
 }
 
 .num-forwarded,
-.card-enabled .column-forwarded .card-small-text,
-.card-enabled .column-blocked {
+.is-enabled .column-forwarded .card-small-text,
+.is-enabled .column-blocked {
   opacity: 1;
   transition: all 0.2s ease;
 }
 
 .num-forwarded,
-.card-enabled .num-blocked {
+.is-enabled .num-blocked {
   opacity: 0.3;
   transition: all 0.2s ease;
 }
 
 .column-forwarded .card-small-text,
-.card-enabled .column-blocked .card-small-text {
+.is-enabled .column-blocked .card-small-text {
   opacity: 0.5;
 }
 
@@ -1692,7 +1681,7 @@ input.input-has-error {
 
 .banner-content {
   opacity: 1;
-  background: var(--white);
+  background: $color-white;
   border-radius: 7px;
   padding: 2em 1.25em 2em 0;
   width: 100%;
@@ -1704,7 +1693,7 @@ input.input-has-error {
 }
 
 .banner-link {
-  color: var(--blue3);
+  color: $color-blue-50;
   margin: 0 auto 0 -2px;
   padding: 2px;
   border-radius: 2px;
@@ -1816,6 +1805,11 @@ input.input-has-error {
 
 .relay-stat {
   position: relative;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  margin-left: 3em;
 }
 
 .nested-grid {
@@ -2135,9 +2129,14 @@ input.input-has-error {
     --hPadding: 1.5em;
   }
 
-  .container, .main-list, .dashboard-mpp-promo-container {
+  .container {
     padding-left: 1.5em;
     padding-right: 1.5em;
+  }
+
+  .main-list, .dashboard-mpp-promo-container {
+    padding-left: $spacing-md;
+    padding-right: $spacing-md;
   }
 
   .dashboard-container {
@@ -2312,12 +2311,6 @@ input.input-has-error {
     flex-wrap: wrap;
   }
 
-  .delete-relay-email-button,
-  .delete-email-form {
-    width: 100%;
-    justify-content: center;
-  }
-
   .confirm-delete-actions {
     flex-direction: column;
   }
@@ -2422,9 +2415,9 @@ ul.messages {
 }
 
 .home-messages span {
-  color: #fff;
+  color: $color-white;
 }
 
 .home-messages path {
-  fill: #fff;
+  fill: $color-white;
 }
