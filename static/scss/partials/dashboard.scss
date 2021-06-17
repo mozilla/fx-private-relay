@@ -82,8 +82,12 @@
     position: absolute;
     padding-top: 10px;
     top: calc(100%);
-    left: 4rem;
+    right: 0;
     min-width: 200px;
+    @media #{$mq-md} {
+        right: auto;
+        left: 4rem;
+    }
 }
 
 .mpp-action-tooltip-hover-wrapper {
@@ -98,7 +102,11 @@
             display: block;
             position: absolute;
             background-color: white;
-            left: 2rem;
+            right: 2rem;
+            @media #{$mq-md} {
+                right: auto;
+                left: 2rem;
+            }
 
             // TODO: Fix shadow on bubble triangle
             // box-shadow: -2px 2px 2px 0 #3d3f4740;
