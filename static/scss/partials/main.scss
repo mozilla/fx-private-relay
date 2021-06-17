@@ -1181,7 +1181,6 @@ input.input-has-error {
 .card-middle-row {
   background-color: rgba(255, 255, 255, 1);
   border-radius: 4px;
-  z-index: 1;
   display: flex;
   flex-wrap: wrap;
 }
@@ -1640,7 +1639,7 @@ input.input-has-error {
   transition: all 0.2s ease;
   opacity: 0;
   padding: 0;
-  min-height: 0;
+  max-height: 0;
 }
 
 .dashboard-banners.drop-shadow {
