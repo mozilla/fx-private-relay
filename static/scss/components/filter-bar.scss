@@ -1,0 +1,28 @@
+.c-filter {
+    display: flex;
+    @media screen and (min-width: 768px) {
+        justify-content: flex-end;
+    }
+}
+
+// Search Bar
+
+.c-filter-search {
+    align-self: flex-start;
+    form {
+        display: none;
+    }
+    input[type="search"] {
+        background-image: url(/static/images/icon-search.svg);
+    }
+    @media screen and (min-width: 768px) {
+        margin-right: auto;
+        form {
+            display: block;
+        }
+        .c-filter-icon {
+            display: none;
+        }
+    }
+}
+
