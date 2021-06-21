@@ -314,7 +314,8 @@ STATICFILES_DIRS = [
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.
 # so, squelch django-gulp in prod so it doesn't run gulp during collectstatic:
-GULP_PRODUCTION_COMMAND = ''
+if not ON_HEROKU:
+    GULP_PRODUCTION_COMMAND = ''
 
 SITE_ID = 1
 
