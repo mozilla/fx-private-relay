@@ -9,6 +9,9 @@ jobs:
   build:
     docker:
       - image: docker:stable-git
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     working_directory: /dockerflow
     steps:
       - checkout
@@ -42,6 +45,9 @@ jobs:
   test:
     docker:
       - image: docker:18.02.0-ce
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     steps:
       - setup_remote_docker
       - restore_cache:
@@ -57,6 +63,9 @@ jobs:
   deploy:
     docker:
       - image: docker:18.02.0-ce
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
     steps:
       - setup_remote_docker
       - restore_cache:
@@ -105,4 +114,4 @@ workflows:
             tags:
               ignore: /addon-.*/
             branches:
-              only: master
+              only: main
