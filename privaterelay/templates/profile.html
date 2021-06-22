@@ -6,6 +6,11 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
+{% block javascript %}
+  <script src="{% static 'js/filter.js' %}"></script>
+{% endblock %}
+
+
 {% block content %}
 
 {% get_social_accounts request.user as accounts %}
