@@ -17,7 +17,7 @@
     {
         "name": "MC",
         "domains": ["mandrillapp.com/track", "list-manage.com/track", "list-manage1.com/track"],
-        "patterns": ["*://*.mandrillapp.com/track/open*", "*://*.list-manage.com/track/open*", "*://*.list-manage1.com/track/open*"]
+        "patterns": ["mandrillapp.com/track/open", "list-manage.com/track/open", "list-manage1.com/track/open"]
     },
     {
         "name": "MailChimp",
@@ -27,17 +27,17 @@
     {
         "name": "SendGrid",
         "domains": ["sendgrid.net/wf"],
-        "patterns": ["*://*.sendgrid.net/wf/open*"]
+        "patterns": ["sendgrid.net/wf/open"]
     },
     {
         "name": "IC",
         "domains": ["icptrack.com/icp"],
-        "patterns": ["*://*.icptrack.com/icp/track*"]
+        "patterns": ["icptrack.com/icp/track"]
     },
     {
         "name": "BT",
         "domains": ["bl-1.com"],
-        "patterns": ["*://*.bl-1.com/*"]
+        "patterns": ["bl-1.com/"]
     },
     {
         "name": "MM",
@@ -52,36 +52,36 @@
     {
         "name": "CC",
         "domains": ["constantcontact.com/images", "r20.rs6.net/on.jsp"],
-        "patterns": ["*://*.constantcontact.com/images/p1x1.gif*"]
+        "patterns": ["constantcontact.com/images/p1x1.gif"]
     },
     {
         "name": "GA",
         "domains": ["google-analytics.com/collect"],
-        "patterns": ["*://*.google-analytics.com/collect*"]
+        "patterns": ["google-analytics.com/collect"]
     },
     {
         "name": "IB",
         "domains": ["mkt4477.com/open"],
-        "patterns": ["*://*.mkt4477.com/open*"]
+        "patterns": ["mkt4477.com/open"]
     },
     {
         "name": "MP",
         "domains": ["mixpanel.com/track"],
-        "patterns": ["*://*.mixpanel.com/track*"]
+        "patterns": ["mixpanel.com/track"]
     },
     {
         "name": "GN",
         "domains": ["email81.com"],
-        "patterns": ["*://*.email81.com/*", "*://*.email81.com/*"]
+        "patterns": ["email81.com/", "email81.com/"]
     },
     {
         "name": "SV",
         "domains": ["strongview.com/t"],
-        "patterns": ["*://*.strongview.com/t/*"]
+        "patterns": ["strongview.com/t/"]
     },
     {
         "name": "GM",
         "domains": ["ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x"],
-        "patterns": ["*://*.ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/*"]
+        "patterns": ["ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/"]
     }
 ]
