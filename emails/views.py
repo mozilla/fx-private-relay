@@ -33,7 +33,9 @@ from .models import (
     RelayAddress
 )
 from .utils import (
+    get_click_trackers,
     get_email_domain_from_settings,
+    get_open_trackers,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
@@ -44,6 +46,9 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
 logger = logging.getLogger('events')
+OPEN_TRACKERS = get_open_trackers()
+# CLICK_TRACKERS = get_click_trackers()
+CLICK_TRACKERS = []
 
 
 @csrf_exempt
@@ -335,10 +340,20 @@ def _sns_message(message_json):
     # scramble alias so that clients don't recognize it
     # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
-
-    message_body = {}
-    if html_content:
-        incr_if_enabled('email_with_html_content', 1)
+    if settings.BLOCK_EMAIL_TRACKERS and html_content:
+        trackers_blocked_content, trackers_found = _remove_email_trackers(html_content)
+        wrapped_html = render_to_string('emails/wrapped_tracker_removed_email.html', {
+            'original_html': html_content,
+            'email_to': to_address,
+            'display_email': display_email,
+            'SITE_ORIGIN': settings.SITE_ORIGIN,
+            'has_attachment': bool(attachments),
+            'faq_page': settings.SITE_ORIGIN + reverse('faq'),
+            'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
+            'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK,
+            'trackers_found': trackers_found
+        })
+    elif html_content:
         wrapped_html = render_to_string('emails/wrapped_email.html', {
             'original_html': html_content,
             'email_to': to_address,
@@ -349,6 +364,10 @@ def _sns_message(message_json):
             'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
             'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK
         })
+
+    message_body = {}
+    if html_content:
+        incr_if_enabled('email_with_html_content', 1)
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
@@ -524,3 +543,15 @@ def _get_all_contents(email_message):
     # TODO: if html_content is still None, wrap the text_content with our
     # header and footer HTML and send that as the html_content
     return text_content, html_content, attachments
+
+def _remove_email_trackers(html_content):
+    open_trackers_found = 0
+    click_trackers_found = 0
+    trackers_blocked_content = html_content
+    for pattern in OPEN_TRACKERS:
+        trackers_blocked_content, matched = re.subn(pattern, 'https://relay.firefox.com/open-trackers', trackers_blocked_content)
+        open_trackers_found += matched
+    for pattern in CLICK_TRACKERS:
+        trackers_blocked_content, matched = re.subn(pattern, 'https://relay.firefox.com/click-trackers', trackers_blocked_content)
+        click_trackers_found += matched
+    return trackers_blocked_content, open_trackers_found

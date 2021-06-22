@@ -213,3 +213,24 @@ def generate_relay_From(original_from_address):
         )
     )
     return formatted_from_address
+
+    def convert_domains_to_regex_patterns(domain_pattern):
+        return '(["])(\\S*://\\S*' + domain_pattern + 's\\S*)\\1'
+
+    def get_click_trackers():
+        with open('/tracker_lists/click-trackers.json') as f:
+            trackers = json.load(f)
+        click_tracker_patterns = []
+        for tracker in trackers:
+            regex_pattern = convert_domains_to_regex_patterns(tracker['patterns'])
+            click_tracker_patterns.extend(regex_pattern)
+        return click_tracker_patterns
+
+    def get_open_trackers():
+        with open('/tracker_lists/open-trackers.json') as f:
+            trackers = json.load(f)
+        open_tracker_patterns = []
+        for tracker in trackers:
+            regex_pattern = convert_domains_to_regex_patterns(tracker['patterns'])
+            click_tracker_patterns.extend(regex_pattern)
+        return open_tracker_patterns
