@@ -13,10 +13,27 @@
 
     form {
         display: none;
+        position: relative;
     }
+
     input[type="search"] {
         background-image: url(/static/images/icon-search.svg);
         margin-bottom: 0;
+        padding-right: 1.75rem;
+        &:focus + .c-filter-case-count {
+            opacity: 0.5;
+        }
+    }
+
+    .c-filter-case-count {
+        display: flex;
+        opacity: 0;
+        position: absolute;
+        right: 0.5rem;
+        top: 0;
+        align-items: center;
+        height: 100%;
+        transition: opacity 0.2s ease-out;
     }
 
     @media #{$mq-md} {
@@ -29,9 +46,6 @@
             display: none;
         }
     }
-
-    
-
 }
 
 .c-filter-action {
