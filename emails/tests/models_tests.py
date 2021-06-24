@@ -381,6 +381,26 @@ class ProfileTest(TestCase):
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
+    def test_display_name_exists(self):
+        display_name = 'Display Name'
+        social_account = baker.make(
+            SocialAccount,
+            provider='fxa',
+            extra_data={'displayName': display_name}
+        )
+        profile = Profile.objects.get(user=social_account.user)
+        assert profile.display_name == display_name
+
+    def test_display_name_does_not_exist(self):
+        social_account = baker.make(
+            SocialAccount,
+            provider='fxa',
+            extra_data={}
+        )
+        profile = Profile.objects.get(user=social_account.user)
+        assert profile.display_name == None
+        
+
 
 class DomainAddressTest(TestCase):
     def setUp(self):
