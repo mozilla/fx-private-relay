@@ -511,6 +511,7 @@ function vpnBannerLogic() {
 
   // Init: Show banner, set close button listener
   const vpnPromoCloseButton = document.getElementById("vpnPromoCloseButton");
+  const vpnPromoCtaButton = document.querySelector(".vpn-promo-cta");
 
   const vpnPromoFunctions = {
     hide: function() {
@@ -521,6 +522,9 @@ function vpnBannerLogic() {
     },
     init: function() {
       vpnPromoCloseButton.addEventListener("click", vpnPromoFunctions.hide);
+      vpnPromoCtaButton.addEventListener("click", ()=>{
+        sendGaPing("VPN Promo Banner", "CTA Click", "CTA Click");
+      });
       vpnPromoFunctions.show();
     },
     setCookie: function() {
@@ -531,6 +535,7 @@ function vpnBannerLogic() {
     show: function() {
       vpnPromoBanner.classList.remove("closed");
       document.body.classList.add("vpn-banner-visible");
+      sendGaPing("VPN Promo Banner", "Show Banner", "Show Banner");
     },
   };
 
