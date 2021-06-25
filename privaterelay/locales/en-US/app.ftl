@@ -11,6 +11,7 @@
 -brand-name-relay = Relay
 -brand-name-firefox-browser = Firefox Browser
 -brand-name-mozilla = Mozilla
+-brand-name-mozilla-vpn = Mozilla VPN
 -brand-name-mozilla-privacy-pack = Mozilla Privacy Pack
 -brand-name-firefox-lockwise = Firefox Lockwise
 -brand-name-firefox-monitor = Firefox Monitor
@@ -256,3 +257,11 @@ survey-option-somewhat-disappointed = Somewhat disappointed
 survey-option-very-disappointed = Very disappointed
 survey-option-very-likely = Very likely
 survey-option-not-likely = Not likely
+
+## VPN Promo Banner
+vpn-promo-headline = Now’s the time to boost your safety online.
+vpn-promo-copy = { -brand-name-mozilla }’s Virtual Private Network helps shield your internet connection from hackers and spies. 
+vpn-promo-cta = Get { -brand-name-mozilla-vpn }
+vpn-promo-price-headline = Introductory offer ends soon: $4.99/month for { -brand-name-mozilla-vpn }
+vpn-promo-price-copy = Now's the time to protect your device against hackers and prying eyes.
+vpn-promo-price-disclaimer = Offer only available in the United States, United Kingdom, Canada, New Zealand, Malaysia, and Singapore
