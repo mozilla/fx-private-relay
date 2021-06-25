@@ -10,11 +10,18 @@
     const filterLabelTotalCases = document.querySelector(".js-filter-case-total");
     const filterLabelVisibleCases = document.querySelector(".js-filter-case-visible");
 
+    const filterResetButton = document.querySelector(".js-filter-reset")
+
     const filterInput = document.querySelector(".js-filter-search-input");
 
 	function filterInputWatcher(e) {
 		const query = e.target.value.toLowerCase();
-                
+
+        // if (query === "") {
+        //     resetFilter();
+        //     return;
+        // }
+
 		// Hide all cases
 		aliases.forEach(alias => {
             alias.style.display = "none";
@@ -70,7 +77,17 @@
         filterLabelTotalCases.textContent = aliases.length;
 
 		filterInput.addEventListener("input", filterInputWatcher, false);
+
+        filterResetButton.addEventListener("click", resetFilter, false);
 	}
+
+    function resetFilter() {
+        filterLabelVisibleCases.textContent = aliases.length;
+        filterLabelTotalCases.textContent = aliases.length;
+        aliases.forEach(alias => {
+            alias.style.display = "block";
+        });
+    }
 
     // TODO: Remove timeout and watch for event to detect if add-on is enabled (checking if labels exist)
     setTimeout(filterInit, 250);
