@@ -46,9 +46,8 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
 logger = logging.getLogger('events')
-OPEN_TRACKERS = get_open_trackers()
-# CLICK_TRACKERS = get_click_trackers()
-CLICK_TRACKERS = []
+OPEN_TRACKERS = get_email_trackers('open')
+CLICK_TRACKERS = get_email_trackers('click')
 
 
 @csrf_exempt
