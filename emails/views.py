@@ -344,7 +344,7 @@ def _sns_message(message_json):
             'Removing email trackers.',
             extra={'html_content': html_content}
         )
-        trackers_blocked_content, trackers_found = _remove_email_trackers(html_content)
+        trackers_blocked_content, open_trackers_found, click_trackers_found = _remove_email_trackers(html_content)
         wrapped_html = render_to_string('emails/wrapped_tracker_removed_email.html', {
             'original_html': trackers_blocked_content,
             'email_to': to_address,
@@ -354,7 +354,8 @@ def _sns_message(message_json):
             'faq_page': settings.SITE_ORIGIN + reverse('faq'),
             'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
             'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK,
-            'trackers_found': trackers_found
+            'open_trackers_found': open_trackers_found,
+            'click_trackers_found': click_trackers_found
         })
     elif html_content:
         logger.error(
@@ -560,10 +561,15 @@ def _remove_email_trackers(html_content):
         if matched > 0:
             logger.error(
                 'Matched open tracker.',
-                extra={'pattern': pattern, 'matched':matched}
+                extra={'pattern': pattern, 'matched': matched}
             )
         open_trackers_found += matched
     for pattern in CLICK_TRACKERS:
-        trackers_blocked_content, matched = re.subn(pattern, 'https://relay.firefox.com/click-trackers', trackers_blocked_content)
+        trackers_blocked_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/click-trackers', trackers_blocked_content)
+        if matched > 0:
+            logger.error(
+                'Matched click tracker.',
+                extra={'pattern': pattern, 'matched': matched}
+            )
         click_trackers_found += matched
-    return trackers_blocked_content, open_trackers_found
+    return trackers_blocked_content, open_trackers_found, click_trackers_found
