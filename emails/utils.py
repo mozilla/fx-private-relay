@@ -215,7 +215,7 @@ def generate_relay_From(original_from_address):
     return formatted_from_address
 
 def convert_domains_to_regex_patterns(domain_pattern):
-    return '(["])(\\S*://\\S*' + domain_pattern + 's\\S*)\\1'
+    return '(["])(\\S*://\\S*.' + domain_pattern + '\\S*)\\1'
 
 def get_click_trackers():
     with open('emails/tracker_lists/click-trackers.json') as f:

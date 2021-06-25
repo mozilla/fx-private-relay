@@ -557,8 +557,8 @@ def _remove_email_trackers(html_content):
     click_trackers_found = 0
     trackers_blocked_content = html_content
     for pattern in OPEN_TRACKERS:
-        trackers_blocked_content, matched = re.subn(pattern, 'https://relay.firefox.com/open-trackers', trackers_blocked_content)
-        if matched < 0:
+        trackers_blocked_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/open-trackers\g<1>', trackers_blocked_content)
+        if matched > 0:
             logger.error(
                 'Matched open tracker.',
                 extra={'pattern': pattern, 'matched':matched}
