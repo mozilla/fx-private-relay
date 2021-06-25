@@ -393,6 +393,14 @@ function showBannersIfNecessary() {
 document.addEventListener("DOMContentLoaded", () => {
   watchForInstalledAddon();
   addEventListeners();
+  vpnBannerLogic();
+
+  // TODO: Set up language gate once l10n is active.
+  // const preferredLanguages = navigator.languages;
+  // // Only display if primary preferred language is English
+  // if (preferredLanguages[0].includes("en")) {
+  //   vpnBannerLogic();
+  // }
 
   const win = window;
   const header = document.querySelector("header");
@@ -484,3 +492,52 @@ const copyAliasBtn = new ClipboardJS(".relay-address");
 copyAliasBtn.on("success", (e) => {
   copyToClipboardAndShowMessage(e.trigger);
 });
+
+function vpnBannerLogic() {
+
+  // Check if element exists at all
+  const vpnPromoBanner = document.getElementById("vpnPromoBanner");
+
+  if (!vpnPromoBanner) {
+    return;
+  }
+
+  // Check for dismissal cookie
+  const vpnBannerDismissedCookie = document.cookie.split("; ").some((item) => item.trim().startsWith("vpnBannerDismissed="));
+
+  if (vpnBannerDismissedCookie) {
+    return;
+  }
+
+  // Init: Show banner, set close button listener
+  const vpnPromoCloseButton = document.getElementById("vpnPromoCloseButton");
+  const vpnPromoCtaButton = document.querySelector(".vpn-promo-cta");
+
+  const vpnPromoFunctions = {
+    hide: function() {
+      vpnPromoFunctions.setCookie();
+      vpnPromoBanner.classList.add("closed");
+      document.body.classList.remove("vpn-banner-visible");
+      sendGaPing("VPN Promo Banner", "Dismiss Banner", "Dismiss Banner");
+    },
+    init: function() {
+      vpnPromoCloseButton.addEventListener("click", vpnPromoFunctions.hide);
+      vpnPromoCtaButton.addEventListener("click", ()=>{
+        sendGaPing("VPN Promo Banner", "CTA Click", "CTA Click");
+      });
+      vpnPromoFunctions.show();
+    },
+    setCookie: function() {
+      const date = new Date();
+      date.setTime(date.getTime() + 30*24*60*60*1000);
+      document.cookie = "vpnBannerDismissed=true; expires=" + date.toUTCString();
+    },
+    show: function() {
+      vpnPromoBanner.classList.remove("closed");
+      document.body.classList.add("vpn-banner-visible");
+      sendGaPing("VPN Promo Banner", "Show Banner", "Show Banner");
+    },
+  };
+
+  vpnPromoFunctions.init();
+}

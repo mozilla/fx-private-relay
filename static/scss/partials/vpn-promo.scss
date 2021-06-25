@@ -1,0 +1,205 @@
+html,
+body {
+  --vpn-purple: #c5c8fb;
+}
+
+.vpn-banner-visible main {
+  padding-top: 17rem;
+}
+
+.vpn-promo-banner + .micro-survey-banner {
+  display: none;
+}
+
+// .vpn-banner-visible .micro-survey-banner {
+//   display: none;
+// }
+
+.vpn-promo-banner {
+  background-color: var(--background);
+  font-family: "Metropolis", sans-serif;
+  font-size: 16px;
+  position: relative;
+  transition: max-height 0.3s ease-out;
+  overflow: hidden;
+  max-height: 500px;
+}
+
+@media (prefers-reduced-motion) {
+  .vpn-promo-banner {
+    transition-property: none;
+  }
+}
+
+.vpn-promo-banner.closed {
+  max-height: 0;
+}
+
+.vpn-promo-banner + .recruitment-banner {
+  display: none;
+}
+
+.vpn-promo-banner-wrapper {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  text-align: center;
+}
+
+.vpn-promo-logo {
+  display: block;
+  max-width: 122px;
+  margin: 0 auto 1rem;
+}
+
+.vpn-promo-copy {
+  text-align: center;
+  font-size: 1rem;
+  max-width: 320px;
+  margin: 0 auto 1rem;
+  line-height: 1.2rem;
+  color: var(--inkDark);
+}
+
+.vpn-promo-copy strong, .vpn-promo-copy span {
+  display: block;
+  margin: 0 0 2px;
+}
+
+.vpn-promo-copy small {
+  padding-top: 2px;
+  display: block;
+  font-size: 0.65rem;
+  margin: 0 auto;
+  line-height: normal;
+  font-style: italic;
+}
+
+.vpn-promo-banner a {
+  background-color: var(--bgLight);
+  border: solid 2px var(--inkDark);
+  box-shadow: 8px 8px 0 #6a57dc;
+  color: var(--inkDark);
+  cursor: pointer;
+  display: inline-block;
+  font-size: 1.125rem;
+  font-weight: bold;
+  line-height: 1.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.vpn-promo-banner a:hover,
+.vpn-promo-banner a:active,
+.vpn-promo-banner a:focus {
+  background-color: var(--inkDark);
+  color: var(--bgLight);
+}
+
+.vpn-promo-banner button {
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  position: absolute;
+  top: 0.5rem;
+  right: 0;
+  border: none;
+  outline: none;
+  display: block;
+}
+
+.vpn-promo-banner button:hover img {
+  transform: scale(1.1);
+}
+
+.vpn-promo-banner button:active img {
+  transform: scale(0.9);
+}
+
+.vpn-promo-banner button img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  transition: transform 0.2s ease-out;
+}
+
+@media screen and (min-width: 700px) {
+  .vpn-promo-banner-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+  }
+
+  .vpn-promo-copy {
+    flex-shrink: 2;
+  }
+
+  .vpn-promo-copy strong {
+    display: block;
+  }
+
+  .vpn-promo-banner button {
+    top: 0;
+    right: 0;
+  }
+
+  .vpn-promo-logo,
+  .vpn-promo-copy {
+    margin: 0;
+  }
+
+  .vpn-promo-banner a {
+    margin-bottom: 0.25rem;
+  }
+
+  .vpn-banner-visible main {
+    &.dashboard-container {
+      padding-top: 9rem;
+    }
+    padding-top: 10rem;
+  }
+
+  .vpn-promo-copy small {
+    max-width: 400px;
+  }
+
+}
+
+@media screen and (min-width: 800px) {
+  .vpn-promo-copy {
+    max-width: none;
+    padding: 0 1rem;
+  }
+
+  .vpn-banner-visible main {
+    padding-top: 5rem;
+  }
+  
+  .vpn-promo-copy small {
+    max-width: none;
+  }
+}
+
+@media screen and (min-width: 960px) {
+  .vpn-promo-banner button {
+    top: 0.25rem;
+    right: 0.25rem;
+  }
+  .vpn-promo-banner a {
+    flex-shrink: 0;
+  }
+}
+
+@media screen and (min-width: 850px) {
+  .vpn-banner-visible main.dashboard-container {
+    padding-top: 7rem;
+  }
+}
+
+@media screen and (min-width: 950px) {
+  .vpn-banner-visible main.dashboard-container {
+    padding-top: 6rem;
+  }
+}
