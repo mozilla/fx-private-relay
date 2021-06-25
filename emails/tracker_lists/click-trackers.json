@@ -14,28 +14,28 @@
     {
         "name": "MC",
         "domains": ["mandrillapp.com/track", "list-manage.com/track", "list-manage1.com/track"],
-        "patterns": ["*://*.mandrillapp.com/track/click*", "*://*.list-manage.com/track/click*", "*://*.list-manage1.com/track/click*"]
+        "patterns": ["mandrillapp.com/track/click", "list-manage.com/track/click", "list-manage1.com/track/click"]
     },
     {
         "name": "MailChimp",
         "domains": ["mailchimp.com/mctx"],
-        "patterns": ["*://*.mailchimp.com/mctx/clicks*"]
+        "patterns": ["mailchimp.com/mctx/clicks"]
     },
     {
         "name": "SendGrid",
         "domains": ["sendgrid.net/wf"],
-        "patterns": ["*://*.sendgrid.net/wf/click*"]
+        "patterns": ["sendgrid.net/wf/click"]
     },
     {
         "name": "IC",
         "domains": ["click.icptrack.com/icp"],
-        "patterns": ["*://*.icptrack.com/icp/relay*"],
+        "patterns": ["icptrack.com/icp/relay"],
         "param": "destination"
     },
     {
         "name": "BT",
         "domains": ["bl-1.com"],
-        "patterns": ["*://*.bl-1.com/*"],
+        "patterns": ["bl-1.com/"],
         "param": "url"
     },
     {
@@ -51,27 +51,27 @@
     {
         "name": "IB",
         "domains": ["mkt4477.com/ctt"],
-        "patterns": ["*://*.mkt4477.com/ctt*"]
+        "patterns": ["mkt4477.com/ctt"]
     },
     {
         "name": "SL",
         "domains": ["signl.live/tracker"],
-        "patterns": ["*://*.sendgrid.net/wf/click*"],
+        "patterns": ["sendgrid.net/wf/click"],
         "param": "redirect"
     },
     {
         "name": "SV",
         "domains": ["strongview.com/t"],
-        "patterns": ["*://*.strongview.com/t/*"]
+        "patterns": ["strongview.com/t/"]
     },
     {
         "name": "GM",
         "domains": ["ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x"],
-        "patterns": ["*://*.ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/*"]
+        "patterns": ["ec2-52-26-194-35.us-west-2.compute.amazonaws.com/x/"]
     },
     {
         "name": "PM",
         "domains": ["pstmrk.it"],
-        "patterns": ["*://click.pstmrk.it/*"]
+        "patterns": ["click.pstmrk.it/"]
     }
 ]
