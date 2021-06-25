@@ -341,6 +341,10 @@ def _sns_message(message_json):
     # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
     if settings.BLOCK_EMAIL_TRACKERS and html_content:
+        logger.error(
+            'Removing email trackers.',
+            extra={'html_content': html_content}
+        )
         trackers_blocked_content, trackers_found = _remove_email_trackers(html_content)
         wrapped_html = render_to_string('emails/wrapped_tracker_removed_email.html', {
             'original_html': html_content,
@@ -354,6 +358,10 @@ def _sns_message(message_json):
             'trackers_found': trackers_found
         })
     elif html_content:
+        logger.error(
+            'Relaying email.',
+            extra={'html_content': html_content}
+        )
         wrapped_html = render_to_string('emails/wrapped_email.html', {
             'original_html': html_content,
             'email_to': to_address,
