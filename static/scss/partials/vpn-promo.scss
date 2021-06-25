@@ -3,13 +3,17 @@ body {
   --vpn-purple: #c5c8fb;
 }
 
-.vpn-banner-visible .clear-header {
-  padding-top: 28rem;
+.vpn-banner-visible main {
+  padding-top: 17rem;
 }
 
-.vpn-banner-visible .micro-survey-banner {
+.vpn-promo-banner + .micro-survey-banner {
   display: none;
 }
+
+// .vpn-banner-visible .micro-survey-banner {
+//   display: none;
+// }
 
 .vpn-promo-banner {
   background-color: var(--background);
@@ -150,8 +154,11 @@ body {
     margin-bottom: 0.25rem;
   }
 
-  .vpn-banner-visible .clear-header {
-    padding-top: 18rem;
+  .vpn-banner-visible main {
+    &.dashboard-container {
+      padding-top: 9rem;
+    }
+    padding-top: 10rem;
   }
 
   .vpn-promo-copy small {
@@ -165,9 +172,11 @@ body {
     max-width: none;
     padding: 0 1rem;
   }
-  .vpn-banner-visible .clear-header {
-    padding-top: 16rem;
+
+  .vpn-banner-visible main {
+    padding-top: 5rem;
   }
+  
   .vpn-promo-copy small {
     max-width: none;
   }
@@ -180,5 +189,17 @@ body {
   }
   .vpn-promo-banner a {
     flex-shrink: 0;
+  }
+}
+
+@media screen and (min-width: 850px) {
+  .vpn-banner-visible main.dashboard-container {
+    padding-top: 7rem;
+  }
+}
+
+@media screen and (min-width: 950px) {
+  .vpn-banner-visible main.dashboard-container {
+    padding-top: 6rem;
   }
 }
