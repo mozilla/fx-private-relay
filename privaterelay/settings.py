@@ -241,6 +241,8 @@ SUBSCRIPTIONS_WITH_UNLIMITED = config(
 SOFT_BOUNCE_ALLOWED_DAYS = config('SOFT_BOUNCE_ALLOWED_DAYS', 1, cast=int)
 HARD_BOUNCE_ALLOWED_DAYS = config('HARD_BOUNCE_ALLOWED_DAYS', 30, cast=int)
 
+BLOCK_EMAIL_TRACKERS = config('BLOCK_EMAIL_TRACKERS', default=False, cast=bool)
+
 WSGI_APPLICATION = 'privaterelay.wsgi.application'
 
 
