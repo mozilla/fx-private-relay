@@ -565,7 +565,8 @@ def _remove_email_trackers(html_content):
             )
         open_trackers_found += matched
     for pattern in CLICK_TRACKERS:
-        trackers_blocked_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/click-trackers', trackers_blocked_content)
+        # We don't want to replace click trackers because we don't want to break the click experience
+        _, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/click-trackers', trackers_blocked_content)
         if matched > 0:
             logger.error(
                 'Matched click tracker.',
