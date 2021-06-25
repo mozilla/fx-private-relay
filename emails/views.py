@@ -347,7 +347,7 @@ def _sns_message(message_json):
         )
         trackers_blocked_content, trackers_found = _remove_email_trackers(html_content)
         wrapped_html = render_to_string('emails/wrapped_tracker_removed_email.html', {
-            'original_html': html_content,
+            'original_html': trackers_blocked_content,
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
@@ -558,6 +558,11 @@ def _remove_email_trackers(html_content):
     trackers_blocked_content = html_content
     for pattern in OPEN_TRACKERS:
         trackers_blocked_content, matched = re.subn(pattern, 'https://relay.firefox.com/open-trackers', trackers_blocked_content)
+        if matched < 0:
+            logger.error(
+                'Matched open tracker.',
+                extra={'pattern': pattern, 'matched':matched}
+            )
         open_trackers_found += matched
     for pattern in CLICK_TRACKERS:
         trackers_blocked_content, matched = re.subn(pattern, 'https://relay.firefox.com/click-trackers', trackers_blocked_content)
