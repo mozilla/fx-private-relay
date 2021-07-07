@@ -33,9 +33,8 @@ from .models import (
     RelayAddress
 )
 from .utils import (
-    get_click_trackers,
     get_email_domain_from_settings,
-    get_open_trackers,
+    get_email_trackers,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
