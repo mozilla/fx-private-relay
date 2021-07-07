@@ -126,6 +126,16 @@ class Profile(models.Model):
         ).values('num_blocked')
         return sum(blocked['num_blocked'] for blocked in relay_addresses_blocked)
 
+    @property
+    def open_trackers_found(self):
+        trackers_found = RelayAddress.objects.filter(user=self.user).aggregate(Sum('num_open_trackers'))
+        return trackers_found.get('num_open_trackers__sum')
+
+    @property
+    def click_trackers_found(self):
+        trackers_found = RelayAddress.objects.filter(user=self.user).aggregate(Sum('num_click_trackers'))
+        return trackers_found.get('num_click_trackers__sum')
+
     def add_subdomain(self, subdomain):
         if not self.has_unlimited:
             raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain'))
