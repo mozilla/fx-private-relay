@@ -1,6 +1,18 @@
 {% load static %}
 {% load ftl %}
 {% ftlconf mode='server' bundle='privaterelay.ftl_bundles.main' %}
+<!-- blocked open trackers -->
+<div class="column-blocked center-value relay-stat">
+  <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-trackers-blocked' %}</span>
+  <span class="email-value relay-stat-value num-blocked">{{ relay_address.num_open_trackers }}</span>
+  <span class="blocked-description stat-description">{% ftlmsg 'profile-trackers-blocked-copy' %}</span>
+</div>
+<!-- indentified click trackers -->
+<div class="column-blocked center-value relay-stat">
+  <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-trackers-identified' %}</span>
+  <span class="email-value relay-stat-value num-blocked">{{ relay_address.num_click_trackers }}</span>
+  <span class="blocked-description stat-description">{% ftlmsg 'profile-trackers-identified-copy' %}</span>
+</div>
 <!-- blocked emails -->
 <div class="column-blocked center-value relay-stat">
   <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-blocked' %}</span>
