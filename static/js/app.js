@@ -132,7 +132,7 @@ function deleteAliasConfirmation(submitEvent) {
     addressEl.textContent = aliasToDelete;
   });
 
-  const aliasToDeleteLabel = document.querySelector(".modal-message strong");
+  const aliasToDeleteLabel = document.querySelector(".js-set-relay-address");
   aliasToDeleteLabel.textContent = aliasToDelete;
 
   confirmDeleteModal.classList.add("show-modal");

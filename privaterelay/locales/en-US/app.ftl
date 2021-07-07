@@ -231,8 +231,10 @@ onboarding-tip-3 = Via the context menu, just right-click (Windows) or Control-c
 modal-rename-alias-saved = Label saved!
 modal-delete-headline = Permanently delete this alias?
 
+# Variables:
+#   $attrs (string) - add relay address attribute
 modal-delete-warning-recovery-html = Once you delete this alias, it cannot be recovered. 
-    { -brand-name-firefox-relay } will no longer forward messages sent to <strong></strong> { $email }, including messages that allow you to reset lost passwords.
+    { -brand-name-firefox-relay } will no longer forward messages sent to <strong { $attrs }></strong>, including messages that allow you to reset lost passwords.
 modal-delete-warning-upgrade = If you use this alias to log in to sites you care about, 
     you should update your login with a different email address before you delete this one.
 modal-delete-confirmation = Yes, I want to delete this alias.
