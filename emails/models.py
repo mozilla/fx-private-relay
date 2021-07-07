@@ -9,6 +9,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Sum 
 
 
 emails_config = apps.get_app_config('emails')
@@ -114,17 +115,13 @@ class Profile(models.Model):
 
     @property
     def emails_forwarded(self):
-        relay_addresses_forwarded = RelayAddress.objects.filter(
-            user=self.user
-        ).values('num_forwarded')
-        return sum(forwarded['num_forwarded'] for forwarded in relay_addresses_forwarded)
+        emails_data = RelayAddress.objects.filter(user=self.user).aggregate(Sum('num_forwarded'))
+        return emails_data.get('num_forwarded__sum')
 
     @property
     def emails_blocked(self):
-        relay_addresses_blocked = RelayAddress.objects.filter(
-            user=self.user
-        ).values('num_blocked')
-        return sum(blocked['num_blocked'] for blocked in relay_addresses_blocked)
+        emails_data = RelayAddress.objects.filter(user=self.user).aggregate(Sum('num_blocked'))
+        return emails_data.get('num_blocked__sum')
 
     @property
     def open_trackers_found(self):
