@@ -338,8 +338,12 @@ def _sns_message(message_json):
     # scramble alias so that clients don't recognize it
     # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
+    open_trackers_found = 0
+    click_trackers_found = 0
     if settings.BLOCK_EMAIL_TRACKERS and html_content:
-        trackers_blocked_content, open_trackers_found, click_trackers_found = _remove_email_trackers(html_content)
+        trackers_blocked_content, open_trackers_found, click_trackers_found = _remove_email_trackers(
+            html_content
+        )
         wrapped_html = render_to_string('emails/wrapped_tracker_removed_email.html', {
             'original_html': trackers_blocked_content,
             'email_to': to_address,
@@ -389,6 +393,7 @@ def _sns_message(message_json):
     return ses_relay_email(
         from_address, address, subject,
         message_body, attachments, user_profile.user.email,
+        open_trackers_found, click_trackers_found
     )
 
 

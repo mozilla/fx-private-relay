@@ -125,13 +125,23 @@ class Profile(models.Model):
 
     @property
     def open_trackers_found(self):
-        trackers_found = RelayAddress.objects.filter(user=self.user).aggregate(Sum('num_open_trackers'))
-        return trackers_found.get('num_open_trackers__sum')
+        relay_address_trackers = RelayAddress.objects.filter(
+            user=self.user
+        ).aggregate(Sum('num_open_trackers')).get('num_open_trackers__sum')
+        domain_address_trackers = DomainAddress.objects.filter(
+            user=self.user
+        ).aggregate(Sum('num_open_trackers')).get('num_open_trackers__sum')
+        return relay_address_trackers + domain_address_trackers
 
     @property
     def click_trackers_found(self):
-        trackers_found = RelayAddress.objects.filter(user=self.user).aggregate(Sum('num_click_trackers'))
-        return trackers_found.get('num_click_trackers__sum')
+        relay_address_trackers = RelayAddress.objects.filter(
+            user=self.user
+        ).aggregate(Sum('num_open_trackers')).get('num_click_trackers')
+        domain_address_trackers = DomainAddress.objects.filter(
+            user=self.user
+        ).aggregate(Sum('num_open_trackers')).get('num_click_trackers')
+        return relay_address_trackers + domain_address_trackers
 
     def add_subdomain(self, subdomain):
         if not self.has_unlimited:

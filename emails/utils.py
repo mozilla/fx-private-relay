@@ -142,7 +142,8 @@ def ses_send_raw_email(
 
 
 def ses_relay_email(from_address, address, subject,
-                    message_body, attachments, user_email):
+                    message_body, attachments, user_email,
+                    open_trackers_found, click_trackers_found):
     formatted_from_address = generate_relay_From(from_address)
     try:
         if attachments:
@@ -162,8 +163,15 @@ def ses_relay_email(from_address, address, subject,
             )
         address.num_forwarded += 1
         address.last_used_at = datetime.now(timezone.utc)
+        address.num_open_trackers += open_trackers_found
+        address.num_click_trackers += click_trackers_found
         address.save(
-            update_fields=['num_forwarded', 'last_used_at']
+            update_fields=[
+                'num_forwarded',
+                'last_used_at',
+                'num_open_trackers',
+                'num_click_trackers'
+            ]
         )
         return response
     except ClientError as e:
