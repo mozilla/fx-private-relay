@@ -225,6 +225,8 @@ class RelayAddress(models.Model):
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
+            num_open_trackers=self.num_open_trackers,
+            num_click_trackers=self.num_click_trackers
         )
         deleted_address.save()
         profile = Profile.objects.get(user=self.user)
@@ -334,6 +336,8 @@ class DomainAddress(models.Model):
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
+            num_open_trackers=self.num_open_trackers,
+            num_click_trackers=self.num_click_trackers
         )
         deleted_address.save()
         self.user_profile.address_last_deleted = datetime.now(timezone.utc)
