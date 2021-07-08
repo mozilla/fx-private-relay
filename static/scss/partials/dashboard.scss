@@ -199,6 +199,14 @@
         display: none;
     }
 
+    .additional-notes.show-label + button {
+        margin-top: 0;
+    }
+
+    button {
+        margin-top: $spacing-xs;
+    }
+
     input {
         text-overflow: ellipsis;
     }

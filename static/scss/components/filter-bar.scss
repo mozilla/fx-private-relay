@@ -2,8 +2,35 @@
     display: flex;
     align-items: center;
     margin-bottom: $spacing-md;
+    
+    &.is-search-active {
+        margin-bottom: 4.5rem;
+        position: relative;
+
+        .c-filter-search-form {
+            display: block;
+            position: absolute;
+            width: 100%;
+            top: calc(100% + 1rem);
+            
+        }
+        
+        .c-filter-search-input {
+            width: 100%;
+        }
+    }
+
     @media screen and (min-width: 768px) {
         justify-content: flex-end;
+        &.is-search-active {
+            margin-bottom: $spacing-md;
+            
+            .c-filter-search-form {
+                width: auto;
+                position: relative;
+                top: auto;
+            }
+        }
     }
 }
 
@@ -58,8 +85,49 @@
     }
 }
 
+.c-filter-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 100%;
+    cursor: pointer;
+    background-position: center;
+    background-size: auto 1.25rem;
+    background-repeat: no-repeat;
+    
+    &.is-enabled, &:hover {
+        background-color: $color-white;
+        color: $color-blue-50;
+    }
+
+}
+
+.c-filter-icon-search {
+    background-size: auto 1.25rem;
+    background-image: url(/static/images/icon-search.svg);        
+    &.is-enabled, &:hover {
+        background-image: url(/static/images/icon-search-blue.svg);        
+    }
+}
+
+.c-filter-icon-calendar {
+    background-image: url(/static/images/icon-calendar.svg);        
+    &.is-enabled, &:hover {
+        background-image: url(/static/images/icon-calendar-blue.svg);        
+    }
+}
+
+.c-filter-icon-filter {
+    background-image: url(/static/images/icon-filter.svg);        
+    &.is-enabled, &:hover {
+        background-image: url(/static/images/icon-filter-blue.svg);        
+    }
+}
+
 .c-filter-date, .c-filter-cateogry {
-    margin-left: $spacing-md;
+    margin-left: $spacing-xs;
 }
 
 .c-filter-reset {

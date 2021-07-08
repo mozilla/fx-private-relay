@@ -199,7 +199,6 @@ function isAddonInstallInLocalStorage() {
 
 function toggleAliasCardDetailsVisibility(aliasCard) {
   const detailsWrapper = aliasCard.querySelector(".js-alias-details");
-  console.log(detailsWrapper);
   detailsWrapper.classList.toggle("is-visible");
 }
 
@@ -240,7 +239,6 @@ function addEventListeners() {
   document.querySelectorAll(".js-alias").forEach(aliasCard => {
     const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
     toggleDetailsBtn.addEventListener("click", () => {
-      console.log("toggleDetailsBtn");
       toggleDetailsBtn.classList.toggle("is-active")
       toggleAliasCardDetailsVisibility(aliasCard);
     });

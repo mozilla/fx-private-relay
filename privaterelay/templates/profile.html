@@ -188,12 +188,12 @@
 
         {% for domain_address in domain_addresses %}
       
-          <div class="c-alias js-alias relay-email {% if relay_address.enabled %} is-enabled card-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
+          <div class="c-alias js-alias relay-email {% if domain_address.enabled %} is-enabled card-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{% user_email_domain user_profile %}" data-relay-address-id="{{ domain_address.id }}">
             
             <div class="c-alias-main-info">
               <!-- enable/disable email forwarding -->
               <div class="c-alias-toggle email-forwarding">
-                <form action="{% url 'emails-index' %}" method="POST" class="flx flx-row al-cntr email-forwarding-form">
+                <form action="{% url 'emails-index' %}" method="POST" class="xflx xflx-row al-cntr email-forwarding-form">
                   <input type="hidden" name="method_override" value="PUT">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">
@@ -219,8 +219,8 @@
                   </div>
 
                   <button title="Click to copy"
-                    data-id="{{ relay_address.id }}"
-                    data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}"
+                    data-id="{{ domain_address.id }}"
+                    data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
                     class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
                       {{ domain_address.address }}@{% user_email_domain user_profile %}
                       <span class="alias-copied-icon"></span>
@@ -248,8 +248,8 @@
 
             <div class="c-alias-copy">
               <button title="Click to copy"
-                data-id="{{ relay_address.id }}"
-                data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}"
+                data-id="{{ domain_address.id }}"
+                data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
                 class="relay-address click-copy ff-Met xflx jst-cntr al-cntr">
                   {{ domain_address.address }}@{% user_email_domain user_profile %}
                   <span class="alias-copied-icon"></span>
@@ -273,7 +273,7 @@
                     <img class="" src="/static/images/icon-calendar-gray.svg" alt="">
                     <div>
                       <span class="c-alias-data-label">{% ftlmsg 'profile-label-created' %}</label>
-                      <span class="c-alias-data-value">{{ relay_address.created_at|date:"M j, Y" }}</span>
+                      <span class="c-alias-data-value">{{ domain_address.created_at|date:"M j, Y" }}</span>
                     </div>
                   </div>
                 </div>
@@ -281,10 +281,10 @@
 
                 <!-- delete email address -->
                 <div class="column-delete">
-                  <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ RELAY_DOMAIN }}">
+                  <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ domain_address.address }}@{% user_email_domain user_profile %}">
                     <input type="hidden" name="method_override" value="DELETE">
                     <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
-                    <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
+                    <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">
                     <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this alias">
                       <span class="remove-label relay-email-label">{% ftlmsg 'profile-label-delete' %}</span>
                     </button>

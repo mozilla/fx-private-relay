@@ -2,12 +2,10 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<div class="c-filter">
+<div class="c-filter js-filter-container">
     <div class="c-filter-search">
-        <div class="c-filter-icon js-filter-mobile-search-toggle">
-            <img alt="" src="{% static '/images/icon-search.svg' %}"/>
-        </div>
-        <form action="">
+        <div class="c-filter-icon c-filter-icon-search js-filter-mobile-search-toggle"></div>
+        <form class="js-filter-search-form c-filter-search-form" action="">
             <input class="c-filter-search-input js-filter-search-input " type="search" name="search" id="search">
             <div class="c-filter-case-count">
                 <span class="js-filter-case-visible"></span>
@@ -19,14 +17,14 @@
             </button>
         </form>
     </div>
-    <div class="c-filter-date">
-        <div class="c-filter-icon">
-            <img alt="" src="{% static '/images/icon-calendar.svg' %}"/>
+    <div class="c-filter-date hidden">
+        <div class="c-filter-icon c-filter-icon-calendar">
+            <!-- <img alt="" src="{% static '/images/icon-calendar.svg' %}"/> -->
         </div>
     </div>
-    <div class="c-filter-cateogry">
-        <div class="c-filter-icon">
-            <img alt="" src="{% static '/images/icon-filter.svg' %}"/>
+    <div class="c-filter-cateogry hidden">
+        <div class="c-filter-icon c-filter-icon-filter">
+            <!-- <img alt="" src="{% static '/images/icon-filter.svg' %}"/> -->
         </div>
     </div>
     <div class="c-filter-action">
