@@ -103,7 +103,7 @@
               <div class="relay-email-row card-top-row xflx xflx-row inset">
                 <!-- alias label -->
                 <div class="additional-notes">
-                  <input data-label="" type="text" maxlength="50" value="" aria-label="Edit the label for this alias" class="relay-email-address-label ff-Met">
+                  <input data-label="" type="text" maxlength="50" value="" aria-label="{% ftlmsg 'profile-label-edit' %}" class="relay-email-address-label ff-Met">
                   <span class="saved-confirmation">{% ftlmsg 'profile-label-saved' %}</span>
                   <span class="input-error"></span>
                 </div>
@@ -175,7 +175,7 @@
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this alias">
+                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="{% ftlmsg 'profile-label-delete-alias' %}">
                     <span class="remove-label relay-email-label">{% ftlmsg 'profile-label-delete' %}</span>
                   </button>
                 </form>
@@ -213,7 +213,7 @@
               <div class="relay-email-row card-top-row xflx xflx-row inset">
                 <!-- alias label -->
                 <div class="additional-notes">
-                  <input data-label="" type="text" maxlength="50" value="" aria-label="Edit the label for this alias" class="relay-email-address-label ff-Met">
+                  <input data-label="" type="text" maxlength="50" value="" aria-label="{% ftlmsg 'profile-label-edit' %}" class="relay-email-address-label ff-Met">
                   <span class="saved-confirmation">{% ftlmsg 'profile-label-saved' %}</span>
                   <span class="input-error"></span>
                 </div>
@@ -285,7 +285,7 @@
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">
-                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this alias">
+                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="{% ftlmsg 'profile-label-delete-alias' %}">
                     <span class="remove-label relay-email-label">{% ftlmsg 'profile-label-delete' %}</span>
                   </button>
                 </form>
