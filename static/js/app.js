@@ -132,7 +132,8 @@ function deleteAliasConfirmation(submitEvent) {
     addressEl.textContent = aliasToDelete;
   });
 
-  const aliasToDeleteLabel = document.querySelector(".js-set-relay-address");
+  // Show alias email address in delete warning modal
+  const aliasToDeleteLabel = document.querySelector(".modal-message strong");
   aliasToDeleteLabel.textContent = aliasToDelete;
 
   confirmDeleteModal.classList.add("show-modal");
