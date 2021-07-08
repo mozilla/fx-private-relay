@@ -32,7 +32,7 @@
     "url": "git+https://github.com/mozilla/fx-private-relay.git"
   },
   "scripts": {
-    "lint": "npm run lint:js",
+    "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "eslint .",
     "lint:css": "stylelint --fix static/scss/",
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -8,11 +8,6 @@ module.exports = {
   extends: ["eslint:recommended"],
   overrides: [
     {
-      files: ["extension/**/*.js"],
-      env: {
-        "browser": true,
-        "webextensions": true,
-      },
       globals: {
         areInputIconsEnabled: "writable",
         enableDataOptOut: "writable",
