@@ -61,11 +61,11 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: var(--grey10);
+  color: $color-light-gray-10;
 }
 
 :visited:hover, :visited:focus, :visited:active {
-  color: var(--grey10);
+  color: $color-light-gray-10;
 }
 
 .loading {
@@ -101,7 +101,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .bg-light {
-  background: var(--grey10);
+  background: $color-light-gray-10;
 }
 
 .drop-shadow-light {
@@ -531,7 +531,6 @@ header {
 }
 
 .main-list {
-  min-height: 50vh;
   max-width: var(--dashboardMaxWith);
   margin: auto;
   justify-content: flex-start;
@@ -586,7 +585,6 @@ ul {
 }
 
 .dashboard-container {
-  min-height: 81vh;
   height: 100%;
   background-color: $color-mpp-background;
   padding-left: 0;
@@ -609,7 +607,6 @@ ul {
 }
 
 .dashboard-mpp-promo {
-  
   background: url(/static/images/polygon-background-small.png) center right no-repeat;
   background-color: $color-white;
   background-size: contain;
@@ -618,24 +615,24 @@ ul {
 .dashboard-mpp-promo-container {
   max-width: var(--dashboardMaxWith);
   margin: auto;
-  padding: 2rem 1.5rem;
+  padding: $spacing-xl $spacing-lg;
 }
 
-.dashboard-mpp-promo h3 {
+.dashboard-mpp-promo-headline {
   font-size: 1.75rem;
   line-height: 2rem;
-  margin: 0;
+  margin: 0 0 $spacing-sm;
   padding: 0;
-  font-weight: 700;
+  font-weight: 500;
   max-width: 400px;
+  color: $color-black;
+  strong {
+    display: inline-block;
+  }
 }
 
-.dashboard-mpp-promo h3 strong {
-  display: inline-block;
-}
-
-.dashboard-mpp-promo p {
-  max-width: 400px;
+.dashboard-mpp-promo-container p {
+  max-width: $content-sm;
 }
 
 
@@ -965,7 +962,7 @@ table {
 .hero-sub-head {
   margin: auto auto 32px 0;
   max-width: 550px;
-  color: var(--grey10);
+  color: $color-light-gray-10;
 }
 
 .card-small-text {
@@ -1824,7 +1821,7 @@ input.input-has-error {
   right: 19px;
   font-size: 13px;
   line-height: 1.25;
-  background-color: var(--grey10);
+  background-color: $color-light-gray-10;
   border: 1px solid var(--grey30);
   box-shadow: var(--dropShadowLight);
   padding: 8px 16px;
@@ -1863,7 +1860,7 @@ input.input-has-error {
   height: 12px;
   width: 12px;
   border-radius: 2px;
-  background-color: var(--grey10);
+  background-color: $color-light-gray-10;
   border-top: 1px solid var(--grey30);
   border-left: 1px solid var(--grey30);
   position: absolute;

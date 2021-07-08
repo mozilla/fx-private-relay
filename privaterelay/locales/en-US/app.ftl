@@ -201,7 +201,7 @@ banner-choose-subdomain-warning = NOTE: YOU CANNOT CHANGE THIS LATER!
 banner-choose-subdomain-input-placeholder = banner-choose-subdomain-warning
 
 banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-mozilla-privacy-pack }</strong> to get more protection.
-banner-pack-upgrade-copy = Unlimited email aliases, your own email domain, monitor your email for data breaches, VPN included
+banner-pack-upgrade-copy = With unlimited email aliases, your own email domain, data breach monitoring, and VPN, { -brand-name-mozilla-privacy-pack } helps you stay protected online.
 banner-pack-upgrade-cta = Upgrade Now!
 
 # This string is followed by name (string) that the user chooses
