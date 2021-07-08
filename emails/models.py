@@ -251,6 +251,8 @@ class DeletedAddress(models.Model):
     num_forwarded = models.PositiveSmallIntegerField(default=0)
     num_blocked = models.PositiveSmallIntegerField(default=0)
     num_spam = models.PositiveSmallIntegerField(default=0)
+    num_open_trackers = models.PositiveSmallIntegerField(default=0)
+    num_click_trackers = models.PositiveSmallIntegerField(default=0)
 
     def __str__(self):
         return self.address_hash
