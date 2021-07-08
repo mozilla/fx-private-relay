@@ -5,6 +5,7 @@ COPY gulpfile.js ./
 COPY static ./static/
 RUN npm install
 RUN ./node_modules/.bin/gulp build
+RUN npm run lint
 
 FROM python:3.7.9
 
