@@ -75,7 +75,7 @@
     }
 
     function isAddOnDetected() {
-        const addNotes = document.querySelector('.additional-notes');
+        const addNotes = document.querySelector(".additional-notes");
         if (!addNotes) return false;
         return (addNotes.offsetWidth > 0 && addNotes.offsetHeight > 0);
     }
