@@ -6,25 +6,32 @@
   display: inline-block;
   border-radius: 4px;
   cursor: pointer;
-  font-family: $metropolis;
+  font-family: $font-metropolis;
 }
 
 .btn--gray {
   border: 1px solid #CCCCCC;
-  color: var(--blue3);
+  color: $color-blue-50;
 }
 
 .btn--blue { 
-  background-color: var(--blue3);
-  color: var(--white);
+  background-color: $color-blue-50;
+  color: $color-white;
 }
 
 .btn-blue--ghost {
-  border: 2px solid var(--blue3);
-  color: var(--blue3);
+  border: 2px solid $color-blue-50;
+  color: $color-blue-50;
   background: none;
   &:hover {
-      color: $white;
-      background-color: var(--blue3);
+      color: $color-white;
+      background-color: $color-blue-50;
   }
+}
+
+.c-button-toggle {
+  form {
+    display: flex;
+    align-items: center;
+  }    
 }

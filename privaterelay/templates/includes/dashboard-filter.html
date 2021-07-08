@@ -1,0 +1,60 @@
+{% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+<div class="c-filter js-filter-container">
+    <div class="c-filter-search">
+        <div class="c-filter-icon c-filter-icon-search js-filter-mobile-search-toggle"></div>
+        <form class="js-filter-search-form c-filter-search-form" action="">
+            <input class="c-filter-search-input js-filter-search-input " type="search" name="search" id="search">
+            <div class="c-filter-case-count">
+                <span class="js-filter-case-visible"></span>
+                /
+                <span class="js-filter-case-total"></span>
+            </div>
+            <button class="c-filter-reset js-filter-reset">
+                <img alt="" src="{% static '/images/x-close.svg' %}"/>
+            </button>
+        </form>
+    </div>
+    <div class="c-filter-date hidden">
+        <div class="c-filter-icon c-filter-icon-calendar"></div>
+    </div>
+    <div class="c-filter-cateogry hidden">
+        <div class="c-filter-icon c-filter-icon-filter"></div>
+    </div>
+    <div class="c-filter-action">
+        <!-- Button -->
+        <form action="{% url 'emails-index' %}" class="dash-create" method="POST">
+            <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
+            {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
+            <a
+                href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn btn-blue--ghost"
+                data-event-label="Upgrade"
+            >
+              <span class="generate-new-alias-text">
+                {% ftlmsg 'profile-label-upgrade' %}
+              </span>
+            </a>
+
+            {% else %}
+            <button
+                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr"
+                title="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                type="submit"
+                value="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                data-event-label="Create New Relay Alias"
+            >
+              <span class="generate-new-relay-icon"></span>
+              <span class="generate-new-alias-text">
+              {% ftlmsg 'profile-label-generate-new-alias' %}</span>
+            </button>
+            {% endif %}
+            
+            
+          </form>
+    </div>
+</div>

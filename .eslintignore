@@ -2,3 +2,4 @@ node_modules
 static/js/clipboard.min.js
 venv
 env
+static/scss/libs

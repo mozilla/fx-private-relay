@@ -53,12 +53,12 @@ async function updateEmailForwardingPrefs(submitEvent) {
       if (prefToggle.value === "Enable") {
         prefToggle.title = "Disable email forwarding for this alias";
         toggleLabel.textContent = "forwarding";
-        wrappingEmailCard.classList.add("card-enabled");
+        wrappingEmailCard.classList.add("is-enabled");
         return prefToggle.value = "Disable";
       } else if (prefToggle.value === "Disable") {
         prefToggle.title="Enable email forwarding to this alias";
         toggleLabel.textContent = "blocking";
-        wrappingEmailCard.classList.remove("card-enabled");
+        wrappingEmailCard.classList.remove("is-enabled");
         return prefToggle.value = "Enable";
       }
     }
@@ -198,22 +198,8 @@ function isAddonInstallInLocalStorage() {
 }
 
 function toggleAliasCardDetailsVisibility(aliasCard) {
-  const detailsWrapper = aliasCard.querySelector(".details-wrapper");
-  aliasCard.classList.toggle("show-card-details");
-
-  const resizeAliasDetails = () => {
-    if (aliasCard.classList.contains("show-card-details")) {
-      aliasCard.style.paddingBottom = `${detailsWrapper.clientHeight}px`;
-    }
-  };
-
-  if (aliasCard.classList.contains("show-card-details")) {
-    resizeAliasDetails();
-    window.addEventListener("resize", resizeAliasDetails);
-    return;
-  }
-  aliasCard.style.paddingBottom = "0";
-  window.removeEventListener("resize", resizeAliasDetails);
+  const detailsWrapper = aliasCard.querySelector(".js-alias-details");
+  detailsWrapper.classList.toggle("is-visible");
 }
 
 function resetBodyPadding() {
@@ -250,9 +236,10 @@ function recruitmentLogic() {
 }
 
 function addEventListeners() {
-  document.querySelectorAll(".relay-email-card").forEach(aliasCard => {
-    const toggleDetailsBtn = aliasCard.querySelector(".toggle-details-visibility");
+  document.querySelectorAll(".js-alias").forEach(aliasCard => {
+    const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
     toggleDetailsBtn.addEventListener("click", () => {
+      toggleDetailsBtn.classList.toggle("is-active")
       toggleAliasCardDetailsVisibility(aliasCard);
     });
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");

@@ -1,5 +1,5 @@
 // Protocol
-// @import "libs/protocol/protocol";
+@import "libs/protocol/css/protocol.scss";
 
 // Includes
 @import "includes/variables";
@@ -10,6 +10,7 @@
 // Components
 @import "components/banners";
 @import "components/buttons";
+@import "components/filter-bar";
 
 // Previous Styles
 @import "partials/main";

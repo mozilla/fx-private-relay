@@ -1,0 +1,17 @@
+{
+  "extends": [
+    "stylelint-config-recommended"
+  ],
+  "plugins": [
+    "stylelint-scss"
+  ],
+  "ignoreFiles": [
+    "static/scss/includes/fonts/**",
+    "static/scss/libs/**"
+  ],
+  "rules": {
+    "at-rule-no-unknown": null,
+    "scss/at-rule-no-unknown": true,
+    "no-descending-specificity": null
+  }
+}
