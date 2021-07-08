@@ -76,10 +76,17 @@
 
     function isAddOnDetected() {
         const addNotes = document.querySelector('.additional-notes');
+        if (!addNotes) return false;
         return (addNotes.offsetWidth > 0 && addNotes.offsetHeight > 0);
     }
 
 	function filterInit() {
+
+        // Hide the search function and end early if the user has no aliases created. 
+        if (aliases.length < 1) {
+            filterForm.style.display = "none";
+            return;
+        }
 
         const addOnDetected = isAddOnDetected();
         
