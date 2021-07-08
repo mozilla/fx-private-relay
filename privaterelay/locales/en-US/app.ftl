@@ -32,6 +32,7 @@ meta-description = { -brand-name-firefox-relay } makes it easy to create email a
 logo-alt= { -brand-name-firefox-relay }
 nav-menu = Menu
 nav-home = Home
+label-open-menu = Open menu
 
 # FAQ stands for Frequently Asked Questions. The intent of this page is to answer commonly asked questions.
 nav-faq = FAQ
