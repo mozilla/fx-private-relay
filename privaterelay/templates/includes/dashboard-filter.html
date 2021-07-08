@@ -25,7 +25,7 @@
     </div>
     <div class="c-filter-action">
         <!-- Button -->
-        <form action="/emails/" class="dash-create" method="POST">
+        <form action="{% url 'emails-index' %}" class="dash-create" method="POST">
             <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
             {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
             <a
