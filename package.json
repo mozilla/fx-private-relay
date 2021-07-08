@@ -15,6 +15,11 @@
     "gulp-sass": "^4.1.0",
     "merge-stream": "^2.0.0"
   },
+  "devDependencies": {
+    "stylelint": "^13.13.1",
+    "stylelint-config-recommended": "^5.0.0",
+    "stylelint-scss": "^3.19.0"
+  },
   "engines": {
     "node": "14.x"
   },
@@ -29,6 +34,7 @@
   "scripts": {
     "lint": "npm run lint:js",
     "lint:js": "eslint .",
+    "lint:css": "stylelint --fix static/scss/",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
