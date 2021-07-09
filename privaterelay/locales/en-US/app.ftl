@@ -250,6 +250,6 @@ survey-option-not-likely = Not likely
 vpn-promo-headline = Now’s the time to boost your safety online.
 vpn-promo-copy = { -brand-name-mozilla }’s Virtual Private Network helps shield your internet connection from hackers and spies. 
 vpn-promo-cta = Get { -brand-name-mozilla-vpn }
-vpn-promo-price-headline = Introductory offer ends soon: $4.99/month for { -brand-name-mozilla-vpn }
-vpn-promo-price-copy = Now's the time to protect your device against hackers and prying eyes.
-vpn-promo-price-disclaimer = Offer only available in the United States, United Kingdom, Canada, New Zealand, Malaysia, and Singapore
+
+vpn-promo-price-headline = Now’s the time to boost your safety online.
+vpn-promo-price-copy = Mozilla’s Virtual Private Network helps shield your internet connection from hackers and spies.
