@@ -28,17 +28,35 @@
         <form action="{% url 'emails-index' %}" class="dash-create" method="POST">
             <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
             {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
-            <a
-                href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="btn btn-blue--ghost"
-                data-event-label="Upgrade"
+
+                {% if settings.PREMIUM_ENABLED %}
+                    <a
+                        href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-blue--ghost"
+                        data-event-label="Upgrade"
+                    >
+                    <span class="generate-new-alias-text">
+                        {% ftlmsg 'profile-label-upgrade' %}
+                    </span>
+                    </a>
+
+                {% else %}
+
+                    <button 
+                disabled
+                type="submit"
+                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr btn-disabled"
+                title="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                value="{% ftlmsg 'profile-label-generate-new-alias' %}"
             >
+              <span class="generate-new-relay-icon"></span>
               <span class="generate-new-alias-text">
-                {% ftlmsg 'profile-label-upgrade' %}
-              </span>
-            </a>
+              {% ftlmsg 'profile-label-generate-new-alias' %}</span>
+            </button>
+
+                {% endif %}
 
             {% else %}
             <button
