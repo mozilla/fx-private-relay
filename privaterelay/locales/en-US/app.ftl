@@ -221,12 +221,8 @@ onboarding-tip-2 = By selecting the { -brand-name-firefox-relay } icon when it a
 onboarding-tip-3 = Via the context menu, just right-click (Windows) or Control-click (macOS) on form fields to access the menu and generate an alias
 modal-rename-alias-saved = Label saved!
 modal-delete-headline = Permanently delete this alias?
-
-# Variables:
-#   $attrs (string) - specific attributes added to HTML element
-#   $email (string) - User email address
 modal-delete-warning-recovery-html = Once you delete this alias, it cannot be recovered. 
-    { -brand-name-firefox-relay } will no longer forward messages sent to <span { $attrs }>{ $email }</span>, including messages that allow you to reset lost passwords.
+    { -brand-name-firefox-relay } will no longer forward messages sent to <strong></strong>, including messages that allow you to reset lost passwords.
 modal-delete-warning-upgrade = If you use this alias to log in to sites you care about, 
     you should update your login with a different email address before you delete this one.
 modal-delete-confirmation = Yes, I want to delete this alias.
@@ -250,6 +246,7 @@ survey-option-very-likely = Very likely
 survey-option-not-likely = Not likely
 
 ## VPN Promo Banner
+
 vpn-promo-headline = Now’s the time to boost your safety online.
 vpn-promo-copy = { -brand-name-mozilla }’s Virtual Private Network helps shield your internet connection from hackers and spies. 
 vpn-promo-cta = Get { -brand-name-mozilla-vpn }

@@ -132,6 +132,10 @@ function deleteAliasConfirmation(submitEvent) {
     addressEl.textContent = aliasToDelete;
   });
 
+  // Show alias email address in delete warning modal
+  const aliasToDeleteLabel = document.querySelector(".modal-message strong");
+  aliasToDeleteLabel.textContent = aliasToDelete;
+
   confirmDeleteModal.classList.add("show-modal");
   trapFocusInModal("delete-modal", true);
   sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
