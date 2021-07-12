@@ -11,10 +11,6 @@ body {
   display: none;
 }
 
-// .vpn-banner-visible .micro-survey-banner {
-//   display: none;
-// }
-
 .vpn-promo-banner {
   background-color: var(--background);
   font-family: "Metropolis", sans-serif;
@@ -125,7 +121,6 @@ body {
 
   .vpn-promo-copy {
     flex-shrink: 2;
-    max-width: none;
     padding: 0 $spacing-md;
   }
 
