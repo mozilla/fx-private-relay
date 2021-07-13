@@ -11,10 +11,6 @@ body {
   display: none;
 }
 
-// .vpn-banner-visible .micro-survey-banner {
-//   display: none;
-// }
-
 .vpn-promo-banner {
   background-color: var(--background);
   font-family: "Metropolis", sans-serif;
@@ -40,23 +36,23 @@ body {
 }
 
 .vpn-promo-banner-wrapper {
-  max-width: 1000px;
+  max-width: $content-lg;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: $spacing-md $spacing-xl;
   text-align: center;
 }
 
 .vpn-promo-logo {
   display: block;
   max-width: 122px;
-  margin: 0 auto 1rem;
+  margin: 0 auto $spacing-md;
 }
 
 .vpn-promo-copy {
   text-align: center;
   font-size: 1rem;
-  max-width: 320px;
-  margin: 0 auto 1rem;
+  max-width: $content-sm;
+  margin: 0 auto $spacing-md;
   line-height: 1.2rem;
   color: var(--inkDark);
 }
@@ -64,15 +60,6 @@ body {
 .vpn-promo-copy strong, .vpn-promo-copy span {
   display: block;
   margin: 0 0 2px;
-}
-
-.vpn-promo-copy small {
-  padding-top: 2px;
-  display: block;
-  font-size: 0.65rem;
-  margin: 0 auto;
-  line-height: normal;
-  font-style: italic;
 }
 
 .vpn-promo-banner a {
@@ -85,8 +72,8 @@ body {
   font-size: 1.125rem;
   font-weight: bold;
   line-height: 1.5rem;
-  padding: 0.5rem 1rem;
-  margin-bottom: 1rem;
+  padding: $spacing-sm $spacing-md;
+  margin-bottom: $spacing-md;
   position: relative;
   text-decoration: none;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -103,11 +90,12 @@ body {
   -moz-appearance: none;
   -webkit-appearance: none;
   position: absolute;
-  top: 0.5rem;
+  top: $spacing-sm;
   right: 0;
   border: none;
   outline: none;
   display: block;
+  background-color: transparent;
 }
 
 .vpn-promo-banner button:hover img {
@@ -134,6 +122,7 @@ body {
 
   .vpn-promo-copy {
     flex-shrink: 2;
+    padding: 0 $spacing-md;
   }
 
   .vpn-promo-copy strong {
@@ -160,32 +149,23 @@ body {
     }
     padding-top: 10rem;
   }
-
-  .vpn-promo-copy small {
-    max-width: 400px;
-  }
-
 }
 
 @media screen and (min-width: 800px) {
   .vpn-promo-copy {
-    max-width: none;
-    padding: 0 1rem;
+    padding: 0 $spacing-md;
   }
 
   .vpn-banner-visible main {
     padding-top: 5rem;
   }
   
-  .vpn-promo-copy small {
-    max-width: none;
-  }
 }
 
 @media screen and (min-width: 960px) {
   .vpn-promo-banner button {
-    top: 0.25rem;
-    right: 0.25rem;
+    top: $spacing-xs;
+    right: $spacing-xs;
   }
   .vpn-promo-banner a {
     flex-shrink: 0;

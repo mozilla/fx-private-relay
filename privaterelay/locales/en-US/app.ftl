@@ -247,9 +247,6 @@ survey-option-not-likely = Not likely
 
 ## VPN Promo Banner
 
-vpn-promo-headline = Now’s the time to boost your safety online.
-vpn-promo-copy = { -brand-name-mozilla }’s Virtual Private Network helps shield your internet connection from hackers and spies. 
+vpn-promo-headline = Save 50% with a full year subscription
+vpn-promo-copy = Protect your online data—and choose a VPN subscription plan that works for you.
 vpn-promo-cta = Get { -brand-name-mozilla-vpn }
-vpn-promo-price-headline = Introductory offer ends soon: $4.99/month for { -brand-name-mozilla-vpn }
-vpn-promo-price-copy = Now's the time to protect your device against hackers and prying eyes.
-vpn-promo-price-disclaimer = Offer only available in the United States, United Kingdom, Canada, New Zealand, Malaysia, and Singapore
