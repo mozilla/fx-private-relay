@@ -7,9 +7,12 @@
 
 {% block content %}
 
-{% include "includes/messages.html" %}
+<!--{% include "includes/messages.html" %}-->
+<main data-landing-page="" class="row-full-width home-hero">
+  
+    {% include "includes/messages.html" %}
 
-<main data-landing-page="" class="flx row-full-width home-hero">
+  <div class="flx">
 	<div class="flx flx-row hero-content">
 		<div class="hero-left flx flx-col">
         <h1 class="home-hero-headline">{% ftlmsg 'home-hero-headline' %}</h1>
@@ -57,5 +60,6 @@
 			{% include "includes/landing_ctas.html" with page_position="landing-bottom" %}
 		</div>
 	</div>
+</div>
 
 {% endblock %}
