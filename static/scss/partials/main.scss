@@ -2377,12 +2377,6 @@ input.input-has-error {
   margin: 0 auto;
 }
 
-@media screen and (max-width:1282px){
-  .messages {
-    width:100%;
-  }
-}
-
 .messages > div {
   background-color: var(--grey50);
 }
