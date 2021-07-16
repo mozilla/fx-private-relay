@@ -35,7 +35,7 @@ nav-home = Home
 
 # FAQ stands for Frequently Asked Questions. The intent of this page is to answer commonly asked questions.
 nav-faq = FAQ
-nav-profile-sign-in = Sign In/Up
+nav-profile-sign-in = Sign In
 nav-profile-manage-fxa = Manage your { -brand-name-firefox-account(capitalization: "uppercase") }
 nav-profile-sign-out = Sign Out
 nav-profile-sign-out-relay = Sign Out of { -brand-name-relay }
