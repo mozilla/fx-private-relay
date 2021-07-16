@@ -256,7 +256,7 @@ body.hide-bento firefox-apps > button {
 
 @media screen and (max-width: 900px) {
   firefox-apps {
-    margin: 0 var(--bentoPadding);
+    margin: 0 0 0 var(--bentoPadding);
   }
 
   .fx-bento-button {
@@ -270,7 +270,7 @@ body.hide-bento firefox-apps > button {
     --mobileClickableCloseArea: 12vh;
 
     position: inherit;
-    margin: 0 var(--appIconHeight);
+    margin: 0 0 0 var(--appIconHeight);
   }
 
   button.fx-bento-mobile-close { /* Unhide purple "X" button */

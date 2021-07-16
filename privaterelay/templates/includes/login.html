@@ -6,8 +6,15 @@
 {% block content %}
 
 <div class="user-area flx flx-row al-cntr">
-	<firefox-apps></firefox-apps>
 	{% if request.user.is_anonymous %}
+	<a
+      data-entrypoint="relay-sign-in-header"
+      data-form_type="button"
+      data-ga="send-ga-funnel-pings"
+      data-event-category="Sign In Buttons"
+      data-event-label="sign-in-btn-header"
+      class="sign-in button sign-up hide-mobile"
+      href="{% provider_login_url 'fxa' process='login' %}">{% ftlmsg 'nav-profile-sign-up' %}</a>
     <a
       data-entrypoint="relay-sign-in-header"
       data-form_type="button"
@@ -49,6 +56,7 @@
 			<button class="sign-in button btn-transparent" type="submit">{% ftlmsg 'nav-profile-sign-out' %}</button>
 		</form>
 	{% endif %}
+	<firefox-apps></firefox-apps>
 </div>
 
 {% endblock %}
