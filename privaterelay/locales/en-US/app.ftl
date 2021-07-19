@@ -66,7 +66,7 @@ bento-button-close-label = Close menu
 home-hero-headline = Hide your real email address to help protect your identity
 home-hero-copy = { -brand-name-firefox-relay } makes it easy to create aliases, randomly generated email addresses that forward to your real inbox.
     Use it to protect your online accounts - and your identity - from hackers. Sign in with your { -brand-name-firefox-account } to get started.
-home-hero-cta = Sign in
+home-hero-cta = Sign In
 how-it-works-headline = How It Works
 how-it-works-subheadline = Protect your personal identity everywhere you use the { -brand-name-firefox-browser }.
 how-it-works-step-1-headline = Install the extension
