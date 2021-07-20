@@ -103,6 +103,7 @@ glocal-menu {
 .glocal-fxa-settings-link:hover,
 .glocal-fxa-settings-link:focus {
   text-decoration: underline;
+  color: var(--grey50);
 }
 
 .glocal-fxa-settings-link:active {
