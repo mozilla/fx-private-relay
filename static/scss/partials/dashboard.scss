@@ -194,6 +194,9 @@
 
 .c-alias-name {
     margin-left: $spacing-xs;
+    width:100%;
+    overflow:hidden;
+    flex-wrap: nowrap;
 
     .relay-address {
         display: none;
@@ -238,6 +241,7 @@
 
 .c-alias-meta {
     display: flex;
+    flex-wrap: nowrap;
     margin-left: auto;
 }
 
