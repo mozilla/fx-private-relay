@@ -99,8 +99,8 @@
             </div>
             <!--end enable/disable toggle -->
 
-            <div class="c-alias-name xflx xflx-col">
-              <div class="relay-email-row card-top-row xflx xflx-row inset">
+            <div class="c-alias-name">
+              <div class="relay-email-row card-top-row inset">
                 <!-- alias label -->
                 <div class="additional-notes">
                   <input data-label="" type="text" maxlength="50" value="" aria-label="{% ftlmsg 'profile-label-edit' %}" class="relay-email-address-label ff-Met">
@@ -140,7 +140,7 @@
             <button title="Click to copy"
               data-id="{{ relay_address.id }}"
               data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}"
-              class="relay-address click-copy ff-Met xflx jst-cntr al-cntr">
+              class="relay-address click-copy ff-Met jst-cntr al-cntr">
                 {{ relay_address.address }}@{{ RELAY_DOMAIN }}
                 <span class="alias-copied-icon"></span>
                 <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
