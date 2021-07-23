@@ -1375,6 +1375,10 @@ input.input-has-error {
   margin: 0 auto 12px auto;
 }
 
+.modal-message strong {
+  word-break: break-word;
+}
+
 .modal-headline {
   font-weight: 300;
   font-size: 22px;
