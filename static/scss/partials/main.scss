@@ -323,7 +323,6 @@ button:active {
   cursor: not-allowed;
 }
 
-
 .main-list {
   max-width: $content-xl;
   margin: auto;
@@ -1990,7 +1989,7 @@ ul.messages {
   text-align: center;
 }
 
-.dismiss {
+.dismiss-btn {
   position: absolute;
   top: 0;
   bottom: 0;

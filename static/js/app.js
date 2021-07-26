@@ -529,7 +529,7 @@ function vpnBannerLogic() {
 //Micro Survey Banner
 function dismissSurvey() {
 	var survey_banner = document.getElementById("micro-survey-banner");
-	survey_banner.classList.toggle("hidden");
+	survey_banner.classList.toggle("is-hidden");
 };
 
 document.getElementById("survey-dismiss").addEventListener("click", dismissSurvey, false);
