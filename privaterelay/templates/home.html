@@ -7,23 +7,24 @@
 
 {% block content %}
 
-{% include "includes/messages.html" %}
-
-<main data-landing-page="" class="flx row-full-width home-hero">
-	<div class="flx flx-row hero-content">
-		<div class="hero-left flx flx-col">
-        <h1 class="home-hero-headline">{% ftlmsg 'home-hero-headline' %}</h1>
-        <span class="sub-head hero-sub-head">{% ftlmsg 'home-hero-copy' %}</span>
-			{% include "includes/landing_ctas.html" with page_position="landing-hero" %}
-		</div>
-		<div class="hero-right flx flx-col">
-      <div class="hero-1 hero-slide"></div>
-      <div class="hero-2 hero-slide"></div>
-      <div class="hero-3 hero-slide"></div>
-      <div class="hero-4 hero-slide"></div>
-      <div class="hero-5 hero-slide"></div>
-		</div>
-	</div>
+<main data-landing-page="" class="row-full-width home-hero">
+    {% include "includes/messages.html" %}
+  <div class="flx">
+    <div class="flx flx-row hero-content">
+      <div class="hero-left flx flx-col">
+          <h1 class="home-hero-headline">{% ftlmsg 'home-hero-headline' %}</h1>
+          <span class="sub-head hero-sub-head">{% ftlmsg 'home-hero-copy' %}</span>
+        {% include "includes/landing_ctas.html" with page_position="landing-hero" %}
+      </div>
+      <div class="hero-right flx flx-col">
+        <div class="hero-1 hero-slide"></div>
+        <div class="hero-2 hero-slide"></div>
+        <div class="hero-3 hero-slide"></div>
+        <div class="hero-4 hero-slide"></div>
+        <div class="hero-5 hero-slide"></div>
+      </div>
+    </div>
+  </div>
 </main>
 	<div class="container flx al-cntr flx-col">
 		<div class="how-it-works-content txt-white flx flx-col al-cntr">

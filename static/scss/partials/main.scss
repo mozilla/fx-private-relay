@@ -31,6 +31,7 @@
   --violet3: #9059ff;
   --violet4: #7542e5;
   --warningRed: #d70022;
+  --successGreen: #3FE1B0; 
   --white: #fff;
   --background: #F5F7F9;
   --dashboardMaxWith: calc(830px + 3rem);
@@ -2371,12 +2372,20 @@ input.input-has-error {
   }
 }
 
+.messages {
+  width: 100%;
+  padding: $spacing-lg $spacing-md 0 $spacing-md;
+  margin: 0 auto;
+}
+
 .messages > div {
   background-color: var(--grey50);
 }
 
 .messages .success {
-  background-color: var(--blue7);
+  background-color: var(--successGreen);
+  border-radius: $border-radius-md;
+  box-shadow: var(--dropShadowLight);
 }
 
 .messages .error {
@@ -2396,10 +2405,8 @@ ul.messages {
   padding: 1rem;
   align-items: center;
   display: flex;
-  
-  border-radius: 8px;
-  max-width: 960px;
   margin: 0 auto;
+  text-align: center;
 }
 
 .dismiss {
@@ -2410,15 +2417,23 @@ ul.messages {
   margin: auto;
   outline: none;
   border: none;
-  background: rgba(0, 0, 0, 0.5);
   height: 32px;
   width: 32px;
   border-radius: 50%;
   padding: 5px;
+  background-color: transparent;
+
+  .x-close-icon path {
+    fill: $color-white !important; 
+  }
+
 }
 
 .home-messages span {
   color: $color-white;
+  text-align: center;
+  width: 100%;
+  font-weight: 600;
 }
 
 .home-messages path {
