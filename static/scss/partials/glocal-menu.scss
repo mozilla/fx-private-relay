@@ -9,7 +9,7 @@ glocal-menu {
   --glocalOptionHoverColor: rgb(230, 230, 230);
   --ink: #20123a;
 
-  color: var(--ink);
+  color: $color-violet-90;
 }
 
 .glocal-menu-wrapper {
@@ -40,14 +40,14 @@ glocal-menu {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, 0);
+  box-shadow: 0 0 0 2px $color-white, 0 0 0px 5px $color-black;
   padding: 0;
   border: none;
   transition: all 0.2s ease;
 }
 
 .avatar-wrapper:hover {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, .3);
+  box-shadow: 0 0 0 2px $color-white, 0 0 0px 5px rgba(255, 255, 255, .3);
   transition: all 0.2s ease;
 }
 
@@ -89,13 +89,13 @@ glocal-menu {
 .glocal-fxa-email {
   font-size: 16px;
   font-weight: 600;
-  color: var(--ink);
+  color: $color-violet-90;
   margin-bottom: 2px;
 }
 
 .glocal-fxa-settings-link {
   font-size: 14px;
-  color: var(--grey50);
+  color: $color-grey-50;
   display: flex;
   align-items: center;
 }
@@ -103,11 +103,11 @@ glocal-menu {
 .glocal-fxa-settings-link:hover,
 .glocal-fxa-settings-link:focus {
   text-decoration: underline;
-  color: var(--grey50);
+  color: $color-grey-50;
 }
 
 .glocal-fxa-settings-link:active {
-  color: var(--grey60);
+  color: $color-grey-60;
 }
 
 .glocal-fxa-settings-link::after {
@@ -131,7 +131,7 @@ glocal-menu {
   border-radius: 0;
   padding: 2px var(--glocalPaddingUnit);
   width: 100%;
-  background-color: rgba(255, 255, 255, 0);
+  background-color: $color-black;
   transition: 0.2s ease-in-out;
 }
 
@@ -147,7 +147,7 @@ glocal-menu {
   font-size: 14px;
   display: flex;
   align-items: center;
-  color: var(--ink);
+  color: $color-violet-90;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
