@@ -31,7 +31,7 @@
   --violet3: #9059ff;
   --violet4: #7542e5;
   --warningRed: #d70022;
-  --successGreen: #00D053; 
+  --successGreen: #3FE1B0; 
   --white: #fff;
   --background: #F5F7F9;
   --dashboardMaxWith: calc(830px + 3rem);
@@ -2369,8 +2369,8 @@ input.input-has-error {
 }
 
 .messages {
-  width:100%;
-  padding:1.5rem 16px 0 16px;
+  width: 100%;
+  padding: $spacing-lg $spacing-md 0 $spacing-md;
   margin: 0 auto;
 }
 
@@ -2380,8 +2380,8 @@ input.input-has-error {
 
 .messages .success {
   background-color: var(--successGreen);
-  border-radius:8px;
-  box-shadow:var(--dropShadowLight);
+  border-radius: $border-radius-md;
+  box-shadow: var(--dropShadowLight);
 }
 
 .messages .error {
@@ -2413,18 +2413,23 @@ ul.messages {
   margin: auto;
   outline: none;
   border: none;
-  background: rgba(255, 255, 255, 0);
   height: 32px;
   width: 32px;
   border-radius: 50%;
   padding: 5px;
+  background-color: transparent;
+
+  .x-close-icon path {
+    fill: $color-white !important; 
+  }
+
 }
 
 .home-messages span {
   color: $color-white;
   text-align: center;
-  width:100%;
-  font-weight:600;
+  width: 100%;
+  font-weight: 600;
 }
 
 .home-messages path {
