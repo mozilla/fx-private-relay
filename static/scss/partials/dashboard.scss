@@ -16,7 +16,7 @@
 }
 
 .mpp-dashbaord-header-container {
-  max-width: var(--dashboardMaxWith);
+  max-width: $content-lg;
   margin: auto;
   padding: 2rem 1.5rem;
 }
@@ -77,7 +77,7 @@
       margin-left: 0.25rem;
   }
   &:hover {
-      color: var(--blue4);
+      color: $color-blue-40;
   }
 }
 
@@ -99,7 +99,7 @@
         box-shadow: var(--dropShadowLight);
         border-radius: 4px;
         position: relative;
-        color: var(--ink);
+        color: $color-violet-90;
         padding: 1rem;
         &:after{
             content: "";

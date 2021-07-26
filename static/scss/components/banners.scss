@@ -39,7 +39,7 @@
     .warning {
         font-size: 0.9rem;
         font-weight: 700;
-        color: var(--warningRed);
+        color: $color-warning;
     }
     .border {
         border-left:  1px solid #ECECEC;

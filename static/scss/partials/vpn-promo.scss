@@ -8,7 +8,7 @@ body {
 }
 
 .vpn-promo-banner {
-  background-color: var(--background);
+  background-color: $color-grey-05;
   font-family: "Metropolis", sans-serif;
   font-size: 16px;
   position: relative;
@@ -50,7 +50,7 @@ body {
   max-width: $content-sm;
   margin: 0 auto $spacing-md;
   line-height: 1.2rem;
-  color: var(--inkDark);
+  color: $color-violet-90;
 }
 
 .vpn-promo-copy strong, .vpn-promo-copy span {
@@ -60,9 +60,9 @@ body {
 
 .vpn-promo-banner a {
   background-color: var(--bgLight);
-  border: solid 2px var(--inkDark);
+  border: solid 2px $color-violet-90;
   box-shadow: 8px 8px 0 #6a57dc;
-  color: var(--inkDark);
+  color: $color-violet-90;
   cursor: pointer;
   display: inline-block;
   font-size: 1.125rem;
@@ -78,7 +78,7 @@ body {
 .vpn-promo-banner a:hover,
 .vpn-promo-banner a:active,
 .vpn-promo-banner a:focus {
-  background-color: var(--inkDark);
+  background-color: $color-violet-90;
   color: var(--bgLight);
 }
 

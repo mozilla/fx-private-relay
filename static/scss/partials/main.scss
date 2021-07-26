@@ -58,7 +58,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .text-light-grey {
-  color: var(--grey20);
+  color: $color-grey-20
 }
 
 .bg-light {
@@ -70,23 +70,23 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .row-full-width {
-  padding: var(--rowFullWidthVPadding) var(--rowFullWidthHPadding);
+  padding: $spacing-lg $spacing-xl;
 }
 
 .full-width {
-  padding: 0.75em var(--rowFullWidthHPadding);
+  padding: 0.75em $spacing-xl;
 }
 
 h1,
 h2,
 .button,
 .ff-Met {
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
 }
 
 .section-headline {
   font-weight: 600;
-  color: var(--grey90);
+  color: $color-grey-60;
   margin: 0;
 }
 
@@ -153,7 +153,7 @@ button:active {
 
 .blue-button {
   position: relative;
-  color: rgba(255, 255, 255, 1);
+  color: $color-white;
   border: none;
   outline: none;
   background-color: $color-blue-50;
@@ -164,12 +164,12 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
 }
 
 .blue-btn-states:hover,
 .blue-button:hover {
-  background-color: var(--blue7);
+  background-color: $color-blue-70;
 }
 
 .sign-in:focus,
@@ -183,13 +183,13 @@ button:active {
 .blue-button:active,
 .forwarding-toggle:active,
 .blue-btn-states:active {
-  background-color: var(--blue8);
+  background-color: $color-blue-80;
   box-shadow: 0 0 0 1px rgba(10, 132, 255, 0) inset, 0 0 0 1px rgba(10, 132, 255, 0), 0 0 0 4px rgba(10, 132, 255, 0);
 }
 
 .blue-button.loading {
   color: rgba(255, 255, 255, 0.2);
-  background-color: var(--blue4);
+  background-color: $color-blue-40;
   transition: all 0.3s ease;
 }
 
@@ -220,7 +220,7 @@ button:active {
 
 .how-it-works-steps {
   justify-content: space-between;
-  max-width: var(--maxContentWidth);
+  max-width: $content-max;
   padding: 4em 0;
   margin-bottom: 4em;
 }
@@ -388,9 +388,9 @@ button:active {
 
 header {
   color: $color-white;
-  border-bottom: 1px solid var(--inkDark);
+  border-bottom: 1px solid rgba($color-grey-60, .5);
   background: var(--darkBlueGradient);
-  box-shadow: 0 0 3px 0 var(--inkDark);
+  box-shadow: 0 0 3px 0 rgba($color-grey-60, .5);
   z-index: 2;
   position: sticky;
   top: 0;
@@ -400,7 +400,7 @@ header {
 }
 
 .fix-header {
-  box-shadow: 0 0 5px 3px var(--inkDark);
+  box-shadow: 0 0 5px 3px $color-violet-90;
   transition: all 0.5s ease;
 }
 
@@ -428,7 +428,7 @@ header {
 .micro-survey-options .micro-survey-option {
   border-radius: 4px;
   margin-right: 1rem;
-  background-color: var(--violet4);
+  background-color: $color-violet-40;
   transition: background 0.1s ease-out;
 }
 
@@ -458,7 +458,7 @@ header {
 .nps-bookend {
   color: $color-white;
   text-decoration: none;
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
   display: inline-block;
   margin-right: 1rem;
 }
@@ -466,7 +466,7 @@ header {
 #recruitment-banner, .micro-survey-option {
   color: $color-white;
   text-decoration: none;
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
   display: inline-block;
   padding: 0 1em;
 }
@@ -493,7 +493,7 @@ header {
 }
 
 .main-list {
-  max-width: var(--dashboardMaxWith);
+  max-width: $content-lg;
   margin: auto;
   justify-content: flex-start;
   padding-bottom: 6rem;
@@ -525,7 +525,7 @@ ul {
   border-radius: 4px;
   text-decoration: none;
   color: $color-white;
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
   margin: auto 2em auto auto;
 }
 
@@ -558,7 +558,7 @@ ul {
   padding-bottom: .5em;
   margin-top: 3em;
   margin-bottom: 1em;
-  border-bottom: 2px solid var(--grey30);
+  border-bottom: 2px solid $color-grey-30
 }
 
 .dashboard-headline {
@@ -573,7 +573,7 @@ ul {
 }
 
 .dashboard-mpp-promo-container {
-  max-width: var(--dashboardMaxWith);
+  max-width: $content-lg;
   margin: auto;
   padding: $spacing-xl $spacing-lg;
 }
@@ -633,7 +633,7 @@ table {
   overflow: hidden;
   border-radius: 0;
   padding: 2px 70px 2px 0; /* makes room for click to copy icon and copied message */
-  color: var(--grey80);
+  color: $color-grey-60;
   white-space: nowrap;
 }
 
@@ -702,7 +702,7 @@ table {
 
 .alias-copied-message {
   font-family: "Inter", Arial, Helvetica, sans-serif;
-  background-color: var(--violet3);
+  background-color: $color-violet-30;
   padding: 2px 4px;
   border-radius: 4px;
   color: $color-white;
@@ -738,7 +738,7 @@ table {
   line-height: 1;
   margin-bottom: 6px;
   font-weight: 700;
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
 }
 
 .forwarding-toggle {
@@ -755,11 +755,11 @@ table {
 }
 
 .forwarding-toggle:hover {
-  background-color: var(--blue7);
+  background-color: $color-blue-70;
 }
 
 .forwarding-toggle:active {
-  background-color: var(--blue8);
+  background-color: $color-blue-80;
 }
 
 .forwarding-toggle::after {
@@ -768,7 +768,7 @@ table {
   width: 0.75em;
   position: absolute;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 1);
+  background-color: $color-white;
   top: 0;
   bottom: 0;
   margin: auto;
@@ -784,19 +784,19 @@ table {
 
 .forwarding-disabled:hover,
 .forwarding-disabled:focus {
-  background-color: var(--grey40);
+  background-color: $color-grey-40
 }
 
 .forwarding-disabled:active {
-  background-color: var(--grey50);
+  background-color: $color-grey-50
 }
 
 .forwarding-disabled {
-  background-color: var(--grey30);
+  background-color: $color-grey-30
 }
 
 .remaining-aliases {
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
   font-size: 1em;
   font-weight: 300;
 }
@@ -811,9 +811,9 @@ table {
   margin-left: 1em;
   overflow: hidden;
   background-color: $color-blue-50;
-  color: rgba(255, 255, 255, 1);
+  color: $color-white;
   border: 1px solid transparent;
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
 }
 
 .generate-new-relay-icon {
@@ -825,7 +825,7 @@ table {
 }
 
 .dash-create-new-relay.btn-disabled {
-  background-color: var(--grey30);
+  background-color: $color-grey-30
 }
 
 .x-close-icon {
@@ -845,7 +845,7 @@ table {
 .hero-content {
   margin: 5em auto auto auto;
   width: 100%;
-  max-width: var(--maxContentWidth);
+  max-width: $content-max;
 }
 
 .hero-left,
@@ -919,17 +919,17 @@ table {
 }
 
 .card-small-text {
-  color: var(--grey50);
-  font-family: var(--metropolis);
+  color: $color-grey-50;
+  font-family: $font-metropolis;
   font-size: 15px;
 }
 
 .text-dark {
-  color: var(--textDark);
+  color: $color-grey-50;
 }
 
 input.relay-email-address-label {
-  color: var(--grey50);
+  color: $color-grey-50;
   display: flex;
   font-weight: 500;
   align-items: center;
@@ -981,7 +981,7 @@ input.relay-email-address-label {
 
 input::placeholder,
 .relay-email-address-label:placeholder-shown {
-  color: var(--grey50);
+  color: $color-grey-50;
   opacity: 1;
 }
 
@@ -1018,7 +1018,7 @@ input:focus::placeholder {
 }
 
 .relay-email-address-label:hover {
-  background: var(--grey20);
+  background: $color-grey-20;
   width: 192px;
   transition: all 0.1s ease-in-out;
 }
@@ -1044,7 +1044,7 @@ input.input-has-error {
 
 .input-error::after,
 .input-error {
-  background: var(--warningRed);
+  background: $color-error;
 }
 
 .saved-confirmation::after,
@@ -1090,14 +1090,14 @@ input.input-has-error {
 }
 
 .x-close-icon path {
-  fill: rgba(255, 255, 255, 1);
+  fill: $color-white;
 }
 
 .dashboard-greeting {
   text-align: left;
   padding: 2rem 0 1rem;
   font-size: 1rem;
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
 }
 
 .alias-list {
@@ -1109,11 +1109,11 @@ input.input-has-error {
 }
 
 .card-top-row {
-  padding-bottom: calc(var(--emailCardPadding) - 8px);
+  padding-bottom: $spacing-sm;
 }
 
 .card-row {
-  padding: var(--emailCardPadding);
+  padding: $spacing-md;
 }
 
 .card-middle-row {
@@ -1157,7 +1157,7 @@ input.input-has-error {
 
 .details-wrapper {
   position: absolute;
-  background-color: var(--grey20);
+  background-color: $color-grey-20;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
   right: 0;
@@ -1202,7 +1202,7 @@ input.input-has-error {
 .checkbox-label {
   font-size: 14px;
   margin: 6px auto auto 0;
-  color: var(--grey60);
+  color: $color-grey-60
 }
 
 .checkbox-wrapper {
@@ -1286,7 +1286,7 @@ input.input-has-error {
 }
 
 .modal-content {
-  background: rgba(255, 255, 255, 1);
+  background: $color-white;
   max-width: 520px;
   border-radius: 8px;
   position: absolute;
@@ -1299,7 +1299,7 @@ input.input-has-error {
 .modal-message {
   font-size: 14px;
   line-height: 1.5;
-  color: var(--grey60);
+  color: $color-grey-60;
   margin: 0 auto 12px auto;
 }
 
@@ -1311,11 +1311,11 @@ input.input-has-error {
   font-weight: 300;
   font-size: 22px;
   margin: 0 auto 24px auto;
-  color: var(--grey90);
+  color: $color-grey-60;
 }
 
 .warning-text {
-  color: var(--warningRed);
+  color: $color-warning;
 }
 
 .alias-to-delete {
@@ -1326,7 +1326,7 @@ input.input-has-error {
 .alias-to-delete.demi {
   display: block;
   margin: 0 auto 16px 0;
-  color: var(--grey80);
+  color: $color-grey-60;;
   max-width: 300px;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -1351,12 +1351,12 @@ input.input-has-error {
 }
 
 .cancel-delete {
-  background-color: var(--grey20);
-  color: var(--grey70);
+  background-color: $color-grey-20;
+  color: $color-grey-50;
 }
 
 .cancel-delete:hover {
-  background-color: var(--grey30);
+  background-color: $color-grey-30;
 }
 
 .cancel-delete:focus,
@@ -1365,7 +1365,7 @@ input.input-has-error {
 }
 
 .cancel-delete:active {
-  background-color: var(--grey40);
+  background-color: $color-grey-40;
 }
 
 .confirm-delete:hover {
@@ -1382,8 +1382,8 @@ input.input-has-error {
 }
 
 .confirm-delete {
-  background-color: var(--warningRed);
-  color: rgba(255, 255, 255, 1);
+  background-color: $color-error;
+  color: $color-white;
   margin-left: 0.5em;
 }
 
@@ -1476,7 +1476,7 @@ input.input-has-error {
 }
 
 .mobile-menu-toggle {
-  color: rgba(255, 255, 255, 1);
+  color: $color-white;
   width: 100%;
 }
 
@@ -1484,7 +1484,7 @@ input.input-has-error {
   color: rgba(255, 255, 255, 1);
   width: 100%;
   text-align: right;
-  padding: 0.75em var(--rowFullWidthHPadding);
+  padding: 0.75em $spacing-xl;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
@@ -1549,7 +1549,7 @@ input.input-has-error {
 
 .faqs-headline,
 .faq-headline {
-  color: rgba(255, 255, 255, 1);
+  color: $color-white;
 }
 
 .faq-headline {
@@ -1560,7 +1560,7 @@ input.input-has-error {
 }
 
 .faq-answer {
-  color: var(--grey30);
+  color: $color-grey-10;
   font-size: 1em;
   line-height: 1.7em;
   margin-top: 0;
@@ -1600,7 +1600,7 @@ input.input-has-error {
 }
 
 .banner-sub {
-  color: var(--bannerGray);
+  color: $color-grey-50;
   font-size: 1rem;
   line-height: 1.4;
 }
@@ -1638,17 +1638,17 @@ input.input-has-error {
 }
 
 .banner-link:hover {
-  color: var(--blue4);
+  color: $color-blue-40;
 }
 
 .banner-link:focus {
   box-shadow: var(--buttonFocus);
-  color: var(--blue4);
+  color: $color-blue-40;
   outline: none;
 }
 
 .banner-link:active {
-  color: var(--blue5);
+  color: $color-blue-50;
 }
 
 .banner-logo {
@@ -1694,7 +1694,7 @@ input.input-has-error {
   margin: 3em auto 2rem auto;
   font-size: 20px;
   text-align: center;
-  color: var(--ink);
+  color: $color-violet-90;
 }
 
 .dashboard-onboarding-list {
@@ -1705,7 +1705,7 @@ input.input-has-error {
 
 .dashboard-onboarding-list-item {
   margin-bottom: 3em;
-  color: var(--grey60);
+  color: $color-grey-60;
   font-size: 15px;
   line-height: 1.5;
 }
@@ -1728,8 +1728,8 @@ input.input-has-error {
 }
 
 .onboarding-num {
-  background: var(--ink);
-  color: rgba(255, 255, 255, 1);
+  background: $color-violet-90;
+  color: $color-white;
   height: 32px;
   width: 32px;
   min-width: 32px;
@@ -1762,7 +1762,7 @@ input.input-has-error {
   font-size: 13px;
   line-height: 1.25;
   background-color: $color-light-gray-10;
-  border: 1px solid var(--grey30);
+  border: 1px solid $color-grey-30;
   box-shadow: var(--dropShadowLight);
   padding: 8px 16px;
   border-radius: 4px;
@@ -1776,7 +1776,7 @@ input.input-has-error {
 }
 
 .stat-description strong {
-  font-family: var(--metropolis);
+  font-family: $font-metropolis;
 }
 
 @media screen and (min-width: 550px) {
@@ -1801,8 +1801,8 @@ input.input-has-error {
   width: 12px;
   border-radius: 2px;
   background-color: $color-light-gray-10;
-  border-top: 1px solid var(--grey30);
-  border-left: 1px solid var(--grey30);
+  border-top: 1px solid $color-grey-30;
+  border-left: 1px solid $color-grey-30;
   position: absolute;
   top: -7px;
   right: 14px;
@@ -2308,17 +2308,17 @@ input.input-has-error {
 }
 
 .messages > div {
-  background-color: var(--grey50);
+  background-color: $color-grey-50
 }
 
 .messages .success {
-  background-color: var(--successGreen);
+  background-color: $color-success;
   border-radius: $border-radius-md;
   box-shadow: var(--dropShadowLight);
 }
 
 .messages .error {
-  background-color: var(--warningRed);
+  background-color: $color-error;
 }
 
 ul.messages {
