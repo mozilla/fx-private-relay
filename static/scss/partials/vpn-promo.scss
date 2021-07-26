@@ -31,6 +31,14 @@ body {
   display: none;
 }
 
+.vpn-promo-banner.closed + .micro-survey-banner {
+  display: block;
+}
+
+.vpn-promo-banner.closed + .micro-survey-banner.hidden {
+  display: none;
+}
+  
 .vpn-promo-banner-wrapper {
   max-width: $content-lg;
   margin: 0 auto;
