@@ -1993,15 +1993,20 @@ ul.messages {
   position: absolute;
   top: 0;
   bottom: 0;
-  right: 1rem;
+  right: $spacing-md;
   margin: auto;
   outline: none;
   border: none;
   height: 32px;
   width: 32px;
   border-radius: 50%;
-  padding: 5px;
   background-color: transparent;
+  padding: $spacing-xs;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-left: $spacing-2xl;
 
   .x-close-icon path {
     fill: $color-white !important; 
