@@ -698,9 +698,6 @@ table {
 
 .alias-copied-message {
   visibility: hidden;
-}
-
-.alias-copied-message {
   font-family: "Inter", Arial, Helvetica, sans-serif;
   background-color: $color-violet-30;
   padding: 2px 4px;
@@ -730,7 +727,12 @@ table {
 }
 
 .relay-stat {
-  flex-direction: column-reverse;
+  position: relative;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  margin-left: 3em;
 }
 
 .relay-stat-value {
@@ -803,6 +805,7 @@ table {
 
 .num-remaining-aliases {
   font-weight: 600;
+  margin-right: $spacing-xs;
 }
 
 .dash-create-new-relay {
@@ -934,9 +937,7 @@ input.relay-email-address-label {
   font-weight: 500;
   align-items: center;
   background: transparent;
-  border: 1px solid transparent;
   font-size: 1em;
-  border-radius: 4px;
   padding: 6px 24px 6px 6px;
   width: 188px;
   text-overflow: ellipsis;
@@ -953,7 +954,6 @@ input.relay-email-address-label {
 }
 
 .additional-notes {
-  display: flex;
   flex-direction: row;
   position: relative;
   visibility: hidden;
@@ -1326,7 +1326,7 @@ input.input-has-error {
 .alias-to-delete.demi {
   display: block;
   margin: 0 auto 16px 0;
-  color: $color-grey-60;;
+  color: $color-grey-60;
   max-width: 300px;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -1416,10 +1416,6 @@ input.input-has-error {
 .column-forwarded .card-small-text,
 .is-enabled .column-blocked .card-small-text {
   opacity: 0.5;
-}
-
-.num-remaining-aliases {
-  margin-right: 4px;
 }
 
 .mobile-menu {
@@ -1738,15 +1734,6 @@ input.input-has-error {
   align-items: center;
   border-radius: 50%;
   margin: .25em 1em auto 0;
-}
-
-.relay-stat {
-  position: relative;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  display: flex;
-  margin-left: 3em;
 }
 
 .nested-grid {

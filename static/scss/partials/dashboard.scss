@@ -102,15 +102,8 @@
         color: $color-violet-90;
         padding: 1rem;
         &:after{
-            content: "";
-            display: block;
-            position: absolute;
             background-color: white;
             right: 2rem;
-            @media #{$mq-md} {
-                right: auto;
-                left: 2rem;
-            }
 
             // TODO: Fix shadow on bubble triangle
             // box-shadow: -2px 2px 2px 0 #3d3f4740;
@@ -126,6 +119,12 @@
                 -o-transform:      rotate( 135deg );
                 -webkit-transform: rotate( 135deg );
             width:  20px;
+
+            @media #{$mq-md} {
+                right: auto;
+                left: 2rem;
+            }
+
         }
     }
 
