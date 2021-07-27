@@ -55,7 +55,7 @@ body {
   display: flex;
   flex-direction: column;
   margin: 0;
-  padding: 83px 0 0 0;
+  padding: 0 0 0 0;
   font-size: 16px;
   overscroll-behavior: contain;
   line-height: 1.2;
@@ -432,7 +432,7 @@ header {
   background: var(--darkBlueGradient);
   box-shadow: 0 0 3px 0 var(--inkDark);
   z-index: 2;
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
   right: 0;
@@ -2281,7 +2281,7 @@ input.input-has-error {
   }
 
   header {
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     right: 0;
@@ -2293,7 +2293,7 @@ input.input-has-error {
   }
 
   body {
-    padding-top: 124px;
+    // padding-top: 124px;
   }
 
   .stat-description {

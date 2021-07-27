@@ -4,7 +4,7 @@ body {
 }
 
 .vpn-banner-visible main {
-  padding-top: 17rem;
+  // padding-top: 17rem;
 }
 
 .vpn-promo-banner + .micro-survey-banner {
@@ -145,9 +145,9 @@ body {
 
   .vpn-banner-visible main {
     &.dashboard-container {
-      padding-top: 9rem;
+      // padding-top: 9rem;
     }
-    padding-top: 10rem;
+    // padding-top: 10rem;
   }
 }
 
@@ -157,7 +157,7 @@ body {
   }
 
   .vpn-banner-visible main {
-    padding-top: 5rem;
+    // padding-top: 5rem;
   }
   
 }
@@ -174,12 +174,12 @@ body {
 
 @media screen and (min-width: 850px) {
   .vpn-banner-visible main.dashboard-container {
-    padding-top: 7rem;
+    // padding-top: 7rem;
   }
 }
 
 @media screen and (min-width: 950px) {
   .vpn-banner-visible main.dashboard-container {
-    padding-top: 6rem;
+    // padding-top: 6rem;
   }
 }
