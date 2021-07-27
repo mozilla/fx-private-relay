@@ -19,7 +19,7 @@ glocal-menu {
   color: #000000;
   right: 28px;
   border-radius: 8px;
-  box-shadow: 0 7px 12px -3px rgba(28, 28, 29, 0.502);
+  box-shadow: 0 7px 12px -3px rgba(28, 28, 29, .502);
 }
 
 .glocal-menu-wrapper.fx-bento-fade-out {
@@ -43,12 +43,12 @@ glocal-menu {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, 0);
   padding: 0;
   border: none;
-  transition: all 0.2s ease;
+  transition: all .2s ease;
 }
 
 .avatar-wrapper:hover {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, .3);
-  transition: all 0.2s ease;
+  transition: all .2s ease;
 }
 
 .avatar-wrapper:focus {
@@ -75,10 +75,10 @@ glocal-menu {
 .glocal-menu-open {
   visibility: visible;
   transform: translateY(17px);
-  animation: glocalMenuAppear ease 0.3s;
+  animation: glocalMenuAppear ease .3s;
   z-index: 100;
-  -webkit-animation: glocalMenuAppear ease 0.3s;
-  -moz-animation: glocalMenuAppear ease 0.3s;
+  -webkit-animation: glocalMenuAppear ease .3s;
+  -moz-animation: glocalMenuAppear ease .3s;
 }
 
 .glocal-account-info {
@@ -132,12 +132,12 @@ glocal-menu {
   padding: 2px var(--glocalPaddingUnit);
   width: 100%;
   background-color: rgba(255, 255, 255, 0);
-  transition: 0.2s ease-in-out;
+  transition: .2s ease-in-out;
 }
 
 .glocal-site-option:hover {
   background-color: var(--glocalOptionHoverColor);
-  transition: 0.2s ease-in-out;
+  transition: .2s ease-in-out;
 }
 
 .glocal-sign-out {

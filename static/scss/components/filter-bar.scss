@@ -48,7 +48,7 @@
         margin-bottom: 0;
         padding-right: 1.75rem;
         &:focus + .c-filter-case-count {
-            opacity: 0.5;
+            opacity: .5;
         }
         &:focus + .c-filter-case-count + .c-filter-reset {
             opacity: 1;
@@ -63,7 +63,7 @@
         top: 0;
         align-items: center;
         height: 100%;
-        transition: opacity 0.2s ease-out;
+        transition: opacity .2s ease-out;
     }
 
     @media #{$mq-md} {
@@ -142,8 +142,8 @@
     appearance: none;
     border: 0;
     position: absolute;
-    right: 0.5rem;
-    top: 0.5rem;
+    right: .5rem;
+    top: .5rem;
     opacity: 0;
 
     img {
