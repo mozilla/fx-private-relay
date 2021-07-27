@@ -359,8 +359,8 @@ button:active {
 
 .sign-in:hover,
 .sign-in:active {
-  color: #cfcfd8;
-  border-color: #cfcfd8;
+  color: #CFCFD8;
+  border-color: #CFCFD8;
 }
 
 .sign-in:active {
@@ -862,7 +862,7 @@ table {
 
 .hero-right {
   border-radius: 12px;
-  background-image: linear-gradient(230deg, rgba(144, 89, 255, .07), #0250bb08);
+  background-image: linear-gradient(230deg, rgba(144, 89, 255, .07), #0250BB08);
   box-shadow: var(--dropShadowDark);
   margin: auto;
   min-height: 460px;
@@ -1049,7 +1049,7 @@ input.input-has-error {
 
 .saved-confirmation::after,
 .saved-confirmation {
-  background: #3fc290;
+  background: #3FC290;
 }
 
 .input-error,
@@ -1256,7 +1256,7 @@ input.input-has-error {
 }
 
 .checkbox:checked:hover + .checkbox-ui {
-  background-color: #003eaa;
+  background-color: #003EAA;
 }
 
 .checkbox:checked:active + .checkbox-ui {
@@ -1421,7 +1421,9 @@ input.input-has-error {
 .mobile-menu {
   position: relative;
   z-index: 1;
-  background: #2f2f54;
+  overflow: hidden;
+  min-height: 0;
+  background: #2F2F54;
   transition: all .4s ease;
 }
 
@@ -1438,7 +1440,7 @@ input.input-has-error {
 .mobile-menu-toggle {
   border: none;
   outline: none;
-  background: #2f2f54;
+  background: #2F2F54;
   z-index: 1;
 }
 
@@ -1504,8 +1506,8 @@ input.input-has-error {
   top: 100%;
   width: 100%;
   pointer-events: none;
-  background: #2f2f54;
-  box-shadow: inset 1px 3px 3px #20123a30;
+  background: #2F2F54;
+  box-shadow: inset 1px 3px 3px #20123A30;
   transition: all .3s ease;
 }
 
@@ -2204,7 +2206,7 @@ input.input-has-error {
     top: 0;
     left: 0;
     right: 0;
-    background: #27294e;
+    background: #27294E;
   }
 
   .fix-header {

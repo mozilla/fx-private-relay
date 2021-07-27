@@ -1,5 +1,5 @@
 glocal-menu {
-  --firefoxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
+  --firefoxGradient: linear-gradient(-90deg, #FF9100 0%, #F10366 50%, #6173FF 100%);
   --glocalBackground: rgb(249, 249, 250);
   --glocalIconMargin: auto 12px auto auto;
   --glocalLargeAvatarDimensions: 42px;
@@ -7,7 +7,7 @@ glocal-menu {
   --glocalSectionPadding: var(--glocalPaddingUnit) calc(var(--glocalPaddingUnit) + 12px) var(--glocalPaddingUnit) var(--glocalPaddingUnit);
   --glocalSmallAvatarDimensions: 28px;
   --glocalOptionHoverColor: rgb(230, 230, 230);
-  --ink: #20123a;
+  --ink: #20123A;
 
   color: $color-violet-90;
 }
