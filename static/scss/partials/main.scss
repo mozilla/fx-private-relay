@@ -2095,7 +2095,7 @@ input.input-has-error {
 
   .banner-content {
     padding-left: 1.25rem;
-  }
+  } 
 
   .banner-hl {
     padding-left: calc(60px + 1.25rem);
@@ -2103,6 +2103,16 @@ input.input-has-error {
     align-items: center;
     min-height: calc(60px + 0.5rem);
     margin: 0;
+  }
+}
+
+@media screen and (max-width: 660px) {
+  .hide-mobile-link {
+    display: none !important;
+  }
+
+  .show-mobile-link {
+    display: flex !important;
   }
 }
 
@@ -2187,7 +2197,7 @@ input.input-has-error {
   }
 }
 
-@media screen and (max-width: 550px) {
+@media screen and (max-width: 660px) {
   .wrap-col-600 {
     flex-direction: column-reverse;
   }
