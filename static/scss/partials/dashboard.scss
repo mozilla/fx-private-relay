@@ -40,7 +40,7 @@
 }
 
 .mpp-dashbaord-header-stats li {
-    padding: 0 0.25rem;
+    padding: 0 .25rem;
     border-right: 1px solid #ECECEC;
     width: 100%;
     span {
@@ -55,7 +55,7 @@
         color: #666666;
         line-height: 1rem;
         font-weight: 400;
-        margin-bottom: 0.25rem;
+        margin-bottom: .25rem;
     }
     &:last-child {
         border-right: 0;
@@ -71,10 +71,10 @@
   display: flex;
   align-items: center;
   .margin-right {
-      margin-right: 0.25rem;
+      margin-right: .25rem;
   }
   .margin-left {
-      margin-left: 0.25rem;
+      margin-left: .25rem;
   }
   &:hover {
       color: $color-blue-40;
@@ -168,7 +168,7 @@
 
 // Alias Card
 .c-alias {
-    background-color: rgba($color-white, 0.5);
+    background-color: rgba($color-white, .5);
     border-radius: $border-radius-md;
     padding: $spacing-md $spacing-md 0;
     box-shadow: $box-shadow-sm;
@@ -252,7 +252,7 @@
     border-top: 1px solid transparent;
     overflow: hidden;
     max-height: 0;
-    transition: all 0.2s ease-out;
+    transition: all .2s ease-out;
     
     @media #{$mq-sm} {
         display: flex;
@@ -266,7 +266,7 @@
 }
 
 .c-alias-toggle-button {
-    transition: transform 0.2s ease-out;
+    transition: transform .2s ease-out;
     margin: auto 0;
     &.is-active {
         transform: rotate(180deg);

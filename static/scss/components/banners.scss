@@ -27,8 +27,8 @@
         width: 100%;
         display: block;
         border-radius: 4px;
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.5rem;
+        padding: .5rem 1rem;
+        margin-bottom: .5rem;
         &[type='text'] {
             border: 1px solid #CCCCCC;
             width: 100%;
@@ -36,7 +36,7 @@
         
     }
     .warning {
-        font-size: 0.9rem;
+        font-size: .9rem;
         font-weight: 700;
         color: $color-warning;
     }
