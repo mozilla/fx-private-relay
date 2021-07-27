@@ -36,7 +36,10 @@
             <div class="step-text step-1">
               <h3 class="step-headline ff-Met">{% ftlmsg 'how-it-works-step-1-headline' %}</h3>
               <p class="step-body">
-                {% ftlmsg 'how-it-works-step-1-copy-html' url='https://addons.mozilla.org/firefox/addon/private-relay/' attrs='target="_blank" rel="noopener" class="text-link"' %}
+                <a href="https://addons.mozilla.org/firefox/addon/private-relay/" target="_blank" rel="noopener" class="text-link">
+                  {% ftlmsg 'how-it-works-step-1-link' %}
+                </a>
+                {% ftlmsg 'how-it-works-step-1-copy' %}
               </p>
             </div>
           </section>
