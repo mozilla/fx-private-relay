@@ -93,7 +93,7 @@ if DJANGO_ALLOWED_SUBNET:
 
 
 # Get our backing resource configs to check if we should install the app
-ADMIN_ENABLED = config('ADMIN_ENABLED', None)
+ADMIN_ENABLED = config('ADMIN_ENABLED', False, cast=bool)
 
 
 AWS_REGION = config('AWS_REGION', None)
