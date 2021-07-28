@@ -7,7 +7,9 @@
 
 <header class="flx flx-col spc-btwn">
 
-  {% include "includes/vpn-promo-banner.html" %}
+  {% if settings.INCLUDE_VPN_BANNER %}
+    {% include "includes/vpn-promo-banner.html" %}
+  {% endif %}
 
   {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" %}
     <div class="recruitment-banner">
