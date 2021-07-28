@@ -95,7 +95,7 @@ faq-question-1-answer-a = While { -brand-name-relay } does not filter for spam, 
 # Variables:
 #   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
 #   $attrs (string) - specific attributes added to external links
-faq-question-1-answer-b-html = If you see a broader problem of unwanted email from all of your aliases, please <a href={ $url } { $attrs }>report this to us</a> so we can consider adjusting the SES spam thresholds for this service. If you report these as spam, your email provider will see { -brand-name-relay } as the source of spam, not the original sender.
+faq-question-1-answer-b-html = If you see a broader problem of unwanted email from all of your aliases, please <a href="{ $url }" { $attrs }>report this to us</a> so we can consider adjusting the SES spam thresholds for this service. If you report these as spam, your email provider will see { -brand-name-relay } as the source of spam, not the original sender.
 faq-question-2-question = Why won’t a site accept my { -brand-name-relay } alias?
 
 # Variables:
@@ -103,7 +103,7 @@ faq-question-2-question = Why won’t a site accept my { -brand-name-relay } ali
 #   $attrs (string) - specific attributes added to external links
 faq-question-2-answer-html = Some sites may not accept an email address that includes a subdomain (i.e., the “relay” portion of @relay.firefox.com) and others have stopped accepting all addresses except those from Gmail, Hotmail, or Yahoo accounts. 
     As { -brand-name-firefox-relay } grows in popularity and issues more aliases, our service might be placed on a blocklist. 
-    If you are not able to use a { -brand-name-relay } alias, <a href={ $url } { $attrs }>please let us know</a>.
+    If you are not able to use a { -brand-name-relay } alias, <a href="{ $url }" { $attrs }>please let us know</a>.
 faq-question-3-question = Is { -brand-name-relay } available only in the US?
 faq-question-3-answer = The site is currently only available in English, but you can use the service anywhere.
 faq-question-4-question = Can I reply to messages using my { -brand-name-relay } alias?
@@ -119,7 +119,7 @@ email-size-limit = { $size } { $unit }
 #   $url (url) - https://github.com/mozilla/fx-private-relay/issues/99
 #   $attrs (string) - specific attributes added to external links
 faq-question-4-answer-html = { -brand-name-relay } does not yet offer the ability to reply using an alias. 
-    If you try, nothing will happen. We are planning an additional feature to let you <a href={ $url } { $attrs }>reply anonymously to senders</a>.
+    If you try, nothing will happen. We are planning an additional feature to let you <a href="{ $url }" { $attrs }>reply anonymously to senders</a>.
 faq-question-5-question = Can I make up my own { -brand-name-relay } alias using the @relay.firefox.com domain?
 faq-question-5-answer = Not currently, but we are considering new features including letting you create your own alias with a designated domain.
 faq-question-6-question = What happens if { -brand-name-mozilla } shuts down the { -brand-name-firefox-relay } service?
