@@ -380,11 +380,24 @@ function showBannersIfNecessary() {
   return showBanner(relayAddonBanner);
 }
 
+function setTranslatedStringLinks() {
+  const links = document.querySelectorAll(".js-set-href a");
+
+  for (const link of links) {
+    const url = link.dataset.url;
+    link.href = url;
+    link.classList.add("text-link");
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  }
+
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   watchForInstalledAddon();
   addEventListeners();
   vpnBannerLogic();
+  setTranslatedStringLinks();
 
   // TODO: Set up language gate once l10n is active.
   // const preferredLanguages = navigator.languages;
