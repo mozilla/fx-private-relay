@@ -539,8 +539,6 @@ header {
   padding-bottom: 6rem;
   padding-left: $spacing-md;
   padding-right: $spacing-md;
-  // padding-left: 1.5rem;
-  // padding-right: 1.5rem;
 }
 
 footer {
@@ -645,11 +643,6 @@ table {
 }
 
 .relay-email-card {
-  // --hPadding: 2.5em;
-
-  // margin-bottom: 2em;
-  // background-color: white;
-  // border-radius: 4px;
   position: relative;
   transition: all 0.2s ease;
 }
@@ -670,8 +663,6 @@ table {
   background: transparent;
   text-align: left;
   border: none;
-  // margin-right: 0.75em;
-  // margin-bottom: 8px;
   font-weight: 600;
   cursor: default;
   height: 100%; /* expand clickable area of relay address */
@@ -1157,10 +1148,6 @@ input.input-has-error {
   animation: appearSmoothly 0.2s ease;
 }
 
-.relay-email {
-  // --emailCardPadding: 16px;
-}
-
 .card-top-row {
   padding-bottom: calc(var(--emailCardPadding) - 8px);
 }
@@ -1170,8 +1157,6 @@ input.input-has-error {
 }
 
 .card-middle-row {
-  // background-color: rgba(255, 255, 255, 1);
-  // border-radius: 4px;
   display: flex;
   flex-wrap: wrap;
 }
@@ -1188,17 +1173,7 @@ input.input-has-error {
   text-decoration: underline;
 }
 
-// .detail-label {
-//   position: absolute;
-//   top: 0;
-//   bottom: 0;
-//   left: 0;
-//   min-width: 116px;
-//   align-items: center;
-// }
-
 .detail-label-icon {
-  // height: 14px;
   width: 1rem;
   display: flex;
   align-items: center;
@@ -1207,14 +1182,6 @@ input.input-has-error {
     display: block;
     width: 100%;
   }
-  // background-image: url("/static/images/arrowhead.svg");
-  // background-size: contain;
-  // display: block;
-  // transform-origin: center;
-  // // margin-left: 6px;
-  // position: absolute;
-  // // right: 0;
-  // // top: 1px;
   transition: all 0.2s ease-in-out;
 }
 
@@ -1498,8 +1465,6 @@ input.input-has-error {
 .mobile-menu {
   position: relative;
   z-index: 1;
-  // overflow: hidden;
-  // min-height: 0;
   background: #2f2f54;
   transition: all 0.4s ease;
 }
@@ -1582,11 +1547,6 @@ input.input-has-error {
   position: absolute;
   top: 100%;
   width: 100%;
-  // visibility: hidden;
-  // position: absolute;
-  // top: 0;
-  // left: 0;
-  // right: 0;
   pointer-events: none;
   background: #2f2f54;
   box-shadow: inset 1px 3px 3px #20123a30;
@@ -2302,10 +2262,6 @@ input.input-has-error {
 
   .fix-header {
     animation: none !important;
-  }
-
-  body {
-    // padding-top: 124px;
   }
 
   .stat-description {
