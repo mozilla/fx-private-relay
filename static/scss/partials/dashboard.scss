@@ -5,6 +5,10 @@
 
 .mpp-dashbaord-header-name {
     font-weight: 700;
+    width: 100%;
+    word-wrap: break-word;
+    padding-right: $spacing-sm;
+
     span {
         font-weight: 400;
         display: block;
@@ -138,7 +142,7 @@
 @media screen and (min-width: 768px) {
     .mpp-dashbaord-header-container {
         display: flex;
-        align-items: flex-end;
+        align-items: center;
         justify-content: space-between;
     }    
     .mpp-dashbaord-header-title {
