@@ -207,10 +207,10 @@ function toggleAliasCardDetailsVisibility(aliasCard) {
 }
 
 function resetBodyPadding() {
-  const header = document.querySelector("header");
-  const headerHeight = header.clientHeight;
-  document.body.style.paddingTop = headerHeight + "px";
-  return;
+  // const header = document.querySelector("header");
+  // const headerHeight = header.clientHeight;
+  // document.body.style.paddingTop = headerHeight + "px";
+  // return;
 }
 
 function recruitmentLogic() {
@@ -226,11 +226,11 @@ function recruitmentLogic() {
   }
 
   // Reset document.body padding to accomodate height of recruitment banner
-  resetBodyPadding()
+  // resetBodyPadding()
 
   // Reset document.body padding when window is resized and the 
   // submenu becomes visible/hidden
-  window.addEventListener("resize", resetBodyPadding);
+  // window.addEventListener("resize", resetBodyPadding);
 
   recruitmentBannerLink.addEventListener("click", () => {
     const date = new Date();
@@ -278,11 +278,11 @@ function addEventListeners() {
     mobileMenuButton.addEventListener("click", () => {
       mobileMenuWrapper.classList.toggle("menu-open");
       if (mobileMenuWrapper.classList.contains("menu-open")) {
-        mobileMenuLinks.style.top = mobileMenuWrapper.clientHeight + "px";
-       return mobileMenuWrapper.style.minHeight = mobileMenuLinks.clientHeight + mobileMenuWrapper.clientHeight + "px";
+        // mobileMenuLinks.style.top = mobileMenuWrapper.clientHeight + "px";
+      //  return mobileMenuWrapper.style.minHeight = mobileMenuLinks.clientHeight + mobileMenuWrapper.clientHeight + "px";
       }
-      mobileMenuLinks.style.top = "0";
-      return mobileMenuWrapper.style.minHeight = "0";
+      // mobileMenuLinks.style.top = "0";
+      // return mobileMenuWrapper.style.minHeight = "0";
     });
   }
 

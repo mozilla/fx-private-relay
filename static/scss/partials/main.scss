@@ -1498,10 +1498,16 @@ input.input-has-error {
 .mobile-menu {
   position: relative;
   z-index: 1;
-  overflow: hidden;
-  min-height: 0;
+  // overflow: hidden;
+  // min-height: 0;
   background: #2f2f54;
   transition: all 0.4s ease;
+}
+
+.mobile-menu-wrapper {
+  position: absolute;
+  top: 0;
+  width: 100%;
 }
 
 .menu-open {
@@ -1567,14 +1573,20 @@ input.input-has-error {
   visibility: visible;
   pointer-events: all;
   transition: all 0.3s ease;
+  max-height: 300px;
 }
 
 .mobile-menu-links {
-  visibility: hidden;
+  overflow: hidden;
+  max-height: 0;
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 100%;
+  width: 100%;
+  // visibility: hidden;
+  // position: absolute;
+  // top: 0;
+  // left: 0;
+  // right: 0;
   pointer-events: none;
   background: #2f2f54;
   box-shadow: inset 1px 3px 3px #20123a30;
@@ -1611,7 +1623,7 @@ input.input-has-error {
 }
 
 .faqs-headline {
-  margin: 3em 0 2em;
+  margin: 3rem 0 2rem;
   font-size: 2em;
 }
 
