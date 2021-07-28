@@ -3,10 +3,6 @@ body {
   --vpn-purple: #c5c8fb;
 }
 
-.vpn-banner-visible main {
-  // padding-top: 17rem;
-}
-
 .vpn-promo-banner + .micro-survey-banner {
   display: none;
 }
@@ -142,24 +138,12 @@ body {
   .vpn-promo-banner a {
     margin-bottom: 0.25rem;
   }
-
-  .vpn-banner-visible main {
-    &.dashboard-container {
-      // padding-top: 9rem;
-    }
-    // padding-top: 10rem;
-  }
 }
 
 @media screen and (min-width: 800px) {
   .vpn-promo-copy {
     padding: 0 $spacing-md;
-  }
-
-  .vpn-banner-visible main {
-    // padding-top: 5rem;
-  }
-  
+  } 
 }
 
 @media screen and (min-width: 960px) {
@@ -169,17 +153,5 @@ body {
   }
   .vpn-promo-banner a {
     flex-shrink: 0;
-  }
-}
-
-@media screen and (min-width: 850px) {
-  .vpn-banner-visible main.dashboard-container {
-    // padding-top: 7rem;
-  }
-}
-
-@media screen and (min-width: 950px) {
-  .vpn-banner-visible main.dashboard-container {
-    // padding-top: 6rem;
   }
 }

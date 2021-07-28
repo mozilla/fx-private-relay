@@ -206,13 +206,6 @@ function toggleAliasCardDetailsVisibility(aliasCard) {
   detailsWrapper.classList.toggle("is-visible");
 }
 
-function resetBodyPadding() {
-  // const header = document.querySelector("header");
-  // const headerHeight = header.clientHeight;
-  // document.body.style.paddingTop = headerHeight + "px";
-  // return;
-}
-
 function recruitmentLogic() {
   const recruitmentBannerLink = document.querySelector("#recruitment-banner");
   if (!recruitmentBannerLink) {
@@ -224,13 +217,6 @@ function recruitmentLogic() {
     recruitmentBannerLink.parentElement.remove();
     return;
   }
-
-  // Reset document.body padding to accomodate height of recruitment banner
-  // resetBodyPadding()
-
-  // Reset document.body padding when window is resized and the 
-  // submenu becomes visible/hidden
-  // window.addEventListener("resize", resetBodyPadding);
 
   recruitmentBannerLink.addEventListener("click", () => {
     const date = new Date();
@@ -277,12 +263,6 @@ function addEventListeners() {
     const mobileMenuLinks = document.querySelector(".mobile-menu-links");
     mobileMenuButton.addEventListener("click", () => {
       mobileMenuWrapper.classList.toggle("menu-open");
-      if (mobileMenuWrapper.classList.contains("menu-open")) {
-        // mobileMenuLinks.style.top = mobileMenuWrapper.clientHeight + "px";
-      //  return mobileMenuWrapper.style.minHeight = mobileMenuLinks.clientHeight + mobileMenuWrapper.clientHeight + "px";
-      }
-      // mobileMenuLinks.style.top = "0";
-      // return mobileMenuWrapper.style.minHeight = "0";
     });
   }
 
