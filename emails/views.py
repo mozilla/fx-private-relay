@@ -94,7 +94,8 @@ def _index_POST(request):
 
     with transaction.atomic():
         locked_profile = Profile.objects.select_for_update().get(
-            user=user_profile.user
+            user=user_profile.user,
+            domain=request_data.get('domain', get_email_domain_from_settings())
         )
         try:
             relay_address = RelayAddress.make_relay_address(locked_profile)

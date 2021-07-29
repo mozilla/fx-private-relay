@@ -150,14 +150,18 @@ class Profile(models.Model):
         return subdomain
 
 
-def address_hash(address, subdomain=None):
+def address_hash(address, subdomain=None, domain=DOMAIN_DEFAULT):
     if subdomain:
         return sha256(
-            f'{address}@{subdomain}'.encode('utf-8')
+            f'{address}@{subdomain}.{domain}'.encode('utf-8')
         ).hexdigest()
-    return sha256(
+    if domain == DOMAIN_DEFAULT:
+        return sha256(
             f'{address}'.encode('utf-8')
         ).hexdigest()
+    return sha256(
+        f'{address}@{domain}'.encode('utf-8')
+    ).hexdigest()
 
 
 def address_default():
@@ -230,7 +234,7 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def make_relay_address(user_profile, num_tries=0):
+    def make_relay_address(user_profile, num_tries=0, domain=DOMAIN_DEFAULT):
         if (
             user_profile.at_max_free_aliases
             and not user_profile.has_unlimited
@@ -241,10 +245,10 @@ class RelayAddress(models.Model):
             )
         if num_tries >= 5:
             raise CannotMakeAddressException
-        relay_address = RelayAddress.objects.create(user=user_profile.user)
+        relay_address = RelayAddress.objects.create(user=user_profile.user, domain=domain)
         address_contains_badword = has_bad_words(relay_address.address)
         address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash(relay_address.address)
+            address_hash=address_hash(relay_address.address, domain=domain)
         ).count()
         if address_already_deleted > 0 or address_contains_badword:
             relay_address.delete()
