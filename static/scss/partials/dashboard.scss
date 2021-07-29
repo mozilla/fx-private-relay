@@ -193,9 +193,14 @@
 
 .c-alias-name {
     margin-left: $spacing-xs;
-    width: 100%;
-    overflow: hidden;
+    max-width: 100%;
+    height: 100%;
     flex-wrap: nowrap;
+    width: $content-sm;
+
+    .additional-notes, .relay-address {
+        text-overflow: ellipsis;
+    }
 
     .relay-address {
         display: none;
@@ -211,6 +216,8 @@
 
     input {
         text-overflow: ellipsis;
+        width: inherit;
+        max-width: 100%;
     }
 
     @media #{$mq-md} {

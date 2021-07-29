@@ -940,17 +940,18 @@ input.relay-email-address-label {
   font-size: 1em;
   padding: 6px 24px 6px 6px;
   width: 188px;
+  border-radius: 4px;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   transition: all .2s ease;
   // Reset styles from protocol
   background-color: none;
-  min-width: 0;
   border-radius: 0;
   border: 0;
   margin: 0;
   list-style: inherit;
+  min-width: 0;
 }
 
 .additional-notes {
@@ -960,6 +961,7 @@ input.relay-email-address-label {
   pointer-events: none;
   margin: auto auto 0 0;
   display: none;
+  width: 100%;
 }
 
 .legacy-addon-show-label {
@@ -983,6 +985,7 @@ input::placeholder,
 .relay-email-address-label:placeholder-shown {
   color: $color-grey-50;
   opacity: 1;
+  width: 192px !important;
 }
 
 input:focus::placeholder {
@@ -1031,7 +1034,7 @@ input:focus::placeholder {
 
 .relay-email-address-label:focus,
 input.input-has-error {
-  width: 200px !important;
+ // width: 200px !important;
 }
 
 .saved-confirmation {
