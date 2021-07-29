@@ -2305,6 +2305,8 @@ input.input-has-error {
 
 .messages .error {
   background-color: $color-error;
+  border-radius: $border-radius-md;
+  box-shadow: var(--dropShadowLight);
 }
 
 ul.messages {
