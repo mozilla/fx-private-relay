@@ -133,6 +133,11 @@ function analyticsSurveyLogic() {
     return;
   }
 
+  const recruitmentSurveyBanner = document.getElementById("recruitment-banner");
+  if (recruitmentSurveyBanner) {
+    return;
+  }
+
   const microSurveyBanner = document.getElementById("micro-survey-banner");
   if (!microSurveyBanner) {
     return;
@@ -292,7 +297,7 @@ function analyticsSurveyLogic() {
 }
 
 
-(()=> {
+document.addEventListener("DOMContentLoaded", () => {
 // Check for DoNotTrack header before running GA script
 
 if (!_dntEnabled()) {
@@ -359,4 +364,4 @@ if (!_dntEnabled()) {
       e.target.submit();
     });
   }
-})();
+});
