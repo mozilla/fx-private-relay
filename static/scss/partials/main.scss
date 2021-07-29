@@ -1472,6 +1472,10 @@ input.input-has-error {
   display: none !important;
 }
 
+.show-mobile-link {
+  display: none;
+}
+
 .card-enabled .num-forwarded,
 .card-enabled .column-forwarded,
 .num-blocked,
@@ -2104,16 +2108,18 @@ input.input-has-error {
     min-height: calc(60px + 0.5rem);
     margin: 0;
   }
+
 }
 
 @media screen and (max-width: 660px) {
   .hide-mobile-link {
-    display: none !important;
+    display: none;
   }
 
   .show-mobile-link {
-    display: flex !important;
+    display: flex;
   }
+
 }
 
 @media screen and (max-width: 600px) {
