@@ -7,21 +7,27 @@
 
 <header class="flx flx-col spc-btwn">
 
-  {% include "includes/vpn-promo-banner.html" %}
+  {% if settings.INCLUDE_VPN_BANNER %}
+    {% include "includes/vpn-promo-banner.html" %}
+  {% endif %}
 
   {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" %}
     <div class="recruitment-banner">
       <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-funnel-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
     </div>
-  {% elif not request.user.is_anonymous %}
+  {% endif %}
+  {% if not request.user.is_anonymous %}
     <div id="micro-survey-banner" class="micro-survey-banner hidden">
+      {% comment %}
       {% now "U" as now_second %}
       {% if now_second|last == "1" or now_second|last == "6" %}
+      {% endcomment %}
         <span id="micro-survey-prompt" data-survey-type="nps">{% ftlmsg 'survey-question-1' %}</span>
         <ul id="micro-survey-options"
         data-survey-option-very-likely-translated="{% ftlmsg 'survey-option-very-likely' %}"
         data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-not-likely' %}"
         class="micro-survey-options micro-survey-options-numeric"></ul>
+      {% comment %}
       {% elif now_second|last == "2" or now_second|last == "7" %}
         <span id="micro-survey-prompt" data-survey-type="usability">{% ftlmsg 'survey-question-2' %}</span>
         <ul id="micro-survey-options"
@@ -57,6 +63,7 @@
         data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-very-disappointed' %}"
         class="micro-survey-options micro-survey-options-likert"></ul>
       {% endif %}
+      {% endcomment %}
     </div>
   {% endif %}
 

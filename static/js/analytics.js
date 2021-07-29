@@ -133,6 +133,11 @@ function analyticsSurveyLogic() {
     return;
   }
 
+  const recruitmentSurveyBanner = document.getElementById("recruitment-banner");
+  if (recruitmentSurveyBanner) {
+    return;
+  }
+
   const microSurveyBanner = document.getElementById("micro-survey-banner");
   if (!microSurveyBanner) {
     return;
@@ -163,10 +168,10 @@ function analyticsSurveyLogic() {
         li.dataset.eventCategory = "NPS Survey";
         li.dataset.eventAction = "submitted";
         li.dataset.eventValue = option + 1;
-        if (option < 6) {
+        if (option <= 6) {
           li.dataset.eventLabel = "detractor";
           li.dataset.npsValue = -1;
-        } else if (option < 8) {
+        } else if (option <= 8) {
           li.dataset.eventLabel = "passive";
           li.dataset.npsValue = 0;
         } else {
@@ -292,7 +297,7 @@ function analyticsSurveyLogic() {
 }
 
 
-(()=> {
+document.addEventListener("DOMContentLoaded", () => {
 // Check for DoNotTrack header before running GA script
 
 if (!_dntEnabled()) {
@@ -359,4 +364,4 @@ if (!_dntEnabled()) {
       e.target.submit();
     });
   }
-})();
+});
