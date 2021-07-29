@@ -25,15 +25,14 @@ async function getlocalizedBentoStrings() {
   if (!renderedStrings) {
     return {
       "bentoButtonTitle":"Firefox apps and services",
-      "bentoHeadline":"Firefox is tech that fights for your online privacy.",
-      "bentoBottomLink":"Made by Mozilla",
+      "fxMakesTech":"Firefox is tech that fights for your online privacy.",
+      "madeByMozilla":"Made by Mozilla",
       "fxDesktop":"Firefox Browser for Desktop",
       "fxLockwise":"Firefox Lockwise",
       "fxMobile":"Firefox Browser for Mobile",
       "fxMonitor":"Firefox Monitor",
-      "pocket":"Pocket",
-      "fxSend":"Firefox Send",
-      "mobileCloseBentoButtonTitle":"Close menu",
+      "fxPocket":"Pocket",
+      "bentoButtonCloseLabel":"Close menu",
     };
   }
 
