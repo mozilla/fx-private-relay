@@ -230,6 +230,7 @@ TEMPLATES = [
     },
 ]
 
+ADDITIONAL_DOMAINS = config('ADDITIONAL_DOMAINS', '', cast=str).split(',')
 MAX_NUM_FREE_ALIASES = config('MAX_NUM_FREE_ALIASES', 5, cast=int)
 PREMIUM_ENABLED = config('PREMIUM_ENABLED', default=False, cast=bool)
 PREMIUM_PROD_ID = config('PREMIUM_PROD_ID', '', cast=str)

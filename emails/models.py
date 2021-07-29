@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
+from emails.utils import get_email_domain_from_settings
 
 emails_config = apps.get_app_config('emails')
 
@@ -18,6 +19,10 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
+
+DOMAIN_DEFAULT = get_email_domain_from_settings()
+DOMAIN_CHOICES = [(item, item) for item in settings.ADDITIONAL_DOMAINS]
+DOMAIN_CHOICES.append((DOMAIN_DEFAULT, DOMAIN_DEFAULT))
 
 
 class Profile(models.Model):
@@ -192,6 +197,11 @@ class RelayAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(
         max_length=64, default=address_default, unique=True
+    )
+    domain = models.CharField(
+        choices=DOMAIN_CHOICES,
+        default=DOMAIN_DEFAULT,
+        max_length=64
     )
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
