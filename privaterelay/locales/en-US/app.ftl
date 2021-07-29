@@ -70,12 +70,8 @@ home-hero-cta = Sign In
 how-it-works-headline = How It Works
 how-it-works-subheadline = Protect your personal identity everywhere you use the { -brand-name-firefox-browser }.
 how-it-works-step-1-headline = Install the extension
-
-# Variables:
-#   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
-#   $attrs (string) - specific attributes added to external links
-how-it-works-step-1-copy-html = <a href="{ $url }" { $attrs }>Download the { -brand-name-relay } extension for { -brand-name-firefox }</a>. 
-    Select the icon that appears on your { -brand-name-firefox } toolbar to access the sign-in page. 
+how-it-works-step-1-link = Download the { -brand-name-relay } extension for { -brand-name-firefox }.
+how-it-works-step-1-copy = Select the icon that appears on your { -brand-name-firefox } toolbar to access the sign-in page. 
     Sign in with your { -brand-name-firefox-account } to get started.
 how-it-works-step-2-headline = Create a new alias
 how-it-works-step-2-copy = As you browse, the { -brand-name-relay } icon will appear in form fields where sites ask for your email address. 
@@ -94,7 +90,7 @@ hero-image-copy-control-html = Now <em>you’re in control</em> of what’s arri
 
 faq-headline = Frequently Asked Questions
 faq-question-1-question = What about spam?
-faq-question-1-answer-a-html = While { -brand-name-relay } does not filter for spam, our email partner Amazon SES does block spam and malware. If { -brand-name-relay } forwards messages you don’t want, you can update your { -brand-name-relay } settings to block messages from the alias forwarding them.  
+faq-question-1-answer-a = While { -brand-name-relay } does not filter for spam, our email partner Amazon SES does block spam and malware. If { -brand-name-relay } forwards messages you don’t want, you can update your { -brand-name-relay } settings to block messages from the alias forwarding them.  
 
 # Variables:
 #   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
@@ -123,7 +119,7 @@ email-size-limit = { $size } { $unit }
 #   $url (url) - https://github.com/mozilla/fx-private-relay/issues/99
 #   $attrs (string) - specific attributes added to external links
 faq-question-4-answer-html = { -brand-name-relay } does not yet offer the ability to reply using an alias. 
-    If you try, nothing will happen. We are planning an additional feature to let you <a href="{ $url }" {$attrs}>reply anonymously to senders</a>.
+    If you try, nothing will happen. We are planning an additional feature to let you <a href="{ $url }" { $attrs }>reply anonymously to senders</a>.
 faq-question-5-question = Can I make up my own { -brand-name-relay } alias using the @relay.firefox.com domain?
 faq-question-5-answer = Not currently, but we are considering new features including letting you create your own alias with a designated domain.
 faq-question-6-question = What happens if { -brand-name-mozilla } shuts down the { -brand-name-firefox-relay } service?
