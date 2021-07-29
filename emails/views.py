@@ -401,13 +401,13 @@ def _get_domain_address(to_address, local_portion, domain_portion):
 def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
-    email_domain = get_email_domain_from_settings()
-    if not domain_portion == email_domain:
+    email_domains = settings.ADDITIONAL_DOMAINS.append(get_email_domain_from_settings())
+    if not domain_portion in email_domains:
         return _get_domain_address(to_address, local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
-        relay_address = RelayAddress.objects.get(address=local_portion)
+        relay_address = RelayAddress.objects.get(address=local_portion, domain=domain_portion)
         return relay_address
     except RelayAddress.DoesNotExist:
         try:
