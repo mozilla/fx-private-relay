@@ -1544,19 +1544,20 @@ input.input-has-error {
   transition: all 0.4s ease;
 }
 
-.mobile-menu-toggle,
-.mobile-menu-link {
-  color: rgba(255, 255, 255, 1);
+.mobile-menu-toggle {
+  color: $color-white;
   width: 100%;
 }
 
 .mobile-menu-link {
+  color: $color-black;
+  width: 100%;
   text-align: right;
   padding: 0.75em var(--rowFullWidthHPadding);
+  border-bottom: 1px solid $color-light-gray-20;
 }
 
 .mobile-home-link {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -1575,17 +1576,19 @@ input.input-has-error {
   left: 0;
   right: 0;
   pointer-events: none;
-  background: #2f2f54;
+  background: $color-white;
   box-shadow: inset 1px 3px 3px #20123a30;
   transition: all 0.3s ease;
 }
 
 .mobile-menu-link:hover {
   background: rgba(0, 0, 0, 0.05);
+  color: $color-black;
 }
 
 .mobile-menu-link:focus {
   box-shadow: var(--buttonFocus);
+  color: $color-black;
 }
 
 .mobile-menu-link:active {
