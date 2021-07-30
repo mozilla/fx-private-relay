@@ -1545,16 +1545,16 @@ input.input-has-error {
 }
 
 .mobile-menu-toggle {
-  color: $color-white;
+  color: rgba(255, 255, 255, 1);
   width: 100%;
 }
 
 .mobile-menu-link {
-  color: $color-black;
+  color: rgba(255, 255, 255, 1);
   width: 100%;
   text-align: right;
   padding: 0.75em var(--rowFullWidthHPadding);
-  border-bottom: 1px solid $color-light-gray-20;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .mobile-home-link {
@@ -1576,19 +1576,17 @@ input.input-has-error {
   left: 0;
   right: 0;
   pointer-events: none;
-  background: $color-white;
+  background: #2f2f54;
   box-shadow: inset 1px 3px 3px #20123a30;
   transition: all 0.3s ease;
 }
 
 .mobile-menu-link:hover {
   background: rgba(0, 0, 0, 0.05);
-  color: $color-black;
 }
 
 .mobile-menu-link:focus {
   box-shadow: var(--buttonFocus);
-  color: $color-black;
 }
 
 .mobile-menu-link:active {
