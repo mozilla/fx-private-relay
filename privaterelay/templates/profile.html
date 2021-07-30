@@ -73,7 +73,10 @@
       {% endif %}
       {% include "includes/banners.html" %}
 
-      {% include "includes/dashboard-filter.html" %}
+
+      {% if relay_addresses %}      
+        {% include "includes/dashboard-filter.html" %}
+      {% endif %}
 
       {% if relay_addresses|length == 0 %}
         {% include "includes/dashboard_onboarding.html" %}

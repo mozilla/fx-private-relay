@@ -35,3 +35,9 @@
     align-items: center;
   }    
 }
+
+.mzp-c-button.has-icon {
+    display: flex;
+    align-items: center;
+    padding-left: $spacing-md;
+}

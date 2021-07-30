@@ -4,20 +4,18 @@
 
 <div class="c-filter js-filter-container">
     <div class="c-filter-search">
-        {% if relay_addresses %}
-            <div class="c-filter-icon c-filter-icon-search js-filter-mobile-search-toggle"></div>
-            <form class="js-filter-search-form c-filter-search-form" action="">
-                <input class="c-filter-search-input js-filter-search-input " type="search" name="search" id="search">
-                <div class="c-filter-case-count">
-                    <span class="js-filter-case-visible"></span>
-                    /
-                    <span class="js-filter-case-total"></span>
-                </div>
-                <button class="c-filter-reset js-filter-reset">
-                    <img alt="" src="{% static '/images/x-close.svg' %}"/>
-                </button>
-            </form>
-        {% endif %}
+        <div class="c-filter-icon c-filter-icon-search js-filter-mobile-search-toggle"></div>
+        <form class="js-filter-search-form c-filter-search-form" action="">
+            <input class="c-filter-search-input js-filter-search-input " type="search" name="search" id="search">
+            <div class="c-filter-case-count">
+                <span class="js-filter-case-visible"></span>
+                /
+                <span class="js-filter-case-total"></span>
+            </div>
+            <button class="c-filter-reset js-filter-reset">
+                <img alt="" src="{% static '/images/x-close.svg' %}"/>
+            </button>
+        </form>
     </div>
     <div class="c-filter-date hidden">
         <div class="c-filter-icon c-filter-icon-calendar"></div>
