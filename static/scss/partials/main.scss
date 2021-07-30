@@ -1031,11 +1031,6 @@ input:focus::placeholder {
   outline: none;
 }
 
-.relay-email-address-label:focus,
-input.input-has-error {
- // width: 200px !important;
-}
-
 .saved-confirmation {
   content: "Saved!";
   background-color: green;
