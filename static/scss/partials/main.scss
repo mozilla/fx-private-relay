@@ -825,6 +825,8 @@ table {
   background-repeat: no-repeat;
   width: 1.5em;
   height: 2em;
+  display: inline-lock;
+  margin-right: $spacing-xs;
 }
 
 .dash-create-new-relay.btn-disabled {
@@ -1682,55 +1684,6 @@ input:focus::placeholder {
   background-image: url("/static/images/logos/mpp-temp-icon.png");
 }
 
-.dashboard-onboarding-header {
-  margin: 3em auto 2rem auto;
-  font-size: 20px;
-  text-align: center;
-  color: $color-violet-90;
-}
-
-.dashboard-onboarding-list {
-  margin: auto;
-  max-width: 500px;
-  padding: 0;
-}
-
-.dashboard-onboarding-list-item {
-  margin-bottom: 3em;
-  color: $color-grey-60;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.dashboard-onboarding-list-item.tip-1 {
-  position: relative;
-}
-
-.img-arrow-up {
-  position: absolute;
-  right: -138px;
-  max-width: 218px;
-  top: -88px;
-}
-
-.img-input-icon,
-.img-context-menu {
-  max-width: 300px;
-  margin: 2em auto;
-}
-
-.onboarding-num {
-  background: $color-violet-90;
-  color: $color-white;
-  height: 32px;
-  width: 32px;
-  min-width: 32px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 50%;
-  margin: .25em 1em auto 0;
-}
 
 .nested-grid {
   cursor: default;

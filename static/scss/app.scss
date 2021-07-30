@@ -1,5 +1,7 @@
 // Protocol
 @import "libs/protocol/css/protocol.scss";
+@import "libs/protocol/css/components/button";
+
 
 // Includes
 @import "includes/variables";
@@ -15,8 +17,7 @@
 // Previous Styles
 @import "partials/main";
 @import "partials/dashboard";
-
+@import "partials/onboarding.scss";
 @import "partials/fx-bento";
 @import "partials/glocal-menu";
 @import "partials/vpn-promo";
-

@@ -212,8 +212,8 @@ banner-choose-subdomain-label = Your domain is:
 banner-choose-subdomain-label = You can make up any address @{ $subdomain }
 
 remaining-aliases-cta = Buy unlimited aliases
-onboarding-headline = Three ways to create an alias
-onboarding-tip-1 = Right here - just select the button in the upper right corner
+onboarding-headline = Create your first alias, you have three ways…
+onboarding-tip-1 = Just click the button “Generate New Alias” to create your first alias
 onboarding-tip-2 = By selecting the { -brand-name-firefox-relay } icon when it appears in email fields
 onboarding-tip-3 = Via the context menu, just right-click (Windows) or Control-click (macOS) on form fields to access the menu and generate an alias
 modal-rename-alias-saved = Label saved!
