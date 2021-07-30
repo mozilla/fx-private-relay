@@ -112,6 +112,12 @@
         filterLabelTotalCases.textContent = aliases.length;
 
 		filterInput.addEventListener("input", filterInputWatcher, false);
+        filterInput.addEventListener("keydown", e => {
+          if(e.keyIdentifier=='U+000A'||e.keyIdentifier=='Enter'||e.keyCode==13){
+            e.preventDefault();
+            return false;
+          }
+        });
 
         filterResetButton.addEventListener("click", resetFilter, false);
 	}
