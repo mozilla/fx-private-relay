@@ -984,7 +984,7 @@ input::placeholder,
 .relay-email-address-label:placeholder-shown {
   color: $color-grey-50;
   opacity: 1;
-  width: 192px !important;
+  width: 192px;
 }
 
 input:focus::placeholder {
