@@ -46,7 +46,7 @@ glocal-menu {
   transition: all .2s ease;
 }
 
-.avatar-wrapper:hover {
+.avatar-wrapper:hover, .avatar-wrapper:focus {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, .3);
   transition: all .2s ease;
 }
