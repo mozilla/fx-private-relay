@@ -1442,6 +1442,8 @@ input.input-has-error {
   outline: none;
   background: #2F2F54;
   z-index: 1;
+  color: $color-white;
+  width: 100%;
 }
 
 .mobile-menu-label {
@@ -1471,11 +1473,6 @@ input.input-has-error {
   transform: rotate(180deg);
   opacity: .5;
   transition: all .4s ease;
-}
-
-.mobile-menu-toggle {
-  color: $color-white;
-  width: 100%;
 }
 
 .mobile-menu-link {
