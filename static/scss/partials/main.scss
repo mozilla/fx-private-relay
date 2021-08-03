@@ -94,32 +94,6 @@ a, :link, button {
   text-decoration: none;
 }
 
-.header-nav {
-  margin: auto 0 auto auto;
-}
-
-.header-link {
-  border-radius: 4px;
-  padding: 4px 6px;
-  color: $color-white !important;
-  margin-left: 1em;
-}
-
-.header-link::after {
-  width: 100%;
-  height: 2px;
-  display: block;
-  content: "";
-  background: var(--fxGradient);
-  opacity: 0;
-  margin-bottom: -6px;
-  margin-top: 4px;
-}
-
-.active-header-link::after {
-  opacity: 1;
-}
-
 .home-hero-headline {
   font-size: 3.2em;
   margin: 28px auto 20px auto;
@@ -349,148 +323,6 @@ button:active {
   cursor: not-allowed;
 }
 
-.sign-in {
-  padding: .75rem 1.25rem;
-  font-weight: 400;
-  display: flex;
-  margin: auto;
-  white-space: nowrap;
-}
-
-.sign-in:hover,
-.sign-in:active {
-  color: #CFCFD8;
-  border-color: #CFCFD8;
-}
-
-.sign-in:active {
-  box-shadow: 0 2px 8px 0 rgba(14, 13, 26, .12), 0 3px 1px -2px rgba(7, 48, 114, .12), 0 2px 4px 0 rgba(34, 0, 51, .04), 0 0 0 1px rgba(32, 18, 58, .04);
-}
-
-.fx-private-relay-logomark {
-  background-image: url("/static/images/placeholder-logo.svg");
-  background-repeat: no-repeat;
-  background-position: left center;
-  background-size: contain;
-  height: 100%;
-  min-width: 42px;
-  display: inline-block;
-  margin-right: 12px;
-}
-
-.fx-private-relay-logotype {
-  background-image: url("/static/images/fx-private-relay-logotype-light.svg");
-  background-position: center 63%;
-  background-repeat: no-repeat;
-  background-size: contain;
-  min-width: 180px;
-}
-
-header {
-  color: $color-white;
-  border-bottom: 1px solid rgba($color-grey-60, .5);
-  background: var(--darkBlueGradient);
-  box-shadow: 0 0 3px 0 rgba($color-grey-60, .5);
-  z-index: 2;
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  transition: all .3s ease;
-}
-
-.fix-header {
-  box-shadow: 0 0 5px 3px $color-violet-90;
-  transition: all .5s ease;
-}
-
-.recruitment-banner, .micro-survey-banner {
-  text-align: center;
-  position: relative;
-  padding: 1em;
-}
-
-.micro-survey-banner {
-  background: rgba(255,255,255,.1);
-}
-
-.micro-survey-banner.hidden {
-  display: none;
-}
-
-.micro-survey-options {
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.micro-survey-options .micro-survey-option {
-  border-radius: 4px;
-  margin-right: 1rem;
-  background-color: $color-violet-40;
-  transition: background .1s ease-out;
-}
-
-.micro-survey-options .micro-survey-option:hover {
-  background-color: $color-blue-50;
-}
-
-
-.micro-survey-options-numeric .micro-survey-option {
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-.micro-survey-options-likert .micro-survey-option {
-    padding: .5rem .75rem;
-}
-
-.micro-survey-options li:last-child  {
-  margin-right: 0;
-}
-
-
-.nps-bookend {
-  color: $color-white;
-  text-decoration: none;
-  font-family: $font-metropolis;
-  display: inline-block;
-  margin-right: 1rem;
-}
-
-#recruitment-banner, .micro-survey-option {
-  color: $color-white;
-  text-decoration: none;
-  font-family: $font-metropolis;
-  display: inline-block;
-  padding: 0 1em;
-}
-
-#recruitment-banner:hover, .micro-survey-option:hover {
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.recruitment-banner::after, .micro-survey-banner::after {
-  height: 1px;
-  background: var(--fxGradient);
-  content: "";
-  display: block;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  opacity: .3;
-}
-
-.header-top {
-  z-index: 2;
-}
 
 .main-list {
   max-width: $content-xl;
@@ -529,16 +361,12 @@ ul {
   margin: auto 2em auto auto;
 }
 
-.header-link:hover,
-.header-link:focus,
-
 .footer-link:hover,
 .footer-link:focus {
   opacity: .9;
   background-color: rgba(0, 0, 0, .2);
 }
 
-.header-link:active,
 .footer-link:active {
   background-color: rgba(0, 0, 0, .25);
   opacity: .8;
@@ -1419,107 +1247,7 @@ input:focus::placeholder {
   opacity: .5;
 }
 
-.mobile-menu {
-  position: relative;
-  z-index: 1;
-  overflow: hidden;
-  min-height: 0;
-  background: #2F2F54;
-  transition: all .4s ease;
-}
 
-.mobile-menu-wrapper {
-  position: absolute;
-  top: 0;
-  width: 100%;
-}
-
-.menu-open {
-  transition: all .4s ease;
-}
-
-.mobile-menu-toggle {
-  border: none;
-  outline: none;
-  background: #2F2F54;
-  z-index: 1;
-  color: $color-white;
-  width: 100%;
-}
-
-.mobile-menu-label {
-  position: relative;
-  display: inline-block;
-}
-
-.mobile-menu-label::after {
-  content: "";
-  width: 18px;
-  height: 18px;
-  position: absolute;
-  display: flex;
-  background-image: url(/static/images/arrowhead-white.svg);
-  background-repeat: no-repeat;
-  background-position: center;
-  top: 0;
-  bottom: 0;
-  margin: auto auto 1px auto;
-  right: -26px;
-  background-size: contain;
-  opacity: .9;
-  transition: all .4s ease;
-}
-
-.menu-open .mobile-menu-label::after {
-  transform: rotate(180deg);
-  opacity: .5;
-  transition: all .4s ease;
-}
-
-.mobile-menu-link {
-  color: rgba(255, 255, 255, 1);
-  width: 100%;
-  text-align: right;
-  padding: .75em $spacing-xl;
-  border-bottom: 1px solid rgba(255, 255, 255, .04);
-}
-
-.mobile-home-link {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.menu-open .mobile-menu-links {
-  visibility: visible;
-  pointer-events: all;
-  transition: all .3s ease;
-  max-height: 300px;
-}
-
-.mobile-menu-links {
-  overflow: hidden;
-  max-height: 0;
-  position: absolute;
-  top: 100%;
-  width: 100%;
-  pointer-events: none;
-  background: #2F2F54;
-  box-shadow: inset 1px 3px 3px #20123A30;
-  transition: all .3s ease;
-}
-
-.mobile-menu-link:hover {
-  background: rgba(0, 0, 0, .05);
-}
-
-.mobile-menu-link:focus {
-  box-shadow: var(--buttonFocus);
-}
-
-.mobile-menu-link:active {
-  background: rgba(0, 0, 0, .1);
-}
 
 .faqs-wrapper {
   max-width: 1100px;
@@ -1853,10 +1581,6 @@ input:focus::placeholder {
   .relay-stat {
     margin-left: 2em;
   }
-
-  #micro-survey-banner {
-    display: none;
-  }
 }
 
 @media screen and (max-width: 750px) {
@@ -2047,10 +1771,6 @@ input:focus::placeholder {
     display: none;
   }
 
-  header {
-    border-bottom: none;
-  }
-
   .modal-content {
     left: 1em;
     right: 1em;
@@ -2150,18 +1870,6 @@ input:focus::placeholder {
     margin-bottom: 0;
   }
 
-  header {
-    position: sticky;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: #27294E;
-  }
-
-  .fix-header {
-    animation: none !important;
-  }
-
   .stat-description {
     display: none;
   }
@@ -2217,11 +1925,6 @@ input:focus::placeholder {
 
   .hero-content {
     margin-top: 2em;
-  }
-
-  .fx-private-relay-logomark {
-    min-width: 30px;
-    margin-right: 8px;
   }
 
   firefox-apps {
