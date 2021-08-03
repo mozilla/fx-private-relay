@@ -28,7 +28,8 @@
 	function filterInputWatcher(e) {
 		const query = e.target.value.toLowerCase();
 
-        if (query === "") resetFilter();
+        // Reset filter if the input is empty, however, do not steal focus to input
+        if (query === "") resetFilter({focus: false});
 
 		// Hide all cases
 		aliases.forEach(alias => {
@@ -119,15 +120,25 @@
           }
         });
 
-        filterResetButton.addEventListener("click", resetFilter, false);
+        // TODO: Add esc key listener
+        filterResetButton.addEventListener("click", ()=> {
+            resetFilter({focus: true});
+        }, false);
 	}
 
-    function resetFilter() {
+    function resetFilter(opts) {
         filterLabelVisibleCases.textContent = aliases.length;
         filterLabelTotalCases.textContent = aliases.length;
+        filterInput.value = "";
+
         aliases.forEach(alias => {
             alias.style.display = "block";
         });
+
+        if (opts && opts.focus) {
+            filterInput.focus();
+        }
+
     }
 
     // TODO: Remove timeout and watch for event to detect if add-on is enabled (checking if labels exist)

@@ -147,6 +147,7 @@ profile-label-upgrade = Get unlimited aliases
 profile-label-create-domain = Create your Email Domain
 profile-label-domain = Email Domain:
 profile-label-domain-tooltip = Create your unique and custom email domain.
+profile-label-reset = Reset
 
 # This string is followed by an email address
 profile-label-forward-emails = Forward emails to:
