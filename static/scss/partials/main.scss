@@ -357,6 +357,11 @@ button:active {
   white-space: nowrap;
 }
 
+.sign-up {
+  border: none;
+  color: inherit;
+}
+
 .sign-in:hover,
 .sign-in:active {
   color: #CFCFD8;
@@ -1392,6 +1397,10 @@ input.input-has-error {
   display: none !important;
 }
 
+.show-mobile-link {
+  display: none;
+}
+
 .is-enabled .num-forwarded,
 .is-enabled .column-forwarded,
 .num-blocked,
@@ -1421,7 +1430,6 @@ input.input-has-error {
 .mobile-menu {
   position: relative;
   z-index: 1;
-  overflow: hidden;
   min-height: 0;
   background: #2F2F54;
   transition: all .4s ease;
@@ -2024,6 +2032,30 @@ input.input-has-error {
   }
 }
 
+@media screen and (max-width: 660px) {
+  .hide-mobile-link {
+    display: none;
+  }
+
+  .show-mobile-link {
+    display: flex;
+  }
+  
+  .active-header-link::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--fxGradient);
+    margin-right: 8px;
+    vertical-align: middle;
+    background-size: 400%;
+    background-position: bottom right;
+  }
+
+}
+
 @media screen and (max-width: 600px) {
   body {
     --rowFullWidthHPadding: 1.5em;
@@ -2175,19 +2207,6 @@ input.input-has-error {
 
   .show-mobile {
     display: flex !important;
-  }
-
-  .active-header-link::before {
-    content: "";
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--fxGradient);
-    margin-right: 8px;
-    vertical-align: middle;
-    background-size: 400%;
-    background-position: bottom right;
   }
 
   .hide-mobile {
