@@ -70,7 +70,7 @@ header {
 .header-link {
     border-radius: 4px;
     padding: 4px 6px;
-    color: $color-white !important;
+    color: $color-white;
     margin-left: 1em;
 }
 
@@ -116,7 +116,6 @@ header {
 .mobile-menu {
     position: relative;
     z-index: 1;
-    overflow: hidden;
     min-height: 0;
     background: #2F2F54;
     transition: all .4s ease;
@@ -225,24 +224,118 @@ header {
     background: rgba(0, 0, 0, .1);
 }
 
+
+.is-premium {
+    header {
+        background: $color-white;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
+        border-bottom: 0;
+    }
+
+    .fx-private-relay-logotype {
+        background-image: url("/static/images/fx-private-relay-logotype-dark.svg");
+    }
+    .header-top {
+        padding: 0 $spacing-xl;
+        align-items: center;
+    }
+    .header-link {
+        color: $color-grey-40;
+        padding: $spacing-lg 0;
+        position: relative;
+        display: block;
+        border-radius: 0;
+        &::after {
+            position: absolute;
+            bottom: 0;
+            margin: 0;
+            height: 4px;
+        }
+    }
+    .active-header-link {
+        color: $color-grey-30;
+    }
+    .header-link:hover,
+    .header-link:active,
+    .header-link:focus {
+        background-color: transparent;
+    }
+    .logo-wrapper {
+        height: 40px;
+    }
+    .fx-bento-button {
+        background-image: url("/static/images/bento.svg");
+        background-size: contain;
+        background-position: center center;
+        background-repeat: no-repeat;
+         &:hover {
+            background-image: url("/static/images/bento-white.svg");
+            background-color: $color-grey-40;
+        }
+    }
+
+    .fx-bento-open .fx-bento-button {
+        background-image: url("/static/images/bento-white.svg");
+        background-color: $color-grey-40;
+    }
+
+    firefox-apps.fx-bento-open,
+    firefox-apps:hover {
+        background: none;
+        box-shadow: 0 0 0 4px $color-grey-40;
+    }
+
+    .mobile-menu, .mobile-menu-toggle, .mobile-menu-links, .mobile-menu-link {
+        background-color: $color-grey-05;
+        color: $color-purple;
+    }
+
+    .mobile-menu.menu-open .mobile-menu-toggle, .mobile-menu-links {
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    .mobile-menu-link {
+        border-bottom: 1px solid $color-grey-10;
+    }
+
+    .mobile-menu-link:hover {
+        background-color: $color-grey-10;
+    }
+
+    .mobile-menu-label::after {
+        background-image: url(/static/images/arrowhead.svg);
+    }
+
+    @media screen and (max-width: 550px) {
+        .header-top {
+            padding: $spacing-lg $spacing-xl;
+        }
+    }
+
+
+
+}
+
+
 @media screen and (max-width: 750px) {
     .fx-private-relay-logotype {
-    min-width: 150px;
-  }
+        min-width: 150px;
+    }
 
-  .sign-in {
-    padding-left: 1em;
-    padding-right: 1em;
-  }
+    .sign-in {
+        padding-left: 1em;
+        padding-right: 1em;
+    }
 }
+
 
 @media screen and (max-width: 600px) {
     header {
         border-bottom: none;
     }
-      .fx-private-relay-logotype {
-    background-position: center 68%;
-  }
+    .fx-private-relay-logotype {
+        background-position: center 68%;
+    }
 }
 
 @media screen and (max-width: 550px) {
@@ -255,21 +348,21 @@ header {
     }
 
     .fix-header {
-        animation: none !important;
+        animation: none;
     }
 
     .active-header-link::before {
-    content: "";
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--fxGradient);
-    margin-right: 8px;
-    vertical-align: middle;
-    background-size: 400%;
-    background-position: bottom right;
-  }
+        content: "";
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--fxGradient);
+        margin-right: 8px;
+        vertical-align: middle;
+        background-size: 400%;
+        background-position: bottom right;
+    }
     
 }
 
