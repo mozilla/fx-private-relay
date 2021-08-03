@@ -180,16 +180,8 @@
     
     @media #{$mq-md} {
         margin-bottom: $spacing-md;
-        // align-items: center;
     }
 }
-
-// .c-alias-toggle {
-//     margin-bottom: $spacing-xs;
-//     @media #{$mq-md} {
-//         margin-bottom: 0;
-//     }
-// }
 
 .c-alias-name {
     margin-left: $spacing-xs;
