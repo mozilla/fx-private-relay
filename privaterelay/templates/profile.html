@@ -6,13 +6,18 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
+{% block javascript %}
+  <script src="{% static 'js/filter.js' %}"></script>
+{% endblock %}
+
+
 {% block content %}
 
 {% get_social_accounts request.user as accounts %}
 
-{% include "includes/messages.html" with messages=messages %}
+<main id="profile-main" class=" bg-light dashboard-container " data-api-token="{{ user_profile.api_token }}">
+  {% include "includes/messages.html" %}
 
-<main id="profile-main" class="container bg-light dashboard-container container" data-api-token="{{ user_profile.api_token }}">
   {% if user_profile.has_unlimited %}
   <div class="mpp-dashbaord-header">
     <div class="mpp-dashbaord-header-container inset">
@@ -48,259 +53,262 @@
   </div>
   {% endif %}
   <div class="main-list flx flx-col jst-cntr">
-    {% if messages %}
-      <div class="messages profile-messages hidden">
-          {% for message in messages %}
-          <div{% if message.tags %} class="{{ message.tags }} js-notification" {% else %} class="" {% endif %}>
-            <span>{{ message }}</span>
-            <button class="flx center-value dismiss js-dismiss">
-              <svg class="x-close-icon fill-current text-gray hover:text-purple-800" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
-            </button>
-          </div>
-        {% endfor %}
+  {% if messages %}
+    <div class="messages profile-messages hidden">
+        {% for message in messages %}
+        <div{% if message.tags %} class="{{ message.tags }} js-notification" {% else %} class="" {% endif %}>
+          <span>{{ message }}</span>
+          <button class="flx center-value dismiss js-dismiss">
+            <svg class="x-close-icon fill-current text-gray hover:text-purple-800" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+          </button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+    <div class="alias-list">
+      {% if not user_profile.has_unlimited %}
+      <div class="dashboard-greeting">
+        <span class="dashboard-greeting-message">{% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
       </div>
-    {% endif %}
-      <div class="alias-list">
-        {% if not user_profile.has_unlimited %}
-        <div class="dashboard-greeting">
-          <span class="dashboard-greeting-message">{% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
-        </div>
-        {% endif %}
-        {% include "includes/banners.html" %}
-        <div class="flx flx-row dashboard-header inset">
-          <h2 class="section-headline dashboard-headline">{% ftlmsg 'profile-headline-manage-relay' %}</h2>
-          <div class="remaining-aliases-wrapper flx al-cntr jst-cntr hide-750">
-            {% include "includes/remaining-aliases.html" %}
-          </div>
-        </div>
-        <div class="flx flx-row flx-end inset wrap-col-600">
-          <div class="show-750 flx al-cntr">
-            {% include "includes/remaining-aliases.html" %}
-          </div>
-          <form action="/emails/" class="dash-create" method="POST">
-            <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
-            {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
-            <a
-                href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
-                target="_blank"
-                rel="noopener noreferrer""
-                class="btn btn-blue--ghost"
-                data-event-label="Upgrade"
-            >
-              <span class="generate-new-alias-text">
-                {% ftlmsg 'profile-label-upgrade' %}
-              </span>
-            </a>
+      {% endif %}
+      {% include "includes/banners.html" %}
 
-            {% else %}
-            <button
-                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr"
-                title="Generate new alias"
-                type="submit"
-                value="Generate new alias"
-                data-event-label="Create New Relay Alias"
-            >
-              <span class="generate-new-relay-icon"></span>
-              <span class="generate-new-alias-text">
-              {% ftlmsg 'profile-label-generate-new-alias' %}</span>
-            </button>
-            {% endif %}
-            
-            
-          </form>
-        </div>
+      {% include "includes/dashboard-filter.html" %}
 
-        {% if relay_addresses|length == 0 %}
-          {% include "includes/dashboard_onboarding.html" %}
-        {% endif %}
+      {% if relay_addresses|length == 0 %}
+        {% include "includes/dashboard_onboarding.html" %}
+      {% endif %}
 
-        {% for relay_address in relay_addresses %}
-          <div class="relay-email {% if relay_address.enabled %} card-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
-            <div class="relay-email-row card-top-row flx flx-row inset">
-              <!-- alias label -->
-              <div class="additional-notes hide-mobile">
-                <input data-label="" type="text" maxlength="50" value="" aria-label="Edit the label for this alias" class="relay-email-address-label ff-Met">
-                <span class="saved-confirmation">{% ftlmsg 'profile-label-saved' %}</span>
-                <span class="input-error"></span>
+      {% for relay_address in relay_addresses %}
+        <div class="c-alias js-alias relay-email {% if relay_address.enabled %} is-enabled card-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
+          
+          <div class="c-alias-main-info">
+            <!-- enable/disable email forwarding -->
+            <div class="c-alias-toggle email-forwarding">
+              <form action="{% url 'emails-index' %}" method="POST" class="xflx xflx-row al-cntr email-forwarding-form">
+                <input type="hidden" name="method_override" value="PUT">
+                <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
+                <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
+                <span class="forwarding-label-wrapper card-small-text hidden">{% if relay_address.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
+                {% if relay_address.enabled %}
+                <button type="submit" name="enabled" value="Disable" title="Disable email forwarding for this alias" class="text-center forwarding-toggle"></button>
+                {% else %}
+                <button type="submit" name="enabled" value="Enable" title="Enable email forwarding for this alias" class="text-center forwarding-disabled forwarding-toggle"></button>
+                {% endif %}
+              </form>
+            </div>
+            <!--end enable/disable toggle -->
+
+            <div class="c-alias-name">
+              <div class="relay-email-row card-top-row inset">
+                <!-- alias label -->
+                <div class="additional-notes">
+                  <input data-label="" type="text" maxlength="50" value="" aria-label="{% ftlmsg 'profile-label-edit' %}" class="relay-email-address-label ff-Met">
+                  <span class="saved-confirmation">{% ftlmsg 'profile-label-saved' %}</span>
+                  <span class="input-error"></span>
+                </div>
+
+                <button title="Click to copy"
+                  data-id="{{ relay_address.id }}"
+                  data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}"
+                  class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
+                    {{ relay_address.address }}@{{ RELAY_DOMAIN }}
+                    <span class="alias-copied-icon"></span>
+                    <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="c-alias-meta">
+
+              <div class="c-alias-stats hide-mobile">
+                    {% include "includes/alias-stats.html" %}
               </div>
 
-              <!-- enable/disable email forwarding -->
-              <div class="relay-email-column flx flx-row email-forwarding">
-                <form action="{% url 'emails-index' %}" method="POST" class="flx flx-row al-cntr email-forwarding-form">
-                  <input type="hidden" name="method_override" value="PUT">
+              <button class="toggle-details-visibility c-alias-toggle-button js-toggle-details card-small-text">
+                <span class="show-details-label detail-label xflx"></span>
+                <span class="hide-details-label detail-label xflx"></span>
+                <span class="detail-label-icon">
+                  <img src="/static/images/arrowhead.svg" alt="">
+                </span>
+              </button> 
+            </div>
+            
+          </div> 
+
+          <div class="c-alias-copy">
+            <button title="Click to copy"
+              data-id="{{ relay_address.id }}"
+              data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}"
+              class="relay-address click-copy ff-Met jst-cntr al-cntr">
+                {{ relay_address.address }}@{{ RELAY_DOMAIN }}
+                <span class="alias-copied-icon"></span>
+                <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
+            </button>
+          </div>
+
+          <div class="c-alias-additional-info js-alias-details">
+              <div class="c-alias-data-collection">
+                <!-- forwarding message -->
+                <div class="c-alias-data forward ">
+                  <img class="" src="/static/images/icon-email.svg" alt="">
+                  <div>
+                    <span class="c-alias-data-label">{% ftlmsg 'profile-label-forward-emails' %}</span>
+                    <span class="c-alias-data-value">{{ request.user.email }}</span>
+                  </div>
+                </div>
+
+                <!-- created by date -->
+                <div class="c-alias-data created-by">
+                  <img class="" src="/static/images/icon-calendar-gray.svg" alt="">
+                  <div>
+                    <span class="c-alias-data-label">{% ftlmsg 'profile-label-created' %}</span>
+                    <span class="c-alias-data-value">{{ relay_address.created_at|date:"M j, Y" }}</span>
+                  </div>
+                </div>
+              </div>
+
+
+              <!-- delete email address -->
+              <div class="column-delete">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ RELAY_DOMAIN }}">
+                  <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                  <span class="forwarding-label-wrapper card-small-text">{% if relay_address.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
-                  {% if relay_address.enabled %}
-                  <button type="submit" name="enabled" value="Disable" title="Disable email forwarding for this alias" class="text-center forwarding-toggle"></button>
-                  {% else %}
-                  <button type="submit" name="enabled" value="Enable" title="Enable email forwarding for this alias" class="text-center forwarding-disabled forwarding-toggle"></button>
-                  {% endif %}
-                </form>
-              </div> <!--end enable/disable toggle -->
-            </div>
-            <div class="relay-email-card drop-shadow-light flx flx-col">
-              <div class="relay-email-row card-middle-row card-row flx flx-row">
-                <!--relay address-->
-                <div class="relay-email-column flx flx-col">
-                  <span class="relay-email-address-note"></span>
-                  <div class="flx flx-row al-cntr">
-                    <button title="Click to copy"
-                      data-id="{{ relay_address.id }}"
-                      data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}"
-                      class="relay-address click-copy ff-Met flx jst-cntr al-cntr">
-                        {{ relay_address.address }}@{{ RELAY_DOMAIN }}
-                        <span class="alias-copied-icon"></span>
-                        <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
-                    </button>
-                  </div>
-                  <button class="toggle-details-visibility card-small-text">
-                    <span class="show-details-label detail-label flx">{% ftlmsg 'profile-label-details-show' %}</span>
-                    <span class="hide-details-label detail-label flx">{% ftlmsg 'profile-label-details-hide' %}</span>
-                    <span class="detail-label-icon"></span>
+                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="{% ftlmsg 'profile-label-delete-alias' %}">
+                    <span class="remove-label relay-email-label">{% ftlmsg 'profile-label-delete' %}</span>
                   </button>
-                </div>
-                <div class="relay-email-column alias-stats-wrapper">
-                  <div class="nested-grid flx flx-row hide-mobile">
-                    {% include "includes/alias-stats.html" %}
-                  </div>
-                </div>
-              </div><!-- end row -->
-              <div class="relay-email-row card-row details-wrapper flx">
-                <div class="show-mobile nested-grid flx flx-row">
-                  {% include "includes/alias-stats.html" %}
-                </div>
-                <div class="details-row">
-                  <section class="relay-email-column details-column flx flx-col">
-                    <span class="card-small-text created-label">{% ftlmsg 'profile-label-created' %}</span>
-                    <span class="email-value card-small-text text-dark">{{ relay_address.created_at|date:"M j, Y" }}</span>
-                  </section>
+                </form>
+              </div> <!--end delete-->
 
-                  <!-- forwarding message -->
-                  <section class="relay-email-column hide-mobile details-column flx flx-col">
-                    <span class="relay-email-label email-forwarding-label card-small-text">{% ftlmsg 'profile-label-forward-emails' %}</span>
-                    <span class="text-dark demi primary-email-address card-small-text">{{ request.user.email }}</span>
-                  </section>
-                </div>
+            </div><!--row-end-->
 
+        </div> <!-- end relay-email-->
+      {% endfor %}
 
-                <!-- delete email address -->
-                <section class="relay-email-column column-delete center-value">
-                  <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ RELAY_DOMAIN }}">
-                    <input type="hidden" name="method_override" value="DELETE">
-                    <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
-                    <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                    <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this alias">
-                      <span class="remove-label relay-email-label card-small-text">{% ftlmsg 'profile-label-delete' %}</span>
-                    </button>
-                  </form>
-                </section> <!--end delete-->
-
-              </div><!--row-end-->
-            </div> <!-- end card-->
-          </div> <!-- end relay-email-->
-        {% endfor %}
-
-        {% for domain_address in domain_addresses %}
-      
-        <div class="relay-email {% if domain_address.enabled %} card-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{% user_email_domain user_profile %}" data-relay-address-id="{{ domain_address.id }}">
-          <div class="relay-email-row card-top-row flx flx-row inset">
-            <!-- alias label -->
-            <div class="additional-notes hide-mobile">
-              <input data-label="" type="text" maxlength="50" value="" aria-label="Edit the label for this alias" class="relay-email-address-label ff-Met">
-              <span class="saved-confirmation">{% ftlmsg 'modal-rename-alias-saved' %}</span>
-              <span class="input-error"></span>
-            </div>
-
+      {% for domain_address in domain_addresses %}
+    
+        <div class="c-alias js-alias relay-email {% if domain_address.enabled %} is-enabled card-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{% user_email_domain user_profile %}" data-relay-address-id="{{ domain_address.id }}">
+          
+          <div class="c-alias-main-info">
             <!-- enable/disable email forwarding -->
-            <div class="relay-email-column flx flx-row email-forwarding">
-              <form action="{% url 'emails-index' %}" method="POST" class="flx flx-row al-cntr email-forwarding-form">
+            <div class="c-alias-toggle email-forwarding">
+              <form action="{% url 'emails-index' %}" method="POST" class="xflx xflx-row al-cntr email-forwarding-form">
                 <input type="hidden" name="method_override" value="PUT">
                 <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                 <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">
-                <span class="forwarding-label-wrapper card-small-text">{% if domain_address.enabled %} forwarding {% else %} blocking {% endif %}</span>
+                <span class="forwarding-label-wrapper card-small-text hidden">{% if domain_address.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
                 {% if domain_address.enabled %}
                 <button type="submit" name="enabled" value="Disable" title="Disable email forwarding for this alias" class="text-center forwarding-toggle"></button>
                 {% else %}
                 <button type="submit" name="enabled" value="Enable" title="Enable email forwarding for this alias" class="text-center forwarding-disabled forwarding-toggle"></button>
                 {% endif %}
               </form>
-            </div> <!--end enable/disable toggle -->
-          </div>
-          <div class="relay-email-card drop-shadow-light flx flx-col">
-            <div class="relay-email-row card-middle-row card-row flx flx-row">
-              <!--relay address-->
-              <div class="relay-email-column flx flx-col">
-                <span class="relay-email-address-note"></span>
-                <div class="flx flx-row al-cntr">
-                  <button title="Click to copy"
-                    data-id="{{ domain_address.id }}"
-                    data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
-                    class="relay-address click-copy ff-Met flx jst-cntr al-cntr">
-                      {{ domain_address.address }}@{% user_email_domain user_profile %}
-                      <span class="alias-copied-icon"></span>
-                      <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
-                  </button>
+
+
+            </div>
+            <!--end enable/disable toggle -->
+
+            <div class="c-alias-name xflx xflx-col">
+              <div class="relay-email-row card-top-row xflx xflx-row inset">
+                <!-- alias label -->
+                <div class="additional-notes">
+                  <input data-label="" type="text" maxlength="50" value="" aria-label="{% ftlmsg 'profile-label-edit' %}" class="relay-email-address-label ff-Met">
+                  <span class="saved-confirmation">{% ftlmsg 'profile-label-saved' %}</span>
+                  <span class="input-error"></span>
                 </div>
-                <button class="toggle-details-visibility card-small-text">
-                  <span class="show-details-label detail-label flx">{% ftlmsg 'profile-label-details-show' %}</span>
-                  <span class="hide-details-label detail-label flx">{% ftlmsg 'profile-label-details-hide' %}</span>
-                  <span class="detail-label-icon"></span>
+
+                <button title="Click to copy"
+                  data-id="{{ domain_address.id }}"
+                  data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
+                  class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
+                    {{ domain_address.address }}@{% user_email_domain user_profile %}
+                    <span class="alias-copied-icon"></span>
+                    <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
                 </button>
               </div>
-              <div class="relay-email-column alias-stats-wrapper">
-                <div class="nested-grid flx flx-row hide-mobile">
-                  {% include "includes/alias-stats.html" with relay_address=domain_address only %}
-                </div>
-              </div>
-            </div><!-- end row -->
-            <div class="relay-email-row card-row details-wrapper flx">
-              <div class="show-mobile nested-grid flx flx-row">
-                  {% include "includes/alias-stats.html" with relay_address=domain_address only %}
-              </div>
-              <div class="details-row">
-                <section class="relay-email-column details-column flx flx-col">
-                  <span class="card-small-text created-label">First emailed:</span>
-                  <span class="email-value card-small-text text-dark">{{ domain_address.first_emailed_at|date:"M j, Y" }}</span>
-                </section>
+            </div>
 
+            <div class="c-alias-meta">
+
+              <div class="c-alias-stats hide-mobile">
+                    {% include "includes/alias-stats.html" with relay_address=domain_address only %}
+              </div>
+
+              <button class="toggle-details-visibility c-alias-toggle-button js-toggle-details card-small-text">
+                <span class="show-details-label detail-label xflx"></span>
+                <span class="hide-details-label detail-label xflx"></span>
+                <span class="detail-label-icon">
+                  <img src="/static/images/arrowhead.svg" alt="">
+                </span>
+              </button> 
+            </div>
+            
+          </div> 
+
+          <div class="c-alias-copy">
+            <button title="Click to copy"
+              data-id="{{ domain_address.id }}"
+              data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
+              class="relay-address click-copy ff-Met xflx jst-cntr al-cntr">
+                {{ domain_address.address }}@{% user_email_domain user_profile %}
+                <span class="alias-copied-icon"></span>
+                <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
+            </button>
+          </div>
+
+          <div class="c-alias-additional-info js-alias-details">
+              <div class="c-alias-data-collection">
                 <!-- forwarding message -->
-                <section class="relay-email-column hide-mobile details-column flx flx-col">
-                  <span class="relay-email-label email-forwarding-label card-small-text">{% ftlmsg 'profile-label-forward-emails' %}</span>
-                  <span class="text-dark demi primary-email-address card-small-text">{{ request.user.email }}</span>
-                </section>
+                <div class="c-alias-data forward ">
+                  <img class="" src="/static/images/icon-email.svg" alt="">
+                  <div>
+                    <span class="c-alias-data-label">{% ftlmsg 'profile-label-forward-emails' %}</span>
+                    <span class="c-alias-data-value">{{ request.user.email }}</span>
+                  </div>
+                </div>
+
+                <!-- created by date -->
+                <div class="c-alias-data created-by">
+                  <img class="" src="/static/images/icon-calendar-gray.svg" alt="">
+                  <div>
+                    <span class="c-alias-data-label">{% ftlmsg 'profile-label-created' %}</span>
+                    <span class="c-alias-data-value">{{ domain_address.created_at|date:"M j, Y" }}</span>
+                  </div>
+                </div>
               </div>
 
 
               <!-- delete email address -->
-              <section class="relay-email-column column-delete center-value">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form flx jst-cntr al-cntr" data-delete-relay="{{ domain_address.address }}@{% user_email_domain user_profile %}">
+              <div class="column-delete">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ domain_address.address }}@{% user_email_domain user_profile %}">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">
-                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="Delete this alias">
-                    <span class="remove-label relay-email-label card-small-text">{% ftlmsg 'profile-label-delete' %}</span>
+                  <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="{% ftlmsg 'profile-label-delete-alias' %}">
+                    <span class="remove-label relay-email-label">{% ftlmsg 'profile-label-delete' %}</span>
                   </button>
                 </form>
-              </section> <!--end delete-->
+              </div> <!--end delete-->
 
             </div><!--row-end-->
-          </div> <!-- end card-->
+
         </div> <!-- end relay-email-->
-        {% endfor %}
 
-        <div> <!-- informtaion footer -->
-          {% ftlmsg 'profile-supports-email-forwarding' size='150' unit='KB' %}
-        </div> <!-- end informtaion footer -->
-        
-      </div><!-- end dashboard-container -->
+      {% endfor %}
 
-        {% if settings.PREMIUM_ENABLED %}
-          {% include "includes/domain-alias-dashboard.html" %}
-        {% endif %}
+      <div> <!-- informtaion footer -->
+        {% ftlmsg 'profile-supports-email-forwarding' size='150' unit='KB' %}
+      </div> <!-- end informtaion footer -->
       
-    </div>
+    </div><!-- end dashboard-container -->
+    
   </div>
+
+  {% if settings.PREMIUM_ENABLED %}
+    {% include "includes/domain-alias-dashboard.html" %}
+  {% endif %}
+
 </main>
 
 {% endblock %}

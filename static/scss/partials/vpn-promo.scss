@@ -1,26 +1,18 @@
 html,
 body {
-  --vpn-purple: #c5c8fb;
-}
-
-.vpn-banner-visible main {
-  padding-top: 17rem;
+  --vpn-purple: #C5C8FB;
 }
 
 .vpn-promo-banner + .micro-survey-banner {
   display: none;
 }
 
-// .vpn-banner-visible .micro-survey-banner {
-//   display: none;
-// }
-
 .vpn-promo-banner {
-  background-color: var(--background);
+  background-color: $color-grey-05;
   font-family: "Metropolis", sans-serif;
   font-size: 16px;
   position: relative;
-  transition: max-height 0.3s ease-out;
+  transition: max-height .3s ease-out;
   overflow: hidden;
   max-height: 500px;
 }
@@ -40,25 +32,25 @@ body {
 }
 
 .vpn-promo-banner-wrapper {
-  max-width: 1000px;
+  max-width: $content-lg;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: $spacing-md $spacing-xl;
   text-align: center;
 }
 
 .vpn-promo-logo {
   display: block;
   max-width: 122px;
-  margin: 0 auto 1rem;
+  margin: 0 auto $spacing-md;
 }
 
 .vpn-promo-copy {
   text-align: center;
   font-size: 1rem;
-  max-width: 320px;
-  margin: 0 auto 1rem;
+  max-width: $content-sm;
+  margin: 0 auto $spacing-md;
   line-height: 1.2rem;
-  color: var(--inkDark);
+  color: $color-violet-90;
 }
 
 .vpn-promo-copy strong, .vpn-promo-copy span {
@@ -66,36 +58,27 @@ body {
   margin: 0 0 2px;
 }
 
-.vpn-promo-copy small {
-  padding-top: 2px;
-  display: block;
-  font-size: 0.65rem;
-  margin: 0 auto;
-  line-height: normal;
-  font-style: italic;
-}
-
 .vpn-promo-banner a {
   background-color: var(--bgLight);
-  border: solid 2px var(--inkDark);
-  box-shadow: 8px 8px 0 #6a57dc;
-  color: var(--inkDark);
+  border: solid 2px $color-violet-90;
+  box-shadow: 8px 8px 0 #6A57DC;
+  color: $color-violet-90;
   cursor: pointer;
   display: inline-block;
   font-size: 1.125rem;
   font-weight: bold;
   line-height: 1.5rem;
-  padding: 0.5rem 1rem;
-  margin-bottom: 1rem;
+  padding: $spacing-sm $spacing-md;
+  margin-bottom: $spacing-md;
   position: relative;
   text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color .15s ease, color .15s ease;
 }
 
 .vpn-promo-banner a:hover,
 .vpn-promo-banner a:active,
 .vpn-promo-banner a:focus {
-  background-color: var(--inkDark);
+  background-color: $color-violet-90;
   color: var(--bgLight);
 }
 
@@ -103,11 +86,12 @@ body {
   -moz-appearance: none;
   -webkit-appearance: none;
   position: absolute;
-  top: 0.5rem;
+  top: $spacing-sm;
   right: 0;
   border: none;
   outline: none;
   display: block;
+  background-color: transparent;
 }
 
 .vpn-promo-banner button:hover img {
@@ -115,14 +99,14 @@ body {
 }
 
 .vpn-promo-banner button:active img {
-  transform: scale(0.9);
+  transform: scale(.9);
 }
 
 .vpn-promo-banner button img {
   display: block;
   width: 30px;
   height: 30px;
-  transition: transform 0.2s ease-out;
+  transition: transform .2s ease-out;
 }
 
 @media screen and (min-width: 700px) {
@@ -134,6 +118,7 @@ body {
 
   .vpn-promo-copy {
     flex-shrink: 2;
+    padding: 0 $spacing-md;
   }
 
   .vpn-promo-copy strong {
@@ -151,55 +136,22 @@ body {
   }
 
   .vpn-promo-banner a {
-    margin-bottom: 0.25rem;
+    margin-bottom: .25rem;
   }
-
-  .vpn-banner-visible main {
-    &.dashboard-container {
-      padding-top: 9rem;
-    }
-    padding-top: 10rem;
-  }
-
-  .vpn-promo-copy small {
-    max-width: 400px;
-  }
-
 }
 
 @media screen and (min-width: 800px) {
   .vpn-promo-copy {
-    max-width: none;
-    padding: 0 1rem;
-  }
-
-  .vpn-banner-visible main {
-    padding-top: 5rem;
-  }
-  
-  .vpn-promo-copy small {
-    max-width: none;
-  }
+    padding: 0 $spacing-md;
+  } 
 }
 
 @media screen and (min-width: 960px) {
   .vpn-promo-banner button {
-    top: 0.25rem;
-    right: 0.25rem;
+    top: $spacing-xs;
+    right: $spacing-xs;
   }
   .vpn-promo-banner a {
     flex-shrink: 0;
-  }
-}
-
-@media screen and (min-width: 850px) {
-  .vpn-banner-visible main.dashboard-container {
-    padding-top: 7rem;
-  }
-}
-
-@media screen and (min-width: 950px) {
-  .vpn-banner-visible main.dashboard-container {
-    padding-top: 6rem;
   }
 }

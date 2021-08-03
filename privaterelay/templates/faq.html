@@ -11,15 +11,15 @@
       <div class="faq-col flx flx-col">
         <section class="faq">
           <h2 class="faq-headline">{% ftlmsg 'faq-question-1-question' %}</h2>
-          <p class="faq-answer">
-            {% ftlmsg 'faq-question-1-answer-a-html' %} 
+          <p class="faq-answer js-set-href">
+            {% ftlmsg 'faq-question-1-answer-a' %} 
             <br/><br/>
-            {% ftlmsg 'faq-question-1-answer-b-html' url='https://addons.mozilla.org/firefox/addon/private-relay/' attrs='target="_blank" rel="noopener" class="text-link"' %}
+            {% ftlmsg 'faq-question-1-answer-b-html' url='https://addons.mozilla.org/firefox/addon/private-relay/' attrs='class="text-link" data-url="https://addons.mozilla.org/firefox/addon/private-relay/"' %}
           </p>
         </section>
         <section class="faq">
           <h2 class="faq-headline">{% ftlmsg 'faq-question-2-question' %}</h2>
-          <p class="faq-answer">{% ftlmsg 'faq-question-2-answer-html' url='https://addons.mozilla.org/firefox/addon/private-relay/' attrs='target="_blank" rel="noopener" class="text-link"' %}</p>
+          <p class="faq-answer js-set-href">{% ftlmsg 'faq-question-2-answer-html' url='https://addons.mozilla.org/firefox/addon/private-relay/' attrs='class="text-link" data-url="https://addons.mozilla.org/firefox/addon/private-relay/"' %}</p>
         </section>
       </div>
       <div class="faq-col flx flx-col">
@@ -29,7 +29,7 @@
         </section>
         <section class="faq">
           <h2 class="faq-headline">{% ftlmsg 'faq-question-4-question' %}</h2>
-          <p class="faq-answer">{% ftlmsg 'faq-question-4-answer-html' url='https://github.com/mozilla/fx-private-relay/issues/99' attrs='rel="noopener noreferrer" class="text-link"' %}</p>
+          <p class="faq-answer js-set-href">{% ftlmsg 'faq-question-4-answer-html' url='https://github.com/mozilla/fx-private-relay/issues/99' attrs='class="text-link" data-url="https://github.com/mozilla/fx-private-relay/issues/99"' %}</p>
         </section>
         <section class="faq">
           <h2 class="faq-headline">{% ftlmsg 'faq-question-5-question' %}</h2>

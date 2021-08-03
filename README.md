@@ -17,6 +17,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
   following should work:
     * On Ubuntu: `sudo apt install postgresql libpq-dev`
     * On OSX: `brew install postgresql libpq`
+    * On Fedora: `sudo dnf install libpq-devel`
 * [SES](https://aws.amazon.com/ses/) if you want to send real emails
 * [NPM](https://www.npmjs.com/) and [Gulp](https://gulpjs.com/) to compile SCSS
 

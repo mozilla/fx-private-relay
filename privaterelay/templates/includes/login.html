@@ -26,7 +26,7 @@
 	{% else %}
 		{% get_social_accounts request.user as accounts %}
 		<glocal-menu class="glocal-menu">
-			<button class="avatar-wrapper" aria-label="Open Menu">
+			<button class="avatar-wrapper" aria-label="{% ftlmsg 'label-open-menu' %}">
 				<img class="avatar" src="{{ avatar }}" alt="{% ftlmsg 'nav-profile-image-alt' %}" />
 			</button>
 			<div class="glocal-menu-wrapper">

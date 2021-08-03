@@ -53,12 +53,12 @@ async function updateEmailForwardingPrefs(submitEvent) {
       if (prefToggle.value === "Enable") {
         prefToggle.title = "Disable email forwarding for this alias";
         toggleLabel.textContent = "forwarding";
-        wrappingEmailCard.classList.add("card-enabled");
+        wrappingEmailCard.classList.add("is-enabled");
         return prefToggle.value = "Disable";
       } else if (prefToggle.value === "Disable") {
         prefToggle.title="Enable email forwarding to this alias";
         toggleLabel.textContent = "blocking";
-        wrappingEmailCard.classList.remove("card-enabled");
+        wrappingEmailCard.classList.remove("is-enabled");
         return prefToggle.value = "Enable";
       }
     }
@@ -202,29 +202,8 @@ function isAddonInstallInLocalStorage() {
 }
 
 function toggleAliasCardDetailsVisibility(aliasCard) {
-  const detailsWrapper = aliasCard.querySelector(".details-wrapper");
-  aliasCard.classList.toggle("show-card-details");
-
-  const resizeAliasDetails = () => {
-    if (aliasCard.classList.contains("show-card-details")) {
-      aliasCard.style.paddingBottom = `${detailsWrapper.clientHeight}px`;
-    }
-  };
-
-  if (aliasCard.classList.contains("show-card-details")) {
-    resizeAliasDetails();
-    window.addEventListener("resize", resizeAliasDetails);
-    return;
-  }
-  aliasCard.style.paddingBottom = "0";
-  window.removeEventListener("resize", resizeAliasDetails);
-}
-
-function resetBodyPadding() {
-  const header = document.querySelector("header");
-  const headerHeight = header.clientHeight;
-  document.body.style.paddingTop = headerHeight + "px";
-  return;
+  const detailsWrapper = aliasCard.querySelector(".js-alias-details");
+  detailsWrapper.classList.toggle("is-visible");
 }
 
 function recruitmentLogic() {
@@ -239,13 +218,6 @@ function recruitmentLogic() {
     return;
   }
 
-  // Reset document.body padding to accomodate height of recruitment banner
-  resetBodyPadding()
-
-  // Reset document.body padding when window is resized and the 
-  // submenu becomes visible/hidden
-  window.addEventListener("resize", resetBodyPadding);
-
   recruitmentBannerLink.addEventListener("click", () => {
     const date = new Date();
     date.setTime(date.getTime() + 30*24*60*60*1000)
@@ -254,9 +226,10 @@ function recruitmentLogic() {
 }
 
 function addEventListeners() {
-  document.querySelectorAll(".relay-email-card").forEach(aliasCard => {
-    const toggleDetailsBtn = aliasCard.querySelector(".toggle-details-visibility");
+  document.querySelectorAll(".js-alias").forEach(aliasCard => {
+    const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
     toggleDetailsBtn.addEventListener("click", () => {
+      toggleDetailsBtn.classList.toggle("is-active")
       toggleAliasCardDetailsVisibility(aliasCard);
     });
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
@@ -290,12 +263,6 @@ function addEventListeners() {
     const mobileMenuLinks = document.querySelector(".mobile-menu-links");
     mobileMenuButton.addEventListener("click", () => {
       mobileMenuWrapper.classList.toggle("menu-open");
-      if (mobileMenuWrapper.classList.contains("menu-open")) {
-        mobileMenuLinks.style.top = mobileMenuWrapper.clientHeight + "px";
-       return mobileMenuWrapper.style.minHeight = mobileMenuLinks.clientHeight + mobileMenuWrapper.clientHeight + "px";
-      }
-      mobileMenuLinks.style.top = "0";
-      return mobileMenuWrapper.style.minHeight = "0";
     });
   }
 
@@ -393,11 +360,24 @@ function showBannersIfNecessary() {
   return showBanner(relayAddonBanner);
 }
 
+function setTranslatedStringLinks() {
+  const links = document.querySelectorAll(".js-set-href a");
+
+  for (const link of links) {
+    const url = link.dataset.url;
+    link.href = url;
+    link.classList.add("text-link");
+    link.setAttribute('target', '_blank');
+    link.setAttribute('rel', 'noopener noreferrer');
+  }
+
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   watchForInstalledAddon();
   addEventListeners();
   vpnBannerLogic();
+  setTranslatedStringLinks();
 
   // TODO: Set up language gate once l10n is active.
   // const preferredLanguages = navigator.languages;

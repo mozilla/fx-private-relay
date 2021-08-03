@@ -1,5 +1,5 @@
 glocal-menu {
-  --firefoxGradient: linear-gradient(-90deg, #ff9100 0%, #f10366 50%, #6173ff 100%);
+  --firefoxGradient: linear-gradient(-90deg, #FF9100 0%, #F10366 50%, #6173FF 100%);
   --glocalBackground: rgb(249, 249, 250);
   --glocalIconMargin: auto 12px auto auto;
   --glocalLargeAvatarDimensions: 42px;
@@ -7,9 +7,9 @@ glocal-menu {
   --glocalSectionPadding: var(--glocalPaddingUnit) calc(var(--glocalPaddingUnit) + 12px) var(--glocalPaddingUnit) var(--glocalPaddingUnit);
   --glocalSmallAvatarDimensions: 28px;
   --glocalOptionHoverColor: rgb(230, 230, 230);
-  --ink: #20123a;
+  --ink: #20123A;
 
-  color: var(--ink);
+  color: $color-violet-90;
 }
 
 .glocal-menu-wrapper {
@@ -19,7 +19,7 @@ glocal-menu {
   color: #000000;
   right: 28px;
   border-radius: 8px;
-  box-shadow: 0 7px 12px -3px rgba(28, 28, 29, 0.502);
+  box-shadow: 0 7px 12px -3px rgba(28, 28, 29, .502);
 }
 
 .glocal-menu-wrapper.fx-bento-fade-out {
@@ -43,12 +43,12 @@ glocal-menu {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, 0);
   padding: 0;
   border: none;
-  transition: all 0.2s ease;
+  transition: all .2s ease;
 }
 
 .avatar-wrapper:hover {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 1), 0 0 0px 5px rgba(255, 255, 255, .3);
-  transition: all 0.2s ease;
+  transition: all .2s ease;
 }
 
 .avatar-wrapper:focus {
@@ -75,10 +75,10 @@ glocal-menu {
 .glocal-menu-open {
   visibility: visible;
   transform: translateY(17px);
-  animation: glocalMenuAppear ease 0.3s;
+  animation: glocalMenuAppear ease .3s;
   z-index: 100;
-  -webkit-animation: glocalMenuAppear ease 0.3s;
-  -moz-animation: glocalMenuAppear ease 0.3s;
+  -webkit-animation: glocalMenuAppear ease .3s;
+  -moz-animation: glocalMenuAppear ease .3s;
 }
 
 .glocal-account-info {
@@ -89,13 +89,13 @@ glocal-menu {
 .glocal-fxa-email {
   font-size: 16px;
   font-weight: 600;
-  color: var(--ink);
+  color: $color-violet-90;
   margin-bottom: 2px;
 }
 
 .glocal-fxa-settings-link {
   font-size: 14px;
-  color: var(--grey50);
+  color: $color-grey-50;
   display: flex;
   align-items: center;
 }
@@ -103,10 +103,11 @@ glocal-menu {
 .glocal-fxa-settings-link:hover,
 .glocal-fxa-settings-link:focus {
   text-decoration: underline;
+  color: $color-grey-50;
 }
 
 .glocal-fxa-settings-link:active {
-  color: var(--grey60);
+  color: $color-grey-60;
 }
 
 .glocal-fxa-settings-link::after {
@@ -131,12 +132,12 @@ glocal-menu {
   padding: 2px var(--glocalPaddingUnit);
   width: 100%;
   background-color: rgba(255, 255, 255, 0);
-  transition: 0.2s ease-in-out;
+  transition: .2s ease-in-out;
 }
 
 .glocal-site-option:hover {
   background-color: var(--glocalOptionHoverColor);
-  transition: 0.2s ease-in-out;
+  transition: .2s ease-in-out;
 }
 
 .glocal-sign-out {
@@ -146,7 +147,7 @@ glocal-menu {
   font-size: 14px;
   display: flex;
   align-items: center;
-  color: var(--ink);
+  color: $color-violet-90;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 

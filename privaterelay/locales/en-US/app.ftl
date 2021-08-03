@@ -32,6 +32,7 @@ meta-description = { -brand-name-firefox-relay } makes it easy to create email a
 logo-alt= { -brand-name-firefox-relay }
 nav-menu = Menu
 nav-home = Home
+label-open-menu = Open menu
 
 # FAQ stands for Frequently Asked Questions. The intent of this page is to answer commonly asked questions.
 nav-faq = FAQ
@@ -66,16 +67,12 @@ bento-button-close-label = Close menu
 home-hero-headline = Hide your real email address to help protect your identity
 home-hero-copy = { -brand-name-firefox-relay } makes it easy to create aliases, randomly generated email addresses that forward to your real inbox.
     Use it to protect your online accounts - and your identity - from hackers. Sign in with your { -brand-name-firefox-account } to get started.
-home-hero-cta = Sign in
+home-hero-cta = Sign In
 how-it-works-headline = How It Works
 how-it-works-subheadline = Protect your personal identity everywhere you use the { -brand-name-firefox-browser }.
 how-it-works-step-1-headline = Install the extension
-
-# Variables:
-#   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
-#   $attrs (string) - specific attributes added to external links
-how-it-works-step-1-copy-html = <a href="{ $url }" { $attrs }>Download the { -brand-name-relay } extension for { -brand-name-firefox }</a>. 
-    Select the icon that appears on your { -brand-name-firefox } toolbar to access the sign-in page. 
+how-it-works-step-1-link = Download the { -brand-name-relay } extension for { -brand-name-firefox }.
+how-it-works-step-1-copy = Select the icon that appears on your { -brand-name-firefox } toolbar to access the sign-in page. 
     Sign in with your { -brand-name-firefox-account } to get started.
 how-it-works-step-2-headline = Create a new alias
 how-it-works-step-2-copy = As you browse, the { -brand-name-relay } icon will appear in form fields where sites ask for your email address. 
@@ -94,7 +91,7 @@ hero-image-copy-control-html = Now <em>you’re in control</em> of what’s arri
 
 faq-headline = Frequently Asked Questions
 faq-question-1-question = What about spam?
-faq-question-1-answer-a-html = While { -brand-name-relay } does not filter for spam, our email partner Amazon SES does block spam and malware. If { -brand-name-relay } forwards messages you don’t want, you can update your { -brand-name-relay } settings to block messages from the alias forwarding them.  
+faq-question-1-answer-a = While { -brand-name-relay } does not filter for spam, our email partner Amazon SES does block spam and malware. If { -brand-name-relay } forwards messages you don’t want, you can update your { -brand-name-relay } settings to block messages from the alias forwarding them.  
 
 # Variables:
 #   $url (url) - https://addons.mozilla.org/firefox/addon/private-relay/
@@ -123,7 +120,7 @@ email-size-limit = { $size } { $unit }
 #   $url (url) - https://github.com/mozilla/fx-private-relay/issues/99
 #   $attrs (string) - specific attributes added to external links
 faq-question-4-answer-html = { -brand-name-relay } does not yet offer the ability to reply using an alias. 
-    If you try, nothing will happen. We are planning an additional feature to let you <a href="{ $url }" {$attrs}>reply anonymously to senders</a>.
+    If you try, nothing will happen. We are planning an additional feature to let you <a href="{ $url }" { $attrs }>reply anonymously to senders</a>.
 faq-question-5-question = Can I make up my own { -brand-name-relay } alias using the @relay.firefox.com domain?
 faq-question-5-answer = Not currently, but we are considering new features including letting you create your own alias with a designated domain.
 faq-question-6-question = What happens if { -brand-name-mozilla } shuts down the { -brand-name-firefox-relay } service?
@@ -136,15 +133,16 @@ faq-question-7-answer = We now support attachment forwarding. However, there is 
 # Variables:
 #   $email (string) - User email address
 profile-label-welcome-html = <span>Welcome,</span> { $email }!
-profile-headline-manage-relay = Manage your { -brand-name-relay } aliases
 profile-headline-manage-domain = Manage your domain aliases
 profile-supports-email-forwarding = { -brand-name-firefox-relay } supports email forwarding (including attachments) of email up to { email-size-limit } in size
 profile-promo-upgrade-headline = Upgrade for even more features.
 profile-promo-upgrade-copy = Upgrade { -brand-name-relay } to get unlimited email addresses and your own email domain.
 profile-promo-upgrade-cta = Upgrade { -brand-name-relay }
+profile-label-edit = Edit the label for this alias
 profile-label-saved = Label saved!
 profile-label-generate-new-alias = Generate New Alias
 profile-label-delete = Delete
+profile-label-delete-alias = Delete this alias
 profile-label-upgrade = Get unlimited aliases
 profile-label-create-domain = Create your Email Domain
 profile-label-domain = Email Domain:
@@ -194,7 +192,7 @@ banner-download-install-extension-headline = Looks like you haven’t installed 
 banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-install-extension-cta = Get the extension for { -brand-name-firefox }
 banner-upgrade-headline = Buy { -brand-name-mozilla-privacy-pack } for more protection!
-banner-upgrade-copy = With { -brand-name-mozilla-privacy-pack } you get unlimited email address and your own email domain.
+banner-upgrade-copy = With { -brand-name-mozilla-privacy-pack } you get unlimited email addresses and your own email domain.
 banner-upgrade-cta = Upgrade to { -brand-name-mozilla-privacy-pack } now!
 banner-choose-subdomain-headline = Choose your own domain
 banner-choose-subdomain-headline-aliases = Get your email domain for your aliases
@@ -203,7 +201,7 @@ banner-choose-subdomain-warning = NOTE: YOU CANNOT CHANGE THIS LATER!
 banner-choose-subdomain-input-placeholder = banner-choose-subdomain-warning
 
 banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-mozilla-privacy-pack }</strong> to get more protection.
-banner-pack-upgrade-copy = Unlimited email aliases, your own email domain, monitor your email for data breaches, VPN included
+banner-pack-upgrade-copy = With unlimited email aliases, your own email domain, data breach monitoring, and VPN, { -brand-name-mozilla-privacy-pack } helps you stay protected online.
 banner-pack-upgrade-cta = Upgrade Now!
 
 # This string is followed by name (string) that the user chooses
@@ -212,17 +210,6 @@ banner-choose-subdomain-label = Your domain is:
 # Variables:
 # $subdomain (url) - User-set subdomain
 banner-choose-subdomain-label = You can make up any address @{ $subdomain }
-
-
-remaining-aliases-promo-label = { $number -> 
-    [one] { $number } remaining alias
-   *[other] { $number } remaining aliases
-}
-
-remaining-aliases-promo-label-unlimited = { $number -> 
-    [one] { $number } alias. You can make unlimited!
-   *[other] { $number } aliases. You can make unlimited!
-}
 
 remaining-aliases-cta = Buy unlimited aliases
 onboarding-headline = Three ways to create an alias
@@ -257,9 +244,6 @@ survey-option-not-likely = Not likely
 
 ## VPN Promo Banner
 
-vpn-promo-headline = Now’s the time to boost your safety online.
-vpn-promo-copy = { -brand-name-mozilla }’s Virtual Private Network helps shield your internet connection from hackers and spies. 
+vpn-promo-headline = Save 50% with a full year subscription
+vpn-promo-copy = Protect your online data—and choose a VPN subscription plan that works for you.
 vpn-promo-cta = Get { -brand-name-mozilla-vpn }
-vpn-promo-price-headline = Introductory offer ends soon: $4.99/month for { -brand-name-mozilla-vpn }
-vpn-promo-price-copy = Now's the time to protect your device against hackers and prying eyes.
-vpn-promo-price-disclaimer = Offer only available in the United States, United Kingdom, Canada, New Zealand, Malaysia, and Singapore

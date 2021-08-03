@@ -3,7 +3,7 @@
 function getFxAppLinkInfo(localizedBentoStrings, referringSiteURL) {
   return [
     [localizedBentoStrings.fxMonitor, "https://monitor.firefox.com/", "fx-monitor"],
-    [localizedBentoStrings.pocket, "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447", "pocket"],
+    [localizedBentoStrings.fxPocket, "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447", "pocket"],
     [localizedBentoStrings.fxDesktop, `https://www.mozilla.org/firefox/new/?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`, "fx-desktop"],
     [localizedBentoStrings.fxMobile, `http://mozilla.org/firefox/mobile?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`, "fx-mobile"],
   ];
@@ -20,10 +20,43 @@ function createAndAppendEl(wrapper, tagName, className = null) {
 
 async function getlocalizedBentoStrings() {
 
-  const localizedBentoStrings = {
-    "bentoButtonTitle":"Firefox apps and services","bentoHeadline":"Firefox is tech that fights for your online privacy.","bentoBottomLink":"Made by Mozilla","fxDesktop":"Firefox Browser for Desktop","fxLockwise":"Firefox Lockwise","fxMobile":"Firefox Browser for Mobile","fxMonitor":"Firefox Monitor","pocket":"Pocket","fxSend":"Firefox Send","mobileCloseBentoButtonTitle":"Close menu",
-  };
+  const renderedStrings = document.querySelector(".bento-strings");
+
+  if (!renderedStrings) {
+    return {
+      "bentoButtonTitle":"Firefox apps and services",
+      "fxMakesTech":"Firefox is tech that fights for your online privacy.",
+      "madeByMozilla":"Made by Mozilla",
+      "fxDesktop":"Firefox Browser for Desktop",
+      "fxLockwise":"Firefox Lockwise",
+      "fxMobile":"Firefox Browser for Mobile",
+      "fxMonitor":"Firefox Monitor",
+      "fxPocket":"Pocket",
+      "bentoButtonCloseLabel":"Close menu",
+    };
+  }
+
+  // Pull the localized strings from the custom fluent object in the header 
+  const localizedBentoStrings = {};
+
+  const stringKeyArray = [
+    "bentoButtonTitle",
+    "fxMakesTech",
+    "madeByMozilla",
+    "fxDesktop",
+    "fxLockwise",
+    "fxMobile",
+    "fxMonitor",
+    "fxPocket",
+    "bentoButtonCloseLabel",
+  ]
+
+  for (const key of stringKeyArray) {   
+    localizedBentoStrings[key] = renderedStrings.dataset[key];
+  }
+
   return localizedBentoStrings;
+
 }
 
 class FirefoxApps extends HTMLElement {
@@ -48,7 +81,7 @@ class FirefoxApps extends HTMLElement {
     this._bentoContent = createAndAppendEl(this._bentoHideOverflow, "div", "fx-bento-content");
 
     this._mobileCloseBentoButton = createAndAppendEl(this._bentoContent, "button", "fx-bento-mobile-close toggle-bento");
-    this.addTitleAndAriaLabel(this._mobileCloseBentoButton, this._localizedBentoStrings.mobileCloseBentoButtonTitle);
+    this.addTitleAndAriaLabel(this._mobileCloseBentoButton, this._localizedBentoStrings.bentoButtonCloseLabel);
 
     [this._bentoButton, this._mobileCloseBentoButton].forEach(btn => {
       btn.addEventListener("click", this);
@@ -57,12 +90,12 @@ class FirefoxApps extends HTMLElement {
     this._logoHeadlineWrapper = createAndAppendEl(this._bentoContent, "div", "fx-bento-headline-logo-wrapper");
     this._firefoxLogo = createAndAppendEl( this._logoHeadlineWrapper, "div", "fx-bento-logo");
     this._messageTop = createAndAppendEl( this._logoHeadlineWrapper, "span", "fx-bento-headline");
-    this._messageTop.textContent = this._localizedBentoStrings.bentoHeadline;
+    this._messageTop.textContent = this._localizedBentoStrings.fxMakesTech;
 
     this._appList = this.makeAppList();
 
     this._messageBottomLink = createAndAppendEl(this._bentoContent, "a", "fx-bento-bottom-link fx-bento-link");
-    this._messageBottomLink.textContent = this._localizedBentoStrings.bentoBottomLink;
+    this._messageBottomLink.textContent = this._localizedBentoStrings.madeByMozilla;
     this._messageBottomLink.href = "https://www.mozilla.org/";
 
     this._bentoContent.querySelectorAll("a").forEach( (anchorEl, idx) => {

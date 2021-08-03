@@ -3,15 +3,11 @@
 module.exports = {
   env: {
     es6: true,
+    node: true,
   },
   extends: ["eslint:recommended"],
   overrides: [
     {
-      files: ["extension/**/*.js"],
-      env: {
-        "browser": true,
-        "webextensions": true,
-      },
       globals: {
         areInputIconsEnabled: "writable",
         enableDataOptOut: "writable",

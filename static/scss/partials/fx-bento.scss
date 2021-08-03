@@ -54,7 +54,7 @@ firefox-apps:active {
   top: calc(var(--bentoButtonHeight) + 10px);
   min-width: 260px;
   z-index: calc(var(--zIndex) + 1);
-  box-shadow: 0 7px 12px -3px rgba(28, 28, 29, 0.502);
+  box-shadow: 0 7px 12px -3px rgba(28, 28, 29, .502);
   right: -18px;
   background: var(--backgroundColor);
   border-radius: 8px;
@@ -77,9 +77,9 @@ firefox-apps:active {
   display: block;
   height: auto;
   transform: translateY(12px);
-  animation: fxBentoAppear ease 0.3s;
-  -webkit-animation: fxBentoAppear ease 0.3s;
-  -moz-animation: fxBentoAppear ease 0.3s;
+  animation: fxBentoAppear ease .3s;
+  -webkit-animation: fxBentoAppear ease .3s;
+  -moz-animation: fxBentoAppear ease .3s;
 }
 
 .active .fx-bento-content-wrapper::after { /* tool tip top notch */
@@ -241,7 +241,7 @@ a.fx-bento-link:focus,
 firefox-apps,
 firefox-apps:hover,
 firefox-apps:focus-within {
-  transition: 0.2s ease-in-out;
+  transition: .2s ease-in-out;
 }
 
 body.hide-bento firefox-apps {
@@ -260,7 +260,7 @@ body.hide-bento firefox-apps > button {
   }
 
   .fx-bento-button {
-    transform: scale(0.9);
+    transform: scale(.9);
   }
 }
 

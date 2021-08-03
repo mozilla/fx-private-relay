@@ -1,11 +1,10 @@
 .mpp-choose-subdomain {
-    background: var(--white);
+    background: $color-white;
     border-radius: 7px;
     padding: 2em 1.25em;
     width: 100%;
     img {
         display: none;
-        max-width: 100%;
         height: auto;
         align-self: center;
         max-width: 280px;
@@ -15,6 +14,7 @@
         font-size: 1.25rem;
         margin: 0 0 .5rem;
         padding: 0;
+        color: $color-black;
     }
     p {
         margin: 0 0 1rem;
@@ -27,8 +27,8 @@
         width: 100%;
         display: block;
         border-radius: 4px;
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.5rem;
+        padding: .5rem 1rem;
+        margin-bottom: .5rem;
         &[type='text'] {
             border: 1px solid #CCCCCC;
             width: 100%;
@@ -36,9 +36,9 @@
         
     }
     .warning {
-        font-size: 0.9rem;
+        font-size: .9rem;
         font-weight: 700;
-        color: var(--warningRed);
+        color: $color-warning;
     }
     .border {
         border-left:  1px solid #ECECEC;

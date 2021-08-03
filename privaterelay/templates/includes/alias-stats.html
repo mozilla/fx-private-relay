@@ -2,15 +2,15 @@
 {% load ftl %}
 {% ftlconf mode='server' bundle='privaterelay.ftl_bundles.main' %}
 <!-- blocked emails -->
-<div class="column-blocked center-value relay-stat">
-  <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-blocked' %}</span>
+<div class="column-blocked relay-stat">
   <span class="email-value relay-stat-value num-blocked">{{ relay_address.num_blocked }}</span>
+  <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-blocked' %}</span>
   <span class="blocked-description stat-description">{% ftlmsg 'profile-blocked-copy' %}</span>
 </div>
 <!-- forwarded emails -->
-<div class="column-forwarded center-value relay-stat">
-  <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-forwarded' %}</span>
+<div class="column-forwarded relay-stat">
   <span class="email-value relay-stat-value num-forwarded">{{ relay_address.num_forwarded }}</span>
+  <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-forwarded' %}</span>
   <span class="forwarding-description stat-description">
     {% ftlmsg 'profile-forwarded-copy' %}
     <p>

@@ -1,3 +1,4 @@
+{% load socialaccount %}
 {% load i18n %}
 {% load static %}
 {% load ftl %}
@@ -7,21 +8,27 @@
 
 <header class="flx flx-col spc-btwn">
 
-  {% include "includes/vpn-promo-banner.html" %}
+  {% if settings.INCLUDE_VPN_BANNER %}
+    {% include "includes/vpn-promo-banner.html" %}
+  {% endif %}
 
   {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" %}
     <div class="recruitment-banner">
       <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-funnel-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
     </div>
-  {% elif not request.user.is_anonymous %}
+  {% endif %}
+  {% if not request.user.is_anonymous %}
     <div id="micro-survey-banner" class="micro-survey-banner hidden">
+      {% comment %}
       {% now "U" as now_second %}
       {% if now_second|last == "1" or now_second|last == "6" %}
+      {% endcomment %}
         <span id="micro-survey-prompt" data-survey-type="nps">{% ftlmsg 'survey-question-1' %}</span>
         <ul id="micro-survey-options"
         data-survey-option-very-likely-translated="{% ftlmsg 'survey-option-very-likely' %}"
         data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-not-likely' %}"
         class="micro-survey-options micro-survey-options-numeric"></ul>
+      {% comment %}
       {% elif now_second|last == "2" or now_second|last == "7" %}
         <span id="micro-survey-prompt" data-survey-type="usability">{% ftlmsg 'survey-question-2' %}</span>
         <ul id="micro-survey-options"
@@ -57,11 +64,12 @@
         data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-very-disappointed' %}"
         class="micro-survey-options micro-survey-options-likert"></ul>
       {% endif %}
+      {% endcomment %}
     </div>
   {% endif %}
 
   <div class="flx flx-row spc-btwn row-full-width header-top">
-    <a href="/" class="flx flx-row logo-wrapper" aria-label="Firefox Relay">
+    <a href="/" class="flx flx-row logo-wrapper" aria-label="{% ftlmsg 'logo-alt' %}">
       <div class="fx-private-relay-logomark"></div>
       <div class="fx-private-relay-logotype"></div>
     </a>
@@ -73,9 +81,22 @@
   </div>
   <nav class="flx flx-col ff-Met al-cntr mobile-menu show-mobile-link">
     <button class="mobile-menu-toggle full-width ff-Met" aria-label="Open mobile menu"><span class="mobile-menu-label">{% ftlmsg 'nav-menu' %}</span></button>
+  <nav class="flx flx-col ff-Met al-cntr mobile-menu show-mobile-link">
+    <button class="mobile-menu-toggle full-width ff-Met" aria-label="{% ftlmsg 'label-open-menu' %}"><span class="mobile-menu-label">{% ftlmsg 'nav-menu' %}</span></button>
     <div class="mobile-menu-links flx flx-col">
       <a class="{% if request.path == '/' or request.path == '/accounts/profile/' %} active-header-link {% endif %} mobile-menu-link mobile-home-link" href="/">{% ftlmsg 'nav-home' %}</a>
       <a class="{% if request.path == '/faq' %} active-header-link {% endif %} mobile-menu-link" href="/faq">{% ftlmsg 'nav-faq' %}</a>
+      {% if request.user.is_anonymous %}
+        <a 
+          class="mobile-menu-link mobile-home-link" 
+          href="{% provider_login_url 'fxa' process='login' %}"
+          data-entrypoint="relay-sign-in-header"
+          data-ga="send-ga-funnel-pings"
+          data-event-category="Sign In Buttons"
+          data-event-label="sign-in-btn-header"
+        >{% ftlmsg 'nav-profile-sign-up' %}</a>
+      {% endif %}
     </div>
-    </nav>
+  </nav>
+  <fluent class="bento-strings" data-bento-button-title="{% ftlmsg 'bento-button-title' %}" data-fx-makes-tech="{% ftlmsg 'fx-makes-tech' %}" data-made-by-mozilla="{% ftlmsg 'made-by-mozilla' %}" data-fx-desktop="{% ftlmsg 'fx-desktop' %}" data-fx-lockwise="{% ftlmsg 'fx-lockwise' %}" data-fx-mobile="{% ftlmsg 'fx-mobile' %}" data-fx-monitor="{% ftlmsg 'fx-monitor' %}" data-fx-pocket="{% ftlmsg 'fx-pocket' %}" data-bento-button-close-label="{% ftlmsg 'bento-button-close-label' %}"></fluent>
 </header>
