@@ -37,14 +37,19 @@
 .c-onboarding-step-number {
     background: url(/static/images/dashboard-onboarding/shield.svg) center center no-repeat;
     background-size: contain;
-    color: $color-light-gray-70;
-    text-align: center;
     width: 100%;
     height: 45px;
     line-height: 45px;
     margin: 0 auto $spacing-md;
-    font-weight: bold;
-    font-size: 1rem;
+    
+    &::after {
+        content: attr(data-number);
+        display: block;
+        font-weight: bold;
+        font-size: 1rem;
+        text-align: center;
+        color: $color-light-gray-70;
+    }
 }
 
 .c-onboarding-step-copy {
