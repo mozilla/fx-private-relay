@@ -528,7 +528,7 @@ function vpnBannerLogic() {
 
 //Micro Survey Banner
 function dismissSurvey() {
-	var survey_banner = document.getElementById("micro-survey-banner");
+	const survey_banner = document.getElementById("micro-survey-banner");
 	survey_banner.classList.toggle("is-hidden");
 };
 
