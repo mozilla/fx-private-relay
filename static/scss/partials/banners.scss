@@ -1,0 +1,89 @@
+.recruitment-banner, .micro-survey-banner {
+  text-align: center;
+  position: relative;
+  padding: 1em;
+}
+
+.micro-survey-banner {
+  background: rgba(255,255,255,.1);
+}
+
+.micro-survey-banner.hidden {
+  display: none;
+}
+
+.micro-survey-options {
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.micro-survey-options .micro-survey-option {
+  border-radius: 4px;
+  margin-right: 1rem;
+  background-color: $color-violet-40;
+  transition: background .1s ease-out;
+}
+
+.micro-survey-options .micro-survey-option:hover {
+  background-color: $color-blue-50;
+}
+
+
+.micro-survey-options-numeric .micro-survey-option {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.micro-survey-options-likert .micro-survey-option {
+    padding: .5rem .75rem;
+}
+
+.micro-survey-options li:last-child  {
+  margin-right: 0;
+}
+
+
+.nps-bookend {
+  color: $color-white;
+  text-decoration: none;
+  font-family: $font-metropolis;
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+#recruitment-banner, .micro-survey-option {
+  color: $color-white;
+  text-decoration: none;
+  font-family: $font-metropolis;
+  display: inline-block;
+  padding: 0 1em;
+}
+
+#recruitment-banner:hover, .micro-survey-option:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.recruitment-banner::after, .micro-survey-banner::after {
+  height: 1px;
+  background: var(--fxGradient);
+  content: "";
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: .3;
+}
+
+@media screen and (max-width: 800px) {
+  #micro-survey-banner {
+    display: none;
+  }
+}
