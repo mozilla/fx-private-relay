@@ -1,7 +1,7 @@
 {% if messages %}
 	{% for message in messages %}
-		<div class="messages home-messages">
-			<div{% if message.tags %} class="{{ message.tags }}" {% else %} class="" {% endif %}>
+		<div class="messages">
+			<div{% if message.tags %} class="message-wrapper {{ message.tags }}" {% else %} class="" {% endif %}>
 				<div class="js-notification">
 					<span>{{ message }}</span>
 					<button class="flx center-value dismiss js-dismiss">
