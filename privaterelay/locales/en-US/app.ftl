@@ -143,7 +143,7 @@ profile-label-generate-new-alias = Generate New Alias
 profile-label-delete = Delete
 profile-label-delete-alias = Delete this alias
 profile-label-upgrade = Get unlimited aliases
-profile-label-create-domain = Create your Email Domain
+profile-label-create-domain = Get your email domain
 profile-label-domain = Email Domain:
 profile-label-domain-tooltip = Create your unique and custom email domain.
 profile-label-reset = Reset
@@ -173,6 +173,7 @@ profile-forwarded-note-copy = Email (including attachments) larger than { email-
 profile-stat-label-blocked = Emails Blocked
 profile-stat-label-forwarded = Emails Forwarded
 profile-stat-label-aliases-used = Email aliases used
+profile-filter-search-placeholder = Search aliases
 
 ## Banner Messages (displayed on the profile page)
 
@@ -188,17 +189,18 @@ banner-bounced-copy = We are currently unable to send email to { $username }.
 banner-download-firefox-headline = { -brand-name-relay } is even better in { -brand-name-firefox }
 banner-download-firefox-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-firefox-cta = Get { -brand-name-firefox }
-banner-download-install-extension-headline = Looks like you haven’t installed the extension!
-banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
-banner-download-install-extension-cta = Get the extension for { -brand-name-firefox }
+banner-download-install-extension-headline = Get the { -brand-name-relay } extension for { -brand-name-firefox }
+banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes using email aliases even easier.
+banner-download-install-extension-cta = Add { -brand-name-relay } to { -brand-name-firefox }
 banner-upgrade-headline = Buy { -brand-name-mozilla-privacy-pack } for more protection!
 banner-upgrade-copy = With { -brand-name-mozilla-privacy-pack } you get unlimited email addresses and your own email domain.
 banner-upgrade-cta = Upgrade to { -brand-name-mozilla-privacy-pack } now!
 banner-choose-subdomain-headline = Choose your own domain
-banner-choose-subdomain-headline-aliases = Get your email domain for your aliases
-banner-choose-subdomain-copy = You can choose your own domain for “wildcard” aliases.
-banner-choose-subdomain-warning = NOTE: YOU CANNOT CHANGE THIS LATER!
-banner-choose-subdomain-input-placeholder = banner-choose-subdomain-warning
+banner-choose-subdomain-headline-aliases = Get your own custom alias domain
+banner-choose-subdomain-copy = You can choose a custom domain for your email aliases.
+banner-choose-subdomain-warning = Note: You cannot change your domain later
+banner-choose-subdomain-input-placeholder = Search domain
+banner-choose-subdomain-submit = Get Domain
 
 banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-mozilla-privacy-pack }</strong> to get more protection.
 banner-pack-upgrade-copy = With unlimited email aliases, your own email domain, data breach monitoring, and VPN, { -brand-name-mozilla-privacy-pack } helps you stay protected online.
