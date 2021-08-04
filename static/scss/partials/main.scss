@@ -2288,20 +2288,31 @@ input:focus::placeholder {
   width: 100%;
   padding: $spacing-lg $spacing-md 0 $spacing-md;
   margin: 0 auto;
-}
 
-.messages > div {
-  background-color: $color-grey-50
-}
+  span {
+    color: $color-white;
+    text-align: center;
+    width: 100%;
+    font-weight: 600;
+  }
 
-.messages .success {
-  background-color: $color-success;
-  border-radius: $border-radius-md;
-  box-shadow: var(--dropShadowLight);
-}
+  path {
+    fill: $color-white;
+  }
 
-.messages .error {
-  background-color: $color-error;
+  .message-wrapper {
+    border-radius: $border-radius-md;
+    box-shadow: var(--dropShadowLight);
+  }
+
+  .success {
+    background-color: $color-success;
+  }
+
+  .error {
+    background-color: $color-error;
+  }
+
 }
 
 ul.messages {
@@ -2339,15 +2350,4 @@ ul.messages {
     fill: $color-white !important; 
   }
 
-}
-
-.home-messages span {
-  color: $color-white;
-  text-align: center;
-  width: 100%;
-  font-weight: 600;
-}
-
-.home-messages path {
-  fill: $color-white;
 }
