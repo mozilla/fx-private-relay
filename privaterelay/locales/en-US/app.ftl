@@ -201,7 +201,6 @@ banner-choose-subdomain-copy = You can choose a custom domain for your email ali
 banner-choose-subdomain-warning = Note: You cannot change your domain later
 banner-choose-subdomain-input-placeholder = Search domain
 banner-choose-subdomain-submit = Get Domain
-
 banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-mozilla-privacy-pack }</strong> to get more protection.
 banner-pack-upgrade-copy = With unlimited email aliases, your own email domain, data breach monitoring, and VPN, { -brand-name-mozilla-privacy-pack } helps you stay protected online.
 banner-pack-upgrade-cta = Upgrade Now!
@@ -213,11 +212,27 @@ banner-choose-subdomain-label = Your domain is:
 # $subdomain (url) - User-set subdomain
 banner-choose-subdomain-label = You can make up any address @{ $subdomain }
 
-remaining-aliases-cta = Buy unlimited aliases
+## Error Messages
+
+# Variables:
+#   $number (string) - Maximum number of aliases a user can make on a free account. 
+error-premium-set-make-aliases = You must be a premium subscriber to make more than { $number } aliases
+error-premium-cannot-change-subdomain = You cannot change your subdomain
+error-premium-set-subdomain = You must be a premium subscriber to set a subdomain
+error-premium-set-create-subdomain = You must be a premium subscriber to create subdomain aliases
+error-subdomain-not-created = Subdomain could not be created, try something else
+error-subdomain-email-not-created = Email address with subdomain could not be created, try something else
+error-subdomain-select = You must select a subdomain before creating email address with subdomain
+
+## Onboarding 
+
 onboarding-headline = Create your first alias, you have three ways…
 onboarding-tip-1 = Just click the button “Generate New Alias” to create your first alias
 onboarding-tip-2 = By selecting the { -brand-name-firefox-relay } icon when it appears in email fields
 onboarding-tip-3 = Via the context menu, just right-click (Windows) or Control-click (macOS) on form fields to access the menu and generate an alias
+
+## Alias Modals
+
 modal-rename-alias-saved = Label saved!
 modal-delete-headline = Permanently delete this alias?
 modal-delete-warning-recovery-html = Once you delete this alias, it cannot be recovered. 
