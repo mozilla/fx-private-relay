@@ -1,33 +1,33 @@
 .recruitment-banner, .micro-survey-banner {
-  text-align: center;
-  position: relative;
-  padding: 1em;
+    text-align: center;
+    position: relative;
+    padding: $spacing-md;
 }
 
 .micro-survey-banner {
-  background: rgba(255,255,255,.1);
+    background: rgba(255,255,255,.1);
 }
 
 .micro-survey-banner.hidden {
-  display: none;
+    display: none;
 }
 
 .micro-survey-options {
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .micro-survey-options .micro-survey-option {
-  border-radius: 4px;
-  margin-right: 1rem;
-  background-color: $color-violet-40;
-  transition: background .1s ease-out;
+    border-radius: $border-radius-sm;
+    margin-right: $spacing-md;
+    background-color: $color-violet-40;
+    transition: background .1s ease-out;
 }
 
 .micro-survey-options .micro-survey-option:hover {
-  background-color: $color-blue-50;
+    background-color: $color-blue-50;
 }
 
 
@@ -41,49 +41,49 @@
 
 
 .micro-survey-options-likert .micro-survey-option {
-    padding: .5rem .75rem;
+    padding: $spacing-sm $spacing-md;
 }
 
 .micro-survey-options li:last-child  {
-  margin-right: 0;
+    margin-right: 0;
 }
 
 
 .nps-bookend {
-  color: $color-white;
-  text-decoration: none;
-  font-family: $font-metropolis;
-  display: inline-block;
-  margin-right: 1rem;
+    color: $color-white;
+    text-decoration: none;
+    font-family: $font-metropolis;
+    display: inline-block;
+    margin-right: $spacing-md;
 }
 
 #recruitment-banner, .micro-survey-option {
-  color: $color-white;
-  text-decoration: none;
-  font-family: $font-metropolis;
-  display: inline-block;
-  padding: 0 1em;
+    color: $color-white;
+    text-decoration: none;
+    font-family: $font-metropolis;
+    display: inline-block;
+    padding: 0 $spacing-md;
 }
 
 #recruitment-banner:hover, .micro-survey-option:hover {
-  cursor: pointer;
-  text-decoration: underline;
+    cursor: pointer;
+    text-decoration: underline;
 }
 
 .recruitment-banner::after, .micro-survey-banner::after {
-  height: 1px;
-  background: var(--fxGradient);
-  content: "";
-  display: block;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  opacity: .3;
+    height: 1px;
+    background: var(--fxGradient);
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    opacity: .3;
 }
 
 @media screen and (max-width: 800px) {
-  #micro-survey-banner {
-    display: none;
-  }
+    #micro-survey-banner {
+        display: none;
+    }
 }
