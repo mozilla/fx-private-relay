@@ -17,6 +17,7 @@ header {
 .logo-wrapper {
     display: flex;
     flex-direction: row;
+    align-items: center;
 }
 
 .header-nav {
@@ -61,17 +62,18 @@ header {
 
 .fx-private-relay-logotype {
     background-image: url("/static/images/fx-private-relay-logotype-light.svg");
-    background-position: center 63%;
+    background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
     min-width: 180px;
+    height: 100%;
 }
 
 .header-link {
-    border-radius: 4px;
-    padding: 4px 6px;
+    border-radius: $border-radius-sm;
+    padding: $spacing-xs $spacing-sm;
     color: $color-white;
-    margin-left: 1em;
+    margin-left: $spacing-md;
 }
 
 .header-link::after {
@@ -145,7 +147,7 @@ header {
     z-index: 1;
     color: $color-white;
     width: 100%;
-    padding: .75em $spacing-xl;
+    padding: $spacing-md $spacing-xl;
 }
 
 .mobile-menu-label {
@@ -181,7 +183,7 @@ header {
     color: rgba(255, 255, 255, 1);
     width: 100%;
     text-align: right;
-    padding: .75em $spacing-xl;
+    padding: $spacing-md $spacing-xl;
     border-bottom: 1px solid rgba(255, 255, 255, .04);
 }
 
@@ -222,6 +224,12 @@ header {
 
 .mobile-menu-link:active {
     background: rgba(0, 0, 0, .1);
+}
+
+.user-area {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 
@@ -323,8 +331,8 @@ header {
     }
 
     .sign-in {
-        padding-left: 1em;
-        padding-right: 1em;
+        padding-left: $spacing-md;
+        padding-right: $spacing-md;
     }
 }
 
@@ -334,7 +342,11 @@ header {
         border-bottom: none;
     }
     .fx-private-relay-logotype {
-        background-position: center 68%;
+        min-width: 120px;
+        background-position: center;
+    }
+    .header-top {
+        padding: $spacing-lg;
     }
 }
 
@@ -363,12 +375,15 @@ header {
         background-size: 400%;
         background-position: bottom right;
     }
+    .header-top {
+        padding: $spacing-md;
+    }
     
 }
 
 @media screen and (max-width: 400px) {
     .fx-private-relay-logomark {
         min-width: 30px;
-        margin-right: 8px;
+        margin-right: $spacing-sm;
     }
 }
