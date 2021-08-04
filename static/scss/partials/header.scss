@@ -32,7 +32,7 @@ header {
 }
 
 .sign-in {
-    padding: .75rem 1.25rem;
+    padding: $spacing-md $spacing-lg;
     font-weight: 400;
     display: flex;
     margin: auto;
@@ -57,7 +57,7 @@ header {
     height: 100%;
     min-width: 42px;
     display: inline-block;
-    margin-right: 12px;
+    margin-right: $spacing-md;
 }
 
 .fx-private-relay-logotype {
@@ -84,7 +84,7 @@ header {
     background: var(--fxGradient);
     opacity: 0;
     margin-bottom: -6px;
-    margin-top: 4px;
+    margin-top: $spacing-xs;
 }
 
 .active-header-link::after {
@@ -158,16 +158,17 @@ header {
 .mobile-menu-label::after {
     content: "";
     width: 18px;
-    height: 18px;
+    height: 100%;
     position: absolute;
     display: flex;
+    align-items: center;
     background-image: url(/static/images/arrowhead-white.svg);
     background-repeat: no-repeat;
     background-position: center;
     top: 0;
     bottom: 0;
-    margin: auto auto 1px auto;
-    right: -26px;
+    margin: auto auto 0 auto;
+    right: -$spacing-lg;
     background-size: contain;
     opacity: .9;
     transition: all .4s ease;
@@ -320,8 +321,6 @@ header {
         }
     }
 
-
-
 }
 
 
@@ -378,7 +377,6 @@ header {
     .header-top {
         padding: $spacing-md;
     }
-    
 }
 
 @media screen and (max-width: 400px) {
