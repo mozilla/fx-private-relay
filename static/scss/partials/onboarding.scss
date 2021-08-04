@@ -4,7 +4,7 @@
 .c-onboarding {
     border-radius: $border-radius-md;
     border: 1px solid $color-light-gray-40;
-    padding: $layout-xs;
+    padding: $spacing-lg;
     margin-bottom: $spacing-lg;
 
     h2 {
@@ -25,7 +25,7 @@
 .c-onboarding-step {
     background-color: $color-white;
     border-radius: $border-radius-md;
-    padding: $layout-xs;
+    padding: $spacing-lg;
     margin-bottom: $spacing-lg;
     display: flex;
     flex-direction: column;
