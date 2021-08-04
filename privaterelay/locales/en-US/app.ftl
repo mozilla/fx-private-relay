@@ -65,23 +65,22 @@ bento-button-close-label = Close menu
 ## Home Page
 
 home-hero-headline = Hide your real email address to help protect your identity
-home-hero-copy = { -brand-name-firefox-relay } makes it easy to create aliases, randomly generated email addresses that forward to your real inbox.
-    Use it to protect your online accounts - and your identity - from hackers. Sign in with your { -brand-name-firefox-account } to get started.
+home-hero-copy = Share { -brand-name-relay } email aliases instead of your real email address to protect your online accounts from hackers. 
+    Sign in with your { -brand-name-firefox-account } to get started.
 home-hero-cta = Sign In
 how-it-works-headline = How It Works
 how-it-works-subheadline = Protect your personal identity everywhere you use the { -brand-name-firefox-browser }.
-how-it-works-step-1-headline = Install the extension
+how-it-works-step-1-headline = Get the extension
 how-it-works-step-1-link = Download the { -brand-name-relay } extension for { -brand-name-firefox }.
 how-it-works-step-1-copy = Select the icon that appears on your { -brand-name-firefox } toolbar to access the sign-in page. 
     Sign in with your { -brand-name-firefox-account } to get started.
 how-it-works-step-2-headline = Create a new alias
-how-it-works-step-2-copy = As you browse, the { -brand-name-relay } icon will appear in form fields where sites ask for your email address. 
+how-it-works-step-2-copy = As you browse, the { -brand-name-relay } icon will appear where sites ask for your email address.
     Select it to generate a new, random address that ends in @relay.firefox.com.
     { -brand-name-relay } will forward messages to the primary email address associated with your account.
-how-it-works-step-3-headline = Manage your account
-how-it-works-step-3-copy = Sign in to the { -brand-name-relay } website to keep track of the aliases you’ve created.
-    If you find that one receives spam or unwanted messages, you can block all messages or even delete the alias, 
-    right from the management page.
+how-it-works-step-3-headline = Manage your aliases
+how-it-works-step-3-copy = Sign in to the { -brand-name-relay } dashboard to keep track of the aliases you’ve created.
+    If you find that one receives spam or unwanted messages, you can block all messages or even delete the alias, right from the dashboard. 
 hero-image-copy-trust = Can you even trust this company with your personal email?
 hero-image-copy-unique-html = <strong>Use a unique relay address</strong> for every new account …
 hero-image-copy-protect-html = … so you can <strong>protect your real email</strong> from tracking and spam.
