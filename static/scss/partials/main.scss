@@ -411,7 +411,7 @@ ul {
   margin: 0 0 $spacing-sm;
   padding: 0;
   font-weight: 500;
-  max-width: 400px;
+  max-width: $content-xs;
   color: $color-black;
   strong {
     display: inline-block;

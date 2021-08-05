@@ -9,6 +9,7 @@
 -brand-name-firefox = Firefox
 -brand-name-firefox-relay = Firefox Relay
 -brand-name-relay = Relay
+-brand-name-relay-premium = Relay Premium
 -brand-name-firefox-browser = Firefox Browser
 -brand-name-mozilla = Mozilla
 -brand-name-mozilla-vpn = Mozilla VPN
@@ -65,23 +66,22 @@ bento-button-close-label = Close menu
 ## Home Page
 
 home-hero-headline = Hide your real email address to help protect your identity
-home-hero-copy = { -brand-name-firefox-relay } makes it easy to create aliases, randomly generated email addresses that forward to your real inbox.
-    Use it to protect your online accounts - and your identity - from hackers. Sign in with your { -brand-name-firefox-account } to get started.
+home-hero-copy = Share { -brand-name-relay } email aliases instead of your real email address to protect your online accounts from hackers. 
+    Sign in with your { -brand-name-firefox-account } to get started.
 home-hero-cta = Sign In
 how-it-works-headline = How It Works
 how-it-works-subheadline = Protect your personal identity everywhere you use the { -brand-name-firefox-browser }.
-how-it-works-step-1-headline = Install the extension
+how-it-works-step-1-headline = Get the extension
 how-it-works-step-1-link = Download the { -brand-name-relay } extension for { -brand-name-firefox }.
 how-it-works-step-1-copy = Select the icon that appears on your { -brand-name-firefox } toolbar to access the sign-in page. 
     Sign in with your { -brand-name-firefox-account } to get started.
 how-it-works-step-2-headline = Create a new alias
-how-it-works-step-2-copy = As you browse, the { -brand-name-relay } icon will appear in form fields where sites ask for your email address. 
+how-it-works-step-2-copy = As you browse, the { -brand-name-relay } icon will appear where sites ask for your email address.
     Select it to generate a new, random address that ends in @relay.firefox.com.
     { -brand-name-relay } will forward messages to the primary email address associated with your account.
-how-it-works-step-3-headline = Manage your account
-how-it-works-step-3-copy = Sign in to the { -brand-name-relay } website to keep track of the aliases you’ve created.
-    If you find that one receives spam or unwanted messages, you can block all messages or even delete the alias, 
-    right from the management page.
+how-it-works-step-3-headline = Manage your aliases
+how-it-works-step-3-copy = Sign in to the { -brand-name-relay } dashboard to keep track of the aliases you’ve created.
+    If you find that one receives spam or unwanted messages, you can block all messages or even delete the alias, right from the dashboard. 
 hero-image-copy-trust = Can you even trust this company with your personal email?
 hero-image-copy-unique-html = <strong>Use a unique relay address</strong> for every new account …
 hero-image-copy-protect-html = … so you can <strong>protect your real email</strong> from tracking and spam.
@@ -144,7 +144,7 @@ profile-label-generate-new-alias = Generate New Alias
 profile-label-delete = Delete
 profile-label-delete-alias = Delete this alias
 profile-label-upgrade = Get unlimited aliases
-profile-label-create-domain = Create your Email Domain
+profile-label-create-domain = Get your email domain
 profile-label-domain = Email Domain:
 profile-label-domain-tooltip = Create your unique and custom email domain.
 profile-label-reset = Reset
@@ -174,6 +174,7 @@ profile-forwarded-note-copy = Email (including attachments) larger than { email-
 profile-stat-label-blocked = Emails Blocked
 profile-stat-label-forwarded = Emails Forwarded
 profile-stat-label-aliases-used = Email aliases used
+profile-filter-search-placeholder = Search aliases
 
 ## Banner Messages (displayed on the profile page)
 
@@ -189,21 +190,21 @@ banner-bounced-copy = We are currently unable to send email to { $username }.
 banner-download-firefox-headline = { -brand-name-relay } is even better in { -brand-name-firefox }
 banner-download-firefox-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
 banner-download-firefox-cta = Get { -brand-name-firefox }
-banner-download-install-extension-headline = Looks like you haven’t installed the extension!
-banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes creating aliases even easier.
-banner-download-install-extension-cta = Get the extension for { -brand-name-firefox }
-banner-upgrade-headline = Buy { -brand-name-mozilla-privacy-pack } for more protection!
-banner-upgrade-copy = With { -brand-name-mozilla-privacy-pack } you get unlimited email addresses and your own email domain.
-banner-upgrade-cta = Upgrade to { -brand-name-mozilla-privacy-pack } now!
+banner-download-install-extension-headline = Get the { -brand-name-relay } extension for { -brand-name-firefox }
+banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes using email aliases even easier.
+banner-download-install-extension-cta = Add { -brand-name-relay } to { -brand-name-firefox }
+banner-upgrade-headline = Upgrade to { -brand-name-relay-premium }
+banner-upgrade-copy = { -brand-name-firefox } { -brand-name-relay-premium } makes creating email aliases even easier, with custom alias domains and unlimited aliases.
+banner-upgrade-cta = Upgrade to { -brand-name-relay-premium }
 banner-choose-subdomain-headline = Choose your own domain
-banner-choose-subdomain-headline-aliases = Get your email domain for your aliases
-banner-choose-subdomain-copy = You can choose your own domain for “wildcard” aliases.
-banner-choose-subdomain-warning = NOTE: YOU CANNOT CHANGE THIS LATER!
-banner-choose-subdomain-input-placeholder = banner-choose-subdomain-warning
-
-banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-mozilla-privacy-pack }</strong> to get more protection.
-banner-pack-upgrade-copy = With unlimited email aliases, your own email domain, data breach monitoring, and VPN, { -brand-name-mozilla-privacy-pack } helps you stay protected online.
-banner-pack-upgrade-cta = Upgrade Now!
+banner-choose-subdomain-headline-aliases = Get your own custom alias domain
+banner-choose-subdomain-copy = You can choose a custom domain for your email aliases.
+banner-choose-subdomain-warning = Note: You cannot change your domain later
+banner-choose-subdomain-input-placeholder = Search domain
+banner-choose-subdomain-submit = Get Domain
+banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-firefox } { -brand-name-relay-premium }</strong> to get more aliases
+banner-pack-upgrade-copy = With unlimited email aliases and your own email domain, { -brand-name-firefox } { -brand-name-relay-premium } helps you stay protected online.
+banner-pack-upgrade-cta = Upgrade Now
 
 # This string is followed by name (string) that the user chooses
 banner-choose-subdomain-label = Your domain is:
@@ -212,11 +213,27 @@ banner-choose-subdomain-label = Your domain is:
 # $subdomain (url) - User-set subdomain
 banner-choose-subdomain-label = You can make up any address @{ $subdomain }
 
-remaining-aliases-cta = Buy unlimited aliases
+## Error Messages
+
+# Variables:
+#   $number (string) - Maximum number of aliases a user can make on a free account. 
+error-premium-set-make-aliases = You must be a premium subscriber to make more than { $number } aliases
+error-premium-cannot-change-subdomain = You cannot change your subdomain
+error-premium-set-subdomain = You must be a premium subscriber to set a subdomain
+error-premium-set-create-subdomain = You must be a premium subscriber to create subdomain aliases
+error-subdomain-not-created = Subdomain could not be created, try something else
+error-subdomain-email-not-created = Email address with subdomain could not be created, try something else
+error-subdomain-select = You must select a subdomain before creating a subdomain aliases
+
+## Onboarding 
+
 onboarding-headline = Create your first alias, you have three ways…
 onboarding-tip-1 = Just click the button “Generate New Alias” to create your first alias
 onboarding-tip-2 = By selecting the { -brand-name-firefox-relay } icon when it appears in email fields
 onboarding-tip-3 = Via the context menu, just right-click (Windows) or Control-click (macOS) on form fields to access the menu and generate an alias
+
+## Alias Modals
+
 modal-rename-alias-saved = Label saved!
 modal-delete-headline = Permanently delete this alias?
 modal-delete-warning-recovery-html = Once you delete this alias, it cannot be recovered. 
