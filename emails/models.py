@@ -252,7 +252,7 @@ class RelayAddress(models.Model):
         if address_already_deleted > 0 or address_contains_badword:
             relay_address.delete()
             num_tries += 1
-            return RelayAddress.make_relay_address(user_profile, num_tries)
+            return RelayAddress.make_relay_address(user_profile, num_tries, domain)
         return relay_address
 
 
