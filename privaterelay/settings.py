@@ -244,6 +244,7 @@ HARD_BOUNCE_ALLOWED_DAYS = config('HARD_BOUNCE_ALLOWED_DAYS', 30, cast=int)
 
 WSGI_APPLICATION = 'privaterelay.wsgi.application'
 
+TEST_MOZMAIL = config('TEST_MOZMAIL', False, cast=bool)
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases

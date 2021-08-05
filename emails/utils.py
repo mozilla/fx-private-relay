@@ -45,6 +45,8 @@ def histogram_if_enabled(name, value, tags=None):
 
 
 def get_email_domain_from_settings():
+    if settings.TEST_MOZMAIL:
+        return settings.ADDITIONAL_DOMAINS.first()
     email_network_locality = urlparse(settings.SITE_ORIGIN).netloc
     # on Heroku we need to add "mail" prefix
     # because we can’t publish MX records on Heroku

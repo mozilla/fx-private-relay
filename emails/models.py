@@ -22,7 +22,6 @@ TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different va
 
 DOMAIN_DEFAULT = get_email_domain_from_settings()
 DOMAIN_CHOICES = [(item, item) for item in settings.ADDITIONAL_DOMAINS]
-DOMAIN_CHOICES.append((DOMAIN_DEFAULT, DOMAIN_DEFAULT))
 
 
 class Profile(models.Model):
