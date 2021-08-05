@@ -9,6 +9,7 @@
 -brand-name-firefox = Firefox
 -brand-name-firefox-relay = Firefox Relay
 -brand-name-relay = Relay
+-brand-name-relay-premium = Relay Premium
 -brand-name-firefox-browser = Firefox Browser
 -brand-name-mozilla = Mozilla
 -brand-name-mozilla-vpn = Mozilla VPN
@@ -192,18 +193,18 @@ banner-download-firefox-cta = Get { -brand-name-firefox }
 banner-download-install-extension-headline = Get the { -brand-name-relay } extension for { -brand-name-firefox }
 banner-download-install-extension-copy = The { -brand-name-relay } extension for { -brand-name-firefox-browser } makes using email aliases even easier.
 banner-download-install-extension-cta = Add { -brand-name-relay } to { -brand-name-firefox }
-banner-upgrade-headline = Buy { -brand-name-mozilla-privacy-pack } for more protection!
-banner-upgrade-copy = With { -brand-name-mozilla-privacy-pack } you get unlimited email addresses and your own email domain.
-banner-upgrade-cta = Upgrade to { -brand-name-mozilla-privacy-pack } now!
+banner-upgrade-headline = Upgrade to { -brand-name-relay-premium }
+banner-upgrade-copy = { -brand-name-firefox } { -brand-name-relay-premium } makes creating email aliases even easier, with custom alias domains and unlimited aliases.
+banner-upgrade-cta = Upgrade to { -brand-name-relay-premium }
 banner-choose-subdomain-headline = Choose your own domain
 banner-choose-subdomain-headline-aliases = Get your own custom alias domain
 banner-choose-subdomain-copy = You can choose a custom domain for your email aliases.
 banner-choose-subdomain-warning = Note: You cannot change your domain later
 banner-choose-subdomain-input-placeholder = Search domain
 banner-choose-subdomain-submit = Get Domain
-banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-mozilla-privacy-pack }</strong> to get more protection.
-banner-pack-upgrade-copy = With unlimited email aliases, your own email domain, data breach monitoring, and VPN, { -brand-name-mozilla-privacy-pack } helps you stay protected online.
-banner-pack-upgrade-cta = Upgrade Now!
+banner-pack-upgrade-headline-html = Upgrade to <strong>{ -brand-name-firefox } { -brand-name-relay-premium }</strong> to get more aliases
+banner-pack-upgrade-copy = With unlimited email aliases and your own email domain, { -brand-name-firefox } { -brand-name-relay-premium } helps you stay protected online.
+banner-pack-upgrade-cta = Upgrade Now
 
 # This string is followed by name (string) that the user chooses
 banner-choose-subdomain-label = Your domain is:
