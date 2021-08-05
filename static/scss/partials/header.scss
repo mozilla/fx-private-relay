@@ -26,7 +26,7 @@ header {
     margin: auto 0 auto auto;
     font-family: $font-metropolis;
     align-items: center;
-    @media screen and (max-width: 660px) {
+    @media screen and (max-width: 680px) {
         display: none;
     }
 }
@@ -42,7 +42,11 @@ header {
 .sign-up {
     border: none;
     color: inherit;
-    @media screen and (max-width: 660px) {
+    border-radius: $border-radius-sm;
+    padding: $spacing-xs $spacing-sm;
+    margin: 0 $spacing-md;
+
+    @media screen and (max-width: 680px) {
         display: none;
     }
 }
@@ -113,9 +117,12 @@ header {
 }
 
 .header-link:hover,
-.header-link:focus {
+.header-link:focus,
+.sign-up:hover,
+.sign-up:focus {
     opacity: .9;
     background-color: rgba(0, 0, 0, .2);
+    color: inherit;
 }
 
 .header-link:active {
@@ -133,7 +140,7 @@ header {
     align-items: center;
     display: none;
     flex-direction: row;
-    @media screen and (max-width: 660px) {
+    @media screen and (max-width: 680px) {
         display: flex;
     }
 }
@@ -323,7 +330,7 @@ header {
         background-image: url(/static/images/arrowhead.svg);
     }
 
-    @media screen and (max-width: 660px) {
+    @media screen and (max-width: 680px) {
         .header-top {
             padding: $spacing-lg $spacing-xl;
         }
@@ -357,7 +364,7 @@ header {
     }
 }
 
-@media screen and (max-width: 660px) {
+@media screen and (max-width: 680px) {
     header {
         position: sticky;
         top: 0;
