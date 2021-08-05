@@ -26,7 +26,7 @@ header {
     margin: auto 0 auto auto;
     font-family: $font-metropolis;
     align-items: center;
-    @media screen and (max-width: 550px) {
+    @media screen and (max-width: 660px) {
         display: none;
     }
 }
@@ -37,6 +37,14 @@ header {
     display: flex;
     margin: auto;
     white-space: nowrap;
+}
+
+.sign-up {
+    border: none;
+    color: inherit;
+    @media screen and (max-width: 660px) {
+        display: none;
+    }
 }
 
 .sign-in:hover,
@@ -125,7 +133,7 @@ header {
     align-items: center;
     display: none;
     flex-direction: row;
-    @media screen and (max-width: 550px) {
+    @media screen and (max-width: 660px) {
         display: flex;
     }
 }
@@ -315,7 +323,7 @@ header {
         background-image: url(/static/images/arrowhead.svg);
     }
 
-    @media screen and (max-width: 550px) {
+    @media screen and (max-width: 660px) {
         .header-top {
             padding: $spacing-lg $spacing-xl;
         }
@@ -349,7 +357,7 @@ header {
     }
 }
 
-@media screen and (max-width: 550px) {
+@media screen and (max-width: 660px) {
     header {
         position: sticky;
         top: 0;

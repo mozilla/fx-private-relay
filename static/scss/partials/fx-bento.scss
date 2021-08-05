@@ -9,7 +9,7 @@ firefox-apps {
   --bentoPadding: 24px;
 
   display: flex;
-  margin: auto 32px;
+  margin: auto $spacing-xl;
   position: relative;
 
   text-align: center;
@@ -255,8 +255,12 @@ body.hide-bento firefox-apps > button {
 }
 
 @media screen and (max-width: 900px) {
-  firefox-apps {
-    margin: 0 var(--bentoPadding);
+  firefox-apps.home-page {
+    margin: 0 0 0 $spacing-lg;
+  }
+
+  firefox-apps.profile-page {
+    margin: 0 $spacing-lg;
   }
 
   .fx-bento-button {
@@ -270,7 +274,6 @@ body.hide-bento firefox-apps > button {
     --mobileClickableCloseArea: 12vh;
 
     position: inherit;
-    margin: 0 var(--appIconHeight);
   }
 
   button.fx-bento-mobile-close { /* Unhide purple "X" button */
