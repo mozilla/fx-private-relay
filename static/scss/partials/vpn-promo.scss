@@ -3,7 +3,7 @@ body {
   --vpn-purple: #C5C8FB;
 }
 
-.vpn-promo-banner + .micro-survey-banner {
+.vpn-promo-banner + .micro-survey-banner.is-hidden {
   display: none;
 }
 
@@ -31,6 +31,14 @@ body {
   display: none;
 }
 
+.vpn-promo-banner.closed + .micro-survey-banner {
+  display: block;
+}
+
+.vpn-promo-banner.closed + .micro-survey-banner.is-hidden {
+  display: none;
+}
+  
 .vpn-promo-banner-wrapper {
   max-width: $content-lg;
   margin: 0 auto;

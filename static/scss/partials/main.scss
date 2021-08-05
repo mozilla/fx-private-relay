@@ -323,7 +323,6 @@ button:active {
   cursor: not-allowed;
 }
 
-
 .main-list {
   max-width: $content-xl;
   margin: auto;
@@ -1990,22 +1989,3 @@ ul.messages {
   text-align: center;
 }
 
-.dismiss {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 1rem;
-  margin: auto;
-  outline: none;
-  border: none;
-  height: 32px;
-  width: 32px;
-  border-radius: 50%;
-  padding: 5px;
-  background-color: transparent;
-
-  .x-close-icon path {
-    fill: $color-white !important; 
-  }
-
-}

@@ -525,3 +525,12 @@ function vpnBannerLogic() {
 
   vpnPromoFunctions.init();
 }
+
+//Micro Survey Banner
+function dismissSurvey() {
+	const survey_banner = document.getElementById("micro-survey-banner");
+	survey_banner.classList.toggle("is-hidden");
+};
+
+document.getElementById("survey-dismiss").addEventListener("click", dismissSurvey, false);
+
