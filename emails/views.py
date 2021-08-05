@@ -251,7 +251,6 @@ def _sns_notification(json_body):
             notification_type,
             status=400
         )
-    logger.error('Sns Notification', extra={'json_body': json_body})
     return _sns_message(message_json)
 
 
@@ -282,17 +281,11 @@ def _sns_message(message_json):
         return HttpResponse('noreply address is not supported.')
 
     domain_portion = to_address.split('@')[1]
-    logger.error('Sns message get address', extra={
-        'to_address': to_address,
-        'local_portion': local_portion,
-        'domain_portion': domain_portion}
-    )
     try:
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
         address = _get_address(to_address, local_portion, domain_portion)
-        logger.error('Sns message address info', extra={'address': address})
         user_profile = address.user.profile_set.first()
     except Exception:
         return HttpResponse("Address does not exist", status=404)
