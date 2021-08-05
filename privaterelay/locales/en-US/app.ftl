@@ -223,7 +223,7 @@ error-premium-set-subdomain = You must be a premium subscriber to set a subdomai
 error-premium-set-create-subdomain = You must be a premium subscriber to create subdomain aliases
 error-subdomain-not-created = Subdomain could not be created, try something else
 error-subdomain-email-not-created = Email address with subdomain could not be created, try something else
-error-subdomain-select = You must select a subdomain before creating email address with subdomain
+error-subdomain-select = You must select a subdomain before creating a subdomain aliases
 
 ## Onboarding 
 
