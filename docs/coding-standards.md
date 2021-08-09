@@ -4,7 +4,7 @@
 
 For JavaScript, we follow [ESLint's recommended rules](https://eslint.org/docs/rules/). 
 
-For SCSS and CSS, we follow [the standard configuration](https://github.com/stylelint/stylelint-config-standard). 
+For SCSS and CSS, we follow [the standard configuration](https://github.com/stylelint/stylelint-config-standard) with a few exceptions noted in the [StyleLint config file](https://github.com/mozilla/fx-private-relay/blob/main/.stylelintrc.json). 
 
 ## Protocol Integration
 
