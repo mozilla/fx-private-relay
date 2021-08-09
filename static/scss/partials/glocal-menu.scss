@@ -20,6 +20,14 @@ glocal-menu {
   right: 28px;
   border-radius: 8px;
   box-shadow: 0 7px 12px -3px rgba(28, 28, 29, .502);
+  width: auto;
+  max-width: $screen-sm;
+
+    @media screen and (max-width: $screen-sm) {
+      max-width: 100%;
+      left: 16px;
+      right: 16px;
+    }
 }
 
 .glocal-menu-wrapper.fx-bento-fade-out {
@@ -65,7 +73,6 @@ glocal-menu {
   height: var(--glocalSmallAvatarDimensions);
   width: var(--glocalSmallAvatarDimensions);
   border-radius: 50%;
-  margin: var(--glocalIconMargin);
 }
 
 .avatar {
@@ -84,6 +91,9 @@ glocal-menu {
 .glocal-account-info {
   display: flex;
   flex-direction: column;
+  padding: 0 $spacing-sm;
+  word-wrap: break-word;
+  width: 100%;
 }
 
 .glocal-fxa-email {
