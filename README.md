@@ -102,15 +102,19 @@ To do so:
 page](http://127.0.0.1:8000/admin/socialaccount/socialapp/), sign in with the
 superuser account you created above, and add a social app for Firefox Accounts:
 
-   * Provider: Firefox Accounts
-   * Name: oauth-stable.dev.lcip.org
-   * Client id: 9ebfe2c2f9ea3c58
-   * Secret key: ping groovecoder for this
-   * Sites: 127.0.0.1:8000 -> Chosen sites
+| Field | Value |
+|-------|-------|
+| Provider | Firefox Accounts |
+| Name | `oauth-stable.dev.lcip.org` |
+| Client id | `9ebfe2c2f9ea3c58 ` |
+| Secret key | Contact @groovecoder |
+| Sites | `127.0.0.1:8000 ` -> Chosen sites |
 
 Now you can sign into [http://127.0.0.1:8000/](http://127.0.0.1:8000/) with an
-FxA. Remember: you'll need to use an account on oauth-stable.dev.lcip.org, not
-the production accounts.firefox.com.
+FxA. 
+
+:warning: Remember that you'll need to use an account on oauth-stable.dev.lcip.org, not
+the production site, accounts.firefox.com.
 
 <!-- #### Optional: Enable SES
 TODO -->
