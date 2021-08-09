@@ -23,7 +23,7 @@ glocal-menu {
   width: auto;
   max-width: $screen-sm;
 
-    @media screen and (max-width: $screen-sm) {
+    @media screen and (max-width: 520px) {
       max-width: 100%;
       left: 16px;
       right: 16px;
