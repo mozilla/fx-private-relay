@@ -83,9 +83,7 @@ Please refer to our [coding standards](docs/coding-standards.md) information for
     python manage.py runserver
     ```
 
-Next you'll need to enable Firefox Accounts auth ...
-
-#### Recommended: Enabel Firefox Accounts authentication
+#### Recommended: Enable Firefox Accounts authentication
 To enable Firefox Accounts authentication on your local server, you can use the
 "private-relay (local)" OAuth app on oauth-stable.dev.lcip.org.
 
@@ -107,7 +105,7 @@ superuser account you created above, and add a social app for Firefox Accounts:
 | Provider | Firefox Accounts |
 | Name | `oauth-stable.dev.lcip.org` |
 | Client id | `9ebfe2c2f9ea3c58 ` |
-| Secret key | Contact @groovecoder |
+| Secret key | Request this from [@groovecoder](https://github.com/groovecoder) |
 | Sites | `127.0.0.1:8000 ` -> Chosen sites |
 
 Now you can sign into [http://127.0.0.1:8000/](http://127.0.0.1:8000/) with an
@@ -122,7 +120,7 @@ TODO -->
 
 #### Optional: Install and run the add-on locally
 
-*Note: The add-on is located in a [seperate repo](https://github.com/mozilla/fx-private-relay-add-on/). See it for additional information on getting started.* 
+*Note: The add-on is located in a [separate repo](https://github.com/mozilla/fx-private-relay-add-on/). See it for additional information on getting started.* 
 
 The add-on adds Firefox UI to generate and auto-fill email addresses across the web. Running the add-on locally allows it to communicate with your local server (`127.0.0.1:8000`) instead of the production server (`relay.firefox.com`).
 
