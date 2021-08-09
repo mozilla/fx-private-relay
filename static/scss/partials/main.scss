@@ -915,10 +915,6 @@ input:focus::placeholder {
   font-weight: 600;
 }
 
-.x-close-icon path {
-  fill: $color-white;
-}
-
 .dashboard-greeting {
   text-align: left;
   padding: 2rem 0 1rem;
@@ -1953,10 +1949,6 @@ input:focus::placeholder {
     font-weight: 600;
   }
 
-  path {
-    fill: $color-white;
-  }
-
   .message-wrapper {
     border-radius: $border-radius-md;
     box-shadow: var(--dropShadowLight);
@@ -1968,6 +1960,21 @@ input:focus::placeholder {
 
   .error {
     background-color: $color-error;
+  }
+
+  .dismiss {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    margin-left: 3em;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    .x-close-icon path {
+      fill: $color-white;
+    }
   }
 
 }
