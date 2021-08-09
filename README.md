@@ -103,7 +103,7 @@ superuser account you created above, and add a social app for Firefox Accounts:
 | Field | Value |
 |-------|-------|
 | Provider | Firefox Accounts |
-| Name | `oauth-stable.dev.lcip.org` |
+| Name | `accounts.stage.mozaws.net` |
 | Client id | `9ebfe2c2f9ea3c58 ` |
 | Secret key | Request this from [@groovecoder](https://github.com/groovecoder) |
 | Sites | `127.0.0.1:8000 ` -> Chosen sites |
