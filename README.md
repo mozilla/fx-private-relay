@@ -85,7 +85,7 @@ Please refer to our [coding standards](docs/coding-standards.md) information for
 
 #### Recommended: Enable Firefox Accounts authentication
 To enable Firefox Accounts authentication on your local server, you can use the
-"private-relay (local)" OAuth app on oauth-stable.dev.lcip.org.
+"Firefox Private Relay local dev" OAuth app on accounts.stage.mozaws.net.
 
 To do so:
 
