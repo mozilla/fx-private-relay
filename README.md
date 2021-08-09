@@ -111,7 +111,7 @@ superuser account you created above, and add a social app for Firefox Accounts:
 Now you can sign into [http://127.0.0.1:8000/](http://127.0.0.1:8000/) with an
 FxA. 
 
-:warning: Remember that you'll need to use an account on oauth-stable.dev.lcip.org, not
+:warning: Remember that you'll need to use an account on https://accounts.stage.mozaws.net/, not
 the production site, accounts.firefox.com.
 
 <!-- #### Optional: Enable SES
