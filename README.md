@@ -9,6 +9,9 @@ with  other data to personally identify, track, and/or [target
 them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content).
 
 ## Development
+
+Please refer to our [coding standards](docs/coding-standards.md) information for code styles, naming conventions and other methodologies.
+
 ### Requirements
 * python 3.7 (suggest using
   [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
@@ -19,7 +22,9 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
     * On OSX: `brew install postgresql libpq`
     * On Fedora: `sudo dnf install libpq-devel`
 * [SES](https://aws.amazon.com/ses/) if you want to send real emails
-* [NPM](https://www.npmjs.com/) and [Gulp](https://gulpjs.com/) to compile SCSS
+* [Node 12.X](https://nodejs.org/en/download/) – Needed for front-end SCSS compiling
+  * [NPM](https://www.npmjs.com/)
+  * [Gulp](https://gulpjs.com/) to compile SCSS
 
 ### Install and Run the Site Locally
 1. Clone and change to the directory:
@@ -36,7 +41,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
     source env/bin/activate
     ```
 
-3. Install Pyhton and Node requirements:
+3. Install Python and Node requirements:
 
     ```sh
     pip install -r requirements.txt
@@ -80,7 +85,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 
 Next you'll need to enable Firefox Accounts auth ...
 
-#### Enable Firefox Accounts Auth
+#### Recommended: Enabel Firefox Accounts authentication
 To enable Firefox Accounts authentication on your local server, you can use the
 "private-relay (local)" OAuth app on oauth-stable.dev.lcip.org.
 
@@ -107,21 +112,15 @@ Now you can sign into [http://127.0.0.1:8000/](http://127.0.0.1:8000/) with an
 FxA. Remember: you'll need to use an account on oauth-stable.dev.lcip.org, not
 the production accounts.firefox.com.
 
-#### Enable SES
-TODO
+<!-- #### Optional: Enable SES
+TODO -->
 
 
-### Install and run the add-on locally
+#### Optional: Install and run the add-on locally
 
-The add-on adds Firefox UI to generate and auto-fill email addresses. You may
-want to build the add-on so that it communicates with your `127.0.0.1:8000`
-server instead of the production `relay.firefox.com` server:
+*Note: The add-on is located in a [seperate repo](https://github.com/mozilla/fx-private-relay-add-on/). See it for additional information on getting started.* 
 
-1. In the `extension/` directory, run `npm install` and then `npm run build`
-
-2. Use `about:debugging` to install the resulting `static/downloads/addon/latest/private_relay.zip` file.
-   * Note: A link to the `.zip` is also available at http://127.0.0.1:8000/accounts/profile/
-
+The add-on adds Firefox UI to generate and auto-fill email addresses across the web. Running the add-on locally allows it to communicate with your local server (`127.0.0.1:8000`) instead of the production server (`relay.firefox.com`).
 
 ## Production Environments
 
