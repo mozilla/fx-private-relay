@@ -268,6 +268,12 @@ if REDIS_CACHE_URL:
     SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
     SESSION_CACHE_ALIAS = 'default'
 
+    # When running on heroku we need to ignore invalid TLS certs
+    # https://devcenter.heroku.com/articles/heroku-redis#connecting-in-django
+    if ON_HEROKU:
+        CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS'] = {"ssl_cert_reqs": None}
+
+
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
