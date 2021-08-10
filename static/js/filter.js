@@ -26,6 +26,7 @@
     filterToggleSearchInput.addEventListener("click", toggleAliasSearchBar, false);
 
 	function filterInputWatcher(e) {
+
 		const query = e.target.value.toLowerCase();
 
         // Reset filter if the input is empty, however, do not steal focus to input
@@ -36,17 +37,27 @@
             alias.style.display = "none";
         });
 
-        // BUG: If more than one labels are named the same thing (identical), 
-        // the filter only counts/shows the first result.
-		// Loop through both arrays, making that alias visible if it is a match.
+        // Fix GitHub/#966: Create temporary array of objects containing labels and their parent `.js-alias` DOM element
+        const searchIndexWithLabels = [];
+
+        for (const [index, alias] of aliasesWithLabelsCollection.entries()) {
+            const searchEntryObject = {
+                "alias": alias,
+                "label": filterAliasLabels[index]
+            }
+            searchIndexWithLabels.push(searchEntryObject);
+        }
+
+		// Filter each collection based on the search query
         const matchListEmailAddresses = filterEmailAddresses.filter(s => s.includes(query));
-        const matchListAliasLabels = filterAliasLabels.filter(s => s.includes(query));
+        const matchListAliasLabels = searchIndexWithLabels.filter(item => item.label.includes(query));
 
         // Set the current number of "found" results
         if ( (matchListEmailAddresses.length + matchListAliasLabels.length) <= aliases.length ) {
             filterLabelVisibleCases.textContent = matchListEmailAddresses.length + matchListAliasLabels.length;
         }
 
+        // Show email addresses that match the search query
         for (const alias of matchListEmailAddresses) {
             let index = filterEmailAddresses.indexOf(alias);
             if (index >= 0) {
@@ -54,25 +65,46 @@
             }
         }
 
-        // TODO: Map the entire list of aliases better so we dont have two seperate DOM collection arrays to loop through.
-        for (const alias of matchListAliasLabels) {
-            let index = filterAliasLabels.indexOf(alias);
-            if (index >= 0) {
-                aliasesWithLabelsCollection[index].style.display = "block";
-            }
+        // Show aliases with labels that match the search query
+        for (const result of matchListAliasLabels) {        
+            result.alias.style.display = "block";
         }
 
 	}
 
     // This function catches any label updates from the user and updates the search array to display them.
     function updateAliasLabel(event){
+        const alias = event.target.closest(".js-alias");
         const prevLabel = event.target.dataset.label;
-        const newLabel = event.target.value.toString().toLowerCase();
-        const labelArrayIndex = filterAliasLabels.indexOf(prevLabel);
+        const prevLabelLowercased = prevLabel.toString().toLowerCase();
+        const newLabel = event.target.value;
+        const newLabelLowercased = newLabel.toString().toLowerCase();
+        const AliasWithLabelsArrayIndex = aliasesWithLabelsCollection.indexOf(alias);
+        const labelArrayIndex = filterAliasLabels.indexOf(prevLabelLowercased);
 
-        if (labelArrayIndex > -1) {
-            filterAliasLabels.splice(labelArrayIndex, 1, newLabel);
+
+        // Case: User did not enter any label, nor was one previously set
+        if (prevLabel === "" && newLabel === "") {
+            return;
         }
+
+        // Case: User deleted/cleared an existing label
+        if (newLabel === "") {
+            filterAliasLabels.splice(labelArrayIndex, 1);
+            aliasesWithLabelsCollection.splice(AliasWithLabelsArrayIndex, 1);
+            return;
+        }
+
+        // Case: User updated an existing label to a new string
+        if (labelArrayIndex > -1) {
+            filterAliasLabels.splice(labelArrayIndex, 1, newLabelLowercased);
+            return;
+        }
+
+        // Case: User created a label for an alias
+        aliasesWithLabelsCollection.push(alias);
+        filterAliasLabels.push(newLabelLowercased);
+
     }
 
     function isAddOnDetected() {
@@ -99,12 +131,17 @@
             }
 
             const aliasLabel = alias.querySelector(".relay-email-address-label");
+            
 
             if (addOnDetected) {
                 aliasLabel.addEventListener("blur", updateAliasLabel);
+            }
+
+            if (aliasLabel.dataset.label) {
                 aliasesWithLabelsCollection.push(alias);
                 filterAliasLabels.push( aliasLabel.dataset.label.toString().toLowerCase() );
             }
+
 
 		});
 
@@ -142,6 +179,6 @@
     }
 
     // TODO: Remove timeout and watch for event to detect if add-on is enabled (checking if labels exist)
-    setTimeout(filterInit, 250);
+    setTimeout(filterInit, 500);
 
 })();
