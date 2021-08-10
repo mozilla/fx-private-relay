@@ -255,11 +255,11 @@ body.hide-bento firefox-apps > button {
 }
 
 @media screen and (max-width: 900px) {
-  firefox-apps.home-page {
+  .fx-bento-home-page {
     margin: 0 0 0 $spacing-lg;
   }
 
-  firefox-apps.profile-page {
+  .fx-bento-profile-page {
     margin: 0 $spacing-lg;
   }
 
