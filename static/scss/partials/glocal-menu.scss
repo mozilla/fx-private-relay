@@ -17,16 +17,16 @@ glocal-menu {
   position: absolute;
   visibility: hidden;
   color: #000000;
-  right: 28px;
+  right: $spacing-lg;
   border-radius: 8px;
   box-shadow: 0 7px 12px -3px rgba(28, 28, 29, .502);
   width: auto;
-  max-width: $screen-sm;
+  max-width: calc(#{$screen-sm} - #{$spacing-lg});
 
-    @media screen and (max-width: 520px) {
-      max-width: 100%;
-      left: 16px;
-      right: 16px;
+    @media screen and (max-width: $screen-sm) {
+      max-width: calc(#{$screen-sm} - #{$spacing-md} - #{$spacing-md});
+      left: $spacing-md;
+      right: $spacing-md;
     }
 }
 
