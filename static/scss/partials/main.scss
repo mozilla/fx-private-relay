@@ -1950,6 +1950,13 @@ input:focus::placeholder {
   }
 
   .message-wrapper {
+    position: relative;
+    width: 100%;
+    padding: 1rem;
+    align-items: center;
+    display: flex;
+    margin: 0 auto;
+    text-align: center;
     border-radius: $border-radius-md;
     box-shadow: var(--dropShadowLight);
   }
@@ -1990,13 +1997,5 @@ ul.messages {
   padding: 0;
 }
 
-.js-notification {
-  position: relative;
-  width: 100%;
-  padding: 1rem;
-  align-items: center;
-  display: flex;
-  margin: 0 auto;
-  text-align: center;
-}
+
 
