@@ -1,5 +1,5 @@
 function dismissNotification() {
-	const notification = document.querySelector(".js-notification");
+	const notification = document.querySelector(".messages");
 	notification.classList.toggle("hidden");
 }
 
