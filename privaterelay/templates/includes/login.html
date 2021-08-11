@@ -6,18 +6,27 @@
 {% block content %}
 
 <div class="user-area">
-	<firefox-apps></firefox-apps>
 	{% if request.user.is_anonymous %}
+	<a
+	 data-entrypoint="relay-sign-in-header"
+	 data-form_type="button"
+	 data-ga="send-ga-funnel-pings"
+	 data-event-category="Sign In Buttons"
+	 data-event-label="sign-in-btn-header"
+	 class="sign-up button header-link"
+	 href="{% provider_login_url 'fxa' process='login' %}">{% ftlmsg 'nav-profile-sign-up' %}</a>
     <a
       data-entrypoint="relay-sign-in-header"
       data-form_type="button"
       data-ga="send-ga-funnel-pings"
       data-event-category="Sign In Buttons"
       data-event-label="sign-in-btn-header"
-      class="sign-in button btn-transparent"
+      class="mzp-c-button mzp-t-secondary mzp-t-dark u-font-metropolis u-font-weight-normal"
       href="{% provider_login_url 'fxa' process='login' %}">{% ftlmsg 'nav-profile-sign-in' %}</a>
+	<firefox-apps class="fx-bento-home-page"></firefox-apps>
 	{% else %}
 		{% get_social_accounts request.user as accounts %}
+		<firefox-apps class="fx-bento-profile-page"></firefox-apps>
 		<glocal-menu class="glocal-menu">
 			<button class="avatar-wrapper" aria-label="{% ftlmsg 'label-open-menu' %}" title="{% ftlmsg 'avatar-tooltip' %}">
 				<img class="avatar" src="{{ avatar }}" alt="{% ftlmsg 'nav-profile-image-alt' %}" />
