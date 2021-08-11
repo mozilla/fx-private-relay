@@ -1952,7 +1952,7 @@ input:focus::placeholder {
   .message-wrapper {
     position: relative;
     width: 100%;
-    padding: 1rem;
+    padding: $spacing-md;
     align-items: center;
     display: flex;
     margin: 0 auto;
