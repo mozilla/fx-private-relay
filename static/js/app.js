@@ -89,7 +89,6 @@ async function sendForm(formAction, formData) {
 }
 
 function copyToClipboardAndShowMessage(triggeringEl) {
-  const aliasCopyBtn = triggeringEl;
   const previouslyCopiedAlias = document.querySelector(".alias-copied");
 
   if (previouslyCopiedAlias || previouslyCopiedAlias == triggeringEl) {
@@ -260,7 +259,6 @@ function addEventListeners() {
   const mobileMenuWrapper = document.querySelector(".mobile-menu");
   if (mobileMenuWrapper) {
     const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
-    const mobileMenuLinks = document.querySelector(".mobile-menu-links");
     mobileMenuButton.addEventListener("click", () => {
       mobileMenuWrapper.classList.toggle("menu-open");
     });
@@ -367,8 +365,8 @@ function setTranslatedStringLinks() {
     const url = link.dataset.url;
     link.href = url;
     link.classList.add("text-link");
-    link.setAttribute('target', '_blank');
-    link.setAttribute('rel', 'noopener noreferrer');
+    link.setAttribute("target", "_blank");
+    link.setAttribute("rel", "noopener noreferrer");
   }
 
 }
@@ -530,7 +528,7 @@ function vpnBannerLogic() {
 function dismissSurvey() {
 	const survey_banner = document.getElementById("micro-survey-banner");
 	survey_banner.classList.toggle("is-hidden");
-};
+}
 
 document.getElementById("survey-dismiss").addEventListener("click", dismissSurvey, false);
 

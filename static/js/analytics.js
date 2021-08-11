@@ -293,7 +293,6 @@ function analyticsSurveyLogic() {
       break;
     }
   }
-  resetBodyPadding();
 }
 
 

@@ -6,15 +6,13 @@ module.exports = {
     node: true,
   },
   extends: ["eslint:recommended"],
+  globals: {
+    areInputIconsEnabled: "writable",
+    enableDataOptOut: "writable",
+    fillInputWithAlias: "writable",
+    sendRelayEvent: "readonly"
+  },
   overrides: [
-    {
-      globals: {
-        areInputIconsEnabled: "writable",
-        enableDataOptOut: "writable",
-        fillInputWithAlias: "writable",
-        sendRelayEvent: "readonly"
-      }
-    },
     {
       files: ["static/**/*.js"],
       env: {
