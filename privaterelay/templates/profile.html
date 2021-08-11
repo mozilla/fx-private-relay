@@ -16,8 +16,9 @@
 {% get_social_accounts request.user as accounts %}
 
 <main id="profile-main" class=" bg-light dashboard-container " data-api-token="{{ user_profile.api_token }}">
-  {% include "includes/messages.html" %}
-
+  <div class="messages-profile">
+    {% include "includes/messages.html" %}
+  </div>
   {% if user_profile.has_unlimited %}
   <div class="mpp-dashbaord-header">
     <div class="mpp-dashbaord-header-container inset">
@@ -53,18 +54,6 @@
   </div>
   {% endif %}
   <div class="main-list flx flx-col jst-cntr">
-  {% if messages %}
-    <div class="messages profile-messages hidden">
-        {% for message in messages %}
-        <div{% if message.tags %} class="{{ message.tags }} js-notification" {% else %} class="" {% endif %}>
-          <span>{{ message }}</span>
-          <button class="flx center-value dismiss js-dismiss">
-            <svg class="x-close-icon fill-current text-gray hover:text-purple-800" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
-          </button>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
     <div class="alias-list">
       {% if not user_profile.has_unlimited %}
       <div class="dashboard-greeting">

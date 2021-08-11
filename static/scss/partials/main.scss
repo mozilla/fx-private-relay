@@ -915,10 +915,6 @@ input:focus::placeholder {
   font-weight: 600;
 }
 
-.x-close-icon path {
-  fill: $color-white;
-}
-
 .dashboard-greeting {
   text-align: left;
   padding: 2rem 0 1rem;
@@ -1943,7 +1939,7 @@ input:focus::placeholder {
 
 .messages {
   width: 100%;
-  padding: $spacing-lg $spacing-md 0 $spacing-md;
+  padding: $spacing-lg $spacing-md;
   margin: 0 auto;
 
   span {
@@ -1953,11 +1949,14 @@ input:focus::placeholder {
     font-weight: 600;
   }
 
-  path {
-    fill: $color-white;
-  }
-
   .message-wrapper {
+    position: relative;
+    width: 100%;
+    padding: $spacing-md;
+    align-items: center;
+    display: flex;
+    margin: 0 auto;
+    text-align: center;
     border-radius: $border-radius-md;
     box-shadow: var(--dropShadowLight);
   }
@@ -1970,6 +1969,25 @@ input:focus::placeholder {
     background-color: $color-error;
   }
 
+  .dismiss {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    margin-left: $layout-md;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    .x-close-icon path {
+      fill: $color-white;
+    }
+  }
+
+}
+
+.messages-profile {
+  background-color: $color-white;
 }
 
 ul.messages {
@@ -1979,13 +1997,5 @@ ul.messages {
   padding: 0;
 }
 
-.js-notification {
-  position: relative;
-  width: 100%;
-  padding: 1rem;
-  align-items: center;
-  display: flex;
-  margin: 0 auto;
-  text-align: center;
-}
+
 
