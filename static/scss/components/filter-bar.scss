@@ -68,7 +68,7 @@
 
     @media #{$mq-md} {
         align-self: flex-start;
-         margin-right: auto;
+        margin-right: auto;
         form {
             display: block;
         }
@@ -106,21 +106,21 @@
 
 .c-filter-icon-search {
     background-size: auto 1.25rem;
-    background-image: url(/static/images/icon-search.svg);        
+    background-image: url(/static/images/icon-search.svg);
     &.is-enabled, &:hover {
         background-image: url(/static/images/icon-search-blue.svg);        
     }
 }
 
 .c-filter-icon-calendar {
-    background-image: url(/static/images/icon-calendar.svg);        
+    background-image: url(/static/images/icon-calendar.svg);
     &.is-enabled, &:hover {
         background-image: url(/static/images/icon-calendar-blue.svg);        
     }
 }
 
 .c-filter-icon-filter {
-    background-image: url(/static/images/icon-filter.svg);        
+    background-image: url(/static/images/icon-filter.svg);
     &.is-enabled, &:hover {
         background-image: url(/static/images/icon-filter-blue.svg);        
     }

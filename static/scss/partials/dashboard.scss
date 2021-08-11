@@ -16,9 +16,9 @@
 }
 
 .mpp-dashbaord-header-container {
-  max-width: $content-xl;
-  margin: auto;
-  padding: $spacing-xl $spacing-lg;
+    max-width: $content-xl;
+    margin: auto;
+    padding: $spacing-xl $spacing-lg;
 }
 
 .mpp-dashbaord-header-title {
@@ -63,22 +63,22 @@
 }
 
 .mpp-action-link {
-  color: $color-blue-50;
-  appearance: none;
-  background: none;
-  border: none;
-  outline: none;
-  display: flex;
-  align-items: center;
-  .margin-right {
-      margin-right: $spacing-xs;
-  }
-  .margin-left {
-      margin-left: $spacing-xs;
-  }
-  &:hover {
-      color: $color-blue-40;
-  }
+    color: $color-blue-50;
+    appearance: none;
+    background: none;
+    border: none;
+    outline: none;
+    display: flex;
+    align-items: center;
+    .margin-right {
+        margin-right: $spacing-xs;
+    }
+    .margin-left {
+        margin-left: $spacing-xs;
+    }
+    &:hover {
+        color: $color-blue-40;
+    }
 }
 
 .mpp-action-tooltip-hover {
@@ -95,34 +95,34 @@
 }
 
 .mpp-action-tooltip-hover-wrapper {
+    background-color: white;
+    box-shadow: var(--dropShadowLight);
+    border-radius: $border-radius-sm;
+    position: relative;
+    color: $color-violet-90;
+    padding: $spacing-md;
+    &:after{
         background-color: white;
-        box-shadow: var(--dropShadowLight);
-        border-radius: $border-radius-sm;
-        position: relative;
-        color: $color-violet-90;
-        padding: $spacing-md;
-        &:after{
-            background-color: white;
-            right: $layout-sm;
+        right: $layout-sm;
 
-            // TODO: Fix shadow on bubble triangle
-            // box-shadow: -2px 2px 2px 0 #3d3f4740;
-            content: "\00a0";
-            display: block;
-            height: 20px;
-            position: absolute;
+        // TODO: Fix shadow on bubble triangle
+        // box-shadow: -2px 2px 2px 0 #3d3f4740;
+        content: "\00a0";
+        display: block;
+        height: 20px;
+        position: absolute;
             
-            top: -10px;
-            transform: rotate(135deg);
-            width:  20px;
+        top: -10px;
+        transform: rotate(135deg);
+        width:  20px;
 
-            @media #{$mq-md} {
-                right: auto;
-                left: $layout-sm;
-            }
-
+        @media #{$mq-md} {
+            right: auto;
+            left: $layout-sm;
         }
+
     }
+}
 
 .mpp-action-tooltip {
     position: relative;
@@ -141,7 +141,7 @@
         justify-content: space-between;
     }    
     .mpp-dashbaord-header-title {
-        width: 25%;   
+        width: 25%;
         flex-grow: 2;
         margin-bottom: 0;
         display: block;
