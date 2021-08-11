@@ -2,6 +2,12 @@
     display: flex;
     align-items: center;
     margin-bottom: $spacing-md;
+
+    .c-filter-search-form {
+        &.is-hidden {
+            display: none;
+        }
+    }
     
     &.is-search-active {
         margin-bottom: 4.5rem;
@@ -19,6 +25,7 @@
             width: 100%;
         }
     }
+    
 
     @media screen and (min-width: 768px) {
         justify-content: flex-end;
@@ -43,14 +50,21 @@
         position: relative;
     }
 
-    input[type="search"] {
-        background-image: url(/static/images/icon-search.svg);
+    .c-filter-search-input {
+        background-image: url("/static/images/icon-search.svg");
         margin-bottom: 0;
         padding-right: 90px;
         position: relative;
         z-index: 0;
+        &.is-filtered + .c-filter-search-controls {
+            opacity: 1;
+        }
+
         &:focus + .c-filter-search-controls {
             opacity: 1;
+        }
+        &:focus, &:hover {
+            background-image: url("/static/images/icon-search-blue.svg");
         }
     }
 
@@ -114,23 +128,24 @@
 
 .c-filter-icon-search {
     background-size: auto 1.25rem;
-    background-image: url(/static/images/icon-search.svg);
+    background-image: url("/static/images/icon-search.svg");
     &.is-enabled, &:hover {
-        background-image: url(/static/images/icon-search-blue.svg);        
+        background-image: url("/static/images/icon-search-blue.svg");        
     }
 }
 
 .c-filter-icon-calendar {
-    background-image: url(/static/images/icon-calendar.svg);
+    background-image: url("/static/images/icon-calendar.svg");
     &.is-enabled, &:hover {
-        background-image: url(/static/images/icon-calendar-blue.svg);        
+        background-image: url("/static/images/icon-calendar-blue.svg");        
     }
 }
 
 .c-filter-icon-filter {
-    background-image: url(/static/images/icon-filter.svg);
+    background-image: url("/static/images/icon-filter.svg");
+           
     &.is-enabled, &:hover {
-        background-image: url(/static/images/icon-filter-blue.svg);        
+        background-image: url("/static/images/icon-filter-blue.svg");        
     }
 }
 

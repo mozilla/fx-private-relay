@@ -25,16 +25,23 @@
 
     filterToggleSearchInput.addEventListener("click", toggleAliasSearchBar, false);
 
-	function filterInputWatcher(e) {
+	function filterInputWatcher(input) {
 
-		const query = e.target.value.toLowerCase();
+        let query = input;
+        
+        if (input.target) {
+            query = input.target.value.toLowerCase();
+        }   
 
         // Reset filter if the input is empty, however, do not steal focus to input
         if (query === "") resetFilter({focus: false});
 
+        // Add class to keep the reset button visible while a query has been entered
+        filterInput.classList.add("is-filtered");
+
 		// Hide all cases
 		aliases.forEach(alias => {
-            alias.style.display = "none";
+            alias.classList.add("is-hidden");
         });
 
         // Fix GitHub/#966: Create temporary array of objects containing labels and their parent `.js-alias` DOM element
@@ -61,13 +68,13 @@
         for (const alias of matchListEmailAddresses) {
             let index = filterEmailAddresses.indexOf(alias);
             if (index >= 0) {
-                aliasCollection[index].style.display = "block";
+                aliasCollection[index].classList.remove("is-hidden");
             }
         }
 
         // Show aliases with labels that match the search query
         for (const result of matchListAliasLabels) {        
-            result.alias.style.display = "block";
+            result.alias.classList.remove("is-hidden");
         }
 
 	}
@@ -117,7 +124,7 @@
 
         // Hide the search function and end early if the user has no aliases created. 
         if (aliases.length < 1) {
-            filterForm.style.display = "none";
+            filterForm.classList.add("is-hidden");
             return;
         }
 
@@ -149,6 +156,12 @@
         filterLabelVisibleCases.textContent = aliases.length;
         filterLabelTotalCases.textContent = aliases.length;
 
+        // Filter aliases on page load if the search already has a query in it. 
+        if (filterInput.value) {
+            toggleAliasSearchBar(); 
+            filterInputWatcher(filterInput.value);
+        }
+
 		filterInput.addEventListener("input", filterInputWatcher, false);
         filterInput.addEventListener("keydown", e => {
           if(e.keyIdentifier=="U+000A"||e.keyIdentifier=="Enter"||e.keyCode==13){
@@ -166,10 +179,11 @@
     function resetFilter(opts) {
         filterLabelVisibleCases.textContent = aliases.length;
         filterLabelTotalCases.textContent = aliases.length;
+        filterInput.classList.remove("is-filtered");
         filterInput.value = "";
 
         aliases.forEach(alias => {
-            alias.style.display = "block";
+            alias.classList.remove("is-hidden");
         });
 
         if (opts && opts.focus) {
