@@ -185,10 +185,9 @@
 
 .c-alias-name {
     margin-left: $spacing-xs;
-    max-width: 100%;
+    max-width: $content-sm;
     height: 100%;
     flex-wrap: nowrap;
-    width: $content-sm;
 
     .additional-notes, .relay-address {
         text-overflow: ellipsis;
