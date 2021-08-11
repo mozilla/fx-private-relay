@@ -1,11 +1,11 @@
 // CSS Custom Properties
 :root {
-  --buttonFocus: 0 0 0 1px #0A84FF, 0 0 0 1px #0A84FF, 0 0 0 4px rgba(10, 132, 255, .3);
-  --darkBlueGradient: linear-gradient(60deg, #2D264E, #26294E);
-  --dropShadowLight: 0 0 10px -3px #3D3F4740;
-  --dropShadowDark: 0 12px 18px 2px rgba(34, 0, 51, .09), 0 6px 22px 4px rgba(4, 25, 59, .87), 0 6px 10px -4px rgba(14, 13, 26, .12);
-  --fxGradient: linear-gradient(-90deg, #FF9100 0%, #F10366 50%, #6173FF 100%);
-  --h1Gradient: linear-gradient(-90deg, #83A0F7, #B66DFF);
+    --buttonFocus: 0 0 0 1px #0A84FF, 0 0 0 1px #0A84FF, 0 0 0 4px rgba(10, 132, 255, .3);
+    --darkBlueGradient: linear-gradient(60deg, #2D264E, #26294E);
+    --dropShadowLight: 0 0 10px -3px #3D3F4740;
+    --dropShadowDark: 0 12px 18px 2px rgba(34, 0, 51, .09), 0 6px 22px 4px rgba(4, 25, 59, .87), 0 6px 10px -4px rgba(14, 13, 26, .12);
+    --fxGradient: linear-gradient(-90deg, #FF9100 0%, #F10366 50%, #6173FF 100%);
+    --h1Gradient: linear-gradient(-90deg, #83A0F7, #B66DFF);
 }
 
 // Fonts

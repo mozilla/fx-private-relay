@@ -1,39 +1,39 @@
 .btn {
-  appearance: none;
-  border: 0;
-  font-weight: 600;
-  padding: .5rem 1rem;
-  display: inline-block;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: $font-metropolis;
+    appearance: none;
+    border: 0;
+    font-weight: 600;
+    padding: .5rem 1rem;
+    display: inline-block;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: $font-metropolis;
 }
 
 .btn--gray {
-  border: 1px solid #CCCCCC;
-  color: $color-blue-50;
+    border: 1px solid #CCCCCC;
+    color: $color-blue-50;
 }
 
 .btn--blue { 
-  background-color: $color-blue-50;
-  color: $color-white;
+    background-color: $color-blue-50;
+    color: $color-white;
 }
 
 .btn-blue--ghost {
-  border: 2px solid $color-blue-50;
-  color: $color-blue-50;
-  background: none;
-  &:hover {
-      color: $color-white;
-      background-color: $color-blue-50;
-  }
+    border: 2px solid $color-blue-50;
+    color: $color-blue-50;
+    background: none;
+    &:hover {
+        color: $color-white;
+        background-color: $color-blue-50;
+    }
 }
 
 .c-button-toggle {
-  form {
-    display: flex;
-    align-items: center;
-  }    
+    form {
+        display: flex;
+        align-items: center;
+    }    
 }
 
 .mzp-c-button.has-icon {

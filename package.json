@@ -34,7 +34,8 @@
   "scripts": {
     "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "eslint .",
-    "lint:css": "stylelint --fix static/scss/",
+    "lint:css": "stylelint static/scss/",
+    "lint:css-fix": "stylelint --fix static/scss/",
     "test": "echo \"Error: no test specified\" && exit 1"
   }
 }

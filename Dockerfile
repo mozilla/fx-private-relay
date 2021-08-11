@@ -2,9 +2,12 @@ FROM node:14 AS builder
 WORKDIR /app
 COPY package*.json ./
 COPY gulpfile.js ./
+COPY .eslint* ./
+COPY .stylelintrc.json ./
 COPY static ./static/
 RUN npm install
 RUN ./node_modules/.bin/gulp build
+RUN npm run lint
 
 FROM python:3.7.9
 

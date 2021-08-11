@@ -261,7 +261,7 @@ header {
 .is-premium {
     header {
         background: $color-white;
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, .06);
         border-bottom: 0;
     }
 
@@ -301,7 +301,7 @@ header {
         background-size: contain;
         background-position: center center;
         background-repeat: no-repeat;
-         &:hover {
+        &:hover {
             background-image: url("/static/images/bento-white.svg");
             background-color: $color-grey-40;
         }
@@ -324,7 +324,7 @@ header {
     }
 
     .mobile-menu.menu-open .mobile-menu-toggle, .mobile-menu-links {
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, .06);
     }
 
     .mobile-menu-link {
