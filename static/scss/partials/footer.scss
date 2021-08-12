@@ -7,7 +7,7 @@ footer {
     padding: $spacing-lg $spacing-xl;
     color: $color-white;
 
-    @media #{$mq-md} {
+    @media #{$mq-sm} {
         flex-direction: row;
         align-items: center;
     }        
@@ -26,7 +26,7 @@ footer {
         }
     }
     
-    @media #{$mq-md} {
+    @media #{$mq-sm} {
         flex-direction: row;
         align-items: center;
     }    
@@ -34,43 +34,57 @@ footer {
 
 .c-footer-link {
     display: inline-block;
-    padding: $spacing-sm;
+    padding: $spacing-sm 0;
     border-radius: $border-radius-sm;
     text-decoration: none;
     color: $color-white;
     font-family: $font-metropolis;
     margin-bottom: $spacing-xs;
     
+    @media #{$mq-sm} {
+        padding: $spacing-sm 0;
+        margin: auto $spacing-md auto auto;
+    }    
+    
     @media #{$mq-md} {
-        padding: $spacing-sm;
-        margin: auto $spacing-sm auto auto;
+        margin: auto $spacing-lg auto auto;
     }    
 
     &.t-logo-mozilla {
-        margin: 0 0 $spacing-xs;
+        margin: 0 0 $spacing-sm;
         padding: 0;
-        max-width: 140px;
+        width: 7rem;
+        max-width: 100%;
 
-        @media #{$mq-md} {
-            min-width: 7rem;
+        &:hover, &:focus, &:active {
+            opacity: 1;
+        }
+
+        @media #{$mq-sm} {
             margin: auto 0;
         }        
     }
 
     &.t-logo-github {
         img {
+            display: block;
             min-width: 24px;
             max-width: 28px;            
+            &:hover, &:focus {
+                opacity: .8;
+            }
+
+            &:active {
+                opacity: .6;
+            }
         }
     }
 
     &:hover, &:focus {
-        opacity: .9;
-        background-color: rgba(0, 0, 0, .2);
+        color: $color-purple-05;
     }
 
     &:active {
-        background-color: rgba(0, 0, 0, .25);
-        opacity: .8;
+        color: $color-purple-10;
     }
 }
