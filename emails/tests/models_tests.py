@@ -108,7 +108,7 @@ class RelayAddressTest(TestCase):
     def test_make_relay_address_with_specified_domain(self):
         relay_address = RelayAddress.make_relay_address(self.user_profile, domain='domain.com')
         assert relay_address.domain == 'domain.com'
-        
+
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress)
         address_hash = sha256(
@@ -409,7 +409,6 @@ class ProfileTest(TestCase):
         )
         profile = Profile.objects.get(user=social_account.user)
         assert profile.display_name == None
-        
 
 
 class DomainAddressTest(TestCase):

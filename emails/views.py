@@ -400,7 +400,7 @@ def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
     email_domains = settings.ADDITIONAL_DOMAINS + [get_email_domain_from_settings()]
-    if not domain_portion in email_domains:
+    if domain_portion not in email_domains:
         return _get_domain_address(to_address, local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
