@@ -44,6 +44,12 @@ class MiscEmailModelsTest(TestCase):
         expected_hash = sha256(f'{address}@{subdomain}'.encode('utf-8')).hexdigest()
         assert address_hash(address, subdomain) == expected_hash
 
+    def test_address_hash_with_additional_domain(self):
+        address = 'aaaaaaaaa'
+        test_domain = 'test.com'
+        expected_hash = sha256(f'{address}@{test_domain}'.encode('utf-8')).hexdigest()
+        assert address_hash(address, domain=test_domain) == expected_hash
+
 
 class RelayAddressTest(TestCase):
     def setUp(self):
