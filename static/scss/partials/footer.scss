@@ -1,13 +1,15 @@
 footer {
+    background-color: $color-black;
     position: relative;
     margin: auto 0 0 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: $spacing-lg $spacing-xl;
+    padding: $spacing-xl $spacing-xl $spacing-lg;
     color: $color-white;
 
     @media #{$mq-sm} {
+        padding-top: $spacing-lg;
         flex-direction: row;
         align-items: center;
     }        
