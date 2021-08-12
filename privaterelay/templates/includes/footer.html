@@ -2,16 +2,16 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<footer class="flx flx-row spc-btwn row-full-width txt-white">
-	<a class="footer-link moz-logo-link" href="https://www.mozilla.org" class="inline-block" target="_blank" rel="noopener">
-		<img alt="Mozilla" class="block w-24" src="{% static 'images/mozilla.svg' %}"/>
+<footer>
+	<a class="c-footer-link t-logo-mozilla" href="https://www.mozilla.org" class="inline-block" target="_blank" rel="noopener">
+		<img alt="{% ftlmsg 'logo-mozilla-alt' %}" src="{% static 'images/mozilla.svg' %}"/>
 	</a>
-	<nav class="flx flx-wrap al-cntr">
-		<a class="footer-link" href="https://www.mozilla.org/privacy/firefox-relay/" target="_blank" rel="noopener noreferrer">{% ftlmsg 'nav-footer-privacy' %}</a>
-		<a class="footer-link" href="https://www.mozilla.org/about/legal/terms/firefox-relay/" target="_blank" rel="noopener noreferrer">{% ftlmsg 'nav-footer-relay-terms' %}</a>
-        <a class="footer-link" href="https://www.mozilla.org/about/legal/" target="_blank" rel="noopener noreferrer">{% ftlmsg 'nav-footer-legal' %}</a>
-		<a class="footer-link" href="https://github.com/mozilla/fx-private-relay" rel="noopener noreferrer" target="_blank">
-			<img class="GitHub-logo" alt="GitHub logo" src="{% static 'images/GitHub.svg' %}" />
+	<nav>
+		<a class="c-footer-link" href="https://www.mozilla.org/privacy/firefox-relay/" target="_blank" rel="noopener noreferrer">{% ftlmsg 'nav-footer-privacy' %}</a>
+		<a class="c-footer-link" href="https://www.mozilla.org/about/legal/terms/firefox-relay/" target="_blank" rel="noopener noreferrer">{% ftlmsg 'nav-footer-relay-terms' %}</a>
+        <a class="c-footer-link" href="https://www.mozilla.org/about/legal/" target="_blank" rel="noopener noreferrer">{% ftlmsg 'nav-footer-legal' %}</a>
+		<a class="c-footer-link t-logo-github" href="https://github.com/mozilla/fx-private-relay" rel="noopener noreferrer" target="_blank">
+			<img class="logo-github" alt="{% ftlmsg 'logo-github-alt' %}" src="{% static 'images/GitHub.svg' %}" />
 		</a>
 	</nav>
 </footer>

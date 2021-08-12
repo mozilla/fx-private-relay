@@ -1,0 +1,71 @@
+footer {
+    position: relative;
+    margin: auto 0 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: $spacing-lg $spacing-xl;
+    color: $color-white;
+
+    nav {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        flex-wrap: wrap;
+    }
+
+    @media #{$mq-md} {
+        flex-direction: row;
+        
+        nav {
+            flex-direction: row;
+        }
+    }    
+    
+}
+
+
+
+.c-footer-link {
+    text-align: center;
+    margin: auto;
+    width: 100%;
+    padding: $spacing-md $spacing-xs;
+    border-radius: $border-radius-sm;
+    text-decoration: none;
+    color: $color-white;
+    font-family: $font-metropolis;
+    
+    @media #{$mq-md} {
+        width: auto;
+        padding: $spacing-xs;
+        margin: auto $spacing-md auto auto;
+    }    
+
+    &.t-logo-mozilla {
+        margin: auto auto $spacing-md auto;
+        max-width: 140px;
+
+        @media #{$mq-md} {
+            min-width: 7rem;
+            margin: auto 0;
+        }        
+    }
+
+    &.t-logo-github {
+        img {
+            min-width: 24px;
+            max-width: 28px;            
+        }
+    }
+
+    &:hover, &:focus {
+        opacity: .9;
+        background-color: rgba(0, 0, 0, .2);
+    }
+
+    &:active {
+        background-color: rgba(0, 0, 0, .25);
+        opacity: .8;
+    }
+}
