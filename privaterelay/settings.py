@@ -254,12 +254,12 @@ DATABASES = {
     )
 }
 
-REDIS_CACHE_URL = config('REDIS_CACHE_URL', '', cast=str)
-if REDIS_CACHE_URL:
+REDIS_URL = config('REDIS_URL', '', cast=str)
+if REDIS_URL:
     CACHES = {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": REDIS_CACHE_URL,
+            "LOCATION": REDIS_URL,
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
             }
