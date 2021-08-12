@@ -89,9 +89,12 @@ class GetAddressTest(TestCase):
         )
         assert actual == expected
 
+    @override_settings(ADDITIONAL_DOMAINS=['test.com'])
     def test_get_address_with_relay_address(self):
         local_portion = 'foo'
-        relay_address = baker.make(RelayAddress, address=local_portion)
+        relay_address = baker.make(
+            RelayAddress, address=local_portion, domain=self.service_domain
+        )
 
         actual = _get_address(
             to_address=f'{self.local_portion}@{self.service_domain}',
@@ -100,21 +103,23 @@ class GetAddressTest(TestCase):
         )
         assert actual == relay_address
 
+    @override_settings(ADDITIONAL_DOMAINS=['test.com'])
     @patch('emails.views.incr_if_enabled')
     def test_get_address_with_deleted_relay_address(self, incr_mocked):
-        hashed_address = address_hash(self.local_portion)
+        hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
 
         try:
             _get_address(
                 to_address=f'{self.local_portion}@{self.service_domain}',
                 local_portion=self.local_portion,
-                domain_portion=f'{self.service_domain}'
+                domain_portion=self.service_domain
             )
         except Exception as e:
             assert e.args[0] == 'Address does not exist'
             incr_mocked.assert_called_once_with('email_for_deleted_address', 1)
 
+    @override_settings(ADDITIONAL_DOMAINS=['test.com'])
     @patch('emails.views.incr_if_enabled')
     @patch('emails.views.logger')
     def test_get_address_with_relay_address_does_not_exist(self, logging_mocked, incr_mocked):
@@ -132,9 +137,10 @@ class GetAddressTest(TestCase):
             )
             incr_mocked.assert_called_once_with('email_for_unknown_address', 1)
 
+    @override_settings(ADDITIONAL_DOMAINS=['test.com'])
     @patch('emails.views.incr_if_enabled')
     def test_get_address_with_deleted_relay_address_multiple(self, incr_mocked):
-        hashed_address = address_hash(self.local_portion)
+        hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
         baker.make(DeletedAddress, address_hash=hashed_address)
 
