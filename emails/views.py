@@ -410,7 +410,7 @@ def _get_address(to_address, local_portion, domain_portion):
     except RelayAddress.DoesNotExist:
         try:
             DeletedAddress.objects.get(
-                address_hash=address_hash(local_portion)
+                address_hash=address_hash(local_portion, domain=domain_portion)
             )
             incr_if_enabled('email_for_deleted_address', 1)
             # TODO: create a hard bounce receipt rule in SES
