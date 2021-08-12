@@ -13,6 +13,7 @@
     "at-rule-no-unknown": null,
     "color-hex-case": "upper",
     "declaration-block-semicolon-newline-after": "always",
+    "function-url-quotes": "always",
     "indentation": 4,
     "no-descending-specificity": null,
     "number-leading-zero": "never",

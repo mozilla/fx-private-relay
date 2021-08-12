@@ -172,6 +172,9 @@
     &.is-enabled {
         background-color: $color-white;
     }
+    &.is-hidden {
+        display: none;
+    }
 }
 
 .c-alias-main-info {

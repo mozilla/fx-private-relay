@@ -530,5 +530,8 @@ function dismissSurvey() {
 	survey_banner.classList.toggle("is-hidden");
 }
 
-document.getElementById("survey-dismiss").addEventListener("click", dismissSurvey, false);
+if ( document.getElementById("survey-dismiss") ) {
+  document.getElementById("survey-dismiss").addEventListener("click", dismissSurvey, false);
+}
+
 
