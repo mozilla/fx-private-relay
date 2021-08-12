@@ -152,7 +152,7 @@ class Profile(models.Model):
 def address_hash(address, subdomain=None, domain=DOMAIN_DEFAULT):
     if subdomain:
         return sha256(
-            f'{address}@{subdomain}.{domain}'.encode('utf-8')
+            f'{address}@{subdomain}'.encode('utf-8')
         ).hexdigest()
     if domain == DOMAIN_DEFAULT:
         return sha256(
