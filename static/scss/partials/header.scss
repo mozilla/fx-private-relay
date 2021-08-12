@@ -178,7 +178,7 @@ header {
     position: absolute;
     display: flex;
     align-items: center;
-    background-image: url(/static/images/arrowhead-white.svg);
+    background-image: url("/static/images/arrowhead-white.svg");
     background-repeat: no-repeat;
     background-position: center;
     top: 0;
@@ -336,7 +336,7 @@ header {
     }
 
     .mobile-menu-label::after {
-        background-image: url(/static/images/arrowhead.svg);
+        background-image: url("/static/images/arrowhead.svg");
     }
 
     @media screen and (max-width: 690px) {

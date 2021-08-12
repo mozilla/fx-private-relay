@@ -394,7 +394,7 @@ ul {
 }
 
 .dashboard-mpp-promo {
-    background: url(/static/images/polygon-background-small.png) center right no-repeat;
+    background: url("/static/images/polygon-background-small.png") center right no-repeat;
     background-color: $color-white;
     background-size: contain;
 }
@@ -506,7 +506,7 @@ table {
 .alias-copied-icon {
     width: 18px;
     height: 18px;
-    background-image: url(/static/images/copy-to-clipboard.svg);
+    background-image: url("/static/images/copy-to-clipboard.svg");
     background-repeat: no-repeat;
     background-size: contain;
     top: 0;
