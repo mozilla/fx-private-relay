@@ -75,3 +75,8 @@ class FormattingToolsTest(TestCase):
     def test_get_email_domain_from_settings_not_on_heroku_test_mozmail_false(self):
         email_domain = get_email_domain_from_settings()
         assert 'test.com' == email_domain
+    
+    @override_settings(ON_HEROKU=True, ADDITIONAL_DOMAINS=['mozmail-test.com'], TEST_MOZMAIL=True)
+    def test_get_email_domain_from_settings_test_mozmail_true(self):
+        email_domain = get_email_domain_from_settings()
+        assert 'mozmail-test.com' == email_domain
