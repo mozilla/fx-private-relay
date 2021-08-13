@@ -363,3 +363,9 @@ class DomainAddress(models.Model):
         self.user_profile.num_address_deleted += 1
         self.user_profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
+
+class Reply(models.Model):
+    relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE, blank=True, null=True)
+    domain_address = models.ForeignKey(DomainAddress, on_delete=models.CASCADE, blank=True, null=True)
+    lookup = models.CharField(max_length=255, blank=False)
+    encrypted_metadata = models.TextField(blank=False)
