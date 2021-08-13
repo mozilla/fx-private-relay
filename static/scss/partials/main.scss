@@ -332,45 +332,6 @@ button:active {
     padding-right: $spacing-md;
 }
 
-footer {
-    position: relative;
-    margin: auto 0 0 0;
-}
-
-.footer-link.moz-logo-link {
-    min-width: 7em;
-    margin: auto 0;
-}
-
-.GitHub-logo {
-    min-width: 24px;
-    max-width: 28px;
-}
-
-ul {
-    list-style-type: none;
-}
-
-.footer-link {
-    padding: 4px;
-    border-radius: 4px;
-    text-decoration: none;
-    color: $color-white;
-    font-family: $font-metropolis;
-    margin: auto 2em auto auto;
-}
-
-.footer-link:hover,
-.footer-link:focus {
-    opacity: .9;
-    background-color: rgba(0, 0, 0, .2);
-}
-
-.footer-link:active {
-    background-color: rgba(0, 0, 0, .25);
-    opacity: .8;
-}
-
 .dashboard-container {
     height: 100%;
     background-color: $color-mpp-background;
@@ -1673,10 +1634,6 @@ input:focus::placeholder {
         top: 30px;
     }
 
-    .footer-link {
-        margin: auto 1em auto auto;
-    }
-
     .banner-logo {
         position: absolute;
         margin: 0;
@@ -1698,25 +1655,6 @@ input:focus::placeholder {
 @media screen and (max-width: 600px) {
     body {
         --rowFullWidthHPadding: 1.5em;
-    }
-
-    footer,
-    footer nav {
-        flex-direction: column !important;
-        width: 100%;
-    }
-
-    .footer-link.moz-logo-link {
-        margin: auto auto 1em auto;
-        max-width: 140px;
-    }
-
-    .footer-link {
-        text-align: center;
-        margin: auto;
-        width: 100%;
-        padding-top: 1em;
-        padding-bottom: 1em;
     }
 
     .relay-email {

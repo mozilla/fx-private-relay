@@ -51,6 +51,8 @@ nav-profile-image-alt = { -brand-name-firefox-account(capitalization: "uppercase
 nav-footer-privacy = Privacy
 nav-footer-relay-terms = { -brand-name-relay } Terms
 nav-footer-legal = Legal
+logo-mozilla-alt = { -brand-name-mozilla }
+logo-github-alt = GitHub logo
 
 ## Bento Menu
 

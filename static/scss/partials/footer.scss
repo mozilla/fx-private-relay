@@ -1,0 +1,92 @@
+footer {
+    background-color: $color-black;
+    position: relative;
+    margin: auto 0 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: $spacing-xl $spacing-xl $spacing-lg;
+    color: $color-white;
+
+    @media #{$mq-sm} {
+        padding-top: $spacing-lg;
+        flex-direction: row;
+        align-items: center;
+    }        
+}
+
+.c-footer-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    flex-direction: column;
+    
+    li:last-child {
+        .c-footer-link {
+            margin-right: 0;
+        }
+    }
+    
+    @media #{$mq-sm} {
+        flex-direction: row;
+        align-items: center;
+    }    
+}
+
+.c-footer-link {
+    display: inline-block;
+    padding: $spacing-sm 0;
+    border-radius: $border-radius-sm;
+    text-decoration: none;
+    color: $color-white;
+    font-family: $font-metropolis;
+    margin-bottom: $spacing-xs;
+    
+    @media #{$mq-sm} {
+        padding: $spacing-sm 0;
+        margin: auto $spacing-md auto auto;
+    }    
+    
+    @media #{$mq-md} {
+        margin: auto $spacing-lg auto auto;
+    }    
+
+    &.t-logo-mozilla {
+        margin: 0 0 $spacing-sm;
+        padding: 0;
+        width: 7rem;
+        max-width: 100%;
+
+        &:hover, &:focus, &:active {
+            opacity: 1;
+        }
+
+        @media #{$mq-sm} {
+            margin: auto 0;
+        }        
+    }
+
+    &.t-logo-github {
+        img {
+            display: block;
+            min-width: 24px;
+            max-width: 28px;
+            &:hover, &:focus {
+                opacity: .8;
+            }
+
+            &:active {
+                opacity: .6;
+            }
+        }
+    }
+
+    &:hover, &:focus {
+        color: $color-grey-10;
+    }
+
+    &:active {
+        color: $color-grey-20;
+    }
+}
