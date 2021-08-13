@@ -723,38 +723,6 @@ table {
     color: $color-grey-50;
 }
 
-input.relay-email-address-label {
-    color: $color-grey-50;
-    display: flex;
-    font-weight: 500;
-    align-items: center;
-    background: transparent;
-    font-size: 1em;
-    padding: 6px 24px 6px 6px;
-    width: 188px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    transition: all .2s ease;
-    // Reset styles from protocol
-    background-color: none;
-    border-radius: 0;
-    border: 0;
-    margin: 0;
-    list-style: inherit;
-    min-width: 0;
-}
-
-.additional-notes {
-    flex-direction: row;
-    position: relative;
-    visibility: hidden;
-    pointer-events: none;
-    margin: auto auto 0 0;
-    display: none;
-    width: 100%;
-}
-
 .legacy-addon-show-label {
     visibility: visible;
 }
@@ -812,8 +780,7 @@ input:focus::placeholder {
 }
 
 .relay-email-address-label:hover {
-    background: $color-grey-20;
-    width: 192px;
+    background: $color-grey-10;
     transition: all .1s ease-in-out;
 }
 

@@ -204,12 +204,14 @@
 
 .c-alias-name {
     margin-left: $spacing-xs;
-    max-width: $content-sm;
     height: 100%;
     flex-wrap: nowrap;
 
-    .additional-notes, .relay-address {
+    .additional-notes {
         text-overflow: ellipsis;
+        flex-direction: row;
+        position: relative;
+        margin: auto auto 0 0;
     }
 
     .relay-address {
@@ -225,9 +227,35 @@
     }
 
     input {
+        color: $color-grey-50;
+        display: flex;
+        font-weight: 500;
+        align-items: center;
+        background: transparent;
+        font-size: 1em;
+        padding: 6px $spacing-lg 6px 6px;
+        width: $content-xs;
         text-overflow: ellipsis;
-        width: inherit;
-        max-width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        transition: all .2s ease;
+        // Reset styles from protocol
+        background-color: none;
+        border-radius: 0;
+        border: 0;
+        margin: 0;
+        list-style: inherit;
+    }
+
+    input[type="text"] {
+        max-width: $content-xs;
+        min-width: auto;
+    }
+
+    @media screen and (max-width: $screen-sm) {
+        input {
+            width: auto;
+        }
     }
 
     @media #{$mq-md} {
