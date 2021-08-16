@@ -206,12 +206,14 @@
     margin-left: $spacing-xs;
     height: 100%;
     flex-wrap: nowrap;
+    max-width: 100%;
 
     .additional-notes {
         text-overflow: ellipsis;
         flex-direction: row;
         position: relative;
         margin: auto auto 0 0;
+        max-width: $content-xs;
     }
 
     .relay-address {
