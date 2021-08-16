@@ -1,3 +1,3 @@
 [submodule "privaterelay/locales"]
 	path = privaterelay/locales
-	url = git@github.com:mozilla-l10n/fx-private-relay-l10n.git
+	url = https://github.com/mozilla-l10n/fx-private-relay-l10n.git
