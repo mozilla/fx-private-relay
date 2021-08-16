@@ -30,7 +30,7 @@ Please refer to our [coding standards](docs/coding-standards.md) information for
 1. Clone and change to the directory:
 
     ```sh
-    git clone https://github.com/mozilla/fx-private-relay.git
+    git clone --recurse-submodules https://github.com/mozilla/fx-private-relay.git
     cd fx-private-relay
     ```
 
@@ -82,6 +82,44 @@ Please refer to our [coding standards](docs/coding-standards.md) information for
     ```sh
     python manage.py runserver
     ```
+
+### Working with translations
+#### Getting the latest translations
+We use a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
+for translated message files. The `--recurse-submodules` step of installation
+should bring the message files into your working directory already, but you may
+want also want to udpate the translations after install. The easiest way to do
+that is:
+
+* `git submodule update --remote`
+
+#### Add/update messages for translation
+The `privaterelay/locales` directory is a git repository like any other, so to
+make changes to the messages:
+
+1. Make whatever changes you need in `privaterelay/locales/en` as you work.
+
+2. `cd privaterelay/locales/en`
+
+3. `git branch message-updates-yyyymmdd`
+
+4. `git push -u origin message-updates-yyyymmdd`
+
+You can then open a pull request from the `message-updates-yyyymmdd` branch to
+[the l10n repo](https://github.com/mozilla-l10n/fx-private-relay-l10n) `main` branch.
+
+#### Commit translations for release
+To commit updates to the app's translations (e.g., before a release), we need
+to commit this submodule update. So, if the updated translations are ready to
+be committed into the app, you can `git add` the submodule just like any other
+file:
+
+* `git add privaterelay/locales`
+
+You can then commit and push to set the app repository to the updated version
+of the translations submodule:
+
+* `git push`
 
 #### Recommended: Enable Firefox Accounts authentication
 To enable Firefox Accounts authentication on your local server, you can use the
