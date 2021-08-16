@@ -156,11 +156,62 @@ the production site, accounts.firefox.com.
 TODO -->
 
 
-#### Optional: Install and run the add-on locally
+### Optional: Install and run the add-on locally
 
 *Note: The add-on is located in a [separate repo](https://github.com/mozilla/fx-private-relay-add-on/). See it for additional information on getting started.* 
 
 The add-on adds Firefox UI to generate and auto-fill email addresses across the web. Running the add-on locally allows it to communicate with your local server (`127.0.0.1:8000`) instead of the production server (`relay.firefox.com`).
+
+### Optional: Enable Premium Features
+
+To enable the premium Relay features, we integrate with the [FXA Subscription
+Platform](https://mozilla.github.io/ecosystem-platform/docs/features/sub-plat/sub-plat-overview).
+At a high level, to set up Relay premium subscription, we:
+
+1. [Enable Firefox Accounts Authentication](#enable-firefox-accounts-authentication) as described above.
+
+2. Create a product & price in our [Stripe dashboard](https://dashboard.stripe.com/).
+(Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
+
+3. Link free users of Relay to the appropriate SubPlat purchase flow.
+
+4. Check users' FXA profile json for a `subscriptions` field to see if they can
+   access a premium, subscription-only feature.
+
+In detail:
+
+1. [Enable Firefox Accounts Authentication](#enable-firefox-accounts-authentication) as described above.
+
+2. Go to our [Stripe dashboard](https://dashboard.stripe.com/).
+(Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
+
+3. Create a new product in Stripe.
+
+4. Add all [required `product:` metadata](https://github.com/mozilla/fxa/blob/a0c7ac2b4bad0412a0f3a25fc82b5670922f8957/packages/fxa-auth-server/lib/routes/validators.js#L396-L437).
+   * Note: each piece of this metadata must have a `product:` prefix. So, for
+     example, `webIconURL` must be entered as `product:webIconURL`.
+
+5. Add `capabilities:` metadata.
+   * Note: Each piece of this metadata must have a format like
+     `capabilities:<fxa oauth client ID>`, and the value is a free-form string
+     to describe the "capability" that purchasing the subscription gives to the
+     user. E.g., `capabilities:9ebfe2c2f9ea3c58` with value of `premium-relay`.
+
+6. Set some env vars with values from the above steps:
+
+| Var | Value |
+|-------|-------|
+| `FXA_SUBSCRIPTIONS_URL` | `https://accounts.stage.mozaws.net/subscriptions` |
+| `PREMIUM_ENABLED` | `True` |
+| `PREMIUM_PROD_ID` | `prod_IyCWnXUbkYjDgL` (from Stripe)|
+| `PREMIUM_PRICE_ID` | `price_1IMG7KKb9q6OnNsL15Hsn1HE` (from Stripe)|
+| `SUBSCRIPTIONS_WITH_UNLIMITED` | `"premium-relay"` (match the `capabilities` value you used in Stripe)|
+
+#### Test Premium
+
+There is a [comprehensive doc of test
+cases](https://docs.google.com/spreadsheets/d/1fMl4LHr1kIuGHfS9jyhLrv5vAyJMBUCr2AP0sODFmJw/edit#gid=0) for purchasing premium Relay.
+
 
 ## Production Environments
 
