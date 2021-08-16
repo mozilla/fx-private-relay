@@ -34,7 +34,7 @@
         }   
 
         // Reset filter if the input is empty, however, do not steal focus to input
-        if (query === "") resetFilter({focus: false});
+        if (query === "") resetFilter();
 
         // Add class to keep the reset button visible while a query has been entered
         filterInput.classList.add("is-filtered");
@@ -138,7 +138,6 @@
             }
 
             const aliasLabel = alias.querySelector(".relay-email-address-label");
-            
 
             if (addOnDetected) {
                 aliasLabel.addEventListener("blur", updateAliasLabel);
@@ -148,8 +147,6 @@
                 aliasesWithLabelsCollection.push(alias);
                 filterAliasLabels.push( aliasLabel.dataset.label.toString().toLowerCase() );
             }
-
-
 		});
 
 		// // Set ##/## in filter input field to show how many aliases have been filtered.
@@ -172,11 +169,11 @@
 
         // TODO: Add esc key listener
         filterResetButton.addEventListener("click", ()=> {
-            resetFilter({focus: true});
+            resetFilter();
         }, false);
 	}
 
-    function resetFilter(opts) {
+    function resetFilter() {
         filterLabelVisibleCases.textContent = aliases.length;
         filterLabelTotalCases.textContent = aliases.length;
         filterInput.classList.remove("is-filtered");
@@ -185,11 +182,6 @@
         aliases.forEach(alias => {
             alias.classList.remove("is-hidden");
         });
-
-        if (opts && opts.focus) {
-            filterInput.focus();
-        }
-
     }
 
     // TODO: Remove timeout and watch for event to detect if add-on is enabled (checking if labels exist)
