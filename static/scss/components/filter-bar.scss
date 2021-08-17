@@ -158,6 +158,10 @@
     &.is-enabled, &:hover {
         background-image: url("/static/images/icon-filter-blue.svg");        
     }
+
+    &.is-enabled + .c-filter-category-list {
+        display: block;
+    }
 }
 
 .c-filter-date, .c-filter-category {
@@ -185,17 +189,13 @@
 // Category Filter
 .c-filter-category {
     position: relative;
-    &.is-active {
-        .c-filter-category-list {
-            display: block;
-        }
-    }
 }
 
 .c-filter-category-list {
     display: none;
     position: absolute;
-    top: 100%;
+    left: -$spacing-xs;
+    top: calc(100% + #{$spacing-sm});
     width: $content-xs;
     background-color: $color-white;
     box-shadow: $box-shadow-sm;

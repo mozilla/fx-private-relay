@@ -18,12 +18,26 @@
     const filterForm = document.querySelector(".js-filter-search-form");
     const filterContainer = document.querySelector(".js-filter-container");
 
+    const filterToggleCategoryInput = document.querySelector(".js-filter-category-toggle");
+    // const filterCategory = document.querySelector(".c-filter-category");
+
+    const filterToggleCategoryButtonReset = document.querySelector(".js-filter-category-reset");
+    const filterToggleCategoryButtonApply = document.querySelector(".js-filter-category-apply");
+
+
     function toggleAliasSearchBar() {
         filterToggleSearchInput.classList.toggle("is-enabled");
         filterContainer.classList.toggle("is-search-active")       
     }
 
     filterToggleSearchInput.addEventListener("click", toggleAliasSearchBar, false);
+
+    function toggleAliasCategoryBar() {
+        filterToggleCategoryInput.classList.toggle("is-enabled");
+        // filterContainer.classList.toggle("is-search-active")       
+    }
+
+    filterToggleCategoryInput.addEventListener("click", toggleAliasCategoryBar, false);
 
 	function filterInputWatcher(input) {
 
@@ -186,5 +200,28 @@
 
     // TODO: Remove timeout and watch for event to detect if add-on is enabled (checking if labels exist)
     setTimeout(filterInit, 500);
+
+    const filterCategory = {
+        init: () => {
+            console.log("reset category init");
+            filterToggleCategoryButtonApply.addEventListener("click", filterCategory.apply, false);
+            filterToggleCategoryButtonReset.addEventListener("click", filterCategory.reset, false);
+        }, 
+        reset: (e) => {
+            e.preventDefault();
+            console.log("reset category filter");
+            filterCategory.close();
+        },
+        apply: (e) => {
+            e.preventDefault();
+            console.log("apply category filter");
+            filterCategory.close();
+        },
+        close: () => {
+            toggleAliasCategoryBar();
+        }
+    }
+
+    filterCategory.init();
 
 })();
