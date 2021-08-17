@@ -512,7 +512,7 @@ function vpnBannerLogic() {
     setCookie: function() {
       const date = new Date();
       date.setTime(date.getTime() + 30*24*60*60*1000);
-      document.cookie = "vpnBannerDismissed=true; expires=" + date.toUTCString();
+      document.cookie = "vpnBannerDismissed=true; expires=" + date.toUTCString() + "; path=/";
     },
     show: function() {
       vpnPromoBanner.classList.remove("closed");
