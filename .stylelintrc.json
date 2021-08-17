@@ -10,13 +10,32 @@
     "static/scss/libs/**"
   ],
   "rules": {
+    "at-rule-empty-line-before": [
+      "always",
+      {
+        "except": ["after-same-name", "first-nested"],
+        "ignore": ["after-comment"]
+      }
+    ],
     "at-rule-no-unknown": null,
+    "block-opening-brace-newline-after": "always",
+    "block-closing-brace-newline-after": "always",
     "color-hex-case": "upper",
     "declaration-block-semicolon-newline-after": "always",
+    "declaration-colon-space-after": "always",
+    "declaration-colon-space-before": "never",
     "function-url-quotes": "always",
     "indentation": 4,
     "no-descending-specificity": null,
+    "no-missing-end-of-source-newline": true,
     "number-leading-zero": "never",
+    "rule-empty-line-before": [
+      "always", 
+      {
+        "except": ["after-single-line-comment"],
+        "ignore": ["after-comment"]
+      }
+    ],
     "scss/at-rule-no-unknown": true
   }
 }
