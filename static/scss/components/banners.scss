@@ -3,6 +3,7 @@
     border-radius: $border-radius-md;
     padding: $spacing-xl $spacing-lg;
     width: 100%;
+
     img {
         display: none;
         height: auto;
@@ -10,63 +11,76 @@
         max-width: 280px;
         padding: 0 $spacing-xl;    
     }
+
     h2 {
         font-size: 1.25rem;
         margin: 0 0 $spacing-sm;
         padding: 0;
         color: $color-black;
     }
+
     p {
         margin: 0 0 $spacing-md;
         padding: 0;
     }
+
     form {
         margin-bottom: $spacing-md;
     }
+
     input {
         width: 100%;
         display: block;
         border-radius: $border-radius-sm;
         padding: $spacing-sm $spacing-md;
         margin-bottom: $spacing-sm;
+
         &[type='text'] {
-            border: 1px solid #CCCCCC;
+            border: 1px solid $color-light-gray-20;
             width: 100%;
         }
         
     }
+
     .warning {
         font-size: .9rem;
         font-weight: 700;
         color: $color-warning;
     }
+
     .border {
-        border-left:  1px solid #ECECEC;
+        border-left: 1px solid $color-light-gray-20;
         display: none;
     }
 }
 
 @media screen and (min-width: 540px) {
-    .mpp-choose-subdomain form {   
+
+    .mpp-choose-subdomain form {
         display: flex;
+
         input {
             width: auto;
+
             &[type='submit'] {
                 margin-left: $spacing-md;
             }
         }
     }
 }
-
 @media screen and (min-width: 768px) {
-    .mpp-choose-subdomain {   
+
+    .mpp-choose-subdomain {
         display: flex;
+
         img {
             display: block;
         }
+
         .border {
             display: block;
         }
+
         .mpp-choose-subdomain-form {
             padding-left: $spacing-xl;
         }

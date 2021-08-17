@@ -29,6 +29,7 @@
     margin-bottom: $spacing-lg;
     display: flex;
     flex-direction: column;
+
     @media #{$mq-md} {
         margin-bottom: 0;
     }

@@ -4,6 +4,7 @@
     margin-bottom: $spacing-md;
 
     .c-filter-search-form {
+
         &.is-hidden {
             display: none;
         }
@@ -29,6 +30,7 @@
 
     @media screen and (min-width: 768px) {
         justify-content: flex-end;
+
         &.is-search-active {
             margin-bottom: $spacing-md;
             
@@ -56,6 +58,7 @@
         padding-right: 90px;
         position: relative;
         z-index: 0;
+
         &.is-filtered + .c-filter-search-controls {
             opacity: 1;
         }
@@ -63,6 +66,7 @@
         &:focus + .c-filter-search-controls {
             opacity: 1;
         }
+
         &:focus, &:hover {
             background-image: url("/static/images/icon-search-blue.svg");
         }
@@ -91,9 +95,11 @@
     @media #{$mq-md} {
         align-self: flex-start;
         margin-right: auto;
+
         form {
             display: block;
         }
+
         .c-filter-icon {
             display: none;
         }
@@ -102,6 +108,7 @@
 
 .c-filter-action {
     margin-left: auto;
+
     @media #{$mq-md} {
         margin-left: 0;
     }
@@ -129,6 +136,7 @@
 .c-filter-icon-search {
     background-size: auto 1.25rem;
     background-image: url("/static/images/icon-search.svg");
+
     &.is-enabled, &:hover {
         background-image: url("/static/images/icon-search-blue.svg");        
     }
@@ -136,6 +144,7 @@
 
 .c-filter-icon-calendar {
     background-image: url("/static/images/icon-calendar.svg");
+
     &.is-enabled, &:hover {
         background-image: url("/static/images/icon-calendar-blue.svg");        
     }

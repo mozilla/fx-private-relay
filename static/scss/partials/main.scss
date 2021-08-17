@@ -374,6 +374,7 @@ button:active {
     font-weight: 500;
     max-width: $content-xs;
     color: $color-black;
+
     strong {
         display: inline-block;
     }
@@ -455,6 +456,7 @@ table {
 }
 
 @keyframes fadeOut {
+
     from {
         opacity: 1;
     }
@@ -923,6 +925,7 @@ input:focus::placeholder {
     display: flex;
     align-items: center;
     height: 1rem;
+
     img {
         display: block;
         width: 100%;
@@ -1402,6 +1405,7 @@ input:focus::placeholder {
 }
 
 @media screen and (min-width: 550px) {
+
     .relay-stat:hover .stat-description, .stat-description.show-message {
         transform: translateY(3px);
         visibility: visible;
@@ -1443,6 +1447,7 @@ input:focus::placeholder {
 }
 
 @media screen and (max-width: 1050px) {
+
     .home-hero {
         align-items: flex-start;
         margin-bottom: 4em;
@@ -1503,14 +1508,14 @@ input:focus::placeholder {
         margin-bottom: .75em;
     }
 }
-
 @media screen and (max-width: 1050px) and (min-height: 1000px) {
+
     .hero-content {
         flex-direction: column-reverse;
     }
 }
-
 @media screen and (max-width: 1100px) {
+
     .hero-sub-head {
         max-width: 650px;
         font-size: 1.1em;
@@ -1526,20 +1531,20 @@ input:focus::placeholder {
         min-height: 50vh;
     }
 }
-
 @media screen and (max-width: 940px) {
+
     .img-arrow-up {
         display: none;
     }
 }
-
 @media screen and (max-width: 800px) {
+
     .relay-stat {
         margin-left: 2em;
     }
 }
-
 @media screen and (max-width: 750px) {
+
     .dashboard-greeting {
         text-align: center;
     }
@@ -1651,8 +1656,8 @@ input:focus::placeholder {
         margin: 0;
     }
 }
-
 @media screen and (max-width: 600px) {
+
     body {
         --rowFullWidthHPadding: 1.5em;
     }
@@ -1714,8 +1719,8 @@ input:focus::placeholder {
         margin-right: 0;
     }
 }
-
 @media screen and (max-width: 550px) {
+
     .wrap-col-600 {
         flex-direction: column-reverse;
     }
@@ -1807,8 +1812,8 @@ input:focus::placeholder {
         display: none;
     }
 }
-
 @media screen and (max-width: 450px) {
+
     .step-body,
     .step-headline {
         margin-left: 0;
@@ -1841,8 +1846,8 @@ input:focus::placeholder {
         font-size: 14px;
     }
 }
-
 @media screen and (max-width: 400px) {
+
     body {
         --rowFullWidthHPadding: 1em;
     }
@@ -1866,6 +1871,7 @@ input:focus::placeholder {
 }
 
 @keyframes appearSmoothly {
+
     0% {
         opacity: 0;
     }

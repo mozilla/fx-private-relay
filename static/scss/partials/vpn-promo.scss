@@ -18,6 +18,7 @@ body {
 }
 
 @media (prefers-reduced-motion) {
+
     .vpn-promo-banner {
         transition-property: none;
     }
@@ -118,6 +119,7 @@ body {
 }
 
 @media screen and (min-width: 700px) {
+
     .vpn-promo-banner-wrapper {
         display: flex;
         align-items: center;
@@ -147,18 +149,19 @@ body {
         margin-bottom: .25rem;
     }
 }
-
 @media screen and (min-width: 800px) {
+
     .vpn-promo-copy {
         padding: 0 $spacing-md;
     } 
 }
-
 @media screen and (min-width: 960px) {
+
     .vpn-promo-banner button {
         top: $spacing-xs;
         right: $spacing-xs;
     }
+
     .vpn-promo-banner a {
         flex-shrink: 0;
     }

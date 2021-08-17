@@ -23,6 +23,7 @@ footer {
     flex-direction: column;
     
     li:last-child {
+
         .c-footer-link {
             margin-right: 0;
         }
@@ -46,11 +47,10 @@ footer {
     @media #{$mq-sm} {
         padding: $spacing-sm 0;
         margin: auto $spacing-md auto auto;
-    }    
-    
+    }
     @media #{$mq-md} {
         margin: auto $spacing-lg auto auto;
-    }    
+    }
 
     &.t-logo-mozilla {
         margin: 0 0 $spacing-sm;
@@ -68,10 +68,12 @@ footer {
     }
 
     &.t-logo-github {
+
         img {
             display: block;
             min-width: 24px;
             max-width: 28px;
+
             &:hover, &:focus {
                 opacity: .8;
             }
