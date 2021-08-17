@@ -1,3 +1,6 @@
+@import "libs/protocol/css/components/forms/choice.scss";
+
+
 .c-filter {
     display: flex;
     align-items: center;
@@ -44,7 +47,6 @@
 }
 
 // Search Bar
-
 .c-filter-search {
 
     form {
@@ -158,7 +160,7 @@
     }
 }
 
-.c-filter-date, .c-filter-cateogry {
+.c-filter-date, .c-filter-category {
     margin-left: $spacing-xs;
 }
 
@@ -177,5 +179,33 @@
     img {
         width: 1rem;
         display: block;
+    }
+}
+
+// Category Filter
+.c-filter-category {
+    position: relative;
+    &.is-active {
+        .c-filter-category-list {
+            display: block;
+        }
+    }
+}
+
+.c-filter-category-list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    width: $content-xs;
+    background-color: $color-white;
+    box-shadow: $box-shadow-sm;
+    z-index: 1;
+    padding: $spacing-md;
+    border-radius: $border-radius-md;
+}
+
+.c-filter-category-type {
+    .mzp-c-choice-label {
+        padding-top: 0;
     }
 }
