@@ -6,6 +6,10 @@
     ul {
         list-style-type: none;
     }
+    
+    .is-premium & {
+        background-color: $color-purple-90;
+    }
 }
 
 .micro-survey-banner {
