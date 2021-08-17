@@ -85,7 +85,7 @@
       {% endif %}
 
       {% for relay_address in relay_addresses %}
-        <div class="c-alias js-alias relay-email {% if relay_address.enabled %} is-enabled card-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
+        <div class="c-alias js-alias relay-email {% if relay_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
           
           <div class="c-alias-main-info">
             <!-- enable/disable email forwarding -->
@@ -193,7 +193,7 @@
 
       {% for domain_address in domain_addresses %}
     
-        <div class="c-alias js-alias relay-email {% if domain_address.enabled %} is-enabled card-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{% user_email_domain user_profile %}" data-relay-address-id="{{ domain_address.id }}">
+        <div class="c-alias js-alias relay-email {% if domain_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{% user_email_domain user_profile %}" data-relay-address-id="{{ domain_address.id }}">
           
           <div class="c-alias-main-info">
             <!-- enable/disable email forwarding -->

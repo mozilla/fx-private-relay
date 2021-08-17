@@ -181,11 +181,11 @@
     background-color: rgba($color-white, .5);
     border-radius: $border-radius-md;
     padding: $spacing-md $spacing-md 0;
-    box-shadow: $box-shadow-sm;
     margin-bottom: $spacing-lg;
 
     &.is-enabled {
         background-color: $color-white;
+        box-shadow: $box-shadow-sm;
     }
 
     &.is-hidden {
