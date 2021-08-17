@@ -110,7 +110,7 @@
     margin-left: auto;
 
     @media #{$mq-md} {
-        margin-left: 0;
+        margin-left: $spacing-md;
     }
 }
 
