@@ -255,6 +255,7 @@ body.hide-bento firefox-apps > button {
 }
 
 @media screen and (max-width: 900px) {
+
     .fx-bento-home-page {
         margin: 0 0 0 $spacing-lg;
     }
@@ -267,8 +268,8 @@ body.hide-bento firefox-apps > button {
         transform: scale(.9);
     }
 }
-
 @media screen and (max-width: 500px) {
+
     firefox-apps {
         --appIconHeight: var(--bentoPadding);
         --mobileClickableCloseArea: 12vh;
@@ -371,6 +372,7 @@ body.hide-bento firefox-apps > button {
 }
 
 @keyframes fxBentoAppear {
+
     0% {
         opacity: 0;
         transform: translateY(0);

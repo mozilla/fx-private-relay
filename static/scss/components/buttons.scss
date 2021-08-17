@@ -14,7 +14,7 @@
     color: $color-blue-50;
 }
 
-.btn--blue { 
+.btn--blue {
     background-color: $color-blue-50;
     color: $color-white;
 }
@@ -23,6 +23,7 @@
     border: 2px solid $color-blue-50;
     color: $color-blue-50;
     background: none;
+
     &:hover {
         color: $color-white;
         background-color: $color-blue-50;
@@ -30,6 +31,7 @@
 }
 
 .c-button-toggle {
+
     form {
         display: flex;
         align-items: center;

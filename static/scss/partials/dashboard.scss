@@ -43,12 +43,14 @@
     padding: 0 $spacing-xs;
     border-right: 1px solid #ECECEC;
     width: 100%;
+
     span {
         display: block;
         text-align: center;
         font-size: 2rem;
         font-weight: 800;
     }
+
     .label {
         font-size: 1rem;
         display: block;
@@ -57,6 +59,7 @@
         font-weight: 400;
         margin-bottom: $spacing-xs;
     }
+
     &:last-child {
         border-right: 0;
     }
@@ -70,12 +73,15 @@
     outline: none;
     display: flex;
     align-items: center;
+
     .margin-right {
         margin-right: $spacing-xs;
     }
+
     .margin-left {
         margin-left: $spacing-xs;
     }
+
     &:hover {
         color: $color-blue-40;
     }
@@ -88,6 +94,7 @@
     top: calc(100%);
     right: 0;
     min-width: 200px;
+
     @media #{$mq-md} {
         right: auto;
         left: $layout-lg;
@@ -101,6 +108,7 @@
     position: relative;
     color: $color-violet-90;
     padding: $spacing-md;
+
     &:after{
         background-color: white;
         right: $layout-sm;
@@ -114,7 +122,7 @@
             
         top: -10px;
         transform: rotate(135deg);
-        width:  20px;
+        width: 20px;
 
         @media #{$mq-md} {
             right: auto;
@@ -135,28 +143,34 @@
 
 
 @media screen and (min-width: 768px) {
+
     .mpp-dashbaord-header-container {
         display: flex;
         align-items: center;
         justify-content: space-between;
-    }    
+    }
+
     .mpp-dashbaord-header-title {
         width: 25%;
         flex-grow: 2;
         margin-bottom: 0;
         display: block;
     }
+
     .mpp-dashbaord-header-stats {
         width: auto;
         flex-shrink: 2;
+
         li {
             padding: 0 $spacing-md;
             width: auto;
         }
+
         .label {
             white-space: nowrap;
         }
     }
+
     .mpp-dashbaord-header-name {
         margin-bottom: $spacing-md;
     }
@@ -169,9 +183,11 @@
     padding: $spacing-md $spacing-md 0;
     box-shadow: $box-shadow-sm;
     margin-bottom: $spacing-lg;
+
     &.is-enabled {
         background-color: $color-white;
     }
+
     &.is-hidden {
         display: none;
     }
@@ -215,6 +231,7 @@
     }
 
     @media #{$mq-md} {
+
         .relay-address {
             display: block;
         }
@@ -226,6 +243,7 @@
 .c-alias-copy {
     display: block;
     padding: $spacing-sm 0 $spacing-md;
+
     @media #{$mq-md} {
         display: none;
     }
@@ -233,6 +251,7 @@
 
 .c-alias-stats {
     display: none;
+
     @media #{$mq-md} {
         margin-right: $spacing-md;
         display: flex;
@@ -258,13 +277,14 @@
     &.is-visible {
         border-color: $color-light-gray-30;
         max-height: 900px;
-        padding:  $spacing-md 0;
+        padding: $spacing-md 0;
     }
 }
 
 .c-alias-toggle-button {
     transition: transform .2s ease-out;
     margin: auto 0;
+
     &.is-active {
         transform: rotate(180deg);
     }
@@ -285,32 +305,42 @@
     display: flex;
     align-items: center;
     line-height: normal;
+
     & + .c-alias-data {
         margin-top: $spacing-sm;
+
         @media #{$mq-sm} {
             margin-top: 0;
             margin-left: $spacing-xl;
         }
     }
+
     span {
         display: block;
     }
+
     .c-alias-data-label {
         color: $color-dark-gray-05;
+
         @include text-body-xs;
     }
+
     .c-alias-data-value {
         @include text-body-md;
         text-overflow: ellipsis;
     }
+
     &.created-by {
+
         img {
             height: 1.5rem;
         }
     }
+
     img {
         display: none;
         height: 1rem;
+
         @media #{$mq-md} {
             display: block;
             margin-right: $spacing-md;
@@ -331,14 +361,17 @@
     display: flex;
     align-items: center;
     color: $color-blue-50;
+
     &:hover, &:focus {
         border-color: $color-blue-50;
         box-shadow: $box-shadow-mpp-sm;
     }
+
     &:active {
         box-shadow: none;
         background-color: $color-white;
     }
+
     span {
         @include text-body-sm;
         font-weight: 500;

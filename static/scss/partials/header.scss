@@ -26,6 +26,7 @@ header {
     margin: auto 0 auto auto;
     font-family: $font-metropolis;
     align-items: center;
+
     @media screen and (max-width: 690px) {
         display: none;
     }
@@ -141,6 +142,7 @@ header {
     align-items: center;
     display: none;
     flex-direction: row;
+
     @media screen and (max-width: 690px) {
         display: flex;
     }
@@ -259,6 +261,7 @@ header {
 
 
 .is-premium {
+
     header {
         background: $color-white;
         box-shadow: 0px 4px 12px rgba(0, 0, 0, .06);
@@ -268,16 +271,19 @@ header {
     .fx-private-relay-logotype {
         background-image: url("/static/images/fx-private-relay-logotype-dark.svg");
     }
+
     .header-top {
         padding: 0 $spacing-xl;
         align-items: center;
     }
+
     .header-link {
         color: $color-grey-40;
         padding: $spacing-lg 0;
         position: relative;
         display: block;
         border-radius: 0;
+
         &::after {
             position: absolute;
             bottom: 0;
@@ -285,22 +291,27 @@ header {
             height: 4px;
         }
     }
+
     .active-header-link {
         color: $color-grey-30;
     }
+
     .header-link:hover,
     .header-link:active,
     .header-link:focus {
         background-color: transparent;
     }
+
     .logo-wrapper {
         height: 40px;
     }
+
     .fx-bento-button {
         background-image: url("/static/images/bento.svg");
         background-size: contain;
         background-position: center center;
         background-repeat: no-repeat;
+
         &:hover {
             background-image: url("/static/images/bento-white.svg");
             background-color: $color-grey-40;
@@ -340,6 +351,7 @@ header {
     }
 
     @media screen and (max-width: 690px) {
+
         .header-top {
             padding: $spacing-lg $spacing-xl;
         }
@@ -349,6 +361,7 @@ header {
 
 
 @media screen and (max-width: 750px) {
+
     .fx-private-relay-logotype {
         min-width: 150px;
     }
@@ -358,22 +371,23 @@ header {
         padding-right: $spacing-md;
     }
 }
-
-
 @media screen and (max-width: 600px) {
+
     header {
         border-bottom: none;
     }
+
     .fx-private-relay-logotype {
         min-width: 120px;
         background-position: center;
     }
+
     .header-top {
         padding: $spacing-lg;
     }
 }
-
 @media screen and (max-width: 690px) {
+
     header {
         position: sticky;
         top: 0;
@@ -398,12 +412,13 @@ header {
         background-size: 400%;
         background-position: bottom right;
     }
+
     .header-top {
         padding: $spacing-md;
     }
 }
-
 @media screen and (max-width: 400px) {
+
     .fx-private-relay-logomark {
         min-width: 30px;
         margin-right: $spacing-sm;
