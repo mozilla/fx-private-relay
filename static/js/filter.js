@@ -201,6 +201,8 @@
     // TODO: Remove timeout and watch for event to detect if add-on is enabled (checking if labels exist)
     setTimeout(filterInit, 500);
 
+    const filterCategoryCheckboxes = document.querySelectorAll(".js-filter-category-checkbox");
+
     const filterCategory = {
         init: () => {
             console.log("reset category init");
@@ -210,15 +212,37 @@
         reset: (e) => {
             e.preventDefault();
             console.log("reset category filter");
+            filterCategoryCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
             filterCategory.close();
+            aliases.forEach(alias => {
+                alias.classList.remove("is-hidden");
+            });
         },
         apply: (e) => {
             e.preventDefault();
-            console.log("apply category filter");
+            // console.log("apply category filter");
+
+            filterCategoryCheckboxes.forEach(checkbox    => {
+                // console.log(checkbox);
+                // const options = {};
+                if (checkbox.checked) {
+                    console.log(checkbox.dataset.categoryType); 
+                }
+            });
+
+            
             filterCategory.close();
         },
         close: () => {
             toggleAliasCategoryBar();
+        },
+        filter: () => {
+            aliases.forEach(alias => {
+                alias.classList.add("is-hidden");
+            });
         }
     }
 
