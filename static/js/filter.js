@@ -254,6 +254,8 @@
                 return;
             }
 
+            const multipleOptions = (options.length > 1);
+
             // Hide all aliases by default
             aliases.forEach(alias => {
                 alias.classList.add("is-hidden");
@@ -266,33 +268,48 @@
             // "relay-aliases"– Only show aliases that have been generated from the dashboard/add-on 
             // "domain-aliases"– Only show aliases that were created with a unique subdomain. 
 
-            options.forEach(option => {
+            options.forEach( (option, index) => {
+
+                let filteredAliases = aliases;
+
+                if (multipleOptions && (index > 0)) {
+                    filteredAliases = document.querySelectorAll(".c-alias:not(.is-hidden)");
+                }
+
                 switch (option) {
                     case "active-aliases":
-                        aliases.forEach(alias => {
+                        filteredAliases.forEach(alias => {
                             if (alias.classList.contains("is-enabled")) {
                                 alias.classList.remove("is-hidden");
+                            } else {
+                                alias.classList.add("is-hidden");
                             }
                         });
                         break;
                     case "disabled-aliases":
-                        aliases.forEach(alias => {
+                        filteredAliases.forEach(alias => {
                             if (!alias.classList.contains("is-enabled")) {
                                 alias.classList.remove("is-hidden");
+                            } else {
+                                alias.classList.add("is-hidden");
                             }
                         });
                         break;
                     case "relay-aliases":
-                        aliases.forEach(alias => {
+                        filteredAliases.forEach(alias => {
                             if (alias.classList.contains("is-relay-alias")) {
                                 alias.classList.remove("is-hidden");
+                            } else {
+                                alias.classList.add("is-hidden");
                             }
                         });
                         break;
                     case "domain-aliases":
-                        aliases.forEach(alias => {
+                        filteredAliases.forEach(alias => {
                             if (alias.classList.contains("is-domain-alias")) {
                                 alias.classList.remove("is-hidden");
+                            } else {
+                                alias.classList.add("is-hidden");
                             }
                         });
                         break;
