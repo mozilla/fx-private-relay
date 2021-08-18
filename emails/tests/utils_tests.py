@@ -8,6 +8,7 @@ from django.test import (
 
 from emails.utils import (
     generate_relay_From,
+    get_domains_from_settings,
     get_email_domain_from_settings,
 )
 
@@ -76,7 +77,10 @@ class FormattingToolsTest(TestCase):
         email_domain = get_email_domain_from_settings()
         assert 'test.com' == email_domain
 
-    @override_settings(ON_HEROKU=True, ADDITIONAL_DOMAINS=['mozmail-test.com'], TEST_MOZMAIL=True)
-    def test_get_email_domain_from_settings_test_mozmail_true(self):
-        email_domain = get_email_domain_from_settings()
-        assert 'mozmail-test.com' == email_domain
+    @override_settings(RELAY_FIREFOX_DOMAIN='firefox.com', MOZMAIL_DOMAIN='mozmail.com')
+    def test_get_domains_from_settings(self):
+        domains = get_domains_from_settings()
+        assert domains == {
+            'RELAY_FIREFOX_DOMAIN': 'firefox.com',
+            'MOZMAIL_DOMAIN': 'mozmail.com'
+        }
