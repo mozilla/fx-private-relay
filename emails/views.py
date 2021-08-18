@@ -27,12 +27,14 @@ from .context_processors import relay_from_domain
 from .models import (
     address_hash,
     CannotMakeAddressException,
+    get_domain_numerical,
     DeletedAddress,
     DomainAddress,
     Profile,
     RelayAddress
 )
 from .utils import (
+    get_domains_from_settings,
     get_email_domain_from_settings,
     get_post_data_from_request,
     incr_if_enabled,
@@ -399,13 +401,14 @@ def _get_domain_address(to_address, local_portion, domain_portion):
 def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
-    email_domains = settings.ADDITIONAL_DOMAINS + [get_email_domain_from_settings()]
+    email_domains = get_domains_from_settings().values()
     if domain_portion not in email_domains:
         return _get_domain_address(to_address, local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
-        relay_address = RelayAddress.objects.get(address=local_portion, domain=domain_portion)
+        domain_numerical = get_domain_numerical(domain_portion)
+        relay_address = RelayAddress.objects.get(address=local_portion, domain=domain_numerical)
         return relay_address
     except RelayAddress.DoesNotExist:
         try:
