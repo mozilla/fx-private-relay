@@ -116,7 +116,6 @@ class RelayAddressTest(TestCase):
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
-    @override_settings(MOZMAIL_DOMAIN='test.com')
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_make_relay_address_with_specified_domain(self):
         relay_address = RelayAddress.make_relay_address(self.user_profile, domain='test.com')
