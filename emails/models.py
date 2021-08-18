@@ -23,6 +23,8 @@ TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different va
 DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
 DEFAULT_DOMAIN = settings.RELAY_FIREFOX_DOMAIN
+if settings.TEST_MOZMAIL:
+    DEFAULT_DOMAIN = settings.MOZMAIL_DOMAIN
 
 
 class Profile(models.Model):
