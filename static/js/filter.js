@@ -21,26 +21,12 @@
     const filterToggleCategoryInput = document.querySelector(".js-filter-category-toggle");
     // const filterCategory = document.querySelector(".c-filter-category");
 
-    const filterToggleCategoryButtonReset = document.querySelector(".js-filter-category-reset");
-    const filterToggleCategoryButtonApply = document.querySelector(".js-filter-category-apply");
-
-
     function toggleAliasSearchBar() {
         filterToggleSearchInput.classList.toggle("is-enabled");
         filterContainer.classList.toggle("is-filtered-by-search")       
     }
 
     filterToggleSearchInput.addEventListener("click", toggleAliasSearchBar, false);
-
-    function toggleAliasCategoryBar() {
-        filterToggleCategoryInput.classList.toggle("is-enabled");
-
-        if (filterToggleCategoryInput.classList.contains("is-enabled")) {
-            filterCategory.open();
-        }
-    }
-
-    filterToggleCategoryInput.addEventListener("click", toggleAliasCategoryBar, false);
 
 	function filterInputWatcher(input) {
 
@@ -206,12 +192,30 @@
     setTimeout(filterInit, 500);
 
     const filterCategoryCheckboxes = document.querySelectorAll(".js-filter-category-checkbox");
+    const filterToggleCategoryButtonReset = document.querySelector(".js-filter-category-reset");
+    const filterToggleCategoryButtonApply = document.querySelector(".js-filter-category-apply");
+    const filterCategoryCheckboxesOppositesAliases = document.querySelector(".js-filter-category-opposite-aliases");
+    const filterCategoryCheckboxesOppositesActive = document.querySelector(".js-filter-category-opposite-active");
+
+    function toggleAliasCategoryBar() {
+        filterToggleCategoryInput.classList.toggle("is-enabled");
+
+        if (filterToggleCategoryInput.classList.contains("is-enabled")) {
+            filterCategory.open();
+        }
+    }
+
+    filterToggleCategoryInput.addEventListener("click", toggleAliasCategoryBar, false);
+
     let currentFilteredAliases;
 
     const filterCategory = {
         init: () => {
             filterToggleCategoryButtonApply.addEventListener("click", filterCategory.apply, false);
             filterToggleCategoryButtonReset.addEventListener("click", filterCategory.reset, false);
+            filterCategoryCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener("change", filterCategory.oppositeCheck, false);
+            });
             // TODO: Add "f" key listener to toggle category filter
             // TODO: Add "esc" key listener to close category filter
         }, 
@@ -224,13 +228,11 @@
             filterContainer.classList.remove("is-filtered-by-category");
             
             filterCategory.close();
-            // TODO: Add override if user already has search filters active. 
 
             const isSearchActive = (filterContainer.classList.contains("is-filtered-by-search"));
 
-            if (isSearchActive && (currentFilteredAliases.length > 0) ) {
-                console.log("reset:", currentFilteredAliases);
-
+            // Reset back to current search query, rather than clearing all filters
+            if (isSearchActive && currentFilteredAliases && (currentFilteredAliases.length > 0) ) {
                 currentFilteredAliases.forEach(alias => {
                     alias.classList.remove("is-hidden");
                 });
@@ -262,6 +264,22 @@
         },
         close: () => {
             toggleAliasCategoryBar();
+        },
+        oppositeCheck: (e) => {
+            const currentCategory = e.target;
+
+            if (!currentCategory.checked) {
+                return;
+            }
+            
+            const currentParentCategory = currentCategory.dataset.parentCategory;
+            
+            filterCategoryCheckboxes.forEach(checkbox => {
+                if ( (currentCategory !== checkbox) && (checkbox.dataset.parentCategory === currentParentCategory) && checkbox.checked) {
+                    checkbox.checked = !checkbox.checked;
+                }
+            });
+
         },
         open: () => {
             filterCategoryCheckboxes[0].focus();
