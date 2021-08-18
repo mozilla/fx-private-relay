@@ -123,6 +123,9 @@ class RelayAddressTest(TestCase):
         assert relay_address.get_domain_display() == 'MOZMAIL_DOMAIN'
         assert relay_address.domain_value == 'test.com'
 
+    @override_settings(TEST_MOZMAIL=False)
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
+    @patch('emails.models.DEFAULT_DOMAIN', TEST_DOMAINS['RELAY_FIREFOX_DOMAIN'])
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress)
         address_hash = sha256(
@@ -134,6 +137,7 @@ class RelayAddressTest(TestCase):
         ).count()
         assert deleted_count == 1
 
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_delete_mozmail_deleted_address_object(self):
         relay_address = baker.make(RelayAddress, domain=2)
         address_hash = sha256(
