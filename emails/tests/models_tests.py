@@ -39,10 +39,18 @@ class MiscEmailModelsTest(TestCase):
     def test_has_bad_words_without_bad_words(self):
         assert not has_bad_words('happy')
 
-    def test_address_hash_without_subdomain(self):
+    @override_settings(TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN='firefox.com')
+    def test_address_hash_without_subdomain_domain_firefox(self):
         address = 'aaaaaaaaa'
         expected_hash = sha256(f'{address}'.encode('utf-8')).hexdigest()
-        assert address_hash(address) == expected_hash
+        assert address_hash(address, domain='firefox.com') == expected_hash
+
+    @override_settings(TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN='firefox.com')
+    def test_address_hash_without_subdomain_domain_not_firefoxz(self):
+        non_default = 'test.com'
+        address = 'aaaaaaaaa'
+        expected_hash = sha256(f'{address}@{non_default}'.encode('utf-8')).hexdigest()
+        assert address_hash(address, domain=non_default) == expected_hash
 
     def test_address_hash_with_subdomain(self):
         address = 'aaaaaaaaa'
@@ -123,7 +131,7 @@ class RelayAddressTest(TestCase):
         assert relay_address.get_domain_display() == 'MOZMAIL_DOMAIN'
         assert relay_address.domain_value == 'test.com'
 
-    @override_settings(TEST_MOZMAIL=False)
+    @override_settings(TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN=TEST_DOMAINS['RELAY_FIREFOX_DOMAIN'])
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.models.DEFAULT_DOMAIN', TEST_DOMAINS['RELAY_FIREFOX_DOMAIN'])
     def test_delete_adds_deleted_address_object(self):
@@ -150,12 +158,14 @@ class RelayAddressTest(TestCase):
         assert deleted_count == 1
 
     # trigger a collision by making address_default always return 'aaaaaaaaa'
+    @override_settings(RELAY_FIREFOX_DOMAIN='default.com')
     @patch.multiple('string', ascii_lowercase='a', digits='')
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_make_relay_address_doesnt_make_dupe_of_deleted(self):
         test_hash = sha256('aaaaaaaaa'.encode('utf-8')).hexdigest()
         DeletedAddress.objects.create(address_hash=test_hash)
         try:
-            RelayAddress.make_relay_address(self.user_profile)
+            RelayAddress.make_relay_address(self.user_profile, domain='default.com')
         except CannotMakeAddressException:
             return
         self.fail("Should have raise CannotMakeAddressException")

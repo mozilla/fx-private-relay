@@ -157,7 +157,7 @@ def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
         return sha256(
             f'{address}@{subdomain}'.encode('utf-8')
         ).hexdigest()
-    if domain == DEFAULT_DOMAIN:
+    if domain == settings.RELAY_FIREFOX_DOMAIN:
         return sha256(
             f'{address}'.encode('utf-8')
         ).hexdigest()
