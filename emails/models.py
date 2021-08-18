@@ -10,6 +10,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
+from emails.utils import get_domains_from_settings
+
 emails_config = apps.get_app_config('emails')
 
 
@@ -18,10 +20,7 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
 
-DOMAINS = {
-    'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
-    'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
-}
+DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
 DEFAULT_DOMAIN = settings.RELAY_FIREFOX_DOMAIN
 
