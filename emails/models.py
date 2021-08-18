@@ -10,8 +10,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
-from emails.utils import get_email_domain_from_settings
-
 emails_config = apps.get_app_config('emails')
 
 
@@ -20,8 +18,12 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
 
-DOMAIN_DEFAULT = get_email_domain_from_settings()
-DOMAIN_CHOICES = [(item, item) for item in settings.ADDITIONAL_DOMAINS]
+DOMAINS = {
+    'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
+    'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
+}
+DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
+DEFAULT_DOMAIN = settings.RELAY_FIREFOX_DOMAIN
 
 
 class Profile(models.Model):
@@ -149,12 +151,12 @@ class Profile(models.Model):
         return subdomain
 
 
-def address_hash(address, subdomain=None, domain=DOMAIN_DEFAULT):
+def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
     if subdomain:
         return sha256(
             f'{address}@{subdomain}'.encode('utf-8')
         ).hexdigest()
-    if domain == DOMAIN_DEFAULT:
+    if domain == DEFAULT_DOMAIN:
         return sha256(
             f'{address}'.encode('utf-8')
         ).hexdigest()
@@ -172,6 +174,18 @@ def has_bad_words(value):
         badword in value
         for badword in emails_config.badwords
     )
+
+
+def get_domain_numerical(domain_address):
+    # get domain name from the address
+    domains_keys = list(DOMAINS.keys())
+    domains_values = list(DOMAINS.values())
+    domain_name = domains_keys[domains_values.index(domain_address)]
+    # get domain numerical value from domain name
+    choices = dict(DOMAIN_CHOICES)
+    choices_keys = list(choices.keys())
+    choices_values = list(choices.values())
+    return choices_keys[choices_values.index(domain_name)]
 
 
 class CannotMakeSubdomainException(Exception):
@@ -201,11 +215,7 @@ class RelayAddress(models.Model):
     address = models.CharField(
         max_length=64, default=address_default, unique=True
     )
-    domain = models.CharField(
-        choices=DOMAIN_CHOICES,
-        default=DOMAIN_DEFAULT,
-        max_length=64
-    )
+    domain = models.PositiveSmallIntegerField(choices=DOMAIN_CHOICES, default=1)
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -221,7 +231,7 @@ class RelayAddress(models.Model):
     def delete(self, *args, **kwargs):
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
-            address_hash=address_hash(self.address, domain=self.domain),
+            address_hash=address_hash(self.address, domain=self.domain_value),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
@@ -233,7 +243,7 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def make_relay_address(user_profile, num_tries=0, domain=DOMAIN_DEFAULT):
+    def make_relay_address(user_profile, num_tries=0, domain=DEFAULT_DOMAIN):
         if (
             user_profile.at_max_free_aliases
             and not user_profile.has_unlimited
@@ -244,7 +254,9 @@ class RelayAddress(models.Model):
             )
         if num_tries >= 5:
             raise CannotMakeAddressException
-        relay_address = RelayAddress.objects.create(user=user_profile.user, domain=domain)
+        # only use the numerical value of the domain when creating the alias
+        domain_numerical = get_domain_numerical(domain)
+        relay_address = RelayAddress.objects.create(user=user_profile.user, domain=domain_numerical)
         address_contains_badword = has_bad_words(relay_address.address)
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(relay_address.address, domain=domain)
@@ -254,6 +266,10 @@ class RelayAddress(models.Model):
             num_tries += 1
             return RelayAddress.make_relay_address(user_profile, num_tries, domain)
         return relay_address
+
+    @property
+    def domain_value(self):
+        return DOMAINS.get(self.get_domain_display())
 
 
 class DeletedAddress(models.Model):

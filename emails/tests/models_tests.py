@@ -6,7 +6,10 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import (
+    override_settings,
+    TestCase,
+)
 
 from allauth.socialaccount.models import SocialAccount
 
@@ -18,12 +21,15 @@ from ..models import (
     CannotMakeSubdomainException,
     DeletedAddress,
     DomainAddress,
+    get_domain_numerical,
     has_bad_words,
     NOT_PREMIUM_USER_ERR_MSG,
     Profile,
     RelayAddress,
     TRY_DIFFERENT_VALUE_ERR_MSG,
 )
+
+TEST_DOMAINS = {'RELAY_FIREFOX_DOMAIN': 'default.com', 'MOZMAIL_DOMAIN': 'test.com'}
 
 
 class MiscEmailModelsTest(TestCase):
@@ -49,6 +55,11 @@ class MiscEmailModelsTest(TestCase):
         test_domain = 'test.com'
         expected_hash = sha256(f'{address}@{test_domain}'.encode('utf-8')).hexdigest()
         assert address_hash(address, domain=test_domain) == expected_hash
+
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
+    def test_get_domain_numerical(self):
+        assert get_domain_numerical('default.com') == 1
+        assert get_domain_numerical('test.com') == 2
 
 
 class RelayAddressTest(TestCase):
@@ -105,14 +116,29 @@ class RelayAddressTest(TestCase):
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
+    @override_settings(MOZMAIL_DOMAIN='test.com')
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_make_relay_address_with_specified_domain(self):
-        relay_address = RelayAddress.make_relay_address(self.user_profile, domain='domain.com')
-        assert relay_address.domain == 'domain.com'
+        relay_address = RelayAddress.make_relay_address(self.user_profile, domain='test.com')
+        assert relay_address.domain == 2
+        assert relay_address.get_domain_display() == 'MOZMAIL_DOMAIN'
+        assert relay_address.domain_value == 'test.com'
 
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress)
         address_hash = sha256(
             relay_address.address.encode('utf-8')
+        ).hexdigest()
+        relay_address.delete()
+        deleted_count = DeletedAddress.objects.filter(
+            address_hash=address_hash
+        ).count()
+        assert deleted_count == 1
+
+    def test_delete_mozmail_deleted_address_object(self):
+        relay_address = baker.make(RelayAddress, domain=2)
+        address_hash = sha256(
+            f'{relay_address.address}@{relay_address.domain_value}'.encode('utf-8')
         ).hexdigest()
         relay_address.delete()
         deleted_count = DeletedAddress.objects.filter(
