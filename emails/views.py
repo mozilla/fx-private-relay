@@ -99,7 +99,11 @@ def _index_POST(request):
             user=user_profile.user
         )
         try:
-            relay_address = RelayAddress.make_relay_address(locked_profile)
+            if user_profile.user.email.endswith('@mozilla.com'):
+                domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
+                relay_address = RelayAddress.make_relay_address(locked_profile, domain)
+            else:
+                relay_address = RelayAddress.make_relay_address(locked_profile)
         except CannotMakeAddressException as e:
             if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
                 # add-on request
