@@ -231,11 +231,10 @@
     input {
         color: $color-grey-50;
         display: flex;
-        font-weight: 500;
         align-items: center;
         background: transparent;
         font-size: 1em;
-        padding: 6px $spacing-lg 6px 6px;
+        padding: $spacing-sm $spacing-lg $spacing-sm $spacing-sm;
         width: $content-xs;
         text-overflow: ellipsis;
         white-space: nowrap;
