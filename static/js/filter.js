@@ -34,7 +34,6 @@
 
     function toggleAliasCategoryBar() {
         filterToggleCategoryInput.classList.toggle("is-enabled");
-        filterContainer.classList.toggle("is-filtered-by-category");
 
         if (filterToggleCategoryInput.classList.contains("is-enabled")) {
             filterCategory.open();
@@ -207,6 +206,7 @@
     setTimeout(filterInit, 500);
 
     const filterCategoryCheckboxes = document.querySelectorAll(".js-filter-category-checkbox");
+    let currentFilteredAliases;
 
     const filterCategory = {
         init: () => {
@@ -220,9 +220,24 @@
             filterCategoryCheckboxes.forEach(checkbox => {
                 checkbox.checked = false;
             });
+
+            filterContainer.classList.remove("is-filtered-by-category");
             
             filterCategory.close();
             // TODO: Add override if user already has search filters active. 
+
+            const isSearchActive = (filterContainer.classList.contains("is-filtered-by-search"));
+
+            if (isSearchActive && (currentFilteredAliases.length > 0) ) {
+                console.log("reset:", currentFilteredAliases);
+
+                currentFilteredAliases.forEach(alias => {
+                    alias.classList.remove("is-hidden");
+                });
+
+                return;
+            }
+            
             aliases.forEach(alias => {
                 alias.classList.remove("is-hidden");
             });
@@ -239,6 +254,8 @@
 
                 options.push(checkbox.dataset.categoryType);
             });
+
+            filterContainer.classList.add("is-filtered-by-category");
 
             filterCategory.filter(options)
             filterCategory.close();
@@ -275,8 +292,14 @@
 
                 let filteredAliases = aliases;
 
+                // Only filter visible aliases, rather than the entire set
                 if (multipleOptions && (index > 0) || isSearchActive) {
                     filteredAliases = document.querySelectorAll(".c-alias:not(.is-hidden)");
+                }
+
+                // Cache current filter results before filtering further to revert on reset()
+                if (isSearchActive) {
+                    currentFilteredAliases = Array.from(filteredAliases)
                 }
 
                 switch (option) {

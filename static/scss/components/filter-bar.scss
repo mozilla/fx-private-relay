@@ -155,8 +155,13 @@
 .c-filter-icon-filter {
     background-image: url("/static/images/icon-filter.svg");
            
-    &.is-enabled, &:hover {
+    &.is-enabled, &:hover, .is-filtered-by-category & {
         background-image: url("/static/images/icon-filter-blue.svg");        
+    }
+
+    .is-filtered-by-category & {
+        background-color: $color-white;
+        color: $color-blue-50;
     }
 
     &.is-enabled + .c-filter-category-list {
