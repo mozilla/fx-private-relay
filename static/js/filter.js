@@ -34,6 +34,11 @@
 
     function toggleAliasCategoryBar() {
         filterToggleCategoryInput.classList.toggle("is-enabled");
+
+        if (filterToggleCategoryInput.classList.contains("is-enabled")) {
+            filterCategory.open();
+        }
+        
         // filterContainer.classList.toggle("is-search-active")       
     }
 
@@ -174,6 +179,7 @@
         }
 
 		filterInput.addEventListener("input", filterInputWatcher, false);
+        
         filterInput.addEventListener("keydown", e => {
           if(e.keyIdentifier=="U+000A"||e.keyIdentifier=="Enter"||e.keyCode==13){
             e.preventDefault();
@@ -205,13 +211,13 @@
 
     const filterCategory = {
         init: () => {
-            console.log("reset category init");
             filterToggleCategoryButtonApply.addEventListener("click", filterCategory.apply, false);
             filterToggleCategoryButtonReset.addEventListener("click", filterCategory.reset, false);
+            // TODO: Add "f" key listener to toggle category filter
+            // TODO: Add "esc" key listener to close category filter
         }, 
         reset: (e) => {
             e.preventDefault();
-            console.log("reset category filter");
             filterCategoryCheckboxes.forEach(checkbox => {
                 checkbox.checked = false;
             });
@@ -223,25 +229,74 @@
         },
         apply: (e) => {
             e.preventDefault();
-            // console.log("apply category filter");
 
-            filterCategoryCheckboxes.forEach(checkbox    => {
-                // console.log(checkbox);
-                // const options = {};
-                if (checkbox.checked) {
-                    console.log(checkbox.dataset.categoryType); 
+            const options = [];
+
+            filterCategoryCheckboxes.forEach(checkbox => {
+                if (!checkbox.checked) {
+                    return;
                 }
+
+                options.push(checkbox.dataset.categoryType);
             });
 
-            
+            filterCategory.filter(options)
             filterCategory.close();
         },
         close: () => {
             toggleAliasCategoryBar();
         },
-        filter: () => {
+        open: () => {
+            filterCategoryCheckboxes[0].focus();
+        },
+        filter: (options) => {
+            if (options.length < 1) {
+                return;
+            }
+
+            // Hide all aliases by default
             aliases.forEach(alias => {
                 alias.classList.add("is-hidden");
+            });
+
+            // Based on which category(s) the user selected, show that specific aliases
+            // Possible Cases: 
+            // "active-aliases" – Only show the aliases that are enabled
+            // "disabled-aliases"– Only show the aliases that are disabled
+            // "relay-aliases"– Only show aliases that have been generated from the dashboard/add-on 
+            // "domain-aliases"– Only show aliases that were created with a unique subdomain. 
+
+            options.forEach(option => {
+                switch (option) {
+                    case "active-aliases":
+                        aliases.forEach(alias => {
+                            if (alias.classList.contains("is-enabled")) {
+                                alias.classList.remove("is-hidden");
+                            }
+                        });
+                        break;
+                    case "disabled-aliases":
+                        aliases.forEach(alias => {
+                            if (!alias.classList.contains("is-enabled")) {
+                                alias.classList.remove("is-hidden");
+                            }
+                        });
+                        break;
+                    case "relay-aliases":
+                        aliases.forEach(alias => {
+                            if (alias.classList.contains("is-relay-alias")) {
+                                alias.classList.remove("is-hidden");
+                            }
+                        });
+                        break;
+                    case "domain-aliases":
+                        aliases.forEach(alias => {
+                            if (alias.classList.contains("is-domain-alias")) {
+                                alias.classList.remove("is-hidden");
+                            }
+                        });
+                        break;
+                }
             });
         }
     }
