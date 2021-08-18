@@ -13,7 +13,7 @@
         }
     }
     
-    &.is-search-active {
+    &.is-filtered-by-search {
         margin-bottom: 4.5rem;
         position: relative;
 
@@ -34,7 +34,7 @@
     @media screen and (min-width: 768px) {
         justify-content: flex-end;
 
-        &.is-search-active {
+        &.is-filtered-by-search {
             margin-bottom: $spacing-md;
             
             .c-filter-search-form {
@@ -205,7 +205,7 @@
 }
 
 .c-filter-category-type {
-    
+
     .mzp-c-choice-label {
         padding-top: 0;
     }

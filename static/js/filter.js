@@ -27,19 +27,18 @@
 
     function toggleAliasSearchBar() {
         filterToggleSearchInput.classList.toggle("is-enabled");
-        filterContainer.classList.toggle("is-search-active")       
+        filterContainer.classList.toggle("is-filtered-by-search")       
     }
 
     filterToggleSearchInput.addEventListener("click", toggleAliasSearchBar, false);
 
     function toggleAliasCategoryBar() {
         filterToggleCategoryInput.classList.toggle("is-enabled");
+        filterContainer.classList.toggle("is-filtered-by-category");
 
         if (filterToggleCategoryInput.classList.contains("is-enabled")) {
             filterCategory.open();
         }
-        
-        // filterContainer.classList.toggle("is-search-active")       
     }
 
     filterToggleCategoryInput.addEventListener("click", toggleAliasCategoryBar, false);
@@ -223,6 +222,7 @@
             });
             
             filterCategory.close();
+            // TODO: Add override if user already has search filters active. 
             aliases.forEach(alias => {
                 alias.classList.remove("is-hidden");
             });
@@ -254,12 +254,15 @@
                 return;
             }
 
+            const isSearchActive = (filterContainer.classList.contains("is-filtered-by-search"));
             const multipleOptions = (options.length > 1);
 
-            // Hide all aliases by default
-            aliases.forEach(alias => {
-                alias.classList.add("is-hidden");
-            });
+            // Hide all aliases by default unless search is already active
+            if (!isSearchActive) {
+                aliases.forEach(alias => {
+                    alias.classList.add("is-hidden");
+                });
+            }
 
             // Based on which category(s) the user selected, show that specific aliases
             // Possible Cases: 
@@ -272,7 +275,7 @@
 
                 let filteredAliases = aliases;
 
-                if (multipleOptions && (index > 0)) {
+                if (multipleOptions && (index > 0) || isSearchActive) {
                     filteredAliases = document.querySelectorAll(".c-alias:not(.is-hidden)");
                 }
 
