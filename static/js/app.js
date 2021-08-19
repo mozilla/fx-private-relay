@@ -103,17 +103,17 @@ function deleteAliasConfirmation(submitEvent) {
 	submitEvent.preventDefault();
 	const deleteAliasForm = submitEvent.target;
   const aliasToDelete = deleteAliasForm.dataset.deleteRelay;
-  const confirmDeleteModal = document.querySelector(".modal-bg");
+  const confirmDeleteModal = document.querySelector(".js-modal-delete-alias");
   const aliasToDeleteEls = confirmDeleteModal.querySelectorAll(".alias-to-delete");
   aliasToDeleteEls.forEach(addressEl => {
     addressEl.textContent = aliasToDelete;
   });
 
   // Show alias email address in delete warning modal
-  const aliasToDeleteLabel = document.querySelector(".modal-message strong");
+  const aliasToDeleteLabel = confirmDeleteModal.querySelector(".modal-message strong");
   aliasToDeleteLabel.textContent = aliasToDelete;
 
-  confirmDeleteModal.classList.add("show-modal");
+  confirmDeleteModal.classList.add("is-visible");
   trapFocusInModal("delete-modal", true);
   sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
   const checkbox = confirmDeleteModal.querySelector(".checkbox");
@@ -121,7 +121,7 @@ function deleteAliasConfirmation(submitEvent) {
 
   const closeModal = () => {
     checkbox.checked = false;
-    confirmDeleteModal.classList.remove("show-modal");
+    confirmDeleteModal.classList.remove("is-visible");
     trapFocusInModal("delete-modal", false);
   };
 
@@ -134,7 +134,7 @@ function deleteAliasConfirmation(submitEvent) {
 
   // Close the modal if the user clicks outside the modal
   confirmDeleteModal.addEventListener("click", (e) => {
-    if (e.target.classList && e.target.classList.contains("show-modal")) {
+    if (e.target.classList && e.target.classList.contains("is-visible")) {
       closeModal();
     }
   });

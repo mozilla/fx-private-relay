@@ -30,7 +30,7 @@
   </head>
   <body class="{% with request.user.profile_set.first as user_profile %}{% if user_profile.has_unlimited %}is-premium{% endif %}{% endwith %}" data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}" data-google-analytics-id="{{ settings.GOOGLE_ANALYTICS_ID }}" data-debug="{{ settings.DEBUG }}">
     <firefox-private-relay-addon data-addon-installed="false"></firefox-private-relay-addon>
-    {% include "includes/modal.html" %}
+    {% include "includes/modal-delete.html" %}
     {% include "includes/header.html" %}
     {% block content %}
     {% endblock %}
