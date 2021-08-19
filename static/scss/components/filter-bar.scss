@@ -5,6 +5,7 @@
     display: flex;
     align-items: center;
     margin-bottom: $spacing-md;
+    position: relative;
 
     .c-filter-search-form {
 
@@ -13,7 +14,7 @@
         }
     }
     
-    &.is-filtered-by-search {
+    &.is-search-visible {
         margin-bottom: 4.5rem;
         position: relative;
 
@@ -34,7 +35,7 @@
     @media screen and (min-width: 768px) {
         justify-content: flex-end;
 
-        &.is-filtered-by-search {
+        &.is-search-visible {
             margin-bottom: $spacing-md;
             
             .c-filter-search-form {
@@ -193,20 +194,28 @@
 
 // Category Filter
 .c-filter-category {
-    position: relative;
+    @media #{$mq-md} {
+        position: relative;    
+    }
 }
 
 .c-filter-category-list {
     display: none;
     position: absolute;
-    left: -$spacing-xs;
-    top: calc(100% + #{$spacing-sm});
-    width: $content-xs;
+    left: 0;
+    width: 100%;
+    top: calc(100% + #{$spacing-md});
     background-color: $color-white;
     box-shadow: $box-shadow-sm;
     z-index: 1;
     padding: $spacing-md;
     border-radius: $border-radius-md;
+    
+    @media #{$mq-md} {
+        top: calc(100% + #{$spacing-sm});
+        left: -$spacing-xs;
+        width: $content-xs;
+    }
 }
 
 .c-filter-category-type {
