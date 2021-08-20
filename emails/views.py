@@ -101,7 +101,7 @@ def _index_POST(request):
         try:
             if user_profile.user.email.endswith('@mozilla.com'):
                 domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
-                relay_address = RelayAddress.make_relay_address(locked_profile, domain)
+                relay_address = RelayAddress.make_relay_address(locked_profile, domain=domain)
             else:
                 relay_address = RelayAddress.make_relay_address(locked_profile)
         except CannotMakeAddressException as e:
