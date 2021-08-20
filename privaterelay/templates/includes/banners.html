@@ -3,9 +3,11 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-{% block javascript %}
-  <script src="{% static 'js/domain-registration.js' %}"></script>
-{% endblock %}
+{% if settings.DOMAIN_REGISTRATION_MODAL %}
+  {% block javascript %}
+    <script src="{% static 'js/domain-registration.js' %}"></script>
+  {% endblock %}
+{% endif %}
 
 {% if last_bounce_type %}
   <div class="dashboard-banners flx hide-750">
