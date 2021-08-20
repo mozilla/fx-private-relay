@@ -43,3 +43,29 @@
     align-items: center;
     padding-left: $spacing-md;
 }
+
+.mzp-c-button.t-warning {
+    background-color: $color-error;
+    border: none;
+
+    &:disabled,
+    &[disabled]{
+        background-color: $color-grey-10;
+        color: $color-grey-60;
+    }
+
+    &:active {
+        background-color: $color-error-active;
+        color: $color-white;
+    }
+
+    &:hover {
+        background-color: $color-error-hover;
+        color: $color-white;
+    }
+
+    &:focus {
+        background-color: $color-error-focus;
+        color: $color-white;
+    }
+}

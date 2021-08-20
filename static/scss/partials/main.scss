@@ -1348,10 +1348,13 @@ input:focus::placeholder {
         background-position: center 68%;
     }
 
-    .modal-content {
-        left: 1em;
-        right: 1em;
-        padding: 3em 2em;
+    .hero-sub-head {
+        max-width: 400px;
+        font-size: 1em;
+    }
+
+    .hero-right {
+        display: none;
     }
 
     .relay-address {
@@ -1455,24 +1458,6 @@ input:focus::placeholder {
 
     .card-top-row {
         flex-wrap: wrap;
-    }
-
-    .confirm-delete-actions {
-        flex-direction: column;
-    }
-
-    .cancel-delete {
-        margin-bottom: 12px;
-    }
-
-    .confirm-delete-action {
-        margin-left: 0;
-        margin-right: 0;
-        min-height: 48px;
-    }
-
-    .modal-content {
-        font-size: 14px;
     }
 }
 @media screen and (max-width: 400px) {

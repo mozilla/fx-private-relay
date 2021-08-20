@@ -2,18 +2,19 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<div class="modal modal-bg fade-in js-modal-domain-registration-confirmation">
-  <div class="c-modal">
+<div class="modal c-modal-wrapper js-modal-domain-registration-confirmation">
+  <div class="c-modal t-domain-registration">
     
     <div class="c-modal-header t-domain-registration-hero">
       Lorem ipsum dolor sit.  
     </div>
 
     <div class="c-modal-body t-domain-registration-body">
+      <!-- TODO: Migrate strings to FTL -->
       <p>Remember you are allowed to register one domain only for your account and is not possible to change your domain later.</p>
       <div class="t-domain-registration-form">
         <label for="domainRegistrationCheckbox" class="mzp-u-inline">
-          <input required type="checkbox" name="checkboxes" id="domainRegistrationCheckbox" class="js-modal-domain-registration-confirmation-checkbox">
+          <input required type="checkbox" name="domainRegistrationCheckbox" id="domainRegistrationCheckbox" class="js-modal-domain-registration-confirmation-checkbox">
           Yes I want to register <strong class="js-modal-domain-registration-confirmation-domain-preview">@yourdomainname</strong>
         </label>
       </div>
@@ -23,25 +24,9 @@
       <button class="mzp-c-button mzp-t-neutral js-modal-domain-registration-cancel">
         Cancel
       </button>
-      <button class="mzp-c-button js-modal-domain-registration-submit">
+      <button class="mzp-c-button mzp-t-product js-modal-domain-registration-submit">
         Register Domain
       </button>
     </div>
-
-    
-
-    <!-- <h2 class="modal-headline">{% ftlmsg 'modal-delete-headline' %}</h2>
-    <span class="alias-to-delete demi"></span>
-    <p class="modal-message">{% ftlmsg 'modal-delete-warning-recovery-html' %}</p> 
-    <p class="warning-text  delete-tip modal-message">{% ftlmsg 'modal-delete-warning-upgrade' %}</p>
-    <div class="flx flx-row checkbox-wrapper">
-      <input type="checkbox" class="checkbox delete-modal" />
-      <span class="checkbox-ui"></span>
-      <label class="checkbox-label">{% ftlmsg 'modal-delete-confirmation' %}</label>
-    </div>
-    <div class="fx flx-row confirm-delete-actions">
-      <button class="cancel-delete confirm-delete-action delete-modal">{% ftlmsg 'profile-label-cancel' %}</button>
-      <button class="confirm-delete confirm-delete-action delete-modal" disabled="true">{% ftlmsg 'profile-label-delete' %}</button>
-    </div> -->
   </div>
 </div>

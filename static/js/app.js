@@ -104,7 +104,7 @@ function deleteAliasConfirmation(submitEvent) {
 	const deleteAliasForm = submitEvent.target;
   const aliasToDelete = deleteAliasForm.dataset.deleteRelay;
   const confirmDeleteModal = document.querySelector(".js-modal-delete-alias");
-  const aliasToDeleteEls = confirmDeleteModal.querySelectorAll(".alias-to-delete");
+  const aliasToDeleteEls = confirmDeleteModal.querySelectorAll(".js-alias-to-delete");
   aliasToDeleteEls.forEach(addressEl => {
     addressEl.textContent = aliasToDelete;
   });
@@ -116,7 +116,7 @@ function deleteAliasConfirmation(submitEvent) {
   confirmDeleteModal.classList.add("is-visible");
   trapFocusInModal("delete-modal", true);
   sendGaPing("Dashboard Alias Settings", "Delete Alias", "Delete Alias");
-  const checkbox = confirmDeleteModal.querySelector(".checkbox");
+  const checkbox = confirmDeleteModal.querySelector(".js-modal-delete-alias-checkbox");
   checkbox.focus();
 
   const closeModal = () => {
@@ -151,13 +151,13 @@ function deleteAliasConfirmation(submitEvent) {
   });
 
 	confirmDeleteModalActions.forEach(btn => {
-		if (btn.classList.contains("cancel-delete")) {
+		if (btn.classList.contains("js-modal-delete-cancel")) {
 			btn.addEventListener("click", () => {
         sendGaPing("Dashboard Alias Settings", "Delete Alias", "Cancel Delete");
         closeModal();
 			});
 		}
-		if (btn.classList.contains("confirm-delete")) {
+		if (btn.classList.contains("js-modal-delete-confirm-delete")) {
 			btn.addEventListener("click", () => {
 				sendGaPing("Dashboard Alias Settings", "Delete Alias", "Confirm Delete");
 				deleteAliasForm.submit();
