@@ -199,6 +199,7 @@ MIDDLEWARE += [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
     "django.middleware.locale.LocaleMiddleware",
+    "privaterelay.middleware.FixLanguageCodeForDjangoFtl",
     "django_ftl.middleware.activate_from_request_language_code",
 
     'csp.middleware.CSPMiddleware',
