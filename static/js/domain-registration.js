@@ -21,6 +21,10 @@
                 const modal = document.querySelector(".js-modal-domain-registration-confirmation");
                 modal.classList.add("is-visible");
 
+                const requestedDomain = document.querySelector(".js-subdomain-value");
+                const requestedDomainPreview = document.querySelector(".js-modal-domain-registration-confirmation-domain-preview");
+                requestedDomainPreview.textContent = requestedDomain.value + "." + requestedDomain.dataset.domain;
+
                 const modalCancel = document.querySelector(".js-modal-domain-registration-cancel");
                 modalCancel.addEventListener("click", domainRegistration.modal.close, false);
 
