@@ -2,10 +2,33 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<div class="modal modal-bg fade-in js-modal-domain-registration-confirmaiton">
-  <div class="modal modal-content drop-shadow-light">
+<div class="modal modal-bg fade-in js-modal-domain-registration-confirmation">
+  <div class="c-modal">
     
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Illum, culpa! Molestiae, excepturi ipsam itaque reiciendis ullam deleniti explicabo! Magni exercitationem distinctio sapiente! Quaerat dignissimos reiciendis error commodi. Fuga, quos totam!</p>
+    <div class="c-modal-header t-domain-registration-hero">
+      Lorem ipsum dolor sit.  
+    </div>
+
+    <div class="c-modal-body t-domain-registration-body">
+      <p>Remember you are allowed to register one domain only for your account and is not possible to change your domain later.</p>
+      <div class="t-domain-registration-form">
+        <label for="domainRegistrationCheckbox" class="mzp-u-inline">
+          <input required type="checkbox" name="checkboxes" id="domainRegistrationCheckbox" class="js-modal-domain-registration-confirmation-checkbox">
+          Yes I want to register <strong>@yourdomainname</strong>
+        </label>
+      </div>
+    </div>
+
+    <div class="c-modal-footer">
+      <button class="mzp-c-button mzp-t-neutral js-modal-domain-registration-cancel">
+        Cancel
+      </button>
+      <button class="mzp-c-button js-modal-domain-registration-submit">
+        Register Domain
+      </button>
+    </div>
+
+    
 
     <!-- <h2 class="modal-headline">{% ftlmsg 'modal-delete-headline' %}</h2>
     <span class="alias-to-delete demi"></span>

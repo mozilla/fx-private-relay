@@ -18,8 +18,14 @@
         },
         modal: {
             open: () => {
-                const modal = document.querySelector(".js-modal-domain-registration-confirmaiton");
+                const modal = document.querySelector(".js-modal-domain-registration-confirmation");
                 modal.classList.add("is-visible");
+
+                const modalCancel = document.querySelector(".js-modal-domain-registration-cancel");
+                modalCancel.addEventListener("click", domainRegistration.modal.close, false);
+
+                const modalSubmit = document.querySelector(".js-modal-domain-registration-submit");
+                modalSubmit.addEventListener("click", domainRegistration.modal.submit, false);
 
                 // Close the modal if the user clicks outside the modal
                 modal.addEventListener("click", (e) => {
@@ -38,11 +44,26 @@
                 }   
                 
                 console.log("domainRegistration.modal.close()");
-                const modal = document.querySelector(".js-modal-domain-registration-confirmaiton");
+                const modal = document.querySelector(".js-modal-domain-registration-confirmation");
                 modal.classList.remove("is-visible");
 
                 document.removeEventListener("keydown", domainRegistration.modal.close, false);
 
+            },
+            submit: (e) => {
+                console.log("domainRegistration.modal.submit()");
+
+                const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
+                if (!modalConfirmCheckbox.checked) {
+                    console.log("No checked");
+                    return false;
+                }
+
+                // modalSubmit.addEventListener("click", domainRegistration.modal.submit, false);
+                
+                // const domainRegistrationForm = document.getElementById("domainRegistration");
+                // domainRegistrationForm.submit();
+                domainRegistration.modal.close();
             },
         }
     }

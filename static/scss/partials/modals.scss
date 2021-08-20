@@ -119,3 +119,67 @@
     color: $color-white;
     margin-left: .5em;
 }
+
+// Modal Protocol Refactor
+.c-modal-wrapper {
+    position: fixed;
+    display: none;
+    background: rgba(0, 0, 0, .4);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    justify-content: center;
+    flex-direction: column;
+    &.is-visible {
+        display: flex;
+    }
+}
+
+.c-modal {
+    background: $color-white;
+    max-width: $content-sm;
+    border-radius: $border-radius-md;
+    position: absolute;
+    left: $spacing-xl;
+    right: $spacing-xl;
+    margin: auto;
+    box-shadow: $box-shadow-sm;
+    overflow: hidden;
+}
+
+.c-modal-header {
+    background-color: $color-grey-10;
+    padding: $spacing-md;
+}
+
+.t-domain-registration-hero {
+    text-align: center;
+}
+
+.c-modal-body {
+    background-color: $color-white;
+    padding: $spacing-md;
+}
+
+.t-domain-registration-body {
+    text-align: center;
+    p {
+        @include text-body-xs;
+    }
+}
+
+.c-modal-footer {
+    border-top: 1px solid $color-grey-10;
+    padding: $spacing-lg $spacing-md $spacing-md;
+    display: flex;
+    justify-content: space-between;
+}
+
+.t-domain-registration-form {
+    padding: $spacing-md;
+    background-color: $color-grey-10;;
+    border-radius: $border-radius-md;
+    text-align: center;
+}
