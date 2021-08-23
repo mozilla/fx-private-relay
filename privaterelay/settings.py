@@ -18,6 +18,8 @@ import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
+from django.conf import settings
+
 import dj_database_url
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -291,6 +293,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
 LANGUAGE_CODE = 'en'
+
+# Mozilla l10n uses 'zh-tw' and 'zh-cn' language codes, so we need to add those
+# to LANGUAGES so Django's LocaleMiddleware can find them.
+LANGUAGES = settings.LANGUAGES + [
+    ('zh-tw', 'Chinese'),
+    ('zh-cn', 'Chinese'),
+]
 
 TIME_ZONE = 'UTC'
 
