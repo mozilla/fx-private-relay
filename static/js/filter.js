@@ -22,7 +22,6 @@
     const filterContainer = document.querySelector(".js-filter-container");
 
     const filterToggleCategoryInput = document.querySelector(".js-filter-category-toggle");
-    // const filterCategory = document.querySelector(".c-filter-category");
 
     function toggleAliasSearchBar() {
         filterToggleSearchInput.classList.toggle("is-enabled");
@@ -39,7 +38,7 @@
             query = input.target.value.toLowerCase();
         }
 
-        filterInput.removeEventListener("focus", filterFocusWatcher, false);
+        filterInput.removeEventListener("focus", buildSearchQueryArrays, false);
 
         // Reset filter if the input is empty, however, do not steal focus to input
         if (query === "") resetFilter();
@@ -52,7 +51,6 @@
         currentFilteredByCategoryAliases = aliases;
 
         if (isCategoryFilterActive) {
-            // aliases = 
             currentFilteredByCategoryAliases = document.querySelectorAll(".c-alias:not(.is-hidden)");
         } else {
             filterContainer.classList.add("is-filtered-by-search");
@@ -140,7 +138,6 @@
     }
 
     function buildSearchQueryArrays() {
-        
         const addOnDetected = isAddOnDetected();
         
         // Build two arrays, one for case IDs and one for case title text. 
@@ -176,22 +173,12 @@
             }
 		});
 
-		// // Set ##/## in filter input field to show how many aliases have been filtered.
+		// Set ##/## in filter input field to show how many aliases have been filtered.
         filterLabelVisibleCases.textContent = availableAliasesForSearchFilter.length;
         filterLabelTotalCases.textContent = availableAliasesForSearchFilter.length;
-
-
-
-    }
-
-    function filterFocusWatcher() {
-
-        buildSearchQueryArrays();
-
     }
 
 	function filterInit() {
-
 
         // Hide the search function and end early if the user has no aliases created. 
         if (aliases.length < 1) {
@@ -208,7 +195,7 @@
         }
 
 		filterInput.addEventListener("input", filterInputWatcher, false);
-		filterInput.addEventListener("focus", filterFocusWatcher, false);
+		filterInput.addEventListener("focus", buildSearchQueryArrays, false);
         
         filterInput.addEventListener("keydown", e => {
           if(e.keyIdentifier=="U+000A"||e.keyIdentifier=="Enter"||e.keyCode==13){
@@ -227,7 +214,7 @@
         filterInput.classList.remove("is-filtered");
         filterInput.value = "";
 
-        filterInput.addEventListener("focus", filterFocusWatcher, false);
+        filterInput.addEventListener("focus", buildSearchQueryArrays, false);
 
         filterContainer.classList.remove("is-filtered-by-search");
 
