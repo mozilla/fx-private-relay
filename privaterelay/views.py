@@ -14,9 +14,6 @@ import sentry_sdk
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
 from django.db import connections
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -32,10 +29,10 @@ from allauth.socialaccount.providers.fxa.views import (
 from emails.models import (
     CannotMakeSubdomainException,
     DomainAddress,
-    has_bad_words,
-    RelayAddress
+    Profile,
+    RelayAddress,
+    NOT_PREMIUM_USER_ERR_MSG
 )
-from emails.utils import get_post_data_from_request
 
 FXA_PROFILE_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/profile-change'
@@ -104,11 +101,17 @@ def _get_fxa(request):
     return request.user.socialaccount_set.filter(provider='fxa').first()
 
 
-@require_http_methods(["POST"])
+@require_http_methods(['POST', 'GET'])
 def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
+    if not profile.has_unlimited:
+        raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('check a subdomain'))
+    if request.method == 'GET':
+        subdomain = request.GET.get('subdomain', None)
+        available = Profile.subdomain_available(subdomain)
+        return JsonResponse({'available':available})
     try:
         profile.add_subdomain(request.POST.get('subdomain', None))
     except CannotMakeSubdomainException as e:
