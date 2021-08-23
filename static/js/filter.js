@@ -22,6 +22,7 @@
     const filterContainer = document.querySelector(".js-filter-container");
 
     const filterToggleCategoryInput = document.querySelector(".js-filter-category-toggle");
+    const filterCategoryWrapper = document.querySelector(".c-filter-category");
 
     function toggleAliasSearchBar() {
         filterToggleSearchInput.classList.toggle("is-enabled");
@@ -243,6 +244,7 @@
 
     function toggleAliasCategoryBar() {
         filterToggleCategoryInput.classList.toggle("is-enabled");
+        filterCategoryWrapper.classList.toggle("is-menu-open");
 
         if (filterToggleCategoryInput.classList.contains("is-enabled")) {
             filterCategory.open();
@@ -258,9 +260,21 @@
             filterCategoryCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener("change", filterCategory.oppositeCheck, false);
             });
+
             // TODO: Add "f" key listener to toggle category filter
-            // TODO: Add "esc" key listener to close category filter
-        }, 
+        },
+        categoryMenuOpenListener: (e) => {
+            if (!e.target.closest(".c-filter-category") && filterCategoryWrapper.classList.contains("is-menu-open")) {
+                filterCategory.close();
+                document.removeEventListener("click", filterCategory.categoryMenuOpenListener, false);
+            }
+        },
+        categoryMenuEscListener: (e) => {
+            if (e.key === "Escape") {
+                filterCategory.close();
+                document.removeEventListener("keydown", filterCategory.categoryMenuEscListener, false);
+            }
+        },
         reset: (e) => {
             e.preventDefault();
             filterCategoryCheckboxes.forEach(checkbox => {
@@ -268,9 +282,7 @@
             });
 
             filterContainer.classList.remove("is-filtered-by-category");
-            
             filterCategory.close();
-
             
             const isSearchActive = (filterContainer.classList.contains("is-filtered-by-search"));
 
@@ -283,7 +295,6 @@
 
                 return;
             }
-            
             
             // Full reset
             aliases.forEach(alias => {
@@ -333,6 +344,8 @@
         },
         open: () => {
             filterCategoryCheckboxes[0].focus();
+            document.addEventListener("click", filterCategory.categoryMenuOpenListener, false);
+            document.addEventListener("keydown", filterCategory.categoryMenuEscListener, false);
         },
         filter: (options) => {
             if (options.length < 1) {
