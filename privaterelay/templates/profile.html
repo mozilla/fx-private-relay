@@ -139,9 +139,9 @@
           <div class="c-alias-copy">
             <button title="Click to copy"
               data-id="{{ relay_address.id }}"
-              data-clipboard-text="{{ relay_address.address }}@{{ RELAY_DOMAIN }}"
+              data-clipboard-text="{{ relay_address.address }}@{{ relay_address.domain_value }}"
               class="relay-address click-copy ff-Met jst-cntr al-cntr">
-                {{ relay_address.address }}@{{ RELAY_DOMAIN }}
+                {{ relay_address.address }}@{{ relay_address.domain_value }}
                 <span class="alias-copied-icon"></span>
                 <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
             </button>
