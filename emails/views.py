@@ -27,12 +27,14 @@ from .context_processors import relay_from_domain
 from .models import (
     address_hash,
     CannotMakeAddressException,
+    get_domain_numerical,
     DeletedAddress,
     DomainAddress,
     Profile,
     RelayAddress
 )
 from .utils import (
+    get_domains_from_settings,
     get_email_domain_from_settings,
     get_post_data_from_request,
     incr_if_enabled,
@@ -96,8 +98,15 @@ def _index_POST(request):
         locked_profile = Profile.objects.select_for_update().get(
             user=user_profile.user
         )
+        domain = get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
         try:
-            relay_address = RelayAddress.make_relay_address(locked_profile)
+            if user_profile.user.email.endswith('@mozilla.com'):
+                domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
+                relay_address = RelayAddress.make_relay_address(locked_profile, domain=domain)
+            else:
+                if settings.TEST_MOZMAIL:
+                    domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
+                relay_address = RelayAddress.make_relay_address(locked_profile, domain=domain)
         except CannotMakeAddressException as e:
             if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
                 # add-on request
@@ -114,7 +123,9 @@ def _index_POST(request):
         )
         return JsonResponse({
             'id': relay_address.id,
-            'address': address_string
+            'address': address_string,
+            'domain': relay_address.domain_value,
+            'full_address': relay_addres.full_address
         }, status=201)
 
     return redirect('profile')
@@ -251,7 +262,6 @@ def _sns_notification(json_body):
             notification_type,
             status=400
         )
-
     return _sns_message(message_json)
 
 
@@ -282,7 +292,6 @@ def _sns_message(message_json):
         return HttpResponse('noreply address is not supported.')
 
     domain_portion = to_address.split('@')[1]
-
     try:
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
@@ -401,18 +410,19 @@ def _get_domain_address(to_address, local_portion, domain_portion):
 def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
-    email_domain = get_email_domain_from_settings()
-    if not domain_portion == email_domain:
+    email_domains = get_domains_from_settings().values()
+    if domain_portion not in email_domains:
         return _get_domain_address(to_address, local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
-        relay_address = RelayAddress.objects.get(address=local_portion)
+        domain_numerical = get_domain_numerical(domain_portion)
+        relay_address = RelayAddress.objects.get(address=local_portion, domain=domain_numerical)
         return relay_address
     except RelayAddress.DoesNotExist:
         try:
             DeletedAddress.objects.get(
-                address_hash=address_hash(local_portion)
+                address_hash=address_hash(local_portion, domain=domain_portion)
             )
             incr_if_enabled('email_for_deleted_address', 1)
             # TODO: create a hard bounce receipt rule in SES

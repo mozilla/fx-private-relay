@@ -21,6 +21,8 @@ from emails.models import (
 )
 from emails.views import _get_address
 
+TEST_DOMAINS = {'RELAY_FIREFOX_DOMAIN': 'default.com', 'MOZMAIL_DOMAIN': 'test.com'}
+
 
 def _get_bounce_payload(bounce_type):
     f_path = (
@@ -89,9 +91,14 @@ class GetAddressTest(TestCase):
         )
         assert actual == expected
 
-    def test_get_address_with_relay_address(self):
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
+    @patch('emails.views.get_domains_from_settings')
+    def test_get_address_with_relay_address(self, domains_mocked):
+        domains_mocked.return_value = TEST_DOMAINS
         local_portion = 'foo'
-        relay_address = baker.make(RelayAddress, address=local_portion)
+        relay_address = baker.make(
+            RelayAddress, address=local_portion, domain=2
+        )
 
         actual = _get_address(
             to_address=f'{self.local_portion}@{self.service_domain}',
@@ -100,24 +107,30 @@ class GetAddressTest(TestCase):
         )
         assert actual == relay_address
 
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.views.incr_if_enabled')
-    def test_get_address_with_deleted_relay_address(self, incr_mocked):
-        hashed_address = address_hash(self.local_portion)
+    @patch('emails.views.get_domains_from_settings')
+    def test_get_address_with_deleted_relay_address(self, domains_mocked, incr_mocked):
+        domains_mocked.return_value = TEST_DOMAINS
+        hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
 
         try:
             _get_address(
                 to_address=f'{self.local_portion}@{self.service_domain}',
                 local_portion=self.local_portion,
-                domain_portion=f'{self.service_domain}'
+                domain_portion=self.service_domain
             )
         except Exception as e:
             assert e.args[0] == 'Address does not exist'
             incr_mocked.assert_called_once_with('email_for_deleted_address', 1)
 
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
+    @patch('emails.views.get_domains_from_settings')
     @patch('emails.views.incr_if_enabled')
     @patch('emails.views.logger')
-    def test_get_address_with_relay_address_does_not_exist(self, logging_mocked, incr_mocked):
+    def test_get_address_with_relay_address_does_not_exist(self, logging_mocked, incr_mocked, domains_mocked):
+        domains_mocked.return_value = TEST_DOMAINS
         try:
             _get_address(
                 to_address=f'{self.local_portion}@{self.service_domain}',
@@ -132,9 +145,12 @@ class GetAddressTest(TestCase):
             )
             incr_mocked.assert_called_once_with('email_for_unknown_address', 1)
 
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.views.incr_if_enabled')
-    def test_get_address_with_deleted_relay_address_multiple(self, incr_mocked):
-        hashed_address = address_hash(self.local_portion)
+    @patch('emails.views.get_domains_from_settings')
+    def test_get_address_with_deleted_relay_address_multiple(self, domains_mocked, incr_mocked):
+        domains_mocked.return_value = TEST_DOMAINS
+        hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
         baker.make(DeletedAddress, address_hash=hashed_address)
 

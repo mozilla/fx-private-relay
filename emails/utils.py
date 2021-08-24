@@ -53,6 +53,13 @@ def get_email_domain_from_settings():
     return email_network_locality
 
 
+def get_domains_from_settings():
+    return {
+        'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
+        'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
+    }
+
+
 @time_if_enabled('ses_send_email')
 def ses_send_email(from_address, to_address, subject, message_body):
     emails_config = apps.get_app_config('emails')

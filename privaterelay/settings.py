@@ -93,7 +93,7 @@ if DJANGO_ALLOWED_SUBNET:
 
 
 # Get our backing resource configs to check if we should install the app
-ADMIN_ENABLED = config('ADMIN_ENABLED', None)
+ADMIN_ENABLED = config('ADMIN_ENABLED', False, cast=bool)
 
 
 AWS_REGION = config('AWS_REGION', None)
@@ -231,6 +231,8 @@ TEMPLATES = [
     },
 ]
 
+RELAY_FIREFOX_DOMAIN = config('RELAY_FIREFOX_DOMAIN', 'relay.firefox.com', cast=str)
+MOZMAIL_DOMAIN = config('MOZMAIL_DOMAIN', 'mozmail.com', cast=str)
 MAX_NUM_FREE_ALIASES = config('MAX_NUM_FREE_ALIASES', 5, cast=int)
 PREMIUM_ENABLED = config('PREMIUM_ENABLED', default=False, cast=bool)
 PREMIUM_PROD_ID = config('PREMIUM_PROD_ID', '', cast=str)
@@ -244,6 +246,7 @@ HARD_BOUNCE_ALLOWED_DAYS = config('HARD_BOUNCE_ALLOWED_DAYS', 30, cast=int)
 
 WSGI_APPLICATION = 'privaterelay.wsgi.application'
 
+TEST_MOZMAIL = config('TEST_MOZMAIL', False, cast=bool)
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
