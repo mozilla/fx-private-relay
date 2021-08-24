@@ -118,14 +118,11 @@ def _index_POST(request):
             return redirect('profile')
 
     if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
-        address_string = '%s@%s' % (
-            relay_address.address, relay_from_domain(request)['RELAY_DOMAIN']
-        )
         return JsonResponse({
             'id': relay_address.id,
-            'address': address_string,
+            'address': relay_address.full_address,
             'domain': relay_address.domain_value,
-            'full_address': relay_addres.full_address
+            'local_portion': relay_address.address
         }, status=201)
 
     return redirect('profile')
