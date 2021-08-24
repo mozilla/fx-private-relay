@@ -123,7 +123,8 @@ def _index_POST(request):
         )
         return JsonResponse({
             'id': relay_address.id,
-            'address': address_string
+            'address': address_string,
+            'domain': relay_addres.domain_value
         }, status=201)
 
     return redirect('profile')
