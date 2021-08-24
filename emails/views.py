@@ -98,12 +98,15 @@ def _index_POST(request):
         locked_profile = Profile.objects.select_for_update().get(
             user=user_profile.user
         )
+        domain = get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
         try:
             if user_profile.user.email.endswith('@mozilla.com'):
                 domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
                 relay_address = RelayAddress.make_relay_address(locked_profile, domain=domain)
             else:
-                relay_address = RelayAddress.make_relay_address(locked_profile)
+                if settings.TEST_MOZMAIL:
+                    domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
+                relay_address = RelayAddress.make_relay_address(locked_profile, domain=domain)
         except CannotMakeAddressException as e:
             if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
                 # add-on request
