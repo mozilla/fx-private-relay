@@ -272,6 +272,10 @@ class RelayAddress(models.Model):
     def domain_value(self):
         return DOMAINS.get(self.get_domain_display())
 
+    @property
+    def full_address(self):
+        return '%s@%s' % (self.address, self.domain_value)
+
 
 class DeletedAddress(models.Model):
     address_hash = models.CharField(max_length=64, db_index=True)
