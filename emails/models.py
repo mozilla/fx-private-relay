@@ -40,6 +40,12 @@ class Profile(models.Model):
     def __str__(self):
         return '%s Profile' % self.user
 
+    @staticmethod
+    def subdomain_available(subdomain):
+        bad_word = has_bad_words(subdomain)
+        taken = len(Profile.objects.filter(subdomain=subdomain)) > 0
+        return not bad_word and not taken
+
     @property
     def num_active_address(self):
         return RelayAddress.objects.filter(user=self.user).count()
@@ -137,8 +143,8 @@ class Profile(models.Model):
             raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain'))
         if self.subdomain is not None:
             raise CannotMakeSubdomainException('You cannot change your subdomain.')
-        subdomain_exists = Profile.objects.filter(subdomain=subdomain)
-        if not subdomain or has_bad_words(subdomain) or subdomain_exists:
+        subdomain_available = Profile.subdomain_available(subdomain)
+        if not subdomain or not subdomain_available:
             raise CannotMakeSubdomainException(TRY_DIFFERENT_VALUE_ERR_MSG.format('Subdomain'))
         self.subdomain = subdomain
         self.save()

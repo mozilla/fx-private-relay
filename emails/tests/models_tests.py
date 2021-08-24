@@ -381,6 +381,24 @@ class ProfileTest(TestCase):
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
+    def test_subdomain_available_bad_word_returns_False(self):
+        assert Profile.subdomain_available('angry') == False
+
+    def test_subdomain_available_taken_returns_False(self):
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
+        premium_profile.add_subdomain('thisisfine')
+        assert Profile.subdomain_available('thisisfine') == False
+
     def test_display_name_exists(self):
         display_name = 'Display Name'
         social_account = baker.make(
