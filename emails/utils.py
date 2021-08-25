@@ -132,8 +132,8 @@ def ses_send_raw_email(
                 reply_metadata[header['name'].lower()] = header['value']
         message_id_bytes = get_message_id_bytes(ses_response['MessageId'])
         (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
-        lookup=base64.urlsafe_b64encode(lookup_key).decode('ascii')
-        encrypted_metadata=encrypt_reply_metadata(
+        lookup = base64.urlsafe_b64encode(lookup_key).decode('ascii')
+        encrypted_metadata = encrypt_reply_metadata(
             encryption_key, reply_metadata
         )
 
