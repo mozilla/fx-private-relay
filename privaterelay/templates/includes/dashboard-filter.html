@@ -37,7 +37,7 @@
                                 id="active-aliases"
                                 value=""
                             >
-                            <label class="mzp-c-choice-label" for="active-aliases">Active aliases</label>
+                            <label class="mzp-c-choice-label" for="active-aliases">{% ftlmsg 'profile-filter-category-option-active-aliases' %}</label>
                         </div>
                     </div>
                 </li>
@@ -52,7 +52,7 @@
                                 id="disabled-aliases"
                                 value=""
                             >
-                            <label class="mzp-c-choice-label" for="disabled-aliases">Disabled aliases</label>
+                            <label class="mzp-c-choice-label" for="disabled-aliases">{% ftlmsg 'profile-filter-category-option-disabled-aliases' %}</label>
                         </div>
                     </div>
                 </li>
@@ -67,7 +67,7 @@
                                 id="relay-aliases"
                                 value=""
                             >
-                            <label class="mzp-c-choice-label" for="relay-aliases">Relay aliases</label>
+                            <label class="mzp-c-choice-label" for="relay-aliases">{% ftlmsg 'profile-filter-category-option-relay-aliases' %}</label>
                         </div>
                     </div>
                 </li>
@@ -82,17 +82,17 @@
                                 id="domain-aliases"
                                 value=""
                             >
-                            <label class="mzp-c-choice-label" for="domain-aliases">Domain-based aliases</label>
+                            <label class="mzp-c-choice-label" for="domain-aliases">{% ftlmsg 'profile-filter-category-option-domain-based-aliases' %}</label>
                         </div>
                     </div>
                 </li>
             </ul>
             <div class="c-filter-category-buttons">
                 <button type="reset" class="mzp-c-button mzp-t-md mzp-t-neutral js-filter-category-reset">
-                    Reset
+                    {% ftlmsg 'profile-label-reset' %}
                 </button>
                 <button type="submit" class="mzp-c-button mzp-t-md mzp-t-product js-filter-category-apply">
-                    Apply
+                    {% ftlmsg 'profile-label-apply' %}
                 </button>
             </div>
         </form>
@@ -102,7 +102,6 @@
         <form action="{% url 'emails-index' %}" class="dash-create" method="POST">
             <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
             {% if user_profile.at_max_free_aliases and not user_profile.has_unlimited %}
-
                 {% if settings.PREMIUM_ENABLED %}
                     <a
                         href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
@@ -111,42 +110,38 @@
                         class="btn btn-blue--ghost"
                         data-event-label="Upgrade"
                     >
-                    <span class="generate-new-alias-text">
-                        {% ftlmsg 'profile-label-upgrade' %}
-                    </span>
+                        <span class="generate-new-alias-text">
+                            {% ftlmsg 'profile-label-upgrade' %}
+                        </span>
                     </a>
-
                 {% else %}
-
                     <button 
-                disabled
-                type="submit"
-                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr btn-disabled"
-                title="{% ftlmsg 'profile-label-generate-new-alias' %}"
-                value="{% ftlmsg 'profile-label-generate-new-alias' %}"
-            >
-              <span class="generate-new-relay-icon"></span>
-              <span class="generate-new-alias-text">
-              {% ftlmsg 'profile-label-generate-new-alias' %}</span>
-            </button>
-
+                        disabled
+                        type="submit"
+                        class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr btn-disabled"
+                        title="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                        value="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                    >
+                        <span class="generate-new-relay-icon"></span>
+                        <span class="generate-new-alias-text">
+                            {% ftlmsg 'profile-label-generate-new-alias' %}
+                        </span>
+                    </button>
                 {% endif %}
-
             {% else %}
-            <button
-                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr"
-                title="{% ftlmsg 'profile-label-generate-new-alias' %}"
-                type="submit"
-                value="{% ftlmsg 'profile-label-generate-new-alias' %}"
-                data-event-label="Create New Relay Alias"
-            >
-              <span class="generate-new-relay-icon"></span>
-              <span class="generate-new-alias-text">
-              {% ftlmsg 'profile-label-generate-new-alias' %}</span>
-            </button>
+                <button
+                    class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr"
+                    title="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                    type="submit"
+                    value="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                    data-event-label="Create New Relay Alias"
+                >
+                    <span class="generate-new-relay-icon"></span>
+                    <span class="generate-new-alias-text">
+                        {% ftlmsg 'profile-label-generate-new-alias' %}
+                    </span>
+                </button>
             {% endif %}
-            
-            
-          </form>
+        </form>
     </div>
 </div>
