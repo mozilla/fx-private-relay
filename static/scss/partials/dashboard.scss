@@ -254,11 +254,11 @@
     }
 
     @media screen and (max-width: $screen-sm) {
+        
         input {
             width: auto;
         }
     }
-
     @media #{$mq-md} {
 
         .relay-address {
