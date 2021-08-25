@@ -220,12 +220,15 @@
 .c-filter-category-type {
     padding: $spacing-md $spacing-md ;
     border-bottom: 1px solid $color-grey-10;
+
     .mzp-c-choices {
         padding-bottom: 0;
+
         .mzp-c-choice {
             padding-bottom: 0;
         }
     }
+
     .mzp-c-choice-label {
         padding-top: 0;
     }
