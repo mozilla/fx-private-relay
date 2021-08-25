@@ -23,7 +23,7 @@ from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
 
-from .models import Reply
+from .models import Reply, DEFAULT_DOMAIN
 
 
 logger = logging.getLogger('events')
@@ -58,13 +58,6 @@ def get_email_domain_from_settings():
     if settings.ON_HEROKU:
         email_network_locality = f'mail.{email_network_locality}'
     return email_network_locality
-
-
-def get_domains_from_settings():
-    return {
-        'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
-        'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
-    }
 
 
 @time_if_enabled('ses_send_raw_email')
@@ -158,7 +151,7 @@ def ses_send_raw_email(
 def ses_relay_email(from_address, to_address, subject,
                     message_body, attachments, mail, address):
 
-    reply_address = 'replies@unfck.email'
+    reply_address = 'replies@%s' % DEFAULT_DOMAIN
 
     try:
         response = ses_send_raw_email(

@@ -6,9 +6,9 @@ from django.test import (
     override_settings
 )
 
+from emails.models import get_domains_from_settings
 from emails.utils import (
     generate_relay_From,
-    get_domains_from_settings,
     get_email_domain_from_settings,
 )
 

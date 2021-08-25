@@ -30,6 +30,7 @@ from .models import (
     address_hash,
     CannotMakeAddressException,
     get_domain_numerical,
+    get_domains_from_settings,
     DeletedAddress,
     DomainAddress,
     Profile,
@@ -37,7 +38,6 @@ from .models import (
     Reply
 )
 from .utils import (
-    get_domains_from_settings,
     get_email_domain_from_settings,
     get_post_data_from_request,
     incr_if_enabled,
@@ -406,16 +406,13 @@ def _handle_reply(message_json):
     relay_address = reply_record.relay_address
     domain_address = reply_record.domain_address
     if relay_address:
-        outbound_from_address = (
-            '%s@unfck.email' % relay_address.address
-        )
+        outbound_from_address = relay_address.full_address
     elif domain_address:
         raise Exception("Haven't ipmlemented domain replies yet.")
     decrypted_metadata = decrypt_reply_metadata(
         encryption_key, reply_record.encrypted_metadata
     )
     incr_if_enabled('reply_email', 1)
-    outbound_from_address = outbound_from_address
     outbound_reply_to_address = outbound_from_address
     subject = mail['commonHeaders'].get('subject', '')
     if 'reply-to' in decrypted_metadata:
