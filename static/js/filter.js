@@ -39,26 +39,23 @@
             query = input.target.value.toLowerCase();
         }
 
-        filterInput.removeEventListener("focus", buildSearchQueryArrays, false);
+        filterInput.removeEventListener("focus", filter.search.updateIndex, false);
 
         // Reset filter if the input is empty, however, do not steal focus to input
-        if (query === "") resetFilter();
+        if (query === "") filter.search.reset();
 
         // Add class to keep the reset button visible while a query has been entered
         filterInput.classList.add("is-filtered");
 
+        const currentSearchItems =  filter.utils.getAvailableItems();
+        
         const isCategoryFilterActive = (filterContainer.classList.contains("is-filtered-by-category"));
-
-        currentFilteredByCategoryAliases = aliases;
-
-        if (isCategoryFilterActive) {
-            currentFilteredByCategoryAliases = document.querySelectorAll(".c-alias:not(.is-hidden)");
-        } else {
+        if (!isCategoryFilterActive) {
             filterContainer.classList.add("is-filtered-by-search");
         }
 
         // Hide all items eligible for search filter
-        currentFilteredByCategoryAliases.forEach(alias => {
+        currentSearchItems.forEach(alias => {
             alias.classList.add("is-hidden");
         });
 
@@ -107,7 +104,6 @@
         const AliasWithLabelsArrayIndex = aliasesWithLabelsCollection.indexOf(alias);
         const labelArrayIndex = filterAliasLabels.indexOf(prevLabelLowercased);
 
-
         // Case: User did not enter any label, nor was one previously set
         if (prevLabel === "" && newLabel === "") {
             return;
@@ -132,47 +128,52 @@
 
     }
 
-    function isAddOnDetected() {
-        const addNotes = document.querySelector(".additional-notes");
-        if (!addNotes) return false;
-        return (addNotes.offsetWidth > 0 && addNotes.offsetHeight > 0);
-    }
+    // function isAddOnDetected() {
+    //     const addNotes = document.querySelector(".additional-notes");
+    //     if (!addNotes) return false;
+    //     return (addNotes.offsetWidth > 0 && addNotes.offsetHeight > 0);
+    // }
 
     function buildSearchQueryArrays() {
-        const addOnDetected = isAddOnDetected();
+        // const addOnDetected = isAddOnDetected();
         
-        // Build two arrays, one for case IDs and one for case title text. 
-        const isCategoryFilterActive = (filterContainer.classList.contains("is-filtered-by-category"));
+        // // Build two arrays, one for case IDs and one for case title text. 
+        // const isCategoryFilterActive = (filterContainer.classList.contains("is-filtered-by-category"));
 
-        let availableAliasesForSearchFilter = aliases;
+        // let availableAliasesForSearchFilter = aliases;
 
-        if (isCategoryFilterActive) {
-            availableAliasesForSearchFilter = document.querySelectorAll(".c-alias:not(.is-hidden)");
-        }
+        // if (isCategoryFilterActive) {
+        //     availableAliasesForSearchFilter = document.querySelectorAll(".c-alias:not(.is-hidden)");
+        // }
+
+        const availableAliasesForSearchFilter = filter.utils.getAvailableItems();
 
         // Reset all search query arrays
-        aliasCollection.length = 0;
-        filterEmailAddresses.length = 0;
-        filterAliasLabels.length = 0;
-        aliasesWithLabelsCollection.length = 0;
+        filter.search.resetIndex();
+        // aliasCollection.length = 0;
+        // filterEmailAddresses.length = 0;
+        // filterAliasLabels.length = 0;
+        // aliasesWithLabelsCollection.length = 0;
         
-		availableAliasesForSearchFilter.forEach( alias => {
-            aliasCollection.push(alias);
-            if (alias.dataset.relayAddress) {
-                filterEmailAddresses.push( alias.dataset.relayAddress.toString().toLowerCase() );
-            }
+        filter.search.updateIndex(availableAliasesForSearchFilter);
 
-            const aliasLabel = alias.querySelector(".relay-email-address-label");
+		// availableAliasesForSearchFilter.forEach( alias => {
+        //     aliasCollection.push(alias);
+        //     if (alias.dataset.relayAddress) {
+        //         filterEmailAddresses.push( alias.dataset.relayAddress.toString().toLowerCase() );
+        //     }
 
-            if (addOnDetected) {
-                aliasLabel.addEventListener("blur", updateAliasLabel);
-            }
+        //     const aliasLabel = alias.querySelector(".relay-email-address-label");
 
-            if (aliasLabel.dataset.label) {
-                aliasesWithLabelsCollection.push(alias);
-                filterAliasLabels.push( aliasLabel.dataset.label.toString().toLowerCase() );
-            }
-		});
+        //     if (addOnDetected) {
+        //         aliasLabel.addEventListener("blur", updateAliasLabel);
+        //     }
+
+        //     if (aliasLabel.dataset.label) {
+        //         aliasesWithLabelsCollection.push(alias);
+        //         filterAliasLabels.push( aliasLabel.dataset.label.toString().toLowerCase() );
+        //     }
+		// });
 
 		// Set ##/## in filter input field to show how many aliases have been filtered.
         filterLabelVisibleCases.textContent = availableAliasesForSearchFilter.length;
@@ -187,7 +188,8 @@
             return;
         }
 
-        buildSearchQueryArrays();
+        // buildSearchQueryArrays();
+        filter.search.buildIndex();
 
         // Filter aliases on page load if the search already has a query in it. 
         if (filterInput.value) {
@@ -196,7 +198,7 @@
         }
 
 		filterInput.addEventListener("input", filterInputWatcher, false);
-		filterInput.addEventListener("focus", buildSearchQueryArrays, false);
+		filterInput.addEventListener("focus", filter.search.updateIndex, false);
         
         filterInput.addEventListener("keydown", e => {
           if(e.keyIdentifier=="U+000A"||e.keyIdentifier=="Enter"||e.keyCode==13){
@@ -211,33 +213,119 @@
         }, false);
 	}
 
-    function resetFilter() {
-        filterInput.classList.remove("is-filtered");
-        filterInput.value = "";
+    // function resetFilter() {
+    //     filterInput.classList.remove("is-filtered");
+    //     filterInput.value = "";
 
-        filterInput.addEventListener("focus", buildSearchQueryArrays, false);
+    //     filterInput.addEventListener("focus", buildSearchQueryArrays, false);
 
-        filterContainer.classList.remove("is-filtered-by-search");
+    //     filterContainer.classList.remove("is-filtered-by-search");
 
-        const isCategoryFilterActive = (filterContainer.classList.contains("is-filtered-by-category"));
+    //     const isCategoryFilterActive = (filterContainer.classList.contains("is-filtered-by-category"));
 
-        let availableAliasesForSearchFilter = aliases;
+    //     let availableAliasesForSearchFilter = aliases;
 
-        if (isCategoryFilterActive && currentFilteredByCategoryAliases && currentFilteredByCategoryAliases.length > 0) {
-            availableAliasesForSearchFilter = currentFilteredByCategoryAliases;
-        }
+    //     if (isCategoryFilterActive && currentFilteredByCategoryAliases && currentFilteredByCategoryAliases.length > 0) {
+    //         availableAliasesForSearchFilter = currentFilteredByCategoryAliases;
+    //     }
 
-        filterLabelVisibleCases.textContent = availableAliasesForSearchFilter.length;
-        filterLabelTotalCases.textContent = availableAliasesForSearchFilter.length;
+    //     filterLabelVisibleCases.textContent = availableAliasesForSearchFilter.length;
+    //     filterLabelTotalCases.textContent = availableAliasesForSearchFilter.length;
 
-        availableAliasesForSearchFilter.forEach(alias => {
-            alias.classList.remove("is-hidden");
-        });
-    }
+    //     availableAliasesForSearchFilter.forEach(alias => {
+    //         alias.classList.remove("is-hidden");
+    //     });
+    // }
 
     // TODO: Remove timeout and watch for event to detect if add-on is enabled (checking if labels exist)
     setTimeout(filterInit, 500);
 
+    // const searchIndex = filter.utils.buildIndex();
+
+    const filter = {
+        search: {
+            buildIndex: ()=> {
+                const aliases = document.querySelectorAll(".c-alias");
+                
+                filter.search.updateIndex(aliases); 
+
+            },
+            updateIndex: (collection)=> {
+
+                // If not setting to a specific collection, get active view
+                if (!collection) {
+                    collection = filter.utils.getAvailableItems(); 
+                }
+
+                const addOnDetected = filter.utils.isAddOnDetected();
+
+                collection.forEach( alias => {
+                    aliasCollection.push(alias);
+                    if (alias.dataset.relayAddress) {
+                        filterEmailAddresses.push( alias.dataset.relayAddress.toString().toLowerCase() );
+                    }
+
+                    const aliasLabel = alias.querySelector(".relay-email-address-label");
+
+                    if (addOnDetected) {
+                        aliasLabel.addEventListener("blur", updateAliasLabel);
+                    }
+
+                    if (aliasLabel.dataset.label) {
+                        aliasesWithLabelsCollection.push(alias);
+                        filterAliasLabels.push( aliasLabel.dataset.label.toString().toLowerCase() );
+                    }
+                });
+            },
+            resetIndex: ()=> {
+                aliasCollection.length = 0;
+                filterEmailAddresses.length = 0;
+                filterAliasLabels.length = 0;
+                aliasesWithLabelsCollection.length = 0;
+            },
+            reset: ()=> {
+                filterInput.classList.remove("is-filtered");
+                filterInput.value = "";
+
+                filterInput.addEventListener("focus", buildSearchQueryArrays, false);
+
+                filterContainer.classList.remove("is-filtered-by-search");
+
+                const isCategoryFilterActive = (filterContainer.classList.contains("is-filtered-by-category"));
+
+                let availableAliasesForSearchFilter = aliases;
+
+                if (isCategoryFilterActive && currentFilteredByCategoryAliases && currentFilteredByCategoryAliases.length > 0) {
+                    availableAliasesForSearchFilter = currentFilteredByCategoryAliases;
+                }
+
+                filterLabelVisibleCases.textContent = availableAliasesForSearchFilter.length;
+                filterLabelTotalCases.textContent = availableAliasesForSearchFilter.length;
+
+                availableAliasesForSearchFilter.forEach(alias => {
+                    alias.classList.remove("is-hidden");
+                });
+            }
+        },
+        utils: {
+            isAddOnDetected: ()=> {
+                const addNotes = document.querySelector(".additional-notes");
+                if (!addNotes) return false;
+                return (addNotes.offsetWidth > 0 && addNotes.offsetHeight > 0);
+            },
+            getAvailableItems: () => {
+                const isCategoryFilterActive = (filterContainer.classList.contains("is-filtered-by-category"));
+
+                if (isCategoryFilterActive) {
+                    return document.querySelectorAll(".c-alias:not(.is-hidden)");
+                }
+
+                return document.querySelectorAll(".c-alias");
+            }
+        }
+    };
+
+    /* Category Filter */
     const filterCategoryCheckboxes = document.querySelectorAll(".js-filter-category-checkbox");
     const filterToggleCategoryButtonReset = document.querySelector(".js-filter-category-reset");
     const filterToggleCategoryButtonApply = document.querySelector(".js-filter-category-apply");
