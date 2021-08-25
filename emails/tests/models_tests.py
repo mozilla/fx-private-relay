@@ -344,10 +344,10 @@ class ProfileTest(TestCase):
 
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
 
-    def test_has_unlimited_default_False(self):
-        assert self.profile.has_unlimited == False
+    def test_has_premium_default_False(self):
+        assert self.profile.has_premium == False
 
-    def test_has_unlimited_with_unlimited_subsription_returns_True(self):
+    def test_has_premium_with_unlimited_subsription_returns_True(self):
         premium_user = baker.make(User)
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
@@ -359,7 +359,7 @@ class ProfileTest(TestCase):
             extra_data={'subscriptions': [random_sub]}
         )
         premium_profile = baker.make(Profile, user=premium_user)
-        assert premium_profile.has_unlimited == True
+        assert premium_profile.has_premium == True
 
     def test_add_subdomain_to_new_unlimited_profile(self):
         subdomain = 'test'

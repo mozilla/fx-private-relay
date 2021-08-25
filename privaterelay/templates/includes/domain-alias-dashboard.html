@@ -1,7 +1,7 @@
 {% load relay_tags %}
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
-{% if not user_profile.has_unlimited %}
+{% if not user_profile.has_premium %}
     <div class="dashboard-mpp-promo">
       <div class="dashboard-mpp-promo-container inset">
         <h3 class="dashboard-mpp-promo-headline">

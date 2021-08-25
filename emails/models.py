@@ -124,11 +124,13 @@ class Profile(models.Model):
         return self.fxa.extra_data.get('displayName')
 
     @property
-    def has_unlimited(self):
+    def has_premium(self):
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
         if not self.fxa:
             return False
+        if self.user.email.endswith('@mozilla.com'):
+            return True
         user_subscriptions = self.fxa.extra_data.get('subscriptions', [])
         for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
             if sub in user_subscriptions:
@@ -150,7 +152,7 @@ class Profile(models.Model):
         return sum(blocked['num_blocked'] for blocked in relay_addresses_blocked)
 
     def add_subdomain(self, subdomain):
-        if not self.has_unlimited:
+        if not self.has_premium:
             raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain'))
         if self.subdomain is not None:
             raise CannotMakeSubdomainException('You cannot change your subdomain.')
@@ -257,7 +259,7 @@ class RelayAddress(models.Model):
     def make_relay_address(user_profile, num_tries=0, domain=DEFAULT_DOMAIN):
         if (
             user_profile.at_max_free_aliases
-            and not user_profile.has_unlimited
+            and not user_profile.has_premium
         ):
             hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
             raise CannotMakeAddressException(
@@ -319,7 +321,7 @@ class DomainAddress(models.Model):
         return Profile.objects.get(user=self.user)
 
     def make_domain_address(user_profile, address=None, made_via_email=False):
-        if not user_profile.has_unlimited:
+        if not user_profile.has_premium:
             raise CannotMakeAddressException(
                 NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
             )

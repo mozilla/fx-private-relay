@@ -44,7 +44,7 @@
     </div>
       {% if settings.PREMIUM_ENABLED %}
         {% with request.user.profile_set.first as user_profile %}
-          {% if not user_profile.has_unlimited %}
+          {% if not user_profile.has_premium %}
             <div class="flx">
               <div class="banner-gradient-bg">
                 <div class="go-premium-banner banner-content flx flx-row">

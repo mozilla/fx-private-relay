@@ -32,7 +32,7 @@
   <div class="messages-profile">
     {% include "includes/messages.html" %}
   </div>
-  {% if user_profile.has_unlimited %}
+  {% if user_profile.has_premium %}
   <div class="mpp-dashbaord-header">
     <div class="mpp-dashbaord-header-container inset">
       <div class="mpp-dashbaord-header-title">
@@ -68,7 +68,7 @@
   {% endif %}
   <div class="main-list flx flx-col jst-cntr">
     <div class="alias-list">
-      {% if not user_profile.has_unlimited %}
+      {% if not user_profile.has_premium %}
       <div class="dashboard-greeting">
         <span class="dashboard-greeting-message">{% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
       </div>
