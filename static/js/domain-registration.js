@@ -9,11 +9,56 @@
                 domainRegistrationForm.addEventListener("submit", domainRegistration.events.onSubmit, false);  
             }
         },
+        checkIfDomainIsSafeAndAvailable: async (domain)=> {
+            if (!domain) {
+                throw new Error("No domain submitted.");
+            }
+            
+            const requestUrl = `/accounts/profile/subdomain?subdomain=${domain}`;
+
+            console.log(requestUrl);
+            
+            const response = await fetch(requestUrl, {
+                method: "get",
+                mode: 'same-origin',
+                credentials: 'same-origin',
+            });
+
+           if (!response.ok) {
+                const message = `An error has occured: ${response.status}`;
+                throw new Error(message);
+            }
+
+            const status = await response.json();
+            
+            return status.available;
+        }, 
+        canModalBeSubmitted: ()=>{
+            const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
+            const modalSubmit = document.querySelector(".js-modal-domain-registration-submit");
+
+            if (!modalConfirmCheckbox.checked) {
+                modalSubmit.disabled = true;
+                return false;
+            }
+
+            modalSubmit.disabled = false;
+            return true;
+        },
         events: {
-            onSubmit: (e) => {
+            onSubmit: async (e) => {
                 e.preventDefault();
-                console.log("domainRegistration.events.onSubmit");
-                domainRegistration.modal.open();
+
+                const requestedDomain = document.querySelector(".js-subdomain-value").value;
+                const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);
+                
+                if (domainCanBeRegistered) {
+                    domainRegistration.modal.open();
+                } else {
+                    // If the domain cannot be registered, submit the form to init an error message.
+                    const domainRegistrationForm = document.getElementById("domainRegistration");
+                    domainRegistrationForm.submit();
+                }
             }
         },
         modal: {
@@ -23,13 +68,17 @@
 
                 const requestedDomain = document.querySelector(".js-subdomain-value");
                 const requestedDomainPreview = document.querySelector(".js-modal-domain-registration-confirmation-domain-preview");
-                requestedDomainPreview.textContent = requestedDomain.value + "." + requestedDomain.dataset.domain;
+                // requestedDomainPreview.textContent = requestedDomain.value + "." + requestedDomain.dataset.domain;
+                requestedDomainPreview.textContent = requestedDomain.value;
 
                 const modalCancel = document.querySelector(".js-modal-domain-registration-cancel");
                 modalCancel.addEventListener("click", domainRegistration.modal.close, false);
 
                 const modalSubmit = document.querySelector(".js-modal-domain-registration-submit");
                 modalSubmit.addEventListener("click", domainRegistration.modal.submit, false);
+
+                const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
+                modalConfirmCheckbox.addEventListener("change", domainRegistration.canModalBeSubmitted, false);
 
                 // Close the modal if the user clicks outside the modal
                 modal.addEventListener("click", (e) => {
@@ -39,15 +88,14 @@
                 });
 
                 // Close modal if the user clicks the Escape key
-                document.addEventListener("keydown", domainRegistration.modal.close, false);
+                document.addEventListener("keydown", domainRegistration.canDomainRegistrationFormBeSubmitted, false);
             },
             close: (e) => {
                 if (e && e.key && (e.key !== "Escape")) {
-                    console.log(e.key);
+                    // Do nothing! 
                     return;
                 }   
                 
-                console.log("domainRegistration.modal.close()");
                 const modal = document.querySelector(".js-modal-domain-registration-confirmation");
                 modal.classList.remove("is-visible");
 
@@ -55,11 +103,8 @@
 
             },
             submit: (e) => {
-                console.log("domainRegistration.modal.submit()");
-
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
                 if (!modalConfirmCheckbox.checked) {
-                    console.log("No checked");
                     return false;
                 }
 
