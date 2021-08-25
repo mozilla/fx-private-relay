@@ -18,13 +18,9 @@
   data-fxa-subscriptions-url="{{ settings.FXA_SUBSCRIPTIONS_URL }}" 
   data-premium-prod-id="{{ settings.PREMIUM_PROD_ID }}" 
   data-premium-price-id="{{ settings.PREMIUM_PRICE_ID }}" 
-  {% if settings.PREMIUM_ENABLED %}
-    {% with request.user.profile_set.first as user_profile %}
-      {% if user_profile.subdomain %}
-        data-premium-subdomain-set="true"
-      {% endif %}
-    {% endwith %}
-  {% endif %}
+  {% with request.user.profile_set.first as user_profile %}
+    data-premium-subdomain-set="{{ user_profile.subdomain }}"
+  {% endwith %}
 >
 </firefox-private-relay-addon-data>
 
