@@ -289,22 +289,25 @@ def _sns_message(message_json):
             status=400
         )
 
+    from_address = parseaddr(mail['commonHeaders']['from'][0])[1]
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
-    local_portion = to_address.split('@')[0]
-
-    if local_portion == 'noreply':
-        incr_if_enabled('email_for_noreply_address', 1)
-        return HttpResponse('noreply address is not supported.')
-
-    if local_portion == 'replies':
+    to_local_portion = to_address.split('@')[0]
+    if to_local_portion == 'replies':
+        user = User.objects.get(email=from_address)
+        profile = user.profile_set.first()
+        if not profile.has_premium:
+            # TODO: send the user an email that replies are a premium feature
+            return HttpResponse(
+                "Rely replies require a premium account", status=403
+            )
         return _handle_reply(message_json)
 
-    domain_portion = to_address.split('@')[1]
+    to_domain_portion = to_address.split('@')[1]
     try:
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        address = _get_address(to_address, local_portion, domain_portion)
+        address = _get_address(to_address, to_local_portion, to_domain_portion)
         user_profile = address.user.profile_set.first()
     except Exception:
         return HttpResponse("Address does not exist", status=404)
@@ -332,7 +335,6 @@ def _sns_message(message_json):
         ).hexdigest(),
     })
 
-    from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders'].get('subject', '')
 
     text_content, html_content, attachments = _get_text_html_attachments(
