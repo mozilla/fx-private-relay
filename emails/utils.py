@@ -253,4 +253,5 @@ def load_reply_metadata(message_id, encrypted_reply_metadata):
     message_id = base64.urlsafe_b64decode(message_id)
     (lookup_key, encryption_key) = derive_reply_keys(message_id)
     # In a real system, you'd use `lookup_key` to fetch the encrypted data from the database.
-    return decrypt_reply_metadata(encryption_key, encrypted_reply_metadata)
+    reply_plaintext = decrypt_reply_metadata(encryption_key, encrypted_reply_metadata)
+    return json.loads(reply_plaintext)
