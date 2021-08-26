@@ -64,7 +64,7 @@
               <div class="mpp-choose-subdomain-form">
                 <h2>{% ftlmsg 'banner-choose-subdomain-headline-aliases' %}</h2>
                 <p>{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
-                <form id="domainRegistration" method="post" data-action="{% url 'profile_subdomain' %}">
+                <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                     {% csrf_token %}
                     <input class="js-subdomain-value" data-domain="{{ MOZMAIL_DOMAIN }}" required type="text" placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}" name="subdomain">
                     <input class="btn btn--gray" type="submit" value="{% ftlmsg 'banner-choose-subdomain-submit' %}">

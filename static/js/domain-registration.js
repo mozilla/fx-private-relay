@@ -22,13 +22,18 @@
                 credentials: 'same-origin',
             });
 
-           if (!response.ok) {
+            // Catch Redirect Failure
+            if (response.redirected) {
+                return false;
+            }
+
+            if (!response.ok) {
                 const message = `An error has occured: ${response.status}`;
                 throw new Error(message);
             }
 
             const status = await response.json();
-            
+
             return status.available;
         }, 
         canModalBeSubmitted: ()=>{
@@ -47,8 +52,6 @@
             onSubmit: async (e) => {
                 e.preventDefault();
 
-                console.log("domainRegistration.events.onSubmit");
-                
                 const requestedDomain = document.querySelector(".js-subdomain-value").value;
                 const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);
                 
@@ -56,6 +59,7 @@
                     domainRegistration.modal.open();
                 } else {
                     // If the domain cannot be registered, submit the form to init an error message.
+                    console.log("Domain not available. Please try again");
                     const domainRegistrationForm = document.getElementById("domainRegistration");
                     domainRegistrationForm.submit();
                 }
@@ -111,20 +115,15 @@
                 document.removeEventListener("keydown", domainRegistration.modal.close, false);
 
             },
-            formSubmit: (e) => {
-                console.log("domainRegistration.modal.formSubmit_V1");
-                
+            formSubmit: async (e) => {
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
 
                 if (!modalConfirmCheckbox.checked) {
                     console.log("Not checked");
                     return false;
                 }
-
                
-                console.log("domainRegistration.modal.formSubmit");
                 const domainRegistrationForm = document.getElementById("domainRegistration");
-                console.log(domainRegistrationForm);
                 domainRegistrationForm.removeEventListener("submit", domainRegistration.events.onSubmit, false);  
                 domainRegistrationForm.submit();
                 domainRegistration.modal.close();
