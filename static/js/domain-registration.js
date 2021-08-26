@@ -18,8 +18,8 @@
 
             const response = await fetch(requestUrl, {
                 method: "get",
-                mode: 'same-origin',
-                credentials: 'same-origin',
+                mode: "same-origin",
+                credentials: "same-origin",
             });
 
             // Catch Redirect Failure

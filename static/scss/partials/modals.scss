@@ -15,6 +15,7 @@
 .alias-to-delete {
     display: inline;
     word-break: break-all;
+
     &.demi {
         display: inline-block;
         margin: 0 auto $spacing-md;
@@ -39,6 +40,7 @@
     z-index: 10;
     justify-content: center;
     flex-direction: column;
+
     &.is-visible {
         display: flex;
     }
@@ -71,18 +73,22 @@
         color: $color-grey-40;
         margin: $spacing-sm 0;
         font-weight: 700;
+
         strong {
             color: $color-black;
         }
+
         span {
             display: inline-block;
         }
     }
+
     .c-modal-header-headline {
         display: flex;
         width: 100%;
         align-items: center;
         justify-content: center;
+
         img {
             margin-right: $spacing-sm;
         }
@@ -100,6 +106,7 @@
 
 .t-domain-registration-body {
     text-align: center;
+
     p {
         @include text-body-xs;
         max-width: $content-sm;
@@ -119,6 +126,7 @@
     border-radius: $border-radius-md;
     text-align: center;
     display: inline-block;
+
     strong {
         word-wrap: break-word;
     }
@@ -136,6 +144,7 @@
     border-radius: $border-radius-md;
     text-align: center;
     display: inline-block;
+
     strong {
         word-wrap: break-word;
     }
