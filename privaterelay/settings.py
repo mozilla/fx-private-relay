@@ -348,6 +348,9 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_USERNAME_REQUIRED=False
+SOCIALACCOUNT_AUTO_SIGNUP=True
+
 
 FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', 'https://accounts.firefox.com/settings')
 FXA_SUBSCRIPTIONS_URL = config('FXA_SUBSCRIPTIONS_URL', 'https://accounts.firefox.com/subscriptions')
