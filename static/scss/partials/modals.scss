@@ -63,6 +63,32 @@
     padding: $spacing-lg $spacing-md;
 }
 
+.c-modal-header-content {
+    @include text-title-3xs;
+    
+    h3 {
+        @include text-title-xs;
+        color: $color-grey-40;
+        margin: $spacing-sm 0;
+        font-weight: 700;
+        strong {
+            color: $color-black;
+        }
+        span {
+            display: inline-block;
+        }
+    }
+    .c-modal-header-headline {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        img {
+            margin-right: $spacing-sm;
+        }
+    }
+}
+
 .t-domain-registration-hero {
     text-align: center;
 }

@@ -66,7 +66,7 @@
                 <p>{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
                 <form id="domainRegistration" method="post" data-action="{% url 'profile_subdomain' %}">
                     {% csrf_token %}
-                    <input class="js-subdomain-value" data-domain="{{ RELAY_DOMAIN }}" required type="text" placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}" name="subdomain">
+                    <input class="js-subdomain-value" data-domain="{{ MOZMAIL_DOMAIN }}" required type="text" placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}" name="subdomain">
                     <input class="btn btn--gray" type="submit" value="{% ftlmsg 'banner-choose-subdomain-submit' %}">
                 </form>
                 <p class="warning">{% ftlmsg 'banner-choose-subdomain-warning' %}</p>
