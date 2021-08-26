@@ -21,6 +21,7 @@
   {% with request.user.profile_set.first as user_profile %}
     data-premium-subdomain-set="{{ user_profile.subdomain }}"
   {% endwith %}
+  data-premium-enabled="{{ settings.PREMIUM_ENABLED }}"
 >
 </firefox-private-relay-addon-data>
 
