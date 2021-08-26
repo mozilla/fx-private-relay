@@ -108,12 +108,13 @@ def profile_subdomain(request):
     profile = request.user.profile_set.first()
     if not profile.has_unlimited:
         raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('check a subdomain'))
-    if request.method == 'GET':
-        subdomain = request.GET.get('subdomain', None)
-        available = Profile.subdomain_available(subdomain)
-        return JsonResponse({'available':available})
     try:
-        profile.add_subdomain(request.POST.get('subdomain', None))
+        if request.method == 'GET':
+            subdomain = request.GET.get('subdomain', None)
+            available = Profile.subdomain_available(subdomain)
+            return JsonResponse({'available': available})
+        else:
+            profile.add_subdomain(request.POST.get('subdomain', None))
     except CannotMakeSubdomainException as e:
         messages.error(request, e.message)
     return redirect(reverse('profile'))
