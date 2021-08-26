@@ -51,7 +51,7 @@ class Profile(models.Model):
     def subdomain_available(subdomain):
         bad_word = has_bad_words(subdomain)
         taken = Profile.objects.filter(subdomain=subdomain).count() > 0
-        if not bad_word and not taken:
+        if bad_word or taken:
             raise CannotMakeSubdomainException(TRY_DIFFERENT_VALUE_ERR_MSG.format(f'{subdomain} subdomain'))
         return True
 
