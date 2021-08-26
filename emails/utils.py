@@ -244,7 +244,7 @@ def decrypt_reply_metadata(key, jwe):
     e = jwcrypto.jwe.JWE()
     e.deserialize(jwe)
     e.decrypt(k)
-    return json.loads(e.plaintext)
+    return e.plaintext
 
 
 def load_reply_metadata(message_id, encrypted_reply_metadata):
