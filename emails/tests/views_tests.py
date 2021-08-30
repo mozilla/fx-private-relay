@@ -128,8 +128,7 @@ class GetAddressTest(TestCase):
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.views.get_domains_from_settings')
     @patch('emails.views.incr_if_enabled')
-    @patch('emails.views.logger')
-    def test_get_address_with_relay_address_does_not_exist(self, logging_mocked, incr_mocked, domains_mocked):
+    def test_get_address_with_relay_address_does_not_exist(self, incr_mocked, domains_mocked):
         domains_mocked.return_value = TEST_DOMAINS
         try:
             _get_address(
@@ -139,10 +138,6 @@ class GetAddressTest(TestCase):
             )
         except Exception as e:
             assert e.args[0] == 'Address does not exist'
-            logging_mocked.error.assert_called_once_with(
-                'Received email for unknown address.',
-                extra={'to_address': f'{self.local_portion}@{self.service_domain}'},
-            )
             incr_mocked.assert_called_once_with('email_for_unknown_address', 1)
 
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
