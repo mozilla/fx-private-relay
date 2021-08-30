@@ -23,7 +23,7 @@ from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
 
-from .models import Reply, DEFAULT_DOMAIN
+from .models import DEFAULT_DOMAIN, DomainAddress, RelayAddress, Reply
 
 
 logger = logging.getLogger('events')
@@ -132,16 +132,18 @@ def ses_send_raw_email(
                 reply_metadata[header['name'].lower()] = header['value']
         message_id_bytes = get_message_id_bytes(ses_response['MessageId'])
         (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
-        lookup = base64.urlsafe_b64encode(lookup_key).decode('ascii')
+        lookup = b64_lookup_key(lookup_key)
         encrypted_metadata = encrypt_reply_metadata(
             encryption_key, reply_metadata
         )
-
-        Reply.objects.create(
-            relay_address=address,
-            lookup=lookup,
-            encrypted_metadata=encrypted_metadata
-        )
+        reply_create_args = {
+            'lookup': lookup, 'encrypted_metadata': encrypted_metadata
+        }
+        if type(address == DomainAddress):
+            reply_create_args['domain_address'] = address
+        elif type(address == RelayAddress):
+            reply_create_args['reply_address'] = address
+        Reply.objects.create(**reply_create_args)
     except ClientError as e:
         logger.error('ses_client_error_raw_email', extra=e.response['Error'])
         return HttpResponse("SES client error on Raw Email", status=400)
@@ -217,6 +219,10 @@ def generate_relay_From(original_from_address):
 def get_message_id_bytes(message_id_str):
     message_id = message_id_str.split("@", 1)[0].rsplit("<", 1)[-1].strip()
     return message_id.encode()
+
+
+def b64_lookup_key(lookup_key):
+    return base64.urlsafe_b64encode(lookup_key).decode('ascii')
 
 
 def derive_reply_keys(message_id):

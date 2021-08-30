@@ -349,7 +349,10 @@ class DomainAddress(models.Model):
                 TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             )
 
-        domain_address = DomainAddress.objects.create(user=user_profile.user, address=address)
+        domain_address = DomainAddress.objects.create(
+            user=user_profile.user,
+            address=address,
+        )
         if made_via_email:
             # update first_emailed_at indicating alias generation impromptu.
             domain_address.first_emailed_at = datetime.now(timezone.utc)
@@ -370,8 +373,16 @@ class DomainAddress(models.Model):
         self.user_profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
 
+    @property
+    def full_address(self):
+        return '%s@%s.%s' % (
+            self.address, self.user_profile.subdomain, DEFAULT_DOMAIN
+        )
+
+
 class Reply(models.Model):
     relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE, blank=True, null=True)
     domain_address = models.ForeignKey(DomainAddress, on_delete=models.CASCADE, blank=True, null=True)
     lookup = models.CharField(max_length=255, blank=False)
     encrypted_metadata = models.TextField(blank=False)
+    created_at = models.DateField(auto_now_add=True, null=False)

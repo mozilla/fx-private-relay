@@ -1,4 +1,3 @@
-import base64
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.utils import parseaddr
@@ -25,7 +24,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .context_processors import relay_from_domain
 from .models import (
     address_hash,
     CannotMakeAddressException,
@@ -38,7 +36,7 @@ from .models import (
     Reply
 )
 from .utils import (
-    get_email_domain_from_settings,
+    b64_lookup_key,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
@@ -291,18 +289,8 @@ def _sns_message(message_json):
 
     from_address = parseaddr(mail['commonHeaders']['from'][0])[1]
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
-    to_local_portion = to_address.split('@')[0]
-    if to_local_portion == 'replies':
-        user = User.objects.get(email=from_address)
-        profile = user.profile_set.first()
-        if not profile.has_premium:
-            # TODO: send the user an email that replies are a premium feature
-            return HttpResponse(
-                "Rely replies require a premium account", status=403
-            )
-        return _handle_reply(message_json)
-
-    to_domain_portion = to_address.split('@')[1]
+    [to_local_portion, to_domain_portion] = to_address.split('@')
+    # to_domain_portion = to_address.split('@')[1]
     try:
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
@@ -310,6 +298,16 @@ def _sns_message(message_json):
         address = _get_address(to_address, to_local_portion, to_domain_portion)
         user_profile = address.user.profile_set.first()
     except Exception:
+        if to_local_portion == 'replies':
+            user = User.objects.get(email=from_address)
+            profile = user.profile_set.first()
+            if not profile.has_premium:
+                # TODO: send the user an email that replies are a premium feature
+                return HttpResponse(
+                    "Rely replies require a premium account", status=403
+                )
+            return _handle_reply(message_json)
+
         return HttpResponse("Address does not exist", status=404)
 
     address_hash = sha256(to_address.encode('utf-8')).hexdigest()
@@ -403,17 +401,18 @@ def _handle_reply(message_json):
     (lookup_key, encryption_key) = derive_reply_keys(
         message_id_bytes
     )
-    lookup=base64.urlsafe_b64encode(lookup_key).decode('ascii')
+    lookup = b64_lookup_key(lookup_key)
     reply_record = Reply.objects.get(lookup=lookup)
     relay_address = reply_record.relay_address
     domain_address = reply_record.domain_address
     if relay_address:
-        outbound_from_address = relay_address.full_address
+        address = relay_address
     elif domain_address:
-        raise Exception("Haven't ipmlemented domain replies yet.")
-    decrypted_metadata = decrypt_reply_metadata(
+        address = domain_address
+    outbound_from_address = address.full_address
+    decrypted_metadata = json.loads(decrypt_reply_metadata(
         encryption_key, reply_record.encrypted_metadata
-    )
+    ))
     incr_if_enabled('reply_email', 1)
     outbound_reply_to_address = outbound_from_address
     subject = mail['commonHeaders'].get('subject', '')
@@ -444,12 +443,12 @@ def _handle_reply(message_json):
             attachments,
             outbound_reply_to_address,
             mail,
-            relay_address
+            address
         )
         # TODO: make it work for domain_address
-        relay_address.num_forwarded += 1
-        relay_address.last_used_at = datetime.now(timezone.utc)
-        relay_address.save(
+        address.num_forwarded += 1
+        address.last_used_at = datetime.now(timezone.utc)
+        address.save(
             update_fields=['num_forwarded', 'last_used_at']
         )
         return response
