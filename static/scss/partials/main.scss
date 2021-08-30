@@ -751,26 +751,6 @@ input:focus::placeholder {
     opacity: 0;
 }
 
-.show-label.additional-notes {
-    visibility: visible;
-    pointer-events: all;
-    display: flex;
-}
-
-.additional-notes::after {
-    content: "";
-    min-width: 16px;
-    min-height: 16px;
-    margin-left: -24px;
-    display: inline-block;
-    background: url("/static/images/edit.svg");
-    background-repeat: no-repeat;
-    background-position: center center;
-    pointer-events: none;
-    background-size: contain;
-    opacity: .6;
-}
-
 .user-created-label::after {
     opacity: 0;
 }
