@@ -251,8 +251,6 @@
         }
     }
 
-    filterToggleCategoryInput.addEventListener("click", toggleAliasCategoryBar, false);
-
     const filterCategory = {
         init: () => {
             filterToggleCategoryButtonApply.addEventListener("click", filterCategory.apply, false);
@@ -425,6 +423,8 @@
         }
     }
 
-    filterCategory.init();
-
+    if (filterToggleCategoryInput) {
+        filterToggleCategoryInput.addEventListener("click", toggleAliasCategoryBar, false);
+        filterCategory.init();
+    }
 })();
