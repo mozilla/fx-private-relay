@@ -22,80 +22,82 @@
     <div class="c-filter-date hidden">
         <div class="c-filter-icon c-filter-icon-calendar"></div>
     </div>
-    <div class="c-filter-category">
+    <div class="c-filter-category {% if not user_profile.has_unlimited %} hidden {% endif %}">
+        {% if user_profile.has_unlimited %}
         <div class="c-filter-icon c-filter-icon-filter js-filter-category-toggle"></div>
-        <form class="c-filter-category-list">
-            <ul class="c-filter-category-types">
-                <li class="c-filter-category-type">
-                    <div class="mzp-c-choices">
-                        <div class="mzp-c-choice">
-                            <input
-                                data-category-type="active-aliases"
-                                data-parent-category="active"
-                                class="mzp-c-choice-control js-filter-category-checkbox"
-                                type="checkbox" name="Show active aliases"
-                                id="active-aliases"
-                                value=""
-                            >
-                            <label class="mzp-c-choice-label" for="active-aliases">{% ftlmsg 'profile-filter-category-option-active-aliases' %}</label>
+            <form class="c-filter-category-list">
+                <ul class="c-filter-category-types">
+                    <li class="c-filter-category-type">
+                        <div class="mzp-c-choices">
+                            <div class="mzp-c-choice">
+                                <input
+                                    data-category-type="active-aliases"
+                                    data-parent-category="active"
+                                    class="mzp-c-choice-control js-filter-category-checkbox"
+                                    type="checkbox" name="Show active aliases"
+                                    id="active-aliases"
+                                    value=""
+                                >
+                                <label class="mzp-c-choice-label" for="active-aliases">{% ftlmsg 'profile-filter-category-option-active-aliases' %}</label>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li class="c-filter-category-type">
-                    <div class="mzp-c-choices">
-                        <div class="mzp-c-choice">
-                            <input
-                                data-category-type="disabled-aliases"
-                                data-parent-category="active"
-                                class="mzp-c-choice-control js-filter-category-checkbox"
-                                type="checkbox" name="Show disabled aliases"
-                                id="disabled-aliases"
-                                value=""
-                            >
-                            <label class="mzp-c-choice-label" for="disabled-aliases">{% ftlmsg 'profile-filter-category-option-disabled-aliases' %}</label>
+                    </li>
+                    <li class="c-filter-category-type">
+                        <div class="mzp-c-choices">
+                            <div class="mzp-c-choice">
+                                <input
+                                    data-category-type="disabled-aliases"
+                                    data-parent-category="active"
+                                    class="mzp-c-choice-control js-filter-category-checkbox"
+                                    type="checkbox" name="Show disabled aliases"
+                                    id="disabled-aliases"
+                                    value=""
+                                >
+                                <label class="mzp-c-choice-label" for="disabled-aliases">{% ftlmsg 'profile-filter-category-option-disabled-aliases' %}</label>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li class="c-filter-category-type">
-                    <div class="mzp-c-choices">
-                        <div class="mzp-c-choice">
-                            <input
-                                data-category-type="relay-aliases"
-                                data-parent-category="domain"
-                                class="mzp-c-choice-control js-filter-category-checkbox"
-                                type="checkbox" name="Show relay aliases"
-                                id="relay-aliases"
-                                value=""
-                            >
-                            <label class="mzp-c-choice-label" for="relay-aliases">{% ftlmsg 'profile-filter-category-option-relay-aliases' %}</label>
+                    </li>
+                    <li class="c-filter-category-type">
+                        <div class="mzp-c-choices">
+                            <div class="mzp-c-choice">
+                                <input
+                                    data-category-type="relay-aliases"
+                                    data-parent-category="domain"
+                                    class="mzp-c-choice-control js-filter-category-checkbox"
+                                    type="checkbox" name="Show relay aliases"
+                                    id="relay-aliases"
+                                    value=""
+                                >
+                                <label class="mzp-c-choice-label" for="relay-aliases">{% ftlmsg 'profile-filter-category-option-relay-aliases' %}</label>
+                            </div>
                         </div>
-                    </div>
-                </li>
-                <li class="c-filter-category-type">
-                    <div class="mzp-c-choices">
-                        <div class="mzp-c-choice">
-                            <input
-                                data-category-type="domain-aliases"
-                                data-parent-category="domain"
-                                class="mzp-c-choice-control js-filter-category-checkbox"
-                                type="checkbox" name="Show domain-based aliases"
-                                id="domain-aliases"
-                                value=""
-                            >
-                            <label class="mzp-c-choice-label" for="domain-aliases">{% ftlmsg 'profile-filter-category-option-domain-based-aliases' %}</label>
+                    </li>
+                    <li class="c-filter-category-type">
+                        <div class="mzp-c-choices">
+                            <div class="mzp-c-choice">
+                                <input
+                                    data-category-type="domain-aliases"
+                                    data-parent-category="domain"
+                                    class="mzp-c-choice-control js-filter-category-checkbox"
+                                    type="checkbox" name="Show domain-based aliases"
+                                    id="domain-aliases"
+                                    value=""
+                                >
+                                <label class="mzp-c-choice-label" for="domain-aliases">{% ftlmsg 'profile-filter-category-option-domain-based-aliases' %}</label>
+                            </div>
                         </div>
-                    </div>
-                </li>
-            </ul>
-            <div class="c-filter-category-buttons">
-                <button type="reset" class="mzp-c-button mzp-t-md mzp-t-neutral js-filter-category-reset">
-                    {% ftlmsg 'profile-label-reset' %}
-                </button>
-                <button type="submit" class="mzp-c-button mzp-t-md mzp-t-product js-filter-category-apply">
-                    {% ftlmsg 'profile-label-apply' %}
-                </button>
-            </div>
-        </form>
+                    </li>
+                </ul>
+                <div class="c-filter-category-buttons">
+                    <button type="reset" class="mzp-c-button mzp-t-md mzp-t-neutral js-filter-category-reset">
+                        {% ftlmsg 'profile-label-reset' %}
+                    </button>
+                    <button type="submit" class="mzp-c-button mzp-t-md mzp-t-product js-filter-category-apply">
+                        {% ftlmsg 'profile-label-apply' %}
+                    </button>
+                </div>
+            </form>
+        {% endif %}
     </div>
     <div class="c-filter-action">
         <!-- Button -->
