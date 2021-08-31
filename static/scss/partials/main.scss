@@ -1328,14 +1328,13 @@ input:focus::placeholder {
     padding-top: .25em;
 }
 
-@media screen and (max-width: 1050px) { 
+@media screen and (max-width: 1050px) {
+
     .sign-in-btn {
         min-width: 320px;
         justify-content: center;
     }
 }
-
-
 @media screen and (max-width: 940px) {
 
     .img-arrow-up {
