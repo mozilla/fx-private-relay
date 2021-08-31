@@ -16,6 +16,7 @@
     const filterResetButton = document.querySelector(".js-filter-reset")
 
     const filterInput = document.querySelector(".js-filter-search-input");
+    const filterInputHandler = document.querySelector(".c-filter-search-controls");
 
     const filterToggleSearchInput = document.querySelector(".js-filter-mobile-search-toggle");
     const filterForm = document.querySelector(".js-filter-search-form");
@@ -34,9 +35,11 @@
 	function filterInputWatcher(input) {
 
         let query = input;
-        
+
         if (input.target) {
             query = input.target.value.toLowerCase();
+            // c-filter-search-control div made visible when search query is added to the alias search bar
+            filterInputHandler.style.visibility = "visible";
         }
 
         filterInput.removeEventListener("focus", buildSearchQueryArrays, false);
@@ -91,7 +94,7 @@
         }
 
         // Show aliases with labels that match the search query
-        for (const result of matchListAliasLabels) {        
+        for (const result of matchListAliasLabels) {
             result.alias.classList.remove("is-hidden");
         }
 
@@ -140,8 +143,8 @@
 
     function buildSearchQueryArrays() {
         const addOnDetected = isAddOnDetected();
-        
-        // Build two arrays, one for case IDs and one for case title text. 
+
+        // Build two arrays, one for case IDs and one for case title text.
         const isCategoryFilterActive = (filterContainer.classList.contains("is-filtered-by-category"));
 
         let availableAliasesForSearchFilter = aliases;
@@ -155,7 +158,7 @@
         filterEmailAddresses.length = 0;
         filterAliasLabels.length = 0;
         aliasesWithLabelsCollection.length = 0;
-        
+
 		availableAliasesForSearchFilter.forEach( alias => {
             aliasCollection.push(alias);
             if (alias.dataset.relayAddress) {
@@ -181,7 +184,7 @@
 
 	function filterInit() {
 
-        // Hide the search function and end early if the user has no aliases created. 
+        // Hide the search function and end early if the user has no aliases created.
         if (aliases.length < 1) {
             filterForm.classList.add("is-hidden");
             return;
@@ -189,15 +192,15 @@
 
         buildSearchQueryArrays();
 
-        // Filter aliases on page load if the search already has a query in it. 
+        // Filter aliases on page load if the search already has a query in it.
         if (filterInput.value) {
-            toggleAliasSearchBar(); 
+            toggleAliasSearchBar();
             filterInputWatcher(filterInput.value);
         }
 
 		filterInput.addEventListener("input", filterInputWatcher, false);
 		filterInput.addEventListener("focus", buildSearchQueryArrays, false);
-        
+
         filterInput.addEventListener("keydown", e => {
           if(e.keyIdentifier=="U+000A"||e.keyIdentifier=="Enter"||e.keyCode==13){
             e.preventDefault();
@@ -213,6 +216,8 @@
 
     function resetFilter() {
         filterInput.classList.remove("is-filtered");
+        // c-filter-search-control div made hidden when alias search bar is empty
+        filterInputHandler.style.visibility = "hidden";
         filterInput.value = "";
 
         filterInput.addEventListener("focus", buildSearchQueryArrays, false);
