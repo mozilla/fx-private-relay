@@ -173,12 +173,12 @@ button:active {
 }
 
 .how-it-works-header {
-    font-size: 2em;
-    margin: 0 auto 20px auto;
+    @include text-title-sm;
+    margin-bottom: $spacing-md;
 }
 
 .how-it-works-steps {
-    // justify-content: space-between;
+
     &.mzp-l-columns {
         max-width: $content-xs;
 
@@ -186,10 +186,9 @@ button:active {
             max-width: $content-max;
         }
     }
-    // padding: 4em 0;
+
     margin-top: $layout-lg;
     margin-bottom: $layout-lg;
-    
 }
 
 .step-illustration {
@@ -199,13 +198,9 @@ button:active {
     height: 0;
     padding-bottom: 100%;
     width: 100%;
-    // min-height: 300px;
-    // min-width: 300px;
-    // max-width: 100%;
-    border-radius: 12px;
-    border: 1px solid #AB71FF;
+    border-radius: $border-radius-lg;
+    border: 1px solid $color-violet-40;
     margin: 0 auto $spacing-xl;
-    // margin: 0 auto 2em auto;
 }
 
 .step-1.step-illustration {
@@ -235,14 +230,10 @@ button:active {
     @media #{$mq-md} {
         margin-bottom: 0;
     }
-    // flex: 0 1 31.333%;
 }
 
 .step-text {
     text-align: center;
-    // display: flex;
-    // justify-content: center;
-    // flex-direction: column;
     max-width: 300px;
 }
 
@@ -307,8 +298,8 @@ button:active {
 
 .container {
     padding-bottom: 8em;
-    // padding-left: 2.25em;
-    // padding-right: 2.25em;
+    padding-left: 2.25em;
+    padding-right: 2.25em;
     margin-left: auto;
     margin-right: auto;
     width: 100%;
@@ -394,8 +385,6 @@ button:active {
 .dashboard-mpp-promo-container p {
     max-width: $content-sm;
 }
-
-
 
 main,
 table {
@@ -784,8 +773,6 @@ input:focus::placeholder {
 }
 
 .card-middle-row {
-    // background-color: rgba(255, 255, 255, 1);
-    // border-radius: 4px;
     display: flex;
     flex-wrap: wrap;
 }
@@ -1388,17 +1375,6 @@ input:focus::placeholder {
         margin-bottom: 0;
     }
 
-    // .step {
-    //     flex-direction: column;
-    //     margin-bottom: 4em;
-    // }
-
-    // .step-illustration {
-    //     margin-bottom: 2em;
-    //     width: 260px;
-    //     height: 260px;
-    // }
-
     .step-headline {
         margin-left: auto;
         margin-right: auto;
@@ -1471,8 +1447,8 @@ input:focus::placeholder {
     }
 
     .container {
-        // padding-left: 1.5em;
-        // padding-right: 1.5em;
+        padding-left: 1.5em;
+        padding-right: 1.5em;
     }
 
     .main-list, .dashboard-mpp-promo-container {
@@ -1596,16 +1572,6 @@ input:focus::placeholder {
 }
 @media screen and (max-width: 450px) {
 
-    // .step-body,
-    // .step-headline {
-    //     margin-left: 0;
-    //     text-align: left;
-    // }
-
-    // .step-text {
-    //     padding-left: .5em;
-    // }
-
     .card-top-row {
         flex-wrap: wrap;
     }
@@ -1635,8 +1601,8 @@ input:focus::placeholder {
     }
 
     .container {
-        // padding-left: 1em;
-        // padding-right: 1em;
+        padding-left: 1em;
+        padding-right: 1em;
     }
 
     firefox-apps {
