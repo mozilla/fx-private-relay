@@ -28,7 +28,7 @@
         min-width: 100%;
 
         @media #{$mq-sm} {
-            min-width: 196px;
+            min-width: $layout-2xl;
         }
     }
 }
