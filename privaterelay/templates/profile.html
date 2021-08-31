@@ -100,9 +100,9 @@
                 <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
                 <span class="forwarding-label-wrapper card-small-text hidden">{% if relay_address.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
                 {% if relay_address.enabled %}
-                <button type="submit" name="enabled" value="Disable" title="Disable email forwarding for this alias" class="text-center forwarding-toggle"></button>
+                <button type="submit" name="enabled" value="Disable" title="{% ftlmsg 'profile-label-disable-forwarding-button' %}" class="text-center forwarding-toggle"></button>
                 {% else %}
-                <button type="submit" name="enabled" value="Enable" title="Enable email forwarding for this alias" class="text-center forwarding-disabled forwarding-toggle"></button>
+                <button type="submit" name="enabled" value="Enable" title="{% ftlmsg 'profile-label-enable-forwarding-button' %}" class="text-center forwarding-disabled forwarding-toggle"></button>
                 {% endif %}
               </form>
             </div>
@@ -117,7 +117,7 @@
                   <span class="input-error"></span>
                 </div>
 
-                <button title="Click to copy"
+                <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
                   data-id="{{ relay_address.id }}"
                   data-clipboard-text="{{ relay_address.address }}@{{ relay_address.domain_value }}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
@@ -146,7 +146,7 @@
           </div> 
 
           <div class="c-alias-copy">
-            <button title="Click to copy"
+            <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
               data-id="{{ relay_address.id }}"
               data-clipboard-text="{{ relay_address.address }}@{{ relay_address.domain_value }}"
               class="relay-address click-copy ff-Met jst-cntr al-cntr">
@@ -227,7 +227,7 @@
                   <span class="input-error"></span>
                 </div>
 
-                <button title="Click to copy"
+                <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
                   data-id="{{ domain_address.id }}"
                   data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
@@ -256,7 +256,7 @@
           </div> 
 
           <div class="c-alias-copy">
-            <button title="Click to copy"
+            <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
               data-id="{{ domain_address.id }}"
               data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
               class="relay-address click-copy ff-Met xflx jst-cntr al-cntr">
