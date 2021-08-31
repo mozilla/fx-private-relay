@@ -14,23 +14,19 @@
 {% block content %}
 
 {% get_social_accounts request.user as accounts %}
-<firefox-private-relay-addon-data 
+<firefox-private-relay-addon-data
   data-fxa-subscriptions-url="{{ settings.FXA_SUBSCRIPTIONS_URL }}" 
   data-premium-prod-id="{{ settings.PREMIUM_PROD_ID }}" 
   data-premium-price-id="{{ settings.PREMIUM_PRICE_ID }}" 
+  data-aliases-used-val="{{ relay_addresses|length }}" 
+  data-emails-forwarded-val="{{ user_profile.emails_forwarded }}"
+  data-emails-blocked-val="{{ user_profile.emails_blocked }}"
   {% with request.user.profile_set.first as user_profile %}
     data-premium-subdomain-set="{{ user_profile.subdomain }}"
   {% endwith %}
   data-premium-enabled="{{ settings.PREMIUM_ENABLED }}"
 >
 </firefox-private-relay-addon-data>
-
-<firefox-private-relay-addon-dashboard-data
-  data-aliases-used-val="{{ relay_addresses|length }}" 
-  data-emails-forwarded-val="{{ user_profile.emails_forwarded }}"
-  data-emails-blocked-val="{{ user_profile.emails_blocked }}"
->
-</firefox-private-relay-addon-dashboard-data>
 
 <main id="profile-main" class=" bg-light dashboard-container " data-api-token="{{ user_profile.api_token }}">
   <div class="messages-profile">
