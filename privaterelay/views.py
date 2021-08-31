@@ -115,6 +115,9 @@ def profile_subdomain(request):
             return JsonResponse({'available': available})
         else:
             profile.add_subdomain(request.POST.get('subdomain', None))
+        messages.success(
+            request, f'Your domain @{profile.subdomain} has been created.'
+        )
     except CannotMakeSubdomainException as e:
         messages.error(request, e.message)
     return redirect(reverse('profile'))
