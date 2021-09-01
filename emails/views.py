@@ -425,10 +425,6 @@ def _get_address(to_address, local_portion, domain_portion):
             # TODO: create a hard bounce receipt rule in SES
         except DeletedAddress.DoesNotExist:
             incr_if_enabled('email_for_unknown_address', 1)
-            logger.error(
-                'Received email for unknown address.',
-                extra={'to_address': to_address}
-            )
         except DeletedAddress.MultipleObjectsReturned:
             # not sure why this happens on stage but let's handle it
             incr_if_enabled('email_for_deleted_address_multiple', 1)
