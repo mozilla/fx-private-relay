@@ -23,6 +23,12 @@
             });
 
             // Catch Redirect Failure
+            // If the endpoint returns false on a queried subdomain, it means one of two things: 
+            //      1. The domain is already registered
+            //      2. The domain is on the emails/badwords.txt 
+            // 
+            // If we know their request is going to fail, we stop trying to catch the submission and let it fail. 
+            // This will add a messages cookie with the "Domain Not Available" error and reload the page. 
             if (response.redirected) {
                 return false;
             }
