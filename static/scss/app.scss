@@ -18,8 +18,11 @@
 @import "partials/header";
 @import "partials/footer";
 @import "partials/banners";
-@import "partials/dashboard";
 @import "partials/onboarding.scss";
 @import "partials/fx-bento";
 @import "partials/glocal-menu";
 @import "partials/vpn-promo";
+
+// Custom Page Styles
+@import "pages/home";
+@import "pages/dashboard";
