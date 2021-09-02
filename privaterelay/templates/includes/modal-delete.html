@@ -1,0 +1,26 @@
+{% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+<div class="modal c-modal-wrapper js-modal-delete-alias">
+  <div class="c-modal t-modal-delete">
+    <div class="c-modal-header t-delete-hero">
+      {% ftlmsg 'modal-delete-headline' %}
+    </div>
+    <div class="c-modal-body">
+      <span class="alias-to-delete js-alias-to-delete demi"></span>
+      <p class="modal-message">{% ftlmsg 'modal-delete-warning-recovery-html' email='' %}</p> 
+      <p class="warning-text  modal-message">{% ftlmsg 'modal-delete-warning-upgrade' %}</p>
+      <div class="t-domain-delete-form">
+        <label for="deleteAliasCheckbox" class="mzp-u-inline">
+          <input required type="checkbox" name="checkboxes" id="deleteAliasCheckbox" class="js-modal-delete-alias-checkbox">
+          {% ftlmsg 'modal-delete-confirmation' %}
+        </label>
+      </div>
+    </div>
+    <div class="c-modal-footer">
+      <button class="mzp-c-button mzp-t-secondary js-modal-delete-cancel delete-modal">{% ftlmsg 'profile-label-cancel' %}</button>
+      <button disabled class="mzp-c-button t-warning js-modal-delete-confirm-delete delete-modal">{% ftlmsg 'profile-label-delete' %}</button>
+    </div>
+  </div>
+</div>

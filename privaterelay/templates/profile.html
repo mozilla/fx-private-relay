@@ -85,7 +85,7 @@
       {% endif %}
 
       {% for relay_address in relay_addresses %}
-        <div class="c-alias js-alias relay-email is-relay-alias {% if relay_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ RELAY_DOMAIN }}" data-relay-address-id="{{ relay_address.id }}">
+        <div class="c-alias js-alias relay-email is-relay-alias {% if relay_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ relay_address.domain_value }}" data-relay-address-id="{{ relay_address.id }}">
           
           <div class="c-alias-main-info">
             <!-- enable/disable email forwarding -->

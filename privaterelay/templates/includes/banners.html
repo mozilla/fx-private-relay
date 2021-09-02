@@ -1,7 +1,13 @@
+{% load static %}
 {% load relay_tags %}
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
+{% if settings.DOMAIN_REGISTRATION_MODAL %}
+  {% block javascript %}
+    <script src="{% static 'js/domain-registration.js' %}"></script>
+  {% endblock %}
+{% endif %}
 
 {% if last_bounce_type %}
   <div class="dashboard-banners flx hide-750">
@@ -58,9 +64,9 @@
               <div class="mpp-choose-subdomain-form">
                 <h2>{% ftlmsg 'banner-choose-subdomain-headline-aliases' %}</h2>
                 <p>{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
-                <form method="post" action="{% url 'profile_subdomain' %}">
+                <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                     {% csrf_token %}
-                    <input type="text" placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}" name="subdomain">
+                    <input class="js-subdomain-value" data-domain="{{ MOZMAIL_DOMAIN }}" required type="text" placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}" name="subdomain">
                     <input class="btn btn--gray" type="submit" value="{% ftlmsg 'banner-choose-subdomain-submit' %}">
                 </form>
                 <p class="warning">{% ftlmsg 'banner-choose-subdomain-warning' %}</p>

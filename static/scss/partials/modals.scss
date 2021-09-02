@@ -1,0 +1,150 @@
+.modal-message {
+    @include text-body-sm;
+    color: $color-grey-60;
+    margin: 0 auto $spacing-sm auto;
+
+    strong {
+        word-break: break-word;
+    }
+    
+    &.warning-text {
+        color: $color-error;
+    }
+}
+
+.alias-to-delete {
+    display: inline;
+    word-break: break-all;
+
+    &.demi {
+        display: inline-block;
+        margin: 0 auto $spacing-md;
+        color: $color-grey-60;
+        max-width: $content-xs;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        word-wrap: unset;
+    }
+}
+
+// Modal Protocol Refactor
+.c-modal-wrapper {
+    position: fixed;
+    display: none;
+    background-color: rgba($color-black, .4);
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    justify-content: center;
+    flex-direction: column;
+
+    &.is-visible {
+        display: flex;
+    }
+}
+
+.c-modal {
+    background: $color-white;
+    max-width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
+    border-radius: $border-radius-md;
+    position: absolute;
+    left: $spacing-xl;
+    right: $spacing-xl;
+    margin: auto;
+    box-shadow: $box-shadow-sm;
+    overflow: hidden;
+    padding: $spacing-md;
+}
+
+.c-modal-header {
+    border-radius: $border-radius-md;
+    background-color: $color-grey-05;
+    padding: $spacing-lg $spacing-md;
+}
+
+.c-modal-header-content {
+    @include text-title-3xs;
+    
+    h3 {
+        @include text-title-xs;
+        color: $color-grey-40;
+        margin: $spacing-sm 0;
+        font-weight: 700;
+
+        strong {
+            color: $color-black;
+        }
+
+        span {
+            display: inline-block;
+        }
+    }
+
+    .c-modal-header-headline {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+
+        img {
+            margin-right: $spacing-sm;
+        }
+    }
+}
+
+.t-domain-registration-hero {
+    text-align: center;
+}
+
+.c-modal-body {
+    background-color: $color-white;
+    padding: $spacing-md;   
+}
+
+.t-domain-registration-body {
+    text-align: center;
+
+    p {
+        @include text-body-xs;
+        max-width: $content-sm;
+        margin: 0 auto $spacing-md;
+    }
+}
+
+.c-modal-footer {
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.t-domain-registration-form {
+    padding: $spacing-md;
+    background-color: $color-grey-05;
+    border-radius: $border-radius-md;
+    text-align: center;
+    display: inline-block;
+
+    strong {
+        word-wrap: break-word;
+    }
+}
+
+// Delete Modal Theme
+
+.t-modal-delete {
+    text-align: center;
+}
+
+.t-domain-delete-form {
+    padding: $spacing-md;
+    background-color: $color-grey-05;
+    border-radius: $border-radius-md;
+    text-align: center;
+    display: inline-block;
+
+    strong {
+        word-wrap: break-word;
+    }
+}

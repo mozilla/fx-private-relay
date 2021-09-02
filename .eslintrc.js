@@ -32,6 +32,7 @@ module.exports = {
   rules: {
     indent: ["off", 2, { SwitchCase: 1 }],
     "linebreak-style": ["error", "unix"],
+    "no-console": ["error", { "allow": ["warn", "error"] }],
     "no-prototype-builtins": "off",
     "no-unused-vars": ["warn", { vars: "all", args: "none", ignoreRestSiblings: false }],
     quotes: ["error", "double", { avoidEscape: true }],
