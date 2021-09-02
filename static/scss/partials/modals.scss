@@ -19,7 +19,6 @@
     &.demi {
         display: inline-block;
         margin: 0 auto $spacing-md;
-        // margin: 0 auto $spacing-md 0;
         color: $color-grey-60;
         max-width: $content-xs;
         text-overflow: ellipsis;
@@ -32,7 +31,7 @@
 .c-modal-wrapper {
     position: fixed;
     display: none;
-    background: rgba(0, 0, 0, .4);
+    background-color: rgba($color-black, .4);
     top: 0;
     bottom: 0;
     left: 0;
@@ -48,7 +47,7 @@
 
 .c-modal {
     background: $color-white;
-    max-width: $content-sm-md;
+    max-width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
     border-radius: $border-radius-md;
     position: absolute;
     left: $spacing-xl;
