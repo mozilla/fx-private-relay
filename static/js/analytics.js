@@ -61,7 +61,7 @@ async function doFxaMetricsFlow(entrypointEl) {
       entrypointData.flowBeginTime = flowBeginTime;
     }
   } catch(e) {
-    console.log(e);
+    console.error(e);
   }
 }
 

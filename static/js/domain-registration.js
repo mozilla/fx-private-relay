@@ -65,7 +65,6 @@
                     domainRegistration.modal.open();
                 } else {
                     // If the domain cannot be registered, submit the form to init an error message.
-                    console.log("Domain not available. Please try again");
                     const domainRegistrationForm = document.getElementById("domainRegistration");
                     domainRegistrationForm.submit();
                 }
@@ -125,7 +124,6 @@
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
 
                 if (!modalConfirmCheckbox.checked) {
-                    console.log("Not checked");
                     return false;
                 }
                
