@@ -9,7 +9,7 @@
       <div class="c-modal-header-content">
         <span class="c-modal-header-headline"><img src="{% static 'images/icon-green-check.svg' %}" aria-hidden="true" alt="check mark"> {% ftlmsg 'modal-domain-register-good-news' %}</span>
         <h3><strong class="js-modal-domain-registration-confirmation-domain-preview"></strong><span class="js-modal-domain-registration-confirmation-domain-ending"></span></h3>
-        <span class="c-modal-header-headline">{% ftlmsg 'modal-domain-register-available' %}</span>
+        <span class="c-modal-header-headline">{% ftlmsg 'modal-domain-register-available' subdomain='' %}</span>
       </div>
     </div>
 
@@ -18,7 +18,7 @@
       <div class="t-domain-registration-form">
         <label for="domainRegistrationCheckbox" class="mzp-u-inline">
           <input required type="checkbox" name="domainRegistrationCheckbox" id="domainRegistrationCheckbox" class="js-modal-domain-registration-confirmation-checkbox">
-          {% ftlmsg 'modal-domain-register-confirmation' %} <strong class="js-modal-domain-registration-confirmation-domain-preview">@yourdomainname</strong>
+          {% ftlmsg 'modal-domain-register-confirmation' subdomain='' %} <strong class="js-modal-domain-registration-confirmation-domain-preview">@yourdomainname</strong>
         </label>
       </div>
     </div>
