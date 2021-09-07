@@ -12,6 +12,8 @@ class PrivateRelayConfig(AppConfig):
     settings.GULP_DEVELOP_COMMAND = ROOT_DIR + "/node_modules/.bin/gulp"
 
     def __init__(self, app_name, app_module):
+         
+
         super(PrivateRelayConfig, self).__init__(app_name, app_module)
         self.fxa_verifying_keys = []
 
