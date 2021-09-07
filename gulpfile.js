@@ -1,5 +1,6 @@
 const { src, watch, series, dest } = require("gulp");
-const sass = require("gulp-sass");
+// const sass = require("gulp-sass");
+const sass = require('gulp-sass')(require('node-sass'));
 const del = require("del");
 
 // directory for building LESS, SASS, and bundles

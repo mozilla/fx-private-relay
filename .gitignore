@@ -2,7 +2,6 @@
 .envrc
 *.sqlite3
 node_modules
-package-lock.json
 env/
 __pycache__
 web-ext-artifacts/

@@ -12,8 +12,9 @@
     "eslint": "^7.8.1",
     "gulp": "^4.0.2",
     "gulp-if": "^3.0.0",
-    "gulp-sass": "^4.1.0",
-    "merge-stream": "^2.0.0"
+    "gulp-sass": "^5.0.0",
+    "merge-stream": "^2.0.0",
+    "sass": "^1.39.0"
   },
   "devDependencies": {
     "stylelint": "^13.13.1",
