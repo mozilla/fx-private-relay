@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+
+env:
+  CI: true
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # Available OS's: https://help.github.com/en/actions/reference/virtual-environments-for-github-hosted-runners
+        # We're currently only linting, for which results shouldn't vary across OS's and Node versions:
+        os: [ubuntu-20.04]
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v2.3.4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2.4.0
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - run: npm run lint:js -- --max-warnings=0
+    - run: npm run lint:css
