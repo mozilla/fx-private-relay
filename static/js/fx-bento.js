@@ -138,7 +138,7 @@ class FirefoxApps extends HTMLElement {
       return;
     };
 
-    this._closeBento = (event) => {
+    this._closeBento = () => {
       this._active = false;
       this.handleBentoFocusTrap();
       window.removeEventListener("resize", this.handleBentoHeight);

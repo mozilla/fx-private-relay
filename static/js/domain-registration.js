@@ -120,7 +120,7 @@
                 document.removeEventListener("keydown", domainRegistration.modal.close, false);
 
             },
-            formSubmit: async (e) => {
+            formSubmit: async () => {
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
 
                 if (!modalConfirmCheckbox.checked) {

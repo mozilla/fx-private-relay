@@ -142,7 +142,7 @@ function deleteAliasConfirmation(submitEvent) {
   // Enable "Delete Anyway" button once the checkbox has been clicked.
   const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
   const deleteAnywayBtn = confirmDeleteModalActions[1];
-  checkbox.addEventListener("change", (e) => {
+  checkbox.addEventListener("change", () => {
     if (checkbox.checked) {
       deleteAnywayBtn.disabled = false;
       return;
@@ -278,7 +278,7 @@ function watchForInstalledAddon() {
     childList: true, // catches legacy addons modifying .relay-email-address-note els
 	};
 
-  const patrollerDuties = (mutations, mutationPatroller) => {
+  const patrollerDuties = (mutations) => {
     for (const mutation of mutations) {
       // handle legacy addon labeling
       if (mutation.type === "childList" && mutation.target.classList.contains("relay-email-address-note")) {
