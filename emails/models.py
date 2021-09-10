@@ -51,9 +51,7 @@ class Profile(models.Model):
     def subdomain_available(subdomain):
         bad_word = has_bad_words(subdomain)
         taken = Profile.objects.filter(subdomain=subdomain).count() > 0
-        if bad_word or taken:
-            raise CannotMakeSubdomainException('error-subdomain-not-available')
-        return True
+        return not bad_word and not taken
 
     @property
     def num_active_address(self):

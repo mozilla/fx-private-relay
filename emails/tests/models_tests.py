@@ -382,7 +382,7 @@ class ProfileTest(TestCase):
         try:
             non_premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
-            assert e.message == NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain')
+            assert e.message == 'error-premium-set-subdomain'
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
@@ -405,7 +405,7 @@ class ProfileTest(TestCase):
         try:
             premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
-            assert e.message == 'You cannot change your subdomain.'
+            assert e.message == 'error-premium-cannot-change-subdomain'
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
@@ -426,7 +426,7 @@ class ProfileTest(TestCase):
         try:
             premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
-            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Subdomain')
+            assert e.message == 'error-subdomain-not-available'
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
