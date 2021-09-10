@@ -112,6 +112,8 @@ def profile_subdomain(request):
         if request.method == 'GET':
             subdomain = request.GET.get('subdomain', None)
             available = Profile.subdomain_available(subdomain)
+            if not available:
+                raise CannotMakeSubdomainException('error-subdomain-not-available')
             return JsonResponse({'available': available})
         else:
             subdomain = request.POST.get('subdomain', None)
