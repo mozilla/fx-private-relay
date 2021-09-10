@@ -52,7 +52,7 @@ class Profile(models.Model):
         bad_word = has_bad_words(subdomain)
         taken = Profile.objects.filter(subdomain=subdomain).count() > 0
         if bad_word or taken:
-            raise CannotMakeSubdomainException(TRY_DIFFERENT_VALUE_ERR_MSG.format(f'{subdomain} subdomain'))
+            raise CannotMakeSubdomainException('error-subdomain-not-available')
         return True
 
     @property
@@ -149,12 +149,12 @@ class Profile(models.Model):
 
     def add_subdomain(self, subdomain):
         if not self.has_unlimited:
-            raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain'))
+            raise CannotMakeSubdomainException('error-premium-set-subdomain')
         if self.subdomain is not None:
-            raise CannotMakeSubdomainException('You cannot change your subdomain.')
+            raise CannotMakeSubdomainException('error-premium-cannot-change-subdomain')
         subdomain_available = Profile.subdomain_available(subdomain)
         if not subdomain or not subdomain_available:
-            raise CannotMakeSubdomainException(TRY_DIFFERENT_VALUE_ERR_MSG.format('Subdomain'))
+            raise CannotMakeSubdomainException('error-subdomain-not-available')
         self.subdomain = subdomain
         self.save()
         return subdomain
