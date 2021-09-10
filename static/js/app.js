@@ -299,9 +299,6 @@ function showBannersIfNecessary() {
   }
 
   const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
-  if (browserIsFirefox && isRelayAddonInstalled()) {
-    return;
-  }
 
   const dashboardBanners = document.querySelector(".dashboard-banners");
   if (!dashboardBanners) {
@@ -311,11 +308,9 @@ function showBannersIfNecessary() {
   const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   const showBanner = (bannerEl) => {
     setTimeout(()=> {
-      if (!isRelayAddonInstalled()) {
-        bg.style.minHeight = "101px";
-        bannerEl.classList.remove("hidden");
-        dashboardBanners.classList.remove("invisible");
-      }
+      bg.style.minHeight = "101px";
+      bannerEl.classList.remove("hidden");
+      dashboardBanners.classList.remove("invisible");
     }, 500);
     return;
   };
