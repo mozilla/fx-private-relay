@@ -23,7 +23,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 
-from .context_processors import relay_from_domain
 from .models import (
     address_hash,
     CannotMakeAddressException,
@@ -35,7 +34,6 @@ from .models import (
 )
 from .utils import (
     get_domains_from_settings,
-    get_email_domain_from_settings,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,

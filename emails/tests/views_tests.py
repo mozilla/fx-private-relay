@@ -128,7 +128,10 @@ class GetAddressTest(TestCase):
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.views.get_domains_from_settings')
     @patch('emails.views.incr_if_enabled')
-    def test_get_address_with_relay_address_does_not_exist(self, incr_mocked, domains_mocked):
+    @patch('emails.views.logger')
+    def test_get_address_with_relay_address_does_not_exist(
+        self, logging_mocked, incr_mocked, domains_mocked
+    ):
         domains_mocked.return_value = TEST_DOMAINS
         try:
             _get_address(
