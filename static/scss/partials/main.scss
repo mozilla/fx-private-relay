@@ -1021,6 +1021,11 @@ input:focus::placeholder {
     transition: all .3s ease;
 }
 
+/* Don't show the "Install the add-on" banner if the add-on is active: */
+firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay-addon-data + main .dashboard-banners .addon {
+    display: none;
+}
+
 .banner-hl {
     font-size: 1.25rem;
     font-weight: 700;
