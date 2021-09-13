@@ -178,7 +178,7 @@ function analyticsSurveyLogic() {
           li.dataset.eventLabel = "promoter";
           li.dataset.npsValue = 1;
         }
-        li.addEventListener("click", (evt) => {
+        li.addEventListener("click", () => {
           const eventData = li.dataset;
           ga("send", "event",
             eventData.eventCategory,
@@ -222,7 +222,7 @@ function analyticsSurveyLogic() {
         li.dataset.eventAction = "submitted";
         li.dataset.eventLabel = optionEventLabels[optionBuildIndex];
         li.addEventListener("click", setSurveyedCookie);
-        li.addEventListener("click", (evt) => {
+        li.addEventListener("click", () => {
           const eventData = li.dataset;
           ga("send", "event",
             eventData.eventCategory,
@@ -272,7 +272,7 @@ function analyticsSurveyLogic() {
         li.dataset.eventLabel = optionEventLabels[optionBuildIndex];
         li.dataset.eventValue = eventValue;
         li.addEventListener("click", setSurveyedCookie);
-        li.addEventListener("click", (evt) => {
+        li.addEventListener("click", () => {
           const eventData = li.dataset;
           const gaFieldsObject = {
               [countMetric]: 1,
