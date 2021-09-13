@@ -43,6 +43,9 @@
     padding: 0 $spacing-xs;
     border-right: 1px solid #ECECEC;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 
     span {
         display: block;
