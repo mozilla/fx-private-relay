@@ -241,13 +241,18 @@
 }
 
 .c-filter-category-buttons {
-    padding: $spacing-md $spacing-md 0;
+    padding: $spacing-md $spacing-md 0 0;
     width: 100%;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
+    flex-direction: row;
+    align-items: stretch;
 }
 
 .c-filter-category-buttons button {
     margin-bottom: $spacing-md;
+    margin-left: $spacing-md;
+    width: auto;
+    flex: 1;
 }
