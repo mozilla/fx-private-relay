@@ -67,18 +67,17 @@ async function sendForm(formAction, formData) {
 }
 
 function copyToClipboardAndShowMessage(triggeringEl) {
-  const previouslyCopiedAlias = document.querySelector(".alias-copied");
+  triggeringEl.classList.add("alias-copied", "alias-copied-fadeout");
+  triggeringEl.title="Alias copied to clipboard";
 
-  if (previouslyCopiedAlias || previouslyCopiedAlias == triggeringEl) {
-    previouslyCopiedAlias.classList.remove("alias-copied", "alias-copied-fadeout");
-    previouslyCopiedAlias.title = "Copy alias to clipboard";
-  }
-
-  setTimeout(() => { 
-    triggeringEl.classList.add("alias-copied", "alias-copied-fadeout");
-    triggeringEl.title="Alias copied to clipboard";
-   }, 10);
-
+  setTimeout(() => {
+    // When the fade-out animation is done (it takes four seconds),
+    // reset the copy button. This avoids the animation getting replayed
+    // every time the alias is being hidden and reshown (i.e. when a filter
+    // is applied and removed again).
+    triggeringEl.classList.remove("alias-copied", "alias-copied-fadeout");
+    triggeringEl.title = "Copy alias to clipboard";
+  }, 4 * 1000);
   
   
 
