@@ -309,7 +309,6 @@ function showBannersIfNecessary() {
   const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   const showBanner = (bannerEl) => {
     setTimeout(()=> {
-      bg.style.minHeight = "101px";
       bannerEl.classList.remove("hidden");
       dashboardBanners.classList.remove("invisible");
     }, 500);
