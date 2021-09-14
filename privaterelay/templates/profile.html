@@ -37,7 +37,11 @@
     <div class="mpp-dashbaord-header-container inset">
       <div class="mpp-dashbaord-header-title">
         <div class="mpp-dashbaord-header-name">
-          {% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
+          {% if user_profile.display_name %}
+            {% ftlmsg 'profile-label-welcome-html' email=user_profile.display_name %}
+          {% else %}
+            {% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
+          {% endif %}
         </div>
         {% if not user_profile.subdomain %}
           <div class="mpp-dashbaord-header-action">

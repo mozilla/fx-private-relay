@@ -8,10 +8,12 @@
     width: 100%;
     word-wrap: break-word;
     padding-right: $spacing-sm;
+    @include text-body-xl;
 
     span {
         font-weight: 400;
         display: block;
+        @include text-body-md;
     }
 }
 
