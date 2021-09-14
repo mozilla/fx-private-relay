@@ -107,15 +107,22 @@ def profile_subdomain(request):
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
     if not profile.has_unlimited:
-        raise CannotMakeSubdomainException(NOT_PREMIUM_USER_ERR_MSG.format('check a subdomain'))
-    if request.method == 'GET':
-        subdomain = request.GET.get('subdomain', None)
-        available = Profile.subdomain_available(subdomain)
-        return JsonResponse({'available':available})
+        raise CannotMakeSubdomainException('error-premium-check-subdomain')
     try:
-        profile.add_subdomain(request.POST.get('subdomain', None))
+        if request.method == 'GET':
+            subdomain = request.GET.get('subdomain', None)
+            available = Profile.subdomain_available(subdomain)
+            if not available:
+                raise CannotMakeSubdomainException('error-subdomain-not-available')
+            return JsonResponse({'available': available})
+        else:
+            subdomain = request.POST.get('subdomain', None)
+            profile.add_subdomain(subdomain)
+        messages.success(
+            request, 'success-subdomain-registered'
+        )
     except CannotMakeSubdomainException as e:
-        messages.error(request, e.message)
+        messages.error(request, e.message, subdomain)
     return redirect(reverse('profile'))
 
 
