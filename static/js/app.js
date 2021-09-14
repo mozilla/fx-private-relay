@@ -165,18 +165,6 @@ function deleteAliasConfirmation(submitEvent) {
 	});
 }
 
-// Checks for changes made to <firefox-private-relay-addon></firefox-private-relay-add-on> by the addon.
-function isRelayAddonInstalled() {
-  const installationIndicator = document.querySelector("firefox-private-relay-addon");
-	return (installationIndicator.dataset.addonInstalled === "true" || isAddonInstallInLocalStorage());
-}
-
-
-// Looks for previously saved installation note in localStorage
-function isAddonInstallInLocalStorage() {
-	return (localStorage && localStorage.getItem("fxRelayAddonInstalled"));
-}
-
 function toggleAliasCardDetailsVisibility(aliasCard) {
   const detailsWrapper = aliasCard.querySelector(".js-alias-details");
   detailsWrapper.classList.toggle("is-visible");
@@ -305,7 +293,6 @@ function showBannersIfNecessary() {
     return;
   }
 
-  const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   const showBanner = (bannerEl) => {
     setTimeout(()=> {
       bannerEl.classList.remove("hidden");
