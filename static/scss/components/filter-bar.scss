@@ -236,9 +236,23 @@
     }
 }
 
+.c-filter-category-types {
+    margin-bottom: 0;
+}
+
 .c-filter-category-buttons {
-    padding: 0 $spacing-md $spacing-md;
+    padding: $spacing-md $spacing-md 0 0;
     width: 100%;
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.c-filter-category-buttons button {
+    margin-bottom: $spacing-md;
+    margin-left: $spacing-md;
+    width: auto;
+    flex: 1;
 }

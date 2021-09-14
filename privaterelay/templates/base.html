@@ -11,8 +11,9 @@
     <meta name="description" content="{% ftlmsg 'meta-description' %}" />
     <title>{% ftlmsg 'meta-title' %}</title>
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/logos/relay-logo-dark.svg' %}">
     <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">
-    <link rel=”apple-touch-icon” href="{% static 'images/logos/relay-logo-dark-200.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'images/logos/relay-logo-dark-200.png' %}">
     
     <!-- Open Graph Tags -->
     <meta property="og:url" content="{{request.scheme}}://{{request.META.HTTP_HOST}}{{ request.path }}" />

@@ -131,7 +131,9 @@ class RelayAddressTest(TestCase):
         assert relay_address.get_domain_display() == 'MOZMAIL_DOMAIN'
         assert relay_address.domain_value == 'test.com'
 
-    @override_settings(TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN=TEST_DOMAINS['RELAY_FIREFOX_DOMAIN'])
+    @override_settings(
+        TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN=TEST_DOMAINS['RELAY_FIREFOX_DOMAIN']
+    )
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.models.DEFAULT_DOMAIN', TEST_DOMAINS['RELAY_FIREFOX_DOMAIN'])
     def test_delete_adds_deleted_address_object(self):
@@ -382,7 +384,7 @@ class ProfileTest(TestCase):
         try:
             non_premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
-            assert e.message == NOT_PREMIUM_USER_ERR_MSG.format('set a subdomain')
+            assert e.message == 'error-premium-set-subdomain'
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
@@ -405,7 +407,7 @@ class ProfileTest(TestCase):
         try:
             premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
-            assert e.message == 'You cannot change your subdomain.'
+            assert e.message == 'error-premium-cannot-change-subdomain'
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
@@ -426,7 +428,7 @@ class ProfileTest(TestCase):
         try:
             premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
-            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Subdomain')
+            assert e.message == 'error-subdomain-not-available'
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
