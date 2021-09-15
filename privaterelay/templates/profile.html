@@ -114,6 +114,8 @@
                 </div>
 
                 <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
+                  data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
+                  data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
                   data-id="{{ relay_address.id }}"
                   data-clipboard-text="{{ relay_address.address }}@{{ relay_address.domain_value }}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
@@ -143,6 +145,8 @@
 
           <div class="c-alias-copy">
             <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
+              data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
+              data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
               data-id="{{ relay_address.id }}"
               data-clipboard-text="{{ relay_address.address }}@{{ relay_address.domain_value }}"
               class="relay-address click-copy ff-Met jst-cntr al-cntr">
@@ -224,6 +228,8 @@
                 </div>
 
                 <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
+                  data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
+                  data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
                   data-id="{{ domain_address.id }}"
                   data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
@@ -253,6 +259,8 @@
 
           <div class="c-alias-copy">
             <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
+              data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
+              data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
               data-id="{{ domain_address.id }}"
               data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
               class="relay-address click-copy ff-Met xflx jst-cntr al-cntr">
