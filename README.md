@@ -10,14 +10,14 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 
 ## Development
 
-Please refer to our [coding standards](docs/coding-standards.md) information for code styles, naming conventions and other methodologies.
+Please refer to our [coding standards](docs/coding-standards.md) for code styles, naming conventions and other methodologies.
 
 ### Requirements
-* python 3.7 (suggest using
-  [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
-* Postgres - even if you are using sqlite for development, requirements.txt installs
+* python 3.7 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
+* PostgreSQL - even if you are using sqlite for development, requirements.txt installs
   psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites). The 
   following should work:
+    * [On Windows](https://www.postgresql.org/download/windows/)
     * On Ubuntu: `sudo apt install postgresql libpq-dev`
     * On OSX: `brew install postgresql libpq`
     * On Fedora: `sudo dnf install libpq-devel`
@@ -27,6 +27,7 @@ Please refer to our [coding standards](docs/coding-standards.md) information for
   * [Gulp](https://gulpjs.com/) to compile SCSS
 
 ### Install and Run the Site Locally
+
 1. Clone and change to the directory:
 
     ```sh
