@@ -1,3 +1,5 @@
+@import "libs/protocol/css/includes/tokens/dist/index.scss";
+
 .modal-message {
     @include text-body-sm;
     color: $color-grey-60;
@@ -96,6 +98,30 @@
 
 .t-domain-registration-hero {
     text-align: center;
+
+    // If the chosen domain has many characters:
+    h3.has-long-domain {
+        // The suffix (i.e. `.mozmail.com`):
+        span {
+            display: none;
+        }
+
+        &:not(.has-very-long-domain) span {
+            // If the chosen domain isn't exceptionally long,
+            // we can show the suffix on large screens:
+            @media #{$mq-md} {
+                display: inline;
+            }
+        }
+    }
+    // If the chosen domain has exceptionally many characters:
+    h3.has-very-long-domain {
+        @media screen and (max-width: $screen-md) {
+            // Decrease the font size on small screens
+            // (below the regular small-screen size determined by .c-modal-header):
+            @include text-title-3xs;
+        }
+    }
 }
 
 .c-modal-body {
