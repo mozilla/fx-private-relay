@@ -306,13 +306,7 @@ def _get_oauth2_session(social_account):
     social_token = social_account.socialtoken_set.first()
 
     def _token_updater(new_token):
-        social_token.token = new_token['access_token']
-        social_token.token_secret = new_token['refresh_token']
-        social_token.expires_at = (
-            datetime.now(timezone.utc) +
-            timedelta(seconds=int(new_token['expires_in']))
-        )
-        social_token.save()
+        update_social_token(social_token, new_token)
 
     client_id = social_token.app.client_id
     client_secret = social_token.app.secret
@@ -337,3 +331,12 @@ def _get_oauth2_session(social_account):
         auto_refresh_kwargs=extra, token_updater=_token_updater
     )
     return client
+
+def update_social_token(existing_social_token, new_oauth2_token):
+    existing_social_token.token = new_oauth2_token['access_token']
+    existing_social_token.token_secret = new_oauth2_token['refresh_token']
+    existing_social_token.expires_at = (
+        datetime.now(timezone.utc) +
+        timedelta(seconds=int(new_oauth2_token['expires_in']))
+    )
+    existing_social_token.save()
