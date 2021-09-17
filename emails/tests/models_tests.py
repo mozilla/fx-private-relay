@@ -450,6 +450,17 @@ class ProfileTest(TestCase):
         premium_profile.add_subdomain('thisisfine')
         assert Profile.subdomain_available('thisisfine') == False
 
+    def test_subdomain_available_with_space_returns_False(self):
+        assert Profile.subdomain_available('my domain') == False
+
+    def test_subdomain_available_with_special_char_returns_False(self):
+        assert Profile.subdomain_available('my@domain') == False
+
+    def test_subdomain_available_with_dash_returns_True(self):
+        assert Profile.subdomain_available('my-domain') == True
+
+    def test_subdomain_available_with_dash_at_front_returns_False(self):
+        assert Profile.subdomain_available('-mydomain') == False
     def test_display_name_exists(self):
         display_name = 'Display Name'
         social_account = baker.make(

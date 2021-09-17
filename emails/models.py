@@ -2,6 +2,7 @@ from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 import random
+import re
 import string
 import uuid
 
@@ -49,9 +50,13 @@ class Profile(models.Model):
 
     @staticmethod
     def subdomain_available(subdomain):
+        # valid subdomains can't start or end with a hyphen, and must be 1-63
+        # alphanumeric characters and/or hyphens
+        valid_subdomain_pattern = re.compile('^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$')
+        valid = valid_subdomain_pattern.match(subdomain) is not None
         bad_word = has_bad_words(subdomain)
         taken = Profile.objects.filter(subdomain=subdomain).count() > 0
-        return not bad_word and not taken
+        return valid and not bad_word and not taken
 
     @property
     def num_active_address(self):
