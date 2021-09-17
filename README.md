@@ -15,12 +15,12 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
 ### Requirements
 * python 3.7 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
 * PostgreSQL - even if you are using sqlite for development, requirements.txt installs
-  psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites). The 
-  following should work:
+  psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites) and Python header files.
+  The following should work:
     * [On Windows](https://www.postgresql.org/download/windows/)
-    * On Ubuntu: `sudo apt install postgresql libpq-dev`
+    * On Ubuntu: `sudo apt install postgresql libpq-dev python3-dev`
     * On OSX: `brew install postgresql libpq`
-    * On Fedora: `sudo dnf install libpq-devel`
+    * On Fedora: `sudo dnf install libpq-devel python3-devel`
 * [SES](https://aws.amazon.com/ses/) if you want to send real emails
 * [Node 12.X](https://nodejs.org/en/download/) – Needed for front-end SCSS compiling
   * [NPM](https://www.npmjs.com/)
