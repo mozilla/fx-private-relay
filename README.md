@@ -169,7 +169,7 @@ To enable the premium Relay features, we integrate with the [FXA Subscription
 Platform](https://mozilla.github.io/ecosystem-platform/docs/features/sub-plat/sub-plat-overview).
 At a high level, to set up Relay premium subscription, we:
 
-1. [Enable Firefox Accounts Authentication](#enable-firefox-accounts-authentication) as described above.
+1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Create a product & price in our [Stripe dashboard](https://dashboard.stripe.com/).
 (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
@@ -181,7 +181,7 @@ At a high level, to set up Relay premium subscription, we:
 
 In detail:
 
-1. [Enable Firefox Accounts Authentication](#enable-firefox-accounts-authentication) as described above.
+1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Go to our [Stripe dashboard](https://dashboard.stripe.com/).
 (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
