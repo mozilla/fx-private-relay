@@ -23,6 +23,7 @@ from ..models import (
     DomainAddress,
     get_domain_numerical,
     has_bad_words,
+    is_blocklisted,
     NOT_PREMIUM_USER_ERR_MSG,
     Profile,
     RelayAddress,
@@ -38,6 +39,12 @@ class MiscEmailModelsTest(TestCase):
 
     def test_has_bad_words_without_bad_words(self):
         assert not has_bad_words('happy')
+
+    def test_is_blocklisted_with_blocked_word(self):
+        assert is_blocklisted('mozilla')
+
+    def test_is_blocklisted_without_blocked_words(self):
+        assert not is_blocklisted('non-blocked-word')
 
     @override_settings(TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN='firefox.com')
     def test_address_hash_without_subdomain_domain_firefox(self):
@@ -364,7 +371,7 @@ class ProfileTest(TestCase):
         assert premium_profile.has_unlimited == True
 
     def test_add_subdomain_to_new_unlimited_profile(self):
-        subdomain = 'test'
+        subdomain = 'test-subdomain'
         premium_user = baker.make(User)
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
@@ -432,8 +439,32 @@ class ProfileTest(TestCase):
             return
         self.fail("Should have raised CannotMakeSubdomainException")
 
+    def test_add_subdomain_to_unlimited_profile_with_blocked_word_subdomain_raises_exception(self):
+        subdomain = 'mozilla'
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
+
+        try:
+            premium_profile.add_subdomain(subdomain)
+        except CannotMakeSubdomainException as e:
+            assert e.message == 'error-subdomain-not-available'
+            return
+        self.fail("Should have raised CannotMakeSubdomainException")
+
     def test_subdomain_available_bad_word_returns_False(self):
         assert Profile.subdomain_available('angry') == False
+
+    def test_subdomain_available_blocked_word_returns_False(self):
+        assert Profile.subdomain_available('mozilla') == False
 
     def test_subdomain_available_taken_returns_False(self):
         premium_user = baker.make(User)
@@ -583,6 +614,16 @@ class DomainAddressTest(TestCase):
     @patch('emails.models.address_default')
     def test_make_domain_address_doesnt_randomly_generate_bad_word(self, address_default_mocked):
         address_default_mocked.return_value = 'angry0123'
+        try:
+            DomainAddress.make_domain_address(self.user_profile)
+        except CannotMakeAddressException as e:
+            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
+            return
+        self.fail("Should have raise CannotMakeAddressException")
+
+    @patch('emails.models.address_default')
+    def test_make_domain_address_doesnt_randomly_generate_blocked_word(self, address_default_mocked):
+        address_default_mocked.return_value = 'mozilla'
         try:
             DomainAddress.make_domain_address(self.user_profile)
         except CannotMakeAddressException as e:

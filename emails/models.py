@@ -55,8 +55,9 @@ class Profile(models.Model):
         valid_subdomain_pattern = re.compile('^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$')
         valid = valid_subdomain_pattern.match(subdomain) is not None
         bad_word = has_bad_words(subdomain)
+        blocked_word = is_blocklisted(subdomain)
         taken = Profile.objects.filter(subdomain=subdomain).count() > 0
-        return valid and not bad_word and not taken
+        return valid and not bad_word and not blocked_word and not taken
 
     @property
     def num_active_address(self):
@@ -188,6 +189,13 @@ def has_bad_words(value):
     )
 
 
+def is_blocklisted(value):
+    return any(
+        blockedword == value
+        for blockedword in emails_config.blocklist
+    )
+
+
 def get_domain_numerical(domain_address):
     # get domain name from the address
     domains_keys = list(DOMAINS.keys())
@@ -270,10 +278,11 @@ class RelayAddress(models.Model):
         domain_numerical = get_domain_numerical(domain)
         relay_address = RelayAddress.objects.create(user=user_profile.user, domain=domain_numerical)
         address_contains_badword = has_bad_words(relay_address.address)
+        address_is_blocklisted = is_blocklisted(relay_address.address)
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(relay_address.address, domain=domain)
         ).count()
-        if address_already_deleted > 0 or address_contains_badword:
+        if address_already_deleted > 0 or address_contains_badword or address_is_blocklisted:
             relay_address.delete()
             num_tries += 1
             return RelayAddress.make_relay_address(user_profile, num_tries, domain)
@@ -332,6 +341,7 @@ class DomainAddress(models.Model):
             )
 
         address_contains_badword = False
+        address_is_blocklisted = False
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
             # we should retry like make_relay_address does
@@ -340,10 +350,11 @@ class DomainAddress(models.Model):
             address = address_default()
             # Only check for bad words if randomly generated
             address_contains_badword = has_bad_words(address)
+            address_is_blocklisted = is_blocklisted(address)
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(address, user_subdomain)
         ).count()
-        if address_contains_badword or address_already_deleted > 0:
+        if address_contains_badword or address_is_blocklisted or address_already_deleted > 0:
             raise CannotMakeAddressException(
                 TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             )
