@@ -213,6 +213,7 @@ In detail:
 There is a [comprehensive doc of test
 cases](https://docs.google.com/spreadsheets/d/1fMl4LHr1kIuGHfS9jyhLrv5vAyJMBUCr2AP0sODFmJw/edit#gid=0) for purchasing premium Relay.
 
+You can use [Stripe's test credit card details](https://stripe.com/docs/testing#cards) for payment.
 
 ## Production Environments
 
