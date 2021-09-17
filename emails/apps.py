@@ -22,16 +22,22 @@ class EmailsConfig(AppConfig):
         except Exception:
             logger.exception("exception during SES connect")
 
-        badwords = []
         # badwords file from:
         # https://www.cs.cmu.edu/~biglou/resources/bad-words.txt
-        badwords_file_path = os.path.join(
-            settings.BASE_DIR, 'emails', 'badwords.txt'
+        self.badwords = self._load_terms('badwords.txt')
+        self.blocklist = self._load_terms('blocklist.txt')
+
+    def _load_terms(self, filename):
+        terms = []
+        terms_file_path = os.path.join(
+            settings.BASE_DIR, 'emails', filename
         )
-        with open(badwords_file_path, 'r') as badwords_file:
-            for word in badwords_file:
-                badwords.append(word.strip())
-        self.badwords = badwords
+        with open(terms_file_path, 'r') as terms_file:
+            for word in terms_file:
+                if len(word.strip()) > 0 and word.strip()[0] == "#":
+                    continue
+                terms.append(word.strip())
+        return terms
 
     def ready(self):
         import emails.signals
