@@ -15,12 +15,12 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
 ### Requirements
 * python 3.7 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
 * PostgreSQL - even if you are using sqlite for development, requirements.txt installs
-  psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites). The 
-  following should work:
+  psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites) and Python header files.
+  The following should work:
     * [On Windows](https://www.postgresql.org/download/windows/)
-    * On Ubuntu: `sudo apt install postgresql libpq-dev`
+    * On Ubuntu: `sudo apt install postgresql libpq-dev python3-dev`
     * On OSX: `brew install postgresql libpq`
-    * On Fedora: `sudo dnf install libpq-devel`
+    * On Fedora: `sudo dnf install libpq-devel python3-devel`
 * [SES](https://aws.amazon.com/ses/) if you want to send real emails
 * [Node 12.X](https://nodejs.org/en/download/) – Needed for front-end SCSS compiling
   * [NPM](https://www.npmjs.com/)
@@ -169,7 +169,7 @@ To enable the premium Relay features, we integrate with the [FXA Subscription
 Platform](https://mozilla.github.io/ecosystem-platform/docs/features/sub-plat/sub-plat-overview).
 At a high level, to set up Relay premium subscription, we:
 
-1. [Enable Firefox Accounts Authentication](#enable-firefox-accounts-authentication) as described above.
+1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Create a product & price in our [Stripe dashboard](https://dashboard.stripe.com/).
 (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
@@ -181,7 +181,7 @@ At a high level, to set up Relay premium subscription, we:
 
 In detail:
 
-1. [Enable Firefox Accounts Authentication](#enable-firefox-accounts-authentication) as described above.
+1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Go to our [Stripe dashboard](https://dashboard.stripe.com/).
 (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
@@ -213,6 +213,7 @@ In detail:
 There is a [comprehensive doc of test
 cases](https://docs.google.com/spreadsheets/d/1fMl4LHr1kIuGHfS9jyhLrv5vAyJMBUCr2AP0sODFmJw/edit#gid=0) for purchasing premium Relay.
 
+You can use [Stripe's test credit card details](https://stripe.com/docs/testing#cards) for payment.
 
 ## Production Environments
 
