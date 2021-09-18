@@ -138,7 +138,6 @@ INSTALLED_APPS = [
 
     'django_ftl.apps.DjangoFtlConfig',
 
-
     'dockerflow.django',
 
     'allauth',
@@ -146,12 +145,15 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.fxa',
 
+    'rest_framework',
+
     'privaterelay.apps.PrivateRelayConfig',
 ]
 
 if DEBUG:
     INSTALLED_APPS += [
         'debug_toolbar',
+        'drf_yasg',
     ]
 
 if ADMIN_ENABLED:
@@ -170,12 +172,7 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
     ]
 
 
-def download_xpis(headers, path, url):
-    if path.endswith('.xpi'):
-        headers['Content-Disposition'] = 'attachment'
-
-WHITENOISE_ADD_HEADERS_FUNCTION = download_xpis
-
+# statsd middleware has to be first to catch errors in everything else
 def _get_initial_middleware():
     if STATSD_ENABLED:
         return [
@@ -277,21 +274,22 @@ if REDIS_URL:
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
-
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+# only needed when admin UI is enabled
+if ADMIN_ENABLED:
+    AUTH_PASSWORD_VALIDATORS = [
+        {
+            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        },
+        {
+            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        },
+    ]
 
 
 # Internationalization
@@ -382,6 +380,23 @@ LOGGING = {
             'level': 'INFO',
         },
     }
+}
+
+if DEBUG:
+    DRF_RENDERERS = (
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'rest_framework.renderers.JSONRenderer',
+    )
+else:
+    DRF_RENDERERS = (
+        'rest_framework.renderers.JSONRenderer',
+    )
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSIONS_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated'
+    ],
+    'DEFAULT_RENDERER_CLASSES': DRF_RENDERERS,
 }
 
 sentry_sdk.init(
