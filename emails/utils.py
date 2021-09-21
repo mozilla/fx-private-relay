@@ -1,6 +1,5 @@
 import base64
 import contextlib
-from datetime import datetime, timezone
 from email.header import Header
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
@@ -65,8 +64,38 @@ def ses_send_raw_email(
     from_address, to_address, subject, message_body, attachments,
     reply_address, mail, address
 ):
-    charset = "UTF-8"
 
+    msg_with_headers = _start_message_with_headers(
+        subject, from_address, to_address, reply_address
+    )
+    msg_with_body = _add_body_to_message(msg_with_headers, message_body)
+    msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
+
+    try:
+        # Provide the contents of the email.
+        emails_config = apps.get_app_config('emails')
+        ses_response = emails_config.ses_client.send_raw_email(
+            Source=from_address,
+            Destinations=[
+                to_address
+            ],
+            RawMessage={
+                'Data': msg_with_attachments.as_string(),
+            },
+        )
+        incr_if_enabled('ses_send_raw_email', 1)
+
+        _store_reply_record(mail, ses_response, address)
+
+    except ClientError as e:
+        logger.error('ses_client_error_raw_email', extra=e.response['Error'])
+        return HttpResponse("SES client error on Raw Email", status=400)
+    return HttpResponse("Sent email to final recipient.", status=200)
+
+
+def _start_message_with_headers(
+    subject, from_address, to_address, reply_address
+):
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart('mixed')
     # Add subject, from and to lines.
@@ -74,7 +103,11 @@ def ses_send_raw_email(
     msg['From'] = from_address
     msg['To'] = to_address
     msg['Reply-To'] = reply_address
+    return msg
 
+
+def _add_body_to_message(msg, message_body):
+    charset = "UTF-8"
     # Create a multipart/alternative child container.
     msg_body = MIMEMultipart('alternative')
 
@@ -93,7 +126,10 @@ def ses_send_raw_email(
     # Attach the multipart/alternative child container to the multipart/mixed
     # parent container.
     msg.attach(msg_body)
+    return msg
 
+
+def _add_attachments_to_message(msg, attachments):
     # attach attachments
     for actual_att_name, attachment in attachments.items():
         # Define the attachment part and encode it using MIMEApplication.
@@ -110,44 +146,30 @@ def ses_send_raw_email(
         # Add the attachment to the parent container.
         msg.attach(att)
         attachment.close()
+    return msg
 
-    try:
-        # Provide the contents of the email.
-        emails_config = apps.get_app_config('emails')
-        ses_response = emails_config.ses_client.send_raw_email(
-            Source=from_address,
-            Destinations=[
-                to_address
-            ],
-            RawMessage={
-                'Data': msg.as_string(),
-            },
-        )
-        incr_if_enabled('ses_send_raw_email', 1)
 
-        # After relaying email, store a Reply record for it
-        reply_metadata = {}
-        for header in mail['headers']:
-            if header['name'].lower() in ['message-id', 'from', 'reply-to']:
-                reply_metadata[header['name'].lower()] = header['value']
-        message_id_bytes = get_message_id_bytes(ses_response['MessageId'])
-        (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
-        lookup = b64_lookup_key(lookup_key)
-        encrypted_metadata = encrypt_reply_metadata(
-            encryption_key, reply_metadata
-        )
-        reply_create_args = {
-            'lookup': lookup, 'encrypted_metadata': encrypted_metadata
-        }
-        if type(address) == DomainAddress:
-            reply_create_args['domain_address'] = address
-        elif type(address) == RelayAddress:
-            reply_create_args['relay_address'] = address
-        Reply.objects.create(**reply_create_args)
-    except ClientError as e:
-        logger.error('ses_client_error_raw_email', extra=e.response['Error'])
-        return HttpResponse("SES client error on Raw Email", status=400)
-    return HttpResponse("Sent email to final recipient.", status=200)
+def _store_reply_record(mail, ses_response, address):
+    # After relaying email, store a Reply record for it
+    reply_metadata = {}
+    for header in mail['headers']:
+        if header['name'].lower() in ['message-id', 'from', 'reply-to']:
+            reply_metadata[header['name'].lower()] = header['value']
+    message_id_bytes = get_message_id_bytes(ses_response['MessageId'])
+    (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
+    lookup = b64_lookup_key(lookup_key)
+    encrypted_metadata = encrypt_reply_metadata(
+        encryption_key, reply_metadata
+    )
+    reply_create_args = {
+        'lookup': lookup, 'encrypted_metadata': encrypted_metadata
+    }
+    if type(address) == DomainAddress:
+        reply_create_args['domain_address'] = address
+    elif type(address) == RelayAddress:
+        reply_create_args['relay_address'] = address
+    Reply.objects.create(**reply_create_args)
+    return mail
 
 
 def ses_relay_email(from_address, to_address, subject,

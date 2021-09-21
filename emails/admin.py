@@ -5,28 +5,13 @@ from .models import (
 )
 
 
-class DeletedAddressAdmin(admin.ModelAdmin):
-    pass
-
-
-class ProfileAdmin(admin.ModelAdmin):
-    pass
-
-
-class RelayAddressAdmin(admin.ModelAdmin):
-    pass
-
-
-class DomainAddressAdmin(admin.ModelAdmin):
-    pass
-
-
 class ReplyAdmin(admin.ModelAdmin):
-    pass
+    readonly_fields = ('created_at',)
+    list_display = ('relay_address', 'domain_address', 'created_at')
 
 
-admin.site.register(DeletedAddress, DeletedAddressAdmin)
-admin.site.register(Profile, ProfileAdmin)
-admin.site.register(RelayAddress, RelayAddressAdmin)
-admin.site.register(DomainAddress, DomainAddressAdmin)
+admin.site.register(DeletedAddress)
+admin.site.register(Profile)
+admin.site.register(RelayAddress)
+admin.site.register(DomainAddress)
 admin.site.register(Reply, ReplyAdmin)
