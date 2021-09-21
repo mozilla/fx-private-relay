@@ -139,10 +139,10 @@ def ses_send_raw_email(
         reply_create_args = {
             'lookup': lookup, 'encrypted_metadata': encrypted_metadata
         }
-        if type(address == DomainAddress):
+        if type(address) == DomainAddress:
             reply_create_args['domain_address'] = address
-        elif type(address == RelayAddress):
-            reply_create_args['reply_address'] = address
+        elif type(address) == RelayAddress:
+            reply_create_args['relay_address'] = address
         Reply.objects.create(**reply_create_args)
     except ClientError as e:
         logger.error('ses_client_error_raw_email', extra=e.response['Error'])
@@ -251,13 +251,3 @@ def decrypt_reply_metadata(key, jwe):
     e.deserialize(jwe)
     e.decrypt(k)
     return e.plaintext
-
-
-def load_reply_metadata(message_id, encrypted_reply_metadata):
-    """Decrypt the encrypted reply metadata using the given aliaed-message-id."""
-    message_id = message_id.split("@", 1)[0].rsplit("<", 1)[-1].strip()
-    message_id = base64.urlsafe_b64decode(message_id)
-    (lookup_key, encryption_key) = derive_reply_keys(message_id)
-    # In a real system, you'd use `lookup_key` to fetch the encrypted data from the database.
-    reply_plaintext = decrypt_reply_metadata(encryption_key, encrypted_reply_metadata)
-    return json.loads(reply_plaintext)

@@ -290,7 +290,9 @@ def _sns_message(message_json):
     from_address = parseaddr(mail['commonHeaders']['from'][0])[1]
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
     [to_local_portion, to_domain_portion] = to_address.split('@')
-    # to_domain_portion = to_address.split('@')[1]
+    if to_local_portion == 'noreply':
+        incr_if_enabled('email_for_noreply_address', 1)
+        return HttpResponse('noreply address is not supported.')
     try:
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
@@ -302,7 +304,9 @@ def _sns_message(message_json):
             user = User.objects.get(email=from_address)
             profile = user.profile_set.first()
             if not profile.has_premium:
-                # TODO: send the user an email that replies are a premium feature
+                # TODO: send the user an email
+                # that replies are a premium feature
+                incr_if_enabled('free_user_reply_attempt', 1)
                 return HttpResponse(
                     "Rely replies require a premium account", status=403
                 )
@@ -391,11 +395,12 @@ def _sns_message(message_json):
 
 def _handle_reply(message_json):
     mail = message_json['mail']
+    in_reply_to = None
     for header in mail['headers']:
         if header['name'].lower() == 'in-reply-to':
             in_reply_to = header['value']
             message_id_bytes = get_message_id_bytes(in_reply_to)
-    if not in_reply_to:
+    if in_reply_to is None:
         incr_if_enabled('mail_to_replies_without_in_reply_to', 1)
         raise Exception("Received mail to reply address without In-Reply-To")
     (lookup_key, encryption_key) = derive_reply_keys(
@@ -403,30 +408,22 @@ def _handle_reply(message_json):
     )
     lookup = b64_lookup_key(lookup_key)
     reply_record = Reply.objects.get(lookup=lookup)
-    relay_address = reply_record.relay_address
-    domain_address = reply_record.domain_address
-    if relay_address:
-        address = relay_address
-    elif domain_address:
-        address = domain_address
+    address = reply_record.relay_address or reply_record.domain_address
     outbound_from_address = address.full_address
     decrypted_metadata = json.loads(decrypt_reply_metadata(
         encryption_key, reply_record.encrypted_metadata
     ))
     incr_if_enabled('reply_email', 1)
-    outbound_reply_to_address = outbound_from_address
     subject = mail['commonHeaders'].get('subject', '')
-    if 'reply-to' in decrypted_metadata:
-        to_address = decrypted_metadata['reply-to']
-    elif 'from' in decrypted_metadata:
-        to_address = decrypted_metadata['from']
+    to_address = (
+        decrypted_metadata.get('reply-to') or decrypted_metadata.get('from')
+    )
     in_reply_to = decrypted_metadata['message-id']
 
     text_content, html_content, attachments = _get_text_html_attachments(
         message_json
     )
 
-    # TODO: do we need to wrap outbound replies?
     message_body = {}
     if html_content:
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': html_content}
@@ -441,11 +438,10 @@ def _handle_reply(message_json):
             subject,
             message_body,
             attachments,
-            outbound_reply_to_address,
+            outbound_from_address,
             mail,
             address
         )
-        # TODO: make it work for domain_address
         address.num_forwarded += 1
         address.last_used_at = datetime.now(timezone.utc)
         address.save(
