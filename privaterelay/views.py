@@ -55,6 +55,12 @@ def home(request):
     return render(request, 'home.html')
 
 
+def newlanding(request):
+    # if (request.user and not request.user.is_anonymous):
+    #     return redirect(reverse('profile'))
+    return render(request, 'newlanding.html')
+
+
 def faq(request):
     return render(request, 'faq.html')
 

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+{% load socialaccount %}
+
+{% block content %}
+
+<main data-landing-page="" class="">
+    {% include "includes/messages.html" %}
+    {% include "./hero.html" %}
+    {% include "./how-it-works.html" %}
+    {% include "./use-cases.html" %}
+    {% include "./social-proof.html" %}
+    {% include "./plans.html" %}
+    {% include "./faq.html" %}
+    {% include "./callout.html" %}
+</main>
+
+{% endblock %}
