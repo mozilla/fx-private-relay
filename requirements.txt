@@ -1,5 +1,5 @@
 boto3==1.13.9
-cryptography==3.3.1
+cryptography==3.3.2
 Django==2.2.24
 dj-database-url==0.5.0
 django-allauth==0.39.1
