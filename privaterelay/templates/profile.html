@@ -45,20 +45,19 @@
         </div>
         {% if not user_profile.subdomain %}
           <div class="mpp-dashbaord-header-action">
-            <button class="mpp-action-link"> <img class="margin-right" src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}</button>
-          </div>
-        {% else %}
-          <div class="mpp-dashbaord-header-action">
-            <div class="mpp-action-link mpp-action-tooltip">
-              {% ftlmsg 'profile-label-domain' %} {{ user_profile.subdomain }}
-              <img class="margin-left" src="/static/images/icon-info.svg" alt="informtaion">
+            <div class="mpp-action-tooltip">
+              <button class="mpp-action-link"><img class="margin-right" src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}</button>
+              <img class="margin-left" src="/static/images/icon-info.svg" alt="">
               <div class="mpp-action-tooltip-hover">
                 <div class="mpp-action-tooltip-hover-wrapper">
                   {% ftlmsg 'profile-label-domain-tooltip' %}
                 </div>
               </div>
             </div>
-            
+          </div>
+        {% else %}
+          <div class="mpp-dashbaord-header-action">
+            {% ftlmsg 'profile-label-domain' %} <samp>{{ user_profile.subdomain }}</samp>
           </div>
         {% endif %}
       </div>
