@@ -9,6 +9,7 @@ import os
 import re
 from tempfile import SpooledTemporaryFile
 
+from botocore.exceptions import ClientError
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
 
@@ -27,18 +28,25 @@ from .models import (
     address_hash,
     CannotMakeAddressException,
     get_domain_numerical,
+    get_domains_from_settings,
     DeletedAddress,
     DomainAddress,
     Profile,
-    RelayAddress
+    RelayAddress,
+    Reply
 )
 from .utils import (
-    get_domains_from_settings,
+    b64_lookup_key,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
     ses_relay_email,
-    urlize_and_linebreaks
+    urlize_and_linebreaks,
+    derive_reply_keys,
+    decrypt_reply_metadata,
+    ses_send_raw_email,
+    get_message_id_bytes,
+    generate_relay_From,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -279,21 +287,31 @@ def _sns_message(message_json):
             status=400
         )
 
+    from_address = parseaddr(mail['commonHeaders']['from'][0])[1]
     to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
-    local_portion = to_address.split('@')[0]
-
-    if local_portion == 'noreply':
+    [to_local_portion, to_domain_portion] = to_address.split('@')
+    if to_local_portion == 'noreply':
         incr_if_enabled('email_for_noreply_address', 1)
         return HttpResponse('noreply address is not supported.')
-
-    domain_portion = to_address.split('@')[1]
     try:
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        address = _get_address(to_address, local_portion, domain_portion)
+        address = _get_address(to_address, to_local_portion, to_domain_portion)
         user_profile = address.user.profile_set.first()
     except Exception:
+        if to_local_portion == 'replies':
+            user = User.objects.get(email=from_address)
+            profile = user.profile_set.first()
+            if not profile.has_premium:
+                # TODO: send the user an email
+                # that replies are a premium feature
+                incr_if_enabled('free_user_reply_attempt', 1)
+                return HttpResponse(
+                    "Rely replies require a premium account", status=403
+                )
+            return _handle_reply(message_json)
+
         return HttpResponse("Address does not exist", status=404)
 
     address_hash = sha256(to_address.encode('utf-8')).hexdigest()
@@ -319,22 +337,11 @@ def _sns_message(message_json):
         ).hexdigest(),
     })
 
-    from_address = parseaddr(mail['commonHeaders']['from'])[1]
     subject = mail['commonHeaders'].get('subject', '')
-    bytes_email_message = message_from_bytes(
-        message_json['content'].encode('utf-8'), policy=policy.default
-    )
 
-    text_content, html_content, attachments = _get_all_contents(
-        bytes_email_message
+    text_content, html_content, attachments = _get_text_html_attachments(
+        message_json
     )
-    strip_texts = []
-    for item in mail['headers']:
-        for k, v in item.items():
-            strip_texts.append(': '.join([k, v]))
-    stripped_content = message_json['content']
-    for item in strip_texts:
-        stripped_content = stripped_content.replace(item, '')
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -372,10 +379,78 @@ def _sns_message(message_json):
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
-    return ses_relay_email(
-        from_address, address, subject,
-        message_body, attachments, user_profile.user.email,
+    to_address = user_profile.user.email
+    formatted_from_address = generate_relay_From(from_address)
+    response = ses_relay_email(
+        formatted_from_address, to_address, subject,
+        message_body, attachments, mail, address
     )
+    address.num_forwarded += 1
+    address.last_used_at = datetime.now(timezone.utc)
+    address.save(
+        update_fields=['num_forwarded', 'last_used_at']
+    )
+    return response
+
+
+def _handle_reply(message_json):
+    mail = message_json['mail']
+    in_reply_to = None
+    for header in mail['headers']:
+        if header['name'].lower() == 'in-reply-to':
+            in_reply_to = header['value']
+            message_id_bytes = get_message_id_bytes(in_reply_to)
+    if in_reply_to is None:
+        incr_if_enabled('mail_to_replies_without_in_reply_to', 1)
+        raise Exception("Received mail to reply address without In-Reply-To")
+    (lookup_key, encryption_key) = derive_reply_keys(
+        message_id_bytes
+    )
+    lookup = b64_lookup_key(lookup_key)
+    reply_record = Reply.objects.get(lookup=lookup)
+    address = reply_record.relay_address or reply_record.domain_address
+    outbound_from_address = address.full_address
+    decrypted_metadata = json.loads(decrypt_reply_metadata(
+        encryption_key, reply_record.encrypted_metadata
+    ))
+    incr_if_enabled('reply_email', 1)
+    subject = mail['commonHeaders'].get('subject', '')
+    to_address = (
+        decrypted_metadata.get('reply-to') or decrypted_metadata.get('from')
+    )
+    in_reply_to = decrypted_metadata['message-id']
+
+    text_content, html_content, attachments = _get_text_html_attachments(
+        message_json
+    )
+
+    message_body = {}
+    if html_content:
+        message_body['Html'] = {'Charset': 'UTF-8', 'Data': html_content}
+
+    if text_content:
+        message_body['Text'] = {'Charset': 'UTF-8', 'Data': text_content}
+
+    try:
+        response = ses_send_raw_email(
+            outbound_from_address,
+            to_address,
+            subject,
+            message_body,
+            attachments,
+            outbound_from_address,
+            mail,
+            address
+        )
+        address.num_forwarded += 1
+        address.last_used_at = datetime.now(timezone.utc)
+        address.save(
+            update_fields=['num_forwarded', 'last_used_at']
+        )
+        return response
+    except ClientError as e:
+        logger.error('ses_client_error', extra=e.response['Error'])
+        return HttpResponse("SES client error", status=400)
 
 
 def _get_domain_address(to_address, local_portion, domain_portion):
@@ -457,6 +532,17 @@ def _handle_bounce(message_json):
             # 'ContentRejected'
         profile.save()
     return HttpResponse("OK", status=200)
+
+
+def _get_text_html_attachments(message_json):
+    bytes_email_message = message_from_bytes(
+        message_json['content'].encode('utf-8'), policy=policy.default
+    )
+
+    text_content, html_content, attachments = _get_all_contents(
+        bytes_email_message
+    )
+    return text_content, html_content, attachments
 
 
 def _get_attachment(part):

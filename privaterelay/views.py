@@ -106,7 +106,7 @@ def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
-    if not profile.has_unlimited:
+    if not profile.has_premium:
         raise CannotMakeSubdomainException('error-premium-check-subdomain')
     try:
         if request.method == 'GET':

@@ -1,5 +1,5 @@
+import base64
 import contextlib
-from datetime import datetime, timezone
 from email.header import Header
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
@@ -9,6 +9,10 @@ from email.utils import parseaddr
 import json
 
 from botocore.exceptions import ClientError
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.kdf.hkdf import HKDFExpand
+import jwcrypto.jwe
+import jwcrypto.jwk
 import markus
 import logging
 
@@ -17,6 +21,8 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
+
+from .models import DEFAULT_DOMAIN, DomainAddress, RelayAddress, Reply
 
 
 logger = logging.getLogger('events')
@@ -53,46 +59,55 @@ def get_email_domain_from_settings():
     return email_network_locality
 
 
-def get_domains_from_settings():
-    return {
-        'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
-        'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
-    }
+@time_if_enabled('ses_send_raw_email')
+def ses_send_raw_email(
+    from_address, to_address, subject, message_body, attachments,
+    reply_address, mail, address
+):
 
+    msg_with_headers = _start_message_with_headers(
+        subject, from_address, to_address, reply_address
+    )
+    msg_with_body = _add_body_to_message(msg_with_headers, message_body)
+    msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
 
-@time_if_enabled('ses_send_email')
-def ses_send_email(from_address, to_address, subject, message_body):
-    emails_config = apps.get_app_config('emails')
     try:
-        emails_config.ses_client.send_email(
-            Destination={'ToAddresses': [to_address]},
-            Message={
-                'Body': message_body,
-                'Subject': {'Charset': 'UTF-8', 'Data': subject},
-            },
+        # Provide the contents of the email.
+        emails_config = apps.get_app_config('emails')
+        ses_response = emails_config.ses_client.send_raw_email(
             Source=from_address,
-            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
+            Destinations=[
+                to_address
+            ],
+            RawMessage={
+                'Data': msg_with_attachments.as_string(),
+            },
         )
-        incr_if_enabled('ses_send_email', 1)
+        incr_if_enabled('ses_send_raw_email', 1)
+
+        _store_reply_record(mail, ses_response, address)
+
     except ClientError as e:
-        logger.error('ses_client_error', extra=e.response['Error'])
-        return HttpResponse("SES client error", status=400)
+        logger.error('ses_client_error_raw_email', extra=e.response['Error'])
+        return HttpResponse("SES client error on Raw Email", status=400)
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-@time_if_enabled('ses_send_email')
-def ses_send_raw_email(
-        from_address, to_address, subject, message_body, attachments
+def _start_message_with_headers(
+    subject, from_address, to_address, reply_address
 ):
-    charset = "UTF-8"
-
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart('mixed')
     # Add subject, from and to lines.
     msg['Subject'] = subject
     msg['From'] = from_address
     msg['To'] = to_address
+    msg['Reply-To'] = reply_address
+    return msg
 
+
+def _add_body_to_message(msg, message_body):
+    charset = "UTF-8"
     # Create a multipart/alternative child container.
     msg_body = MIMEMultipart('alternative')
 
@@ -111,7 +126,10 @@ def ses_send_raw_email(
     # Attach the multipart/alternative child container to the multipart/mixed
     # parent container.
     msg.attach(msg_body)
+    return msg
 
+
+def _add_attachments_to_message(msg, attachments):
     # attach attachments
     for actual_att_name, attachment in attachments.items():
         # Define the attachment part and encode it using MIMEApplication.
@@ -128,49 +146,47 @@ def ses_send_raw_email(
         # Add the attachment to the parent container.
         msg.attach(att)
         attachment.close()
+    return msg
+
+
+def _store_reply_record(mail, ses_response, address):
+    # After relaying email, store a Reply record for it
+    reply_metadata = {}
+    for header in mail['headers']:
+        if header['name'].lower() in ['message-id', 'from', 'reply-to']:
+            reply_metadata[header['name'].lower()] = header['value']
+    message_id_bytes = get_message_id_bytes(ses_response['MessageId'])
+    (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
+    lookup = b64_lookup_key(lookup_key)
+    encrypted_metadata = encrypt_reply_metadata(
+        encryption_key, reply_metadata
+    )
+    reply_create_args = {
+        'lookup': lookup, 'encrypted_metadata': encrypted_metadata
+    }
+    if type(address) == DomainAddress:
+        reply_create_args['domain_address'] = address
+    elif type(address) == RelayAddress:
+        reply_create_args['relay_address'] = address
+    Reply.objects.create(**reply_create_args)
+    return mail
+
+
+def ses_relay_email(from_address, to_address, subject,
+                    message_body, attachments, mail, address):
+
+    reply_address = 'replies@%s' % DEFAULT_DOMAIN
 
     try:
-        # Provide the contents of the email.
-        emails_config = apps.get_app_config('emails')
-        emails_config.ses_client.send_raw_email(
-            Source=from_address,
-            Destinations=[
-                to_address
-            ],
-            RawMessage={
-                'Data': msg.as_string(),
-            },
-        )
-        incr_if_enabled('ses_send_email', 1)
-    except ClientError as e:
-        logger.error('ses_client_error_raw_email', extra=e.response['Error'])
-        return HttpResponse("SES client error on Raw Email", status=400)
-    return HttpResponse("Sent email to final recipient.", status=200)
-
-
-def ses_relay_email(from_address, address, subject,
-                    message_body, attachments, user_email):
-    formatted_from_address = generate_relay_From(from_address)
-    try:
-        if attachments:
-            response = ses_send_raw_email(
-                formatted_from_address,
-                user_email,
-                subject,
-                message_body,
-                attachments
-            )
-        else:
-            response = ses_send_email(
-                formatted_from_address,
-                user_email,
-                subject,
-                message_body
-            )
-        address.num_forwarded += 1
-        address.last_used_at = datetime.now(timezone.utc)
-        address.save(
-            update_fields=['num_forwarded', 'last_used_at']
+        response = ses_send_raw_email(
+            from_address,
+            to_address,
+            subject,
+            message_body,
+            attachments,
+            reply_address,
+            mail,
+            address
         )
         return response
     except ClientError as e:
@@ -220,3 +236,40 @@ def generate_relay_From(original_from_address):
         )
     )
     return formatted_from_address
+
+
+def get_message_id_bytes(message_id_str):
+    message_id = message_id_str.split("@", 1)[0].rsplit("<", 1)[-1].strip()
+    return message_id.encode()
+
+
+def b64_lookup_key(lookup_key):
+    return base64.urlsafe_b64encode(lookup_key).decode('ascii')
+
+
+def derive_reply_keys(message_id):
+    """Derive the lookup key and encrytion key from an aliased message id."""
+    algorithm = hashes.SHA256()
+    hkdf = HKDFExpand(algorithm=algorithm, length=16, info=b"replay replies lookup key")
+    lookup_key = hkdf.derive(message_id)
+    hkdf = HKDFExpand(algorithm=algorithm, length=32, info=b"replay replies encryption key")
+    encryption_key = hkdf.derive(message_id)
+    return (lookup_key, encryption_key)
+
+
+def encrypt_reply_metadata(key, payload):
+    """Encrypt the given payload into a JWE, using the given key."""
+    # This is a bit dumb, we have to base64-encode the key in order to load it :-/
+    k = jwcrypto.jwk.JWK(kty="oct", k=base64.urlsafe_b64encode(key).rstrip(b"=").decode('ascii'))
+    e = jwcrypto.jwe.JWE(json.dumps(payload), json.dumps({"alg": "dir", "enc": "A256GCM"}), recipient=k)
+    return e.serialize(compact=True)
+
+
+def decrypt_reply_metadata(key, jwe):
+    """Decrypt the given JWE into a json payload, using the given key."""
+    # This is a bit dumb, we have to base64-encode the key in order to load it :-/
+    k = jwcrypto.jwk.JWK(kty="oct", k=base64.urlsafe_b64encode(key).rstrip(b"=").decode('ascii'))
+    e = jwcrypto.jwe.JWE()
+    e.deserialize(jwe)
+    e.decrypt(k)
+    return e.plaintext

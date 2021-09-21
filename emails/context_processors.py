@@ -1,4 +1,5 @@
-from emails.utils import get_email_domain_from_settings, get_domains_from_settings
+from .models import get_domains_from_settings
+from .utils import get_email_domain_from_settings
 
 
 def relay_from_domain(request):

@@ -11,8 +11,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 
-from emails.utils import get_domains_from_settings
-
 emails_config = apps.get_app_config('emails')
 
 
@@ -20,6 +18,12 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
+
+def get_domains_from_settings():
+    return {
+        'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
+        'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
+    }
 
 DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
@@ -126,11 +130,13 @@ class Profile(models.Model):
         return self.fxa.extra_data.get('displayName')
 
     @property
-    def has_unlimited(self):
+    def has_premium(self):
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
         if not self.fxa:
             return False
+        if self.user.email.endswith('@mozilla.com'):
+            return True
         user_subscriptions = self.fxa.extra_data.get('subscriptions', [])
         for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
             if sub in user_subscriptions:
@@ -152,7 +158,7 @@ class Profile(models.Model):
         return sum(blocked['num_blocked'] for blocked in relay_addresses_blocked)
 
     def add_subdomain(self, subdomain):
-        if not self.has_unlimited:
+        if not self.has_premium:
             raise CannotMakeSubdomainException('error-premium-set-subdomain')
         if self.subdomain is not None:
             raise CannotMakeSubdomainException('error-premium-cannot-change-subdomain')
@@ -266,7 +272,7 @@ class RelayAddress(models.Model):
     def make_relay_address(user_profile, num_tries=0, domain=DEFAULT_DOMAIN):
         if (
             user_profile.at_max_free_aliases
-            and not user_profile.has_unlimited
+            and not user_profile.has_premium
         ):
             hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
             raise CannotMakeAddressException(
@@ -329,7 +335,7 @@ class DomainAddress(models.Model):
         return Profile.objects.get(user=self.user)
 
     def make_domain_address(user_profile, address=None, made_via_email=False):
-        if not user_profile.has_unlimited:
+        if not user_profile.has_premium:
             raise CannotMakeAddressException(
                 NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
             )
@@ -359,7 +365,10 @@ class DomainAddress(models.Model):
                 TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             )
 
-        domain_address = DomainAddress.objects.create(user=user_profile.user, address=address)
+        domain_address = DomainAddress.objects.create(
+            user=user_profile.user,
+            address=address,
+        )
         if made_via_email:
             # update first_emailed_at indicating alias generation impromptu.
             domain_address.first_emailed_at = datetime.now(timezone.utc)
@@ -379,3 +388,17 @@ class DomainAddress(models.Model):
         self.user_profile.num_address_deleted += 1
         self.user_profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
+
+    @property
+    def full_address(self):
+        return '%s@%s.%s' % (
+            self.address, self.user_profile.subdomain, DEFAULT_DOMAIN
+        )
+
+
+class Reply(models.Model):
+    relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE, blank=True, null=True)
+    domain_address = models.ForeignKey(DomainAddress, on_delete=models.CASCADE, blank=True, null=True)
+    lookup = models.CharField(max_length=255, blank=False, db_index=True)
+    encrypted_metadata = models.TextField(blank=False)
+    created_at = models.DateField(auto_now_add=True, null=False)
