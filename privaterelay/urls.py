@@ -50,6 +50,7 @@ if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
         path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+        path('newlanding/', views.newlanding, name='newlanding'),
     ]
 
 if settings.ADMIN_ENABLED:
