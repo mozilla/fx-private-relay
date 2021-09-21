@@ -1,0 +1,38 @@
+{% load static %}
+{% load ftl %}
+
+<section>
+    <div class="container mzp-l-content">
+    <div class="how-it-works-content txt-white flx flx-col al-cntr">
+    <h2 class="how-it-works-header text-center">{% ftlmsg 'how-it-works-headline' %}</h2>
+    <span class="text-center">{% ftlmsg 'how-it-works-subheadline' %}</span>
+    <div class="how-it-works-steps mzp-l-columns mzp-t-columns-three">
+        <section class="step step-1">
+        <div class="step-illustration step-1"></div>
+        <div class="step-text step-1">
+            <h3 class="step-headline ff-Met">{% ftlmsg 'how-it-works-step-1-headline' %}</h3>
+            <p class="step-body">
+            <a href="https://addons.mozilla.org/firefox/addon/private-relay/" target="_blank" rel="noopener" class="text-link">{% ftlmsg 'how-it-works-step-1-link' %}</a>
+            {% ftlmsg 'how-it-works-step-1-copy' %}
+            </p>
+        </div>
+        </section>
+        <section class="step step-2">
+        <div class="step-illustration step-2"></div>
+        <div class="step-text step-2">
+            <h3 class="step-headline ff-Met">{% ftlmsg 'how-it-works-step-2-headline' %}</h3>
+            <p class="step-body">{% ftlmsg 'how-it-works-step-2-copy' %}</p>
+        </div>
+        </section>
+        <section class="step step-3">
+        <div class="step-illustration step-3"></div>
+        <div class="step-text step-3">
+            <h3 class="step-headline ff-Met">{% ftlmsg 'how-it-works-step-3-headline' %}</h3>
+            <p class="step-body">{% ftlmsg 'how-it-works-step-3-copy' %}</p>
+        </div>
+        </section>
+    </div>
+    {% include "includes/landing_ctas.html" with page_position="landing-bottom" %}
+    </div>
+    </div>
+</section>

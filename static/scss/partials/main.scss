@@ -11,7 +11,6 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
-    background-image: var(--darkBlueGradient);
     display: flex;
     flex-direction: column;
     margin: 0;
@@ -21,18 +20,29 @@ body {
     line-height: 1.2;
 }
 
-h1, h2, h3, h4, h5, h6 {
-    color: $color-light-gray-10;
-}
+.c-body-wrapper.t-dark {
+    background-image: var(--darkBlueGradient);
 
-:visited:hover, :visited:focus, :visited:active {
-    color: $color-light-gray-10;
-}
 
-.loading {
-    background-image: url("/static/images/loader.svg");
-    background-position: center center;
-    background-repeat: no-repeat;
+    h1, h2, h3, h4, h5, h6 {
+        color: $color-light-gray-10;
+    }
+
+    :visited:hover, :visited:focus, :visited:active {
+        color: $color-light-gray-10;
+    }
+
+    .loading {
+        background-image: url("/static/images/loader.svg");
+        background-position: center center;
+        background-repeat: no-repeat;
+    }
+
+    .section-headline {
+        font-weight: 600;
+        color: $color-grey-60;
+        margin: 0;
+    }
 }
 
 .text-light {
@@ -82,12 +92,6 @@ h2,
 .button,
 .ff-Met {
     font-family: $font-metropolis;
-}
-
-.section-headline {
-    font-weight: 600;
-    color: $color-grey-60;
-    margin: 0;
 }
 
 a, :link, button {
