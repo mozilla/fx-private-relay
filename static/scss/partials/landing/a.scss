@@ -1,0 +1,65 @@
+@import "libs/protocol/css/protocol.scss";
+
+.c-landing-hero.t-landing-a {
+
+    .c-landing-hero--lead {
+
+        h1 {
+            @include text-title-md;
+        }
+    }
+
+    .has-hero-image {
+        position: relative;
+        text-align: center;
+        height: 600px;
+
+        // The three images are made to overlap:
+        img {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .c-hero-image--fg,
+        .c-hero-image--bg {
+            display: none;
+        }
+    }
+
+    @media screen and ($mq-md) {
+
+        display: flex;
+        gap: $spacing-2xl;
+
+        .c-landing-hero--lead {
+            display: flex;
+            flex-direction: column;
+            padding-top: $spacing-2xl;
+        }
+
+        .has-hero-image {
+
+            width: 300px;
+            flex-shrink: 0;
+
+            .c-hero-image--fg,
+            .c-hero-image--bg {
+                display: inline-block;
+            }
+        }
+    }
+    @media screen and ($mq-lg) {
+
+        .has-hero-image {
+            width: 400px;
+        }
+    }
+    @media screen and ($mq-xl) {
+
+        .has-hero-image {
+            width: 550px;
+        }
+    }
+}
