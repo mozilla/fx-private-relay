@@ -10,6 +10,10 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation.trans_real import (
+    parse_accept_lang_header,
+    get_supported_language_variant,
+)
 
 emails_config = apps.get_app_config('emails')
 
@@ -53,6 +57,17 @@ class Profile(models.Model):
 
     def __str__(self):
         return '%s Profile' % self.user
+
+    @property
+    def language(self):
+        for accept_lang, _ in parse_accept_lang_header(
+            self.fxa.extra_data.get('locale')
+        ):
+            try:
+                return get_supported_language_variant(accept_lang)
+            except LookupError:
+                continue
+        return 'en'
 
     @staticmethod
     def subdomain_available(subdomain):
