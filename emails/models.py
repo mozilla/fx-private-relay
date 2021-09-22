@@ -44,6 +44,7 @@ class Profile(models.Model):
     subdomain = models.CharField(
         blank=True, null=True, unique=True, max_length=12, db_index=True
     )
+    server_storage = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s Profile' % self.user
@@ -244,6 +245,7 @@ class RelayAddress(models.Model):
     num_forwarded = models.PositiveSmallIntegerField(default=0)
     num_blocked = models.PositiveSmallIntegerField(default=0)
     num_spam = models.PositiveSmallIntegerField(default=0)
+    generated_for = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return self.address

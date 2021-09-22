@@ -8,9 +8,10 @@ class RelayAddressSerializer(
 ):
     class Meta:
         model = RelayAddress
-        fields = ['address', 'domain', 'enabled', 'description',
+        fields = ['id', 'address', 'domain', 'enabled', 'description',
                   'created_at', 'last_modified_at', 'last_used_at',
-                  'num_forwarded', 'num_blocked', 'num_spam']
+                  'num_forwarded', 'num_blocked', 'num_spam',
+                  'generated_for']
 
 
 class DomainAddressSerializer(
@@ -18,7 +19,7 @@ class DomainAddressSerializer(
 ):
     class Meta:
         model = DomainAddress
-        fields = ['address', 'enabled', 'description',
+        fields = ['id', 'address', 'enabled', 'description',
                   'created_at', 'last_modified_at', 'last_used_at',
                   'num_forwarded', 'num_blocked', 'num_spam']
 
@@ -28,4 +29,4 @@ class ProfileSerializer(
 ):
     class Meta:
         model = Profile
-        fields = ['subdomain']
+        fields = ['id', 'subdomain', 'server_storage']
