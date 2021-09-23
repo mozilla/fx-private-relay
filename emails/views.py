@@ -460,7 +460,7 @@ def _get_domain_address(local_portion, domain_portion):
         user_profile = Profile.objects.get(subdomain=address_subdomain)
         domain_numerical = get_domain_numerical(address_domain)
         # filter DomainAddress because it may not exist
-        # which will throw an error with get() 
+        # which will throw an error with get()
         domain_address = DomainAddress.objects.filter(
             user=user_profile.user, address=local_portion, domain=address_domain
         ).first()
