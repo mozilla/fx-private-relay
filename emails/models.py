@@ -19,11 +19,13 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
 
+
 def get_domains_from_settings():
     return {
         'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
         'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
     }
+
 
 DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
@@ -402,7 +404,9 @@ class DomainAddress(models.Model):
 
 class Reply(models.Model):
     relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE, blank=True, null=True)
-    domain_address = models.ForeignKey(DomainAddress, on_delete=models.CASCADE, blank=True, null=True)
+    domain_address = models.ForeignKey(
+        DomainAddress, on_delete=models.CASCADE, blank=True, null=True
+    )
     lookup = models.CharField(max_length=255, blank=False, db_index=True)
     encrypted_metadata = models.TextField(blank=False)
     created_at = models.DateField(auto_now_add=True, null=False)
