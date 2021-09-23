@@ -483,7 +483,7 @@ def _get_address(to_address, local_portion, domain_portion):
     # it may be for a user's subdomain
     email_domains = get_domains_from_settings().values()
     if domain_portion not in email_domains:
-        return _get_domain_address(to_address, local_portion, domain_portion)
+        return _get_domain_address(local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
