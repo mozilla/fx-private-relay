@@ -454,8 +454,7 @@ def _handle_reply(message_json):
 
 
 def _get_domain_address(local_portion, domain_portion):
-    address_subdomain = domain_portion.split('.')[0]
-    address_domain = domain_portion.split('.')[1]
+    [address_subdomain, address_domain] = domain_portion.split('.', 1)
     try:
         user_profile = Profile.objects.get(subdomain=address_subdomain)
         domain_numerical = get_domain_numerical(address_domain)
