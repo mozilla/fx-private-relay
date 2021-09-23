@@ -59,11 +59,15 @@ class MiscEmailModelsTest(TestCase):
         expected_hash = sha256(f'{address}@{non_default}'.encode('utf-8')).hexdigest()
         assert address_hash(address, domain=non_default) == expected_hash
 
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_address_hash_with_subdomain(self):
         address = 'aaaaaaaaa'
         subdomain = 'test'
-        expected_hash = sha256(f'{address}@{subdomain}'.encode('utf-8')).hexdigest()
-        assert address_hash(address, subdomain) == expected_hash
+        domain = TEST_DOMAINS.get('MOZMAIL_DOMAIN')
+        expected_hash = sha256(
+            f'{address}@{subdomain}.{domain}'.encode('utf-8')
+        ).hexdigest()
+        assert address_hash(address, subdomain, domain) == expected_hash
 
     def test_address_hash_with_additional_domain(self):
         address = 'aaaaaaaaa'
@@ -634,7 +638,7 @@ class DomainAddressTest(TestCase):
     def test_delete_adds_deleted_address_object(self):
         domain_address = baker.make(DomainAddress, user=self.user)
         domain_address_hash = sha256(
-            f'{domain_address}@{self.subdomain}'.encode('utf-8')
+            domain_address.full_address.encode('utf-8')
         ).hexdigest()
         domain_address.delete()
         deleted_address_qs = DeletedAddress.objects.filter(

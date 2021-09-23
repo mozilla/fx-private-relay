@@ -379,7 +379,7 @@ class DomainAddress(models.Model):
     def delete(self, *args, **kwargs):
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
-            address_hash=address_hash(self.address, self.user_profile.subdomain, self.domain),
+            address_hash=address_hash(self.address, self.user_profile.subdomain, self.domain_value),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
