@@ -261,7 +261,9 @@ def encrypt_reply_metadata(key, payload):
     """Encrypt the given payload into a JWE, using the given key."""
     # This is a bit dumb, we have to base64-encode the key in order to load it :-/
     k = jwcrypto.jwk.JWK(kty="oct", k=base64.urlsafe_b64encode(key).rstrip(b"=").decode('ascii'))
-    e = jwcrypto.jwe.JWE(json.dumps(payload), json.dumps({"alg": "dir", "enc": "A256GCM"}), recipient=k)
+    e = jwcrypto.jwe.JWE(
+        json.dumps(payload), json.dumps({"alg": "dir", "enc": "A256GCM"}), recipient=k
+    )
     return e.serialize(compact=True)
 
 

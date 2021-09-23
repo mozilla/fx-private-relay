@@ -453,14 +453,15 @@ def _handle_reply(message_json):
         return HttpResponse("SES client error", status=400)
 
 
-def _get_domain_address(to_address, local_portion, domain_portion):
-    address_subdomain = domain_portion.split('.')[0]
+def _get_domain_address(local_portion, domain_portion):
+    [address_subdomain, address_domain] = domain_portion.split('.', 1)
     try:
         user_profile = Profile.objects.get(subdomain=address_subdomain)
+        domain_numerical = get_domain_numerical(address_domain)
         # filter DomainAddress because it may not exist
         # which will throw an error with get()
         domain_address = DomainAddress.objects.filter(
-            user=user_profile.user, address=local_portion
+            user=user_profile.user, address=local_portion, domain=domain_numerical
         ).first()
         if domain_address is None:
             # TODO: We may want to consider flows when
@@ -482,7 +483,7 @@ def _get_address(to_address, local_portion, domain_portion):
     # it may be for a user's subdomain
     email_domains = get_domains_from_settings().values()
     if domain_portion not in email_domains:
-        return _get_domain_address(to_address, local_portion, domain_portion)
+        return _get_domain_address(local_portion, domain_portion)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:

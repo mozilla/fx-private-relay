@@ -19,11 +19,13 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
 
+
 def get_domains_from_settings():
     return {
         'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
         'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
     }
+
 
 DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
@@ -173,7 +175,7 @@ class Profile(models.Model):
 def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
     if subdomain:
         return sha256(
-            f'{address}@{subdomain}'.encode('utf-8')
+            f'{address}@{subdomain}.{domain}'.encode('utf-8')
         ).hexdigest()
     if domain == settings.RELAY_FIREFOX_DOMAIN:
         return sha256(
@@ -318,6 +320,7 @@ class DomainAddress(models.Model):
     address = models.CharField(max_length=64)
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
+    domain = models.PositiveSmallIntegerField(choices=DOMAIN_CHOICES, default=2)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     first_emailed_at = models.DateTimeField(null=True, db_index=True)
     last_used_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -347,7 +350,6 @@ class DomainAddress(models.Model):
             )
 
         address_contains_badword = False
-        address_is_blocklisted = False
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
             # we should retry like make_relay_address does
@@ -356,7 +358,7 @@ class DomainAddress(models.Model):
             address = address_default()
             # Only check for bad words if randomly generated
             address_contains_badword = has_bad_words(address)
-            address_is_blocklisted = is_blocklisted(address)
+        address_is_blocklisted = is_blocklisted(address)
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(address, user_subdomain)
         ).count()
@@ -378,7 +380,7 @@ class DomainAddress(models.Model):
     def delete(self, *args, **kwargs):
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
-            address_hash=address_hash(self.address, self.user_profile.subdomain),
+            address_hash=address_hash(self.address, self.user_profile.subdomain, self.domain_value),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
@@ -390,15 +392,21 @@ class DomainAddress(models.Model):
         return super(DomainAddress, self).delete(*args, **kwargs)
 
     @property
+    def domain_value(self):
+        return DOMAINS.get(self.get_domain_display())
+
+    @property
     def full_address(self):
         return '%s@%s.%s' % (
-            self.address, self.user_profile.subdomain, DEFAULT_DOMAIN
+            self.address, self.user_profile.subdomain, self.domain_value
         )
 
 
 class Reply(models.Model):
     relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE, blank=True, null=True)
-    domain_address = models.ForeignKey(DomainAddress, on_delete=models.CASCADE, blank=True, null=True)
+    domain_address = models.ForeignKey(
+        DomainAddress, on_delete=models.CASCADE, blank=True, null=True
+    )
     lookup = models.CharField(max_length=255, blank=False, db_index=True)
     encrypted_metadata = models.TextField(blank=False)
     created_at = models.DateField(auto_now_add=True, null=False)

@@ -59,11 +59,15 @@ class MiscEmailModelsTest(TestCase):
         expected_hash = sha256(f'{address}@{non_default}'.encode('utf-8')).hexdigest()
         assert address_hash(address, domain=non_default) == expected_hash
 
+    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_address_hash_with_subdomain(self):
         address = 'aaaaaaaaa'
         subdomain = 'test'
-        expected_hash = sha256(f'{address}@{subdomain}'.encode('utf-8')).hexdigest()
-        assert address_hash(address, subdomain) == expected_hash
+        domain = TEST_DOMAINS.get('MOZMAIL_DOMAIN')
+        expected_hash = sha256(
+            f'{address}@{subdomain}.{domain}'.encode('utf-8')
+        ).hexdigest()
+        assert address_hash(address, subdomain, domain) == expected_hash
 
     def test_address_hash_with_additional_domain(self):
         address = 'aaaaaaaaa'
@@ -187,7 +191,7 @@ class ProfileTest(TestCase):
     def test_bounce_paused_no_bounces(self):
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
-        assert bounce_paused == False
+        assert bounce_paused is False
         assert bounce_type == ''
 
     def test_bounce_paused_hard_bounce_pending(self):
@@ -199,7 +203,7 @@ class ProfileTest(TestCase):
 
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
-        assert bounce_paused == True
+        assert bounce_paused is True
         assert bounce_type == 'hard'
 
     def test_bounce_paused_soft_bounce_pending(self):
@@ -211,7 +215,7 @@ class ProfileTest(TestCase):
 
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
-        assert bounce_paused == True
+        assert bounce_paused is True
         assert bounce_type == 'soft'
 
     def test_bounce_paused_hardd_and_soft_bounce_pending_shows_hard(self):
@@ -226,7 +230,7 @@ class ProfileTest(TestCase):
         self.profile.save()
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
-        assert bounce_paused == True
+        assert bounce_paused is True
         assert bounce_type == 'hard'
 
     def test_bounce_paused_hard_bounce_over_resets_timer(self):
@@ -240,9 +244,9 @@ class ProfileTest(TestCase):
 
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
-        assert bounce_paused == False
+        assert bounce_paused is False
         assert bounce_type == ''
-        assert self.profile.last_hard_bounce == None
+        assert self.profile.last_hard_bounce is None
 
     def test_bounce_paused_soft_bounce_over_resets_timer(self):
         self.profile.last_soft_bounce = (
@@ -255,9 +259,9 @@ class ProfileTest(TestCase):
 
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
-        assert bounce_paused == False
+        assert bounce_paused is False
         assert bounce_type == ''
-        assert self.profile.last_soft_bounce == None
+        assert self.profile.last_soft_bounce is None
 
     def test_next_email_try_no_bounces_returns_today(self):
         assert (
@@ -316,7 +320,7 @@ class ProfileTest(TestCase):
         )
 
     def test_last_bounce_date_no_bounces_returns_None(self):
-        assert self.profile.last_bounce_date == None
+        assert self.profile.last_bounce_date is None
 
     def test_last_bounce_date_soft_bounce_returns_its_date(self):
         last_soft_bounce = (
@@ -354,7 +358,7 @@ class ProfileTest(TestCase):
         assert self.profile.last_bounce_date == self.profile.last_hard_bounce
 
     def test_has_premium_default_False(self):
-        assert self.profile.has_premium == False
+        assert self.profile.has_premium is False
 
     def test_has_premium_with_unlimited_subsription_returns_True(self):
         premium_user = baker.make(User)
@@ -368,7 +372,7 @@ class ProfileTest(TestCase):
             extra_data={'subscriptions': [random_sub]}
         )
         premium_profile = baker.make(Profile, user=premium_user)
-        assert premium_profile.has_premium == True
+        assert premium_profile.has_premium is True
 
     def test_add_subdomain_to_new_unlimited_profile(self):
         subdomain = 'test-subdomain'
@@ -461,10 +465,10 @@ class ProfileTest(TestCase):
         self.fail("Should have raised CannotMakeSubdomainException")
 
     def test_subdomain_available_bad_word_returns_False(self):
-        assert Profile.subdomain_available('angry') == False
+        assert Profile.subdomain_available('angry') is False
 
     def test_subdomain_available_blocked_word_returns_False(self):
-        assert Profile.subdomain_available('mozilla') == False
+        assert Profile.subdomain_available('mozilla') is False
 
     def test_subdomain_available_taken_returns_False(self):
         premium_user = baker.make(User)
@@ -479,19 +483,20 @@ class ProfileTest(TestCase):
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain('thisisfine')
-        assert Profile.subdomain_available('thisisfine') == False
+        assert Profile.subdomain_available('thisisfine') is False
 
     def test_subdomain_available_with_space_returns_False(self):
-        assert Profile.subdomain_available('my domain') == False
+        assert Profile.subdomain_available('my domain') is False
 
     def test_subdomain_available_with_special_char_returns_False(self):
-        assert Profile.subdomain_available('my@domain') == False
+        assert Profile.subdomain_available('my@domain') is False
 
     def test_subdomain_available_with_dash_returns_True(self):
-        assert Profile.subdomain_available('my-domain') == True
+        assert Profile.subdomain_available('my-domain') is True
 
     def test_subdomain_available_with_dash_at_front_returns_False(self):
-        assert Profile.subdomain_available('-mydomain') == False
+        assert Profile.subdomain_available('-mydomain') is False
+
     def test_display_name_exists(self):
         display_name = 'Display Name'
         social_account = baker.make(
@@ -509,7 +514,7 @@ class ProfileTest(TestCase):
             extra_data={}
         )
         profile = Profile.objects.get(user=social_account.user)
-        assert profile.display_name == None
+        assert profile.display_name is None
 
 
 class DomainAddressTest(TestCase):
@@ -555,16 +560,16 @@ class DomainAddressTest(TestCase):
 
     def test_make_domain_address_makes_requested_address(self):
         domain_address = DomainAddress.make_domain_address(
-            self.user_profile, 'testing'
+            self.user_profile, 'foobar'
         )
-        assert domain_address.address == 'testing'
+        assert domain_address.address == 'foobar'
         assert domain_address.first_emailed_at is None
 
     def test_make_domain_address_makes_requested_address_via_email(self):
         domain_address = DomainAddress.make_domain_address(
-            self.user_profile, 'testing', True
+            self.user_profile, 'foobar', True
         )
-        assert domain_address.address == 'testing'
+        assert domain_address.address == 'foobar'
         assert domain_address.first_emailed_at is not None
 
     def test_make_domain_address_non_premium_user(self):
@@ -575,6 +580,14 @@ class DomainAddressTest(TestCase):
             )
         except CannotMakeAddressException as e:
             assert e.message == NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
+            return
+        self.fail("Should have raise CannotMakeAddressException")
+
+    def test_make_domain_address_cannot_make_blocklisted_address(self):
+        try:
+            DomainAddress.make_domain_address(self.user_profile, 'testing')
+        except CannotMakeAddressException as e:
+            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             return
         self.fail("Should have raise CannotMakeAddressException")
 
@@ -622,7 +635,9 @@ class DomainAddressTest(TestCase):
         self.fail("Should have raise CannotMakeAddressException")
 
     @patch('emails.models.address_default')
-    def test_make_domain_address_doesnt_randomly_generate_blocked_word(self, address_default_mocked):
+    def test_make_domain_address_doesnt_randomly_generate_blocked_word(
+        self, address_default_mocked
+    ):
         address_default_mocked.return_value = 'mozilla'
         try:
             DomainAddress.make_domain_address(self.user_profile)
@@ -634,7 +649,7 @@ class DomainAddressTest(TestCase):
     def test_delete_adds_deleted_address_object(self):
         domain_address = baker.make(DomainAddress, user=self.user)
         domain_address_hash = sha256(
-            f'{domain_address}@{self.subdomain}'.encode('utf-8')
+            domain_address.full_address.encode('utf-8')
         ).hexdigest()
         domain_address.delete()
         deleted_address_qs = DeletedAddress.objects.filter(
