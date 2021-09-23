@@ -453,14 +453,16 @@ def _handle_reply(message_json):
         return HttpResponse("SES client error", status=400)
 
 
-def _get_domain_address(to_address, local_portion, domain_portion):
+def _get_domain_address(local_portion, domain_portion):
     address_subdomain = domain_portion.split('.')[0]
+    address_domain = domain_portion.split('.')[1]
     try:
         user_profile = Profile.objects.get(subdomain=address_subdomain)
+        domain_numerical = get_domain_numerical(address_domain)
         # filter DomainAddress because it may not exist
-        # which will throw an error with get()
+        # which will throw an error with get() 
         domain_address = DomainAddress.objects.filter(
-            user=user_profile.user, address=local_portion
+            user=user_profile.user, address=local_portion, domain=address_domain
         ).first()
         if domain_address is None:
             # TODO: We may want to consider flows when
