@@ -7,7 +7,8 @@ COPY .stylelintrc.json ./
 COPY static ./static/
 RUN npm install
 RUN ./node_modules/.bin/gulp build
-RUN npm run lint
+RUN npm run lint:js -- --max-warnings=0
+RUN npm run lint:css
 
 FROM python:3.7.9
 
