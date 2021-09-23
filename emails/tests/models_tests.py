@@ -559,16 +559,16 @@ class DomainAddressTest(TestCase):
 
     def test_make_domain_address_makes_requested_address(self):
         domain_address = DomainAddress.make_domain_address(
-            self.user_profile, 'testing'
+            self.user_profile, 'foobar'
         )
-        assert domain_address.address == 'testing'
+        assert domain_address.address == 'foobar'
         assert domain_address.first_emailed_at is None
 
     def test_make_domain_address_makes_requested_address_via_email(self):
         domain_address = DomainAddress.make_domain_address(
-            self.user_profile, 'testing', True
+            self.user_profile, 'foobar', True
         )
-        assert domain_address.address == 'testing'
+        assert domain_address.address == 'foobar'
         assert domain_address.first_emailed_at is not None
 
     def test_make_domain_address_non_premium_user(self):
@@ -579,6 +579,14 @@ class DomainAddressTest(TestCase):
             )
         except CannotMakeAddressException as e:
             assert e.message == NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
+            return
+        self.fail("Should have raise CannotMakeAddressException")
+
+    def test_make_domain_address_cannot_make_blocklisted_address(self):
+        try:
+            DomainAddress.make_domain_address(self.user_profile, 'testing')
+        except CannotMakeAddressException as e:
+            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             return
         self.fail("Should have raise CannotMakeAddressException")
 

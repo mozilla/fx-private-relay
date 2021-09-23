@@ -348,7 +348,6 @@ class DomainAddress(models.Model):
             )
 
         address_contains_badword = False
-        address_is_blocklisted = False
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
             # we should retry like make_relay_address does
@@ -357,7 +356,7 @@ class DomainAddress(models.Model):
             address = address_default()
             # Only check for bad words if randomly generated
             address_contains_badword = has_bad_words(address)
-            address_is_blocklisted = is_blocklisted(address)
+        address_is_blocklisted = is_blocklisted(address)
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(address, user_subdomain)
         ).count()
