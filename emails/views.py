@@ -462,7 +462,7 @@ def _get_domain_address(local_portion, domain_portion):
         # filter DomainAddress because it may not exist
         # which will throw an error with get()
         domain_address = DomainAddress.objects.filter(
-            user=user_profile.user, address=local_portion, domain=address_domain
+            user=user_profile.user, address=local_portion, domain=domain_numerical
         ).first()
         if domain_address is None:
             # TODO: We may want to consider flows when
