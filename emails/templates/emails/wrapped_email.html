@@ -83,12 +83,7 @@
             <tr>
               <td align="center" style="line-height: 150%; padding-left: 20px; padding-right: 20px;">
                 <p style="display: inline-block; padding-top: 0; font-size: 13px; color: #363959; font-family: sans-serif; padding-left: 20px; padding-right: 20px; margin-top: 0; margin-bottom: 0;">
-               {% with SITE_ORIGIN|add:'/accounts/profile?utm_source=emails&utm_medium=email&utm_campaign=alias-email' as profile_link %}
-                   {% ftlmsg 'forwarded-email-footer-manage-settings-text' as manage_settings_text %}
-                   {% bold_violet_link profile_link manage_settings_text as manage_settings_link %}
-                   {% ftlmsg 'forwarded-email-footer' manage_settings_link=manage_settings_link as forwarded_email_footer %}
-                   {{ forwarded_email_footer|safe }}
-               {% endwith %}
+                <a href="{{ SITE_ORIGIN }}/accounts/profile?utm_source=emails&utm_medium=email&utm_campaign=alias-email" target="_blank" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">{% ftlmsg 'forwarded-email-footer' %}</a>
                 </p>
               </td>
             </tr>
