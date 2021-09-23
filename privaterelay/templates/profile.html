@@ -183,7 +183,7 @@
 
               <!-- delete email address -->
               <div class="column-delete">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ RELAY_DOMAIN }}">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ relay_address.domain_value }}">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
@@ -200,7 +200,7 @@
 
       {% for domain_address in domain_addresses %}
     
-        <div class="c-alias js-alias relay-email is-domain-alias {% if domain_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{% user_email_domain user_profile %}" data-relay-address-id="{{ domain_address.id }}">
+        <div class="c-alias js-alias relay-email is-domain-alias {% if domain_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ domain_address.full_address }}" data-relay-address-id="{{ domain_address.id }}">
           
           <div class="c-alias-main-info">
             <!-- enable/disable email forwarding -->
@@ -234,9 +234,9 @@
                   data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
                   data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
                   data-id="{{ domain_address.id }}"
-                  data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
+                  data-clipboard-text="{{ domain_address.full_address }}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
-                    {{ domain_address.address }}@{% user_email_domain user_profile %}
+                    {{ domain_address.full_address }}
                     <span class="alias-copied-icon"></span>
                     <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
                 </button>
@@ -265,9 +265,9 @@
               data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
               data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
               data-id="{{ domain_address.id }}"
-              data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
+              data-clipboard-text="{{ domain_address.full_address }}"
               class="relay-address click-copy ff-Met xflx jst-cntr al-cntr">
-                {{ domain_address.address }}@{% user_email_domain user_profile %}
+                {{ domain_address.full_address }}
                 <span class="alias-copied-icon"></span>
                 <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
             </button>
@@ -297,7 +297,7 @@
 
               <!-- delete email address -->
               <div class="column-delete">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ domain_address.address }}@{% user_email_domain user_profile %}">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ domain_address.full_address }}">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">
