@@ -280,11 +280,10 @@ def decrypt_reply_metadata(key, jwe):
 
 def get_message_content_from_s3(bucket, object_key):
     emails_config = apps.get_app_config('emails')
-    s3_object = emails_config.s3_client.Object(bucket, object_key)
 
     # attachment = SpooledTemporaryFile()
-    with io.BytesIO() as f:
-        s3_object.download_fileobj(f)
+    with open('temp_file', 'wb') as f:
+        emails_config.s3_client.download_fileobj(bucket, object_key, f)
 
         f.seek(0)
         return f.read()
