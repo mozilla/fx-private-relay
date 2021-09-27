@@ -308,9 +308,7 @@ def _sns_message(message_json):
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        p = Profile.objects.get(user__email='test-new-relay-user@mailinator.com') 
-        address = RelayAddress.objects.filter(user=p.user).first()
-        # address = _get_address(to_address, to_local_portion, to_domain_portion)
+        address = _get_address(to_address, to_local_portion, to_domain_portion)
         user_profile = address.user.profile_set.first()
     except Exception:
         if to_local_portion == 'replies':
