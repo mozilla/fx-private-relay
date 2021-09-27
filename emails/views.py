@@ -402,6 +402,7 @@ def _sns_message(message_json):
         formatted_from_address, to_address, subject,
         message_body, attachments, mail, address
     )
+    print(f'Response: {response}')
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
     address.save(
