@@ -274,10 +274,6 @@ def _sns_notification(json_body):
             notification_type,
             status=400
         )
-    return HttpResponse(
-            'forcing success to clean log',
-            status=200
-        )
     return _sns_message(message_json)
 
 
