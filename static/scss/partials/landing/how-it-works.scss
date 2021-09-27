@@ -1,0 +1,59 @@
+@import "libs/protocol/css/protocol.scss";
+
+.how-it-works-content {
+    width: 100%;
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: $font-metropolis !important;
+    }
+
+    .how-it-works-header {
+        @include text-title-sm;
+        margin-bottom: $spacing-md;
+    }
+
+    .how-it-works-steps {
+        width: 100%;
+
+        &.mzp-l-columns {
+            width: $screen-xs;
+
+            @media #{$mq-lg} {
+                width: 100%;
+            }
+        
+        }
+
+        margin-top: $layout-sm;
+        margin-bottom: $layout-lg;
+
+    }
+
+    .step-illustration {
+        height: $content-xs;
+        width: 100%;
+    }
+
+    .step-text {
+        padding-top: $spacing-md;
+    }
+
+    .step-headline {
+        font-size: 1.25em;
+        margin: 0 auto .5em 0;
+    }
+
+    .step-body {
+        margin: 0 auto auto auto;
+        font-size: 1em;
+        line-height: 1.7em;
+        color: black !important;
+
+        .text-link {
+            color: $color-blue-50;
+            font-weight: 500;
+        }
+
+    }
+
+}
