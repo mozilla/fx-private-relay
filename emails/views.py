@@ -37,6 +37,7 @@ from .models import (
 )
 from .utils import (
     b64_lookup_key,
+    get_message_content_from_s3,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
@@ -177,14 +178,17 @@ def sns_inbound(request):
     # We can check for some invalid values in headers before processing body
     # Grabs message information for validation
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
+    print(f'topic arn: {topic_arn}')
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
+    print(f'message type: {message_type}')
 
     # Validates header
     validate_sns_header(topic_arn, message_type)
 
     json_body = json.loads(request.body)
+    print(f'json body: {json_body}')
     verified_json_body = verify_from_sns(json_body)
-
+    print(f'verified json body: {verified_json_body}')
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
@@ -252,9 +256,14 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
 
 
 def _sns_notification(json_body):
+    print(f'SNS NOTIFICATION')
+    print(f'JSON BODY: {json_body}')
     message_json = json.loads(json_body['Message'])
+    print(f'MESSAGE JSON: {message_json}')
     event_type = message_json.get('eventType')
+    print(f'EVENT TYPE: {event_type}')
     notification_type = message_json.get('notificationType')
+    print(f'NOTIFICATION TYPE: {notification_type}')
     if notification_type != 'Received' and event_type != 'Bounce':
         logger.error(
             'SNS notification for unsupported type',
@@ -269,6 +278,7 @@ def _sns_notification(json_body):
 
 
 def _sns_message(message_json):
+    print('SNS MESSAGE')
     incr_if_enabled('sns_inbound_Notification_Received', 1)
     mail = message_json['mail']
     if message_json.get('eventType') == 'Bounce':
@@ -279,7 +289,8 @@ def _sns_message(message_json):
             'Received SNS notification without commonHeaders.',
             status=400
         )
-
+    common_headers = mail['commonHeaders']
+    print(f'COMMON HEADERS: {common_headers}')
     if 'to' not in mail['commonHeaders']:
         logger.error('SNS message without commonHeaders "to".')
         return HttpResponse(
@@ -297,7 +308,9 @@ def _sns_message(message_json):
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        address = _get_address(to_address, to_local_portion, to_domain_portion)
+        p = Profile.objects.get(user__email='test-new-relay-user@mailinator.com') 
+        address = RelayAddress.objects.filter(user=p.user).first()
+        # address = _get_address(to_address, to_local_portion, to_domain_portion)
         user_profile = address.user.profile_set.first()
     except Exception:
         if to_local_portion == 'replies':
@@ -342,6 +355,10 @@ def _sns_message(message_json):
     text_content, html_content, attachments = _get_text_html_attachments(
         message_json
     )
+
+    print(f'text content: {text_content}')
+    print(f'html content: {html_content}')
+    print(f'attachments: {attachments}')
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -536,9 +553,16 @@ def _handle_bounce(message_json):
 
 
 def _get_text_html_attachments(message_json):
-    bytes_email_message = message_from_bytes(
-        message_json['content'].encode('utf-8'), policy=policy.default
-    )
+    if 'content' in message_json:
+        message_content = message_json['content'].encode('utf-8')
+    elif 'receipt' in message_json and 'action' in message_json['receipt']:
+        if 'S3' in message_json['receipt']['action']['type']: 
+            bucket = message_json['receipt']['action']['bucketName']
+            object_key = message_json['receipt']['action']['objectKey']
+            message_content = get_message_content_from_s3(bucket, object_key)
+            print('Successful S3 download of email message')
+    
+    bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
     text_content, html_content, attachments = _get_all_contents(
         bytes_email_message
