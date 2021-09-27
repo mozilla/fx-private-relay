@@ -413,11 +413,13 @@ def _handle_reply(from_address, message_json):
     (lookup_key, encryption_key) = _get_keys_from_headers(mail['headers'])
     reply_record = _get_reply_record_from_lookup_key(lookup_key)
     address = reply_record.address
-    stripped_reply_record_address = _strip_localpart_tag(
-        address.user.email
-    )
+    reply_record_email = address.user.email
+    stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
 
-    if stripped_from_address is stripped_reply_record_address:
+    if (
+        (from_address is reply_record_email) or
+        (stripped_from_address is stripped_reply_record_address)
+    ):
         # This is a Relay user replying to an external sender;
         # verify they are premium
         if not reply_record.owner_has_premium:
