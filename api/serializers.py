@@ -29,4 +29,4 @@ class ProfileSerializer(
 ):
     class Meta:
         model = Profile
-        fields = ['id', 'subdomain', 'server_storage']
+        fields = ['id', 'server_storage']

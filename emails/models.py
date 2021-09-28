@@ -28,6 +28,23 @@ if settings.TEST_MOZMAIL:
     DEFAULT_DOMAIN = settings.MOZMAIL_DOMAIN
 
 
+def valid_available_subdomain(subdomain, *args, **kwargs):
+    # valid subdomains:
+    #   can't start or end with a hyphen
+    #   must be 1-63 alphanumeric characters and/or hyphens
+    valid_subdomain_pattern = re.compile('^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$')
+    valid = valid_subdomain_pattern.match(subdomain) is not None
+    #   can't have "bad" words in them
+    bad_word = has_bad_words(subdomain)
+    #   can't have "blocked" words in them
+    blocked_word = is_blocklisted(subdomain)
+    #   can't be taken by someone else
+    taken = Profile.objects.filter(subdomain=subdomain).count() > 0
+    if not valid or bad_word or blocked_word or taken:
+        raise CannotMakeSubdomainException('error-subdomain-not-available')
+    return True
+
+
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
@@ -42,23 +59,13 @@ class Profile(models.Model):
         blank=True, null=True, db_index=True
     )
     subdomain = models.CharField(
-        blank=True, null=True, unique=True, max_length=12, db_index=True
+        blank=True, null=True, unique=True, max_length=12, db_index=True,
+        validators=[valid_available_subdomain]
     )
     server_storage = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s Profile' % self.user
-
-    @staticmethod
-    def subdomain_available(subdomain):
-        # valid subdomains can't start or end with a hyphen, and must be 1-63
-        # alphanumeric characters and/or hyphens
-        valid_subdomain_pattern = re.compile('^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$')
-        valid = valid_subdomain_pattern.match(subdomain) is not None
-        bad_word = has_bad_words(subdomain)
-        blocked_word = is_blocklisted(subdomain)
-        taken = Profile.objects.filter(subdomain=subdomain).count() > 0
-        return valid and not bad_word and not blocked_word and not taken
 
     @property
     def num_active_address(self):
@@ -157,9 +164,6 @@ class Profile(models.Model):
             raise CannotMakeSubdomainException('error-premium-set-subdomain')
         if self.subdomain is not None:
             raise CannotMakeSubdomainException('error-premium-cannot-change-subdomain')
-        subdomain_available = Profile.subdomain_available(subdomain)
-        if not subdomain or not subdomain_available:
-            raise CannotMakeSubdomainException('error-subdomain-not-available')
         self.subdomain = subdomain
         self.save()
         return subdomain

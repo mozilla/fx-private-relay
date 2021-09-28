@@ -48,13 +48,3 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
-
-    def update(self, request, pk=None, *args, **kwargs):
-        profile = request.user.profile_set.first()
-        if not profile.has_unlimited:
-            raise CannotMakeSubdomainException('error-premium-check-subdomain')
-        subdomain = request.data.get('subdomain', None)
-        available = Profile.subdomain_available(subdomain)
-        if not available:
-            raise CannotMakeSubdomainException('error-subdomain-not-available')
-        return super().update(request, pk, *args, **kwargs)

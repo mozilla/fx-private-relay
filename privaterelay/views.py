@@ -31,7 +31,8 @@ from emails.models import (
     DomainAddress,
     Profile,
     RelayAddress,
-    NOT_PREMIUM_USER_ERR_MSG
+    NOT_PREMIUM_USER_ERR_MSG,
+    valid_available_subdomain
 )
 
 FXA_PROFILE_CHANGE_EVENT = (
@@ -111,9 +112,7 @@ def profile_subdomain(request):
     try:
         if request.method == 'GET':
             subdomain = request.GET.get('subdomain', None)
-            available = Profile.subdomain_available(subdomain)
-            if not available:
-                raise CannotMakeSubdomainException('error-subdomain-not-available')
+            available = valid_available_subdomain(subdomain)
             return JsonResponse({'available': available})
         else:
             subdomain = request.POST.get('subdomain', None)
