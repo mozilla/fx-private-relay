@@ -19,13 +19,13 @@ api_router.register(
 )
 
 urlpatterns = [
-    path('swagger(?P<format>\.json|\.yaml)',
+    path('v1/swagger(?P<format>\.json|\.yaml)',
         schema_view.without_ui(cache_timeout=0),
         name='schema-json'
     ),
-    path('docs/',
+    path('v1/docs/',
         schema_view.with_ui('swagger', cache_timeout=0),
         name='schema-swagger-ui'
     ),
-    path('', include(api_router.urls)),
+    path('v1/', include(api_router.urls)),
 ]
