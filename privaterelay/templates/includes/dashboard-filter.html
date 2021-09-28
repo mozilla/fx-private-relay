@@ -130,6 +130,19 @@
                         </span>
                     </button>
                 {% endif %}
+            {% else %}
+            <button
+                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr"
+                title="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                type="submit"
+                value="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                data-event-label="Create New Relay Alias"
+            >
+                <span class="generate-new-relay-icon"></span>
+                <span class="generate-new-alias-text">
+                    {% ftlmsg 'profile-label-generate-new-alias' %}
+                </span>
+            </button>
             {% endif %}
         </form>
     </div>
