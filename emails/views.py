@@ -352,11 +352,11 @@ def _sns_message(message_json):
         incr_if_enabled('email_with_html_content', 1)
         wrapped_html = render_to_string('emails/wrapped_email.html', {
             'original_html': html_content,
+            'recipient_profile': user_profile,
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
             'has_attachment': bool(attachments),
-            'faq_page': settings.SITE_ORIGIN + reverse('faq'),
             'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
             'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK
         })
