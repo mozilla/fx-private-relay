@@ -425,3 +425,12 @@ class Reply(models.Model):
     lookup = models.CharField(max_length=255, blank=False, db_index=True)
     encrypted_metadata = models.TextField(blank=False)
     created_at = models.DateField(auto_now_add=True, null=False)
+
+    @property
+    def address(self):
+        return self.relay_address or self.domain_address
+
+    @property
+    def owner_has_premium(self):
+        profile = self.address.user.profile_set.first()
+        return profile.has_premium
