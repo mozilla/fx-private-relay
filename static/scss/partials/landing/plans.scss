@@ -1,0 +1,125 @@
+@import "libs/protocol/css/protocol.scss";
+
+
+.c-gray-bg {
+    background-color: $color-light-gray-10;
+    height: auto;
+}
+
+.c-plans {
+    display: grid;
+
+    @media screen and ($mq-md){
+        grid-template-columns: repeat(3, 1fr);
+        column-gap: $spacing-2xl;
+    }
+    @media screen and ($mq-lg){
+        grid-template-columns: repeat(5, 1fr);
+        column-gap: $spacing-2xl;
+    }
+
+    .c-pricing-options {
+        display: grid;
+        grid-column-start: span 3;
+        column-gap: $spacing-md;
+        row-gap: $spacing-md;
+        grid-template-columns: 1fr;
+
+        @media screen and ($mq-sm){
+            padding: 0 $spacing-xl;
+
+
+            @media screen and ($mq-md){
+                grid-template-columns: 1fr 1fr;
+                row-gap: none;
+                padding: 0;
+            }
+        }
+
+        .c-option {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: white;
+            align-items: center;
+            border-radius: $border-radius-md;
+            text-align: center;
+            padding: $spacing-xl;
+
+            .c-price {
+                color: $color-blue-50;
+                font-weight: 500;
+                font-size: 1.125em;
+                margin: 0;
+                padding-top: $spacing-md;
+
+                .c-currency {
+                    color: $color-dark-gray-50;
+                    font-size: .55em;
+                    font-weight: normal;
+                }
+
+                .premium-price {
+                    font-size: 1.75em;
+                }
+            }
+
+            .c-features {
+                padding-top: $spacing-md;
+                text-align: left;
+
+                li {
+                    padding-bottom: $spacing-md;
+                }
+
+                li::before {
+                    content: "";
+                    width: 20px;
+                    height: 20px;
+                    margin-top: 6px;
+                    margin-left: -$spacing-lg;
+                    position: absolute;
+                    background-repeat: no-repeat;
+                    background-image: url("/static/images/icon-blue-check.svg");
+                }
+            }
+
+            .c-description {
+                font-size: .875em;
+                border-radius: $border-radius-md;
+                border: 2px solid $color-light-gray-40;
+                padding: $spacing-sm $spacing-md;
+            }
+
+            .mzp-c-button {
+                margin-top: $spacing-lg;
+                float: bottom;
+            }
+        }
+
+    }
+
+    .c-pricing-text {
+        grid-row-start: 1;
+        grid-column-start: span 2;
+        height: 100%;
+
+        h2 {
+            font-family: $font-metropolis;
+            font-weight: 500;
+        }
+
+        @media screen and ($mq-lg){
+            grid-row-start: auto;
+
+             
+            .vertical-center {
+                position: absolute;
+                top: 50%;
+                -ms-transform: translateY(-50%);
+                transform: translateY(-50%);
+            }
+        }
+    }
+}
+
