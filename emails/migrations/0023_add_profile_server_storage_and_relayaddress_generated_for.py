@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0018_relayaddress_domain'),
+        ('emails', '0022_domainaddress_domain'),
     ]
 
     operations = [
