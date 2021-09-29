@@ -165,6 +165,7 @@ class Profile(models.Model):
         if self.subdomain is not None:
             raise CannotMakeSubdomainException('error-premium-cannot-change-subdomain')
         self.subdomain = subdomain
+        self.full_clean()
         self.save()
         return subdomain
 

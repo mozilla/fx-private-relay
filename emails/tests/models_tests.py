@@ -28,6 +28,7 @@ from ..models import (
     Profile,
     RelayAddress,
     TRY_DIFFERENT_VALUE_ERR_MSG,
+    valid_available_subdomain
 )
 
 TEST_DOMAINS = {'RELAY_FIREFOX_DOMAIN': 'default.com', 'MOZMAIL_DOMAIN': 'test.com'}
@@ -371,7 +372,7 @@ class ProfileTest(TestCase):
         assert premium_profile.has_unlimited == True
 
     def test_add_subdomain_to_new_unlimited_profile(self):
-        subdomain = 'test-subdomain'
+        subdomain = 'newpremium'
         premium_user = baker.make(User)
         random_sub = random.choice(
             settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
@@ -461,10 +462,12 @@ class ProfileTest(TestCase):
         self.fail("Should have raised CannotMakeSubdomainException")
 
     def test_subdomain_available_bad_word_returns_False(self):
-        assert Profile.subdomain_available('angry') == False
+        with self.assertRaises(CannotMakeSubdomainException):
+            valid_available_subdomain('angry')
 
     def test_subdomain_available_blocked_word_returns_False(self):
-        assert Profile.subdomain_available('mozilla') == False
+        with self.assertRaises(CannotMakeSubdomainException):
+            valid_available_subdomain('mozilla')
 
     def test_subdomain_available_taken_returns_False(self):
         premium_user = baker.make(User)
@@ -479,19 +482,24 @@ class ProfileTest(TestCase):
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain('thisisfine')
-        assert Profile.subdomain_available('thisisfine') == False
+        with self.assertRaises(CannotMakeSubdomainException):
+            valid_available_subdomain('thisisfine')
 
     def test_subdomain_available_with_space_returns_False(self):
-        assert Profile.subdomain_available('my domain') == False
+        with self.assertRaises(CannotMakeSubdomainException):
+            valid_available_subdomain('my domain')
 
     def test_subdomain_available_with_special_char_returns_False(self):
-        assert Profile.subdomain_available('my@domain') == False
+        with self.assertRaises(CannotMakeSubdomainException):
+            valid_available_subdomain('my@domain')
 
     def test_subdomain_available_with_dash_returns_True(self):
-        assert Profile.subdomain_available('my-domain') == True
+        assert valid_available_subdomain('my-domain') == True
 
     def test_subdomain_available_with_dash_at_front_returns_False(self):
-        assert Profile.subdomain_available('-mydomain') == False
+        with self.assertRaises(CannotMakeSubdomainException):
+            valid_available_subdomain('-mydomain')
+
     def test_display_name_exists(self):
         display_name = 'Display Name'
         social_account = baker.make(
