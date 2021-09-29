@@ -70,13 +70,16 @@
 // Premium 
 
 .c-premium-onboarding {
+    position: relative;
 
     &.is-hidden {
         display: none;
     }
 
-    max-width: $content-lg;
-    margin: 0 auto $spacing-xl;
+    .mzp-l-content {
+        padding: $spacing-lg $spacing-lg 0;
+    }
+
 }
 
 .c-premium-onboarding-headlines {
@@ -112,6 +115,23 @@
 
     @media #{$mq-md} {
         margin-bottom: 0;
+    }
+}
+
+.c-premium-onboarding-dismiss {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: none;
+    border: 0;
+    appearance: none;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    
+    img {
+        width: 2rem;
+        max-width: none;
     }
 }
 
