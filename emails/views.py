@@ -312,16 +312,7 @@ def _sns_message(message_json):
         user_profile = address.user.profile_set.first()
     except Exception:
         if to_local_portion == 'replies':
-            user = User.objects.get(email=from_address)
-            profile = user.profile_set.first()
-            if not profile.has_premium:
-                # TODO: send the user an email
-                # that replies are a premium feature
-                incr_if_enabled('free_user_reply_attempt', 1)
-                return HttpResponse(
-                    "Rely replies require a premium account", status=403
-                )
-            return _handle_reply(message_json)
+            return _handle_reply(from_address, message_json)
 
         return HttpResponse("Address does not exist", status=404)
 
@@ -367,11 +358,11 @@ def _sns_message(message_json):
         incr_if_enabled('email_with_html_content', 1)
         wrapped_html = render_to_string('emails/wrapped_email.html', {
             'original_html': html_content,
+            'recipient_profile': user_profile,
             'email_to': to_address,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
             'has_attachment': bool(attachments),
-            'faq_page': settings.SITE_ORIGIN + reverse('faq'),
             'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
             'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK
         })
@@ -409,22 +400,52 @@ def _sns_message(message_json):
     return response
 
 
-def _handle_reply(message_json):
-    mail = message_json['mail']
-    in_reply_to = None
-    for header in mail['headers']:
+def _get_keys_from_headers(headers):
+    for header in headers:
         if header['name'].lower() == 'in-reply-to':
             in_reply_to = header['value']
             message_id_bytes = get_message_id_bytes(in_reply_to)
     if in_reply_to is None:
         incr_if_enabled('mail_to_replies_without_in_reply_to', 1)
         raise Exception("Received mail to reply address without In-Reply-To")
-    (lookup_key, encryption_key) = derive_reply_keys(
-        message_id_bytes
-    )
+    return derive_reply_keys(message_id_bytes)
+
+
+def _get_reply_record_from_lookup_key(lookup_key):
     lookup = b64_lookup_key(lookup_key)
-    reply_record = Reply.objects.get(lookup=lookup)
-    address = reply_record.relay_address or reply_record.domain_address
+    return Reply.objects.get(lookup=lookup)
+
+
+def _strip_localpart_tag(address):
+    [localpart, domain] = address.split('@')
+    subaddress_parts = localpart.split('+')
+    return f'{subaddress_parts[0]}@{domain}'
+
+
+def _handle_reply(from_address, message_json):
+    stripped_from_address = _strip_localpart_tag(from_address)
+
+    mail = message_json['mail']
+    (lookup_key, encryption_key) = _get_keys_from_headers(mail['headers'])
+    reply_record = _get_reply_record_from_lookup_key(lookup_key)
+    address = reply_record.address
+    reply_record_email = address.user.email
+    stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
+
+    if (
+        (from_address is reply_record_email) or
+        (stripped_from_address is stripped_reply_record_address)
+    ):
+        # This is a Relay user replying to an external sender;
+        # verify they are premium
+        if not reply_record.owner_has_premium:
+            # TODO: send the user an email
+            # that replies are a premium feature
+            incr_if_enabled('free_user_reply_attempt', 1)
+            return HttpResponse(
+                "Rely replies require a premium account", status=403
+            )
+
     outbound_from_address = address.full_address
     decrypted_metadata = json.loads(decrypt_reply_metadata(
         encryption_key, reply_record.encrypted_metadata
@@ -434,7 +455,6 @@ def _handle_reply(message_json):
     to_address = (
         decrypted_metadata.get('reply-to') or decrypted_metadata.get('from')
     )
-    in_reply_to = decrypted_metadata['message-id']
 
     text_content, html_content, attachments = _get_text_html_attachments(
         message_json

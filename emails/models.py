@@ -10,6 +10,10 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation.trans_real import (
+    parse_accept_lang_header,
+    get_supported_language_variant,
+)
 
 emails_config = apps.get_app_config('emails')
 
@@ -53,6 +57,17 @@ class Profile(models.Model):
 
     def __str__(self):
         return '%s Profile' % self.user
+
+    @property
+    def language(self):
+        for accept_lang, _ in parse_accept_lang_header(
+            self.fxa.extra_data.get('locale')
+        ):
+            try:
+                return get_supported_language_variant(accept_lang)
+            except LookupError:
+                continue
+        return 'en'
 
     @staticmethod
     def subdomain_available(subdomain):
@@ -410,3 +425,12 @@ class Reply(models.Model):
     lookup = models.CharField(max_length=255, blank=False, db_index=True)
     encrypted_metadata = models.TextField(blank=False)
     created_at = models.DateField(auto_now_add=True, null=False)
+
+    @property
+    def address(self):
+        return self.relay_address or self.domain_address
+
+    @property
+    def owner_has_premium(self):
+        profile = self.address.user.profile_set.first()
+        return profile.has_premium
