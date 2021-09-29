@@ -4,9 +4,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions, viewsets
 
-from emails.models import (
-    CannotMakeSubdomainException, DomainAddress, Profile, RelayAddress
-)
+from emails.models import DomainAddress, Profile, RelayAddress
 
 from .permissions import IsOwner
 from .serializers import (
