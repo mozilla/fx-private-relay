@@ -2,7 +2,7 @@
 @import "libs/protocol/css/templates/multi-column.scss";
 @import "libs/protocol/css/components/zap.scss";
 
-.c-onboarding {
+.c-onboarding {   
     border-radius: $border-radius-md;
     border: 1px solid $color-light-gray-40;
     padding: $spacing-lg;
@@ -70,6 +70,10 @@
 // Premium 
 
 .c-premium-onboarding {
+    &.is-hidden {
+        display: none;
+    }
+
     max-width: $content-lg;
     margin: 0 auto $spacing-xl;
 }
@@ -125,7 +129,7 @@
         cursor: pointer;
         @include text-body-md;
         &:hover {
-          color:  $color-purple-50;
+            color:  $color-purple-50;
         }
     }
 }
