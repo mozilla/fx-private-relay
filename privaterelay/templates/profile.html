@@ -70,6 +70,9 @@
   </div>
   {% endif %}
   <div class="main-list flx flx-col jst-cntr">
+
+    {% include "includes/premium_onboarding.html" %}
+
     <div class="alias-list">
       {% if not user_profile.has_premium %}
       <div class="dashboard-greeting">

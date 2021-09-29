@@ -1,5 +1,6 @@
 // Protocol
 @import "libs/protocol/css/templates/multi-column.scss";
+@import "libs/protocol/css/components/zap.scss";
 
 .c-onboarding {
     border-radius: $border-radius-md;
@@ -64,4 +65,67 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+// Premium 
+
+.c-premium-onboarding {
+    max-width: $content-lg;
+    margin: 0 auto $spacing-xl;
+}
+
+.c-premium-onboarding-headlines {
+    text-align: center;
+    margin-bottom: $spacing-xl;
+
+    h1 {
+        color: $color-purple-50;
+        @include text-title-lg;
+        margin-bottom: $spacing-md;
+    }
+    h2 {
+        color: $color-black;
+        @include text-title-xs;
+    }
+}
+
+.c-premium-onboarding-content {
+    @media #{$mq-md} {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xl;
+    }
+}
+
+.c-premium-onboarding-content-image {
+    width: 100%;
+    max-width: $content-xs;
+    margin: 0 auto $spacing-xl;
+    @media #{$mq-md} {
+        margin-bottom: 0;
+    }
+}
+
+.c-premium-onboarding-content-description {
+    strong {
+        display: block;
+        @include text-body-lg;
+    }
+    .mzp-u-list-styled li {
+        margin-bottom: $spacing-md;
+    }
+    li::marker {
+        color: $color-yellow-50;
+    }
+    button {
+        appearance: none;
+        text-decoration: underline;
+        background: none;
+        border: 0;
+        cursor: pointer;
+        @include text-body-md;
+        &:hover {
+          color:  $color-purple-50;
+        }
+    }
 }
