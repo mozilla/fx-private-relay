@@ -71,7 +71,10 @@
   {% endif %}
   <div class="main-list flx flx-col jst-cntr">
 
-    {% include "includes/premium_onboarding.html" %}
+    {% if user_profile.has_premium %}
+    <!-- Show Premium Onboarding to only premium users -->
+      {% include "includes/premium_onboarding.html" %}
+    {% endif %}
 
     <div class="alias-list">
       {% if not user_profile.has_premium %}

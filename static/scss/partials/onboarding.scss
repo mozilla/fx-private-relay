@@ -2,7 +2,7 @@
 @import "libs/protocol/css/templates/multi-column.scss";
 @import "libs/protocol/css/components/zap.scss";
 
-.c-onboarding {   
+.c-onboarding {
     border-radius: $border-radius-md;
     border: 1px solid $color-light-gray-40;
     padding: $spacing-lg;
@@ -70,6 +70,7 @@
 // Premium 
 
 .c-premium-onboarding {
+
     &.is-hidden {
         display: none;
     }
@@ -84,11 +85,14 @@
 
     h1 {
         color: $color-purple-50;
+
         @include text-title-lg;
         margin-bottom: $spacing-md;
     }
+
     h2 {
         color: $color-black;
+
         @include text-title-xs;
     }
 }
@@ -105,31 +109,39 @@
     width: 100%;
     max-width: $content-xs;
     margin: 0 auto $spacing-xl;
+
     @media #{$mq-md} {
         margin-bottom: 0;
     }
 }
 
 .c-premium-onboarding-content-description {
+
     strong {
         display: block;
+
         @include text-body-lg;
     }
+
     .mzp-u-list-styled li {
         margin-bottom: $spacing-md;
     }
+
     li::marker {
         color: $color-yellow-50;
     }
+
     button {
         appearance: none;
         text-decoration: underline;
         background: none;
         border: 0;
         cursor: pointer;
+
         @include text-body-md;
+
         &:hover {
-            color:  $color-purple-50;
+            color: $color-purple-50;
         }
     }
 }
