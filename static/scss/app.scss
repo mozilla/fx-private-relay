@@ -1,6 +1,8 @@
 // Protocol
 @import "libs/protocol/css/protocol.scss";
 @import "libs/protocol/css/components/button";
+@import "libs/protocol/css/components/emphasis-box";
+@import "libs/protocol/css/components/notification-bar";
 
 // Includes
 @import "includes/variables";
@@ -27,3 +29,4 @@
 // Custom Page Styles
 @import "pages/home";
 @import "pages/dashboard";
+@import "pages/settings";

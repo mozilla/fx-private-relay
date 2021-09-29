@@ -97,6 +97,17 @@ def profile(request):
     return render(request, 'profile.html', context)
 
 
+def settings(request):
+    if (not request.user or request.user.is_anonymous):
+        return redirect(reverse('fxa_login'))
+    profile = request.user.profile_set.first()
+    context = {
+        'user_profile': profile,
+    }
+
+    return render(request, 'settings.html', context)
+
+
 @lru_cache(maxsize=None)
 def _get_fxa(request):
     return request.user.socialaccount_set.filter(provider='fxa').first()

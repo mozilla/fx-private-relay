@@ -1,0 +1,125 @@
+.settings-main {
+
+    .c-settings-headline {
+        @include text-title-2xs;
+        padding: $spacing-lg $spacing-lg $spacing-md;
+        color: $color-grey-60;
+    }
+
+    .c-meta--links {
+        display: none;
+    }
+
+    .c-settings-form--heading {
+        @include text-title-3xs;
+        color: $color-grey-50;
+        font-weight: normal;
+    }
+
+    .c-settings-form--footer {
+        background-color: transparent;
+        text-align: center;
+        display: block;
+    }
+
+    .c-settings-form--field {
+        border-bottom: 1px solid $color-grey-10;
+    }
+
+    .c-settings-form--inline-warning {
+        box-shadow: none;
+        text-align: start;
+        margin-left: 0;
+    }
+
+    .c-settings-form--submit {
+        padding: $spacing-sm $spacing-2xl;
+    }
+
+    .c-settings-form--notification {
+        box-shadow: var(--dropShadowLight);
+        background-color: $color-white;
+        margin: $spacing-md;
+        padding: $spacing-md;
+        border-radius: $border-radius-md;
+    }
+
+    .c-settings-form--notification-heading {
+        @include text-title-3xs;
+        color: $color-grey-60;
+        border-left-width: 4px;
+        border-left-style: solid;
+        margin: 0;
+        padding: $spacing-sm $spacing-md;
+
+        &.t-error {
+            border-color: $color-error;
+        }
+
+        &.t-warning {
+            border-color: $color-warning;
+        }
+    }
+
+    .c-settings-form--notification-description {
+        border-left-width: 5px;
+        border-left-style: solid;
+        margin: 0;
+        padding: $spacing-sm $spacing-md;
+
+        &.t-error {
+            border-color: $color-error;
+        }
+
+        &.t-warning {
+            border-color: $color-warning;
+        }
+    }
+
+    @media screen and #{$mq-md} {
+
+        & {
+            display: flex;
+        }
+
+        .c-meta {
+            width: $content-sm;
+        }
+
+        .c-meta--links {
+            display: block;
+            padding: 0 $spacing-lg $spacing-md;
+
+            li {
+                padding: $spacing-sm 0;
+            }
+
+            a {
+                @include text-body-lg;
+
+                img {
+                    margin-right: $spacing-sm;
+                    stroke: #5953F3;
+                    // The size of text-body-lg, i.e. the same size as the containing <a>'s font:
+                    width: remify(type-scale('body-lg-size'));
+                }
+            }
+        }
+
+        .c-settings {
+            flex-grow: 2;
+        }
+
+        .c-settings-form--field {
+            display: flex;
+        }
+
+        .c-settings-form--heading {
+            width: $content-sm;
+        }
+
+        .c-settings-form--footer {
+            text-align: right;
+        }
+    }
+}

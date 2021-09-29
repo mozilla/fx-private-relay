@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+{% block javascript %}
+  <script src="{% static 'js/settings.js' %}"></script>
+{% endblock %}
+
+
+{% block content %}
+
+<main class="settings-main bg-light dashboard-container " data-api-token="{{ user_profile.api_token }}">
+  <div class="c-meta">
+    <h1 class="mzp-u-title-md c-settings-headline">{% ftlmsg 'settings-headline' %}</h1>
+    <ul class="c-meta--links">
+      <li>
+        <a
+          href="https://support.mozilla.org/kb/activate-firefox-relay-hide-your-email-address-alias?utm_source={{ settings.SITE_ORIGIN }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="{% ftlmsg 'settings-meta-help-tooltip' %}"
+          class="glocal-fxa-settings-link"
+        >
+        <img src="/static/images/help.svg" alt="">
+          {% ftlmsg 'settings-meta-help-label' %}
+        </a>
+      </li>
+      <li>
+        <a
+          href="https://status.relay.firefox.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="{% ftlmsg 'settings-meta-status-tooltip' %}"
+          class="glocal-fxa-settings-link"
+        >
+        <img src="/static/images/performance.svg" alt="">
+          {% ftlmsg 'settings-meta-status-label' %}
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div class="c-settings">
+    <div class="js-save-error hidden c-settings-form--notification">
+      <h2 class="c-settings-form--notification-heading t-error">
+          {% ftlmsg 'settings-error-save-heading' %}
+      </h2>
+      <p class="c-settings-form--notification-description t-error">
+          {% ftlmsg 'settings-error-save-description' %}
+      </p>
+    </div>
+    {% if not user_profile.server_storage %}
+      <aside class="c-settings-form--notification">
+        <h2 class="c-settings-form--notification-heading t-warning">
+            {% ftlmsg 'settings-warning-collection-off-heading' %}
+        </h2>
+        <p class="c-settings-form--notification-description t-warning">
+            {% ftlmsg 'settings-warning-collection-off-description' %}
+        </p>
+      </aside>
+    {% endif %}
+    <section class="mzp-c-emphasis-box">
+      <form action="#" class="js-settings-form mzp-c-form" data-profile-id="{{ user_profile.id }}">
+        <div class="c-settings-form--field">
+          <h2 class="mzp-c-form-subheading c-settings-form--heading">
+            {% ftlmsg 'setting-label-collection-heading' %}
+          </h2>
+          <div class="mzp-c-choices c-settings-form--choices">
+            <div class="mzp-c-choice">
+              <input
+                type="checkbox"
+                class="js-label-collection mzp-c-choice-control"
+                id="label-collection"
+                {% if user_profile.server_storage %}checked{% endif %}
+              />
+              <label
+                class="mzp-c-choice-label"
+                for="label-collection"
+              >
+                {% ftlmsg 'setting-label-collection-description' %}
+              </label>
+            </div>
+            <aside role="alert" class="js-label-collection-off-warning mzp-c-notification-bar hidden c-settings-form--inline-warning">
+              <p>
+                  {% ftlmsg 'setting-label-collection-off-warning' %}
+              </p>
+            </aside>
+          </div>
+        </div>
+        <footer class="mzp-c-form-footer c-settings-form--footer">
+          <div class="mzp-c-button-container">
+            <button type="submit" class="mzp-c-button mzp-t-product mzp-t-lg c-settings-form--submit">
+              {% ftlmsg 'settings-button-save-label' %}
+            </button>
+          </div>
+        </footer>
+      </form>
+    </section>
+  </div>
+</main>
+
+{% endblock %}
+
