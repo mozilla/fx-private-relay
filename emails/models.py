@@ -10,8 +10,10 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-
-from emails.utils import get_domains_from_settings
+from django.utils.translation.trans_real import (
+    parse_accept_lang_header,
+    get_supported_language_variant,
+)
 
 emails_config = apps.get_app_config('emails')
 
@@ -20,6 +22,14 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
+
+
+def get_domains_from_settings():
+    return {
+        'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
+        'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
+    }
+
 
 DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
@@ -66,6 +76,17 @@ class Profile(models.Model):
 
     def __str__(self):
         return '%s Profile' % self.user
+
+    @property
+    def language(self):
+        for accept_lang, _ in parse_accept_lang_header(
+            self.fxa.extra_data.get('locale')
+        ):
+            try:
+                return get_supported_language_variant(accept_lang)
+            except LookupError:
+                continue
+        return 'en'
 
     @property
     def num_active_address(self):
@@ -134,11 +155,13 @@ class Profile(models.Model):
         return self.fxa.extra_data.get('displayName')
 
     @property
-    def has_unlimited(self):
+    def has_premium(self):
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
         if not self.fxa:
             return False
+        if self.user.email.endswith('@mozilla.com'):
+            return True
         user_subscriptions = self.fxa.extra_data.get('subscriptions', [])
         for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
             if sub in user_subscriptions:
@@ -160,7 +183,7 @@ class Profile(models.Model):
         return sum(blocked['num_blocked'] for blocked in relay_addresses_blocked)
 
     def add_subdomain(self, subdomain):
-        if not self.has_unlimited:
+        if not self.has_premium:
             raise CannotMakeSubdomainException('error-premium-set-subdomain')
         if self.subdomain is not None:
             raise CannotMakeSubdomainException('error-premium-cannot-change-subdomain')
@@ -173,7 +196,7 @@ class Profile(models.Model):
 def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
     if subdomain:
         return sha256(
-            f'{address}@{subdomain}'.encode('utf-8')
+            f'{address}@{subdomain}.{domain}'.encode('utf-8')
         ).hexdigest()
     if domain == settings.RELAY_FIREFOX_DOMAIN:
         return sha256(
@@ -273,7 +296,7 @@ class RelayAddress(models.Model):
     def make_relay_address(user_profile, num_tries=0, domain=DEFAULT_DOMAIN):
         if (
             user_profile.at_max_free_aliases
-            and not user_profile.has_unlimited
+            and not user_profile.has_premium
         ):
             hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
             raise CannotMakeAddressException(
@@ -319,6 +342,7 @@ class DomainAddress(models.Model):
     address = models.CharField(max_length=64)
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
+    domain = models.PositiveSmallIntegerField(choices=DOMAIN_CHOICES, default=2)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     first_emailed_at = models.DateTimeField(null=True, db_index=True)
     last_used_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -336,7 +360,7 @@ class DomainAddress(models.Model):
         return Profile.objects.get(user=self.user)
 
     def make_domain_address(user_profile, address=None, made_via_email=False):
-        if not user_profile.has_unlimited:
+        if not user_profile.has_premium:
             raise CannotMakeAddressException(
                 NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
             )
@@ -348,7 +372,6 @@ class DomainAddress(models.Model):
             )
 
         address_contains_badword = False
-        address_is_blocklisted = False
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
             # we should retry like make_relay_address does
@@ -357,7 +380,7 @@ class DomainAddress(models.Model):
             address = address_default()
             # Only check for bad words if randomly generated
             address_contains_badword = has_bad_words(address)
-            address_is_blocklisted = is_blocklisted(address)
+        address_is_blocklisted = is_blocklisted(address)
         address_already_deleted = DeletedAddress.objects.filter(
             address_hash=address_hash(address, user_subdomain)
         ).count()
@@ -366,7 +389,10 @@ class DomainAddress(models.Model):
                 TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             )
 
-        domain_address = DomainAddress.objects.create(user=user_profile.user, address=address)
+        domain_address = DomainAddress.objects.create(
+            user=user_profile.user,
+            address=address,
+        )
         if made_via_email:
             # update first_emailed_at indicating alias generation impromptu.
             domain_address.first_emailed_at = datetime.now(timezone.utc)
@@ -376,7 +402,7 @@ class DomainAddress(models.Model):
     def delete(self, *args, **kwargs):
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
-            address_hash=address_hash(self.address, self.user_profile.subdomain),
+            address_hash=address_hash(self.address, self.user_profile.subdomain, self.domain_value),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
@@ -386,3 +412,32 @@ class DomainAddress(models.Model):
         self.user_profile.num_address_deleted += 1
         self.user_profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
+
+    @property
+    def domain_value(self):
+        return DOMAINS.get(self.get_domain_display())
+
+    @property
+    def full_address(self):
+        return '%s@%s.%s' % (
+            self.address, self.user_profile.subdomain, self.domain_value
+        )
+
+
+class Reply(models.Model):
+    relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE, blank=True, null=True)
+    domain_address = models.ForeignKey(
+        DomainAddress, on_delete=models.CASCADE, blank=True, null=True
+    )
+    lookup = models.CharField(max_length=255, blank=False, db_index=True)
+    encrypted_metadata = models.TextField(blank=False)
+    created_at = models.DateField(auto_now_add=True, null=False)
+
+    @property
+    def address(self):
+        return self.relay_address or self.domain_address
+
+    @property
+    def owner_has_premium(self):
+        profile = self.address.user.profile_set.first()
+        return profile.has_premium

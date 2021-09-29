@@ -68,7 +68,7 @@ async function sendForm(formAction, formData) {
 
 function copyToClipboardAndShowMessage(triggeringEl) {
   triggeringEl.classList.add("alias-copied", "alias-copied-fadeout");
-  triggeringEl.title="Alias copied to clipboard";
+  triggeringEl.title = triggeringEl.dataset.ftlCopyConfirmation;
 
   setTimeout(() => {
     // When the fade-out animation is done (it takes four seconds),
@@ -76,7 +76,7 @@ function copyToClipboardAndShowMessage(triggeringEl) {
     // every time the alias is being hidden and reshown (i.e. when a filter
     // is applied and removed again).
     triggeringEl.classList.remove("alias-copied", "alias-copied-fadeout");
-    triggeringEl.title = "Copy alias to clipboard";
+    triggeringEl.title = triggeringEl.dataset.ftlClickToCopy;
   }, 4 * 1000);
   
   
@@ -163,18 +163,6 @@ function deleteAliasConfirmation(submitEvent) {
 			});
 		}
 	});
-}
-
-// Checks for changes made to <firefox-private-relay-addon></firefox-private-relay-add-on> by the addon.
-function isRelayAddonInstalled() {
-  const installationIndicator = document.querySelector("firefox-private-relay-addon");
-	return (installationIndicator.dataset.addonInstalled === "true" || isAddonInstallInLocalStorage());
-}
-
-
-// Looks for previously saved installation note in localStorage
-function isAddonInstallInLocalStorage() {
-	return (localStorage && localStorage.getItem("fxRelayAddonInstalled"));
 }
 
 function toggleAliasCardDetailsVisibility(aliasCard) {
@@ -305,7 +293,6 @@ function showBannersIfNecessary() {
     return;
   }
 
-  const bg = dashboardBanners.querySelector(".banner-gradient-bg");
   const showBanner = (bannerEl) => {
     setTimeout(()=> {
       bannerEl.classList.remove("hidden");

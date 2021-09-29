@@ -24,7 +24,17 @@
     color: $color-blue-50;
     background: none;
 
-    &:hover {
+    &:focus,
+    &:active,
+    &:visited:focus,
+    &:visited:active {
+        color: $color-blue-50;
+        outline: none;
+        box-shadow: var(--buttonFocus);
+    }
+
+    &:hover,
+    &:visited:hover {
         color: $color-white;
         background-color: $color-blue-50;
     }

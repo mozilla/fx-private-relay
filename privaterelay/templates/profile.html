@@ -32,7 +32,7 @@
   <div class="messages-profile">
     {% include "includes/messages.html" %}
   </div>
-  {% if user_profile.has_unlimited %}
+  {% if user_profile.has_premium %}
   <div class="mpp-dashbaord-header">
     <div class="mpp-dashbaord-header-container inset">
       <div class="mpp-dashbaord-header-title">
@@ -45,20 +45,19 @@
         </div>
         {% if not user_profile.subdomain %}
           <div class="mpp-dashbaord-header-action">
-            <button class="mpp-action-link"> <img class="margin-right" src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}</button>
-          </div>
-        {% else %}
-          <div class="mpp-dashbaord-header-action">
-            <div class="mpp-action-link mpp-action-tooltip">
-              {% ftlmsg 'profile-label-domain' %} {{ user_profile.subdomain }}
-              <img class="margin-left" src="/static/images/icon-info.svg" alt="informtaion">
+            <div class="mpp-action-tooltip">
+              <button class="mpp-action-link"><img class="margin-right" src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}</button>
+              <img class="margin-left" src="/static/images/icon-info.svg" alt="">
               <div class="mpp-action-tooltip-hover">
                 <div class="mpp-action-tooltip-hover-wrapper">
                   {% ftlmsg 'profile-label-domain-tooltip' %}
                 </div>
               </div>
             </div>
-            
+          </div>
+        {% else %}
+          <div class="mpp-dashbaord-header-action">
+            {% ftlmsg 'profile-label-domain' %} <samp>{{ user_profile.subdomain }}</samp>
           </div>
         {% endif %}
       </div>
@@ -72,7 +71,7 @@
   {% endif %}
   <div class="main-list flx flx-col jst-cntr">
     <div class="alias-list">
-      {% if not user_profile.has_unlimited %}
+      {% if not user_profile.has_premium %}
       <div class="dashboard-greeting">
         <span class="dashboard-greeting-message">{% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
       </div>
@@ -89,7 +88,7 @@
       {% endif %}
 
       {% for relay_address in relay_addresses %}
-        <div class="c-alias js-alias relay-email is-relay-alias {% if relay_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ relay_address.address }}@{{ relay_address.domain_value }}" data-relay-address-id="{{ relay_address.id }}">
+        <div class="c-alias js-alias relay-email is-relay-alias {% if relay_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ relay_address.full_address }}" data-relay-address-id="{{ relay_address.id }}">
           
           <div class="c-alias-main-info">
             <!-- enable/disable email forwarding -->
@@ -118,10 +117,12 @@
                 </div>
 
                 <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
+                  data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
+                  data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
                   data-id="{{ relay_address.id }}"
-                  data-clipboard-text="{{ relay_address.address }}@{{ relay_address.domain_value }}"
+                  data-clipboard-text="{{ relay_address.full_address }}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
-                    {{ relay_address.address }}@{{ relay_address.domain_value }}
+                    {{ relay_address.full_address }}
                     <span class="alias-copied-icon"></span>
                     <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
                 </button>
@@ -147,10 +148,12 @@
 
           <div class="c-alias-copy">
             <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
+              data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
+              data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
               data-id="{{ relay_address.id }}"
-              data-clipboard-text="{{ relay_address.address }}@{{ relay_address.domain_value }}"
+              data-clipboard-text="{{ relay_address.full_address }}"
               class="relay-address click-copy ff-Met jst-cntr al-cntr">
-                {{ relay_address.address }}@{{ relay_address.domain_value }}
+                {{ relay_address.full_address }}
                 <span class="alias-copied-icon"></span>
                 <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
             </button>
@@ -180,7 +183,7 @@
 
               <!-- delete email address -->
               <div class="column-delete">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ relay_address.address }}@{{ RELAY_DOMAIN }}">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ relay_address.full_address }}">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
@@ -197,7 +200,7 @@
 
       {% for domain_address in domain_addresses %}
     
-        <div class="c-alias js-alias relay-email is-domain-alias {% if domain_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ domain_address.address }}@{% user_email_domain user_profile %}" data-relay-address-id="{{ domain_address.id }}">
+        <div class="c-alias js-alias relay-email is-domain-alias {% if domain_address.enabled %} is-enabled {% endif %}" data-relay-address="{{ domain_address.full_address }}" data-relay-address-id="{{ domain_address.id }}">
           
           <div class="c-alias-main-info">
             <!-- enable/disable email forwarding -->
@@ -228,10 +231,12 @@
                 </div>
 
                 <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
+                  data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
+                  data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
                   data-id="{{ domain_address.id }}"
-                  data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
+                  data-clipboard-text="{{ domain_address.full_address }}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
-                    {{ domain_address.address }}@{% user_email_domain user_profile %}
+                    {{ domain_address.full_address }}
                     <span class="alias-copied-icon"></span>
                     <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
                 </button>
@@ -257,10 +262,12 @@
 
           <div class="c-alias-copy">
             <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
+              data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
+              data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
               data-id="{{ domain_address.id }}"
-              data-clipboard-text="{{ domain_address.address }}@{% user_email_domain user_profile %}"
+              data-clipboard-text="{{ domain_address.full_address }}"
               class="relay-address click-copy ff-Met xflx jst-cntr al-cntr">
-                {{ domain_address.address }}@{% user_email_domain user_profile %}
+                {{ domain_address.full_address }}
                 <span class="alias-copied-icon"></span>
                 <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
             </button>
@@ -290,7 +297,7 @@
 
               <!-- delete email address -->
               <div class="column-delete">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ domain_address.address }}@{% user_email_domain user_profile %}">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ domain_address.full_address }}">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">

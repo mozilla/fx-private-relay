@@ -76,16 +76,27 @@
                 modal.classList.add("is-visible");
 
                 const requestedDomain = document.querySelector(".js-subdomain-value");
-                const requestedDomainPreview = document.querySelectorAll(".js-modal-domain-registration-confirmation-domain-preview");
+                const requestedDomainPreviews = document.querySelectorAll(".js-modal-domain-registration-confirmation-domain-preview");
                 const requestedDomainPreviewEnding = document.querySelector(".js-modal-domain-registration-confirmation-domain-ending")
                 
                 // Preview the domain the user requested
-                requestedDomainPreview.forEach( preview => {
-                    preview.textContent = requestedDomain.value;
-                })
+                requestedDomainPreviews.forEach(requestedDomainPreview => {
+                    requestedDomainPreview.textContent = requestedDomain.value;
+                });
                 
                 // .mozmail.com
                 requestedDomainPreviewEnding.textContent = `.${requestedDomain.dataset.domain}`;
+
+                requestedDomainPreviewEnding.parentElement.classList.remove("has-long-domain", "has-very-long-domain");
+                if (requestedDomain.value.length > 10) {
+                    // The domain is so long that it won't fit side-by side with the suffix
+                    // on small screens:
+                    requestedDomainPreviewEnding.parentElement.classList.add("has-long-domain");
+                }
+                if (requestedDomain.value.length > 25) {
+                    // The domain name is so long that the name itself won't fit in the modal on small screens
+                    requestedDomainPreviewEnding.parentElement.classList.add("has-very-long-domain");
+                }
 
                 const modalCancel = document.querySelector(".js-modal-domain-registration-cancel");
                 modalCancel.addEventListener("click", domainRegistration.modal.close, false);
