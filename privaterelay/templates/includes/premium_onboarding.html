@@ -5,10 +5,10 @@
 <div id="premiumOnboarding" class="c-premium-onboarding is-hidden">
     <button class="c-premium-onboarding-dismiss js-premium-onboarding-dismiss"><img src="{% static 'images/x-close.svg' %}" alt="Close"></button>
 
-    <div class="mzp-l-content mzp-t-content-lg">
+    <div class="mzp-l-content mzp-t-content-xl">
         <div class="c-premium-onboarding-headlines">
-            <h1>Lorem ipsum dolor sit amet!</h1>
-            <h2 class="mzp-has-zap-1">Lorem, ipsum dolor <strong>sit amet</strong> consectetur adipisicing elit.</h2>
+            <h1>{% ftlmsg 'onboarding-premium-headline' %}</h1>
+            <h2 class="mzp-has-zap-1">{% ftlmsg 'onboarding-premium-subheadline-html' %}</h2>
         </div>
 
         <div class="c-premium-onboarding-content">
@@ -16,13 +16,12 @@
                 <img src="{% static 'images/dashboard-onboarding/woman-couch.svg' %}" alt="Woman sitting on a couch">
             </div>
             <div class="c-premium-onboarding-content-description">
-                <p>Aperiam in incidunt ut, quasi blanditiis:</p>
+                <p>{% ftlmsg 'onboarding-premium-feature-intro' %}</p>
                 <ul class="mzp-u-list-styled">
-                    <li><strong>Illum laboriosam</strong> incidunt possimus, dolores ipsa repellat natus debitis ab sint suscipit, minus accusantium ullam placeat iste hic!</li>
-                    <li><strong>Lorem ipsum dolor sit amet</strong> consectetur adipisicing elit.  eveniet debitis illo aliquid non iste ut est impedit</li>
-                    <li><strong>Hic a, quo non dicta</strong> earum est ad nisi, repellendus vero corrupti sunt</li>
+                    <li><strong>{% ftlmsg 'onboarding-premium-control-title' %}</strong> {% ftlmsg 'onboarding-premium-control-description' %}</li>
+                    <li><strong>{% ftlmsg 'onboarding-premium-domain-title' %}</strong> {% ftlmsg 'onboarding-premium-domain-description' %}</li>
+                    <li><strong>{% ftlmsg 'onboarding-premium-reply-title' %}</strong> {% ftlmsg 'onboarding-premium-reply-description' %}</li>
                 </ul>
-                <p>Pariatur alias, fuga id doloribus!</p>
             </div>
         </div>
     </div>

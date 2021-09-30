@@ -77,9 +77,8 @@
     }
 
     .mzp-l-content {
-        padding: $spacing-lg $spacing-lg 0;
+        padding: $spacing-lg $spacing-lg;
     }
-
 }
 
 .c-premium-onboarding-headlines {
@@ -101,6 +100,9 @@
 }
 
 .c-premium-onboarding-content {
+    max-width: $content-lg;
+    margin: 0 auto;
+
     @media #{$mq-md} {
         display: flex;
         align-items: center;
@@ -128,10 +130,18 @@
     margin: 0;
     padding: 0;
     cursor: pointer;
+    display: block;
+    z-index: 5;
+    transition: transform .3s ease-in;
+
+    &:hover {
+        transform: scale(1.05);
+    }
     
     img {
         width: 2rem;
         max-width: none;
+        display: block;
     }
 }
 
