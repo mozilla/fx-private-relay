@@ -34,7 +34,16 @@ module.exports = {
     "linebreak-style": ["error", "unix"],
     "no-console": ["error", { "allow": ["warn", "error"] }],
     "no-prototype-builtins": "off",
-    "no-unused-vars": ["warn", { vars: "all", args: "all", ignoreRestSiblings: false }],
+    "no-unused-vars": [
+      "warn",
+      {
+        vars: "all",
+        args: "all",
+        ignoreRestSiblings: false,
+        // Variables prefixed with an underscore are consciously unused:
+        argsIgnorePattern: "^_",
+      },
+    ],
     quotes: ["error", "double", { avoidEscape: true }],
     semi: ["off", "always"],
   },

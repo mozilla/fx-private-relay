@@ -3,13 +3,15 @@
 
     // TODO Find a way to make this reusable across the app?
     function apiRequest(path, options) {
-        const cookieString = document.cookie ?? "";
+        const cookieString = typeof document.cookie === "string" ? document.cookie : "";
         const cookieStringArray = cookieString
             .split(";")
             .map(individualCookieString => individualCookieString.split("="))
             .map(([cookieKey, cookieValue]) => [cookieKey.trim(), cookieValue.trim()]);
-        const [csrfCookieKey, csrfCookieValue] = cookieStringArray.find(([cookieKey, _cookieValue]) => cookieKey === "csrftoken");
-        const headers = new Headers(options?.headers);
+        // Looks like the `argsIgnorePattern` option for ESLint doesn't like array destructuring:
+        // eslint-disable-next-line no-unused-vars
+        const [_csrfCookieKey, csrfCookieValue] = cookieStringArray.find(([cookieKey, _cookieValue]) => cookieKey === "csrftoken");
+        const headers = new Headers(options ? options.headers : undefined);
         headers.set("X-CSRFToken", csrfCookieValue);
         headers.set("Content-Type", "application/json");
         headers.set("Accept", "application/json");
