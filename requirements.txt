@@ -9,7 +9,9 @@ django-gulp==4.1.0
 django-redis==4.12.1
 django-ftl==0.12.1
 django-referrer-policy==1.0
+djangorestframework==3.12.4
 dockerflow==2021.7.0
+drf-yasg==1.20.0
 google-measurement-protocol==1.0.0
 gunicorn==19.9.0
 jwcrypto==1.0

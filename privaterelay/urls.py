@@ -39,12 +39,14 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('faq', views.faq, name='faq'),
     path('', views.home, name='home'),
+    path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
+        path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     ]
 
 if settings.ADMIN_ENABLED:
