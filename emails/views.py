@@ -106,7 +106,7 @@ def _index_POST(request):
         )
         domain = get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
         try:
-            if user_profile.user.email.endswith('@mozilla.com'):
+            if user_profile.has_premium:
                 domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
                 relay_address = RelayAddress.make_relay_address(locked_profile, domain=domain)
             else:
