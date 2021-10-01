@@ -116,6 +116,9 @@
     }
     // If the chosen domain has exceptionally many characters:
     h3.has-very-long-domain {
+        text-overflow: ellipsis;
+        overflow: hidden;
+
         @media screen and (max-width: $screen-md) {
             // Decrease the font size on small screens
             // (below the regular small-screen size determined by .c-modal-header):
