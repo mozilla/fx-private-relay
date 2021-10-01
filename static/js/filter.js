@@ -125,30 +125,36 @@
         document.removeEventListener("keydown", categoryMenuEscListener, false);
     }
     // TODO: Add "f" key listener to toggle category filter
-    filterToggleCategoryInput.addEventListener("click", () => {
-        if (filterToggleCategoryInput.classList.contains("is-enabled")) {
-            closeCategoryMenu();
-        } else {
-            openCategoryMenu();
-        }
-    });
+    // This element is only available when the user has Premium:
+    if (filterToggleCategoryInput) {
+        filterToggleCategoryInput.addEventListener("click", () => {
+            if (filterToggleCategoryInput.classList.contains("is-enabled")) {
+                closeCategoryMenu();
+            } else {
+                openCategoryMenu();
+            }
+        });
+    }
 
     function setCategoryFilters(categories) {
         activeCategoryFilters = categories;
         applyFilters();
     }
-    filterCategoryCheckboxes[0].form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const categoriesToSet = Array.from(filterCategoryCheckboxes)
-            .filter(checkbox => checkbox.checked)
-            .map(checkbox => checkbox.dataset.categoryType);
-        setCategoryFilters(categoriesToSet);
-        closeCategoryMenu();
-    });
-    filterCategoryCheckboxes[0].form.addEventListener("reset", () => {
-        setCategoryFilters([]);
-        closeCategoryMenu();
-    });
+    // This element is only available when the user has Premium:
+    if (filterCategoryCheckboxes.length > 0) {
+        filterCategoryCheckboxes[0].form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const categoriesToSet = Array.from(filterCategoryCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.dataset.categoryType);
+            setCategoryFilters(categoriesToSet);
+            closeCategoryMenu();
+        });
+        filterCategoryCheckboxes[0].form.addEventListener("reset", () => {
+            setCategoryFilters([]);
+            closeCategoryMenu();
+        });
+    }
 
     filterCategoryCheckboxes.forEach(categoryCheckbox => {
         categoryCheckbox.addEventListener("change", (event) => {
