@@ -413,15 +413,12 @@ table {
     text-align: left;
     border: none;
     font-weight: 600;
-    cursor: default;
     height: 100%; /* expand clickable area of relay address */
-    display: block;
-    position: relative;
+    display: flex;
     max-width: 100%;
     text-overflow: ellipsis;
     overflow: hidden;
     border-radius: 0;
-    padding: 2px 70px 2px 0; /* makes room for click to copy icon and copied message */
     color: $color-grey-60;
     white-space: nowrap;
 }
@@ -429,7 +426,10 @@ table {
 .relay-address:hover,
 .relay-address:focus {
     opacity: .75;
-    text-decoration: underline;
+
+    .relay-address--label {
+        text-decoration: underline;
+    }
 }
 
 .relay-address:active {
@@ -443,15 +443,6 @@ table {
 .alias-copied-fadeout .alias-copied-message {
     animation-duration: 4s;
     animation-name: fadeOut;
-    animation-fill-mode: forwards;
-}
-
-.alias-copied-fadeout .alias-copied-icon {
-    opacity: 0;
-    animation-delay: 3s;
-    animation-duration: .1s;
-    animation-name: fadeOut;
-    animation-direction: reverse;
     animation-fill-mode: forwards;
 }
 
@@ -472,17 +463,12 @@ table {
     background-image: url("/static/images/copy-to-clipboard.svg");
     background-repeat: no-repeat;
     background-size: contain;
-    top: 0;
-    right: 48px;
-    bottom: 3px;
-    margin: auto;
+    margin-left: $spacing-sm;
 }
 
 .alias-copied-icon,
 .alias-copied-message {
     display: inline-block;
-    position: absolute;
-    top: 0;
     pointer-events: none;
 }
 
@@ -490,11 +476,11 @@ table {
     visibility: hidden;
     font-family: "Inter", Arial, Helvetica, sans-serif;
     background-color: $color-violet-30;
+    margin-left: $spacing-sm;
     padding: 2px 4px;
     border-radius: 4px;
     color: $color-white;
     font-size: 14px;
-    right: 0;
     transition: opacity 2s ease-out;
 }
 

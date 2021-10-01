@@ -122,7 +122,7 @@
                   data-id="{{ relay_address.id }}"
                   data-clipboard-text="{{ relay_address.full_address }}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
-                    {{ relay_address.full_address }}
+                    <span class="relay-address--label">{{ relay_address.full_address }}</span>
                     <span class="alias-copied-icon"></span>
                     <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
                 </button>
@@ -153,7 +153,7 @@
               data-id="{{ relay_address.id }}"
               data-clipboard-text="{{ relay_address.full_address }}"
               class="relay-address click-copy ff-Met jst-cntr al-cntr">
-                {{ relay_address.full_address }}
+                <span class="relay-address--label">{{ relay_address.full_address }}</span>
                 <span class="alias-copied-icon"></span>
                 <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
             </button>
@@ -236,7 +236,7 @@
                   data-id="{{ domain_address.id }}"
                   data-clipboard-text="{{ domain_address.full_address }}"
                   class="relay-address click-copy  hide-mobile ff-Met xflx jst-cntr al-cntr">
-                    {{ domain_address.full_address }}
+                    <span class="relay-address--label">{{ domain_address.full_address }}</span>
                     <span class="alias-copied-icon"></span>
                     <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
                 </button>
@@ -267,7 +267,7 @@
               data-id="{{ domain_address.id }}"
               data-clipboard-text="{{ domain_address.full_address }}"
               class="relay-address click-copy ff-Met xflx jst-cntr al-cntr">
-                {{ domain_address.full_address }}
+                <span class="relay-address--label">{{ domain_address.full_address }}</span>
                 <span class="alias-copied-icon"></span>
                 <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
             </button>
