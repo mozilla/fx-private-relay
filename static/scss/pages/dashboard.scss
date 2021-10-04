@@ -216,14 +216,6 @@
     flex-wrap: nowrap;
     max-width: 100%;
 
-    .relay-address {
-        display: none;
-
-        @media #{$mq-md} {
-            display: block;
-        }
-    }
-
     .additional-notes.show-label + button {
         margin-top: 0;
     }
