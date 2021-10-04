@@ -1,0 +1,28 @@
+{% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+<div id="premiumOnboarding" class="c-premium-onboarding is-hidden">
+    <button class="c-premium-onboarding-dismiss js-premium-onboarding-dismiss"><img src="{% static 'images/x-close.svg' %}" alt="Close"></button>
+
+    <div class="mzp-l-content mzp-t-content-xl">
+        <div class="c-premium-onboarding-headlines">
+            <h1>{% ftlmsg 'onboarding-premium-headline' %}</h1>
+            <h2 class="mzp-has-zap-1">{% ftlmsg 'onboarding-premium-subheadline-html' %}</h2>
+        </div>
+
+        <div class="c-premium-onboarding-content">
+            <div class="c-premium-onboarding-content-image">
+                <img src="{% static 'images/dashboard-onboarding/woman-couch.svg' %}" alt="Woman sitting on a couch">
+            </div>
+            <div class="c-premium-onboarding-content-description">
+                <p>{% ftlmsg 'onboarding-premium-feature-intro' %}</p>
+                <ul class="mzp-u-list-styled">
+                    <li><strong>{% ftlmsg 'onboarding-premium-control-title' %}</strong> {% ftlmsg 'onboarding-premium-control-description' %}</li>
+                    <li><strong>{% ftlmsg 'onboarding-premium-domain-title' %}</strong> {% ftlmsg 'onboarding-premium-domain-description' %}</li>
+                    <li><strong>{% ftlmsg 'onboarding-premium-reply-title' %}</strong> {% ftlmsg 'onboarding-premium-reply-description' %}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,5 +1,6 @@
 // Protocol
 @import "libs/protocol/css/templates/multi-column.scss";
+@import "libs/protocol/css/components/zap.scss";
 
 .c-onboarding {
     border-radius: $border-radius-md;
@@ -64,4 +65,113 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+// Premium 
+
+.c-premium-onboarding {
+    position: relative;
+
+    &.is-hidden {
+        display: none;
+    }
+
+    .mzp-l-content {
+        padding: $spacing-lg $spacing-lg;
+    }
+}
+
+.c-premium-onboarding-headlines {
+    text-align: center;
+    margin-bottom: $spacing-xl;
+
+    h1 {
+        color: $color-purple-50;
+
+        @include text-title-lg;
+        margin-bottom: $spacing-md;
+    }
+
+    h2 {
+        color: $color-black;
+
+        @include text-title-xs;
+    }
+}
+
+.c-premium-onboarding-content {
+    max-width: $content-lg;
+    margin: 0 auto;
+
+    @media #{$mq-md} {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xl;
+    }
+}
+
+.c-premium-onboarding-content-image {
+    width: 100%;
+    max-width: $content-xs;
+    margin: 0 auto $spacing-xl;
+
+    @media #{$mq-md} {
+        margin-bottom: 0;
+    }
+}
+
+.c-premium-onboarding-dismiss {
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: none;
+    border: 0;
+    appearance: none;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    display: block;
+    z-index: 5;
+    transition: transform .3s ease-in;
+
+    &:hover {
+        transform: scale(1.05);
+    }
+    
+    img {
+        width: 2rem;
+        max-width: none;
+        display: block;
+    }
+}
+
+.c-premium-onboarding-content-description {
+
+    strong {
+        display: block;
+
+        @include text-body-lg;
+    }
+
+    .mzp-u-list-styled li {
+        margin-bottom: $spacing-md;
+    }
+
+    li::marker {
+        color: $color-yellow-50;
+    }
+
+    button {
+        appearance: none;
+        text-decoration: underline;
+        background: none;
+        border: 0;
+        cursor: pointer;
+
+        @include text-body-md;
+
+        &:hover {
+            color: $color-purple-50;
+        }
+    }
 }

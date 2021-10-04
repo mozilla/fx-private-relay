@@ -328,6 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
   addEventListeners();
   vpnBannerLogic();
   setTranslatedStringLinks();
+  premiumOnboardingLogic();
 
   // TODO: Set up language gate once l10n is active.
   // const preferredLanguages = navigator.languages;
@@ -474,6 +475,54 @@ function vpnBannerLogic() {
   };
 
   vpnPromoFunctions.init();
+}
+
+function premiumOnboardingLogic() {
+  // Check if element exists at all
+  const premiumOnboardingContent = document.getElementById("premiumOnboarding");
+
+  if (!premiumOnboardingContent) {
+    return;
+  }
+
+  // Check for dismissal cookie
+  const premiumOnboardingDismissedCookie = document.cookie
+    .split("; ")
+    .some((item) => item.trim().startsWith("premiumOnboarding="));
+
+  if (premiumOnboardingDismissedCookie) {
+    return;
+  }
+
+  // Init: Show banner, set close button listener
+  const premiumOnboardingCloseButton = document.querySelector(
+    ".js-premium-onboarding-dismiss"
+  );
+
+  const premiumOnboardingFunctions = {
+    hide: function () {
+      premiumOnboardingFunctions.setCookie();
+      premiumOnboardingContent.classList.add("is-hidden");
+    },
+    init: function () {
+      premiumOnboardingCloseButton.addEventListener(
+        "click",
+        premiumOnboardingFunctions.hide
+      );
+      premiumOnboardingFunctions.show();
+    },
+    setCookie: function () {
+      const date = new Date();
+      date.setTime(date.getTime() + 30 * 24 * 60 * 60 * 1000);
+      document.cookie =
+        "premiumOnboarding=true; expires=" + date.toUTCString() + "; path=/";
+    },
+    show: function () {
+      premiumOnboardingContent.classList.remove("is-hidden");
+    },
+  };
+
+  premiumOnboardingFunctions.init();
 }
 
 //Micro Survey Banner

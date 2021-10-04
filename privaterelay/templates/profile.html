@@ -70,6 +70,14 @@
   </div>
   {% endif %}
   <div class="main-list flx flx-col jst-cntr">
+
+    {% if user_profile.has_premium %}
+      {% if relay_addresses|length > 0 %}
+        <!-- Show Premium Onboarding to only premium users -->
+        {% include "includes/premium_onboarding.html" %}
+      {% endif %}
+    {% endif %}
+
     <div class="alias-list">
       {% if not user_profile.has_premium %}
       <div class="dashboard-greeting">
