@@ -21,6 +21,20 @@
     </div>
   </div>
 {% else %}
+  <div class="c-data-notification-banner js-notification">
+    <div class="dismiss-wrapper">
+      <button class="data-notification-dismiss js-dismiss"><img src="{% static 'images/x-close.svg' %}" alt="Close"></button>
+    </div>
+    <div class="data-notification-banner-bg">
+      <div class="data-notification-banner-content">
+        <div class="data-notification-banner-copy">
+          <p class="data-notification-banner-header">Allow data collection for future features</p>
+          <p class="data-notification-banner-sub">This data will allow you to label your aliases with the sites where they're generated and used in a future release. You can allow this data collection in “Settings.”</p>
+          <a class="data-notification-banner-link" href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">Go to Settings</a>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="dashboard-banners invisible">
     <div class="flx hide-750">
       <div class="banner-gradient-bg addon">

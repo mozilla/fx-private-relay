@@ -1022,6 +1022,12 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     display: none;
 }
 
+
+/* Show the opt in data notification banner if add on is downloaded */
+firefox-private-relay-addon[data-addon-installed="false"] + firefox-private-relay-addon-data + main .c-data-notification-banner {
+    display: none;
+}
+
 .banner-hl {
     font-size: 1.25rem;
     font-weight: 700;
@@ -1124,6 +1130,116 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     background-image: url("/static/images/logos/mpp-temp-icon.png");
 }
 
+.c-data-notification-banner {
+    display: flex;
+    flex-direction: column;
+    background-color: $color-white;
+    box-shadow: $box-shadow-sm;
+    border-radius: $border-radius-md;
+
+    .data-notification-banner-bg {
+        padding: $spacing-xs;
+        width: 100%;
+        position: relative;
+        min-height: 0;
+    }
+
+    .data-notification-banner-content {
+        padding-left: $spacing-sm;
+        display: flex;
+        flex-direction: row;
+    }
+
+    .data-notification-banner-copy {
+        display: flex;
+        flex-direction: column;
+        padding: $spacing-lg $spacing-lg $spacing-md $spacing-lg;
+    }
+
+    .data-notification-banner-header {
+        font-family: $font-metropolis;
+        font-size: 1.125em;
+        font-weight: 700;
+        text-align: center;
+        width: 90%;
+        padding-bottom: $spacing-sm;
+        margin: 0;
+    }
+
+    .data-notification-banner-header:before {
+        content: "";
+        display: inline-block;
+        height: 16px;
+        width: 16px;
+        margin-right: 12px;
+        background-image: url("/static/images/icon-orange-info.svg");
+        background-size: 16px;
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+
+    .data-notification-banner-sub {
+        margin: 0;
+        line-height: 150%;
+    }
+
+    .data-notification-banner-link {
+        text-align: center;
+        color: $color-blue-50;
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: $spacing-lg 0;
+    }
+
+    .dismiss-wrapper {
+        width: 100%;
+        height: 0px;
+    }
+
+    .data-notification-dismiss {
+        background: none;
+        cursor: pointer;
+        display: block;
+        border: none;
+        float: right;
+        position: relative;
+        z-index: 1;
+        padding: $spacing-md $spacing-md 0 0;
+
+        &:hover {
+            transform: scale(1.05);
+        }
+        
+        img {
+            width: 1.5em;
+        }
+    }
+
+    @media #{$mq-md} {
+
+        .data-notification-banner-copy:before {
+            content: '';
+            position: absolute;
+            z-index: 1;
+            height: calc(100% - #{$spacing-lg});
+            margin-top: -$spacing-lg;
+            width: 5px;
+            margin-left: -$spacing-2xl;
+            background: $color-yellow-50;
+            border-radius: 5px;
+        }
+
+        .data-notification-banner-copy {
+            padding: $spacing-xl $spacing-xl $spacing-md $spacing-2xl;
+        }
+
+        .data-notification-banner-header, .data-notification-banner-link {
+            text-align: left;
+        }
+    }
+
+}
 
 .nested-grid {
     cursor: default;
