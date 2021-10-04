@@ -36,6 +36,7 @@ DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
 DEFAULT_DOMAIN = settings.RELAY_FIREFOX_DOMAIN
 if settings.TEST_MOZMAIL:
     DEFAULT_DOMAIN = settings.MOZMAIL_DOMAIN
+PREMIUM_DOMAINS = ['mozilla.com', 'getpocket.com', 'mozillafoundation.org']
 
 
 def valid_available_subdomain(subdomain, *args, **kwargs):
@@ -160,8 +161,9 @@ class Profile(models.Model):
         # this to mark the user as a premium user as well
         if not self.fxa:
             return False
-        if self.user.email.endswith('@mozilla.com'):
-            return True
+        for premium_domain in PREMIUM_DOMAINS:
+            if self.user.email.endswith(f'@{premium_domain}'):
+                return True
         user_subscriptions = self.fxa.extra_data.get('subscriptions', [])
         for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
             if sub in user_subscriptions:
