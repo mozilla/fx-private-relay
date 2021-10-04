@@ -78,6 +78,15 @@ class Profile(models.Model):
     def __str__(self):
         return '%s Profile' % self.user
 
+    def save(self, *args, **kwargs):
+        ret = super().save(*args, **kwargs)
+        # any time a profile is saved with server_storage False, delete the
+        # appropriate server-stored Relay address data.
+        if not self.server_storage:
+            relay_addresses = RelayAddress.objects.filter(user=self.user)
+            relay_addresses.update(description='', generated_for='')
+        return ret
+
     @property
     def language(self):
         for accept_lang, _ in parse_accept_lang_header(

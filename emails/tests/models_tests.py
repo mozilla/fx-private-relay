@@ -84,8 +84,10 @@ class MiscEmailModelsTest(TestCase):
 
 class RelayAddressTest(TestCase):
     def setUp(self):
-        user = baker.make(User)
-        self.user_profile = Profile.objects.get(user=user)
+        self.user = baker.make(User)
+        self.user_profile = Profile.objects.get(user=self.user)
+        self.user_profile.server_storage = True
+        self.user_profile.save()
 
         # premium user
         self.premium_user = baker.make(User)
@@ -99,6 +101,8 @@ class RelayAddressTest(TestCase):
             extra_data={'subscriptions': [random_sub]}
         )
         self.premium_user_profile = Profile.objects.get(user=self.premium_user)
+        self.premium_user_profile.server_storage = True
+        self.premium_user_profile.save()
 
     def test_make_relay_address_assigns_to_user(self):
         relay_address = RelayAddress.make_relay_address(self.user_profile)
@@ -149,7 +153,7 @@ class RelayAddressTest(TestCase):
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.models.DEFAULT_DOMAIN', TEST_DOMAINS['RELAY_FIREFOX_DOMAIN'])
     def test_delete_adds_deleted_address_object(self):
-        relay_address = baker.make(RelayAddress)
+        relay_address = baker.make(RelayAddress, user=self.user)
         address_hash = sha256(
             relay_address.address.encode('utf-8')
         ).hexdigest()
@@ -161,7 +165,7 @@ class RelayAddressTest(TestCase):
 
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_delete_mozmail_deleted_address_object(self):
-        relay_address = baker.make(RelayAddress, domain=2)
+        relay_address = baker.make(RelayAddress, domain=2, user=self.user)
         address_hash = sha256(
             f'{relay_address.address}@{relay_address.domain_value}'.encode('utf-8')
         ).hexdigest()
@@ -188,6 +192,8 @@ class RelayAddressTest(TestCase):
 class ProfileTest(TestCase):
     def setUp(self):
         self.profile = baker.make(Profile)
+        self.profile.server_storage = True
+        self.profile.save()
 
     def test_bounce_paused_no_bounces(self):
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
@@ -523,6 +529,93 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=social_account.user)
         assert profile.display_name is None
 
+    def test_save_server_storage_true_doesnt_delete_data(self):
+        test_desc = 'test description'
+        test_generated_for = 'secret.com'
+        relay_address = baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            description=test_desc,
+            generated_for=test_generated_for
+        )
+        self.profile.server_storage = True
+        self.profile.save()
+
+        assert relay_address.description == test_desc
+        assert relay_address.generated_for == test_generated_for
+
+    def test_save_server_storage_false_deletes_data(self):
+        test_desc = 'test description'
+        test_generated_for = 'secret.com'
+        relay_address = baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            description=test_desc,
+            generated_for=test_generated_for
+        )
+        self.profile.server_storage = False
+        self.profile.save()
+
+        relay_address.refresh_from_db()
+        assert relay_address.description == ''
+        assert relay_address.generated_for == ''
+
+    def test_save_server_storage_false_deletes_ALL_data(self):
+        test_desc = 'test description'
+        test_generated_for = 'secret.com'
+        baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            description=test_desc,
+            generated_for=test_generated_for,
+            _quantity=4
+        )
+        self.profile.server_storage = False
+        self.profile.save()
+
+        for relay_address in RelayAddress.objects.filter(
+            user=self.profile.user
+        ):
+            assert relay_address.description == ''
+            assert relay_address.generated_for == ''
+
+    def test_save_server_storage_false_only_deletes_that_profiles_data(self):
+        test_desc = 'test description'
+        test_generated_for = 'secret.com'
+        baker.make(
+            RelayAddress,
+            user=self.profile.user,
+            description=test_desc,
+            generated_for=test_generated_for,
+            _quantity=4
+        )
+
+        server_stored_data_profile = baker.make(
+            Profile,
+            server_storage=True
+        )
+        baker.make(
+            RelayAddress,
+            user=server_stored_data_profile.user,
+            description=test_desc,
+            generated_for=test_generated_for,
+            _quantity=4
+        )
+
+        self.profile.server_storage = False
+        self.profile.save()
+
+        for relay_address in RelayAddress.objects.filter(
+            user=self.profile.user
+        ):
+            assert relay_address.description == ''
+            assert relay_address.generated_for == ''
+
+        for relay_address in RelayAddress.objects.filter(
+            user=server_stored_data_profile.user
+        ):
+            assert relay_address.description == test_desc
+            assert relay_address.generated_for == test_generated_for
 
 class DomainAddressTest(TestCase):
     def setUp(self):
