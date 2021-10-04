@@ -22,8 +22,8 @@
     <div class="c-filter-date hidden">
         <div class="c-filter-icon c-filter-icon-calendar"></div>
     </div>
-    <div class="c-filter-category {% if not user_profile.has_unlimited %} hidden {% endif %}">
-        {% if user_profile.has_unlimited %}
+    <div class="c-filter-category {% if not user_profile.has_premium %} hidden {% endif %}">
+        {% if user_profile.has_premium %}
         <div class="c-filter-icon c-filter-icon-filter js-filter-category-toggle"></div>
             <form class="c-filter-category-list">
                 <ul class="c-filter-category-types">
