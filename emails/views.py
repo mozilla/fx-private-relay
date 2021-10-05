@@ -417,8 +417,8 @@ def _handle_reply(from_address, message_json):
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
 
     if (
-        (from_address is reply_record_email) or
-        (stripped_from_address is stripped_reply_record_address)
+        (from_address == reply_record_email) or
+        (stripped_from_address == stripped_reply_record_address)
     ):
         # This is a Relay user replying to an external sender;
         # verify they are premium
