@@ -49,6 +49,7 @@ from .utils import (
     ses_send_raw_email,
     get_message_id_bytes,
     generate_relay_From,
+    S3ClientException,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -342,9 +343,13 @@ def _sns_message(message_json):
 
     subject = mail['commonHeaders'].get('subject', '')
 
-    text_content, html_content, attachments = _get_text_html_attachments(
-        message_json
-    )
+    try:
+        text_content, html_content, attachments = _get_text_html_attachments(
+            message_json
+        )
+    except S3ClientException as e:
+        logger.error('s3_client_error_get_email', extra=e.response['Error'])
+        return HttpResponse("Cannot find the message content from S3", status=400)
 
     print(f'text content: {text_content}')
     print(f'html content: {html_content}')

@@ -278,15 +278,31 @@ def decrypt_reply_metadata(key, jwe):
     e.decrypt(k)
     return e.plaintext
 
+
+class S3ClientException(Exception):
+    """Exception raised by Profile due to error on subdomain creation.
+
+    Attributes:
+        message -- optional explanation of the error
+    """
+
+    def __init__(self, message=None):
+        self.message = message
+
+
 def get_message_content_from_s3(bucket, object_key):
-    emails_config = apps.get_app_config('emails')
+    try:
+        emails_config = apps.get_app_config('emails')
 
-    # attachment = SpooledTemporaryFile()
-    with open('temp_file', 'w+b') as f:
-        emails_config.s3_client.download_fileobj(bucket, object_key, f)
+        # attachment = SpooledTemporaryFile()
+        with open('temp_file', 'w+b') as f:
+            emails_config.s3_client.download_fileobj(bucket, object_key, f)
 
-        f.seek(0)
-        return f.read()
+            f.seek(0)
+            return f.read()
+    except ClientError as e:
+        logger.error('s3_client_error_get_email', extra=e.response['Error'])
+    raise S3ClientException('Failed to fetch email from S3')
 
 def remove_email_message_from_s3(bucket, object_key):
     emails_config = apps.get_app_config('emails')
