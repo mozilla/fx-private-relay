@@ -70,7 +70,7 @@ class Profile(models.Model):
         blank=True, null=True, db_index=True
     )
     subdomain = models.CharField(
-        blank=True, null=True, unique=True, max_length=12, db_index=True,
+        blank=True, null=True, unique=True, max_length=63, db_index=True,
         validators=[valid_available_subdomain]
     )
     server_storage = models.BooleanField(default=False)
