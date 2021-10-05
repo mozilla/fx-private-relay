@@ -287,3 +287,8 @@ def get_message_content_from_s3(bucket, object_key):
 
         f.seek(0)
         return f.read()
+
+def remove_email_message_from_s3(bucket, object_key):
+    emails_config = apps.get_app_config('emails')
+    response = emails_config.s3_client.delete_object(bucket, object_key)
+    return response.get('DeleteMarker')

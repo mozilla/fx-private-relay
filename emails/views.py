@@ -45,6 +45,7 @@ from .utils import (
     urlize_and_linebreaks,
     derive_reply_keys,
     decrypt_reply_metadata,
+    remove_email_message_from_s3,
     ses_send_raw_email,
     get_message_id_bytes,
     generate_relay_From,
@@ -397,6 +398,10 @@ def _sns_message(message_json):
     address.save(
         update_fields=['num_forwarded', 'last_used_at']
     )
+    
+    message_removed = remove_email_message_from_s3()
+    if not message_removed:
+        incr_if_enabled('message_not_removed_from_s3', 1)
     return response
 
 
