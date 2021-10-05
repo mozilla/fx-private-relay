@@ -304,7 +304,12 @@ def get_message_content_from_s3(bucket, object_key):
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
     raise S3ClientException('Failed to fetch email from S3')
 
-def remove_email_message_from_s3(bucket, object_key):
-    emails_config = apps.get_app_config('emails')
-    response = emails_config.s3_client.delete_object(bucket, object_key)
-    return response.get('DeleteMarker')
+
+def remove_message_from_s3(bucket, object_key):
+    try:
+        emails_config = apps.get_app_config('emails')
+        response = emails_config.s3_client.delete_object(bucket, object_key)
+        return response.get('DeleteMarker')
+    except ClientError as e:
+        logger.error('s3_client_error_delete_email', extra=e.response['Error'])
+    return False
