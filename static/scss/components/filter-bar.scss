@@ -74,6 +74,10 @@
         &:focus, &:hover {
             background-image: url("/static/images/icon-search-blue.svg");
         }
+
+        &::placeholder {
+            text-overflow: ellipsis;
+        }
     }
 
     .c-filter-search-controls {
