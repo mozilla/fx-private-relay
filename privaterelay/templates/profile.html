@@ -8,6 +8,7 @@
 
 {% block javascript %}
   <script src="{% static 'js/filter.js' %}"></script>
+  <script src="{% static 'js/labels.js' %}"></script>
 {% endblock %}
 
 
@@ -28,7 +29,7 @@
 >
 </firefox-private-relay-addon-data>
 
-<main id="profile-main" class=" bg-light dashboard-container " data-api-token="{{ user_profile.api_token }}">
+<main id="profile-main" class="{% if user_profile.server_storage %} js-server-storage-enabled {% endif %} bg-light dashboard-container " data-api-token="{{ user_profile.api_token }}">
   <div class="messages-profile">
     {% include "includes/messages.html" %}
   </div>
@@ -120,11 +121,23 @@
             <div class="c-alias-name">
               <div class="relay-email-row card-top-row inset">
                 <!-- alias label -->
-                <div class="additional-notes">
-                  <form class="relay-email-address-label-form">
-                    <input data-label="" type="text" maxlength="50" value="" aria-label="{% ftlmsg 'profile-label-edit' %}" class="relay-email-address-label ff-Met">
+                <div class="additional-notes {% if user_profile.server_storage %} show-label {% endif %}">
+                  <form
+                    class="relay-email-address-label-form js-relay-email-address-label-form"
+                    data-alias-id="{{ relay_address.id }}"
+                    data-type="relay"
+                  >
+                    <input
+                      data-label="{{ relay_address.description }}"
+                      type="text"
+                      maxlength="50"
+                      value="{{ relay_address.description }}"
+                      aria-label="{% ftlmsg 'profile-label-edit' %}"
+                      placeholder="{% ftlmsg 'profile-label-placeholder' %}"
+                      class="relay-email-address-label js-relay-email-address-label ff-Met"
+                    >
                     <span class="saved-confirmation">{% ftlmsg 'profile-label-saved' %}</span>
-                    <span class="input-error"></span>
+                    <span class="input-error js-input-error" data-default-message="{% ftlmsg 'profile-label-save-error' %}"></span>
                   </form>
                 </div>
 
@@ -236,11 +249,24 @@
             <div class="c-alias-name xflx xflx-col">
               <div class="relay-email-row card-top-row xflx xflx-row inset">
                 <!-- alias label -->
-                <div class="additional-notes">
-                  <form action="" class="relay-email-address-label-form">
-                    <input data-label="" type="text" maxlength="50" value="" aria-label="{% ftlmsg 'profile-label-edit' %}" class="relay-email-address-label ff-Met">
+                <div class="additional-notes {% if user_profile.server_storage %} show-label {% endif %}">
+                  <form
+                    action=""
+                    class="relay-email-address-label-form js-relay-email-address-label-form"
+                    data-alias-id="{{ domain_address.id }}"
+                    data-type="domain"
+                  >
+                    <input
+                      data-label="{{ domain_address.description }}"
+                      type="text"
+                      maxlength="50"
+                      value="{{ domain_address.description }}"
+                      aria-label="{% ftlmsg 'profile-label-edit' %}"
+                      placeholder="{% ftlmsg 'profile-label-placeholder' %}"
+                      class="relay-email-address-label js-relay-email-address-label ff-Met"
+                    >
                     <span class="saved-confirmation">{% ftlmsg 'profile-label-saved' %}</span>
-                    <span class="input-error"></span>
+                    <span class="input-error js-input-error" data-default-message="{% ftlmsg 'profile-label-save-error' %}"></span>
                   </form>
                 </div>
 
