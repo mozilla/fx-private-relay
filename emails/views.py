@@ -180,17 +180,13 @@ def sns_inbound(request):
     # We can check for some invalid values in headers before processing body
     # Grabs message information for validation
     topic_arn = request.headers.get('X-Amz-Sns-Topic-Arn', None)
-    print(f'topic arn: {topic_arn}')
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
-    print(f'message type: {message_type}')
 
     # Validates header
     validate_sns_header(topic_arn, message_type)
 
     json_body = json.loads(request.body)
-    print(f'json body: {json_body}')
     verified_json_body = verify_from_sns(json_body)
-    print(f'verified json body: {verified_json_body}')
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
@@ -258,14 +254,9 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
 
 
 def _sns_notification(json_body):
-    print(f'SNS NOTIFICATION')
-    print(f'JSON BODY: {json_body}')
     message_json = json.loads(json_body['Message'])
-    print(f'MESSAGE JSON: {message_json}')
     event_type = message_json.get('eventType')
-    print(f'EVENT TYPE: {event_type}')
     notification_type = message_json.get('notificationType')
-    print(f'NOTIFICATION TYPE: {notification_type}')
     if notification_type != 'Received' and event_type != 'Bounce':
         logger.error(
             'SNS notification for unsupported type',
@@ -280,7 +271,6 @@ def _sns_notification(json_body):
 
 
 def _sns_message(message_json):
-    print('SNS MESSAGE')
     incr_if_enabled('sns_inbound_Notification_Received', 1)
     mail = message_json['mail']
     if message_json.get('eventType') == 'Bounce':
@@ -292,7 +282,6 @@ def _sns_message(message_json):
             status=400
         )
     common_headers = mail['commonHeaders']
-    print(f'COMMON HEADERS: {common_headers}')
     if 'to' not in mail['commonHeaders']:
         logger.error('SNS message without commonHeaders "to".')
         return HttpResponse(
@@ -351,10 +340,6 @@ def _sns_message(message_json):
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
         return HttpResponse("Cannot find the message content from S3", status=400)
 
-    print(f'text content: {text_content}')
-    print(f'html content: {html_content}')
-    print(f'attachments: {attachments}')
-
     # scramble alias so that clients don't recognize it
     # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
@@ -397,7 +382,6 @@ def _sns_message(message_json):
         formatted_from_address, to_address, subject,
         message_body, attachments, mail, address
     )
-    print(f'Response: {response}')
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
     address.save(
@@ -593,7 +577,6 @@ def _get_text_html_attachments(message_json):
                 'relayed_email.size',
                 len(message_content)
             )
-            print('Successful S3 download of email message')
     
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
