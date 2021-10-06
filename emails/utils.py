@@ -6,8 +6,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
-from emails.apps import EmailsConfig
-import io
 import json
 
 from botocore.exceptions import ClientError
@@ -293,7 +291,9 @@ class S3ClientException(Exception):
 def get_message_content_from_s3(bucket, object_key):
     try:
         emails_config = apps.get_app_config('emails')
-        streamed_s3_object = emails_config.s3_client.get_object(Bucket=bucket, Key=object_key).get('Body')
+        streamed_s3_object = emails_config.s3_client.get_object(
+            Bucket=bucket, Key=object_key
+        ).get('Body')
         return streamed_s3_object.read()
     except ClientError as e:
         logger.error('s3_client_error_get_email', extra=e.response['Error'])

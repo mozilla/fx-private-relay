@@ -387,7 +387,7 @@ def _sns_message(message_json):
     address.save(
         update_fields=['num_forwarded', 'last_used_at']
     )
-    
+
     message_removed = remove_message_from_s3()
     if not message_removed:
         incr_if_enabled('message_not_removed_from_s3', 1)
@@ -569,7 +569,7 @@ def _get_text_html_attachments(message_json):
     if 'content' in message_json:
         message_content = message_json['content'].encode('utf-8')
     elif 'receipt' in message_json and 'action' in message_json['receipt']:
-        if 'S3' in message_json['receipt']['action']['type']: 
+        if 'S3' in message_json['receipt']['action']['type']:
             bucket = message_json['receipt']['action']['bucketName']
             object_key = message_json['receipt']['action']['objectKey']
             message_content = get_message_content_from_s3(bucket, object_key)
@@ -577,7 +577,7 @@ def _get_text_html_attachments(message_json):
                 'relayed_email.size',
                 len(message_content)
             )
-    
+
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
     text_content, html_content, attachments = _get_all_contents(
