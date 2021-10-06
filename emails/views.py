@@ -589,6 +589,10 @@ def _get_text_html_attachments(message_json):
             bucket = message_json['receipt']['action']['bucketName']
             object_key = message_json['receipt']['action']['objectKey']
             message_content = get_message_content_from_s3(bucket, object_key)
+            histogram_if_enabled(
+                'relayed_email.size',
+                len(message_content)
+            )
             print('Successful S3 download of email message')
     
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
