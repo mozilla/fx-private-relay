@@ -282,15 +282,15 @@ def _sns_message(message_json):
             status=400
         )
     common_headers = mail['commonHeaders']
-    if 'to' not in mail['commonHeaders']:
+    if 'to' not in common_headers:
         logger.error('SNS message without commonHeaders "to".')
         return HttpResponse(
             'Received SNS notification without commonHeaders "to".',
             status=400
         )
 
-    from_address = parseaddr(mail['commonHeaders']['from'][0])[1]
-    to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
+    from_address = parseaddr(common_headers['from'][0])[1]
+    to_address = parseaddr(common_headers['to'][0])[1]
     [to_local_portion, to_domain_portion] = to_address.split('@')
     if to_local_portion == 'noreply':
         incr_if_enabled('email_for_noreply_address', 1)
@@ -330,7 +330,7 @@ def _sns_message(message_json):
         ).hexdigest(),
     })
 
-    subject = mail['commonHeaders'].get('subject', '')
+    subject = common_headers.get('subject', '')
 
     try:
         text_content, html_content, attachments = _get_text_html_attachments(
