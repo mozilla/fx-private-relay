@@ -293,13 +293,8 @@ class S3ClientException(Exception):
 def get_message_content_from_s3(bucket, object_key):
     try:
         emails_config = apps.get_app_config('emails')
-
-        # attachment = SpooledTemporaryFile()
-        with open('temp_file', 'w+b') as f:
-            emails_config.s3_client.download_fileobj(bucket, object_key, f)
-
-            f.seek(0)
-            return f.read()
+        streamed_s3_object = emails_config.s3_client.get_object(Bucket=bucket, Key=object_key).get('Body')
+        return streamed_s3_object.read()
     except ClientError as e:
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
     raise S3ClientException('Failed to fetch email from S3')
