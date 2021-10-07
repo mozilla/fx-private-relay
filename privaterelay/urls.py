@@ -36,6 +36,7 @@ urlpatterns = [
         views.profile_subdomain,
         name='profile_subdomain'
     ),
+    path('accounts/settings/', views.settings, name='settings'),
     path('accounts/', include('allauth.urls')),
     path('faq', views.faq, name='faq'),
     path('', views.home, name='home'),
