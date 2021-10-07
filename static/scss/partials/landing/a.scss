@@ -110,7 +110,6 @@ h1, h2, h3, h4, h5, h6 {
         
             .step-text {
                 width: 100%;
-                padding: 0 $spacing-xl;
                 text-align: center;
                 padding-top: $spacing-md;
                 left: 50%;
@@ -136,15 +135,15 @@ h1, h2, h3, h4, h5, h6 {
                 }
             }
 
-            @media #{$mq-md} {
+            @media #{$mq-lg} {
                 width: 100%;
                 
-                // .step-text, .step-headline {
-                //     text-align: start;
-                // }
+                .step-text, .step-headline {
+                    text-align: start;
+                }
 
                 .step-illustration {
-                    width: $content-xs;
+                    width: 100%;
                 }
 
                 .step {
