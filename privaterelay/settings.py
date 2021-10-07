@@ -224,7 +224,7 @@ TEMPLATES = [
 
                 'emails.context_processors.relay_from_domain',
                 'privaterelay.context_processors.django_settings',
-                'privaterelay.context_processors.ftl_mode',
+                'privaterelay.context_processors.common',
             ],
         },
     },

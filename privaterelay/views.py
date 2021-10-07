@@ -56,13 +56,7 @@ def home(request):
 
 
 def faq(request):
-  if (not request.user or request.user.is_anonymous):
     return render(request, 'faq.html')
-  fxa = _get_fxa(request)
-  avatar = fxa.extra_data['avatar'] if fxa else None
-  return render(request, 'faq.html', {
-    'avatar': avatar
-  })
 
 
 def profile(request):
@@ -77,12 +71,9 @@ def profile(request):
     domain_addresses = DomainAddress.objects.filter(user=request.user).order_by(
         '-last_used_at'
     )
-    fxa = _get_fxa(request)
-    avatar = fxa.extra_data['avatar'] if fxa else None
     profile = request.user.profile_set.first()
     context = {
         'relay_addresses': relay_addresses,
-        'avatar': avatar,
         'domain_addresses': domain_addresses,
         'user_profile': profile,
     }
