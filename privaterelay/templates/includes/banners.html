@@ -28,9 +28,9 @@
     <div class="data-notification-banner-bg">
       <div class="data-notification-banner-content">
         <div class="data-notification-banner-copy">
-          <p class="data-notification-banner-header">Allow data collection for future features</p>
-          <p class="data-notification-banner-sub">This data will allow you to label your aliases with the sites where they're generated and used in a future release. You can allow this data collection in “Settings.”</p>
-          <a class="data-notification-banner-link" href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">Go to Settings</a>
+          <p class="data-notification-banner-header">{% ftlmsg 'banner-label-data-notification-header' %}</p>
+          <p class="data-notification-banner-sub">{% ftlmsg 'banner-label-data-notification-body' %}</p>
+          <a class="data-notification-banner-link" href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-label-data-notification-cta' %}</a>
         </div>
       </div>
     </div>
