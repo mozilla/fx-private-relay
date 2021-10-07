@@ -319,30 +319,13 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def make_relay_address(user_profile, num_tries=0, domain=DEFAULT_DOMAIN):
-        if (
-            user_profile.at_max_free_aliases
-            and not user_profile.has_premium
-        ):
-            hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
-            raise CannotMakeAddressException(
-                NOT_PREMIUM_USER_ERR_MSG.format(hit_limit)
-            )
-        if num_tries >= 5:
-            raise CannotMakeAddressException
-        # only use the numerical value of the domain when creating the alias
-        domain_numerical = get_domain_numerical(domain)
-        relay_address = RelayAddress.objects.create(user=user_profile.user, domain=domain_numerical)
-        address_contains_badword = has_bad_words(relay_address.address)
-        address_is_blocklisted = is_blocklisted(relay_address.address)
-        address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash(relay_address.address, domain=domain)
-        ).count()
-        if address_already_deleted > 0 or address_contains_badword or address_is_blocklisted:
-            relay_address.delete()
-            num_tries += 1
-            return RelayAddress.make_relay_address(user_profile, num_tries, domain)
-        return relay_address
+    def save(self, *args, **kwargs):
+        check_user_can_make_another_address(self.user)
+        while True:
+            if check_address_value_is_okay(self.address, self.domain):
+                break
+            self.address = address_default()
+        return super().save(*args, **kwargs)
 
     @property
     def domain_value(self):
@@ -351,6 +334,30 @@ class RelayAddress(models.Model):
     @property
     def full_address(self):
         return '%s@%s' % (self.address, self.domain_value)
+
+
+def check_user_can_make_another_address(user):
+    user_profile = user.profile_set.first()
+    if (user_profile.at_max_free_aliases and not user_profile.has_premium):
+        hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
+        raise CannotMakeAddressException(
+            NOT_PREMIUM_USER_ERR_MSG.format(hit_limit)
+        )
+
+
+def check_address_value_is_okay(address, domain):
+    address_contains_badword = has_bad_words(address)
+    address_is_blocklisted = is_blocklisted(address)
+    address_already_deleted = DeletedAddress.objects.filter(
+        address_hash=address_hash(address, domain=domain)
+    ).count()
+    if (
+        address_already_deleted > 0 or
+        address_contains_badword or
+        address_is_blocklisted
+    ):
+        return False
+    return True
 
 
 class DeletedAddress(models.Model):
