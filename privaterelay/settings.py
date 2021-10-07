@@ -146,6 +146,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.fxa',
 
     'rest_framework',
+    'rest_framework.authtoken',
 
     'privaterelay.apps.PrivateRelayConfig',
 ]
@@ -393,6 +394,10 @@ else:
     )
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
     'DEFAULT_PERMISSIONS_CLASSES': [
         'rest_framework.permissions.IsAuthenticated'
     ],

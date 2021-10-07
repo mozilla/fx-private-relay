@@ -10,10 +10,13 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
 from django.utils.translation.trans_real import (
     parse_accept_lang_header,
     get_supported_language_variant,
 )
+
+from rest_framework.authtoken.models import Token
 
 emails_config = apps.get_app_config('emails')
 
@@ -202,6 +205,12 @@ class Profile(models.Model):
         self.full_clean()
         self.save()
         return subdomain
+
+
+@receiver(models.signals.post_save, sender=Profile)
+def copy_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance.user, key=instance.api_token)
 
 
 def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
