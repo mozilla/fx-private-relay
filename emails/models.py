@@ -210,7 +210,13 @@ class Profile(models.Model):
 @receiver(models.signals.post_save, sender=Profile)
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
-        Token.objects.create(user=instance.user, key=instance.api_token)
+        # baker triggers created during tests
+        # so first check the user doesn't already have a Token
+        try:
+            Token.objects.get(user=instance.user)
+            return
+        except Token.DoesNotExist:
+            Token.objects.create(user=instance.user, key=instance.api_token)
 
 
 def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
