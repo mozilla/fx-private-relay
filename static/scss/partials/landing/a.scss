@@ -8,6 +8,19 @@ h1, h2, h3, h4, h5, h6 {
 
         h1 {
             @include text-title-md;
+            padding-top: $spacing-md;
+        }
+
+        .c-landing-hero-brands {
+            margin-top: $layout-lg;
+            padding: $spacing-lg;
+            width: 100%;
+            border-top: 1px solid $color-light-gray-20;
+            border-bottom: 1px solid $color-light-gray-20;
+        }
+
+        @media screen and ($mq-md) {
+            padding-right: $layout-md;
         }
     }
 
@@ -31,7 +44,6 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     @media screen and ($mq-md) {
-
         display: flex;
         gap: $spacing-2xl;
 
@@ -75,53 +87,72 @@ h1, h2, h3, h4, h5, h6 {
 
     .how-it-works-header {
         @include text-title-sm;
-        margin-bottom: $spacing-md;
     }
 
     .how-it-works-steps {
         width: 100%;
-
-        &.mzp-l-columns {
-            width: $screen-xs;
-
-            @media #{$mq-lg} {
-                width: 100%;
-            }
-        
-        }
-
         margin-top: $layout-sm;
         margin-bottom: $layout-lg;
 
-    }
+        &.mzp-l-columns {
+            margin-top: $layout-md;
 
-    .step-illustration {
-        height: $content-xs;
-        width: 100%;
-    }
+            .step-illustration {
+                left: 50%;
+                transform: translateX(-50%);
+                position: relative;
+                width: $content-xs;
+            }
 
-    .step-text {
-        padding-top: $spacing-md;
-    }
+            .step {
+                margin-bottom: $layout-lg;
+            }
+        
+            .step-text {
+                width: 100%;
+                padding: 0 $spacing-xl;
+                text-align: center;
+                padding-top: $spacing-md;
+                left: 50%;
+                transform: translateX(-50%);
+                position: relative;
+            }
+        
+            .step-headline {
+                text-align: center;
+                font-size: 1.25em;
+                margin: 0 auto .5em 0;
+            }
+        
+            .step-body {
+                margin: 0 auto auto auto;
+                font-size: 1em;
+                line-height: 1.7em;
+                color: black !important;
+        
+                .text-link {
+                    color: $color-blue-50;
+                    font-weight: 500;
+                }
+            }
 
-    .step-headline {
-        font-size: 1.25em;
-        margin: 0 auto .5em 0;
-    }
+            @media #{$mq-md} {
+                width: 100%;
+                
+                // .step-text, .step-headline {
+                //     text-align: start;
+                // }
 
-    .step-body {
-        margin: 0 auto auto auto;
-        font-size: 1em;
-        line-height: 1.7em;
-        color: black !important;
+                .step-illustration {
+                    width: $content-xs;
+                }
 
-        .text-link {
-            color: $color-blue-50;
-            font-weight: 500;
+                .step {
+                    margin-top: 0;
+                }
+            }
         }
-
     }
-
 }
 
 
@@ -130,6 +161,11 @@ h1, h2, h3, h4, h5, h6 {
 .c-gray-bg {
     background-color: $color-light-gray-10;
     height: auto;
+    padding: $layout-md 0;
+
+    @media screen and ($mq-lg) {
+        padding: 0;
+    }
 }
 
 .c-plans {
@@ -153,7 +189,6 @@ h1, h2, h3, h4, h5, h6 {
 
         @media screen and ($mq-sm){
             padding: 0 $spacing-xl;
-
 
             @media screen and ($mq-md){
                 grid-template-columns: 1fr 1fr;
@@ -227,18 +262,26 @@ h1, h2, h3, h4, h5, h6 {
 
     .c-pricing-text {
         grid-row-start: 1;
-        grid-column-start: span 2;
+        grid-column-start: span 3;
         height: 100%;
+        text-align: center;
 
         h2 {
             font-family: $font-metropolis;
             font-weight: 500;
         }
 
-        @media screen and ($mq-lg){
+        .c-text {
+            padding: 0 $spacing-lg;
+        }
+
+        @media screen and ($mq-lg) {
+            text-align: start;
+            grid-column-start: span 2;
             grid-row-start: auto;
 
             .c-text {
+                padding: 0;
                 top: 50%;
                 -ms-transform: translateY(-50%);
                 transform: translateY(50%);
