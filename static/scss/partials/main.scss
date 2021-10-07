@@ -180,90 +180,6 @@ button:active {
     border: 0;
 }
 
-.how-it-works-steps,
-.how-it-works-content {
-    width: 100%;
-}
-
-.how-it-works-header {
-    @include text-title-sm;
-    margin-bottom: $spacing-md;
-}
-
-.how-it-works-steps {
-
-    &.mzp-l-columns {
-        max-width: $content-xs;
-
-        @media #{$mq-lg} {
-            max-width: $content-max;
-        }
-    }
-
-    margin-top: $layout-lg;
-    margin-bottom: $layout-lg;
-}
-
-.step-illustration {
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 0;
-    padding-bottom: 100%;
-    width: 100%;
-    border-radius: $border-radius-lg;
-    border: 1px solid $color-violet-40;
-    margin: 0 auto $spacing-xl;
-}
-
-.step-1.step-illustration {
-    background-image: url("/static/images/how-it-works/how-it-works-1.svg");
-}
-
-.step-2.step-illustration {
-    background-image: url("/static/images/how-it-works/how-it-works-2.svg");
-}
-
-.step-3.step-illustration {
-    background-image: url("/static/images/how-it-works/how-it-works-3.svg");
-}
-
-.step {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    text-align: center;
-    margin-bottom: $spacing-2xl;
-    
-
-    &.step-3 {
-        margin-bottom: 0;
-    }
-
-    @media #{$mq-md} {
-        margin-bottom: 0;
-    }
-}
-
-.step-text {
-    text-align: center;
-    max-width: 300px;
-}
-
-.step-headline {
-    font-size: 1.25em;
-    line-height: 1.3;
-    margin: 0 auto 1em 0;
-}
-
-.step-body {
-    margin: 0 auto auto auto;
-    color: rgba(255, 255, 255, .9);
-    font-size: 1em;
-    line-height: 1.7em;
-    letter-spacing: .009em;
-}
-
 .bold {
     font-weight: 700;
 }
@@ -1264,16 +1180,6 @@ firefox-private-relay-addon[data-addon-installed="false"] + firefox-private-rela
 
     .how-it-works-steps {
         margin-bottom: 0;
-    }
-
-    .step-headline {
-        margin-left: auto;
-        margin-right: auto;
-        text-align: center;
-    }
-
-    .step-body {
-        text-align: center;
     }
 
     .grid {
