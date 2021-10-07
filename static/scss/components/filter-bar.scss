@@ -57,14 +57,16 @@
     .c-filter-search-input {
         background-image: url("/static/images/icon-search.svg");
         margin-bottom: 0;
-        padding-right: 90px;
         position: relative;
         z-index: 0;
+        transition: padding-right .2s ease-out;
 
-        &.is-filtered + .c-filter-search-controls {
-            opacity: 1;
+        &.is-filtered,
+        &:focus {
+            padding-right: 90px;
         }
 
+        &.is-filtered + .c-filter-search-controls,
         &:focus + .c-filter-search-controls {
             opacity: 1;
         }
