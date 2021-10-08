@@ -41,6 +41,22 @@ class MiscEmailModelsTest(TestCase):
     def test_has_bad_words_without_bad_words(self):
         assert not has_bad_words('happy')
 
+    def test_has_bad_words_exact_match_on_small_words(self):
+        assert has_bad_words('ho')
+        assert not has_bad_words('horse')
+        assert has_bad_words('ass')
+        assert not has_bad_words('cassandra')
+        assert has_bad_words('hell')
+        assert not has_bad_words('shell')
+        assert has_bad_words('bra')
+        assert not has_bad_words('brain')
+        assert has_bad_words('fart')
+        assert not has_bad_words('farther')
+        assert has_bad_words('fu')
+        assert not has_bad_words('funny')
+        assert has_bad_words('poo')
+        assert not has_bad_words('pools')
+
     def test_is_blocklisted_with_blocked_word(self):
         assert is_blocklisted('mozilla')
 
