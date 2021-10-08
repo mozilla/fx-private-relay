@@ -38,20 +38,23 @@
             server_storage: labelCollectionCheckbox.checked,
         };
 
-        const response = await apiRequest(
-            `/profiles/${profileId}/`,
-            {
-                method: "PATCH",
-                body: JSON.stringify(settings),
-            },
-        );
-        if (response.ok) {
+        try {
+            const response = await apiRequest(
+                `/profiles/${profileId}/`,
+                {
+                    method: "PATCH",
+                    body: JSON.stringify(settings),
+                },
+            );
+            if (!response.ok) {
+                throw new Error("Immediately catch'd to show an error message.");
+            }
             // Re-render the page on the server, to make sure all {% if %} statements in the template are rendered correctly:
             document.location = "/accounts/profile/settings_update";
-            return;
+        } catch (e) {
+            saveError.classList.remove("hidden");
         }
 
-        saveError.classList.remove("hidden");
     });
 
     labelCollectionCheckbox.addEventListener("change", (event) => {
