@@ -1488,6 +1488,10 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     }
 }
 
+.debug {
+    display: none;
+}
+
 .messages {
     width: 100%;
     padding: $spacing-lg $spacing-md;

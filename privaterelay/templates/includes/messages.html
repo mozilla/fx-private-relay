@@ -2,7 +2,13 @@
 {% load relay_tags %}
 {% if messages %}
 	{% for message in messages %}
-		<div class="js-notification messages">
+        <div
+            class="js-notification messages {{ message.tags }}"
+            data-ga="send-ga-pings"
+            data-event-category="message"
+            data-event-label="{{ message.extra_tags }}"
+            data-event-invisible="true"
+        >
 			<div{% if message.tags %} class="message-wrapper {{ message.tags }}" {% else %} class="" {% endif %}>
 				{% message_in_fluent message.message as in_fluent %}
 				{% if in_fluent %}

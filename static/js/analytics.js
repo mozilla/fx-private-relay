@@ -86,7 +86,7 @@ function handleIntersectingElem(entries, analyticsObserver) {
       }
 
       // Send Google Analytics "View" pings when GA event triggers scroll into view
-      if (isGoogleAnalyticsAvailable() && (elemDataset["ga"] === "send-ga-funnel-pings")) {
+      if (isGoogleAnalyticsAvailable() && (elemDataset["ga"] === "send-ga-pings")) {
         ga("send", "event", elemDataset.eventCategory, "View",  elemDataset.eventLabel, { nonInteraction: true });
       }
       analyticsObserver.unobserve(entry.target);
@@ -317,7 +317,7 @@ if (!_dntEnabled()) {
 
   analyticsSurveyLogic();
 
-  const analyticsEventTriggers = document.querySelectorAll("[data-ga='send-ga-funnel-pings']");
+  const analyticsEventTriggers = document.querySelectorAll("[data-ga='send-ga-pings']");
 
   const intersectionObserverAvailable =  (
     "IntersectionObserver" in window &&
@@ -331,6 +331,10 @@ if (!_dntEnabled()) {
 
 
   analyticsEventTriggers.forEach(eventTriggeringElem => {
+    const elDataset = eventTriggeringElem.dataset;
+    if (elDataset.eventInvisible === "true") {
+      ga("send", "event", elDataset.eventCategory, "Fired",  elDataset.eventLabel, { nonInteraction: true });
+    }
     if (intersectionObserverAvailable) {
       analyticsObserver.observe(eventTriggeringElem);
     }
