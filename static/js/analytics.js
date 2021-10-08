@@ -363,4 +363,11 @@ if (!_dntEnabled()) {
       e.target.submit();
     });
   }
+
+  // classifies current user as premium by checking for this class in the body
+  const bodyElement = document.querySelector("body"); 
+  if (bodyElement.classList.contains("is-premium") && isGoogleAnalyticsAvailable()) {
+    ga("set", "dimension2", "true");
+  }
+
 });
