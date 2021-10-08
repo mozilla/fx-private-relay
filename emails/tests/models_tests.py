@@ -143,7 +143,7 @@ class RelayAddressTest(TestCase):
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_create_with_specified_domain(self):
         relay_address = RelayAddress.objects.create(
-            user=self.user_profile.user, domain='test.com'
+            user=self.user_profile.user, domain=2
         )
         assert relay_address.domain == 2
         assert relay_address.get_domain_display() == 'MOZMAIL_DOMAIN'
