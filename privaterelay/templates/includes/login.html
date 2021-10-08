@@ -1,5 +1,6 @@
 {% load socialaccount %}
 {% load relay_tags %}
+{% load static %}
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
@@ -40,6 +41,14 @@
 					</div>
 				</div>
 				<div class="glocal-site-options">
+					<a
+						href="/accounts/settings/"
+						class="glocal-site-option"
+						title="{% ftlmsg 'nav-profile-settings-tooltip' %}"
+					>
+						<img class="" alt="" src="{% static 'images/settings.svg' %}" />
+						{% ftlmsg 'nav-profile-settings' %}
+					</a>
 					<form class="glocal-sign-out-form" method="post" action="{% url 'account_logout' %}">
 						{% csrf_token %}
 						{% if redirect_field_value %}

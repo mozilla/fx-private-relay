@@ -138,16 +138,22 @@ glocal-menu {
 }
 
 .glocal-site-option {
+    display: flex;
+    align-items: center;
     border-radius: 0;
-    padding: 2px var(--glocalPaddingUnit);
+    padding: $spacing-md var(--glocalPaddingUnit);
     width: 100%;
     background-color: rgba(255, 255, 255, 0);
-    transition: .2s ease-in-out;
+
+    img {
+        padding: 0 $spacing-xs;
+        padding-right: $spacing-md;
+    }
 }
 
 .glocal-site-option:hover {
     background-color: var(--glocalOptionHoverColor);
-    transition: .2s ease-in-out;
+    color: $color-violet-90;
 }
 
 .glocal-sign-out {
@@ -156,6 +162,7 @@ glocal-menu {
     border: none;
     font-size: 14px;
     display: flex;
+    cursor: pointer;
     align-items: center;
     color: $color-violet-90;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
