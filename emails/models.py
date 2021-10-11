@@ -293,17 +293,7 @@ class CannotMakeAddressException(Exception):
         self.message = message
 
 
-class DomainPickingManager(models.Manager):
-    def create(self, *args, **kwargs):
-        if 'domain' not in kwargs:
-            kwargs['domain'] = get_domain_from_env_vars_and_profile(
-                kwargs['user']
-            )
-        return super().create(*args, **kwargs)
-
-
 class RelayAddress(models.Model):
-    objects = DomainPickingManager()
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(
@@ -344,6 +334,7 @@ class RelayAddress(models.Model):
             if valid_address(self.address, self.domain):
                 break
             self.address = address_default()
+        self.domain = get_domain_from_env_vars_and_profile(self.user)
         return super().save(*args, **kwargs)
 
     @property
