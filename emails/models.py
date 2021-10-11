@@ -224,6 +224,7 @@ def address_default():
 
 def has_bad_words(value):
     for badword in emails_config.badwords:
+        badword = badword.strip()
         if len(badword) <= 4 and badword == value:
             return True
         if len(badword) > 4 and badword in value:
