@@ -382,14 +382,8 @@ def valid_address(address, domain):
 def get_domain_from_env_vars_and_profile(user):
     user_profile = user.profile_set.first()
     domain = DOMAINS.get('RELAY_FIREFOX_DOMAIN')
-    try:
-        if user_profile.has_premium:
+    if user_profile.has_premium or settings.TEST_MOZMAIL:
             domain = DOMAINS.get('MOZMAIL_DOMAIN')
-        else:
-            if settings.TEST_MOZMAIL:
-                domain = DOMAINS.get('MOZMAIL_DOMAIN')
-    except CannotMakeAddressException as e:
-        logger.error(e.message)
     return get_domain_numerical(domain)
 
 
