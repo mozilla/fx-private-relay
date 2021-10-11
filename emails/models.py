@@ -334,7 +334,7 @@ class RelayAddress(models.Model):
     def save(self, *args, **kwargs):
         check_user_can_make_another_address(self.user)
         while True:
-            if check_address_value_is_okay(self.address, self.domain):
+            if valid_address(self.address, self.domain):
                 break
             self.address = address_default()
         return super().save(*args, **kwargs)
@@ -357,7 +357,7 @@ def check_user_can_make_another_address(user):
         )
 
 
-def check_address_value_is_okay(address, domain):
+def valid_address(address, domain):
     address_contains_badword = has_bad_words(address)
     address_is_blocklisted = is_blocklisted(address)
     address_already_deleted = DeletedAddress.objects.filter(
