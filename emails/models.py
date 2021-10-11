@@ -223,10 +223,13 @@ def address_default():
 
 
 def has_bad_words(value):
-    return any(
-        badword in value
-        for badword in emails_config.badwords
-    )
+    for badword in emails_config.badwords:
+        badword = badword.strip()
+        if len(badword) <= 4 and badword == value:
+            return True
+        if len(badword) > 4 and badword in value:
+            return True
+    return False
 
 
 def is_blocklisted(value):
