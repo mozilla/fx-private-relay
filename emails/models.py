@@ -264,6 +264,13 @@ def get_domain_numerical(domain_address):
     return choices_keys[choices_values.index(domain_name)]
 
 
+def get_domain_from_number(domain_number):
+    choices = dict(DOMAIN_CHOICES)
+    domain_key = choices[domain_number]
+    # get domain name from the address
+    return DOMAINS[domain_key]
+
+
 class CannotMakeSubdomainException(Exception):
     """Exception raised by Profile due to error on subdomain creation.
 

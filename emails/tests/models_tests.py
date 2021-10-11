@@ -22,13 +22,15 @@ from ..models import (
     DeletedAddress,
     DomainAddress,
     get_domain_numerical,
+    get_domain_from_number,
     has_bad_words,
     is_blocklisted,
     NOT_PREMIUM_USER_ERR_MSG,
     Profile,
     RelayAddress,
     TRY_DIFFERENT_VALUE_ERR_MSG,
-    valid_available_subdomain
+    valid_available_subdomain,
+    valid_address
 )
 
 TEST_DOMAINS = {'RELAY_FIREFOX_DOMAIN': 'default.com', 'MOZMAIL_DOMAIN': 'test.com'}
@@ -177,21 +179,12 @@ class RelayAddressTest(TestCase):
         ).count()
         assert deleted_count == 1
 
-    @override_settings(RELAY_FIREFOX_DOMAIN='default.com')
-    @patch('emails.models.DOMAINS', TEST_DOMAINS)
-    def test_create_doesnt_make_dupe_of_deleted(self):
-        relay_address = RelayAddress.objects.create(
-            user=self.user_profile.user
-        )
-        address = relay_address.address
+    def test_valid_address_dupe_of_deleted_invalid(self):
+        relay_address = RelayAddress.objects.create(user=baker.make(User))
         relay_address.delete()
-        try:
-            RelayAddress.objects.create(
-                address=address, user=self.user_profile.user
-            )
-        except CannotMakeAddressException:
-            return
-        self.fail("Should have raise CannotMakeAddressException")
+        assert not valid_address(
+            relay_address.address, get_domain_from_number(relay_address.domain)
+        )
 
 
 class ProfileTest(TestCase):
