@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
+import logging
 import random
 import re
 import string
@@ -19,7 +20,7 @@ from django.utils.translation.trans_real import (
 from rest_framework.authtoken.models import Token
 
 emails_config = apps.get_app_config('emails')
-
+logger = logging.getLogger('events')
 
 BounceStatus = namedtuple('BounceStatus', 'paused type')
 
@@ -285,7 +286,18 @@ class CannotMakeAddressException(Exception):
         self.message = message
 
 
+class DomainPickingManager(models.Manager):
+    def create(self, *args, **kwargs):
+        if 'domain' not in kwargs:
+            kwargs['domain'] = get_domain_from_env_vars_and_profile(
+                kwargs['user']
+            )
+        return super().create(*args, **kwargs)
+
+
 class RelayAddress(models.Model):
+    objects = DomainPickingManager()
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(
         max_length=64, default=address_default, unique=True
@@ -358,6 +370,20 @@ def check_address_value_is_okay(address, domain):
     ):
         return False
     return True
+
+
+def get_domain_from_env_vars_and_profile(user):
+    user_profile = user.profile_set.first()
+    domain = DOMAINS.get('RELAY_FIREFOX_DOMAIN')
+    try:
+        if user_profile.has_premium:
+            domain = DOMAINS.get('MOZMAIL_DOMAIN')
+        else:
+            if settings.TEST_MOZMAIL:
+                domain = DOMAINS.get('MOZMAIL_DOMAIN')
+    except CannotMakeAddressException as e:
+        logger.error(e.message)
+    return get_domain_numerical(domain)
 
 
 class DeletedAddress(models.Model):

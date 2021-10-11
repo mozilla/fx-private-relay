@@ -104,14 +104,10 @@ def _index_POST(request):
         locked_profile = Profile.objects.select_for_update().get(
             user=user_profile.user
         )
-        domain = get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
         try:
-            if user_profile.has_premium:
-                domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
-            else:
-                if settings.TEST_MOZMAIL:
-                    domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
-            relay_address = RelayAddress.objects.create(user=locked_profile.user, domain=domain)
+            relay_address = RelayAddress.objects.create(
+                user=locked_profile.user,
+            )
         except CannotMakeAddressException as e:
             if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
                 # add-on request
