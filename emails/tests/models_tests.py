@@ -184,7 +184,7 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=baker.make(User))
         relay_address.delete()
         assert not valid_address(
-            relay_address.address, get_domain_from_number(relay_address.domain)
+            relay_address.address, relay_address.domain_value
         )
 
 
