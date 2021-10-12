@@ -22,7 +22,6 @@ from ..models import (
     DeletedAddress,
     DomainAddress,
     get_domain_numerical,
-    get_domain_from_number,
     has_bad_words,
     is_blocklisted,
     NOT_PREMIUM_USER_ERR_MSG,
