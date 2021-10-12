@@ -94,7 +94,10 @@
         });
 
         labelInputElement.addEventListener("focusout", async () => {
-            await saveLabel(labelInputElement, aliasId, type);
+            const isValid = labelForm.reportValidity();
+            if (isValid) {
+                await saveLabel(labelInputElement, aliasId, type);
+            }
         });
         labelInputElement.addEventListener("focus", () => {
             labelInputElement.classList.remove("input-has-error");
