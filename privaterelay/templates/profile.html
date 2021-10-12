@@ -19,7 +19,7 @@
   data-fxa-subscriptions-url="{{ settings.FXA_SUBSCRIPTIONS_URL }}" 
   data-premium-prod-id="{{ settings.PREMIUM_PROD_ID }}" 
   data-premium-price-id="{{ settings.PREMIUM_PRICE_ID }}" 
-  data-aliases-used-val="{{ relay_addresses|length }}" 
+  data-aliases-used-val="{{ user_profile.num_active_address }}"
   data-emails-forwarded-val="{{ user_profile.emails_forwarded }}"
   data-emails-blocked-val="{{ user_profile.emails_blocked }}"
   {% with request.user.profile_set.first as user_profile %}
@@ -65,7 +65,7 @@
         {% endif %}
       </div>
       <ul class="mpp-dashbaord-header-stats">
-        <li><span class="label">{% ftlmsg 'profile-stat-label-aliases-used' %}</span> <span>{{relay_addresses|length}}</span> </li>
+        <li><span class="label">{% ftlmsg 'profile-stat-label-aliases-used' %}</span> <span>{{user_profile.num_active_address}}</span> </li>
         <li><span class="label">{% ftlmsg 'profile-stat-label-blocked' %}</span> <span>{{user_profile.emails_blocked}}</span> </li>
         <li><span class="label">{% ftlmsg 'profile-stat-label-forwarded' %}</span> <span>{{user_profile.emails_forwarded}}</span> </li>
       </ul>
