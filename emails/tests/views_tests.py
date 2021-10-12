@@ -91,10 +91,10 @@ class GetAddressTest(TestCase):
         )
         assert actual == expected
 
-    # ignore test for code path that we don't actually use
+    @skip(reason="ignore test for code path that we don't actually use")
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.views.get_domains_from_settings')
-    def x_test_get_address_with_relay_address(self, domains_mocked):
+    def test_get_address_with_relay_address(self, domains_mocked):
         domains_mocked.return_value = TEST_DOMAINS
         local_portion = 'foo'
         relay_address = baker.make(
