@@ -100,7 +100,10 @@ class Profile(models.Model):
 
     @property
     def num_active_address(self):
-        return RelayAddress.objects.filter(user=self.user).count()
+        return (
+            RelayAddress.objects.filter(user=self.user).count() +
+            DomainAddress.objects.filter(user=self.user).count()
+        )
 
     def check_bounce_pause(self):
         if self.last_hard_bounce:
@@ -184,14 +187,26 @@ class Profile(models.Model):
         relay_addresses_forwarded = RelayAddress.objects.filter(
             user=self.user
         ).values('num_forwarded')
-        return sum(forwarded['num_forwarded'] for forwarded in relay_addresses_forwarded)
+        domain_addresses_forwarded = DomainAddress.objects.filter(
+            user=self.user
+        ).values('num_forwarded')
+        return (
+            sum(forwarded['num_forwarded'] for forwarded in relay_addresses_forwarded) +
+            sum(forwarded['num_forwarded'] for forwarded in domain_addresses_forwarded)
+        )
 
     @property
     def emails_blocked(self):
         relay_addresses_blocked = RelayAddress.objects.filter(
             user=self.user
         ).values('num_blocked')
-        return sum(blocked['num_blocked'] for blocked in relay_addresses_blocked)
+        domain_addresses_blocked = DomainAddress.objects.filter(
+            user=self.user
+        ).values('num_blocked')
+        return (
+            sum(blocked['num_blocked'] for blocked in relay_addresses_blocked) +
+            sum(blocked['num_blocked'] for blocked in domain_addresses_blocked)
+        )
 
     def add_subdomain(self, subdomain):
         if not self.has_premium:
