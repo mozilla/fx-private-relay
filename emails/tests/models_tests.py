@@ -110,7 +110,7 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=self.user_profile.user)
         assert relay_address.user == self.user_profile.user
 
-    def x_test_create_makes_different_addresses(self):
+    def test_create_makes_different_addresses(self):
         for i in range(1000):
             RelayAddress.objects.create(user=self.premium_user_profile.user)
         # check that the address is unique (deeper assertion that the generated aliases are unique)
