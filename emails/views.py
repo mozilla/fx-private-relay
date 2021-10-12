@@ -388,9 +388,13 @@ def _sns_message(message_json):
         update_fields=['num_forwarded', 'last_used_at']
     )
 
-    message_removed = remove_message_from_s3()
-    if not message_removed:
-        incr_if_enabled('message_not_removed_from_s3', 1)
+    # only remove message from S3 if the email was stored in S3
+    if 'receipt' in message_json and 'action' in message_json['receipt']:
+        if 'S3' in message_json['receipt']['action']['type']:
+            bucket = message_json['receipt']['action']['bucketName']
+            object_key = message_json['receipt']['action']['objectKey']
+            remove_message_from_s3(bucket, object_key)
+
     return response
 
 
