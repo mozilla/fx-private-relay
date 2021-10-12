@@ -275,3 +275,49 @@ def decrypt_reply_metadata(key, jwe):
     e.deserialize(jwe)
     e.decrypt(k)
     return e.plaintext
+
+
+class S3ClientException(Exception):
+    """Exception raised by error on S3 Client using Boto3.
+
+    Attributes:
+        message -- optional explanation of the error
+    """
+
+    def __init__(self, message=None):
+        self.message = message
+
+
+def _get_bucket_and_key_from_s3_json(message_json_receipt):
+    bucket = None
+    object_key = None
+    if 'S3' in message_json_receipt['action']['type']:
+        bucket = message_json_receipt['action']['bucketName']
+        object_key = message_json_receipt['action']['objectKey']
+    return bucket, object_key
+
+
+def get_message_content_from_s3(bucket, object_key):
+    try:
+        s3_client = apps.get_app_config('emails').s3_client
+        streamed_s3_object = s3_client.get_object(
+            Bucket=bucket, Key=object_key
+        ).get('Body')
+        return streamed_s3_object.read()
+    except ClientError as e:
+        logger.error('s3_client_error_get_email', extra=e.response['Error'])
+    raise S3ClientException('Failed to fetch email from S3')
+
+
+def remove_message_from_s3(bucket, object_key):
+    try:
+        s3_client = apps.get_app_config('emails').s3_client
+        response = s3_client.delete_object(
+            Bucket=bucket,
+            Key=object_key
+        )
+        return response.get('DeleteMarker')
+    except ClientError as e:
+        logger.error('s3_client_error_delete_email', extra=e.response['Error'])
+        incr_if_enabled('message_not_removed_from_s3', 1)
+    return False

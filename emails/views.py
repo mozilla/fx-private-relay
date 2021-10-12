@@ -36,7 +36,9 @@ from .models import (
     Reply
 )
 from .utils import (
+    _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
+    get_message_content_from_s3,
     get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
@@ -44,9 +46,11 @@ from .utils import (
     urlize_and_linebreaks,
     derive_reply_keys,
     decrypt_reply_metadata,
+    remove_message_from_s3,
     ses_send_raw_email,
     get_message_id_bytes,
     generate_relay_From,
+    S3ClientException,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -179,7 +183,6 @@ def sns_inbound(request):
 
     json_body = json.loads(request.body)
     verified_json_body = verify_from_sns(json_body)
-
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
@@ -274,16 +277,16 @@ def _sns_message(message_json):
             'Received SNS notification without commonHeaders.',
             status=400
         )
-
-    if 'to' not in mail['commonHeaders']:
+    common_headers = mail['commonHeaders']
+    if 'to' not in common_headers:
         logger.error('SNS message without commonHeaders "to".')
         return HttpResponse(
             'Received SNS notification without commonHeaders "to".',
             status=400
         )
 
-    from_address = parseaddr(mail['commonHeaders']['from'][0])[1]
-    to_address = parseaddr(mail['commonHeaders']['to'][0])[1]
+    from_address = parseaddr(common_headers['from'][0])[1]
+    to_address = parseaddr(common_headers['to'][0])[1]
     [to_local_portion, to_domain_portion] = to_address.split('@')
     if to_local_portion == 'noreply':
         incr_if_enabled('email_for_noreply_address', 1)
@@ -323,11 +326,15 @@ def _sns_message(message_json):
         ).hexdigest(),
     })
 
-    subject = mail['commonHeaders'].get('subject', '')
+    subject = common_headers.get('subject', '')
 
-    text_content, html_content, attachments = _get_text_html_attachments(
-        message_json
-    )
+    try:
+        text_content, html_content, attachments = _get_text_html_attachments(
+            message_json
+        )
+    except S3ClientException as e:
+        logger.error('s3_client_error_get_email', extra=e.response['Error'])
+        return HttpResponse("Cannot find the message content from S3", status=400)
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -376,6 +383,12 @@ def _sns_message(message_json):
     address.save(
         update_fields=['num_forwarded', 'last_used_at']
     )
+
+    # only remove message from S3 if the email was stored in S3
+    if 'receipt' in message_json and 'action' in message_json['receipt']:
+        bucket, object_key = _get_bucket_and_key_from_s3_json( message_json['receipt'])
+        remove_message_from_s3(bucket, object_key)
+
     return response
 
 
@@ -551,9 +564,17 @@ def _handle_bounce(message_json):
 
 
 def _get_text_html_attachments(message_json):
-    bytes_email_message = message_from_bytes(
-        message_json['content'].encode('utf-8'), policy=policy.default
-    )
+    if 'content' in message_json:
+        message_content = message_json['content'].encode('utf-8')
+    elif 'receipt' in message_json and 'action' in message_json['receipt']:
+        bucket, object_key = _get_bucket_and_key_from_s3_json( message_json['receipt'])
+        message_content = get_message_content_from_s3(bucket, object_key)
+        histogram_if_enabled(
+            'relayed_email.size',
+            len(message_content)
+        )
+
+    bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
     text_content, html_content, attachments = _get_all_contents(
         bytes_email_message
