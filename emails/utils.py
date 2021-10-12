@@ -302,8 +302,8 @@ def get_message_content_from_s3(bucket, object_key):
 
 def remove_message_from_s3(bucket, object_key):
     try:
-        emails_config = apps.get_app_config('emails')
-        response = emails_config.s3_client.delete_object(bucket, object_key)
+        s3_client = apps.get_app_config('emails').s3_client
+        response = s3_client.delete_object(bucket, object_key)
         return response.get('DeleteMarker')
     except ClientError as e:
         logger.error('s3_client_error_delete_email', extra=e.response['Error'])
