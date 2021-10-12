@@ -43,6 +43,8 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     # valid subdomains:
     #   can't start or end with a hyphen
     #   must be 1-63 alphanumeric characters and/or hyphens
+    # Make sure to keep this aligned with the `pattern` attribute
+    # of form#domainRegistration>input in banners.html:
     valid_subdomain_pattern = re.compile('^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$')
     valid = valid_subdomain_pattern.match(subdomain) is not None
     #   can't have "bad" words in them

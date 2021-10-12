@@ -76,6 +76,8 @@
                       name="subdomain"
                       minlength="1"
                       maxlength="63"
+                      {% comment %} Make sure to keep this regex aligned with the one in valid_available_subdomain() in models.py {% endcomment %}
+                      pattern="^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$"
                     >
                     <input class="btn btn--gray" type="submit" value="{% ftlmsg 'banner-choose-subdomain-submit' %}">
                 </form>
