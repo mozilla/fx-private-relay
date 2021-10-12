@@ -93,12 +93,11 @@ class GetAddressTest(TestCase):
 
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.views.get_domains_from_settings')
+    @override_settings(TEST_MOZMAIL=True)
     def test_get_address_with_relay_address(self, domains_mocked):
         domains_mocked.return_value = TEST_DOMAINS
         local_portion = 'foo'
-        relay_address = baker.make(
-            RelayAddress, address=local_portion, domain=2
-        )
+        relay_address = baker.make(RelayAddress, address=local_portion)
 
         actual = _get_address(
             to_address=f'{self.local_portion}@{self.service_domain}',

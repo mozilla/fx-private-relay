@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
+import logging
 import random
 import re
 import string
@@ -10,13 +11,16 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
+from django.dispatch import receiver
 from django.utils.translation.trans_real import (
     parse_accept_lang_header,
     get_supported_language_variant,
 )
 
-emails_config = apps.get_app_config('emails')
+from rest_framework.authtoken.models import Token
 
+emails_config = apps.get_app_config('emails')
+logger = logging.getLogger('events')
 
 BounceStatus = namedtuple('BounceStatus', 'paused type')
 
@@ -204,6 +208,18 @@ class Profile(models.Model):
         return subdomain
 
 
+@receiver(models.signals.post_save, sender=Profile)
+def copy_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        # baker triggers created during tests
+        # so first check the user doesn't already have a Token
+        try:
+            Token.objects.get(user=instance.user)
+            return
+        except Token.DoesNotExist:
+            Token.objects.create(user=instance.user, key=instance.api_token)
+
+
 def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
     if subdomain:
         return sha256(
@@ -274,6 +290,7 @@ class CannotMakeAddressException(Exception):
 
 
 class RelayAddress(models.Model):
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(
         max_length=64, default=address_default, unique=True
@@ -307,30 +324,14 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def make_relay_address(user_profile, num_tries=0, domain=DEFAULT_DOMAIN):
-        if (
-            user_profile.at_max_free_aliases
-            and not user_profile.has_premium
-        ):
-            hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
-            raise CannotMakeAddressException(
-                NOT_PREMIUM_USER_ERR_MSG.format(hit_limit)
-            )
-        if num_tries >= 5:
-            raise CannotMakeAddressException
-        # only use the numerical value of the domain when creating the alias
-        domain_numerical = get_domain_numerical(domain)
-        relay_address = RelayAddress.objects.create(user=user_profile.user, domain=domain_numerical)
-        address_contains_badword = has_bad_words(relay_address.address)
-        address_is_blocklisted = is_blocklisted(relay_address.address)
-        address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash(relay_address.address, domain=domain)
-        ).count()
-        if address_already_deleted > 0 or address_contains_badword or address_is_blocklisted:
-            relay_address.delete()
-            num_tries += 1
-            return RelayAddress.make_relay_address(user_profile, num_tries, domain)
-        return relay_address
+    def save(self, *args, **kwargs):
+        check_user_can_make_another_address(self.user)
+        while True:
+            if valid_address(self.address, self.domain):
+                break
+            self.address = address_default()
+        self.domain = get_domain_from_env_vars_and_profile(self.user)
+        return super().save(*args, **kwargs)
 
     @property
     def domain_value(self):
@@ -339,6 +340,38 @@ class RelayAddress(models.Model):
     @property
     def full_address(self):
         return '%s@%s' % (self.address, self.domain_value)
+
+
+def check_user_can_make_another_address(user):
+    user_profile = user.profile_set.first()
+    if (user_profile.at_max_free_aliases and not user_profile.has_premium):
+        hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
+        raise CannotMakeAddressException(
+            NOT_PREMIUM_USER_ERR_MSG.format(hit_limit)
+        )
+
+
+def valid_address(address, domain):
+    address_contains_badword = has_bad_words(address)
+    address_is_blocklisted = is_blocklisted(address)
+    address_already_deleted = DeletedAddress.objects.filter(
+        address_hash=address_hash(address, domain=domain)
+    ).count()
+    if (
+        address_already_deleted > 0 or
+        address_contains_badword or
+        address_is_blocklisted
+    ):
+        return False
+    return True
+
+
+def get_domain_from_env_vars_and_profile(user):
+    user_profile = user.profile_set.first()
+    domain = DOMAINS.get('RELAY_FIREFOX_DOMAIN')
+    if user_profile.has_premium or settings.TEST_MOZMAIL:
+            domain = DOMAINS.get('MOZMAIL_DOMAIN')
+    return get_domain_numerical(domain)
 
 
 class DeletedAddress(models.Model):

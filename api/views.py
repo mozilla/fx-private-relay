@@ -24,7 +24,12 @@ schema_view = get_schema_view(
 )
 
 
-class RelayAddressViewSet(viewsets.ModelViewSet):
+class SaveToRequestUser:
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = RelayAddressSerializer
     permissions_classes = [permissions.IsAuthenticated, IsOwner]
 
@@ -32,7 +37,7 @@ class RelayAddressViewSet(viewsets.ModelViewSet):
         return RelayAddress.objects.filter(user=self.request.user)
 
 
-class DomainAddressViewSet(viewsets.ModelViewSet):
+class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = DomainAddressSerializer
     permissions_classes = [permissions.IsAuthenticated, IsOwner]
 
