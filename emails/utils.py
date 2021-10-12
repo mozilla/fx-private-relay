@@ -288,6 +288,15 @@ class S3ClientException(Exception):
         self.message = message
 
 
+def _get_bucket_and_key_from_s3_json(message_json_receipt):
+    bucket = None
+    object_key = None
+    if 'S3' in message_json_receipt['action']['type']:
+        bucket = message_json_receipt['action']['bucketName']
+        object_key = message_json_receipt['action']['objectKey']
+    return bucket, object_key
+
+
 def get_message_content_from_s3(bucket, object_key):
     try:
         emails_config = apps.get_app_config('emails')

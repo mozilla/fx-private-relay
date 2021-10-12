@@ -36,6 +36,7 @@ from .models import (
     Reply
 )
 from .utils import (
+    _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
     get_message_content_from_s3,
     get_post_data_from_request,
@@ -390,10 +391,8 @@ def _sns_message(message_json):
 
     # only remove message from S3 if the email was stored in S3
     if 'receipt' in message_json and 'action' in message_json['receipt']:
-        if 'S3' in message_json['receipt']['action']['type']:
-            bucket = message_json['receipt']['action']['bucketName']
-            object_key = message_json['receipt']['action']['objectKey']
-            remove_message_from_s3(bucket, object_key)
+        bucket, object_key = _get_bucket_and_key_from_s3_json( message_json['receipt'])
+        remove_message_from_s3(bucket, object_key)
 
     return response
 
@@ -573,14 +572,12 @@ def _get_text_html_attachments(message_json):
     if 'content' in message_json:
         message_content = message_json['content'].encode('utf-8')
     elif 'receipt' in message_json and 'action' in message_json['receipt']:
-        if 'S3' in message_json['receipt']['action']['type']:
-            bucket = message_json['receipt']['action']['bucketName']
-            object_key = message_json['receipt']['action']['objectKey']
-            message_content = get_message_content_from_s3(bucket, object_key)
-            histogram_if_enabled(
-                'relayed_email.size',
-                len(message_content)
-            )
+        bucket, object_key = _get_bucket_and_key_from_s3_json( message_json['receipt'])
+        message_content = get_message_content_from_s3(bucket, object_key)
+        histogram_if_enabled(
+            'relayed_email.size',
+            len(message_content)
+        )
 
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
