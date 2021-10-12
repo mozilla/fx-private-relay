@@ -278,7 +278,7 @@ def decrypt_reply_metadata(key, jwe):
 
 
 class S3ClientException(Exception):
-    """Exception raised by Profile due to error on subdomain creation.
+    """Exception raised by error on S3 Client using Boto3.
 
     Attributes:
         message -- optional explanation of the error
@@ -307,4 +307,5 @@ def remove_message_from_s3(bucket, object_key):
         return response.get('DeleteMarker')
     except ClientError as e:
         logger.error('s3_client_error_delete_email', extra=e.response['Error'])
+        incr_if_enabled('message_not_removed_from_s3', 1)
     return False
