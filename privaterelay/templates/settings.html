@@ -15,9 +15,23 @@
   <div class="c-meta">
     <h1 class="mzp-u-title-md c-settings-headline">{% ftlmsg 'settings-headline' %}</h1>
     <ul class="c-meta--links">
+      {% if user_profile.has_premium %}
       <li>
         <a
-          href="https://support.mozilla.org/kb/activate-firefox-relay-hide-your-email-address-alias?utm_source={{ settings.SITE_ORIGIN }}"
+          href="https://accounts.firefox.com/support/?utm_source={{ settings.SITE_ORIGIN }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="{% ftlmsg 'settings-meta-contact-tooltip' %}"
+          class="glocal-fxa-settings-link"
+        >
+        <img src="{% static 'images/icon-message.svg' %}" alt="">
+          {% ftlmsg 'settings-meta-contact-label' %}
+        </a>
+      </li>
+      {% endif %}
+      <li>
+        <a
+          href="https://support.mozilla.org/?utm_source={{ settings.SITE_ORIGIN }}"
           target="_blank"
           rel="noopener noreferrer"
           title="{% ftlmsg 'settings-meta-help-tooltip' %}"
