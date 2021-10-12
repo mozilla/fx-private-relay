@@ -290,8 +290,8 @@ class S3ClientException(Exception):
 
 def get_message_content_from_s3(bucket, object_key):
     try:
-        emails_config = apps.get_app_config('emails')
-        streamed_s3_object = emails_config.s3_client.get_object(
+        s3_client = apps.get_app_config('emails').s3_client
+        streamed_s3_object = s3_client.get_object(
             Bucket=bucket, Key=object_key
         ).get('Body')
         return streamed_s3_object.read()
