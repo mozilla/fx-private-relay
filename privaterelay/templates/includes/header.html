@@ -13,7 +13,7 @@
 
   {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" %}
     <div class="recruitment-banner">
-      <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-funnel-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
+      <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
     </div>
   {% elif not request.user.is_anonymous %}
     <div id="micro-survey-banner" class="micro-survey-banner">
@@ -90,7 +90,7 @@
           class="mobile-menu-link mobile-home-link" 
           href="{% provider_login_url 'fxa' process='login' %}"
           data-entrypoint="relay-sign-in-header"
-          data-ga="send-ga-funnel-pings"
+          data-ga="send-ga-pings"
           data-event-category="Sign In Buttons"
           data-event-label="sign-in-btn-header"
         >{% ftlmsg 'nav-profile-sign-up' %}</a>

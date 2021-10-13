@@ -3,5 +3,5 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<a data-ga="send-ga-funnel-pings" data-event-category="Sign In" data-event-label="sign-up-btn-{{ page_position }}" class="mzp-c-button mzp-t-product " href="{% provider_login_url 'fxa' process='login' %}">{% ftlmsg 'home-hero-cta' %}</a>
+<a data-ga="send-ga-pings" data-event-category="Sign In" data-event-label="sign-up-btn-{{ page_position }}" class="mzp-c-button mzp-t-product " href="{% provider_login_url 'fxa' process='login' %}">{% ftlmsg 'home-hero-cta' %}</a>
 

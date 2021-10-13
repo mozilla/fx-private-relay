@@ -3,7 +3,8 @@ import os
 
 from django.apps import AppConfig
 from django.conf import settings
- 
+
+
 ROOT_DIR = os.path.abspath(os.curdir)
 
 class PrivateRelayConfig(AppConfig):
@@ -16,6 +17,8 @@ class PrivateRelayConfig(AppConfig):
         self.fxa_verifying_keys = []
 
     def ready(self):
+        import privaterelay.signals
+
         resp = requests.get(
             '%s/jwks' %
             settings.SOCIALACCOUNT_PROVIDERS['fxa']['OAUTH_ENDPOINT']
