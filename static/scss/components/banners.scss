@@ -154,7 +154,6 @@
         height: 16px;
         width: 16px;
         margin-right: 12px;
-        background-image: url("/static/images/icon-orange-info.svg");
         background-size: 16px;
         background-repeat: no-repeat;
         background-position: center center;
@@ -219,7 +218,6 @@
             margin-top: -$spacing-lg;
             width: 5px;
             margin-left: -$spacing-2xl;
-            background: $color-yellow-50;
             border-radius: 5px;
         }
 
@@ -233,4 +231,17 @@
 
     }
 
+    &.t-warning {
+
+        .data-notification-banner-header:before {
+            background-image: url("/static/images/icon-orange-info.svg");
+        }
+
+        @media #{$mq-md} {
+
+            .data-notification-banner-copy:before {
+                background: $color-yellow-50;
+            }
+        }
+    }
 }
