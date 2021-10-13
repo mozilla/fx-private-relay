@@ -88,7 +88,7 @@ def profile(request):
     return render(request, 'profile.html', context)
 
 
-def settings(request):
+def settings_view(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
