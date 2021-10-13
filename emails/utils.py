@@ -288,9 +288,20 @@ class S3ClientException(Exception):
         self.message = message
 
 
-def _get_bucket_and_key_from_s3_json(message_json_receipt):
+def _get_bucket_and_key_from_s3_json(message_json):
     bucket = None
     object_key = None
+    if 'receipt' in message_json and 'action' in message_json['receipt']:
+        message_json_receipt = message_json['receipt']
+    else:
+        # TODO: sns inbound notification does not have 'receipt'
+        # we need to look into this more
+        logger.error(
+            'sns_inbound_message_without_receipt',
+            extra={'message_json_keys': message_json.keys()}
+        )
+        return None, None
+
     if 'S3' in message_json_receipt['action']['type']:
         bucket = message_json_receipt['action']['bucketName']
         object_key = message_json_receipt['action']['objectKey']
@@ -299,17 +310,20 @@ def _get_bucket_and_key_from_s3_json(message_json_receipt):
 
 def get_message_content_from_s3(bucket, object_key):
     try:
-        s3_client = apps.get_app_config('emails').s3_client
-        streamed_s3_object = s3_client.get_object(
-            Bucket=bucket, Key=object_key
-        ).get('Body')
-        return streamed_s3_object.read()
+        if bucket and object_key:
+            s3_client = apps.get_app_config('emails').s3_client
+            streamed_s3_object = s3_client.get_object(
+                Bucket=bucket, Key=object_key
+            ).get('Body')
+            return streamed_s3_object.read()
     except ClientError as e:
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
     raise S3ClientException('Failed to fetch email from S3')
 
 
 def remove_message_from_s3(bucket, object_key):
+    if bucket is None or object_key is None:
+        return False
     try:
         s3_client = apps.get_app_config('emails').s3_client
         response = s3_client.delete_object(

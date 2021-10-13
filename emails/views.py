@@ -385,8 +385,8 @@ def _sns_message(message_json):
     )
 
     # only remove message from S3 if the email was stored in S3
-    if 'receipt' in message_json and 'action' in message_json['receipt']:
-        bucket, object_key = _get_bucket_and_key_from_s3_json( message_json['receipt'])
+    bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
+    if bucket and object_key:
         remove_message_from_s3(bucket, object_key)
 
     return response
@@ -565,9 +565,11 @@ def _handle_bounce(message_json):
 
 def _get_text_html_attachments(message_json):
     if 'content' in message_json:
+        # email content in sns message
         message_content = message_json['content'].encode('utf-8')
-    elif 'receipt' in message_json and 'action' in message_json['receipt']:
-        bucket, object_key = _get_bucket_and_key_from_s3_json( message_json['receipt'])
+    else:
+        # assume email content in S3
+        bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
         message_content = get_message_content_from_s3(bucket, object_key)
         histogram_if_enabled(
             'relayed_email.size',
