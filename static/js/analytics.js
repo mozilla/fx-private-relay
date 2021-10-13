@@ -331,10 +331,6 @@ if (!_dntEnabled()) {
 
 
   analyticsEventTriggers.forEach(eventTriggeringElem => {
-    const elDataset = eventTriggeringElem.dataset;
-    if (elDataset.eventInvisible === "true") {
-      ga("send", "event", elDataset.eventCategory, "Fired",  elDataset.eventLabel, { nonInteraction: true });
-    }
     if (intersectionObserverAvailable) {
       analyticsObserver.observe(eventTriggeringElem);
     }
@@ -351,6 +347,14 @@ if (!_dntEnabled()) {
     });
   });
 
+  const cookies = document.cookie.split("; ");
+  const gaEventCookies = cookies.filter(item => item.trim().startsWith("server_ga_event="));
+  gaEventCookies.forEach(item => {
+    const serverEventLabel = item.split("=")[1];
+    if (isGoogleAnalyticsAvailable() && serverEventLabel) {
+      ga("send", "event", "server event", "fired", serverEventLabel);
+    }
+  });
   document.querySelectorAll(".banner-link").forEach(outboundLink => {
     outboundLink.addEventListener("click", (e) => {
       e.preventDefault();

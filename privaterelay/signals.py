@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.dispatch import receiver
 
 from allauth.account.signals import user_signed_up, user_logged_in
@@ -9,12 +8,14 @@ from emails.utils import incr_if_enabled
 @receiver(user_signed_up)
 def record_user_signed_up(request, user, **kwargs):
     incr_if_enabled('user_signed_up', 1)
-    messages.set_level(request, messages.DEBUG)
-    messages.debug(request, 'user_signed_up', extra_tags='signed up')
+    kwargs.get('response').set_cookie(
+        'server_ga_event', 'user_signed_up', max_age=5
+    )
 
 
 @receiver(user_logged_in)
 def record_user_logged_in(request, user, **kwargs):
     incr_if_enabled('user_logged_in', 1)
-    messages.set_level(request, messages.DEBUG)
-    messages.debug(request, 'user_logged_in', extra_tags='logged in')
+    kwargs.get('response').set_cookie(
+        'server_ga_event', 'user_logged_in', max_age=5
+    )
