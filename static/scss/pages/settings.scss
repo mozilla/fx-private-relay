@@ -10,6 +10,10 @@
         display: none;
     }
 
+    .c-settings-notification-banner {
+        margin: $spacing-md;
+    }
+
     .c-settings-form--heading {
         @include text-title-3xs;
         color: $color-grey-50;
@@ -34,46 +38,6 @@
 
     .c-settings-form--submit {
         padding: $spacing-sm $spacing-2xl;
-    }
-
-    .c-settings-form--notification {
-        box-shadow: var(--dropShadowLight);
-        background-color: $color-white;
-        margin: $spacing-md;
-        padding: $spacing-md;
-        border-radius: $border-radius-md;
-    }
-
-    .c-settings-form--notification-heading {
-        @include text-title-3xs;
-        color: $color-grey-60;
-        border-left-width: 4px;
-        border-left-style: solid;
-        margin: 0;
-        padding: $spacing-sm $spacing-md;
-
-        &.t-error {
-            border-color: $color-error;
-        }
-
-        &.t-warning {
-            border-color: $color-warning;
-        }
-    }
-
-    .c-settings-form--notification-description {
-        border-left-width: 5px;
-        border-left-style: solid;
-        margin: 0;
-        padding: $spacing-sm $spacing-md;
-
-        &.t-error {
-            border-color: $color-error;
-        }
-
-        &.t-warning {
-            border-color: $color-warning;
-        }
     }
 
     @media screen and #{$mq-md} {
