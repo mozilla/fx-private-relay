@@ -340,12 +340,13 @@ class RelayAddress(models.Model):
         return super(RelayAddress, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        check_user_can_make_another_address(self.user)
-        while True:
-            if valid_address(self.address, self.domain):
-                break
-            self.address = address_default()
-        self.domain = get_domain_from_env_vars_and_profile(self.user)
+        if self._state.adding:
+            check_user_can_make_another_address(self.user)
+            while True:
+                if valid_address(self.address, self.domain):
+                    break
+                self.address = address_default()
+            self.domain = get_domain_from_env_vars_and_profile(self.user)
         return super().save(*args, **kwargs)
 
     @property
