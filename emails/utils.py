@@ -310,6 +310,8 @@ def get_message_content_from_s3(bucket, object_key):
 
 
 def remove_message_from_s3(bucket, object_key):
+    if bucket is None or object_key is None:
+        return False
     try:
         s3_client = apps.get_app_config('emails').s3_client
         response = s3_client.delete_object(
