@@ -310,11 +310,12 @@ def _get_bucket_and_key_from_s3_json(message_json):
 
 def get_message_content_from_s3(bucket, object_key):
     try:
-        s3_client = apps.get_app_config('emails').s3_client
-        streamed_s3_object = s3_client.get_object(
-            Bucket=bucket, Key=object_key
-        ).get('Body')
-        return streamed_s3_object.read()
+        if bucket and object_key:
+            s3_client = apps.get_app_config('emails').s3_client
+            streamed_s3_object = s3_client.get_object(
+                Bucket=bucket, Key=object_key
+            ).get('Body')
+            return streamed_s3_object.read()
     except ClientError as e:
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
     raise S3ClientException('Failed to fetch email from S3')
