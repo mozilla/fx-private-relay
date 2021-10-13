@@ -21,16 +21,16 @@
     </div>
   </div>
 {% else %}
-  <div class="c-data-notification-banner t-warning js-notification">
+  <div class="c-notification-banner c-data-notification-banner t-warning js-notification">
     <div class="dismiss-wrapper">
-      <button class="data-notification-dismiss js-dismiss"><img src="{% static 'images/x-close.svg' %}"></button>
+      <button class="notification-dismiss js-dismiss"><img src="{% static 'images/x-close.svg' %}"></button>
     </div>
-    <div class="data-notification-banner-bg">
-      <div class="data-notification-banner-content">
-        <div class="data-notification-banner-copy">
-          <p class="data-notification-banner-header">{% ftlmsg 'banner-label-data-notification-header' %}</p>
-          <p class="data-notification-banner-sub">{% ftlmsg 'banner-label-data-notification-body' %}</p>
-          <a class="data-notification-banner-link" href="#" rel="noopener noreferrer">{% ftlmsg 'banner-label-data-notification-cta' %}</a>
+    <div class="notification-banner-bg">
+      <div class="notification-banner-content">
+        <div class="notification-banner-copy">
+          <p class="notification-banner-header">{% ftlmsg 'banner-label-data-notification-header' %}</p>
+          <p class="notification-banner-sub">{% ftlmsg 'banner-label-data-notification-body' %}</p>
+          <a class="notification-banner-link" href="#" rel="noopener noreferrer">{% ftlmsg 'banner-label-data-notification-cta' %}</a>
         </div>
       </div>
     </div>

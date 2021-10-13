@@ -114,31 +114,31 @@
 
 // Labels data opt in notification banner
 
-.c-data-notification-banner {
+.c-notification-banner {
     display: flex;
     flex-direction: column;
     background-color: $color-white;
     box-shadow: $box-shadow-sm;
     border-radius: $border-radius-md;
 
-    .data-notification-banner-bg {
+    .notification-banner-bg {
         padding: $spacing-xs;
         width: 100%;
         position: relative;
         min-height: 0;
     }
 
-    .data-notification-banner-content {
+    .notification-banner-content {
         padding-left: $spacing-sm;
         display: flex;
         flex-direction: row;
     }
 
-    .data-notification-banner-copy {
+    .notification-banner-copy {
         padding: $spacing-lg;
     }
 
-    .data-notification-banner-header {
+    .notification-banner-header {
         font-family: $font-metropolis;
         font-size: 1.125em;
         font-weight: 700;
@@ -148,7 +148,7 @@
         margin: 0;
     }
 
-    .data-notification-banner-header:before {
+    .notification-banner-header:before {
         content: "";
         display: inline-block;
         height: 16px;
@@ -159,13 +159,13 @@
         background-position: center center;
     }
 
-    .data-notification-banner-sub {
+    .notification-banner-sub {
         margin: 0;
         line-height: 150%;
         padding: $spacing-md 0;
     }
 
-    .data-notification-banner-link {
+    .notification-banner-link {
         text-align: center;
         color: $color-blue-50;
         margin: 0;
@@ -189,7 +189,7 @@
         height: 0px;
     }
 
-    .data-notification-dismiss {
+    .notification-dismiss {
         background: transparent;
         cursor: pointer;
         display: block;
@@ -210,7 +210,7 @@
 
     @media #{$mq-md} {
 
-        .data-notification-banner-copy:before {
+        .notification-banner-copy:before {
             content: '';
             position: absolute;
             z-index: 1;
@@ -221,11 +221,11 @@
             border-radius: 5px;
         }
 
-        .data-notification-banner-copy {
+        .notification-banner-copy {
             padding: $spacing-xl $spacing-xl $spacing-xl $spacing-2xl;
         }
 
-        .data-notification-banner-header, .data-notification-banner-link {
+        .notification-banner-header, .notification-banner-link {
             text-align: start;
         }
 
@@ -233,13 +233,13 @@
 
     &.t-warning {
 
-        .data-notification-banner-header:before {
+        .notification-banner-header:before {
             background-image: url("/static/images/icon-orange-info.svg");
         }
 
         @media #{$mq-md} {
 
-            .data-notification-banner-copy:before {
+            .notification-banner-copy:before {
                 background: $color-yellow-50;
             }
         }
