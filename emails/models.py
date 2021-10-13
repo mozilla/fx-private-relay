@@ -316,9 +316,9 @@ class RelayAddress(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     last_modified_at = models.DateTimeField(auto_now=True, db_index=True)
     last_used_at = models.DateTimeField(blank=True, null=True)
-    num_forwarded = models.PositiveSmallIntegerField(default=0)
-    num_blocked = models.PositiveSmallIntegerField(default=0)
-    num_spam = models.PositiveSmallIntegerField(default=0)
+    num_forwarded = models.PositiveIntegerField(default=0)
+    num_blocked = models.PositiveIntegerField(default=0)
+    num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
@@ -391,9 +391,9 @@ def get_domain_from_env_vars_and_profile(user):
 
 class DeletedAddress(models.Model):
     address_hash = models.CharField(max_length=64, db_index=True)
-    num_forwarded = models.PositiveSmallIntegerField(default=0)
-    num_blocked = models.PositiveSmallIntegerField(default=0)
-    num_spam = models.PositiveSmallIntegerField(default=0)
+    num_forwarded = models.PositiveIntegerField(default=0)
+    num_blocked = models.PositiveIntegerField(default=0)
+    num_spam = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.address_hash
@@ -410,9 +410,9 @@ class DomainAddress(models.Model):
     last_used_at = models.DateTimeField(auto_now_add=True, db_index=True)
     last_modified_at = models.DateTimeField(auto_now=True, db_index=True)
     last_used_at = models.DateTimeField(blank=True, null=True)
-    num_forwarded = models.PositiveSmallIntegerField(default=0)
-    num_blocked = models.PositiveSmallIntegerField(default=0)
-    num_spam = models.PositiveSmallIntegerField(default=0)
+    num_forwarded = models.PositiveIntegerField(default=0)
+    num_blocked = models.PositiveIntegerField(default=0)
+    num_spam = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.address
