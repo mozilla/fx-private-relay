@@ -49,6 +49,28 @@
 						<img class="" alt="" src="{% static 'images/settings.svg' %}" />
 						{% ftlmsg 'nav-profile-settings' %}
 					</a>
+					{% if user_profile.has_premium %}
+						<a
+							href="https://accounts.firefox.com/support/?utm_source={{ settings.SITE_ORIGIN }}"
+							target="_blank"
+							rel="noopener noreferrer"
+							class="glocal-site-option"
+							title="{% ftlmsg 'nav-profile-contact-tooltip' %}"
+						>
+							<img class="" alt="" src="{% static 'images/material-design-icons-4.0.0/src/communication/message/materialiconsoutlined/24px.svg' %}" />
+							{% ftlmsg 'nav-profile-contact' %}
+						</a>
+					{% endif %}
+					<a
+						href="https://support.mozilla.org/kb/activate-firefox-relay-hide-your-email-address-alias?utm_source={{ settings.SITE_ORIGIN }}"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="glocal-site-option"
+						title="{% ftlmsg 'nav-profile-help-tooltip' %}"
+					>
+						<img class="" alt="" src="{% static 'images/help.svg' %}" />
+						{% ftlmsg 'nav-profile-help' %}
+					</a>
 					<form class="glocal-sign-out-form" method="post" action="{% url 'account_logout' %}">
 						{% csrf_token %}
 						{% if redirect_field_value %}
