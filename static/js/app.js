@@ -536,3 +536,19 @@ if ( document.getElementById("survey-dismiss") ) {
 }
 
 
+//Landing page use case accordion 
+const useCaseTitle = document.querySelectorAll(".use-case-title");
+
+function toggleClass(elem) {
+   useCaseTitle.forEach( item => {
+      item.classList.remove("is-active");
+  });
+  elem.target.classList.add("is-active");
+}
+
+
+useCaseTitle.forEach( item => {
+    console.log(item)
+    item.addEventListener("click", toggleClass, false);
+});
+
