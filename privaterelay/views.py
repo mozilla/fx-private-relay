@@ -98,6 +98,23 @@ def settings_view(request):
 
     return render(request, 'settings.html', context)
 
+def settings_update_view(request):
+    if (not request.user or request.user.is_anonymous):
+        return redirect(reverse('fxa_login'))
+    profile = request.user.profile_set.first()
+    context = {
+        'user_profile': profile,
+    }
+
+    # CannotMakeSubdomainException as e:
+    #     messages.error(request, e.message, subdomain)
+    messages.success(
+        request, 'success-settings-update'
+    )
+    return redirect(reverse('profile'))
+
+    # return render(request, 'settings.html', context)
+
 
 @lru_cache(maxsize=None)
 def _get_fxa(request):

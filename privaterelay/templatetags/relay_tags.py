@@ -20,6 +20,7 @@ def user_email_domain(user_profile):
 def message_in_fluent(message):
     ftl_messages = [
         'success-subdomain-registered',
+        'success-settings-update',
         'error-subdomain-not-available',
         'error-premium-cannot-change-subdomain',
         'error-premium-set-subdomain',
