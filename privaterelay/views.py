@@ -106,8 +106,6 @@ def settings_update_view(request):
         'user_profile': profile,
     }
 
-    # CannotMakeSubdomainException as e:
-    #     messages.error(request, e.message, subdomain)
     messages.success(
         request, 'success-settings-update'
     )
