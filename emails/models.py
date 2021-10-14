@@ -158,9 +158,9 @@ class Profile(models.Model):
         return sum(blocked['num_blocked'] for blocked in relay_addresses_blocked)
 
     @property
-    def created_before_premium_release(self):
+    def joined_before_premium_release(self):
         date_created = self.user.date_joined
-        return date_created < datetime(2021, 10, 27, 18, 00) 
+        return date_created < datetime.fromisoformat(settings.PREMIUM_RELEASE_DATE)
 
     def add_subdomain(self, subdomain):
         if not self.has_premium:
