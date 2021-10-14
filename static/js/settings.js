@@ -47,7 +47,7 @@
         );
         if (response.ok) {
             // Re-render the page on the server, to make sure all {% if %} statements in the template are rendered correctly:
-            document.location.reload();
+            document.location = "/accounts/profile/settings_update";
             return;
         }
 

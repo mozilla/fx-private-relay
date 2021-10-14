@@ -37,6 +37,8 @@ urlpatterns = [
         name='profile_subdomain'
     ),
     path('accounts/settings/', views.settings_view, name='settings'),
+    # This redirects users back to the homepage after updating settings
+    path('accounts/profile/settings_update', views.settings_update_view, name='settings-update'),
     path('accounts/', include('allauth.urls')),
     path('faq', views.faq, name='faq'),
     path('', views.home, name='home'),

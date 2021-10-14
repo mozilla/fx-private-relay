@@ -98,6 +98,14 @@ def settings_view(request):
 
     return render(request, 'settings.html', context)
 
+def settings_update_view(request):
+    messages.success(
+        request, 'success-settings-update'
+    )
+    return redirect(reverse('profile'))
+
+    # return render(request, 'settings.html', context)
+
 
 @lru_cache(maxsize=None)
 def _get_fxa(request):
