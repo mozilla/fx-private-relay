@@ -99,13 +99,6 @@ def settings_view(request):
     return render(request, 'settings.html', context)
 
 def settings_update_view(request):
-    if (not request.user or request.user.is_anonymous):
-        return redirect(reverse('fxa_login'))
-    profile = request.user.profile_set.first()
-    context = {
-        'user_profile': profile,
-    }
-
     messages.success(
         request, 'success-settings-update'
     )
