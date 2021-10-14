@@ -78,6 +78,7 @@
 
     .mzp-l-content {
         padding: $spacing-lg $spacing-lg;
+        position: initial;
     }
 }
 
@@ -131,7 +132,6 @@
     padding: 0;
     cursor: pointer;
     display: block;
-    z-index: 5;
     transition: transform .3s ease-in;
 
     &:hover {
