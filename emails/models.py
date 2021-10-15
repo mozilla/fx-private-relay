@@ -282,6 +282,20 @@ def get_domain_numerical(domain_address):
     return choices_keys[choices_values.index(domain_name)]
 
 
+def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
+    return sha256(
+        f'{subdomain}.{domain}'.encode('utf-8')
+    ).hexdigest()
+
+
+class RegisteredSubdomain(models.Model):
+    subdomain_hash = models.CharField(max_length=64, db_index=True)
+    registered_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.address_hash
+
+
 class CannotMakeSubdomainException(Exception):
     """Exception raised by Profile due to error on subdomain creation.
 
