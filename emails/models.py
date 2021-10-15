@@ -54,7 +54,9 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     #   can't have "blocked" words in them
     blocked_word = is_blocklisted(subdomain)
     #   can't be taken by someone else
-    taken = Profile.objects.filter(subdomain=subdomain).count() > 0
+    taken = RegisteredSubdomain.objects.filter(
+        subdomain_hash=hash_subdomain(subdomain)
+    ).count() > 0
     if not valid or bad_word or blocked_word or taken:
         raise CannotMakeSubdomainException('error-subdomain-not-available')
     return True
@@ -220,6 +222,8 @@ class Profile(models.Model):
         self.subdomain = subdomain
         self.full_clean()
         self.save()
+
+        RegisteredSubdomain.objects.create(subdomain_hash=hash_subdomain(subdomain))
         return subdomain
 
 

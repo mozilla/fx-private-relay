@@ -23,9 +23,11 @@ from ..models import (
     DomainAddress,
     get_domain_numerical,
     has_bad_words,
+    hash_subdomain,
     is_blocklisted,
     NOT_PREMIUM_USER_ERR_MSG,
     Profile,
+    RegisteredSubdomain,
     RelayAddress,
     TRY_DIFFERENT_VALUE_ERR_MSG,
     valid_available_subdomain,
@@ -506,6 +508,31 @@ class ProfileTest(TestCase):
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain('thisisfine')
+        with self.assertRaises(CannotMakeSubdomainException):
+            valid_available_subdomain('thisisfine')
+
+    def test_valid_available_subdomain_taken_returns_False_for_inactive_subdomain(self):
+        # subdomains registered in now deleted profiles are considered
+        # inactive subdomains
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
+        premium_profile.add_subdomain('thisisfine')
+        premium_user.delete()
+
+        registered_subdomain_count = RegisteredSubdomain.objects.filter(
+            subdomain_hash=hash_subdomain('thisisfine')
+        ).count()
+        assert Profile.objects.filter(subdomain='thisisfine').count() == 0
+        assert registered_subdomain_count == 1
         with self.assertRaises(CannotMakeSubdomainException):
             valid_available_subdomain('thisisfine')
 
