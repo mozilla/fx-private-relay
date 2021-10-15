@@ -293,7 +293,7 @@ def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
 
 
 class RegisteredSubdomain(models.Model):
-    subdomain_hash = models.CharField(max_length=64, db_index=True)
+    subdomain_hash = models.CharField(max_length=64, db_index=True, unique=True)
     registered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
