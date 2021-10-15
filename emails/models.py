@@ -54,7 +54,9 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     #   can't have "blocked" words in them
     blocked_word = is_blocklisted(subdomain)
     #   can't be taken by someone else
-    taken = Profile.objects.filter(subdomain=subdomain).count() > 0
+    taken = RegisteredSubdomain.objects.filter(
+        subdomain_hash=hash_subdomain(subdomain)
+    ).count() > 0
     if not valid or bad_word or blocked_word or taken:
         raise CannotMakeSubdomainException('error-subdomain-not-available')
     return True
@@ -220,6 +222,8 @@ class Profile(models.Model):
         self.subdomain = subdomain
         self.full_clean()
         self.save()
+
+        RegisteredSubdomain.objects.create(subdomain_hash=hash_subdomain(subdomain))
         return subdomain
 
 
@@ -280,6 +284,20 @@ def get_domain_numerical(domain_address):
     choices_keys = list(choices.keys())
     choices_values = list(choices.values())
     return choices_keys[choices_values.index(domain_name)]
+
+
+def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
+    return sha256(
+        f'{subdomain}.{domain}'.encode('utf-8')
+    ).hexdigest()
+
+
+class RegisteredSubdomain(models.Model):
+    subdomain_hash = models.CharField(max_length=64, db_index=True, unique=True)
+    registered_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.address_hash
 
 
 class CannotMakeSubdomainException(Exception):
