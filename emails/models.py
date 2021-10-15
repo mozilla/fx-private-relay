@@ -93,13 +93,14 @@ class Profile(models.Model):
 
     @property
     def language(self):
-        for accept_lang, _ in parse_accept_lang_header(
-            self.fxa.extra_data.get('locale')
-        ):
-            try:
-                return get_supported_language_variant(accept_lang)
-            except LookupError:
-                continue
+        if self.fxa.extra_data.get('locale'):
+            for accept_lang, _ in parse_accept_lang_header(
+                self.fxa.extra_data.get('locale')
+            ):
+                try:
+                    return get_supported_language_variant(accept_lang)
+                except LookupError:
+                    continue
         return 'en'
 
     @property

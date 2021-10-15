@@ -631,6 +631,20 @@ class ProfileTest(TestCase):
             assert relay_address.description == test_desc
             assert relay_address.generated_for == test_generated_for
 
+    def test_language_with_no_fxa_extra_data_locale_returns_default_en(self):
+        baker.make(SocialAccount, user=self.profile.user, provider='fxa')
+        assert self.profile.language == 'en'
+
+    def test_language_with_fxa_locale_de_returns_de(self):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider='fxa',
+            extra_data={'locale': 'de,en-US;q=0.9,en;q=0.8'}
+        )
+        assert self.profile.language == 'de'
+
+
 class DomainAddressTest(TestCase):
     def setUp(self):
         self.subdomain = 'test'
