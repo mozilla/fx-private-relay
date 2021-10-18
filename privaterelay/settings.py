@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import ipaddress
 import os
+from datetime import datetime, timezone
 
 from decouple import config
 import markus
@@ -240,6 +241,8 @@ PREMIUM_PRICE_ID = config('PREMIUM_PRICE_ID', '', cast=str)
 SUBSCRIPTIONS_WITH_UNLIMITED = config(
     'SUBSCRIPTIONS_WITH_UNLIMITED', default=''
 )
+PREMIUM_RELEASE_DATE = config('PREMIUM_RELEASE_DATE', str(datetime.now(timezone.utc)), cast=str)
+PREMIUM_RELEASE_DATE = datetime.fromisoformat(PREMIUM_RELEASE_DATE)
 
 DOMAIN_REGISTRATION_MODAL = config('DOMAIN_REGISTRATION_MODAL', False, cast=bool)
 

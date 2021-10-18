@@ -671,6 +671,24 @@ class ProfileTest(TestCase):
         )
         assert self.profile.language == 'de'
 
+    @override_settings(PREMIUM_RELEASE_DATE=datetime.fromisoformat('2021-10-27 17:00:00+00:00'))
+    def test_user_joined_before_premium_release_returns_True(self):
+        user = baker.make(
+            User,
+            date_joined=datetime.fromisoformat('2021-10-18 17:00:00+00:00')
+        )
+        profile = Profile.objects.get(user=user)
+        assert profile.joined_before_premium_release
+
+    @override_settings(PREMIUM_RELEASE_DATE=datetime.fromisoformat('2021-10-27 17:00:00+00:00'))
+    def test_user_joined_before_premium_release_returns_False(self):
+        user = baker.make(
+            User,
+            date_joined=datetime.fromisoformat('2021-10-28 17:00:00+00:00')
+        )
+        profile = Profile.objects.get(user=user)
+        assert profile.joined_before_premium_release is False
+
 
 class DomainAddressTest(TestCase):
     def setUp(self):

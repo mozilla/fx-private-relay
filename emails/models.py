@@ -215,6 +215,11 @@ class Profile(models.Model):
             sum(blocked['num_blocked'] for blocked in domain_addresses_blocked)
         )
 
+    @property
+    def joined_before_premium_release(self):
+        date_created = self.user.date_joined
+        return date_created < settings.PREMIUM_RELEASE_DATE
+
     def add_subdomain(self, subdomain):
         if not self.has_premium:
             raise CannotMakeSubdomainException('error-premium-set-subdomain')
