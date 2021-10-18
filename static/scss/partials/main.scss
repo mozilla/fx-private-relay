@@ -1022,6 +1022,12 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     display: none;
 }
 
+
+/* Show the opt in data notification banner if add on is downloaded */
+firefox-private-relay-addon[data-addon-installed="false"] + firefox-private-relay-addon-data + main .c-data-notification-banner {
+    display: none;
+}
+
 .banner-hl {
     font-size: 1.25rem;
     font-weight: 700;
@@ -1123,7 +1129,6 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
 .banner-mpp-logo {
     background-image: url("/static/images/logos/mpp-temp-icon.png");
 }
-
 
 .nested-grid {
     cursor: default;
