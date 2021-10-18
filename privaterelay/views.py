@@ -85,6 +85,8 @@ def profile(request):
             'last_bounce_date': profile.last_bounce_date,
             'next_email_try': profile.next_email_try
         })
+    if datetime.now(timezone.utc) < settings.PREMIUM_RELEASE_DATE:
+        context.update({'show_data_notification_banner': True})
     return render(request, 'profile.html', context)
 
 

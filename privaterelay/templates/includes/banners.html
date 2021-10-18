@@ -20,7 +20,7 @@
       </div>
     </div>
   </div>
-{% else %}
+{% elif show_data_notification_banner %}
   <div class="c-notification-banner c-data-notification-banner t-warning js-notification">
     <div class="dismiss-wrapper">
       <button class="notification-dismiss js-dismiss"><img src="{% static 'images/x-close.svg' %}"></button>
@@ -35,6 +35,7 @@
       </div>
     </div>
   </div>
+{% else %}
   <div class="dashboard-banners invisible">
     <div class="flx hide-750">
       <div class="banner-gradient-bg addon">
