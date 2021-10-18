@@ -4,8 +4,8 @@
 <section>
     <div class="container mzp-l-content">
     <div class="how-it-works-content">
-    <h2 class="how-it-works-header">{% ftlmsg 'how-it-works-headline' %}</h2>
-    <span class="how-it-works-subheader">Share ⁨Relay⁩ email aliases instead of your real email address to protect your online accounts from hackers.</span>
+    <h2 class="how-it-works-header">{% ftlmsg 'landing-how-it-works-headline' %}</h2>
+    <span class="how-it-works-subheader">{% ftlmsg 'landing-how-it-works-body' %}</span>
     <div class="how-it-works-steps mzp-l-columns mzp-t-columns-three">
         <section class="step step-1">
         <img src="/static/images/how-it-works/how-it-works-1.svg" class="step-illustration step-1">
@@ -13,7 +13,7 @@
             <h3 class="step-headline ff-Met">{% ftlmsg 'how-it-works-step-1-headline' %}</h3>
             <p class="step-body">
             <a href="https://addons.mozilla.org/firefox/addon/private-relay/" target="_blank" rel="noopener" class="text-link">Download the ⁨Relay⁩ extension for ⁨Firefox⁩.</a>
-             Select the icon that appears on your ⁨Firefox⁩ toolbar to access the sign-in page. Sign in with your ⁨Firefox account⁩ to get started. 
+            {% ftlmsg 'landing-how-it-works-step-1-body-cta' %} {% ftlmsg 'landing-how-it-works-step-1-body' %}
             </p>
         </div>
         </section>
@@ -22,7 +22,7 @@
         <div class="step-text step-2">
             <h3 class="step-headline ff-Met">{% ftlmsg 'how-it-works-step-2-headline' %}</h3>
             <p class="step-body">
-            As you browse, the ⁨Relay⁩ icon will appear where sites ask for your email address. Select it to generate a new, random address that ends in @relay.firefox.com. ⁨Relay⁩ will forward messages to the primary email address associated with your account.
+            {% ftlmsg 'landing-how-it-works-step-2-body' %}
             </p>
         </div>
         </section>
@@ -31,7 +31,7 @@
         <div class="step-text step-3">
             <h3 class="step-headline ff-Met">{% ftlmsg 'how-it-works-step-3-headline' %}</h3>
             <p class="step-body">
-                Sign in to the ⁨Relay⁩ dashboard to keep track of the aliases you’ve created. If you find that one receives spam or unwanted messages, you can block all messages or even delete the alias, right from the dashboard.
+            {% ftlmsg 'landing-how-it-works-step-3-body' %}
             </p>
         </div>
         </section>

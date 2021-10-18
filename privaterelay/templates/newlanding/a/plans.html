@@ -8,41 +8,39 @@
                 <!--Non-premium option-->
                 <div class="c-option">
                     <img class="c-brand-title" src="/static/images/logos/logo-firefox-relay.svg">
-                    <p class="c-price non-premium-price">Always free</p>
+                    <p class="c-price non-premium-price">{% ftlmsg 'landing-pricing-free-price' %}</p>
                     <ul class="c-features non-premium-list">
-                        <li>Up to 5 email aliases</li>
-                        <li>Add-on available</li>
+                        <li>{% ftlmsg 'landing-pricing-free-feature-1' %}</li>
+                        <li>{% ftlmsg 'landing-pricing-free-feature-2' %}</li>
                     </ul>
-                    <div class="c-description">
-                        Ideal for testing and learn about email aliases.
-                    </div>
                     <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg">
-                        Sign In
+                        {% ftlmsg 'landing-pricing-free-cta' %}
                     </a>
                 </div>
                 <!--Premium Option-->
                 <div class="c-option">
                     <img class="c-brand-title" src="/static/images/logos/logo-firefox-premium-relay.svg">
-                    <p class="c-price premium-price">$1 <span class="c-currency"><strong>USD</strong> /month</span></p>
+                    <p class="c-price premium-price">
+                        {% ftlmsg 'landing-pricing-premium-price' monthly_price='$0.99' %}
+                    </p>
                     <div class="c-features premium-list">
                         <ul class="c-list">
-                            <li>Unlimited email aliases</li>
-                            <li>Add on available</li>
-                            <li>Your own email domain</li>
-                            <li>Critical email forwarding</li>
-                            <li>Reply to your emails</li>
+                            <li>{% ftlmsg 'landing-pricing-premium-feature-1' %}</li>
+                            <li>{% ftlmsg 'landing-pricing-premium-feature-2' %}</li>
+                            <li>{% ftlmsg 'landing-pricing-premium-feature-3' %}</li>
+                            <li>{% ftlmsg 'landing-pricing-premium-feature-4' %}</li>
                         </ul>
                     </div>
                     <a valign="bottom" class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg">
-                        Sign In
+                        {% ftlmsg 'nav-profile-sign-up' %}
                     </a>
                 </div>
             </div>
     
             <div class="c-pricing-text">
                 <div class="c-text">
-                    <h2 class="c-main-header">Yes! We have options for you!</h2>
-                    <p class="c-pricing-body">Test and learn how Relay work for you with our Free version and then upgrade to protect your email from any malware.</p>
+                    <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline' monthly_price='$0.99' %}</h2>
+                    <p class="c-pricing-body">{% ftlmsg 'landing-pricing-body' %}</p>
                 </div>
             </div>
         </div>
