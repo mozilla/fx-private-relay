@@ -144,10 +144,14 @@ glocal-menu {
     padding: $spacing-md var(--glocalPaddingUnit);
     width: 100%;
     background-color: rgba(255, 255, 255, 0);
+    color: $color-violet-90;
+    font-size: 14px;
 
     img {
-        padding: 0 $spacing-xs;
-        padding-right: $spacing-md;
+        display: inline-block;
+        width: var(--glocalSmallAvatarDimensions);
+        margin-right: 12px;
+        opacity: .9;
     }
 }
 
