@@ -160,7 +160,7 @@ class Profile(models.Model):
     @property
     def joined_before_premium_release(self):
         date_created = self.user.date_joined
-        return date_created < datetime.fromisoformat(settings.PREMIUM_RELEASE_DATE)
+        return date_created < settings.PREMIUM_RELEASE_DATE
 
     def add_subdomain(self, subdomain):
         if not self.has_premium:

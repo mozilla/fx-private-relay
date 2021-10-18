@@ -511,7 +511,7 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=social_account.user)
         assert profile.display_name == None
 
-    @override_settings(PREMIUM_RELEASE_DATE='2021-10-27 17:00:00+00:00')
+    @override_settings(PREMIUM_RELEASE_DATE=datetime.fromisoformat('2021-10-27 17:00:00+00:00'))
     def test_user_joined_before_premium_release_returns_True(self):
         user = baker.make(
             User,
@@ -520,7 +520,7 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=user)
         assert profile.joined_before_premium_release
 
-    @override_settings(PREMIUM_RELEASE_DATE='2021-10-27 17:00:00+00:00')
+    @override_settings(PREMIUM_RELEASE_DATE=datetime.fromisoformat('2021-10-27 17:00:00+00:00'))
     def test_user_joined_before_premium_release_returns_False(self):
         user = baker.make(
             User,
