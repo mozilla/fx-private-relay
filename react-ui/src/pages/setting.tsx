@@ -1,8 +1,11 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import { useProfile } from "../hooks/api/profile";
 import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
+  const profile = useProfile();
+
   return (
     <div className={styles.container}>
       <Head>
@@ -15,7 +18,7 @@ const Home: NextPage = () => {
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
-
+        {JSON.stringify(profile.data)}
         <p className={styles.description}>
           Get started by editing{" "}
           <code className={styles.code}>pages/index.js</code>
