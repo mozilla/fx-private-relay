@@ -543,6 +543,7 @@ function toggleClass(elem) {
    useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
   });
+  
   elem.target.classList.add("is-active");
 }
 
@@ -551,4 +552,3 @@ useCaseTitle.forEach( item => {
     console.log(item)
     item.addEventListener("click", toggleClass, false);
 });
-

@@ -299,6 +299,7 @@ h1, h2, h3, h4, h5, h6 {
         padding: $spacing-md $spacing-md $spacing-sm $spacing-md;
         display: flex;
         font-family: $font-metropolis;
+        border-radius: $border-radius-md;
     }
 
     .use-case-title-text {
@@ -307,7 +308,6 @@ h1, h2, h3, h4, h5, h6 {
         border-radius: $border-radius-md;
         font-family: $font-metropolis;
         font-size: 1.125em;
-        width: 100%;
         text-align: start;
         align-self: flex-end;        
     }
@@ -336,6 +336,8 @@ h1, h2, h3, h4, h5, h6 {
         display: none;
         background: $color-light-gray-10;
         color: black;
+        border-radius: $border-radius-md;
+        padding: $spacing-lg;
     }
 
     .desc-headline {
@@ -345,10 +347,9 @@ h1, h2, h3, h4, h5, h6 {
     
     .is-active + .use-case-desc {
         display: inline;
-        border-radius: $border-radius-md;
-        padding: $spacing-lg;
     }
 
+    //Desktop view
     @media screen and ($mq-lg) {
         grid-template-columns: repeat(5, 1fr);
         column-gap: $spacing-md;
@@ -356,12 +357,16 @@ h1, h2, h3, h4, h5, h6 {
         .use-case-title {
             float: left;
             height: 180px;
+            width: 180px;
             border-radius: $border-radius-md;
             grid-row-start: 1;
+            padding-bottom: $spacing-xs;
         }
 
         .use-case-title-text {
-            text-align: center;       
+            text-align: center;
+            padding-bottom: $spacing-xs;
+            width: 100%;    
         }
 
         .is-active + .use-case-desc {
@@ -375,44 +380,50 @@ h1, h2, h3, h4, h5, h6 {
         .desc-headline {
             font-size: 1.25em;
             font-weight: bold;
-            width: 30%;
-            border-right: 1px solid $color-light-gray-40;
-            padding-right: $spacing-lg;
+            min-width: $layout-2xl;
+            padding-top: $spacing-md;
+            padding-right: $spacing-xl;
         }
 
         .desc-body {
-            width: 70%;
-            padding-left: $spacing-xl;
+            display: flex;
+            min-height: $layout-xl;
+        }
+
+        .desc-body::before {
+            content: '';
+            background-color: $color-light-gray-60;
+            width: 3px;
+            position: relative;
+            display: inline;
+            height: 100%;
+            margin-right: $spacing-2xl;
+        }
+
+        .use-case-shopping, .use-case-social-networks, .use-case-offline, .use-case-access-content, .use-case-gaming {
+            background-repeat: no-repeat;
+            background-position: top;
+            background-size: 170px 170px;
         }
 
         .use-case-shopping {
             background-image: url("/static/images/use-case-shopping.svg");
-            background-repeat: no-repeat;
-            background-position: center;
         }
     
         .use-case-social-networks {
             background-image: url("/static/images/use-case-social-networks.svg");
-            background-repeat: no-repeat;
-            background-position: center;
         }
     
         .use-case-offline {
             background-image: url("/static/images/use-case-offline.svg");
-            background-repeat: no-repeat;
-            background-position: center;
         }
     
         .use-case-access-content {
             background-image: url("/static/images/use-case-access-content.svg");
-            background-repeat: no-repeat;
-            background-position: center;
         }
     
         .use-case-gaming {
             background-image: url("/static/images/use-case-gaming.svg");
-            background-repeat: no-repeat;
-            background-position: center;
         }
     }
 
