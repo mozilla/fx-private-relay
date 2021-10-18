@@ -515,7 +515,7 @@ class ProfileTest(TestCase):
     def test_user_joined_before_premium_release_returns_True(self):
         user = baker.make(
             User,
-            date_joined=datetime.now(timezone.utc)
+            date_joined=datetime.fromisoformat('2021-10-18 17:00:00+00:00')
         )
         profile = Profile.objects.get(user=user)
         assert profile.joined_before_premium_release
