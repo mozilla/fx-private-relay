@@ -31,29 +31,14 @@
                         <div class="mzp-c-choices">
                             <div class="mzp-c-choice">
                                 <input
-                                    data-category-type="active-aliases"
-                                    data-parent-category="active"
+                                    data-category-type="domain-aliases"
+                                    data-parent-category="domain"
                                     class="mzp-c-choice-control js-filter-category-checkbox"
-                                    type="checkbox" name="Show active aliases"
-                                    id="active-aliases"
+                                    type="checkbox" name="Show domain-based aliases"
+                                    id="domain-aliases"
                                     value=""
                                 >
-                                <label class="mzp-c-choice-label" for="active-aliases">{% ftlmsg 'profile-filter-category-option-active-aliases' %}</label>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="c-filter-category-type">
-                        <div class="mzp-c-choices">
-                            <div class="mzp-c-choice">
-                                <input
-                                    data-category-type="disabled-aliases"
-                                    data-parent-category="active"
-                                    class="mzp-c-choice-control js-filter-category-checkbox"
-                                    type="checkbox" name="Show disabled aliases"
-                                    id="disabled-aliases"
-                                    value=""
-                                >
-                                <label class="mzp-c-choice-label" for="disabled-aliases">{% ftlmsg 'profile-filter-category-option-disabled-aliases' %}</label>
+                                <label class="mzp-c-choice-label" for="domain-aliases">{% ftlmsg 'profile-filter-category-option-domain-based-aliases-v2' %}</label>
                             </div>
                         </div>
                     </li>
@@ -68,7 +53,7 @@
                                     id="relay-aliases"
                                     value=""
                                 >
-                                <label class="mzp-c-choice-label" for="relay-aliases">{% ftlmsg 'profile-filter-category-option-relay-aliases' %}</label>
+                                <label class="mzp-c-choice-label" for="relay-aliases">{% ftlmsg 'profile-filter-category-option-relay-aliases-v2' %}</label>
                             </div>
                         </div>
                     </li>
@@ -76,14 +61,29 @@
                         <div class="mzp-c-choices">
                             <div class="mzp-c-choice">
                                 <input
-                                    data-category-type="domain-aliases"
-                                    data-parent-category="domain"
+                                    data-category-type="active-aliases"
+                                    data-parent-category="active"
                                     class="mzp-c-choice-control js-filter-category-checkbox"
-                                    type="checkbox" name="Show domain-based aliases"
-                                    id="domain-aliases"
+                                    type="checkbox" name="Show active aliases"
+                                    id="active-aliases"
                                     value=""
                                 >
-                                <label class="mzp-c-choice-label" for="domain-aliases">{% ftlmsg 'profile-filter-category-option-domain-based-aliases' %}</label>
+                                <label class="mzp-c-choice-label" for="active-aliases">{% ftlmsg 'profile-filter-category-option-active-aliases-v2' %}</label>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="c-filter-category-type">
+                        <div class="mzp-c-choices">
+                            <div class="mzp-c-choice">
+                                <input
+                                    data-category-type="disabled-aliases"
+                                    data-parent-category="active"
+                                    class="mzp-c-choice-control js-filter-category-checkbox"
+                                    type="checkbox" name="Show disabled aliases"
+                                    id="disabled-aliases"
+                                    value=""
+                                >
+                                <label class="mzp-c-choice-label" for="disabled-aliases">{% ftlmsg 'profile-filter-category-option-disabled-aliases-v2' %}</label>
                             </div>
                         </div>
                     </li>
