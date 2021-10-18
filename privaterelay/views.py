@@ -9,6 +9,7 @@ from google_measurement_protocol import event, report
 import jwt
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from requests_oauthlib import OAuth2Session
+from requests.exceptions import ReadTimeout
 import sentry_sdk
 
 from django.apps import apps
@@ -184,9 +185,17 @@ def metrics_event(request):
         request_data.get('label', None),
         request_data.get('value', None),
     )
-    report(
-        settings.GOOGLE_ANALYTICS_ID, request_data.get('ga_uuid'), event_data
-    )
+    try:
+        report(
+            settings.GOOGLE_ANALYTICS_ID,
+            request_data.get('ga_uuid'),
+            event_data
+        )
+    except ReadTimeout:
+        return JsonResponse(
+            {'msg': 'Metrics endpoint unavailable.'},
+            status=500
+        )
     return JsonResponse({'msg': 'OK'}, status=200)
 
 
