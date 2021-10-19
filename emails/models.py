@@ -79,6 +79,8 @@ class Profile(models.Model):
     last_hard_bounce = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
+    num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
+    num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
     subdomain = models.CharField(
         blank=True, null=True, unique=True, max_length=63, db_index=True,
         validators=[valid_available_subdomain]
