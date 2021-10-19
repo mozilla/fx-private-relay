@@ -1,3 +1,4 @@
+import { useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useProfile } from "../hooks/api/profile";
@@ -5,6 +6,7 @@ import styles from "../styles/Home.module.css";
 
 const Home: NextPage = () => {
   const profile = useProfile();
+  const { l10n } = useLocalization();
 
   return (
     <div className={styles.container}>
@@ -15,6 +17,7 @@ const Home: NextPage = () => {
       </Head>
 
       <main className={styles.main}>
+        {l10n.getString("modal-delete-headline")}
         <h1 className={styles.title}>
           Welcome to <a href="https://nextjs.org">Next.js!</a>
         </h1>
