@@ -2,7 +2,7 @@
 {% load ftl %}
 
 <section>
-    <div class="container mzp-l-content">
+    <div class="mzp-l-content">
     <div class="how-it-works-content">
     <h2 class="how-it-works-header">{% ftlmsg 'landing-how-it-works-headline' %}</h2>
     <span class="how-it-works-subheader">{% ftlmsg 'landing-how-it-works-body' %}</span>
@@ -12,8 +12,8 @@
         <div class="step-text step-1">
             <h3 class="step-headline ff-Met">{% ftlmsg 'how-it-works-step-1-headline' %}</h3>
             <p class="step-body">
-            <a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="text-link">Download the ⁨Relay⁩ extension for ⁨Firefox⁩.</a>
-            {% ftlmsg 'landing-how-it-works-step-1-body-cta' %} {% ftlmsg 'landing-how-it-works-step-1-body' %}
+            <a href="https://addons.mozilla.org/firefox/addon/private-relay/" class="text-link">{% ftlmsg 'landing-how-it-works-step-1-body-cta' %}</a>
+            {% ftlmsg 'landing-how-it-works-step-1-body' %}
             </p>
         </div>
         </section>
