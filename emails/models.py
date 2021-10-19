@@ -81,6 +81,7 @@ class Profile(models.Model):
     )
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
+    num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
     subdomain = models.CharField(
         blank=True, null=True, unique=True, max_length=63, db_index=True,
         validators=[valid_available_subdomain]

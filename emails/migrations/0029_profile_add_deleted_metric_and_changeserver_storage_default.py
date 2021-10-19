@@ -21,6 +21,11 @@ class Migration(migrations.Migration):
             name='num_email_forwarded_in_deleted_address',
             field=models.PositiveIntegerField(default=0),
         ),
+        migrations.AddField(
+            model_name='profile',
+            name='num_email_spam_in_deleted_address',
+            field=models.PositiveIntegerField(default=0),
+        ),
         migrations.AlterField(
             model_name='profile',
             name='server_storage',
