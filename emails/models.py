@@ -79,6 +79,9 @@ class Profile(models.Model):
     last_hard_bounce = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
+    num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
+    num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
+    num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
     subdomain = models.CharField(
         blank=True, null=True, unique=True, max_length=63, db_index=True,
         validators=[valid_available_subdomain]
@@ -203,7 +206,8 @@ class Profile(models.Model):
         ).values('num_forwarded')
         return (
             sum(forwarded['num_forwarded'] for forwarded in relay_addresses_forwarded) +
-            sum(forwarded['num_forwarded'] for forwarded in domain_addresses_forwarded)
+            sum(forwarded['num_forwarded'] for forwarded in domain_addresses_forwarded) +
+            self.num_email_forwarded_in_deleted_address
         )
 
     @property
@@ -216,7 +220,8 @@ class Profile(models.Model):
         ).values('num_blocked')
         return (
             sum(blocked['num_blocked'] for blocked in relay_addresses_blocked) +
-            sum(blocked['num_blocked'] for blocked in domain_addresses_blocked)
+            sum(blocked['num_blocked'] for blocked in domain_addresses_blocked) +
+            self.num_email_blocked_in_deleted_address
         )
 
     @property
@@ -364,6 +369,9 @@ class RelayAddress(models.Model):
         profile = Profile.objects.get(user=self.user)
         profile.address_last_deleted = datetime.now(timezone.utc)
         profile.num_address_deleted += 1
+        profile.num_email_forwarded_in_deleted_address += self.num_forwarded
+        profile.num_email_blocked_in_deleted_address += self.num_blocked
+        profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
@@ -501,6 +509,9 @@ class DomainAddress(models.Model):
         deleted_address.save()
         self.user_profile.address_last_deleted = datetime.now(timezone.utc)
         self.user_profile.num_address_deleted += 1
+        self.user_profile.num_email_forwarded_in_deleted_address += self.num_forwarded
+        self.user_profile.num_email_blocked_in_deleted_address += self.num_blocked
+        self.user_profile.num_email_spam_in_deleted_address += self.num_spam
         self.user_profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
 
