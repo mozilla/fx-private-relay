@@ -51,10 +51,8 @@
       </p>
     </div>
     {% if not user_profile.server_storage %}
-      <aside class="c-notification-banner t-warning c-settings-notification-banner js-notification">
-        <div class="dismiss-wrapper">
-          <button class="notification-dismiss js-dismiss"><img src="{% static 'images/x-close.svg' %}"></button>
-        </div><div class="notification-banner-bg">
+      <aside class="c-notification-banner t-warning c-settings-notification-banner">
+        <div class="notification-banner-bg">
         <div class="notification-banner-content">
           <div class="notification-banner-copy">
             <h2 class="notification-banner-header">
