@@ -329,6 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
   vpnBannerLogic();
   setTranslatedStringLinks();
   premiumOnboardingLogic();
+  dataCollectionBannerLogic();
 
   // TODO: Set up language gate once l10n is active.
   // const preferredLanguages = navigator.languages;
@@ -523,6 +524,55 @@ function premiumOnboardingLogic() {
   };
 
   premiumOnboardingFunctions.init();
+}
+
+function dataCollectionBannerLogic() {
+  
+  // Check if element exists at all
+  const dataCollectionBanner = document.getElementById("dataCollection");
+
+  if (!dataCollectionBanner) {
+    return;
+  }
+
+  // Check for dismissal cookie
+  const dataCollectionBannerDismissedCookie = document.cookie
+    .split("; ")
+    .some((item) => item.trim().startsWith("dataCollection="));
+
+  if (dataCollectionBannerDismissedCookie) {
+    return;
+  }
+
+  // Init: Show banner, set close button listener
+  const dataCollectionCloseButton = document.querySelector(
+    ".js-data-collection-dismiss"
+  );
+
+  const dataCollectionBannerFunctions = {
+    hide: function () {
+      dataCollectionBannerFunctions.setCookie();
+      dataCollectionBanner.classList.add("is-hidden");
+    },
+    init: function () {
+      dataCollectionCloseButton.addEventListener(
+        "click",
+        dataCollectionBannerFunctions.hide
+      );
+      dataCollectionBannerFunctions.show();
+    },
+    setCookie: function () {
+      const date = new Date();
+      date.setTime(date.getTime() + 30 * 24 * 60 * 60 * 1000);
+      document.cookie =
+        "dataCollection=true; expires=" + date.toUTCString() + "; path=/";
+    },
+    show: function () {
+      dataCollectionBanner.classList.remove("is-hidden");
+    },
+  };
+
+  dataCollectionBannerFunctions.init();
 }
 
 //Micro Survey Banner

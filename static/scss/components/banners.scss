@@ -120,6 +120,11 @@
     background-color: $color-white;
     box-shadow: $box-shadow-sm;
     border-radius: $border-radius-md;
+    margin-bottom: $spacing-lg;
+
+    &.is-hidden {
+        display: none;
+    }
 
     .notification-banner-bg {
         padding: $spacing-xs;
