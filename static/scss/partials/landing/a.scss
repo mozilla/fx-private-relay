@@ -1,5 +1,5 @@
 h1, h2, h3, h4, h5, h6 {
-    font-family: $font-metropolis !important;
+    font-family: $font-metropolis;
 }
 
 .c-landing-hero.t-landing-a {
@@ -92,7 +92,7 @@ h1, h2, h3, h4, h5, h6 {
     .how-it-works-steps {
         width: 100%;
         margin-top: $layout-sm;
-        margin-bottom: $layout-lg;
+        margin-bottom: $layout-xs;
 
         &.mzp-l-columns {
             margin-top: $layout-md;
@@ -102,10 +102,6 @@ h1, h2, h3, h4, h5, h6 {
                 transform: translateX(-50%);
                 position: relative;
                 width: $content-xs;
-            }
-
-            .step {
-                margin-bottom: $layout-lg;
             }
         
             .step-text {
@@ -127,7 +123,7 @@ h1, h2, h3, h4, h5, h6 {
                 margin: 0 auto auto auto;
                 font-size: 1em;
                 line-height: 1.7em;
-                color: black !important;
+                color: $color-black;
         
                 .text-link {
                     color: $color-blue-50;
@@ -135,8 +131,16 @@ h1, h2, h3, h4, h5, h6 {
                 }
             }
 
+            .step {
+                margin-bottom: $spacing-lg;
+            }
+
             @media #{$mq-lg} {
                 width: 100%;
+
+                .step {
+                    margin-bottom: 0;
+                }
                 
                 .step-text, .step-headline {
                     text-align: start;
@@ -196,6 +200,10 @@ h1, h2, h3, h4, h5, h6 {
             }
         }
 
+        .c-premium {
+            border: 2px solid $color-purple-40;
+        }
+
         .c-option {
             display: flex;
             flex-direction: column;
@@ -215,8 +223,7 @@ h1, h2, h3, h4, h5, h6 {
 
                 .c-currency {
                     color: $color-dark-gray-50;
-                    font-size: .55em;
-                    font-weight: normal;
+                    font-size: .7em;
                 }
 
                 .premium-price {
@@ -282,14 +289,18 @@ h1, h2, h3, h4, h5, h6 {
 
             .c-text {
                 padding: 0;
-                top: 50%;
-                -ms-transform: translateY(-50%);
-                transform: translateY(50%);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
             }
         }
     }
 }
 
+.use-case-section {
+    box-shadow: 0px 15px 15px $color-light-gray-20;
+}
 
 .c-use-case-content {
     display: grid;
@@ -304,7 +315,7 @@ h1, h2, h3, h4, h5, h6 {
     }
 
     .use-case-title-text {
-        color: black;
+        color: $color-black;
         font-weight: bold;
         border-radius: $border-radius-md;
         font-family: $font-metropolis;
@@ -336,7 +347,7 @@ h1, h2, h3, h4, h5, h6 {
     .use-case-desc {
         display: none;
         background: $color-light-gray-10;
-        color: black;
+        color: $color-black;
         border-radius: $border-radius-md;
         padding: $spacing-lg;
     }
@@ -393,7 +404,7 @@ h1, h2, h3, h4, h5, h6 {
 
         .desc-body::before {
             content: '';
-            background-color: $color-light-gray-60;
+            background-color: $color-light-gray-40;
             width: 3px;
             position: relative;
             display: inline;

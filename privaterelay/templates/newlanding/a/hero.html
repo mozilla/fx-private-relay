@@ -6,7 +6,7 @@
         <h1 class="c-landing-hero--title mzp-c-section-heading">{% ftlmsg 'landing-hero-headline' %}</h1>
         <p>{% ftlmsg 'landing-hero-body' %}</p>
         <div>{% include "includes/landing_ctas.html" with page_position="landing-hero" %}</div>
-        <img class="c-landing-hero-brands" src="/static/images/newlanding/a/hero-brands.svg">
+        <img class="c-landing-hero-brands" src="{% static 'images/newlanding/a/hero-brands.svg' %}">
     </div>
     <div class="has-hero-image">
         <img alt="" src="{% static 'images/newlanding/a/hero-image-bg.svg' %}" class="c-hero-image--bg"/>
