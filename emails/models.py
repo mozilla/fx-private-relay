@@ -62,6 +62,10 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     return True
 
 
+def default_server_storage():
+    return datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE
+
+
 class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
@@ -79,7 +83,7 @@ class Profile(models.Model):
         blank=True, null=True, unique=True, max_length=63, db_index=True,
         validators=[valid_available_subdomain]
     )
-    server_storage = models.BooleanField(default=False)
+    server_storage = models.BooleanField(default=default_server_storage)
 
     def __str__(self):
         return '%s Profile' % self.user

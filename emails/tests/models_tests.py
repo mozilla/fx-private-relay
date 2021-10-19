@@ -689,6 +689,21 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=user)
         assert profile.joined_before_premium_release is False
 
+    @override_settings(
+        PREMIUM_RELEASE_DATE=datetime.now(timezone.utc) + timedelta(days=1)
+    )
+    def test_user_created_before_premium_release_server_storage_False(self):
+        user = baker.make(User)
+        profile = Profile.objects.get(user=user)
+        assert not profile.server_storage
+
+    @override_settings(
+        PREMIUM_RELEASE_DATE=datetime.now(timezone.utc) - timedelta(days=1)
+    )
+    def test_user_created_after_premium_release_server_storage_True(self):
+        user = baker.make(User)
+        profile = Profile.objects.get(user=user)
+        assert profile.server_storage
 
 class DomainAddressTest(TestCase):
     def setUp(self):
