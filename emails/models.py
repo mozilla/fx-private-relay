@@ -180,7 +180,7 @@ class Profile(models.Model):
 
     @property
     def custom_domain(self):
-        return f'{self.subdomain}@{settings.MOZMAIL_DOMAIN}'
+        return f'@{self.subdomain}.{settings.MOZMAIL_DOMAIN}'
 
     @property
     def has_premium(self):
