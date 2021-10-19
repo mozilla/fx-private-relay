@@ -182,6 +182,10 @@ class Profile(models.Model):
         return self.fxa.extra_data.get('displayName')
 
     @property
+    def custom_domain(self):
+        return f'@{self.subdomain}.{settings.MOZMAIL_DOMAIN}'
+
+    @property
     def has_premium(self):
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
