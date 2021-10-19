@@ -3,16 +3,13 @@
 }
 
 .faqs {
-    flex-wrap: wrap;
+    column-width: $content-sm;
+    column-gap: $spacing-2xl;
 }
 
 .faq {
     margin-bottom: 3em;
-}
-
-.faq-col {
-    flex: 0 1 46%;
-    margin: 0;
+    break-inside: avoid;
 }
 
 .faqs-headline {
