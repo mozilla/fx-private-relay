@@ -54,7 +54,7 @@
     }
 }
 
-#mpp-choose-subdomain {
+#mpp-choose-subdomain, #sync-labels {
     // Add a transparent border by default so its content doesn't jump around when the border appears:
     border: 4px solid transparent;
 
@@ -76,6 +76,15 @@
             /* .branner-gradient-bg bottom margin: */
             2rem
         );
+    }
+}
+
+#sync-labels {
+    border-width: 1px;
+
+    &:target {
+        border-color: $color-warning;
+        border-width: 1px;
     }
 }
 

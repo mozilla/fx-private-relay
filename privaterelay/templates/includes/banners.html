@@ -23,7 +23,7 @@
 {% elif show_data_notification_banner %}
   {% with request.user.profile_set.first as user_profile %}
     {% if not user_profile.server_storage %}
-      <div id="dataCollection" class="c-notification-banner c-data-notification-banner t-warning is-hidden">
+      <div id="sync-labels" class="c-notification-banner c-data-notification-banner t-warning is-hidden">
         <div class="dismiss-wrapper">
           <button class="notification-dismiss js-data-collection-dismiss"><img src="{% static 'images/x-close.svg' %}"></button>
         </div>

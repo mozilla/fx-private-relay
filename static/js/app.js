@@ -529,7 +529,7 @@ function premiumOnboardingLogic() {
 function dataCollectionBannerLogic() {
   
   // Check if element exists at all
-  const dataCollectionBanner = document.getElementById("dataCollection");
+  const dataCollectionBanner = document.getElementById("sync-labels");
 
   if (!dataCollectionBanner) {
     return;
@@ -538,7 +538,7 @@ function dataCollectionBannerLogic() {
   // Check for dismissal cookie
   const dataCollectionBannerDismissedCookie = document.cookie
     .split("; ")
-    .some((item) => item.trim().startsWith("dataCollection="));
+    .some((item) => item.trim().startsWith("syncLabelsBanner="));
 
   if (dataCollectionBannerDismissedCookie) {
     return;
@@ -565,7 +565,7 @@ function dataCollectionBannerLogic() {
       const date = new Date();
       date.setTime(date.getTime() + 30 * 24 * 60 * 60 * 1000);
       document.cookie =
-        "dataCollection=true; expires=" + date.toUTCString() + "; path=/";
+        "syncLabelsBanner=true; expires=" + date.toUTCString() + "; path=/";
     },
     show: function () {
       dataCollectionBanner.classList.remove("is-hidden");
