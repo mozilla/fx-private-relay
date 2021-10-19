@@ -54,7 +54,7 @@
     }
 }
 
-#mpp-choose-subdomain, #dataCollection {
+#mpp-choose-subdomain, #sync-labels {
     // Add a transparent border by default so its content doesn't jump around when the border appears:
     border: 4px solid transparent;
 
@@ -79,7 +79,7 @@
     }
 }
 
-#dataCollection {
+#sync-labels {
     border-width: 1px;
 
     &:target {

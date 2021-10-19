@@ -529,7 +529,7 @@ function premiumOnboardingLogic() {
 function dataCollectionBannerLogic() {
   
   // Check if element exists at all
-  const dataCollectionBanner = document.getElementById("dataCollection");
+  const dataCollectionBanner = document.getElementById("sync-labels");
 
   if (!dataCollectionBanner) {
     return;
