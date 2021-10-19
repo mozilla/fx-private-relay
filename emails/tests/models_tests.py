@@ -771,13 +771,11 @@ class DomainAddressTest(TestCase):
             return
         self.fail("Should have raise CannotMakeAddressException")
 
-    def test_make_domain_address_cannot_make_blocklisted_address(self):
-        try:
-            DomainAddress.make_domain_address(self.user_profile, 'testing')
-        except CannotMakeAddressException as e:
-            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
-            return
-        self.fail("Should have raise CannotMakeAddressException")
+    def test_make_domain_address_can_make_blocklisted_address(self):
+        domain_address = DomainAddress.make_domain_address(
+            self.user_profile, 'testing'
+        )
+        assert domain_address.address == 'testing'
 
     def test_make_domain_address_valid_premium_user_with_no_subdomain(self):
         user = baker.make(User)
@@ -815,18 +813,6 @@ class DomainAddressTest(TestCase):
     @patch('emails.models.address_default')
     def test_make_domain_address_doesnt_randomly_generate_bad_word(self, address_default_mocked):
         address_default_mocked.return_value = 'angry0123'
-        try:
-            DomainAddress.make_domain_address(self.user_profile)
-        except CannotMakeAddressException as e:
-            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
-            return
-        self.fail("Should have raise CannotMakeAddressException")
-
-    @patch('emails.models.address_default')
-    def test_make_domain_address_doesnt_randomly_generate_blocked_word(
-        self, address_default_mocked
-    ):
-        address_default_mocked.return_value = 'mozilla'
         try:
             DomainAddress.make_domain_address(self.user_profile)
         except CannotMakeAddressException as e:
