@@ -1,7 +1,7 @@
 .landing-page-a {
 
     h1, h2, h3, h4, h5, h6 {
-        font-family: $font-metropolis;
+        @include font-firefox;
     }
     
     p, span, div {
@@ -287,7 +287,6 @@
 
         h2 {
             @include text-title-md;
-            font-family: $font-metropolis;
             font-weight: 500;
         }
 
@@ -317,18 +316,18 @@
     row-gap: $spacing-md;
    
     .use-case-title {
+        @include font-firefox;
         padding: $spacing-md $spacing-md $spacing-sm $spacing-md;
         display: flex;
-        font-family: $font-metropolis;
         border-radius: $border-radius-md;
     }
 
     .use-case-title-text {
+        @include font-firefox;
         @include text-body-lg;
         color: $color-black;
         font-weight: bold;
         border-radius: $border-radius-md;
-        font-family: $font-metropolis;
         text-align: start;
         align-self: flex-end;        
     }
@@ -362,6 +361,7 @@
     }
 
     .desc-headline {
+        @include font-firefox;
         @include text-body-lg;
         font-weight: bold;
     }
@@ -401,7 +401,7 @@
         .desc-headline {
             @include text-title-2xs;
             font-weight: bold;
-            min-width: $layout-2xl;
+            min-width: $content-xs;
             padding-top: $spacing-md;
             padding-right: $spacing-xl;
         }
