@@ -46,7 +46,6 @@
 
     h2 {
         @include text-title-3xs;
-        color: $color-purple-90;
         text-align: center;
         margin-bottom: $spacing-md;
     }
@@ -55,5 +54,12 @@
         display: block;
         width: $content-xs;
         margin: 0 auto;
+    }
+}
+
+.c-body-wrapper.t-dark .c-hero-slides {
+
+    h2 {
+        color: $color-purple-90;
     }
 }
