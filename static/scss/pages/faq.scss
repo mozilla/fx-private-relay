@@ -35,6 +35,11 @@
 
     color: $color-grey-10;
     margin-top: 0;
+
+    li {
+        list-style-type: initial;
+        margin-left: $spacing-md;
+    }
 }
 
 @media screen and #{$mq-lg} {
