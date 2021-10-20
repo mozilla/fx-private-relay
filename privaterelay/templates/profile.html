@@ -210,7 +210,7 @@
 
               <!-- delete email address -->
               <div class="column-delete">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ relay_address.full_address }}">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-type="relay" data-delete-relay="{{ relay_address.full_address }}">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
@@ -339,7 +339,7 @@
 
               <!-- delete email address -->
               <div class="column-delete">
-                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-delete-relay="{{ domain_address.full_address }}">
+                <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-type="domain" data-delete-relay="{{ domain_address.full_address }}">
                   <input type="hidden" name="method_override" value="DELETE">
                   <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                   <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">
