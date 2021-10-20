@@ -33,7 +33,7 @@
     {% include "includes/modal-delete.html" %}
     {% include "includes/modal-domain-registration-confirmation.html" %}
     {% include "includes/header.html" %}
-    <firefox-private-relay-addon data-addon-installed="false"></firefox-private-relay-addon>
+    <firefox-private-relay-addon data-user-logged-in="{% with request.user.profile_set.first as user_profile %}{{ request.user.is_authenticated }}{%endwith%}" data-addon-installed="false"></firefox-private-relay-addon>
     {% block content %}
     {% endblock %}
 
