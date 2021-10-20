@@ -51,7 +51,7 @@
 					</a>
 					{% if user_profile.has_premium %}
 						<a
-							href="https://accounts.firefox.com/support/?utm_source={{ settings.SITE_ORIGIN }}"
+							href="{{ settings.FXA_SUPPORT_URL }}?utm_source={{ settings.SITE_ORIGIN }}"
 							target="_blank"
 							rel="noopener noreferrer"
 							class="glocal-site-option"
