@@ -1,0 +1,42 @@
+.faqs {
+    column-width: $content-sm;
+    column-gap: $spacing-2xl;
+}
+
+.faq {
+    margin-bottom: $spacing-2xl;
+    break-inside: avoid;
+}
+
+.faqs-headline {
+    @include text-title-sm;
+
+    margin: $spacing-2xl 0 $spacing-xl;
+}
+
+.faqs-headline,
+.faq-headline {
+    color: $color-white;
+}
+
+.faq-headline {
+    @include text-title-2xs;
+
+    margin-top: 0;
+    margin-bottom: $spacing-sm;
+}
+
+.faq-answer {
+    @include text-body-md;
+
+    color: $color-grey-10;
+    margin-top: 0;
+}
+
+@media screen and #{$mq-lg} {
+
+    .faqs-wrapper {
+        max-width: $content-xl;
+    }
+
+}
