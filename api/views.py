@@ -31,7 +31,7 @@ class SaveToRequestUser:
 
 class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = RelayAddressSerializer
-    permissions_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         return RelayAddress.objects.filter(user=self.request.user)
@@ -39,7 +39,7 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
 class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = DomainAddressSerializer
-    permissions_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         return DomainAddress.objects.filter(user=self.request.user)
@@ -47,7 +47,7 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
-    permissions_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
