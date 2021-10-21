@@ -543,11 +543,21 @@ function toggleClass(elem) {
    useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
   });
-  
   elem.target.classList.add("is-active");
 }
 
-
 useCaseTitle.forEach( item => {
     item.addEventListener("click", toggleClass, false);
+});
+
+//Landing page accordion remove box shadow
+function removeBoxShadow(elem) {
+  useCaseTitle.forEach( item => {
+     item.classList.remove("remove-box-shadow");
+ });
+ elem.target.classList.add("remove-box-shadow");
+}
+
+useCaseTitle.forEach( item => {
+   item.addEventListener("click", removeBoxShadow, false);
 });

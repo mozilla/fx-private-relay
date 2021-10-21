@@ -319,6 +319,7 @@
         padding: $spacing-md $spacing-md $spacing-sm $spacing-md;
         display: flex;
         border-radius: $border-radius-md;
+        box-shadow: $box-shadow-sm;
     }
 
     .use-case-title-text {
@@ -379,6 +380,10 @@
     
     .is-active + .use-case-desc {
         display: inline;
+    }
+
+    .remove-box-shadow {
+        box-shadow: none !important;
     }
 
     //Desktop view
