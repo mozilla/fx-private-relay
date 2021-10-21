@@ -252,8 +252,9 @@
         font-weight: 700;
     }
 
-    .subdomain-banner-email-preview {
+    samp {
         @include text-title-2xs;
+        display: block;
         color: $color-grey-30;
         margin-bottom: $spacing-lg;
 
@@ -277,6 +278,18 @@
     a {
         font-weight: 500;
         color: $color-informational;
+        
+        &:hover {
+            color: $color-informational-hover;
+        }
+        
+        &:active {
+            color: $color-informational-active;
+        }
+        
+        &:visited {
+            color: $color-purple;
+        }
     }
 
     form {
