@@ -107,11 +107,11 @@ function deleteAliasConfirmation(submitEvent) {
   const relayWarning = document.querySelector(".js-relay-address-warning");
   const domainWarning = document.querySelector(".js-domain-address-warning");
   if (deleteAliasForm.dataset.type === "domain") {
-    relayWarning.classList.add("hidden");
-    domainWarning.classList.remove("hidden");
+    relayWarning.classList.add("is-hidden");
+    domainWarning.classList.remove("is-hidden");
   } else {
-    relayWarning.classList.remove("hidden");
-    domainWarning.classList.add("hidden");
+    relayWarning.classList.remove("is-hidden");
+    domainWarning.classList.add("is-hidden");
   }
   aliasToDeleteEls.forEach(addressEl => {
     addressEl.textContent = aliasToDelete;
