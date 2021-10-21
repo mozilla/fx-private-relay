@@ -79,28 +79,32 @@
             </div>
             {% endif %}
           {% elif not user_profile.subdomain %}
-            <div class="mpp-choose-subdomain" id="mpp-choose-subdomain">
-              <img src="/static/images/choose-subdomain.png" alt="">
-              <div class="border"></div>
-              <div class="mpp-choose-subdomain-form">
-                <h2>{% ftlmsg 'banner-choose-subdomain-headline-aliases' %}</h2>
-                <p>{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
+            <div class="c-notification-banner subdomain-banner" id="mpp-choose-subdomain">
+              <div class="subdomain-banner-copy">
+                <div class="c-notification-banner-label">Action step</div>
+                <h2>Get a custom domain for your aliases</h2>
+                <div class="subdomain-banner-email-preview">***<span>@yourdomain</span>.relay.firefox.com</div>
+                <p>Using a custom domain, you can create aliases that are easier than ever to remember and share. Need an alias for restaurant reservations? Just say restaurants@yourdomain.mozmail.com—No need to create the alias beforehand.</p>
+                <a href="#">Learn more</a>
+              </div>
+              <div class="subdomain-banner-form">
                 <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                     {% csrf_token %}
                     <input
-                      class="js-subdomain-value"
+                      class="js-subdomain-value subdomain-banner-input"
                       data-domain="{{ MOZMAIL_DOMAIN }}"
                       required
                       type="text"
-                      placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}"
+                      placeholder="{# ftlmsg 'banner-choose-subdomain-input-placeholder' #} Search"
                       name="subdomain"
                       minlength="1"
                       maxlength="63"
                     >
-                    <input class="btn btn--gray" type="submit" value="{% ftlmsg 'banner-choose-subdomain-submit' %}">
+                    <input class="mzp-c-button mzp-t-product" type="submit" value="Search">
                 </form>
-                <p class="warning">{% ftlmsg 'banner-choose-subdomain-warning' %}</p>
+                <img src="{% static 'images/dashboard-onboarding/man-laptop-email.svg' %}" alt="">
               </div>
+              
             </div>
           {% endif %}
         {% endwith %}
