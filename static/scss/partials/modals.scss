@@ -12,6 +12,10 @@
     &.warning-text {
         color: $color-error;
     }
+
+    &.is-hidden {
+        display: none;
+    }
 }
 
 .alias-to-delete {
