@@ -348,7 +348,7 @@ if (!_dntEnabled()) {
   });
 
   const cookies = document.cookie.split("; ");
-  const gaEventCookies = cookies.filter(item => item.trim().startsWith("server_ga_event="));
+  const gaEventCookies = cookies.filter(item => item.trim().startsWith("server_ga_event:"));
   gaEventCookies.forEach(item => {
     const serverEventLabel = item.split("=")[1];
     if (isGoogleAnalyticsAvailable() && serverEventLabel) {
