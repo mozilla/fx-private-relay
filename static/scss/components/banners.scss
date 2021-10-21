@@ -82,6 +82,7 @@
 
     .c-notification-banner-label {
         color: $color-purple-50;
+
         @include text-body-sm;
         margin-bottom: $spacing-sm;
     }
@@ -234,6 +235,7 @@
         padding-bottom: $spacing-md;
         margin-bottom: $spacing-md;
         border-bottom: 1px solid $color-grey-10;
+
         @media #{$mq-md} {
             border-bottom: none;
             margin-bottom: 0;
@@ -254,10 +256,12 @@
         @include text-title-2xs;
         color: $color-grey-30;
         margin-bottom: $spacing-lg;
+
         span {
             color: $color-purple-50;
             font-weight: 700;
         }
+
         @media #{$mq-md} {
             @include text-title-3xs;
         }
@@ -277,9 +281,10 @@
 
     form {
         margin-bottom: $spacing-lg;
+
         @media #{$mq-sm} {
             display: flex;
-        }   
+        }
         @media #{$mq-md} {
             margin-top: $spacing-xl;
         }   
@@ -292,6 +297,7 @@
     img {
         display: block;
         margin: 0 auto;
+
         @media #{$mq-sm} {
             width: 100%;
             max-width: calc(#{$content-sm} * .5);
@@ -300,6 +306,7 @@
 
     .subdomain-banner-input {
         margin-bottom: $spacing-sm;
+
         @media #{$mq-sm} {
             margin-bottom: 0;
             margin-right: $spacing-md;
