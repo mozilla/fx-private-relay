@@ -561,3 +561,17 @@ function removeBoxShadow(elem) {
 useCaseTitle.forEach( item => {
    item.addEventListener("click", removeBoxShadow, false);
 });
+
+//FAQ Accordion 
+const faqQuestion = document.querySelectorAll(".c-faq-question");
+
+function showFAQAnswer(elem) {
+  faqQuestion.forEach( item => {
+      item.classList.remove("is-active");
+  });
+  elem.target.classList.add("is-active");
+}
+
+faqQuestion.forEach( item => {
+    item.addEventListener("click", showFAQAnswer, false);
+});
