@@ -10,6 +10,29 @@
 .faq {
     margin-bottom: $spacing-2xl;
     break-inside: avoid;
+    // The height of the fixed header can vary depending on e.g. whether .micro-survey-banner
+    // is displayed, so this calculation might not result in #mpp-choose-subdomain to be
+    // anchored exactly to the top of the page, but at least it won't be hidden behind
+    // the fixed headers:
+    scroll-margin-top: calc(
+        /* .micro-survey-banner vertical padding: */
+        #{($spacing-md * 2)} +
+        /* .header-top vertical padding: */
+        #{($spacing-xl * 2)} +
+        /* .logo-wrapper height: */
+        40px +
+        /* #mpp-choose-subdomain top border: */
+        4px +
+        /* .branner-gradient-bg bottom margin: */
+        2rem
+    );
+
+    &:target {
+
+        .faq-headline::before {
+            content: "> ";
+        }
+    }
 }
 
 .faqs-headline {
