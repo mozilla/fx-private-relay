@@ -260,7 +260,7 @@ header {
 }
 
 
-.is-premium {
+.is-premium:not(.is-dark) {
 
     header {
         background: $color-white;

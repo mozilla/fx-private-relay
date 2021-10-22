@@ -1,3 +1,7 @@
+.faqs-wrapper {
+    background-image: var(--darkBlueGradient);
+}
+
 .faqs {
     column-width: $content-sm;
     column-gap: $spacing-2xl;
@@ -35,7 +39,7 @@
 
 @media screen and #{$mq-lg} {
 
-    .faqs-wrapper {
+    .faqs-container {
         max-width: $content-xl;
     }
 
