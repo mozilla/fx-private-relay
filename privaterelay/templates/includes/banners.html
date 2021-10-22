@@ -72,7 +72,7 @@
                   <div class="banner-copy flx flx-col">
                     <p class="banner-hl ff-Met">{% ftlmsg 'banner-upgrade-headline' %}</p>
                     <p class="banner-sub">{% ftlmsg 'banner-upgrade-copy' %}</p>
-                    <a class="banner-link ff-Met" href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
+                    <a class="banner-link ff-Met" href="{% premium_subscribe_url accept_language %}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
                   </div>
                 </div>
               </div>

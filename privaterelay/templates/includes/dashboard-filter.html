@@ -1,3 +1,4 @@
+{% load relay_tags %}
 {% load static %}
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
@@ -106,7 +107,7 @@
             {% if user_profile.at_max_free_aliases and not user_profile.has_premium %}
                 {% if settings.PREMIUM_ENABLED %}
                     <a
-                        href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}"
+                            href="{% premium_subscribe_url accept_language %}"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="btn btn-blue--ghost"

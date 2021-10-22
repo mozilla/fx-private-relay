@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import ipaddress
 import os
-from datetime import datetime, timezone
+from datetime import datetime
 
 from decouple import config
 import markus
@@ -237,7 +237,116 @@ MOZMAIL_DOMAIN = config('MOZMAIL_DOMAIN', 'mozmail.com', cast=str)
 MAX_NUM_FREE_ALIASES = config('MAX_NUM_FREE_ALIASES', 5, cast=int)
 PREMIUM_ENABLED = config('PREMIUM_ENABLED', default=False, cast=bool)
 PREMIUM_PROD_ID = config('PREMIUM_PROD_ID', '', cast=str)
-PREMIUM_PRICE_ID = config('PREMIUM_PRICE_ID', '', cast=str)
+PREMIUM_PRICE_ID_OVERRIDE = config('PREMIUM_PRICE_ID_OVERRIDE', '', cast=str)
+PREMIUM_PLAN_ID_MATRIX = {
+    "chf": {
+        "de": {
+            "id": "price_1JmRM0JNcmPzuWtRzCJ2LQHP",
+            "price": "CHF 1.00",
+        },
+        "fr": {
+            "id": "price_1JmRFrJNcmPzuWtROOs10fKh",
+            "price": "CHF 1.00",
+        },
+        "it": {
+            "id": "price_1JmREHJNcmPzuWtRxo7MoT58",
+            "price": "CHF 1.00",
+        },
+    },
+    "euro": {
+        "de": {
+            "id": "price_1JmRTDJNcmPzuWtRnJavIXXX",
+            "price": "0,99 €",
+        },
+        "en": {
+            "id": "price_1JmRCQJNcmPzuWtRprMnmtax",
+            "price": "0,99 €",
+        },
+        "es": {
+            "id": "price_1JmRPSJNcmPzuWtRVvkEkVbS",
+            "price": "0,99 €",
+        },
+        "fr": {
+            "id": "price_1JmRU4JNcmPzuWtRRhu1FhiQ",
+            "price": "0,99 €",
+        },
+        "it": {
+            "id": "price_1JmRQLJNcmPzuWtRGs76IkUY",
+            "price": "0,99 €",
+        },
+        "nl": {
+            "id": "price_1JmROfJNcmPzuWtR6od8OfDW",
+            "price": "0,99 €",
+        },
+    },
+    "usd": {
+        "en": {
+            "id": "price_1JmRSRJNcmPzuWtRN9MG5cBy",
+            "price": "US$0.99"
+        }
+    }
+}
+PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
+    # Austria
+    "at": {
+        "de": PREMIUM_PLAN_ID_MATRIX["euro"]["de"]
+    },
+    # Belgium
+    "be": {
+        "fr": PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
+        "de": PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
+        "nl": PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
+    },
+    # Switzerland
+    "ch": {
+        "fr": PREMIUM_PLAN_ID_MATRIX["chf"]["fr"],
+        "de": PREMIUM_PLAN_ID_MATRIX["chf"]["de"],
+        "it": PREMIUM_PLAN_ID_MATRIX["chf"]["it"],
+    },
+    # Germany
+    "de": {
+        "de": PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
+    },
+    # Spain
+    "es": {
+        "es": PREMIUM_PLAN_ID_MATRIX["euro"]["es"],
+    },
+    # France
+    "fr": {
+        "fr": PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
+    },
+    # Ireland
+    "ie": {
+        "en": PREMIUM_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    # Italy
+    "it": {
+        "it": PREMIUM_PLAN_ID_MATRIX["euro"]["it"],
+    },
+    # Netherlands
+    "nl": {
+        "nl": PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
+    },
+    "us": {
+        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    "gb": {
+        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    "ca": {
+        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    "nz": {
+        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    "my": {
+        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    "sg": {
+        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+}
+
 SUBSCRIPTIONS_WITH_UNLIMITED = config(
     'SUBSCRIPTIONS_WITH_UNLIMITED', default=''
 )

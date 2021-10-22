@@ -18,7 +18,7 @@
 <firefox-private-relay-addon-data 
   data-fxa-subscriptions-url="{{ settings.FXA_SUBSCRIPTIONS_URL }}" 
   data-premium-prod-id="{{ settings.PREMIUM_PROD_ID }}" 
-  data-premium-price-id="{{ settings.PREMIUM_PRICE_ID }}" 
+  data-premium-price-id="{% premium_plan_id accept_language %}"
   data-aliases-used-val="{{ user_profile.num_active_address }}"
   data-emails-forwarded-val="{{ user_profile.emails_forwarded }}"
   data-emails-blocked-val="{{ user_profile.emails_blocked }}"
