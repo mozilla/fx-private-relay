@@ -1,0 +1,70 @@
+@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.header {
+    position: sticky;
+    display: flex;
+    align-items: center;
+    width: 100%;
+
+    .logo {
+        display: flex;
+        align-items: center;
+        padding: $spacing-xl;
+
+        .logotype {
+            height: 20px;
+        }
+    }
+
+    &.isDark {
+        background-color: $color-blue-90;
+    }
+
+    @media screen and #{$mq-md} {
+        .logo {
+            padding: $spacing-md $spacing-xl;
+        }
+    }
+}
+
+.content {
+    flex-grow: 2;
+}
+
+.footer {
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+
+    .mozillaLogo {
+        padding: $spacing-xl;
+    }
+
+    .meta {
+        display: flex;
+        align-items: center;
+        list-style-type: none;
+        margin-left: auto;
+        padding-right: $spacing-lg;
+
+        a {
+            padding: $spacing-md;
+
+            &:hover {
+                color: $color-light-gray-40;
+
+                img {
+                    opacity: 0.8;
+                }
+            }
+        }
+    }
+}
