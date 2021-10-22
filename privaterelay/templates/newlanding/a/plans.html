@@ -1,0 +1,49 @@
+{% load static %}
+{% load ftl %}
+
+<section>
+    <div class="c-gray-bg">
+        <div class="container mzp-l-content c-plans">
+            <div class="c-pricing-options">
+                <!--Non-premium option-->
+                <div class="c-option c-free">
+                    <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-relay.svg' %}">
+                    <p class="c-price non-premium-price">{% ftlmsg 'landing-pricing-free-price' %}</p>
+                    <ul class="c-features non-premium-list">
+                        <li>{% ftlmsg 'landing-pricing-free-feature-1' %}</li>
+                        <li>{% ftlmsg 'landing-pricing-free-feature-2' %}</li>
+                    </ul>
+                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg">
+                        {% ftlmsg 'landing-pricing-free-cta' %}
+                    </a>
+                </div>
+                <!--Premium Option-->
+                <div class="c-option c-premium">
+                    <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-premium-relay.svg' %}">
+                    <p class="c-price premium-price">
+                        <span class="c-price-number">$0.99</span>
+                        <span class="c-currency">{% ftlmsg 'landing-pricing-premium-price' monthly_price='USD' %}</span>
+                    </p>
+                    <div class="c-features premium-list">
+                        <ul class="c-list">
+                            <li>{% ftlmsg 'landing-pricing-premium-feature-1' %}</li>
+                            <li>{% ftlmsg 'landing-pricing-premium-feature-2' %}</li>
+                            <li>{% ftlmsg 'landing-pricing-premium-feature-3' %}</li>
+                            <li>{% ftlmsg 'landing-pricing-premium-feature-4' %}</li>
+                        </ul>
+                    </div>
+                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg">
+                        {% ftlmsg 'nav-profile-sign-up' %}
+                    </a>
+                </div>
+            </div>
+    
+            <div class="c-pricing-text">
+                <div class="c-text">
+                    <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline' monthly_price='$0.99 USD' %}</h2>
+                    <p class="c-pricing-body">{% ftlmsg 'landing-pricing-body' %}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

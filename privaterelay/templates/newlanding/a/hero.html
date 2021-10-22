@@ -1,0 +1,19 @@
+{% load static %}
+{% load ftl %}
+
+<section class="c-landing-hero t-landing-a mzp-l-content">
+    <div class="c-landing-hero--lead">
+        <h1 class="c-landing-hero--title mzp-c-section-heading">{% ftlmsg 'landing-hero-headline' %}</h1>
+        <p>{% ftlmsg 'landing-hero-body' %}</p>
+        <div>{% include "includes/landing_ctas.html" with page_position="landing-hero" %}</div>
+        <img class="c-landing-hero-brands" src="{% static 'images/newlanding/a/hero-brands.svg' %}">
+    </div>
+    <div class="has-hero-image">
+        <img alt="" src="{% static 'images/newlanding/a/hero-image-bg.svg' %}" class="c-hero-image--bg"/>
+        <img alt="" src="{% static 'images/newlanding/a/hero-image.svg' %}" class="c-hero-image"/>
+        {% comment %}
+            TODO: Find a way to localise the foreground content, or hide the callouts in languages other than English.
+        {% endcomment %}
+        <img alt="" src="{% static 'images/newlanding/a/hero-image-fg.svg' %}" class="c-hero-image--fg"/>
+    </div>
+</section>
