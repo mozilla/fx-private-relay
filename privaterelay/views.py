@@ -52,12 +52,15 @@ logger = logging.getLogger('events')
 def home(request):
     if (request.user and not request.user.is_anonymous):
         return redirect(reverse('profile'))
+    
+    if datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE:
+        return render(request, 'newlanding.html')
     return render(request, 'home.html')
 
 
 def newlanding(request):
-    # if (request.user and not request.user.is_anonymous):
-    #     return redirect(reverse('profile'))
+    if (request.user and not request.user.is_anonymous):
+        return redirect(reverse('profile'))
     return render(request, 'newlanding.html')
 
 
