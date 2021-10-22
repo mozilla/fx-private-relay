@@ -128,6 +128,10 @@ function deleteAliasConfirmation(submitEvent) {
   checkbox.focus();
 
   const closeModal = () => {
+    const confirmDeleteModalActions =
+      confirmDeleteModal.querySelectorAll("button");
+    const deleteAnywayBtn = confirmDeleteModalActions[1];
+    deleteAnywayBtn.disabled = true;
     checkbox.checked = false;
     confirmDeleteModal.classList.remove("is-visible");
     trapFocusInModal("delete-modal", false);
