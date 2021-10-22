@@ -25,6 +25,6 @@ const fetcher: Fetcher<unknown> = async (...args) => {
 
 export const useApiV1 = <Data = unknown, Error = unknown>(route: string): SWRResponse<Data, Error> => {
     const url = `${process.env.NEXT_PUBLIC_API_ORIGIN}/api/v1${route}`;
-    const result = useSWR(url, fetcher) as SWRResponse<Data, Error>;
+    const result = useSWR(url, fetcher, { revalidateOnFocus: false }) as SWRResponse<Data, Error>;
     return result;
 };
