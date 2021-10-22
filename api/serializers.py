@@ -40,5 +40,5 @@ class DomainAddressSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id', 'server_storage', 'subdomain', 'onboarding_state', 'date_subscribed']
-        read_only_fields = ['id', 'subdomain', 'date_subscribed']
+        fields = ['id', 'server_storage', 'subdomain', 'has_premium', 'onboarding_state', 'date_subscribed']
+        read_only_fields = ['id', 'subdomain', 'has_premium', 'date_subscribed']
