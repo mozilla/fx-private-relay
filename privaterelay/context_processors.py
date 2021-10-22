@@ -12,6 +12,7 @@ def common(request):
     return {
         'avatar': avatar,
         'ftl_mode': 'server',
+        'accept_language': request.headers.get('Accept-Language', 'en-US')
     }
 
 @lru_cache(maxsize=None)

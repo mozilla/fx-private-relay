@@ -11,8 +11,8 @@
           {% ftlmsg 'banner-pack-upgrade-copy' %}
         </p>
         <a class="btn btn--blue" target="_blank" rel="noopener noreferrer"
-         href="{{ settings.FXA_SUBSCRIPTIONS_URL }}/products/{{ settings.PREMIUM_PROD_ID }}?plan={{ settings.PREMIUM_PRICE_ID }}">
-          {% ftlmsg 'banner-pack-upgrade-cta' %}  
+                                                 href="{% premium_subscribe_url accept_language %}">
+          {% ftlmsg 'banner-pack-upgrade-cta' %}
         </a>
       </div>
     </div>
