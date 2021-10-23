@@ -412,6 +412,37 @@ class ProfileTest(TestCase):
         premium_profile = Profile.objects.get(user=premium_user)
         assert premium_profile.add_subdomain(subdomain) == subdomain
 
+    def test_setting_direct_Profile_subdomain_lowercases_subdomain_value(self):
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
+        premium_profile.subdomain = 'mIxEdcAsE'
+        premium_profile.save()
+        assert premium_profile.subdomain == 'mixedcase'
+
+    def test_add_subdomain_lowercases_subdomain_value(self):
+        subdomain = 'mIxEdcAsE'
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
+        assert premium_profile.add_subdomain(subdomain) == 'mixedcase'
+
     def test_add_subdomain_to_non_premium_user_raises_exception(self):
         subdomain = 'test'
         non_premium_profile = baker.make(Profile)
@@ -510,6 +541,22 @@ class ProfileTest(TestCase):
         premium_profile.add_subdomain('thisisfine')
         with self.assertRaises(CannotMakeSubdomainException):
             valid_available_subdomain('thisisfine')
+
+    def test_subdomain_available_taken_returns_False_case_insensitive(self):
+        premium_user = baker.make(User)
+        random_sub = random.choice(
+            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+        )
+        baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider='fxa',
+            extra_data={'subscriptions': [random_sub]}
+        )
+        premium_profile = Profile.objects.get(user=premium_user)
+        premium_profile.add_subdomain('thIsIsfInE')
+        with self.assertRaises(CannotMakeSubdomainException):
+            valid_available_subdomain('THiSiSFiNe')
 
     def test_valid_available_subdomain_taken_returns_False_for_inactive_subdomain(self):
         # subdomains registered in now deleted profiles are considered
