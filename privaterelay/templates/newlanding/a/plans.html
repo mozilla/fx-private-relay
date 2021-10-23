@@ -34,7 +34,15 @@
                             <li>{% ftlmsg 'landing-pricing-premium-feature-4' %}</li>
                         </ul>
                     </div>
-                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg" href="{% premium_subscribe_url accept_language %}" target="_blank" rel="noopener noreferrer">
+                    <a
+                        class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg"
+                        href="{% premium_subscribe_url accept_language %}"
+                        target="_blank" rel="noopener noreferrer"
+                        data-ga="send-ga-pings"
+                        data-event-category="Purchase Button"
+                        data-event-label="newlanding-plans-button"
+                        data-cookie-for-server="clicked-purchase"
+                    >
                         {% ftlmsg 'nav-profile-sign-up' %}
                     </a>
                 </div>

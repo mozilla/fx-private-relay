@@ -29,11 +29,10 @@ from allauth.socialaccount.providers.fxa.views import (
 from emails.models import (
     CannotMakeSubdomainException,
     DomainAddress,
-    Profile,
     RelayAddress,
-    NOT_PREMIUM_USER_ERR_MSG,
     valid_available_subdomain
 )
+from emails.utils import incr_if_enabled
 
 FXA_PROFILE_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/profile-change'
@@ -71,16 +70,23 @@ def faq(request):
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
-    if 'fxa_refresh' in request.GET:
+    newly_premium = False
+    profile = request.user.profile_set.first()
+    if ('fxa_refresh' in request.GET or
+        'clicked-purchase' in request.COOKIES
+       ):
+        had_premium = profile.has_premium
         fxa = _get_fxa(request)
         _handle_fxa_profile_change(fxa)
+        now_has_premium = profile.has_premium
+        newly_premium = not had_premium and now_has_premium
+
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
     )
     domain_addresses = DomainAddress.objects.filter(user=request.user).order_by(
         '-last_used_at'
     )
-    profile = request.user.profile_set.first()
     context = {
         'relay_addresses': relay_addresses,
         'domain_addresses': domain_addresses,
@@ -96,7 +102,13 @@ def profile(request):
         })
     if datetime.now(timezone.utc) < settings.PREMIUM_RELEASE_DATE:
         context.update({'show_data_notification_banner': True})
-    return render(request, 'profile.html', context)
+    response = render(request, 'profile.html', context)
+    if newly_premium:
+        event = 'user_purchased_premium'
+        incr_if_enabled(event, 1)
+        response.delete_cookie('clicked-purchase')
+        response.set_cookie(f'server_ga_event:{event}', event, max_age=5)
+    return response
 
 
 def settings_view(request):
@@ -114,8 +126,6 @@ def settings_update_view(request):
         request, 'success-settings-update'
     )
     return redirect(reverse('profile'))
-
-    # return render(request, 'settings.html', context)
 
 
 @lru_cache(maxsize=None)
@@ -215,6 +225,8 @@ def fxa_rp_events(request):
     req_jwt = _parse_jwt_from_request(request)
     authentic_jwt = _authenticate_fxa_jwt(req_jwt)
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
+    logger.info(f'fxa_rp_events, event_keys: {event_keys}')
+    sentry_sdk.capture_message(f'{event_keys}')
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
     except SocialAccount.DoesNotExist as e:
