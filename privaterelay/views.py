@@ -71,7 +71,7 @@ def faq(request):
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
-    if request.GET.get('fxa_refresh') == 1:
+    if 'fxa_refresh' in request.GET:
         fxa = _get_fxa(request)
         _handle_fxa_profile_change(fxa)
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
