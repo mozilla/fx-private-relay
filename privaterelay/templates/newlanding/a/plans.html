@@ -21,8 +21,7 @@
                 <div class="c-option c-premium">
                     <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-premium-relay.svg' %}">
                     <p class="c-price premium-price">
-                        <span class="c-price-number">$0.99</span>
-                        <span class="c-currency">{% ftlmsg 'landing-pricing-premium-price' monthly_price='USD' %}</span>
+                        <span class="c-price-number">{{ monthly_price }}</span>
                     </p>
                     <div class="c-features premium-list">
                         <ul class="c-list">
@@ -40,7 +39,7 @@
     
             <div class="c-pricing-text">
                 <div class="c-text">
-                    <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline' monthly_price='$0.99 USD' %}</h2>
+                    <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline' monthly_price=monthly_price %}</h2>
                     <p class="c-pricing-body">{% ftlmsg 'landing-pricing-body' %}</p>
                 </div>
             </div>
