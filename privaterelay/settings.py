@@ -282,7 +282,7 @@ PREMIUM_PLAN_ID_MATRIX = {
     "usd": {
         "en": {
             "id": "price_1JmRSRJNcmPzuWtRN9MG5cBy",
-            "price": "US$0.99"
+            "price": "$0.99"
         }
     }
 }

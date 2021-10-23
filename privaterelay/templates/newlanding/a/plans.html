@@ -1,3 +1,5 @@
+{% load relay_tags %}
+{% load socialaccount %}
 {% load static %}
 {% load ftl %}
 
@@ -13,7 +15,7 @@
                         <li>{% ftlmsg 'landing-pricing-free-feature-1' %}</li>
                         <li>{% ftlmsg 'landing-pricing-free-feature-2' %}</li>
                     </ul>
-                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg">
+                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg" href="{% provider_login_url 'fxa' process='login' %}">
                         {% ftlmsg 'landing-pricing-free-cta' %}
                     </a>
                 </div>
@@ -31,7 +33,7 @@
                             <li>{% ftlmsg 'landing-pricing-premium-feature-4' %}</li>
                         </ul>
                     </div>
-                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg">
+                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg" href="{% premium_subscribe_url accept_language %}" target="_blank" rel="noopener noreferrer">
                         {% ftlmsg 'nav-profile-sign-up' %}
                     </a>
                 </div>
