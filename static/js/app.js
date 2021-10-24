@@ -643,6 +643,13 @@ function showFAQAnswer(elem) {
   faqQuestion.forEach( item => {
       item.classList.remove("is-active");
   });
+
+  if (!elem.target.classList.contains("c-faq-question")) {
+    const currentQuestion = elem.target.closest(".c-faq-question");
+    currentQuestion.classList.add("is-active");
+    return;
+  }
+
   elem.target.classList.add("is-active");
 }
 
