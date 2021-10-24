@@ -571,7 +571,7 @@
             @include text-title-3xs;
             cursor: pointer;
             border-top: 1px solid $color-light-gray-30;
-            padding-top: $spacing-lg;
+            padding-top: $spacing-xl;
             margin-top: $spacing-xl;
             display: flex;
             justify-content: space-between;
@@ -595,21 +595,20 @@
         }
 
         .c-faq-answer {
+            @include text-body-md;
             max-height: 0;
             overflow: hidden;
-            transition: max-height .2s ease-out;
+            transition: all .2s ease-out;
             margin-bottom: 0;
-
-            @include text-body-md;
+            padding-top: 0;
         }
 
         .is-active + .c-faq-answer {
             max-height: 999px;
-            margin-bottom: $spacing-lg;
+            padding-top: $spacing-md;
         }
 
         .is-active {
-            margin-bottom: $spacing-lg;
 
             .c-faq-plus-icon {
                 transform: rotate(45deg);
