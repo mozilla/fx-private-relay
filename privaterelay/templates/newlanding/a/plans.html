@@ -24,6 +24,7 @@
                     <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-premium-relay.svg' %}">
                     <p class="c-price premium-price">
                         <span class="c-price-number">{{ monthly_price }}</span>
+                        <span class="c-currency">{% ftlmsg 'landing-pricing-premium-price' monthly_price="" %}</span>
                     </p>
                     <div class="c-features premium-list">
                         <ul class="c-list">
