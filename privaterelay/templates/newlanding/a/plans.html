@@ -1,3 +1,5 @@
+{% load relay_tags %}
+{% load socialaccount %}
 {% load static %}
 {% load ftl %}
 
@@ -13,7 +15,7 @@
                         <li>{% ftlmsg 'landing-pricing-free-feature-1' %}</li>
                         <li>{% ftlmsg 'landing-pricing-free-feature-2' %}</li>
                     </ul>
-                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg">
+                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg" href="{% provider_login_url 'fxa' process='login' %}">
                         {% ftlmsg 'landing-pricing-free-cta' %}
                     </a>
                 </div>
@@ -21,8 +23,7 @@
                 <div class="c-option c-premium">
                     <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-premium-relay.svg' %}">
                     <p class="c-price premium-price">
-                        <span class="c-price-number">$0.99</span>
-                        <span class="c-currency">{% ftlmsg 'landing-pricing-premium-price' monthly_price='USD' %}</span>
+                        <span class="c-price-number">{{ monthly_price }}</span>
                     </p>
                     <div class="c-features premium-list">
                         <ul class="c-list">
@@ -32,7 +33,7 @@
                             <li>{% ftlmsg 'landing-pricing-premium-feature-4' %}</li>
                         </ul>
                     </div>
-                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg">
+                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg" href="{% premium_subscribe_url accept_language %}" target="_blank" rel="noopener noreferrer">
                         {% ftlmsg 'nav-profile-sign-up' %}
                     </a>
                 </div>
@@ -40,7 +41,7 @@
     
             <div class="c-pricing-text">
                 <div class="c-text">
-                    <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline' monthly_price='$0.99 USD' %}</h2>
+                    <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline' monthly_price=monthly_price %}</h2>
                     <p class="c-pricing-body">{% ftlmsg 'landing-pricing-body' %}</p>
                 </div>
             </div>

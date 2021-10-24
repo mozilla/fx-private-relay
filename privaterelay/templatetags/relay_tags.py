@@ -47,6 +47,11 @@ def premium_plan_id(accept_lang):
     return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["id"]
 
 @register.simple_tag
+def premium_plan_price(accept_lang):
+    cc, lang = get_premium_country_lang(accept_lang)
+    return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["price"]
+
+@register.simple_tag
 def premium_subscribe_url(accept_lang=None):
     plan_id = premium_plan_id(accept_lang)
     return f'{settings.FXA_SUBSCRIPTIONS_URL}/products/{settings.PREMIUM_PROD_ID}?plan={plan_id}'
