@@ -81,11 +81,11 @@
           {% elif not user_profile.subdomain %}
             <div class="c-notification-banner subdomain-banner" id="mpp-choose-subdomain">
               <div class="subdomain-banner-copy">
-                <div class="c-notification-banner-label">Action step</div>
-                <h2>Get a custom domain for your aliases</h2>
-                <samp>***<span>@yourdomain</span>.mozmail.com</samp>
-                <p>Using a custom domain, you can create aliases that are easier than ever to remember and share. Need an alias for restaurant reservations? Just say restaurants@yourdomain.mozmail.com—No need to create the alias beforehand.</p>
-                <a href="/faq">Learn more</a>
+                <div class="c-notification-banner-label">{% ftlmsg 'banner-label-action' %}</div>
+                <h2>{% ftlmsg 'banner-choose-subdomain-headline-aliases-v2' %}</h2>
+                <samp>***@<span>{% ftlmsg 'banner-choose-subdomain-example-address' %}</span>.mozmail.com</samp>
+                <p>{% ftlmsg 'banner-choose-subdomain-copy-v2' %}</p>
+                <a href="/faq">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
               </div>
               <div class="subdomain-banner-form">
                 <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
@@ -95,12 +95,12 @@
                       data-domain="{{ MOZMAIL_DOMAIN }}"
                       required
                       type="text"
-                      placeholder="{# ftlmsg 'banner-choose-subdomain-input-placeholder' #} Search domain"
+                      placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}"
                       name="subdomain"
                       minlength="1"
                       maxlength="63"
                     >
-                    <input class="mzp-c-button mzp-t-product" type="submit" value="Search">
+                    <input class="mzp-c-button mzp-t-product" type="submit" value="{% ftlmsg 'banner-choose-subdomain-search' %}">
                 </form>
                 <img src="{% static 'images/dashboard-onboarding/man-laptop-email.svg' %}" alt="">
               </div>
