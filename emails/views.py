@@ -303,8 +303,6 @@ def _sns_message(message_json):
 
         return HttpResponse("Address does not exist", status=404)
 
-    address_hash = sha256(to_address.encode('utf-8')).hexdigest()
-
     # first see if this user is over bounce limits
     bounce_paused, bounce_type = user_profile.check_bounce_pause()
     if bounce_paused:
@@ -318,13 +316,6 @@ def _sns_message(message_json):
         return HttpResponse("Address is temporarily disabled.")
 
     incr_if_enabled('email_for_active_address', 1)
-    logger.info('email_relay', extra={
-        'fxa_uid': user_profile.fxa.uid,
-        'address': address_hash,
-        'real_address': sha256(
-            user_profile.user.email.encode('utf-8')
-        ).hexdigest(),
-    })
 
     subject = common_headers.get('subject', '')
 
