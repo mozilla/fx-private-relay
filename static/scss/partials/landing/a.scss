@@ -342,7 +342,6 @@
         background-repeat: no-repeat;
         background-position: 2px 6px;
         background-size: 50px 50px;
-
     }
 
     .use-case-shopping {
@@ -403,6 +402,9 @@
             border-radius: $border-radius-md;
             grid-row-start: 1;
             padding-bottom: $spacing-xs;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
         }
 
         .use-case-title-text {
@@ -411,6 +413,8 @@
             text-align: center;
             padding-bottom: $spacing-xs;
             width: 100%;    
+            top: $spacing-md;
+            position: relative;
         }
 
         .is-active + .use-case-desc {
@@ -448,6 +452,46 @@
             background-position: top;
             background-size: 94% 94%;
         }
+
+
+    .drop-down {
+        width: 0; 
+        height: 0; 
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        position: relative;
+        top: $spacing-lg;
+        visibility: hidden;
+        border-top: 20px solid transparent;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .is-active .drop-down {
+        visibility: visible;
+        background-color: transparent;
+
+        &.use-case-shopping {
+            border-top: 20px solid $color-yellow-20;;
+        }
+        
+        &.use-case-social-networks {
+            border-top: 20px solid $color-yellow-40;
+        }
+
+        &.use-case-offline {
+            border-top: 20px solid $color-green-40;
+        }
+
+        &.use-case-access-content {
+            border-top: 20px solid $color-red-20;
+        }
+
+        &.use-case-gaming {
+            border-top: 20px solid $color-purple-30;
+        }
+    }
+
     }
 
 }
