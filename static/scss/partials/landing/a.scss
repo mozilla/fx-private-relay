@@ -32,7 +32,7 @@
             border-bottom: 1px solid $color-light-gray-20;
         }
 
-        @media screen and ($mq-md) {
+        @media #{$mq-md} {
             padding-right: $layout-md;
         }
     }
@@ -56,7 +56,7 @@
         }
     }
 
-    @media screen and ($mq-md) {
+    @media #{$mq-md} {
         display: flex;
         gap: $spacing-2xl;
 
@@ -77,13 +77,13 @@
             }
         }
     }
-    @media screen and ($mq-lg) {
+    @media #{$mq-lg} {
 
         .has-hero-image {
             width: 400px;
         }
     }
-    @media screen and ($mq-xl) {
+    @media #{$mq-xl} {
 
         .has-hero-image {
             width: 550px;
@@ -169,7 +169,7 @@
     height: auto;
     padding: $layout-md 0;
 
-    @media screen and ($mq-lg) {
+    @media #{$mq-lg} {
         padding: 0;
     }
 }
@@ -177,11 +177,11 @@
 .c-plans {
     display: grid;
 
-    @media screen and ($mq-md){
+    @media #{$mq-md} {
         grid-template-columns: repeat(3, 1fr);
         column-gap: $spacing-2xl;
     }
-    @media screen and ($mq-lg){
+    @media #{$mq-lg} {
         grid-template-columns: repeat(5, 1fr);
         column-gap: $spacing-2xl;
     }
@@ -194,22 +194,21 @@
         row-gap: $spacing-md;
         grid-template-columns: 1fr;
 
-        @media screen and ($mq-sm){
+        @media #{$mq-sm} {
             padding: 0 $spacing-xl;
-
-            @media screen and ($mq-md){
-                grid-template-columns: 1fr 1fr;
-                row-gap: none;
-                padding: 0;
-                margin-top: 0;
-            }
+        }
+        @media #{$mq-md} {
+            grid-template-columns: 1fr 1fr;
+            row-gap: none;
+            padding: 0;
+            margin-top: 0;
         }
 
         .c-premium {
             grid-row-start: 1;
             border: 2px solid $color-purple-40;
 
-            @media screen and ($mq-md){
+            @media #{$mq-md} {
                 grid-row-start: auto;
             }
         }
@@ -248,6 +247,10 @@
             .c-features {
                 padding-top: $spacing-md;
                 text-align: left;
+
+                .c-list {
+                    margin-left: $spacing-lg;
+                }
 
                 li {
                     padding-bottom: $spacing-md;
@@ -294,7 +297,7 @@
             padding: 0 $spacing-lg;
         }
 
-        @media screen and ($mq-lg) {
+        @media #{$mq-lg} {
             text-align: start;
             grid-column-start: span 2;
             grid-row-start: auto;
@@ -390,7 +393,7 @@
     }
 
     //Desktop view
-    @media screen and ($mq-lg) {
+    @media #{$mq-lg} {
         grid-template-columns: repeat(5, 1fr);
         column-gap: $spacing-md;
 
