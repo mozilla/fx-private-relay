@@ -12,14 +12,24 @@
     align-items: center;
     width: 100%;
 
-    .logo {
+    .logoWrapper {
+        flex-grow: 2;
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            padding: $spacing-xl;
+
+            .logotype {
+                height: 20px;
+            }
+        }
+    }
+
+    .nav {
         display: flex;
         align-items: center;
-        padding: $spacing-xl;
-
-        .logotype {
-            height: 20px;
-        }
+        padding: 0 $spacing-md;
     }
 
     &.isDark {
@@ -35,6 +45,7 @@
 
 .content {
     flex-grow: 2;
+    background-color: $color-light-gray-10;
 }
 
 .footer {

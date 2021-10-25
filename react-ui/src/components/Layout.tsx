@@ -8,6 +8,7 @@ import logo from "../../../static/images/placeholder-logo.svg";
 import mozillaLogo from "../../../static/images/logos/moz-logo-bw-rgb.svg";
 import githubLogo from "../../../static/images/GitHub.svg";
 import { useProfiles } from "../hooks/api/profile";
+import { UserMenu } from "./UserMenu";
 
 export type Props = {
   children: ReactNode;
@@ -30,15 +31,20 @@ export const Layout = (props: Props) => {
       </Head>
       <div className={styles.wrapper}>
         <header className={`${styles.header} ${darkClass}`}>
-          <a href={process.env.NEXT_PUBLIC_API_ORIGIN} className={styles.logo}>
-            <img src={logo.src} alt="" className={styles.logomark} width={42} />
-            <img
-              src={logoType.src}
-              alt={l10n.getString("logo-alt")}
-              className={styles.logotype}
-              width={180}
-            />
-          </a>
+          <div className={styles.logoWrapper}>
+            <a href={process.env.NEXT_PUBLIC_API_ORIGIN} className={styles.logo}>
+              <img src={logo.src} alt="" className={styles.logomark} width={42} />
+              <img
+                src={logoType.src}
+                alt={l10n.getString("logo-alt")}
+                className={styles.logotype}
+                width={180}
+              />
+            </a>
+          </div>
+          <nav className={styles.nav}>
+            <UserMenu/>
+          </nav>
         </header>
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>
