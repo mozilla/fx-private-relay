@@ -82,6 +82,7 @@ def ses_send_raw_email(
             RawMessage={
                 'Data': msg_with_attachments.as_string(),
             },
+            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         incr_if_enabled('ses_send_raw_email', 1)
 
