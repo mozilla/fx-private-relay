@@ -636,3 +636,28 @@ function scrollToSubdomainRegistrationAndShowErrorState() {
   // const subdomainRegistrationBanner = document.getElementById("mpp-choose-subdomain");
   // subdomainRegistrationBanner.scrollIntoView({ block: "center" });
 }
+//FAQ Accordion 
+const faqQuestion = document.querySelectorAll(".c-faq-question");
+
+function showFAQAnswer(elem) {
+  if (elem.target.getAttribute("aria-expanded") === "true") {
+    elem.target.setAttribute("aria-expanded", "false");
+    document.getElementById(elem.target.getAttribute("aria-controls")).hidden = true;
+    return;
+  }
+
+  faqQuestion.forEach(item => {
+    const expandButton = item.querySelector("button");
+    expandButton.setAttribute("aria-expanded", "false");
+    document.getElementById(expandButton.getAttribute("aria-controls")).hidden = true;
+  });
+
+  elem.target.setAttribute("aria-expanded", "true");
+  document.getElementById(elem.target.getAttribute("aria-controls")).hidden = false;
+  return;
+}
+
+faqQuestion.forEach(item => {
+  const expandButton = item.querySelector("button");
+  expandButton.addEventListener("click", showFAQAnswer, false);
+});

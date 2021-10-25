@@ -2,3 +2,53 @@
 {% load ftl %}
 
 
+<section id="faq" class="c-faq mzp-l-content mzp-l-columns mzp-t-columns-two">
+    <div class="c-faq-info">
+        <h2 class="c-faq-title">{% ftlmsg 'landing-faq-headline' %}</h2>
+        <div class="c-faq-body"><a href="/faq">{% ftlmsg 'landing-faq-cta' %}</a></div>
+    </div>
+
+    <div class="c-faq-accordion">
+        <dl class="c-faq-list">
+            <dt class="c-faq-question">
+                <button id="faq-availability-question" aria-expanded="true" aria-controls="faq-availability-answer">
+                    {% ftlmsg 'faq-question-availability-question' %}
+                    <span aria-hidden="true" class="c-faq-plus-icon"></span>
+                </button>
+            </dt>
+            <dd id="faq-availability-answer" aria-labelledby="faq-availability-question" class="c-faq-answer">
+                {% ftlmsg 'faq-question-availability-answer' %}
+            </dd>
+            <dt class="c-faq-question">
+                <button id="faq-what-is-question" aria-expanded="false" aria-controls="faq-what-is-answer">
+                    {% ftlmsg 'faq-question-what-is-question' %}
+                    <span aria-hidden="true" class="c-faq-plus-icon"></span>
+                </button>
+            </dt>
+            <dd id="faq-what-is-answer" hidden aria-labelledby="faq-what-is-question" class="c-faq-answer">
+                {% ftlmsg 'faq-question-what-is-answer' %}
+            </dd>
+
+            <dt class="c-faq-question">
+                <button id="faq-use-cases-question" aria-expanded="false" aria-controls="faq-use-cases-answer">
+                    {% ftlmsg 'faq-question-use-cases-question' %}
+                    <span aria-hidden="true" class="c-faq-plus-icon"></span>
+                </button>
+            </dt>
+            <dd id="faq-use-cases-answer" hidden aria-labelledby="faq-use-cases-question" class="c-faq-answer">
+                {% ftlmsg 'faq-question-use-cases-answer' %}
+            </dd>
+
+            <dt class="c-faq-question">
+                <button id="faq-browser-support-question" aria-expanded="false" aria-controls="faq-browser-support-answer">
+                    {% ftlmsg 'faq-question-browser-support-question' %}
+                    <span aria-hidden="true" class="c-faq-plus-icon"></span>
+                </button>
+            </dt>
+            <dd id="faq-browser-support-answer" hidden aria-labelledby="faq-browser-support-question" class="c-faq-answer">
+                {% ftlmsg 'faq-question-browser-support-answer' %}
+            </dd>
+        </dl>
+    </div>
+</section>
+
