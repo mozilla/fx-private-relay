@@ -2,6 +2,8 @@
 
 from django.db import migrations
 
+from emails.models import hash_subdomain
+
 
 def delete_all_later_duplicate_subdomains(apps, schema_editor):
     Profile = apps.get_model('emails', 'Profile')
@@ -20,7 +22,7 @@ def delete_all_later_duplicate_subdomains(apps, schema_editor):
         ).count()
         if num_later_subdomain_registrations > 0:
             duplicate_subdomains.add(profile.subdomain.lower())
-    
+
     # remove duplicate subdomains
     for dupe in duplicate_subdomains:
         profile = Profile.objects.filter(
@@ -63,7 +65,6 @@ def delete_all_later_duplicate_subdomains(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    atomic = False
 
     dependencies = [
         ('emails', '0029_profile_add_deleted_metric_and_changeserver_storage_default'),
