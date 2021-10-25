@@ -36,11 +36,10 @@
             // "relay-aliases"– Only show aliases that have been generated from the dashboard/add-on 
             // "domain-aliases"– Only show aliases that were created with a unique subdomain. 
             const matchesCategoryFilters = (
-                activeCategoryFilters.length === 0 ||
-                (activeCategoryFilters.includes("active-aliases") && aliasContainer.classList.contains("is-enabled")) ||
-                (activeCategoryFilters.includes("disabled-aliases") && !aliasContainer.classList.contains("is-enabled")) ||
-                (activeCategoryFilters.includes("relay-aliases") && aliasContainer.classList.contains("is-relay-alias")) ||
-                (activeCategoryFilters.includes("domain-aliases") && aliasContainer.classList.contains("is-domain-alias"))
+                (!activeCategoryFilters.includes("active-aliases") || aliasContainer.classList.contains("is-enabled")) &&
+                (!activeCategoryFilters.includes("disabled-aliases") || !aliasContainer.classList.contains("is-enabled")) &&
+                (!activeCategoryFilters.includes("relay-aliases") || aliasContainer.classList.contains("is-relay-alias")) &&
+                (!activeCategoryFilters.includes("domain-aliases") || aliasContainer.classList.contains("is-domain-alias"))
             );
 
             if (matchesSearchFilter && matchesCategoryFilters) {
