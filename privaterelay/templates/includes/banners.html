@@ -79,16 +79,19 @@
             </div>
             {% endif %}
           {% elif not user_profile.subdomain %}
-            <div class="mpp-choose-subdomain" id="mpp-choose-subdomain">
-              <img src="/static/images/choose-subdomain.png" alt="">
-              <div class="border"></div>
-              <div class="mpp-choose-subdomain-form">
-                <h2>{% ftlmsg 'banner-choose-subdomain-headline-aliases' %}</h2>
-                <p>{% ftlmsg 'banner-choose-subdomain-copy' %}</p>
+            <div class="c-notification-banner subdomain-banner" id="mpp-choose-subdomain">
+              <div class="subdomain-banner-copy">
+                <div class="c-notification-banner-label">{% ftlmsg 'banner-label-action' %}</div>
+                <h2>{% ftlmsg 'banner-register-subdomain-headline-aliases' %}</h2>
+                <samp>***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
+                <p>{% ftlmsg 'banner-register-subdomain-copy' %}</p>
+                <a href="/faq">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
+              </div>
+              <div class="subdomain-banner-form">
                 <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                     {% csrf_token %}
                     <input
-                      class="js-subdomain-value"
+                      class="js-subdomain-value subdomain-banner-input"
                       data-domain="{{ MOZMAIL_DOMAIN }}"
                       required
                       type="text"
@@ -97,10 +100,11 @@
                       minlength="1"
                       maxlength="63"
                     >
-                    <input class="btn btn--gray" type="submit" value="{% ftlmsg 'banner-choose-subdomain-submit' %}">
+                    <input class="mzp-c-button mzp-t-product" type="submit" value="{% ftlmsg 'banner-register-subdomain-button-search' %}">
                 </form>
-                <p class="warning">{% ftlmsg 'banner-choose-subdomain-warning' %}</p>
+                <img src="{% static 'images/dashboard-onboarding/man-laptop-email.svg' %}" alt="">
               </div>
+              
             </div>
           {% endif %}
         {% endwith %}
