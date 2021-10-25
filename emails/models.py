@@ -47,7 +47,8 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     # valid subdomains:
     #   can't start or end with a hyphen
     #   must be 1-63 alphanumeric characters and/or hyphens
-    valid_subdomain_pattern = re.compile('^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$')
+    subdomain = subdomain.lower()
+    valid_subdomain_pattern = re.compile('^(?!-)[a-z0-9-]{1,63}(?<!-)$')
     valid = valid_subdomain_pattern.match(subdomain) is not None
     #   can't have "bad" words in them
     bad_word = has_bad_words(subdomain)
@@ -92,6 +93,11 @@ class Profile(models.Model):
         return '%s Profile' % self.user
 
     def save(self, *args, **kwargs):
+        # always lower-case the subdomain before saving it
+        # TODO: change subdomain field as a custom field inheriting from
+        # CharField to validate constraints on the field update too
+        if self.subdomain and not self.subdomain.islower():
+            self.subdomain = self.subdomain.lower()
         ret = super().save(*args, **kwargs)
         # any time a profile is saved with server_storage False, delete the
         # appropriate server-stored Relay address data.
@@ -234,6 +240,8 @@ class Profile(models.Model):
         return date_created < settings.PREMIUM_RELEASE_DATE
 
     def add_subdomain(self, subdomain):
+        # subdomain must be all lowercase
+        subdomain = subdomain.lower()
         if not self.has_premium:
             raise CannotMakeSubdomainException('error-premium-set-subdomain')
         if self.subdomain is not None:
@@ -316,7 +324,7 @@ class RegisteredSubdomain(models.Model):
     registered_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.address_hash
+        return self.subdomain_hash
 
 
 class CannotMakeSubdomainException(Exception):
