@@ -343,6 +343,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setTranslatedStringLinks();
   premiumOnboardingLogic();
   dataCollectionBannerLogic();
+  scrollToSubdomainRegistrationAndShowErrorState();
 
   // TODO: Set up language gate once l10n is active.
   // const preferredLanguages = navigator.languages;
@@ -624,3 +625,14 @@ function removeBoxShadow(elem) {
 useCaseTitle.forEach( item => {
    item.addEventListener("click", removeBoxShadow, false);
 });
+
+function scrollToSubdomainRegistrationAndShowErrorState() {
+  if (!document.querySelector(".message-wrapper.error")) {
+    return;
+  }
+  
+  const subdomainRegistrationBannerForm = document.getElementById("domainRegistration");
+  subdomainRegistrationBannerForm.classList.add("mzp-is-error");
+  // const subdomainRegistrationBanner = document.getElementById("mpp-choose-subdomain");
+  // subdomainRegistrationBanner.scrollIntoView({ block: "center" });
+}

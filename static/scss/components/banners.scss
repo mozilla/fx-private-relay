@@ -42,6 +42,11 @@
         
     }
 
+    .mzp-is-error input[type='text'] {
+        border-color: $color-error;
+        box-shadow: 0 0 $spacing-xs $color-error-focus;
+    }
+
     .warning {
         font-size: .9rem;
         font-weight: 700;
