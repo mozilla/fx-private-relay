@@ -30,6 +30,7 @@ def delete_all_later_duplicate_subdomains(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
+    atomic = False
 
     dependencies = [
         ('emails', '0029_profile_add_deleted_metric_and_changeserver_storage_default'),
