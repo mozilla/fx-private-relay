@@ -196,7 +196,6 @@
         @media #{$mq-sm} {
             padding: 0 $spacing-xl;
         }
-
         @media #{$mq-md} {
             grid-template-columns: 1fr 1fr;
             row-gap: none;
