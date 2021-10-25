@@ -558,7 +558,7 @@
 
         }
 
-        .c-faq-list li {
+        .c-faq-list dt {
 
             &:first-child {
                 border-top: 0;
@@ -569,13 +569,21 @@
 
         .c-faq-question {
             @include text-title-3xs;
-            cursor: pointer;
             border-top: 1px solid $color-light-gray-30;
-            padding-top: $spacing-xl;
             margin-top: $spacing-xl;
-            display: flex;
-            justify-content: space-between;
             transition: margin-bottom .2s ease-out;
+
+            button {
+                background-color: transparent;
+                border-style: none;
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+                padding: $spacing-sm;
+                padding-top: $spacing-xl;
+                cursor: pointer;
+                text-align: start;
+            }
 
             @media screen and ($mq-xl) {
                 @include text-title-2xs;
@@ -600,15 +608,15 @@
             overflow: hidden;
             transition: all .2s ease-out;
             margin-bottom: 0;
-            padding-top: 0;
+            padding: 0 $spacing-sm;
         }
 
-        .is-active + .c-faq-answer {
+        .c-faq-answer:not([hidden]) {
             max-height: 999px;
             padding-top: $spacing-md;
         }
 
-        .is-active {
+        [aria-expanded="true"] {
 
             .c-faq-plus-icon {
                 transform: rotate(45deg);
