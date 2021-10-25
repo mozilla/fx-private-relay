@@ -474,6 +474,9 @@ def _handle_reply(from_address, message_json):
 
 def _get_domain_address(local_portion, domain_portion):
     [address_subdomain, address_domain] = domain_portion.split('.', 1)
+    if address_domain != settings.MOZMAIL_DOMAIN:
+        incr_if_enabled('email_for_not_supported_domain', 1)
+        raise Exception("Address does not exist")
     try:
         user_profile = Profile.objects.get(subdomain=address_subdomain)
         domain_numerical = get_domain_numerical(address_domain)
