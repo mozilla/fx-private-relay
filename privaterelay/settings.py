@@ -520,6 +520,8 @@ REST_FRAMEWORK = {
 sentry_sdk.init(
     dsn=config('SENTRY_DSN', None),
     integrations=[DjangoIntegration()],
+    debug=DEBUG,
+    with_locals=DEBUG
 )
 
 markus.configure(
