@@ -121,7 +121,7 @@ class GetAddressTest(TestCase):
                 domain_portion=self.service_domain
             )
         except Exception as e:
-            assert e.args[0] == 'Address does not exist'
+            assert e.args[0] == 'RelayAddress matching query does not exist.'
             incr_mocked.assert_called_once_with('email_for_deleted_address', 1)
 
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
@@ -139,7 +139,7 @@ class GetAddressTest(TestCase):
                 domain_portion=f'{self.service_domain}'
             )
         except Exception as e:
-            assert e.args[0] == 'Address does not exist'
+            assert e.args[0] == 'RelayAddress matching query does not exist.'
             incr_mocked.assert_called_once_with('email_for_unknown_address', 1)
 
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
@@ -158,5 +158,5 @@ class GetAddressTest(TestCase):
                 domain_portion=f'{self.service_domain}'
             )
         except Exception as e:
-            assert e.args[0] == 'Address does not exist'
+            assert e.args[0] == 'RelayAddress matching query does not exist.'
             incr_mocked.assert_called_once_with('email_for_deleted_address_multiple', 1)

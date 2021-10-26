@@ -1,7 +1,6 @@
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.utils import parseaddr
-from hashlib import sha256
 import json
 import logging
 import mimetypes
@@ -16,7 +15,7 @@ from markus.utils import generate_tag
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect
@@ -297,7 +296,7 @@ def _sns_message(message_json):
         # up a bit.
         address = _get_address(to_address, to_local_portion, to_domain_portion)
         user_profile = address.user.profile_set.first()
-    except Exception:
+    except (ObjectDoesNotExist):
         if to_local_portion == 'replies':
             return _handle_reply(from_address, message_json)
 
@@ -492,9 +491,9 @@ def _get_domain_address(local_portion, domain_portion):
         domain_address.last_used_at = datetime.now(timezone.utc)
         domain_address.save()
         return domain_address
-    except Profile.DoesNotExist:
+    except Profile.DoesNotExist as e:
         incr_if_enabled('email_for_dne_subdomain', 1)
-        raise Exception("Address does not exist")
+        raise e
 
 
 def _get_address(to_address, local_portion, domain_portion):
@@ -509,7 +508,7 @@ def _get_address(to_address, local_portion, domain_portion):
         domain_numerical = get_domain_numerical(domain_portion)
         relay_address = RelayAddress.objects.get(address=local_portion, domain=domain_numerical)
         return relay_address
-    except RelayAddress.DoesNotExist:
+    except RelayAddress.DoesNotExist as e:
         try:
             DeletedAddress.objects.get(
                 address_hash=address_hash(local_portion, domain=domain_portion)
@@ -521,7 +520,7 @@ def _get_address(to_address, local_portion, domain_portion):
         except DeletedAddress.MultipleObjectsReturned:
             # not sure why this happens on stage but let's handle it
             incr_if_enabled('email_for_deleted_address_multiple', 1)
-        raise Exception("Address does not exist")
+        raise e
 
 
 def _handle_bounce(message_json):
