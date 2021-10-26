@@ -108,11 +108,29 @@
                 <input type="hidden" name="method_override" value="PUT">
                 <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                 <input type="hidden" name="relay_address_id" value="{{ relay_address.id }}">
-                <span class="forwarding-label-wrapper card-small-text hidden">{% if relay_address.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
+                <span
+                  class="forwarding-label-wrapper card-small-text hidden"
+                  data-default-forwarding-label="{% ftlmsg 'profile-label-forwarding' %}"
+                  data-default-blocking-label="{% ftlmsg 'profile-label-blocking' %}"
+                >{% if relay_address.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
                 {% if relay_address.enabled %}
-                <button type="submit" name="enabled" value="Disable" title="{% ftlmsg 'profile-label-disable-forwarding-button' %}" class="text-center forwarding-toggle"></button>
+                <button
+                  type="submit"
+                  name="enabled"
+                  value="Disable"
+                  title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
+                  data-default-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
+                  class="text-center forwarding-toggle"
+                ></button>
                 {% else %}
-                <button type="submit" name="enabled" value="Enable" title="{% ftlmsg 'profile-label-enable-forwarding-button' %}" class="text-center forwarding-disabled forwarding-toggle"></button>
+                <button
+                  type="submit"
+                  name="enabled"
+                  value="Enable"
+                  title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
+                  data-default-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
+                  class="text-center forwarding-disabled forwarding-toggle"
+                ></button>
                 {% endif %}
               </form>
             </div>
@@ -236,11 +254,29 @@
                 <input type="hidden" name="method_override" value="PUT">
                 <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
                 <input type="hidden" name="domain_address_id" value="{{ domain_address.id }}">
-                <span class="forwarding-label-wrapper card-small-text hidden">{% if domain_address.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
+                <span
+                  class="forwarding-label-wrapper card-small-text hidden"
+                  data-default-forwarding-label="{% ftlmsg 'profile-label-forwarding' %}"
+                  data-default-blocking-label="{% ftlmsg 'profile-label-blocking' %}"
+                >{% if domain_address.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
                 {% if domain_address.enabled %}
-                <button type="submit" name="enabled" value="Disable" title="Disable email forwarding for this alias" class="text-center forwarding-toggle"></button>
+                <button
+                  type="submit"
+                  name="enabled"
+                  value="Disable"
+                  title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
+                  data-default-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
+                  class="text-center forwarding-toggle"
+                ></button>
                 {% else %}
-                <button type="submit" name="enabled" value="Enable" title="Enable email forwarding for this alias" class="text-center forwarding-disabled forwarding-toggle"></button>
+                <button
+                  type="submit"
+                  name="enabled"
+                  value="Enable"
+                  title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
+                  data-default-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
+                  class="text-center forwarding-disabled forwarding-toggle"
+                ></button>
                 {% endif %}
               </form>
 
