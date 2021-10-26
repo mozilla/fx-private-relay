@@ -383,6 +383,7 @@
         @include font-firefox;
         @include text-body-lg;
         font-weight: 700;
+        display: none;
     }
     
     .is-active + .use-case-desc {
@@ -433,6 +434,7 @@
             min-width: $content-xs;
             padding-top: $spacing-md;
             padding-right: $spacing-xl;
+            display: inline;
         }
 
         .desc-body {
