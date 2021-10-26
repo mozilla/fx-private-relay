@@ -266,6 +266,8 @@
                       aria-label="{% ftlmsg 'profile-label-edit' %}"
                       placeholder="{% ftlmsg 'profile-label-placeholder' %}"
                       class="relay-email-address-label js-relay-email-address-label ff-Met"
+                      {# Require at least one non-whitespace character:  #}
+                      pattern=".*\S.*"
                     >
                     <span class="saved-confirmation">{% ftlmsg 'profile-label-saved' %}</span>
                     <span class="input-error js-input-error" data-default-message="{% ftlmsg 'profile-label-save-error' %}"></span>
