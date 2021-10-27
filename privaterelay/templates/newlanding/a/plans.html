@@ -15,7 +15,13 @@
                         <li>{% ftlmsg 'landing-pricing-free-feature-1' %}</li>
                         <li>{% ftlmsg 'landing-pricing-free-feature-2' %}</li>
                     </ul>
-                    <a class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg" href="{% provider_login_url 'fxa' process='login' %}">
+                    <a
+                        class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg"
+                        href="{% provider_login_url 'fxa' process='login' %}"
+                        data-ga="send-ga-pings"
+                        data-event-category="Sign In"
+                        data-event-label="landing-pricing-free-cta"
+                    >
                         {% ftlmsg 'landing-pricing-free-cta' %}
                     </a>
                 </div>
