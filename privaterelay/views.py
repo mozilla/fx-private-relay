@@ -65,7 +65,12 @@ def newlanding(request):
 
 
 def faq(request):
-    return render(request, 'faq.html')
+    context = {}
+    if (request.user and not request.user.is_anonymous):
+        context.update({
+            'user_profile': request.user.profile_set.first()
+        })
+    return render(request, 'faq.html', context)
 
 
 def profile(request):
