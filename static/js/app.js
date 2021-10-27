@@ -640,9 +640,10 @@ function scrollToSubdomainRegistrationAndShowErrorState() {
 const faqQuestion = document.querySelectorAll(".c-faq-question");
 
 function showFAQAnswer(elem) {
-  if (elem.target.getAttribute("aria-expanded") === "true") {
-    elem.target.setAttribute("aria-expanded", "false");
-    document.getElementById(elem.target.getAttribute("aria-controls")).hidden = true;
+  const expandButton = elem.querySelector("button");
+  if (expandButton.getAttribute("aria-expanded") === "true") {
+    expandButton.setAttribute("aria-expanded", "false");
+    document.getElementById(expandButton.getAttribute("aria-controls")).hidden = true;
     return;
   }
 
@@ -652,12 +653,11 @@ function showFAQAnswer(elem) {
     document.getElementById(expandButton.getAttribute("aria-controls")).hidden = true;
   });
 
-  elem.target.setAttribute("aria-expanded", "true");
-  document.getElementById(elem.target.getAttribute("aria-controls")).hidden = false;
-  return;
+  expandButton.setAttribute("aria-expanded", "true");
+  document.getElementById(expandButton.getAttribute("aria-controls")).hidden = false;
 }
 
 faqQuestion.forEach(item => {
   const expandButton = item.querySelector("button");
-  expandButton.addEventListener("click", showFAQAnswer, false);
+  expandButton.addEventListener("click", () => showFAQAnswer(item), false);
 });
