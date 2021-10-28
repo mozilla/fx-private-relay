@@ -201,15 +201,37 @@
             grid-template-columns: 1fr 1fr;
             row-gap: none;
             padding: 0;
-            margin-top: 0;
+        }
+        @media #{$mq-xl} {
+            margin-right: $layout-xl;
         }
 
         .c-premium {
-            grid-row-start: 1;
             border: 2px solid $color-purple-40;
+            grid-row-start: 1;
+            margin-top: $layout-sm;
 
             @media #{$mq-md} {
                 grid-row-start: auto;
+                margin-top: 0;
+            }
+
+            li:nth-child(3) {
+                line-height: 100%;
+            }
+
+            .c-feature-3-subtext {
+                @include text-body-sm;
+                margin: 0;
+                color: $color-grey-40;
+            }
+
+            .c-premium-detail {
+                @include text-body-sm;
+                color: $color-blue-50;
+                font-weight: 700;
+                position: absolute;
+                margin-top: -$layout-lg;
             }
         }
 
@@ -218,6 +240,8 @@
         }
 
         .c-option {
+            margin-left: 50%;
+            transform: translateX(-50%);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -226,6 +250,15 @@
             border-radius: $border-radius-md;
             text-align: center;
             padding: $spacing-xl;
+
+            @media #{$mq-sm} {
+                margin-top: $spacing-xl;
+                width: calc((#{$content-xs} + #{$spacing-lg}));
+            }
+            @media #{$mq-md} {
+                width: calc((#{$content-xs} + #{$spacing-lg}));
+                margin-top: 0;
+            }
 
             .c-price {
                 @include text-body-lg;
@@ -288,8 +321,9 @@
         height: 100%;
         text-align: center;
 
+
         h2 {
-            @include text-title-md;
+            @include text-title-sm;
             font-weight: 500;
         }
 
@@ -309,6 +343,13 @@
                 justify-content: center;
                 height: 100%;
             }
+        }
+        @media #{$mq-xl} {
+
+            h2 {
+                @include text-title-md;
+            }
+
         }
     }
 }
