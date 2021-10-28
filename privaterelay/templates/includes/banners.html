@@ -72,7 +72,15 @@
                   <div class="banner-copy flx flx-col">
                     <p class="banner-hl ff-Met">{% ftlmsg 'banner-upgrade-headline' %}</p>
                     <p class="banner-sub">{% ftlmsg 'banner-upgrade-copy' %}</p>
-                    <a class="banner-link ff-Met" href="{% premium_subscribe_url accept_language %}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-upgrade-cta' %}</a>
+                    <a  class="banner-link ff-Met" target="_blank" rel="noopener noreferrer"
+                        href="{% premium_subscribe_url accept_language %}"
+                        data-ga="send-ga-pings"
+                        data-event-category="Purchase Button"
+                        data-event-label="profile-banner-promo"
+                        data-cookie-for-server="clicked-purchase"
+                    >
+                        {% ftlmsg 'banner-upgrade-cta' %}
+                    </a>
                   </div>
                 </div>
               </div>
