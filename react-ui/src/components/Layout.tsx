@@ -32,8 +32,16 @@ export const Layout = (props: Props) => {
       <div className={styles.wrapper}>
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles.logoWrapper}>
-            <a href={process.env.NEXT_PUBLIC_API_ORIGIN} className={styles.logo}>
-              <img src={logo.src} alt="" className={styles.logomark} width={42} />
+            <a
+              href={process.env.NEXT_PUBLIC_API_ORIGIN}
+              className={styles.logo}
+            >
+              <img
+                src={logo.src}
+                alt=""
+                className={styles.logomark}
+                width={42}
+              />
               <img
                 src={logoType.src}
                 alt={l10n.getString("logo-alt")}
@@ -43,27 +51,63 @@ export const Layout = (props: Props) => {
             </a>
           </div>
           <nav className={styles.nav}>
-            <UserMenu/>
+            <UserMenu />
           </nav>
         </header>
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>
-          <a href="https://www.mozilla.org" className={styles.mozillaLogo} target="_blank" rel="noopener noreferrer">
-            <img src={mozillaLogo.src} alt={l10n.getString("logo-mozilla-alt")} width={120} />
+          <a
+            href="https://www.mozilla.org"
+            className={styles.mozillaLogo}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src={mozillaLogo.src}
+              alt={l10n.getString("logo-mozilla-alt")}
+              width={120}
+            />
           </a>
           <ul className={styles.meta}>
             <li>
-              <a href="https://www.mozilla.org/privacy/firefox-relay/" target="_blank" rel="noopener noreferrer">{l10n.getString("nav-footer-privacy")}</a>
+              <a
+                href="https://www.mozilla.org/privacy/firefox-relay/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {l10n.getString("nav-footer-privacy")}
+              </a>
             </li>
             <li>
-              <a href="https://www.mozilla.org/about/legal/terms/firefox-relay/" target="_blank" rel="noopener noreferrer">{l10n.getString("nav-footer-relay-terms")}</a>
+              <a
+                href="https://www.mozilla.org/about/legal/terms/firefox-relay/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {l10n.getString("nav-footer-relay-terms")}
+              </a>
             </li>
             <li>
-              <a href="https://www.mozilla.org/about/legal/" target="_blank" rel="noopener noreferrer">{l10n.getString("nav-footer-legal")}</a>
+              <a
+                href="https://www.mozilla.org/about/legal/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {l10n.getString("nav-footer-legal")}
+              </a>
             </li>
             <li>
-              <a href="https://github.com/mozilla/fx-private-relay" rel="noopener noreferrer" target="_blank">
-                <img alt={l10n.getString("logo-github-alt")} src={githubLogo.src} width={24} height={24}/>
+              <a
+                href="https://github.com/mozilla/fx-private-relay"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                <img
+                  alt={l10n.getString("logo-github-alt")}
+                  src={githubLogo.src}
+                  width={24}
+                  height={24}
+                />
               </a>
             </li>
           </ul>

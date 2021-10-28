@@ -2,79 +2,87 @@
 @import "../styles/tokens.scss";
 
 .wrapper {
-    display: flex;
-    align-items: center;
-    position: relative;
+  display: flex;
+  align-items: center;
+  position: relative;
 }
 
 .trigger {
-    // TODO: Display actual avatar
-    width: 42px;
-    height: 42px;
-    cursor: pointer;
-    border-radius: 100%;
-    background-color: $color-light-gray-60;
-    color: white;
-    overflow: hidden;
-    font-size: 24px;
+  // TODO: Display actual avatar
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  border-radius: 100%;
+  background-color: $color-light-gray-60;
+  color: white;
+  overflow: hidden;
+  font-size: 24px;
 }
 
 .popup {
-    position: absolute;
-    transform: translateX(-100%);
-    margin-top: $spacing-xl;
-    padding: 0;
-    padding-bottom: $spacing-lg;
-    list-style-type: none;
-    box-shadow: $box-shadow-md;
-    border-radius: $border-radius-md;
-    $popupBackgroundColor: $color-light-gray-10;
-    background-color: $popupBackgroundColor;
+  position: absolute;
+  transform: translateX(-100%);
+  margin-top: $spacing-xl;
+  padding: 0;
+  padding-bottom: $spacing-lg;
+  list-style-type: none;
+  box-shadow: $box-shadow-md;
+  border-radius: $border-radius-md;
+  $popupBackgroundColor: $color-light-gray-10;
+  background-color: $popupBackgroundColor;
 
-    .menuItemWrapper {
-        .accountMenuItem {
-            display: block;
-            $gradientWidth: 1px;
-            background-image: linear-gradient(to bottom, $popupBackgroundColor calc(100% - $gradientWidth), rgba(0, 0, 0, 0)), $firefoxGradient;
-            margin-bottom: $spacing-md;
-            padding: $spacing-lg $spacing-lg;
+  .menuItemWrapper {
+    .accountMenuItem {
+      display: block;
+      $gradientWidth: 1px;
+      background-image: linear-gradient(
+          to bottom,
+          $popupBackgroundColor calc(100% - $gradientWidth),
+          rgba(0, 0, 0, 0)
+        ),
+        $firefoxGradient;
+      margin-bottom: $spacing-md;
+      padding: $spacing-lg $spacing-lg;
 
-            .userEmail {
-                font-weight: bold;
-                display: block;
-                color: $color-violet-90;
-            }
+      .userEmail {
+        font-weight: bold;
+        display: block;
+        color: $color-violet-90;
+      }
 
-            &:hover {
-                cursor: pointer;
+      &:hover {
+        cursor: pointer;
 
-                .settingsLink {
-                    text-decoration: underline;
-                }
-            }
+        .settingsLink {
+          text-decoration: underline;
         }
-
-        .menuLink, .menuButton {
-            display: flex;
-            align-items: center;
-            padding: $spacing-md $spacing-lg;
-            color: $color-violet-90;
-
-            img {
-                margin-right: $spacing-md;
-            }
-
-            &:hover {
-                background-color: $color-light-gray-20;
-            }
-        }
-
-        &:focus {
-            outline: none;
-
-            .menuLink, .menuButton, .settingsLink {
-                text-decoration: underline;
-            }
-        }
+      }
     }
+
+    .menuLink,
+    .menuButton {
+      display: flex;
+      align-items: center;
+      padding: $spacing-md $spacing-lg;
+      color: $color-violet-90;
+
+      img {
+        margin-right: $spacing-md;
+      }
+
+      &:hover {
+        background-color: $color-light-gray-20;
+      }
+    }
+
+    &:focus {
+      outline: none;
+
+      .menuLink,
+      .menuButton,
+      .settingsLink {
+        text-decoration: underline;
+      }
+    }
+  }
 }
