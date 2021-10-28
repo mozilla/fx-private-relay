@@ -36,7 +36,10 @@ def get_premium_country_lang(accept_lang):
     cc = lang_parts[1] if len(lang_parts) == 2 else lang_parts[0]
     cc = cc.lower()
     if cc in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys():
-        return cc, lang
+        languages = settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc]
+        if lang in languages.keys():
+            return cc, lang
+        return cc, list(languages.keys())[0]
     return 'us', 'en'
 
 @register.simple_tag
