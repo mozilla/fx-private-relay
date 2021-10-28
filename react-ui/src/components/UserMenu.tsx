@@ -46,10 +46,7 @@ export const UserMenu = () => {
   };
 
   return (
-    <UserMenuTrigger
-      label={<>TODO: Avatar</>}
-      onAction={onSelect}
-    >
+    <UserMenuTrigger label={<>TODO: Avatar</>} onAction={onSelect}>
       <Item key={itemKeys.account}>
         <span className={styles.accountMenuItem}>
           <b className={styles.userEmail}>TODO@email.address</b>
@@ -95,7 +92,7 @@ type MenuItemIconProps = {
   src: string;
 };
 const MenuItemIcon = (props: MenuItemIconProps) => (
-  <img src={props.src} alt="" width={28}/>
+  <img src={props.src} alt="" width={28} />
 );
 
 type UserMenuTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
@@ -221,7 +218,11 @@ const UserMenuItem = (props: UserMenuItemProps) => {
   let focusProps = useFocus({ onFocusChange: setIsFocused }).focusProps;
 
   return (
-    <li {...mergeProps(menuItemProps, focusProps)} ref={menuItemRef} className={styles.menuItemWrapper}>
+    <li
+      {...mergeProps(menuItemProps, focusProps)}
+      ref={menuItemRef}
+      className={styles.menuItemWrapper}
+    >
       {props.item.rendered}
     </li>
   );
