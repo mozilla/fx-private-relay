@@ -230,8 +230,6 @@ def fxa_rp_events(request):
     req_jwt = _parse_jwt_from_request(request)
     authentic_jwt = _authenticate_fxa_jwt(req_jwt)
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
-    logger.info(f'fxa_rp_events, event_keys: {event_keys}')
-    sentry_sdk.capture_message(f'{event_keys}')
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
     except SocialAccount.DoesNotExist as e:
