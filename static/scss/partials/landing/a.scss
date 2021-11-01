@@ -348,27 +348,47 @@
         background-image: url("/static/images/use-case-shopping.svg");
         background-color: $color-yellow-20;
         background-position: 1% 80%;
+
+        .drop-down {
+            border-top: 20px solid $color-yellow-20;
+        }
     }
 
     .use-case-social-networks {
         background-image: url("/static/images/use-case-social-networks.svg");
         background-color: $color-yellow-40;
         background-position: 1% 85%;
+
+        .drop-down {
+            border-top: 20px solid $color-yellow-40;
+        }
     }
 
     .use-case-offline {
         background-image: url("/static/images/use-case-offline.svg");
         background-color: $color-green-40;
+
+        .drop-down {
+            border-top: 20px solid $color-green-40;
+        }
     }
 
     .use-case-access-content {
         background-image: url("/static/images/use-case-access-content.svg");
         background-color: $color-red-20;
+
+        .drop-down {
+            border-top: 20px solid $color-red-20;
+        }
     }
 
     .use-case-gaming {
         background-image: url("/static/images/use-case-gaming.svg");
         background-color: $color-purple-30;
+
+        .drop-down {
+            border-top: 20px solid $color-purple-30;
+        }
     }
 
     .use-case-desc {
@@ -474,26 +494,6 @@
         .is-active .drop-down {
             visibility: visible;
             background-color: transparent;
-
-            &.use-case-shopping {
-                border-top: 20px solid $color-yellow-20;
-            }
-            
-            &.use-case-social-networks {
-                border-top: 20px solid $color-yellow-40;
-            }
-
-            &.use-case-offline {
-                border-top: 20px solid $color-green-40;
-            }
-
-            &.use-case-access-content {
-                border-top: 20px solid $color-red-20;
-            }
-
-            &.use-case-gaming {
-                border-top: 20px solid $color-purple-30;
-            }
         }
 
     }
