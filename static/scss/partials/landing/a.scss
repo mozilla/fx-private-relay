@@ -167,7 +167,7 @@
 .c-gray-bg {
     background: linear-gradient(180deg, $color-light-gray-20 0%, $color-light-gray-10 3%);
     height: auto;
-    padding: $layout-md 0;
+    padding-top: $layout-md 0 $layout-xs 0;
 
     @media #{$mq-lg} {
         padding: 0;
@@ -177,11 +177,7 @@
 .c-plans {
     display: grid;
 
-    @media #{$mq-md} {
-        grid-template-columns: repeat(3, 1fr);
-        column-gap: $spacing-2xl;
-    }
-    @media #{$mq-lg} {
+    @media #{$mq-xl} {
         grid-template-columns: repeat(5, 1fr);
         column-gap: $spacing-2xl;
     }
@@ -193,6 +189,7 @@
         column-gap: $spacing-md;
         row-gap: $spacing-md;
         grid-template-columns: 1fr;
+        justify-items: center;
 
         @media #{$mq-sm} {
             padding: 0 $spacing-xl;
@@ -201,9 +198,6 @@
             grid-template-columns: 1fr 1fr;
             row-gap: none;
             padding: 0;
-        }
-        @media #{$mq-xl} {
-            margin-right: $layout-xl;
         }
 
         .c-premium {
@@ -214,6 +208,7 @@
             @media #{$mq-md} {
                 grid-row-start: auto;
                 margin-top: 0;
+                justify-self: left;
             }
 
             li:nth-child(3) {
@@ -237,11 +232,13 @@
 
         .c-free {
             border: 2px solid $color-light-gray-20;
+
+            @media #{$mq-md} {
+                justify-self: right;
+            }
         }
 
         .c-option {
-            margin-left: 50%;
-            transform: translateX(-50%);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -250,14 +247,12 @@
             border-radius: $border-radius-md;
             text-align: center;
             padding: $spacing-xl;
+            width: 100%;
 
             @media #{$mq-sm} {
+                justify-items: center;
                 margin-top: $spacing-xl;
                 width: calc((#{$content-xs} + #{$spacing-lg}));
-            }
-            @media #{$mq-md} {
-                width: calc((#{$content-xs} + #{$spacing-lg}));
-                margin-top: 0;
             }
 
             .c-price {
@@ -321,7 +316,6 @@
         height: 100%;
         text-align: center;
 
-
         h2 {
             @include text-title-sm;
             font-weight: 500;
@@ -331,9 +325,9 @@
             padding: 0 $spacing-lg;
         }
 
-        @media #{$mq-lg} {
+        @media #{$mq-xl} {
             text-align: start;
-            grid-column-start: span 2;
+            width: 100%;
             grid-row-start: auto;
 
             .c-text {
@@ -345,6 +339,7 @@
             }
         }
         @media #{$mq-xl} {
+            grid-column-start: span 2;
 
             h2 {
                 @include text-title-md;
