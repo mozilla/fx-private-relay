@@ -315,6 +315,7 @@
         grid-column-start: span 3;
         height: 100%;
         text-align: center;
+        margin-top: $layout-xs;
 
         h2 {
             @include text-title-sm;
@@ -326,6 +327,7 @@
         }
 
         @media #{$mq-xl} {
+            margin-top: 0;
             text-align: start;
             width: 100%;
             grid-row-start: auto;
