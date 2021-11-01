@@ -341,13 +341,12 @@
     .use-case-shopping, .use-case-social-networks, .use-case-offline, .use-case-access-content, .use-case-gaming {
         background-repeat: no-repeat;
         background-size: 50px 50px;
-        background-position: 1% 90%;
+        background-position: left center;
     }
 
     .use-case-shopping {
         background-image: url("/static/images/use-case-shopping.svg");
         background-color: $color-yellow-20;
-        background-position: 1% 80%;
 
         .drop-down {
             border-top: 20px solid $color-yellow-20;
@@ -357,7 +356,6 @@
     .use-case-social-networks {
         background-image: url("/static/images/use-case-social-networks.svg");
         background-color: $color-yellow-40;
-        background-position: 1% 85%;
 
         .drop-down {
             border-top: 20px solid $color-yellow-40;
