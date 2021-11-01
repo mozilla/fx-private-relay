@@ -124,6 +124,14 @@
                 left: 50%;
                 transform: translateX(-50%);
                 position: relative;
+                     
+                @media #{$mq-sm} {
+                    width: $content-sm;
+                    justify-self: center;
+                }
+                @media #{$mq-lg} {
+                    width: 100%;
+                }
             }
         
             .step-headline {
@@ -145,7 +153,6 @@
                 width: 100%;
 
                 .step {
-                    margin-bottom: 0;
                     margin-top: 0;
                 }
                 
@@ -316,14 +323,29 @@
         height: 100%;
         text-align: center;
         margin-top: $layout-xs;
+        display: grid;
 
         h2 {
             @include text-title-sm;
             font-weight: 500;
         }
 
+
         .c-text {
             padding: 0 $spacing-lg;
+
+            @media #{$mq-md} {
+                width: $content-md;
+                justify-self: center;
+            }
+            @media #{$mq-xl} {
+                padding: 0;
+                display: flex;
+                width: auto;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
+            }
         }
 
         @media #{$mq-xl} {
@@ -331,14 +353,6 @@
             text-align: start;
             width: 100%;
             grid-row-start: auto;
-
-            .c-text {
-                padding: 0;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                height: 100%;
-            }
         }
         @media #{$mq-xl} {
             grid-column-start: span 2;
@@ -601,11 +615,6 @@
         @media #{$mq-md} {
             margin-bottom: 0;
         }
-    }
-
-    .step-text {
-        text-align: center;
-        max-width: 300px;
     }
 
     .step-headline {
