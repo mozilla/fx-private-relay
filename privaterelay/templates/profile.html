@@ -119,7 +119,8 @@
                   name="enabled"
                   value="Disable"
                   title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-                  data-default-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
+                  data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
+                  data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
                   class="text-center forwarding-toggle"
                 ></button>
                 {% else %}
@@ -128,7 +129,8 @@
                   name="enabled"
                   value="Enable"
                   title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
-                  data-default-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
+                  data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
+                  data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
                   class="text-center forwarding-disabled forwarding-toggle"
                 ></button>
                 {% endif %}

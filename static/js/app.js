@@ -28,15 +28,18 @@ async function updateEmailForwardingPrefs(submitEvent) {
     const response = await sendForm(forwardingPrefForm.action, formData);
     if (response && response.status === 200) {
       prefToggle.classList.toggle("forwarding-disabled");
-      prefToggle.title = prefToggle.dataset.defaultTitle;
       if (prefToggle.value === "Enable") {
+        prefToggle.title = prefToggle.dataset.defaultBlockingTitle;
         toggleLabel.textContent = toggleLabel.dataset.defaultForwardingLabel;
         wrappingEmailCard.classList.add("is-enabled");
-        return prefToggle.value = "Disable";
+        prefToggle.value = "Disable";
+        return;
       } else if (prefToggle.value === "Disable") {
+        prefToggle.title = prefToggle.dataset.defaultForwardingTitle;
         toggleLabel.textContent = toggleLabel.dataset.defaultBlockingLabel;
         wrappingEmailCard.classList.remove("is-enabled");
-        return prefToggle.value = "Enable";
+        prefToggle.value = "Enable";
+        return;
       }
     }
   } catch(e) {
