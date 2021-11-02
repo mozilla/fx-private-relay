@@ -13,7 +13,6 @@
         color: $color-black;
         margin-bottom: $spacing-lg;
     }
-    
 }
 
 .c-onboarding-steps {
@@ -72,7 +71,7 @@
 .c-premium-onboarding {
     position: relative;
 
-    &.is-hidden {
+    &.is-hidden, .is-hidden {
         display: none;
     }
 
@@ -172,6 +171,110 @@
 
         &:hover {
             color: $color-purple-50;
+        }
+    }
+}
+
+// Multi-part Premium Onboarding
+.is-premium-onboarding {
+    .dashboard-mpp-promo, .domain-alias-dashboard, .main-list, .mpp-dashbaord-header {
+        display: none;
+    }
+}
+
+.c-multipart-premium-onboarding {
+    max-width: $content-lg;
+    margin-left: auto;
+    margin-right: auto;
+
+    .c-button-as-text {
+        cursor: pointer;
+        appearance: none;
+        background-color: transparent;
+        border: none;
+        color: $color-informational;
+        &:hover {
+            color: $color-informational-hover;
+        }
+    }
+
+
+    .c-premium-onboarding-headlines {
+            h1 {
+            color: $color-purple-50;
+
+            @include text-title-md;
+            margin-bottom: $spacing-md;
+        }
+    }
+
+}
+
+.c-premium-onboarding-actions {
+    text-align: center;
+    padding-top: 0;
+    .mzp-c-button.is-hidden {
+        display: none;
+    }
+}
+
+.c-premium-onboarding-step {
+    display: none;
+
+    &.is-visible {
+        display: block;
+    }
+}
+
+.c-premium-onboarding-step-2 {
+    samp {
+        @include text-title-2xs;
+        display: block;
+        color: $color-grey-30;
+        margin-bottom: $spacing-lg;
+
+        span {
+            color: $color-purple-50;
+            font-weight: 700;
+        }
+
+        @media #{$mq-md} {
+            @include text-title-3xs;
+        }
+        @media #{$mq-lg} {
+            @include text-title-2xs;
+        }
+    }
+}
+
+// Progress Bar
+.c-premium-onboarding-progress-bar {
+    display: flex;
+    width: 100%;
+    max-width: $content-md;
+    margin: 0 auto;
+    gap: $spacing-sm;
+    .c-premium-onboarding-progress-bar-item {
+        width: 100%;
+        color: $color-grey-20;
+        text-align: center;
+        transition: color .2s ease-out;
+        span {
+            display: block;
+            height: 5px;
+            background-color: $color-grey-20;
+            margin-bottom: $spacing-xs;
+            box-shadow: inset 0 0 0 0 $color-violet-30;
+            transition: box-shadow 1s ease-out, color 0.2s ease-out;
+            
+        }
+        
+        &.is-completed, &:hover {
+            color: $color-violet-30;
+            span {
+                // background-color: $color-violet-30;
+                box-shadow: inset 300px 0 0 0 $color-violet-30;
+            }
         }
     }
 }
