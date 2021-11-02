@@ -29,10 +29,15 @@
 >
 </firefox-private-relay-addon-data>
 
-<main id="profile-main" class="{% if user_profile.server_storage %} js-server-storage-enabled {% endif %} bg-light dashboard-container " data-api-token="{{ user_profile.api_token }}">
+<main id="profile-main" class="{% if user_profile.server_storage %} js-server-storage-enabled {% endif %} bg-light dashboard-container is-premium-onboarding" data-api-token="{{ user_profile.api_token }}">
+
+  
   <div class="messages-profile">
     {% include "includes/messages.html" %}
   </div>
+  
+  {% include "includes/premium-onboarding.html" %}
+  
   {% if user_profile.has_premium and user_profile.num_active_address > 0 %}
   <div class="mpp-dashbaord-header">
     <div class="mpp-dashbaord-header-container inset">
