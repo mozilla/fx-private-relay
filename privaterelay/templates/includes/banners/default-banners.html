@@ -3,19 +3,6 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-{% if last_bounce_type %}
-<div class="dashboard-banners flx hide-750">
-    <div class="banner-gradient-bg">
-        <div class="bounced-email-banner banner-content flx flx-row">
-            <div class="banner-copy flx flx-col">
-                <p class="banner-hl ff-Met">{% ftlmsg 'banner-bounced-headline' %}</p>
-                <p class="banner-sub">{% ftlmsg 'banner-bounced-copy' username=request.user.email
-                    bounce_type=last_bounce_type date=next_email_try|date:"SHORT_DATETIME_FORMAT" %}</p>
-            </div>
-        </div>
-    </div>
-</div>
-{% else %}
 <div class="dashboard-banners invisible">
     <div class="flx hide-750">
         <div class="banner-gradient-bg addon">
@@ -67,5 +54,5 @@
     {% endif %}
     {% endwith %}
 </div>
-{% endif %}
+
 
