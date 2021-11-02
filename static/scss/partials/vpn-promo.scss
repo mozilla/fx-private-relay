@@ -24,7 +24,7 @@ body {
     }
 }
 
-.vpn-promo-banner.closed {
+.vpn-promo-banner.is-hidden {
     max-height: 0;
 }
 
@@ -32,11 +32,11 @@ body {
     display: none;
 }
 
-.vpn-promo-banner.closed + .micro-survey-banner {
+.vpn-promo-banner.is-hidden + .micro-survey-banner {
     display: block;
 }
 
-.vpn-promo-banner.closed + .micro-survey-banner.is-hidden {
+.vpn-promo-banner.is-hidden + .micro-survey-banner.is-hidden {
     display: none;
 }
   

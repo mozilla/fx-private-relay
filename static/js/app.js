@@ -80,8 +80,8 @@ function copyToClipboardAndShowMessage(triggeringEl) {
     triggeringEl.classList.remove("alias-copied", "alias-copied-fadeout");
     triggeringEl.title = triggeringEl.dataset.ftlClickToCopy;
   }, 4 * 1000);
-  
-  
+
+
 
   return;
 }
@@ -341,11 +341,26 @@ function setTranslatedStringLinks() {
 document.addEventListener("DOMContentLoaded", () => {
   watchForInstalledAddon();
   addEventListeners();
-  vpnBannerLogic();
   setTranslatedStringLinks();
-  premiumOnboardingLogic();
-  dataCollectionBannerLogic();
   scrollToSubdomainRegistrationAndShowErrorState();
+
+  bannerLogic("vpnPromoBanner", "vpnPromoCloseButton", "vpnBannerDismissed", {
+    hide: function () {
+      document.body.classList.remove("vpn-banner-visible");
+      sendGaPing("VPN Promo Banner", "Dismiss Banner", "Dismiss Banner");
+    },
+    init: function () {
+      document.querySelector(".vpn-promo-cta").addEventListener("click", ()=>{
+        sendGaPing("VPN Promo Banner", "CTA Click", "CTA Click");
+      });
+    },
+    show: function () {
+      document.body.classList.add("vpn-banner-visible");
+      sendGaPing("VPN Promo Banner", "Show Banner", "Show Banner");
+    }
+  });
+  bannerLogic("premiumOnboarding", "premiumOnboardingDismiss", "premiumOnboarding")
+  bannerLogic("sync-labels", "data-collection-dismiss", "syncLabelsBanner")
 
   // TODO: Set up language gate once l10n is active.
   // const preferredLanguages = navigator.languages;
@@ -445,150 +460,53 @@ copyAliasBtn.on("success", (e) => {
   copyToClipboardAndShowMessage(e.trigger);
 });
 
-function vpnBannerLogic() {
+function bannerLogic(bannerId, dismissId, dismissedCookieName, callbacks = {}) {
 
-  // Check if element exists at all
-  const vpnPromoBanner = document.getElementById("vpnPromoBanner");
-
-  if (!vpnPromoBanner) {
+  const banner = document.getElementById(bannerId);
+  if (!banner) {
     return;
   }
 
-  // Check for dismissal cookie
-  const vpnBannerDismissedCookie = document.cookie.split("; ").some((item) => item.trim().startsWith("vpnBannerDismissed="));
-
-  if (vpnBannerDismissedCookie) {
+  const bannerDismissedCookie = document.cookie.split("; ").some((item) => item.trim().startsWith(`${dismissedCookieName}=`));
+  if(bannerDismissedCookie) {
     return;
   }
 
-  // Init: Show banner, set close button listener
-  const vpnPromoCloseButton = document.getElementById("vpnPromoCloseButton");
-  const vpnPromoCtaButton = document.querySelector(".vpn-promo-cta");
+  const dismissTarget = document.getElementById(dismissId);
 
-  const vpnPromoFunctions = {
+  const bannerFunctions = {
     hide: function() {
-      vpnPromoFunctions.setCookie();
-      vpnPromoBanner.classList.add("closed");
-      document.body.classList.remove("vpn-banner-visible");
-      sendGaPing("VPN Promo Banner", "Dismiss Banner", "Dismiss Banner");
+      bannerFunctions.setCookie();
+      banner.classList.add("is-hidden");
+      if(callbacks.hide) {
+        callbacks.hide()
+      }
     },
     init: function() {
-      vpnPromoCloseButton.addEventListener("click", vpnPromoFunctions.hide);
-      vpnPromoCtaButton.addEventListener("click", ()=>{
-        sendGaPing("VPN Promo Banner", "CTA Click", "CTA Click");
-      });
-      vpnPromoFunctions.show();
+      dismissTarget.addEventListener("click", bannerFunctions.hide);
+      if(callbacks.init) {
+        callbacks.init()
+      }
+      bannerFunctions.show();
     },
     setCookie: function() {
       const date = new Date();
       date.setTime(date.getTime() + 30*24*60*60*1000);
-      document.cookie = "vpnBannerDismissed=true; expires=" + date.toUTCString() + "; path=/";
+      document.cookie = `${dismissedCookieName}=true; expires=" + date.toUTCString() + "; path=/`;
+      if(callbacks.setCookie) {
+        callbacks.setCookie()
+      }
     },
     show: function() {
-      vpnPromoBanner.classList.remove("closed");
-      document.body.classList.add("vpn-banner-visible");
-      sendGaPing("VPN Promo Banner", "Show Banner", "Show Banner");
+      banner.classList.remove("is-hidden");
+      if(callbacks.show) {
+        callbacks.show()
+      }
     },
   };
 
-  vpnPromoFunctions.init();
-}
+  bannerFunctions.init();
 
-function premiumOnboardingLogic() {
-  // Check if element exists at all
-  const premiumOnboardingContent = document.getElementById("premiumOnboarding");
-
-  if (!premiumOnboardingContent) {
-    return;
-  }
-
-  // Check for dismissal cookie
-  const premiumOnboardingDismissedCookie = document.cookie
-    .split("; ")
-    .some((item) => item.trim().startsWith("premiumOnboarding="));
-
-  if (premiumOnboardingDismissedCookie) {
-    return;
-  }
-
-  // Init: Show banner, set close button listener
-  const premiumOnboardingCloseButton = document.querySelector(
-    ".js-premium-onboarding-dismiss"
-  );
-
-  const premiumOnboardingFunctions = {
-    hide: function () {
-      premiumOnboardingFunctions.setCookie();
-      premiumOnboardingContent.classList.add("is-hidden");
-    },
-    init: function () {
-      premiumOnboardingCloseButton.addEventListener(
-        "click",
-        premiumOnboardingFunctions.hide
-      );
-      premiumOnboardingFunctions.show();
-    },
-    setCookie: function () {
-      const date = new Date();
-      date.setTime(date.getTime() + 30 * 24 * 60 * 60 * 1000);
-      document.cookie =
-        "premiumOnboarding=true; expires=" + date.toUTCString() + "; path=/";
-    },
-    show: function () {
-      premiumOnboardingContent.classList.remove("is-hidden");
-    },
-  };
-
-  premiumOnboardingFunctions.init();
-}
-
-function dataCollectionBannerLogic() {
-  
-  // Check if element exists at all
-  const dataCollectionBanner = document.getElementById("sync-labels");
-
-  if (!dataCollectionBanner) {
-    return;
-  }
-
-  // Check for dismissal cookie
-  const dataCollectionBannerDismissedCookie = document.cookie
-    .split("; ")
-    .some((item) => item.trim().startsWith("syncLabelsBanner="));
-
-  if (dataCollectionBannerDismissedCookie) {
-    return;
-  }
-
-  // Init: Show banner, set close button listener
-  const dataCollectionCloseButton = document.querySelector(
-    ".js-data-collection-dismiss"
-  );
-
-  const dataCollectionBannerFunctions = {
-    hide: function () {
-      dataCollectionBannerFunctions.setCookie();
-      dataCollectionBanner.classList.add("is-hidden");
-    },
-    init: function () {
-      dataCollectionCloseButton.addEventListener(
-        "click",
-        dataCollectionBannerFunctions.hide
-      );
-      dataCollectionBannerFunctions.show();
-    },
-    setCookie: function () {
-      const date = new Date();
-      date.setTime(date.getTime() + 30 * 24 * 60 * 60 * 1000);
-      document.cookie =
-        "syncLabelsBanner=true; expires=" + date.toUTCString() + "; path=/";
-    },
-    show: function () {
-      dataCollectionBanner.classList.remove("is-hidden");
-    },
-  };
-
-  dataCollectionBannerFunctions.init();
 }
 
 //Micro Survey Banner
@@ -632,13 +550,13 @@ function scrollToSubdomainRegistrationAndShowErrorState() {
   if (!document.querySelector(".message-wrapper.error")) {
     return;
   }
-  
+
   const subdomainRegistrationBannerForm = document.getElementById("domainRegistration");
   subdomainRegistrationBannerForm.classList.add("mzp-is-error");
   // const subdomainRegistrationBanner = document.getElementById("mpp-choose-subdomain");
   // subdomainRegistrationBanner.scrollIntoView({ block: "center" });
 }
-//FAQ Accordion 
+//FAQ Accordion
 const faqQuestion = document.querySelectorAll(".c-faq-question");
 
 function showFAQAnswer(elem) {
