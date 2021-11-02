@@ -1,6 +1,7 @@
 const { src, watch, series, dest } = require("gulp");
 const sass = require("gulp-sass")(require("sass"));
 const del = require("del");
+const sourcemaps = require("gulp-sourcemaps");
 
 // directory for building LESS, SASS, and bundles
 const buildDir = "./static/scss/libs/protocol/";
@@ -21,8 +22,10 @@ function reset() {
 
 function styles() {
     return src("./static/scss/app.scss")
-        .pipe(sass().on("error", sass.logError))
-        .pipe(dest(finalDir));
+      .pipe(sourcemaps.init())
+      .pipe(sass().on("error", sass.logError))
+      .pipe(sourcemaps.write("."))
+      .pipe(dest(finalDir));
 }
 
 function assetsCopy() { 
