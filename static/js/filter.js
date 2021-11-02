@@ -7,6 +7,7 @@
     }
 
     const filterContainer = document.querySelector(".js-filter-container");
+    const filterSearchForm = document.querySelector(".js-filter-search-form");
     const filterSearchInput = document.querySelector(".js-filter-search-input");
     const filterResetButton = document.querySelector(".js-filter-reset")
     const filterLabelVisibleCases = document.querySelector(".js-filter-case-visible");
@@ -74,6 +75,10 @@
         applyFilters();
     }
 
+    filterSearchForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        filterSearchInput.blur();
+    });
     filterSearchInput.addEventListener("input", (event) => {
         setSearchFilter(event.target.value);
     });
