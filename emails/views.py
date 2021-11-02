@@ -298,7 +298,7 @@ def _sns_message(message_json):
         user_profile = address.user.profile_set.first()
     except (ObjectDoesNotExist):
         if to_local_portion == 'replies':
-            return _handle_reply(from_address, message_json)
+            return _handle_reply(from_address, message_json, to_address)
 
         return HttpResponse("Address does not exist", status=404)
 
@@ -404,16 +404,10 @@ def _strip_localpart_tag(address):
     return f'{subaddress_parts[0]}@{domain}'
 
 
-def _handle_reply(from_address, message_json):
+def _reply_allowed(from_address, to_address, reply_record):
     stripped_from_address = _strip_localpart_tag(from_address)
-
-    mail = message_json['mail']
-    (lookup_key, encryption_key) = _get_keys_from_headers(mail['headers'])
-    reply_record = _get_reply_record_from_lookup_key(lookup_key)
-    address = reply_record.address
-    reply_record_email = address.user.email
+    reply_record_email = reply_record.address.user.email
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
-
     if (
         (from_address == reply_record_email) or
         (stripped_from_address == stripped_reply_record_address)
@@ -424,9 +418,34 @@ def _handle_reply(from_address, message_json):
             # TODO: send the user an email
             # that replies are a premium feature
             incr_if_enabled('free_user_reply_attempt', 1)
-            return HttpResponse(
-                "Rely replies require a premium account", status=403
+            return False
+    else:
+        # The From: is not a Relay user, so make sure this is a reply *TO* a
+        # premium Relay user
+        try:
+            [to_local_portion, to_domain_portion] = to_address.split('@')
+            address = _get_address(
+                to_address, to_local_portion, to_domain_portion
             )
+            user_profile = address.user.profile_set.first()
+            if not user_profile.has_premium:
+                incr_if_enabled('free_user_reply_attempt', 1)
+                return False
+        except (ObjectDoesNotExist):
+            return False
+    return True
+
+
+def _handle_reply(from_address, message_json, to_address):
+    mail = message_json['mail']
+    (lookup_key, encryption_key) = _get_keys_from_headers(mail['headers'])
+    reply_record = _get_reply_record_from_lookup_key(lookup_key)
+    address = reply_record.address
+
+    if not _reply_allowed(from_address, to_address, reply_record):
+        return  HttpResponse(
+            "Rely replies require a premium account", status=403
+        )
 
     outbound_from_address = address.full_address
     decrypted_metadata = json.loads(decrypt_reply_metadata(
