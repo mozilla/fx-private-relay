@@ -87,8 +87,21 @@
         <span class="dashboard-greeting-message">{% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
       </div>
       {% endif %}
-      {% include "includes/banners.html" %}
 
+      <!-- Data Notification Banner -->
+      {% include "includes/banners/announcement-banner.html" %}
+      
+      <!-- Register Subdomain Banner -->
+      {% with request.user.profile_set.first as user_profile %}
+      {% if user_profile.has_premium and not user_profile.subdomain and settings.PREMIUM_ENABLED %}
+        {% include "includes/banners/subdomain-banner.html" %}
+      {% endif %}
+      {% endwith %}
+  
+      <!-- Upgrade, Firefox and Add On Banners -->
+      {% if relay_addresses|length > 0 %}
+        {% include "includes/banners/default-banners.html" %}
+      {% endif %}
 
       {% if relay_addresses or domain_addresses %}
         {% include "includes/dashboard-filter.html" %}
@@ -400,6 +413,10 @@
       </div> <!-- end informtaion footer -->
       
     </div><!-- end dashboard-container -->
+
+    {% if relay_addresses|length == 0 %}
+      {% include "includes/default-banners.html" %}
+    {% endif %}
     
   </div>
 
