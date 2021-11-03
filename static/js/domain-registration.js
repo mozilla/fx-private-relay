@@ -5,7 +5,7 @@
     // custom event params). Additionally, based on which form is passed, additional logic/functionality is applied.
     // The two different forms are:
     //  1. Multi-step Onboarding (Step 2) / id: "onboardingDomainRegistration"
-    //  2. Dashbaord Page (Banner) / id: "domainRegistrationForm"
+    //  2. Dashboard Page (Banner) / id: "domainRegistrationForm"
     
     const domainRegistration = {
         init: (form) => {
