@@ -28,10 +28,6 @@
                     </div>
                 </div>
             </div>
-            <div class="mzp-l-content mzp-t-content-xl c-premium-onboarding-actions">
-                <button class="c-button-as-text is-hidden js-premium-onboarding-next-step">I'll register my domain later</button>
-                <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step">Get Started</button>
-            </div>
         </li>
         <li class="c-premium-onboarding-step c-premium-onboarding-step-2">
             <div class="mzp-l-content mzp-t-content-xl">
@@ -47,6 +43,7 @@
                     <div class="c-premium-onboarding-content-description">
                         <p><strong>Use a custom domain for sharing aliases:</strong> With a custom domain, you can make your “newsletter” alias different from your “shopping” alias. </p>
                         <p>Register your custom domain now</p>
+                        <!-- TODO: Move samp inside domainRegistration form -->
                         <samp>***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
                         <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                             {% csrf_token %}
@@ -65,10 +62,6 @@
                     </div>
                 </div>
                 
-            </div>
-            <div class="mzp-l-content mzp-t-content-xl c-premium-onboarding-actions">
-                <button class="c-button-as-text js-premium-onboarding-next-step" >I'll register my domain later</button>
-                <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step is-hidden">Continue</button>
             </div>
         </li>
         <li class="c-premium-onboarding-step c-premium-onboarding-step-3">
@@ -90,83 +83,43 @@
                     </div>
                 </div>
             </div>
-            <div class="mzp-l-content mzp-t-content-xl c-premium-onboarding-actions">
-                <button class="c-button-as-text  js-premium-onboarding-next-step">Continue, I’ll download the extension later</button>
-                <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step is-hidden">Create my first email alias</button>
-            </div>
-        </li>
-        <li class="c-premium-onboarding-step c-premium-onboarding-step-4">
-            <div class="mzp-l-content mzp-t-content-xl">
-                <div class="c-premium-onboarding-headlines">
-                    <h1>Creating your first alias</h1>
-                    <h2>Here are three ways to do it</h2>
-                </div>
-
-                
-            </div>
-
-            <section class="c-onboarding">
-            <ol class="c-onboarding-steps mzp-l-columns mzp-t-columns-three">
-                <li class="c-onboarding-step">
-                <div class="c-onboarding-step-number" data-number="1"></div>
-                <p class="c-onboarding-step-copy">
-                    {% ftlmsg 'onboarding-tip-1' %}
-                </p>
-                <div class="c-onboarding-step-action">
-                    <form action="{% url 'emails-index' %}" class="dash-create" method="POST">
-                        <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
-                        <button
-                            class="mzp-c-button mzp-t-product has-icon"
-                            title="{% ftlmsg 'profile-label-generate-new-alias' %}"
-                            type="submit"
-                            value="{% ftlmsg 'profile-label-generate-new-alias' %}"
-                            data-event-label="Create New Relay Alias"
-                        >
-                            <span class="generate-new-relay-icon"></span>
-                            <span class="generate-new-alias-text">
-                            {% ftlmsg 'profile-label-generate-new-alias' %}</span>
-                        </button>
-                    </form>
-                </div>
-                </li>
-                <li class="c-onboarding-step">
-                <div class="c-onboarding-step-number" data-number="2"></div>
-                <p class="c-onboarding-step-copy">
-                    {% ftlmsg 'onboarding-tip-2' %}
-                </p>
-                <div class="c-onboarding-step-graphic">
-                    <img class="" src="{% static 'images/dashboard-onboarding/onboarding-step-2.svg' %}" aria-hidden="true" alt="">
-                </div>
-                </li>
-                <li class="c-onboarding-step">
-                <div class="c-onboarding-step-number" data-number="3"></div>
-                <p class="c-onboarding-step-copy">
-                    {% ftlmsg 'onboarding-tip-3' %}
-                </p>
-                <div class="c-onboarding-step-graphic">
-                    <img class="" src="{% static 'images/dashboard-onboarding/onboarding-step-3.svg' %}" aria-hidden="true" alt="">
-                </div>
-                </li>
-            </ol>
-            </section>            
         </li>
     </ul>
-    <div class="mzp-l-content mzp-t-content-xl c-premium-onboarding-progress">
-        <ul class="c-premium-onboarding-progress-bar js-premium-onboarding-progress-bar">
-            <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-1 is-completed" >
-                <span></span>
-                1
-            </li>
-            <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-2" >
-                <span></span>
-                2
-            </li>
-            <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-3" >
-                <span></span>
-                3
-            </li>
-        </ul>
-        <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step is-hidden">Continue</button>
+    <div class="c-premium-onboarding-progress">
+        <div class="mzp-l-content mzp-t-content-xl">
+            <div class="c-premium-onboarding-actions-wrapper">
+                <!-- Step 1 -->
+                <div class="c-premium-onboarding-actions is-visible">
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step">Get Started</button>
+                </div>
+                <!-- Step 2 -->
+                <div class="c-premium-onboarding-actions">
+                    <button class="c-button-as-text js-premium-onboarding-next-step" >I'll register my domain later</button>
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step is-hidden">Continue</button>
+                </div>
+                <!-- Step 3 -->
+                <div class="c-premium-onboarding-actions">
+                    <button class="c-button-as-text  js-premium-onboarding-quit-step">Continue, I’ll download the extension later</button>
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-quit-step is-hidden">Create my first email alias</button>
+                </div>
+            </div>
+    
+
+            <ul class="c-premium-onboarding-progress-bar js-premium-onboarding-progress-bar">
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-1 is-completed" >
+                    <span></span>
+                    1
+                </li>
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-2" >
+                    <span></span>
+                    2
+                </li>
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-3" >
+                    <span></span>
+                    3
+                </li>
+            </ul>
+            <button class="c-button-as-text t-skip-button js-premium-onboarding-quit-step">Skip</button>
+        </div>
     </div>
-        
 </div>
