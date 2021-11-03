@@ -90,11 +90,11 @@
       {% include "includes/banners.html" %}
 
 
-      {% if relay_addresses %}      
+      {% if relay_addresses or domain_addresses %}
         {% include "includes/dashboard-filter.html" %}
       {% endif %}
 
-      {% if relay_addresses|length == 0 %}
+      {% if relay_addresses|length == 0 and domain_addresses|length == 0 %}
         {% include "includes/dashboard_onboarding.html" %}
       {% endif %}
 
