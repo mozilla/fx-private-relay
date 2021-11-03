@@ -706,12 +706,7 @@ const premiumOnboarding = {
   },
   quit: ()=> {
     document.getElementById("profile-main").classList.remove("is-premium-onboarding");
-    /* TODO:
-     * 1. refactor apiRequest from settings.js into a new api.js
-     * 2. refactor the try { apiRequest(`/profiles/$profileId}`) } block from settings.js
-     *    into a new patchProfile({field:value}) function in api.js
-     * 3. call patchProfile({'onboarding_state':onboardingState}) here
-     */
+    // TODO: call patchProfile({'onboarding_state':onboardingState}) here
   },
 }
 

@@ -1,30 +1,6 @@
 (function() {
 	"use strict";
 
-    // TODO Find a way to make this reusable across the app?
-    function apiRequest(path, options) {
-        const cookieString = typeof document.cookie === "string" ? document.cookie : "";
-        const cookieStringArray = cookieString
-            .split(";")
-            .map(individualCookieString => individualCookieString.split("="))
-            .map(([cookieKey, cookieValue]) => [cookieKey.trim(), cookieValue.trim()]);
-        // Looks like the `argsIgnorePattern` option for ESLint doesn't like array destructuring:
-        // eslint-disable-next-line no-unused-vars
-        const [_csrfCookieKey, csrfCookieValue] = cookieStringArray.find(([cookieKey, _cookieValue]) => cookieKey === "csrftoken");
-        const headers = new Headers(options ? options.headers : undefined);
-        headers.set("X-CSRFToken", csrfCookieValue);
-        headers.set("Content-Type", "application/json");
-        headers.set("Accept", "application/json");
-        return fetch(
-            `/api/v1${path}`,
-            {
-                mode: "same-origin",
-                ...options,
-                headers: headers,
-            },
-        );
-    }
-
     const settingsForm = document.querySelector(".js-settings-form");
     const labelCollectionCheckbox = document.querySelector(".js-label-collection");
     const labelCollectionOffWarning = document.querySelector(".js-label-collection-off-warning");
@@ -39,13 +15,7 @@
         };
 
         try {
-            const response = await apiRequest(
-                `/profiles/${profileId}/`,
-                {
-                    method: "PATCH",
-                    body: JSON.stringify(settings),
-                },
-            );
+            const response = await patchProfile(profileId, settings);
             if (!response.ok) {
                 throw new Error("Immediately catch'd to show an error message.");
             }
