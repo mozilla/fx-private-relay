@@ -201,6 +201,7 @@
         background-color: transparent;
         border: none;
         color: $color-informational;
+
         @include text-body-sm;
         margin-bottom: $spacing-sm;
         
@@ -219,8 +220,17 @@
 
         h1 {
             color: $color-purple-50;
-            @include text-title-md;
+
+            @include text-title-sm;
             margin-bottom: $spacing-md;
+        }
+
+        h2 {
+            @include text-title-3xs;
+        }
+
+        .c-premium-onboarding-content-description {
+            @include text-body-lg;
         }
     }
 
@@ -237,6 +247,7 @@
     }
 }
 
+// Step 2: Register custom subdomain 
 .c-premium-onboarding-step-2 {
 
     samp {
@@ -259,6 +270,31 @@
     }
 }
 
+// Step 3: Install add-on
+firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay-addon-data + main {
+
+    .c-premium-onboarding-install-addon {
+        display: none;
+    }
+
+    .c-premium-onboarding-addon-installed {
+        display: inline flex;
+    }
+}
+
+.c-premium-onboarding-addon-installed {
+    padding: $spacing-md;
+    padding-inline-end: $spacing-lg;
+    background-color: $color-white;
+    display: none;
+    align-items: center;
+    border-radius: $border-radius-md;
+    width: auto;
+
+    img {
+        margin-right: $spacing-sm;
+    }
+}
 
 // Progress Bar
 .c-premium-onboarding-progress {
@@ -276,7 +312,7 @@
         // bottom: auto;
     }
 
-    .c-premium-onboarding-actions-wrapper {        
+    .c-premium-onboarding-actions-wrapper {
         padding-bottom: $spacing-sm;
 
         @media #{$mq-md} {

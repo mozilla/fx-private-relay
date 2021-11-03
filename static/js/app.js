@@ -667,9 +667,6 @@ faqQuestion.forEach(item => {
 // TODO: Add element check to init everything.
 
 // Multi-part Premium Onboarding
-const mppoProgressBar = document.querySelector(".js-premium-onboarding-progress-bar");
-
-
 const premiumOnboarding = {
   init: ()=> {
     const mppoNextButtons = document.querySelectorAll(

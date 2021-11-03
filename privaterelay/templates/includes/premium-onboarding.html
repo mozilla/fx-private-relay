@@ -7,6 +7,7 @@
 <!-- TODO: Remove/port classes from .c-premium-onboarding  -->
 <div class="c-premium-onboarding c-multipart-premium-onboarding">
     <ul class="c-premium-onboarding-steps">
+        <!-- Step 1 -->
         <li class="c-premium-onboarding-step c-premium-onboarding-step-1 is-visible">
             <div class="mzp-l-content mzp-t-content-xl">
                 <div class="c-premium-onboarding-headlines">
@@ -20,15 +21,12 @@
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p>{% ftlmsg 'onboarding-premium-feature-intro' %}</p>
-                        <ul class="mzp-u-list-styled">
-                            <li><strong>{% ftlmsg 'onboarding-premium-control-title' %}</strong> {% ftlmsg 'onboarding-premium-control-description' %}</li>
-                            <!-- <li><strong>{% ftlmsg 'onboarding-premium-domain-title' %}</strong> {% ftlmsg 'onboarding-premium-domain-description' %}</li>
-                            <li><strong>{% ftlmsg 'onboarding-premium-reply-title' %}</strong> {% ftlmsg 'onboarding-premium-reply-description' %}</li> -->
-                        </ul>
+                        <p><strong>{% ftlmsg 'onboarding-premium-control-title' %}</strong> {% ftlmsg 'onboarding-premium-control-description' %}</p>
                     </div>
                 </div>
             </div>
         </li>
+        <!-- Step 2 -->
         <li class="c-premium-onboarding-step c-premium-onboarding-step-2">
             <div class="mzp-l-content mzp-t-content-xl">
                 <div class="c-premium-onboarding-headlines">
@@ -64,6 +62,7 @@
                 
             </div>
         </li>
+        <!-- Step 3 -->
         <li class="c-premium-onboarding-step c-premium-onboarding-step-3">
             <div class="mzp-l-content mzp-t-content-xl">
                 <div class="c-premium-onboarding-headlines">
@@ -78,8 +77,11 @@
                     <div class="c-premium-onboarding-content-description">
                         <p><strong>Reply to emails without giving away your real address:</strong> Need to reply to emails sent to an alias? Just reply as normal—your alias will still protect your email address.</p>
                         <p><strong>Get the Relay extension for Firefox</strong> The Relay extension for Firefox makes using email aliases even easier. Reply to emails without giving away your real address: Need to reply to emails sent to an alias? Just reply as normal—your alias will still protect your email address.</p>
-                        <!-- TODO: Add relay extension download link -->
-                        <a href="#" class="mzp-c-button mzp-t-product">Get Relay extension</a>
+                        <a href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon" class="c-premium-onboarding-install-addon mzp-c-button mzp-t-product">Get Relay extension</a>
+                        <div class="c-premium-onboarding-addon-installed">
+                            <img class="margin-right" src="/static/images/icon-check.svg" alt="">
+                            Relay extension installed!
+                        </div>
                     </div>
                 </div>
             </div>
