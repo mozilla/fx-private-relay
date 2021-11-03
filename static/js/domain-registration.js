@@ -1,12 +1,16 @@
 (function() {
 	"use strict";
 
+    // Note: The form in which this function is init on is passed across multiple subfunctions (via event.target and 
+    // custom event params). Additionally, based on which form is passed, additional logic/functionality is applied.
+    // The two different forms are:
+    //  1. Multi-step Onboarding (Step 2) / id: "onboardingDomainRegistration"
+    //  2. Dashbaord Page (Banner) / id: "domainRegistrationForm"
+    
     const domainRegistration = {
-        init: () => {
-            const domainRegistrationForm = document.getElementById("domainRegistration");
-
-            if (domainRegistrationForm) {
-                domainRegistrationForm.addEventListener("submit", domainRegistration.events.onSubmit, false);  
+        init: (form) => {
+            if (form) {
+                form.addEventListener("submit", domainRegistration.events.onSubmit, false);  
             }
         },
         checkIfDomainIsSafeAndAvailable: async (domain)=> {
@@ -62,16 +66,15 @@
                 const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);
                 
                 if (domainCanBeRegistered) {
-                    domainRegistration.modal.open();
+                    domainRegistration.modal.open(e.target);
                 } else {
                     // If the domain cannot be registered, submit the form to init an error message.
-                    const domainRegistrationForm = document.getElementById("domainRegistration");
-                    domainRegistrationForm.submit();
+                    e.target.submit();
                 }
             }
         },
         modal: {
-            open: () => {
+            open: (form) => {
                 const modal = document.querySelector(".js-modal-domain-registration-confirmation");
                 modal.classList.add("is-visible");
 
@@ -102,6 +105,7 @@
                 modalCancel.addEventListener("click", domainRegistration.modal.close, false);
 
                 const modalSubmit = document.querySelector(".js-modal-domain-registration-submit");
+                modalSubmit.parentFormHTMLElement = form;
                 modalSubmit.disabled = true;
                 modalSubmit.addEventListener("click", domainRegistration.modal.formSubmit, false);
 
@@ -131,21 +135,33 @@
                 document.removeEventListener("keydown", domainRegistration.modal.close, false);
 
             },
-            formSubmit: async () => {
+            formSubmit: async (e) => {
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
 
                 if (!modalConfirmCheckbox.checked) {
                     return false;
                 }
-               
-                const domainRegistrationForm = document.getElementById("domainRegistration");
-                domainRegistrationForm.removeEventListener("submit", domainRegistration.events.onSubmit, false);  
-                domainRegistrationForm.submit();
-                domainRegistration.modal.close();
+
+                e.target.parentFormHTMLElement.removeEventListener("submit", domainRegistration.events.onSubmit, false);  
+
+                // Dashboard form: Close the modal
+                if (e.target.parentFormHTMLElement.id === "domainRegistration") {
+                    e.target.parentFormHTMLElement.submit();
+                    domainRegistration.modal.close();
+                }
+
+                // TODO: Submit form and catch success state changes to the modal for multi-step onboarding form
+
             },
         }
     }
 
-    document.addEventListener("DOMContentLoaded", domainRegistration.init, false);
+    document.addEventListener("DOMContentLoaded", ()=>{
+        const domainRegistrationForm = document.getElementById("domainRegistration");
+        const onboardingDomainRegistrationForm = document.getElementById("onboardingDomainRegistration");
+
+        domainRegistration.init(domainRegistrationForm)
+        domainRegistration.init(onboardingDomainRegistrationForm)
+    }, false);
 
 })();

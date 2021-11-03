@@ -43,7 +43,7 @@
                         <p>Register your custom domain now</p>
                         <!-- TODO: Move samp inside domainRegistration form -->
                         <samp>***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
-                        <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
+                        <form id="onboardingDomainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                             {% csrf_token %}
                             <input
                             class="js-subdomain-value subdomain-banner-input"
