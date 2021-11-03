@@ -29,7 +29,8 @@
 >
 </firefox-private-relay-addon-data>
 
-<main id="profile-main" class="{% if user_profile.server_storage %} js-server-storage-enabled {% endif %} bg-light dashboard-container is-premium-onboarding" data-api-token="{{ user_profile.api_token }}">
+<!-- TODO: Add template logic to show/hide premium onboarding only once (toggle "is-premium-onboarding" class on <main> element) -->
+<main id="profile-main" class="{% if user_profile.server_storage %} js-server-storage-enabled {% endif %} bg-light dashboard-container {% if user_profile.has_premium %} is-premium-onboarding {% endif %}" data-api-token="{{ user_profile.api_token }}">
 
   
   <div class="messages-profile">

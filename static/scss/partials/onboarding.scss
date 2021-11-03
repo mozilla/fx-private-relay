@@ -180,6 +180,7 @@
 
     .c-multipart-premium-onboarding {
         display: block;
+
         @media #{$mq-md} {
             display: flex;
         }
@@ -298,6 +299,7 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     }
 
     .c-premium-onboarding-action-step-3 {
+
         .mzp-c-button {
             display: inline-block;
         }
