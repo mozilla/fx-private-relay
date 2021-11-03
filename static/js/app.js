@@ -721,49 +721,44 @@ const mppoProgressBar = document.querySelector(".js-premium-onboarding-progress-
 
 const premiumOnboarding = {
   init: ()=> {
-    console.log("premiumOnboarding.init");
     const mppoNextButtons = document.querySelectorAll(
       ".js-premium-onboarding-next-step"
     );
 
-    console.log(mppoNextButtons);
-
     mppoNextButtons.forEach((button) => {
-      console.log(button);
       button.addEventListener("click", premiumOnboarding.next, false);
     });
+
+    const mppoQuitButtons = document.querySelectorAll(
+      ".js-premium-onboarding-quit-step"
+    );
+
+    mppoQuitButtons.forEach((button) => {
+      button.addEventListener("click", premiumOnboarding.quit, false);
+    });
   },
-  next: ()=> {
-    console.log("premiumOnboarding.next");
+  next: ()=> {   
+    // Show next step content
     const activeOnboardingSlide = document.querySelector(".c-premium-onboarding-step.is-visible");
     activeOnboardingSlide.classList.remove("is-visible");
     activeOnboardingSlide.nextElementSibling.classList.add("is-visible");
-
-    const activeOnboardingProgressSlide3 = document.querySelector(
-      ".c-premium-onboarding-progress-bar-item-3"
-    );
-
-    if (activeOnboardingProgressSlide3.classList.contains("is-completed")) {
-      document
-        .querySelector(".c-premium-onboarding-progress")
-        .classList.add("is-hidden");
-    }
     
-    
-    const activeOnboardingProgressSlides = document.querySelectorAll(
-      ".c-premium-onboarding-progress-bar-item.is-completed"
-    );
-    console.log(activeOnboardingProgressSlides);
-    const activeOnboardingProgressSlide =
-      activeOnboardingProgressSlides[activeOnboardingProgressSlides.length - 1];
-    console.log(activeOnboardingProgressSlide);
+    // Show next step buttons
+    const activeOnboardingActions = document.querySelector(".c-premium-onboarding-actions.is-visible");
+    activeOnboardingActions.classList.remove("is-visible");
+    activeOnboardingActions.nextElementSibling.classList.add("is-visible");
+        
+    // Update progress bar
+    const activeOnboardingProgressSlides = document.querySelectorAll(".c-premium-onboarding-progress-bar-item.is-completed");
+    // Get most recent "completed" progress bar section
+    const activeOnboardingProgressSlide = activeOnboardingProgressSlides[activeOnboardingProgressSlides.length - 1];
     activeOnboardingProgressSlide.nextElementSibling.classList.add(
       "is-completed"
     );
-
-    
-
-  }
+  },
+  quit: ()=> {
+    document.getElementById("profile-main").classList.remove("is-premium-onboarding");
+  },
 }
 
 premiumOnboarding.init();
