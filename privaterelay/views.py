@@ -158,7 +158,6 @@ def profile_subdomain(request):
                 'message': 'success-subdomain-registered'
             }, status=202)
     except CannotMakeSubdomainException as e:
-        messages.error(request, e.message, subdomain)
         return JsonResponse({
             'message': e.message,
             'subdomain': subdomain

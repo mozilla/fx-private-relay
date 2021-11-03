@@ -33,13 +33,14 @@
             // 
             // If we know their request is going to fail, we stop trying to catch the submission and let it fail. 
             // This will add a messages cookie with the "Domain Not Available" error and reload the page. 
-            if (response.redirected) {
-                return false;
-            }
+            // if (response.redirected) {
+            //     return false;
+            // }
 
             if (!response.ok) {
-                const message = `An error has occured: ${response.status}`;
-                throw new Error(message);
+                return false;
+                // const message = `An error has occured: ${response.status}`;
+                // throw new Error(message);
             }
 
             const status = await response.json();
@@ -58,18 +59,64 @@
             modalSubmit.disabled = false;
             return true;
         },
+        fetchPostSubmit: async ({ form, domain }) => {
+
+            const requestUrl = "/accounts/profile/subdomain";
+
+            const cookieString = typeof document.cookie === "string" ? document.cookie : "";
+            const cookieStringArray = cookieString
+                .split(";")
+                .map(individualCookieString => individualCookieString.split("="))
+                .map(([cookieKey, cookieValue]) => [cookieKey.trim(), cookieValue.trim()]);
+            // Looks like the `argsIgnorePattern` option for ESLint doesn't like array destructuring:
+            // eslint-disable-next-line no-unused-vars
+            const [_csrfCookieKey, csrfCookieValue] = cookieStringArray.find(([cookieKey, _cookieValue]) => cookieKey === "csrftoken");
+            const headers = new Headers();
+            headers.set("X-CSRFToken", csrfCookieValue);
+            // headers.set("Content-Type", "application/json");
+            headers.set("Accept", "application/json");
+
+            // const body = {
+            //     "subdomain": domain
+            // }
+
+            const response = await fetch(requestUrl, {
+                method: "post",
+                mode: "same-origin",
+                credentials: "same-origin",
+                headers: headers,
+                body: `subdomain=${domain}`
+            });
+
+            const status = await response.json();
+
+
+            return status;
+        },
+
         events: {
             onSubmit: async (e) => {
                 e.preventDefault();
 
-                const requestedDomain = document.querySelector(".js-subdomain-value").value;
-                const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);
                 
+
+                const currentForm = e.target;
+                const requestedDomain = currentForm.querySelector(".js-subdomain-value").value;
+                const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);               
+
+
                 if (domainCanBeRegistered) {
                     domainRegistration.modal.open(e.target);
                 } else {
                     // If the domain cannot be registered, submit the form to init an error message.
-                    e.target.submit();
+                    const formSubmission = await domainRegistration.fetchPostSubmit({
+                        "form": e.target, 
+                        "domain": requestedDomain
+                    });
+
+                    
+
+                    // e.target.submit();
                 }
             }
         },
@@ -78,7 +125,10 @@
                 const modal = document.querySelector(".js-modal-domain-registration-confirmation");
                 modal.classList.add("is-visible");
 
-                const requestedDomain = document.querySelector(".js-subdomain-value");
+
+                const requestedDomain = form.querySelector(".js-subdomain-value");
+
+
                 const requestedDomainPreviews = document.querySelectorAll(".js-modal-domain-registration-confirmation-domain-preview");
                 const requestedDomainPreviewEnding = document.querySelector(".js-modal-domain-registration-confirmation-domain-ending")
                 
@@ -106,8 +156,9 @@
 
                 const modalSubmit = document.querySelector(".js-modal-domain-registration-submit");
                 modalSubmit.parentFormHTMLElement = form;
+                modalSubmit.parentFormRequestedDomain = requestedDomain;
                 modalSubmit.disabled = true;
-                modalSubmit.addEventListener("click", domainRegistration.modal.formSubmit, false);
+                modalSubmit.addEventListener("click", domainRegistration.modal.formSubmitRequest, false);
 
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
                 modalConfirmCheckbox.checked = false;
@@ -135,7 +186,8 @@
                 document.removeEventListener("keydown", domainRegistration.modal.close, false);
 
             },
-            formSubmit: async (e) => {
+            formSubmitRequest: async (e) => {
+                
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
 
                 if (!modalConfirmCheckbox.checked) {
@@ -146,7 +198,13 @@
 
                 // Dashboard form: Close the modal
                 if (e.target.parentFormHTMLElement.id === "domainRegistration") {
-                    e.target.parentFormHTMLElement.submit();
+                    // e.target.parentFormHTMLElement.submit();
+                    const formSubmission = await domainRegistration.fetchPostSubmit({
+                        "form": e.target.parentFormHTMLElement, 
+                        "domain": e.target.parentFormRequestedDomain
+                    })
+
+
                     domainRegistration.modal.close();
                 }
 
