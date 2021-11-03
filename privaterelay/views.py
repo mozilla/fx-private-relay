@@ -153,12 +153,16 @@ def profile_subdomain(request):
         else:
             subdomain = request.POST.get('subdomain', None)
             profile.add_subdomain(subdomain)
-        messages.success(
-            request, 'success-subdomain-registered'
-        )
+            return JsonResponse({
+                'status': 'Accepted',
+                'message': 'success-subdomain-registered'
+            }, status=202)
     except CannotMakeSubdomainException as e:
         messages.error(request, e.message, subdomain)
-    return redirect(reverse('profile'))
+        return JsonResponse({
+            'message': e.message,
+            'subdomain': subdomain
+        }, status=400)
 
 
 def version(request):
