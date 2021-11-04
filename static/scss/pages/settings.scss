@@ -36,6 +36,9 @@
         box-shadow: none;
         text-align: start;
         margin-left: 0;
+        background-image: url("/static/images/icon-orange-info-triangle.svg");
+        background-repeat: no-repeat;
+        background-position: $spacing-md $spacing-md;
     }
 
     .c-settings-form--submit {
