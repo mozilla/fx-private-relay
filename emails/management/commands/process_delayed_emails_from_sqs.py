@@ -12,12 +12,14 @@ from django.core.management.base import BaseCommand
 from emails.views import (
     _sns_inbound_logic, validate_sns_header, verify_from_sns
 )
+from emails.utils import incr_if_enabled
 
 
 logger = logging.getLogger('events')
 
 
 def _verify_and_run_sns_inbound_on_message(message):
+    incr_if_enabled('rerun_message_from_sqs', 1)
     json_body = json.loads(message.body)
     verified_json_body = verify_from_sns(json_body)
     topic_arn = verified_json_body['TopicArn']
@@ -28,15 +30,23 @@ def _verify_and_run_sns_inbound_on_message(message):
         logger.info(f'processed sqs message ID: {message.message_id}')
         message.delete()
     except ClientError as e:
+        incr_if_enabled('rerun_message_from_sqs_error', 1)
+        logger.error('sqs_client_error: ', extra=e.response['Error'])
         temp_errors = ['throttling', 'pause']
         lower_error_code = e.response['Error']['Code'].lower()
         if any(temp_error in lower_error_code for temp_error in temp_errors):
+            incr_if_enabled('rerun_message_from_sqs_temp_error', 1)
+            logger.error(
+                '"temporary" error, sleeping for 1s: ',
+                extra=e.response['Error']
+            )
             time.sleep(1)
             try:
                 _sns_inbound_logic(topic_arn, message_type, verified_json_body)
                 logger.info(f'processed sqs message ID: {message.message_id}')
                 message.delete()
             except ClientError as e:
+                incr_if_enabled('rerun_message_from_sqs_error', 1)
                 logger.error('sqs_client_error: ', extra=e.response['Error'])
 
 
