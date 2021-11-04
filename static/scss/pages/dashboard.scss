@@ -118,7 +118,10 @@
 
     @media #{$mq-md} {
         right: auto;
-        left: $layout-lg;
+        // .mpp-action-tooltip-hover-wrapper:after (i.e. the triangle at the top)
+        // is $layout-sm from the left, so shift the whole thing that are to the
+        // left to make the arrow align with the "i" icon:
+        margin-left: -1 * $layout-sm;
     }
 }
 
