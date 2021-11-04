@@ -20,8 +20,6 @@ class EmailsConfig(AppConfig):
                 'ses', region_name=settings.AWS_REGION
             )
             self.s3_client = boto3.client('s3', region_name=settings.AWS_REGION)
-            self.sqs_client = boto3.resource('sqs', region_name=settings.AWS_REGION)
-            self.dl_queue = self.sqs_client.Queue(settings.AWS_SQS_QUEUE_URL)
         except Exception:
             logger.exception("exception during SES connect")
 

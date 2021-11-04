@@ -2,9 +2,10 @@ import json
 import logging
 import sys
 
+import boto3
 from botocore.exceptions import ClientError
 
-from django.apps import apps
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from emails.views import (
@@ -20,7 +21,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.exit_code = 0
         try:
-            dl_queue = apps.get_app_config('emails').dl_queue
+            sqs_client = boto3.resource('sqs', region_name=settings.AWS_REGION)
+            dl_queue = sqs_client.Queue(settings.AWS_SQS_QUEUE_URL)
         except ClientError as e:
             logger.error('sqs_client_error: ', extra=e.response['Error'])
             self.exit_code = 1
