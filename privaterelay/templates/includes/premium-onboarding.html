@@ -5,10 +5,10 @@
 <!-- <button class="c-premium-onboarding-dismiss js-premium-onboarding-dismiss"><img src="{% static 'images/x-close.svg' %}" alt="Close"></button> -->
 
 <!-- TODO: Remove/port classes from .c-premium-onboarding  -->
-<div class="c-premium-onboarding c-multipart-premium-onboarding">
+<div data-onboarding-completed-step="{{ user_profile.onboarding_state }}" data-max-onboarding-available="{{ settings.MAX_ONBOARDING_AVAILABLE }}" class="c-premium-onboarding c-multipart-premium-onboarding">
     <ul class="c-premium-onboarding-steps">
         <!-- Step 1 -->
-        <li class="c-premium-onboarding-step c-premium-onboarding-step-1 is-visible">
+        <li class="c-premium-onboarding-step c-premium-onboarding-step-1 {% if user_profile.onboarding_state == 0 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-xl">
                 <div class="c-premium-onboarding-headlines">
                     <h1>{% ftlmsg 'onboarding-premium-headline' %}</h1>
@@ -27,7 +27,7 @@
             </div>
         </li>
         <!-- Step 2 -->
-        <li class="c-premium-onboarding-step c-premium-onboarding-step-2">
+        <li class="c-premium-onboarding-step c-premium-onboarding-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-xl">
                 <div class="c-premium-onboarding-headlines">
                     <h1>Custom domain for sharing aliases</h1>
@@ -63,7 +63,7 @@
             </div>
         </li>
         <!-- Step 3 -->
-        <li class="c-premium-onboarding-step c-premium-onboarding-step-3">
+        <li class="c-premium-onboarding-step c-premium-onboarding-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-xl">
                 <div class="c-premium-onboarding-headlines">
                     <h1>Block, Forward, and Reply!</h1>
@@ -91,16 +91,16 @@
         <div class="mzp-l-content mzp-t-content-xl">
             <div class="c-premium-onboarding-actions-wrapper">
                 <!-- Step 1 -->
-                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-1  is-visible">
+                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-1  {% if user_profile.onboarding_state == 0 %} is-visible {% endif %}">
                     <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step">Get Started</button>
                 </div>
                 <!-- Step 2 -->
-                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-2 ">
+                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
                     <button class="c-button-as-text js-premium-onboarding-next-step" >I'll register my domain later</button>
                     <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step is-hidden">Continue</button>
                 </div>
                 <!-- Step 3 -->
-                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-3 ">
+                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
                     <button class="c-button-as-text js-premium-onboarding-quit-step">Continue, I’ll download the extension later</button>
                     <button class="mzp-c-button mzp-t-product js-premium-onboarding-quit-step">Create my first email alias</button>
                 </div>
@@ -108,15 +108,15 @@
     
 
             <ul class="c-premium-onboarding-progress-bar js-premium-onboarding-progress-bar">
-                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-1 is-completed" >
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-1 {% if user_profile.onboarding_state >= 0 %} is-completed {% endif %}" >
                     <span></span>
                     1
                 </li>
-                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-2" >
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-2 {% if user_profile.onboarding_state >= 1 %} is-completed {% endif %}" >
                     <span></span>
                     2
                 </li>
-                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-3" >
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-3 {% if user_profile.onboarding_state >= 2 %} is-completed {% endif %}" >
                     <span></span>
                     3
                 </li>

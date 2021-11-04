@@ -59,7 +59,7 @@
             modalSubmit.disabled = false;
             return true;
         },
-        fetchPostSubmit: async ({ form, domain }) => {
+        fetchPostSubmit: async ({ domain }) => {
 
             const requestUrl = "/accounts/profile/subdomain";
 

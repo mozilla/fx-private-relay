@@ -22,6 +22,7 @@ function apiRequest(path, options) {
     );
 }
 
+// eslint-disable-next-line no-unused-vars
 async function patchProfile(profileId, bodyObject) {
     const response = await apiRequest(
         `/profiles/${profileId}/`,

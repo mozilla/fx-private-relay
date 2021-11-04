@@ -736,7 +736,17 @@ const premiumOnboarding = {
       button.addEventListener("click", premiumOnboarding.quit, false);
     });
   },
-  next: ()=> {   
+  next: async ()=> {   
+
+    // Grab data necessary to update settings:onboarding_state value
+    const onboardingContainer = document.querySelector(".c-multipart-premium-onboarding");
+    const mainContainer = document.getElementById("profile-main");
+    const profileId = mainContainer.dataset.profileId;
+    let currentOnboardingState = parseInt(onboardingContainer.dataset.onboardingCompletedStep, 10);
+    const settings = {
+      onboarding_state: currentOnboardingState++,
+    };
+
     // Show next step content
     const activeOnboardingSlide = document.querySelector(".c-premium-onboarding-step.is-visible");
     activeOnboardingSlide.classList.remove("is-visible");
@@ -754,15 +764,31 @@ const premiumOnboarding = {
     activeOnboardingProgressSlide.nextElementSibling.classList.add(
       "is-completed"
     );
+
+
+    try {
+        const response = await patchProfile(profileId, settings);
+        if (!response.ok) {
+            throw new Error("Immediately catch'd to show an error message.");
+        }
+
+        onboardingContainer.dataset.onboardingCompletedStep = currentOnboardingState + 1;
+
+    } catch (e) {
+        // saveError.classList.remove("hidden");
+    }
+
   },
   quit: async ()=> {
-    const mainContainer = document.getElementById("profile-main");
+    const onboardingContainer = document.querySelector(".c-multipart-premium-onboarding");
+    let maxOnboardingState = parseInt(onboardingContainer.dataset.maxOnboardingAvailable, 10);
     
+    const mainContainer = document.getElementById("profile-main");
     mainContainer.classList.remove("is-premium-onboarding");
     
     const profileId = mainContainer.dataset.profileId;
     const settings = {
-      onboarding_state: 1,
+      onboarding_state: maxOnboardingState,
     };
 
     try {
