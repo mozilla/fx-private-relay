@@ -6,7 +6,7 @@
 
 <!-- TODO: Remove/port classes from .c-premium-onboarding  -->
 <div data-onboarding-completed-step="{{ user_profile.onboarding_state }}" data-max-onboarding-available="{{ settings.MAX_ONBOARDING_AVAILABLE }}" class="c-premium-onboarding c-multipart-premium-onboarding">
-    <ul class="c-premium-onboarding-steps">
+    <ol class="c-premium-onboarding-steps">
         <!-- Step 1 -->
         <li class="c-premium-onboarding-step c-premium-onboarding-step-1 {% if user_profile.onboarding_state == 0 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-xl">
@@ -86,7 +86,7 @@
                     <div class="c-premium-onboarding-content-description">
                         <p><strong>Reply to emails without giving away your real address:</strong> Need to reply to emails sent to an alias? Just reply as normal—your alias will still protect your email address.</p>
                         <p><strong>Get the Relay extension for Firefox</strong> The Relay extension for Firefox makes using email aliases even easier. Reply to emails without giving away your real address: Need to reply to emails sent to an alias? Just reply as normal—your alias will still protect your email address.</p>
-                        <a href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon" class="c-premium-onboarding-install-addon mzp-c-button mzp-t-product">Get Relay extension</a>
+                        <a target="_blank" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon" class="c-premium-onboarding-install-addon mzp-c-button mzp-t-product">Get Relay extension</a>
                         <div class="c-premium-onboarding-action-completed">
                             <img class="margin-right" src="/static/images/icon-check.svg" alt="">
                             Relay extension installed!
@@ -95,25 +95,55 @@
                 </div>
             </div>
         </li>
-    </ul>
+    </ol>
     <div class="c-premium-onboarding-progress">
         <div class="mzp-l-content mzp-t-content-xl">
             <div class="c-premium-onboarding-actions-wrapper">
                 <!-- Step 1 -->
                 <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-1  {% if user_profile.onboarding_state == 0 %} is-visible {% endif %}">
-                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step">Get Started</button>
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step"
+                    data-ga="send-ga-pings"
+                    data-event-category="Premium Onboarding"
+                    data-event-label="onboarding-step-1-continue"
+                    data-event-value="1"
+                    data-event-nonInteraction="false"
+                    >Get Started</button>
                 </div>
                 <!-- Step 2 -->
                 <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
                     {% if not user_profile.subdomain %}
-                        <button class="c-button-as-text js-premium-onboarding-next-step" >I'll register my domain later</button>
+                        <button class="c-button-as-text js-premium-onboarding-next-step"
+                            data-ga="send-ga-pings"
+                            data-event-category="Premium Onboarding"
+                            data-event-label="onboarding-step-2-skip"    
+                            data-event-value="2"
+                            data-event-nonInteraction="false"
+                         >I'll register my domain later</button>
                     {% endif %}
-                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step {% if not user_profile.subdomain %} is-hidden {% endif %}">Continue</button>
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step {% if not user_profile.subdomain %} is-hidden {% endif %}"
+                        data-ga="send-ga-pings"
+                        data-event-category="Premium Onboarding"
+                        data-event-label="onboarding-step-2-continue"    
+                        data-event-value="2"
+                        data-event-nonInteraction="false"
+                    >Continue</button>
                 </div>
                 <!-- Step 3 -->
                 <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
-                    <button class="c-button-as-text js-premium-onboarding-quit-step">Continue, I’ll download the extension later</button>
-                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-quit-step">
+                    <button class="c-button-as-text js-premium-onboarding-quit-step"
+                        data-ga="send-ga-pings"
+                        data-event-category="Premium Onboarding"
+                        data-event-label="onboarding-step-3-skip"    
+                        data-event-value="3"
+                        data-event-nonInteraction="false"
+                    >Continue, I’ll download the extension later</button>
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-quit-step"
+                        data-ga="send-ga-pings"
+                        data-event-category="Premium Onboarding"
+                        data-event-label="onboarding-step-3-continue"    
+                        data-event-value="3"
+                        data-event-nonInteraction="false"
+                    >
                         {% if relay_addresses|length == 0 %}
                             Create my first email alias
                         {% else %}
@@ -123,7 +153,7 @@
                 </div>
             </div>
     
-            <ul class="c-premium-onboarding-progress-bar js-premium-onboarding-progress-bar">
+            <ol class="c-premium-onboarding-progress-bar js-premium-onboarding-progress-bar">
                 <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-1 {% if user_profile.onboarding_state >= 0 %} is-completed {% endif %}" >
                     <span></span>
                     1
@@ -136,8 +166,8 @@
                     <span></span>
                     3
                 </li>
-            </ul>
-            <button class="c-button-as-text t-skip-button js-premium-onboarding-quit-step">Skip</button>
+            </ol>
+            <button class="c-button-as-text t-skip-button js-premium-onboarding-skip-step">Skip</button>
         </div>
     </div>
 </div>

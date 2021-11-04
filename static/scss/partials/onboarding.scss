@@ -273,6 +273,7 @@
         margin-bottom: $spacing-lg;
 
         span {
+            display: inline-block;
             color: $color-purple-50;
             font-weight: 700;
         }
@@ -287,6 +288,14 @@
 }
 
 // Step 3: Install add-on
+
+// .c-premium-onboarding-step-3 {
+//     .c-premium-onboarding-install-addon {       
+//         // TODO: Add query that user is on desktop Firefox to prompt install of add-on
+//     }
+// }
+
+
 firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay-addon-data + main {
 
     .c-premium-onboarding-step-3 {
@@ -298,6 +307,7 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
         .c-premium-onboarding-action-completed {
             display: inline flex;
         }
+        
     }
 
     .c-premium-onboarding-action-step-3 {
@@ -328,6 +338,8 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     samp {
         margin-bottom: 0;
         color: $color-informational;
+        max-width: 100%;
+        word-break: break-all;
 
         @include text-title-3xs;
     }

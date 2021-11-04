@@ -152,8 +152,28 @@
 
 .c-modal-footer {
     padding: 0;
-    display: flex;
-    justify-content: space-between;
+    
+    button {
+        width: 100%;
+
+        &:first-child {
+            margin-bottom: $spacing-md;
+        }
+    }
+    
+    @media #{$mq-md} {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row-reverse;
+        
+        button {
+            width: auto;
+            
+            &:first-child {
+                margin-bottom: 0;
+            }
+        }
+    }
 }
 
 .t-domain-registration-form {

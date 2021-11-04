@@ -735,6 +735,10 @@ const premiumOnboarding = {
     mppoQuitButtons.forEach((button) => {
       button.addEventListener("click", premiumOnboarding.quit, false);
     });
+
+    const mppoSkipButton = document.querySelector(".js-premium-onboarding-skip-step");
+    mppoSkipButton.addEventListener("click", premiumOnboarding.quit, false);
+    
   },
   next: async ()=> {   
 
@@ -783,7 +787,14 @@ const premiumOnboarding = {
     }
 
   },
-  quit: async ()=> {
+  quit: async (e)=> {
+     
+    if (e.target.classList.contains("js-premium-onboarding-skip-step")) {
+      const onboardingContainer = document.querySelector(".c-multipart-premium-onboarding");
+      const onboardingCurrentStep = parseInt(onboardingContainer.dataset.onboardingCompletedStep, 10) + 1;
+      sendGaPing("Premium Onboarding", "Engage", "onboarding-skip", onboardingCurrentStep);
+    }
+
     const onboardingContainer = document.querySelector(".c-multipart-premium-onboarding");
     let maxOnboardingState = parseInt(onboardingContainer.dataset.maxOnboardingAvailable, 10);
     
@@ -804,8 +815,6 @@ const premiumOnboarding = {
         // saveError.classList.remove("hidden");
     }
     
-    
-    // TODO: call patchProfile({'onboarding_state':onboardingState}) here
   },
 }
 
