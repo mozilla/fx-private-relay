@@ -434,11 +434,10 @@ def _reply_allowed(from_address, to_address, reply_record):
     ):
         # This is a Relay user replying to an external sender;
         # verify they are premium
-        if not reply_record.owner_has_premium:
+        if reply_record.owner_has_premium:
             # TODO: send the user an email
             # that replies are a premium feature
-            incr_if_enabled('free_user_reply_attempt', 1)
-            return False
+            return True
     else:
         # The From: is not a Relay user, so make sure this is a reply *TO* a
         # premium Relay user
@@ -448,12 +447,12 @@ def _reply_allowed(from_address, to_address, reply_record):
                 to_address, to_local_portion, to_domain_portion
             )
             user_profile = address.user.profile_set.first()
-            if not user_profile.has_premium:
-                incr_if_enabled('free_user_reply_attempt', 1)
-                return False
+            if user_profile.has_premium:
+                return True
         except (ObjectDoesNotExist):
             return False
-    return True
+    incr_if_enabled('free_user_reply_attempt', 1)
+    return False
 
 
 def _handle_reply(from_address, message_json, to_address):
