@@ -743,8 +743,12 @@ const premiumOnboarding = {
     const mainContainer = document.getElementById("profile-main");
     const profileId = mainContainer.dataset.profileId;
     let currentOnboardingState = parseInt(onboardingContainer.dataset.onboardingCompletedStep, 10);
+    
+    // Bump onboarding to next interger
+    currentOnboardingState++
+
     const settings = {
-      onboarding_state: currentOnboardingState++,
+      onboarding_state: currentOnboardingState,
     };
 
     // Show next step content
@@ -765,15 +769,15 @@ const premiumOnboarding = {
       "is-completed"
     );
 
-
     try {
         const response = await patchProfile(profileId, settings);
         if (!response.ok) {
             throw new Error("Immediately catch'd to show an error message.");
         }
-
-        onboardingContainer.dataset.onboardingCompletedStep = currentOnboardingState + 1;
-
+        
+        // Update DOM data-set for future usage
+        onboardingContainer.dataset.onboardingCompletedStep = currentOnboardingState;
+        
     } catch (e) {
         // saveError.classList.remove("hidden");
     }
