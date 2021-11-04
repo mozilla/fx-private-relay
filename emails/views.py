@@ -323,9 +323,10 @@ def _sns_message(message_json):
             return  HttpResponse(
                 "Rely replies require a premium account", status=403
             )
-    except InReplyToNotFound:
-        # if there's no In-Reply-To header, continue to treat this as a regular
-        # email from an external sender to a relay user
+    except (InReplyToNotFound, Reply.DoesNotExist):
+        # if there's no In-Reply-To header, or the In-Reply-To value doesn't
+        # match a Reply record, continue to treat this as a regular email from
+        # an external sender to a relay user
         pass
 
     if address and not address.enabled:
