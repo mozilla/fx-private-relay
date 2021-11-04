@@ -174,7 +174,7 @@
 .c-gray-bg {
     background: linear-gradient(180deg, $color-light-gray-20 0%, $color-light-gray-10 3%);
     height: auto;
-    padding-top: $layout-md 0 $layout-xs 0;
+    padding-top: $layout-md;
 
     @media #{$mq-lg} {
         padding: 0;
@@ -218,11 +218,11 @@
                 justify-self: left;
             }
 
-            li:nth-child(3) {
+            .has-subtext {
                 line-height: 100%;
             }
 
-            .c-feature-3-subtext {
+            .subtext {
                 @include text-body-sm;
                 margin: 0;
                 color: $color-grey-40;
