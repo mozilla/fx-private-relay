@@ -403,6 +403,7 @@ def _sns_message(message_json):
 
 
 def _get_keys_from_headers(headers):
+    in_reply_to = None
     for header in headers:
         if header['name'].lower() == 'in-reply-to':
             in_reply_to = header['value']
