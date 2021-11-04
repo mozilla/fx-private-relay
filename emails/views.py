@@ -57,6 +57,11 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 logger = logging.getLogger('events')
 
 
+class InReplyToNotFound(Exception):
+    def __init__(self, message="No In-Reply-To header."):
+        self.message = message
+
+
 @csrf_exempt
 def index(request):
     incr_if_enabled('emails_index', 1)
@@ -308,6 +313,21 @@ def _sns_message(message_json):
         incr_if_enabled('email_suppressed_for_%s_bounce' % bounce_type, 1)
         return HttpResponse("Address is temporarily disabled.")
 
+    # check if this is a reply from an external sender to a Relay user
+    try:
+        (lookup_key, encryption_key) = _get_keys_from_headers(mail['headers'])
+        reply_record = _get_reply_record_from_lookup_key(lookup_key)
+        address = reply_record.address
+        # make sure the relay user is premium
+        if not _reply_allowed(from_address, to_address, reply_record):
+            return  HttpResponse(
+                "Rely replies require a premium account", status=403
+            )
+    except InReplyToNotFound:
+        # if there's no In-Reply-To header, continue to treat this as a regular
+        # email from an external sender to a relay user
+        pass
+
     if address and not address.enabled:
         incr_if_enabled('email_for_disabled_address', 1)
         address.num_blocked += 1
@@ -389,7 +409,7 @@ def _get_keys_from_headers(headers):
             message_id_bytes = get_message_id_bytes(in_reply_to)
     if in_reply_to is None:
         incr_if_enabled('mail_to_replies_without_in_reply_to', 1)
-        raise Exception("Received mail to reply address without In-Reply-To")
+        raise InReplyToNotFound
     return derive_reply_keys(message_id_bytes)
 
 
