@@ -3,7 +3,7 @@
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 <div class="modal c-modal-wrapper js-modal-domain-registration-confirmation">
-  <div class="c-modal t-domain-registration">
+  <div class="c-modal  t-domain-registration js-domain-registration-form">
     
     <div class="c-modal-header t-domain-registration-hero">
       <div class="c-modal-header-content">
@@ -32,4 +32,27 @@
       </button>
     </div>
   </div>
+
+  <div class="c-modal is-hidden t-domain-registration-success js-domain-registration-success">
+    
+    <div class="c-modal-header t-domain-registration-hero">
+      <div class="c-modal-header-content">
+        <span class="c-modal-header-headline"><img src="{% static 'images/icon-check-green.svg' %}" aria-hidden="true" alt="check mark"> Success!</span>
+        <h3><strong class="js-modal-domain-registration-confirmation-domain-preview"></strong><span class="js-modal-domain-registration-confirmation-domain-ending"></span></h3>
+        <span class="c-modal-header-headline">is now your email domain</span>
+      </div>
+    </div>
+
+    <div class="c-modal-body t-domain-registration-body">
+      <img src="{% static 'images/dashboard-onboarding/success-party.svg' %}" aria-hidden="true" alt="party streamers">
+      <p>Now you can create unlimited email aliases using your new domain! What are you waiting for?</p>
+    </div>
+
+    <div class="c-modal-footer">
+      <button type="button" class="mzp-c-button mzp-t-product js-modal-domain-registration-continue">
+        Continue
+      </button>
+    </div>
+  </div>
+
 </div>

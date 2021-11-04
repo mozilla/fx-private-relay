@@ -109,6 +109,10 @@
                         "domain": requestedDomain
                     });
 
+                    e.target.classList.add("mzp-is-error")
+
+                    console.log(formSubmission);
+
                     // e.target.submit();
                 }
             }
@@ -149,7 +153,7 @@
 
                 const modalSubmit = document.querySelector(".js-modal-domain-registration-submit");
                 modalSubmit.parentFormHTMLElement = form;
-                modalSubmit.parentFormRequestedDomain = requestedDomain;
+                modalSubmit.parentFormRequestedDomain = requestedDomain.value;
                 modalSubmit.disabled = true;
                 modalSubmit.addEventListener("click", domainRegistration.modal.formSubmitRequest, false);
 
@@ -189,20 +193,48 @@
 
                 e.target.parentFormHTMLElement.removeEventListener("submit", domainRegistration.events.onSubmit, false);  
 
-                // Dashboard form: Close the modal
-                if (e.target.parentFormHTMLElement.id === "domainRegistration") {
-                    // e.target.parentFormHTMLElement.submit();
-                    const formSubmission = await domainRegistration.fetchPostSubmit({
-                        "form": e.target.parentFormHTMLElement, 
-                        "domain": e.target.parentFormRequestedDomain
-                    })
+                console.log(e.target.parentFormRequestedDomain);
 
-                    domainRegistration.modal.close();
+                const formSubmission = await domainRegistration.fetchPostSubmit({
+                    "form": e.target.parentFormHTMLElement, 
+                    "domain": e.target.parentFormRequestedDomain
+                });
+
+                console.log(formSubmission, e.target.parentFormHTMLElement.id);
+
+                switch (e.target.parentFormHTMLElement.id) {
+                    case "domainRegistration":
+                        domainRegistration.modal.close();
+                        break;
+                    case "onboardingDomainRegistration":
+                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain);
+                        break;
                 }
 
                 // TODO: Submit form and catch success state changes to the modal for multi-step onboarding form
-
+                
             },
+            showSuccessState: (domain)=> {
+                const modalRegistrationForm = document.querySelector(".js-domain-registration-form");
+                const modalRegistrationSuccessState = document.querySelector(".js-domain-registration-success");
+                modalRegistrationForm.classList.add("is-hidden");
+                modalRegistrationSuccessState.classList.remove("is-hidden");
+
+                const modalContinue = document.querySelector(".js-modal-domain-registration-continue");
+                modalContinue.addEventListener("click", domainRegistration.modal.close, false);
+
+                const domainPreview = document.querySelector(".js-premium-onboarding-domain-registration-preview");
+                domainPreview.textContent = domain + ".mozmail.com";
+
+                const onboardingDomainRegistration = document.querySelector(".js-premium-onboarding-domain-registration-form");
+                onboardingDomainRegistration.classList.add("is-hidden");
+                onboardingDomainRegistration.nextElementSibling.classList.add("is-visible");
+
+                const onboardingDomainRegistrationActionButtons = document.querySelectorAll(".c-premium-onboarding-action-step-2 button");
+                onboardingDomainRegistrationActionButtons.forEach( button => {
+                    button.classList.toggle("is-hidden");
+                });
+            }
         }
     }
 

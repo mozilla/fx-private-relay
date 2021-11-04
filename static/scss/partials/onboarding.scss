@@ -217,7 +217,6 @@
         &.t-skip-button {
             margin-bottom: 0;
         }
-        
 
         &:hover {
             color: $color-informational-hover;
@@ -290,12 +289,15 @@
 // Step 3: Install add-on
 firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay-addon-data + main {
 
-    .c-premium-onboarding-install-addon {
-        display: none;
-    }
-
-    .c-premium-onboarding-addon-installed {
-        display: inline flex;
+    .c-premium-onboarding-step-3 {
+        
+        .c-premium-onboarding-install-addon {
+            display: none;
+        }
+    
+        .c-premium-onboarding-action-completed {
+            display: inline flex;
+        }
     }
 
     .c-premium-onboarding-action-step-3 {
@@ -314,7 +316,7 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     display: none;
 }
 
-.c-premium-onboarding-addon-installed {
+.c-premium-onboarding-action-completed {
     padding: $spacing-md;
     padding-inline-end: $spacing-lg;
     background-color: $color-white;
@@ -322,6 +324,16 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     align-items: center;
     border-radius: $border-radius-md;
     width: auto;
+
+    samp {
+        margin-bottom: 0;
+        color: $color-informational;
+        @include text-title-3xs;
+    }
+
+    &.is-visible {
+        display: inline flex;
+    }
 
     img {
         margin-right: $spacing-sm;
@@ -405,4 +417,15 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
             }
         }
     }
+}
+
+// TODO: DELETE
+.temp-debug {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 99;
+    background: rgba(#750c0c, .8);
+    color: white;
+    padding: $spacing-md;
 }
