@@ -238,9 +238,21 @@ function addEventListeners() {
   const mobileMenuWrapper = document.querySelector(".mobile-menu");
   if (mobileMenuWrapper) {
     const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
+
+    const mainWrapper = document.querySelector("main");
+    const mobileMenuWrapperHeight = mobileMenuWrapper.offsetHeight + 24;
+    
     mobileMenuButton.addEventListener("click", () => {
       mobileMenuWrapper.classList.toggle("menu-open");
-    });
+
+      if (mainWrapper.style.marginTop == 0 || mainWrapper.style.marginTop == "0px" ) {
+        mainWrapper.style.marginTop = mobileMenuWrapperHeight + "px";
+      }
+      else {
+        mainWrapper.style.marginTop = 0;
+      }
+     });
+
   }
 
   document.querySelectorAll(".js-dismiss").forEach(btn => {
@@ -257,6 +269,7 @@ function hasParent(el, selector) {
   }
   return null;
 }
+
 
 function handleLegacyAddonLabels(legacyNoteElem) {
   const legacyNote = legacyNoteElem.textContent;
