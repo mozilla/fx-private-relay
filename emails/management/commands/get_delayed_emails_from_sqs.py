@@ -1,6 +1,7 @@
 import json
 import logging
 import sys
+import time
 
 import boto3
 from botocore.exceptions import ClientError
@@ -14,6 +15,30 @@ from emails.views import (
 
 
 logger = logging.getLogger('events')
+
+
+def _verify_and_run_sns_inbound_on_message(message):
+    json_body = json.loads(message.body)
+    verified_json_body = verify_from_sns(json_body)
+    topic_arn = verified_json_body['TopicArn']
+    message_type = verified_json_body['Type']
+    validate_sns_header(topic_arn, message_type)
+    try:
+        _sns_inbound_logic(topic_arn, message_type, verified_json_body)
+        logger.info(f'processed sqs message ID: {message.message_id}')
+        message.delete()
+    except ClientError as e:
+        temp_errors = ['throttling', 'pause']
+        lower_error_code = e.response['Error']['Code'].lower()
+        if any(temp_error in lower_error_code for temp_error in temp_errors):
+            time.sleep(1)
+            try:
+                _sns_inbound_logic(topic_arn, message_type, verified_json_body)
+                logger.info(f'processed sqs message ID: {message.message_id}')
+                message.delete()
+            except ClientError as e:
+                logger.error('sqs_client_error: ', extra=e.response['Error'])
+
 
 class Command(BaseCommand):
     help = 'Fetches messages from SQS dead-letter queue and processes them.'
@@ -33,14 +58,8 @@ class Command(BaseCommand):
         )
         while len(messages) > 0:
             for message in messages:
-                json_body = json.loads(message.body)
-                verified_json_body = verify_from_sns(json_body)
-                topic_arn = verified_json_body['TopicArn']
-                message_type = verified_json_body['Type']
-                validate_sns_header(topic_arn, message_type)
-                _sns_inbound_logic(topic_arn, message_type, verified_json_body)
-                logger.info(f'processed sqs message ID: {message.message_id}')
-                message.delete()
+                _verify_and_run_sns_inbound_on_message(message)
+
             messages = dl_queue.receive_messages(
                 MaxNumberOfMessages=10, WaitTimeSeconds=1
             )
