@@ -199,7 +199,8 @@
     position: relative;
 
     @media #{$mq-md} {
-        min-height: calc(100vh - 150px);
+        // 150px is an approx. size of the header and footer combined
+        min-height: calc(100vh - 150px); 
         flex-direction: column;
         justify-content: space-between;
     }
