@@ -1,3 +1,5 @@
+/* global patchProfile */
+
 function dismissNotification() {
 	const notification = document.querySelector(".js-notification");
 	notification.classList.toggle("hidden");
@@ -753,8 +755,26 @@ const premiumOnboarding = {
       "is-completed"
     );
   },
-  quit: ()=> {
-    document.getElementById("profile-main").classList.remove("is-premium-onboarding");
+  quit: async ()=> {
+    const mainContainer = document.getElementById("profile-main");
+    
+    mainContainer.classList.remove("is-premium-onboarding");
+    
+    const profileId = mainContainer.dataset.profileId;
+    const settings = {
+      onboarding_state: 1,
+    };
+
+    try {
+        const response = await patchProfile(profileId, settings);
+        if (!response.ok) {
+            throw new Error("Immediately catch'd to show an error message.");
+        }
+    } catch (e) {
+        saveError.classList.remove("hidden");
+    }
+    
+    
     // TODO: call patchProfile({'onboarding_state':onboardingState}) here
   },
 }

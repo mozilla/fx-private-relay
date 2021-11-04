@@ -1,3 +1,5 @@
+/* global patchProfile */
+
 (function() {
 	"use strict";
 
