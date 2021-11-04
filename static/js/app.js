@@ -303,25 +303,25 @@ function showBannersIfNecessary() {
 
   const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
 
-  const dashboardBanners = document.querySelector(".dashboard-banners");
-  if (!dashboardBanners) {
+  const addonBanners = document.querySelector(".dashboard-banners .addon");
+  if (!addonBanners) {
     return;
   }
 
   const showBanner = (bannerEl) => {
     setTimeout(()=> {
       bannerEl.classList.remove("hidden");
-      dashboardBanners.classList.remove("invisible");
+      addonBanners.classList.remove("invisible");
     }, 500);
     return;
   };
 
   if (!browserIsFirefox) {
-    const firefoxBanner = dashboardBanners.querySelector(".download-fx-banner");
+    const firefoxBanner = addonBanners.querySelector(".download-fx-banner");
     showBanner(firefoxBanner);
     return;
   }
-  const relayAddonBanner = dashboardBanners.querySelector(".install-addon-banner");
+  const relayAddonBanner = addonBanners.querySelector(".install-addon-banner");
   return showBanner(relayAddonBanner);
 }
 
