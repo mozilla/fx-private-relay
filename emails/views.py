@@ -57,6 +57,11 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 logger = logging.getLogger('events')
 
 
+class InReplyToNotFound(Exception):
+    def __init__(self, message="No In-Reply-To header."):
+        self.message = message
+
+
 @csrf_exempt
 def index(request):
     incr_if_enabled('emails_index', 1)
@@ -298,7 +303,7 @@ def _sns_message(message_json):
         user_profile = address.user.profile_set.first()
     except (ObjectDoesNotExist):
         if to_local_portion == 'replies':
-            return _handle_reply(from_address, message_json)
+            return _handle_reply(from_address, message_json, to_address)
 
         return HttpResponse("Address does not exist", status=404)
 
@@ -307,6 +312,21 @@ def _sns_message(message_json):
     if bounce_paused:
         incr_if_enabled('email_suppressed_for_%s_bounce' % bounce_type, 1)
         return HttpResponse("Address is temporarily disabled.")
+
+    # check if this is a reply from an external sender to a Relay user
+    try:
+        (lookup_key, encryption_key) = _get_keys_from_headers(mail['headers'])
+        reply_record = _get_reply_record_from_lookup_key(lookup_key)
+        address = reply_record.address
+        # make sure the relay user is premium
+        if not _reply_allowed(from_address, to_address, reply_record):
+            return  HttpResponse(
+                "Rely replies require a premium account", status=403
+            )
+    except InReplyToNotFound:
+        # if there's no In-Reply-To header, continue to treat this as a regular
+        # email from an external sender to a relay user
+        pass
 
     if address and not address.enabled:
         incr_if_enabled('email_for_disabled_address', 1)
@@ -389,7 +409,7 @@ def _get_keys_from_headers(headers):
             message_id_bytes = get_message_id_bytes(in_reply_to)
     if in_reply_to is None:
         incr_if_enabled('mail_to_replies_without_in_reply_to', 1)
-        raise Exception("Received mail to reply address without In-Reply-To")
+        raise InReplyToNotFound
     return derive_reply_keys(message_id_bytes)
 
 
@@ -404,29 +424,47 @@ def _strip_localpart_tag(address):
     return f'{subaddress_parts[0]}@{domain}'
 
 
-def _handle_reply(from_address, message_json):
+def _reply_allowed(from_address, to_address, reply_record):
     stripped_from_address = _strip_localpart_tag(from_address)
-
-    mail = message_json['mail']
-    (lookup_key, encryption_key) = _get_keys_from_headers(mail['headers'])
-    reply_record = _get_reply_record_from_lookup_key(lookup_key)
-    address = reply_record.address
-    reply_record_email = address.user.email
+    reply_record_email = reply_record.address.user.email
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
-
     if (
         (from_address == reply_record_email) or
         (stripped_from_address == stripped_reply_record_address)
     ):
         # This is a Relay user replying to an external sender;
         # verify they are premium
-        if not reply_record.owner_has_premium:
+        if reply_record.owner_has_premium:
             # TODO: send the user an email
             # that replies are a premium feature
-            incr_if_enabled('free_user_reply_attempt', 1)
-            return HttpResponse(
-                "Rely replies require a premium account", status=403
+            return True
+    else:
+        # The From: is not a Relay user, so make sure this is a reply *TO* a
+        # premium Relay user
+        try:
+            [to_local_portion, to_domain_portion] = to_address.split('@')
+            address = _get_address(
+                to_address, to_local_portion, to_domain_portion
             )
+            user_profile = address.user.profile_set.first()
+            if user_profile.has_premium:
+                return True
+        except (ObjectDoesNotExist):
+            return False
+    incr_if_enabled('free_user_reply_attempt', 1)
+    return False
+
+
+def _handle_reply(from_address, message_json, to_address):
+    mail = message_json['mail']
+    (lookup_key, encryption_key) = _get_keys_from_headers(mail['headers'])
+    reply_record = _get_reply_record_from_lookup_key(lookup_key)
+    address = reply_record.address
+
+    if not _reply_allowed(from_address, to_address, reply_record):
+        return  HttpResponse(
+            "Rely replies require a premium account", status=403
+        )
 
     outbound_from_address = address.full_address
     decrypted_metadata = json.loads(decrypt_reply_metadata(
