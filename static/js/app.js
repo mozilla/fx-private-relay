@@ -771,7 +771,7 @@ const premiumOnboarding = {
             throw new Error("Immediately catch'd to show an error message.");
         }
     } catch (e) {
-        saveError.classList.remove("hidden");
+        // saveError.classList.remove("hidden");
     }
     
     
