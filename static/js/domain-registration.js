@@ -101,19 +101,16 @@
 
 
                 if (domainCanBeRegistered) {
+
+                    // Dismiss error state if visible
+                    const messages = document.querySelector(".js-notification");
+                    messages.classList.add("is-hidden");
+                    e.target.classList.remove("mzp-is-error");
                     domainRegistration.modal.open(e.target);
                 } else {
-                    // If the domain cannot be registered, submit the form to init an error message.
-                    const formSubmission = await domainRegistration.fetchPostSubmit({
-                        "form": e.target, 
-                        "domain": requestedDomain
-                    });
-
+                    // If the domain cannot be registered, add error state to the form, and display an error message.
                     e.target.classList.add("mzp-is-error")
-
-                    console.log(formSubmission);
-
-                    // e.target.submit();
+                    domainRegistration.showError(requestedDomain);
                 }
             }
         },
@@ -193,18 +190,21 @@
 
                 e.target.parentFormHTMLElement.removeEventListener("submit", domainRegistration.events.onSubmit, false);  
 
-                console.log(e.target.parentFormRequestedDomain);
-
                 const formSubmission = await domainRegistration.fetchPostSubmit({
                     "form": e.target.parentFormHTMLElement, 
                     "domain": e.target.parentFormRequestedDomain
                 });
 
-                console.log(formSubmission, e.target.parentFormHTMLElement.id);
-
+                if (formSubmission.status !== "Accepted") {
+                    throw new Error();
+                }
+                
+                document.getElementById("mpp-choose-subdomain").classList.add("is-hidden");
+                
                 switch (e.target.parentFormHTMLElement.id) {
                     case "domainRegistration":
                         domainRegistration.modal.close();
+                        domainRegistration.showSuccess(e.target.parentFormRequestedDomain);
                         break;
                     case "onboardingDomainRegistration":
                         domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain);
@@ -235,6 +235,39 @@
                     button.classList.toggle("is-hidden");
                 });
             }
+        },
+        showError: (requestedDomain) => {
+            const messages = document.querySelector(".js-notification");
+            const messageWrapper = messages.querySelector(".message-wrapper");
+            const messageWrapperSpan = messageWrapper.querySelector("span");
+            const messageFluent = messages.querySelector("fluent");
+            messages.classList.remove("is-hidden");
+            messageWrapper.classList.remove("success");
+            messageWrapper.classList.add("error");
+
+            // Grab the translated message, replace the domain placeholder with requested domain and post the message. 
+            let message = messageFluent.dataset.errorSubdomainNotAvailable;
+            message = message.replace("REPLACE", requestedDomain); 
+            messageWrapperSpan.textContent = message;
+        },
+        showSuccess: (requestedDomain) => {
+            const messages = document.querySelector(".js-notification");
+            const messageWrapper = messages.querySelector(".message-wrapper");
+            const messageWrapperSpan = messageWrapper.querySelector("span");
+            const messageFluent = messages.querySelector("fluent");
+            messages.classList.remove("is-hidden");
+            messageWrapper.classList.remove("error");
+            messageWrapper.classList.add("success");
+
+            // Grab the translated message, replace the domain placeholder with requested domain and post the message. 
+            let message = messageFluent.dataset.successSubdomainRegistered;
+            message = message.replace("REPLACE", requestedDomain); 
+            messageWrapperSpan.textContent = message;
+
+            // Reload the page
+            setTimeout(()=>{
+                location.reload(); 
+            }, 2000);
         }
     }
 

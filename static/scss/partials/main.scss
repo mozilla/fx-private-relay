@@ -1362,6 +1362,10 @@ firefox-private-relay-addon[data-addon-installed="false"] + firefox-private-rela
     padding: $spacing-lg $spacing-md;
     margin: 0 auto;
 
+    &.is-hidden {
+        display: none;
+    }
+
     span {
         color: $color-white;
         text-align: center;

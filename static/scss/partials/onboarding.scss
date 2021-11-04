@@ -328,6 +328,7 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     samp {
         margin-bottom: 0;
         color: $color-informational;
+
         @include text-title-3xs;
     }
 
@@ -417,15 +418,4 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
             }
         }
     }
-}
-
-// TODO: DELETE
-.temp-debug {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    z-index: 99;
-    background: rgba(#750c0c, .8);
-    color: white;
-    padding: $spacing-md;
 }
