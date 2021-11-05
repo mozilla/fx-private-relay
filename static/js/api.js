@@ -34,6 +34,7 @@ async function patchProfile(profileId, bodyObject) {
     return response;
 }
 
+// eslint-disable-next-line no-unused-vars
 async function postProfileSubdomain( { domain }){
 
     const requestUrl = "/accounts/profile/subdomain";

@@ -191,14 +191,14 @@
 .t-domain-registration-success {
 
     .c-modal-header {
-        padding-bottom: $layout-md;
+        padding-bottom: $spacing-2xl;
     }
     
     .t-domain-registration-body {
 
         img {
             position: relative;
-            margin-top: -$layout-md;
+            margin-top: -$spacing-2xl;
             margin-bottom: $spacing-md;
         }
         
