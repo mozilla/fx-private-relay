@@ -132,9 +132,7 @@ function deleteAliasConfirmation(submitEvent) {
   checkbox.focus();
 
   const closeModal = () => {
-    const confirmDeleteModalActions =
-      confirmDeleteModal.querySelectorAll("button");
-    const deleteAnywayBtn = confirmDeleteModalActions[1];
+    const deleteAnywayBtn = confirmDeleteModal.querySelector(".js-modal-delete-confirm-delete");
     deleteAnywayBtn.disabled = true;
     checkbox.checked = false;
     confirmDeleteModal.classList.remove("is-visible");
@@ -157,7 +155,7 @@ function deleteAliasConfirmation(submitEvent) {
 
   // Enable "Delete Anyway" button once the checkbox has been clicked.
   const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
-  const deleteAnywayBtn = confirmDeleteModalActions[1];
+  const deleteAnywayBtn = confirmDeleteModal.querySelector(".js-modal-delete-confirm-delete");
   checkbox.addEventListener("change", () => {
     if (checkbox.checked) {
       deleteAnywayBtn.disabled = false;
