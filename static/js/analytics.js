@@ -95,7 +95,7 @@ function handleIntersectingElem(entries, analyticsObserver) {
 }
 
 // eslint-disable-next-line no-redeclare
-function sendGaPing(eventCategory, eventAction, eventLabel,) {
+function sendGaPing(eventCategory, eventAction, eventLabel) {
   if (isGoogleAnalyticsAvailable()) {
     return ga("send", "event", eventCategory, eventAction, eventLabel);
   }
@@ -341,15 +341,11 @@ if (!_dntEnabled()) {
       }
       const eventAction = eventData.eventAction || "Engage";
       const eventValue = eventData.eventValue || null;
-      const eventNonInteraction = eventData.eventNonInteraction || null;
       
-      if (eventNonInteraction && isGoogleAnalyticsAvailable()) {
-        ga("send", "event", eventData.eventCategory, eventAction,  eventData.eventLabel, eventValue, {
-          nonInteraction: eventNonInteraction
-        });
-      } else if (isGoogleAnalyticsAvailable()) {
+      if (isGoogleAnalyticsAvailable()) {
         ga("send", "event", eventData.eventCategory, eventAction,  eventData.eventLabel, eventValue);
       }
+
       if (eventData.eventCategory === "Purchase Button") {
         document.cookie = "clicked-purchase=true; path=/; samesite=lax; secure";
       }

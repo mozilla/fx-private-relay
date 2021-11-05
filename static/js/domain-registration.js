@@ -1,3 +1,5 @@
+/* global postProfileSubdomain */
+
 (function() {
 	"use strict";
 
@@ -59,36 +61,6 @@
             modalSubmit.disabled = false;
             return true;
         },
-        fetchPostSubmit: async ({ domain }) => {
-
-            const requestUrl = "/accounts/profile/subdomain";
-
-            const cookieString = typeof document.cookie === "string" ? document.cookie : "";
-            const cookieStringArray = cookieString
-                .split(";")
-                .map(individualCookieString => individualCookieString.split("="))
-                .map(([cookieKey, cookieValue]) => [cookieKey.trim(), cookieValue.trim()]);
-                
-            // Looks like the `argsIgnorePattern` option for ESLint doesn't like array destructuring:
-            // eslint-disable-next-line no-unused-vars
-            const [_csrfCookieKey, csrfCookieValue] = cookieStringArray.find(([cookieKey, _cookieValue]) => cookieKey === "csrftoken");
-            const headers = new Headers();
-            headers.set("X-CSRFToken", csrfCookieValue);
-            headers.set("Content-Type", " application/x-www-form-urlencoded");
-            headers.set("Accept", "application/json");
-
-            const response = await fetch(requestUrl, {
-                method: "post",
-                headers: headers,
-                body: `subdomain=${domain}`
-            });
-
-            const status = await response.json();
-
-
-            return status;
-        },
-
         events: {
             onSubmit: async (e) => {
                 e.preventDefault();
@@ -190,7 +162,7 @@
 
                 e.target.parentFormHTMLElement.removeEventListener("submit", domainRegistration.events.onSubmit, false);  
 
-                const formSubmission = await domainRegistration.fetchPostSubmit({
+                const formSubmission = await postProfileSubdomain({
                     "form": e.target.parentFormHTMLElement, 
                     "domain": e.target.parentFormRequestedDomain
                 });

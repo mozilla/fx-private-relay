@@ -347,6 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
   privacyNoticeUpdateBannerLogic();
   dataCollectionBannerLogic();
   scrollToSubdomainRegistrationAndShowErrorState();
+  premiumOnboarding.init();
 
   // TODO: Set up language gate once l10n is active.
   // const preferredLanguages = navigator.languages;
@@ -713,11 +714,16 @@ faqQuestion.forEach(item => {
   expandButton.addEventListener("click", () => showFAQAnswer(item), false);
 });
 
-// TODO: Add element check to init everything.
-
 // Multi-part Premium Onboarding
 const premiumOnboarding = {
   init: ()=> {
+    
+    const profileMain = document.getElementById("profile-main");
+
+    if (!profileMain || !profileMain.classList.contains("is-premium-onboarding")) {
+      return;
+    }
+    
     const mppoNextButtons = document.querySelectorAll(
       ".js-premium-onboarding-next-step"
     );
@@ -749,7 +755,7 @@ const premiumOnboarding = {
     // Bump onboarding to next interger
     currentOnboardingState++
 
-    const settings = {
+    const profileData = {
       onboarding_state: currentOnboardingState,
     };
 
@@ -772,7 +778,7 @@ const premiumOnboarding = {
     );
 
     try {
-        const response = await patchProfile(profileId, settings);
+        const response = await patchProfile(profileId, profileData);
         if (!response.ok) {
             throw new Error("Immediately catch'd to show an error message.");
         }
@@ -800,12 +806,12 @@ const premiumOnboarding = {
     mainContainer.classList.remove("is-premium-onboarding");
     
     const profileId = mainContainer.dataset.profileId;
-    const settings = {
+    const profileData = {
       onboarding_state: maxOnboardingState,
     };
 
     try {
-        const response = await patchProfile(profileId, settings);
+        const response = await patchProfile(profileId, profileData);
         if (!response.ok) {
             throw new Error("Immediately catch'd to show an error message.");
         }
@@ -815,6 +821,3 @@ const premiumOnboarding = {
     
   },
 }
-
-premiumOnboarding.init();
-
