@@ -14,11 +14,11 @@
     </div>
 
     <div class="c-modal-body t-domain-registration-body">
-      <p>{% ftlmsg 'modal-domain-register-warning' %}</p>
+      <p>{% ftlmsg 'modal-domain-register-warning-reminder' %}</p>
       <div class="t-domain-registration-form">
         <label for="domainRegistrationCheckbox" class="mzp-u-inline">
           <input required type="checkbox" name="domainRegistrationCheckbox" id="domainRegistrationCheckbox" class="js-modal-domain-registration-confirmation-checkbox">
-          {% ftlmsg 'modal-domain-register-confirmation' subdomain='' %} <strong class="js-modal-domain-registration-confirmation-domain-preview">@yourdomainname</strong>
+          {% ftlmsg 'modal-domain-register-confirmation' subdomain='' %} <strong class="js-modal-domain-registration-confirmation-domain-preview">@{% ftlmsg 'banner-register-subdomain-example-address' %}</strong>
         </label>
       </div>
     </div>
@@ -37,20 +37,20 @@
     
     <div class="c-modal-header t-domain-registration-hero">
       <div class="c-modal-header-content">
-        <span class="c-modal-header-headline"><img src="{% static 'images/icon-check-green.svg' %}" aria-hidden="true" alt="check mark"> Success!</span>
+        <span class="c-modal-header-headline"><img src="{% static 'images/icon-check-green.svg' %}" aria-hidden="true" alt="check mark">{% ftlmsg 'modal-domain-register-success-title' %}</span>
         <h3><strong class="js-modal-domain-registration-confirmation-domain-preview"></strong><span class="js-modal-domain-registration-confirmation-domain-ending"></span></h3>
-        <span class="c-modal-header-headline">is now your email domain</span>
+        <span class="c-modal-header-headline">{% ftlmsg 'modal-domain-register-success' subdomain='' %}</span>
       </div>
     </div>
 
     <div class="c-modal-body t-domain-registration-body">
       <img src="{% static 'images/dashboard-onboarding/success-party.svg' %}" aria-hidden="true" alt="party streamers">
-      <p>Now you can create unlimited email aliases using your new domain! What are you waiting for?</p>
+      <p>{% ftlmsg 'modal-domain-register-success-copy' %}</p>
     </div>
 
     <div class="c-modal-footer">
       <button type="button" class="mzp-c-button mzp-t-product js-modal-domain-registration-continue">
-        Continue
+        {% ftlmsg 'profile-label-continue' %}
       </button>
     </div>
   </div>
