@@ -13,6 +13,7 @@
     "gulp": "^4.0.2",
     "gulp-if": "^3.0.0",
     "gulp-sass": "^5.0.0",
+    "gulp-sourcemaps": "^3.0.0",
     "merge-stream": "^2.0.0",
     "sass": "1.32.13"
   },

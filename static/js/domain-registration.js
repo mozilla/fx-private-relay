@@ -1,12 +1,18 @@
+/* global postProfileSubdomain */
+
 (function() {
 	"use strict";
 
+    // Note: The form in which this function is init on is passed across multiple subfunctions (via event.target and 
+    // custom event params). Additionally, based on which form is passed, additional logic/functionality is applied.
+    // The two different forms are:
+    //  1. Multi-step Onboarding (Step 2) / id: "onboardingDomainRegistration"
+    //  2. Dashboard Page (Banner) / id: "domainRegistrationForm"
+    
     const domainRegistration = {
-        init: () => {
-            const domainRegistrationForm = document.getElementById("domainRegistration");
-
-            if (domainRegistrationForm) {
-                domainRegistrationForm.addEventListener("submit", domainRegistration.events.onSubmit, false);  
+        init: (form) => {
+            if (form) {
+                form.addEventListener("submit", domainRegistration.events.onSubmit, false);  
             }
         },
         checkIfDomainIsSafeAndAvailable: async (domain)=> {
@@ -29,13 +35,14 @@
             // 
             // If we know their request is going to fail, we stop trying to catch the submission and let it fail. 
             // This will add a messages cookie with the "Domain Not Available" error and reload the page. 
-            if (response.redirected) {
-                return false;
-            }
+            // if (response.redirected) {
+            //     return false;
+            // }
 
             if (!response.ok) {
-                const message = `An error has occured: ${response.status}`;
-                throw new Error(message);
+                return false;
+                // const message = `An error has occured: ${response.status}`;
+                // throw new Error(message);
             }
 
             const status = await response.json();
@@ -58,24 +65,36 @@
             onSubmit: async (e) => {
                 e.preventDefault();
 
-                const requestedDomain = document.querySelector(".js-subdomain-value").value;
-                const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);
                 
+
+                const currentForm = e.target;
+                const requestedDomain = currentForm.querySelector(".js-subdomain-value").value;
+                const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);               
+
+
                 if (domainCanBeRegistered) {
-                    domainRegistration.modal.open();
+
+                    // Dismiss error state if visible
+                    const messages = document.querySelector(".js-notification");
+                    messages.classList.add("is-hidden");
+                    e.target.classList.remove("mzp-is-error");
+                    domainRegistration.modal.open(e.target);
                 } else {
-                    // If the domain cannot be registered, submit the form to init an error message.
-                    const domainRegistrationForm = document.getElementById("domainRegistration");
-                    domainRegistrationForm.submit();
+                    // If the domain cannot be registered, add error state to the form, and display an error message.
+                    e.target.classList.add("mzp-is-error")
+                    domainRegistration.showError(requestedDomain);
                 }
             }
         },
         modal: {
-            open: () => {
+            open: (form) => {
                 const modal = document.querySelector(".js-modal-domain-registration-confirmation");
                 modal.classList.add("is-visible");
 
-                const requestedDomain = document.querySelector(".js-subdomain-value");
+
+                const requestedDomain = form.querySelector(".js-subdomain-value");
+
+
                 const requestedDomainPreviews = document.querySelectorAll(".js-modal-domain-registration-confirmation-domain-preview");
                 const requestedDomainPreviewEnding = document.querySelector(".js-modal-domain-registration-confirmation-domain-ending")
                 
@@ -102,8 +121,10 @@
                 modalCancel.addEventListener("click", domainRegistration.modal.close, false);
 
                 const modalSubmit = document.querySelector(".js-modal-domain-registration-submit");
+                modalSubmit.parentFormHTMLElement = form;
+                modalSubmit.parentFormRequestedDomain = requestedDomain.value;
                 modalSubmit.disabled = true;
-                modalSubmit.addEventListener("click", domainRegistration.modal.formSubmit, false);
+                modalSubmit.addEventListener("click", domainRegistration.modal.formSubmitRequest, false);
 
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
                 modalConfirmCheckbox.checked = false;
@@ -131,21 +152,103 @@
                 document.removeEventListener("keydown", domainRegistration.modal.close, false);
 
             },
-            formSubmit: async () => {
+            formSubmitRequest: async (e) => {
+                
                 const modalConfirmCheckbox = document.querySelector(".js-modal-domain-registration-confirmation-checkbox");
 
                 if (!modalConfirmCheckbox.checked) {
                     return false;
                 }
-               
-                const domainRegistrationForm = document.getElementById("domainRegistration");
-                domainRegistrationForm.removeEventListener("submit", domainRegistration.events.onSubmit, false);  
-                domainRegistrationForm.submit();
-                domainRegistration.modal.close();
+
+                e.target.parentFormHTMLElement.removeEventListener("submit", domainRegistration.events.onSubmit, false);  
+
+                const formSubmission = await postProfileSubdomain({
+                    "form": e.target.parentFormHTMLElement, 
+                    "domain": e.target.parentFormRequestedDomain
+                });
+
+                if (formSubmission.status !== "Accepted") {
+                    throw new Error();
+                }
+                
+                document.getElementById("mpp-choose-subdomain").classList.add("is-hidden");
+                
+                switch (e.target.parentFormHTMLElement.id) {
+                    case "domainRegistration":
+                        domainRegistration.modal.close();
+                        domainRegistration.showSuccess(e.target.parentFormRequestedDomain);
+                        break;
+                    case "onboardingDomainRegistration":
+                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain);
+                        break;
+                }
+
+                // TODO: Submit form and catch success state changes to the modal for multi-step onboarding form
+                
             },
+            showSuccessState: (domain)=> {
+                const modalRegistrationForm = document.querySelector(".js-domain-registration-form");
+                const modalRegistrationSuccessState = document.querySelector(".js-domain-registration-success");
+                modalRegistrationForm.classList.add("is-hidden");
+                modalRegistrationSuccessState.classList.remove("is-hidden");
+
+                const modalContinue = document.querySelector(".js-modal-domain-registration-continue");
+                modalContinue.addEventListener("click", domainRegistration.modal.close, false);
+
+                const domainPreview = document.querySelector(".js-premium-onboarding-domain-registration-preview");
+                domainPreview.textContent = domain + ".mozmail.com";
+
+                const onboardingDomainRegistration = document.querySelector(".js-premium-onboarding-domain-registration-form");
+                onboardingDomainRegistration.classList.add("is-hidden");
+                onboardingDomainRegistration.nextElementSibling.classList.add("is-visible");
+
+                const onboardingDomainRegistrationActionButtons = document.querySelectorAll(".c-premium-onboarding-action-step-2 button");
+                onboardingDomainRegistrationActionButtons.forEach( button => {
+                    button.classList.toggle("is-hidden");
+                });
+            }
+        },
+        showError: (requestedDomain) => {
+            const messages = document.querySelector(".js-notification");
+            const messageWrapper = messages.querySelector(".message-wrapper");
+            const messageWrapperSpan = messageWrapper.querySelector("span");
+            const messageFluent = messages.querySelector("fluent");
+            messages.classList.remove("is-hidden");
+            messageWrapper.classList.remove("success");
+            messageWrapper.classList.add("error");
+
+            // Grab the translated message, replace the domain placeholder with requested domain and post the message. 
+            let message = messageFluent.dataset.errorSubdomainNotAvailable;
+            message = message.replace("REPLACE", requestedDomain); 
+            messageWrapperSpan.textContent = message;
+        },
+        showSuccess: (requestedDomain) => {
+            const messages = document.querySelector(".js-notification");
+            const messageWrapper = messages.querySelector(".message-wrapper");
+            const messageWrapperSpan = messageWrapper.querySelector("span");
+            const messageFluent = messages.querySelector("fluent");
+            messages.classList.remove("is-hidden");
+            messageWrapper.classList.remove("error");
+            messageWrapper.classList.add("success");
+
+            // Grab the translated message, replace the domain placeholder with requested domain and post the message. 
+            let message = messageFluent.dataset.successSubdomainRegistered;
+            message = message.replace("REPLACE", requestedDomain); 
+            messageWrapperSpan.textContent = message;
+
+            // Reload the page
+            setTimeout(()=>{
+                location.reload(); 
+            }, 2000);
         }
     }
 
-    document.addEventListener("DOMContentLoaded", domainRegistration.init, false);
+    document.addEventListener("DOMContentLoaded", ()=>{
+        const domainRegistrationForm = document.getElementById("domainRegistration");
+        const onboardingDomainRegistrationForm = document.getElementById("onboardingDomainRegistration");
+
+        domainRegistration.init(domainRegistrationForm)
+        domainRegistration.init(onboardingDomainRegistrationForm)
+    }, false);
 
 })();

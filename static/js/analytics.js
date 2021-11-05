@@ -341,9 +341,11 @@ if (!_dntEnabled()) {
       }
       const eventAction = eventData.eventAction || "Engage";
       const eventValue = eventData.eventValue || null;
+      
       if (isGoogleAnalyticsAvailable()) {
         ga("send", "event", eventData.eventCategory, eventAction,  eventData.eventLabel, eventValue);
       }
+
       if (eventData.eventCategory === "Purchase Button") {
         document.cookie = "clicked-purchase=true; path=/; samesite=lax; secure";
       }

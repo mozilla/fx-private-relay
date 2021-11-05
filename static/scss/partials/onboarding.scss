@@ -13,7 +13,6 @@
         color: $color-black;
         margin-bottom: $spacing-lg;
     }
-    
 }
 
 .c-onboarding-steps {
@@ -72,7 +71,7 @@
 .c-premium-onboarding {
     position: relative;
 
-    &.is-hidden {
+    &.is-hidden, .is-hidden {
         display: none;
     }
 
@@ -172,6 +171,305 @@
 
         &:hover {
             color: $color-purple-50;
+        }
+    }
+}
+
+// Multi-part Premium Onboarding
+.is-premium-onboarding {
+
+    .c-multipart-premium-onboarding {
+        display: block;
+
+        @media #{$mq-md} {
+            display: flex;
+        }
+    }
+    
+    .dashboard-mpp-promo, .domain-alias-dashboard, .main-list, .mpp-dashbaord-header {
+        display: none;
+    }
+}
+
+.c-multipart-premium-onboarding {
+    display: none;
+    max-width: $content-lg;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+
+    @media #{$mq-md} {
+        // 150px is an approx. size of the header and footer combined
+        min-height: calc(100vh - 150px);
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .c-button-as-text {
+        cursor: pointer;
+        appearance: none;
+        background-color: transparent;
+        border: none;
+        color: $color-informational;
+
+        @include text-body-sm;
+        margin-bottom: $spacing-sm;
+        
+        &.t-skip-button {
+            margin-bottom: 0;
+        }
+
+        &:hover {
+            color: $color-informational-hover;
+        }
+    }
+
+    .c-premium-onboarding-content-image, .c-premium-onboarding-content-description {
+        @media #{$mq-md} {
+            width: 50%;
+            max-width: none;
+        }
+    }
+
+
+
+    .c-premium-onboarding-headlines {
+
+        h1 {
+            color: $color-purple-50;
+
+            @include text-title-sm;
+            margin-bottom: $spacing-md;
+        }
+
+        h2 {
+            @include text-title-3xs;
+        }
+
+        .c-premium-onboarding-content-description {
+            @include text-body-lg;
+        }
+    }
+
+    
+}
+
+
+
+.c-premium-onboarding-step {
+    display: none;
+
+    &.is-visible {
+        display: block;
+    }
+}
+
+// Step 2: Register custom subdomain 
+.c-premium-onboarding-step-2 {
+
+    samp {
+        @include text-title-2xs;
+        display: block;
+        color: $color-grey-30;
+        margin-bottom: $spacing-lg;
+
+        span {
+            display: inline-block;
+            color: $color-purple-50;
+            font-weight: 700;
+        }
+
+        @media #{$mq-md} {
+            @include text-title-3xs;
+        }
+        @media #{$mq-lg} {
+            @include text-title-2xs;
+        }
+    }
+}
+
+// Step 3: Install add-on
+
+.c-premium-onboarding-step-3 {
+
+    .c-premium-onboarding-install-addon a {
+        display: none;
+
+        @media #{$mq-md} {
+            display: inline-block;
+        }
+        // TODO: Add query that user is on desktop Firefox to prompt install of add-on
+    }
+}
+
+.c-premium-onboarding-action-step-3 {
+
+    .c-button-as-text {
+        display: none;
+
+        @media #{$mq-md} {
+            display: inline-block;
+        }
+    }
+
+    .mzp-c-button {
+        display: inline-block;
+
+        @media #{$mq-md} {
+            display: none;
+        }
+    }
+}
+
+
+firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay-addon-data + main {
+
+    .c-premium-onboarding-step-3 {
+        
+        .c-premium-onboarding-install-addon {
+            display: none;
+        }
+    
+        .c-premium-onboarding-action-completed {
+            display: inline-flex;
+        }
+        
+    }
+
+    .c-premium-onboarding-action-step-3 {
+
+        .mzp-c-button {
+            display: inline-block;
+        }
+        
+        .c-button-as-text {
+            display: none;
+        }
+    }
+}
+
+
+// Logic to hide prompts to install add-on on browsers that don't support it. 
+.is-not-addon-compatible {
+
+    .c-premium-onboarding-install-addon a {
+        display: none;
+    }
+
+    .c-premium-onboarding-action-step-3 {
+
+        .c-button-as-text {
+            display: none;
+        }
+
+        .mzp-c-button {
+            display: inline-block;
+        }
+    }
+}
+
+.c-premium-onboarding-action-completed {
+    padding: $spacing-md;
+    padding-inline-end: $spacing-lg;
+    background-color: $color-white;
+    display: none;
+    align-items: center;
+    border-radius: $border-radius-md;
+    width: auto;
+
+    samp {
+        margin-bottom: 0;
+        color: $color-informational;
+        max-width: 100%;
+        word-break: break-all;
+
+        @include text-title-3xs;
+    }
+
+    &.is-visible {
+        display: inline-flex;
+    }
+
+    img {
+        margin-right: $spacing-sm;
+    }
+}
+
+// Progress Bar
+.c-premium-onboarding-progress {
+    background-color: $color-grey-05;
+    width: 100%;
+    text-align: center;
+    position: sticky;
+    z-index: 2;
+    bottom: 0;
+    box-shadow: $box-shadow-sm;
+
+    @media #{$mq-md} {
+        box-shadow: none;
+        position: static;
+        bottom: auto;
+    }
+
+    .c-premium-onboarding-actions-wrapper {
+        padding-bottom: $spacing-sm;
+
+        @media #{$mq-md} {
+            padding-bottom: $spacing-lg;
+        }
+    }
+
+    .c-premium-onboarding-actions {
+        display: none;
+        text-align: center;
+        padding-top: 0;
+        padding-bottom: $spacing-md;
+
+        &.is-visible {
+            display: block;
+        }
+        
+        .mzp-c-button.is-hidden {
+            display: none;
+        }
+    }
+    
+}
+
+.c-premium-onboarding-progress-bar {
+    display: flex;
+    width: 100%;
+    max-width: $content-md;
+    margin: 0 auto $spacing-sm;
+    gap: $spacing-sm;
+    
+
+    @media #{$mq-md} {
+        margin-bottom: $spacing-md;
+    }
+    
+    .c-premium-onboarding-progress-bar-item {
+        width: 100%;
+        color: $color-grey-20;
+        text-align: center;
+        transition: color .2s ease-out;
+        
+        span {
+            display: block;
+            height: 5px;
+            background-color: $color-grey-20;
+            margin-bottom: $spacing-xs;
+            box-shadow: inset 0 0 0 0 $color-violet-30;
+            transition: box-shadow 1s ease-out, color .2s ease-out;
+            
+        }
+        
+        &.is-completed {
+            color: $color-violet-30;
+
+            span {
+                box-shadow: inset 300px 0 0 0 $color-violet-30;
+            }
         }
     }
 }

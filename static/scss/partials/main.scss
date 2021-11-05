@@ -28,6 +28,7 @@ body {
     font-size: 16px;
     overscroll-behavior: contain;
     line-height: 1.2;
+    background-color: $color-grey-05;
 }
 
 .c-body-wrapper.t-dark {
@@ -1360,6 +1361,10 @@ firefox-private-relay-addon[data-addon-installed="false"] + firefox-private-rela
     width: 100%;
     padding: $spacing-lg $spacing-md;
     margin: 0 auto;
+
+    &.is-hidden {
+        display: none;
+    }
 
     span {
         color: $color-white;

@@ -7,6 +7,7 @@
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 {% block javascript %}
+  <script src="{% static 'js/api.js' %}"></script>
   <script src="{% static 'js/filter.js' %}"></script>
   <script src="{% static 'js/labels.js' %}"></script>
 {% endblock %}
@@ -29,10 +30,26 @@
 >
 </firefox-private-relay-addon-data>
 
-<main id="profile-main" class="{% if user_profile.server_storage %} js-server-storage-enabled {% endif %} bg-light dashboard-container " data-api-token="{{ user_profile.api_token }}">
+<main
+    id="profile-main"
+    class="
+    bg-light dashboard-container
+    {% if user_profile.server_storage %} js-server-storage-enabled {% endif %}
+    {% if user_profile.has_premium and user_profile.onboarding_state < settings.MAX_ONBOARDING_AVAILABLE %} is-premium-onboarding {% endif %}
+    "
+    data-api-token="{{ user_profile.api_token }}"
+    data-onboarding-state="{{ user_profile.onboarding_state }}"
+    data-profile-id="{{ user_profile.id }}"
+>
+
+  
   <div class="messages-profile">
     {% include "includes/messages.html" %}
+    {% include "includes/messages-frontend.html" %}
   </div>
+  
+  {% include "includes/premium-onboarding.html" %}
+  
   {% if user_profile.has_premium and user_profile.num_active_address > 0 %}
   <div class="mpp-dashbaord-header">
     <div class="mpp-dashbaord-header-container inset">
