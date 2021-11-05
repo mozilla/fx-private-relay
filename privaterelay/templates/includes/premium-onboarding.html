@@ -2,9 +2,6 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<!-- <button class="c-premium-onboarding-dismiss js-premium-onboarding-dismiss"><img src="{% static 'images/x-close.svg' %}" alt="Close"></button> -->
-
-<!-- TODO: Remove/port classes from .c-premium-onboarding  -->
 <div data-onboarding-completed-step="{{ user_profile.onboarding_state }}" data-max-onboarding-available="{{ settings.MAX_ONBOARDING_AVAILABLE }}" class="c-premium-onboarding c-multipart-premium-onboarding">
     <ol class="c-premium-onboarding-steps">
         <!-- Step 1 -->
