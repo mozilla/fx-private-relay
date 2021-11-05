@@ -318,7 +318,12 @@ function showBannersIfNecessary() {
 
   if (!browserIsFirefox) {
     const firefoxBanner = dashboardBanners.querySelector(".download-fx-banner");
+    // Used to show/hide add-on download prompts in onboarding
+    document.getElementById("profile-main").classList.add("is-not-addon-compatible")
     showBanner(firefoxBanner);
+
+
+
     return;
   }
   const relayAddonBanner = dashboardBanners.querySelector(".install-addon-banner");

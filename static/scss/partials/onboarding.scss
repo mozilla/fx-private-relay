@@ -290,11 +290,31 @@
 
 // Step 3: Install add-on
 
-// .c-premium-onboarding-step-3 {
-//     .c-premium-onboarding-install-addon {       
-//         // TODO: Add query that user is on desktop Firefox to prompt install of add-on
-//     }
-// }
+.c-premium-onboarding-step-3 {
+    .c-premium-onboarding-install-addon a {       
+        display: none;
+        @media #{$mq-md} {
+            display: inline-block;
+        }
+        // TODO: Add query that user is on desktop Firefox to prompt install of add-on
+    }
+}
+
+.c-premium-onboarding-action-step-3 {
+    .c-button-as-text {
+        display: none;
+        @media #{$mq-md} {
+            display: inline-block;
+        }
+    }
+
+    .mzp-c-button {
+        display: inline-block;
+        @media #{$mq-md} {
+            display: none;
+        }
+    }
+}
 
 
 firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay-addon-data + main {
@@ -306,7 +326,7 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
         }
     
         .c-premium-onboarding-action-completed {
-            display: inline flex;
+            display: inline-flex;
         }
         
     }
@@ -323,8 +343,20 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     }
 }
 
-.c-premium-onboarding-action-step-3 .mzp-c-button {
-    display: none;
+
+// Logic to hide prompts to install add-on on browsers that don't support it. 
+.is-not-addon-compatible {
+    .c-premium-onboarding-install-addon a {
+        display: none;
+    }
+    .c-premium-onboarding-action-step-3 {
+        .c-button-as-text {
+            display: none;
+        }
+        .mzp-c-button {
+            display: inline-block;
+        }
+    }
 }
 
 .c-premium-onboarding-action-completed {
@@ -346,7 +378,7 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     }
 
     &.is-visible {
-        display: inline flex;
+        display: inline-flex;
     }
 
     img {
