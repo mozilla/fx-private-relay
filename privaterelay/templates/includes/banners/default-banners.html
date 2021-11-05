@@ -1,0 +1,58 @@
+{% load static %}
+{% load relay_tags %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+<div class="dashboard-banners invisible">
+    <div class="flx hide-750">
+        <div class="banner-gradient-bg addon">
+            <!-- Download Firefox Banner -->
+            <div class="download-fx-banner banner-content flx flx-row hidden">
+                <div class="banner-fx-logo banner-logo"></div>
+                <div class="banner-copy flx flx-col">
+                    <p class="banner-hl ff-Met">{% ftlmsg 'banner-download-firefox-headline' %}</p>
+                    <p class="banner-sub">{% ftlmsg 'banner-download-firefox-copy' %}</p>
+                    <a class="banner-link ff-Met"
+                        href="https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx"
+                        target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-download-firefox-cta' %}</a>
+                </div>
+            </div>
+            <!-- Download Add On Banner -->
+            <div class="install-addon-banner banner-content flx flx-row hidden">
+                <div class="banner-relay-logo banner-logo"></div>
+                <div class="banner-copy flx flx-col">
+                    <p class="banner-hl ff-Met">{% ftlmsg 'banner-download-install-extension-headline' %}</p>
+                    <p class="banner-sub">{% ftlmsg 'banner-download-install-extension-copy' %}</p>
+                    <a class="banner-link ff-Met"
+                        href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon"
+                        target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-download-install-extension-cta' %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upgrade Banner -->
+    {% with request.user.profile_set.first as user_profile %}
+    {% if not user_profile.has_premium and settings.PREMIUM_ENABLED %}
+    <div class="flx">
+        <div class="banner-gradient-bg">
+            <div class="go-premium-banner banner-content flx flx-row">
+                <div class="banner-mpp-logo banner-logo"></div>
+                <div class="banner-copy flx flx-col">
+                    <p class="banner-hl ff-Met">{% ftlmsg 'banner-upgrade-headline' %}</p>
+                    <p class="banner-sub">{% ftlmsg 'banner-upgrade-copy' %}</p>
+                    <a class="banner-link ff-Met" target="_blank" rel="noopener noreferrer"
+                        href="{% premium_subscribe_url accept_language %}" data-ga="send-ga-pings"
+                        data-event-category="Purchase Button" data-event-label="profile-banner-promo"
+                        data-cookie-for-server="clicked-purchase">
+                        {% ftlmsg 'banner-upgrade-cta' %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+

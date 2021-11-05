@@ -1,0 +1,57 @@
+{% load static %}
+{% load relay_tags %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+{% if last_bounce_type %}
+<div class="dashboard-banners flx hide-750">
+    <div class="banner-gradient-bg">
+        <div class="bounced-email-banner banner-content flx flx-row">
+            <div class="banner-copy flx flx-col">
+                <p class="banner-hl ff-Met">{% ftlmsg 'banner-bounced-headline' %}</p>
+                <p class="banner-sub">{% ftlmsg 'banner-bounced-copy' username=request.user.email
+                    bounce_type=last_bounce_type date=next_email_try|date:"SHORT_DATETIME_FORMAT" %}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+
+{% if show_data_notification_banner %}
+{% with request.user.profile_set.first as user_profile %}
+  {% if not user_profile.server_storage %}
+    <div id="sync-labels" class="c-notification-banner c-data-notification-banner t-warning is-hidden">
+      <div class="dismiss-wrapper">
+        <button class="notification-dismiss js-data-collection-dismiss"><img src="{% static 'images/x-close.svg' %}"></button>
+      </div>
+      <div class="notification-banner-bg">
+        <div class="notification-banner-content">
+          <div class="notification-banner-copy">
+            <p class="notification-banner-header">{% ftlmsg 'banner-label-data-notification-header' %}</p>
+            <p class="notification-banner-sub">{% ftlmsg 'banner-label-data-notification-body' %}</p>
+            <a class="notification-banner-link" href="/accounts/settings" rel="noopener noreferrer">{% ftlmsg 'banner-label-data-notification-cta' %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endwith %}
+{% endif %}
+{% endif %}
+
+{% if not settings.PREMIUM_ENABLED %}
+  <div id="privacy-notice-update" class="js-privacy-notice-update-banner c-notification-banner c-privacy-notice-update-banner t-warning is-hidden">
+    <div class="dismiss-wrapper">
+      <button class="notification-dismiss js-privacy-notice-update-dismiss"><img src="{% static 'images/x-close.svg' %}"></button>
+    </div>
+    <div class="notification-banner-bg">
+      <div class="notification-banner-content">
+        <div class="notification-banner-copy">
+          <p class="notification-banner-header">{% ftlmsg 'banner-label-privacy-notice-update-header' %}</p>
+          <p class="notification-banner-sub">{% ftlmsg 'banner-label-privacy-notice-update-body' %}</p>
+          <a class="notification-banner-link" href="https://www.mozilla.org/privacy/firefox-relay/?utm_source={{ settings.SITE_ORIGIN }}" target="_blank" rel="noopener noreferrer">{% ftlmsg 'banner-label-privacy-notice-update-cta' %}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
