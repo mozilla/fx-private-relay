@@ -17,7 +17,7 @@
                         <img src="{% static 'images/dashboard-onboarding/woman-couch.svg' %}" alt="Woman sitting on a couch">
                     </div>
                     <div class="c-premium-onboarding-content-description">
-                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-welcome-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-welcome-description' %}</p>
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-welcome-title' %}</strong> {% ftlmsg 'onboarding-premium-control-description' %}</p>
                     </div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
             <div class="mzp-l-content mzp-t-content-xl">
                 <div class="c-premium-onboarding-headlines">
                     <h1>{% ftlmsg 'multi-part-onboarding-premium-domain-headline' %}</h1>
-                    <h2>{% ftlmsg 'multi-part-onboarding-premium-domain-subheadline' %}</h2>
+                    <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
                 </div>
 
                 <div class="c-premium-onboarding-content">
@@ -35,11 +35,10 @@
                         <img src="{% static 'images/dashboard-onboarding/man-laptop-email-alt.svg' %}" alt="Man sitting with laptop computer">
                     </div>
                     <div class="c-premium-onboarding-content-description">
-                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-domain-description' %}</p>
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-domain-description' mozmail='.mozmail.com' %}</p>
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
-                                <!-- TODO: Move samp inside domainRegistration form -->
                                 <samp>***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
                                 <form id="onboardingDomainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                                     {% csrf_token %}
@@ -72,7 +71,7 @@
             <div class="mzp-l-content mzp-t-content-xl">
                 <div class="c-premium-onboarding-headlines">
                     <h1>{% ftlmsg 'multi-part-onboarding-premium-extension-headline' %}</h1>
-                    <h2>{% ftlmsg 'multi-part-onboarding-premium-extension-subheadline' %}</h2>
+                    <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
                 </div>
 
                 <div class="c-premium-onboarding-content">
@@ -80,7 +79,7 @@
                         <img src="{% static 'images/dashboard-onboarding/woman-email.svg' %}" alt="Woman next to large envelope">
                     </div>
                     <div class="c-premium-onboarding-content-description">
-                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-reply-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-extension-reply-description' %}</p>
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-reply-title' %}</strong> {% ftlmsg 'onboarding-premium-reply-description'%}</p>
                         <div class="c-premium-onboarding-install-addon">
                             <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-get-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-extension-get-description' %}</p>
                             <a target="_blank" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon" class=" mzp-c-button mzp-t-product">{% ftlmsg 'multi-part-onboarding-premium-extension-button-download' %}</a>
