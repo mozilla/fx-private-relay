@@ -344,6 +344,7 @@ document.addEventListener("DOMContentLoaded", () => {
   vpnBannerLogic();
   setTranslatedStringLinks();
   premiumOnboardingLogic();
+  privacyNoticeUpdateBannerLogic();
   dataCollectionBannerLogic();
   scrollToSubdomainRegistrationAndShowErrorState();
 
@@ -540,6 +541,54 @@ function premiumOnboardingLogic() {
   };
 
   premiumOnboardingFunctions.init();
+}
+
+function privacyNoticeUpdateBannerLogic() {
+  // Check if element exists at all
+  const privacyNoticeUpdateBanner = document.getElementById("privacy-notice-update");
+
+  if (!privacyNoticeUpdateBanner) {
+    return;
+  }
+
+  // Check for dismissal cookie
+  const privacyNoticeUpdateBannerDismissedCookie = document.cookie
+    .split(";")
+    .some((item) => item.trim().startsWith("privacyNoticeUpdateBanner="));
+
+  if (privacyNoticeUpdateBannerDismissedCookie) {
+    return;
+  }
+
+  // Init: Show banner, set close button listener
+  const privacyNoticeUpdateBannerCloseButton = document.querySelector(
+    ".js-privacy-notice-update-dismiss"
+  );
+
+  const privacyNoticeUpdateBannerFunctions = {
+    hide: function () {
+      privacyNoticeUpdateBannerFunctions.setCookie();
+      privacyNoticeUpdateBanner.classList.add("is-hidden");
+    },
+    init: function () {
+      privacyNoticeUpdateBannerCloseButton.addEventListener(
+        "click",
+        privacyNoticeUpdateBannerFunctions.hide
+      );
+      privacyNoticeUpdateBannerFunctions.show();
+    },
+    setCookie: function () {
+      const date = new Date();
+      date.setTime(date.getTime() + 30 * 24 * 60 * 60 * 1000);
+      document.cookie =
+        "privacyNoticeUpdateBanner=true; expires=" + date.toUTCString() + "; path=/";
+    },
+    show: function () {
+      privacyNoticeUpdateBanner.classList.remove("is-hidden");
+    },
+  };
+
+  privacyNoticeUpdateBannerFunctions.init();
 }
 
 function dataCollectionBannerLogic() {
