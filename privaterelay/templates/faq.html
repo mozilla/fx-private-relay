@@ -47,10 +47,21 @@
               <h2 class="faq-headline">{% ftlmsg 'faq-question-8-question' %}</h2>
               <p class="faq-answer js-set-href">{% ftlmsg 'faq-question-8-answer-html' url='https://www.mozilla.org/privacy/firefox-relay/' attrs='class="text-link" data-url="https://www.mozilla.org/privacy/firefox-relay/"' %}</p>
             </section>
+            <section class="faq" id="faq-email-storage">
+              <h2 class="faq-headline">{% ftlmsg 'faq-question-email-storage-question' %}</h2>
+              <p class="faq-answer js-set-href">{% ftlmsg 'faq-question-email-storage-answer' url='https://www.mozilla.org/privacy/firefox-relay/' attrs='class="text-link" data-url="https://www.mozilla.org/privacy/firefox-relay/"' %}</p>
+            </section>
+            <section class="faq" id="faq-use-cases">
+              <h2 class="faq-headline">{% ftlmsg 'faq-question-use-cases-question' %}</h2>
+              <div class="faq-answer">
+                <p>{% ftlmsg 'faq-question-use-cases-answer-part1' %}</p>
+                <p>{% ftlmsg 'faq-question-use-cases-answer-part2' %}</p>
+              </div>
+            </section>
           {% else %}
             <section class="faq" id="faq-what-is">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-what-is-question' %}</h2>
-              <p class="faq-answer js-set-href">
+              <p class="faq-answer">
                 {% ftlmsg 'faq-question-what-is-answer' %}
               </p>
             </section>
@@ -71,9 +82,10 @@
             </section>
             <section class="faq" id="faq-use-cases">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-use-cases-question' %}</h2>
-              <p class="faq-answer js-set-href">
-                {% ftlmsg 'faq-question-use-cases-answer' %}
-              </p>
+              <div class="faq-answer">
+                <p>{% ftlmsg 'faq-question-use-cases-answer-part1' %}</p>
+                <p>{% ftlmsg 'faq-question-use-cases-answer-part2' %}</p>
+              </div>
             </section>
             <section class="faq" id="faq-rejections">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-2-question' %}</h2>
@@ -90,13 +102,13 @@
             </section>
             <section class="faq" id="faq-availability">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-availability-question' %}</h2>
-              <p class="faq-answer js-set-href">
+              <p class="faq-answer">
                 {% ftlmsg 'faq-question-availability-answer' %}
               </p>
             </section>
             <section class="faq" id="faq-replies">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-4-question' %}</h2>
-              <p class="faq-answer js-set-href">{% ftlmsg 'faq-question-4-answer-v2' %}</p>
+              <p class="faq-answer">{% ftlmsg 'faq-question-4-answer-v2' %}</p>
             </section>
             <section class="faq" id="faq-subdomain-question">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-subdomain-characters-question' %}</h2>
@@ -104,37 +116,41 @@
             </section>
             <section class="faq" id="faq-browser-support">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-browser-support-question' %}</h2>
-              <p class="faq-answer js-set-href">
+              <p class="faq-answer">
                 {% ftlmsg 'faq-question-browser-support-answer' %}
               </p>
             </section>
             <section class="faq" id="faq-longevity">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-longevity-question' %}</h2>
-              <p class="faq-answer js-set-href">
+              <p class="faq-answer">
                 {% ftlmsg 'faq-question-longevity-answer' %}
               </p>
             </section>
             <section class="faq" id="faq-mozmail">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-mozmail-question' %}</h2>
-              <p class="faq-answer js-set-href">
+              <p class="faq-answer">
                 {% ftlmsg 'faq-question-mozmail-answer' %}
               </p>
             </section>
             <section class="faq" id="faq-attachments">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-attachments-question' %}</h2>
-              <p class="faq-answer js-set-href">
+              <p class="faq-answer">
                 {% ftlmsg 'faq-question-attachments-answer' size='150' unit='KB' %}
               </p>
             </section>
             <section class="faq" id="faq-unsubscribe-domain">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-unsubscribe-domain-question' %}</h2>
-              <p class="faq-answer js-set-href">
+              <p class="faq-answer">
                 {% ftlmsg 'faq-question-unsubscribe-domain-answer' %}
               </p>
             </section>
             <section class="faq" id="faq-data-collection">
               <h2 class="faq-headline">{% ftlmsg 'faq-question-8-question' %}</h2>
               <p class="faq-answer js-set-href">{% ftlmsg 'faq-question-8-answer-html' url='https://www.mozilla.org/privacy/firefox-relay/' attrs='class="text-link" data-url="https://www.mozilla.org/privacy/firefox-relay/"' %}</p>
+            </section>
+            <section class="faq" id="faq-email-storage">
+              <h2 class="faq-headline">{% ftlmsg 'faq-question-email-storage-question' %}</h2>
+              <p class="faq-answer js-set-href">{% ftlmsg 'faq-question-email-storage-answer' url='https://www.mozilla.org/privacy/firefox-relay/' attrs='class="text-link" data-url="https://www.mozilla.org/privacy/firefox-relay/"' %}</p>
             </section>
           {% endif %}
         </div>
