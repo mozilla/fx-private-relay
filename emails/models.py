@@ -459,6 +459,10 @@ class RelayAddress(models.Model):
 
 def check_user_can_make_another_address(user):
     user_profile = user.profile_set.first()
+    if user_profile.is_flagged:
+        raise CannotMakeAddressException(
+            'Your account is on pause.'
+        )
     if (user_profile.at_max_free_aliases and not user_profile.has_premium):
         hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
         raise CannotMakeAddressException(
@@ -531,6 +535,11 @@ class DomainAddress(models.Model):
         if not user_subdomain:
             raise CannotMakeAddressException(
                 'You must select a subdomain before creating email address with subdomain.'
+            )
+
+        if user_profile.is_flagged:
+            raise CannotMakeAddressException(
+                'Your account is on pause.'
             )
 
         address_contains_badword = False

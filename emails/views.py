@@ -430,16 +430,18 @@ def _reply_allowed(from_address, to_address, reply_record):
     stripped_from_address = _strip_localpart_tag(from_address)
     reply_record_email = reply_record.address.user.email
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
+    user_profile = address.user.profile_set.first()
     if (
         (from_address == reply_record_email) or
         (stripped_from_address == stripped_reply_record_address)
     ):
         # This is a Relay user replying to an external sender;
         # verify they are premium
-        if reply_record.owner_has_premium:
+        if reply_record.owner_has_premium and not user_profile.is_flagged:
             # TODO: send the user an email
             # that replies are a premium feature
             return True
+        return False
     else:
         # The From: is not a Relay user, so make sure this is a reply *TO* a
         # premium Relay user
@@ -448,7 +450,6 @@ def _reply_allowed(from_address, to_address, reply_record):
             address = _get_address(
                 to_address, to_local_portion, to_domain_portion
             )
-            user_profile = address.user.profile_set.first()
             if user_profile.has_premium:
                 return True
         except (ObjectDoesNotExist):
