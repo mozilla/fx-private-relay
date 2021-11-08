@@ -63,6 +63,7 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
 def default_server_storage():
     return datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE
 
+
 def default_domain_numerical():
     if datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE:
         return get_domain_numerical(DOMAINS['MOZMAIL_DOMAIN'])
@@ -358,7 +359,9 @@ class RelayAddress(models.Model):
     address = models.CharField(
         max_length=64, default=address_default, unique=True
     )
-    domain = models.PositiveSmallIntegerField(choices=DOMAIN_CHOICES, default=default_domain_numerical)
+    domain = models.PositiveSmallIntegerField(
+        choices=DOMAIN_CHOICES, default=default_domain_numerical
+    )
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -437,7 +440,7 @@ def get_domain_from_env_vars_and_profile(user):
     user_profile = user.profile_set.first()
     domain = DOMAINS.get('RELAY_FIREFOX_DOMAIN')
     if user_profile.has_premium or settings.TEST_MOZMAIL:
-            domain = DOMAINS.get('MOZMAIL_DOMAIN')
+        domain = DOMAINS.get('MOZMAIL_DOMAIN')
     return get_domain_numerical(domain)
 
 

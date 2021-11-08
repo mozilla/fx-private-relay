@@ -320,7 +320,7 @@ def _sns_message(message_json):
         address = reply_record.address
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record):
-            return  HttpResponse(
+            return HttpResponse(
                 "Rely replies require a premium account", status=403
             )
     except (InReplyToNotFound, Reply.DoesNotExist):
@@ -464,7 +464,7 @@ def _handle_reply(from_address, message_json, to_address):
     address = reply_record.address
 
     if not _reply_allowed(from_address, to_address, reply_record):
-        return  HttpResponse(
+        return HttpResponse(
             "Rely replies require a premium account", status=403
         )
 
