@@ -444,6 +444,8 @@ class RelayAddress(models.Model):
                     break
                 self.address = address_default()
             self.domain = get_domain_from_env_vars_and_profile(self.user)
+            profile = self.user.profile_set.first()
+            profile.update_abuse_metric(address_created=True)
         return super().save(*args, **kwargs)
 
     @property
@@ -556,6 +558,7 @@ class DomainAddress(models.Model):
             # update first_emailed_at indicating alias generation impromptu.
             domain_address.first_emailed_at = datetime.now(timezone.utc)
             domain_address.save()
+        user_profile.update_abuse_metric(address_created=True)
         return domain_address
 
     def delete(self, *args, **kwargs):

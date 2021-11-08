@@ -505,6 +505,8 @@ def _handle_reply(from_address, message_json, to_address):
         address.save(
             update_fields=['num_forwarded', 'last_used_at']
         )
+        profile = address.user.profile_set.first()
+        profile.update_abuse_metric(replied=True)
         return response
     except ClientError as e:
         logger.error('ses_client_error', extra=e.response['Error'])
