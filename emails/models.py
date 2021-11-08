@@ -37,9 +37,6 @@ def get_domains_from_settings():
 
 DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
-DEFAULT_DOMAIN = settings.RELAY_FIREFOX_DOMAIN
-if settings.TEST_MOZMAIL:
-    DEFAULT_DOMAIN = settings.MOZMAIL_DOMAIN
 PREMIUM_DOMAINS = ['mozilla.com', 'getpocket.com', 'mozillafoundation.org']
 
 
@@ -272,7 +269,7 @@ def copy_auth_token(sender, instance=None, created=False, **kwargs):
             Token.objects.create(user=instance.user, key=instance.api_token)
 
 
-def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
+def address_hash(address, subdomain=None, domain=DOMAINS['MOZMAIL_DOMAIN']):
     if subdomain:
         return sha256(
             f'{address}@{subdomain}.{domain}'.encode('utf-8')

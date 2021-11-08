@@ -22,7 +22,7 @@ from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
 
-from .models import DEFAULT_DOMAIN, DomainAddress, RelayAddress, Reply
+from .models import DOMAINS, DomainAddress, RelayAddress, Reply
 
 
 logger = logging.getLogger('events')
@@ -176,7 +176,7 @@ def _store_reply_record(mail, ses_response, address):
 def ses_relay_email(from_address, to_address, subject,
                     message_body, attachments, mail, address):
 
-    reply_address = 'replies@%s' % DEFAULT_DOMAIN
+    reply_address = 'replies@%s' % DOMAINS.get('RELAY_FIREFOX_DOMAIN')
 
     try:
         response = ses_send_raw_email(

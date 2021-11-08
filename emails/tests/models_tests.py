@@ -173,7 +173,6 @@ class RelayAddressTest(TestCase):
         TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN=TEST_DOMAINS['RELAY_FIREFOX_DOMAIN']
     )
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
-    @patch('emails.models.DEFAULT_DOMAIN', TEST_DOMAINS['RELAY_FIREFOX_DOMAIN'])
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress, user=self.user)
         address_hash = sha256(
