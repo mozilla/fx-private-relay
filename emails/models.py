@@ -254,6 +254,54 @@ class Profile(models.Model):
         RegisteredSubdomain.objects.create(subdomain_hash=hash_subdomain(subdomain))
         return subdomain
 
+    def update_abuse_metric(self, address_created=False, replied=False):
+        #  TODO: this should be wrapped in atomic to ensure race conditions are properly handled
+        # look for abuse metrics created on the same UTC date, regardless of time.
+        midnight_utc_today = datetime.combine(
+            datetime.now(timezone.utc).date(), datetime.min.time()
+        ).astimezone(timezone.utc)
+        midnight_utc_tomorow = datetime.combine(
+            datetime.now(timezone.utc).date(), datetime.min.time()
+        ).astimezone(timezone.utc) + timedelta(days=1)
+        abuse_metric = self.user.abusemetrics_set.filter(
+            first_recorded__gte=midnight_utc_today, first_recorded__lt=midnight_utc_tomorow
+        ).first()
+        if not abuse_metric:
+            abuse_metric = AbuseMetrics.objects.create(user=self.user)
+
+        # increment the abuse metric
+        if address_created:
+            abuse_metric.num_address_created_per_day += 1
+        if replied:
+            abuse_metric.num_replies_per_day += 1
+        abuse_metric.last_recorded = datetime.now(timezone.utc)
+        abuse_metric.save()
+
+        # check user should be flagged for abuse
+        hit_max_create = False
+        hit_max_replies = False   
+        hit_max_create = abuse_metric.num_address_created_per_day > settings.MAX_ADDRESS_CREATION_PER_DAY
+        hit_max_replies = abuse_metric.num_replies_per_day > settings.MAX_REPLIES_PER_DAY
+        if hit_max_create or hit_max_replies:
+            self.last_account_flagged = datetime.now(timezone.utc)
+            self.save()
+        return self.last_account_flagged
+
+    @property    
+    def is_flagged(self):
+        if self.last_account_flagged:
+            account_premium_feature_resumed = (
+                self.last_account_flagged +
+                timedelta(days=settings.PREMIUM_FEATURE_PAUSED_DAYS)
+            )
+            if datetime.now(timezone.utc) > account_premium_feature_resumed:
+                # premium feature has been resumed
+                return False
+            # user was flagged and the premiume feature pause period is not yet over
+            return True
+        # user was never flagged
+        return False
+
 
 @receiver(models.signals.post_save, sender=Profile)
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
