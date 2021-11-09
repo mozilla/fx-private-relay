@@ -751,6 +751,7 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=user)
         assert profile.server_storage
 
+
 class DomainAddressTest(TestCase):
     def setUp(self):
         self.subdomain = 'test'
@@ -846,15 +847,16 @@ class DomainAddressTest(TestCase):
         self.fail("Should have raise CannotMakeAddressException")
 
     @patch.multiple('string', ascii_lowercase='a', digits='')
-    def test_make_domain_address_doesnt_make_dupe_of_deleted(self):
+    def test_make_domain_address_makes_dupe_of_deleted(self):
         test_hash = address_hash('aaaaaaaaa', self.subdomain)
         DeletedAddress.objects.create(address_hash=test_hash)
-        try:
-            DomainAddress.make_domain_address(self.user_profile)
-        except CannotMakeAddressException as e:
-            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
-            return
-        self.fail("Should have raise CannotMakeAddressException")
+        domain_address = DomainAddress.make_domain_address(self.user_profile)
+        domain_address_hash = address_hash(
+            domain_address.address,
+            domain_address.user_profile.subdomain,
+            domain_address.domain_value
+        )
+        assert DeletedAddress.objects.filter(address_hash=domain_address_hash).count() == 1
 
     @patch('emails.models.address_default')
     def test_make_domain_address_doesnt_randomly_generate_bad_word(self, address_default_mocked):
