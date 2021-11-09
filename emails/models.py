@@ -497,10 +497,7 @@ class DomainAddress(models.Model):
             address = address_default()
             # Only check for bad words if randomly generated
             address_contains_badword = has_bad_words(address)
-        address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash(address, user_subdomain, DOMAINS['MOZMAIL_DOMAIN'])
-        ).count()
-        if address_contains_badword or address_already_deleted > 0:
+        if address_contains_badword:
             raise CannotMakeAddressException(
                 TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             )
