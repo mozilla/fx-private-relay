@@ -289,18 +289,17 @@ class Profile(models.Model):
 
     @property    
     def is_flagged(self):
-        if self.last_account_flagged:
-            account_premium_feature_resumed = (
-                self.last_account_flagged +
-                timedelta(days=settings.PREMIUM_FEATURE_PAUSED_DAYS)
-            )
-            if datetime.now(timezone.utc) > account_premium_feature_resumed:
-                # premium feature has been resumed
-                return False
-            # user was flagged and the premiume feature pause period is not yet over
-            return True
-        # user was never flagged
-        return False
+        if not self.last_account_flagged:
+            return False
+        account_premium_feature_resumed = (
+            self.last_account_flagged +
+            timedelta(days=settings.PREMIUM_FEATURE_PAUSED_DAYS)
+        )
+        if datetime.now(timezone.utc) > account_premium_feature_resumed:
+            # premium feature has been resumed
+            return False
+        # user was flagged and the premiume feature pause period is not yet over
+        return True
 
 
 @receiver(models.signals.post_save, sender=Profile)
