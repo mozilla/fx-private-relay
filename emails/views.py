@@ -525,7 +525,7 @@ def _get_domain_address(local_portion, domain_portion):
         incr_if_enabled('email_for_not_supported_domain', 1)
         raise ObjectDoesNotExist("Address does not exist")
     try:
-        with transaction.atomic:
+        with transaction.atomic():
             locked_profile = Profile.objects.select_for_update().get(
                 subdomain=address_subdomain
             )
