@@ -65,10 +65,9 @@
             onSubmit: async (e) => {
                 e.preventDefault();
 
-                
-
                 const currentForm = e.target;
-                const requestedDomain = currentForm.querySelector(".js-subdomain-value").value;
+                const requestedDomain = currentForm.querySelector(".js-subdomain-value").value.toLowerCase();
+                currentForm.querySelector(".js-subdomain-value").value = requestedDomain;
                 const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);               
 
 
