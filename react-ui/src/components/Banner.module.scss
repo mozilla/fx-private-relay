@@ -1,0 +1,27 @@
+@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../static/scss/libs/protocol/css/includes/lib";
+
+.banner {
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+}
+
+.highlightWrapper {
+  padding: $spacing-xs $spacing-lg;
+  border-left-width: 4px;
+  border-left-style: solid;
+
+  &.warning {
+    border-color: $color-yellow-50;
+  }
+}
+
+.title {
+  @include text-title-3xs;
+  display: flex;
+  align-items: center;
+  .icon {
+    margin-right: $spacing-md;
+  }
+}
