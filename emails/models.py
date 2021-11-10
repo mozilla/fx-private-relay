@@ -67,9 +67,10 @@ def default_server_storage():
 
 
 def default_domain_numerical():
+    domain = DOMAINS['RELAY_FIREFOX_DOMAIN']
     if datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE:
-        return get_domain_numerical(DOMAINS['MOZMAIL_DOMAIN'])
-    return get_domain_numerical(DOMAINS['RELAY_FIREFOX_DOMAIN'])
+        domain = DOMAINS['MOZMAIL_DOMAIN']
+    return get_domain_numerical(domain)
 
 
 class Profile(models.Model):
