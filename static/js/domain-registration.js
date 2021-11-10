@@ -69,13 +69,13 @@
                 const requestedDomain = currentForm.querySelector(".js-subdomain-value").value.toLowerCase();
                 currentForm.querySelector(".js-subdomain-value").value = requestedDomain;
                 const domainCanBeRegistered = await domainRegistration.checkIfDomainIsSafeAndAvailable(requestedDomain);               
-
+                const messages = document.querySelector(".js-notification");
+                const messagesHtml = document.querySelector(".js-notification-html");
 
                 if (domainCanBeRegistered) {
-
                     // Dismiss error state if visible
-                    const messages = document.querySelector(".js-notification");
-                    messages?.classList.add("is-hidden");
+                    messages?.classList.add("is-hidden"); 
+                    messagesHtml?.classList.add("is-hidden");
                     e.target.classList.remove("mzp-is-error");
                     domainRegistration.modal.open(e.target);
                 } else {
