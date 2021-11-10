@@ -498,6 +498,10 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'INFO',
         },
+        'abusemetrics': {
+            'handlers': ['console'],
+            'level': 'INFO'
+        }
     }
 }
 

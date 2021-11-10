@@ -21,6 +21,7 @@ from rest_framework.authtoken.models import Token
 
 emails_config = apps.get_app_config('emails')
 logger = logging.getLogger('events')
+abuse_logger = logging.getLogger('abusemetrics')
 
 BounceStatus = namedtuple('BounceStatus', 'paused type')
 
@@ -267,6 +268,7 @@ class Profile(models.Model):
         ).first()
         if not abuse_metric:
             abuse_metric = AbuseMetrics.objects.create(user=self.user)
+            AbuseMetrics.objects.delete(first_recorded__lt=midnight_utc_today)
 
         # increment the abuse metric
         if address_created:
@@ -286,6 +288,14 @@ class Profile(models.Model):
         if hit_max_create or hit_max_replies:
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
+            data = {
+                'uid': self.fxa.uid,
+                'flagged': self.last_account_flagged.timestamp(),
+                'replies': abuse_metric.num_replies_per_day,
+                'addresses': abuse_metric.num_address_created_per_day
+            }
+            # log for further secops review
+            abuse_logger.info('Abuse flagged', extra=data)
         return self.last_account_flagged
 
     @property
