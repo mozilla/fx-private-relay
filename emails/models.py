@@ -278,15 +278,17 @@ class Profile(models.Model):
 
         # check user should be flagged for abuse
         hit_max_create = False
-        hit_max_replies = False   
-        hit_max_create = abuse_metric.num_address_created_per_day > settings.MAX_ADDRESS_CREATION_PER_DAY
-        hit_max_replies = abuse_metric.num_replies_per_day > settings.MAX_REPLIES_PER_DAY
+        hit_max_replies = False
+        hit_max_create = (
+            abuse_metric.num_address_created_per_day >= settings.MAX_ADDRESS_CREATION_PER_DAY
+        )
+        hit_max_replies = abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
         if hit_max_create or hit_max_replies:
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
         return self.last_account_flagged
 
-    @property    
+    @property
     def is_flagged(self):
         if not self.last_account_flagged:
             return False
@@ -487,7 +489,7 @@ def get_domain_from_env_vars_and_profile(user):
     user_profile = user.profile_set.first()
     domain = DOMAINS.get('RELAY_FIREFOX_DOMAIN')
     if user_profile.has_premium or settings.TEST_MOZMAIL:
-            domain = DOMAINS.get('MOZMAIL_DOMAIN')
+        domain = DOMAINS.get('MOZMAIL_DOMAIN')
     return get_domain_numerical(domain)
 
 
