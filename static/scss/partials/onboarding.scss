@@ -100,7 +100,6 @@
 }
 
 .c-premium-onboarding-content {
-    max-width: $content-lg;
     margin: 0 auto;
 
     @media #{$mq-md} {
@@ -117,6 +116,10 @@
 
     @media #{$mq-md} {
         margin-bottom: 0;
+        img {
+            display: block;
+            margin-inline-start: auto;
+        }
     }
 }
 
@@ -193,7 +196,6 @@
 
 .c-multipart-premium-onboarding {
     display: none;
-    max-width: $content-lg;
     margin-left: auto;
     margin-right: auto;
     position: relative;

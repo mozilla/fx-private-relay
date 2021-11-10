@@ -6,7 +6,7 @@
     <ol class="c-premium-onboarding-steps">
         <!-- Step 1 -->
         <li class="c-premium-onboarding-step c-premium-onboarding-step-1 {% if user_profile.onboarding_state == 0 %} is-visible {% endif %}">
-            <div class="mzp-l-content mzp-t-content-xl">
+            <div class="mzp-l-content mzp-t-content-lg mzp-t-content-nospace">
                 <div class="c-premium-onboarding-headlines">
                     <h1>{% ftlmsg 'multi-part-onboarding-premium-welcome-headline' %}</h1>
                     <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
@@ -24,7 +24,7 @@
         </li>
         <!-- Step 2 -->
         <li class="c-premium-onboarding-step c-premium-onboarding-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
-            <div class="mzp-l-content mzp-t-content-xl">
+            <div class="mzp-l-content mzp-t-content-xl mzp-t-content-nospace">
                 <div class="c-premium-onboarding-headlines">
                     <h1>{% ftlmsg 'multi-part-onboarding-premium-domain-headline' %}</h1>
                     <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
@@ -35,7 +35,7 @@
                         <img src="{% static 'images/dashboard-onboarding/man-laptop-email-alt.svg' %}" alt="Man sitting with laptop computer">
                     </div>
                     <div class="c-premium-onboarding-content-description">
-                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-domain-description' mozmail='.mozmail.com' %}</p>
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-domain-title' %}</strong> {% ftlmsg 'banner-register-subdomain-copy' mozmail='mozmail.com' %}</p>
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
@@ -68,7 +68,7 @@
         </li>
         <!-- Step 3 -->
         <li class="c-premium-onboarding-step c-premium-onboarding-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
-            <div class="mzp-l-content mzp-t-content-xl">
+            <div class="mzp-l-content mzp-t-content-lg mzp-t-content-nospace">
                 <div class="c-premium-onboarding-headlines">
                     <h1>{% ftlmsg 'multi-part-onboarding-premium-extension-headline' %}</h1>
                     <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
@@ -94,7 +94,7 @@
         </li>
     </ol>
     <div class="c-premium-onboarding-progress">
-        <div class="mzp-l-content mzp-t-content-xl">
+        <div class="mzp-l-content mzp-t-content-lg mzp-t-content-nospace">
             <div class="c-premium-onboarding-actions-wrapper">
                 <!-- Step 1 -->
                 <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-1  {% if user_profile.onboarding_state == 0 %} is-visible {% endif %}">
