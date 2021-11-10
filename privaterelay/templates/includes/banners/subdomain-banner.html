@@ -1,0 +1,38 @@
+{% load static %}
+{% load relay_tags %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+{% if settings.DOMAIN_REGISTRATION_MODAL %}
+  {% block javascript %}
+    <script src="{% static 'js/domain-registration.js' %}"></script>
+  {% endblock %}
+{% endif %}
+
+<div class="c-notification-banner subdomain-banner" id="mpp-choose-subdomain">
+    <div class="subdomain-banner-copy">
+      <div class="c-notification-banner-label">{% ftlmsg 'banner-label-action' %}</div>
+      <h2>{% ftlmsg 'banner-register-subdomain-headline-aliases' %}</h2>
+      <samp>***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
+      <p>{% ftlmsg 'banner-register-subdomain-copy' %}</p>
+      <a href="/faq">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
+    </div>
+    <div class="subdomain-banner-form">
+      <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
+          {% csrf_token %}
+          <input
+            class="js-subdomain-value subdomain-banner-input"
+            data-domain="{{ MOZMAIL_DOMAIN }}"
+            required
+            type="text"
+            placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}"
+            name="subdomain"
+            minlength="1"
+            maxlength="63"
+          >
+          <input class="mzp-c-button mzp-t-product" type="submit" value="{% ftlmsg 'banner-register-subdomain-button-search' %}">
+      </form>
+      <img src="{% static 'images/dashboard-onboarding/man-laptop-email.svg' %}" alt="">
+    </div>
+    
+  </div>

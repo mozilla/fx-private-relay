@@ -62,6 +62,10 @@
     box-shadow: $box-shadow-sm;
     overflow: hidden;
     padding: $spacing-md;
+
+    &.is-hidden {
+        display: none;
+    }
 }
 
 .c-modal-header {
@@ -148,8 +152,28 @@
 
 .c-modal-footer {
     padding: 0;
-    display: flex;
-    justify-content: space-between;
+    
+    button {
+        width: 100%;
+
+        &:first-child {
+            margin-bottom: $spacing-md;
+        }
+    }
+    
+    @media #{$mq-md} {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row-reverse;
+        
+        button {
+            width: auto;
+            
+            &:first-child {
+                margin-bottom: 0;
+            }
+        }
+    }
 }
 
 .t-domain-registration-form {
@@ -161,6 +185,27 @@
 
     strong {
         word-wrap: break-word;
+    }
+}
+
+.t-domain-registration-success {
+
+    .c-modal-header {
+        padding-bottom: $spacing-2xl;
+    }
+    
+    .t-domain-registration-body {
+
+        img {
+            position: relative;
+            margin-top: -$spacing-2xl;
+            margin-bottom: $spacing-md;
+        }
+        
+    }
+    
+    .c-modal-footer {
+        justify-content: center;
     }
 }
 
@@ -181,3 +226,4 @@
         word-wrap: break-word;
     }
 }
+

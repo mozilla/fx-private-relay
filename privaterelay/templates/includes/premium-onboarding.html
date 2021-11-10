@@ -1,0 +1,166 @@
+{% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+<div data-onboarding-completed-step="{{ user_profile.onboarding_state }}" data-max-onboarding-available="{{ settings.MAX_ONBOARDING_AVAILABLE }}" class="c-premium-onboarding c-multipart-premium-onboarding">
+    <ol class="c-premium-onboarding-steps">
+        <!-- Step 1 -->
+        <li class="c-premium-onboarding-step c-premium-onboarding-step-1 {% if user_profile.onboarding_state == 0 %} is-visible {% endif %}">
+            <div class="mzp-l-content mzp-t-content-xl">
+                <div class="c-premium-onboarding-headlines">
+                    <h1>{% ftlmsg 'multi-part-onboarding-premium-welcome-headline' %}</h1>
+                    <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
+                </div>
+
+                <div class="c-premium-onboarding-content">
+                    <div class="c-premium-onboarding-content-image">
+                        <img src="{% static 'images/dashboard-onboarding/woman-couch.svg' %}" alt="Woman sitting on a couch">
+                    </div>
+                    <div class="c-premium-onboarding-content-description">
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-welcome-title' %}</strong> {% ftlmsg 'onboarding-premium-control-description' %}</p>
+                    </div>
+                </div>
+            </div>
+        </li>
+        <!-- Step 2 -->
+        <li class="c-premium-onboarding-step c-premium-onboarding-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
+            <div class="mzp-l-content mzp-t-content-xl">
+                <div class="c-premium-onboarding-headlines">
+                    <h1>{% ftlmsg 'multi-part-onboarding-premium-domain-headline' %}</h1>
+                    <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
+                </div>
+
+                <div class="c-premium-onboarding-content">
+                    <div class="c-premium-onboarding-content-image">
+                        <img src="{% static 'images/dashboard-onboarding/man-laptop-email-alt.svg' %}" alt="Man sitting with laptop computer">
+                    </div>
+                    <div class="c-premium-onboarding-content-description">
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-domain-description' mozmail='.mozmail.com' %}</p>
+                        {% if not user_profile.subdomain %}
+                            <div class="js-premium-onboarding-domain-registration-form">
+                                <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
+                                <samp>***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
+                                <form id="onboardingDomainRegistration" method="post" action="{% url 'profile_subdomain' %}">
+                                    {% csrf_token %}
+                                    <input
+                                    class="js-subdomain-value subdomain-banner-input"
+                                    data-domain="{{ MOZMAIL_DOMAIN }}"
+                                    required
+                                    type="text"
+                                    placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}"
+                                    name="subdomain"
+                                    minlength="1"
+                                    maxlength="63"
+                                    >
+                                    <input class="mzp-c-button mzp-t-product" type="submit" value="{% ftlmsg 'banner-register-subdomain-button-search' %}">
+                                </form>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="c-premium-onboarding-action-completed {% if user_profile.subdomain %} is-visible {% endif %}">
+                            <img class="margin-right" src="/static/images/icon-check.svg" alt="">
+                            <samp class="js-premium-onboarding-domain-registration-preview">{{ user_profile.custom_domain }}</samp>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </li>
+        <!-- Step 3 -->
+        <li class="c-premium-onboarding-step c-premium-onboarding-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
+            <div class="mzp-l-content mzp-t-content-xl">
+                <div class="c-premium-onboarding-headlines">
+                    <h1>{% ftlmsg 'multi-part-onboarding-premium-extension-headline' %}</h1>
+                    <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
+                </div>
+
+                <div class="c-premium-onboarding-content">
+                    <div class="c-premium-onboarding-content-image">
+                        <img src="{% static 'images/dashboard-onboarding/woman-email.svg' %}" alt="Woman next to large envelope">
+                    </div>
+                    <div class="c-premium-onboarding-content-description">
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-reply-title' %}</strong> {% ftlmsg 'onboarding-premium-reply-description'%}</p>
+                        <div class="c-premium-onboarding-install-addon">
+                            <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-get-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-extension-get-description' %}</p>
+                            <a target="_blank" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon" class=" mzp-c-button mzp-t-product">{% ftlmsg 'multi-part-onboarding-premium-extension-button-download' %}</a>
+                        </div>
+                        <div class="c-premium-onboarding-action-completed">
+                            <img class="margin-right" src="/static/images/icon-check.svg" alt="">
+                            {% ftlmsg 'multi-part-onboarding-premium-extension-added' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ol>
+    <div class="c-premium-onboarding-progress">
+        <div class="mzp-l-content mzp-t-content-xl">
+            <div class="c-premium-onboarding-actions-wrapper">
+                <!-- Step 1 -->
+                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-1  {% if user_profile.onboarding_state == 0 %} is-visible {% endif %}">
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step"
+                    data-ga="send-ga-pings"
+                    data-event-category="Premium Onboarding"
+                    data-event-label="onboarding-step-1-continue"
+                    data-event-value="1"
+                    data-event-nonInteraction="false"
+                    >{% ftlmsg 'multi-part-onboarding-premium-welcome-button-start' %}</button>
+                </div>
+                <!-- Step 2 -->
+                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
+                    {% if not user_profile.subdomain %}
+                        <button class="c-button-as-text js-premium-onboarding-next-step"
+                            data-ga="send-ga-pings"
+                            data-event-category="Premium Onboarding"
+                            data-event-label="onboarding-step-2-skip"    
+                            data-event-value="2"
+                            data-event-nonInteraction="false"
+                         >{% ftlmsg 'multi-part-onboarding-premium-domain-button-skip' %}</button>
+                    {% endif %}
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step {% if not user_profile.subdomain %} is-hidden {% endif %}"
+                        data-ga="send-ga-pings"
+                        data-event-category="Premium Onboarding"
+                        data-event-label="onboarding-step-2-continue"    
+                        data-event-value="2"
+                        data-event-nonInteraction="false"
+                    >{% ftlmsg 'profile-label-continue' %}</button>
+                </div>
+                <!-- Step 3 -->
+                <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
+                    <button class="c-button-as-text js-premium-onboarding-quit-step"
+                        data-ga="send-ga-pings"
+                        data-event-category="Premium Onboarding"
+                        data-event-label="onboarding-step-3-skip"    
+                        data-event-value="3"
+                        data-event-nonInteraction="false"
+                    >{% ftlmsg 'multi-part-onboarding-premium-extension-button-skip' %}</button>
+                    <button class="mzp-c-button mzp-t-product js-premium-onboarding-quit-step"
+                        data-ga="send-ga-pings"
+                        data-event-category="Premium Onboarding"
+                        data-event-label="onboarding-step-3-continue"    
+                        data-event-value="3"
+                        data-event-nonInteraction="false"
+                    >
+                        {% ftlmsg 'multi-part-onboarding-premium-extension-button-dashboard' %}
+                    </button>
+                </div>
+            </div>
+    
+            <ol class="c-premium-onboarding-progress-bar js-premium-onboarding-progress-bar">
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-1 {% if user_profile.onboarding_state >= 0 %} is-completed {% endif %}" >
+                    <span></span>
+                    1
+                </li>
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-2 {% if user_profile.onboarding_state >= 1 %} is-completed {% endif %}" >
+                    <span></span>
+                    2
+                </li>
+                <li class="c-premium-onboarding-progress-bar-item c-premium-onboarding-progress-bar-item-3 {% if user_profile.onboarding_state >= 2 %} is-completed {% endif %}" >
+                    <span></span>
+                    3
+                </li>
+            </ol>
+            <button class="c-button-as-text t-skip-button js-premium-onboarding-skip-step">{% ftlmsg 'profile-label-skip' %}</button>
+        </div>
+    </div>
+</div>

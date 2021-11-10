@@ -1,6 +1,8 @@
+/* global patchProfile */
+
 function dismissNotification() {
 	const notification = document.querySelector(".js-notification");
-	notification.classList.toggle("hidden");
+	notification.classList.add("is-hidden");
 }
 
 if (typeof(sendGaPing) === "undefined") {
@@ -130,9 +132,7 @@ function deleteAliasConfirmation(submitEvent) {
   checkbox.focus();
 
   const closeModal = () => {
-    const confirmDeleteModalActions =
-      confirmDeleteModal.querySelectorAll("button");
-    const deleteAnywayBtn = confirmDeleteModalActions[1];
+    const deleteAnywayBtn = confirmDeleteModal.querySelector(".js-modal-delete-confirm-delete");
     deleteAnywayBtn.disabled = true;
     checkbox.checked = false;
     confirmDeleteModal.classList.remove("is-visible");
@@ -155,7 +155,7 @@ function deleteAliasConfirmation(submitEvent) {
 
   // Enable "Delete Anyway" button once the checkbox has been clicked.
   const confirmDeleteModalActions = confirmDeleteModal.querySelectorAll("button");
-  const deleteAnywayBtn = confirmDeleteModalActions[1];
+  const deleteAnywayBtn = confirmDeleteModal.querySelector(".js-modal-delete-confirm-delete");
   checkbox.addEventListener("change", () => {
     if (checkbox.checked) {
       deleteAnywayBtn.disabled = false;
@@ -318,7 +318,12 @@ function showBannersIfNecessary() {
 
   if (!browserIsFirefox) {
     const firefoxBanner = dashboardBanners.querySelector(".download-fx-banner");
+    // Used to show/hide add-on download prompts in onboarding
+    document.getElementById("profile-main").classList.add("is-not-addon-compatible")
     showBanner(firefoxBanner);
+
+
+
     return;
   }
   const relayAddonBanner = dashboardBanners.querySelector(".install-addon-banner");
@@ -344,8 +349,10 @@ document.addEventListener("DOMContentLoaded", () => {
   vpnBannerLogic();
   setTranslatedStringLinks();
   premiumOnboardingLogic();
+  privacyNoticeUpdateBannerLogic();
   dataCollectionBannerLogic();
   scrollToSubdomainRegistrationAndShowErrorState();
+  premiumOnboarding.init();
 
   // TODO: Set up language gate once l10n is active.
   // const preferredLanguages = navigator.languages;
@@ -542,6 +549,54 @@ function premiumOnboardingLogic() {
   premiumOnboardingFunctions.init();
 }
 
+function privacyNoticeUpdateBannerLogic() {
+  // Check if element exists at all
+  const privacyNoticeUpdateBanner = document.getElementById("privacy-notice-update");
+
+  if (!privacyNoticeUpdateBanner) {
+    return;
+  }
+
+  // Check for dismissal cookie
+  const privacyNoticeUpdateBannerDismissedCookie = document.cookie
+    .split(";")
+    .some((item) => item.trim().startsWith("privacyNoticeUpdateBanner="));
+
+  if (privacyNoticeUpdateBannerDismissedCookie) {
+    return;
+  }
+
+  // Init: Show banner, set close button listener
+  const privacyNoticeUpdateBannerCloseButton = document.querySelector(
+    ".js-privacy-notice-update-dismiss"
+  );
+
+  const privacyNoticeUpdateBannerFunctions = {
+    hide: function () {
+      privacyNoticeUpdateBannerFunctions.setCookie();
+      privacyNoticeUpdateBanner.classList.add("is-hidden");
+    },
+    init: function () {
+      privacyNoticeUpdateBannerCloseButton.addEventListener(
+        "click",
+        privacyNoticeUpdateBannerFunctions.hide
+      );
+      privacyNoticeUpdateBannerFunctions.show();
+    },
+    setCookie: function () {
+      const date = new Date();
+      date.setTime(date.getTime() + 30 * 24 * 60 * 60 * 1000);
+      document.cookie =
+        "privacyNoticeUpdateBanner=true; expires=" + date.toUTCString() + "; path=/";
+    },
+    show: function () {
+      privacyNoticeUpdateBanner.classList.remove("is-hidden");
+    },
+  };
+
+  privacyNoticeUpdateBannerFunctions.init();
+}
+
 function dataCollectionBannerLogic() {
   
   // Check if element exists at all
@@ -663,3 +718,111 @@ faqQuestion.forEach(item => {
   const expandButton = item.querySelector("button");
   expandButton.addEventListener("click", () => showFAQAnswer(item), false);
 });
+
+// Multi-part Premium Onboarding
+const premiumOnboarding = {
+  init: ()=> {
+    
+    const profileMain = document.getElementById("profile-main");
+
+    if (!profileMain || !profileMain.classList.contains("is-premium-onboarding")) {
+      return;
+    }
+    
+    const mppoNextButtons = document.querySelectorAll(
+      ".js-premium-onboarding-next-step"
+    );
+
+    mppoNextButtons.forEach((button) => {
+      button.addEventListener("click", premiumOnboarding.next, false);
+    });
+
+    const mppoQuitButtons = document.querySelectorAll(
+      ".js-premium-onboarding-quit-step"
+    );
+
+    mppoQuitButtons.forEach((button) => {
+      button.addEventListener("click", premiumOnboarding.quit, false);
+    });
+
+    const mppoSkipButton = document.querySelector(".js-premium-onboarding-skip-step");
+    mppoSkipButton.addEventListener("click", premiumOnboarding.quit, false);
+    
+  },
+  next: async ()=> {   
+
+    // Grab data necessary to update settings:onboarding_state value
+    const onboardingContainer = document.querySelector(".c-multipart-premium-onboarding");
+    const mainContainer = document.getElementById("profile-main");
+    const profileId = mainContainer.dataset.profileId;
+    let currentOnboardingState = parseInt(onboardingContainer.dataset.onboardingCompletedStep, 10);
+    
+    // Bump onboarding to next interger
+    currentOnboardingState++
+
+    const profileData = {
+      onboarding_state: currentOnboardingState,
+    };
+
+    // Show next step content
+    const activeOnboardingSlide = document.querySelector(".c-premium-onboarding-step.is-visible");
+    activeOnboardingSlide.classList.remove("is-visible");
+    activeOnboardingSlide.nextElementSibling.classList.add("is-visible");
+    
+    // Show next step buttons
+    const activeOnboardingActions = document.querySelector(".c-premium-onboarding-actions.is-visible");
+    activeOnboardingActions.classList.remove("is-visible");
+    activeOnboardingActions.nextElementSibling.classList.add("is-visible");
+        
+    // Update progress bar
+    const activeOnboardingProgressSlides = document.querySelectorAll(".c-premium-onboarding-progress-bar-item.is-completed");
+    // Get most recent "completed" progress bar section
+    const activeOnboardingProgressSlide = activeOnboardingProgressSlides[activeOnboardingProgressSlides.length - 1];
+    activeOnboardingProgressSlide.nextElementSibling.classList.add(
+      "is-completed"
+    );
+
+    try {
+        const response = await patchProfile(profileId, profileData);
+        if (!response.ok) {
+            throw new Error("Immediately catch'd to show an error message.");
+        }
+        
+        // Update DOM data-set for future usage
+        onboardingContainer.dataset.onboardingCompletedStep = currentOnboardingState;
+        
+    } catch (e) {
+        // saveError.classList.remove("hidden");
+    }
+
+  },
+  quit: async (e)=> {
+     
+    if (e.target.classList.contains("js-premium-onboarding-skip-step")) {
+      const onboardingContainer = document.querySelector(".c-multipart-premium-onboarding");
+      const onboardingCurrentStep = parseInt(onboardingContainer.dataset.onboardingCompletedStep, 10) + 1;
+      sendGaPing("Premium Onboarding", "Engage", "onboarding-skip", onboardingCurrentStep);
+    }
+
+    const onboardingContainer = document.querySelector(".c-multipart-premium-onboarding");
+    let maxOnboardingState = parseInt(onboardingContainer.dataset.maxOnboardingAvailable, 10);
+    
+    const mainContainer = document.getElementById("profile-main");
+    mainContainer.classList.remove("is-premium-onboarding");
+    
+    const profileId = mainContainer.dataset.profileId;
+    const profileData = {
+      onboarding_state: maxOnboardingState,
+    };
+
+    try {
+        const response = await patchProfile(profileId, profileData);
+        if (!response.ok) {
+            throw new Error("Immediately catch'd to show an error message.");
+        }
+    } catch (e) {
+        // saveError.classList.remove("hidden");
+    }
+    
+  },
+}

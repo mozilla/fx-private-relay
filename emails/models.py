@@ -91,6 +91,7 @@ class Profile(models.Model):
         validators=[valid_available_subdomain]
     )
     server_storage = models.BooleanField(default=default_server_storage)
+    onboarding_state = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return '%s Profile' % self.user
