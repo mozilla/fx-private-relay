@@ -320,7 +320,7 @@ def _sns_message(message_json):
         address = reply_record.address
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record):
-            return  HttpResponse(
+            return HttpResponse(
                 "Rely replies require a premium account", status=403
             )
     except (InReplyToNotFound, Reply.DoesNotExist):
@@ -436,12 +436,7 @@ def _reply_allowed(from_address, to_address, reply_record):
     ):
         # This is a Relay user replying to an external sender;
         # verify they are premium
-        [from_local_portion, from_domain_portion] = stripped_from_address.split('@')
-        address = _get_address(
-                stripped_from_address, from_local_portion, from_domain_portion
-            )
-        user_profile = address.user.profile_set.first()
-        if reply_record.owner_has_premium and not user_profile.is_flagged:
+        if reply_record.owner_has_premium and not reply_record.profile.is_flagged:
             # TODO: send the user an email
             # that replies are a premium feature
             return True

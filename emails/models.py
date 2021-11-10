@@ -625,9 +625,12 @@ class Reply(models.Model):
         return self.relay_address or self.domain_address
 
     @property
+    def profile(self):
+        return self.address.user.profile_set.first()
+
+    @property
     def owner_has_premium(self):
-        profile = self.address.user.profile_set.first()
-        return profile.has_premium
+        return self.profile.has_premium
 
 
 class AbuseMetrics(models.Model):
