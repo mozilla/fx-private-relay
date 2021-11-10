@@ -21,11 +21,13 @@ from rest_framework.authtoken.models import Token
 
 emails_config = apps.get_app_config('emails')
 logger = logging.getLogger('events')
+abuse_logger = logging.getLogger('abusemetrics')
 
 BounceStatus = namedtuple('BounceStatus', 'paused type')
 
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
+ACCOUNT_PAUSED_ERR_MSG = 'Your account is on pause.'
 
 
 def get_domains_from_settings():
@@ -80,6 +82,7 @@ class Profile(models.Model):
     last_hard_bounce = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
+    last_account_flagged = models.DateTimeField(blank=True, null=True)
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
@@ -254,6 +257,62 @@ class Profile(models.Model):
         RegisteredSubdomain.objects.create(subdomain_hash=hash_subdomain(subdomain))
         return subdomain
 
+    def update_abuse_metric(self, address_created=False, replied=False):
+        #  TODO: this should be wrapped in atomic to ensure race conditions are properly handled
+        # look for abuse metrics created on the same UTC date, regardless of time.
+        midnight_utc_today = datetime.combine(
+            datetime.now(timezone.utc).date(), datetime.min.time()
+        ).astimezone(timezone.utc)
+        midnight_utc_tomorow = midnight_utc_today + timedelta(days=1)
+        abuse_metric = self.user.abusemetrics_set.filter(
+            first_recorded__gte=midnight_utc_today, first_recorded__lt=midnight_utc_tomorow
+        ).first()
+        if not abuse_metric:
+            abuse_metric = AbuseMetrics.objects.create(user=self.user)
+            AbuseMetrics.objects.filter(first_recorded__lt=midnight_utc_today).delete()
+
+        # increment the abuse metric
+        if address_created:
+            abuse_metric.num_address_created_per_day += 1
+        if replied:
+            abuse_metric.num_replies_per_day += 1
+        abuse_metric.last_recorded = datetime.now(timezone.utc)
+        abuse_metric.save()
+
+        # check user should be flagged for abuse
+        hit_max_create = False
+        hit_max_replies = False
+        hit_max_create = (
+            abuse_metric.num_address_created_per_day >= settings.MAX_ADDRESS_CREATION_PER_DAY
+        )
+        hit_max_replies = abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
+        if hit_max_create or hit_max_replies:
+            self.last_account_flagged = datetime.now(timezone.utc)
+            self.save()
+            data = {
+                'uid': self.fxa.uid,
+                'flagged': self.last_account_flagged.timestamp(),
+                'replies': abuse_metric.num_replies_per_day,
+                'addresses': abuse_metric.num_address_created_per_day
+            }
+            # log for further secops review
+            abuse_logger.info('Abuse flagged', extra=data)
+        return self.last_account_flagged
+
+    @property
+    def is_flagged(self):
+        if not self.last_account_flagged:
+            return False
+        account_premium_feature_resumed = (
+            self.last_account_flagged +
+            timedelta(days=settings.PREMIUM_FEATURE_PAUSED_DAYS)
+        )
+        if datetime.now(timezone.utc) > account_premium_feature_resumed:
+            # premium feature has been resumed
+            return False
+        # user was flagged and the premiume feature pause period is not yet over
+        return True
+
 
 @receiver(models.signals.post_save, sender=Profile)
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
@@ -396,6 +455,8 @@ class RelayAddress(models.Model):
                     break
                 self.address = address_default()
             self.domain = get_domain_from_env_vars_and_profile(self.user)
+            profile = self.user.profile_set.first()
+            profile.update_abuse_metric(address_created=True)
         return super().save(*args, **kwargs)
 
     @property
@@ -409,6 +470,10 @@ class RelayAddress(models.Model):
 
 def check_user_can_make_another_address(user):
     user_profile = user.profile_set.first()
+    if user_profile.is_flagged:
+        raise CannotMakeAddressException(
+            ACCOUNT_PAUSED_ERR_MSG
+        )
     if (user_profile.at_max_free_aliases and not user_profile.has_premium):
         hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
         raise CannotMakeAddressException(
@@ -435,7 +500,7 @@ def get_domain_from_env_vars_and_profile(user):
     user_profile = user.profile_set.first()
     domain = DOMAINS.get('RELAY_FIREFOX_DOMAIN')
     if user_profile.has_premium or settings.TEST_MOZMAIL:
-            domain = DOMAINS.get('MOZMAIL_DOMAIN')
+        domain = DOMAINS.get('MOZMAIL_DOMAIN')
     return get_domain_numerical(domain)
 
 
@@ -483,6 +548,11 @@ class DomainAddress(models.Model):
                 'You must select a subdomain before creating email address with subdomain.'
             )
 
+        if user_profile.is_flagged:
+            raise CannotMakeAddressException(
+                ACCOUNT_PAUSED_ERR_MSG
+            )
+
         address_contains_badword = False
         if not address:
             # FIXME: if the alias is randomly generated and has bad words
@@ -508,6 +578,7 @@ class DomainAddress(models.Model):
             # update first_emailed_at indicating alias generation impromptu.
             domain_address.first_emailed_at = datetime.now(timezone.utc)
             domain_address.save()
+        user_profile.update_abuse_metric(address_created=True)
         return domain_address
 
     def delete(self, *args, **kwargs):
@@ -555,6 +626,20 @@ class Reply(models.Model):
         return self.relay_address or self.domain_address
 
     @property
+    def profile(self):
+        return self.address.user.profile_set.first()
+
+    @property
     def owner_has_premium(self):
-        profile = self.address.user.profile_set.first()
-        return profile.has_premium
+        return self.profile.has_premium
+
+
+class AbuseMetrics(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    first_recorded = models.DateTimeField(auto_now_add=True, db_index=True)
+    last_recorded = models.DateTimeField(auto_now_add=True, db_index=True)
+    num_address_created_per_day = models.PositiveSmallIntegerField(default=0)
+    num_replies_per_day = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        unique_together = ['user', 'first_recorded']
