@@ -520,23 +520,26 @@ def _get_domain_address(local_portion, domain_portion):
         incr_if_enabled('email_for_not_supported_domain', 1)
         raise ObjectDoesNotExist("Address does not exist")
     try:
-        user_profile = Profile.objects.get(subdomain=address_subdomain)
-        domain_numerical = get_domain_numerical(address_domain)
-        # filter DomainAddress because it may not exist
-        # which will throw an error with get()
-        domain_address = DomainAddress.objects.filter(
-            user=user_profile.user, address=local_portion, domain=domain_numerical
-        ).first()
-        if domain_address is None:
-            # TODO: We may want to consider flows when
-            # a user generating alias on a fly was unable to
-            # receive an email due to the following exceptions
-            domain_address = DomainAddress.make_domain_address(
-                user_profile, local_portion, True
+        with transaction.atomic:
+            locked_profile = Profile.objects.select_for_update().get(
+                subdomain=address_subdomain
             )
-        domain_address.last_used_at = datetime.now(timezone.utc)
-        domain_address.save()
-        return domain_address
+            domain_numerical = get_domain_numerical(address_domain)
+            # filter DomainAddress because it may not exist
+            # which will throw an error with get()
+            domain_address = DomainAddress.objects.filter(
+                user=locked_profile.user, address=local_portion, domain=domain_numerical
+            ).first()
+            if domain_address is None:
+                # TODO: Consider flows when a user generating alias on a fly
+                # was unable to receive an email due to user no longer being a
+                # premium user as seen in exception thrown on make_domain_address
+                domain_address = DomainAddress.make_domain_address(
+                    locked_profile, local_portion, True
+                )
+            domain_address.last_used_at = datetime.now(timezone.utc)
+            domain_address.save()
+            return domain_address
     except Profile.DoesNotExist as e:
         incr_if_enabled('email_for_dne_subdomain', 1)
         raise e
