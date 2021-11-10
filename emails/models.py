@@ -26,6 +26,7 @@ BounceStatus = namedtuple('BounceStatus', 'paused type')
 
 NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
 TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
+ACCOUNT_PAUSED_ERR_MSG = 'Your account is on pause.'
 
 
 def get_domains_from_settings():
@@ -260,9 +261,7 @@ class Profile(models.Model):
         midnight_utc_today = datetime.combine(
             datetime.now(timezone.utc).date(), datetime.min.time()
         ).astimezone(timezone.utc)
-        midnight_utc_tomorow = datetime.combine(
-            datetime.now(timezone.utc).date(), datetime.min.time()
-        ).astimezone(timezone.utc) + timedelta(days=1)
+        midnight_utc_tomorow = midnight_utc_today + timedelta(days=1)
         abuse_metric = self.user.abusemetrics_set.filter(
             first_recorded__gte=midnight_utc_today, first_recorded__lt=midnight_utc_tomorow
         ).first()
@@ -460,7 +459,7 @@ def check_user_can_make_another_address(user):
     user_profile = user.profile_set.first()
     if user_profile.is_flagged:
         raise CannotMakeAddressException(
-            'Your account is on pause.'
+            ACCOUNT_PAUSED_ERR_MSG
         )
     if (user_profile.at_max_free_aliases and not user_profile.has_premium):
         hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
@@ -538,7 +537,7 @@ class DomainAddress(models.Model):
 
         if user_profile.is_flagged:
             raise CannotMakeAddressException(
-                'Your account is on pause.'
+                ACCOUNT_PAUSED_ERR_MSG
             )
 
         address_contains_badword = False
