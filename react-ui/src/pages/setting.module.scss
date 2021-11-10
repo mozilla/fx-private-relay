@@ -1,0 +1,29 @@
+@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../static/scss/libs/protocol/css/includes/lib";
+
+.settingsPage {
+  padding: $spacing-lg;
+}
+
+.bannerWrapper {
+  padding-bottom: $spacing-xl;
+}
+
+.settingsForm {
+  box-shadow: $box-shadow-sm;
+}
+
+.fieldHeading {
+  @include text-title-3xs;
+  color: $color-dark-gray-50;
+}
+
+@media screen and #{$mq-md} {
+  .field {
+    display: flex;
+  }
+
+  .fieldHeading {
+    width: $content-sm;
+  }
+}
