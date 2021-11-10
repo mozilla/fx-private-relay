@@ -301,7 +301,7 @@ def _sns_message(message_json):
         # up a bit.
         address = _get_address(to_address, to_local_portion, to_domain_portion)
         user_profile = address.user.profile_set.first()
-    except (ObjectDoesNotExist):
+    except (ObjectDoesNotExist, CannotMakeAddressException, DeletedAddress.MultipleObjectsReturned):
         if to_local_portion == 'replies':
             return _handle_reply(from_address, message_json, to_address)
 
