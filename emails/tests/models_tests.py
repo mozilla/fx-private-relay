@@ -17,6 +17,7 @@ from model_bakery import baker
 
 from ..models import (
     address_hash,
+    ACCOUNT_PAUSED_ERR_MSG,
     CannotMakeAddressException,
     CannotMakeSubdomainException,
     DeletedAddress,
@@ -127,6 +128,7 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=self.user_profile.user)
         assert relay_address.user == self.user_profile.user
 
+    @override_settings(MAX_ADDRESS_CREATION_PER_DAY=1000)
     def test_create_makes_different_addresses(self):
         for i in range(1000):
             RelayAddress.objects.create(user=self.premium_user_profile.user)
@@ -136,7 +138,21 @@ class RelayAddressTest(TestCase):
         ).values_list("address", flat=True)
         assert len(set(relay_addresses)) == 1000
 
-    def test_create_premium_user_can_exceed_limit(self):
+    @override_settings(MAX_NUM_FREE_ALIASES=5, MAX_ADDRESS_CREATION_PER_DAY=10)
+    def test_create_has_limit(self):
+        try:
+            for i in range(100):
+                RelayAddress.objects.create(user=self.premium_user_profile.user)
+        except CannotMakeAddressException as e:
+            relay_address_count = RelayAddress.objects.filter(
+                user=self.premium_user_profile.user
+            ).count()
+            assert e.message == ACCOUNT_PAUSED_ERR_MSG
+            assert relay_address_count == 10
+            return
+        self.fail("Should have raised CannotMakeAddressException")
+
+    def test_create_premium_user_can_exceed_free_limit(self):
         for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
             RelayAddress.objects.create(user=self.premium_user_profile.user)
         relay_addresses = RelayAddress.objects.filter(
@@ -144,7 +160,7 @@ class RelayAddressTest(TestCase):
         ).values_list("address", flat=True)
         assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES + 1
 
-    def test_create_non_premium_user_cannot_pass_limit(self):
+    def test_create_non_premium_user_cannot_pass_free_limit(self):
         try:
             for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
                 RelayAddress.objects.create(user=self.user_profile.user)
@@ -799,6 +815,23 @@ class DomainAddressTest(TestCase):
         )
         assert domain_address.address == 'foobar'
         assert domain_address.first_emailed_at is None
+    
+    @override_settings(MAX_ADDRESS_CREATION_PER_DAY=10)
+    def test_make_domain_address_has_limit(self):
+        try:
+            for i in range(100):
+                DomainAddress.make_domain_address(
+                    self.user_profile,
+                    'foobar' + str(i)
+                )
+        except CannotMakeAddressException as e:
+            domain_address_count = DomainAddress.objects.filter(
+                user=self.user_profile.user
+            ).count()
+            assert e.message == ACCOUNT_PAUSED_ERR_MSG
+            assert domain_address_count == 10
+            return
+        self.fail("Should have raised CannotMakeAddressException")
 
     def test_make_domain_address_makes_requested_address_via_email(self):
         domain_address = DomainAddress.make_domain_address(
