@@ -268,7 +268,7 @@ class Profile(models.Model):
         ).first()
         if not abuse_metric:
             abuse_metric = AbuseMetrics.objects.create(user=self.user)
-            AbuseMetrics.objects.delete(first_recorded__lt=midnight_utc_today)
+            AbuseMetrics.objects.filter(first_recorded__lt=midnight_utc_today).delete()
 
         # increment the abuse metric
         if address_created:
