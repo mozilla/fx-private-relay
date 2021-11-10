@@ -174,37 +174,48 @@
                 
                 switch (e.target.parentFormHTMLElement.id) {
                     case "domainRegistration":
-                        domainRegistration.modal.close();
-                        domainRegistration.showSuccess(e.target.parentFormRequestedDomain);
+                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain,{ "form": "dashboard" });
                         break;
                     case "onboardingDomainRegistration":
-                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain);
+                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain, { "form": "onboarding" });
                         break;
                 }
-
-                // TODO: Submit form and catch success state changes to the modal for multi-step onboarding form
                 
             },
-            showSuccessState: (domain)=> {
+            showSuccessState: (domain, {form})=> {
                 const modalRegistrationForm = document.querySelector(".js-domain-registration-form");
                 const modalRegistrationSuccessState = document.querySelector(".js-domain-registration-success");
                 modalRegistrationForm.classList.add("is-hidden");
                 modalRegistrationSuccessState.classList.remove("is-hidden");
 
-                const modalContinue = document.querySelector(".js-modal-domain-registration-continue");
-                modalContinue.addEventListener("click", domainRegistration.modal.close, false);
-
                 const domainPreview = document.querySelector(".js-premium-onboarding-domain-registration-preview");
                 domainPreview.textContent = domain + ".mozmail.com";
 
-                const onboardingDomainRegistration = document.querySelector(".js-premium-onboarding-domain-registration-form");
-                onboardingDomainRegistration.classList.add("is-hidden");
-                onboardingDomainRegistration.nextElementSibling.classList.add("is-visible");
+                const modalContinue = document.querySelector(".js-modal-domain-registration-continue");
 
-                const onboardingDomainRegistrationActionButtons = document.querySelectorAll(".c-premium-onboarding-action-step-2 button");
-                onboardingDomainRegistrationActionButtons.forEach( button => {
-                    button.classList.toggle("is-hidden");
-                });
+                if (form === "onboarding") {
+                    modalContinue.addEventListener("click", domainRegistration.modal.close, false);
+                    
+                    const onboardingDomainRegistration = document.querySelector(".js-premium-onboarding-domain-registration-form");
+                    onboardingDomainRegistration.classList.add("is-hidden");
+                    onboardingDomainRegistration.nextElementSibling.classList.add("is-visible");
+
+                    const onboardingDomainRegistrationActionButtons = document.querySelectorAll(".c-premium-onboarding-action-step-2 button");
+                    onboardingDomainRegistrationActionButtons.forEach( button => {
+                        button.classList.toggle("is-hidden");
+                    });
+                }
+
+                if (form === "dashboard") {
+                    modalContinue.addEventListener("click", ()=>{
+                        location.reload();
+                    }, false);
+                }
+
+
+
+
+ 
             }
         },
         showError: (requestedDomain) => {
