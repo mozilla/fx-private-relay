@@ -76,7 +76,7 @@
 
                     // Dismiss error state if visible
                     const messages = document.querySelector(".js-notification");
-                    messages.classList.add("is-hidden");
+                    messages?.classList.add("is-hidden");
                     e.target.classList.remove("mzp-is-error");
                     domainRegistration.modal.open(e.target);
                 } else {
@@ -209,10 +209,13 @@
             }
         },
         showError: (requestedDomain) => {
-            const messages = document.querySelector(".js-notification");
+            const messagesDjango = document.querySelector(".js-notification");
+            const messages = document.querySelector(".js-notification-html");
             const messageWrapper = messages.querySelector(".message-wrapper");
             const messageWrapperSpan = messageWrapper.querySelector("span");
             const messageFluent = messages.querySelector("fluent");
+            
+            messagesDjango?.classList.add("is-hidden");
             messages.classList.remove("is-hidden");
             messageWrapper.classList.remove("success");
             messageWrapper.classList.add("error");
@@ -221,6 +224,12 @@
             let message = messageFluent.dataset.errorSubdomainNotAvailable;
             message = message.replace("REPLACE", requestedDomain); 
             messageWrapperSpan.textContent = message;
+
+            const messagesDismissButton = document.querySelector(".js-dismiss-html");
+            messagesDismissButton.addEventListener("click", ()=> {
+                messages.classList.add("is-hidden");
+            });
+
         },
         showSuccess: (requestedDomain) => {
             const messages = document.querySelector(".js-notification");
