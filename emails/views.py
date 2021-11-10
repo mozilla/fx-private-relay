@@ -465,7 +465,7 @@ def _handle_reply(from_address, message_json, to_address):
     address = reply_record.address
 
     if not _reply_allowed(from_address, to_address, reply_record):
-        return  HttpResponse(
+        return HttpResponse(
             "Rely replies require a premium account", status=403
         )
 

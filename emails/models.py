@@ -39,9 +39,6 @@ def get_domains_from_settings():
 
 DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
-DEFAULT_DOMAIN = settings.RELAY_FIREFOX_DOMAIN
-if settings.TEST_MOZMAIL:
-    DEFAULT_DOMAIN = settings.MOZMAIL_DOMAIN
 PREMIUM_DOMAINS = ['mozilla.com', 'getpocket.com', 'mozillafoundation.org']
 
 
@@ -67,6 +64,13 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
 
 def default_server_storage():
     return datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE
+
+
+def default_domain_numerical():
+    domain = DOMAINS['RELAY_FIREFOX_DOMAIN']
+    if datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE:
+        domain = DOMAINS['MOZMAIL_DOMAIN']
+    return get_domain_numerical(domain)
 
 
 class Profile(models.Model):
@@ -326,7 +330,7 @@ def copy_auth_token(sender, instance=None, created=False, **kwargs):
             Token.objects.create(user=instance.user, key=instance.api_token)
 
 
-def address_hash(address, subdomain=None, domain=DEFAULT_DOMAIN):
+def address_hash(address, subdomain=None, domain=DOMAINS['MOZMAIL_DOMAIN']):
     if subdomain:
         return sha256(
             f'{address}@{subdomain}.{domain}'.encode('utf-8')
@@ -415,7 +419,9 @@ class RelayAddress(models.Model):
     address = models.CharField(
         max_length=64, default=address_default, unique=True
     )
-    domain = models.PositiveSmallIntegerField(choices=DOMAIN_CHOICES, default=1)
+    domain = models.PositiveSmallIntegerField(
+        choices=DOMAIN_CHOICES, default=default_domain_numerical
+    )
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -562,10 +568,7 @@ class DomainAddress(models.Model):
             address = address_default()
             # Only check for bad words if randomly generated
             address_contains_badword = has_bad_words(address)
-        address_already_deleted = DeletedAddress.objects.filter(
-            address_hash=address_hash(address, user_subdomain)
-        ).count()
-        if address_contains_badword or address_already_deleted > 0:
+        if address_contains_badword:
             raise CannotMakeAddressException(
                 TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
             )
