@@ -2,7 +2,7 @@
 
 function dismissNotification() {
 	const notification = document.querySelector(".js-notification");
-	notification.classList.toggle("is-hidden");
+	notification.classList.add("is-hidden");
 }
 
 if (typeof(sendGaPing) === "undefined") {
