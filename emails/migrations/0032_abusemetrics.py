@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('emails', '0030_check_and_fix_any_duplicate_subdomains'),
+        ('emails', '0031_profile_onboarding_state'),
     ]
 
     operations = [
