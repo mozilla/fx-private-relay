@@ -174,8 +174,6 @@
                 
                 switch (e.target.parentFormHTMLElement.id) {
                     case "domainRegistration":
-                        // domainRegistration.modal.close();
-                        // domainRegistration.showSuccess(e.target.parentFormRequestedDomain);
                         domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain,{ "form": "dashboard" });
                         break;
                     case "onboardingDomainRegistration":
