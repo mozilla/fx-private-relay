@@ -475,36 +475,37 @@ FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', f'{FXA_BASE_ORIGIN}/settings')
 FXA_SUBSCRIPTIONS_URL = config('FXA_SUBSCRIPTIONS_URL', f'{FXA_BASE_ORIGIN}/subscriptions')
 FXA_SUPPORT_URL = config('FXA_SUPPORT_URL', f'{FXA_BASE_ORIGIN}/support/')
 
-LOGGING = {
-    'version': 1,
-    'formatters': {
-        'json': {
-            '()': 'dockerflow.logging.JsonLogFormatter',
-            'logger_name': 'fx-private-relay'
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'json'
+if not DEBUG:
+    LOGGING = {
+        'version': 1,
+        'formatters': {
+            'json': {
+                '()': 'dockerflow.logging.JsonLogFormatter',
+                'logger_name': 'fx-private-relay'
+            }
         },
-    },
-    'loggers': {
-        'request.summary': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
+        'handlers': {
+            'console': {
+                'level': 'DEBUG',
+                'class': 'logging.StreamHandler',
+                'formatter': 'json'
+            },
         },
-        'events': {
-            'handlers': ['console'],
-            'level': 'INFO',
-        },
-        'abusemetrics': {
-            'handlers': ['console'],
-            'level': 'INFO'
+        'loggers': {
+            'request.summary': {
+                'handlers': ['console'],
+                'level': 'DEBUG',
+            },
+            'events': {
+                'handlers': ['console'],
+                'level': 'INFO',
+            },
+            'abusemetrics': {
+                'handlers': ['console'],
+                'level': 'INFO'
+            }
         }
     }
-}
 
 if DEBUG:
     DRF_RENDERERS = (
