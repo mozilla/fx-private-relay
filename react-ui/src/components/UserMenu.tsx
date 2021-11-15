@@ -24,8 +24,10 @@ import { useLocalization } from "@fluent/react";
 import styles from "./UserMenu.module.scss";
 import SettingsImage from "../../../static/images/settings.svg";
 import SignoutImage from "../../../static/images/glocal-sign-out.svg";
+import { useUsers } from "../hooks/api/user";
 
 export const UserMenu = () => {
+  const usersData = useUsers();
   const { l10n } = useLocalization();
 
   const itemKeys = {
@@ -35,6 +37,11 @@ export const UserMenu = () => {
   };
   const accountLinkRef = useRef<HTMLAnchorElement>(null);
   const settingsLinkRef = useRef<HTMLAnchorElement>(null);
+
+  if (!Array.isArray(usersData.data) || usersData.data.length !== 1) {
+    // Still fetching the user's account data...
+    return null;
+  }
 
   const onSelect = (itemKey: Key) => {
     if (itemKey === itemKeys.account) {
@@ -49,7 +56,7 @@ export const UserMenu = () => {
     <UserMenuTrigger label={<>TODO: Avatar</>} onAction={onSelect}>
       <Item key={itemKeys.account}>
         <span className={styles.accountMenuItem}>
-          <b className={styles.userEmail}>TODO@email.address</b>
+          <b className={styles.userEmail}>{usersData.data[0].email}</b>
           <a
             href={process.env.NEXT_PUBLIC_FXA_SETTINGS_URL}
             ref={accountLinkRef}
