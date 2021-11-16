@@ -460,7 +460,6 @@ class RelayAddress(models.Model):
                 if valid_address(self.address, self.domain):
                     break
                 self.address = address_default()
-            self.domain = get_domain_from_env_vars_and_profile(self.user)
             profile = self.user.profile_set.first()
             profile.update_abuse_metric(address_created=True)
         return super().save(*args, **kwargs)
@@ -500,14 +499,6 @@ def valid_address(address, domain):
     ):
         return False
     return True
-
-
-def get_domain_from_env_vars_and_profile(user):
-    user_profile = user.profile_set.first()
-    domain = DOMAINS.get('RELAY_FIREFOX_DOMAIN')
-    if user_profile.has_premium or settings.TEST_MOZMAIL:
-        domain = DOMAINS.get('MOZMAIL_DOMAIN')
-    return get_domain_numerical(domain)
 
 
 class DeletedAddress(models.Model):
