@@ -244,6 +244,20 @@ class Profile(models.Model):
         )
 
     @property
+    def emails_replied(self):
+        relay_addresses_replied = RelayAddress.objects.filter(
+            user=self.user
+        ).values('num_replied')
+        domain_addresses_replied = DomainAddress.objects.filter(
+            user=self.user
+        ).values('num_replied')
+        return (
+            sum(replied['num_replied'] for replied in relay_addresses_replied) +
+            sum(replied['num_replied'] for replied in domain_addresses_replied) +
+            self.num_email_replied_in_deleted_address
+        )
+
+    @property
     def joined_before_premium_release(self):
         date_created = self.user.date_joined
         return date_created < settings.PREMIUM_RELEASE_DATE
