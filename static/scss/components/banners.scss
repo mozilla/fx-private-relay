@@ -333,3 +333,49 @@
     }
 
 }
+
+
+.c-footer-banner {
+    background-color: $color-white;
+
+    .mzp-l-content {
+        padding-left: $spacing-md;
+        padding-right: $spacing-md;
+    }
+
+    .c-footer-banner-container {
+        padding: $spacing-2xl 0 $spacing-xl;
+
+        @media #{$mq-md} {
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    h3 {
+        @include text-title-xs;
+        font-weight: 500;
+
+        strong {
+            font-weight: 700;
+        }
+    }
+
+    p {
+        @include text-body-md;
+        color: $color-grey-40;
+    }
+
+    .c-footer-banner-content {
+        max-width: $screen-sm;
+    }
+
+    .c-footer-banner-image {
+        display: block;
+        margin: $spacing-2xl auto 0;
+
+        @media #{$mq-md} {
+            margin: 0; 
+        }
+    }
+}

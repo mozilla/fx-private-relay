@@ -294,36 +294,6 @@ button:active {
     margin: auto auto 0 0;
 }
 
-.dashboard-mpp-promo {
-    background: url("/static/images/polygon-background-small.png") center right no-repeat;
-    background-color: $color-white;
-    background-size: contain;
-}
-
-.dashboard-mpp-promo-container {
-    max-width: $content-xl;
-    margin: auto;
-    padding: $spacing-xl $spacing-lg;
-}
-
-.dashboard-mpp-promo-headline {
-    font-size: 1.75rem;
-    line-height: 2rem;
-    margin: 0 0 $spacing-sm;
-    padding: 0;
-    font-weight: 500;
-    max-width: $content-xs;
-    color: $color-black;
-
-    strong {
-        display: inline-block;
-    }
-}
-
-.dashboard-mpp-promo-container p {
-    max-width: $content-sm;
-}
-
 main,
 table {
     width: 100%;
