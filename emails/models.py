@@ -430,6 +430,7 @@ class RelayAddress(models.Model):
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
@@ -442,6 +443,7 @@ class RelayAddress(models.Model):
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
+            num_replied=self.num_replied,
         )
         deleted_address.save()
         profile = Profile.objects.get(user=self.user)
@@ -515,6 +517,7 @@ class DeletedAddress(models.Model):
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.address_hash
@@ -534,6 +537,7 @@ class DomainAddress(models.Model):
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.address
@@ -591,6 +595,7 @@ class DomainAddress(models.Model):
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
+            num_replied=self.num_replied,
         )
         deleted_address.save()
         # self.user_profile is a property and should not be used to
