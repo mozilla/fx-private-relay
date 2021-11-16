@@ -641,6 +641,15 @@ class Reply(models.Model):
     def owner_has_premium(self):
         return self.profile.has_premium
 
+    def increment_num_replied(self):
+        address = self.relay_address or self.domain_address
+        address.num_replied += 1
+        address.last_used_at = datetime.now(timezone.utc)
+        address.save(
+            update_fields=['num_replied', 'last_used_at']
+        )
+        return address.num_replied
+
 
 class AbuseMetrics(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
