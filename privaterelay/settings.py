@@ -74,6 +74,7 @@ CSP_CONNECT_SRC = (
     "'self'",
     'https://www.google-analytics.com/',
     'https://accounts.firefox.com',
+    'https://location.services.mozilla.com',
 )
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = (
