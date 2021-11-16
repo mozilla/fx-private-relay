@@ -90,6 +90,7 @@ class Profile(models.Model):
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
+    num_email_replied_in_deleted_address = models.PositiveIntegerField(default=0)
     subdomain = models.CharField(
         blank=True, null=True, unique=True, max_length=63, db_index=True,
         validators=[valid_available_subdomain]
@@ -452,6 +453,7 @@ class RelayAddress(models.Model):
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
         profile.num_email_spam_in_deleted_address += self.num_spam
+        profile.num_email_replied_in_deleted_address += self.num_replied
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
@@ -606,6 +608,7 @@ class DomainAddress(models.Model):
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
         profile.num_email_spam_in_deleted_address += self.num_spam
+        profile.num_email_replied_in_deleted_address += self.num_replied
         profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
 
