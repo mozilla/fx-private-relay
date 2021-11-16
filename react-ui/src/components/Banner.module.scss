@@ -5,10 +5,11 @@
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
   padding: $spacing-md;
+  background-color: white;
 }
 
 .highlightWrapper {
-  padding: $spacing-xs $spacing-lg;
+  padding: $spacing-xs $spacing-lg $spacing-md;
   border-left-width: 4px;
   border-left-style: solid;
 
@@ -21,6 +22,8 @@
   @include text-title-3xs;
   display: flex;
   align-items: center;
+  padding: $spacing-md 0;
+
   .icon {
     margin-right: $spacing-md;
   }
