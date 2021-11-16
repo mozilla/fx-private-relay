@@ -67,13 +67,13 @@ class MiscEmailModelsTest(TestCase):
     def test_is_blocklisted_without_blocked_words(self):
         assert not is_blocklisted('non-blocked-word')
 
-    @override_settings(TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN='firefox.com')
+    @override_settings(RELAY_FIREFOX_DOMAIN='firefox.com')
     def test_address_hash_without_subdomain_domain_firefox(self):
         address = 'aaaaaaaaa'
         expected_hash = sha256(f'{address}'.encode('utf-8')).hexdigest()
         assert address_hash(address, domain='firefox.com') == expected_hash
 
-    @override_settings(TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN='firefox.com')
+    @override_settings(RELAY_FIREFOX_DOMAIN='firefox.com')
     def test_address_hash_without_subdomain_domain_not_firefoxz(self):
         non_default = 'test.com'
         address = 'aaaaaaaaa'
@@ -185,14 +185,11 @@ class RelayAddressTest(TestCase):
         assert relay_address.get_domain_display() == 'MOZMAIL_DOMAIN'
         assert relay_address.domain_value == 'test.com'
 
-    @override_settings(
-        TEST_MOZMAIL=False, RELAY_FIREFOX_DOMAIN=TEST_DOMAINS['RELAY_FIREFOX_DOMAIN']
-    )
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress, user=self.user)
         address_hash = sha256(
-            relay_address.address.encode('utf-8')
+            relay_address.full_address.encode('utf-8')
         ).hexdigest()
         relay_address.delete()
         deleted_count = DeletedAddress.objects.filter(
