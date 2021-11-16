@@ -1,4 +1,4 @@
-import "../styles/globals.css";
+import "../styles/globals.scss";
 import type { AppProps } from "next/app";
 import { LocalizationProvider } from "@fluent/react";
 import { SSRProvider } from "@react-aria/ssr";

@@ -1,0 +1,25 @@
+@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../static/scss/libs/protocol/css/includes/mixins/typography";
+@import "../../../static/scss/libs/protocol/css/includes/forms/lib";
+
+.button {
+  cursor: pointer;
+  background-color: $color-blue-50;
+  padding: $spacing-sm $spacing-2xl;
+  border-radius: $border-radius-sm;
+  border: 2px solid transparent;
+  color: $color-white;
+  font-weight: bold;
+  @include font-size(18px);
+
+  &:hover {
+    background-color: $color-blue-60;
+  }
+
+  &:focus {
+    border-color: $button-border-color-focus;
+    box-shadow: $field-focus-ring;
+    color: $color-white;
+    outline: none;
+  }
+}
