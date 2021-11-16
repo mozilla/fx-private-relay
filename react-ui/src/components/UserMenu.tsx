@@ -21,6 +21,7 @@ import { HTMLAttributes, Key, ReactNode, useRef, useState } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
 import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
+import Link from "next/link";
 import styles from "./UserMenu.module.scss";
 import SettingsImage from "../../../static/images/settings.svg";
 import SignoutImage from "../../../static/images/glocal-sign-out.svg";
@@ -72,15 +73,16 @@ export const UserMenu = () => {
         key={itemKeys.settings}
         textValue={l10n.getString("nav-profile-settings")}
       >
-        <a
-          href={process.env.NEXT_PUBLIC_FXA_SETTINGS_URL}
-          ref={settingsLinkRef}
-          title={l10n.getString("nav-profile-settings-tooltip")}
-          className={styles.menuLink}
-        >
-          <MenuItemIcon src={SettingsImage.src} />
-          {l10n.getString("nav-profile-settings")}
-        </a>
+        <Link href="/account/settings">
+          <a
+            ref={settingsLinkRef}
+            title={l10n.getString("nav-profile-settings-tooltip")}
+            className={styles.menuLink}
+          >
+            <MenuItemIcon src={SettingsImage.src} />
+            {l10n.getString("nav-profile-settings")}
+          </a>
+        </Link>
       </Item>
       <Item
         key={itemKeys.signout}
