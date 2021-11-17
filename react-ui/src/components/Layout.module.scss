@@ -9,6 +9,8 @@
   --toastify-toast-width: 95%;
   --toastify-color-success: #{$color-green-60};
   --toastify-text-color-success: #{$color-white};
+  --toastify-color-error: #{$color-red-50};
+  --toastify-text-color-error: #{$color-white};
 }
 
 .toast {
