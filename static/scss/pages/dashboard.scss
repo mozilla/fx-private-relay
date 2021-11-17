@@ -159,8 +159,10 @@
     z-index: 1;
     margin-left: $spacing-sm;
 
+    // This image margin for the (i) icon, which is after the string
     img {
         margin-left: $spacing-xs;
+        margin-right: 0;
     }
     
     &:hover .mpp-action-tooltip-hover {
