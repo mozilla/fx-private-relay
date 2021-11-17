@@ -1,6 +1,7 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
 import { jest, describe, it, expect } from "@jest/globals";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { setMockProfileData } from "../../../__mocks__/hooks/profile";
 
@@ -27,6 +28,30 @@ describe("The settings screen", () => {
     const bannerHeading = screen.queryByRole("heading", {
       name: "l10n string: [settings-warning-collection-off-heading]",
     });
+
+    expect(bannerHeading).not.toBeInTheDocument();
+  });
+
+  it("shows a warning about turning off server-side label storage when the user toggles it off", () => {
+    setMockProfileData({ server_storage: true });
+    render(<Settings />);
+
+    userEvent.click(
+      screen.getByLabelText(
+        "l10n string: [setting-label-collection-description]"
+      )
+    );
+
+    const toggleWarning = screen.getByRole("alert");
+
+    expect(toggleWarning).toBeInTheDocument();
+  });
+
+  it("does not show a warning about turning off server-side label storage when it was already off without the user toggling it", () => {
+    setMockProfileData({ server_storage: false });
+    render(<Settings />);
+
+    const bannerHeading = screen.queryByRole("alert");
 
     expect(bannerHeading).not.toBeInTheDocument();
   });
