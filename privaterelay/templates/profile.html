@@ -64,10 +64,10 @@
         {% if not user_profile.subdomain %}
           <div class="mpp-dashbaord-header-action">
             <a href="#mpp-choose-subdomain" class="mpp-action-link">
-              <img class="margin-right" src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}
+              <img src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}
             </a>
             <div class="mpp-action-tooltip">
-              <img class="margin-left" src="/static/images/icon-info.svg" alt="">
+              <img src="/static/images/icon-info.svg" alt="">
               <div class="mpp-action-tooltip-hover">
                 <div class="mpp-action-tooltip-hover-wrapper">
                   {% ftlmsg 'profile-label-domain-tooltip' %}
@@ -77,7 +77,8 @@
           </div>
         {% else %}
           <div class="mpp-dashbaord-header-action">
-            {% ftlmsg 'profile-label-domain' %} <samp>{{ user_profile.custom_domain }}</samp>
+              <img src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-domain' %} 
+              <samp>{{ user_profile.custom_domain }}</samp>
           </div>
         {% endif %}
       </div>

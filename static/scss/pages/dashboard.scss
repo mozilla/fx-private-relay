@@ -73,9 +73,10 @@
 }
 
 .mpp-dashbaord-header-action {
-    
+    color: $color-blue-50;
     display: flex;
     align-items: center;
+    font-weight: 600;
 
     &.is-hidden {
         display: none;
@@ -86,24 +87,21 @@
         display: inline-block;
         margin-inline-start: $spacing-xs;
     }
+
+    img {
+        margin-right: $spacing-xs;
+    }
 }
 
 .mpp-action-link {
-    color: $color-blue-50;
+    
     appearance: none;
     background: none;
     border: none;
     outline: none;
     display: flex;
     align-items: center;
-
-    .margin-right {
-        margin-right: $spacing-xs;
-    }
-
-    .margin-left {
-        margin-left: $spacing-xs;
-    }
+    font-weight: 400;
 
     &:hover {
         color: $color-blue-40;
@@ -160,6 +158,10 @@
     position: relative;
     z-index: 1;
     margin-left: $spacing-sm;
+
+    img {
+        margin-left: $spacing-xs;
+    }
     
     &:hover .mpp-action-tooltip-hover {
         display: block;
