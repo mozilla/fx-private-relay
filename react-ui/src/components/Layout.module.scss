@@ -4,6 +4,18 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  // See https://fkhadra.github.io/react-toastify/how-to-style#override-css-variables
+  --toastify-toast-width: 95%;
+  --toastify-color-success: #{$color-green-60};
+  --toastify-text-color-success: #{$color-white};
+}
+
+.toast {
+  border-radius: $border-radius-md;
+  text-align: center;
+  font-weight: bold;
+  font-family: $font-stack-base;
 }
 
 .header {

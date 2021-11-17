@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import Head from "next/head";
 import { useLocalization } from "@fluent/react";
+import { ToastContainer, toast, Slide } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import styles from "./Layout.module.scss";
 import logoTypeLight from "../../../static/images/fx-private-relay-logotype-light.svg";
 import logoTypeDark from "../../../static/images/fx-private-relay-logotype-dark.svg";
@@ -54,6 +56,13 @@ export const Layout = (props: Props) => {
             <UserMenu />
           </nav>
         </header>
+        <ToastContainer
+          position={toast.POSITION.TOP_CENTER}
+          theme="colored"
+          transition={Slide}
+          autoClose={5000}
+          toastClassName={`Toastify__toast ${styles.toast}`}
+        />
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>
           <a
