@@ -270,6 +270,35 @@ def _sns_notification(json_body):
     return _sns_message(message_json)
 
 
+def _get_recipient_with_relay_domain(recipients):
+    domains_to_check = get_domains_from_settings().values()
+    for recipient in recipients:
+        for domain in domains_to_check:
+            if domain in recipient:
+                return recipient
+    return None
+
+
+def _get_relay_recipient_from_message_json(message_json):
+    # Go thru all To, Cc, and Bcc fields and
+    # return the one that has a Relay domain
+
+    # First check commmon headers for to or cc match
+    headers_to_check = 'to', 'cc'
+    common_headers = message_json['mail']['commonHeaders']
+    for header in headers_to_check:
+        if header in common_headers:
+            recipient = _get_recipient_with_relay_domain(
+                common_headers[header]
+            )
+            if recipient is not None:
+                return parseaddr(recipient)[1]
+
+    # SES-SNS sends bcc in a different part of the message
+    recipients = message_json['receipt']['recipients']
+    return _get_recipient_with_relay_domain(recipients)
+
+
 def _sns_message(message_json):
     incr_if_enabled('sns_inbound_Notification_Received', 1)
     mail = message_json['mail']
@@ -282,15 +311,13 @@ def _sns_message(message_json):
             status=400
         )
     common_headers = mail['commonHeaders']
-    if 'to' not in common_headers:
-        logger.error('SNS message without commonHeaders "to".')
-        return HttpResponse(
-            'Received SNS notification without commonHeaders "to".',
-            status=400
-        )
+
+    to_address = _get_relay_recipient_from_message_json(message_json)
+    if to_address is None:
+        incr_if_enabled('no_relay_domain_in_recipient_fields', 1)
+        return HttpResponse("Address does not exist", status=404)
 
     from_address = parseaddr(common_headers['from'][0])[1]
-    to_address = parseaddr(common_headers['to'][0])[1]
     [to_local_portion, to_domain_portion] = to_address.split('@')
     if to_local_portion == 'noreply':
         incr_if_enabled('email_for_noreply_address', 1)
