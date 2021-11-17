@@ -93,7 +93,6 @@ class GetAddressTest(TestCase):
 
     @patch('emails.models.DOMAINS', TEST_DOMAINS)
     @patch('emails.views.get_domains_from_settings')
-    @override_settings(TEST_MOZMAIL=True)
     def test_get_address_with_relay_address(self, domains_mocked):
         domains_mocked.return_value = TEST_DOMAINS
         local_portion = 'foo'

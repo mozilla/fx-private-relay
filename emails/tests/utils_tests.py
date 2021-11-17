@@ -67,13 +67,13 @@ class FormattingToolsTest(TestCase):
         )
         assert formatted_from_address == expected_formatted_from
 
-    @override_settings(ON_HEROKU=True, SITE_ORIGIN='https://test.com', TEST_MOZMAIL=False)
-    def test_get_email_domain_from_settings_on_heroku_test_mozmail_false(self):
+    @override_settings(ON_HEROKU=True, SITE_ORIGIN='https://test.com')
+    def test_get_email_domain_from_settings_on_heroku(self):
         email_domain = get_email_domain_from_settings()
         assert 'mail.test.com' == email_domain
 
-    @override_settings(ON_HEROKU=False, SITE_ORIGIN='https://test.com', TEST_MOZMAIL=False)
-    def test_get_email_domain_from_settings_not_on_heroku_test_mozmail_false(self):
+    @override_settings(ON_HEROKU=False, SITE_ORIGIN='https://test.com')
+    def test_get_email_domain_from_settings_not_on_heroku(self):
         email_domain = get_email_domain_from_settings()
         assert 'test.com' == email_domain
 
