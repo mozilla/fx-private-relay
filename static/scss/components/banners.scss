@@ -338,13 +338,11 @@
 .c-footer-banner {
     background-color: $color-white;
 
-    .mzp-l-content {
-        padding-left: $spacing-md;
-        padding-right: $spacing-md;
-    }
-
     .c-footer-banner-container {
-        padding: $spacing-2xl 0 $spacing-xl;
+        margin: 0 auto;
+        width: 100%;
+        max-width: $content-lg;
+        padding: $spacing-2xl $spacing-xl $spacing-xl;
 
         @media #{$mq-md} {
             display: flex;

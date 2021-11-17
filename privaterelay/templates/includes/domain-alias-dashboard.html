@@ -4,29 +4,27 @@
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 {% if not user_profile.has_premium %}
     <div class="c-footer-banner">
-      <div class="mzp-l-content mzp-t-content-nospace mzp-t-content-lg">
-        <div class="c-footer-banner-container">
-          <div class="c-footer-banner-content">
-            <h3>
-              {% ftlmsg 'banner-pack-upgrade-headline-html' %}
-            </h3>
-            <p>
-              {% ftlmsg 'banner-pack-upgrade-copy' %}
-            </p>
-            <a  class="mzp-c-button mzp-t-product js-purchase-premium" target="_blank" rel="noopener noreferrer"
-                href="{% premium_subscribe_url accept_language %}"
-                data-ga="send-ga-pings"
-                data-event-category="Purchase Button"
-                data-event-label="profile-bottom-promo"
-                data-cookie-for-server="clicked-purchase"
-            >
-              
-            {% ftlmsg 'banner-pack-upgrade-cta' %}
-            </a>
-  
-          </div>
-          <img class="c-footer-banner-image" src="{% static 'images/woman-couch-left.svg' %}" alt="Woman sitting on a couch">
+      <div class="c-footer-banner-container">
+        <div class="c-footer-banner-content">
+          <h3>
+            {% ftlmsg 'banner-pack-upgrade-headline-html' %}
+          </h3>
+          <p>
+            {% ftlmsg 'banner-pack-upgrade-copy' %}
+          </p>
+          <a  class="mzp-c-button mzp-t-product js-purchase-premium" target="_blank" rel="noopener noreferrer"
+              href="{% premium_subscribe_url accept_language %}"
+              data-ga="send-ga-pings"
+              data-event-category="Purchase Button"
+              data-event-label="profile-bottom-promo"
+              data-cookie-for-server="clicked-purchase"
+          >
+            
+          {% ftlmsg 'banner-pack-upgrade-cta' %}
+          </a>
+
         </div>
-      </div>
+        <img class="c-footer-banner-image" src="{% static 'images/woman-couch-left.svg' %}" alt="Woman sitting on a couch">
+      </div>    
     </div>
 {% endif %}
