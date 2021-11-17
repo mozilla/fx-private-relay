@@ -49,7 +49,7 @@ export function getL10n() {
       ? (str: string) => [
           {
             nodeName: "#text",
-            textContent: str.replace(/\<(.*?)\>/g, ""),
+            textContent: str.replace(/<(.*?)>/g, ""),
           } as Node,
         ]
       : undefined;
