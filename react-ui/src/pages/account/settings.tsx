@@ -11,7 +11,7 @@ import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
 import { Button } from "../../components/Button";
 
-const Home: NextPage = () => {
+const Settings: NextPage = () => {
   const profileData = useProfiles();
   const { l10n } = useLocalization();
   const [labelCollectionEnabled, setLabelCollectionEnabled] = useState(
@@ -144,4 +144,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default Settings;
