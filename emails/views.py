@@ -270,29 +270,33 @@ def _sns_notification(json_body):
     return _sns_message(message_json)
 
 
+def _get_recipient_with_relay_domain(recipients):
+    domains_to_check = get_domains_from_settings().values()
+    for recipient in recipients:
+        for domain in domains_to_check:
+            if domain in recipient:
+                return recipient
+    return None
+
+
 def _get_relay_recipient_from_message_json(message_json):
     # Go thru all To, Cc, and Bcc fields and
     # return the one that has a Relay domain
 
     # First check commmon headers for to or cc match
     headers_to_check = 'to', 'cc'
-    domains_to_check = get_domains_from_settings().values()
     common_headers = message_json['mail']['commonHeaders']
     for header in headers_to_check:
         if header in common_headers:
-            for recipient in common_headers[header]:
-                for domain in domains_to_check:
-                    if domain in recipient:
-                        return parseaddr(recipient)[1]
+            recipient = _get_recipient_with_relay_domain(
+                common_headers[header]
+            )
+            if recipient is not None:
+                return parseaddr(recipient)[1]
 
     # SES-SNS sends bcc in a different part of the message
     recipients = message_json['receipt']['recipients']
-    for recipient in recipients:
-        for domain in domains_to_check:
-            if domain in recipient:
-                return recipient
-
-    return None
+    return _get_recipient_with_relay_domain(recipients)
 
 
 def _sns_message(message_json):
