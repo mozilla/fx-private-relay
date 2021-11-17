@@ -1,6 +1,7 @@
 import { useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import { FormEventHandler, useEffect, useReducer, useState } from "react";
+import { toast } from "react-toastify";
 import styles from "./settings.module.scss";
 import { Layout } from "../../components/Layout";
 import { Banner } from "../../components/Banner";
@@ -50,10 +51,17 @@ const Settings: NextPage = () => {
       </aside>
     ) : null;
 
-  const saveSettings: FormEventHandler = (event) => {
+  const saveSettings: FormEventHandler = async (event) => {
     event.preventDefault();
 
-    profileData.update(profile.id, { server_storage: labelCollectionEnabled });
+    try {
+      await profileData.update(profile.id, {
+        server_storage: labelCollectionEnabled,
+      });
+      toast(l10n.getString("success-settings-update"), { type: "success" });
+    } catch (e) {
+      // TODO: Notify user of failure to save? (Needs a new l10n string.)
+    }
   };
 
   const contactUsLink = profile.has_premium ? (
