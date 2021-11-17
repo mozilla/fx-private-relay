@@ -343,11 +343,39 @@ function setTranslatedStringLinks() {
 
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+/*
+    Use MLS country API to get the client's country code, pass that to a new
+    /premium_subscribe_url endpoint to get the subscription link for the
+    country code, and overwrite the URL that the server determined based only
+    on browser langauge.
+*/
+async function setPremiumSubscribeUrlsByCountry() {
+  const mlsUrl = "https://location.services.mozilla.com/v1/country?key=813238a9-a03c-413d-888b-98615e084a71";
+  const mlsResponse = await fetch(mlsUrl, {
+      method: "get",
+  });
+  const mlsResponseData = await mlsResponse.json();
+  const requestUrl = `/premium_subscribe_url?cc=${mlsResponseData.country_code}`;
+  const subscribeUrlResponse = await fetch(requestUrl, {
+      method: "get",
+      mode: "same-origin",
+      credentials: "same-origin",
+  });
+  const subscribeUrlData = await subscribeUrlResponse.json();
+
+  const premiumSubscribeLinks = document.querySelectorAll(".js-purchase-premium");
+
+  for (const subLink of premiumSubscribeLinks) {
+    subLink.href=subscribeUrlData.url;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
   watchForInstalledAddon();
   addEventListeners();
   vpnBannerLogic();
   setTranslatedStringLinks();
+  await setPremiumSubscribeUrlsByCountry()
   premiumOnboardingLogic();
   privacyNoticeUpdateBannerLogic();
   dataCollectionBannerLogic();
