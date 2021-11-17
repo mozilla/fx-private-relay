@@ -200,6 +200,9 @@
                     onboardingDomainRegistration.classList.add("is-hidden");
                     onboardingDomainRegistration.nextElementSibling.classList.add("is-visible");
 
+                    const dashboardDomainRegistrationPrompt = document.querySelector(".mpp-dashbaord-header-action");
+                    dashboardDomainRegistrationPrompt?.classList.add("is-hidden");
+
                     const onboardingDomainRegistrationActionButtons = document.querySelectorAll(".c-premium-onboarding-action-step-2 button");
                     onboardingDomainRegistrationActionButtons.forEach( button => {
                         button.classList.toggle("is-hidden");

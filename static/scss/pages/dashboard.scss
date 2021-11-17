@@ -73,8 +73,19 @@
 }
 
 .mpp-dashbaord-header-action {
+    
     display: flex;
     align-items: center;
+
+    &.is-hidden {
+        display: none;
+    }
+
+    samp {
+        @include font-base;
+        display: inline-block;
+        margin-inline-start: $spacing-xs;
+    }
 }
 
 .mpp-action-link {
