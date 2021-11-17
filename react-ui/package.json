@@ -24,8 +24,10 @@
     "swr": "^1.0.1"
   },
   "devDependencies": {
+    "@testing-library/dom": "^8.11.1",
     "@testing-library/jest-dom": "^5.15.0",
     "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
     "@types/react": "17.0.29",
     "babel-jest": "^27.3.1",
     "eslint": "^7.32.0",
