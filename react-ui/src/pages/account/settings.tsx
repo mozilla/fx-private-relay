@@ -60,7 +60,7 @@ const Settings: NextPage = () => {
       });
       toast(l10n.getString("success-settings-update"), { type: "success" });
     } catch (e) {
-      // TODO: Notify user of failure to save? (Needs a new l10n string.)
+      toast(l10n.getString("error-settings-update"), { type: "error" });
     }
   };
 

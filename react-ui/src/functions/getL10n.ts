@@ -38,6 +38,15 @@ export function getL10n() {
     for (const locale of currentLocales) {
       const bundle = new FluentBundle(locale);
       bundle.addResource(RESOURCES[locale]);
+      if (locale === "en") {
+        const pendingTranslations = (require as any)(
+          "../../pendingTranslations.ftl"
+        );
+        const pendingTranslationsResource = new FluentResource(
+          pendingTranslations
+        );
+        bundle.addResource(pendingTranslationsResource);
+      }
       yield bundle;
     }
   }
