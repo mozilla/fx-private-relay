@@ -14,6 +14,9 @@ def common(request):
     avatar = fxa.extra_data['avatar'] if fxa else None
     accept_language = request.headers.get('Accept-Language', 'en-US')
     country_code = request.headers.get('X-Client-Region', 'us').lower()
+    premium_available_in_country = (
+        country_code in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+    )
 
     first_visit = request.COOKIES.get("first_visit")
     show_nps = (
@@ -29,6 +32,7 @@ def common(request):
         'country_code': country_code,
         'monthly_price': premium_plan_price(accept_language, country_code),
         'show_nps': show_nps,
+        'premium_available_in_country': premium_available_in_country
     }
 
 @lru_cache(maxsize=None)
