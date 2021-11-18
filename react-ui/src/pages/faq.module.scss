@@ -1,0 +1,67 @@
+@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../static/scss/libs/protocol/css/includes/lib";
+
+.faqPage {
+  background-color: $color-blue-90;
+  color: $color-white;
+  height: 100%;
+  padding: 0 $spacing-lg $spacing-2xl;
+
+  a {
+    text-decoration: underline;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  p {
+    padding: $spacing-sm 0;
+  }
+}
+
+.faqsWrapper {
+  max-width: $content-xl;
+  margin: 0 auto;
+  padding-top: $spacing-2xl;
+}
+
+.headline {
+  @include text-title-sm;
+
+  padding-bottom: $spacing-xl;
+}
+
+.faqs {
+  column-width: $content-sm;
+  column-gap: $spacing-2xl;
+}
+
+.faq {
+  margin-bottom: $spacing-2xl;
+  break-inside: avoid;
+
+  &:target {
+    .question::before {
+      content: "> ";
+    }
+  }
+
+  .question {
+    @include text-title-2xs;
+
+    padding-bottom: $spacing-sm;
+  }
+
+  .answer {
+    @include text-body-md;
+
+    color: $color-light-gray-10;
+    margin-top: 0;
+
+    li {
+      list-style-type: initial;
+      margin-left: $spacing-md;
+    }
+  }
+}
