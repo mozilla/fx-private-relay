@@ -32,7 +32,6 @@ urlpatterns = [
     path('fxa-rp-events', views.fxa_rp_events),
     path('metrics-event', views.metrics_event),
 
-    path('premium_subscribe_url', views.premium_subscribe_url_view),
     path('accounts/profile/', views.profile, name='profile'),
     path(
         'accounts/profile/subdomain',
