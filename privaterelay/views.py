@@ -34,8 +34,6 @@ from emails.models import (
 )
 from emails.utils import incr_if_enabled
 
-from privaterelay.templatetags.relay_tags import premium_subscribe_url
-
 
 FXA_PROFILE_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/profile-change'
@@ -165,16 +163,6 @@ def profile_subdomain(request):
             'message': e.message,
             'subdomain': subdomain
         }, status=400)
-
-
-@csrf_exempt
-def premium_subscribe_url_view(request):
-    accept_lang = request.headers.get('Accept-Language', 'en-US')
-    cc = request.GET.get('cc', None)
-    lower_cc = cc.lower()
-    return JsonResponse(
-        {'url': premium_subscribe_url(accept_lang, lower_cc)}
-    )
 
 
 def version(request):
