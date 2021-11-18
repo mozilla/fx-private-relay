@@ -105,7 +105,7 @@
         <form action="{% url 'emails-index' %}" class="dash-create" method="POST">
             <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
             {% if user_profile.at_max_free_aliases and not user_profile.has_premium %}
-                {% if settings.PREMIUM_ENABLED %}
+                {% if settings.PREMIUM_ENABLED and premium_available_in_country %}
                     <a
                         href="{% premium_subscribe_url accept_language country_code %}"
                         target="_blank"
