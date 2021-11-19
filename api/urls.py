@@ -3,7 +3,8 @@ from django.urls import include, path
 from rest_framework import routers
 
 from .views import (
-    DomainAddressViewSet, ProfileViewSet, RelayAddressViewSet, schema_view
+    DomainAddressViewSet, ProfileViewSet, RelayAddressViewSet,
+    premium_countries, schema_view
 )
 
 
@@ -19,6 +20,10 @@ api_router.register(
 )
 
 urlpatterns = [
+    path('v1/premium_countries',
+         premium_countries,
+         name='premium_countries'
+    ),
     path('v1/swagger(?P<format>\.json|\.yaml)',
         schema_view.without_ui(cache_timeout=0),
         name='schema-json'
