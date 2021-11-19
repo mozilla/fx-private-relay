@@ -1,0 +1,16 @@
+@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../styles/tokens.scss";
+
+.link {
+  font-family: $font-stack-firefox;
+
+  &.isActive::after {
+    width: 100%;
+    height: 2px;
+    display: block;
+    content: "";
+    background: $firefoxGradient;
+    margin-bottom: -1 * (2px + $spacing-xs);
+    margin-top: $spacing-xs;
+  }
+}
