@@ -4,12 +4,12 @@ import { useLocalization } from "@fluent/react";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./Layout.module.scss";
-import logoTypeLight from "../../../static/images/fx-private-relay-logotype-light.svg";
-import logoTypeDark from "../../../static/images/fx-private-relay-logotype-dark.svg";
-import logo from "../../../static/images/placeholder-logo.svg";
-import mozillaLogo from "../../../static/images/logos/moz-logo-bw-rgb.svg";
-import githubLogo from "../../../static/images/GitHub.svg";
-import { useProfiles } from "../hooks/api/profile";
+import logoTypeLight from "../../../../static/images/fx-private-relay-logotype-light.svg";
+import logoTypeDark from "../../../../static/images/fx-private-relay-logotype-dark.svg";
+import logo from "../../../../static/images/placeholder-logo.svg";
+import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
+import githubLogo from "../../../../static/images/GitHub.svg";
+import { useProfiles } from "../../hooks/api/profile";
 import { UserMenu } from "./UserMenu";
 import { Navigation } from "./Navigation";
 
