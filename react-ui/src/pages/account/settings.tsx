@@ -3,7 +3,7 @@ import type { NextPage } from "next";
 import { FormEventHandler, useEffect, useReducer, useState } from "react";
 import { toast } from "react-toastify";
 import styles from "./settings.module.scss";
-import { Layout } from "../../components/Layout";
+import { Layout } from "../../components/layout/Layout";
 import { Banner } from "../../components/Banner";
 import { useProfiles } from "../../hooks/api/profile";
 import messageIcon from "../../../../static/images/icon-message-purple.svg";

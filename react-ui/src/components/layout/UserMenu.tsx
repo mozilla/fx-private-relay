@@ -23,9 +23,9 @@ import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import styles from "./UserMenu.module.scss";
-import SettingsImage from "../../../static/images/settings.svg";
-import SignoutImage from "../../../static/images/glocal-sign-out.svg";
-import { useUsers } from "../hooks/api/user";
+import SettingsImage from "../../../../static/images/settings.svg";
+import SignoutImage from "../../../../static/images/glocal-sign-out.svg";
+import { useUsers } from "../../hooks/api/user";
 
 export const UserMenu = () => {
   const usersData = useUsers();
