@@ -11,6 +11,7 @@ import mozillaLogo from "../../../static/images/logos/moz-logo-bw-rgb.svg";
 import githubLogo from "../../../static/images/GitHub.svg";
 import { useProfiles } from "../hooks/api/profile";
 import { UserMenu } from "./UserMenu";
+import { Navigation } from "./Navigation";
 
 export type Props = {
   children: ReactNode;
@@ -52,6 +53,7 @@ export const Layout = (props: Props) => {
               />
             </a>
           </div>
+          <Navigation />
           <nav className={styles.nav}>
             <UserMenu />
           </nav>

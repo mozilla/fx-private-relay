@@ -47,8 +47,19 @@
     padding: 0 $spacing-md;
   }
 
+  a:hover {
+    color: $color-blue-50;
+  }
+
   &.isDark {
     background-color: $color-blue-90;
+    border-bottom: 1px solid rgba($color-dark-gray-90, 0.5);
+    box-shadow: 0 0 3px 0 rgba($color-dark-gray-90, 0.5);
+    color: $color-white;
+
+    a:hover {
+      color: $color-light-gray-30;
+    }
   }
 
   @media screen and #{$mq-md} {
