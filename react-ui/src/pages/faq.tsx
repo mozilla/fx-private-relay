@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import { ReactNode } from "react";
 import { Localized, useLocalization } from "@fluent/react";
 import styles from "./faq.module.scss";
-import { Layout } from "../components/Layout";
+import { Layout } from "../components/layout/Layout";
 
 const Faq: NextPage = () => {
   const { l10n } = useLocalization();
