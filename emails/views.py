@@ -257,7 +257,10 @@ def _sns_notification(json_body):
     message_json = json.loads(json_body['Message'])
     event_type = message_json.get('eventType')
     notification_type = message_json.get('notificationType')
-    if notification_type != 'Received' and event_type != 'Bounce':
+    if (
+        notification_type not in['Received', 'Bounce'] and
+        event_type != 'Bounce'
+    ):
         logger.error(
             'SNS notification for unsupported type',
             extra={'notification_type': notification_type},
@@ -301,9 +304,11 @@ def _get_relay_recipient_from_message_json(message_json):
 
 def _sns_message(message_json):
     incr_if_enabled('sns_inbound_Notification_Received', 1)
-    mail = message_json['mail']
-    if message_json.get('eventType') == 'Bounce':
+    notification_type = message_json.get('notificationType')
+    event_type = message_json.get('eventType')
+    if notification_type == 'Bounce' or event_type == 'Bounce':
         return _handle_bounce(message_json)
+    mail = message_json['mail']
     if 'commonHeaders' not in mail:
         logger.error('SNS message without commonHeaders')
         return HttpResponse(
@@ -604,6 +609,12 @@ def _handle_bounce(message_json):
     bounce = message_json.get('bounce')
     bounced_recipients = bounce.get('bouncedRecipients')
     for recipient in bounced_recipients:
+        recipient_address = recipient.pop('emailAddress', None)
+        recipient_address = parseaddr(recipient_address)[1]
+        recipient_domain = recipient_address.split('@')[1]
+        capture_message(
+            f'bounced recipient domain: {recipient_domain}, {recipient}'
+        )
         try:
             user = User.objects.get(email=recipient.get('emailAddress'))
             profile = user.profile_set.first()
