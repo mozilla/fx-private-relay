@@ -28,13 +28,17 @@
   list-style-type: none;
   box-shadow: $box-shadow-md;
   border-radius: $border-radius-md;
+  // `overflow: hidden` is needed to avoid the background-image
+  // of .accountMenuItem overlapping the `border-radius`
+  // against a dark background:
+  overflow: hidden;
   $popupBackgroundColor: $color-light-gray-10;
   background-color: $popupBackgroundColor;
 
   .menuItemWrapper {
     .accountMenuItem {
       display: block;
-      $gradientWidth: 1px;
+      $gradientWidth: 3px;
       background-image: linear-gradient(
           to bottom,
           $popupBackgroundColor calc(100% - $gradientWidth),
@@ -48,6 +52,10 @@
         font-weight: bold;
         display: block;
         color: $color-violet-90;
+      }
+
+      .settingsLink {
+        color: $color-dark-gray-50;
       }
 
       &:hover {
@@ -72,6 +80,7 @@
 
       &:hover {
         background-color: $color-light-gray-20;
+        color: $color-violet-90;
       }
     }
 

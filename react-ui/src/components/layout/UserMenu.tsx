@@ -24,20 +24,28 @@ import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import styles from "./UserMenu.module.scss";
 import SettingsImage from "../../../../static/images/settings.svg";
+import ContactImage from "../../../../static/images/icon-message.svg";
+import HelpImage from "../../../../static/images/help.svg";
 import SignoutImage from "../../../../static/images/glocal-sign-out.svg";
 import { useUsers } from "../../hooks/api/user";
+import { useProfiles } from "../../hooks/api/profile";
 
 export const UserMenu = () => {
+  const profileData = useProfiles();
   const usersData = useUsers();
   const { l10n } = useLocalization();
 
   const itemKeys = {
     account: "account",
     settings: "settings",
+    contact: "contact",
+    help: "help",
     signout: "signout",
   };
   const accountLinkRef = useRef<HTMLAnchorElement>(null);
   const settingsLinkRef = useRef<HTMLAnchorElement>(null);
+  const contactLinkRef = useRef<HTMLAnchorElement>(null);
+  const helpLinkRef = useRef<HTMLAnchorElement>(null);
 
   if (!Array.isArray(usersData.data) || usersData.data.length !== 1) {
     // Still fetching the user's account data...
@@ -51,7 +59,33 @@ export const UserMenu = () => {
     if (itemKey === itemKeys.settings) {
       settingsLinkRef.current?.click();
     }
+    if (itemKey === itemKeys.settings) {
+      settingsLinkRef.current?.click();
+    }
+    if (itemKey === itemKeys.settings) {
+      settingsLinkRef.current?.click();
+    }
   };
+
+  const contactLink =
+    profileData.data?.[0]?.has_premium === true ? (
+      <Item
+        key={itemKeys.contact}
+        textValue={l10n.getString("nav-profile-contact")}
+      >
+        <a
+          ref={contactLinkRef}
+          href={`${process.env.NEXT_PUBLIC_FXA_SUPPORT_URL}?utm_source=${process.env.NEXT_PUBLIC_SITE_ORIGIN}`}
+          title={l10n.getString("nav-profile-contact-tooltip")}
+          className={styles.menuLink}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <MenuItemIcon src={ContactImage.src} />
+          {l10n.getString("nav-profile-contact")}
+        </a>
+      </Item>
+    ) : null;
 
   return (
     <UserMenuTrigger label={<>TODO: Avatar</>} onAction={onSelect}>
@@ -83,6 +117,20 @@ export const UserMenu = () => {
             {l10n.getString("nav-profile-settings")}
           </a>
         </Link>
+      </Item>
+      {contactLink!}
+      <Item key={itemKeys.help} textValue={l10n.getString("nav-profile-help")}>
+        <a
+          ref={helpLinkRef}
+          href={`https://support.mozilla.org/products/relay/?utm_source=${process.env.NEXT_PUBLIC_SITE_ORIGIN}`}
+          title={l10n.getString("nav-profile-help-tooltip")}
+          className={styles.menuLink}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <MenuItemIcon src={HelpImage.src} />
+          {l10n.getString("nav-profile-help")}
+        </a>
       </Item>
       <Item
         key={itemKeys.signout}
