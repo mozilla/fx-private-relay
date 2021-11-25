@@ -1,8 +1,73 @@
 @import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
 @import "../../../../static/scss/libs/protocol/css/includes/lib";
 
-.mainWrapper {
+.header {
+  background-color: $color-light-gray-05;
+  padding: $spacing-lg 0;
+
+  .headerWrapper {
+    display: flex;
+    align-items: center;
+
+    .greeting {
+      display: none;
+      @include text-body-xl;
+      font-weight: bold;
+      flex-grow: 2;
+
+      .lead {
+        @include text-body-md;
+        font-weight: normal;
+        display: block;
+      }
+
+      @media screen and #{$mq-md} {
+        display: block;
+      }
+    }
+
+    .accountStats {
+      display: flex;
+      text-align: center;
+
+      .stat {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 0 $spacing-md;
+        border-right: 1px solid $color-light-gray-20;
+
+        &:last-child {
+          border-right: 0 none transparent;
+        }
+
+        .label {
+          color: $color-dark-gray-10;
+        }
+
+        .value {
+          @include text-title-sm;
+          font-family: $font-stack-firefox;
+          font-weight: bold;
+          padding: $spacing-xs 0;
+        }
+      }
+    }
+  }
+}
+
+.mainWrapper,
+.headerWrapper {
   max-width: $content-xl;
   margin: 0 auto;
   padding: $spacing-md $spacing-md;
+}
+
+.aliasCardWrapper {
+  padding-top: $spacing-lg;
+  list-style-type: none;
+
+  &:first-child {
+    padding-top: 0;
+  }
 }

@@ -86,8 +86,29 @@ export const Alias = (props: Props) => {
         </span>
       </div>
       <div className={styles.aliasStats}>
-        {props.alias.num_blocked}
-        {props.alias.num_forwarded}
+        <span
+          title={l10n.getString("profile-blocked-copy")}
+          className={`${styles.stat} ${styles.blockedStat}`}
+        >
+          <span className={styles.number}>{props.alias.num_blocked}</span>
+          <span className={styles.label}>
+            {l10n.getString("profile-label-blocked")}
+          </span>
+        </span>
+        <span
+          title={`${l10n.getString("profile-forwarded-copy")}\n${l10n.getString(
+            "profile-forwarded-note"
+          )} ${l10n.getString("profile-forwarded-note-copy", {
+            size: 150,
+            unit: "KB",
+          })}`}
+          className={`${styles.stat} ${styles.forwardedStat}`}
+        >
+          <span className={styles.number}>{props.alias.num_forwarded}</span>
+          <span className={styles.label}>
+            {l10n.getString("profile-label-forwarded")}
+          </span>
+        </span>
       </div>
     </div>
   );
