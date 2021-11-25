@@ -6,6 +6,7 @@ import { ProfileData } from "../../hooks/api/profile";
 import { useRef, useState } from "react";
 import { useToggleState } from "@react-stately/toggle";
 import { useToggleButton } from "@react-aria/button";
+import { LabelEditor } from "./LabelEditor";
 
 export type Props = {
   alias: AliasData;
@@ -37,6 +38,13 @@ export const Alias = (props: Props) => {
     }, 1 * 1000);
   };
 
+  const labelEditor = props.profile.server_storage ? (
+    <LabelEditor
+      label={props.alias.description}
+      onSubmit={(newLabel) => props.onUpdate({ description: newLabel })}
+    />
+  ) : null;
+
   return (
     <div
       className={`${styles.aliasCard} ${
@@ -54,6 +62,7 @@ export const Alias = (props: Props) => {
               : "profile-label-enable-forwarding-button"
           )}
         ></button>
+        {labelEditor}
         <span className={styles.copyControls}>
           <button
             className={styles.copyButton}
