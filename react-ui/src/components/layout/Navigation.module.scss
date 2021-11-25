@@ -1,8 +1,13 @@
 @import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
 @import "../../styles/tokens.scss";
 
+.siteNav {
+  display: flex;
+}
+
 .link {
   font-family: $font-stack-firefox;
+  padding: 0 $spacing-xs;
 
   &.isActive::after {
     width: 100%;
@@ -12,5 +17,9 @@
     background: $firefoxGradient;
     margin-bottom: -1 * (2px + $spacing-xs);
     margin-top: $spacing-xs;
+  }
+
+  @media screen and #{$mq-md} {
+    padding: 0 $spacing-md;
   }
 }

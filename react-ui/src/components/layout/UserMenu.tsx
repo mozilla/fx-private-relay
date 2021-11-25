@@ -107,7 +107,7 @@ export const UserMenu = () => {
         key={itemKeys.settings}
         textValue={l10n.getString("nav-profile-settings")}
       >
-        <Link href="/account/settings">
+        <Link href="/accounts/settings">
           <a
             ref={settingsLinkRef}
             title={l10n.getString("nav-profile-settings-tooltip")}
