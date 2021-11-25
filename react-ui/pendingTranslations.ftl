@@ -7,3 +7,8 @@
 # Dev Note: When adding to this section, use this file for naming conventions: https://github.com/mozilla/bedrock/blob/master/l10n/en/brands.ftl
 
 error-settings-update = There was an error updating your settings, please try again
+
+# This will be read to screen readers when focusing the button to copy an alias to the clipboard.
+# Variables:
+#   $address (string) - Alias address, e.g. wz7n0vykd@mozmail.com.
+profile-label-click-to-copy-alt = Click to copy alias { $address }.

@@ -1,0 +1,8 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+
+.mainWrapper {
+  max-width: $content-xl;
+  margin: 0 auto;
+  padding: $spacing-md $spacing-md;
+}
