@@ -38,7 +38,10 @@ const Faq: NextPage = () => {
                 <li>
                   {l10n.getString(
                     "faq-question-missing-emails-answer-reason-size",
-                    { size: "150", unit: "KB" }
+                    {
+                      size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER,
+                      unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT,
+                    }
                   )}
                 </li>
                 <li>
@@ -151,8 +154,8 @@ const Faq: NextPage = () => {
             >
               <p>
                 {l10n.getString("faq-question-attachments-answer-v2", {
-                  size: "150",
-                  unit: "KB",
+                  size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER,
+                  unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT,
                 })}
               </p>
             </QAndA>
