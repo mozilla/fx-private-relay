@@ -1,4 +1,4 @@
-import { useLocalization } from "@fluent/react";
+import { Localized, useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import styles from "./profile.module.scss";
 import { Layout } from "../../components/layout/Layout";
@@ -10,14 +10,17 @@ import {
   useAliases,
 } from "../../hooks/api/aliases";
 import { Alias } from "../../components/dashboard/Alias";
+import { useUsers } from "../../hooks/api/user";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
+  const userData = useUsers();
   const { randomAliasData, customAliasData } = useAliases();
   const { l10n } = useLocalization();
 
   const profile = profileData.data?.[0];
-  if (!profile || !randomAliasData.data || !customAliasData.data) {
+  const user = userData.data?.[0];
+  if (!profile || !user || !randomAliasData.data || !customAliasData.data) {
     // TODO: Show a loading spinner?
     // TODO: Redirect the user to the login page if they're not logged in?
     return null;
@@ -33,18 +36,68 @@ const Profile: NextPage = () => {
 
   const allAliases = getAllAliases(randomAliasData.data, customAliasData.data);
   const aliasCards = allAliases.map((alias) => (
-    <Alias
+    <li
+      className={styles.aliasCardWrapper}
       key={alias.address + isRandomAlias(alias)}
-      alias={alias}
-      profile={profile}
-      onUpdate={(updatedFields) => updateAlias(alias, updatedFields)}
-    />
+    >
+      <Alias
+        alias={alias}
+        profile={profile}
+        onUpdate={(updatedFields) => updateAlias(alias, updatedFields)}
+      />
+    </li>
   ));
+
+  const totalBlockedEmails = allAliases.reduce(
+    (count, alias) => count + alias.num_blocked,
+    0
+  );
+  const totalForwardedEmails = allAliases.reduce(
+    (count, alias) => count + alias.num_forwarded,
+    0
+  );
 
   return (
     <>
       <Layout>
-        <main className={styles.mainWrapper}>{aliasCards}</main>
+        <header className={styles.header}>
+          <div className={styles.headerWrapper}>
+            <Localized
+              id="profile-label-welcome-html"
+              vars={{
+                email: user.email,
+              }}
+              elems={{
+                span: <span className={styles.lead} />,
+              }}
+            >
+              <span className={styles.greeting} />
+            </Localized>
+            <div className={styles.accountStats}>
+              <span className={styles.stat}>
+                <span className={styles.label}>
+                  {l10n.getString("profile-stat-label-aliases-used")}
+                </span>
+                <span className={styles.value}>{allAliases.length}</span>
+              </span>
+              <span className={styles.stat}>
+                <span className={styles.label}>
+                  {l10n.getString("profile-stat-label-blocked")}
+                </span>
+                <span className={styles.value}>{totalBlockedEmails}</span>
+              </span>
+              <span className={styles.stat}>
+                <span className={styles.label}>
+                  {l10n.getString("profile-stat-label-forwarded")}
+                </span>
+                <span className={styles.value}>{totalForwardedEmails}</span>
+              </span>
+            </div>
+          </div>
+        </header>
+        <main className={styles.mainWrapper}>
+          <ul>{aliasCards}</ul>
+        </main>
       </Layout>
     </>
   );
