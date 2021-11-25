@@ -208,6 +208,7 @@ MIDDLEWARE += [
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
     'privaterelay.middleware.FxAToRequest',
+    'privaterelay.middleware.StoreFirstVisit',
 ]
 
 ROOT_URLCONF = 'privaterelay.urls'
