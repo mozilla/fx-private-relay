@@ -23,11 +23,11 @@ const Profile: NextPage = () => {
     return null;
   }
 
-  const toggleAlias = (alias: AliasData, enable: boolean) => {
+  const updateAlias = (alias: AliasData, updatedFields: Partial<AliasData>) => {
     if (isRandomAlias(alias)) {
-      randomAliasData.update({ id: alias.id, enabled: enable });
+      randomAliasData.update({ ...updatedFields, id: alias.id });
     } else {
-      customAliasData.update({ id: alias.id, enabled: enable });
+      customAliasData.update({ ...updatedFields, id: alias.id });
     }
   };
 
@@ -37,7 +37,7 @@ const Profile: NextPage = () => {
       key={alias.address + isRandomAlias(alias)}
       alias={alias}
       profile={profile}
-      onToggle={(enabled) => toggleAlias(alias, enabled)}
+      onUpdate={(updatedFields) => updateAlias(alias, updatedFields)}
     />
   ));
 
