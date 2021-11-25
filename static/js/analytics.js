@@ -150,7 +150,7 @@ function analyticsSurveyLogic() {
   }
 
   // Unhide the micro survey
-  microSurveyBanner.classList.remove("hidden");
+  microSurveyBanner.classList.remove("is-hidden");
 
   const surveyPrompt = document.getElementById("micro-survey-prompt");
   const surveyType = surveyPrompt.dataset.surveyType;
