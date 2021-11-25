@@ -5,7 +5,7 @@
 .aliasCard {
   display: flex;
   border-radius: $border-radius-md;
-  padding: $spacing-sm;
+  padding: $spacing-md;
 
   &.isEnabled {
     box-shadow: $box-shadow-sm;
@@ -23,6 +23,7 @@
 .controls {
   display: grid;
   grid-template-columns: auto 1fr;
+  row-gap: $spacing-xs;
   align-items: center;
 
   *:nth-child(3) {
@@ -142,5 +143,24 @@
 
   @media screen and #{$mq-md} {
     display: flex;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 $spacing-md;
+
+    .number {
+      @include text-body-xl;
+      font-family: $font-stack-firefox;
+      font-weight: bold;
+    }
+
+    .isEnabled &.blockedStat,
+    .isDisabled &.forwardedStat {
+      opacity: 0.3;
+    }
   }
 }
