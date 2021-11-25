@@ -1,0 +1,52 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+
+.labelForm {
+  position: relative;
+}
+
+.labelInput {
+  font-family: $font-stack-firefox;
+  background-color: transparent;
+  border-color: transparent;
+  padding: $spacing-xs $spacing-sm;
+  // The pencil icon is 16px wide
+  padding-right: calc($spacing-sm + 16px);
+
+  &:hover,
+  &:focus {
+    background-image: url(/icons/edit.svg);
+    background-repeat: no-repeat;
+    background-position: calc(100% - $spacing-xs);
+    background-color: $color-light-gray-20;
+    border-radius: $border-radius-lg;
+  }
+}
+
+.confirmationMessage {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  opacity: 0;
+  background-color: $color-green-60;
+  color: $color-white;
+  border-radius: $border-radius-sm;
+  transition: opacity 200ms;
+  padding: $spacing-xs;
+
+  &.isShown {
+    opacity: 1;
+  }
+
+  &::after {
+    // This is the little arrow that attaches the message to the form
+    $arrowEdgeLength: 4px;
+    background-color: $color-green-60;
+    height: 2 * $arrowEdgeLength;
+    width: 2 * $arrowEdgeLength;
+    transform: rotate(45deg);
+    content: "";
+    position: absolute;
+    top: -1 * $arrowEdgeLength;
+    left: 12px;
+  }
+}
