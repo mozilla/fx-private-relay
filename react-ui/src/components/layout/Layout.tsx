@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import Head from "next/head";
+import Link from "next/link";
 import { useLocalization } from "@fluent/react";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -26,6 +27,11 @@ export const Layout = (props: Props) => {
   const darkClass = isDark ? styles.isDark : "";
   const logoType = isDark ? logoTypeLight : logoTypeDark;
 
+  const isLoggedIn =
+    typeof profiles.data !== "undefined" &&
+    typeof profiles.error === "undefined";
+  const homePath = isLoggedIn ? "/accounts/profile" : "/";
+
   return (
     <>
       <Head>
@@ -35,23 +41,22 @@ export const Layout = (props: Props) => {
       <div className={styles.wrapper}>
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles.logoWrapper}>
-            <a
-              href={process.env.NEXT_PUBLIC_API_ORIGIN}
-              className={styles.logo}
-            >
-              <img
-                src={logo.src}
-                alt=""
-                className={styles.logomark}
-                width={42}
-              />
-              <img
-                src={logoType.src}
-                alt={l10n.getString("logo-alt")}
-                className={styles.logotype}
-                width={180}
-              />
-            </a>
+            <Link href={homePath}>
+              <a className={styles.logo}>
+                <img
+                  src={logo.src}
+                  alt=""
+                  className={styles.logomark}
+                  width={42}
+                />
+                <img
+                  src={logoType.src}
+                  alt={l10n.getString("logo-alt")}
+                  className={styles.logotype}
+                  width={180}
+                />
+              </a>
+            </Link>
           </div>
           <Navigation />
           <nav className={styles.nav}>
