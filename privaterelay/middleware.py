@@ -75,3 +75,14 @@ class ResponseMetrics:
         ])
 
         return response
+
+class StoreFirstVisit:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        first_visit = request.COOKIES.get("first_visit")
+        if (first_visit is None and not request.user.is_anonymous):
+            response.set_cookie("first_visit", datetime.now(timezone.utc))
+        return response
