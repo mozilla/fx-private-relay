@@ -10,7 +10,7 @@ import { useToggleButton } from "@react-aria/button";
 export type Props = {
   alias: AliasData;
   profile: ProfileData;
-  onToggle: (enabled: boolean) => void;
+  onUpdate: (updatedFields: Partial<AliasData>) => void;
 };
 
 export const Alias = (props: Props) => {
@@ -18,7 +18,7 @@ export const Alias = (props: Props) => {
   const [justCopied, setJustCopied] = useState(false);
   const toggleButtonState = useToggleState({
     defaultSelected: props.alias.enabled,
-    onChange: props.onToggle,
+    onChange: (isEnabled) => props.onUpdate({ enabled: isEnabled }),
   });
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
   const { buttonProps } = useToggleButton(
