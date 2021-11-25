@@ -3,6 +3,7 @@
 @import "../../styles/tokens.scss";
 
 .aliasCard {
+  display: flex;
   border-radius: $border-radius-md;
   padding: $spacing-sm;
 
@@ -13,11 +14,20 @@
   &.isDisabled {
     background-color: rgba($color-white, 0.5);
   }
+
+  .controls {
+    flex-grow: 2;
+  }
 }
 
 .controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
+
+  *:nth-child(3) {
+    grid-column: 2;
+  }
 }
 
 .toggleButton {
@@ -90,6 +100,7 @@
   background-color: transparent;
   border: 0px none transparent;
   cursor: pointer;
+  padding: 0 $spacing-sm;
 
   .address {
     font-family: $font-stack-firefox;
