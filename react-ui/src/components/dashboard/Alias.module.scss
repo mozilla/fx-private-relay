@@ -1,0 +1,135 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+@import "../../styles/tokens.scss";
+
+.aliasCard {
+  border-radius: $border-radius-md;
+  padding: $spacing-sm;
+
+  &.isEnabled {
+    box-shadow: $box-shadow-sm;
+    background-color: $color-white;
+  }
+  &.isDisabled {
+    background-color: rgba($color-white, 0.5);
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+}
+
+.toggleButton {
+  cursor: pointer;
+  height: 1.15rem;
+  width: 2rem;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  border-radius: 1.5rem;
+  margin-right: $spacing-sm;
+  outline: none;
+  background-color: $color-blue-50;
+  background-size: 20px;
+
+  &:hover,
+  &:focus {
+    background-color: $color-blue-70;
+    box-shadow: $buttonFocusOutline;
+  }
+
+  &:active {
+    background-color: $color-blue-80;
+  }
+
+  // The knob:
+  &::after {
+    content: "";
+    height: 0.75rem;
+    width: 0.75rem;
+    position: absolute;
+    border-radius: 50%;
+    background-color: $color-white;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    right: 4px;
+    transition: all 0.2s ease;
+  }
+
+  .isDisabled & {
+    background-color: $color-light-gray-30;
+
+    &:hover,
+    &:focus {
+      background-color: $color-light-gray-40;
+    }
+
+    &:active {
+      background-color: $color-light-gray-50;
+    }
+
+    &::after {
+      left: 4px;
+      right: 18px;
+      transition: all 0.2s ease;
+    }
+  }
+}
+
+.copyControls {
+  display: flex;
+  align-items: center;
+}
+
+.copyButton {
+  @include text-body-lg;
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  border: 0px none transparent;
+  cursor: pointer;
+
+  .address {
+    font-family: $font-stack-firefox;
+  }
+
+  .copyIcon {
+    padding: 0 $spacing-sm;
+    opacity: 0.5;
+  }
+
+  &:hover {
+    .address {
+      text-decoration: underline;
+    }
+
+    .copyIcon {
+      opacity: 1;
+    }
+  }
+}
+
+.copiedConfirmation {
+  opacity: 0;
+  transition: opacity 2s;
+  background-color: $color-violet-30;
+  color: $color-white;
+  border-radius: $border-radius-md;
+  padding: $spacing-xs;
+
+  &.isShown {
+    opacity: 1;
+    // Don't fade in when appearing:
+    transition: opacity 0s;
+  }
+}
+
+.aliasStats {
+  display: none;
+
+  @media screen and #{$mq-md} {
+    display: flex;
+  }
+}
