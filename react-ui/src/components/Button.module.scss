@@ -3,6 +3,8 @@
 @import "../../../static/scss/libs/protocol/css/includes/forms/lib";
 
 .button {
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
   background-color: $color-blue-50;
   padding: $spacing-sm $spacing-2xl;
@@ -10,7 +12,7 @@
   border: 2px solid transparent;
   color: $color-white;
   font-weight: bold;
-  @include font-size(18px);
+  @include font-size(16px);
 
   &:hover {
     background-color: $color-blue-60;
@@ -21,5 +23,9 @@
     box-shadow: $field-focus-ring;
     color: $color-white;
     outline: none;
+  }
+
+  img {
+    margin: 0 $spacing-xs;
   }
 }
