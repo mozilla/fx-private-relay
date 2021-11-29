@@ -9,8 +9,8 @@ import {
   isRandomAlias,
   useAliases,
 } from "../../hooks/api/aliases";
-import { Alias } from "../../components/dashboard/Alias";
 import { useUsers } from "../../hooks/api/user";
+import { AliasList } from "../../components/dashboard/AliasList";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -35,18 +35,6 @@ const Profile: NextPage = () => {
   };
 
   const allAliases = getAllAliases(randomAliasData.data, customAliasData.data);
-  const aliasCards = allAliases.map((alias) => (
-    <li
-      className={styles.aliasCardWrapper}
-      key={alias.address + isRandomAlias(alias)}
-    >
-      <Alias
-        alias={alias}
-        profile={profile}
-        onUpdate={(updatedFields) => updateAlias(alias, updatedFields)}
-      />
-    </li>
-  ));
 
   const totalBlockedEmails = allAliases.reduce(
     (count, alias) => count + alias.num_blocked,
@@ -96,7 +84,11 @@ const Profile: NextPage = () => {
           </div>
         </header>
         <main className={styles.mainWrapper}>
-          <ul>{aliasCards}</ul>
+          <AliasList
+            aliases={allAliases}
+            onUpdate={updateAlias}
+            profile={profile}
+          />
         </main>
       </Layout>
     </>
