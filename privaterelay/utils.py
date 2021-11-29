@@ -15,7 +15,7 @@ def _get_cc_from_request(request):
     if 'X-Client-Region' in request.headers:
         return request.headers['X-Client-Region'].lower()
     if 'Accept-Language' in request.headers:
-        return get_premium_country_lang(request.headers['Accept-Language'])
+        return get_premium_country_lang(request.headers['Accept-Language'])[0]
     if settings.DEBUG:
         return 'us'
     return 'us'
