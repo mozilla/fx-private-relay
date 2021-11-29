@@ -21,7 +21,9 @@ a {
   margin: 0;
 }
 html,
-body {
+body,
+#__next,
+#overlayProvider {
   height: 100%;
   font-family: $font-stack-base;
 }

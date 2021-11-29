@@ -11,6 +11,8 @@ import {
 } from "../../hooks/api/aliases";
 import { useUsers } from "../../hooks/api/user";
 import { AliasList } from "../../components/dashboard/AliasList";
+import { SubdomainPicker } from "../../components/dashboard/SubdomainPicker";
+import { toast } from "react-toastify";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -48,6 +50,20 @@ const Profile: NextPage = () => {
     (count, alias) => count + alias.num_forwarded,
     0
   );
+
+  const setCustomSubdomain = async (customSubdomain: string) => {
+    const response = await profileData.update(profile.id, {
+      subdomain: customSubdomain,
+    });
+    if (response.ok) {
+      toast(
+        l10n.getString("modal-domain-register-success", {
+          subdomain: customSubdomain,
+        }),
+        { type: "success" }
+      );
+    }
+  };
 
   return (
     <>
@@ -88,6 +104,7 @@ const Profile: NextPage = () => {
           </div>
         </header>
         <main className={styles.mainWrapper}>
+          <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
           <AliasList
             aliases={allAliases}
             onCreate={createAlias}

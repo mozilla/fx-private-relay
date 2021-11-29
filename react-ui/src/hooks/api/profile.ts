@@ -13,7 +13,7 @@ export type ProfilesData = [ProfileData];
 export type ProfileUpdateFn = (
   id: ProfileData["id"],
   data: Partial<ProfileData>
-) => Promise<void>;
+) => Promise<Response>;
 
 export const useProfiles = (): SWRResponse<ProfilesData, unknown> & {
   update: ProfileUpdateFn;
@@ -21,11 +21,12 @@ export const useProfiles = (): SWRResponse<ProfilesData, unknown> & {
   const profiles: SWRResponse<ProfilesData, unknown> = useApiV1("/profiles/");
 
   const update: ProfileUpdateFn = async (id, data) => {
-    await apiFetch(`/profiles/${id}/`, {
+    const response = await apiFetch(`/profiles/${id}/`, {
       method: "PATCH",
       body: JSON.stringify(data),
     });
     profiles.mutate();
+    return response;
   };
 
   return {
