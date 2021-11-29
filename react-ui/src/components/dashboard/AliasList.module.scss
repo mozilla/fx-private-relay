@@ -1,0 +1,11 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+
+.aliasCardWrapper {
+  padding-top: $spacing-lg;
+  list-style-type: none;
+
+  &:first-child {
+    padding-top: 0;
+  }
+}

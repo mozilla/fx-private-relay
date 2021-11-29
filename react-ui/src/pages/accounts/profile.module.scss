@@ -62,12 +62,3 @@
   margin: 0 auto;
   padding: $spacing-md $spacing-md;
 }
-
-.aliasCardWrapper {
-  padding-top: $spacing-lg;
-  list-style-type: none;
-
-  &:first-child {
-    padding-top: 0;
-  }
-}
