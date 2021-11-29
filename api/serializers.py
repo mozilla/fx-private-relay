@@ -42,7 +42,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['id', 'server_storage', 'subdomain', 'has_premium', 'onboarding_state', 'date_subscribed']
-        read_only_fields = ['id', 'subdomain', 'has_premium', 'date_subscribed']
+        read_only_fields = ['id', 'has_premium', 'date_subscribed']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

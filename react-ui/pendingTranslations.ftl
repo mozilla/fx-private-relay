@@ -12,3 +12,11 @@ error-settings-update = There was an error updating your settings, please try ag
 # Variables:
 #   $address (string) - Alias address, e.g. wz7n0vykd@mozmail.com.
 profile-label-click-to-copy-alt = Click to copy alias { $address }.
+
+# Variables:
+#   $subdomain (string) - Chosen subdomain, i.e. the part after `@` and before `.mozmail.com`
+#   $domain (string) - Applicable domain, i.e. `.mozmail.com`
+modal-domain-register-available-v2 = <subdomain>{ $subdomain }</subdomain><domain>.{ $domain }</domain> is available!
+# Variables:
+#   $subdomain (string) - Chosen subdomain, i.e. the part after `@` and before `.mozmail.com`
+modal-domain-register-confirmation-checkbox-v2 = Yes, I want to register <subdomain>{ $subdomain }</subdomain>
