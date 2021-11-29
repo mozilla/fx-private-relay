@@ -1,0 +1,217 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+@import "../../../../static/scss/libs/protocol/css/includes/forms/lib";
+
+.card {
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+  box-shadow: $box-shadow-sm;
+  background-color: $color-white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  @media screen  and #{$mq-md} {
+    flex-direction: row;
+
+    .description,
+    .search {
+      width: 50%;
+    }
+  }
+
+  a {
+    @include text-body-sm;
+    color: $color-purple-60;
+
+    &:hover,
+    &:focus {
+      color: $color-purple-80;
+    }
+  }
+
+  .description {
+    border-color: $color-light-gray-30;
+    border-width: 1px;
+    border-bottom-style: solid;
+    margin-bottom: $spacing-md;
+    padding-bottom: $spacing-md;
+
+    @media screen and #{$mq-md} {
+      border-bottom-style: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-right-style: solid;
+      margin-right: $spacing-lg;
+      padding-right: $spacing-lg;
+    }
+
+    .actionStep {
+      @include text-body-sm;
+      color: $color-purple-60;
+    }
+
+    h2 {
+      @include text-title-2xs;
+      padding: $spacing-sm 0;
+    }
+
+    .example {
+      @include text-title-2xs;
+      color: $color-light-gray-90;
+
+      .subdomainPart {
+        color: $color-purple-60;
+        font-weight: bold;
+      }
+    }
+
+    .lead {
+      @include text-body-sm;
+      padding: $spacing-md 0;
+    }
+  }
+
+  .search {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+
+    form {
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+
+      input {
+        @include form-input;
+        flex-grow: 2;
+        margin: 0;
+        margin-right: $spacing-md;
+      }
+    }
+
+    .illustration {
+      margin-top: $spacing-lg;
+    }
+  }
+}
+
+.underlay {
+  position: fixed;
+  background-color: rgba($color-black, 0.4);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .dialogWrapper {
+    background: $color-white;
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
+    max-width: 90%;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
+
+    .hero {
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+      font-weight: bold;
+      text-align: center;
+      border-radius: $border-radius-md;
+      background-color: $color-light-gray-10;
+      padding: $spacing-lg $spacing-md;
+
+      .headline {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: $spacing-sm 0;
+
+        img {
+          margin-right: $spacing-sm;
+        }
+      }
+
+      .modalTitle {
+        font-weight: normal;
+
+        .subdomain {
+          @include text-title-xs;
+          display: block;
+          font-weight: bold;
+          margin-bottom: $spacing-sm;
+          padding: $spacing-sm 0;
+
+          &::before {
+            content: "@";
+          }
+        }
+      }
+    }
+
+    .permanenceWarning {
+      @include text-body-sm;
+      text-align: center;
+      padding: $spacing-md $spacing-2xl;
+      color: $color-dark-gray-70;
+    }
+
+    .confirm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      label {
+        background-color: $color-light-gray-10;
+        border-radius: $border-radius-md;
+        margin-bottom: $spacing-md;
+        padding: $spacing-md;
+        cursor: pointer;
+
+        input {
+          margin-right: $spacing-sm;
+        }
+
+        .subdomain {
+          font-weight: bold;
+
+          &::before {
+            content: "@";
+          }
+        }
+      }
+
+      .buttons {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: $spacing-xl;
+
+        .cancelButton {
+          border-style: none;
+          background-color: transparent;
+          cursor: pointer;
+          border-radius: $border-radius-sm;
+          color: $color-blue-50;
+          padding: $spacing-sm $spacing-2xl;
+
+          &:hover {
+            background-color: $color-blue-50;
+            color: $color-white;
+          }
+
+          &:focus {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
+}
