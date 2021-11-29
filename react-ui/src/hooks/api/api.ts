@@ -1,8 +1,8 @@
 import useSWR, { Fetcher, SWRResponse } from "swr";
 
-export const apiFetch = async (
-  route: string,
-  init: Parameters<typeof fetch>[1]
+export const authenticatedFetch = async (
+  path: string,
+  init?: Parameters<typeof fetch>[1]
 ) => {
   // TODO: Implement proper authentication.
   //       Until that's done, authenticate by opening http://127.0.0.1:8000/admin/authtoken/tokenproxy/,
@@ -22,9 +22,17 @@ export const apiFetch = async (
     credentials: "include",
   };
 
-  const url = `${process.env.NEXT_PUBLIC_API_ORIGIN}/api/v1${route}`;
+  const url = `${process.env.NEXT_PUBLIC_API_ORIGIN}${path}`;
   const response = await fetch(url, options);
   return response;
+};
+
+export const apiFetch = async (
+  route: string,
+  init?: Parameters<typeof fetch>[1]
+) => {
+  const path = `/api/v1${route}`;
+  return authenticatedFetch(path, init);
 };
 
 const fetcher: Fetcher<unknown> = async (...args) => {
