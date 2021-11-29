@@ -1,6 +1,15 @@
 @import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
 @import "../../../../static/scss/libs/protocol/css/includes/lib";
 
+.controls {
+  display: flex;
+  padding: $spacing-md 0;
+
+  .stringFilter {
+    flex-grow: 2;
+  }
+}
+
 .aliasCardWrapper {
   padding-top: $spacing-lg;
   list-style-type: none;

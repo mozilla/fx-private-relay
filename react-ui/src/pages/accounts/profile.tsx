@@ -26,6 +26,10 @@ const Profile: NextPage = () => {
     return null;
   }
 
+  const createAlias = () => {
+    randomAliasData.create();
+  };
+
   const updateAlias = (alias: AliasData, updatedFields: Partial<AliasData>) => {
     if (isRandomAlias(alias)) {
       randomAliasData.update({ ...updatedFields, id: alias.id });
@@ -86,6 +90,7 @@ const Profile: NextPage = () => {
         <main className={styles.mainWrapper}>
           <AliasList
             aliases={allAliases}
+            onCreate={createAlias}
             onUpdate={updateAlias}
             profile={profile}
           />

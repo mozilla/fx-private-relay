@@ -34,9 +34,11 @@ export type AliasUpdateFn = (
   data: Partial<CommonAliasData>
 ) => Promise<void>;
 
+type CreateFn = () => Promise<void>;
 type UpdateFn = (alias: Partial<AliasData> & { id: number }) => Promise<void>;
 type WithUpdater = {
   update: UpdateFn;
+  create: CreateFn;
 };
 
 export const useAliases = (): {
@@ -49,6 +51,22 @@ export const useAliases = (): {
     useApiV1("/relayaddresses/");
   const customAliases: SWRResponse<CustomAliasData[], unknown> =
     useApiV1("/domainaddresses/");
+
+  const getCreater: (type: "random" | "custom") => CreateFn = (type) => {
+    return async () => {
+      const endpoint =
+        type === "random" ? "/relayaddresses/" : "/domainaddresses/";
+      await apiFetch(endpoint, {
+        method: "POST",
+        body: JSON.stringify({ enabled: true }),
+      });
+      if (type === "random") {
+        randomAliases.mutate();
+      } else {
+        customAliases.mutate();
+      }
+    };
+  };
 
   const getUpdater: (type: "random" | "custom") => UpdateFn = (type) => {
     return async (aliasData) => {
@@ -71,10 +89,12 @@ export const useAliases = (): {
 
   const randomAliasData = {
     ...randomAliases,
+    create: getCreater("random"),
     update: getUpdater("random"),
   };
   const customAliasData = {
     ...customAliases,
+    create: getCreater("custom"),
     update: getUpdater("custom"),
   };
 
