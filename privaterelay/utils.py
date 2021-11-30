@@ -34,4 +34,4 @@ def get_premium_country_lang(accept_lang, cc=None):
         if lang in languages.keys():
             return cc, lang
         return cc, list(languages.keys())[0]
-    return 'us', 'en'
+    return cc, 'en'
