@@ -2,10 +2,14 @@
 @import "../../../../static/scss/libs/protocol/css/includes/lib";
 @import "../../styles/tokens.scss";
 
+$toggleTransitionDuration: 200ms;
+
 .aliasCard {
   display: flex;
   border-radius: $border-radius-md;
   padding: $spacing-md;
+  transition: background-color $toggleTransitionDuration ease,
+    box-shadow $toggleTransitionDuration ease;
 
   &.isEnabled {
     box-shadow: $box-shadow-sm;
@@ -66,7 +70,9 @@
     bottom: 0;
     margin: auto;
     right: 4px;
-    transition: all 0.2s ease;
+    transition: left $toggleTransitionDuration ease,
+      right $toggleTransitionDuration ease,
+      background-color $toggleTransitionDuration ease;
   }
 
   .isDisabled & {
@@ -84,7 +90,6 @@
     &::after {
       left: 4px;
       right: 18px;
-      transition: all 0.2s ease;
     }
   }
 }
@@ -151,6 +156,7 @@
     align-items: center;
     justify-content: center;
     padding: 0 $spacing-md;
+    transition: opacity $toggleTransitionDuration ease;
 
     .number {
       @include text-body-xl;
