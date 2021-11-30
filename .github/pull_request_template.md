@@ -4,6 +4,8 @@
 
 This PR fixes #<issue ID>.
 
+How to test:
+
 - [ ] l10n dependencies have been merged, if any.
 - [ ] I've added a unit test to test for potential regressions of this bug (or this is a front-end change, where we don't yet have unit test infrastructure).
 - [ ] All UI revisions follow the [coding standards](https://github.com/mozilla/fx-private-relay/blob/main/docs/coding-standards.md), and use Protocol tokens where applicable (see `/static/scss/libs/protocol/css/includes/tokens/dist/index.scss`).
@@ -12,6 +14,12 @@ This PR fixes #<issue ID>.
 <!-- When adding a new feature: -->
 
 # New feature description
+
+
+
+# How to test
+
+
 
 # Checklist
 
