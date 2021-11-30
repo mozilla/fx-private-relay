@@ -77,6 +77,9 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
     num_address_deleted = models.PositiveIntegerField(default=0)
+    date_subscribed = models.DateTimeField(
+        blank=True, null=True
+    )
     address_last_deleted = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
