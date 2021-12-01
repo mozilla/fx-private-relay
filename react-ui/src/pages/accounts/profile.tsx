@@ -65,44 +65,50 @@ const Profile: NextPage = () => {
     }
   };
 
+  // Non-Premium users have only five aliases, making the stats less insightful,
+  // so only show them for Premium users:
+  const stats = profile.has_premium ? (
+    <header className={styles.header}>
+      <div className={styles.headerWrapper}>
+        <Localized
+          id="profile-label-welcome-html"
+          vars={{
+            email: user.email,
+          }}
+          elems={{
+            span: <span className={styles.lead} />,
+          }}
+        >
+          <span className={styles.greeting} />
+        </Localized>
+        <div className={styles.accountStats}>
+          <span className={styles.stat}>
+            <span className={styles.label}>
+              {l10n.getString("profile-stat-label-aliases-used")}
+            </span>
+            <span className={styles.value}>{allAliases.length}</span>
+          </span>
+          <span className={styles.stat}>
+            <span className={styles.label}>
+              {l10n.getString("profile-stat-label-blocked")}
+            </span>
+            <span className={styles.value}>{totalBlockedEmails}</span>
+          </span>
+          <span className={styles.stat}>
+            <span className={styles.label}>
+              {l10n.getString("profile-stat-label-forwarded")}
+            </span>
+            <span className={styles.value}>{totalForwardedEmails}</span>
+          </span>
+        </div>
+      </div>
+    </header>
+  ) : null;
+
   return (
     <>
       <Layout>
-        <header className={styles.header}>
-          <div className={styles.headerWrapper}>
-            <Localized
-              id="profile-label-welcome-html"
-              vars={{
-                email: user.email,
-              }}
-              elems={{
-                span: <span className={styles.lead} />,
-              }}
-            >
-              <span className={styles.greeting} />
-            </Localized>
-            <div className={styles.accountStats}>
-              <span className={styles.stat}>
-                <span className={styles.label}>
-                  {l10n.getString("profile-stat-label-aliases-used")}
-                </span>
-                <span className={styles.value}>{allAliases.length}</span>
-              </span>
-              <span className={styles.stat}>
-                <span className={styles.label}>
-                  {l10n.getString("profile-stat-label-blocked")}
-                </span>
-                <span className={styles.value}>{totalBlockedEmails}</span>
-              </span>
-              <span className={styles.stat}>
-                <span className={styles.label}>
-                  {l10n.getString("profile-stat-label-forwarded")}
-                </span>
-                <span className={styles.value}>{totalForwardedEmails}</span>
-              </span>
-            </div>
-          </div>
-        </header>
+        {stats}
         <main className={styles.mainWrapper}>
           <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
           <AliasList
