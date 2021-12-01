@@ -1,12 +1,31 @@
 @import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
 @import "../../../../static/scss/libs/protocol/css/includes/lib";
+@import "../../../../static/scss/libs/protocol/css/includes/forms/lib";
 
 .controls {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  row-gap: $spacing-md;
+  grid-template-areas:
+    "categoryFilter newAliasButton"
+    "stringFilter stringFilter";
+  align-items: center;
   padding: $spacing-md 0;
+  // The focus indicators of contained elements can overflow:
+  overflow: visible;
 
   .stringFilter {
-    flex-grow: 2;
+    grid-area: stringFilter;
+  }
+  .categoryFilter {
+    grid-area: categoryFilter;
+  }
+  .newAliasButton {
+    grid-area: newAliasButton;
+  }
+
+  @media screen and #{$mq-md} {
+    grid-template-areas: "stringFilter categoryFilter newAliasButton";
   }
 }
 
@@ -17,4 +36,41 @@
   &:first-child {
     padding-top: 0;
   }
+}
+
+.stringFilter {
+  input {
+    @include form-input;
+    margin: 0;
+    background-image: url("/icons/search-blue.svg");
+    background-repeat: no-repeat;
+    background-position: left $spacing-sm top 50%;
+    // The search icon is 20px wide, surrounded by padding:
+    padding-left: calc($spacing-sm + 20px + $spacing-sm);
+    // Leave some space on the right for `.matchCount`
+    padding-right: calc($spacing-sm + 30px);
+    width: 100%;
+
+    @media screen and #{$mq-md} {
+      width: auto;
+    }
+  }
+
+  .matchCount {
+    opacity: 0;
+    transition: opacity 200ms;
+    position: absolute;
+    transform: translateX(-100%);
+    padding: $spacing-sm;
+  }
+  // Show the counter when the search field is focused
+  // or has a value:
+  input:not(:placeholder-shown) + .matchCount,
+  input:focus + .matchCount {
+    opacity: 1;
+  }
+}
+
+.categoryFilter {
+  padding-right: $spacing-md;
 }
