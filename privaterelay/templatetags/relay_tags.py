@@ -36,11 +36,15 @@ def premium_plan_id(accept_lang, cc=None):
     if settings.PREMIUM_PRICE_ID_OVERRIDE:
         return settings.PREMIUM_PRICE_ID_OVERRIDE
     cc, lang = get_premium_country_lang(accept_lang, cc)
-    return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["id"]
+    if cc in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING:
+        return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["id"]
+    return ''
 
 @register.simple_tag
 def premium_plan_price(accept_lang, cc=None):
     cc, lang = get_premium_country_lang(accept_lang, cc)
+    if cc not in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING:
+        cc = 'us'
     return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["price"]
 
 @register.simple_tag

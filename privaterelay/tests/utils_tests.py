@@ -1,9 +1,6 @@
 from django.test import TestCase
 
-from ..utils import (
-    get_premium_country_lang,
-    get_premium_countries_info_from_request
-)
+from ..utils import get_premium_country_lang
 
 
 class GetPremiumCountryLangTest(TestCase):
