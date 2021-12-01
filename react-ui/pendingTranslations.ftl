@@ -13,6 +13,10 @@ error-settings-update = There was an error updating your settings, please try ag
 #   $address (string) - Alias address, e.g. wz7n0vykd@mozmail.com.
 profile-label-click-to-copy-alt = Click to copy alias { $address }.
 
+profile-filter-category-button-label = Filter visible aliases
+profile-filter-category-button-tooltip = Filter aliases by domain and/or whether they are enabled or disabled
+profile-filter-category-title = Filter visible aliases
+
 # Variables:
 #   $subdomain (string) - Chosen subdomain, i.e. the part after `@` and before `.mozmail.com`
 #   $domain (string) - Applicable domain, i.e. `.mozmail.com`

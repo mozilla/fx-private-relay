@@ -5,6 +5,9 @@ import { AliasData, isRandomAlias } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { Alias } from "./Alias";
 import { Button } from "../Button";
+import { useState } from "react";
+import { filterAliases } from "../../functions/filterAliases";
+import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
 
 export type Props = {
   aliases: AliasData[];
@@ -15,7 +18,14 @@ export type Props = {
 
 export const AliasList = (props: Props) => {
   const { l10n } = useLocalization();
-  const aliases = sortAliases(props.aliases);
+  const [stringFilterInput, setStringFilterInput] = useState("");
+  const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
+  const aliases = sortAliases(
+    filterAliases(props.aliases, props.profile, {
+      ...categoryFilters,
+      string: stringFilterInput,
+    })
+  );
 
   const aliasCards = aliases.map((alias) => (
     <li
@@ -46,8 +56,26 @@ export const AliasList = (props: Props) => {
   return (
     <>
       <div className={styles.controls}>
-        <div className={styles.stringFilter}></div>
-        {newAliasButton}
+        <div className={styles.stringFilter}>
+          <input
+            value={stringFilterInput}
+            onChange={(e) => setStringFilterInput(e.target.value)}
+            type="search"
+            name="stringFilter"
+            id="stringFilter"
+            placeholder={l10n.getString("profile-filter-search-placeholder")}
+          />
+          <span className={styles.matchCount}>
+            {aliases.length}/{props.aliases.length}
+          </span>
+        </div>
+        <div className={styles.categoryFilter}>
+          <CategoryFilter
+            onChange={setCategoryFilters}
+            selectedFilters={categoryFilters}
+          />
+        </div>
+        <div className={styles.newAliasButton}>{newAliasButton}</div>
       </div>
       <ul>{aliasCards}</ul>
     </>

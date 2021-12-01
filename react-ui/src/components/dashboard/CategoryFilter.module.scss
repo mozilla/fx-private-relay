@@ -1,0 +1,71 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+
+.filterButton {
+  background-color: transparent;
+  border-radius: 100%;
+  border-style: none;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: $color-white;
+  }
+
+  img {
+    filter: grayscale(1);
+  }
+  &:hover img {
+    filter: none;
+  }
+}
+
+.filterMenu {
+  box-shadow: $box-shadow-sm;
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  font-family: $font-stack-firefox;
+
+  .filterForm {
+    display: flex;
+    flex-direction: column;
+
+    label,
+    .buttons {
+      padding: $spacing-md;
+    }
+
+    label {
+      border-bottom: 1px solid $color-light-gray-20;
+
+      input {
+        margin-right: $spacing-sm;
+      }
+    }
+
+    .buttons {
+      display: flex;
+      align-items: center;
+
+      button[type="reset"] {
+        background-color: $color-white;
+        color: $color-dark-gray-10;
+        border: 2px solid $color-light-gray-40;
+        border-radius: $border-radius-sm;
+        font-weight: bold;
+        padding: $spacing-sm $spacing-2xl;
+        line-height: 1.25;
+        cursor: pointer;
+        margin-right: $spacing-lg;
+
+        &:hover {
+          color: $color-blue-60;
+          border-color: $color-blue-60;
+        }
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@
 .button {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   cursor: pointer;
   background-color: $color-blue-50;
   padding: $spacing-sm $spacing-2xl;
