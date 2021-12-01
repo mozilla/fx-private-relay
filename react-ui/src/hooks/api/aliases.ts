@@ -13,7 +13,7 @@ export type CommonAliasData = {
   domain: Domain_MozmailCom | Domain_RelayFirefoxCom;
   created_at: DateTimeString;
   last_modified_at: DateTimeString;
-  last_used_at: DateTimeString;
+  last_used_at: DateTimeString | null;
   num_forwarded: number;
   num_blocked: number;
   num_spam: number;
