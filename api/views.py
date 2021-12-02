@@ -2,9 +2,10 @@ from django.conf import settings
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework import permissions, viewsets
+from rest_framework import decorators, permissions, response, viewsets
 
 from emails.models import DomainAddress, Profile, RelayAddress
+from privaterelay.utils import get_premium_countries_info_from_request
 
 from .permissions import IsOwner
 from .serializers import (
@@ -51,3 +52,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
+
+@decorators.api_view()
+@decorators.permission_classes([permissions.AllowAny])
+def premium_countries(request):
+    return response.Response(
+        get_premium_countries_info_from_request(request)
+    )

@@ -3,6 +3,8 @@ from django.conf import settings
 
 from emails.utils import get_email_domain_from_settings
 
+from ..utils import get_premium_country_lang
+
 register = template.Library()
 
 
@@ -29,31 +31,20 @@ def message_in_fluent(message):
     return message in ftl_messages
 
 
-def get_premium_country_lang(accept_lang, cc=None):
-    lang = accept_lang.split(',')[0]
-    lang_parts = lang.split("-") if lang and "-" in lang else [lang]
-    lang = lang_parts[0].lower()
-    if cc is None:
-        cc = lang_parts[1] if len(lang_parts) == 2 else lang_parts[0]
-        cc = cc.lower()
-
-    if cc in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys():
-        languages = settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc]
-        if lang in languages.keys():
-            return cc, lang
-        return cc, list(languages.keys())[0]
-    return 'us', 'en'
-
 @register.simple_tag
 def premium_plan_id(accept_lang, cc=None):
     if settings.PREMIUM_PRICE_ID_OVERRIDE:
         return settings.PREMIUM_PRICE_ID_OVERRIDE
     cc, lang = get_premium_country_lang(accept_lang, cc)
-    return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["id"]
+    if cc in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING:
+        return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["id"]
+    return ''
 
 @register.simple_tag
 def premium_plan_price(accept_lang, cc=None):
     cc, lang = get_premium_country_lang(accept_lang, cc)
+    if cc not in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING:
+        cc = 'us'
     return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["price"]
 
 @register.simple_tag
