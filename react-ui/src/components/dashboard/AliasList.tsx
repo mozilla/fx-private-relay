@@ -8,10 +8,12 @@ import { Button } from "../Button";
 import { useState } from "react";
 import { filterAliases } from "../../functions/filterAliases";
 import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
+import { UserData } from "../../hooks/api/user";
 
 export type Props = {
   aliases: AliasData[];
   profile: ProfileData;
+  user: UserData;
   onCreate: () => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
 };
@@ -34,6 +36,7 @@ export const AliasList = (props: Props) => {
     >
       <Alias
         alias={alias}
+        user={props.user}
         profile={props.profile}
         onUpdate={(updatedFields) => props.onUpdate(alias, updatedFields)}
       />
@@ -94,7 +97,8 @@ function sortAliases(aliases: AliasData[]): AliasData[] {
   const aliasDataCopy = aliases.slice();
   aliasDataCopy.sort((aliasA, aliasB) => {
     // `Date.parse` can be inconsistent,
-    // but should be fairly reliable in parsing ISO 8601 strings:
+    // but should be fairly reliable in parsing ISO 8601 strings
+    // (though if Temporal ever gets accepted by TC39, we should switch to that):
     const aliasATimestamp = Date.parse(aliasA.created_at);
     const aliasBTimestamp = Date.parse(aliasB.created_at);
     return aliasBTimestamp - aliasATimestamp;
