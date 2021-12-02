@@ -103,7 +103,15 @@ const Profile: NextPage = () => {
         </div>
       </div>
     </header>
-  ) : null;
+  ) : (
+    <Localized
+      id="profile-label-welcome-html"
+      vars={{ email: user.email }}
+      elems={{ span: <span /> }}
+    >
+      <p className={styles.noPremiumHeader} />
+    </Localized>
+  );
 
   return (
     <>
