@@ -17,6 +17,10 @@ How to test:
 
 
 
+# Screenshot (if applicable)
+
+Not applicable.
+
 # How to test
 
 
