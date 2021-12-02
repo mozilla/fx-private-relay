@@ -124,6 +124,7 @@ const Profile: NextPage = () => {
             onCreate={createAlias}
             onUpdate={updateAlias}
             profile={profile}
+            user={user}
           />
           <p className={styles.sizeInformation}>
             {l10n.getString("profile-supports-email-forwarding", {
