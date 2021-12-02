@@ -120,7 +120,7 @@ function openOauth(clickEvt, entrypointElem) {
 function setSurveyedCookie() {
   const date = new Date();
   date.setTime(date.getTime() + 30*24*60*60*1000)
-  document.cookie = "surveyed=true; expires=" + date.toUTCString();
+  document.cookie = "surveyed=true; expires=" + date.toUTCString() + "; path=/";
   const microSurveyBanner = document.getElementById("micro-survey-banner");
   if (microSurveyBanner) {
     microSurveyBanner.remove();

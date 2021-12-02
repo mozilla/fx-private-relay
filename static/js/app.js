@@ -200,7 +200,7 @@ function recruitmentLogic() {
   recruitmentBannerLink.addEventListener("click", () => {
     const date = new Date();
     date.setTime(date.getTime() + 30*24*60*60*1000)
-    document.cookie = "recruited=true; expires=" + date.toUTCString();
+    document.cookie = "recruited=true; expires=" + date.toUTCString() + "; path=/";
   });
 }
 
