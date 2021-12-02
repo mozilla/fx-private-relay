@@ -117,6 +117,12 @@ const Profile: NextPage = () => {
             onUpdate={updateAlias}
             profile={profile}
           />
+          <p className={styles.sizeInformation}>
+            {l10n.getString("profile-supports-email-forwarding", {
+              size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER!,
+              unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT!,
+            })}
+          </p>
         </main>
       </Layout>
     </>
