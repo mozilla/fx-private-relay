@@ -9,8 +9,7 @@
         <div class="bounced-email-banner banner-content flx flx-row">
             <div class="banner-copy flx flx-col">
                 <p class="banner-hl ff-Met">{% ftlmsg 'banner-bounced-headline' %}</p>
-                <p class="banner-sub">{% ftlmsg 'banner-bounced-copy' username=request.user.email
-                    bounce_type=last_bounce_type date=next_email_try|date:"SHORT_DATETIME_FORMAT" %}</p>
+                <p class="banner-sub">{% ftlmsg 'banner-bounced-copy' username=request.user.email bounce_type=last_bounce_type date=next_email_try|date:"SHORT_DATETIME_FORMAT" %}</p>
             </div>
         </div>
     </div>
