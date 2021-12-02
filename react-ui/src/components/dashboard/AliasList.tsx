@@ -53,28 +53,36 @@ export const AliasList = (props: Props) => {
     ) : // TODO: Add "Get unlimited aliases" button:
     null;
 
+  // With at most five aliases, filters aren't really useful
+  // for non-Premium users.
+  const filters = props.profile.has_premium ? (
+    <>
+      <div className={styles.stringFilter}>
+        <input
+          value={stringFilterInput}
+          onChange={(e) => setStringFilterInput(e.target.value)}
+          type="search"
+          name="stringFilter"
+          id="stringFilter"
+          placeholder={l10n.getString("profile-filter-search-placeholder")}
+        />
+        <span className={styles.matchCount}>
+          {aliases.length}/{props.aliases.length}
+        </span>
+      </div>
+      <div className={styles.categoryFilter}>
+        <CategoryFilter
+          onChange={setCategoryFilters}
+          selectedFilters={categoryFilters}
+        />
+      </div>
+    </>
+  ) : null;
+
   return (
     <>
       <div className={styles.controls}>
-        <div className={styles.stringFilter}>
-          <input
-            value={stringFilterInput}
-            onChange={(e) => setStringFilterInput(e.target.value)}
-            type="search"
-            name="stringFilter"
-            id="stringFilter"
-            placeholder={l10n.getString("profile-filter-search-placeholder")}
-          />
-          <span className={styles.matchCount}>
-            {aliases.length}/{props.aliases.length}
-          </span>
-        </div>
-        <div className={styles.categoryFilter}>
-          <CategoryFilter
-            onChange={setCategoryFilters}
-            selectedFilters={categoryFilters}
-          />
-        </div>
+        {filters}
         <div className={styles.newAliasButton}>{newAliasButton}</div>
       </div>
       <ul>{aliasCards}</ul>
