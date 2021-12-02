@@ -57,10 +57,15 @@
 }
 
 .mainWrapper,
-.headerWrapper {
+.headerWrapper,
+.noPremiumHeader {
   max-width: $content-xl;
   margin: 0 auto;
   padding: $spacing-md $spacing-md;
+}
+
+.noPremiumHeader {
+  padding-top: $spacing-xl;
 }
 
 .sizeInformation {
