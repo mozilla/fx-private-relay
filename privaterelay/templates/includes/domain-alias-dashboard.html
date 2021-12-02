@@ -2,7 +2,7 @@
 {% load relay_tags %}
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
-{% if not user_profile.has_premium %}
+{% if not user_profile.has_premium and premium_available_in_country %}
     <div class="c-footer-banner">
       <div class="c-footer-banner-container">
         <div class="c-footer-banner-content">

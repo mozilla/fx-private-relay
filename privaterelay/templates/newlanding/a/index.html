@@ -13,10 +13,10 @@
     {% include "./hero.html" %}
     {% include "./how-it-works.html" %}
     {% include "./use-cases.html" %}
-    {% include "./social-proof.html" %}
-    {% include "./plans.html" %}
+    {% if premium_available_in_country %}
+        {% include "./plans.html" %}
+    {% endif %}
     {% include "./faq.html" %}
-    {% include "./callout.html" %}
 </main>
 
 {% endblock %}

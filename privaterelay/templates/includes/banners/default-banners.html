@@ -33,7 +33,7 @@
 
     <!-- Upgrade Banner -->
     {% with request.user.profile_set.first as user_profile %}
-    {% if not user_profile.has_premium and settings.PREMIUM_ENABLED %}
+    {% if not user_profile.has_premium and settings.PREMIUM_ENABLED and premium_available_in_country %}
     <div class="flx">
         <div class="banner-gradient-bg">
             <div class="go-premium-banner banner-content flx flx-row">

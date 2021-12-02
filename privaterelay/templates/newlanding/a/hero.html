@@ -10,7 +10,11 @@
     </div>
     <div class="has-hero-image">
         <img alt="" src="{% static 'images/newlanding/a/hero-image-bg.svg' %}" class="c-hero-image--bg"/>
-        <img alt="" src="{% static 'images/newlanding/a/hero-image.svg' %}" class="c-hero-image"/>
+        {% if premium_available_in_country %}
+            <img alt="" src="{% static 'images/newlanding/a/hero-image-premium.svg' %}" class="c-hero-image"/>
+        {% else %}
+            <img alt="" src="{% static 'images/newlanding/a/hero-image-nopremium.svg' %}" class="c-hero-image"/>
+        {% endif %}
         {% comment %}
             TODO: Find a way to localise the foreground content, or hide the callouts in languages other than English.
         {% endcomment %}
