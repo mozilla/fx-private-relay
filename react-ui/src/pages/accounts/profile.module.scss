@@ -58,6 +58,7 @@
 
 .mainWrapper,
 .bannersWrapper,
+.bottomBannerWrapper,
 .noPremiumHeader,
 .headerWrapper {
   max-width: $content-xl;
@@ -71,4 +72,43 @@
 
 .sizeInformation {
   padding: $spacing-lg 0;
+}
+
+.bottomBanner {
+  background-color: $color-white;
+
+  .bottomBannerWrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: $spacing-xl;
+    padding: $spacing-xl;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+  }
+
+  .bottomBannerContent {
+    max-width: $screen-sm;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: space-evenly;
+    gap: $spacing-md;
+
+    h3 {
+      @include text-title-xs;
+      font-weight: 500;
+
+      strong {
+        font-weight: 700;
+      }
+    }
+
+    p {
+      @include text-body-md;
+      color: $color-light-gray-90;
+    }
+  }
 }
