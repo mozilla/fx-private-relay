@@ -16,6 +16,7 @@ export type Props = {
   user: UserData;
   onCreate: () => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
+  onDelete: (alias: AliasData) => void;
 };
 
 export const AliasList = (props: Props) => {
@@ -39,6 +40,7 @@ export const AliasList = (props: Props) => {
         user={props.user}
         profile={props.profile}
         onUpdate={(updatedFields) => props.onUpdate(alias, updatedFields)}
+        onDelete={() => props.onDelete(alias)}
       />
     </li>
   ));

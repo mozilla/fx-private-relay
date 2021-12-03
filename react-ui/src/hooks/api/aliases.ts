@@ -36,9 +36,11 @@ export type AliasUpdateFn = (
 
 type CreateFn = () => Promise<void>;
 type UpdateFn = (alias: Partial<AliasData> & { id: number }) => Promise<void>;
+type DeleteFn = (id: number) => Promise<void>;
 type WithUpdater = {
-  update: UpdateFn;
   create: CreateFn;
+  update: UpdateFn;
+  delete: DeleteFn;
 };
 
 export const useAliases = (): {
@@ -87,15 +89,35 @@ export const useAliases = (): {
     };
   };
 
+  const getDeleter: (type: "random" | "custom") => DeleteFn = (type) => {
+    return async (aliasId) => {
+      const endpoint =
+        type === "random"
+          ? `/relayaddresses/${aliasId}/`
+          : `/domainaddresses/${aliasId}/`;
+
+      await apiFetch(endpoint, {
+        method: "DELETE",
+      });
+      if (type === "random") {
+        randomAliases.mutate();
+      } else {
+        customAliases.mutate();
+      }
+    };
+  };
+
   const randomAliasData = {
     ...randomAliases,
     create: getCreater("random"),
     update: getUpdater("random"),
+    delete: getDeleter("random"),
   };
   const customAliasData = {
     ...customAliases,
     create: getCreater("custom"),
     update: getUpdater("custom"),
+    delete: getDeleter("custom"),
   };
 
   return {

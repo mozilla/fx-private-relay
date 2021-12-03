@@ -10,12 +10,14 @@ import { useToggleButton } from "@react-aria/button";
 import { LabelEditor } from "./LabelEditor";
 import { UserData } from "../../hooks/api/user";
 import { renderDate } from "../../functions/renderDate";
+import { AliasDeletionButton } from "./AliasDeletionButton";
 
 export type Props = {
   alias: AliasData;
   profile: ProfileData;
   user: UserData;
   onUpdate: (updatedFields: Partial<AliasData>) => void;
+  onDelete: () => void;
 };
 
 export const Alias = (props: Props) => {
@@ -156,6 +158,11 @@ export const Alias = (props: Props) => {
             <dd>{renderDate(props.alias.created_at)}</dd>
           </div>
         </dl>
+        <AliasDeletionButton
+          onDelete={props.onDelete}
+          alias={props.alias}
+          profile={props.profile}
+        />
       </div>
     </div>
   );
