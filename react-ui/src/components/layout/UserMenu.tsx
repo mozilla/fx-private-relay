@@ -96,7 +96,7 @@ export const UserMenu = () => {
         <span className={styles.accountMenuItem}>
           <b className={styles.userEmail}>{usersData.data[0].email}</b>
           <a
-            href={process.env.NEXT_PUBLIC_FXA_SETTINGS_URL}
+            href={`${process.env.NEXT_PUBLIC_FXA_BASE_ORIGIN}settings/`}
             ref={accountLinkRef}
             target="_blank"
             rel="noopener noreferrer"
