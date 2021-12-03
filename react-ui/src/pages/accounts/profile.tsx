@@ -1,6 +1,7 @@
 import { Localized, useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import styles from "./profile.module.scss";
+import BottomBannerIllustration from "../../../../static/images/woman-couch-left.svg";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -14,11 +15,15 @@ import { AliasList } from "../../components/dashboard/AliasList";
 import { SubdomainPicker } from "../../components/dashboard/SubdomainPicker";
 import { toast } from "react-toastify";
 import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
+import { LinkButton } from "../../components/Button";
+import { usePremiumCountries } from "../../hooks/api/premiumCountries";
+import { getPremiumSubscribeLink } from "../../functions/getPlan";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
   const userData = useUsers();
   const { randomAliasData, customAliasData } = useAliases();
+  const premiumCountriesData = usePremiumCountries();
   const { l10n } = useLocalization();
 
   const profile = profileData.data?.[0];
@@ -122,6 +127,30 @@ const Profile: NextPage = () => {
     </Localized>
   );
 
+  const bottomBanner =
+    profile.has_premium ||
+    typeof premiumCountriesData.data === "undefined" ? null : (
+      <div className={styles.bottomBanner}>
+        <div className={styles.bottomBannerWrapper}>
+          <div className={styles.bottomBannerContent}>
+            <Localized
+              id="banner-pack-upgrade-headline-html"
+              elems={{ strong: <strong /> }}
+            >
+              <h3 />
+            </Localized>
+            <p>{l10n.getString("banner-pack-upgrade-copy")}</p>
+            <LinkButton
+              href={getPremiumSubscribeLink(premiumCountriesData.data)}
+            >
+              {l10n.getString("banner-pack-upgrade-cta")}
+            </LinkButton>
+          </div>
+          <img src={BottomBannerIllustration.src} alt="" />
+        </div>
+      </div>
+    );
+
   return (
     <>
       <Layout>
@@ -146,6 +175,7 @@ const Profile: NextPage = () => {
             })}
           </p>
         </main>
+        {bottomBanner}
       </Layout>
     </>
   );
