@@ -1,30 +1,77 @@
 @import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
 @import "../../../static/scss/libs/protocol/css/includes/lib";
+@import "../styles/tokens.scss";
 
 .banner {
-  box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
   padding: $spacing-md;
   background-color: white;
+
+  &:not(.promo) {
+    box-shadow: $box-shadow-sm;
+  }
+  &.promo {
+    padding: 2px;
+    background-image: $firefoxGradient;
+  }
 }
 
 .highlightWrapper {
-  padding: $spacing-xs $spacing-lg $spacing-md;
-  border-left-width: 4px;
-  border-left-style: solid;
+  display: flex;
+  background-color: $color-white;
+  // .banner's border-radius - .banner's padding.
+  // This is what makes .banner.promo appear as a 2px-wide border:
+  border-radius: calc($border-radius-md - 2px);
 
-  &.warning {
+  .banner:not(.promo) & {
+    padding: $spacing-xs $spacing-lg $spacing-md;
+    border-left-width: 4px;
+    border-left-style: solid;
+  }
+  .banner.promo & {
+    padding: $spacing-md;
+  }
+
+  .warning & {
     border-color: $color-yellow-50;
+  }
+}
+
+.illustration {
+  padding: $spacing-md;
+  display: flex;
+  align-items: center;
+  img {
+    max-width: 60px;
   }
 }
 
 .title {
   @include text-title-3xs;
+  font-family: $font-stack-firefox;
   display: flex;
   align-items: center;
   padding: $spacing-md 0;
 
   .icon {
     margin-right: $spacing-md;
+  }
+}
+
+.cta {
+  a {
+    display: inline-block;
+    padding: $spacing-md 0;
+    font-weight: bold;
+    color: $color-blue-50;
+
+    &:hover {
+      color: $color-blue-40;
+    }
+
+    &:focus {
+      outline: none;
+      text-decoration: underline;
+    }
   }
 }
