@@ -1,9 +1,11 @@
 from rest_framework import serializers
 
+from django_restql.mixins import DynamicFieldsMixin
+
 from emails.models import Profile, DomainAddress, RelayAddress
 
 
-class RelayAddressSerializer(serializers.ModelSerializer):
+class RelayAddressSerializer(DynamicFieldsMixin, serializers.ModelSerializer):
     class Meta:
         model = RelayAddress
         fields = [
