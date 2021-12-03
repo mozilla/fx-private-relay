@@ -89,7 +89,10 @@ export const UserMenu = () => {
 
   return (
     <UserMenuTrigger label={<>TODO: Avatar</>} onAction={onSelect}>
-      <Item key={itemKeys.account}>
+      <Item
+        key={itemKeys.account}
+        textValue={l10n.getString("nav-profile-manage-fxa")}
+      >
         <span className={styles.accountMenuItem}>
           <b className={styles.userEmail}>{usersData.data[0].email}</b>
           <a
@@ -158,6 +161,7 @@ type UserMenuTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   onAction: AriaMenuItemProps["onAction"];
 };
 const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
+  const { l10n } = useLocalization();
   const userMenuTriggerState = useMenuTriggerState(otherProps);
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
@@ -177,6 +181,7 @@ const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
       <button
         {...triggerButtonProps}
         ref={triggerButtonRef}
+        title={l10n.getString("avatar-tooltip")}
         className={styles.trigger}
       >
         {label}
@@ -184,6 +189,7 @@ const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
       {userMenuTriggerState.isOpen && (
         <UserMenuPopup
           {...otherProps}
+          aria-label={l10n.getString("avatar-tooltip")}
           domProps={menuProps}
           autoFocus={userMenuTriggerState.focusStrategy}
           onClose={() => userMenuTriggerState.close()}
