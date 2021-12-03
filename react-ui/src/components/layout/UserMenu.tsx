@@ -157,8 +157,8 @@ type UserMenuTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   children: TreeProps<{}>["children"];
   onAction: AriaMenuItemProps["onAction"];
 };
-const UserMenuTrigger = (props: UserMenuTriggerProps) => {
-  const userMenuTriggerState = useMenuTriggerState(props);
+const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
+  const userMenuTriggerState = useMenuTriggerState(otherProps);
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   let { menuTriggerProps, menuProps } = useMenuTrigger(
@@ -179,11 +179,11 @@ const UserMenuTrigger = (props: UserMenuTriggerProps) => {
         ref={triggerButtonRef}
         className={styles.trigger}
       >
-        {props.label}
+        {label}
       </button>
       {userMenuTriggerState.isOpen && (
         <UserMenuPopup
-          {...props}
+          {...otherProps}
           domProps={menuProps}
           autoFocus={userMenuTriggerState.focusStrategy}
           onClose={() => userMenuTriggerState.close()}

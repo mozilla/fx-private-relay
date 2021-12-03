@@ -219,6 +219,8 @@ $toggleTransitionDuration: 200ms;
   border-top: 1px solid transparent;
   transition: max-height 200ms, border-color 200ms, padding 200ms;
   display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
 
   .isExpanded & {
     // An arbitrary high value that allows it to expand to its full height:
@@ -228,6 +230,7 @@ $toggleTransitionDuration: 200ms;
   }
 
   dl {
+    flex-grow: 2;
     display: flex;
     gap: $spacing-sm;
     flex-direction: column;
@@ -244,6 +247,8 @@ $toggleTransitionDuration: 200ms;
   }
 
   @media screen and #{$mq-md} {
+    flex-direction: row;
+
     .metadata {
       background-repeat: no-repeat;
       background-position: left center;

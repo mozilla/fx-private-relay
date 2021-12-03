@@ -40,6 +40,14 @@ const Profile: NextPage = () => {
     }
   };
 
+  const deleteAlias = (alias: AliasData) => {
+    if (isRandomAlias(alias)) {
+      randomAliasData.delete(alias.id);
+    } else {
+      customAliasData.delete(alias.id);
+    }
+  };
+
   const allAliases = getAllAliases(randomAliasData.data, customAliasData.data);
 
   const totalBlockedEmails = allAliases.reduce(
@@ -123,6 +131,7 @@ const Profile: NextPage = () => {
             aliases={allAliases}
             onCreate={createAlias}
             onUpdate={updateAlias}
+            onDelete={deleteAlias}
             profile={profile}
             user={user}
           />
