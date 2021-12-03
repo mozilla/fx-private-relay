@@ -35,4 +35,12 @@
   img {
     margin: 0 $spacing-xs;
   }
+
+  &.isDestructive {
+    background-color: $color-red-50;
+
+    &:hover:not(:disabled) {
+      background-color: $color-red-60;
+    }
+  }
 }
