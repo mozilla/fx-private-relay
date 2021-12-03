@@ -142,6 +142,7 @@ $toggleTransitionDuration: 200ms;
 
   .copiedConfirmation {
     opacity: 0;
+    pointer-events: none;
     transition: opacity 2s;
     background-color: $color-violet-30;
     color: $color-white;
@@ -158,6 +159,7 @@ $toggleTransitionDuration: 200ms;
     transform: translateX(-50%) translateY(-100%);
 
     &.isShown {
+      pointer-events: auto;
       opacity: 1;
       // Don't fade in when appearing:
       transition: opacity 0s;
