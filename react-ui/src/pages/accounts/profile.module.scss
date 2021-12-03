@@ -57,8 +57,9 @@
 }
 
 .mainWrapper,
-.headerWrapper,
-.noPremiumHeader {
+.bannersWrapper,
+.noPremiumHeader,
+.headerWrapper {
   max-width: $content-xl;
   margin: 0 auto;
   padding: $spacing-md $spacing-md;

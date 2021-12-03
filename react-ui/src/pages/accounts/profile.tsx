@@ -13,6 +13,7 @@ import { useUsers } from "../../hooks/api/user";
 import { AliasList } from "../../components/dashboard/AliasList";
 import { SubdomainPicker } from "../../components/dashboard/SubdomainPicker";
 import { toast } from "react-toastify";
+import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -125,6 +126,9 @@ const Profile: NextPage = () => {
     <>
       <Layout>
         {stats}
+        <div className={styles.bannersWrapper}>
+          <ProfileBanners profile={profile} />
+        </div>
         <main className={styles.mainWrapper}>
           <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
           <AliasList
