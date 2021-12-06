@@ -4,16 +4,19 @@ import plusIcon from "../../../../static/images/plus-sign-white.svg";
 import { AliasData, isRandomAlias } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { Alias } from "./Alias";
-import { Button } from "../Button";
+import { Button, LinkButton } from "../Button";
 import { useState } from "react";
 import { filterAliases } from "../../functions/filterAliases";
 import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
 import { UserData } from "../../hooks/api/user";
+import { getPremiumSubscribeLink } from "../../functions/getPlan";
+import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
 
 export type Props = {
   aliases: AliasData[];
   profile: ProfileData;
   user: UserData;
+  premiumCountries?: PremiumCountriesData;
   onCreate: () => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   onDelete: (alias: AliasData) => void;
@@ -45,6 +48,16 @@ export const AliasList = (props: Props) => {
     </li>
   ));
 
+  const premiumSubscribeButton =
+    props.premiumCountries?.premium_available_in_country === true ? (
+      <LinkButton
+        href={getPremiumSubscribeLink(props.premiumCountries)}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {l10n.getString("profile-label-upgrade")}
+      </LinkButton>
+    ) : null;
   const maxAliases = Number.parseInt(
     process.env.NEXT_PUBLIC_MAX_NUM_FREE_ALIASES!,
     10
@@ -55,8 +68,9 @@ export const AliasList = (props: Props) => {
         <img src={plusIcon.src} alt="" width={16} height={16} />
         {l10n.getString("profile-label-generate-new-alias")}
       </Button>
-    ) : // TODO: Add "Get unlimited aliases" button:
-    null;
+    ) : (
+      premiumSubscribeButton
+    );
 
   // With at most five aliases, filters aren't really useful
   // for non-Premium users.
