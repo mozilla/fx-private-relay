@@ -849,40 +849,23 @@ input:focus::placeholder {
     opacity: .5;
 }
 
-
-
-.dashboard-banners.invisible {
-    transition: all .2s ease;
-    opacity: 0;
-    padding: 0;
-    max-height: 0;
+.is-visible-with-addon {
+    // This class hides an element anything in the regular website;
+    // however, the add-on injects a stylesheet that reveals elements with this class.
+    display: none;
+    visibility: collapse;
 }
+
+.is-hidden-with-addon {
+    // This class doesn't do anything in the regular website;
+    // however, the add-on injects a stylesheet that hides elements with this class.
+}
+
 
 .dashboard-banners.drop-shadow {
     box-shadow: 0 12px 18px 2px rgba(34,0,51,.04),0 6px 22px 4px rgba(7,48,114,.12),0 6px 10px -4px rgba(14,13,26,.12);
 }
 
-.banner-content.invisible {
-    max-height: 0;
-}
-
-.dashboard-banners {
-    width: 100%;
-    opacity: 1;
-    padding: 1em 0;
-    transition: all .3s ease;
-}
-
-/* Don't show the "Install the add-on" banner if the add-on is active: */
-firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay-addon-data + main .dashboard-banners .addon {
-    display: none;
-}
-
-
-/* Show the opt in data notification banner if add on is downloaded */
-firefox-private-relay-addon[data-addon-installed="false"] + firefox-private-relay-addon-data + main .c-data-notification-banner {
-    display: none;
-}
 
 .banner-hl {
     font-size: 1.25rem;
