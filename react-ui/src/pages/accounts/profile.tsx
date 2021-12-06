@@ -167,6 +167,7 @@ const Profile: NextPage = () => {
             onDelete={deleteAlias}
             profile={profile}
             user={user}
+            premiumCountries={premiumCountriesData.data}
           />
           <p className={styles.sizeInformation}>
             {l10n.getString("profile-supports-email-forwarding", {
