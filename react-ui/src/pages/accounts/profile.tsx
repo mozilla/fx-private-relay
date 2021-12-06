@@ -17,7 +17,10 @@ import { toast } from "react-toastify";
 import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
 import { LinkButton } from "../../components/Button";
 import { usePremiumCountries } from "../../hooks/api/premiumCountries";
-import { getPremiumSubscribeLink } from "../../functions/getPlan";
+import {
+  getPremiumSubscribeLink,
+  isPremiumAvailableInCountry,
+} from "../../functions/getPlan";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -129,7 +132,7 @@ const Profile: NextPage = () => {
 
   const bottomBanner =
     profile.has_premium ||
-    typeof premiumCountriesData.data === "undefined" ? null : (
+    !isPremiumAvailableInCountry(premiumCountriesData.data) ? null : (
       <div className={styles.bottomBanner}>
         <div className={styles.bottomBannerWrapper}>
           <div className={styles.bottomBannerContent}>
