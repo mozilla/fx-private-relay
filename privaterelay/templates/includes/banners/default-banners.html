@@ -3,9 +3,9 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<div class="dashboard-banners invisible">
+<div class="dashboard-banners">
     <div class="flx hide-750">
-        <div class="banner-gradient-bg addon">
+        <div class="banner-gradient-bg is-hidden-with-addon">
             <!-- Download Firefox Banner -->
             <div class="download-fx-banner banner-content flx flx-row hidden">
                 <div class="banner-fx-logo banner-logo"></div>
@@ -18,7 +18,7 @@
                 </div>
             </div>
             <!-- Download Add On Banner -->
-            <div class="install-addon-banner banner-content flx flx-row hidden">
+            <div class="install-addon-banner banner-content flx flx-row">
                 <div class="banner-relay-logo banner-logo"></div>
                 <div class="banner-copy flx flx-col">
                     <p class="banner-hl ff-Met">{% ftlmsg 'banner-download-install-extension-headline' %}</p>

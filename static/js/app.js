@@ -345,31 +345,16 @@ function showBannersIfNecessary() {
 
   const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
 
-  const dashboardBanners = document.querySelector(".dashboard-banners");
-  if (!dashboardBanners) {
-    return;
-  }
-
-  const showBanner = (bannerEl) => {
-    setTimeout(()=> {
-      bannerEl.classList.remove("hidden");
-      dashboardBanners.classList.remove("invisible");
-    }, 500);
-    return;
-  };
-
   if (!browserIsFirefox) {
-    const firefoxBanner = dashboardBanners.querySelector(".download-fx-banner");
+    const firefoxBanner = document.querySelector(".download-fx-banner");
+    firefoxBanner.classList.remove("hidden");
     // Used to show/hide add-on download prompts in onboarding
     document.getElementById("profile-main").classList.add("is-not-addon-compatible")
-    showBanner(firefoxBanner);
 
 
 
     return;
   }
-  const relayAddonBanner = dashboardBanners.querySelector(".install-addon-banner");
-  return showBanner(relayAddonBanner);
 }
 
 function setTranslatedStringLinks() {
