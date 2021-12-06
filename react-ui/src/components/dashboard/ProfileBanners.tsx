@@ -1,7 +1,10 @@
 import { useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import RelayLogo from "../../../../static/images/placeholder-logo.svg";
-import { getPremiumSubscribeLink } from "../../functions/getPlan";
+import {
+  getPremiumSubscribeLink,
+  isPremiumAvailableInCountry,
+} from "../../functions/getPlan";
 import { usePremiumCountries } from "../../hooks/api/premiumCountries";
 import { ProfileData } from "../../hooks/api/profile";
 import { Banner } from "../Banner";
@@ -17,7 +20,7 @@ export const ProfileBanners = (props: Props) => {
 
   if (
     !props.profile.has_premium &&
-    typeof premiumCountriesData.data !== "undefined"
+    isPremiumAvailableInCountry(premiumCountriesData.data)
   ) {
     banners.push(
       <Banner

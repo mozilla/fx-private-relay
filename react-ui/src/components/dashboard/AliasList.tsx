@@ -9,7 +9,10 @@ import { useState } from "react";
 import { filterAliases } from "../../functions/filterAliases";
 import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
 import { UserData } from "../../hooks/api/user";
-import { getPremiumSubscribeLink } from "../../functions/getPlan";
+import {
+  getPremiumSubscribeLink,
+  isPremiumAvailableInCountry,
+} from "../../functions/getPlan";
 import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
 
 export type Props = {
@@ -48,23 +51,32 @@ export const AliasList = (props: Props) => {
     </li>
   ));
 
-  const premiumSubscribeButton =
-    props.premiumCountries?.premium_available_in_country === true ? (
-      <LinkButton
-        href={getPremiumSubscribeLink(props.premiumCountries)}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {l10n.getString("profile-label-upgrade")}
-      </LinkButton>
-    ) : null;
+  const premiumSubscribeButton = isPremiumAvailableInCountry(
+    props.premiumCountries
+  ) ? (
+    <LinkButton
+      href={getPremiumSubscribeLink(props.premiumCountries)}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {l10n.getString("profile-label-upgrade")}
+    </LinkButton>
+  ) : (
+    <Button disabled>
+      <img src={plusIcon.src} alt="" width={16} height={16} />
+      {l10n.getString("profile-label-generate-new-alias")}
+    </Button>
+  );
   const maxAliases = Number.parseInt(
     process.env.NEXT_PUBLIC_MAX_NUM_FREE_ALIASES!,
     10
   );
   const newAliasButton =
     props.profile.has_premium || aliases.length < maxAliases ? (
-      <Button onClick={props.onCreate}>
+      <Button
+        onClick={props.onCreate}
+        title={l10n.getString("profile-label-generate-new-alias")}
+      >
         <img src={plusIcon.src} alt="" width={16} height={16} />
         {l10n.getString("profile-label-generate-new-alias")}
       </Button>

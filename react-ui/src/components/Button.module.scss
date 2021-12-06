@@ -29,7 +29,8 @@
 
   &:disabled {
     opacity: 0.6;
-    cursor: default;
+    cursor: not-allowed;
+    background-color: $color-light-gray-80;
   }
 
   img {
