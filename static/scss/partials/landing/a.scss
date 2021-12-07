@@ -469,6 +469,10 @@
         grid-template-columns: repeat(5, 1fr);
         column-gap: $spacing-md;
 
+        &.has-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
         .use-case-title {
             width: 100%;
             height: 180px;

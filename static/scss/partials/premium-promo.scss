@@ -1,0 +1,52 @@
+.premium-promo-hero-cta {
+    text-align: center;
+
+    @media screen and #{$mq-md} {
+        text-align: start;
+    }
+}
+
+.perks-headline {
+    @include text-title-sm;
+    text-align: center;
+}
+
+.perks-lead {
+    @include text-body-md;
+    display: block;
+
+    @media screen and #{$mq-md} {
+        margin: 0 auto;
+    }
+    width: 75%;
+}
+
+.perk {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xl;
+    align-items: center;
+    padding: $spacing-2xl 0;
+
+    @media screen and #{$mq-md} {
+        flex-direction: row;
+        padding: $spacing-2xl;
+
+        &:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+    }
+}
+
+.perk-headline {
+    @include text-title-xs;
+}
+
+.perk-illustration {
+    max-width: 90%;
+}
+
+.use-case-headline {
+    @include text-title-sm;
+    text-align: center;
+}
