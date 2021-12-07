@@ -1,0 +1,7 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+
+.profileBanners {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
