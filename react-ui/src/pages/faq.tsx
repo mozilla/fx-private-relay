@@ -39,8 +39,8 @@ const Faq: NextPage = () => {
                   {l10n.getString(
                     "faq-question-missing-emails-answer-reason-size",
                     {
-                      size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER,
-                      unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT,
+                      size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER!,
+                      unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT!,
                     }
                   )}
                 </li>
@@ -62,6 +62,10 @@ const Faq: NextPage = () => {
               </ul>
               <Localized
                 id="faq-question-missing-emails-answer-support-site-html"
+                vars={{
+                  url: "https://support.mozilla.org/products/relay/",
+                  attrs: "",
+                }}
                 elems={{
                   a: <a href="https://support.mozilla.org/products/relay/" />,
                 }}
@@ -83,6 +87,10 @@ const Faq: NextPage = () => {
               <p>{l10n.getString("faq-question-missing-emails-answer-a")}</p>
               <Localized
                 id="faq-question-2-answer-v3-html"
+                vars={{
+                  url: "https://addons.mozilla.org/firefox/addon/private-relay/",
+                  attrs: "",
+                }}
                 elems={{
                   a: (
                     <a href="https://addons.mozilla.org/firefox/addon/private-relay/" />
@@ -99,6 +107,10 @@ const Faq: NextPage = () => {
               <p>{l10n.getString("faq-question-1-answer-a")}</p>
               <Localized
                 id="faq-question-1-answer-b-html"
+                vars={{
+                  url: "https://addons.mozilla.org/firefox/addon/private-relay/",
+                  attrs: "",
+                }}
                 elems={{
                   a: (
                     <a href="https://addons.mozilla.org/firefox/addon/private-relay/" />
@@ -154,8 +166,8 @@ const Faq: NextPage = () => {
             >
               <p>
                 {l10n.getString("faq-question-attachments-answer-v2", {
-                  size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER,
-                  unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT,
+                  size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER!,
+                  unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT!,
                 })}
               </p>
             </QAndA>
@@ -173,6 +185,10 @@ const Faq: NextPage = () => {
             >
               <Localized
                 id="faq-question-8-answer-html"
+                vars={{
+                  url: "https://www.mozilla.org/privacy/firefox-relay/",
+                  attrs: "",
+                }}
                 elems={{
                   a: (
                     <a href="https://www.mozilla.org/privacy/firefox-relay/" />
@@ -188,6 +204,10 @@ const Faq: NextPage = () => {
             >
               <Localized
                 id="faq-question-email-storage-answer"
+                vars={{
+                  url: "https://www.mozilla.org/privacy/firefox-relay/",
+                  attrs: "",
+                }}
                 elems={{
                   a: (
                     <a href="https://www.mozilla.org/privacy/firefox-relay/" />
