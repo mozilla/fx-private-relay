@@ -33,6 +33,7 @@ from emails.models import (
     valid_available_subdomain
 )
 from emails.utils import incr_if_enabled
+from privaterelay.utils import get_premium_countries_info_from_request
 
 
 FXA_PROFILE_CHANGE_EVENT = (
@@ -54,6 +55,14 @@ def home(request):
         return redirect(reverse('profile'))
     
     return render(request, 'home.html')
+
+
+def premium_promo(request):
+    premium_countries_info = get_premium_countries_info_from_request(request)
+    if (not premium_countries_info.get('premium_available_in_country')):
+        return redirect(reverse('home'))
+    
+    return render(request, 'premium-promo.html')
 
 
 def faq(request):

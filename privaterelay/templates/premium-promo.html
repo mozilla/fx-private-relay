@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% load relay_tags %}
+{% load socialaccount %}
+{% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+{% block content %}
+
+<main>
+    {% include "includes/messages.html" %}
+    <section class="c-landing-hero t-landing-a mzp-l-content">
+        <div class="c-landing-hero--lead">
+            <h1 class="c-landing-hero--title mzp-c-section-heading">{% ftlmsg 'premium-promo-hero-headline' %}</h1>
+            <p>{% ftlmsg 'premium-promo-hero-body-html' monthly_price=monthly_price %}</p>
+            <div class="premium-promo-hero-cta">
+                <a
+                    class="mzp-c-button mzp-t-product "
+                    href="{% premium_subscribe_url accept_language country_code %}"
+                    data-ga="send-ga-pings"
+                    data-event-category="Purchase Button"
+                    data-event-label="premium-promo-cta"
+                    data-cookie-for-server="clicked-purchase"
+                >
+                    {% ftlmsg 'premium-promo-hero-cta' %}
+                </a>
+            </div>
+        </div>
+        <div class="has-hero-image">
+            <img alt="" src="{% static 'images/newlanding/a/hero-image-bg.svg' %}" class="c-hero-image--bg"/>
+            <img alt="" src="{% static 'images/newlanding/a/hero-image-premium.svg' %}" class="c-hero-image"/>
+            {% comment %}
+                TODO: Find a way to localise the foreground content, or hide the callouts in languages other than English.
+            {% endcomment %}
+            <img alt="" src="{% static 'images/newlanding/a/hero-image-fg.svg' %}" class="c-hero-image--fg"/>
+        </div>
+    </section>
+
+    <section>
+        <div class="mzp-l-content">
+        <div class="perks-content">
+        <h2 class="perks-headline">{% ftlmsg 'premium-promo-perks-headline' %}</h2>
+        <span class="perks-lead">{% ftlmsg 'premium-promo-perks-lead' %}</span>
+        <div class="perk">
+        <img src="{% static 'images/premium-promo/illustration-unlimited.svg' %}" class="perk-illustration">
+        <div class="perk-description">
+            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-unlimited-headline' %}</h3>
+            <p class="perk-body">
+                {% ftlmsg 'premium-promo-perks-perk-unlimited-body' %}
+            </p>
+            <a
+                class="mzp-c-button mzp-t-product "
+                href="{% premium_subscribe_url accept_language country_code %}"
+                data-ga="send-ga-pings"
+                data-event-category="Purchase Button"
+                data-event-label="premium-promo-perk-cta"
+                data-cookie-for-server="clicked-purchase"
+                title="{% ftlmsg 'premium-promo-perks-cta-tooltip' %}"
+            >
+                {% ftlmsg 'premium-promo-perks-cta-label' %}
+            </a>
+        </div>
+        </div>
+        <div class="perk">
+        <img src="{% static 'images/premium-promo/illustration-custom-domain.svg' %}" class="perk-illustration">
+        <div class="perk-description">
+            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-custom-domain-headline' %}</h3>
+            <p class="perk-body">
+            {% ftlmsg 'premium-promo-perks-perk-custom-domain-body' %}
+            </p>
+            <a
+                class="mzp-c-button mzp-t-product "
+                href="{% premium_subscribe_url accept_language country_code %}"
+                data-ga="send-ga-pings"
+                data-event-category="Purchase Button"
+                data-event-label="premium-promo-perk-cta"
+                data-cookie-for-server="clicked-purchase"
+                title="{% ftlmsg 'premium-promo-perks-cta-tooltip' %}"
+            >
+                {% ftlmsg 'premium-promo-perks-cta-label' %}
+            </a>
+        </div>
+        </div>
+        <div class="perk">
+        <img src="{% static 'images/premium-promo/illustration-dashboard.svg' %}" class="perk-illustration">
+        <div class="perk-description">
+            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-dashboard-headline' %}</h3>
+            <p class="perk-body">
+            {% ftlmsg 'premium-promo-perks-perk-dashboard-body' %}
+            </p>
+            <a
+                class="mzp-c-button mzp-t-product "
+                href="{% premium_subscribe_url accept_language country_code %}"
+                data-ga="send-ga-pings"
+                data-event-category="Purchase Button"
+                data-event-label="premium-promo-perk-cta"
+                data-cookie-for-server="clicked-purchase"
+                title="{% ftlmsg 'premium-promo-perks-cta-tooltip' %}"
+            >
+                {% ftlmsg 'premium-promo-perks-cta-label' %}
+            </a>
+        </div>
+        </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="container mzp-l-content">
+            <h2 class="use-case-headline">{% ftlmsg 'premium-promo-use-cases-headline' %}</h2>
+            <ul class="c-use-case-content has-3">
+                <li class="use-case-title use-case-shopping is-active remove-box-shadow">
+                    <div class="use-case-title-text">{% ftlmsg 'premium-promo-use-cases-shopping-heading' %}</div>
+                    <div class="drop-down"></div>
+                </li>
+                <li class="use-case-desc">
+                    <div class="desc-headline">{% ftlmsg 'premium-promo-use-cases-shopping-heading' %}</div>
+                    <div class="desc-body">
+                        {% ftlmsg 'premium-promo-use-cases-shopping-body' %}
+                    </div>
+                </li>
+                <li class="use-case-title use-case-social-networks">
+                    <div class="use-case-title-text">{% ftlmsg 'premium-promo-use-cases-social-networks-heading' %}</div>
+                    <div class="drop-down"></div>
+                </li>
+                <li class="use-case-desc">
+                    <div class="desc-headline">{% ftlmsg 'premium-promo-use-cases-social-networks-heading' %}</div>
+                    <div class="desc-body">
+                        {% ftlmsg 'premium-promo-use-cases-social-networks-body' %}
+                    </div>
+                </li>
+                <li class="use-case-title use-case-gaming">
+                    <div class="use-case-title-text">{% ftlmsg 'premium-promo-use-cases-gaming-heading' %}</div>
+                    <div class="drop-down"></div>
+                </li>
+                <li class="use-case-desc">
+                    <div class="desc-headline">{% ftlmsg 'premium-promo-use-cases-gaming-heading' %}</div>
+                    <div class="desc-body">
+                        {% ftlmsg 'premium-promo-use-cases-gaming-body' %}
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+    <section>
+        <div class="c-gray-bg">
+            <div class="container mzp-l-content c-plans">
+                <div class="c-pricing-options">
+                    <!--Non-premium option-->
+                    <div class="c-option c-free">
+                        <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-relay.svg' %}">
+                        <p class="c-price non-premium-price">{% ftlmsg 'premium-promo-pricing-free-price' %}</p>
+                        <div class="c-features non-premium-list">
+                            <ul class="c-list">
+                                <li>{% ftlmsg 'landing-pricing-free-feature-1' %}</li>
+                                <li>{% ftlmsg 'landing-pricing-free-feature-2' %}</li>
+                            </ul>
+                        </div>
+                        <a
+                            class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg"
+                            href="{% provider_login_url 'fxa' process='login' %}"
+                            data-ga="send-ga-pings"
+                            data-event-category="Sign In"
+                            data-event-label="landing-pricing-free-cta"
+                        >
+                            {% ftlmsg 'landing-pricing-free-cta' %}
+                        </a>
+                    </div>
+                    <!--Premium Option-->
+                    <div class="c-option c-premium">
+                        <span class="c-premium-detail">{% ftlmsg 'landing-pricing-premium-price-highlight' %}</span>
+                        <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-premium-relay.svg' %}">
+                        <p class="c-price premium-price">
+                            <span class="c-price-number">{{ monthly_price }}</span>
+                            <span class="c-currency">{% ftlmsg 'landing-pricing-premium-price' monthly_price="" %}</span>
+                        </p>
+                        <div class="c-features premium-list">
+                            <ul class="c-list">
+                                <li>{% ftlmsg 'landing-pricing-premium-feature-1' %}</li>
+                                <li>{% ftlmsg 'landing-pricing-premium-feature-2' %}</li>
+                                <li>{% ftlmsg 'landing-pricing-premium-feature-3' %}</li>
+                                <li>{% ftlmsg 'landing-pricing-premium-feature-4' %}</li>
+                            </ul>
+                        </div>
+                        <a
+                            class="mzp-c-button mzp-t-product mzp-t-secondary mzp-t-lg js-purchase-premium"
+                            href="{% premium_subscribe_url accept_language country_code %}"
+                            target="_blank" rel="noopener noreferrer"
+                            data-ga="send-ga-pings"
+                            data-event-category="Purchase Button"
+                            data-event-label="newlanding-plans-button"
+                            data-cookie-for-server="clicked-purchase"
+                        >
+                            {% ftlmsg 'nav-profile-sign-up' %}
+                        </a>
+                    </div>
+                </div>
+        
+                <div class="c-pricing-text">
+                    <div class="c-text">
+                        <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline' monthly_price=monthly_price %}</h2>
+                        <p class="c-pricing-body">{% ftlmsg 'landing-pricing-body' %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% endblock %}
