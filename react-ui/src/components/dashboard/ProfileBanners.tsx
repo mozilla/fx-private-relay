@@ -25,6 +25,7 @@ export const ProfileBanners = (props: Props) => {
   if (!isUsingFirefox()) {
     banners.push(
       <Banner
+        key="firefox-banner"
         type="promo"
         title={l10n.getString("banner-download-firefox-headline")}
         illustration={
@@ -47,6 +48,7 @@ export const ProfileBanners = (props: Props) => {
     // so we'll just let the add-on hide it:
     banners.push(
       <Banner
+        key="addon-banner"
         type="promo"
         title={l10n.getString("banner-download-install-extension-headline")}
         illustration={
@@ -69,6 +71,7 @@ export const ProfileBanners = (props: Props) => {
   ) {
     banners.push(
       <Banner
+        key="premium-banner"
         type="promo"
         title={l10n.getString("banner-upgrade-headline")}
         illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
