@@ -11,6 +11,7 @@ export type BannerProps = {
     target: string;
     content: string;
   };
+  hiddenWithAddon?: boolean;
 };
 
 export const Banner = (props: BannerProps) => {
@@ -40,7 +41,15 @@ export const Banner = (props: BannerProps) => {
   ) : null;
 
   return (
-    <div className={`${styles.banner} ${styles[type]}`}>
+    // The add-on will hide anything with the class `is-hidden-with-addon`
+    // if it's installed.
+    // (Note that that should be the literal class name, i.e. it shouldn't
+    // be imported from the CSS module.)
+    <div
+      className={`${styles.banner} ${styles[type]} ${
+        props.hiddenWithAddon === true ? "is-hidden-with-addon" : ""
+      }`}
+    >
       <div className={`${styles.highlightWrapper}`}>
         {illustration}
         <div>
