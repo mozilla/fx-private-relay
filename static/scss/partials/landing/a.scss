@@ -506,13 +506,14 @@
             @include text-title-2xs;
             font-weight: 700;
             min-width: $content-xs;
-            padding-top: $spacing-md;
-            padding-right: $spacing-xl;
-            display: inline;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .desc-body {
             display: flex;
+            align-items: center;
             min-height: $layout-xl;
         }
 
