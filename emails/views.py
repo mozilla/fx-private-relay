@@ -609,14 +609,16 @@ def _handle_bounce(message_json):
     bounce = message_json.get('bounce')
     bounced_recipients = bounce.get('bouncedRecipients')
     for recipient in bounced_recipients:
-        recipient_address = recipient.pop('emailAddress', None)
+        recipient_address = recipient.get('emailAddress', None)
+        if recipient_address is None:
+            continue
         recipient_address = parseaddr(recipient_address)[1]
         recipient_domain = recipient_address.split('@')[1]
         capture_message(
             f'bounced recipient domain: {recipient_domain}, {recipient}'
         )
         try:
-            user = User.objects.get(email=recipient.get('emailAddress'))
+            user = User.objects.get(email=recipient_address)
             profile = user.profile_set.first()
         except User.DoesNotExist:
             incr_if_enabled('email_bounce_relay_user_gone', 1)
