@@ -28,12 +28,24 @@
   list-style-type: none;
   box-shadow: $box-shadow-md;
   border-radius: $border-radius-md;
-  // `overflow: hidden` is needed to avoid the background-image
-  // of .accountMenuItem overlapping the `border-radius`
-  // against a dark background:
-  overflow: hidden;
+  // The .accountMenuItem has its own background color
+  // (to overlap the $firefoxGradient everywhere but at the bottom),
+  // so we need to push it down a bit to avoid that from covering
+  // .popup's rounded corners:
+  padding-top: $border-radius-md;
   $popupBackgroundColor: $color-light-gray-10;
   background-color: $popupBackgroundColor;
+
+  &::before {
+    content: "";
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    top: -6px;
+    right: $spacing-md;
+    transform: rotate(45deg);
+    background-color: $color-white;
+  }
 
   .menuItemWrapper {
     .accountMenuItem {
@@ -46,7 +58,11 @@
         ),
         $firefoxGradient;
       margin-bottom: $spacing-md;
-      padding: $spacing-lg $spacing-lg;
+      padding: $spacing-lg;
+      // To avoid overlapping .popup's rounded corners,
+      // it has its own padding-top of $border-radius-md. Subtract that from
+      // the .accountMenuItem's padding-top:
+      padding-top: $spacing-lg - $border-radius-md;
 
       .userEmail {
         font-weight: bold;
