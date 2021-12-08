@@ -8,7 +8,7 @@ const Faq: NextPage = () => {
   const { l10n } = useLocalization();
 
   return (
-    <Layout dark={true}>
+    <Layout theme="free">
       <div className={styles.faqPage}>
         <div className={styles.faqsWrapper}>
           <h1 className={styles.headline}>{l10n.getString("faq-headline")}</h1>
