@@ -61,6 +61,7 @@
 
 .perk-illustration {
     max-width: 90%;
+    
     @media screen and #{$mq-md} {
         max-width: 50%;
     }
