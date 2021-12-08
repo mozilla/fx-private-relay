@@ -14,7 +14,7 @@ import sentry_sdk
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
-from django.db import connections
+from django.db import IntegrityError, connections, transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -322,13 +322,24 @@ def _handle_fxa_profile_change(
             'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
         })
 
-    social_account.extra_data = extra_data
-    social_account.save()
-    social_account.user.email = new_email
-    social_account.user.save()
-    email_address_record = social_account.user.emailaddress_set.first()
-    email_address_record.email = new_email
-    email_address_record.save()
+    return _update_extra_data_and_email(
+        social_account, extra_data, new_email
+    )
+
+def _update_extra_data_and_email(social_account, extra_data, new_email):
+    try:
+        with transaction.atomic():
+            social_account.extra_data = extra_data
+            social_account.save()
+            social_account.user.email = new_email
+            social_account.user.save()
+            email_address_record = social_account.user.emailaddress_set.first()
+            email_address_record.email = new_email
+            email_address_record.save()
+            return HttpResponse('202 Accepted', status=202)
+    except IntegrityError as e:
+        sentry_sdk.capture_exception(e)
+        return HttpResponse('Conflict', status=409)
 
 
 def _handle_fxa_delete(authentic_jwt, social_account, event_key):
