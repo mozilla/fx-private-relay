@@ -29,6 +29,9 @@ def get_premium_country_lang(accept_lang, cc=None):
     if cc is None:
         cc = lang_parts[1] if len(lang_parts) == 2 else lang_parts[0]
         cc = cc.lower()
+        # if the language was just "en", default to US
+        if cc == 'en':
+            cc = 'us'
 
     if cc in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys():
         languages = settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc]
