@@ -78,6 +78,9 @@ def profile(request):
         _handle_fxa_profile_change(fxa)
         now_has_premium = profile.has_premium
         newly_premium = not had_premium and now_has_premium
+        if newly_premium:
+            profile.date_subscribed = datetime.now(timezone.utc)
+            profile.save()
 
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
