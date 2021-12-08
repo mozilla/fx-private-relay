@@ -16,14 +16,17 @@ import { Navigation } from "./Navigation";
 
 export type Props = {
   children: ReactNode;
-  dark?: boolean;
+  theme?: "free" | "premium";
 };
 
 export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
 
-  const isDark = props.dark ?? !profiles.data?.[0].has_premium;
+  const isDark =
+    typeof props.theme !== "undefined"
+      ? props.theme === "free"
+      : !profiles.data?.[0].has_premium;
   const darkClass = isDark ? styles.isDark : "";
   const logoType = isDark ? logoTypeLight : logoTypeDark;
 
