@@ -6,6 +6,17 @@
     }
 }
 
+
+.premium-promo-hero-cta button:disabled,
+.perk-cta:disabled {
+    cursor: not-allowed;
+    pointer-events: visible;
+}
+
+.premium-promo-availability-warning {
+    padding: $spacing-md 0;
+}
+
 .perks-headline {
     @include text-title-sm;
     text-align: center;
