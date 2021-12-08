@@ -58,10 +58,6 @@ def home(request):
 
 
 def premium_promo(request):
-    premium_countries_info = get_premium_countries_info_from_request(request)
-    if (not premium_countries_info.get('premium_available_in_country')):
-        return redirect(reverse('home'))
-    
     return render(request, 'premium-promo.html')
 
 
