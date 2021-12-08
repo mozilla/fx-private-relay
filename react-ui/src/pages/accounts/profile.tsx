@@ -21,6 +21,9 @@ import {
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
+import { useRef } from "react";
+import { useGaPing } from "../../hooks/gaPing";
+import { trackPurchaseStart } from "../../functions/trackPurchase";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -28,6 +31,10 @@ const Profile: NextPage = () => {
   const { randomAliasData, customAliasData } = useAliases();
   const premiumCountriesData = usePremiumCountries();
   const { l10n } = useLocalization();
+  const bottomBannerSubscriptionLinkRef = useGaPing({
+    category: "Purchase Button",
+    label: "profile-bottom-promo",
+  });
 
   const profile = profileData.data?.[0];
   const user = userData.data?.[0];
@@ -145,6 +152,10 @@ const Profile: NextPage = () => {
             <p>{l10n.getString("banner-pack-upgrade-copy")}</p>
             <LinkButton
               href={getPremiumSubscribeLink(premiumCountriesData.data)}
+              ref={bottomBannerSubscriptionLinkRef}
+              onClick={() =>
+                trackPurchaseStart({ label: "profile-bottom-promo" })
+              }
             >
               {l10n.getString("banner-pack-upgrade-cta")}
             </LinkButton>

@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { OutboundLink } from "react-ga";
 import styles from "./Banner.module.scss";
 import warningIcon from "../../../static/images/icon-orange-info.svg";
 
@@ -34,9 +35,14 @@ export const Banner = (props: BannerProps) => {
 
   const cta = props.cta ? (
     <div className={styles.cta}>
-      <a href={props.cta.target} target="_blank" rel="noopener noreferrer">
+      <OutboundLink
+        to={props.cta.target}
+        eventLabel={props.cta.content}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {props.cta.content}
-      </a>
+      </OutboundLink>
     </div>
   ) : null;
 

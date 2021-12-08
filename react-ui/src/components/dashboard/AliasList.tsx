@@ -14,6 +14,8 @@ import {
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
 import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
+import { useGaPing } from "../../hooks/gaPing";
+import { trackPurchaseStart } from "../../functions/trackPurchase";
 
 export type Props = {
   aliases: AliasData[];
@@ -29,6 +31,10 @@ export const AliasList = (props: Props) => {
   const { l10n } = useLocalization();
   const [stringFilterInput, setStringFilterInput] = useState("");
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
+  const getUnlimitedButtonRef = useGaPing({
+    category: "Purchase Button",
+    label: "profile-create-alias-upgrade-promo",
+  });
   const aliases = sortAliases(
     filterAliases(props.aliases, props.profile, {
       ...categoryFilters,
@@ -58,6 +64,10 @@ export const AliasList = (props: Props) => {
       href={getPremiumSubscribeLink(props.premiumCountries)}
       target="_blank"
       rel="noopener noreferrer"
+      ref={getUnlimitedButtonRef}
+      onClick={() =>
+        trackPurchaseStart({ label: "profile-create-alias-upgrade-promo" })
+      }
     >
       {l10n.getString("profile-label-upgrade")}
     </LinkButton>

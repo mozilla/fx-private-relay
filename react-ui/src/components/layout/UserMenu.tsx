@@ -22,6 +22,7 @@ import { AriaMenuItemProps } from "@react-aria/menu";
 import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
 import Link from "next/link";
+import { event as gaEvent } from "react-ga";
 import styles from "./UserMenu.module.scss";
 import SettingsImage from "../../../../static/images/settings.svg";
 import ContactImage from "../../../../static/images/icon-message.svg";
@@ -59,11 +60,19 @@ export const UserMenu = () => {
     if (itemKey === itemKeys.settings) {
       settingsLinkRef.current?.click();
     }
-    if (itemKey === itemKeys.settings) {
-      settingsLinkRef.current?.click();
+    if (itemKey === itemKeys.contact) {
+      contactLinkRef.current?.click();
     }
-    if (itemKey === itemKeys.settings) {
-      settingsLinkRef.current?.click();
+    if (itemKey === itemKeys.help) {
+      helpLinkRef.current?.click();
+    }
+    if (itemKey === itemKeys.signout) {
+      gaEvent({
+        category: "Sign Out",
+        action: "Click",
+        label: "Website Sign Out",
+      });
+      // TODO: Actually log out
     }
   };
 

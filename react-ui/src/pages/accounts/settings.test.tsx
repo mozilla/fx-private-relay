@@ -4,12 +4,14 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
+import { mockReactGa } from "../../../__mocks__/modules/react-ga";
 import { setMockProfileData } from "../../../__mocks__/hooks/profile";
 
 import Settings from "./settings";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
+jest.mock("react-ga", () => mockReactGa);
 
 describe("The settings screen", () => {
   it("shows a warning when the user currently has server-side label storage disabled", () => {
