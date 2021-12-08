@@ -21,7 +21,6 @@ import {
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
-import { useRef } from "react";
 import { useGaPing } from "../../hooks/gaPing";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 
