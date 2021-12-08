@@ -29,6 +29,18 @@ Type
 {Type}
 '''
 
+NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT = u'''Message
+{Message}
+MessageId
+{MessageId}
+Timestamp
+{Timestamp}
+TopicArn
+{TopicArn}
+Type
+{Type}
+'''
+
 SUBSCRIPTION_HASH_FORMAT = u'''Message
 {Message}
 MessageId
@@ -56,7 +68,7 @@ def verify_from_sns(json_body):
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, pemfile)
     signature = base64.decodebytes(json_body['Signature'].encode('utf-8'))
 
-    hash_format = _get_hash_format(json_body['Type'])
+    hash_format = _get_hash_format(json_body)
 
     crypto.verify(
         cert,
@@ -67,9 +79,12 @@ def verify_from_sns(json_body):
     return json_body
 
 
-def _get_hash_format(message_type):
+def _get_hash_format(json_body):
+    message_type = json_body['Type']
     if message_type == "Notification":
-        return NOTIFICATION_HASH_FORMAT
+        if 'Subject' in json_body.keys():
+            return NOTIFICATION_HASH_FORMAT
+        return NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT
 
     return SUBSCRIPTION_HASH_FORMAT
 
