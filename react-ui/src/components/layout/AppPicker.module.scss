@@ -1,0 +1,93 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+@import "../../styles/tokens.scss";
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.trigger {
+  cursor: pointer;
+  background-color: transparent;
+  border-style: none;
+  width: 25px;
+  height: 25px;
+  border-radius: $border-radius-sm;
+
+  &:hover {
+    filter: invert(1);
+    background-color: $color-black;
+  }
+}
+
+.popup {
+  position: absolute;
+  transform: translateX(-100%);
+  margin-top: $spacing-xl;
+  padding: 0;
+  padding-bottom: $spacing-lg;
+  list-style-type: none;
+  box-shadow: $box-shadow-md;
+  border-radius: $border-radius-md;
+  background-color: $color-light-gray-10;
+  min-width: 300px;
+
+  &::before {
+    content: "";
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    top: -6px;
+    right: $spacing-sm;
+    transform: rotate(45deg);
+    background-color: $color-light-gray-10;
+  }
+
+  .appPickerHeading {
+    color: $color-black;
+    padding: $spacing-lg;
+    text-align: center;
+
+    img {
+      display: inline-block;
+    }
+
+    h2 {
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+    }
+  }
+
+  .menuItemWrapper {
+    .menuLink {
+      display: flex;
+      align-items: center;
+      padding: $spacing-md $spacing-lg;
+      color: $color-violet-90;
+
+      img {
+        margin-right: $spacing-md;
+      }
+
+      &:hover {
+        background-color: $color-light-gray-20;
+        color: $color-violet-90;
+      }
+
+      &.mozillaLink {
+        color: $color-blue-50;
+        justify-content: center;
+      }
+    }
+
+    &:focus {
+      outline: none;
+
+      .menuLink {
+        text-decoration: underline;
+      }
+    }
+  }
+}
