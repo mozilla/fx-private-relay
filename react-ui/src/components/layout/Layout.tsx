@@ -13,6 +13,7 @@ import githubLogo from "../../../../static/images/GitHub.svg";
 import { useProfiles } from "../../hooks/api/profile";
 import { UserMenu } from "./UserMenu";
 import { Navigation } from "./Navigation";
+import { AppPicker } from "./AppPicker";
 
 export type Props = {
   children: ReactNode;
@@ -62,6 +63,7 @@ export const Layout = (props: Props) => {
             </Link>
           </div>
           <Navigation />
+          <AppPicker theme={isDark ? "free" : "premium"} />
           <nav className={styles.nav}>
             <UserMenu />
           </nav>
