@@ -9,12 +9,12 @@ class RelayAddressSerializer(serializers.ModelSerializer):
         fields = [
             'enabled', 'description', 'generated_for',
             # read-only
-            'id', 'address', 'domain',
+            'id', 'address', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',
             'num_forwarded', 'num_blocked', 'num_spam'
         ]
         read_only_fields = [
-            'id', 'address', 'domain',
+            'id', 'address', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',
             'num_forwarded', 'num_blocked', 'num_spam'
         ]
@@ -26,12 +26,12 @@ class DomainAddressSerializer(serializers.ModelSerializer):
         fields = [
             'enabled', 'description',
             # read-only
-            'id', 'address', 'domain',
+            'id', 'address', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',
             'num_forwarded', 'num_blocked', 'num_spam'
         ]
         read_only_fields = [
-            'id', 'address', 'domain',
+            'id', 'address', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',
             'num_forwarded', 'num_blocked', 'num_spam'
         ]
