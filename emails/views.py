@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.utils import parseaddr
 import json
+from json import JSONDecodeError
 import logging
 import mimetypes
 import os
@@ -65,7 +66,10 @@ class InReplyToNotFound(Exception):
 @csrf_exempt
 def index(request):
     incr_if_enabled('emails_index', 1)
-    request_data = get_post_data_from_request(request)
+    try:
+        request_data = get_post_data_from_request(request)
+    except JSONDecodeError:
+        return HttpResponse("Could not process request.", status=422)
     is_validated_create = (
         request_data.get('method_override', None) is None and
         request_data.get("api_token", False)
@@ -91,7 +95,10 @@ def _get_user_profile(request, api_token):
 
 
 def _index_POST(request):
-    request_data = get_post_data_from_request(request)
+    try:
+        request_data = get_post_data_from_request(request)
+    except JSONDecodeError:
+        return HttpResponse("Could not process request.", status=422)
     api_token = request_data.get('api_token', None)
     if not api_token:
         raise PermissionDenied
