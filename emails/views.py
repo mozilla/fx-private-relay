@@ -616,7 +616,7 @@ def _handle_bounce(message_json):
     bounce = message_json.get('bounce')
     bounced_recipients = bounce.get('bouncedRecipients')
     for recipient in bounced_recipients:
-        recipient_address = recipient.get('emailAddress', None)
+        recipient_address = recipient.pop('emailAddress', None)
         if recipient_address is None:
             continue
         recipient_address = parseaddr(recipient_address)[1]
