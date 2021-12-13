@@ -59,3 +59,15 @@ h6 {
 #__next {
   isolation: isolate;
 }
+
+.is-visible-with-addon {
+  // This class hides an element anything in the regular website;
+  // however, the add-on injects a stylesheet that reveals elements with this class.
+  display: none;
+  visibility: collapse;
+}
+
+.is-hidden-with-addon {
+  // This class doesn't do anything in the regular website;
+  // however, the add-on injects a stylesheet that hides elements with this class.
+}
