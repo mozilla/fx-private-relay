@@ -19,7 +19,7 @@ export const Navigation = () => {
     <nav className={styles.siteNav}>
       <Link href={homePath}>
         <a
-          className={`${styles.link} ${
+          className={`${styles.link} ${styles.homeLink} ${
             router.pathname === homePath ? styles.isActive : null
           }`}
         >
