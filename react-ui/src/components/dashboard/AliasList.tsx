@@ -35,6 +35,11 @@ export const AliasList = (props: Props) => {
     category: "Purchase Button",
     label: "profile-create-alias-upgrade-promo",
   });
+
+  if (props.aliases.length === 0) {
+    return null;
+  }
+
   const aliases = sortAliases(
     filterAliases(props.aliases, props.profile, {
       ...categoryFilters,
@@ -121,13 +126,13 @@ export const AliasList = (props: Props) => {
   ) : null;
 
   return (
-    <>
+    <section>
       <div className={styles.controls}>
         {filters}
         <div className={styles.newAliasButton}>{newAliasButton}</div>
       </div>
       <ul>{aliasCards}</ul>
-    </>
+    </section>
   );
 };
 

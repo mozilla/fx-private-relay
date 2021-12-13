@@ -1,0 +1,57 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+
+.wrapper {
+  padding: $spacing-lg;
+  border-radius: $border-radius-md;
+  border: 1px solid $color-light-gray-40;
+
+  h2 {
+    @include text-title-2xs;
+    padding: $spacing-sm 0;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    list-style-type: none;
+    margin: 0;
+    padding: $spacing-lg 0;
+    counter-reset: step-counter;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+
+    .step {
+      flex: 1 0 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-xl;
+      background-color: $color-white;
+      border-radius: $border-radius-md;
+      padding: $spacing-lg;
+      counter-increment: step-counter;
+
+      &::before {
+        content: counter(step-counter);
+        background-image: url("../../../../static/images/dashboard-onboarding/shield.svg");
+        background-position: center;
+        background-repeat: no-repeat;
+        line-height: 45px;
+        height: 45px;
+        width: 100%;
+        text-align: center;
+        font-weight: bold;
+        color: $color-light-gray-70;
+      }
+
+      p,
+      .footer {
+        flex: 1 0 auto;
+      }
+    }
+  }
+}
