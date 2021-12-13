@@ -32,6 +32,10 @@
   border-radius: $border-radius-sm;
   transition: opacity 200ms;
   padding: $spacing-xs;
+  // The .copyButtonWrapper is positioned as `relative` as well,
+  // leading it to overlap this confirmation message.
+  // Thus, this z-index makes this message overlap that.
+  z-index: 2;
 
   &.isShown {
     opacity: 1;
