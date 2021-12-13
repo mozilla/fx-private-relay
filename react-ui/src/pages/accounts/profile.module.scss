@@ -70,6 +70,12 @@
   padding-top: $spacing-xl;
 }
 
+.mainWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+}
+
 .sizeInformation {
   padding: $spacing-lg 0;
 }
