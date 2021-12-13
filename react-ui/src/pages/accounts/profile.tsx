@@ -23,6 +23,7 @@ import {
 } from "../../functions/getPlan";
 import { useGaPing } from "../../hooks/gaPing";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
+import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -41,6 +42,31 @@ const Profile: NextPage = () => {
     // TODO: Show a loading spinner?
     // TODO: Redirect the user to the login page if they're not logged in?
     return null;
+  }
+
+  if (
+    profile.has_premium &&
+    profile.onboarding_state <
+      Number.parseInt(process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE!, 10)
+  ) {
+    const onNextStep = (step: number) => {
+      profileData.update(profile.id, {
+        onboarding_state: step,
+      });
+    };
+    const onPickSubdomain = (subdomain: string) => {
+      profileData.update(profile.id, { subdomain: subdomain });
+    };
+
+    return (
+      <Layout>
+        <PremiumOnboarding
+          profile={profile}
+          onNextStep={onNextStep}
+          onPickSubdomain={onPickSubdomain}
+        />
+      </Layout>
+    );
   }
 
   const createAlias = () => {

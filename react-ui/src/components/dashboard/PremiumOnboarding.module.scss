@@ -1,0 +1,202 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+@import "../../../../static/scss/libs/protocol/css/includes/forms/lib";
+
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.step,
+.controls {
+  max-width: $content-lg;
+  margin: 0 auto;
+  padding: $spacing-lg;
+}
+
+.step {
+  flex-grow: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+
+  h2 {
+    @include text-title-sm;
+    font-family: $font-stack-firefox;
+    color: $color-purple-50;
+    text-align: center;
+  }
+
+  .lead {
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    text-align: center;
+    padding: $spacing-md 0;
+  }
+
+  .description {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-2xl;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+  }
+
+  .actionComplete {
+    @include text-title-3xs;
+    display: inline-flex;
+    padding: $spacing-md;
+    border-radius: $border-radius-md;
+    background-color: $color-white;
+    color: $color-blue-50;
+    gap: $spacing-sm;
+    width: auto;
+  }
+
+  &.stepCustomDomain {
+    max-width: $content-xl;
+
+    .subdomainPickerHeading {
+      padding: $spacing-md 0;
+    }
+
+    .domainExample {
+      @include text-title-2xs;
+      color: $color-light-gray-70;
+      display: inline-block;
+      padding: $spacing-md 0;
+
+      .customizablePart {
+        color: $color-purple-50;
+        font-weight: 700;
+      }
+    }
+
+    .subdomainDescription {
+      padding: $spacing-md 0;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      width: 80%;
+      margin: 0 auto;
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0;
+      }
+
+      input {
+        @include form-input;
+        flex-grow: 2;
+        margin: 0;
+        margin-bottom: $spacing-md;
+        width: 100%;
+
+        @media screen and #{ $mq-md } {
+          margin: 0;
+          margin-right: $spacing-md;
+        }
+      }
+
+      button {
+        text-align: center;
+      }
+    }
+  }
+
+  &.stepAddon {
+    .addonDescription {
+      padding: $spacing-md 0;
+    }
+
+    h3 {
+      @include text-body-md;
+    }
+
+    .getAddonButton {
+      margin-top: $spacing-md;
+      // The extension isn't available on mobile,
+      // so hide it on small screens:
+      display: none;
+
+      @media screen and #{$mq-md} {
+        display: inline-block;
+      }
+    }
+  }
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xl;
+  align-items: center;
+  width: 100%;
+
+  .skipLink {
+    background-color: transparent;
+    border-style: none;
+    color: $color-blue-50;
+    border-radius: $border-radius-sm;
+
+    &:hover {
+      color: $color-blue-70;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  }
+
+  @media screen and (max-width: #{$screen-md}) {
+    .getAddonButton {
+      display: none;
+    }
+    .goToDashboardButton {
+      display: inline-block;
+      visibility: visible;
+    }
+  }
+
+  progress {
+    width: 100%;
+    max-width: $content-md;
+  }
+
+  .styledProgressBar {
+    display: flex;
+    width: 100%;
+    max-width: $content-md;
+    gap: $spacing-sm;
+    list-style-type: none;
+
+    li {
+      width: 100%;
+      color: $color-light-gray-20;
+      text-align: center;
+      transition: color 0.2s ease-out;
+
+      span {
+        display: block;
+        height: 5px;
+        background-color: $color-light-gray-20;
+        margin-bottom: $spacing-xs;
+        transition: box-shadow 1s ease-out, color 0.2s ease-out;
+      }
+
+      &.isCompleted {
+        color: $color-violet-30;
+
+        span {
+          box-shadow: inset 300px 0 0 0 $color-violet-30;
+        }
+      }
+    }
+  }
+}
