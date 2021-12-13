@@ -48,6 +48,7 @@ FXA_DELETE_EVENT = (
 PROFILE_EVENTS = [FXA_PROFILE_CHANGE_EVENT, FXA_SUBSCRIPTION_CHANGE_EVENT]
 
 logger = logging.getLogger('events')
+info_logger = logging.getLogger('eventsinfo')
 
 
 def home(request):
@@ -244,7 +245,7 @@ def fxa_rp_events(request):
     for event_key in event_keys:
         if (event_key in PROFILE_EVENTS):
             if settings.DEBUG:
-                logger.info('fxa_profile_update', extra={
+                info_logger.info('fxa_profile_update', extra={
                     'jwt': authentic_jwt,
                     'event_key': event_key,
                 })
@@ -321,7 +322,7 @@ def _handle_fxa_profile_change(
         return HttpResponse('202 Accepted', status=202)
 
     if authentic_jwt and event_key:
-        logger.info('fxa_rp_event', extra={
+        info_logger.info('fxa_rp_event', extra={
             'fxa_uid': authentic_jwt['sub'],
             'event_key': event_key,
             'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
@@ -352,7 +353,7 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
     # to create hard bounce receipt rules in SES,
     # because cascade deletes like this don't necessarily call delete()
     social_account.user.delete()
-    logger.info('fxa_rp_event', extra={
+    info_logger.info('fxa_rp_event', extra={
         'fxa_uid': authentic_jwt['sub'],
         'event_key': event_key,
     })

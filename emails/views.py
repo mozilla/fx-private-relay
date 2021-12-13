@@ -56,6 +56,7 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 
 logger = logging.getLogger('events')
+info_logger = logging.getLogger('eventsinfo')
 
 
 class InReplyToNotFound(Exception):
@@ -236,7 +237,7 @@ def validate_sns_header(topic_arn, message_type):
 
 def _sns_inbound_logic(topic_arn, message_type, json_body):
     if message_type == 'SubscriptionConfirmation':
-        logger.info(
+        info_logger.info(
             'SNS SubscriptionConfirmation',
             extra={'SubscribeURL': json_body['SubscribeURL']}
         )
