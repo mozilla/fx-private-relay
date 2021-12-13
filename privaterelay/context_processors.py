@@ -20,10 +20,21 @@ def common(request):
     )
 
     first_visit = request.COOKIES.get("first_visit")
+    date_subscribed = not request.user.is_anonymous and request.user.profile_set.first().date_subscribed ;
     show_nps = (
-        first_visit is not None and
         not request.user.is_anonymous and
-        (datetime.now(timezone.utc) > datetime.fromisoformat(first_visit) + timedelta(days = 3))
+        (
+            # Show the NPS survey if the user created their account at least three days ago:
+            (
+                first_visit is not None and
+                datetime.now(timezone.utc) > datetime.fromisoformat(first_visit) + timedelta(days = 3)
+            ) or
+            # Show the NPS survey if the user subscribed to Premium at least three days ago:
+            (
+                date_subscribed and
+                datetime.now(timezone.utc) > (date_subscribed + timedelta(days = 3))
+            )
+        )
     )
 
     common_vars = {
