@@ -17,14 +17,14 @@ import {
   useState,
 } from "react";
 import styles from "./AliasDeletionButton.module.scss";
-import { ProfileData } from "../../hooks/api/profile";
-import { Button } from "../Button";
+import { ProfileData } from "../../../hooks/api/profile";
+import { Button } from "../../Button";
 import { OverlayProps } from "@react-aria/overlays";
 import {
   AliasData,
   getFullAddress,
   isRandomAlias,
-} from "../../hooks/api/aliases";
+} from "../../../hooks/api/aliases";
 
 export type Props = {
   alias: AliasData;
