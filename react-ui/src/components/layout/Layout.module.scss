@@ -79,7 +79,13 @@
   color: white;
   font-weight: bold;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  flex-direction: column;
+
+  @media screen and #{$mq-md} {
+    flex-direction: row;
+    align-items: center;
+  }
 
   .mozillaLogo {
     padding: $spacing-xl;
@@ -87,13 +93,23 @@
 
   .meta {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    padding: $spacing-lg;
     list-style-type: none;
-    margin-left: auto;
-    padding-right: $spacing-lg;
+    gap: $spacing-md;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+      align-items: center;
+      margin-left: auto;
+    }
 
     a {
       padding: $spacing-md;
+
+      img {
+        display: inline-block;
+      }
 
       &:hover {
         color: $color-light-gray-40;
