@@ -1,30 +1,12 @@
 import Link from "next/link";
-import { Localized, useLocalization } from "@fluent/react";
-import {
-  OverlayContainer,
-  FocusScope,
-  useButton,
-  useDialog,
-  useModal,
-  useOverlay,
-  usePreventScroll,
-} from "react-aria";
+import { useLocalization } from "@fluent/react";
 import { useOverlayTriggerState } from "react-stately";
-import {
-  FormEventHandler,
-  ReactElement,
-  ReactNode,
-  useRef,
-  useState,
-} from "react";
-import { toast } from "react-toastify";
+import { useState } from "react";
 import styles from "./SubdomainPicker.module.scss";
 import illustration from "../../../../static/images/dashboard-onboarding/man-laptop-email.svg";
-import checkIcon from "../../../../static/images/icon-green-check.svg";
 import { ProfileData } from "../../hooks/api/profile";
-import { Button } from "../Button";
-import { authenticatedFetch } from "../../hooks/api/api";
-import { OverlayProps } from "@react-aria/overlays";
+import { SubdomainSearchForm } from "./subdomain/SearchForm";
+import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 
 export type Props = {
   profile: ProfileData;
@@ -33,15 +15,9 @@ export type Props = {
 
 export const SubdomainPicker = (props: Props) => {
   const { l10n } = useLocalization();
-  const [subdomainInput, setSubdomainInput] = useState("");
-  const [confirmCheckbox, setConfirmCheckbox] = useState(false);
+  const [chosenSubdomain, setChosenSubdomain] = useState("");
 
   const modalState = useOverlayTriggerState({});
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
-  const cancelButton = useButton(
-    { onPress: () => modalState.close() },
-    cancelButtonRef
-  );
 
   if (
     !props.profile.has_premium ||
@@ -50,91 +26,23 @@ export const SubdomainPicker = (props: Props) => {
     return null;
   }
 
-  const onSubmit: FormEventHandler = async (event) => {
-    event.preventDefault();
-
-    const isAvailable = await getAvailability(subdomainInput);
-    if (!isAvailable) {
-      toast(
-        l10n.getString("error-subdomain-not-available", {
-          unavailable_subdomain: subdomainInput,
-        }),
-        { type: "error" }
-      );
-      return;
-    }
-
+  const onPick = (subdomain: string) => {
+    setChosenSubdomain(subdomain);
     modalState.open();
   };
 
-  const onConfirm: FormEventHandler = (event) => {
-    event.preventDefault();
-
-    props.onCreate(subdomainInput);
+  const onConfirm = () => {
+    props.onCreate(chosenSubdomain);
     modalState.close();
   };
 
   const dialog = modalState.isOpen ? (
-    <OverlayContainer>
-      <PickerDialog
-        title={
-          <Localized
-            id="modal-domain-register-available-v2"
-            vars={{
-              subdomain: subdomainInput,
-              domain: process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN!,
-            }}
-            elems={{
-              subdomain: <span className={styles.subdomain} />,
-              domain: <span className={styles.domain} />,
-            }}
-          >
-            <span className={styles.modalTitle} />
-          </Localized>
-        }
-        onClose={() => modalState.close()}
-        isOpen={modalState.isOpen}
-        isDismissable={true}
-      >
-        <p className={styles.permanenceWarning}>
-          {l10n.getString("modal-domain-register-warning-reminder")}
-        </p>
-        <form onSubmit={onConfirm} className={styles.confirm}>
-          <label>
-            <input
-              type="checkbox"
-              name="confirmSubdomain"
-              id="confirmSubdomain"
-              onChange={(e) => setConfirmCheckbox(e.target.checked)}
-              required={true}
-            />
-            <Localized
-              id="modal-domain-register-confirmation-checkbox-v2"
-              vars={{
-                subdomain: subdomainInput,
-              }}
-              elems={{
-                subdomain: <span className={styles.subdomain} />,
-              }}
-            >
-              <span />
-            </Localized>
-          </label>
-          <div className={styles.buttons}>
-            <button
-              {...cancelButton.buttonProps}
-              ref={cancelButtonRef}
-              className={styles.cancelButton}
-            >
-              {l10n.getString("profile-label-cancel")}
-            </button>
-            <Button type="submit" disabled={!confirmCheckbox}>
-              {l10n.getString("modal-domain-register-button")}
-            </Button>
-          </div>
-        </form>
-      </PickerDialog>
-    </OverlayContainer>
+    <SubdomainConfirmationModal
+      subdomain={chosenSubdomain}
+      isOpen={modalState.isOpen}
+      onClose={() => modalState.close()}
+      onConfirm={onConfirm}
+    />
   ) : null;
 
   return (
@@ -161,24 +69,7 @@ export const SubdomainPicker = (props: Props) => {
         </Link>
       </div>
       <div className={styles.search}>
-        <form onSubmit={onSubmit}>
-          <input
-            type="search"
-            checked={confirmCheckbox}
-            value={subdomainInput}
-            onChange={(e) => setSubdomainInput(e.target.value)}
-            placeholder={l10n.getString(
-              "banner-choose-subdomain-input-placeholder"
-            )}
-            name="subdomain"
-            id="subdomain"
-            minLength={1}
-            maxLength={63}
-          />
-          <Button type="submit">
-            {l10n.getString("banner-register-subdomain-button-search")}
-          </Button>
-        </form>
+        <SubdomainSearchForm onPick={onPick} />
         <img
           src={illustration.src}
           width={200}
@@ -190,52 +81,3 @@ export const SubdomainPicker = (props: Props) => {
     </div>
   );
 };
-
-type PickerDialogProps = {
-  title: string | ReactElement;
-  children: ReactNode;
-  isOpen: boolean;
-  onClose?: () => void;
-};
-const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
-  usePreventScroll();
-  const { modalProps } = useModal();
-  const { dialogProps, titleProps } = useDialog({}, wrapperRef);
-  const { l10n } = useLocalization();
-
-  return (
-    <div className={styles.underlay} {...underlayProps}>
-      <FocusScope contain restoreFocus autoFocus>
-        <div
-          className={styles.dialogWrapper}
-          {...overlayProps}
-          {...dialogProps}
-          {...modalProps}
-          ref={wrapperRef}
-        >
-          <div className={styles.hero}>
-            <span className={styles.headline}>
-              <img src={checkIcon.src} alt="" />
-              {l10n.getString("modal-domain-register-good-news")}
-            </span>
-            <h3 {...titleProps}>{props.title}</h3>
-          </div>
-          {props.children}
-        </div>
-      </FocusScope>
-    </div>
-  );
-};
-
-async function getAvailability(subdomain: string) {
-  const checkResponse = await authenticatedFetch(
-    `/accounts/profile/subdomain?subdomain=${subdomain}`
-  );
-  if (!checkResponse.ok) {
-    return false;
-  }
-  const checkData: { available: true } = await checkResponse.json();
-  return checkData.available;
-}
