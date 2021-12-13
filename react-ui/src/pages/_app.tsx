@@ -2,6 +2,8 @@ import "../styles/globals.scss";
 import { useEffect } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
+import Head from "next/head";
+import Favicon from "../../public/favicon.svg";
 import { LocalizationProvider } from "@fluent/react";
 import { SSRProvider } from "@react-aria/ssr";
 import { OverlayProvider } from "@react-aria/overlays";
@@ -56,9 +58,14 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <SSRProvider>
       <LocalizationProvider l10n={getL10n()}>
-        <OverlayProvider id="overlayProvider">
-          <Component {...pageProps} />
-        </OverlayProvider>
+        <>
+          <Head>
+            <link rel="icon" type="image/svg+xml" href={Favicon.src}></link>
+          </Head>
+          <OverlayProvider id="overlayProvider">
+            <Component {...pageProps} />
+          </OverlayProvider>
+        </>
       </LocalizationProvider>
     </SSRProvider>
   );
