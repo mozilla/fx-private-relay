@@ -24,6 +24,7 @@ import {
 import { useGaPing } from "../../hooks/gaPing";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding";
+import { Onboarding } from "../../components/dashboard/Onboarding";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -199,6 +200,7 @@ const Profile: NextPage = () => {
         </div>
         <main className={styles.mainWrapper}>
           <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
+          <Onboarding aliases={allAliases} onCreate={createAlias} />
           <AliasList
             aliases={allAliases}
             onCreate={createAlias}
