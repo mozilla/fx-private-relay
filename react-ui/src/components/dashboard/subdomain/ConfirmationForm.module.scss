@@ -1,0 +1,61 @@
+@import "../../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../../static/scss/libs/protocol/css/includes/lib";
+
+.permanenceWarning {
+  @include text-body-sm;
+  text-align: center;
+  padding: $spacing-md $spacing-lg;
+  color: $color-dark-gray-70;
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  label {
+    background-color: $color-light-gray-10;
+    border-radius: $border-radius-md;
+    margin-bottom: $spacing-md;
+    padding: $spacing-md;
+    cursor: pointer;
+
+    input {
+      margin-right: $spacing-sm;
+    }
+
+    .subdomain {
+      font-weight: bold;
+
+      &::before {
+        content: "@";
+      }
+    }
+  }
+
+  .buttons {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: $spacing-xl;
+
+    .cancelButton {
+      border-style: none;
+      background-color: transparent;
+      cursor: pointer;
+      border-radius: $border-radius-sm;
+      color: $color-blue-50;
+      padding: $spacing-sm $spacing-2xl;
+
+      &:hover {
+        background-color: $color-blue-50;
+        color: $color-white;
+      }
+
+      &:focus {
+        text-decoration: underline;
+      }
+    }
+  }
+}
