@@ -3,26 +3,37 @@
 
 .header {
   background-color: $color-light-gray-05;
-  padding: $spacing-lg 0;
+  padding: $spacing-sm 0;
 
   .headerWrapper {
     display: flex;
     align-items: center;
 
-    .greeting {
-      display: none;
-      @include text-body-xl;
-      font-weight: bold;
-      flex-grow: 2;
+    .userDetails {
+      flex: 1 0 auto;
 
-      .lead {
-        @include text-body-md;
-        font-weight: normal;
-        display: block;
+      .greeting {
+        display: none;
+        @include text-body-xl;
+        font-weight: bold;
+
+        .lead {
+          @include text-body-md;
+          font-weight: normal;
+          display: block;
+        }
+
+        @media screen and #{$mq-md} {
+          display: block;
+        }
       }
 
-      @media screen and #{$mq-md} {
-        display: block;
+      .subdomain {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        padding: $spacing-md 0;
+        color: $color-blue-50;
       }
     }
 
