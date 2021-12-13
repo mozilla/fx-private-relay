@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import ipaddress
-import os
+import os, sys
 from datetime import datetime
 
 from decouple import config
@@ -421,6 +421,8 @@ LANGUAGE_CODE = 'en'
 LANGUAGES = settings.LANGUAGES + [
     ('zh-tw', 'Chinese'),
     ('zh-cn', 'Chinese'),
+    ('fy', 'Frisian'),
+    # ('fy-nl', 'Frisian'),
 ]
 
 TIME_ZONE = 'UTC'
@@ -484,7 +486,13 @@ LOGGING = {
         }
     },
     'handlers': {
-        'console': {
+        'console_out': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'formatter': 'json'
+        },
+        'console_err': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
             'formatter': 'json'
@@ -492,15 +500,19 @@ LOGGING = {
     },
     'loggers': {
         'request.summary': {
-            'handlers': ['console'],
+            'handlers': ['console_out'],
             'level': 'DEBUG',
         },
         'events': {
-            'handlers': ['console'],
+            'handlers': ['console_err'],
+            'level': 'ERROR',
+        },
+        'eventsinfo': {
+            'handlers': ['console_out'],
             'level': 'INFO',
         },
         'abusemetrics': {
-            'handlers': ['console'],
+            'handlers': ['console_out'],
             'level': 'INFO'
         }
     }
