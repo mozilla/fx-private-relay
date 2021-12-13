@@ -1,15 +1,15 @@
 import { useLocalization } from "@fluent/react";
 import styles from "./Alias.module.scss";
-import copyIcon from "../../../../static/images/copy-to-clipboard.svg";
-import arrowDownIcon from "../../../../static/images/arrowhead.svg";
-import { AliasData, getFullAddress } from "../../hooks/api/aliases";
-import { ProfileData } from "../../hooks/api/profile";
+import copyIcon from "../../../../../static/images/copy-to-clipboard.svg";
+import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
+import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
+import { ProfileData } from "../../../hooks/api/profile";
 import { useRef, useState } from "react";
 import { useToggleState } from "@react-stately/toggle";
 import { useToggleButton } from "@react-aria/button";
 import { LabelEditor } from "./LabelEditor";
-import { UserData } from "../../hooks/api/user";
-import { renderDate } from "../../functions/renderDate";
+import { UserData } from "../../../hooks/api/user";
+import { renderDate } from "../../../functions/renderDate";
 import { AliasDeletionButton } from "./AliasDeletionButton";
 
 export type Props = {

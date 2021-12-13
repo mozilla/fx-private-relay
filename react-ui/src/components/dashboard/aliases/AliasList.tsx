@@ -1,21 +1,21 @@
 import { useLocalization } from "@fluent/react";
 import styles from "./AliasList.module.scss";
-import plusIcon from "../../../../static/images/plus-sign-white.svg";
-import { AliasData, isRandomAlias } from "../../hooks/api/aliases";
-import { ProfileData } from "../../hooks/api/profile";
+import plusIcon from "../../../../../static/images/plus-sign-white.svg";
+import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
+import { ProfileData } from "../../../hooks/api/profile";
 import { Alias } from "./Alias";
-import { Button, LinkButton } from "../Button";
+import { Button, LinkButton } from "../../Button";
 import { useState } from "react";
-import { filterAliases } from "../../functions/filterAliases";
+import { filterAliases } from "../../../functions/filterAliases";
 import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
-import { UserData } from "../../hooks/api/user";
+import { UserData } from "../../../hooks/api/user";
 import {
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
-} from "../../functions/getPlan";
-import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
-import { useGaPing } from "../../hooks/gaPing";
-import { trackPurchaseStart } from "../../functions/trackPurchase";
+} from "../../../functions/getPlan";
+import { PremiumCountriesData } from "../../../hooks/api/premiumCountries";
+import { useGaPing } from "../../../hooks/gaPing";
+import { trackPurchaseStart } from "../../../functions/trackPurchase";
 
 export type Props = {
   aliases: AliasData[];
