@@ -2,6 +2,7 @@ import { Localized, useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../../static/images/woman-couch-left.svg";
+import checkIcon from "../../../../static/images/icon-check.svg";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -115,22 +116,34 @@ const Profile: NextPage = () => {
     }
   };
 
+  const subdomainIndicator =
+    typeof profile.subdomain === "string" ? (
+      <strong className={styles.subdomain}>
+        <img src={checkIcon.src} alt="" />
+        {l10n.getString("profile-label-domain")}&nbsp; @{profile.subdomain}.
+        {process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN}
+      </strong>
+    ) : null;
+
   // Non-Premium users have only five aliases, making the stats less insightful,
   // so only show them for Premium users:
   const stats = profile.has_premium ? (
     <header className={styles.header}>
       <div className={styles.headerWrapper}>
-        <Localized
-          id="profile-label-welcome-html"
-          vars={{
-            email: user.email,
-          }}
-          elems={{
-            span: <span className={styles.lead} />,
-          }}
-        >
-          <span className={styles.greeting} />
-        </Localized>
+        <div className={styles.userDetails}>
+          <Localized
+            id="profile-label-welcome-html"
+            vars={{
+              email: user.email,
+            }}
+            elems={{
+              span: <span className={styles.lead} />,
+            }}
+          >
+            <span className={styles.greeting} />
+          </Localized>
+          {subdomainIndicator}
+        </div>
         <div className={styles.accountStats}>
           <span className={styles.stat}>
             <span className={styles.label}>
