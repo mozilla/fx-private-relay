@@ -3,6 +3,7 @@
 
 .siteNav {
   display: flex;
+  padding: 0 $spacing-sm;
 }
 
 .link {
@@ -19,7 +20,17 @@
     margin-top: $spacing-xs;
   }
 
+  &.homeLink {
+    // The logo links to the homepage as well,
+    // so don't let this link take up space on small screens:
+    display: none;
+  }
+
   @media screen and #{$mq-md} {
     padding: 0 $spacing-md;
+
+    &.homeLink {
+      display: inline;
+    }
   }
 }
