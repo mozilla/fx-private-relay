@@ -11,7 +11,7 @@ import {
   useAliases,
 } from "../../hooks/api/aliases";
 import { useUsers } from "../../hooks/api/user";
-import { AliasList } from "../../components/dashboard/AliasList";
+import { AliasList } from "../../components/dashboard/aliases/AliasList";
 import { SubdomainPicker } from "../../components/dashboard/SubdomainPicker";
 import { toast } from "react-toastify";
 import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
