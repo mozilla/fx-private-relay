@@ -10,6 +10,7 @@ import uuid
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import SuspiciousOperation
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation.trans_real import (
@@ -394,7 +395,9 @@ class RegisteredSubdomain(models.Model):
         return self.subdomain_hash
 
 
-class CannotMakeSubdomainException(Exception):
+# extend from SuspiciousOperation to trigger 400 status code error
+# TODO: in Django 3.2+ change this to BadRequest
+class CannotMakeSubdomainException(SuspiciousOperation):
     """Exception raised by Profile due to error on subdomain creation.
 
     Attributes:
@@ -405,7 +408,9 @@ class CannotMakeSubdomainException(Exception):
         self.message = message
 
 
-class CannotMakeAddressException(Exception):
+# extend from SuspiciousOperation to trigger 400 status code error
+# TODO: in Django 3.2+ change this to BadRequest
+class CannotMakeAddressException(SuspiciousOperation):
     """Exception raised by RelayAddress or DomainAddress due to error on alias creation.
 
     Attributes:
