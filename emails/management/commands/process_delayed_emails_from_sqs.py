@@ -16,6 +16,7 @@ from emails.utils import incr_if_enabled
 
 
 logger = logging.getLogger('events')
+info_logger = logging.getLogger('eventsinfo')
 
 
 def _verify_and_run_sns_inbound_on_message(message):
@@ -27,7 +28,7 @@ def _verify_and_run_sns_inbound_on_message(message):
     validate_sns_header(topic_arn, message_type)
     try:
         _sns_inbound_logic(topic_arn, message_type, verified_json_body)
-        logger.info(f'processed sqs message ID: {message.message_id}')
+        info_logger.info(f'processed sqs message ID: {message.message_id}')
         message.delete()
     except ClientError as e:
         incr_if_enabled('rerun_message_from_sqs_error', 1)
@@ -43,7 +44,7 @@ def _verify_and_run_sns_inbound_on_message(message):
             time.sleep(1)
             try:
                 _sns_inbound_logic(topic_arn, message_type, verified_json_body)
-                logger.info(f'processed sqs message ID: {message.message_id}')
+                info_logger.info(f'processed sqs message ID: {message.message_id}')
                 message.delete()
             except ClientError as e:
                 incr_if_enabled('rerun_message_from_sqs_error', 1)
