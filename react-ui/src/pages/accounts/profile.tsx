@@ -1,5 +1,6 @@
 import { Localized, useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
+import { useRouter } from "next/router";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../../static/images/woman-couch-left.svg";
 import checkIcon from "../../../../static/images/icon-check.svg";
@@ -33,10 +34,15 @@ const Profile: NextPage = () => {
   const { randomAliasData, customAliasData } = useAliases();
   const premiumCountriesData = usePremiumCountries();
   const { l10n } = useLocalization();
+  const router = useRouter();
   const bottomBannerSubscriptionLinkRef = useGaPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
   });
+
+  if (!userData.isValidating && userData.error) {
+    router.push("/");
+  }
 
   const profile = profileData.data?.[0];
   const user = userData.data?.[0];

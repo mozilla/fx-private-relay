@@ -37,6 +37,9 @@ export const apiFetch = async (
 
 const fetcher: Fetcher<unknown> = async (...args) => {
   const response = await apiFetch(args[0], args[1]);
+  if (!response.ok) {
+    throw new Error(`${response.status}: ${response.statusText}`);
+  }
   const data: unknown = await response.json();
   return data;
 };

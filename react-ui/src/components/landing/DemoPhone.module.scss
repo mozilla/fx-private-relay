@@ -1,0 +1,31 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+
+.container {
+  position: relative;
+  text-align: center;
+  height: 600px;
+
+  @media screen and #{$mq-lg} {
+    width: 400px;
+  }
+  @media screen and #{$mq-xl} {
+    width: 550px;
+  }
+
+  // The three images are made to overlap:
+  img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+
+    &.background,
+    &.foreground {
+      display: none;
+
+      @media screen and #{$mq-md} {
+        display: inline-block;
+      }
+    }
+  }
+}

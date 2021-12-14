@@ -1,0 +1,50 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+
+.entry {
+  button {
+    @include text-title-xs;
+    background-color: transparent;
+    border-style: none;
+    display: flex;
+    align-items: center;
+    gap: $spacing-md;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: $spacing-lg $spacing-sm;
+    width: 100%;
+    border-top: 1px solid $color-light-gray-30;
+    text-align: start;
+
+    &:focus {
+      border-top-right-radius: $border-radius-md;
+      border-top-left-radius: $border-radius-md;
+    }
+  }
+
+  &:first-child button {
+    border-top-style: none;
+  }
+
+  dd {
+    padding: 0 $spacing-sm $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+  }
+
+  &.isCollapsed {
+    dd {
+      display: none;
+    }
+  }
+
+  .plusIcon {
+    transition: transform 0.2s ease-out;
+  }
+  &.isExpanded {
+    .plusIcon {
+      transform: rotate(45deg);
+    }
+  }
+}

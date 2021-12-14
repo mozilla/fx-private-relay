@@ -1,0 +1,104 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+
+.comparison {
+  display: grid;
+  grid-template-areas:
+    "callout"
+    "premium-plan"
+    "free-plan";
+  justify-items: center;
+
+  @media screen and #{$mq-md} {
+    grid-template-areas:
+      "none callout"
+      "free-plan premium-plan";
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: start;
+    column-gap: $spacing-md;
+  }
+}
+
+.callout {
+  grid-area: callout;
+  @include text-body-sm;
+  color: $color-blue-50;
+  font-weight: bold;
+  padding: $spacing-xs 0;
+}
+
+.plan {
+  background-color: $color-white;
+  display: block;
+  padding: $spacing-xl $spacing-2xl;
+  border: 2px solid $color-light-gray-20;
+  border-radius: $border-radius-md;
+  width: $content-xs;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+  cursor: pointer;
+
+  &.freePlan {
+    grid-area: free-plan;
+    margin-top: $spacing-2xl;
+    @media screen and #{$mq-md} {
+      margin-top: 0;
+    }
+  }
+  &.premiumPlan {
+    grid-area: premium-plan;
+    border-color: $color-purple-40;
+  }
+
+  .wordMark {
+    margin: 0 auto;
+  }
+
+  .price {
+    @include text-body-lg;
+    color: $color-blue-50;
+    text-align: center;
+    font-weight: normal;
+  }
+
+  ul {
+    list-style-image: url("../../../../static/images/icon-blue-check.svg");
+    margin: 0 auto;
+    flex: 1 0 auto;
+
+    li {
+      padding: $spacing-sm 0;
+    }
+  }
+
+  .fauxButton {
+    border: 2px solid $color-blue-50;
+    border-radius: $border-radius-sm;
+    color: $color-blue-50;
+    font-weight: bold;
+    padding: $spacing-sm $spacing-lg;
+  }
+
+  &:focus {
+    outline: none;
+
+    .fauxButton {
+      background-color: $color-blue-70;
+      border-color: $color-blue-70;
+      color: $color-white;
+    }
+  }
+
+  &:hover {
+    border-color: $color-blue-50;
+
+    .fauxButton {
+      background-color: $color-blue-50;
+      border-color: $color-blue-50;
+      color: $color-white;
+    }
+  }
+}
