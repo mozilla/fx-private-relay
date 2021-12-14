@@ -1,0 +1,203 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
+
+.sections {
+  display: grid;
+  gap: $spacing-lg;
+
+  &.selected_tab_0 {
+    grid-template-areas:
+      "tab_0"
+      "content";
+  }
+  &.selected_tab_1 {
+    grid-template-areas:
+      "tab_0"
+      "tab_1"
+      "content";
+  }
+  &.selected_tab_2 {
+    grid-template-areas:
+      "tab_0"
+      "tab_1"
+      "tab_2"
+      "content";
+  }
+  &.selected_tab_3 {
+    grid-template-areas:
+      "tab_0"
+      "tab_1"
+      "tab_2"
+      "tab_3"
+      "content";
+  }
+  &.selected_tab_4 {
+    grid-template-areas:
+      "tab_0"
+      "tab_1"
+      "tab_2"
+      "tab_3"
+      "tab_4"
+      "content";
+  }
+  &.selected_tab_5 {
+    grid-template-areas:
+      "tab_0"
+      "tab_1"
+      "tab_2"
+      "tab_3"
+      "tab_4"
+      "tab_5"
+      "content";
+  }
+  &.selected_tab_6 {
+    grid-template-areas:
+      "tab_0"
+      "tab_1"
+      "tab_2"
+      "tab_3"
+      "tab_4"
+      "tab_5"
+      "tab_6"
+      "content";
+  }
+
+  .tab {
+    outline: none;
+    grid-area: attr(data-tab-key);
+
+    .title {
+      @include text-body-lg;
+      font-family: $font-stack-firefox;
+      display: flex;
+      align-items: center;
+      gap: $spacing-sm;
+      padding: $spacing-xs $spacing-sm;
+      box-shadow: $box-shadow-sm;
+      border-radius: $border-radius-md;
+      border-bottom: 8px solid transparent;
+      border-right: 8px solid transparent;
+      font-weight: bold;
+
+      &.yellow {
+        background-color: $color-yellow-20;
+        &::after {
+          background-color: $color-yellow-20;
+        }
+      }
+      &.orange {
+        background-color: $color-yellow-40;
+        &::after {
+          background-color: $color-yellow-40;
+        }
+      }
+      &.teal {
+        background-color: $color-green-40;
+        &::after {
+          background-color: $color-green-40;
+        }
+      }
+      &.red {
+        background-color: $color-red-20;
+        &::after {
+          background-color: $color-red-20;
+        }
+      }
+      &.pink {
+        background-color: $color-purple-30;
+        &::after {
+          background-color: $color-purple-30;
+        }
+      }
+
+      img {
+        width: 50px;
+        height: 50px;
+      }
+
+      .titleText {
+        // The ::after of .title has position `absolute`,
+        // so without this z-index it would overlap the title text.
+        z-index: 2;
+      }
+    }
+
+    &:focus .title {
+      border-color: hsla(0, 0%, 80%, 0.5);
+    }
+    &:not(.isSelected):hover .title {
+      cursor: pointer;
+      box-shadow: none;
+    }
+
+    &.isSelected .title {
+      box-shadow: none;
+    }
+  }
+
+  .content {
+    grid-area: content;
+    background-color: $color-light-gray-20;
+    border-radius: $border-radius-md;
+    padding: $spacing-lg;
+
+    .contentHeading {
+      display: none;
+    }
+  }
+
+  @media screen and #{$mq-lg} {
+    display: flex;
+    flex-wrap: wrap;
+
+    .tab {
+      flex: 1 0 0;
+
+      .title {
+        flex-direction: column;
+        // The illustrations already have some whitespace around them,
+        // so we only need some padding below the text:
+        padding-bottom: $spacing-md;
+        gap: 0;
+        text-align: center;
+
+        img {
+          width: 150px;
+          height: 150px;
+        }
+      }
+
+      &.isSelected .title {
+        position: relative;
+      }
+      &.isSelected .title::after {
+        $diameter: 40px;
+        content: "";
+        display: block;
+        width: $diameter;
+        height: $diameter;
+        position: absolute;
+        top: calc(100% - ($diameter / 2));
+        left: calc(50% - ($diameter / 2));
+        transform: rotate(45deg);
+      }
+    }
+    .content {
+      flex: 1 0 100%;
+      display: flex;
+      align-items: center;
+      gap: $spacing-2xl;
+
+      .contentHeading {
+        @include text-title-2xs;
+        flex: 1 0 $content-xs;
+        font-family: $font-stack-firefox;
+        font-weight: bold;
+        text-align: center;
+        display: block;
+        padding: $spacing-xl $spacing-2xl;
+        border-right: 1px solid $color-light-gray-40;
+      }
+    }
+  }
+}
