@@ -49,6 +49,7 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
+    http_method_names = ['get', 'post', 'head', 'put', 'patch']
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
