@@ -281,8 +281,8 @@
 }
 
 .c-alias-copy {
-    display: block;
     padding: $spacing-sm 0 $spacing-md;
+    display: block;
 
     @media #{$mq-md} {
         display: none;
