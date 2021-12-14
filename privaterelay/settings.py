@@ -421,8 +421,6 @@ LANGUAGE_CODE = 'en'
 LANGUAGES = settings.LANGUAGES + [
     ('zh-tw', 'Chinese'),
     ('zh-cn', 'Chinese'),
-    ('fy', 'Frisian'),
-    # ('fy-nl', 'Frisian'),
 ]
 
 TIME_ZONE = 'UTC'
