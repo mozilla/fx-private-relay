@@ -25,22 +25,27 @@ export const PremiumOnboarding = (props: Props) => {
   const getStartedButtonRef = useGaPing({
     category: "Premium Onboarding",
     label: "onboarding-step-1-continue",
+    value: 1,
   });
   const skipDomainButtonRef = useGaPing({
     category: "Premium Onboarding",
     label: "onboarding-step-2-skip",
+    value: 2,
   });
   const continueWithDomainButtonRef = useGaPing({
     category: "Premium Onboarding",
     label: "onboarding-step-2-continue",
+    value: 2,
   });
   const skipAddonButtonRef = useGaPing({
     category: "Premium Onboarding",
     label: "onboarding-step-3-skip",
+    value: 3,
   });
   const continueWithAddonButtonRef = useGaPing({
     category: "Premium Onboarding",
     label: "onboarding-step-3-continue",
+    value: 3,
   });
 
   const quit = () => {
@@ -51,6 +56,7 @@ export const PremiumOnboarding = (props: Props) => {
       category: "Premium Onboarding",
       action: "Engage",
       label: "onboarding-skip",
+      value: props.profile.onboarding_state + 1,
     });
   };
 
@@ -65,6 +71,7 @@ export const PremiumOnboarding = (props: Props) => {
         category: "Premium Onboarding",
         action: "Engage",
         label: "onboarding-step-1-continue",
+        value: 1,
       });
     };
 
@@ -90,6 +97,7 @@ export const PremiumOnboarding = (props: Props) => {
           category: "Premium Onboarding",
           action: "Engage",
           label: "onboarding-step-2-skip",
+          value: 2,
         });
       };
 
@@ -109,6 +117,7 @@ export const PremiumOnboarding = (props: Props) => {
           category: "Premium Onboarding",
           action: "Engage",
           label: "onboarding-step-2-continue",
+          value: 2,
         });
       };
       button = (
@@ -128,6 +137,7 @@ export const PremiumOnboarding = (props: Props) => {
         category: "Premium Onboarding",
         action: "Engage",
         label: "onboarding-step-3-skip",
+        value: 3,
       });
     };
     const goToDashboard = () => {
@@ -136,6 +146,7 @@ export const PremiumOnboarding = (props: Props) => {
         category: "Premium Onboarding",
         action: "Engage",
         label: "onboarding-step-3-continue",
+        value: 3,
       });
     };
 
