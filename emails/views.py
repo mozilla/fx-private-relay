@@ -622,8 +622,9 @@ def _handle_bounce(message_json):
             continue
         recipient_address = parseaddr(recipient_address)[1]
         recipient_domain = recipient_address.split('@')[1]
-        capture_message(
-            f'bounced recipient domain: {recipient_domain}, {recipient}'
+        info_logger.info(
+            f'bounced recipient domain: {recipient_domain}',
+            extra=recipient
         )
         try:
             user = User.objects.get(email=recipient_address)
