@@ -130,7 +130,7 @@ const Faq: NextPage = () => {
               id="faq-replies"
               question={l10n.getString("faq-question-4-question")}
             >
-              <p>{l10n.getString("faq-question-4-answer-v3")}</p>
+              <p>{l10n.getString("faq-question-4-answer-v4")}</p>
             </QAndA>
             <QAndA
               id="faq-subdomain-question"
