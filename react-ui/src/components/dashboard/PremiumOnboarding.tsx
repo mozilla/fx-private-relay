@@ -183,6 +183,7 @@ export const PremiumOnboarding = (props: Props) => {
           {/*
             Unfortunately <progress> is hard to style like we want, even though it expresses what we want.
             Thus, we render a <progress> for machines, and hide the styled elements for them.
+            // TODO: Use react-aria's useProgressBar()?
           */}
           <VisuallyHidden>
             <progress
