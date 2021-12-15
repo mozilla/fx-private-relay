@@ -122,6 +122,9 @@ $toggleTransitionDuration: 200ms;
 
     .address {
       font-family: $font-stack-firefox;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: $content-md;
     }
 
     .copyIcon {
