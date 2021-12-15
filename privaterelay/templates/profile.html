@@ -106,7 +106,7 @@
       
       <!-- Register Subdomain Banner -->
       {% with request.user.profile_set.first as user_profile %}
-      {% if user_profile.has_premium and not user_profile.subdomain and settings.PREMIUM_ENABLED %}
+      {% if user_profile.has_premium and not user_profile.subdomain %}
         {% include "includes/banners/subdomain-banner.html" %}
       {% endif %}
       {% endwith %}
@@ -144,9 +144,7 @@
     
   </div>
 
-  {% if settings.PREMIUM_ENABLED %}
-    {% include "includes/domain-alias-dashboard.html" %}
-  {% endif %}
+  {% include "includes/domain-alias-dashboard.html" %}
 
 </main>
 
