@@ -1,0 +1,167 @@
+@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../static/scss/libs/protocol/css/includes/lib";
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+  width: $content-max;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: $spacing-2xl;
+
+  @media screen and #{$mq-md} {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .lead,
+  .demoPhone {
+    flex: 1 0 0;
+  }
+
+  .lead {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-lg;
+  }
+
+  h2 {
+    @include text-title-md;
+    font-family: $font-stack-firefox;
+  }
+
+  .socialProof {
+    border: 0 solid $color-light-gray-20;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    padding: $spacing-lg 0;
+    width: 100%;
+
+    @media screen and #{$mq-md} {
+      width: auto;
+    }
+  }
+}
+
+.perksWrapper {
+  background-color: $color-white;
+}
+
+.perks {
+  width: $content-xl;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: $spacing-2xl $spacing-xl;
+
+  h2 {
+    @include text-title-sm;
+    font-family: $font-stack-firefox;
+    text-align: center;
+    padding: $spacing-md 0;
+  }
+
+  .lead {
+    @include text-body-md;
+    display: block;
+    width: 75%;
+    margin: 0 auto;
+    padding: $spacing-md 0;
+  }
+
+  .perk {
+    padding: $spacing-lg 0;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xl;
+    align-items: center;
+
+    img {
+      max-width: 70%;
+      margin: 0 auto;
+    }
+
+    h3 {
+      @include text-title-xs;
+      font-family: $font-stack-firefox;
+      padding: $spacing-sm 0;
+    }
+
+    p {
+      padding: $spacing-sm 0;
+    }
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+
+      &:nth-child(even) {
+        flex-direction: row-reverse;
+      }
+
+      img {
+        max-width: 50%;
+      }
+    }
+  }
+}
+
+.useCasesWrapper {
+  background-color: $color-white;
+}
+
+.useCases {
+  width: $content-max;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: $spacing-xl;
+
+  .headline {
+    @include text-title-sm;
+    font-family: $font-stack-firefox;
+    text-align: center;
+    padding: $spacing-lg;
+  }
+}
+
+.plansWrapper {
+  background: linear-gradient(
+    180deg,
+    $color-light-gray-20 0%,
+    $color-light-gray-10 3%
+  );
+}
+
+.plans {
+  width: $content-max;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: $spacing-2xl;
+  display: flex;
+  gap: $spacing-2xl;
+  flex-direction: column-reverse;
+  align-items: center;
+
+  .callout {
+    text-align: center;
+
+    h2 {
+      @include text-title-md;
+      font-family: $font-stack-firefox;
+      font-weight: 500;
+      padding: $spacing-lg 0;
+    }
+  }
+
+  @media screen and #{$mq-xl} {
+    flex-direction: row;
+
+    .planComparison {
+      padding: $spacing-2xl;
+    }
+    .callout {
+      padding: $spacing-2xl;
+      text-align: start;
+    }
+  }
+}
