@@ -26,7 +26,8 @@
   {% with request.user.profile_set.first as user_profile %}
     data-premium-subdomain-set="{{ user_profile.subdomain }}"
   {% endwith %}
-  data-premium-enabled="{{ settings.PREMIUM_ENABLED }}"
+{# TODO: Remove the `premium-enabled` attribute once https://github.com/mozilla/fx-private-relay-add-on/pull/246 has been merged/deployed   #}
+  data-premium-enabled="True"
 >
 </firefox-private-relay-addon-data>
 
