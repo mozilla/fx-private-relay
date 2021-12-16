@@ -336,7 +336,7 @@ table {
     opacity: .75;
 }
 
-.desktop-domain {
+.alias-on-desktop {
     display: none;
 
     @media #{$mq-md} {
@@ -344,7 +344,7 @@ table {
     }
 }
 
-.mobile-domain {
+.alias-on-mobile {
     display: inline;
 
     @media #{$mq-md} {
