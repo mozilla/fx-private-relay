@@ -34,6 +34,7 @@
     <div class="c-layout-wrapper">
       {% include "includes/modal-delete.html" %}
       {% include "includes/modal-domain-registration-confirmation.html" %}
+      {% include "includes/modal-custom-alias-picker.html" %}
       {% include "includes/header.html" %}
       <firefox-private-relay-addon data-user-logged-in="{{ request.user.is_authenticated }}" data-addon-installed="false"></firefox-private-relay-addon>
       {% block content %}

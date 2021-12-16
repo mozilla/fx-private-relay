@@ -3,6 +3,10 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
+{% if user_profile.has_premium and user_profile.subdomain %}
+    <script src="{% static 'js/custom-alias-picker.js' %}"></script>
+{% endif %}
+
 <div class="c-filter js-filter-container">
     <div class="c-filter-search">
         <div class="c-filter-icon c-filter-icon-search js-filter-mobile-search-toggle"></div>
@@ -124,9 +128,8 @@
                     <button 
                         disabled
                         type="submit"
-                        class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr btn-disabled"
+                        class="blue-btn-states dash-create-new-relay"
                         title="{% ftlmsg 'profile-label-generate-new-alias' %}"
-                        value="{% ftlmsg 'profile-label-generate-new-alias' %}"
                     >
                         <span class="generate-new-relay-icon"></span>
                         <span class="generate-new-alias-text">
@@ -134,19 +137,53 @@
                         </span>
                     </button>
                 {% endif %}
+            {% elif not user_profile.subdomain %}
+                <button
+                    class="blue-btn-states dash-create-new-relay"
+                    title="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                    type="submit"
+                    data-event-label="Create New Relay Alias"
+                >
+                    <span class="generate-new-relay-icon"></span>
+                    <span class="generate-new-alias-text">
+                        {% ftlmsg 'profile-label-generate-new-alias' %}
+                    </span>
+                </button>
             {% else %}
-            <button
-                class="blue-btn-states dash-create-new-relay flx al-cntr jst-cntr"
-                title="{% ftlmsg 'profile-label-generate-new-alias' %}"
-                type="submit"
-                value="{% ftlmsg 'profile-label-generate-new-alias' %}"
-                data-event-label="Create New Relay Alias"
-            >
-                <span class="generate-new-relay-icon"></span>
-                <span class="generate-new-alias-text">
-                    {% ftlmsg 'profile-label-generate-new-alias' %}
-                </span>
-            </button>
+                <div class="dash-create-new-alias-menu-wrapper">
+                    <button
+                        class="js-dash-create-new-alias-menu-trigger blue-btn-states dash-create-new-alias-menu-trigger"
+                        title="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                    >
+                        <span class="generate-new-alias-text">
+                            {% ftlmsg 'profile-label-generate-new-alias' %}
+                        </span>
+                        <span class="generate-new-alias-menu-trigger-icon"></span>
+                    </button>
+                    <div class="js-dash-create-new-alias-menu-popup generate-new-alias-menu-popup is-hidden">
+                        <button
+                            title="{% ftlmsg 'profile-label-generate-new-alias-menu-random' %}"
+                            type="submit"
+                            data-event-label="Create New Relay Alias"
+                        >
+                            <span class="generate-new-relay-icon"></span>
+                            <span class="generate-new-alias-text">
+                                {% ftlmsg 'profile-label-generate-new-alias-menu-random' %}
+                            </span>
+                        </button>
+                        <button
+                            class="js-dash-create-new-domain-alias-dialog-trigger"
+                            title="{% ftlmsg 'profile-label-generate-new-alias-menu-custom' subdomain=user_profile.subdomain %}"
+                            type="submit"
+                            data-event-label="Create New Domain Alias"
+                        >
+                            <span class="generate-new-relay-icon"></span>
+                            <span class="generate-new-alias-text">
+                                {% ftlmsg 'profile-label-generate-new-alias-menu-custom' subdomain=user_profile.subdomain %}
+                            </span>
+                        </button>
+                    </div>
+                </div>
             {% endif %}
         </form>
     </div>
