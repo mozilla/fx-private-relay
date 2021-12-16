@@ -89,7 +89,9 @@ class Profile(models.Model):
     last_hard_bounce = models.DateTimeField(
         blank=True, null=True, db_index=True
     )
-    last_account_flagged = models.DateTimeField(blank=True, null=True)
+    last_account_flagged = models.DateTimeField(
+        blank=True, null=True, db_index=True
+    )
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
