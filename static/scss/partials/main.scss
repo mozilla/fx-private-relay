@@ -552,9 +552,11 @@ main, table {
 }
 
 .dash-create-new-relay {
-    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    border-radius: $border-radius-sm;
     padding: 0 .75em 0 .25em;
-    margin-left: 1em;
+    margin-left: $spacing-sm;
     overflow: hidden;
     background-color: $color-blue-50;
     color: $color-white;
@@ -568,12 +570,84 @@ main, table {
     background-repeat: no-repeat;
     width: 1.5em;
     height: 2em;
-    display: inline-lock;
     margin-right: $spacing-xs;
 }
 
 .dash-create-new-relay.btn-disabled {
     background-color: $color-grey-30
+}
+
+.dash-create-new-alias-menu-wrapper {
+    position: relative;
+}
+
+.dash-create-new-alias-menu-trigger {
+    display: flex;
+    align-items: center;
+    border-radius: $border-radius-sm;
+    padding: 0 .25em 0 .75em;
+    margin-left: $spacing-sm;
+    overflow: hidden;
+    background-color: $color-blue-50;
+    color: $color-white;
+    border: 1px solid transparent;
+    font-family: $font-metropolis;
+}
+
+.generate-new-alias-menu-trigger-icon {
+    background-image: url("/static/images/arrowhead-white.svg");
+    background-position: center center;
+    background-repeat: no-repeat;
+    width: 1.5em;
+    height: 2em;
+    display: inline-block;
+    margin-left: $spacing-xs;
+}
+
+.generate-new-alias-menu-popup {
+    width: 100%;
+    background: $color-white;
+    position: absolute;
+    margin-top: $spacing-sm;
+    box-shadow: var(--dropShadowLight);
+    border-radius: $border-radius-sm;
+    // Make sure the border-radius does not get covered
+    // by the hover background of the buttons inside
+    overflow: hidden;
+    // Make sure to overlap .relay-stat,
+    // which has position: relative.
+    z-index: 2;
+
+    &.is-hidden {
+        display: none;
+    }
+
+    button {
+        background-color: transparent;
+        box-sizing: border-box;
+        padding: $spacing-md;
+        width: 100%;
+        border-style: none;
+        border-bottom: 1px solid $color-light-gray-20;
+        color: $color-blue-50;
+        font-family: $font-metropolis;
+        text-align: start;
+        cursor: pointer;
+
+        &:last-child {
+            border-bottom-style: none;
+        }
+
+        &:hover {
+            background-color: $color-blue-50;
+            border-color: $color-blue-50;
+            color: $color-white;
+        }
+
+        &:focus {
+            text-decoration: underline;
+        }
+    }
 }
 
 .x-close-icon {

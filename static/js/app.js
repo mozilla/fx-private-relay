@@ -244,22 +244,30 @@ function addEventListeners() {
   }
 
 
-function moveDownMainContainer(setMenuLinksHeightVal) {
-  const mainWrapper = document.querySelector("main");
-  const moveDownBy = parseInt(setMenuLinksHeightVal, 10);
+  const generateAliasMenuTrigger = document.querySelector(".js-dash-create-new-alias-menu-trigger ");
+  const generateAliasMenuPopup = document.querySelector(".js-dash-create-new-alias-menu-popup ");
 
-  if (!mainWrapper.style.marginTop || mainWrapper.style.marginTop === "0px") {
-    mainWrapper.style.marginTop = moveDownBy + "px";
+  generateAliasMenuTrigger.addEventListener("click", (e) => {
+    e.preventDefault();
+    generateAliasMenuPopup.classList.toggle("is-hidden");
+  });
+
+  function moveDownMainContainer(setMenuLinksHeightVal) {
+    const mainWrapper = document.querySelector("main");
+    const moveDownBy = parseInt(setMenuLinksHeightVal, 10);
+
+    if (!mainWrapper.style.marginTop || mainWrapper.style.marginTop === "0px") {
+      mainWrapper.style.marginTop = moveDownBy + "px";
+    }
+
+    else {
+      mainWrapper.style.marginTop = 0;
+    }
   }
 
-  else {
-    mainWrapper.style.marginTop = 0;
-  }
-
-}
   const mobileMenuWrapper = document.querySelector(".mobile-menu");
-
   if (mobileMenuWrapper) {
+
     const mobileMenuWrapperLinks = document.querySelector(".mobile-menu-links");
     const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
    

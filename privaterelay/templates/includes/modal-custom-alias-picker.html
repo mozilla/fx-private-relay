@@ -1,0 +1,41 @@
+{% load static %}
+{% load ftl %}
+{% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+
+<div class="modal c-modal-wrapper js-modal-custom-alias-picker">
+  <div class="c-modal t-custom-alias-picker js-custom-alias-picker-form">
+    
+    <div class="c-modal-header t-custom-alias-picker-hero">
+      <div class="c-modal-header-content">
+        <h3>{% ftlmsg 'modal-custom-alias-picker-heading' %}</h3>
+      </div>
+    </div>
+
+    <div class="c-modal-body t-custom-alias-picker-body">
+      <div class="c-superfluous-warning">
+        <img src="{% static 'images/icon-info-pink.svg' %}" alt="">
+        <p>{% ftlmsg 'modal-custom-alias-picker-warning' %}</p>
+      </div>
+      <div class="t-custom-alias-picker-form">
+        <p>{% ftlmsg 'modal-custom-alias-picker-form-heading' %}</p>
+        <div class="t-custom-alias-picker-form-prefix">
+          <label for="customAliasPrefix" class="mzp-u-inline">
+            {% ftlmsg 'modal-custom-alias-picker-form-prefix-label' subdomain='' %}
+          </label>
+          <input required type="text" name="customAliasPrefix" id="customAliasPrefix" autofocus>
+        </div>
+        <span class="t-custom-alias-suffix">@<b>{{ user_profile.subdomain }}</b>.{{ MOZMAIL_DOMAIN }}</span>
+      </div>
+    </div>
+
+    <div class="c-modal-footer">
+      <button type="submit" disabled class="mzp-c-button mzp-t-product js-modal-custom-alias-picker-submit">
+        {% ftlmsg 'modal-custom-alias-picker-form-submit-label' %}
+      </button>
+      <button type="button" class="mzp-c-button mzp-t-neutral js-modal-custom-alias-picker-cancel">
+        {% ftlmsg 'profile-label-cancel' %}
+      </button>
+    </div>
+  </div>
+
+</div>
