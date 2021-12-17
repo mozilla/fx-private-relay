@@ -1,6 +1,7 @@
 FROM node:14 AS builder
 WORKDIR /app
 
+COPY privaterelay/locales ./privaterelay/locales/
 COPY package*.json ./
 COPY static ./static/
 RUN npm install @mozilla-protocol/core@14.0.3
