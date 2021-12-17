@@ -1,6 +1,7 @@
 FROM node:14 AS builder
 WORKDIR /app
 
+COPY package*.json ./
 RUN npm install @mozilla-protocol/core@14.0.3
 RUN mv node_modules/@mozilla-protocol/core/protocol /static/scss/libs/protocol/
 
