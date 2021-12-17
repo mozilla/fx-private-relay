@@ -534,6 +534,28 @@ class DomainAddress(models.Model):
     def __str__(self):
         return self.address
 
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            self.check_user_can_make_domain_address()
+        return super().save(*args, **kwargs)
+
+    def check_user_can_make_domain_address(self):
+        user_profile = self.user.profile_set.first()
+        if not user_profile.has_premium:
+            raise CannotMakeAddressException(
+                NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
+            )
+
+        if not user_profile.subdomain:
+            raise CannotMakeAddressException(
+                'You must select a subdomain before creating email address with subdomain.'
+            )
+
+        if user_profile.is_flagged:
+            raise CannotMakeAddressException(
+                ACCOUNT_PAUSED_ERR_MSG
+            )
+    
     @property
     def user_profile(self):
         return Profile.objects.get(user=self.user)
