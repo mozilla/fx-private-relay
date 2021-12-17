@@ -1,7 +1,10 @@
 FROM node:14 AS builder
 WORKDIR /app
-COPY react-ui ./react-ui/
+
+RUN npm install @mozilla-protocol/core@14.0.3
 COPY node_modules/@mozilla-protocol/core/protocol /static/scss/libs/protocol/
+
+COPY react-ui ./react-ui/
 WORKDIR /app/react-ui
 RUN npm install
 RUN npm run build -- --outdir=out
