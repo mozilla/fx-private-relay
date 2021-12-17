@@ -7,7 +7,7 @@ import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../../__mocks__/modules/react-ga";
 import { setMockProfileData } from "../../../__mocks__/hooks/profile";
 
-import Settings from "./settings";
+import Settings from "./settings.page";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
