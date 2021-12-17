@@ -113,6 +113,8 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              only: react-experiment
 
       - deploy:
           requires:
