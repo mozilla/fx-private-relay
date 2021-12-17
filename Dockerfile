@@ -1,15 +1,15 @@
-FROM node:14 AS builder
-USER app
+# See https://discuss.circleci.com/t/docker-build-fails-with-nonsensical-eperm-operation-not-permitted-copyfile/37364/12 for the .8 version pin:
+FROM node:14.8 AS builder
 WORKDIR /app
 
-COPY --chown=app privaterelay/locales ./privaterelay/locales/
-COPY --chown=app package*.json ./
-COPY --chown=app static ./static/
+COPY privaterelay/locales ./privaterelay/locales/
+COPY package*.json ./
+COPY static ./static/
 RUN npm install @mozilla-protocol/core@14.0.3
 RUN mkdir --parents /static/scss/libs/protocol/
 RUN mv node_modules/@mozilla-protocol/core/protocol /static/scss/libs/
 
-COPY --chown=app react-ui ./react-ui/
+COPY react-ui ./react-ui/
 WORKDIR /app/react-ui
 RUN npm install
 RUN npm run build -- --outdir=out
@@ -27,6 +27,7 @@ WORKDIR /app
 
 EXPOSE 8000
 
+USER app
 COPY --from=builder --chown=app /app/static ./static
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
