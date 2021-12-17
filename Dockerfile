@@ -3,6 +3,7 @@ WORKDIR /app
 
 COPY package*.json ./
 RUN npm install @mozilla-protocol/core@14.0.3
+RUN mkdir --parents /static/scss/libs/protocol/
 RUN mv node_modules/@mozilla-protocol/core/protocol /static/scss/libs/protocol/
 
 COPY react-ui ./react-ui/
