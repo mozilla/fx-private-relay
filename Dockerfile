@@ -1,4 +1,5 @@
 FROM node:14 AS builder
+USER app
 WORKDIR /app
 
 COPY --chown=app privaterelay/locales ./privaterelay/locales/
@@ -26,7 +27,6 @@ WORKDIR /app
 
 EXPOSE 8000
 
-USER app
 COPY --from=builder --chown=app /app/static ./static
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
