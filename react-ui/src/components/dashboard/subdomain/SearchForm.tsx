@@ -5,7 +5,7 @@ import { authenticatedFetch } from "../../../hooks/api/api";
 import { Button } from "../../Button";
 
 export type Props = {
-  onPick: (subdomain: string) => void;
+  onPick: (_subdomain: string) => void;
 };
 
 export const SubdomainSearchForm = (props: Props) => {

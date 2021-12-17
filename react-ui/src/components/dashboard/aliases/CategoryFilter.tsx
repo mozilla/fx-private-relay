@@ -5,7 +5,6 @@ import {
   RefObject,
   useRef,
   useState,
-  FocusEventHandler,
 } from "react";
 import {
   FocusScope,
@@ -15,7 +14,6 @@ import {
   useOverlayTrigger,
   useOverlayPosition,
   useButton,
-  useFocusWithin,
 } from "react-aria";
 import { useLocalization } from "@fluent/react";
 import styles from "./CategoryFilter.module.scss";

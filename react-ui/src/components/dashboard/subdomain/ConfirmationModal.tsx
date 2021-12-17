@@ -30,7 +30,7 @@ export const SubdomainConfirmationModal = (props: Props) => {
               id="modal-domain-register-available-v2"
               vars={{
                 subdomain: props.subdomain,
-                domain: process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN!,
+                domain: process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN as string,
               }}
               elems={{
                 subdomain: <span className={styles.subdomain} />,

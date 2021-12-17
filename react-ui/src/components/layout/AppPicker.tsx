@@ -67,7 +67,7 @@ const getProducts = (referringSiteUrl: string) => ({
 export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
   const { l10n } = useLocalization();
 
-  const products = getProducts(process.env.NEXT_PUBLIC_SITE_ORIGIN!);
+  const products = getProducts(process.env.NEXT_PUBLIC_SITE_ORIGIN as string);
   const monitorLinkRef = useRef<HTMLAnchorElement>(null);
   const pocketLinkRef = useRef<HTMLAnchorElement>(null);
   const fxDesktopLinkRef = useRef<HTMLAnchorElement>(null);
@@ -181,7 +181,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
 
 type AppPickerTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   label: string;
-  children: TreeProps<{}>["children"];
+  children: TreeProps<Record<string, never>>["children"];
   onAction: AriaMenuItemProps["onAction"];
   theme?: LayoutProps["theme"];
 };
@@ -194,13 +194,13 @@ const AppPickerTrigger = ({
   const appPickerTriggerState = useMenuTriggerState(otherProps);
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
-  let { menuTriggerProps, menuProps } = useMenuTrigger(
+  const { menuTriggerProps, menuProps } = useMenuTrigger(
     {},
     appPickerTriggerState,
     triggerButtonRef
   );
 
-  let triggerButtonProps = useButton(
+  const triggerButtonProps = useButton(
     menuTriggerProps,
     triggerButtonRef
   ).buttonProps;
@@ -209,7 +209,7 @@ const AppPickerTrigger = ({
     gaEvent({
       category: "bento",
       action: appPickerTriggerState.isOpen ? "bento-opened" : "bento-closed",
-      label: process.env.NEXT_PUBLIC_SITE_ORIGIN!,
+      label: process.env.NEXT_PUBLIC_SITE_ORIGIN as string,
     });
   }, [appPickerTriggerState.isOpen]);
 
@@ -239,7 +239,7 @@ const AppPickerTrigger = ({
   );
 };
 
-type AppPickerPopupProps = TreeProps<{}> & {
+type AppPickerPopupProps = TreeProps<Record<string, never>> & {
   onAction: AriaMenuItemProps["onAction"];
   domProps: HTMLAttributes<HTMLElement>;
   onClose?: OverlayProps["onClose"];
@@ -250,10 +250,10 @@ const AppPickerPopup = (props: AppPickerPopupProps) => {
   const popupState = useTreeState({ ...props, selectionMode: "none" });
 
   const popupRef = useRef<HTMLDivElement>(null);
-  let popupProps = useMenu(props, popupState, popupRef).menuProps;
+  const popupProps = useMenu(props, popupState, popupRef).menuProps;
 
-  let overlayRef = useRef<HTMLDivElement>(null);
-  let { overlayProps } = useOverlay(
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const { overlayProps } = useOverlay(
     {
       onClose: props.onClose,
       shouldCloseOnBlur: true,
@@ -285,7 +285,7 @@ const AppPickerPopup = (props: AppPickerPopupProps) => {
               <AppPickerItem
                 key={item.key}
                 // TODO: Fix the typing (likely: report to react-aria that the type does not include an isDisabled prop)
-                item={item as any}
+                item={item as unknown as AppPickerItemProps["item"]}
                 state={popupState}
                 onAction={props.onAction}
                 onClose={props.onClose}
@@ -313,7 +313,7 @@ type AppPickerItemProps = {
 
 const AppPickerItem = (props: AppPickerItemProps) => {
   const menuItemRef = useRef<HTMLLIElement>(null);
-  let menuItemProps = useMenuItem(
+  const menuItemProps = useMenuItem(
     {
       key: props.item.key,
       isDisabled: props.item.isDisabled,
@@ -325,7 +325,7 @@ const AppPickerItem = (props: AppPickerItemProps) => {
   ).menuItemProps;
 
   const [_isFocused, setIsFocused] = useState(false);
-  let focusProps = useFocus({ onFocusChange: setIsFocused }).focusProps;
+  const focusProps = useFocus({ onFocusChange: setIsFocused }).focusProps;
 
   return (
     <li
