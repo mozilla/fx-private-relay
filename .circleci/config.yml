@@ -59,8 +59,14 @@ jobs:
           command: docker load -i /cache/docker.tar
 
       - run:
-          name: Test Code
+          name: Test Back-end Code
           command: docker run --entrypoint "/app/.local/bin/coverage" fx-private-relay run --source=. -m pytest
+      - run:
+          name: Lint Front-end Code
+          command: docker run --workdir "/app/react-ui/" npm run lint
+      - run:
+          name: Test Front-end Code
+          command: docker run --workdir "/app/react-ui/" npm test
 
   deploy:
     docker:

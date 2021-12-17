@@ -1,17 +1,13 @@
 FROM node:14 AS builder
 WORKDIR /app
-COPY package*.json ./
-COPY gulpfile.js ./
-COPY .eslint* ./
-COPY .stylelintrc.json ./
-COPY static ./static/
+COPY react-ui ./react-ui/
+WORKDIR /app/react-ui
 RUN npm install
-RUN ./node_modules/.bin/gulp build
-RUN npm run lint:js -- --max-warnings=0
-RUN npm run lint:css
+RUN npm run build -- --outdir=out
 
 FROM python:3.7.9
 
+WORKDIR /app
 RUN apt-get update && apt-get install -y libpq-dev
 RUN pip install --upgrade pip
 
