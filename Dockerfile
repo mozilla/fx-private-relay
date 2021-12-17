@@ -1,4 +1,5 @@
-FROM node:14 AS builder
+# See https://discuss.circleci.com/t/docker-build-fails-with-nonsensical-eperm-operation-not-permitted-copyfile/37364/12 for the .8 version pin:
+FROM node:14.8 AS builder
 WORKDIR /app
 
 COPY privaterelay/locales ./privaterelay/locales/
