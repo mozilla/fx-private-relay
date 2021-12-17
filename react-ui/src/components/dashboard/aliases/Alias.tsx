@@ -120,8 +120,8 @@ export const Alias = (props: Props) => {
             )}\n${l10n.getString("profile-forwarded-note")} ${l10n.getString(
               "profile-forwarded-note-copy",
               {
-                size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER!,
-                unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT!,
+                size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER as string,
+                unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT as string,
               }
             )}`}
             className={`${styles.stat} ${styles.forwardedStat}`}

@@ -83,7 +83,7 @@ export const AliasList = (props: Props) => {
     </Button>
   );
   const maxAliases = Number.parseInt(
-    process.env.NEXT_PUBLIC_MAX_NUM_FREE_ALIASES!,
+    process.env.NEXT_PUBLIC_MAX_NUM_FREE_ALIASES as string,
     10
   );
   const newAliasButton =

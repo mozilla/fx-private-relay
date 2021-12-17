@@ -55,7 +55,10 @@ const Profile: NextPage = () => {
   if (
     profile.has_premium &&
     profile.onboarding_state <
-      Number.parseInt(process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE!, 10)
+      Number.parseInt(
+        process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE as string,
+        10
+      )
   ) {
     const onNextStep = (step: number) => {
       profileData.update(profile.id, {
@@ -231,8 +234,8 @@ const Profile: NextPage = () => {
           />
           <p className={styles.sizeInformation}>
             {l10n.getString("profile-supports-email-forwarding", {
-              size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER!,
-              unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT!,
+              size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER as string,
+              unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT as string,
             })}
           </p>
         </main>

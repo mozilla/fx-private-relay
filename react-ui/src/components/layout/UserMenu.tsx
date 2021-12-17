@@ -130,7 +130,7 @@ export const UserMenu = () => {
           </a>
         </Link>
       </Item>
-      {contactLink!}
+      {contactLink as JSX.Element}
       <Item key={itemKeys.help} textValue={l10n.getString("nav-profile-help")}>
         <a
           ref={helpLinkRef}
@@ -166,7 +166,7 @@ const MenuItemIcon = (props: MenuItemIconProps) => (
 
 type UserMenuTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   label: ReactNode;
-  children: TreeProps<{}>["children"];
+  children: TreeProps<Record<string, never>>["children"];
   onAction: AriaMenuItemProps["onAction"];
 };
 const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
@@ -174,13 +174,13 @@ const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
   const userMenuTriggerState = useMenuTriggerState(otherProps);
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
-  let { menuTriggerProps, menuProps } = useMenuTrigger(
+  const { menuTriggerProps, menuProps } = useMenuTrigger(
     {},
     userMenuTriggerState,
     triggerButtonRef
   );
 
-  let triggerButtonProps = useButton(
+  const triggerButtonProps = useButton(
     menuTriggerProps,
     triggerButtonRef
   ).buttonProps;
@@ -208,7 +208,7 @@ const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
   );
 };
 
-type UserMenuPopupProps = TreeProps<{}> & {
+type UserMenuPopupProps = TreeProps<Record<string, never>> & {
   onAction: AriaMenuItemProps["onAction"];
   domProps: HTMLAttributes<HTMLElement>;
   onClose?: OverlayProps["onClose"];
@@ -218,10 +218,10 @@ const UserMenuPopup = (props: UserMenuPopupProps) => {
   const popupState = useTreeState({ ...props, selectionMode: "none" });
 
   const popupRef = useRef<HTMLUListElement>(null);
-  let popupProps = useMenu(props, popupState, popupRef).menuProps;
+  const popupProps = useMenu(props, popupState, popupRef).menuProps;
 
-  let overlayRef = useRef<HTMLDivElement>(null);
-  let { overlayProps } = useOverlay(
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const { overlayProps } = useOverlay(
     {
       onClose: props.onClose,
       shouldCloseOnBlur: true,
@@ -248,7 +248,7 @@ const UserMenuPopup = (props: UserMenuPopupProps) => {
             <UserMenuItem
               key={item.key}
               // TODO: Fix the typing (likely: report to react-aria that the type does not include an isDisabled prop)
-              item={item as any}
+              item={item as unknown as UserMenuItemProps["item"]}
               state={popupState}
               onAction={props.onAction}
               onClose={props.onClose}
@@ -275,7 +275,7 @@ type UserMenuItemProps = {
 
 const UserMenuItem = (props: UserMenuItemProps) => {
   const menuItemRef = useRef<HTMLLIElement>(null);
-  let menuItemProps = useMenuItem(
+  const menuItemProps = useMenuItem(
     {
       key: props.item.key,
       isDisabled: props.item.isDisabled,
@@ -287,7 +287,7 @@ const UserMenuItem = (props: UserMenuItemProps) => {
   ).menuItemProps;
 
   const [_isFocused, setIsFocused] = useState(false);
-  let focusProps = useFocus({ onFocusChange: setIsFocused }).focusProps;
+  const focusProps = useFocus({ onFocusChange: setIsFocused }).focusProps;
 
   return (
     <li

@@ -61,7 +61,7 @@ export const SubdomainPicker = (props: Props) => {
         </samp>
         <p className={styles.lead}>
           {l10n.getString("banner-register-subdomain-copy", {
-            mozmail: process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN!,
+            mozmail: process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN as string,
           })}
         </p>
         <Link href="/faq">
