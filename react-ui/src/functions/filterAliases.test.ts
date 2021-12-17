@@ -174,3 +174,7 @@ it("can combine filters", () => {
     filterAliases(aliases, profile, { string: "some", status: "forwarding" })
   ).toStrictEqual([aliases[1]]);
 });
+
+it("fails a test", () => {
+  expect(false).toBe(true);
+});
