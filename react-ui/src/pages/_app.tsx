@@ -18,7 +18,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     if (hasDoNotTrackEnabled()) {
       return;
     }
-    ReactGa.initialize(process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID!);
+    ReactGa.initialize(process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID as string);
     ReactGa.set({
       anonymizeIp: true,
       transport: "beacon",

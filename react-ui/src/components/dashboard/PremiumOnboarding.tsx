@@ -50,7 +50,10 @@ export const PremiumOnboarding = (props: Props) => {
 
   const quit = () => {
     props.onNextStep(
-      Number.parseInt(process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE!, 10)
+      Number.parseInt(
+        process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE as string,
+        10
+      )
     );
     gaEvent({
       category: "Premium Onboarding",
@@ -193,7 +196,7 @@ export const PremiumOnboarding = (props: Props) => {
               {l10n.getString("multi-part-onboarding-step-counter", {
                 step: props.profile.onboarding_state,
                 max: Number.parseInt(
-                  process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE!,
+                  process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE as string,
                   10
                 ),
               })}
