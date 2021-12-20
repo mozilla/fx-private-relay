@@ -21,6 +21,10 @@ RUN npm run build -- --outdir=out
 
 FROM python:3.7.9
 
+RUN groupadd --gid 10001 app && \
+    useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
+USER app
+
 WORKDIR /app
 RUN apt-get update && apt-get install -y libpq-dev
 RUN pip install --upgrade pip
