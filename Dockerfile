@@ -1,5 +1,10 @@
 # See https://discuss.circleci.com/t/docker-build-fails-with-nonsensical-eperm-operation-not-permitted-copyfile/37364/12 for the .8 version pin:
 FROM node:14.8 AS builder
+
+RUN groupadd --gid 10001 app && \
+    useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
+USER app
+
 WORKDIR /app
 
 COPY privaterelay/locales ./privaterelay/locales/
@@ -20,14 +25,10 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y libpq-dev
 RUN pip install --upgrade pip
 
-RUN groupadd --gid 10001 app && \
-    useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
-
 WORKDIR /app
 
 EXPOSE 8000
 
-USER app
 COPY --from=builder --chown=app /app/static ./static
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
