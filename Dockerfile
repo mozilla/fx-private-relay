@@ -25,13 +25,13 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y libpq-dev
 RUN pip install --upgrade pip
 
-WORKDIR /app
-
-EXPOSE 8000
-
 RUN groupadd --gid 10001 app && \
     useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
 USER app
+
+WORKDIR /app
+
+EXPOSE 8000
 
 COPY --from=builder --chown=app /app/static ./static
 
