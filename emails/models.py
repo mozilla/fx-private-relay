@@ -516,6 +516,23 @@ class DeletedAddress(models.Model):
         return self.address_hash
 
 
+def check_user_can_make_domain_address(user_profile):
+    if not user_profile.has_premium:
+        raise CannotMakeAddressException(
+            NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
+        )
+
+    if not user_profile.subdomain:
+        raise CannotMakeAddressException(
+            'You must select a subdomain before creating email address with subdomain.'
+        )
+
+    if user_profile.is_flagged:
+        raise CannotMakeAddressException(
+            ACCOUNT_PAUSED_ERR_MSG
+        )
+
+
 class DomainAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=64)
@@ -536,46 +553,18 @@ class DomainAddress(models.Model):
 
     def save(self, *args, **kwargs):
         if self._state.adding:
-            self.check_user_can_make_domain_address()
+            user_profile = self.user.profile_set.first()
+            check_user_can_make_domain_address(user_profile)
+            user_profile = self.user.profile_set.first()
+            user_profile.update_abuse_metric(address_created=True)
         return super().save(*args, **kwargs)
 
-    def check_user_can_make_domain_address(self):
-        user_profile = self.user.profile_set.first()
-        if not user_profile.has_premium:
-            raise CannotMakeAddressException(
-                NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
-            )
-
-        if not user_profile.subdomain:
-            raise CannotMakeAddressException(
-                'You must select a subdomain before creating email address with subdomain.'
-            )
-
-        if user_profile.is_flagged:
-            raise CannotMakeAddressException(
-                ACCOUNT_PAUSED_ERR_MSG
-            )
-    
     @property
     def user_profile(self):
         return Profile.objects.get(user=self.user)
 
     def make_domain_address(user_profile, address=None, made_via_email=False):
-        if not user_profile.has_premium:
-            raise CannotMakeAddressException(
-                NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
-            )
-
-        user_subdomain = Profile.objects.get(user=user_profile.user).subdomain
-        if not user_subdomain:
-            raise CannotMakeAddressException(
-                'You must select a subdomain before creating email address with subdomain.'
-            )
-
-        if user_profile.is_flagged:
-            raise CannotMakeAddressException(
-                ACCOUNT_PAUSED_ERR_MSG
-            )
+        check_user_can_make_domain_address(user_profile)
 
         address_contains_badword = False
         if not address:
@@ -599,7 +588,6 @@ class DomainAddress(models.Model):
             # update first_emailed_at indicating alias generation impromptu.
             domain_address.first_emailed_at = datetime.now(timezone.utc)
             domain_address.save()
-        user_profile.update_abuse_metric(address_created=True)
         return domain_address
 
     def delete(self, *args, **kwargs):
