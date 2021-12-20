@@ -21,10 +21,6 @@ RUN npm run build -- --outdir=out
 
 FROM python:3.7.9
 
-RUN groupadd --gid 10001 app && \
-    useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
-USER app
-
 WORKDIR /app
 RUN apt-get update && apt-get install -y libpq-dev
 RUN pip install --upgrade pip
@@ -32,6 +28,10 @@ RUN pip install --upgrade pip
 WORKDIR /app
 
 EXPOSE 8000
+
+RUN groupadd --gid 10001 app && \
+    useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
+USER app
 
 COPY --from=builder --chown=app /app/static ./static
 
