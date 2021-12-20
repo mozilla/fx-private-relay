@@ -7,14 +7,10 @@ USER app
 
 WORKDIR /app
 
-RUN whoami
-RUN ls -ltr /app
-RUN ls -ltr /
 COPY --chown=app privaterelay/locales ./privaterelay/locales/
 COPY --chown=app package*.json ./
 COPY --chown=app static ./static/
 RUN npm install @mozilla-protocol/core@14.0.3
-RUN ls -ltrR /app/static/
 RUN mkdir --parents /app/static/scss/libs/protocol/
 RUN mv node_modules/@mozilla-protocol/core/protocol /app/static/scss/libs/
 
