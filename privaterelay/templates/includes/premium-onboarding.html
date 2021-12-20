@@ -26,13 +26,12 @@
         <li class="c-premium-onboarding-step c-premium-onboarding-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-xl mzp-t-content-nospace">
                 <div class="c-premium-onboarding-headlines">
-                    <h1>{% ftlmsg 'multi-part-onboarding-premium-domain-headline' %}</h1>
-                    <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
+                    <h1>Get a custom domain</h1>
                 </div>
 
                 <div class="c-premium-onboarding-content">
                     <div class="c-premium-onboarding-content-image">
-                        <img src="{% static 'images/dashboard-onboarding/man-laptop-email-alt.svg' %}" alt="Man sitting with laptop computer">
+                        <img src="{% static 'images/dashboard-onboarding/woman-email.svg' %}" alt="Man sitting with laptop computer">
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p><strong>{% ftlmsg 'multi-part-onboarding-premium-domain-title' %}</strong> {% ftlmsg 'banner-register-subdomain-copy' mozmail='mozmail.com' %}</p>
@@ -70,18 +69,18 @@
         <li class="c-premium-onboarding-step c-premium-onboarding-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-lg mzp-t-content-nospace">
                 <div class="c-premium-onboarding-headlines">
-                    <h1>{% ftlmsg 'multi-part-onboarding-premium-extension-headline' %}</h1>
-                    <h2>{% ftlmsg 'multi-part-onboarding-premium-welcome-subheadline' %}</h2>
+                    <h1>Use the desktop extension</h1>
                 </div>
 
                 <div class="c-premium-onboarding-content">
                     <div class="c-premium-onboarding-content-image">
-                        <img src="{% static 'images/dashboard-onboarding/woman-email.svg' %}" alt="Woman next to large envelope">
+                        <img src="{% static 'images/dashboard-onboarding/man-laptop-email-alt.svg' %}" alt="Woman next to large envelope">
                     </div>
                     <div class="c-premium-onboarding-content-description">
-                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-reply-title' %}</strong> {% ftlmsg 'onboarding-premium-reply-description'%}</p>
                         <div class="c-premium-onboarding-install-addon">
-                            <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-get-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-extension-get-description' %}</p>
+                            <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-get-title' %}</strong> 
+                            The Relay extension for Firefox makes using email aliases even easier. When enabled, the extension will allow you to manage and access your aliases directly from the sites where you’ve used them.
+                            </p>
                             <a target="_blank" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon" class=" mzp-c-button mzp-t-product">{% ftlmsg 'multi-part-onboarding-premium-extension-button-download' %}</a>
                         </div>
                         <div class="c-premium-onboarding-action-completed">
