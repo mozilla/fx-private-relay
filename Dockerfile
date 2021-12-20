@@ -11,8 +11,8 @@ COPY privaterelay/locales ./privaterelay/locales/
 COPY package*.json ./
 COPY static ./static/
 RUN npm install @mozilla-protocol/core@14.0.3
-RUN mkdir --parents /static/scss/libs/protocol/
-RUN mv node_modules/@mozilla-protocol/core/protocol /static/scss/libs/
+RUN mkdir --parents /app/static/scss/libs/protocol/
+RUN mv node_modules/@mozilla-protocol/core/protocol /app/static/scss/libs/
 
 COPY react-ui ./react-ui/
 WORKDIR /app/react-ui
