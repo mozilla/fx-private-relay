@@ -9,6 +9,7 @@ WORKDIR /app
 
 RUN whoami
 RUN ls -ltr /app
+RUN ls -ltr /
 COPY privaterelay/locales ./privaterelay/locales/
 COPY package*.json ./
 COPY static ./static/
