@@ -10,6 +10,7 @@ import uuid
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.validators import MinLengthValidator
 from django.db import models
 from django.dispatch import receiver
 from django.utils.translation.trans_real import (
@@ -535,7 +536,7 @@ def check_user_can_make_domain_address(user_profile):
 
 class DomainAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address = models.CharField(max_length=64)
+    address = models.CharField(max_length=64, validators=[MinLengthValidator(limit_value=1)])
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
     domain = models.PositiveSmallIntegerField(choices=DOMAIN_CHOICES, default=2)
