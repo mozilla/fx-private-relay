@@ -10,14 +10,14 @@ WORKDIR /app
 RUN whoami
 RUN ls -ltr /app
 RUN ls -ltr /
-COPY privaterelay/locales ./privaterelay/locales/
-COPY package*.json ./
-COPY static ./static/
+COPY --chown=app privaterelay/locales ./privaterelay/locales/
+COPY --chown=app package*.json ./
+COPY --chown=app static ./static/
 RUN npm install @mozilla-protocol/core@14.0.3
 RUN mkdir --parents /app/static/scss/libs/protocol/
 RUN mv node_modules/@mozilla-protocol/core/protocol /app/static/scss/libs/
 
-COPY react-ui ./react-ui/
+COPY --chown=app react-ui ./react-ui/
 WORKDIR /app/react-ui
 RUN npm install
 RUN npm run build -- --outdir=out
