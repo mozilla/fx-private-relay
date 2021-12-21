@@ -34,7 +34,8 @@
                         <img src="{% static 'images/dashboard-onboarding/woman-email.svg' %}" alt="Man sitting with laptop computer">
                     </div>
                     <div class="c-premium-onboarding-content-description">
-                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-domain-title' %}</strong> {% ftlmsg 'banner-register-subdomain-copy' mozmail='mozmail.com' %}</p>
+                        <p><strong>Use a custom domain for sharing aliases:</strong> 
+                        With a custom domain, you can create aliases without having to generate them beforehand. Need one to sign up for a newsletter? Just say “read@customdomain.mozmail.com”                        </p>
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
@@ -69,7 +70,7 @@
         <li class="c-premium-onboarding-step c-premium-onboarding-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-lg mzp-t-content-nospace">
                 <div class="c-premium-onboarding-headlines">
-                    <h1>Use the desktop extension</h1>
+                    <h1>Reply to your emails</h1>
                 </div>
 
                 <div class="c-premium-onboarding-content">
@@ -78,8 +79,8 @@
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <div class="c-premium-onboarding-install-addon">
-                            <p><strong>{% ftlmsg 'multi-part-onboarding-premium-extension-get-title' %}</strong> 
-                            The Relay extension for Firefox makes using email aliases even easier. When enabled, the extension will allow you to manage and access your aliases directly from the sites where you’ve used them.
+                            <p><strong>Reply without revealing your real address:</strong>                    
+                            Need to reply to emails forwarded from one of your aliases? Just reply as normal. Your alias will still protect your email address.
                             </p>
                             <a target="_blank" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon" class=" mzp-c-button mzp-t-product">{% ftlmsg 'multi-part-onboarding-premium-extension-button-download' %}</a>
                         </div>
