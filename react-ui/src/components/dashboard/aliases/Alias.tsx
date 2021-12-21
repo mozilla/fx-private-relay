@@ -18,6 +18,7 @@ export type Props = {
   user: UserData;
   onUpdate: (updatedFields: Partial<AliasData>) => void;
   onDelete: () => void;
+  defaultOpen?: boolean;
 };
 
 export const Alias = (props: Props) => {
@@ -35,7 +36,9 @@ export const Alias = (props: Props) => {
   );
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
-  const expandButtonState = useToggleState({ defaultSelected: false });
+  const expandButtonState = useToggleState({
+    defaultSelected: props.defaultOpen === true,
+  });
   const expandButtonProps = useToggleButton(
     {},
     expandButtonState,
