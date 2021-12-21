@@ -17,6 +17,7 @@
                         <img src="{% static 'images/dashboard-onboarding/woman-couch.svg' %}" alt="Woman sitting on a couch">
                     </div>
                     <div class="c-premium-onboarding-content-description">
+                        <p class="c-premium-onboarding-detail">With Firefox Relay Premium you can:</p>
                         <p><strong>{% ftlmsg 'multi-part-onboarding-premium-welcome-title' %}</strong> {% ftlmsg 'onboarding-premium-control-description' %}</p>
                     </div>
                 </div>
@@ -34,8 +35,9 @@
                         <img src="{% static 'images/dashboard-onboarding/woman-email.svg' %}" alt="Man sitting with laptop computer">
                     </div>
                     <div class="c-premium-onboarding-content-description">
+                        <p class="c-premium-onboarding-detail">With Firefox Relay Premium you can:</p>
                         <p><strong>Use a custom domain for sharing aliases:</strong> 
-                        With a custom domain, you can create aliases without having to generate them beforehand. Need one to sign up for a newsletter? Just say “read@customdomain.mozmail.com”                        </p>
+                            With a custom domain, you can create aliases without having to generate them beforehand. Need one to sign up for a newsletter? Just say “read@customdomain.mozmail.com”                        </p>
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
@@ -78,9 +80,10 @@
                         <img src="{% static 'images/dashboard-onboarding/man-laptop-email-alt.svg' %}" alt="Woman next to large envelope">
                     </div>
                     <div class="c-premium-onboarding-content-description">
+                        <p class="c-premium-onboarding-detail">With Firefox Relay Premium you can:</p>
                         <div class="c-premium-onboarding-install-addon">
                             <p><strong>Reply without revealing your real address:</strong>                    
-                            Need to reply to emails forwarded from one of your aliases? Just reply as normal. Your alias will still protect your email address.
+                                Need to reply to emails forwarded from one of your aliases? Just reply as normal. Your alias will still protect your email address.
                             </p>
                             <a target="_blank" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon" class=" mzp-c-button mzp-t-product">{% ftlmsg 'multi-part-onboarding-premium-extension-button-download' %}</a>
                         </div>
