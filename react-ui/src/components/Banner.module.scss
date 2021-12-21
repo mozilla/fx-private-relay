@@ -19,9 +19,6 @@
 .highlightWrapper {
   display: flex;
   background-color: $color-white;
-  // .banner's border-radius - .banner's padding.
-  // This is what makes .banner.promo appear as a 2px-wide border:
-  border-radius: calc($border-radius-md - 2px);
 
   .banner:not(.promo) & {
     padding: $spacing-xs $spacing-lg $spacing-md;
@@ -30,6 +27,9 @@
   }
   .banner.promo & {
     padding: $spacing-md;
+    // .banner's border-radius - .banner's padding.
+    // This is what makes .banner.promo appear as a 2px-wide border:
+    border-radius: calc($border-radius-md - 2px);
   }
 
   .warning & {
