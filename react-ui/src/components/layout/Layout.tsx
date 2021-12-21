@@ -6,7 +6,7 @@ import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./Layout.module.scss";
 import logoTypeLight from "../../../../static/images/fx-private-relay-logotype-light.svg";
-import logoTypeDark from "../../../../static/images/fx-private-relay-logotype-dark.svg";
+import logoTypePremiumDark from "../../../../static/images/fx-private-relay-premium-logotype-dark.svg";
 import logo from "../../../../static/images/placeholder-logo.svg";
 import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
 import githubLogo from "../../../../static/images/GitHub.svg";
@@ -29,7 +29,11 @@ export const Layout = (props: Props) => {
       ? props.theme === "free"
       : !profiles.data?.[0].has_premium;
   const darkClass = isDark ? styles.isDark : "";
-  const logoType = isDark ? logoTypeLight : logoTypeDark;
+  const logoType =
+    props.theme === "premium" ||
+    (props.theme !== "free" && profiles.data?.[0].has_premium)
+      ? logoTypePremiumDark
+      : logoTypeLight;
 
   const isLoggedIn =
     typeof profiles.data !== "undefined" &&
@@ -57,7 +61,7 @@ export const Layout = (props: Props) => {
                   src={logoType.src}
                   alt={l10n.getString("logo-alt")}
                   className={styles.logotype}
-                  width={180}
+                  height={20}
                 />
               </a>
             </Link>
