@@ -28,11 +28,11 @@
   margin-top: $spacing-xl;
   padding: 0;
   padding-bottom: $spacing-lg;
+  min-width: $content-xs;
   list-style-type: none;
   box-shadow: $box-shadow-md;
   border-radius: $border-radius-md;
   background-color: $color-light-gray-10;
-  min-width: 300px;
 
   &::before {
     content: "";
