@@ -4,7 +4,7 @@ module.exports = {
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:jest-dom/recommended",
-    "plugin:@next/next/recommended",
+    "next",
   ],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "testing-library", "jest-dom"],
