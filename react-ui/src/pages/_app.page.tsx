@@ -1,5 +1,5 @@
 import "../styles/globals.scss";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import Head from "next/head";
@@ -10,9 +10,13 @@ import { OverlayProvider } from "@react-aria/overlays";
 import ReactGa from "react-ga";
 import { getL10n } from "../functions/getL10n";
 import { hasDoNotTrackEnabled } from "../functions/userAgent";
+import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  const addonDataElementRef = useRef<HTMLElement>(null);
+
+  const addonData = useAddonElementWatcher(addonDataElementRef);
 
   useEffect(() => {
     if (hasDoNotTrackEnabled()) {
@@ -62,9 +66,16 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Head>
             <link rel="icon" type="image/svg+xml" href={Favicon.src}></link>
           </Head>
-          <OverlayProvider id="overlayProvider">
-            <Component {...pageProps} />
-          </OverlayProvider>
+          <AddonDataContext.Provider value={addonData}>
+            <firefox-private-relay-addon
+              ref={addonDataElementRef}
+              data-addon-installed={addonData.present}
+              data-user-logged-in={addonData.isLoggedIn}
+            ></firefox-private-relay-addon>
+            <OverlayProvider id="overlayProvider">
+              <Component {...pageProps} />
+            </OverlayProvider>
+          </AddonDataContext.Provider>
         </>
       </LocalizationProvider>
     </SSRProvider>
