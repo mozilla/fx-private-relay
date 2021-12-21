@@ -43,12 +43,10 @@ type WithUpdater = {
   delete: DeleteFn;
 };
 
-export const useAliases = (): {
+export function useAliases(): {
   randomAliasData: SWRResponse<RandomAliasData[], unknown> & WithUpdater;
   customAliasData: SWRResponse<CustomAliasData[], unknown> & WithUpdater;
-} & {
-  // update: AliasUpdateFn;
-} => {
+} {
   const randomAliases: SWRResponse<RandomAliasData[], unknown> =
     useApiV1("/relayaddresses/");
   const customAliases: SWRResponse<CustomAliasData[], unknown> =
@@ -124,7 +122,7 @@ export const useAliases = (): {
     randomAliasData: randomAliasData,
     customAliasData: customAliasData,
   };
-};
+}
 
 export function isRandomAlias(alias: AliasData): alias is RandomAliasData {
   return typeof (alias as RandomAliasData).generated_for === "string";

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useMediaQueryImp = (mediaQuery: string): boolean => {
+function useMediaQueryImp(mediaQuery: string): boolean {
   const [mediaQueryList, setMediaQueryList] = useState(
     window.matchMedia(mediaQuery)
   );
@@ -22,7 +22,7 @@ const useMediaQueryImp = (mediaQuery: string): boolean => {
   }, [mediaQueryList]);
 
   return matches;
-};
+}
 
 export const useMediaQuery =
   typeof window === "undefined" || typeof window.matchMedia !== "function"
@@ -39,10 +39,10 @@ export const useMediaQuery =
  * @param width Matches the `$mq-xs` to `$mq-xl` media queries from Protocol.
  * @returns Whether the current viewport width matches that media query.
  */
-export const useMinViewportWidth = (
+export function useMinViewportWidth(
   width: "xs" | "sm" | "md" | "lg" | "xl"
-): boolean => {
-  let mediaQuery: string = "";
+): boolean {
+  let mediaQuery = "";
   if (width === "xl") {
     mediaQuery = "(min-width: 1312px)";
   }
@@ -59,4 +59,4 @@ export const useMinViewportWidth = (
     mediaQuery = "(min-width: 320px)";
   }
   return useMediaQuery(mediaQuery);
-};
+}
