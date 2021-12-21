@@ -97,6 +97,7 @@
     h2 {
         color: $color-black;
         font-weight: normal;
+        
         @include text-body-md;
         @include font-base;
     }
