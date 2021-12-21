@@ -13,8 +13,8 @@ export type PremiumCountriesData = {
   >;
 };
 
-export const usePremiumCountries = () => {
+export function usePremiumCountries() {
   const premiumCountries: SWRResponse<PremiumCountriesData, unknown> =
     useApiV1("/premium_countries");
   return premiumCountries;
-};
+}

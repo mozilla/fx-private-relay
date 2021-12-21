@@ -7,7 +7,7 @@ export type UserData = {
 
 export type UsersData = [UserData];
 
-export const useUsers = () => {
+export function useUsers() {
   const users: SWRResponse<UsersData, unknown> = useApiV1("/users/");
   return users;
-};
+}

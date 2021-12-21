@@ -11,7 +11,7 @@ export type GaPingArgs = Omit<EventArgs, "action" | "nonInteraction">;
  * @param options Options to configure the InstersectionObserver that influences when the ping is sent
  * @returns A React RefObject that should be attached to the element to track
  */
-export const useGaPing = (args: GaPingArgs, options?: IntersectionOptions) => {
+export function useGaPing(args: GaPingArgs, options?: IntersectionOptions) {
   const [ref, inView, entry] = useInView({ threshold: 1, ...options });
 
   useEffect(() => {
@@ -29,4 +29,4 @@ export const useGaPing = (args: GaPingArgs, options?: IntersectionOptions) => {
   }, [args, entry?.intersectionRatio, inView]);
 
   return ref;
-};
+}

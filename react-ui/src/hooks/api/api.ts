@@ -44,11 +44,11 @@ const fetcher: Fetcher<unknown> = async (...args) => {
   return data;
 };
 
-export const useApiV1 = <Data = unknown, Error = unknown>(
+export function useApiV1<Data = unknown, Error = unknown>(
   route: string
-): SWRResponse<Data, Error> => {
+): SWRResponse<Data, Error> {
   const result = useSWR(route, fetcher, {
     revalidateOnFocus: false,
   }) as SWRResponse<Data, Error>;
   return result;
-};
+}

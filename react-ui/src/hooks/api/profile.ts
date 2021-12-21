@@ -16,9 +16,9 @@ export type ProfileUpdateFn = (
   data: Partial<ProfileData>
 ) => Promise<Response>;
 
-export const useProfiles = (): SWRResponse<ProfilesData, unknown> & {
+export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
   update: ProfileUpdateFn;
-} => {
+} {
   const profiles: SWRResponse<ProfilesData, unknown> = useApiV1("/profiles/");
 
   const update: ProfileUpdateFn = async (id, data) => {
@@ -34,4 +34,4 @@ export const useProfiles = (): SWRResponse<ProfilesData, unknown> & {
     ...profiles,
     update: update,
   };
-};
+}
