@@ -7,23 +7,24 @@
 
   .headerWrapper {
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: $spacing-sm;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+      align-items: center;
+    }
 
     .userDetails {
       flex: 1 0 auto;
 
       .greeting {
-        display: none;
         @include text-body-xl;
         font-weight: bold;
 
         .lead {
           @include text-body-md;
           font-weight: normal;
-          display: block;
-        }
-
-        @media screen and #{$mq-md} {
           display: block;
         }
       }
@@ -40,11 +41,13 @@
     .accountStats {
       display: flex;
       text-align: center;
+      justify-content: space-evenly;
 
       .stat {
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: space-between;
         padding: 0 $spacing-md;
         border-right: 1px solid $color-light-gray-20;
 
