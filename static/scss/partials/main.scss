@@ -334,10 +334,39 @@ table {
 .relay-address:hover,
 .relay-address:focus {
     opacity: .75;
+}
 
-    .relay-address--label {
-        text-decoration: underline;
+.alias-on-desktop {
+    display: none;
+
+    @media #{$mq-md} {
+        display: inline;
     }
+}
+
+.alias-on-mobile {
+    display: inline;
+
+    @media #{$mq-md} {
+        display: none;
+    }
+}
+
+.relay-address--label {
+
+    max-width: calc((#{$content-xs} - #{$spacing-2xl}));
+
+    @media #{$mq-md} {
+        max-width: $content-xs;
+    }
+    @media #{$mq-lg} {
+        max-width: $content-sm;
+    }
+
+    display: inline-block;
+    text-decoration: underline;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .relay-address:active {
