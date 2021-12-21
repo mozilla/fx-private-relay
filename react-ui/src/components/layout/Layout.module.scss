@@ -34,7 +34,7 @@
       display: inline-flex;
       align-items: center;
       gap: $spacing-sm;
-      padding: $spacing-xl;
+      padding: $spacing-md $spacing-xl;
 
       .logotype {
         height: 20px;
