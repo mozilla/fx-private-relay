@@ -33,6 +33,7 @@
     .logo {
       display: inline-flex;
       align-items: center;
+      gap: $spacing-sm;
       padding: $spacing-xl;
 
       .logotype {
