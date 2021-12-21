@@ -47,7 +47,7 @@ export const AliasList = (props: Props) => {
     })
   );
 
-  const aliasCards = aliases.map((alias) => (
+  const aliasCards = aliases.map((alias, index) => (
     <li
       className={styles.aliasCardWrapper}
       key={alias.address + isRandomAlias(alias)}
@@ -58,6 +58,7 @@ export const AliasList = (props: Props) => {
         profile={props.profile}
         onUpdate={(updatedFields) => props.onUpdate(alias, updatedFields)}
         onDelete={() => props.onDelete(alias)}
+        defaultOpen={index === 0}
       />
     </li>
   ));
