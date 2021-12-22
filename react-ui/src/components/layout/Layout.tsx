@@ -15,6 +15,7 @@ import { UserMenu } from "./UserMenu";
 import { Navigation } from "./Navigation";
 import { AppPicker } from "./AppPicker";
 import { useIsLoggedIn } from "../../hooks/session";
+import { NpsSurvey } from "./NpsSurvey";
 
 export type Props = {
   children: ReactNode;
@@ -46,6 +47,7 @@ export const Layout = (props: Props) => {
         {/* TODO: Add favicon, meta tags */}
       </Head>
       <div className={styles.wrapper}>
+        <NpsSurvey />
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles.logoWrapper}>
             <Link href={homePath}>

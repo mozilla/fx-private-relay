@@ -1,0 +1,41 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  background-color: $color-purple-90;
+  color: $color-white;
+}
+
+.scale {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: $spacing-md;
+
+  ol {
+    display: flex;
+    gap: $spacing-md;
+    list-style-type: none;
+  }
+
+  button {
+    border-radius: $border-radius-sm;
+    background-color: $color-violet-40;
+    color: $color-white;
+    transition: background-color 0.1s ease-out;
+    border-style: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+    }
+  }
+}
