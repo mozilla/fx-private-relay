@@ -7,6 +7,7 @@ export type ProfileData = {
   has_premium: boolean;
   subdomain: string | null;
   onboarding_state: number;
+  avatar: string;
 };
 
 export type ProfilesData = [ProfileData];
