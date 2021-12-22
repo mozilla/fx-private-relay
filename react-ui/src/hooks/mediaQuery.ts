@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import variables from "./mediaQuery.module.scss";
 
 function useMediaQueryImp(mediaQuery: string): boolean {
   const [mediaQueryList, setMediaQueryList] = useState(
@@ -32,10 +33,6 @@ export const useMediaQuery =
 /**
  * Get whether the current viewport width matches a Protocol media query.
  *
- * Unfortunately we can't just access Sass variables from JavaScript,
- * but by using this hook at least we only need to hardcode the duplicate
- * values in one place.
- *
  * @param width Matches the `$mq-xs` to `$mq-xl` media queries from Protocol.
  * @returns Whether the current viewport width matches that media query.
  */
@@ -44,19 +41,19 @@ export function useMinViewportWidth(
 ): boolean {
   let mediaQuery = "";
   if (width === "xl") {
-    mediaQuery = "(min-width: 1312px)";
+    mediaQuery = variables.mq_xl.replace('"', "").replace('"', "");
   }
   if (width === "lg") {
-    mediaQuery = "(min-width: 1024px)";
+    mediaQuery = variables.mq_lg.replace('"', "").replace('"', "");
   }
   if (width === "md") {
-    mediaQuery = "(min-width: 768px)";
+    mediaQuery = variables.mq_md.replace('"', "").replace('"', "");
   }
   if (width === "sm") {
-    mediaQuery = "(min-width: 480px)";
+    mediaQuery = variables.mq_sm.replace('"', "").replace('"', "");
   }
   if (width === "xs") {
-    mediaQuery = "(min-width: 320px)";
+    mediaQuery = variables.mq_xs.replace('"', "").replace('"', "");
   }
   return useMediaQuery(mediaQuery);
 }
