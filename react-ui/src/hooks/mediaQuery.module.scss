@@ -1,0 +1,10 @@
+@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+
+// See https://nextjs.org/docs/basic-features/built-in-css-support#sass-variables
+:export {
+  mq_xs: $mq-xs;
+  mq_sm: $mq-sm;
+  mq_md: $mq-md;
+  mq_lg: $mq-lg;
+  mq_xl: $mq-xl;
+}
