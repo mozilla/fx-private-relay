@@ -97,7 +97,17 @@ export const UserMenu = () => {
     ) : null;
 
   return (
-    <UserMenuTrigger label={<>TODO: Avatar</>} onAction={onSelect}>
+    <UserMenuTrigger
+      label={
+        <img
+          src={profileData.data?.[0].avatar}
+          alt={l10n.getString("label-open-menu")}
+          width={42}
+          height={42}
+        />
+      }
+      onAction={onSelect}
+    >
       <Item
         key={itemKeys.account}
         textValue={l10n.getString("nav-profile-manage-fxa")}

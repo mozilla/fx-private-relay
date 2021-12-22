@@ -8,15 +8,15 @@
 }
 
 .trigger {
-  // TODO: Display actual avatar
   width: 42px;
   height: 42px;
   cursor: pointer;
   border-radius: 100%;
-  background-color: $color-light-gray-60;
   color: white;
   overflow: hidden;
   font-size: 24px;
+  padding: 0;
+  border-style: none;
 }
 
 .popup {
