@@ -43,7 +43,7 @@
               <td width="100%" align="center" style="line-height: 150%;">
                 <p style="color: #363959; font-size: 13px; font-family: sans-serif; margin-top: 0; margin-bottom: 0;">
                   {% bold_violet_text display_email as bolded_email %}
-                  {% bold_violet_link SITE_ORIGIN 'Firefox Private Relay' as linked_origin %}
+                  {% bold_violet_link SITE_ORIGIN 'Firefox Relay' as linked_origin %}
                   {% ftlmsg 'forwarded-email-header-from' display_email=bolded_email linked_origin=linked_origin as email_wrap_forwarded_from %}
                   {{ email_wrap_forwarded_from|safe }}
                   {% if has_attachment %}
