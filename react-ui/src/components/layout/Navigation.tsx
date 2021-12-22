@@ -2,17 +2,14 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useLocalization } from "@fluent/react";
 import styles from "./Navigation.module.scss";
-import { useProfiles } from "../../hooks/api/profile";
+import { useIsLoggedIn } from "../../hooks/session";
 
 // TODO: Turn into a drop-down menu on small screens:
 export const Navigation = () => {
   const { l10n } = useLocalization();
   const router = useRouter();
-  const profileData = useProfiles();
 
-  const isLoggedIn =
-    typeof profileData.data !== "undefined" &&
-    typeof profileData.error === "undefined";
+  const isLoggedIn = useIsLoggedIn();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
   return (
