@@ -11,10 +11,12 @@ import helpIcon from "../../../../static/images/help-purple.svg";
 import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
 import { Button } from "../../components/Button";
+import { useRouter } from "next/router";
 
 const Settings: NextPage = () => {
   const profileData = useProfiles();
   const { l10n } = useLocalization();
+  const router = useRouter();
   const [labelCollectionEnabled, setLabelCollectionEnabled] = useState(
     profileData.data?.[0].server_storage
   );
@@ -26,6 +28,10 @@ const Settings: NextPage = () => {
   useEffect(() => {
     countLabelCollectionDisabledWarningToggle();
   }, [labelCollectionEnabled]);
+
+  if (!profileData.isValidating && profileData.error) {
+    router.push("/");
+  }
 
   if (!profileData.data) {
     // TODO: Show a loading spinner?
