@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.db import IntegrityError
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -52,16 +53,15 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return DomainAddress.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        queryset = DomainAddress.objects.filter(
-            user=self.request.user, address=serializer.validated_data.get('address')
-        )
-        if queryset.exists():
-            domain_address = queryset.first()
-            raise ConflictError({'id': domain_address.id, 'full_address': domain_address.full_address})
         try:
             serializer.save(user=self.request.user)
         except CannotMakeAddressException as e:
             raise exceptions.PermissionDenied(e.message)
+        except IntegrityError as e:
+            domain_address = DomainAddress.objects.filter(
+                user=self.request.user, address=serializer.validated_data.get('address')
+            ).first()
+            raise ConflictError({'id': domain_address.id, 'full_address': domain_address.full_address})
 
 
 class ProfileViewSet(viewsets.ModelViewSet):

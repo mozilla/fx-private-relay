@@ -16,4 +16,8 @@ class Migration(migrations.Migration):
             name='address',
             field=models.CharField(max_length=64, validators=[django.core.validators.MinLengthValidator(limit_value=1)]),
         ),
+        migrations.AlterUniqueTogether(
+            name='domainaddress',
+            unique_together={('user', 'address')},
+        ),
     ]

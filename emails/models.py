@@ -549,6 +549,9 @@ class DomainAddress(models.Model):
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
 
+    class Meta:
+        unique_together = ['user', 'address']
+
     def __str__(self):
         return self.address
 
@@ -556,7 +559,6 @@ class DomainAddress(models.Model):
         if self._state.adding:
             user_profile = self.user.profile_set.first()
             check_user_can_make_domain_address(user_profile)
-            user_profile = self.user.profile_set.first()
             user_profile.update_abuse_metric(address_created=True)
         return super().save(*args, **kwargs)
 
