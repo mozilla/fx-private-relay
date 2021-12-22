@@ -6,6 +6,8 @@ import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./Layout.module.scss";
 import logoTypeLight from "../../../../static/images/fx-private-relay-logotype-light.svg";
+import logoTypeDark from "../../../../static/images/fx-private-relay-logotype-dark.svg";
+import logoTypePremiumLight from "../../../../static/images/fx-private-relay-premium-logotype-light.svg";
 import logoTypePremiumDark from "../../../../static/images/fx-private-relay-premium-logotype-dark.svg";
 import logo from "../../../../static/images/placeholder-logo.svg";
 import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
@@ -32,11 +34,16 @@ export const Layout = (props: Props) => {
       ? props.theme === "free"
       : !profiles.data?.[0].has_premium;
   const darkClass = isDark ? styles.isDark : "";
+  const premiumLogo = isDark ? logoTypePremiumLight : logoTypePremiumDark;
+  const regularLogo = isDark ? logoTypeLight : logoTypeDark;
+  // The Premium logo is always shown if the user has Premium
+  // (even on a page accessible to regular users with the theme
+  // set to "free", like the FAQ), and if the theme is explicitly
+  // set to Premium (i.e. on the `/premium` promo page).
   const logoType =
-    props.theme === "premium" ||
-    (props.theme !== "free" && profiles.data?.[0].has_premium)
-      ? logoTypePremiumDark
-      : logoTypeLight;
+    props.theme === "premium" || profiles.data?.[0].has_premium
+      ? premiumLogo
+      : regularLogo;
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
