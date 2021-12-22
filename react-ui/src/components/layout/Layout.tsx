@@ -14,6 +14,7 @@ import { useProfiles } from "../../hooks/api/profile";
 import { UserMenu } from "./UserMenu";
 import { Navigation } from "./Navigation";
 import { AppPicker } from "./AppPicker";
+import { useIsLoggedIn } from "../../hooks/session";
 
 export type Props = {
   children: ReactNode;
@@ -23,6 +24,7 @@ export type Props = {
 export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
+  const isLoggedIn = useIsLoggedIn();
 
   const isDark =
     typeof props.theme !== "undefined"
@@ -35,9 +37,6 @@ export const Layout = (props: Props) => {
       ? logoTypePremiumDark
       : logoTypeLight;
 
-  const isLoggedIn =
-    typeof profiles.data !== "undefined" &&
-    typeof profiles.error === "undefined";
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
   return (
