@@ -81,7 +81,16 @@
                     <div class="c-premium-onboarding-content-description">
                         <p class="c-premium-onboarding-detail">{% ftlmsg 'onboarding-premium-title-detail' %}</p>
                         <div class="c-premium-onboarding-install-addon">
-                            <p><strong>{% ftlmsg 'onboarding-premium-reply-title' %}</strong> {% ftlmsg 'onboarding-premium-reply-description' %}                
+                            <strong>
+                                <!-- Mobile title -->
+                                <span class="c-premium-onboarding-replies-copy">{% ftlmsg 'onboarding-premium-reply-title' %}</span>
+                                <!-- Desktop title -->
+                                <span class="c-premium-onboarding-extension-copy">{% ftlmsg 'multi-part-onboarding-premium-extension-get-title' %}</span>
+                            </strong> 
+                                <!-- Mobile copy -->
+                                <span class="c-premium-onboarding-replies-copy">{% ftlmsg 'onboarding-premium-reply-description' %}</span>
+                                <!-- Desktop copy -->
+                                <span class="c-premium-onboarding-extension-copy">{% ftlmsg 'multi-part-onboarding-premium-extension-get-description' %}</span>             
                             </p>
                             <a target="_blank" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon" class=" mzp-c-button mzp-t-product">{% ftlmsg 'multi-part-onboarding-premium-extension-button-download' %}</a>
                         </div>

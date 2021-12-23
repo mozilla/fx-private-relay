@@ -307,14 +307,29 @@
 
 .c-premium-onboarding-step-3 {
 
-    .c-premium-onboarding-install-addon a {
-        display: none;
+    .c-premium-onboarding-install-addon {
+
+        a, .c-premium-onboarding-extension-copy {
+            display: none;
+        }
 
         @media #{$mq-md} {
+
+            .c-premium-onboarding-replies-copy {
+                display: none;
+            }
+
+            a, .c-premium-onboarding-extension-copy {
             display: inline-block;
+            }
+
+            // .c-premium-onboarding-replies-description {
+            //     display: none;
+            // }
         }
         // TODO: Add query that user is on desktop Firefox to prompt install of add-on
     }
+
 }
 
 .c-premium-onboarding-action-step-3 {
