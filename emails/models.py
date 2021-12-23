@@ -139,11 +139,14 @@ class Profile(models.Model):
     @property
     def fxa_locale_in_premium_country(self) -> bool:
         if self.fxa.extra_data.get('locale'):
-            accept_langs = parse_accept_lang_header(self.fxa.extra_data.get('locale'))
+            accept_langs = parse_accept_lang_header(
+                self.fxa.extra_data.get('locale')
+            )
             if (
                 len(accept_langs) >= 1 and
                 len(accept_langs[0][0].split('-')) >= 2 and
-                accept_langs[0][0].split('-')[1] in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+                accept_langs[0][0].split('-')[1]
+                    in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
         return False
