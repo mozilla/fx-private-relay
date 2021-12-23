@@ -1,4 +1,5 @@
 import useSWR, { Fetcher, SWRResponse } from "swr";
+import { getRuntimeConfig } from "../../config";
 
 export const authenticatedFetch = async (
   path: string,
@@ -22,7 +23,7 @@ export const authenticatedFetch = async (
     credentials: "include",
   };
 
-  const url = `${process.env.NEXT_PUBLIC_API_ORIGIN}${path}`;
+  const url = `${getRuntimeConfig().backendOrigin}${path}`;
   const response = await fetch(url, options);
   return response;
 };

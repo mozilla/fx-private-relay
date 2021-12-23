@@ -11,6 +11,7 @@ import { LabelEditor } from "./LabelEditor";
 import { UserData } from "../../../hooks/api/user";
 import { renderDate } from "../../../functions/renderDate";
 import { AliasDeletionButton } from "./AliasDeletionButton";
+import { getRuntimeConfig } from "../../../config";
 
 export type Props = {
   alias: AliasData;
@@ -123,8 +124,8 @@ export const Alias = (props: Props) => {
             )}\n${l10n.getString("profile-forwarded-note")} ${l10n.getString(
               "profile-forwarded-note-copy",
               {
-                size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER as string,
-                unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT as string,
+                size: getRuntimeConfig().emailSizeLimitNumber,
+                unit: getRuntimeConfig().emailSizeLimitUnit,
               }
             )}`}
             className={`${styles.stat} ${styles.forwardedStat}`}

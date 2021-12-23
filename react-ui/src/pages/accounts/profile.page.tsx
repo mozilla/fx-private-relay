@@ -27,6 +27,7 @@ import { useGaPing } from "../../hooks/gaPing";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding";
 import { Onboarding } from "../../components/dashboard/Onboarding";
+import { getRuntimeConfig } from "../../config";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -54,11 +55,7 @@ const Profile: NextPage = () => {
 
   if (
     profile.has_premium &&
-    profile.onboarding_state <
-      Number.parseInt(
-        process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE as string,
-        10
-      )
+    profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
   ) {
     const onNextStep = (step: number) => {
       profileData.update(profile.id, {
@@ -130,7 +127,7 @@ const Profile: NextPage = () => {
       <strong className={styles.subdomain}>
         <img src={checkIcon.src} alt="" />
         {l10n.getString("profile-label-domain")}&nbsp; @{profile.subdomain}.
-        {process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN}
+        {getRuntimeConfig().mozmailDomain}
       </strong>
     ) : null;
 
@@ -234,8 +231,8 @@ const Profile: NextPage = () => {
           />
           <p className={styles.sizeInformation}>
             {l10n.getString("profile-supports-email-forwarding", {
-              size: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER as string,
-              unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT as string,
+              size: getRuntimeConfig().emailSizeLimitNumber,
+              unit: getRuntimeConfig().emailSizeLimitUnit,
             })}
           </p>
         </main>

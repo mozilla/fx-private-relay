@@ -9,4 +9,5 @@ htmlcov
 static/downloads
 static/css
 static/scss/libs
+staticfiles
 coverage/

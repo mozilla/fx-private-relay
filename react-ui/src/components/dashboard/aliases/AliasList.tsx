@@ -16,6 +16,7 @@ import {
 import { PremiumCountriesData } from "../../../hooks/api/premiumCountries";
 import { useGaPing } from "../../../hooks/gaPing";
 import { trackPurchaseStart } from "../../../functions/trackPurchase";
+import { getRuntimeConfig } from "../../../config";
 
 export type Props = {
   aliases: AliasData[];
@@ -83,10 +84,7 @@ export const AliasList = (props: Props) => {
       {l10n.getString("profile-label-generate-new-alias")}
     </Button>
   );
-  const maxAliases = Number.parseInt(
-    process.env.NEXT_PUBLIC_MAX_NUM_FREE_ALIASES as string,
-    10
-  );
+  const maxAliases = getRuntimeConfig().maxFreeAliases;
   const newAliasButton =
     props.profile.has_premium || aliases.length < maxAliases ? (
       <Button
