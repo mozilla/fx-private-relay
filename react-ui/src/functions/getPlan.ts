@@ -1,3 +1,4 @@
+import { getRuntimeConfig } from "../config";
 import { PremiumCountriesData } from "../hooks/api/premiumCountries";
 
 export const getPlan = (
@@ -19,7 +20,9 @@ export const getPremiumSubscribeLink = (
 ) => {
   const plan = getPlan(premiumCountriesData);
 
-  return `${process.env.NEXT_PUBLIC_FXA_BASE_ORIGIN}subscriptions/products/${process.env.NEXT_PUBLIC_PREMIUM_PROD_ID}?plan=${plan.id}`;
+  return `${getRuntimeConfig().fxaOrigin}/subscriptions/products/${
+    getRuntimeConfig().premiumProductId
+  }?plan=${plan.id}`;
 };
 
 /**

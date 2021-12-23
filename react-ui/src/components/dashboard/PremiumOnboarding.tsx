@@ -13,6 +13,7 @@ import { ProfileData } from "../../hooks/api/profile";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { VisuallyHidden } from "react-aria";
+import { getRuntimeConfig } from "../../config";
 
 export type Props = {
   profile: ProfileData;
@@ -49,12 +50,7 @@ export const PremiumOnboarding = (props: Props) => {
   });
 
   const quit = () => {
-    props.onNextStep(
-      Number.parseInt(
-        process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE as string,
-        10
-      )
-    );
+    props.onNextStep(getRuntimeConfig().maxOnboardingAvailable);
     gaEvent({
       category: "Premium Onboarding",
       action: "Engage",
@@ -190,15 +186,12 @@ export const PremiumOnboarding = (props: Props) => {
           */}
           <VisuallyHidden>
             <progress
-              max={process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE}
+              max={getRuntimeConfig().maxOnboardingAvailable}
               value={props.profile.onboarding_state + 1}
             >
               {l10n.getString("multi-part-onboarding-step-counter", {
                 step: props.profile.onboarding_state,
-                max: Number.parseInt(
-                  process.env.NEXT_PUBLIC_MAX_ONBOARDING_AVAILABLE as string,
-                  10
-                ),
+                max: getRuntimeConfig().maxOnboardingAvailable,
               })}
             </progress>
           </VisuallyHidden>
@@ -279,7 +272,7 @@ const StepTwo = (props: Step2Props) => {
       <div className={styles.actionComplete}>
         <img src={checkIcon.src} alt="" width={18} />
         <samp>
-          @{props.profile.subdomain}.{process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN}
+          @{props.profile.subdomain}.{getRuntimeConfig().mozmailDomain}
         </samp>
       </div>
     ) : (
@@ -353,7 +346,7 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
         <span className={styles.customizablePart}>
           {l10n.getString("banner-register-subdomain-example-address")}
         </span>
-        .{process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN}
+        .{getRuntimeConfig().mozmailDomain}
       </samp>
       <SubdomainSearchForm onPick={onPick} />
       {dialog}

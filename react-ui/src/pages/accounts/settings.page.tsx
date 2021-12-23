@@ -12,6 +12,7 @@ import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
 import { Button } from "../../components/Button";
 import { useRouter } from "next/router";
+import { getRuntimeConfig } from "../../config";
 
 const Settings: NextPage = () => {
   const profileData = useProfiles();
@@ -73,7 +74,9 @@ const Settings: NextPage = () => {
   const contactUsLink = profile.has_premium ? (
     <li>
       <a
-        href={`${process.env.NEXT_PUBLIC_FXA_SUPPORT_URL}?utm_source=${process.env.NEXT_PUBLIC_SITE_ORIGIN}`}
+        href={`${getRuntimeConfig().fxaOrigin}/support/?utm_source=${
+          getRuntimeConfig().frontendOrigin
+        }`}
         target="_blank"
         rel="noopener noreferrer"
         title={l10n.getString("settings-meta-contact-tooltip")}
@@ -130,7 +133,9 @@ const Settings: NextPage = () => {
               {contactUsLink}
               <li>
                 <a
-                  href={`https://support.mozilla.org/products/relay/?utm_source=${process.env.NEXT_PUBLIC_SITE_ORIGIN}`}
+                  href={`https://support.mozilla.org/products/relay/?utm_source=${
+                    getRuntimeConfig().frontendOrigin
+                  }`}
                   target="_blank"
                   rel="noopener noreferrer"
                   title={l10n.getString("settings-meta-help-tooltip")}

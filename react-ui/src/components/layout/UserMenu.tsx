@@ -30,6 +30,7 @@ import HelpImage from "../../../../static/images/help.svg";
 import SignoutImage from "../../../../static/images/glocal-sign-out.svg";
 import { useUsers } from "../../hooks/api/user";
 import { useProfiles } from "../../hooks/api/profile";
+import { getRuntimeConfig } from "../../config";
 
 export const UserMenu = () => {
   const profileData = useProfiles();
@@ -84,7 +85,9 @@ export const UserMenu = () => {
       >
         <a
           ref={contactLinkRef}
-          href={`${process.env.NEXT_PUBLIC_FXA_SUPPORT_URL}?utm_source=${process.env.NEXT_PUBLIC_SITE_ORIGIN}`}
+          href={`${getRuntimeConfig().fxaOrigin}/support/?utm_source=${
+            getRuntimeConfig().frontendOrigin
+          }`}
           title={l10n.getString("nav-profile-contact-tooltip")}
           className={styles.menuLink}
           target="_blank"
@@ -115,7 +118,7 @@ export const UserMenu = () => {
         <span className={styles.accountMenuItem}>
           <b className={styles.userEmail}>{usersData.data[0].email}</b>
           <a
-            href={`${process.env.NEXT_PUBLIC_FXA_BASE_ORIGIN}settings/`}
+            href={`${getRuntimeConfig().fxaOrigin}/settings/`}
             ref={accountLinkRef}
             target="_blank"
             rel="noopener noreferrer"
@@ -144,7 +147,9 @@ export const UserMenu = () => {
       <Item key={itemKeys.help} textValue={l10n.getString("nav-profile-help")}>
         <a
           ref={helpLinkRef}
-          href={`https://support.mozilla.org/products/relay/?utm_source=${process.env.NEXT_PUBLIC_SITE_ORIGIN}`}
+          href={`https://support.mozilla.org/products/relay/?utm_source=${
+            getRuntimeConfig().frontendOrigin
+          }`}
           title={l10n.getString("nav-profile-help-tooltip")}
           className={styles.menuLink}
           target="_blank"

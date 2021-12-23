@@ -7,6 +7,7 @@ import illustration from "../../../../static/images/dashboard-onboarding/man-lap
 import { ProfileData } from "../../hooks/api/profile";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
+import { getRuntimeConfig } from "../../config";
 
 export type Props = {
   profile: ProfileData;
@@ -57,11 +58,11 @@ export const SubdomainPicker = (props: Props) => {
           <span className={styles.subdomainPart}>
             {l10n.getString("banner-register-subdomain-example-address")}
           </span>
-          .{process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN}
+          .{getRuntimeConfig().mozmailDomain}
         </samp>
         <p className={styles.lead}>
           {l10n.getString("banner-register-subdomain-copy", {
-            mozmail: process.env.NEXT_PUBLIC_MOZMAIL_DOMAIN as string,
+            mozmail: getRuntimeConfig().mozmailDomain,
           })}
         </p>
         <Link href="/faq">
