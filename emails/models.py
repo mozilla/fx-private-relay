@@ -137,7 +137,7 @@ class Profile(models.Model):
     # using that if a request context is available. In other contexts, e.g. when
     # sending an email, this method can be useful.
     @property
-    def fxa_locale_in_premium_country(self) -> bool:
+    def fxa_locale_in_premium_country(self):
         if self.fxa.extra_data.get('locale'):
             accept_langs = parse_accept_lang_header(
                 self.fxa.extra_data.get('locale')
