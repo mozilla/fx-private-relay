@@ -62,7 +62,7 @@
                     <img alt="" width="24" style="display: inline-block; margin-bottom: 0px; width: 24px;"  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAA GXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAX1JREFUSIntlLEvQ2EUxX/3a+uN JcZuXRm6EIn4AyTWSqh0a5sOIozCPyFEWhual7B2EQtRQ1kk5tpsTS0MbT3X4BHE1+cZMPRMN985 95x77/BBH38NCRJsTKvjDJNDWQBGARSuRagMtSnPHkrnxwHbWU0YjyqQskiuniLMFHfl1uZhek3+ Zi40RJmLeiSiHgkV5oEbIGU8qgdpHbD5RG2Ef5YUQgOPibwrzXe0W5rTYwx1IHXnkAc2Q23g3xyF 9cJHcwAKrjQVVgFUydhs7AEwAhB75NQmcGIcAYivDRvwANCNMGgTdNsk/PL+JwEnAEbI2gRqXjjx taECjLAFoMrK9ryOf+b9t2VAPV60oQJy+3KmsAPEjOCW0hp/5UppjRvBBWJAuViR89ABAJ0Wi8Al kFSHtdd3v04KXLRbLPXyCPwqyhkdU7iwjDdR2JN6r/6eGwDkK3KJUPtitFqQ+a8g8EQA5YzWFCY/ ddYK+zIV1Bt4IgAV9Du6Pv4nngE8HXRqmKzo6wAAAABJRU5ErkJggg==" />
                     {% ftlmsg 'forwarded-email-header-cc-notice' %}
                   {% elif not recipient_profile.has_premium and recipient_profile.fxa_locale_in_premium_country %}
-                    {% bold_violet_link 'https://relay.firefox.com/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=header' 'Firefox Relay Premium' as premium_link %}
+                    {% bold_violet_link SITE_ORIGIN|add:'/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=header' 'Firefox Relay Premium' as premium_link %}
                     <br />
                     <img width="15" height="15" src="{{ SITE_ORIGIN }}/static/images/email-images/smile-purple.png" style="display: inline-block; width: 15px;" alt="" />
                     {% ftlmsg 'forwarded-email-header-premium-banner' premium_link=premium_link as premium_header_banner %}
