@@ -14,11 +14,11 @@
 
                 <div class="c-premium-onboarding-content">
                     <div class="c-premium-onboarding-content-image">
-                        <img src="{% static 'images/dashboard-onboarding/woman-couch.svg' %}" alt="Woman sitting on a couch">
+                        <img src="{% static 'images/dashboard-onboarding/woman-couch.svg' %}" alt="">
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p class="c-premium-onboarding-detail">{% ftlmsg 'onboarding-premium-title-detail' %}</p>
-                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-welcome-title' %}</strong> {% ftlmsg 'onboarding-premium-control-description' %}</p>
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-welcome-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-welcome-description' %}</p>
                     </div>
                 </div>
             </div>
@@ -32,11 +32,11 @@
 
                 <div class="c-premium-onboarding-content">
                     <div class="c-premium-onboarding-content-image">
-                        <img src="{% static 'images/dashboard-onboarding/woman-email.svg' %}" alt="Man sitting with laptop computer">
+                        <img src="{% static 'images/dashboard-onboarding/woman-email.svg' %}" alt="">
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p class="c-premium-onboarding-detail">{% ftlmsg 'onboarding-premium-title-detail' %}</p>
-                        <p><strong>{% ftlmsg 'onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-domain-description' %}
+                        <p><strong>{% ftlmsg 'onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-get-domain-description' mozmail='mozmail.com' %}
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
@@ -76,7 +76,7 @@
 
                 <div class="c-premium-onboarding-content">
                     <div class="c-premium-onboarding-content-image">
-                        <img src="{% static 'images/dashboard-onboarding/man-laptop-email-alt.svg' %}" alt="Woman next to large envelope">
+                        <img src="{% static 'images/dashboard-onboarding/man-laptop-email-alt.svg' %}" alt="">
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p class="c-premium-onboarding-detail">{% ftlmsg 'onboarding-premium-title-detail' %}</p>
@@ -105,7 +105,7 @@
                     data-event-label="onboarding-step-1-continue"
                     data-event-value="1"
                     data-event-nonInteraction="false"
-                    >{% ftlmsg 'multi-part-onboarding-premium-welcome-button-start' %}</button>
+                    >{% ftlmsg 'profile-label-continue' %}</button>
                 </div>
                 <!-- Step 2 -->
                 <div class="c-premium-onboarding-actions c-premium-onboarding-action-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
