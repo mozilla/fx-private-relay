@@ -33,3 +33,7 @@ export function setCookie(
 
   document.cookie = `${cookieId}=${value}; SameSite=Strict; path=/${maxAgeString}`;
 }
+
+export function getCsrfToken(): string | undefined {
+  return getCookie("csrftoken");
+}

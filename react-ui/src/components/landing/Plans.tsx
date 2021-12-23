@@ -10,6 +10,7 @@ import {
   PremiumCountriesDataWithPremiumAvailable,
 } from "../../functions/getPlan";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
+import { getRuntimeConfig } from "../../config";
 
 export type Props = {
   premiumCountriesData: PremiumCountriesDataWithPremiumAvailable;
@@ -28,9 +29,10 @@ export const Plans = (props: Props) => {
 
   return (
     <div className={styles.comparison}>
-      {/* TODO: Add login URL */}
       <a
-        href="#"
+        href={
+          getRuntimeConfig().backendOrigin + getRuntimeConfig().fxaLoginPath
+        }
         className={`${styles.plan} ${styles.freePlan}`}
         onClick={() =>
           gaEvent({

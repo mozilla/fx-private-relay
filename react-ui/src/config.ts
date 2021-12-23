@@ -10,6 +10,8 @@ export type RuntimeConfig = {
   backendOrigin: string;
   frontendOrigin: string;
   fxaOrigin: string;
+  fxaLoginPath: `/${string}`;
+  fxaLogoutPath: `/${string}`;
   premiumProductId: string;
   emailSizeLimitNumber: number;
   emailSizeLimitUnit: string;

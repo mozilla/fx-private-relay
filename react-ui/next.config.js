@@ -4,6 +4,8 @@ const runtimeConfigs = {
     backendOrigin: "https://relay.firefox.com",
     frontendOrigin: "https://relay.firefox.com",
     fxaOrigin: "https://accounts.firefox.com",
+    fxaLoginPath: "/accounts/fxa/login/?process=login",
+    fxaLogoutPath: "/accounts/logout/",
     premiumProductId: "prod_K29ULZL9pUR9Fr",
     emailSizeLimitNumber: 150,
     emailSizeLimitUnit: "KB",
