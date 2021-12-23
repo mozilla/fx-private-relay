@@ -131,6 +131,26 @@ class Profile(models.Model):
                     continue
         return 'en'
 
+    # This method returns whether the locale associated with the user's Firefox account
+    # includes a country code from a Premium country. This is less accurate than using
+    # get_premium_countries_info_from_request(), which uses a GeoIP lookup, so prefer
+    # using that if a request context is available. In other contexts, e.g. when
+    # sending an email, this method can be useful.
+    @property
+    def fxa_locale_in_premium_country(self):
+        if self.fxa.extra_data.get('locale'):
+            accept_langs = parse_accept_lang_header(
+                self.fxa.extra_data.get('locale')
+            )
+            if (
+                len(accept_langs) >= 1 and
+                len(accept_langs[0][0].split('-')) >= 2 and
+                accept_langs[0][0].split('-')[1]
+                    in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+            ):
+                return True
+        return False
+
     @property
     def num_active_address(self):
         return (
