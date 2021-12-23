@@ -90,6 +90,10 @@
       align-items: center;
       padding: $spacing-md $spacing-lg;
       color: $color-violet-90;
+      border-style: none;
+      background-color: transparent;
+      width: 100%;
+      cursor: pointer;
 
       img {
         margin-right: $spacing-md;

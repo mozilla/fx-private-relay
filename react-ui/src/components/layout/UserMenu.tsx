@@ -31,6 +31,7 @@ import SignoutImage from "../../../../static/images/glocal-sign-out.svg";
 import { useUsers } from "../../hooks/api/user";
 import { useProfiles } from "../../hooks/api/profile";
 import { getRuntimeConfig } from "../../config";
+import { getCsrfToken } from "../../functions/cookies";
 
 export const UserMenu = () => {
   const profileData = useProfiles();
@@ -48,6 +49,7 @@ export const UserMenu = () => {
   const settingsLinkRef = useRef<HTMLAnchorElement>(null);
   const contactLinkRef = useRef<HTMLAnchorElement>(null);
   const helpLinkRef = useRef<HTMLAnchorElement>(null);
+  const logoutFormRef = useRef<HTMLFormElement>(null);
 
   if (!Array.isArray(usersData.data) || usersData.data.length !== 1) {
     // Still fetching the user's account data...
@@ -73,7 +75,7 @@ export const UserMenu = () => {
         action: "Click",
         label: "Website Sign Out",
       });
-      // TODO: Actually log out
+      logoutFormRef.current?.submit();
     }
   };
 
@@ -163,10 +165,23 @@ export const UserMenu = () => {
         key={itemKeys.signout}
         textValue={l10n.getString("nav-profile-sign-out")}
       >
-        <span className={styles.menuButton}>
-          <MenuItemIcon src={SignoutImage.src} />
-          {l10n.getString("nav-profile-sign-out")}
-        </span>
+        <form
+          method="POST"
+          action={
+            getRuntimeConfig().backendOrigin + getRuntimeConfig().fxaLogoutPath
+          }
+          ref={logoutFormRef}
+        >
+          <input
+            type="hidden"
+            name="csrfmiddlewaretoken"
+            value={getCsrfToken()}
+          />
+          <button type="submit" className={styles.menuButton}>
+            <MenuItemIcon src={SignoutImage.src} />
+            {l10n.getString("nav-profile-sign-out")}
+          </button>
+        </form>
       </Item>
     </UserMenuTrigger>
   );

@@ -16,13 +16,14 @@ import GamingIllustration from "../../../static/images/use-case-gaming.svg";
 import { useUsers } from "../hooks/api/user";
 import { Layout } from "../components/layout/Layout";
 import { useGaPing } from "../hooks/gaPing";
-import { Button } from "../components/Button";
+import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { usePremiumCountries } from "../hooks/api/premiumCountries";
 import { Carousel } from "../components/landing/Carousel";
 import { Plans } from "../components/landing/Plans";
 import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
+import { getRuntimeConfig } from "../config";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -72,9 +73,15 @@ const Home: NextPage = () => {
         <div className={styles.lead}>
           <h2>{l10n.getString("landing-hero-headline")}</h2>
           <p>{l10n.getString("landing-hero-body")}</p>
-          <Button ref={heroCtaRef} onClick={() => signup()}>
+          <LinkButton
+            ref={heroCtaRef}
+            onClick={() => signup()}
+            href={
+              getRuntimeConfig().backendOrigin + getRuntimeConfig().fxaLoginPath
+            }
+          >
             {l10n.getString("nav-profile-sign-up")}
-          </Button>
+          </LinkButton>
           <img
             src={Testimonials.src}
             alt="Forbes, ZDNet, Lifehacker, PCMag"
