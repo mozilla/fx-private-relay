@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "watch": "npm run build:dev && chokidar \"src/**/*\" -c \"npm run build:dev\"",
+    "build:dev": "NODE_ENV='development' npm run build",
     "build": "next build && next export",
     "start": "next start",
     "lint": "next lint",
@@ -36,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^5.7.0",
     "@typescript-eslint/parser": "^5.7.0",
     "babel-jest": "^27.4.5",
+    "chokidar-cli": "^3.0.0",
     "eslint": "^7.32.0",
     "eslint-config-next": "11.1.2",
     "eslint-plugin-jest-dom": "^3.9.2",

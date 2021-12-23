@@ -11,6 +11,7 @@ import ReactGa from "react-ga";
 import { getL10n } from "../functions/getL10n";
 import { hasDoNotTrackEnabled } from "../functions/userAgent";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
+import { getRuntimeConfig } from "../config";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -22,7 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     if (hasDoNotTrackEnabled()) {
       return;
     }
-    ReactGa.initialize(process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID as string);
+    ReactGa.initialize(getRuntimeConfig().googleAnalyticsId);
     ReactGa.set({
       anonymizeIp: true,
       transport: "beacon",

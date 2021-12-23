@@ -138,6 +138,9 @@ SERVE_ADDON = config('SERVE_ADDON', None)
 
 # Application definition
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
+    'django.contrib.staticfiles',
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -145,8 +148,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
 
     'django_gulp',
-
-    'django.contrib.staticfiles',
 
     'django_ftl.apps.DjangoFtlConfig',
 
@@ -454,16 +455,23 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
-
-STATIC_URL = '/static/'
+# Static files (the front-end in /react-ui/)
+# https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
+STATIC_URL = '/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'react-ui/out'),
 ]
+
+WHITENOISE_INDEX_FILE = True
+if settings.DEBUG:
+    # In production, we run collectstatic to index all static files.
+    # However, when running locally, we want to automatically pick up
+    # all files spewed out by `npm run watch` in /react/ui,
+    # and we're fine with the performance impact of that.
+    WHITENOISE_ROOT = os.path.join(BASE_DIR, 'react-ui/out')
 
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.

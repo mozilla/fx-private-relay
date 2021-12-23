@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { Localized, useLocalization } from "@fluent/react";
 import styles from "./faq.module.scss";
 import { Layout } from "../components/layout/Layout";
+import { getRuntimeConfig } from "../config";
 
 const Faq: NextPage = () => {
   const { l10n } = useLocalization();
@@ -39,10 +40,8 @@ const Faq: NextPage = () => {
                   {l10n.getString(
                     "faq-question-missing-emails-answer-reason-size",
                     {
-                      size: process.env
-                        .NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER as string,
-                      unit: process.env
-                        .NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT as string,
+                      size: getRuntimeConfig().emailSizeLimitNumber,
+                      unit: getRuntimeConfig().emailSizeLimitUnit,
                     }
                   )}
                 </li>
@@ -168,9 +167,8 @@ const Faq: NextPage = () => {
             >
               <p>
                 {l10n.getString("faq-question-attachments-answer-v2", {
-                  size: process.env
-                    .NEXT_PUBLIC_EMAIL_SIZE_LIMIT_NUMBER as string,
-                  unit: process.env.NEXT_PUBLIC_EMAIL_SIZE_LIMIT_UNIT as string,
+                  size: getRuntimeConfig().emailSizeLimitNumber,
+                  unit: getRuntimeConfig().emailSizeLimitUnit,
                 })}
               </p>
             </QAndA>

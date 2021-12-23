@@ -1,3 +1,26 @@
+/** @type { Record<string, import("./src/config").RuntimeConfig> } */
+const runtimeConfigs = {
+  production: {
+    backendOrigin: "https://relay.firefox.com",
+    frontendOrigin: "https://relay.firefox.com",
+    fxaOrigin: "https://accounts.firefox.com",
+    premiumProductId: "prod_K29ULZL9pUR9Fr",
+    emailSizeLimitNumber: 150,
+    emailSizeLimitUnit: "KB",
+    maxFreeAliases: 5,
+    mozmailDomain: "mozmail.com",
+    googleAnalyticsId: "UA-77033033-33",
+    maxOnboardingAvailable: 3,
+  },
+};
+
+runtimeConfigs.development = {
+  ...runtimeConfigs.production,
+  backendOrigin: "http://127.0.0.1:8000",
+  frontendOrigin: "http://127.0.0.1:8000",
+  fxaOrigin: "https://accounts.stage.mozaws.net",
+};
+
 /** @type {import('next').NextConfig} */
 module.exports = {
   reactStrictMode: true,
@@ -5,6 +28,19 @@ module.exports = {
   // test files are not picked up as pages to render by Next.js.
   // See https://nextjs.org/docs/api-reference/next.config.js/custom-page-extensions
   pageExtensions: ["page.ts", "page.tsx", "page.js", "page.jsx"],
+  trailingSlash: true,
+  productionBrowserSourceMaps: true,
+  // Unfortunately we cannot use Next.js's built-in dev server,
+  // as the front-end needs to be served from the same origin as the back-end
+  // in order to use authenticated sessions.
+  // Thus, we use `npm run watch` to create a build every time a file in `src/`
+  // changes — but builds are production builds in Next.js by default.
+  // Thus, we cannot use different .env files for different environments
+  // (https://nextjs.org/docs/basic-features/environment-variables),
+  // and use this mechanism instead:
+  publicRuntimeConfig:
+    runtimeConfigs[process.env.NODE_ENV ?? "production"] ??
+    runtimeConfigs.production,
   webpack: (config, options) => {
     config.module.rules.push({
       test: /\.ftl/,

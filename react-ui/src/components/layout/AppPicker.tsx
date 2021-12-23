@@ -38,6 +38,7 @@ import PocketLogo from "../../../../static/images/logos/bento/pocket.png";
 import FxDesktopLogo from "../../../../static/images/logos/fx-logo.svg";
 import FxMobileLogo from "../../../../static/images/logos/bento/fx-mobile.png";
 import { Props as LayoutProps } from "./Layout";
+import { getRuntimeConfig } from "../../config";
 
 const getProducts = (referringSiteUrl: string) => ({
   monitor: {
@@ -67,7 +68,7 @@ const getProducts = (referringSiteUrl: string) => ({
 export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
   const { l10n } = useLocalization();
 
-  const products = getProducts(process.env.NEXT_PUBLIC_SITE_ORIGIN as string);
+  const products = getProducts(getRuntimeConfig().frontendOrigin);
   const monitorLinkRef = useRef<HTMLAnchorElement>(null);
   const pocketLinkRef = useRef<HTMLAnchorElement>(null);
   const fxDesktopLinkRef = useRef<HTMLAnchorElement>(null);
@@ -209,7 +210,7 @@ const AppPickerTrigger = ({
     gaEvent({
       category: "bento",
       action: appPickerTriggerState.isOpen ? "bento-opened" : "bento-closed",
-      label: process.env.NEXT_PUBLIC_SITE_ORIGIN as string,
+      label: getRuntimeConfig().frontendOrigin,
     });
   }, [appPickerTriggerState.isOpen]);
 
