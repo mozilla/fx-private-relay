@@ -12,6 +12,7 @@
         @include text-title-2xs;
         color: $color-black;
         margin-bottom: $spacing-lg;
+        line-height: 150%;
     }
 }
 
@@ -94,8 +95,10 @@
 
     h2 {
         color: $color-black;
-
-        @include text-title-xs;
+        font-weight: normal;
+        
+        @include text-body-md;
+        @include font-base;
     }
 }
 
@@ -177,6 +180,18 @@
             color: $color-purple-50;
         }
     }
+
+    p {
+        line-height: 150%;
+    }
+}
+
+.c-premium-onboarding-detail {
+    color: $color-purple-30;
+    font-weight: 500;
+    margin: 0;
+    
+    @include text-body-sm;
 }
 
 // Multi-part Premium Onboarding
@@ -200,6 +215,7 @@
     margin-left: auto;
     margin-right: auto;
     position: relative;
+    line-height: 150%;
 
     @media #{$mq-md} {
         // 150px is an approx. size of the header and footer combined
@@ -243,10 +259,6 @@
 
             @include text-title-sm;
             margin-bottom: $spacing-md;
-        }
-
-        h2 {
-            @include text-title-3xs;
         }
 
         .c-premium-onboarding-content-description {
@@ -295,13 +307,22 @@
 
 .c-premium-onboarding-step-3 {
 
-    .c-premium-onboarding-install-addon a {
-        display: none;
+    .c-premium-onboarding-install-addon, .c-premium-onboarding-headlines {
+
+        a, .c-premium-onboarding-extension-copy {
+            display: none;
+        }
 
         @media #{$mq-md} {
-            display: inline-block;
+
+            .c-premium-onboarding-replies-copy {
+                display: none;
+            }
+
+            a, .c-premium-onboarding-extension-copy {
+                display: inline-block;
+            }
         }
-        // TODO: Add query that user is on desktop Firefox to prompt install of add-on
     }
 }
 
