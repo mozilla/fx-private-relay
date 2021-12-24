@@ -36,7 +36,7 @@
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p class="c-premium-onboarding-detail">{% ftlmsg 'onboarding-premium-title-detail' %}</p>
-                        <p><strong>{% ftlmsg 'onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-get-domain-description' mozmail='mozmail.com' %}
+                        <p><strong>{% ftlmsg 'onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-get-domain-description-2' mozmail='mozmail.com' %}
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
@@ -71,7 +71,10 @@
         <li class="c-premium-onboarding-step c-premium-onboarding-step-3 {% if user_profile.onboarding_state == 2 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-lg mzp-t-content-nospace">
                 <div class="c-premium-onboarding-headlines">
-                    <h1>{% ftlmsg 'multi-part-onboarding-reply-headline' %}</h1>
+                    <!-- Mobile title -->
+                    <h1 class="c-premium-onboarding-replies-copy">{% ftlmsg 'multi-part-onboarding-reply-headline' %}</h1>
+                    <!-- Desktop title -->
+                    <h1 class="c-premium-onboarding-extension-copy">{% ftlmsg 'multi-part-onboarding-premium-extension-get-title' %}</h1>
                 </div>
 
                 <div class="c-premium-onboarding-content">
