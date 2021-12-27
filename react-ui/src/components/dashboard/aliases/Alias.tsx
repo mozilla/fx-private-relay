@@ -1,12 +1,17 @@
+import { useRef, useState, ReactNode } from "react";
 import { useLocalization } from "@fluent/react";
+import { useToggleState, useTooltipTriggerState } from "react-stately";
+import {
+  mergeProps,
+  useToggleButton,
+  useTooltip,
+  useTooltipTrigger,
+} from "react-aria";
 import styles from "./Alias.module.scss";
 import copyIcon from "../../../../../static/images/copy-to-clipboard.svg";
 import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
-import { useRef, useState } from "react";
-import { useToggleState } from "@react-stately/toggle";
-import { useToggleButton } from "@react-aria/button";
 import { LabelEditor } from "./LabelEditor";
 import { UserData } from "../../../hooks/api/user";
 import { renderDate } from "../../../functions/renderDate";
@@ -109,32 +114,18 @@ export const Alias = (props: Props) => {
           </span>
         </div>
         <div className={styles.aliasStats}>
-          <span
-            title={l10n.getString("profile-blocked-copy")}
-            className={`${styles.stat} ${styles.blockedStat}`}
-          >
+          <BlockedTooltip>
             <span className={styles.number}>{props.alias.num_blocked}</span>
             <span className={styles.label}>
               {l10n.getString("profile-label-blocked")}
             </span>
-          </span>
-          <span
-            title={`${l10n.getString(
-              "profile-forwarded-copy"
-            )}\n${l10n.getString("profile-forwarded-note")} ${l10n.getString(
-              "profile-forwarded-note-copy",
-              {
-                size: getRuntimeConfig().emailSizeLimitNumber,
-                unit: getRuntimeConfig().emailSizeLimitUnit,
-              }
-            )}`}
-            className={`${styles.stat} ${styles.forwardedStat}`}
-          >
+          </BlockedTooltip>
+          <ForwardedTooltip>
             <span className={styles.number}>{props.alias.num_forwarded}</span>
             <span className={styles.label}>
               {l10n.getString("profile-label-forwarded")}
             </span>
-          </span>
+          </ForwardedTooltip>
         </div>
         <div className={styles.expandToggle}>
           <button {...expandButtonProps} ref={expandButtonRef}>
@@ -169,5 +160,73 @@ export const Alias = (props: Props) => {
         />
       </div>
     </div>
+  );
+};
+
+type TooltipProps = {
+  children: ReactNode;
+};
+const ForwardedTooltip = (props: TooltipProps) => {
+  const { l10n } = useLocalization();
+  const triggerState = useTooltipTriggerState({ delay: 0 });
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
+
+  const { tooltipProps } = useTooltip({}, triggerState);
+
+  return (
+    <span className={styles.statWrapper}>
+      <span
+        ref={triggerRef}
+        {...tooltipTrigger.triggerProps}
+        className={`${styles.stat} ${styles.forwardedStat}`}
+      >
+        {props.children}
+      </span>
+      {triggerState.isOpen && (
+        <span
+          {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
+          className={styles.tooltip}
+        >
+          <span>{l10n.getString("profile-forwarded-copy")}</span>
+          <br />
+          <strong>{l10n.getString("profile-forwarded-note")}</strong>&nbsp;
+          <span>
+            {l10n.getString("profile-forwarded-note-copy", {
+              size: getRuntimeConfig().emailSizeLimitNumber,
+              unit: getRuntimeConfig().emailSizeLimitUnit,
+            })}
+          </span>
+        </span>
+      )}
+    </span>
+  );
+};
+const BlockedTooltip = (props: TooltipProps) => {
+  const { l10n } = useLocalization();
+  const triggerState = useTooltipTriggerState({ delay: 0 });
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
+
+  const { tooltipProps } = useTooltip({}, triggerState);
+
+  return (
+    <span className={styles.statWrapper}>
+      <span
+        ref={triggerRef}
+        {...tooltipTrigger.triggerProps}
+        className={`${styles.stat} ${styles.blockedStat}`}
+      >
+        {props.children}
+      </span>
+      {triggerState.isOpen && (
+        <span
+          {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
+          className={styles.tooltip}
+        >
+          {l10n.getString("profile-blocked-copy")}
+        </span>
+      )}
+    </span>
   );
 };
