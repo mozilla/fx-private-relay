@@ -177,6 +177,27 @@ $toggleTransitionDuration: 200ms;
     display: flex;
   }
 
+  .statWrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .tooltip {
+      @include text-body-sm;
+      position: absolute;
+      width: $content-sm;
+      top: 100%;
+      right: $spacing-xs;
+      background-color: $color-light-gray-10;
+      border: 1px solid $color-light-gray-30;
+      box-shadow: $box-shadow-sm;
+      padding: $spacing-sm $spacing-md;
+      border-radius: $border-radius-sm;
+      // Prevent other .statWrapper elements from overlapping this tooltip:
+      z-index: 2;
+    }
+  }
+
   .stat {
     display: flex;
     flex-direction: column;
