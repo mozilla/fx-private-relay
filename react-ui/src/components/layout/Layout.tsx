@@ -74,9 +74,13 @@ export const Layout = (props: Props) => {
               </a>
             </Link>
           </div>
-          <Navigation />
-          <AppPicker theme={isDark ? "free" : "premium"} />
-          <nav className={styles.nav}>
+          <div className={styles.navWrapper}>
+            <Navigation />
+          </div>
+          <div className={styles.appPickerWrapper}>
+            <AppPicker theme={isDark ? "free" : "premium"} />
+          </div>
+          <nav className={styles.userMenuWrapper}>
             <UserMenu />
           </nav>
         </header>
