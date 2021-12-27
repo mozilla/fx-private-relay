@@ -11,13 +11,11 @@ import helpIcon from "../../../../static/images/help-purple.svg";
 import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
 import { Button } from "../../components/Button";
-import { useRouter } from "next/router";
 import { getRuntimeConfig } from "../../config";
 
 const Settings: NextPage = () => {
   const profileData = useProfiles();
   const { l10n } = useLocalization();
-  const router = useRouter();
   const [labelCollectionEnabled, setLabelCollectionEnabled] = useState(
     profileData.data?.[0].server_storage
   );
@@ -31,7 +29,7 @@ const Settings: NextPage = () => {
   }, [labelCollectionEnabled]);
 
   if (!profileData.isValidating && profileData.error) {
-    router.push("/");
+    document.location.assign(getRuntimeConfig().fxaLoginUrl);
   }
 
   if (!profileData.data) {
