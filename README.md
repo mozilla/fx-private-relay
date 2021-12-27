@@ -22,9 +22,8 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
     * On OSX: `brew install postgresql libpq`
     * On Fedora: `sudo dnf install libpq-devel python3-devel`
 * [SES](https://aws.amazon.com/ses/) if you want to send real emails
-* [Node 12.X](https://nodejs.org/en/download/) – Needed for front-end SCSS compiling
+* [Node 14.X](https://nodejs.org/en/download/) – Needed to compile the front-end
   * [NPM](https://www.npmjs.com/)
-  * [Gulp](https://gulpjs.com/) to compile SCSS
 
 ### Install and Run the Site Locally
 
@@ -49,6 +48,7 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
     ```
 
     ```sh
+    cd frontend
     npm install
     ```
 
@@ -78,10 +78,16 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
     python manage.py createsuperuser
     ```
 
-8. Run it:
+8. Run the backend:
 
     ```sh
     python manage.py runserver
+    ```
+
+    and in a different terminal, build the frontend:
+
+    ```sh
+    npm run watch
     ```
 
 ### Working with translations
@@ -108,6 +114,10 @@ make changes to the messages:
 
 You can then open a pull request from the `message-updates-yyyymmdd` branch to
 [the l10n repo](https://github.com/mozilla-l10n/fx-private-relay-l10n) `main` branch.
+
+If you're not yet ready to submit some strings for translation, you can
+tentatively add them to frontend/pendingTranslations.ftl. Strings in that file
+will show up until strings with the same ID are added to the l10n repository.
 
 #### Commit translations for release
 To commit updates to the app's translations (e.g., before a release), we need
@@ -163,7 +173,28 @@ TODO -->
 
 The add-on adds Firefox UI to generate and auto-fill email addresses across the web. Running the add-on locally allows it to communicate with your local server (`127.0.0.1:8000`) instead of the production server (`relay.firefox.com`).
 
+### Optional: Run a development server to compile the frontend
+
+`npm run watch` watches the `frontend/src` directory and builds the frontend
+when it detects changes. However, creating a production build is just time-consuming
+enough to interrupt your development flow. It is therefore also possible to run the
+front-end on a separate server that only recompiles changed modules, and does not
+apply production optimizations. To do so, instead of `npm run watch`, run
+`npm run dev`.
+
+The frontend is now available at http://localhost:3000. Keep in mind that this
+does make your local development environment less similar to production; in
+particular, authentication is normally bound to the backend server, and thus
+needs to be simulated when running the frontend on a separate server. If
+you make any changes related to authentication, make sure to test them using
+`npm run watch` as well.
+
 ### Optional: Enable Premium Features
+
+**Note:** Premium features are automatically enabled for any user with an email address ending in
+`mozilla.com`, `getpocket.com`, or `mozillafoundation.org` (see `PREMIUM_DOMAINS` in
+`emails/models.py`). To mimic the customer's experience, it is recommended to follow the below
+procedure.
 
 To enable the premium Relay features, we integrate with the [FXA Subscription
 Platform](https://mozilla.github.io/ecosystem-platform/docs/features/sub-plat/sub-plat-overview).
