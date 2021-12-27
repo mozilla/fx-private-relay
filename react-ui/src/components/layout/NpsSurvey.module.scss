@@ -1,7 +1,7 @@
 @import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
 
 .wrapper {
-  display: flex;
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
@@ -9,6 +9,10 @@
   padding: $spacing-md 0;
   background-color: $color-purple-90;
   color: $color-white;
+
+  @media screen and #{$mq-md} {
+    display: flex;
+  }
 }
 
 .scale {
