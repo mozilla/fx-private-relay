@@ -4,8 +4,8 @@ import { event as gaEvent } from "react-ga";
 import { useOverlayTriggerState } from "react-stately";
 import styles from "./PremiumOnboarding.module.scss";
 import checkIcon from "../../../../static/images/icon-check.svg";
-import WomanOnCouch from "../../../../static/images/dashboard-onboarding/woman-couch.svg";
 import ManLaptopEmail from "../../../../static/images/dashboard-onboarding/man-laptop-email-alt.svg";
+import WomanOnCouch from "../../../../static/images/dashboard-onboarding/woman-couch.svg";
 import WomanEmail from "../../../../static/images/dashboard-onboarding/woman-email.svg";
 import { Button, LinkButton } from "../Button";
 import { useGaPing } from "../../hooks/gaPing";
@@ -14,6 +14,7 @@ import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { VisuallyHidden } from "react-aria";
 import { getRuntimeConfig } from "../../config";
+import { useMinViewportWidth } from "../../hooks/mediaQuery";
 
 export type Props = {
   profile: ProfileData;
@@ -235,6 +236,7 @@ export const PremiumOnboarding = (props: Props) => {
 
 const StepOne = () => {
   const { l10n } = useLocalization();
+  const isLargeScreen = useMinViewportWidth("md");
 
   return (
     <div className={`${styles.step} ${styles.stepWelcome}`}>
@@ -249,11 +251,19 @@ const StepOne = () => {
       <div className={styles.description}>
         <img src={WomanOnCouch.src} alt="" width={350} />
         <p>
+          <span className={styles.descriptionCaption}>
+            {l10n.getString("onboarding-premium-title-detail")}
+          </span>
+          <br />
           <strong>
             {l10n.getString("multi-part-onboarding-premium-welcome-title")}
           </strong>
           <br />
-          {l10n.getString("onboarding-premium-control-description")}
+          {l10n.getString(
+            isLargeScreen
+              ? "onboarding-premium-control-description"
+              : "multi-part-onboarding-premium-welcome-description"
+          )}
         </p>
       </div>
     </div>
@@ -282,24 +292,24 @@ const StepTwo = (props: Step2Props) => {
   return (
     <div className={`${styles.step} ${styles.stepCustomDomain}`}>
       <div>
-        <h2>
-          {l10n.getString("multi-part-onboarding-premium-domain-headline")}
-        </h2>
-        <p className={styles.lead}>
-          {l10n.getString("multi-part-onboarding-premium-welcome-subheadline")}
-        </p>
+        <h2>{l10n.getString("multi-part-onboarding-premium-get-domain")}</h2>
       </div>
       <div className={styles.description}>
-        <img src={ManLaptopEmail.src} alt="" width={500} />
+        <img src={WomanEmail.src} alt="" width={400} />
         <div>
           <p className={styles.subdomainDescription}>
-            <strong>
-              {l10n.getString("multi-part-onboarding-premium-domain-title")}
-            </strong>
+            <span className={styles.descriptionCaption}>
+              {l10n.getString("onboarding-premium-title-detail")}
+            </span>
             <br />
-            {l10n.getString("banner-register-subdomain-copy", {
-              mozmail: "mozmail.com",
-            })}
+            <strong>{l10n.getString("onboarding-premium-domain-title")}</strong>
+            <br />
+            {l10n.getString(
+              "multi-part-onboarding-premium-get-domain-description-2",
+              {
+                mozmail: "mozmail.com",
+              }
+            )}
           </p>
           <div>{subdomain}</div>
         </div>
@@ -356,26 +366,28 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
 
 const StepThree = () => {
   const { l10n } = useLocalization();
+  const isLargeScreen = useMinViewportWidth("md");
 
   return (
     <div className={`${styles.step} ${styles.stepAddon}`}>
       <div>
         <h2>
-          {l10n.getString("multi-part-onboarding-premium-extension-headline")}
+          {l10n.getString(
+            isLargeScreen
+              ? "multi-part-onboarding-premium-extension-get-title"
+              : "multi-part-onboarding-reply-headline"
+          )}
         </h2>
-        <p className={styles.lead}>
-          {l10n.getString("multi-part-onboarding-premium-welcome-subheadline")}
-        </p>
       </div>
       <div className={styles.description}>
-        <img src={WomanEmail.src} alt="" width={400} />
+        <img src={ManLaptopEmail.src} alt="" width={500} />
         <div>
           <p>
-            <strong>
-              {l10n.getString(
-                "multi-part-onboarding-premium-extension-reply-title"
-              )}
-            </strong>
+            <span className={styles.descriptionCaption}>
+              {l10n.getString("onboarding-premium-title-detail")}
+            </span>
+            <br />
+            <strong>{l10n.getString("onboarding-premium-reply-title")}</strong>
             <br />
             {l10n.getString("onboarding-premium-reply-description")}
           </p>
