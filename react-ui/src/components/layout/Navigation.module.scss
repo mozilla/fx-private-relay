@@ -7,8 +7,12 @@
 }
 
 .link {
+  display: flex;
+  align-items: center;
+  text-align: center;
   font-family: $font-stack-firefox;
-  padding: 0 $spacing-xs;
+  padding: $spacing-sm $spacing-xs;
+  border: 2px solid transparent;
 
   &.isActive::after {
     width: 100%;
@@ -26,8 +30,19 @@
     display: none;
   }
 
+  &.signInButton {
+    // We're using CSS's `currentColor` here because the colour
+    // is different in the light (Premium) and dark (regular) themes:
+    border-color: currentColor;
+    border-radius: $border-radius-sm;
+
+    &:focus {
+      color: $color-blue-30;
+    }
+  }
+
   @media screen and #{$mq-md} {
-    padding: 0 $spacing-md;
+    padding: $spacing-sm $spacing-md;
 
     &.homeLink {
       display: inline;
