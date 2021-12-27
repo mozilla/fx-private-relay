@@ -22,6 +22,14 @@
 
 .header {
   position: sticky;
+  // The sticky position causes a new stacking context,
+  // which is stacked below elements lower in the document
+  // with their own stacking contexts (specifically,
+  // the floating elements of the hero image when signed out
+  // overlap the AppPicker drawer).
+  // Thus, upping the z-index stack the header, and menus
+  // expanding from it, on top again:
+  z-index: 2;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:
