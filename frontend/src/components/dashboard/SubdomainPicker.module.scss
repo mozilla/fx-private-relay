@@ -10,6 +10,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 4px solid transparent;
+
+  &:target {
+    border-color: $color-blue-50;
+  }
 
   @media screen  and #{$mq-md} {
     flex-direction: row;
