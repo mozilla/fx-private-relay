@@ -557,6 +557,13 @@ REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': DRF_RENDERERS,
 }
 
+# Turn on logging out on GET in development.
+# This allows `/mock/logout/` in the front-end to clear the
+# session cookie. Without this, after switching accounts in dev mode,
+# then logging out again, API requests continue succeeding even without
+# an auth token:
+ACCOUNT_LOGOUT_ON_GET = DEBUG
+
 CORS_ALLOWED_ORIGINS = []
 CSRF_TRUSTED_ORIGINS = []
 if DEBUG:

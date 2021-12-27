@@ -4,8 +4,8 @@ const runtimeConfigs = {
     backendOrigin: "https://relay.firefox.com",
     frontendOrigin: "https://relay.firefox.com",
     fxaOrigin: "https://accounts.firefox.com",
-    fxaLoginPath: "/accounts/fxa/login/?process=login",
-    fxaLogoutPath: "/accounts/logout/",
+    fxaLoginUrl: "https://relay.firefox.com/accounts/fxa/login/?process=login",
+    fxaLogoutUrl: "https://relay.firefox.com/accounts/logout/",
     premiumProductId: "prod_K29ULZL9pUR9Fr",
     emailSizeLimitNumber: 150,
     emailSizeLimitUnit: "KB",
@@ -16,11 +16,29 @@ const runtimeConfigs = {
   },
 };
 
-runtimeConfigs.development = {
+// This configuration is for the setup where we have a watch process
+// that looks for changes to files in src/ to trigger builds,
+// with the build output being served by Django/Whitenoise.
+runtimeConfigs.watch_build = {
   ...runtimeConfigs.production,
   backendOrigin: "http://127.0.0.1:8000",
   frontendOrigin: "http://127.0.0.1:8000",
   fxaOrigin: "https://accounts.stage.mozaws.net",
+  fxaLoginUrl: "http://127.0.0.1:8000/accounts/fxa/login/?process=login",
+  fxaLogoutUrl: "http://127.0.0.1:8000/accounts/logout/",
+};
+
+// This configuration is for the setup where the Next.js dev server
+// is running concurrently with the Django server.
+// Due to not running on the same server as the back-end,
+// login and logout needs to be simulated using the `/mock/` pages.
+runtimeConfigs.development = {
+  ...runtimeConfigs.production,
+  backendOrigin: "http://127.0.0.1:8000",
+  frontendOrigin: "http://localhost:3000",
+  fxaOrigin: "https://accounts.stage.mozaws.net",
+  fxaLoginUrl: "http://localhost:3000/mock/login",
+  fxaLogoutUrl: "http://localhost:3000/mock/logout",
 };
 
 /** @type {import('next').NextConfig} */

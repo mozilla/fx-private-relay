@@ -1,0 +1,54 @@
+@import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+
+.mockSession {
+  padding: $spacing-lg;
+
+  a {
+    color: $color-blue-50;
+  }
+
+  .lead {
+    max-width: $content-md;
+    padding: $spacing-md 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    align-items: flex-start;
+    padding: $spacing-lg;
+    width: $content-sm;
+  }
+
+  input,
+  button {
+    padding: $spacing-md;
+  }
+
+  button {
+    border-radius: $border-radius-sm;
+    border: 1px solid $color-blue-50;
+    background-color: $color-white;
+    color: $color-blue-50;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+      color: $color-white;
+    }
+  }
+
+  h1 {
+    padding: $spacing-sm 0;
+    font-size: 1rem;
+  }
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    list-style-type: none;
+  }
+}
