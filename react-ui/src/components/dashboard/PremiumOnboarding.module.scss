@@ -32,7 +32,7 @@
     @include text-title-3xs;
     font-family: $font-stack-firefox;
     text-align: center;
-    padding: $spacing-md 0;
+    padding-top: $spacing-md;
   }
 
   .description {
@@ -40,9 +40,16 @@
     flex-direction: column;
     align-items: center;
     gap: $spacing-2xl;
+    padding-top: $spacing-lg;
 
     @media screen and #{$mq-md} {
       flex-direction: row;
+    }
+
+    .descriptionCaption {
+      @include text-body-sm;
+      color: $color-purple-30;
+      font-weight: 500;
     }
   }
 
@@ -114,7 +121,14 @@
 
   &.stepAddon {
     .addonDescription {
+      // Hide the description of the add-on on small screens,
+      // because it isn't available on mobile.
+      display: none;
       padding: $spacing-md 0;
+
+      @media screen and #{$mq-md} {
+        display: block;
+      }
     }
 
     h3 {
@@ -178,7 +192,7 @@
 
     li {
       width: 100%;
-      color: $color-light-gray-20;
+      color: $color-light-gray-90;
       text-align: center;
       transition: color 0.2s ease-out;
 
