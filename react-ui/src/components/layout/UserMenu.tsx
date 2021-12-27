@@ -167,9 +167,7 @@ export const UserMenu = () => {
       >
         <form
           method="POST"
-          action={
-            getRuntimeConfig().backendOrigin + getRuntimeConfig().fxaLogoutPath
-          }
+          action={getRuntimeConfig().fxaLogoutUrl}
           ref={logoutFormRef}
         >
           <input

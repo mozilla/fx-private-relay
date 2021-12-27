@@ -76,9 +76,7 @@ const Home: NextPage = () => {
           <LinkButton
             ref={heroCtaRef}
             onClick={() => signup()}
-            href={
-              getRuntimeConfig().backendOrigin + getRuntimeConfig().fxaLoginPath
-            }
+            href={getRuntimeConfig().fxaLoginUrl}
           >
             {l10n.getString("nav-profile-sign-up")}
           </LinkButton>
