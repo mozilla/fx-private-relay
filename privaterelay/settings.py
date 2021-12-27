@@ -455,23 +455,23 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (the front-end in /react-ui/)
+# Static files (the front-end in /frontend/)
 # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
 STATIC_URL = '/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'react-ui/out'),
+    os.path.join(BASE_DIR, 'frontend/out'),
 ]
 
 WHITENOISE_INDEX_FILE = True
 if settings.DEBUG:
     # In production, we run collectstatic to index all static files.
     # However, when running locally, we want to automatically pick up
-    # all files spewed out by `npm run watch` in /react/ui,
+    # all files spewed out by `npm run watch` in /frontend/out,
     # and we're fine with the performance impact of that.
-    WHITENOISE_ROOT = os.path.join(BASE_DIR, 'react-ui/out')
+    WHITENOISE_ROOT = os.path.join(BASE_DIR, 'frontend/out')
 
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.
