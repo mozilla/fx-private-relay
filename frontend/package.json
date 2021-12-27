@@ -1,5 +1,5 @@
 {
-  "name": "react-ui",
+  "name": "frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "prepare": "cd .. && husky install react-ui/.husky"
+    "prepare": "cd .. && husky install frontend/.husky"
   },
   "dependencies": {
     "@fluent/bundle": "^0.17.0",
