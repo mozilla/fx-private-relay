@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "watch": "npm run build:dev && chokidar \"src/**/*\" -c \"npm run build:dev\"",
-    "build:dev": "NODE_ENV='development' npm run build",
+    "watch": "npm run watch_build && chokidar \"src/**/*\" -c \"npm run watch_build\"",
+    "watch_build": "NODE_ENV='watch_build' npm run build",
     "build": "next build && next export",
     "start": "next start",
     "lint": "next lint",

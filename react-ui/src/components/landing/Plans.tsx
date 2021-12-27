@@ -30,9 +30,7 @@ export const Plans = (props: Props) => {
   return (
     <div className={styles.comparison}>
       <a
-        href={
-          getRuntimeConfig().backendOrigin + getRuntimeConfig().fxaLoginPath
-        }
+        href={getRuntimeConfig().fxaLoginUrl}
         className={`${styles.plan} ${styles.freePlan}`}
         onClick={() =>
           gaEvent({
