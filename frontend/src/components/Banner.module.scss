@@ -6,6 +6,7 @@
   border-radius: $border-radius-md;
   padding: $spacing-md;
   background-color: white;
+  position: relative;
 
   &:not(.promo) {
     box-shadow: $box-shadow-sm;
@@ -13,6 +14,26 @@
   &.promo {
     padding: 2px;
     background-image: $firefoxGradient;
+  }
+
+  .dismissButton {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    border-style: none;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+      color: $color-white;
+    }
   }
 }
 
