@@ -17,6 +17,7 @@ import { PremiumCountriesData } from "../../../hooks/api/premiumCountries";
 import { useGaPing } from "../../../hooks/gaPing";
 import { trackPurchaseStart } from "../../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../../config";
+import { useLocalLabels } from "../../../hooks/localLabels";
 
 export type Props = {
   aliases: AliasData[];
@@ -32,6 +33,7 @@ export const AliasList = (props: Props) => {
   const { l10n } = useLocalization();
   const [stringFilterInput, setStringFilterInput] = useState("");
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
+  const [localLabels, storeLocalLabel] = useLocalLabels();
   const getUnlimitedButtonRef = useGaPing({
     category: "Purchase Button",
     label: "profile-create-alias-upgrade-promo",
@@ -48,21 +50,40 @@ export const AliasList = (props: Props) => {
     })
   );
 
-  const aliasCards = aliases.map((alias, index) => (
-    <li
-      className={styles.aliasCardWrapper}
-      key={alias.address + isRandomAlias(alias)}
-    >
-      <Alias
-        alias={alias}
-        user={props.user}
-        profile={props.profile}
-        onUpdate={(updatedFields) => props.onUpdate(alias, updatedFields)}
-        onDelete={() => props.onDelete(alias)}
-        defaultOpen={index === 0}
-      />
-    </li>
-  ));
+  const aliasCards = aliases.map((alias, index) => {
+    const aliasWithLocalLabel = {...alias};
+    if (alias.description.length === 0 && props.profile.server_storage === false && localLabels !== null) {
+      const type = isRandomAlias(alias) ? "random" : "custom";
+      const localLabel = localLabels.find(localLabel => localLabel.id === alias.id && localLabel.type === type);
+      if (localLabel !== undefined) {
+        aliasWithLocalLabel.description = localLabel.description;
+      }
+    }
+
+    const onUpdate = (updatedFields: Partial<AliasData>) => {
+      if (localLabels !== null && typeof updatedFields.description === "string") {
+        storeLocalLabel(alias, updatedFields.description);
+      }
+      return props.onUpdate(alias, updatedFields);
+    };
+
+    return (
+      <li
+        className={styles.aliasCardWrapper}
+        key={alias.address + isRandomAlias(alias)}
+      >
+        <Alias
+          alias={aliasWithLocalLabel}
+          user={props.user}
+          profile={props.profile}
+          onUpdate={onUpdate}
+          onDelete={() => props.onDelete(alias)}
+          defaultOpen={index === 0}
+          showLabelEditor={props.profile.server_storage || localLabels !== null}
+        />
+      </li>
+    );
+  });
 
   const premiumSubscribeButton = isPremiumAvailableInCountry(
     props.premiumCountries
