@@ -5,6 +5,7 @@ import { useLocalDismissal } from "../../hooks/localDismissal";
 import { useIsLoggedIn } from "../../hooks/session";
 import { useLocalization } from "@fluent/react";
 import { useProfiles } from "../../hooks/api/profile";
+import { CloseIcon } from "../icons/close";
 
 export const NpsSurvey = () => {
   const profileData = useProfiles();
@@ -55,7 +56,7 @@ export const NpsSurvey = () => {
     <aside className={styles.wrapper}>
       <div className={styles.prompt}>{l10n.getString("survey-question-1")}</div>
       <div className={styles.scale}>
-        <span aria-hidden={true}>
+        <span aria-hidden={true} className={styles.legend}>
           {l10n.getString("survey-option-not-likely")}
         </span>
         <ol>
@@ -110,10 +111,13 @@ export const NpsSurvey = () => {
             </button>
           </li>
         </ol>
-        <span aria-hidden={true}>
+        <span aria-hidden={true} className={styles.legend}>
           {l10n.getString("survey-option-very-likely")}
         </span>
       </div>
+      <button className={styles.dismissButton} onClick={() => dismissal.dismiss()} title={l10n.getString("survey-option-dismiss")}>
+        <CloseIcon aria-label={l10n.getString("survey-option-dismiss")} />
+      </button>
     </aside>
   );
 };
