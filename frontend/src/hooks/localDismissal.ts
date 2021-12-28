@@ -42,7 +42,7 @@ export function useLocalDismissal(
     const maxAgeInSeconds =
       typeof options.duration === "number"
         ? options.duration
-        : 30 * 24 * 60 * 60;
+        : 100 * 365 * 24 * 60 * 60;
     setCookie(cookieId, Date.now().toString(), {
       maxAgeInSeconds: maxAgeInSeconds,
     });
