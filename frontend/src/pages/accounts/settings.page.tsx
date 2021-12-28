@@ -12,10 +12,14 @@ import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
 import { Button } from "../../components/Button";
 import { getRuntimeConfig } from "../../config";
+import { useLocalLabels } from "../../hooks/localLabels";
+import { useAliases } from "../../hooks/api/aliases";
 
 const Settings: NextPage = () => {
   const profileData = useProfiles();
   const { l10n } = useLocalization();
+  const [localLabels] = useLocalLabels();
+  const aliasData = useAliases();
   const [labelCollectionEnabled, setLabelCollectionEnabled] = useState(
     profileData.data?.[0].server_storage
   );
@@ -60,9 +64,37 @@ const Settings: NextPage = () => {
     event.preventDefault();
 
     try {
+      // If server-side data storage was newly enabled, prepare locally stored labels:
+      const shouldUploadLocalLabels = profileData.data?.[0].server_storage === false && labelCollectionEnabled === true;
+      const updatedRandomAliases = aliasData.randomAliasData.data?.map(alias => {
+        const localLabel = localLabels?.find(localLabel => localLabel.type === "random" && localLabel.id === alias.id);
+        return typeof localLabel === "undefined" ? null : {
+          id: alias.id,
+          description: localLabel.description,
+        };
+      }).filter(isNotNull) ?? [];
+      const updatedCustomAliases = aliasData.customAliasData.data?.map(alias => {
+        const localLabel = localLabels?.find(localLabel => localLabel.type === "custom" && localLabel.id === alias.id);
+        return typeof localLabel === "undefined" ? null : {
+          id: alias.id,
+          description: localLabel.description,
+        };
+      }).filter(isNotNull) ?? [];
+
       await profileData.update(profile.id, {
         server_storage: labelCollectionEnabled,
       });
+
+      // After having enabled new server-side data storage, upload the locally stored labels:
+      if (shouldUploadLocalLabels) {
+        updatedRandomAliases.forEach(updatedAlias => {
+          aliasData.randomAliasData.update(updatedAlias);
+        });
+        updatedCustomAliases.forEach(updatedAlias => {
+          aliasData.customAliasData.update(updatedAlias);
+        });
+      }
+
       toast(l10n.getString("success-settings-update"), { type: "success" });
     } catch (e) {
       toast(l10n.getString("error-settings-update"), { type: "error" });
@@ -160,5 +192,9 @@ const Settings: NextPage = () => {
     </>
   );
 };
+
+function isNotNull<T>(value: T | null): value is T {
+  return value !== null;
+}
 
 export default Settings;

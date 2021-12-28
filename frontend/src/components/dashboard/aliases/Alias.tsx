@@ -25,6 +25,7 @@ export type Props = {
   onUpdate: (updatedFields: Partial<AliasData>) => void;
   onDelete: () => void;
   defaultOpen?: boolean;
+  showLabelEditor?: boolean;
 };
 
 export const Alias = (props: Props) => {
@@ -61,7 +62,7 @@ export const Alias = (props: Props) => {
     }, 1 * 1000);
   };
 
-  const labelEditor = props.profile.server_storage ? (
+  const labelEditor = props.showLabelEditor ? (
     <LabelEditor
       label={props.alias.description}
       onSubmit={(newLabel) => props.onUpdate({ description: newLabel })}

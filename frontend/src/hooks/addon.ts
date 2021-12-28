@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { LocalLabel } from "./localLabels";
 
 export type AddonData = Partial<{
   /**
@@ -20,6 +21,16 @@ export type AddonData = Partial<{
   present: boolean;
   /** Whether the user is logged in in the add-on. */
   isLoggedIn: boolean;
+  /**
+   * Alias labels as stored in the add-on.
+   *
+   * We now store these labels on the server, if enabled by the user,
+   * or in local storage if the add-on is installed and server storage
+   * is not enabled.
+   * However, previously labels were stored by the add-on itself. Those
+   * are contained in this property, if available.
+   */
+  localLabels: LocalLabel[];
 }>;
 
 const defaultAddonData: AddonData = {};
@@ -62,6 +73,12 @@ const attributeParsers: Record<string, (addonElement: Element) => AddonData> = {
   "data-user-logged-in": (addonElement) => ({
     isLoggedIn: addonElement.getAttribute("data-user-logged-in") === "true",
   }),
+  "data-local-labels": (addonElement) => {
+    const localLabelsString = addonElement.getAttribute("data-local-labels");
+    const localLabels =
+      localLabelsString !== null ? JSON.parse(localLabelsString) : undefined;
+    return { localLabels: localLabels };
+  },
 };
 
 /**
