@@ -7,6 +7,7 @@ import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../../__mocks__/modules/react-ga";
 import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
+import { setMockAliasesData } from "../../../__mocks__/hooks/api/aliases";
 
 import Settings from "./settings.page";
 
@@ -14,6 +15,8 @@ jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../config.ts", () => mockConfigModule);
+
+setMockAliasesData();
 
 describe("The settings screen", () => {
   it("shows a warning when the user currently has server-side label storage disabled", () => {

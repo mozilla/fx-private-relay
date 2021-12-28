@@ -72,6 +72,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               ref={addonDataElementRef}
               data-addon-installed={addonData.present}
               data-user-logged-in={addonData.isLoggedIn}
+              data-local-labels={JSON.stringify(addonData.localLabels)}
             ></firefox-private-relay-addon>
             <OverlayProvider id="overlayProvider">
               <Component {...pageProps} />
