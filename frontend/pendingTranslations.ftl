@@ -2,6 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+survey-option-dismiss = Dismiss
+
 # Do not change '@mozmail.com'
 landing-how-it-works-step-2-body-v2 = As you browse, the { -brand-name-relay } icon will appear where sites ask for your email address.
     Select it to generate a new, random address that ends in @mozmail.com.

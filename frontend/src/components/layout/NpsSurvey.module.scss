@@ -1,4 +1,5 @@
 @import "../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../static/scss/libs/protocol/css/includes/lib";
 
 .wrapper {
   display: none;
@@ -9,9 +10,31 @@
   padding: $spacing-md 0;
   background-color: $color-purple-90;
   color: $color-white;
+  position: relative;
 
   @media screen and #{$mq-md} {
     display: flex;
+  }
+
+  .dismissButton {
+    position: absolute;
+    top: 50%;
+    right: $spacing-md;
+    background-color: transparent;
+    border-style: none;
+    color: $color-white;
+    width: 30px;
+    height: 30px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+    }
   }
 }
 
@@ -41,5 +64,9 @@
     &:hover {
       background-color: $color-blue-50;
     }
+  }
+
+  .legend {
+    @include text-body-sm;
   }
 }
