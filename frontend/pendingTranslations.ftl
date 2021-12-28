@@ -4,6 +4,8 @@
 
 survey-option-dismiss = Dismiss
 
+banner-dismiss = Dismiss
+
 # Do not change '@mozmail.com'
 landing-how-it-works-step-2-body-v2 = As you browse, the { -brand-name-relay } icon will appear where sites ask for your email address.
     Select it to generate a new, random address that ends in @mozmail.com.

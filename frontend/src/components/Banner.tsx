@@ -1,7 +1,10 @@
 import { ReactNode } from "react";
 import { OutboundLink } from "react-ga";
+import { useLocalization } from "@fluent/react";
 import styles from "./Banner.module.scss";
 import warningIcon from "../../../static/images/icon-orange-info.svg";
+import { useLocalDismissal } from "../hooks/localDismissal";
+import { CloseIcon } from "./icons/close";
 
 export type BannerProps = {
   children: ReactNode;
@@ -12,10 +15,16 @@ export type BannerProps = {
     target: string;
     content: string;
   };
+  dismissal?: {
+    key: string;
+    duration?: number;
+  },
   hiddenWithAddon?: boolean;
 };
 
 export const Banner = (props: BannerProps) => {
+  const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", { duration: props.dismissal?.duration });
+  const {l10n} = useLocalization();
   const type = props.type ?? "warning";
   const icon =
     props.type === "warning" ? (
@@ -46,6 +55,12 @@ export const Banner = (props: BannerProps) => {
     </div>
   ) : null;
 
+  const dismissButton = typeof props.dismissal !== "undefined"
+    ? <button className={styles.dismissButton} onClick={() => dismissal.dismiss()} title={l10n.getString("banner-dismiss")}>
+      <CloseIcon aria-label={l10n.getString("banner-dismiss")}/>
+    </button>
+    : null;
+
   return (
     // The add-on will hide anything with the class `is-hidden-with-addon`
     // if it's installed.
@@ -64,6 +79,7 @@ export const Banner = (props: BannerProps) => {
           {cta}
         </div>
       </div>
+      {dismissButton}
     </div>
   );
 };
