@@ -8,6 +8,7 @@ export type ProfileData = {
   subdomain: string | null;
   onboarding_state: number;
   avatar: string;
+  api_token: string;
 };
 
 export type ProfilesData = [ProfileData];

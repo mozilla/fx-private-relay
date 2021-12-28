@@ -19,6 +19,7 @@ import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
 import { LinkButton } from "../../components/Button";
 import { usePremiumCountries } from "../../hooks/api/premiumCountries";
 import {
+  getPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
@@ -209,6 +210,20 @@ const Profile: NextPage = () => {
 
   return (
     <>
+      <firefox-private-relay-addon-data
+        // #profile-main is used by the add-on to look up the API token.
+        // TODO: Make it look for this custom element instead.
+        id="profile-main"
+        data-api-token={profile.api_token}
+        data-fxa-subscriptions-url={`${getRuntimeConfig().fxaOrigin}/subscriptions`}
+        data-premium-prod-id={getRuntimeConfig().premiumProductId}
+        data-premium-price-id={isPremiumAvailableInCountry(premiumCountriesData.data) ? getPlan(premiumCountriesData.data).id : undefined}
+        data-aliases-used-val={allAliases.length}
+        data-emails-forwarded-val={totalForwardedEmails}
+        data-emails-blocked-val={totalBlockedEmails}
+        data-premium-subdomain-set={typeof profile.subdomain === "string" ? profile.subdomain : "None"}
+        data-premium-enabled="True"
+      ></firefox-private-relay-addon-data>
       <Layout>
         {stats}
         <div className={styles.bannersWrapper}>
