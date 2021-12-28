@@ -22,6 +22,7 @@ export const setMockProfileData = (profileData: Partial<ProfileData>) => {
         subdomain: null,
         onboarding_state: 3,
         avatar: "",
+        api_token: "",
         ...profileData,
       },
     ],
