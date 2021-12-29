@@ -9,8 +9,8 @@ const mockedUseProfiles = useProfiles as jest.MockedFunction<
   typeof useProfiles
 >;
 
-export const setMockProfileData = (profileData: Partial<ProfileData>) => {
-  const returnValue: ReturnType<typeof useProfiles> = {
+function getReturnValue(profileData?: Partial<ProfileData>): ReturnType<typeof useProfiles>  {
+  return {
     isValidating: false,
     mutate: jest.fn(),
     update: jest.fn(),
@@ -27,6 +27,12 @@ export const setMockProfileData = (profileData: Partial<ProfileData>) => {
       },
     ],
   };
+}
 
-  mockedUseProfiles.mockReturnValue(returnValue);
+export const setMockProfileData = (profileData?: Partial<ProfileData>) => {
+  mockedUseProfiles.mockReturnValue(getReturnValue(profileData));
+};
+
+export const setMockProfileDataOnce = (profileData?: Partial<ProfileData>) => {
+  mockedUseProfiles.mockReturnValueOnce(getReturnValue(profileData));
 };
