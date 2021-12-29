@@ -2,8 +2,6 @@ import "../styles/globals.scss";
 import { useEffect, useRef } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
-import Head from "next/head";
-import Favicon from "../../public/favicon.svg";
 import { LocalizationProvider } from "@fluent/react";
 import { SSRProvider } from "@react-aria/ssr";
 import { OverlayProvider } from "@react-aria/overlays";
@@ -64,9 +62,6 @@ function MyApp({ Component, pageProps }: AppProps) {
     <SSRProvider>
       <LocalizationProvider l10n={getL10n()}>
         <>
-          <Head>
-            <link rel="icon" type="image/svg+xml" href={Favicon.src}></link>
-          </Head>
           <AddonDataContext.Provider value={addonData}>
             <firefox-private-relay-addon
               ref={addonDataElementRef}
