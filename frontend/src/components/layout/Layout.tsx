@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { useLocalization } from "@fluent/react";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -12,12 +13,15 @@ import logoTypePremiumDark from "../../../../static/images/fx-private-relay-prem
 import logo from "../../../../static/images/placeholder-logo.svg";
 import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
 import githubLogo from "../../../../static/images/GitHub.svg";
+import favicon from "../../../public/favicon.svg";
+import socialMediaImage from "../../../../static/images/share-relay.jpg";
 import { useProfiles } from "../../hooks/api/profile";
 import { UserMenu } from "./UserMenu";
 import { Navigation } from "./Navigation";
 import { AppPicker } from "./AppPicker";
 import { useIsLoggedIn } from "../../hooks/session";
 import { NpsSurvey } from "./NpsSurvey";
+import { getRuntimeConfig } from "../../config";
 
 export type Props = {
   children: ReactNode;
@@ -28,6 +32,7 @@ export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
+  const router = useRouter();
 
   const isDark =
     typeof props.theme !== "undefined"
@@ -50,8 +55,19 @@ export const Layout = (props: Props) => {
   return (
     <>
       <Head>
+        <link rel="icon" type="image/svg+xml" href={favicon.src}></link>
         <title>{l10n.getString("meta-title")}</title>
-        {/* TODO: Add favicon, meta tags */}
+        <meta name="description" content={l10n.getString("meta-description")}/>
+        <meta property="og:url" content={getRuntimeConfig().frontendOrigin + router.asPath}/>
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={l10n.getString("meta-title")}/>
+        <meta property="og:description" content={l10n.getString("meta-description")}/>
+        <meta property="og:image" content={socialMediaImage.src}/>
+        <meta name="twitter:card" content="summary_large_image"/>
+        <meta name="twitter:site" content="@firefox"/>
+        <meta name="twitter:title" content={l10n.getString("meta-title")}/>
+        <meta name="twitter:description" content={l10n.getString("meta-description")}/>
+        <meta name="twitter:image" content={socialMediaImage.src}/>
       </Head>
       <div className={styles.wrapper}>
         <NpsSurvey />
