@@ -33,6 +33,7 @@
     "@testing-library/dom": "^8.11.1",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
+    "@testing-library/react-hooks": "^7.0.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/react": "17.0.29",
     "@typescript-eslint/eslint-plugin": "^5.7.0",
