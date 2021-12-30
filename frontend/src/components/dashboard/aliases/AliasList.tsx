@@ -18,6 +18,7 @@ import { useGaPing } from "../../../hooks/gaPing";
 import { trackPurchaseStart } from "../../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../../config";
 import { useLocalLabels } from "../../../hooks/localLabels";
+import { VisuallyHidden } from "react-aria";
 
 export type Props = {
   aliases: AliasData[];
@@ -124,6 +125,11 @@ export const AliasList = (props: Props) => {
   const filters = props.profile.has_premium ? (
     <>
       <div className={styles.stringFilter}>
+        <VisuallyHidden>
+          <label htmlFor="stringFilter">
+            {l10n.getString("profile-filter-search-placeholder")}
+          </label>
+        </VisuallyHidden>
         <input
           value={stringFilterInput}
           onChange={(e) => setStringFilterInput(e.target.value)}

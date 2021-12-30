@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals";
-import { ProfileData, useProfiles } from "../../../src/hooks/api/profile";
+import { ProfileData, ProfileUpdateFn, useProfiles } from "../../../src/hooks/api/profile";
 
 jest.mock("../../../src/hooks/api/profile");
 
@@ -9,11 +9,15 @@ const mockedUseProfiles = useProfiles as jest.MockedFunction<
   typeof useProfiles
 >;
 
-function getReturnValue(profileData?: Partial<ProfileData>): ReturnType<typeof useProfiles>  {
+type MockData = Partial<ProfileData>;
+type Callbacks = {
+  updater?: ProfileUpdateFn,
+};
+function getReturnValue(profileData?: MockData, callbacks?: Callbacks): ReturnType<typeof useProfiles>  {
   return {
     isValidating: false,
     mutate: jest.fn(),
-    update: jest.fn(),
+    update: callbacks?.updater ?? jest.fn(),
     data: [
       {
         has_premium: false,
@@ -29,10 +33,10 @@ function getReturnValue(profileData?: Partial<ProfileData>): ReturnType<typeof u
   };
 }
 
-export const setMockProfileData = (profileData?: Partial<ProfileData>) => {
-  mockedUseProfiles.mockReturnValue(getReturnValue(profileData));
+export const setMockProfileData = (profileData?: MockData, callbacks?: Callbacks) => {
+  mockedUseProfiles.mockReturnValue(getReturnValue(profileData, callbacks));
 };
 
-export const setMockProfileDataOnce = (profileData?: Partial<ProfileData>) => {
-  mockedUseProfiles.mockReturnValueOnce(getReturnValue(profileData));
+export const setMockProfileDataOnce = (profileData?: MockData, callbacks?: Callbacks) => {
+  mockedUseProfiles.mockReturnValueOnce(getReturnValue(profileData, callbacks));
 };

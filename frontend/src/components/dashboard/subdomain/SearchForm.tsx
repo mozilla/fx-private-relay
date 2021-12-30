@@ -1,5 +1,6 @@
 import { useLocalization } from "@fluent/react";
 import { FormEventHandler, useState } from "react";
+import { VisuallyHidden } from "react-aria";
 import { toast } from "react-toastify";
 import { authenticatedFetch } from "../../../hooks/api/api";
 import { Button } from "../../Button";
@@ -31,6 +32,11 @@ export const SubdomainSearchForm = (props: Props) => {
 
   return (
     <form onSubmit={onSubmit}>
+      <VisuallyHidden>
+        <label htmlFor="subdomain">
+          {l10n.getString("banner-choose-subdomain-input-placeholder")}
+        </label>
+      </VisuallyHidden>
       <input
         type="search"
         value={subdomainInput}

@@ -29,18 +29,13 @@ export type CustomAliasData = CommonAliasData & {
 
 export type AliasData = RandomAliasData | CustomAliasData;
 
-export type AliasUpdateFn = (
-  id: CommonAliasData["id"],
-  data: Partial<CommonAliasData>
-) => Promise<void>;
-
-type CreateFn = () => Promise<void>;
-type UpdateFn = (alias: Partial<AliasData> & { id: number }) => Promise<void>;
-type DeleteFn = (id: number) => Promise<void>;
+export type AliasCreateFn = () => Promise<void>;
+export type AliasUpdateFn = (alias: Partial<AliasData> & { id: number }) => Promise<void>;
+export type AliasDeleteFn = (id: number) => Promise<void>;
 type WithUpdater = {
-  create: CreateFn;
-  update: UpdateFn;
-  delete: DeleteFn;
+  create: AliasCreateFn;
+  update: AliasUpdateFn;
+  delete: AliasDeleteFn;
 };
 
 export function useAliases(): {
@@ -52,7 +47,7 @@ export function useAliases(): {
   const customAliases: SWRResponse<CustomAliasData[], unknown> =
     useApiV1("/domainaddresses/");
 
-  const getCreater: (type: "random" | "custom") => CreateFn = (type) => {
+  const getCreater: (type: "random" | "custom") => AliasCreateFn = (type) => {
     return async () => {
       const endpoint =
         type === "random" ? "/relayaddresses/" : "/domainaddresses/";
@@ -68,7 +63,7 @@ export function useAliases(): {
     };
   };
 
-  const getUpdater: (type: "random" | "custom") => UpdateFn = (type) => {
+  const getUpdater: (type: "random" | "custom") => AliasUpdateFn = (type) => {
     return async (aliasData) => {
       const endpoint =
         type === "random"
@@ -87,7 +82,7 @@ export function useAliases(): {
     };
   };
 
-  const getDeleter: (type: "random" | "custom") => DeleteFn = (type) => {
+  const getDeleter: (type: "random" | "custom") => AliasDeleteFn = (type) => {
     return async (aliasId) => {
       const endpoint =
         type === "random"
