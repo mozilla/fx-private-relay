@@ -9,6 +9,7 @@ import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { setMockAliasesData } from "../../../__mocks__/hooks/api/aliases";
 
+// Important: make sure mocks are imported *before* the page under test:
 import Settings from "./settings.page";
 
 jest.mock("@fluent/react", () => mockFluentReact);
@@ -24,7 +25,7 @@ describe("The settings screen", () => {
     render(<Settings />);
 
     const bannerHeading = screen.getByRole("heading", {
-      name: "l10n string: [settings-warning-collection-off-heading]",
+      name: "l10n string: [settings-warning-collection-off-heading], with vars: {}",
     });
 
     expect(bannerHeading).toBeInTheDocument();
@@ -35,7 +36,7 @@ describe("The settings screen", () => {
     render(<Settings />);
 
     const bannerHeading = screen.queryByRole("heading", {
-      name: "l10n string: [settings-warning-collection-off-heading]",
+      name: "l10n string: [settings-warning-collection-off-heading], with vars: {}",
     });
 
     expect(bannerHeading).not.toBeInTheDocument();
@@ -47,7 +48,7 @@ describe("The settings screen", () => {
 
     userEvent.click(
       screen.getByLabelText(
-        "l10n string: [setting-label-collection-description]"
+        "l10n string: [setting-label-collection-description], with vars: {}"
       )
     );
 
