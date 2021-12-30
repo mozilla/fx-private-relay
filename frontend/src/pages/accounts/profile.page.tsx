@@ -148,26 +148,26 @@ const Profile: NextPage = () => {
           </Localized>
           {subdomainIndicator}
         </div>
-        <div className={styles.accountStats}>
-          <span className={styles.stat}>
-            <span className={styles.label}>
+        <dl className={styles.accountStats}>
+          <div className={styles.stat}>
+            <dt className={styles.label}>
               {l10n.getString("profile-stat-label-aliases-used")}
-            </span>
-            <span className={styles.value}>{allAliases.length}</span>
-          </span>
-          <span className={styles.stat}>
-            <span className={styles.label}>
+            </dt>
+            <dd className={styles.value}>{allAliases.length}</dd>
+          </div>
+          <div className={styles.stat}>
+            <dt className={styles.label}>
               {l10n.getString("profile-stat-label-blocked")}
-            </span>
-            <span className={styles.value}>{totalBlockedEmails}</span>
-          </span>
-          <span className={styles.stat}>
-            <span className={styles.label}>
+            </dt>
+            <dd className={styles.value}>{totalBlockedEmails}</dd>
+          </div>
+          <div className={styles.stat}>
+            <dt className={styles.label}>
               {l10n.getString("profile-stat-label-forwarded")}
-            </span>
-            <span className={styles.value}>{totalForwardedEmails}</span>
-          </span>
-        </div>
+            </dt>
+            <dd className={styles.value}>{totalForwardedEmails}</dd>
+          </div>
+        </dl>
       </div>
     </header>
   ) : (
@@ -226,9 +226,9 @@ const Profile: NextPage = () => {
       ></firefox-private-relay-addon-data>
       <Layout>
         {stats}
-        <div className={styles.bannersWrapper}>
-          <ProfileBanners profile={profile} />
-        </div>
+        <section className={styles.bannersWrapper}>
+          <ProfileBanners profile={profile} premiumCountries={premiumCountriesData.data} />
+        </section>
         <main className={styles.mainWrapper}>
           <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
           <Onboarding aliases={allAliases} onCreate={createAlias} />

@@ -9,17 +9,17 @@ import {
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
 import { isUsingFirefox } from "../../functions/userAgent";
-import { usePremiumCountries } from "../../hooks/api/premiumCountries";
 import { ProfileData } from "../../hooks/api/profile";
+import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
 import { Banner } from "../Banner";
 
 export type Props = {
   profile: ProfileData;
+  premiumCountries?: PremiumCountriesData;
 };
 
 export const ProfileBanners = (props: Props) => {
   const { l10n } = useLocalization();
-  const premiumCountriesData = usePremiumCountries();
   const banners: ReactNode[] = [];
 
   if (!isUsingFirefox()) {
@@ -59,6 +59,7 @@ export const ProfileBanners = (props: Props) => {
             "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
           content: l10n.getString("banner-download-install-extension-cta"),
         }}
+        hiddenWithAddon={true}
       >
         <p>{l10n.getString("banner-download-install-extension-copy")}</p>
       </Banner>
@@ -67,7 +68,7 @@ export const ProfileBanners = (props: Props) => {
 
   if (
     !props.profile.has_premium &&
-    isPremiumAvailableInCountry(premiumCountriesData.data)
+    isPremiumAvailableInCountry(props.premiumCountries)
   ) {
     banners.push(
       <Banner
@@ -76,7 +77,7 @@ export const ProfileBanners = (props: Props) => {
         title={l10n.getString("banner-upgrade-headline")}
         illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
         cta={{
-          target: getPremiumSubscribeLink(premiumCountriesData.data),
+          target: getPremiumSubscribeLink(props.premiumCountries),
           content: l10n.getString("banner-upgrade-cta"),
         }}
       >
