@@ -19,4 +19,5 @@ export type RuntimeConfig = {
   mozmailDomain: "mozmail.com";
   googleAnalyticsId: `UA-${number}-${number}`;
   maxOnboardingAvailable: number;
+  featureFlags: Record<"generateCustomAlias", boolean>;
 };
