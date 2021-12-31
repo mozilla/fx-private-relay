@@ -1,0 +1,47 @@
+@import "../../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+// @import "../../../../../static/scss/libs/protocol/css/includes/lib";
+// @import "../../../../../static/scss/libs/protocol/css/includes/forms/lib";
+
+.buttonWrapper {
+  position: relative;
+}
+
+.popup {
+  position: absolute;
+  margin-top: $spacing-sm;
+  // Move to the left by the amount of horizontal padding in .menuItemWrapper:
+  margin-left: -1 * $spacing-md;
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-md;
+  list-style-type: none;
+  min-width: $content-xs;
+  // Overlap the stats with position: relative in the alias cards:
+  z-index: 2;
+
+  .menuItemWrapper {
+    font-family: $font-stack-firefox;
+    color: $color-blue-50;
+    padding: $spacing-md $spacing-lg;
+
+    &:first-child {
+      border-top-left-radius: $border-radius-md;
+      border-top-right-radius: $border-radius-md;
+    }
+    &:last-child {
+      border-bottom-left-radius: $border-radius-md;
+      border-bottom-right-radius: $border-radius-md;
+    }
+
+    &:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    &:focus {
+      outline: none;
+      background-color: $color-blue-50;
+      color: $color-white;
+    }
+  }
+}

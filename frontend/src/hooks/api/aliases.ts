@@ -29,39 +29,46 @@ export type CustomAliasData = CommonAliasData & {
 
 export type AliasData = RandomAliasData | CustomAliasData;
 
-export type AliasCreateFn = () => Promise<void>;
+export type RandomAliasCreateFn = () => Promise<void>;
+export type CustomAliasCreateFn = (address: string) => Promise<void>;
 export type AliasUpdateFn = (alias: Partial<AliasData> & { id: number }) => Promise<void>;
 export type AliasDeleteFn = (id: number) => Promise<void>;
+type WithRandomAliasCreater = {
+  create: RandomAliasCreateFn;
+};
+type WithCustomAliasCreater = {
+  create: CustomAliasCreateFn;
+};
 type WithUpdater = {
-  create: AliasCreateFn;
   update: AliasUpdateFn;
+};
+type WithDeleter = {
   delete: AliasDeleteFn;
 };
 
 export function useAliases(): {
-  randomAliasData: SWRResponse<RandomAliasData[], unknown> & WithUpdater;
-  customAliasData: SWRResponse<CustomAliasData[], unknown> & WithUpdater;
+  randomAliasData: SWRResponse<RandomAliasData[], unknown> & WithRandomAliasCreater & WithUpdater & WithDeleter;
+  customAliasData: SWRResponse<CustomAliasData[], unknown> & WithCustomAliasCreater & WithUpdater & WithDeleter;
 } {
   const randomAliases: SWRResponse<RandomAliasData[], unknown> =
     useApiV1("/relayaddresses/");
   const customAliases: SWRResponse<CustomAliasData[], unknown> =
     useApiV1("/domainaddresses/");
 
-  const getCreater: (type: "random" | "custom") => AliasCreateFn = (type) => {
-    return async () => {
-      const endpoint =
-        type === "random" ? "/relayaddresses/" : "/domainaddresses/";
-      await apiFetch(endpoint, {
-        method: "POST",
-        body: JSON.stringify({ enabled: true }),
-      });
-      if (type === "random") {
-        randomAliases.mutate();
-      } else {
-        customAliases.mutate();
-      }
-    };
-  };
+  const randomAliasCreater: RandomAliasCreateFn = async () => {
+    await apiFetch("/relayaddresses/", {
+      method: "POST",
+      body: JSON.stringify({ enabled: true }),
+    });
+    randomAliases.mutate();
+  }
+  const customAliasCreater: CustomAliasCreateFn = async (address) => {
+    await apiFetch("/domainaddresses/", {
+      method: "POST",
+      body: JSON.stringify({ enabled: true, address: address }),
+    });
+    customAliases.mutate();
+  }
 
   const getUpdater: (type: "random" | "custom") => AliasUpdateFn = (type) => {
     return async (aliasData) => {
@@ -102,13 +109,13 @@ export function useAliases(): {
 
   const randomAliasData = {
     ...randomAliases,
-    create: getCreater("random"),
+    create: randomAliasCreater,
     update: getUpdater("random"),
     delete: getDeleter("random"),
   };
   const customAliasData = {
     ...customAliases,
-    create: getCreater("custom"),
+    create: customAliasCreater,
     update: getUpdater("custom"),
     delete: getDeleter("custom"),
   };

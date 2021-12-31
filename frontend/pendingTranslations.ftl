@@ -38,3 +38,18 @@ modal-domain-register-confirmation-checkbox-v2 = Yes, I want to register <subdom
 #   $step (number) - Which step the user currently is on
 #   $max (number) - Total number of steps
 multi-part-onboarding-step-counter = Step { $step } of { $max }.
+
+profile-label-generate-new-alias-menu-random = Random Alias
+# Variables
+#   $subdomain (string) - The user's custom subdomain, if any, e.g. `@eduardofeo`.
+profile-label-generate-new-alias-menu-custom = @{ $subdomain } Alias
+
+modal-custom-alias-picker-heading = Create a new custom alias
+modal-custom-alias-picker-warning = You don’t need to create custom aliases before you use them; as soon as you receive an email sent to your custom domain, the alias will be generated automatically. All you need to do is make up a prefix—the part of the email that goes before the @.
+modal-custom-alias-picker-form-heading = Generate a custom alias manually
+modal-custom-alias-picker-form-prefix-label = Enter alias prefix
+# This is shown in the form field in which users can pick a custom alias prefix for their own subdomain.
+# Please avoid using real company names here.
+modal-custom-alias-picker-form-prefix-placeholder = acme_corp
+modal-custom-alias-picker-form-submit-label = Generate Alias
+modal-custom-alias-picker-creation-error = Your custom alias could not be created. Please try again, or send an email to the alias to create it.

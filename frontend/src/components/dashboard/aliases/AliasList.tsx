@@ -1,31 +1,23 @@
 import { useLocalization } from "@fluent/react";
+import { useState } from "react";
+import { VisuallyHidden } from "react-aria";
 import styles from "./AliasList.module.scss";
-import plusIcon from "../../../../../static/images/plus-sign-white.svg";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
 import { Alias } from "./Alias";
-import { Button, LinkButton } from "../../Button";
-import { useState } from "react";
 import { filterAliases } from "../../../functions/filterAliases";
 import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
 import { UserData } from "../../../hooks/api/user";
-import {
-  getPremiumSubscribeLink,
-  isPremiumAvailableInCountry,
-} from "../../../functions/getPlan";
 import { PremiumCountriesData } from "../../../hooks/api/premiumCountries";
-import { useGaPing } from "../../../hooks/gaPing";
-import { trackPurchaseStart } from "../../../functions/trackPurchase";
-import { getRuntimeConfig } from "../../../config";
 import { useLocalLabels } from "../../../hooks/localLabels";
-import { VisuallyHidden } from "react-aria";
+import { AliasGenerationButton } from "./AliasGenerationButton";
 
 export type Props = {
   aliases: AliasData[];
   profile: ProfileData;
   user: UserData;
   premiumCountries?: PremiumCountriesData;
-  onCreate: () => void;
+  onCreate: (options: { type: "random" } | { type: "custom", address: string }) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   onDelete: (alias: AliasData) => void;
 };
@@ -35,10 +27,6 @@ export const AliasList = (props: Props) => {
   const [stringFilterInput, setStringFilterInput] = useState("");
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
-  const getUnlimitedButtonRef = useGaPing({
-    category: "Purchase Button",
-    label: "profile-create-alias-upgrade-promo",
-  });
 
   if (props.aliases.length === 0) {
     return null;
@@ -86,40 +74,6 @@ export const AliasList = (props: Props) => {
     );
   });
 
-  const premiumSubscribeButton = isPremiumAvailableInCountry(
-    props.premiumCountries
-  ) ? (
-    <LinkButton
-      href={getPremiumSubscribeLink(props.premiumCountries)}
-      target="_blank"
-      rel="noopener noreferrer"
-      ref={getUnlimitedButtonRef}
-      onClick={() =>
-        trackPurchaseStart({ label: "profile-create-alias-upgrade-promo" })
-      }
-    >
-      {l10n.getString("profile-label-upgrade")}
-    </LinkButton>
-  ) : (
-    <Button disabled>
-      <img src={plusIcon.src} alt="" width={16} height={16} />
-      {l10n.getString("profile-label-generate-new-alias")}
-    </Button>
-  );
-  const maxAliases = getRuntimeConfig().maxFreeAliases;
-  const newAliasButton =
-    props.profile.has_premium || aliases.length < maxAliases ? (
-      <Button
-        onClick={props.onCreate}
-        title={l10n.getString("profile-label-generate-new-alias")}
-      >
-        <img src={plusIcon.src} alt="" width={16} height={16} />
-        {l10n.getString("profile-label-generate-new-alias")}
-      </Button>
-    ) : (
-      premiumSubscribeButton
-    );
-
   // With at most five aliases, filters aren't really useful
   // for non-Premium users.
   const filters = props.profile.has_premium ? (
@@ -155,7 +109,14 @@ export const AliasList = (props: Props) => {
     <section>
       <div className={styles.controls}>
         {filters}
-        <div className={styles.newAliasButton}>{newAliasButton}</div>
+        <div className={styles.newAliasButton}>
+          <AliasGenerationButton
+            aliases={props.aliases}
+            profile={props.profile}
+            premiumCountries={props.premiumCountries}
+            onCreate={props.onCreate}
+          />
+        </div>
       </div>
       <ul>{aliasCards}</ul>
     </section>

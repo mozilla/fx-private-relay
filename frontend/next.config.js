@@ -13,6 +13,9 @@ const runtimeConfigs = {
     mozmailDomain: "mozmail.com",
     googleAnalyticsId: "UA-77033033-33",
     maxOnboardingAvailable: 3,
+    featureFlags: {
+      generateCustomAlias: false,
+    },
   },
 };
 

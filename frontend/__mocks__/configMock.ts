@@ -16,6 +16,9 @@ export const mockConfigModule = {
       mozmailDomain: "mozmail.com",
       googleAnalyticsId: "UA-00000000-00",
       maxOnboardingAvailable: 3,
+      featureFlags: {
+        generateCustomAlias: false,
+      },
     };
   }),
 };

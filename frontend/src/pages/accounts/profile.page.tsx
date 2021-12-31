@@ -75,8 +75,12 @@ const Profile: NextPage = () => {
     );
   }
 
-  const createAlias = () => {
-    randomAliasData.create();
+  const createAlias = (options: { type: "random" } | { type: "custom", address: string }) => {
+    if (options.type === "custom") {
+      customAliasData.create(options.address);
+    } else {
+      randomAliasData.create();
+    }
   };
 
   const updateAlias = (alias: AliasData, updatedFields: Partial<AliasData>) => {
@@ -231,7 +235,7 @@ const Profile: NextPage = () => {
         </section>
         <main className={styles.mainWrapper}>
           <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
-          <Onboarding aliases={allAliases} onCreate={createAlias} />
+          <Onboarding aliases={allAliases} onCreate={() => createAlias({ type: "random" })} />
           <AliasList
             aliases={allAliases}
             onCreate={createAlias}

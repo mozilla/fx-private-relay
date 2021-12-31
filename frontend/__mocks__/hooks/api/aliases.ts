@@ -7,7 +7,8 @@ import {
   getAllAliases,
   getFullAddress,
   AliasUpdateFn,
-  AliasCreateFn,
+  RandomAliasCreateFn,
+  CustomAliasCreateFn,
   AliasDeleteFn,
 } from "../../../src/hooks/api/aliases";
 
@@ -79,8 +80,8 @@ type MockData = {  random?: Array<Partial<RandomAliasData>>;
 };
 type Callbacks = {
   creaters?: {
-    random?: AliasCreateFn;
-    custom?: AliasCreateFn;
+    random?: RandomAliasCreateFn;
+    custom?: CustomAliasCreateFn;
   },
   updaters?: {
     random?: AliasUpdateFn;
