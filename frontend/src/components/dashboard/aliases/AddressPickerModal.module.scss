@@ -1,0 +1,111 @@
+@import "../../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../../static/scss/libs/protocol/css/includes/lib";
+@import "../../../../../static/scss/libs/protocol/css/includes/forms/lib";
+
+.underlay {
+  position: fixed;
+  background-color: rgba($color-black, 0.4);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .dialogWrapper {
+    background: $color-white;
+    width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
+    max-width: 90%;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
+
+    .hero {
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+      font-weight: bold;
+      text-align: center;
+      border-radius: $border-radius-md;
+      background-color: $color-light-gray-10;
+      padding: $spacing-lg $spacing-md;
+    }
+
+    .warning {
+      display: flex;
+      align-items: center;
+      gap: $spacing-lg;
+      padding: $spacing-lg $spacing-sm;
+      border-bottom: 1px solid $color-light-gray-20;
+
+      .warningIcon {
+        color: $color-pink-30;
+        padding: $spacing-sm;
+
+        svg {
+          max-width: unset;
+        }
+      }
+    }
+
+    .formWrapper {
+      text-align: center;
+
+      .formHeading {
+        color: $color-dark-gray-70;
+        padding: $spacing-lg 0;
+      }
+
+      .prefix {
+        font-family: $font-stack-firefox;
+        width: 70%;
+        margin: 0 auto;
+        gap: $spacing-sm;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+
+        label {
+          text-align: start;
+        }
+
+        input {
+          @include form-input;
+        }
+      }
+
+      .suffix {
+        font-family: $font-stack-firefox;
+        display: block;
+        padding-top: $spacing-md;
+      }
+    }
+
+    .buttons {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: $spacing-xl;
+
+      .cancelButton {
+        border-style: none;
+        background-color: transparent;
+        cursor: pointer;
+        border-radius: $border-radius-sm;
+        color: $color-blue-50;
+        padding: $spacing-sm $spacing-2xl;
+
+        &:hover {
+          background-color: $color-blue-50;
+          color: $color-white;
+        }
+
+        &:focus {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
