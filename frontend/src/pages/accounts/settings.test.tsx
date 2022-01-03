@@ -1,7 +1,8 @@
 import React from "react";
 import { jest, describe, it, expect } from "@jest/globals";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { axe } from "jest-axe";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../../__mocks__/modules/react-ga";
@@ -18,8 +19,22 @@ jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../config.ts", () => mockConfigModule);
 
 setMockAliasesData();
+setMockProfileData();
 
 describe("The settings screen", () => {
+  describe("under axe accessibility testing", () => {
+    it("passes axe accessibility testing", async () => {
+      const { baseElement } = render(<Settings />);
+
+      let results;
+      await act(async () => {
+        results = await axe(baseElement);
+      });
+
+      expect(results).toHaveNoViolations();
+    });
+  });
+
   it("shows a warning when the user currently has server-side label storage disabled", () => {
     setMockProfileData({ server_storage: false });
     render(<Settings />);
