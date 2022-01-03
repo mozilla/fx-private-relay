@@ -296,4 +296,135 @@ describe("The dashboard", () => {
 
     expect(updateFn).toHaveBeenCalledWith({enabled: false, id: 42});
   });
+
+  it("shows the Generate Alias button if the user is not at the max number of aliases", () => {
+    setMockAliasesDataOnce({ random: [ { enabled: true, id: 42 } ], custom: []});
+    setMockProfileDataOnce({ has_premium: false });
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 5,
+    });
+    render(<Profile />);
+
+    const generateAliasButton = screen.getByRole("button", { name: "l10n string: [profile-label-generate-new-alias], with vars: {}" });
+
+    expect(generateAliasButton).toBeInTheDocument();
+    expect(generateAliasButton).toBeEnabled();
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  });
+
+  it("shows a disabled Generate Alias button if the user is at the max number of aliases, and Premium is not available to them", () => {
+    setMockAliasesDataOnce({ random: [ { enabled: true, id: 42 } ], custom: []});
+    setMockProfileDataOnce({ has_premium: false });
+    setMockPremiumCountriesData({ premium_available_in_country: false });
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 1,
+    });
+    render(<Profile />);
+
+    const generateAliasButton = screen.getByRole("button", { name: "l10n string: [profile-label-generate-new-alias], with vars: {}" });
+
+    expect(generateAliasButton).toBeInTheDocument();
+    expect(generateAliasButton).toBeDisabled();
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  });
+
+  it("shows the upgrade button if the user is at the max number of aliases, and Premium is available to them", () => {
+    setMockAliasesDataOnce({ random: [ { enabled: true, id: 42 } ], custom: []});
+    setMockProfileDataOnce({ has_premium: false });
+    setMockPremiumCountriesData({ premium_available_in_country: true });
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 1,
+    });
+    render(<Profile />);
+
+    const upgradeButton = screen.getByRole("link", { name: "l10n string: [profile-label-upgrade], with vars: {}" });
+
+    expect(upgradeButton).toBeInTheDocument();
+    expect(upgradeButton).toBeEnabled();
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  });
+
+  it("shows the Generate Alias button if the user is at the max number of aliases, but has Premium", () => {
+    setMockAliasesDataOnce({ random: [ { enabled: true, id: 42 } ], custom: []});
+    setMockProfileDataOnce({ has_premium: true });
+    const mockedConfig = mockConfigModule.getRuntimeConfig();
+    // getRuntimeConfig() is called frequently, so mock its return value,
+    // then restore the original mock at the end of this test:
+    mockConfigModule.getRuntimeConfig.mockReturnValue({
+      ...mockedConfig,
+      maxFreeAliases: 1,
+    });
+    render(<Profile />);
+
+    const generateAliasButton = screen.getByRole("button", { name: "l10n string: [profile-label-generate-new-alias], with vars: {}" });
+
+    expect(generateAliasButton).toBeInTheDocument();
+    expect(generateAliasButton).toBeEnabled();
+    mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  });
+
+  describe("with the `generateCustomAlias` feature flag enabled", () => {
+    it("shows the Generate Alias button if the user is at the max number of aliases, but has Premium, and does not have a custom domain set", () => {
+      setMockAliasesDataOnce({ random: [ { enabled: true, id: 42 } ], custom: []});
+      setMockProfileDataOnce({ has_premium: true, subdomain: null });
+      const mockedConfig = mockConfigModule.getRuntimeConfig();
+      // getRuntimeConfig() is called frequently, so mock its return value,
+      // then restore the original mock at the end of this test:
+      mockConfigModule.getRuntimeConfig.mockReturnValue({
+        ...mockedConfig,
+        maxFreeAliases: 1,
+        featureFlags: {
+          ...mockedConfig.featureFlags,
+          generateCustomAlias: true,
+        },
+      });
+      render(<Profile />);
+
+      const generateAliasButton = screen.getByRole("button", { name: "l10n string: [profile-label-generate-new-alias], with vars: {}" });
+
+      expect(generateAliasButton).toBeInTheDocument();
+      expect(generateAliasButton).toBeEnabled();
+      mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+    });
+
+    it("shows a dropdown to generate random and custom aliases if the user has Premium and has a custom domain set", () => {
+      setMockAliasesDataOnce({ random: [ { enabled: true, id: 42 } ], custom: []});
+      setMockProfileDataOnce({ has_premium: true, subdomain: "some_subdomain" });
+      const mockedConfig = mockConfigModule.getRuntimeConfig();
+      // getRuntimeConfig() is called frequently, so mock its return value,
+      // then restore the original mock at the end of this test:
+      mockConfigModule.getRuntimeConfig.mockReturnValue({
+        ...mockedConfig,
+        maxFreeAliases: 1,
+        featureFlags: {
+          ...mockedConfig.featureFlags,
+          generateCustomAlias: true,
+        },
+      });
+      render(<Profile />);
+
+      const generateAliasDropdown = screen.getByRole("button", { name: "l10n string: [profile-label-generate-new-alias], with vars: {}" });
+      userEvent.click(generateAliasDropdown);
+      const generateAliasMenu = screen.getByRole("menu", { name: "l10n string: [profile-label-generate-new-alias], with vars: {}" });
+      const generateRandomAliasMenuItem = screen.getByRole("menuitem", { name: "l10n string: [profile-label-generate-new-alias-menu-random], with vars: {}" });
+      const generateCustomAliasMenuItem = screen.getByRole("menuitem", { name: `l10n string: [profile-label-generate-new-alias-menu-custom], with vars: ${JSON.stringify({subdomain:"some_subdomain"})}` });
+
+      expect(generateAliasMenu).toBeInTheDocument();
+      expect(generateRandomAliasMenuItem).toBeInTheDocument();
+      expect(generateCustomAliasMenuItem).toBeInTheDocument();
+      mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+    });
+  });
 });
