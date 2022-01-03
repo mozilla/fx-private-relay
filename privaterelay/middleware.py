@@ -50,6 +50,19 @@ class FxAToRequest:
         return self.get_response(request)
 
 
+class AddDetectedCountryToResponseHeaders:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        if 'X-Client-Region' in request.headers:
+            response['X-Detected-Client-Region'] = (
+                request.headers['X-Client-Region']
+            )
+        return response
+
+
 def _get_metric_view_name(request):
     if request.resolver_match:
         view = request.resolver_match.func

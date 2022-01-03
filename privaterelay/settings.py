@@ -207,7 +207,9 @@ MIDDLEWARE += [
     'csp.middleware.CSPMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
+
     'privaterelay.middleware.FxAToRequest',
+    'privaterelay.middleware.AddDetectedCountryToResponseHeaders',
     'privaterelay.middleware.StoreFirstVisit',
 ]
 
