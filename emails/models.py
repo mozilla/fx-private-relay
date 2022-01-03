@@ -10,6 +10,7 @@ import uuid
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import SuspiciousOperation
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.dispatch import receiver
@@ -131,6 +132,26 @@ class Profile(models.Model):
                 except LookupError:
                     continue
         return 'en'
+
+    # This method returns whether the locale associated with the user's Firefox account
+    # includes a country code from a Premium country. This is less accurate than using
+    # get_premium_countries_info_from_request(), which uses a GeoIP lookup, so prefer
+    # using that if a request context is available. In other contexts, e.g. when
+    # sending an email, this method can be useful.
+    @property
+    def fxa_locale_in_premium_country(self):
+        if self.fxa.extra_data.get('locale'):
+            accept_langs = parse_accept_lang_header(
+                self.fxa.extra_data.get('locale')
+            )
+            if (
+                len(accept_langs) >= 1 and
+                len(accept_langs[0][0].split('-')) >= 2 and
+                accept_langs[0][0].split('-')[1]
+                    in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+            ):
+                return True
+        return False
 
     @property
     def num_active_address(self):
@@ -397,7 +418,9 @@ class RegisteredSubdomain(models.Model):
         return self.subdomain_hash
 
 
-class CannotMakeSubdomainException(Exception):
+# extend from SuspiciousOperation to trigger 400 status code error
+# TODO: in Django 3.2+ change this to BadRequest
+class CannotMakeSubdomainException(SuspiciousOperation):
     """Exception raised by Profile due to error on subdomain creation.
 
     Attributes:
@@ -408,7 +431,9 @@ class CannotMakeSubdomainException(Exception):
         self.message = message
 
 
-class CannotMakeAddressException(Exception):
+# extend from SuspiciousOperation to trigger 400 status code error
+# TODO: in Django 3.2+ change this to BadRequest
+class CannotMakeAddressException(SuspiciousOperation):
     """Exception raised by RelayAddress or DomainAddress due to error on alias creation.
 
     Attributes:
@@ -625,13 +650,17 @@ class DomainAddress(models.Model):
 
 
 class Reply(models.Model):
-    relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE, blank=True, null=True)
+    relay_address = models.ForeignKey(
+        RelayAddress, on_delete=models.CASCADE, blank=True, null=True
+    )
     domain_address = models.ForeignKey(
         DomainAddress, on_delete=models.CASCADE, blank=True, null=True
     )
     lookup = models.CharField(max_length=255, blank=False, db_index=True)
     encrypted_metadata = models.TextField(blank=False)
-    created_at = models.DateField(auto_now_add=True, null=False)
+    created_at = models.DateField(
+        auto_now_add=True, null=False, db_index=True
+    )
 
     @property
     def address(self):

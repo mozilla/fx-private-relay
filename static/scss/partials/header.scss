@@ -269,7 +269,8 @@ header {
     }
 
     .fx-private-relay-logotype {
-        background-image: url("/static/images/fx-private-relay-logotype-dark.svg");
+        background-image: url("/static/images/fx-private-relay-premium-logotype-dark.svg");
+        min-width: 250px;
     }
 
     .header-top {
@@ -364,6 +365,10 @@ header {
 
     .fx-private-relay-logotype {
         min-width: 150px;
+
+        .is-premium:not(.is-dark) & {
+            min-width: 220px;
+        }
     }
 
     .sign-in {
@@ -380,6 +385,10 @@ header {
     .fx-private-relay-logotype {
         min-width: 120px;
         background-position: center;
+
+        .is-premium:not(.is-dark) & {
+            min-width: 180px;
+        }
     }
 
     .header-top {

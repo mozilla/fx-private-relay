@@ -40,9 +40,9 @@ def time_if_enabled(name):
     return timing_decorator
 
 
-def incr_if_enabled(name, value=1):
+def incr_if_enabled(name, value=1, tags=None):
     if settings.STATSD_ENABLED:
-        metrics.incr(name, value)
+        metrics.incr(name, value, tags)
 
 
 def histogram_if_enabled(name, value, tags=None):

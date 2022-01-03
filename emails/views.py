@@ -325,11 +325,13 @@ def _sns_message(message_json):
         )
     common_headers = mail['commonHeaders']
 
+    _record_receipt_verdicts(message_json, 'all')
     to_address = _get_relay_recipient_from_message_json(message_json)
     if to_address is None:
         incr_if_enabled('no_relay_domain_in_recipient_fields', 1)
         return HttpResponse("Address does not exist", status=404)
 
+    _record_receipt_verdicts(message_json, 'relay_recipient')
     from_address = parseaddr(common_headers['from'][0])[1]
     [to_local_portion, to_domain_portion] = to_address.split('@')
     if to_local_portion == 'noreply':
@@ -347,9 +349,11 @@ def _sns_message(message_json):
 
         return HttpResponse("Address does not exist", status=404)
 
+    _record_receipt_verdicts(message_json, 'valid_user')
     # first see if this user is over bounce limits
     bounce_paused, bounce_type = user_profile.check_bounce_pause()
     if bounce_paused:
+        _record_receipt_verdicts(message_json, 'user_bounce_paused')
         incr_if_enabled('email_suppressed_for_%s_bounce' % bounce_type, 1)
         return HttpResponse("Address is temporarily disabled.")
 
@@ -373,8 +377,10 @@ def _sns_message(message_json):
         incr_if_enabled('email_for_disabled_address', 1)
         address.num_blocked += 1
         address.save(update_fields=['num_blocked'])
+        _record_receipt_verdicts(message_json, 'disabled_alias')
         return HttpResponse("Address is temporarily disabled.")
 
+    _record_receipt_verdicts(message_json, 'active_alias')
     incr_if_enabled('email_for_active_address', 1)
 
     subject = common_headers.get('subject', '')
@@ -441,6 +447,18 @@ def _sns_message(message_json):
         remove_message_from_s3(bucket, object_key)
 
     return response
+
+
+def _record_receipt_verdicts(message_json, state):
+    verdict_tags = []
+    for key, value in message_json['receipt'].items():
+        if key.endswith('Verdict'):
+            value = value['status']
+            verdict_tags.append(f'{key}:{value}')
+            incr_if_enabled(
+                f'relay.emails.verdicts.{key}', 1, [f'state:{state}']
+            )
+    incr_if_enabled(f'relay.emails.state.{state}', 1, verdict_tags)
 
 
 def _get_keys_from_headers(headers):

@@ -207,7 +207,9 @@ MIDDLEWARE += [
     'csp.middleware.CSPMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
+
     'privaterelay.middleware.FxAToRequest',
+    'privaterelay.middleware.AddDetectedCountryToResponseHeaders',
     'privaterelay.middleware.StoreFirstVisit',
 ]
 
@@ -257,6 +259,10 @@ PREMIUM_PLAN_ID_MATRIX = {
         },
     },
     "euro": {
+        "at": {
+            "id": "price_1JmRTDJNcmPzuWtRnJavIXXX",
+            "price": "0,99 €",
+        },
         "de": {
             "id": "price_1JmRTDJNcmPzuWtRnJavIXXX",
             "price": "0,99 €",
@@ -279,6 +285,10 @@ PREMIUM_PLAN_ID_MATRIX = {
         },
         "nl": {
             "id": "price_1JmROfJNcmPzuWtR6od8OfDW",
+            "price": "0,99 €",
+        },
+        "ie": {
+            "id": "price_1JmRCQJNcmPzuWtRprMnmtax",
             "price": "0,99 €",
         },
     },
