@@ -136,7 +136,7 @@ const Profile: NextPage = () => {
   // Non-Premium users have only five aliases, making the stats less insightful,
   // so only show them for Premium users:
   const stats = profile.has_premium ? (
-    <header className={styles.header}>
+    <section className={styles.header}>
       <div className={styles.headerWrapper}>
         <div className={styles.userDetails}>
           <Localized
@@ -173,21 +173,21 @@ const Profile: NextPage = () => {
           </div>
         </dl>
       </div>
-    </header>
+    </section>
   ) : (
     <Localized
       id="profile-label-welcome-html"
       vars={{ email: user.email }}
       elems={{ span: <span /> }}
     >
-      <p className={styles.noPremiumHeader} />
+      <section className={styles.noPremiumHeader} />
     </Localized>
   );
 
   const bottomBanner =
     profile.has_premium ||
     !isPremiumAvailableInCountry(premiumCountriesData.data) ? null : (
-      <div className={styles.bottomBanner}>
+      <section className={styles.bottomBanner}>
         <div className={styles.bottomBannerWrapper}>
           <div className={styles.bottomBannerContent}>
             <Localized
@@ -209,7 +209,7 @@ const Profile: NextPage = () => {
           </div>
           <img src={BottomBannerIllustration.src} alt="" />
         </div>
-      </div>
+      </section>
     );
 
   return (
@@ -229,30 +229,32 @@ const Profile: NextPage = () => {
         data-premium-enabled="True"
       ></firefox-private-relay-addon-data>
       <Layout>
-        {stats}
-        <section className={styles.bannersWrapper}>
-          <ProfileBanners profile={profile} premiumCountries={premiumCountriesData.data} />
-        </section>
-        <main className={styles.mainWrapper}>
-          <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
-          <Onboarding aliases={allAliases} onCreate={() => createAlias({ type: "random" })} />
-          <AliasList
-            aliases={allAliases}
-            onCreate={createAlias}
-            onUpdate={updateAlias}
-            onDelete={deleteAlias}
-            profile={profile}
-            user={user}
-            premiumCountries={premiumCountriesData.data}
-          />
-          <p className={styles.sizeInformation}>
-            {l10n.getString("profile-supports-email-forwarding", {
-              size: getRuntimeConfig().emailSizeLimitNumber,
-              unit: getRuntimeConfig().emailSizeLimitUnit,
-            })}
-          </p>
-        </main>
+        <main>
+          {stats}
+          <section className={styles.bannersWrapper}>
+            <ProfileBanners profile={profile} premiumCountries={premiumCountriesData.data} />
+          </section>
+          <section className={styles.mainWrapper}>
+            <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
+            <Onboarding aliases={allAliases} onCreate={() => createAlias({ type: "random" })} />
+            <AliasList
+              aliases={allAliases}
+              onCreate={createAlias}
+              onUpdate={updateAlias}
+              onDelete={deleteAlias}
+              profile={profile}
+              user={user}
+              premiumCountries={premiumCountriesData.data}
+            />
+            <p className={styles.sizeInformation}>
+              {l10n.getString("profile-supports-email-forwarding", {
+                size: getRuntimeConfig().emailSizeLimitNumber,
+                unit: getRuntimeConfig().emailSizeLimitUnit,
+              })}
+            </p>
+          </section>
         {bottomBanner}
+        </main>
       </Layout>
     </>
   );

@@ -57,7 +57,7 @@ export const Navigation = () => {
   );
 
   return (
-    <nav className={styles.siteNav}>
+    <nav aria-label={l10n.getString("nav-menu")} className={styles.siteNav}>
       <Link href={homePath}>
         <a
           className={`${styles.link} ${styles.homeLink} ${
