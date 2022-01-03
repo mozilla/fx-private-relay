@@ -1,7 +1,8 @@
 import React from "react";
 import { jest, describe, it, expect } from "@jest/globals";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { axe } from "jest-axe";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../../__mocks__/modules/react-ga";
@@ -28,6 +29,36 @@ setMockUserData();
 setMockPremiumCountriesData();
 
 describe("The dashboard", () => {
+  describe("under axe accessibility testing", () => {
+    it("passes axe accessibility testing", async () => {
+      // The label editor sets a timeout when submitted, which axe doesn't wait for.
+      // Hence, we disable the label editor by disabling server-side data storage for this user.
+      setMockProfileDataOnce({ has_premium: false, server_storage: false });
+      const { baseElement } = render(<Profile />);
+
+      let results;
+      await act(async () => {
+        results = await axe(baseElement);
+      });
+
+      expect(results).toHaveNoViolations();
+    });
+
+    it("passes axe accessibility testing with the Premium user interface", async () => {
+      // The label editor sets a timeout when submitted, which axe doesn't wait for.
+      // Hence, we disable the label editor by disabling server-side data storage for this user.
+      setMockProfileDataOnce({ has_premium: true, server_storage: false });
+      const { baseElement } = render(<Profile />);
+
+      let results;
+      await act(async () => {
+        results = await axe(baseElement);
+      });
+
+      expect(results).toHaveNoViolations();
+    });
+  });
+
   it("shows a count of the user's aliases for Premium users", () => {
     setMockProfileDataOnce({ has_premium: true });
     setMockAliasesDataOnce({
