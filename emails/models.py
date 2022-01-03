@@ -637,13 +637,17 @@ class DomainAddress(models.Model):
 
 
 class Reply(models.Model):
-    relay_address = models.ForeignKey(RelayAddress, on_delete=models.CASCADE, blank=True, null=True)
+    relay_address = models.ForeignKey(
+        RelayAddress, on_delete=models.CASCADE, blank=True, null=True
+    )
     domain_address = models.ForeignKey(
         DomainAddress, on_delete=models.CASCADE, blank=True, null=True
     )
     lookup = models.CharField(max_length=255, blank=False, db_index=True)
     encrypted_metadata = models.TextField(blank=False)
-    created_at = models.DateField(auto_now_add=True, null=False)
+    created_at = models.DateField(
+        auto_now_add=True, null=False, db_index=True
+    )
 
     @property
     def address(self):
