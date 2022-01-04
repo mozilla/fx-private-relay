@@ -650,6 +650,9 @@ function dataCollectionBannerLogic() {
 function dismissSurvey() {
 	const survey_banner = document.getElementById("micro-survey-banner");
 	survey_banner.classList.toggle("is-hidden");
+  const date = new Date();
+  date.setTime(date.getTime() + 30*24*60*60*1000)
+  document.cookie = "surveyed=true; expires=" + date.toUTCString() + "; path=/";
 }
 
 if ( document.getElementById("survey-dismiss") ) {
