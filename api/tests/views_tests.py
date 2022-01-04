@@ -2,7 +2,6 @@ from django.test import TestCase
 
 import pytest
 
-@pytest.mark.xfail(reason="urlpattern needs migration to django.urls.path")
 @pytest.mark.parametrize("format", ("yaml", "json"))
 def test_swagger_format(client, format):
     path = f"/api/v1/swagger.{format}"
