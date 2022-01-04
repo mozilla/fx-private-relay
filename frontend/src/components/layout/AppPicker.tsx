@@ -35,6 +35,7 @@ import BentoIconWhite from "../../../../static/images/bento-white.svg";
 import FirefoxLogo from "../../../../static/images/logos/bento/fx.png";
 import MonitorLogo from "../../../../static/images/logos/bento/monitor.png";
 import PocketLogo from "../../../../static/images/logos/bento/pocket.png";
+import VpnLogo from "../../../../static/images/logos/bento/vpn.svg";
 import FxDesktopLogo from "../../../../static/images/logos/fx-logo.svg";
 import FxMobileLogo from "../../../../static/images/logos/bento/fx-mobile.png";
 import { Props as LayoutProps } from "./Layout";
@@ -63,6 +64,12 @@ const getProducts = (referringSiteUrl: string) => ({
       referringSiteUrl
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
   },
+  vpn: {
+    id: "vpn",
+    url: `https://www.mozilla.org/en-US/products/vpn/?utm_source=${encodeURIComponent(
+      referringSiteUrl
+    )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
+  },
 });
 
 export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
@@ -73,6 +80,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
   const pocketLinkRef = useRef<HTMLAnchorElement>(null);
   const fxDesktopLinkRef = useRef<HTMLAnchorElement>(null);
   const fxMobileLinkRef = useRef<HTMLAnchorElement>(null);
+  const vpnLinkRef = useRef<HTMLAnchorElement>(null);
   const mozillaLinkRef = useRef<HTMLAnchorElement>(null);
 
   const onSelect = (itemKey: Key) => {
@@ -106,6 +114,14 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         category: "bento",
         action: "bento-app-link-click",
         label: "fx-mobile",
+      });
+    }
+    if (itemKey === products.vpn.id) {
+      vpnLinkRef.current?.click();
+      gaEvent({
+        category: "bento",
+        action: "bento-app-link-click",
+        label: "vpn",
       });
     }
     if (itemKey === "mozilla") {
@@ -165,6 +181,16 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         >
           <img src={FxMobileLogo.src} alt="" width={16} height={16} />
           {l10n.getString("fx-mobile")}
+        </a>
+      </Item>
+      <Item key={products.vpn.id} textValue={l10n.getString("fx-vpn")}>
+        <a
+          ref={vpnLinkRef}
+          href={products.vpn.url}
+          className={`${styles.menuLink} ${styles.vpnLink}`}
+        >
+          <img src={VpnLogo.src} alt="" width={16} height={16} />
+          {l10n.getString("fx-vpn")}
         </a>
       </Item>
       <Item key="mozilla" textValue={l10n.getString("made-by-mozilla")}>
