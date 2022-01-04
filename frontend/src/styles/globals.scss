@@ -1,7 +1,7 @@
 @import "./fonts/inter-ui.scss";
 @import "./fonts/metropolis.scss";
-@import "../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
-@import "../../../static/scss/libs/protocol/css/base/elements/reset";
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/base/elements/reset";
 
 a {
   color: inherit;
