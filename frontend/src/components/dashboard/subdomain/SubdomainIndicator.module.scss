@@ -1,0 +1,81 @@
+@import "../../../../../static/scss/libs/protocol/css/includes/tokens/dist/index.scss";
+@import "../../../../../static/scss/libs/protocol/css/includes/lib";
+
+.openButton {
+  border-style: none;
+  background-color: transparent;
+  color: inherit;
+  border-radius: $border-radius-sm;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.explainerWrapper {
+  background-color: $color-white;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  max-width: $content-sm;
+  padding: $spacing-lg;
+
+  &::before {
+    content: "";
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    top: -6px;
+    left: $spacing-2xl;
+    transform: rotate(45deg);
+    background-color: $color-white;
+  }
+
+  h3 {
+    @include text-title-2xs;
+    font-family: $font-stack-firefox;
+  }
+
+  .explanation {
+    background-color: $color-light-gray-20;
+    border-radius: $border-radius-md;
+    margin: $spacing-lg 0;
+    padding: $spacing-md;
+  }
+
+  .buttonHeading {
+    padding: $spacing-sm 0;
+  }
+
+  .generateButton {
+    padding: $spacing-sm $spacing-md;
+    background-color: transparent;
+    border: 2px solid $color-blue-50;
+    border-radius: $border-radius-sm;
+    color: $color-blue-50;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+      border-color: $color-blue-50;
+      color: $color-white;
+    }
+  }
+
+  .closeButton {
+    position: absolute;
+    top: $spacing-sm;
+    right: $spacing-sm;
+    background-color: transparent;
+    border-style: none;
+    border-radius: $border-radius-sm;
+    width: 20px + $spacing-sm;
+    height: 20px + $spacing-sm;
+    cursor: pointer;
+
+    &:hover {
+      color: $color-blue-50;
+    }
+  }
+}
