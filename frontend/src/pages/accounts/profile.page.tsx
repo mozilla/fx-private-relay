@@ -28,6 +28,7 @@ import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding";
 import { Onboarding } from "../../components/dashboard/Onboarding";
 import { getRuntimeConfig } from "../../config";
+import { SubdomainIndicator } from "../../components/dashboard/subdomain/SubdomainIndicator";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -128,8 +129,13 @@ const Profile: NextPage = () => {
     typeof profile.subdomain === "string" ? (
       <strong className={styles.subdomain}>
         <img src={checkIcon.src} alt="" />
-        {l10n.getString("profile-label-domain")}&nbsp; @{profile.subdomain}.
-        {getRuntimeConfig().mozmailDomain}
+        {l10n.getString("profile-label-domain")}&nbsp;
+        <SubdomainIndicator
+          subdomain={profile.subdomain}
+          onCreateAlias={(address: string) =>
+            createAlias({ type: "custom", address: address })
+          }
+        />
       </strong>
     ) : null;
 
