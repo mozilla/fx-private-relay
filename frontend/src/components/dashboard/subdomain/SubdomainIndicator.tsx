@@ -18,7 +18,7 @@ export const SubdomainIndicator = (props: Props) => {
     return null;
   }
 
-  if (getRuntimeConfig().featureFlags.generateCustomAlias === true) {
+  if (getRuntimeConfig().featureFlags.generateCustomAliasSubdomain === true) {
     return <ExplainerTrigger subdomain={props.subdomain} onCreateAlias={props.onCreateAlias} />;
   }
 
