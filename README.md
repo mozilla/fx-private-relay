@@ -203,6 +203,7 @@ In detail:
 | Var | Value |
 |-------|-------|
 | `FXA_SUBSCRIPTIONS_URL` | `https://accounts.stage.mozaws.net/subscriptions` |
+| `PREMIUM_ENABLED` | `True` |
 | `PREMIUM_PROD_ID` | `prod_IyCWnXUbkYjDgL` (from Stripe)|
 | `PREMIUM_PRICE_ID` | `price_1IMG7KKb9q6OnNsL15Hsn1HE` (from Stripe)|
 | `SUBSCRIPTIONS_WITH_UNLIMITED` | `"premium-relay"` (match the `capabilities` value you used in Stripe)|
