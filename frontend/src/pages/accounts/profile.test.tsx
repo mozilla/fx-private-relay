@@ -418,7 +418,7 @@ describe("The dashboard", () => {
         maxFreeAliases: 1,
         featureFlags: {
           ...mockedConfig.featureFlags,
-          generateCustomAlias: true,
+          generateCustomAliasMenu: true,
         },
       });
       render(<Profile />);
@@ -441,7 +441,7 @@ describe("The dashboard", () => {
         maxFreeAliases: 1,
         featureFlags: {
           ...mockedConfig.featureFlags,
-          generateCustomAlias: true,
+          generateCustomAliasMenu: true,
         },
       });
       render(<Profile />);
