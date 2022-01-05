@@ -351,9 +351,11 @@ function showBannersIfNecessary() {
     // Used to show/hide add-on download prompts in onboarding
     document.getElementById("profile-main").classList.add("is-not-addon-compatible")
 
-
-
     return;
+  }
+  if (browserIsFirefox) {
+    const addonBanner = document.querySelector(".install-addon-banner");
+    addonBanner.classList.remove("hidden");
   }
 }
 
