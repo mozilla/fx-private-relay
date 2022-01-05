@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import include, path, register_converter
 
 from rest_framework import routers
 
@@ -6,6 +6,18 @@ from .views import (
     DomainAddressViewSet, ProfileViewSet, RelayAddressViewSet,
     premium_countries, schema_view
 )
+
+
+class SwaggerFormatConverter:
+    regex = r'\.(json|yaml)'
+
+    def to_python(self, value):
+        return value
+
+    def to_url(self, value):
+        return value
+
+register_converter(SwaggerFormatConverter, "swagger_format")
 
 
 api_router = routers.DefaultRouter()
@@ -24,7 +36,7 @@ urlpatterns = [
          premium_countries,
          name='premium_countries'
     ),
-    path('v1/swagger(?P<format>\.json|\.yaml)',
+    path('v1/swagger<swagger_format:format>',
         schema_view.without_ui(cache_timeout=0),
         name='schema-json'
     ),
