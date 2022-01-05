@@ -14,7 +14,8 @@ const runtimeConfigs = {
     googleAnalyticsId: "UA-77033033-33",
     maxOnboardingAvailable: 3,
     featureFlags: {
-      generateCustomAlias: false,
+      generateCustomAliasMenu: false,
+      generateCustomAliasSubdomain: false,
     },
   },
 };
