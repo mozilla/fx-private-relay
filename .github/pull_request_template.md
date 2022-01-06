@@ -6,7 +6,7 @@ This PR fixes #<issue ID>.
 
 How to test:
 
-- [ ] l10n dependencies have been merged, if any.
+- [ ] l10n changes have been submitted to the l10n repository, if any.
 - [ ] I've added a unit test to test for potential regressions of this bug.
 - [ ] I've added or updated relevant docs in the docs/ directory.
 - [ ] All UI revisions follow the [coding standards](https://github.com/mozilla/fx-private-relay/blob/main/docs/coding-standards.md), and use Protocol tokens where applicable (see `/static/scss/libs/protocol/css/includes/tokens/dist/index.scss`).
