@@ -55,7 +55,7 @@ const PremiumPromo: NextPage = () => {
   const plansSection = isPremiumAvailableInCountry(
     premiumCountriesData.data
   ) ? (
-    <section className={styles.plansWrapper}>
+    <section id="plans" className={styles.plansWrapper}>
       <div className={styles.plans}>
         <div className={styles.planComparison}>
           <Plans premiumCountriesData={premiumCountriesData.data} />
@@ -107,7 +107,7 @@ const PremiumPromo: NextPage = () => {
 
   return (
     <Layout theme="premium">
-      <section className={styles.hero}>
+      <section id="hero" className={styles.hero}>
         <div className={styles.lead}>
           <h2>{l10n.getString("premium-promo-hero-headline")}</h2>
           <Localized
@@ -137,7 +137,7 @@ const PremiumPromo: NextPage = () => {
           />
         </div>
       </section>
-      <section className={styles.perksWrapper}>
+      <section id="perks" className={styles.perksWrapper}>
         <div className={styles.perks}>
           <h2 className={styles.headline}>
             {l10n.getString("premium-promo-perks-headline")}
@@ -181,7 +181,7 @@ const PremiumPromo: NextPage = () => {
           </div>
         </div>
       </section>
-      <section className={styles.useCasesWrapper}>
+      <section id="use_cases" className={styles.useCasesWrapper}>
         <div className={styles.useCases}>
           <h2 className={styles.headline}>
             {l10n.getString("premium-promo-use-cases-headline")}
