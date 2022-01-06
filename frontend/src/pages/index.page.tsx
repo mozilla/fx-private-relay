@@ -50,7 +50,7 @@ const Home: NextPage = () => {
   const plansSection = isPremiumAvailableInCountry(
     premiumCountriesData.data
   ) ? (
-    <section className={styles.plansWrapper}>
+    <section id="plans" className={styles.plansWrapper}>
       <div className={styles.plans}>
         <div className={styles.planComparison}>
           <Plans premiumCountriesData={premiumCountriesData.data} />
@@ -69,7 +69,7 @@ const Home: NextPage = () => {
 
   return (
     <Layout>
-      <section className={styles.hero}>
+      <section id="hero" className={styles.hero}>
         <div className={styles.lead}>
           <h2>{l10n.getString("landing-hero-headline")}</h2>
           <p>{l10n.getString("landing-hero-body")}</p>
@@ -94,7 +94,7 @@ const Home: NextPage = () => {
           />
         </div>
       </section>
-      <section className={styles.howItWorksWrapper}>
+      <section id="how_it_works" className={styles.howItWorksWrapper}>
         <div className={styles.howItWorks}>
           <h2 className={styles.headline}>
             {l10n.getString("landing-how-it-works-headline")}
@@ -126,7 +126,7 @@ const Home: NextPage = () => {
           </ol>
         </div>
       </section>
-      <section className={styles.useCasesWrapper}>
+      <section id="use_cases" className={styles.useCasesWrapper}>
         <div className={styles.useCases}>
           <Carousel
             title={l10n.getString("landing-use-cases-heading")}
@@ -170,7 +170,7 @@ const Home: NextPage = () => {
         </div>
       </section>
       {plansSection}
-      <section className={styles.faqWrapper}>
+      <section id="faq" className={styles.faqWrapper}>
         <div className={styles.faq}>
           <div className={styles.lead}>
             <h2 className={styles.headline}>
