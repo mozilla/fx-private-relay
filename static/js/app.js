@@ -237,12 +237,8 @@ function addEventListeners() {
 
 
 function moveDownMainContainer(setMenuLinksHeightVal) {
-
   const mainWrapper = document.querySelector("main");
-  
   const moveDownBy = parseInt(setMenuLinksHeightVal);
-
-  console.log(moveDownBy);
 
   if (mainWrapper.style.marginTop == 0 || mainWrapper.style.marginTop == "0px" ) {
     mainWrapper.style.marginTop = moveDownBy + "px";
@@ -255,14 +251,12 @@ function moveDownMainContainer(setMenuLinksHeightVal) {
   const mobileMenuWrapper = document.querySelector(".mobile-menu");
 
   if (mobileMenuWrapper) {
-
     const mobileMenuWrapperLinks = document.querySelector(".mobile-menu-links");
-
     const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
-
+   
     mobileMenuButton.addEventListener("click", () => {
       mobileMenuWrapper.classList.toggle("menu-open");
-
+  
       setTimeout(() => {
         const mobileMenuWrapperLinksHeight = mobileMenuWrapperLinks.offsetHeight;
         moveDownMainContainer(mobileMenuWrapperLinksHeight);
