@@ -49,6 +49,10 @@ export const Layout = (props: Props) => {
     props.theme === "premium" || profiles.data?.[0].has_premium
       ? premiumLogo
       : regularLogo;
+  const logoAlt =
+    props.theme === "premium" || profiles.data?.[0].has_premium
+      ? l10n.getString("logo-alt")
+      : l10n.getString("logo-premium-alt");
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
@@ -83,7 +87,7 @@ export const Layout = (props: Props) => {
                 />
                 <img
                   src={logoType.src}
-                  alt={l10n.getString("logo-alt")}
+                  alt={logoAlt}
                   className={styles.logotype}
                   height={20}
                 />
