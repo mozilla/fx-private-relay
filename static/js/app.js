@@ -235,17 +235,14 @@ function addEventListeners() {
     });
   }
 
-  function readExpandedHeight() {
-    const mobileMenuWrapperLinks = document.querySelector(".mobile-menu-links");
-    const mobileMenuWrapperLinksHeight = mobileMenuWrapperLinks.offsetHeight;
-    return mobileMenuWrapperLinksHeight;
-}
 
-function moveDownMainContainer(setMenuLinksHeightVal, mainWrapper) {
+function moveDownMainContainer(setMenuLinksHeightVal) {
+
+  const mainWrapper = document.querySelector("main");
   
-  const moveDownBy = parseInt(setMenuLinksHeightVal) + 70;
-  console.log(moveDownBy);
+  const moveDownBy = parseInt(setMenuLinksHeightVal);
 
+  console.log(moveDownBy);
 
   if (mainWrapper.style.marginTop == 0 || mainWrapper.style.marginTop == "0px" ) {
     mainWrapper.style.marginTop = moveDownBy + "px";
@@ -253,20 +250,25 @@ function moveDownMainContainer(setMenuLinksHeightVal, mainWrapper) {
   else {
     mainWrapper.style.marginTop = 0;
   }
+
 }
-
   const mobileMenuWrapper = document.querySelector(".mobile-menu");
-  if (mobileMenuWrapper) {
-    const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
 
-    const mainWrapper = document.querySelector("main");
+  if (mobileMenuWrapper) {
+
+    const mobileMenuWrapperLinks = document.querySelector(".mobile-menu-links");
+
+    const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
 
     mobileMenuButton.addEventListener("click", () => {
       mobileMenuWrapper.classList.toggle("menu-open");
-      const setMenuLinksHeightVal = setTimeout(readExpandedHeight, 1000);
-      setTimeout(moveDownMainContainer, 1200, setMenuLinksHeightVal, mainWrapper);
-     });
 
+      setTimeout(() => {
+        const mobileMenuWrapperLinksHeight = mobileMenuWrapperLinks.offsetHeight;
+        moveDownMainContainer(mobileMenuWrapperLinksHeight);
+      }, 100);
+
+     });
 
   }
 
