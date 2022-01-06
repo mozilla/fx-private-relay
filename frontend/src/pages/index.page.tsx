@@ -69,154 +69,156 @@ const Home: NextPage = () => {
 
   return (
     <Layout>
-      <section id="hero" className={styles.hero}>
-        <div className={styles.lead}>
-          <h2>{l10n.getString("landing-hero-headline")}</h2>
-          <p>{l10n.getString("landing-hero-body")}</p>
-          <LinkButton
-            ref={heroCtaRef}
-            onClick={() => signup()}
-            href={getRuntimeConfig().fxaLoginUrl}
-          >
-            {l10n.getString("nav-profile-sign-up")}
-          </LinkButton>
-          <img
-            src={Testimonials.src}
-            alt="Forbes, ZDNet, Lifehacker, PCMag"
-            className={styles.socialProof}
-          />
-        </div>
-        <div className={styles.demoPhone}>
-          <DemoPhone
-            premium={
-              premiumCountriesData.data?.premium_available_in_country === true
-            }
-          />
-        </div>
-      </section>
-      <section id="how_it_works" className={styles.howItWorksWrapper}>
-        <div className={styles.howItWorks}>
-          <h2 className={styles.headline}>
-            {l10n.getString("landing-how-it-works-headline")}
-          </h2>
-          <p className={styles.lead}>
-            {l10n.getString("landing-how-it-works-body")}
-          </p>
-          <ol className={styles.steps}>
-            <li className={styles.step}>
-              <img src={HowItWorks1.src} alt="" />
-              <h3>{l10n.getString("how-it-works-step-1-headline")}</h3>
-              <p>
-                <a href="https://addons.mozilla.org/firefox/addon/private-relay/">
-                  {l10n.getString("landing-how-it-works-step-1-body-cta")}
-                </a>
-                {l10n.getString("landing-how-it-works-step-1-body")}
-              </p>
-            </li>
-            <li className={styles.step}>
-              <img src={HowItWorks2.src} alt="" />
-              <h3>{l10n.getString("how-it-works-step-2-headline")}</h3>
-              <p>{l10n.getString("landing-how-it-works-step-2-body-v2")}</p>
-            </li>
-            <li className={styles.step}>
-              <img src={HowItWorks3.src} alt="" />
-              <h3>{l10n.getString("how-it-works-step-3-headline")}</h3>
-              <p>{l10n.getString("landing-how-it-works-step-3-body")}</p>
-            </li>
-          </ol>
-        </div>
-      </section>
-      <section id="use_cases" className={styles.useCasesWrapper}>
-        <div className={styles.useCases}>
-          <Carousel
-            title={l10n.getString("landing-use-cases-heading")}
-            tabs={[
-              {
-                color: "yellow",
-                heading: l10n.getString("landing-use-cases-shopping"),
-                content: l10n.getString("landing-use-cases-shopping-body"),
-                illustration: ShoppingIllustration,
-              },
-              {
-                color: "orange",
-                heading: l10n.getString("landing-use-cases-social-networks"),
-                content: l10n.getString(
-                  "landing-use-cases-social-networks-body"
-                ),
-                illustration: SocialNetworksIllustration,
-              },
-              {
-                color: "teal",
-                heading: l10n.getString("landing-use-cases-offline"),
-                content: l10n.getString("landing-use-cases-offline-body"),
-                illustration: OfflineIllustration,
-              },
-              {
-                color: "red",
-                heading: l10n.getString("landing-use-cases-access-content"),
-                content: l10n.getString(
-                  "landing-use-cases-access-content-body"
-                ),
-                illustration: AccessContentIllustration,
-              },
-              {
-                color: "pink",
-                heading: l10n.getString("landing-use-cases-gaming"),
-                content: l10n.getString("landing-use-cases-gaming-body"),
-                illustration: GamingIllustration,
-              },
-            ]}
-          />
-        </div>
-      </section>
-      {plansSection}
-      <section id="faq" className={styles.faqWrapper}>
-        <div className={styles.faq}>
+      <main>
+        <section id="hero" className={styles.hero}>
           <div className={styles.lead}>
-            <h2 className={styles.headline}>
-              {l10n.getString("landing-faq-headline")}
-            </h2>
-            <p>
-              <Link href="/faq">
-                <a className={styles.readMore}>
-                  {l10n.getString("landing-faq-cta")}
-                </a>
-              </Link>
-            </p>
+            <h2>{l10n.getString("landing-hero-headline")}</h2>
+            <p>{l10n.getString("landing-hero-body")}</p>
+            <LinkButton
+              ref={heroCtaRef}
+              onClick={() => signup()}
+              href={getRuntimeConfig().fxaLoginUrl}
+            >
+              {l10n.getString("nav-profile-sign-up")}
+            </LinkButton>
+            <img
+              src={Testimonials.src}
+              alt="Forbes, ZDNet, Lifehacker, PCMag"
+              className={styles.socialProof}
+            />
           </div>
-          <div className={styles.entries}>
-            <FaqAccordion
-              entries={[
+          <div className={styles.demoPhone}>
+            <DemoPhone
+              premium={
+                premiumCountriesData.data?.premium_available_in_country === true
+              }
+            />
+          </div>
+        </section>
+        <section id="how_it_works" className={styles.howItWorksWrapper}>
+          <div className={styles.howItWorks}>
+            <h2 className={styles.headline}>
+              {l10n.getString("landing-how-it-works-headline")}
+            </h2>
+            <p className={styles.lead}>
+              {l10n.getString("landing-how-it-works-body")}
+            </p>
+            <ol className={styles.steps}>
+              <li className={styles.step}>
+                <img src={HowItWorks1.src} alt="" />
+                <h3>{l10n.getString("how-it-works-step-1-headline")}</h3>
+                <p>
+                  <a href="https://addons.mozilla.org/firefox/addon/private-relay/">
+                    {l10n.getString("landing-how-it-works-step-1-body-cta")}
+                  </a>
+                  {l10n.getString("landing-how-it-works-step-1-body")}
+                </p>
+              </li>
+              <li className={styles.step}>
+                <img src={HowItWorks2.src} alt="" />
+                <h3>{l10n.getString("how-it-works-step-2-headline")}</h3>
+                <p>{l10n.getString("landing-how-it-works-step-2-body-v2")}</p>
+              </li>
+              <li className={styles.step}>
+                <img src={HowItWorks3.src} alt="" />
+                <h3>{l10n.getString("how-it-works-step-3-headline")}</h3>
+                <p>{l10n.getString("landing-how-it-works-step-3-body")}</p>
+              </li>
+            </ol>
+          </div>
+        </section>
+        <section id="use_cases" className={styles.useCasesWrapper}>
+          <div className={styles.useCases}>
+            <Carousel
+              title={l10n.getString("landing-use-cases-heading")}
+              tabs={[
                 {
-                  q: l10n.getString("faq-question-availability-question"),
-                  a: l10n.getString("faq-question-availability-answer"),
+                  color: "yellow",
+                  heading: l10n.getString("landing-use-cases-shopping"),
+                  content: l10n.getString("landing-use-cases-shopping-body"),
+                  illustration: ShoppingIllustration,
                 },
                 {
-                  q: l10n.getString("faq-question-what-is-question"),
-                  a: l10n.getString("faq-question-what-is-answer"),
-                },
-                {
-                  q: l10n.getString("faq-question-use-cases-question"),
-                  a: (
-                    <>
-                      <p>
-                        {l10n.getString("faq-question-use-cases-answer-part1")}
-                      </p>
-                      <p>
-                        {l10n.getString("faq-question-use-cases-answer-part2")}
-                      </p>
-                    </>
+                  color: "orange",
+                  heading: l10n.getString("landing-use-cases-social-networks"),
+                  content: l10n.getString(
+                    "landing-use-cases-social-networks-body"
                   ),
+                  illustration: SocialNetworksIllustration,
                 },
                 {
-                  q: l10n.getString("faq-question-browser-support-question"),
-                  a: l10n.getString("faq-question-browser-support-answer"),
+                  color: "teal",
+                  heading: l10n.getString("landing-use-cases-offline"),
+                  content: l10n.getString("landing-use-cases-offline-body"),
+                  illustration: OfflineIllustration,
+                },
+                {
+                  color: "red",
+                  heading: l10n.getString("landing-use-cases-access-content"),
+                  content: l10n.getString(
+                    "landing-use-cases-access-content-body"
+                  ),
+                  illustration: AccessContentIllustration,
+                },
+                {
+                  color: "pink",
+                  heading: l10n.getString("landing-use-cases-gaming"),
+                  content: l10n.getString("landing-use-cases-gaming-body"),
+                  illustration: GamingIllustration,
                 },
               ]}
             />
           </div>
-        </div>
-      </section>
+        </section>
+        {plansSection}
+        <section id="faq" className={styles.faqWrapper}>
+          <div className={styles.faq}>
+            <div className={styles.lead}>
+              <h2 className={styles.headline}>
+                {l10n.getString("landing-faq-headline")}
+              </h2>
+              <p>
+                <Link href="/faq">
+                  <a className={styles.readMore}>
+                    {l10n.getString("landing-faq-cta")}
+                  </a>
+                </Link>
+              </p>
+            </div>
+            <div className={styles.entries}>
+              <FaqAccordion
+                entries={[
+                  {
+                    q: l10n.getString("faq-question-availability-question"),
+                    a: l10n.getString("faq-question-availability-answer"),
+                  },
+                  {
+                    q: l10n.getString("faq-question-what-is-question"),
+                    a: l10n.getString("faq-question-what-is-answer"),
+                  },
+                  {
+                    q: l10n.getString("faq-question-use-cases-question"),
+                    a: (
+                      <>
+                        <p>
+                          {l10n.getString("faq-question-use-cases-answer-part1")}
+                        </p>
+                        <p>
+                          {l10n.getString("faq-question-use-cases-answer-part2")}
+                        </p>
+                      </>
+                    ),
+                  },
+                  {
+                    q: l10n.getString("faq-question-browser-support-question"),
+                    a: l10n.getString("faq-question-browser-support-answer"),
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        </section>
+      </main>
     </Layout>
   );
 };
