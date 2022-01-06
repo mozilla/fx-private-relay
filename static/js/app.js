@@ -240,7 +240,7 @@ function moveDownMainContainer(setMenuLinksHeightVal) {
   const mainWrapper = document.querySelector("main");
   const moveDownBy = parseInt(setMenuLinksHeightVal);
 
-  if (mainWrapper.style.marginTop == 0 || mainWrapper.style.marginTop == "0px" ) {
+  if (mainWrapper.style.marginTop === 0 || mainWrapper.style.marginTop === "0px" ) {
     mainWrapper.style.marginTop = moveDownBy + "px";
   }
   else {
