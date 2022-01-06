@@ -65,6 +65,7 @@
   .tab {
     outline: none;
     grid-area: attr(data-tab-key);
+    scroll-margin-top: $spacing-md;
 
     .title {
       @include text-body-lg;

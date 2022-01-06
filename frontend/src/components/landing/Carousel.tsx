@@ -1,4 +1,4 @@
-import { Key, ReactNode, useRef } from "react";
+import { Key, ReactNode, useEffect, useRef } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Item, TabListState, useTabListState } from "react-stately";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
@@ -62,6 +62,20 @@ const Tabs = (props: TabsProps) => {
     tabsRef
   );
 
+  useEffect(() => {
+    const selectedItem = Array.from(state.collection).find(item => item.key === document.location.hash.substring("#carousel_".length));
+    if (typeof selectedItem !== "undefined") {
+      state.setSelectedKey(selectedItem.key);
+    }
+    // Only run this logic once, to select a tab when rendering in the browser
+    // with an anchor link pointing to that tab.
+    // Otherwise, the tab will be reset to the anchor link on every state change.
+    // We'd use `defaultSelectedKey` on <Tabs>, but that doesn't work since we're
+    // prerendering the page in the build, when document.location.hash is not
+    // available:
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div
       {...tabListProps}
@@ -96,6 +110,9 @@ const Tab = (props: TabProps) => {
       ref={tabRef}
       className={`${styles.tab} ${isSelected ? styles.isSelected : ""}`}
       data-tab-key={props.item.key}
+      // Since IDs should be unique, this assumes there's only one <Carousel>
+      // on each page. This is true at the time of writing at least ¯\_(ツ)_/¯
+      id={`carousel_${props.item.key.toString()}`}
     >
       {props.item.rendered}
     </div>
