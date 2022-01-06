@@ -238,11 +238,12 @@ function addEventListeners() {
 
 function moveDownMainContainer(setMenuLinksHeightVal) {
   const mainWrapper = document.querySelector("main");
-  const moveDownBy = parseInt(setMenuLinksHeightVal);
+  const moveDownBy = parseInt(setMenuLinksHeightVal, 10);
 
-  if (mainWrapper.style.marginTop === 0 || mainWrapper.style.marginTop === "0px" ) {
+  if (!mainWrapper.style.marginTop || mainWrapper.style.marginTop === "0px") {
     mainWrapper.style.marginTop = moveDownBy + "px";
   }
+
   else {
     mainWrapper.style.marginTop = 0;
   }
@@ -255,13 +256,14 @@ function moveDownMainContainer(setMenuLinksHeightVal) {
     const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
    
     mobileMenuButton.addEventListener("click", () => {
-      mobileMenuWrapper.classList.toggle("menu-open");
+      // mobileMenuWrapper.classList.toggle("menu-open");
   
       setTimeout(() => {
         const mobileMenuWrapperLinksHeight = mobileMenuWrapperLinks.offsetHeight;
         moveDownMainContainer(mobileMenuWrapperLinksHeight);
       }, 100);
 
+      mobileMenuWrapper.classList.toggle("menu-open");
      });
 
   }
