@@ -63,7 +63,7 @@
         <h2 class="perks-headline">{% ftlmsg 'premium-promo-perks-headline' %}</h2>
         <span class="perks-lead">{% ftlmsg 'premium-promo-perks-lead' %}</span>
         <div class="perk">
-        <img src="{% static 'images/premium-promo/illustration-unlimited.svg' %}" class="perk-illustration">
+        <img alt="" src="{% static 'images/premium-promo/illustration-unlimited.svg' %}" class="perk-illustration">
         <div class="perk-description">
             <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-unlimited-headline' %}</h3>
             <p class="perk-body">
@@ -93,7 +93,7 @@
         </div>
         </div>
         <div class="perk">
-        <img src="{% static 'images/premium-promo/illustration-custom-domain.svg' %}" class="perk-illustration">
+        <img alt="" src="{% static 'images/premium-promo/illustration-custom-domain.svg' %}" class="perk-illustration">
         <div class="perk-description">
             <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-custom-domain-headline' %}</h3>
             <p class="perk-body">
@@ -123,7 +123,7 @@
         </div>
         </div>
         <div class="perk">
-        <img src="{% static 'images/premium-promo/illustration-dashboard.svg' %}" class="perk-illustration">
+        <img alt="" src="{% static 'images/premium-promo/illustration-dashboard.svg' %}" class="perk-illustration">
         <div class="perk-description">
             <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-dashboard-headline' %}</h3>
             <p class="perk-body">
@@ -200,7 +200,7 @@
                     <div class="c-pricing-options">
                         <!--Non-premium option-->
                         <div class="c-option c-free">
-                            <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-relay.svg' %}">
+                            <img alt="{% ftlmsg 'logo-alt' %}" class="c-brand-title" src="{% static 'images/logos/logo-firefox-relay.svg' %}">
                             <p class="c-price non-premium-price">{% ftlmsg 'premium-promo-pricing-free-price' %}</p>
                             <div class="c-features non-premium-list">
                                 <ul class="c-list">
@@ -221,7 +221,7 @@
                         <!--Premium Option-->
                         <div class="c-option c-premium">
                             <span class="c-premium-detail">{% ftlmsg 'landing-pricing-premium-price-highlight' %}</span>
-                            <img class="c-brand-title" src="{% static 'images/logos/logo-firefox-premium-relay.svg' %}">
+                            <img alt="{% ftlmsg 'logo-alt' %}" class="c-brand-title" src="{% static 'images/logos/logo-firefox-premium-relay.svg' %}">
                             <p class="c-price premium-price">
                                 <span class="c-price-number">{{ monthly_price }}</span>
                                 <span class="c-currency">{% ftlmsg 'landing-pricing-premium-price' monthly_price="" %}</span>
