@@ -40,11 +40,20 @@
         </div>
         <div class="has-hero-image">
             <img alt="" src="{% static 'images/newlanding/a/hero-image-bg.svg' %}" class="c-hero-image--bg"/>
-            <img alt="" src="{% static 'images/newlanding/a/hero-image-premium.svg' %}" class="c-hero-image"/>
-            {% comment %}
-                TODO: Find a way to localise the foreground content, or hide the callouts in languages other than English.
-            {% endcomment %}
-            <img alt="" src="{% static 'images/newlanding/a/hero-image-fg.svg' %}" class="c-hero-image--fg"/>
+            
+            {% if accept_language|slice:"0:2" == "fr" %}
+                <!-- French -->
+                <img alt="" src="{% static 'images/newlanding/a/hero-image-premium-fr.svg' %}" class="c-hero-image"/>
+                <img alt="" src="{% static 'images/newlanding/a/hero-image-fg-fr.svg' %}" class="c-hero-image--fg"/>
+            {% elif accept_language|slice:"0:2" == "de" %}
+                <!-- German -->
+                <img alt="" src="{% static 'images/newlanding/a/hero-image-premium-de.svg' %}" class="c-hero-image"/>
+                <img alt="" src="{% static 'images/newlanding/a/hero-image-fg-de.svg' %}" class="c-hero-image--fg"/>
+            {% else %}
+                <!-- Default to English -->
+                <img alt="" src="{% static 'images/newlanding/a/hero-image-premium.svg' %}" class="c-hero-image"/>
+                <img alt="" src="{% static 'images/newlanding/a/hero-image-fg.svg' %}" class="c-hero-image--fg"/>
+            {% endif %}
         </div>
     </section>
 
