@@ -107,121 +107,123 @@ const PremiumPromo: NextPage = () => {
 
   return (
     <Layout theme="premium">
-      <section id="hero" className={styles.hero}>
-        <div className={styles.lead}>
-          <h2>{l10n.getString("premium-promo-hero-headline")}</h2>
-          <Localized
-            id="premium-promo-hero-body-html"
-            vars={{
-              monthly_price: isPremiumAvailableInCountry(
-                premiumCountriesData.data
-              )
-                ? getPlan(premiumCountriesData.data).price
-                : premiumCountriesData.data?.plan_country_lang_mapping.us.en
-                    .price ?? "&hellip;",
-            }}
-            elems={{
-              b: <b />,
-            }}
-          >
-            <p />
-          </Localized>
-          {cta}
-          <p>{l10n.getString("premium-promo-availability-warning")}</p>
-        </div>
-        <div className={styles.demoPhone}>
-          <DemoPhone
-            premium={
-              premiumCountriesData.data?.premium_available_in_country === true
-            }
-          />
-        </div>
-      </section>
-      <section id="perks" className={styles.perksWrapper}>
-        <div className={styles.perks}>
-          <h2 className={styles.headline}>
-            {l10n.getString("premium-promo-perks-headline")}
-          </h2>
-          <p className={styles.lead}>
-            {l10n.getString("premium-promo-perks-lead")}
-          </p>
-          <div className={styles.perk}>
-            <img src={PerkIllustrationUnlimited.src} alt="" />
-            <div className={styles.description}>
-              <h3>
-                {l10n.getString("premium-promo-perks-perk-unlimited-headline")}
-              </h3>
-              <p>{l10n.getString("premium-promo-perks-perk-unlimited-body")}</p>
-              {getPerkCta("premium-promo-perk-unlimited-cta")}
+      <main>
+        <section id="hero" className={styles.hero}>
+          <div className={styles.lead}>
+            <h2>{l10n.getString("premium-promo-hero-headline")}</h2>
+            <Localized
+              id="premium-promo-hero-body-html"
+              vars={{
+                monthly_price: isPremiumAvailableInCountry(
+                  premiumCountriesData.data
+                )
+                  ? getPlan(premiumCountriesData.data).price
+                  : premiumCountriesData.data?.plan_country_lang_mapping.us.en
+                      .price ?? "&hellip;",
+              }}
+              elems={{
+                b: <b />,
+              }}
+            >
+              <p />
+            </Localized>
+            {cta}
+            <p>{l10n.getString("premium-promo-availability-warning")}</p>
+          </div>
+          <div className={styles.demoPhone}>
+            <DemoPhone
+              premium={
+                premiumCountriesData.data?.premium_available_in_country === true
+              }
+            />
+          </div>
+        </section>
+        <section id="perks" className={styles.perksWrapper}>
+          <div className={styles.perks}>
+            <h2 className={styles.headline}>
+              {l10n.getString("premium-promo-perks-headline")}
+            </h2>
+            <p className={styles.lead}>
+              {l10n.getString("premium-promo-perks-lead")}
+            </p>
+            <div className={styles.perk}>
+              <img src={PerkIllustrationUnlimited.src} alt="" />
+              <div className={styles.description}>
+                <h3>
+                  {l10n.getString("premium-promo-perks-perk-unlimited-headline")}
+                </h3>
+                <p>{l10n.getString("premium-promo-perks-perk-unlimited-body")}</p>
+                {getPerkCta("premium-promo-perk-unlimited-cta")}
+              </div>
+            </div>
+            <div className={styles.perk}>
+              <img src={PerkIllustrationCustomDomain.src} alt="" />
+              <div className={styles.description}>
+                <h3>
+                  {l10n.getString(
+                    "premium-promo-perks-perk-custom-domain-headline"
+                  )}
+                </h3>
+                <p>
+                  {l10n.getString("premium-promo-perks-perk-custom-domain-body")}
+                </p>
+                {getPerkCta("premium-promo-perk-custom-domain-cta")}
+              </div>
+            </div>
+            <div className={styles.perk}>
+              <img src={PerkIllustrationDashboard.src} alt="" />
+              <div className={styles.description}>
+                <h3>
+                  {l10n.getString("premium-promo-perks-perk-dashboard-headline")}
+                </h3>
+                <p>{l10n.getString("premium-promo-perks-perk-dashboard-body")}</p>
+                {getPerkCta("premium-promo-perk-dashboard-cta")}
+              </div>
             </div>
           </div>
-          <div className={styles.perk}>
-            <img src={PerkIllustrationCustomDomain.src} alt="" />
-            <div className={styles.description}>
-              <h3>
-                {l10n.getString(
-                  "premium-promo-perks-perk-custom-domain-headline"
-                )}
-              </h3>
-              <p>
-                {l10n.getString("premium-promo-perks-perk-custom-domain-body")}
-              </p>
-              {getPerkCta("premium-promo-perk-custom-domain-cta")}
-            </div>
+        </section>
+        <section id="use_cases" className={styles.useCasesWrapper}>
+          <div className={styles.useCases}>
+            <h2 className={styles.headline}>
+              {l10n.getString("premium-promo-use-cases-headline")}
+            </h2>
+            <Carousel
+              title={l10n.getString("premium-promo-use-cases-headline")}
+              tabs={[
+                {
+                  color: "yellow",
+                  heading: l10n.getString(
+                    "premium-promo-use-cases-shopping-heading"
+                  ),
+                  content: l10n.getString(
+                    "premium-promo-use-cases-shopping-body"
+                  ),
+                  illustration: ShoppingIllustration,
+                },
+                {
+                  color: "orange",
+                  heading: l10n.getString(
+                    "premium-promo-use-cases-social-networks-heading"
+                  ),
+                  content: l10n.getString(
+                    "premium-promo-use-cases-social-networks-body"
+                  ),
+                  illustration: SocialNetworksIllustration,
+                },
+                {
+                  color: "pink",
+                  heading: l10n.getString(
+                    "premium-promo-use-cases-gaming-heading"
+                  ),
+                  content: l10n.getString("premium-promo-use-cases-gaming-body"),
+                  illustration: GamingIllustration,
+                },
+              ]}
+            />
           </div>
-          <div className={styles.perk}>
-            <img src={PerkIllustrationDashboard.src} alt="" />
-            <div className={styles.description}>
-              <h3>
-                {l10n.getString("premium-promo-perks-perk-dashboard-headline")}
-              </h3>
-              <p>{l10n.getString("premium-promo-perks-perk-dashboard-body")}</p>
-              {getPerkCta("premium-promo-perk-dashboard-cta")}
-            </div>
-          </div>
-        </div>
-      </section>
-      <section id="use_cases" className={styles.useCasesWrapper}>
-        <div className={styles.useCases}>
-          <h2 className={styles.headline}>
-            {l10n.getString("premium-promo-use-cases-headline")}
-          </h2>
-          <Carousel
-            title={l10n.getString("premium-promo-use-cases-headline")}
-            tabs={[
-              {
-                color: "yellow",
-                heading: l10n.getString(
-                  "premium-promo-use-cases-shopping-heading"
-                ),
-                content: l10n.getString(
-                  "premium-promo-use-cases-shopping-body"
-                ),
-                illustration: ShoppingIllustration,
-              },
-              {
-                color: "orange",
-                heading: l10n.getString(
-                  "premium-promo-use-cases-social-networks-heading"
-                ),
-                content: l10n.getString(
-                  "premium-promo-use-cases-social-networks-body"
-                ),
-                illustration: SocialNetworksIllustration,
-              },
-              {
-                color: "pink",
-                heading: l10n.getString(
-                  "premium-promo-use-cases-gaming-heading"
-                ),
-                content: l10n.getString("premium-promo-use-cases-gaming-body"),
-                illustration: GamingIllustration,
-              },
-            ]}
-          />
-        </div>
-      </section>
-      {plansSection}
+        </section>
+        {plansSection}
+      </main>
     </Layout>
   );
 };
