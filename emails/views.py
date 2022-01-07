@@ -333,7 +333,11 @@ def _sns_message(message_json):
 
     _record_receipt_verdicts(message_json, 'relay_recipient')
     from_address = parseaddr(common_headers['from'][0])[1]
-    [to_local_portion, to_domain_portion] = to_address.split('@')
+    try:
+        [to_local_portion, to_domain_portion] = to_address.split('@')
+    except ValueError:
+        return HttpResponse('Malformed to field.', 400)
+
     if to_local_portion == 'noreply':
         incr_if_enabled('email_for_noreply_address', 1)
         return HttpResponse('noreply address is not supported.')
