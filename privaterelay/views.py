@@ -74,19 +74,10 @@ def faq(request):
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
-    newly_premium = False
     profile = request.user.profile_set.first()
-    if ('fxa_refresh' in request.GET or
-        'clicked-purchase' in request.COOKIES
-       ):
-        had_premium = profile.has_premium
+    if 'fxa_refresh' in request.GET:
         fxa = _get_fxa(request)
         _handle_fxa_profile_change(fxa)
-        now_has_premium = profile.has_premium
-        newly_premium = not had_premium and now_has_premium
-        if newly_premium:
-            profile.date_subscribed = datetime.now(timezone.utc)
-            profile.save()
 
     relay_addresses = RelayAddress.objects.filter(user=request.user).order_by(
         '-created_at'
@@ -110,7 +101,9 @@ def profile(request):
     if datetime.now(timezone.utc) < settings.PREMIUM_RELEASE_DATE:
         context.update({'show_data_notification_banner': True})
     response = render(request, 'profile.html', context)
-    if newly_premium:
+    if ('clicked-purchase' in request.COOKIES and
+        profile.has_premium
+       ):
         event = 'user_purchased_premium'
         incr_if_enabled(event, 1)
         response.delete_cookie('clicked-purchase')
@@ -328,15 +321,21 @@ def _handle_fxa_profile_change(
             'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
         })
 
-    return _update_extra_data_and_email(
-        social_account, extra_data, new_email
-    )
+    return _update_all_data(social_account, extra_data, new_email)
 
-def _update_extra_data_and_email(social_account, extra_data, new_email):
+def _update_all_data(social_account, extra_data, new_email):
     try:
+        profile = social_account.user.profile_set.first()
+        had_premium = profile.has_premium
         with transaction.atomic():
             social_account.extra_data = extra_data
             social_account.save()
+            profile = social_account.user.profile_set.first()
+            now_has_premium = profile.has_premium
+            newly_premium = not had_premium and now_has_premium
+            if newly_premium:
+                profile.date_subscribed = datetime.now(timezone.utc)
+                profile.save()
             social_account.user.email = new_email
             social_account.user.save()
             email_address_record = social_account.user.emailaddress_set.first()
