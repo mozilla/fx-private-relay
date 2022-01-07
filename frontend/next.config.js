@@ -16,6 +16,7 @@ const runtimeConfigs = {
     featureFlags: {
       generateCustomAliasMenu: false,
       generateCustomAliasSubdomain: false,
+      generateCustomAliasTip: false,
     },
   },
 };

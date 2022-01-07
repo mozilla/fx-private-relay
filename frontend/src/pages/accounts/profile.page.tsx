@@ -29,6 +29,7 @@ import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding"
 import { Onboarding } from "../../components/dashboard/Onboarding";
 import { getRuntimeConfig } from "../../config";
 import { SubdomainIndicator } from "../../components/dashboard/subdomain/SubdomainIndicator";
+import { Tips } from "../../components/dashboard/Tips";
 
 const Profile: NextPage = () => {
   const profileData = useProfiles();
@@ -261,6 +262,7 @@ const Profile: NextPage = () => {
           </section>
         {bottomBanner}
         </main>
+        <Tips profile={profile}/>
       </Layout>
     </>
   );
