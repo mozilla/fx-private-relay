@@ -69,8 +69,12 @@ class Command(BaseCommand):
         )
         while len(messages) > 0:
             for message in messages:
-                _verify_and_run_sns_inbound_on_message(message)
-
+                try:
+                    _verify_and_run_sns_inbound_on_message(message)
+                except:
+                    exc_type, _, _ = sys.exc_info()
+                    logger.exception(f'dlq_processing_error_{exc_type}')
+                    message.delete()
             messages = dl_queue.receive_messages(
                 MaxNumberOfMessages=10, WaitTimeSeconds=1
             )
