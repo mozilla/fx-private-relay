@@ -6,6 +6,7 @@ export const mockFluentReact = {
       l10n: {
         getString: (id: string, vars?: Record<string, string>) =>
           `l10n string: [${id}], with vars: ${JSON.stringify(vars ?? {})}`,
+        bundles: [{ locales: "en-GB" }],
       },
     };
   },
