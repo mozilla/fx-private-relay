@@ -44,6 +44,15 @@ profile-label-generate-new-alias-menu-random = Random Alias
 #   $subdomain (string) - The user's custom subdomain, if any, e.g. `@eduardofeo`.
 profile-label-generate-new-alias-menu-custom = @{ $subdomain } Alias
 
+tips-header-title = Help & Tips
+tips-header-button-close-label = Dismiss
+tips-footer-link-faq-label = FAQs
+tips-footer-link-faq-tooltip = Frequently asked questions
+tips-footer-link-feedback-label = Feedback
+tips-footer-link-feedback-tooltip = Give feedback
+tips-footer-link-support-label = Support
+tips-footer-link-support-tooltip = Contact support
+
 modal-custom-alias-picker-heading = Create a new custom alias
 modal-custom-alias-picker-warning = You don’t need to create custom aliases before you use them; as soon as you receive an email sent to your custom domain, the alias will be generated automatically. All you need to do is make up a prefix—the part of the email that goes before the @.
 modal-custom-alias-picker-form-heading = Generate a custom alias manually
@@ -59,3 +68,6 @@ popover-custom-alias-explainer-explanation = You don’t need to create custom a
 popover-custom-alias-explainer-generate-button-heading = Generate a custom alias manually
 popover-custom-alias-explainer-generate-button-label = Generate custom alias
 popover-custom-alias-explainer-close-button-label = Close
+
+tips-custom-alias-heading = Creating aliases using your custom domain
+tips-custom-alias-content = You don’t need to create custom aliases before you use them; as soon as you receive an email sent to your custom domain, the alias will be generated automatically. All you need to do is make up a prefix—the part of the email that goes before the @.
