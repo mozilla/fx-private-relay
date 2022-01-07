@@ -83,7 +83,11 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
                 "popover-custom-alias-explainer-generate-button-heading"
               )}
             </p>
-            <button {...generateButtonProps} ref={generateButtonRef} className={styles.generateButton}>
+            <button
+              {...generateButtonProps}
+              ref={generateButtonRef}
+              className={styles.generateButton}
+            >
               {l10n.getString(
                 "popover-custom-alias-explainer-generate-button-label"
               )}
@@ -91,12 +95,13 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
             <button
               {...closeButtonProps}
               ref={closeButtonRef}
-              aria-label={l10n.getString(
-                "popover-custom-alias-explainer-close-button-label"
-              )}
               className={styles.closeButton}
             >
-              <CloseIcon />
+              <CloseIcon
+                alt={l10n.getString(
+                  "popover-custom-alias-explainer-close-button-label"
+                )}
+              />
             </button>
           </Explainer>
         </OverlayContainer>

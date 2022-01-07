@@ -47,7 +47,7 @@ export const AddressPickerModal = (props: Props) => {
           isDismissable={true}
         >
           <div className={styles.warning}>
-            <span className={styles.warningIcon}><InfoIcon/></span>
+            <span className={styles.warningIcon}><InfoIcon alt="" /></span>
             <p>
               {l10n.getString("modal-custom-alias-picker-warning")}
             </p>

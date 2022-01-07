@@ -57,7 +57,7 @@ export const Banner = (props: BannerProps) => {
 
   const dismissButton = typeof props.dismissal !== "undefined"
     ? <button className={styles.dismissButton} onClick={() => dismissal.dismiss()} title={l10n.getString("banner-dismiss")}>
-      <CloseIcon aria-label={l10n.getString("banner-dismiss")}/>
+      <CloseIcon alt={l10n.getString("banner-dismiss")}/>
     </button>
     : null;
 
