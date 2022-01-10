@@ -29,7 +29,6 @@ def _verify_and_run_sns_inbound_on_message(message):
     try:
         _sns_inbound_logic(topic_arn, message_type, verified_json_body)
         info_logger.info(f'processed sqs message ID: {message.message_id}')
-        message.delete()
     except ClientError as e:
         incr_if_enabled('rerun_message_from_sqs_error', 1)
         logger.error('sqs_client_error: ', extra=e.response['Error'])
@@ -45,7 +44,6 @@ def _verify_and_run_sns_inbound_on_message(message):
             try:
                 _sns_inbound_logic(topic_arn, message_type, verified_json_body)
                 info_logger.info(f'processed sqs message ID: {message.message_id}')
-                message.delete()
             except ClientError as e:
                 incr_if_enabled('rerun_message_from_sqs_error', 1)
                 logger.error('sqs_client_error: ', extra=e.response['Error'])
@@ -69,8 +67,13 @@ class Command(BaseCommand):
         )
         while len(messages) > 0:
             for message in messages:
-                _verify_and_run_sns_inbound_on_message(message)
-
+                try:
+                    _verify_and_run_sns_inbound_on_message(message)
+                except:
+                    exc_type, _, _ = sys.exc_info()
+                    logger.exception(f'dlq_processing_error_{exc_type}')
+                finally:
+                    message.delete()
             messages = dl_queue.receive_messages(
                 MaxNumberOfMessages=10, WaitTimeSeconds=1
             )
