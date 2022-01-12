@@ -324,14 +324,15 @@ def _sns_message(message_json):
             status=400
         )
     common_headers = mail['commonHeaders']
+    receipt = message_json['receipt']
 
-    _record_receipt_verdicts(message_json, 'all')
+    _record_receipt_verdicts(receipt, 'all')
     to_address = _get_relay_recipient_from_message_json(message_json)
     if to_address is None:
         incr_if_enabled('no_relay_domain_in_recipient_fields', 1)
         return HttpResponse("Address does not exist", status=404)
 
-    _record_receipt_verdicts(message_json, 'relay_recipient')
+    _record_receipt_verdicts(receipt, 'relay_recipient')
     from_address = parseaddr(common_headers['from'][0])[1]
     try:
         [to_local_portion, to_domain_portion] = to_address.split('@')
@@ -353,11 +354,16 @@ def _sns_message(message_json):
 
         return HttpResponse("Address does not exist", status=404)
 
-    _record_receipt_verdicts(message_json, 'valid_user')
+    _record_receipt_verdicts(receipt, 'valid_user')
+    if (user_profile.auto_block_spam and
+        _get_verdict(receipt, 'spam') == 'FAIL'):
+        incr_if_enabled('email_auto_suppressed_for_spam', 1)
+        return HttpResponse("Address rejects spam.")
+
     # first see if this user is over bounce limits
     bounce_paused, bounce_type = user_profile.check_bounce_pause()
     if bounce_paused:
-        _record_receipt_verdicts(message_json, 'user_bounce_paused')
+        _record_receipt_verdicts(receipt, 'user_bounce_paused')
         incr_if_enabled('email_suppressed_for_%s_bounce' % bounce_type, 1)
         return HttpResponse("Address is temporarily disabled.")
 
@@ -381,10 +387,10 @@ def _sns_message(message_json):
         incr_if_enabled('email_for_disabled_address', 1)
         address.num_blocked += 1
         address.save(update_fields=['num_blocked'])
-        _record_receipt_verdicts(message_json, 'disabled_alias')
+        _record_receipt_verdicts(receipt, 'disabled_alias')
         return HttpResponse("Address is temporarily disabled.")
 
-    _record_receipt_verdicts(message_json, 'active_alias')
+    _record_receipt_verdicts(receipt, 'active_alias')
     incr_if_enabled('email_for_active_address', 1)
 
     subject = common_headers.get('subject', '')
@@ -453,9 +459,13 @@ def _sns_message(message_json):
     return response
 
 
-def _record_receipt_verdicts(message_json, state):
+def _get_verdict(receipt, verdict_type):
+    return receipt['%sVerdict' % verdict_type]['status']
+
+
+def _record_receipt_verdicts(receipt, state):
     verdict_tags = []
-    for key, value in message_json['receipt'].items():
+    for key, value in receipt.items():
         if key.endswith('Verdict'):
             value = value['status']
             verdict_tags.append(f'{key}:{value}')
@@ -656,6 +666,8 @@ def _handle_bounce(message_json):
             # TODO: handle bounce for a user who no longer exists
             # add to SES account-wide suppression list?
             return HttpResponse("Address does not exist", status=404)
+        # if an email bounced as spam, set to auto block spam for this user
+        # and DON'T set them into bounce pause state
         now = datetime.now(timezone.utc)
         incr_if_enabled(
             'email_bounce_%s_%s' % (
@@ -663,6 +675,10 @@ def _handle_bounce(message_json):
             ),
             1
         )
+        if 'spam' in recipient.lower():
+            profile.auto_block_spam = True
+            profile.save()
+            return HttpResponse("OK", status=200)
         if bounce.get('bounceType') == 'Permanent':
             profile.last_hard_bounce = now
         if bounce.get('bounceType') == 'Transient':

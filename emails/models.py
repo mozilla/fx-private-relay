@@ -103,6 +103,7 @@ class Profile(models.Model):
     )
     server_storage = models.BooleanField(default=default_server_storage)
     onboarding_state = models.PositiveIntegerField(default=0)
+    auto_block_spam = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s Profile' % self.user
