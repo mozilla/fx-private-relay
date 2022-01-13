@@ -678,7 +678,7 @@ def _handle_bounce(message_json):
         if 'spam' in recipient.lower():
             profile.auto_block_spam = True
             profile.save()
-            return HttpResponse("OK", status=200)
+            continue
         if bounce.get('bounceType') == 'Permanent':
             profile.last_hard_bounce = now
         if bounce.get('bounceType') == 'Transient':
