@@ -730,6 +730,42 @@ class ProfileTest(TestCase):
         )
         assert self.profile.language == 'de'
 
+    def test_locale_in_premium_country_returns_True_if_premium_available(self):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider='fxa',
+            extra_data={'locale': 'de-DE,en-xx;q=0.9,en;q=0.8'}
+        )
+        assert self.profile.fxa_locale_in_premium_country is True
+
+    def test_locale_in_premium_country_returns_False_if_premium_unavailable(self):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider='fxa',
+            extra_data={'locale': 'en;q=0.8'}
+        )
+        assert self.profile.fxa_locale_in_premium_country is False
+
+    def test_locale_in_premium_country_returns_True_if_premium_available_in_country_with_same_language_code(self):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider='fxa',
+            extra_data={'locale': 'de;q=0.8'}
+        )
+        assert self.profile.fxa_locale_in_premium_country is True
+
+    def test_locale_in_premium_country_returns_False_if_premium_not_available_in_country_with_same_language_code(self):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider='fxa',
+            extra_data={'locale': 'xx;q=0.8'}
+        )
+        assert self.profile.fxa_locale_in_premium_country is False
+
     @override_settings(PREMIUM_RELEASE_DATE=datetime.fromisoformat('2021-10-27 17:00:00+00:00'))
     def test_user_joined_before_premium_release_returns_True(self):
         user = baker.make(

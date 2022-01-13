@@ -150,6 +150,16 @@ class Profile(models.Model):
                     in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
+            # If a language but no country is known, check if there's a country
+            # whose code is the same as the language code and has Premium available.
+            # (For example, if the locale is just the language code `fr` rather than
+            # `fr-fr`, it will still match country code `fr`.)
+            if (
+                len(accept_langs) >= 1 and
+                len(accept_langs[0][0].split('-')) == 1 and
+                accept_langs[0][0].split('-')[0]
+                    in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()):
+                return True
         return False
 
     @property
