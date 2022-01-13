@@ -235,12 +235,37 @@ function addEventListeners() {
     });
   }
 
+
+function moveDownMainContainer(setMenuLinksHeightVal) {
+  const mainWrapper = document.querySelector("main");
+  const moveDownBy = parseInt(setMenuLinksHeightVal, 10);
+
+  if (!mainWrapper.style.marginTop || mainWrapper.style.marginTop === "0px") {
+    mainWrapper.style.marginTop = moveDownBy + "px";
+  }
+
+  else {
+    mainWrapper.style.marginTop = 0;
+  }
+
+}
   const mobileMenuWrapper = document.querySelector(".mobile-menu");
+
   if (mobileMenuWrapper) {
+    const mobileMenuWrapperLinks = document.querySelector(".mobile-menu-links");
     const mobileMenuButton = document.querySelector(".mobile-menu-toggle");
+   
     mobileMenuButton.addEventListener("click", () => {
+      // mobileMenuWrapper.classList.toggle("menu-open");
+  
+      setTimeout(() => {
+        const mobileMenuWrapperLinksHeight = mobileMenuWrapperLinks.offsetHeight;
+        moveDownMainContainer(mobileMenuWrapperLinksHeight);
+      }, 100);
+
       mobileMenuWrapper.classList.toggle("menu-open");
-    });
+     });
+
   }
 
   document.querySelectorAll(".js-dismiss").forEach(btn => {
@@ -257,6 +282,7 @@ function hasParent(el, selector) {
   }
   return null;
 }
+
 
 function handleLegacyAddonLabels(legacyNoteElem) {
   const legacyNote = legacyNoteElem.textContent;
