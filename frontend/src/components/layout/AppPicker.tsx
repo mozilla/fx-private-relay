@@ -66,7 +66,7 @@ const getProducts = (referringSiteUrl: string) => ({
   },
   vpn: {
     id: "vpn",
-    url: `https://www.mozilla.org/en-US/products/vpn/?utm_source=${encodeURIComponent(
+    url: `https://www.mozilla.org/products/vpn/?utm_source=${encodeURIComponent(
       referringSiteUrl
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
   },
