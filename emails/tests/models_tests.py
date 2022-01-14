@@ -80,7 +80,6 @@ class MiscEmailModelsTest(TestCase):
         expected_hash = sha256(f'{address}@{non_default}'.encode('utf-8')).hexdigest()
         assert address_hash(address, domain=non_default) == expected_hash
 
-    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_address_hash_with_subdomain(self):
         address = 'aaaaaaaaa'
         subdomain = 'test'
@@ -96,7 +95,6 @@ class MiscEmailModelsTest(TestCase):
         expected_hash = sha256(f'{address}@{test_domain}'.encode('utf-8')).hexdigest()
         assert address_hash(address, domain=test_domain) == expected_hash
 
-    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_get_domain_numerical(self):
         assert get_domain_numerical('default.com') == 1
         assert get_domain_numerical('test.com') == 2
@@ -176,7 +174,6 @@ class RelayAddressTest(TestCase):
         self.fail("Should have raised CannotMakeSubdomainException")
 
     @skip(reason="ignore test for code path that we don't actually use")
-    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_create_with_specified_domain(self):
         relay_address = RelayAddress.objects.create(
             user=self.user_profile.user, domain=2
@@ -185,7 +182,6 @@ class RelayAddressTest(TestCase):
         assert relay_address.get_domain_display() == 'MOZMAIL_DOMAIN'
         assert relay_address.domain_value == 'test.com'
 
-    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_delete_adds_deleted_address_object(self):
         relay_address = baker.make(RelayAddress, user=self.user)
         address_hash = sha256(
@@ -197,7 +193,6 @@ class RelayAddressTest(TestCase):
         ).count()
         assert deleted_count == 1
 
-    @patch('emails.models.DOMAINS', TEST_DOMAINS)
     def test_delete_mozmail_deleted_address_object(self):
         relay_address = baker.make(RelayAddress, domain=2, user=self.user)
         address_hash = sha256(

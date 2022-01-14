@@ -33,13 +33,18 @@ ACCOUNT_PAUSED_ERR_MSG = 'Your account is on pause.'
 
 
 def get_domains_from_settings():
+    # HACK: detect if code is running in django tests
+    if 'testserver' in settings.ALLOWED_HOSTS:
+        return {
+            'RELAY_FIREFOX_DOMAIN': 'default.com',
+            'MOZMAIL_DOMAIN': 'test.com'
+        }
     return {
         'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
         'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
     }
 
 
-DOMAINS = get_domains_from_settings()
 DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
 PREMIUM_DOMAINS = ['mozilla.com', 'getpocket.com', 'mozillafoundation.org']
 
@@ -69,9 +74,10 @@ def default_server_storage():
 
 
 def default_domain_numerical():
-    domain = DOMAINS['RELAY_FIREFOX_DOMAIN']
+    domains = get_domains_from_settings()
+    domain = domains['RELAY_FIREFOX_DOMAIN']
     if datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE:
-        domain = DOMAINS['MOZMAIL_DOMAIN']
+        domain = domains['MOZMAIL_DOMAIN']
     return get_domain_numerical(domain)
 
 
@@ -368,7 +374,9 @@ def copy_auth_token(sender, instance=None, created=False, **kwargs):
             Token.objects.create(user=instance.user, key=instance.api_token)
 
 
-def address_hash(address, subdomain=None, domain=DOMAINS['MOZMAIL_DOMAIN']):
+def address_hash(address, subdomain=None, domain=None):
+    if not domain:
+        domain = get_domains_from_settings()['MOZMAIL_DOMAIN']
     if subdomain:
         return sha256(
             f'{address}@{subdomain}.{domain}'.encode('utf-8')
@@ -405,8 +413,9 @@ def is_blocklisted(value):
 
 def get_domain_numerical(domain_address):
     # get domain name from the address
-    domains_keys = list(DOMAINS.keys())
-    domains_values = list(DOMAINS.values())
+    domains = get_domains_from_settings()
+    domains_keys = list(domains.keys())
+    domains_values = list(domains.values())
     domain_name = domains_keys[domains_values.index(domain_address)]
     # get domain numerical value from domain name
     choices = dict(DOMAIN_CHOICES)
@@ -508,7 +517,7 @@ class RelayAddress(models.Model):
 
     @property
     def domain_value(self):
-        return DOMAINS.get(self.get_domain_display())
+        return get_domains_from_settings().get(self.get_domain_display())
 
     @property
     def full_address(self):
@@ -651,7 +660,7 @@ class DomainAddress(models.Model):
 
     @property
     def domain_value(self):
-        return DOMAINS.get(self.get_domain_display())
+        return get_domains_from_settings().get(self.get_domain_display())
 
     @property
     def full_address(self):

@@ -81,6 +81,6 @@ class FormattingToolsTest(TestCase):
     def test_get_domains_from_settings(self):
         domains = get_domains_from_settings()
         assert domains == {
-            'RELAY_FIREFOX_DOMAIN': 'firefox.com',
-            'MOZMAIL_DOMAIN': 'mozmail.com'
+            'RELAY_FIREFOX_DOMAIN': 'default.com',
+            'MOZMAIL_DOMAIN': 'test.com'
         }
