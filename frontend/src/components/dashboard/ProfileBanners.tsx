@@ -12,6 +12,7 @@ import { isUsingFirefox } from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
 import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
 import { Banner } from "../Banner";
+import { trackPurchaseStart } from "../../functions/trackPurchase";
 
 export type Props = {
   profile: ProfileData;
@@ -79,6 +80,7 @@ export const ProfileBanners = (props: Props) => {
         cta={{
           target: getPremiumSubscribeLink(props.premiumCountries),
           content: l10n.getString("banner-upgrade-cta"),
+          onClick: () => trackPurchaseStart(),
         }}
       >
         <p>{l10n.getString("banner-upgrade-copy")}</p>

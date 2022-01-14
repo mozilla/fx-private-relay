@@ -1,4 +1,5 @@
 import { event as gaEvent, EventArgs } from "react-ga";
+import { setCookie } from "./cookies";
 
 type ArgsWithoutCategory = Omit<EventArgs, "category">;
 // Make `action` optional
@@ -11,5 +12,5 @@ export const trackPurchaseStart = (args?: PurchaseTrackingArgs) => {
     category: "Purchase Button",
     action: args?.action ?? "Engage",
   });
-  document.cookie = "clicked-purchase=true; path=/; samesite=lax; secure";
+  setCookie("clicked-purchase", "true", { maxAgeInSeconds: 60 * 60 });
 };

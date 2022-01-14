@@ -14,6 +14,7 @@ export type BannerProps = {
   cta?: {
     target: string;
     content: string;
+    onClick?: () => void;
   };
   dismissal?: {
     key: string;
@@ -49,6 +50,7 @@ export const Banner = (props: BannerProps) => {
         eventLabel={props.cta.content}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={props.cta.onClick}
       >
         {props.cta.content}
       </OutboundLink>
