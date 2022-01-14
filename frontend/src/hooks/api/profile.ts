@@ -1,5 +1,5 @@
-import { SWRResponse } from "swr";
-import { apiFetch, useApiV1 } from "./api";
+import useSWR, { Fetcher, SWRResponse } from "swr";
+import { apiFetch, authenticatedFetch } from "./api";
 
 export type ProfileData = {
   id: number;
@@ -21,7 +21,9 @@ export type ProfileUpdateFn = (
 export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
   update: ProfileUpdateFn;
 } {
-  const profiles: SWRResponse<ProfilesData, unknown> = useApiV1("/profiles/");
+  const profiles = useSWR("/profiles/", profileFetcher, {
+    revalidateOnFocus: false,
+  }) as SWRResponse<ProfilesData, Error>;
 
   const update: ProfileUpdateFn = async (id, data) => {
     const response = await apiFetch(`/profiles/${id}/`, {
@@ -37,3 +39,24 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
     update: update,
   };
 }
+
+/**
+ * Instead of using the `fetcher` from `api.ts`, this fetcher is specific to the profiles API.
+ * The reason that it's needed is that we have to tell the back-end to re-fetch data from
+ * Firefox Accounts if the user was sent back here after trying to subscribe to Premium.
+ */
+const profileFetcher: Fetcher<ProfilesData> = async (_requestInfo, requestInit: RequestInit) => {
+  const isToldByFxaToRefresh = document.location.search.indexOf("fxa_refresh=1") !== -1;
+
+  if (isToldByFxaToRefresh) {
+    const refreshResponse = await authenticatedFetch("/accounts/profile/refresh");
+    await refreshResponse.json();
+  }
+
+  const response = await apiFetch("/profiles/", requestInit);
+  if (!response.ok) {
+    throw new Error(`${response.status}: ${response.statusText}`);
+  }
+  const data: ProfilesData = await response.json();
+  return data;
+};
