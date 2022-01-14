@@ -23,9 +23,6 @@ export function useGaPing(args: GaPingArgs, options?: IntersectionOptions) {
       action: "View",
       nonInteraction: true,
     });
-    if (args.category === "Purchase Button") {
-      document.cookie = "clicked-purchase=true; path=/; samesite=lax; secure";
-    }
   }, [args, entry?.intersectionRatio, inView]);
 
   return ref;
