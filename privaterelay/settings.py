@@ -150,6 +150,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'corsheaders',
 
     'privaterelay.apps.PrivateRelayConfig',
 ]
@@ -195,6 +196,7 @@ MIDDLEWARE += [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -546,6 +548,22 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_RENDERER_CLASSES': DRF_RENDERERS,
 }
+
+CORS_ALLOWED_ORIGINS = []
+CSRF_TRUSTED_ORIGINS = []
+if DEBUG:
+    # In local development, the React UI can be served up from a different server
+    # that needs to be allowed to make requests.
+    # In production, the frontend is served by Django, is therefore on the same
+    # origin and thus has access to the same cookies.
+    CORS_ALLOW_CREDENTIALS = True
+    SESSION_COOKIE_SAMESITE = None
+    CORS_ALLOWED_ORIGINS += [
+        'http://localhost:3000',
+    ]
+    CSRF_TRUSTED_ORIGINS += [
+        'http://localhost:3000',
+    ]
 
 sentry_sdk.init(
     dsn=config('SENTRY_DSN', None),
