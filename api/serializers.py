@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from emails.models import Profile, DomainAddress, RelayAddress
+from django.contrib.auth.models import User
 
 
 class RelayAddressSerializer(serializers.ModelSerializer):
@@ -42,3 +43,9 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = Profile
         fields = ['id', 'server_storage', 'subdomain', 'has_premium', 'onboarding_state', 'date_subscribed']
         read_only_fields = ['id', 'subdomain', 'has_premium', 'date_subscribed']
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email']
+        read_only_fields = ['email']

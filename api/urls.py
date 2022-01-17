@@ -3,7 +3,7 @@ from django.urls import include, path, register_converter
 from rest_framework import routers
 
 from .views import (
-    DomainAddressViewSet, ProfileViewSet, RelayAddressViewSet,
+    DomainAddressViewSet, ProfileViewSet, UserViewSet, RelayAddressViewSet,
     premium_countries, schema_view
 )
 
@@ -29,6 +29,9 @@ api_router.register(
 )
 api_router.register(
     r'profiles', ProfileViewSet, 'profiles'
+)
+api_router.register(
+    r'users', UserViewSet, 'user'
 )
 
 urlpatterns = [
