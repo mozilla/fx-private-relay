@@ -141,19 +141,13 @@ def profile_refresh(request):
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
 
-    newly_premium = False
-    had_premium = profile.has_premium
     fxa = _get_fxa(request)
     _handle_fxa_profile_change(fxa)
-    now_has_premium = profile.has_premium
-    newly_premium = not had_premium and now_has_premium
-    if newly_premium:
-        profile.date_subscribed = datetime.now(timezone.utc)
-        profile.save()
+    if ('clicked-purchase' in request.COOKIES and profile.has_premium):
         event = 'user_purchased_premium'
         incr_if_enabled(event, 1)
 
-    return JsonResponse({'newly_premium': newly_premium})
+    return JsonResponse({})
 
 
 @api_view()
