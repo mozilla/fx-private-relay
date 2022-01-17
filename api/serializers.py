@@ -49,6 +49,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             'onboarding_state',
             'date_subscribed',
             'avatar',
+            'next_email_try',
+            'bounce_status',
             'api_token'
         ]
         read_only_fields = [
@@ -56,6 +58,8 @@ class ProfileSerializer(serializers.ModelSerializer):
             'has_premium',
             'date_subscribed',
             'avatar',
+            'next_email_try',
+            'bounce_status',
             'api_token'
         ]
 

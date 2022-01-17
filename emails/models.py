@@ -203,6 +203,10 @@ class Profile(models.Model):
         return BounceStatus(False, '')
 
     @property
+    def bounce_status(self):
+        return self.check_bounce_pause()
+
+    @property
     def next_email_try(self):
         bounce_pause, bounce_type = self.check_bounce_pause()
 
