@@ -6,6 +6,7 @@ import PremiumScreenshotFr from "../../../../static/images/newlanding/a/hero-ima
 import PremiumScreenshotDe from "../../../../static/images/newlanding/a/hero-image-premium-de.svg";
 import NoPremiumScreenshot from "../../../../static/images/newlanding/a/hero-image-nopremium.svg";
 import FgImage from "../../../../static/images/newlanding/a/hero-image-fg.svg";
+import { getLocale } from "../../functions/getLocale";
 
 export type Props = {
   premium?: boolean;
@@ -13,8 +14,7 @@ export type Props = {
 
 export const DemoPhone = (props: Props) => {
   const { l10n } = useLocalization();
-  const bundle = Array.from(l10n.bundles)[0];
-  const lang = bundle?.locales[0]?.split("-")[0] ?? "en";
+  const lang = getLocale(l10n).split("-")[0] ?? "en";
 
   // Show an English-language non-Premium interface by default:
   let screenshot = NoPremiumScreenshot.src;
