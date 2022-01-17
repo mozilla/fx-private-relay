@@ -171,6 +171,10 @@ class Profile(models.Model):
         return False
 
     @property
+    def avatar(self):
+        return self.fxa.extra_data.get('avatar')
+
+    @property
     def num_active_address(self):
         return (
             RelayAddress.objects.filter(user=self.user).count() +
