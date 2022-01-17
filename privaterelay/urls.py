@@ -38,6 +38,11 @@ urlpatterns = [
         views.profile_subdomain,
         name='profile_subdomain'
     ),
+    path(
+        'accounts/profile/refresh',
+        views.profile_refresh,
+        name='profile_refresh'
+    ),
     path('accounts/settings/', views.settings_view, name='settings'),
     # This redirects users back to the homepage after updating settings
     path('accounts/profile/settings_update', views.settings_update_view, name='settings-update'),

@@ -135,6 +135,28 @@ def _get_fxa(request):
 
 
 @api_view()
+@require_http_methods(['GET'])
+def profile_refresh(request):
+    if (not request.user or request.user.is_anonymous):
+        return redirect(reverse('fxa_login'))
+    profile = request.user.profile_set.first()
+
+    newly_premium = False
+    had_premium = profile.has_premium
+    fxa = _get_fxa(request)
+    _handle_fxa_profile_change(fxa)
+    now_has_premium = profile.has_premium
+    newly_premium = not had_premium and now_has_premium
+    if newly_premium:
+        profile.date_subscribed = datetime.now(timezone.utc)
+        profile.save()
+        event = 'user_purchased_premium'
+        incr_if_enabled(event, 1)
+
+    return JsonResponse({'newly_premium': newly_premium})
+
+
+@api_view()
 @require_http_methods(['POST', 'GET'])
 def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
