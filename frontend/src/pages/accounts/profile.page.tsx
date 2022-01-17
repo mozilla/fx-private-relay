@@ -258,7 +258,7 @@ const Profile: NextPage = () => {
         <main>
           {stats}
           <section className={styles.bannersWrapper}>
-            <ProfileBanners profile={profile} premiumCountries={premiumCountriesData.data} />
+            <ProfileBanners profile={profile} user={user} premiumCountries={premiumCountriesData.data} />
           </section>
           <section className={styles.mainWrapper}>
             <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />

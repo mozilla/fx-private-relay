@@ -1,4 +1,4 @@
-import { useLocalization } from "@fluent/react";
+import { Localized, useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "../../../../static/images/logos/fx-logo.svg";
@@ -10,18 +10,48 @@ import {
 } from "../../functions/getPlan";
 import { isUsingFirefox } from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
+import { UserData } from "../../hooks/api/user";
 import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
 import { Banner } from "../Banner";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
+import { getLocale } from "../../functions/getLocale";
 
 export type Props = {
   profile: ProfileData;
+  user: UserData;
   premiumCountries?: PremiumCountriesData;
 };
 
 export const ProfileBanners = (props: Props) => {
   const { l10n } = useLocalization();
   const banners: ReactNode[] = [];
+
+  const bounceStatus = props.profile.bounce_status;
+  if (bounceStatus[0]) {
+    banners.push(
+      <Banner
+        key="bounce-banner"
+        type="warning"
+        title={l10n.getString("banner-bounced-headline")}
+      >
+        <Localized
+          id="banner-bounced-copy"
+          vars={{
+            username: props.user.email,
+            bounce_type: bounceStatus[1],
+            date: new Intl.DateTimeFormat(getLocale(l10n), { dateStyle: "short", timeStyle: "short" }).format(
+              new Date(props.profile.next_email_try)
+            ),
+          }}
+          elems={{
+            em: <em/>,
+          }}
+        >
+          <p/>
+        </Localized>
+      </Banner>
+    );
+  }
 
   if (!isUsingFirefox()) {
     banners.push(
