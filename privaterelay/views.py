@@ -4,6 +4,7 @@ from hashlib import sha256
 import json
 import logging
 import os
+from rest_framework.decorators import api_view
 
 from google_measurement_protocol import event, report
 import jwt
@@ -133,6 +134,7 @@ def _get_fxa(request):
     return request.user.socialaccount_set.filter(provider='fxa').first()
 
 
+@api_view()
 @require_http_methods(['POST', 'GET'])
 def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
