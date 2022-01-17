@@ -694,10 +694,28 @@ function toggleClass(elem) {
       item.classList.remove("is-active");
   });
   elem.target.classList.add("is-active");
+
+  if(elem.target.hasAttribute("active-accordion")){
+    const urlOnly = window.location.href;
+    const urlStart = window.location.hash;
+    const findClassName = elem.target.classList;
+    const accordionClassArray = Array.from(findClassName);
+
+    console.log(accordionClassArray[1]);
+    window.location.href = urlOnly.replace(urlStart, "#" + accordionClassArray[1]);
+
+    // for (const i = 0; i < accordionClassArray.length; i++){
+    //   if (accordionClassArray[i] === 'use-case-social-networks'){
+    //     window.location.href = urlOnly.replace(urlStart, "#" + findClassName[i]);
+    //     console.log(window.location.href);
+    //   }
+    // }
+  }
 }
 
 useCaseTitle.forEach( item => {
     item.addEventListener("click", toggleClass, false);
+    item.setAttribute("active-accordion", "true");
 });
 
 //Landing page accordion remove box shadow
