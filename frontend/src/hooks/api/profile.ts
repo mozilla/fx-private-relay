@@ -1,6 +1,7 @@
 import useSWR, { Fetcher, SWRResponse } from "swr";
 import { apiFetch, authenticatedFetch } from "./api";
 
+type DateString = string;
 export type ProfileData = {
   id: number;
   server_storage: boolean;
@@ -8,6 +9,8 @@ export type ProfileData = {
   subdomain: string | null;
   onboarding_state: number;
   avatar: string;
+  next_email_try: DateString;
+  bounce_status: [false, ""] | [true, "soft"] | [true, "hard"];
   api_token: string;
 };
 
