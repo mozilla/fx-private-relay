@@ -41,8 +41,23 @@ class DomainAddressSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['id', 'server_storage', 'subdomain', 'has_premium', 'onboarding_state', 'date_subscribed', 'avatar']
-        read_only_fields = ['id', 'has_premium', 'date_subscribed', 'avatar']
+        fields = [
+            'id',
+            'server_storage',
+            'subdomain',
+            'has_premium',
+            'onboarding_state',
+            'date_subscribed',
+            'avatar',
+            'api_token'
+        ]
+        read_only_fields = [
+            'id',
+            'has_premium',
+            'date_subscribed',
+            'avatar',
+            'api_token'
+        ]
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
