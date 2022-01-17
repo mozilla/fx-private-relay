@@ -109,7 +109,7 @@ const Settings: NextPage = () => {
         }`}
         target="_blank"
         rel="noopener noreferrer"
-        title={l10n.getString("settings-meta-contact-tooltip")}
+        title={l10n.getString("nav-profile-contact-tooltip")}
       >
         <img src={messageIcon.src} alt="" />
         {l10n.getString("settings-meta-contact-label")}
