@@ -26,6 +26,8 @@ function getReturnValue(profileData?: MockData, callbacks?: Callbacks): ReturnTy
         subdomain: null,
         onboarding_state: 3,
         avatar: "",
+        bounce_status: [false, ""],
+        next_email_try: "2022-04-02T13:37:00Z",
         api_token: "",
         ...profileData,
       },
