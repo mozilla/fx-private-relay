@@ -21,7 +21,10 @@ function MyApp({ Component, pageProps }: AppProps) {
     if (hasDoNotTrackEnabled()) {
       return;
     }
-    ReactGa.initialize(getRuntimeConfig().googleAnalyticsId, { debug: getRuntimeConfig().environment === "development" });
+    ReactGa.initialize(getRuntimeConfig().googleAnalyticsId, {
+      titleCase: false,
+      debug: getRuntimeConfig().environment === "development",
+    });
     ReactGa.set({
       anonymizeIp: true,
       transport: "beacon",
