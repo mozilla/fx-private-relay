@@ -12,10 +12,10 @@ export type GaPingArgs = Omit<EventArgs, "action" | "nonInteraction">;
  * @returns A React RefObject that should be attached to the element to track
  */
 export function useGaPing(args: GaPingArgs, options?: IntersectionOptions) {
-  const [ref, inView, entry] = useInView({ threshold: 1, ...options });
+  const [ref, inView] = useInView({ threshold: 1, ...options });
 
   useEffect(() => {
-    if (entry?.intersectionRatio !== 1) {
+    if (!inView) {
       return;
     }
     gaEvent({
@@ -23,7 +23,11 @@ export function useGaPing(args: GaPingArgs, options?: IntersectionOptions) {
       action: "View",
       nonInteraction: true,
     });
-  }, [args, entry?.intersectionRatio, inView]);
+    // We don't want to trigger sending an event when `args` change;
+    // only when the element does or does not come into view do we
+    // send an event, with whatever the args are at that time:
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inView]);
 
   return ref;
 }
