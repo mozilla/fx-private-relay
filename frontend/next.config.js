@@ -1,6 +1,7 @@
 /** @type { Record<string, import("./src/config").RuntimeConfig> } */
 const runtimeConfigs = {
   production: {
+    environment: "production",
     backendOrigin: "https://relay.firefox.com",
     frontendOrigin: "https://relay.firefox.com",
     fxaOrigin: "https://accounts.firefox.com",
@@ -26,6 +27,7 @@ const runtimeConfigs = {
 // with the build output being served by Django/Whitenoise.
 runtimeConfigs.watch_build = {
   ...runtimeConfigs.production,
+  environment: "development",
   backendOrigin: "http://127.0.0.1:8000",
   frontendOrigin: "http://127.0.0.1:8000",
   fxaOrigin: "https://accounts.stage.mozaws.net",
@@ -39,6 +41,7 @@ runtimeConfigs.watch_build = {
 // login and logout needs to be simulated using the `/mock/` pages.
 runtimeConfigs.development = {
   ...runtimeConfigs.production,
+  environment: "development",
   backendOrigin: "http://127.0.0.1:8000",
   frontendOrigin: "http://localhost:3000",
   fxaOrigin: "https://accounts.stage.mozaws.net",
