@@ -63,10 +63,17 @@ const Tabs = (props: TabsProps) => {
   );
 
   useEffect(() => {
-    const selectedItem = Array.from(state.collection).find(item => item.key === document.location.hash.substring("#carousel_".length));
-    if (typeof selectedItem !== "undefined") {
-      state.setSelectedKey(selectedItem.key);
+    function selectByHash() {
+      const selectedItem = Array.from(state.collection).find(item => item.key === document.location.hash.substring("#carousel_".length));
+      if (typeof selectedItem !== "undefined") {
+        state.setSelectedKey(selectedItem.key);
+      }
     }
+    selectByHash();
+    window.addEventListener("hashchange", selectByHash);
+    return () => {
+      window.removeEventListener("hashchange", selectByHash);
+    };
     // Only run this logic once, to select a tab when rendering in the browser
     // with an anchor link pointing to that tab.
     // Otherwise, the tab will be reset to the anchor link on every state change.
