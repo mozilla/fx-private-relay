@@ -5,6 +5,7 @@ import styles from "./Banner.module.scss";
 import warningIcon from "../../../static/images/icon-orange-info.svg";
 import { useLocalDismissal } from "../hooks/localDismissal";
 import { CloseIcon } from "./icons/close";
+import { useGaPing } from "../hooks/gaPing";
 
 export type BannerProps = {
   children: ReactNode;
@@ -15,6 +16,7 @@ export type BannerProps = {
     target: string;
     content: string;
     onClick?: () => void;
+    gaPing?: Parameters<typeof useGaPing>[0];
   };
   dismissal?: {
     key: string;
@@ -24,6 +26,7 @@ export type BannerProps = {
 };
 
 export const Banner = (props: BannerProps) => {
+  const ctaRef = useGaPing(props.cta?.gaPing ?? null);
   const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", { duration: props.dismissal?.duration });
   const {l10n} = useLocalization();
   const type = props.type ?? "warning";
@@ -52,7 +55,7 @@ export const Banner = (props: BannerProps) => {
         rel="noopener noreferrer"
         onClick={props.cta.onClick}
       >
-        {props.cta.content}
+        <span ref={ctaRef}>{props.cta.content}</span>
       </OutboundLink>
     </div>
   ) : null;
