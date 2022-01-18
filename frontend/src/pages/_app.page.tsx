@@ -43,23 +43,14 @@ function MyApp({ Component, pageProps }: AppProps) {
         });
       }
     });
-    // TODO: Verify that the initial page load is also tracked?
   }, []);
 
   useEffect(() => {
     if (hasDoNotTrackEnabled()) {
       return;
     }
-
-    const routeChangeListener = (url: string) => {
-      ReactGa.pageview(url);
-    };
-
-    router.events.on("routeChangeComplete", routeChangeListener);
-    return () => {
-      router.events.off("routeChangeComplete", routeChangeListener);
-    };
-  }, [router.events]);
+    ReactGa.pageview(router.asPath);
+  }, [router.asPath]);
 
   return (
     <SSRProvider>
