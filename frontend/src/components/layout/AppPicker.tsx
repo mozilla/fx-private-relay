@@ -219,6 +219,7 @@ const AppPickerTrigger = ({
 }: AppPickerTriggerProps) => {
   const { l10n } = useLocalization();
   const appPickerTriggerState = useMenuTriggerState(otherProps);
+  const isFirstRenderDone = useRef(false);
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const { menuTriggerProps, menuProps } = useMenuTrigger(
@@ -233,6 +234,10 @@ const AppPickerTrigger = ({
   ).buttonProps;
 
   useEffect(() => {
+    if (!isFirstRenderDone.current) {
+      isFirstRenderDone.current = true;
+      return;
+    }
     gaEvent({
       category: "bento",
       action: appPickerTriggerState.isOpen ? "bento-opened" : "bento-closed",
