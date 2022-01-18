@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "watch": "npm run watch_build && chokidar \"src/**/*\" -c \"npm run watch_build\"",
+    "watch": "chokidar \"src/**/*\" \"next.config.js\" --initial --command=\"npm run watch_build\"",
     "watch_build": "NODE_ENV='watch_build' npm run build",
     "build": "next build && next export",
     "start": "next start",
