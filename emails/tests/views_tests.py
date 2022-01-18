@@ -1,16 +1,10 @@
 from datetime import datetime, timezone
 import json
 import os
-from unittest import skip
 from unittest.mock import patch
 
-from django.conf import settings
 from django.contrib.auth.models import User
-from django.test import (
-    Client,
-    override_settings,
-    TestCase,
-)
+from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
@@ -18,6 +12,7 @@ from model_bakery import baker
 from emails.models import (
     address_hash,
     DeletedAddress,
+    Profile,
     RelayAddress,
 )
 from emails.views import _get_address, _sns_notification
@@ -28,33 +23,41 @@ real_abs_cwd = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__))
 )
 single_rec_file = os.path.join(
-    real_abs_cwd, 'single_recipient_sns_body.json'
+    real_abs_cwd, 'fixtures', 'single_recipient_sns_body.json'
 )
-with open(single_rec_file, 'r') as f:
-    SINGLE_REC_SNS_BODY = json.load(f)
 
-
-def _get_bounce_payload(bounce_type):
-    f_path = (
-        'emails/tests/fixtures/relay-bounce-%s-notification.json' %
-        bounce_type
+EMAIL_SNS_BODIES = {}
+for email_type in ['spamVerdict_FAIL', 'single_recipient']:
+    email_file = os.path.join(
+        real_abs_cwd, 'fixtures', '%s_email_sns_body.json' % email_type
     )
-    with open(os.path.join(settings.BASE_DIR, f_path), 'r') as f:
-        return json.load(f)
+    with open(email_file, 'r') as f:
+        email_sns_body = json.load(f)
+        EMAIL_SNS_BODIES[email_type] = email_sns_body
+
+BOUNCE_SNS_BODIES = {}
+for bounce_type in ['soft', 'hard', 'spam']:
+    bounce_file = os.path.join(
+        real_abs_cwd, 'fixtures', '%s_bounce_sns_body.json' % bounce_type
+    )
+    with open(bounce_file, 'r') as f:
+        bounce_sns_body = json.load(f)
+        BOUNCE_SNS_BODIES[bounce_type] = bounce_sns_body
 
 
 class SNSNotificationTest(TestCase):
     def setUp(self):
         # FIXME: this should make an object so that the test passes
         self.user = baker.make(User)
+        self.profile = self.user.profile_set.first()
         self.sa = baker.make(SocialAccount, user=self.user, provider='fxa')
         self.ra = baker.make(
             RelayAddress, user=self.user, address='ebsbdsan7', domain=2
         )
 
     @patch('emails.views.ses_relay_email')
-    def test_sns_notification(self, mock_ses_relay_email):
-        _sns_notification(SINGLE_REC_SNS_BODY)
+    def test_single_recipient_sns_notification(self, mock_ses_relay_email):
+        _sns_notification(EMAIL_SNS_BODIES['single_recipient'])
 
         mock_ses_relay_email.assert_called_once()
 
@@ -62,43 +65,54 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at.date() == datetime.today().date()
 
+    @patch('emails.views.ses_relay_email')
+    def test_spamVerdict_FAIL_default_still_relays(self, mock_ses_relay_email):
+        # for a default user, spam email will still relay
+        _sns_notification(EMAIL_SNS_BODIES['spamVerdict_FAIL'])
+
+        mock_ses_relay_email.assert_called_once()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+
+    @patch('emails.views.ses_relay_email')
+    def test_spamVerdict_FAIL_auto_block_doesnt_relay(self, mock_ses_relay_email):
+        # when user has auto_block_spam=True, spam will not relay
+        self.profile.auto_block_spam = True
+        self.profile.save()
+
+        _sns_notification(EMAIL_SNS_BODIES['spamVerdict_FAIL'])
+
+        mock_ses_relay_email.assert_not_called()
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 0
+
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
         self.user = baker.make(
-            User, email='groovetest@protonmail.ch', make_m2m=True
-        )
-        self.client = Client()
-
-    def _make_bounce_request(self, client, bounce_payload):
-        return client.post(
-            '/emails/sns-inbound',
-            content_type='application/json',
-            data=bounce_payload,
-            HTTP_X_AMZ_SNS_MESSAGE_TYPE='Notification',
+            User, email='relayuser@test.com', make_m2m=True
         )
 
-    @skip('need email test fixtures to test; contact groovecoder')
-    def test_sns_inbound_with_hard_bounce(self):
-        bounce_payload = _get_bounce_payload('hard')
+    def test_sns_message_with_hard_bounce(self):
         pre_request_datetime = datetime.now(timezone.utc)
 
-        resp = self._make_bounce_request(self.client, bounce_payload)
+        _sns_notification(BOUNCE_SNS_BODIES['hard'])
 
-        assert resp.status_code == 200
         profile = self.user.profile_set.first()
         assert profile.last_hard_bounce >= pre_request_datetime
 
-    @skip('need email test fixtures to test; contact groovecoder')
-    def test_sns_inbound_with_soft_bounce(self):
-        bounce_payload = _get_bounce_payload('soft')
+    def test_sns_message_with_soft_bounce(self):
         pre_request_datetime = datetime.now(timezone.utc)
 
-        resp = self._make_bounce_request(self.client, bounce_payload)
+        _sns_notification(BOUNCE_SNS_BODIES['soft'])
 
-        assert resp.status_code == 200
         profile = self.user.profile_set.first()
         assert profile.last_soft_bounce >= pre_request_datetime
+
+    def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
+        _sns_notification(BOUNCE_SNS_BODIES['spam'])
+        profile = self.user.profile_set.first()
+        assert profile.auto_block_spam == True
 
 
 @override_settings(SITE_ORIGIN='https://test.com', ON_HEROKU=False)

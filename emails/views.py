@@ -666,8 +666,6 @@ def _handle_bounce(message_json):
             # TODO: handle bounce for a user who no longer exists
             # add to SES account-wide suppression list?
             return HttpResponse("Address does not exist", status=404)
-        # if an email bounced as spam, set to auto block spam for this user
-        # and DON'T set them into bounce pause state
         now = datetime.now(timezone.utc)
         incr_if_enabled(
             'email_bounce_%s_%s' % (
@@ -675,7 +673,9 @@ def _handle_bounce(message_json):
             ),
             1
         )
-        if 'spam' in recipient.lower():
+        # if an email bounced as spam, set to auto block spam for this user
+        # and DON'T set them into bounce pause state
+        if (any('spam' in val.lower() for val in recipient.values())):
             profile.auto_block_spam = True
             profile.save()
             continue
