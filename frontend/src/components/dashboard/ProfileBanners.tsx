@@ -111,6 +111,10 @@ export const ProfileBanners = (props: Props) => {
           target: getPremiumSubscribeLink(props.premiumCountries),
           content: l10n.getString("banner-upgrade-cta"),
           onClick: () => trackPurchaseStart(),
+          gaPing: {
+            category: "Purchase Button",
+            label: "profile-banner-promo",
+          },
         }}
       >
         <p>{l10n.getString("banner-upgrade-copy")}</p>
