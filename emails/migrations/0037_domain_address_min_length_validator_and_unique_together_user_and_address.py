@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0037_domain_address_min_length_validator_and_unique_together_user_and_address'),
+        ('emails', '0036_profile_add_index_on_last_account_flagged'),
     ]
 
     operations = [
