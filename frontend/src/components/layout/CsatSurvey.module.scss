@@ -1,0 +1,78 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  background-color: $color-purple-90;
+  color: $color-white;
+  position: relative;
+
+  @media screen and #{$mq-md} {
+    display: flex;
+  }
+
+  .dismissButton {
+    position: absolute;
+    top: 50%;
+    right: $spacing-md;
+    background-color: transparent;
+    border-style: none;
+    color: $color-white;
+    width: 30px;
+    height: 30px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+    }
+  }
+}
+
+.prompt {
+  a {
+    text-decoration: underline;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.answers {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: $spacing-md;
+
+  ol {
+    display: flex;
+    gap: $spacing-md;
+    list-style-type: none;
+  }
+
+  button {
+    border-radius: $border-radius-sm;
+    background-color: $color-violet-40;
+    color: $color-white;
+    transition: background-color 0.1s ease-out;
+    border-style: none;
+    padding: $spacing-sm;
+    height: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+    }
+  }
+}

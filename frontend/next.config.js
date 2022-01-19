@@ -18,6 +18,7 @@ const runtimeConfigs = {
       generateCustomAliasMenu: false,
       generateCustomAliasSubdomain: false,
       generateCustomAliasTip: false,
+      csatSurvey: false,
     },
   },
 };
