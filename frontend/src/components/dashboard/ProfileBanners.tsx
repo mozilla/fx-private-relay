@@ -14,7 +14,7 @@ import { UserData } from "../../hooks/api/user";
 import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
 import { Banner } from "../Banner";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
-import { getLocale } from "../../functions/getLocale";
+import { renderDate } from "../../functions/renderDate";
 
 export type Props = {
   profile: ProfileData;
@@ -39,9 +39,7 @@ export const ProfileBanners = (props: Props) => {
           vars={{
             username: props.user.email,
             bounce_type: bounceStatus[1],
-            date: new Intl.DateTimeFormat(getLocale(l10n), { dateStyle: "short", timeStyle: "short" }).format(
-              new Date(props.profile.next_email_try)
-            ),
+            date: renderDate(props.profile.next_email_try, l10n),
           }}
           elems={{
             em: <em/>,

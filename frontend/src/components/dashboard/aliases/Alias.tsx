@@ -151,7 +151,7 @@ export const Alias = (props: Props) => {
           </div>
           <div className={`${styles.dateCreated} ${styles.metadata}`}>
             <dt>{l10n.getString("profile-label-created")}</dt>
-            <dd>{renderDate(props.alias.created_at)}</dd>
+            <dd>{renderDate(props.alias.created_at, l10n)}</dd>
           </div>
         </dl>
         <AliasDeletionButton
