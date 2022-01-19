@@ -10,6 +10,23 @@ const mockedUseProfiles = useProfiles as jest.MockedFunction<
 >;
 
 type MockData = Partial<ProfileData>;
+
+export function getMockProfileData(profileData?: MockData): ProfileData {
+  return {
+    has_premium: false,
+    id: 0,
+    server_storage: true,
+    subdomain: null,
+    onboarding_state: 3,
+    avatar: "",
+    date_subscribed: null,
+    bounce_status: [false, ""],
+    next_email_try: "2022-04-02T13:37:00Z",
+    api_token: "",
+    ...profileData,
+  };
+}
+
 type Callbacks = {
   updater?: ProfileUpdateFn,
 };
@@ -19,18 +36,7 @@ function getReturnValue(profileData?: MockData, callbacks?: Callbacks): ReturnTy
     mutate: jest.fn(),
     update: callbacks?.updater ?? jest.fn(),
     data: [
-      {
-        has_premium: false,
-        id: 0,
-        server_storage: true,
-        subdomain: null,
-        onboarding_state: 3,
-        avatar: "",
-        bounce_status: [false, ""],
-        next_email_try: "2022-04-02T13:37:00Z",
-        api_token: "",
-        ...profileData,
-      },
+      getMockProfileData(profileData),
     ],
   };
 }
