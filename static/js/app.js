@@ -698,45 +698,52 @@ function toggleClass(elem) {
   const findClassName = elem.target.classList;
   const accordionClassArray = Array.from(findClassName);
 
-  if(elem.target.hasAttribute("active-accordion")){
-    const urlOnly = window.location.href;
-    const urlStart = window.location.hash;
-    window.location.href = urlOnly.replace(urlStart, "#" + accordionClassArray[1]);
+  const urlOnly = window.location.href;
+  const urlStart = window.location.hash;
+
+  if (urlStart === ""){
+    window.location.href = urlOnly.concat("#" + accordionClassArray[1]);
   }
 
+  else {
+    window.location.href = urlOnly.replace(urlStart, "#" + accordionClassArray[1]);
+  }
 }
 
-if (location.hash === "#use-case-shopping"){
-  useCaseTitle.forEach( item => {
-    item.classList.remove("is-active");
-  });
-  document.querySelector(".use-case-shopping").classList.add("is-active");
+function hashChangeAccordion(){
+  if (location.hash === "#use-case-shopping"){
+    useCaseTitle.forEach( item => {
+      item.classList.remove("is-active");
+    });
+    document.querySelector(".use-case-shopping").classList.add("is-active");
+  }
+
+  if (location.hash === "#use-case-social-networks"){
+    useCaseTitle.forEach( item => {
+      item.classList.remove("is-active");
+    });
+    document.querySelector(".use-case-social-networks").classList.add("is-active");
+  }
+
+  if (location.hash === "#use-case-offline"){
+    useCaseTitle.forEach( item => {
+      item.classList.remove("is-active");
+    });
+    document.querySelector(".use-case-offline").classList.add("is-active");
+  }
+
+  if (location.hash === "#use-case-gaming"){
+    useCaseTitle.forEach( item => {
+      item.classList.remove("is-active");
+    });
+    document.querySelector(".use-case-gaming").classList.add("is-active");
+  }
 }
 
-if (location.hash === "#use-case-social-networks"){
-  useCaseTitle.forEach( item => {
-    item.classList.remove("is-active");
-  });
-  document.querySelector(".use-case-social-networks").classList.add("is-active");
-}
-
-if (location.hash === "#use-case-offline"){
-  useCaseTitle.forEach( item => {
-    item.classList.remove("is-active");
-  });
-  document.querySelector(".use-case-offline").classList.add("is-active");
-}
-
-if (location.hash === "#use-case-gaming"){
-  useCaseTitle.forEach( item => {
-    item.classList.remove("is-active");
-  });
-  document.querySelector(".use-case-gaming").classList.add("is-active");
-}
+window.onhashchange = hashChangeAccordion;
 
 useCaseTitle.forEach( item => {
     item.addEventListener("click", toggleClass, false);
-    item.setAttribute("active-accordion", "true");
 });
 
 //Landing page accordion remove box shadow
