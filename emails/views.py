@@ -1,12 +1,14 @@
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
 from email.utils import parseaddr
+import html
 import json
 from json import JSONDecodeError
 import logging
 import mimetypes
 import os
 import re
+import shlex
 from tempfile import SpooledTemporaryFile
 
 from botocore.exceptions import ClientError
@@ -226,11 +228,12 @@ def validate_sns_header(topic_arn, message_type):
             'SNS message for unsupported type',
             extra={
                 'supported_sns_types': SUPPORTED_SNS_TYPES,
-                'message_type': message_type,
+                'message_type': shlex.quote(message_type),
             }
         )
         return HttpResponse(
-            'Received SNS message for unsupported Type: %s' % message_type,
+            'Received SNS message for unsupported Type: %s' %
+            html.escape(shlex.quote(message_type)),
             status=400
         )
 
@@ -271,11 +274,11 @@ def _sns_notification(json_body):
     ):
         logger.error(
             'SNS notification for unsupported type',
-            extra={'notification_type': notification_type},
+            extra={'notification_type': shlex.quote(notification_type)},
         )
         return HttpResponse(
             'Received SNS notification for unsupported Type: %s' %
-            notification_type,
+            html.escape(shlex.quote(notification_type)),
             status=400
         )
     return _sns_message(message_json)
