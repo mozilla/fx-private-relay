@@ -698,15 +698,15 @@ function toggleClass(elem) {
   const findClassName = elem.target.classList;
   const accordionClassArray = Array.from(findClassName);
 
-  const urlOnly = window.location.href;
-  const urlStart = window.location.hash;
+  const urlRelay = window.location.href;
+  const accordionHash = window.location.hash;
 
-  if (urlStart === ""){
-    window.location.href = urlOnly.concat("#" + accordionClassArray[1]);
+  if (accordionHash === ""){
+    window.location.href = urlRelay.concat("#" + accordionClassArray[1]);
   }
 
   else {
-    window.location.href = urlOnly.replace(urlStart, "#" + accordionClassArray[1]);
+    window.location.href = urlRelay.replace(accordionHash, "#" + accordionClassArray[1]);
   }
 }
 
