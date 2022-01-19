@@ -4,6 +4,14 @@
 
 survey-option-dismiss = Dismiss
 
+survey-csat-question = How satisfied are you with your Firefox Relay experience?
+survey-csat-answer-very-dissatisfied = Very Dissatisfied
+survey-csat-answer-dissatisfied = Dissatisfied
+survey-csat-answer-neutral = Neutral
+survey-csat-answer-satisfied = Satisfied
+survey-csat-answer-very-satisfied = Very Satisfied
+survey-csat-followup = Thank you for your feedback. We would like to learn more about how we can improve Relay for you, would you be willing to take a two-minute survey?
+
 banner-dismiss = Dismiss
 
 # Do not change '@mozmail.com'
