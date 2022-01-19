@@ -1,16 +1,23 @@
 from django.conf import settings
+from django.db import IntegrityError
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework import decorators, permissions, response, viewsets
+from rest_framework import decorators, permissions, response, viewsets, exceptions
 
-from emails.models import DomainAddress, Profile, RelayAddress
+from emails.models import (
+    CannotMakeAddressException,
+    DomainAddress,
+    Profile,
+    RelayAddress
+)
 from privaterelay.utils import get_premium_countries_info_from_request
 
 from .permissions import IsOwner
 from .serializers import (
     DomainAddressSerializer, ProfileSerializer, RelayAddressSerializer
 )
+from .exceptions import ConflictError
 
 
 schema_view = get_schema_view(
@@ -44,6 +51,17 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return DomainAddress.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        try:
+            serializer.save(user=self.request.user)
+        except CannotMakeAddressException as e:
+            raise exceptions.PermissionDenied(e.message)
+        except IntegrityError as e:
+            domain_address = DomainAddress.objects.filter(
+                user=self.request.user, address=serializer.validated_data.get('address')
+            ).first()
+            raise ConflictError({'id': domain_address.id, 'full_address': domain_address.full_address})
 
 
 class ProfileViewSet(viewsets.ModelViewSet):

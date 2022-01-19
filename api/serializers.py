@@ -31,7 +31,7 @@ class DomainAddressSerializer(serializers.ModelSerializer):
             'num_forwarded', 'num_blocked', 'num_spam'
         ]
         read_only_fields = [
-            'id', 'address', 'domain', 'full_address',
+            'id', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',
             'num_forwarded', 'num_blocked', 'num_spam'
         ]
