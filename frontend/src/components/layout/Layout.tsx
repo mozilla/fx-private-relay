@@ -22,6 +22,7 @@ import { AppPicker } from "./AppPicker";
 import { useIsLoggedIn } from "../../hooks/session";
 import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
+import { CsatSurvey } from "./CsatSurvey";
 
 export type Props = {
   children: ReactNode;
@@ -56,6 +57,13 @@ export const Layout = (props: Props) => {
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
+  const csatSurvey = getRuntimeConfig().featureFlags.csatSurvey && profiles.data?.[0]
+    ? <CsatSurvey profile={profiles.data[0]}/>
+    : null;
+  const npsSurvey = !getRuntimeConfig().featureFlags.csatSurvey
+    ? <NpsSurvey/>
+    : null;
+
   return (
     <>
       <Head>
@@ -74,7 +82,8 @@ export const Layout = (props: Props) => {
         <meta name="twitter:image" content={socialMediaImage.src}/>
       </Head>
       <div className={styles.wrapper}>
-        <NpsSurvey />
+        {csatSurvey}
+        {npsSurvey}
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles.logoWrapper}>
             <Link href={homePath}>

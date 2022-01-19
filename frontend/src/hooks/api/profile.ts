@@ -9,6 +9,7 @@ export type ProfileData = {
   subdomain: string | null;
   onboarding_state: number;
   avatar: string;
+  date_subscribed: null | DateString;
   next_email_try: DateString;
   bounce_status: [false, ""] | [true, "soft"] | [true, "hard"];
   api_token: string;
