@@ -76,6 +76,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
+    http_method_names = ['get', 'head']
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
