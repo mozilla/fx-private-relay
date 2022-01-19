@@ -695,22 +695,46 @@ function toggleClass(elem) {
   });
   elem.target.classList.add("is-active");
 
+  const findClassName = elem.target.classList;
+  const accordionClassArray = Array.from(findClassName);
+
   if(elem.target.hasAttribute("active-accordion")){
     const urlOnly = window.location.href;
     const urlStart = window.location.hash;
-    const findClassName = elem.target.classList;
-    const accordionClassArray = Array.from(findClassName);
 
     console.log(accordionClassArray[1]);
+    console.log(urlStart);
     window.location.href = urlOnly.replace(urlStart, "#" + accordionClassArray[1]);
-
-    // for (const i = 0; i < accordionClassArray.length; i++){
-    //   if (accordionClassArray[i] === 'use-case-social-networks'){
-    //     window.location.href = urlOnly.replace(urlStart, "#" + findClassName[i]);
-    //     console.log(window.location.href);
-    //   }
-    // }
   }
+
+}
+
+if (location.hash === "#use-case-shopping"){
+  useCaseTitle.forEach( item => {
+    item.classList.remove("is-active");
+  });
+  document.querySelector(".use-case-shopping").classList.add("is-active");
+}
+
+if (location.hash === "#use-case-social-networks"){
+  useCaseTitle.forEach( item => {
+    item.classList.remove("is-active");
+  });
+  document.querySelector(".use-case-social-networks").classList.add("is-active");
+}
+
+if (location.hash === "#use-case-offline"){
+  useCaseTitle.forEach( item => {
+    item.classList.remove("is-active");
+  });
+  document.querySelector(".use-case-offline").classList.add("is-active");
+}
+
+if (location.hash === "#use-case-gaming"){
+  useCaseTitle.forEach( item => {
+    item.classList.remove("is-active");
+  });
+  document.querySelector(".use-case-gaming").classList.add("is-active");
 }
 
 useCaseTitle.forEach( item => {
