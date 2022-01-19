@@ -9,7 +9,7 @@
     {% include "includes/vpn-promo-banner.html" %}
   {% endif %}
 
-  {% if settings.RECRUITMENT_BANNER_LINK and country_code == "us" %}
+  {% if settings.RECRUITMENT_BANNER_LINK and country_code == "us" and not request.user.is_anonymous %}
     <div class="recruitment-banner">
       <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
     </div>
