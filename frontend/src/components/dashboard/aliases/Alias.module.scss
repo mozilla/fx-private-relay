@@ -9,6 +9,8 @@ $toggleTransitionDuration: 200ms;
   padding: 0 $spacing-md;
   transition: background-color $toggleTransitionDuration ease,
     box-shadow $toggleTransitionDuration ease;
+  background-size: cover;
+  background-position: top;
 
   &.isEnabled {
     box-shadow: $box-shadow-sm;
