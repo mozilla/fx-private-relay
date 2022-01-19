@@ -701,9 +701,6 @@ function toggleClass(elem) {
   if(elem.target.hasAttribute("active-accordion")){
     const urlOnly = window.location.href;
     const urlStart = window.location.hash;
-
-    console.log(accordionClassArray[1]);
-    console.log(urlStart);
     window.location.href = urlOnly.replace(urlStart, "#" + accordionClassArray[1]);
   }
 
