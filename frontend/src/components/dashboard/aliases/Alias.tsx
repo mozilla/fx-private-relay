@@ -10,6 +10,8 @@ import {
 import styles from "./Alias.module.scss";
 import copyIcon from "../../../../../static/images/copy-to-clipboard.svg";
 import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
+import IllustrationHoliday from "../../../../public/illustrations/holiday.svg";
+import IllustrationLibrary from "../../../../public/illustrations/library.svg";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
 import { LabelEditor } from "./LabelEditor";
@@ -69,6 +71,32 @@ export const Alias = (props: Props) => {
     />
   ) : null;
 
+  let backgroundImage = undefined;
+  if (
+    [
+      "Holiday",
+      "Holidays",
+      "Vakantie",
+      "Urlaub",
+      "Ferien",
+      "Vacances",
+    ].includes(props.alias.description)
+  ) {
+    backgroundImage = IllustrationHoliday.src;
+  }
+  if (
+    [
+      "Library",
+      "Bibliotheek",
+      "Bibliotek",
+      "Bibliothek",
+      "Biblioteek",
+      "Bibliothèque",
+    ].includes(props.alias.description)
+  ) {
+    backgroundImage = IllustrationLibrary.src;
+  }
+
   return (
     <div
       className={`${styles.aliasCard} ${
@@ -76,6 +104,11 @@ export const Alias = (props: Props) => {
       } ${
         expandButtonState.isSelected ? styles.isExpanded : styles.isCollapsed
       }`}
+      style={{
+        backgroundImage: backgroundImage
+          ? `url(${backgroundImage}), none`
+          : undefined,
+      }}
     >
       <div className={styles.mainData}>
         <div className={styles.controls}>
