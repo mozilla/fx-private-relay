@@ -1,7 +1,7 @@
 import useSWR, { Fetcher, SWRResponse } from "swr";
+import { DateString } from "../../functions/parseDate";
 import { apiFetch, authenticatedFetch } from "./api";
 
-type DateString = string;
 export type ProfileData = {
   id: number;
   server_storage: boolean;
