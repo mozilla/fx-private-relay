@@ -56,7 +56,7 @@ const Profile: NextPage = () => {
         category: "server event",
         action: "fired",
         label: "user_purchased_premium",
-      })
+      });
       clearCookie("clicked-purchase");
     }
   }, [profileData.data]);
@@ -96,7 +96,9 @@ const Profile: NextPage = () => {
     );
   }
 
-  const createAlias = (options: { type: "random" } | { type: "custom", address: string }) => {
+  const createAlias = (
+    options: { type: "random" } | { type: "custom"; address: string }
+  ) => {
     if (options.type === "custom") {
       customAliasData.create(options.address);
     } else {
@@ -245,24 +247,39 @@ const Profile: NextPage = () => {
         // TODO: Make it look for this custom element instead.
         id="profile-main"
         data-api-token={profile.api_token}
-        data-fxa-subscriptions-url={`${getRuntimeConfig().fxaOrigin}/subscriptions`}
+        data-fxa-subscriptions-url={`${
+          getRuntimeConfig().fxaOrigin
+        }/subscriptions`}
         data-premium-prod-id={getRuntimeConfig().premiumProductId}
-        data-premium-price-id={isPremiumAvailableInCountry(premiumCountriesData.data) ? getPlan(premiumCountriesData.data).id : undefined}
+        data-premium-price-id={
+          isPremiumAvailableInCountry(premiumCountriesData.data)
+            ? getPlan(premiumCountriesData.data).id
+            : undefined
+        }
         data-aliases-used-val={allAliases.length}
         data-emails-forwarded-val={totalForwardedEmails}
         data-emails-blocked-val={totalBlockedEmails}
-        data-premium-subdomain-set={typeof profile.subdomain === "string" ? profile.subdomain : "None"}
+        data-premium-subdomain-set={
+          typeof profile.subdomain === "string" ? profile.subdomain : "None"
+        }
         data-premium-enabled="True"
       ></firefox-private-relay-addon-data>
       <Layout>
         <main>
           {stats}
           <section className={styles.bannersWrapper}>
-            <ProfileBanners profile={profile} user={user} premiumCountries={premiumCountriesData.data} />
+            <ProfileBanners
+              profile={profile}
+              user={user}
+              premiumCountries={premiumCountriesData.data}
+            />
           </section>
           <section className={styles.mainWrapper}>
             <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
-            <Onboarding aliases={allAliases} onCreate={() => createAlias({ type: "random" })} />
+            <Onboarding
+              aliases={allAliases}
+              onCreate={() => createAlias({ type: "random" })}
+            />
             <AliasList
               aliases={allAliases}
               onCreate={createAlias}
@@ -279,9 +296,9 @@ const Profile: NextPage = () => {
               })}
             </p>
           </section>
-        {bottomBanner}
+          {bottomBanner}
         </main>
-        <Tips profile={profile}/>
+        <Tips profile={profile} customAliases={customAliasData.data} />
       </Layout>
     </>
   );
