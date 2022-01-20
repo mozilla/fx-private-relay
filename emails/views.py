@@ -609,6 +609,7 @@ def _get_domain_address(local_portion, domain_portion):
                 domain_address = DomainAddress.make_domain_address(
                     locked_profile, local_portion, True
                 )
+            domain_address.num_forwarded += 1
             domain_address.last_used_at = datetime.now(timezone.utc)
             domain_address.save()
             return domain_address
