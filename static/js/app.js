@@ -694,51 +694,40 @@ function toggleClass(elem) {
       item.classList.remove("is-active");
   });
   elem.target.classList.add("is-active");
-
-  const findClassName = elem.target.classList;
-  const accordionClassArray = Array.from(findClassName);
-
-  const urlRelay = window.location.href;
-  const accordionHash = window.location.hash;
-
-  if (accordionHash === ""){
-    window.location.href = urlRelay.concat("#" + accordionClassArray[1]);
-  }
-
-  else {
-    window.location.href = urlRelay.replace(accordionHash, "#" + accordionClassArray[1]);
-  }
+  window.location.hash = elem.target.dataset.useCase;
 }
 
 function hashChangeAccordion(){
-  if (location.hash === "#use-case-shopping"){
+  if (location.hash === "#shopping"){
     useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
     });
     document.querySelector(".use-case-shopping").classList.add("is-active");
   }
 
-  if (location.hash === "#use-case-social-networks"){
+  if (location.hash === "#social-networks"){
     useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
     });
     document.querySelector(".use-case-social-networks").classList.add("is-active");
   }
 
-  if (location.hash === "#use-case-offline"){
+  if (location.hash === "#offline"){
     useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
     });
     document.querySelector(".use-case-offline").classList.add("is-active");
   }
 
-  if (location.hash === "#use-case-gaming"){
+  if (location.hash === "#gaming"){
     useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
     });
     document.querySelector(".use-case-gaming").classList.add("is-active");
   }
 }
+
+hashChangeAccordion();
 
 window.onhashchange = hashChangeAccordion;
 
