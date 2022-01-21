@@ -10,6 +10,10 @@
     
     .is-premium & {
         background-color: $color-purple-90;
+
+        .x-close-icon path {
+            fill: $color-white;
+        }
     }
 }
 
@@ -117,9 +121,10 @@
     justify-content: center;
     align-items: center;
     margin-left: $spacing-2xl;
+    cursor: pointer;
   
     .x-close-icon path {
-        fill: $color-black !important; 
+        fill: $color-black;
     }
   
 }
