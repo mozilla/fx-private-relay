@@ -1,0 +1,49 @@
+{% load static %}
+{% load ftl %}
+
+<aside class="js-tips c-tips-wrapper is-hidden">
+  <div class="c-tips-card">
+    <header class="c-tips-header">
+      <span class="icon">
+        <img src="{% static 'images/info-pink.svg' %}" width="20" height="20" alt="">
+      </span>
+      <h2>
+        {% ftlmsg 'tips-header-title' %}
+      </h2>
+      <button class="js-tips-dismiss c-tips-close-button" data-profile-id={{ user_profile.id }}>
+        <img src="{% static 'images/x-close-black.svg' %}" alt="{% ftlmsg 'tips-header-button-close-label' %}"  width="20" height="20">
+      </button>
+    </header>
+    <div class="c-tips-tip">
+      <CustomAliasTip subdomain={props.profile.subdomain}/>
+      <div class="c-custom-alias-tip">
+        <samp>
+          @{{ user_profile.subdomain }}.{{ settings.MOZMAIL_DOMAIN }}
+        </samp>
+        <h3>
+          {% ftlmsg 'tips-custom-alias-heading' %}
+        </h3>
+        <p>
+          {% ftlmsg 'tips-custom-alias-content' %}
+        </p>
+      </div>
+    </div>
+    <footer class="c-tips-footer">
+      <ul>
+        <li>
+          <a href="/faq" title="{% ftlmsg 'tips-footer-link-faq-tooltip' %}">{% ftlmsg 'tips-footer-link-faq-label' %}</a>
+        </li>
+        <li>
+          <a
+            href="https://support.mozilla.org/products/relay/?utm_source={{ settings.SITE_ORIGIN }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="{% ftlmsg 'tips-footer-link-support-tooltip' %}"
+          >
+            {% ftlmsg 'tips-footer-link-support-label' %}
+          </a>
+        </li>
+      </ul>
+    </footer>
+  </div>
+</aside>

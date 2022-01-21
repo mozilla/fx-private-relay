@@ -1,0 +1,101 @@
+.c-tips-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    padding: $spacing-md $spacing-2xl;
+}
+
+.c-tips-card {
+    border-radius: $border-radius-md;
+    padding: $spacing-md;
+    box-shadow: $box-shadow-sm;
+    background-color: $color-white;
+    width: $content-sm;
+
+    .c-tips-header {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+        padding: 0 0 $spacing-lg;
+        // Overwrites `flex-direction: column` set by header.scss on all <header> elements:
+        flex-direction: initial;
+
+        .is-premium:not(.is-dark) &, & {
+            // Overwrites the box shadow set by header.scss on all <header> elements:
+            box-shadow: initial;
+        }
+
+        .c-tips-icon {
+            color: $color-pink-30;
+        }
+
+        h2 {
+            @include text-body-sm;
+            font-weight: normal;
+            flex: 1 0 auto;
+        }
+
+        .c-tips-close-button {
+            background-color: transparent;
+            border-style: none;
+            border-radius: $border-radius-sm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            cursor: pointer;
+
+            &:hover {
+                color: $color-blue-50;
+            }
+        }
+    }
+
+    .c-tips-tip {
+        padding: $spacing-md;
+        // In lieu of there being multiple tips and a widget to switch between then,
+        // add some whitespace at the bottom:
+        padding-bottom: $spacing-2xl;
+    }
+
+    .c-tips-footer {
+        // Overwrites black background color set by footer.scss on all <footer> elements:
+        background-color: initial;
+        // Overwrites relative position set by footer.scss on all <footer> elements:
+        position: initial;
+        // Overwrites large padding set by footer.scss on all <footer> elements:
+        padding: initial;
+        padding-top: $spacing-md;
+        border-top: 1px solid $color-light-gray-20;
+        display: block;
+
+        ul {
+            list-style-type: none;
+            display: flex;
+            justify-content: space-between;
+            // Overwrites bottom margin set by common.scss on all <ul> elements:
+            margin: 0;
+
+            a {
+                color: $color-blue-50;
+                font-weight: 500;
+            }
+        }
+    }
+}
+
+.c-custom-alias-tip {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+
+    samp {
+        @include text-body-md;
+        font-family: $font-stack-base;
+        color: $color-blue-50;
+        font-weight: bold;
+    }
+
+    h3 {
+        @include text-title-2xs;
+    }
+}

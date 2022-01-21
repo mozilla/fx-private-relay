@@ -51,3 +51,12 @@ def premium_plan_price(accept_lang, cc=None):
 def premium_subscribe_url(accept_lang=None, cc=None):
     plan_id = premium_plan_id(accept_lang, cc)
     return f'{settings.FXA_SUBSCRIPTIONS_URL}/products/{settings.PREMIUM_PROD_ID}?plan={plan_id}'
+
+@register.simple_tag(takes_context=True)
+def is_dismissed(context, cookie_key):
+    """Check whether a user-specific cookie has been set to dismiss something identified by `cookie_key`."""
+    request = context['request']
+    profile = request.user.profile_set.first()
+    if request.COOKIES.get(f'{cookie_key}_{profile.id}_dismissed'):
+        return True
+    return False

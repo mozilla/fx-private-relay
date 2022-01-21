@@ -146,6 +146,10 @@
   </div>
 
   {% include "includes/domain-alias-dashboard.html" %}
+  {% is_dismissed "tips" as tips_dismissal%}
+  {% if user_profile.subdomain and not tips_dismissal and domain_addresses|length == 0 %}
+    {% include "includes/tips.html" %}
+  {% endif %}
 
 </main>
 
