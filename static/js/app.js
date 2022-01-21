@@ -202,6 +202,14 @@ function recruitmentLogic() {
     date.setTime(date.getTime() + 30*24*60*60*1000)
     document.cookie = "recruited=true; expires=" + date.toUTCString() + "; path=/";
   });
+
+  const recruitmentDismissButton = document.querySelector("#recruitment-dismiss");
+  recruitmentDismissButton.addEventListener("click", () => {
+    recruitmentBannerLink.parentElement.remove();
+    const date = new Date();
+    date.setTime(date.getTime() + 30*24*60*60*1000)
+    document.cookie = "recruited=true; expires=" + date.toUTCString() + "; path=/";
+  });
 }
 
 function addEventListeners() {
