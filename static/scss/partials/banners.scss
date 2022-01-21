@@ -72,7 +72,7 @@
 
 #recruitment-banner, .micro-survey-option {
     color: $color-white;
-    text-decoration: none;
+    text-decoration: underline;
     font-family: $font-metropolis;
     display: inline-block;
     padding: 0 $spacing-md;
@@ -80,7 +80,7 @@
 
 #recruitment-banner:hover, .micro-survey-option:hover {
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
 }
 
 .recruitment-banner::after, .micro-survey-banner::after {
