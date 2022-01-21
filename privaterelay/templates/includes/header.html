@@ -4,12 +4,14 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
+{% get_current_language as LANGUAGE_CODE %}
+
 <header>
   {% if settings.INCLUDE_VPN_BANNER %}
     {% include "includes/vpn-promo-banner.html" %}
   {% endif %}
 
-  {% if settings.RECRUITMENT_BANNER_LINK and country_code == "us" and not request.user.is_anonymous %}
+  {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" and country_code == "us" and not request.user.is_anonymous %}
     <div class="recruitment-banner">
       <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
       <button id="recruitment-dismiss" class="dismiss-btn">
