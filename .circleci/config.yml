@@ -60,7 +60,7 @@ jobs:
 
       - run:
           name: Test Code
-          command: docker run --entrypoint "/app/.local/bin/coverage" fx-private-relay run --source=. -m pytest
+          command: docker run --entrypoint "/app/.local/bin/coverage" fx-private-relay run --source=. -m pytest --cov=./ --cov-fail-under=60
 
   deploy:
     docker:
