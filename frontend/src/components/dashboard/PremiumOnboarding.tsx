@@ -286,7 +286,10 @@ const StepTwo = (props: Step2Props) => {
         </samp>
       </div>
     ) : (
-      <Step2SubdomainPicker onPickSubdomain={props.onPickSubdomain} />
+      <Step2SubdomainPicker
+        onPickSubdomain={props.onPickSubdomain}
+        profile={props.profile}
+      />
     );
 
   return (
@@ -320,6 +323,7 @@ const StepTwo = (props: Step2Props) => {
 
 type Step2SubdomainPickerProps = {
   onPickSubdomain: (subdomain: string) => void;
+  profile: ProfileData;
 };
 const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
   const { l10n } = useLocalization();
@@ -341,6 +345,7 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
     <SubdomainConfirmationModal
       subdomain={chosenSubdomain}
       isOpen={modalState.isOpen}
+      isSet={typeof props.profile.subdomain === "string"}
       onClose={() => modalState.close()}
       onConfirm={onConfirm}
     />
