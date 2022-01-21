@@ -588,7 +588,7 @@ def _handle_reply(from_address, message_json, to_address):
 
 def _get_domain_address(local_portion, domain_portion):
     [address_subdomain, address_domain] = domain_portion.split('.', 1)
-    if address_domain != settings.MOZMAIL_DOMAIN:
+    if address_domain != get_domains_from_settings()['MOZMAIL_DOMAIN']:
         incr_if_enabled('email_for_not_supported_domain', 1)
         raise ObjectDoesNotExist("Address does not exist")
     try:
@@ -609,7 +609,6 @@ def _get_domain_address(local_portion, domain_portion):
                 domain_address = DomainAddress.make_domain_address(
                     locked_profile, local_portion, True
                 )
-            domain_address.num_forwarded += 1
             domain_address.last_used_at = datetime.now(timezone.utc)
             domain_address.save()
             return domain_address
