@@ -76,6 +76,8 @@
     font-family: $font-metropolis;
     display: inline-block;
     padding: 0 $spacing-md;
+    // Width of the dismiss button:
+    padding-right: 32px;
 }
 
 #recruitment-banner:hover, .micro-survey-option:hover {
