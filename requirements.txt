@@ -21,7 +21,7 @@ psycopg2==2.8.4
 PyJWT==1.7.1
 python-decouple==3.1
 pyOpenSSL==19.1.0
-requests==2.23.0
+requests==2.25.1
 sentry-sdk==0.14.3
 whitenoise==5.0.1
 
@@ -30,6 +30,7 @@ whitenoise==5.0.1
 # twilio==6.35.1
 
 # tests
-coverage==5.0.4
+coverage==6.2
 model-bakery==1.1.0
+pytest-cov==3.0.0
 pytest-django==3.9.0
