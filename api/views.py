@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import IntegrityError
+from django.contrib.auth.models import User
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -15,7 +16,7 @@ from privaterelay.utils import get_premium_countries_info_from_request
 
 from .permissions import IsOwner
 from .serializers import (
-    DomainAddressSerializer, ProfileSerializer, RelayAddressSerializer
+    DomainAddressSerializer, ProfileSerializer, RelayAddressSerializer, UserSerializer
 )
 from .exceptions import ConflictError
 
@@ -71,6 +72,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    http_method_names = ['get', 'head']
+
+    def get_queryset(self):
+        return User.objects.filter(id=self.request.user.id)
 
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])

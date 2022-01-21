@@ -171,6 +171,10 @@ class Profile(models.Model):
         return False
 
     @property
+    def avatar(self):
+        return self.fxa.extra_data.get('avatar')
+
+    @property
     def num_active_address(self):
         return (
             RelayAddress.objects.filter(user=self.user).count() +
@@ -197,6 +201,10 @@ class Profile(models.Model):
             self.last_soft_bounce = None
             self.save()
         return BounceStatus(False, '')
+
+    @property
+    def bounce_status(self):
+        return self.check_bounce_pause()
 
     @property
     def next_email_try(self):

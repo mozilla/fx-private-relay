@@ -4,6 +4,7 @@ from hashlib import sha256
 import json
 import logging
 import os
+from rest_framework.decorators import api_view
 
 from google_measurement_protocol import event, report
 import jwt
@@ -133,6 +134,23 @@ def _get_fxa(request):
     return request.user.socialaccount_set.filter(provider='fxa').first()
 
 
+@api_view()
+@require_http_methods(['GET'])
+def profile_refresh(request):
+    if (not request.user or request.user.is_anonymous):
+        return redirect(reverse('fxa_login'))
+    profile = request.user.profile_set.first()
+
+    fxa = _get_fxa(request)
+    _handle_fxa_profile_change(fxa)
+    if ('clicked-purchase' in request.COOKIES and profile.has_premium):
+        event = 'user_purchased_premium'
+        incr_if_enabled(event, 1)
+
+    return JsonResponse({})
+
+
+@api_view()
 @require_http_methods(['POST', 'GET'])
 def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
