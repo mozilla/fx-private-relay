@@ -22,7 +22,10 @@ export const SubdomainPicker = (props: Props) => {
 
   if (
     !props.profile.has_premium ||
-    typeof props.profile.subdomain === "string"
+    // Don't show if the user already has a subdomain set,
+    // unless they *just* set it, i.e. when the modal is still
+    // open and showing a confirmation:
+    (typeof props.profile.subdomain === "string" && !modalState.isOpen)
   ) {
     return null;
   }
@@ -34,13 +37,13 @@ export const SubdomainPicker = (props: Props) => {
 
   const onConfirm = () => {
     props.onCreate(chosenSubdomain);
-    modalState.close();
   };
 
   const dialog = modalState.isOpen ? (
     <SubdomainConfirmationModal
       subdomain={chosenSubdomain}
       isOpen={modalState.isOpen}
+      isSet={typeof props.profile.subdomain === "string"}
       onClose={() => modalState.close()}
       onConfirm={onConfirm}
     />
