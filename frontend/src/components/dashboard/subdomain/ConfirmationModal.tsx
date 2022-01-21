@@ -11,18 +11,59 @@ import {
 import { OverlayProps } from "@react-aria/overlays";
 import styles from "./ConfirmationModal.module.scss";
 import checkIcon from "../../../../../static/images/icon-green-check.svg";
+import partyIllustration from "../../../../../static/images/dashboard-onboarding/success-party.svg";
 import { SubdomainConfirmationForm } from "./ConfirmationForm";
 import { getRuntimeConfig } from "../../../config";
+import { Button } from "../../Button";
 
 export type Props = {
   subdomain: string;
   isOpen: boolean;
+  isSet: boolean;
   onClose: () => void;
   onConfirm: () => void;
 };
 
 export const SubdomainConfirmationModal = (props: Props) => {
-  return (
+  const { l10n } = useLocalization();
+
+  return props.isSet ? (
+    <>
+      <OverlayContainer>
+        <div className={styles.pickedConfirmation}>
+          <PickerDialog
+            title={
+              <Localized
+                id="modal-domain-register-success-v2"
+                vars={{
+                  subdomain: props.subdomain,
+                  domain: getRuntimeConfig().mozmailDomain,
+                }}
+                elems={{
+                  subdomain: <span className={styles.subdomain} />,
+                  domain: <span className={styles.domain} />,
+                }}
+              >
+                <span className={styles.modalTitle} />
+              </Localized>
+            }
+            headline={l10n.getString("modal-domain-register-success-title")}
+            onClose={() => props.onClose()}
+            isOpen={props.isOpen}
+            isDismissable={true}
+          >
+            <div className={styles.pickedConfirmationBody}>
+              <img src={partyIllustration.src} alt="" />
+              <p>{l10n.getString("modal-domain-register-success-copy")}</p>
+              <Button onClick={() => props.onClose()}>
+                {l10n.getString("profile-label-continue")}
+              </Button>
+            </div>
+          </PickerDialog>
+        </div>
+      </OverlayContainer>
+    </>
+  ) : (
     <>
       <OverlayContainer>
         <PickerDialog
@@ -41,6 +82,7 @@ export const SubdomainConfirmationModal = (props: Props) => {
               <span className={styles.modalTitle} />
             </Localized>
           }
+          headline={l10n.getString("modal-domain-register-good-news")}
           onClose={() => props.onClose()}
           isOpen={props.isOpen}
           isDismissable={true}
@@ -58,6 +100,7 @@ export const SubdomainConfirmationModal = (props: Props) => {
 
 type PickerDialogProps = {
   title: string | ReactElement;
+  headline: string;
   children: ReactNode;
   isOpen: boolean;
   onClose?: () => void;
@@ -68,7 +111,6 @@ const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
   usePreventScroll();
   const { modalProps } = useModal();
   const { dialogProps, titleProps } = useDialog({}, wrapperRef);
-  const { l10n } = useLocalization();
 
   return (
     <div className={styles.underlay} {...underlayProps}>
@@ -83,7 +125,7 @@ const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
           <div className={styles.hero}>
             <span className={styles.headline}>
               <img src={checkIcon.src} alt="" />
-              {l10n.getString("modal-domain-register-good-news")}
+              {props.headline}
             </span>
             <h3 {...titleProps}>{props.title}</h3>
           </div>

@@ -16,7 +16,6 @@ import {
 import { useUsers } from "../../hooks/api/user";
 import { AliasList } from "../../components/dashboard/aliases/AliasList";
 import { SubdomainPicker } from "../../components/dashboard/SubdomainPicker";
-import { toast } from "react-toastify";
 import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
 import { LinkButton } from "../../components/Button";
 import { usePremiumCountries } from "../../hooks/api/premiumCountries";
@@ -134,17 +133,9 @@ const Profile: NextPage = () => {
   );
 
   const setCustomSubdomain = async (customSubdomain: string) => {
-    const response = await profileData.update(profile.id, {
+    await profileData.update(profile.id, {
       subdomain: customSubdomain,
     });
-    if (response.ok) {
-      toast(
-        l10n.getString("modal-domain-register-success", {
-          subdomain: customSubdomain,
-        }),
-        { type: "success" }
-      );
-    }
   };
 
   const subdomainIndicator =

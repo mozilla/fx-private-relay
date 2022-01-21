@@ -21,6 +21,8 @@
     box-shadow: $box-shadow-sm;
     padding: $spacing-md;
 
+    $illustrationOverlap: $spacing-lg;
+
     .hero {
       @include text-title-3xs;
       font-family: $font-stack-firefox;
@@ -29,6 +31,10 @@
       border-radius: $border-radius-md;
       background-color: $color-light-gray-10;
       padding: $spacing-lg $spacing-md;
+
+      .pickedConfirmation & {
+        padding-bottom: $illustrationOverlap + $spacing-lg;
+      }
 
       .headline {
         display: flex;
@@ -55,6 +61,20 @@
             content: "@";
           }
         }
+      }
+    }
+
+    .pickedConfirmationBody {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      align-items: center;
+      margin-top: -1 * $illustrationOverlap;
+
+      p {
+        @include text-body-xs;
+        text-align: center;
+        padding: 0 $spacing-2xl;
       }
     }
   }
