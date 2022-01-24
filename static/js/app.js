@@ -686,55 +686,56 @@ if ( document.getElementById("survey-dismiss") ) {
 }
 
 
-//Landing page use case accordion 
+//Landing page use case accordion
+const useCaseSection = document.getElementById("use-cases");
 const useCaseTitle = document.querySelectorAll(".use-case-title");
 
 function toggleClass(elem) {
    useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
   });
+  useCaseSection.scrollIntoView();
   elem.target.classList.add("is-active");
   window.location.hash = "#use-cases" + "/" + elem.target.dataset.useCase;
 }
 
-function jumpToUseCase(){
-  const url = location.hash;
-  if (url.includes("#use-cases")) {
-    window.location.hash = "#use-cases";
-  }
-}
-
 function hashChangeAccordion(){
-  if (location.hash === "#use-cases/shopping"){
-    useCaseTitle.forEach( item => {
-      item.classList.remove("is-active");
-    });
-    document.querySelector(".use-case-shopping").classList.add("is-active");
+  const urlHash = location.hash;
+  if (urlHash.includes("#use-cases")){
+    useCaseSection.scrollIntoView();
+    
+    if (urlHash === "#use-cases/shopping"){
+      useCaseTitle.forEach( item => {
+        item.classList.remove("is-active");
+      });
+      document.querySelector(".use-case-shopping").classList.add("is-active");
+    }
+  
+    if (urlHash === "#use-cases/social-networks"){
+      useCaseTitle.forEach( item => {
+        item.classList.remove("is-active");
+      });
+      document.querySelector(".use-case-social-networks").classList.add("is-active");
+    }
+  
+    if (urlHash === "#use-cases/offline"){
+      useCaseTitle.forEach( item => {
+        item.classList.remove("is-active");
+      });
+      document.querySelector(".use-case-offline").classList.add("is-active");
+    }
+  
+    if (urlHash === "#use-cases/gaming"){
+      useCaseTitle.forEach( item => {
+        item.classList.remove("is-active");
+      });
+      document.querySelector(".use-case-gaming").classList.add("is-active");
+    }
   }
-
-  if (location.hash === "#use-cases/social-networks"){
-    useCaseTitle.forEach( item => {
-      item.classList.remove("is-active");
-    });
-    document.querySelector(".use-case-social-networks").classList.add("is-active");
-  }
-
-  if (location.hash === "#use-cases/offline"){
-    useCaseTitle.forEach( item => {
-      item.classList.remove("is-active");
-    });
-    document.querySelector(".use-case-offline").classList.add("is-active");
-  }
-
-  if (location.hash === "#use-cases/gaming"){
-    useCaseTitle.forEach( item => {
-      item.classList.remove("is-active");
-    });
-    document.querySelector(".use-case-gaming").classList.add("is-active");
-  }
+ 
 }
 
-jumpToUseCase();
+hashChangeAccordion();
 
 window.onhashchange = hashChangeAccordion;
 
