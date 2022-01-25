@@ -8,12 +8,28 @@ import { CloseIcon } from "../icons/close";
 import { parseDate } from "../../functions/parseDate";
 import { useState } from "react";
 
-const surveyLinks = {
-  "Very Dissatisfied": "https://survey.alchemer.com/s3/6665054/relaycsatvd",
-  Dissatisfied: "https://survey.alchemer.com/s3/6665054/relaycsatd",
-  Neutral: "https://survey.alchemer.com/s3/6665054/relaycsatn",
-  Satisfied: "https://survey.alchemer.com/s3/6665054/relaycsats",
-  "Very Satisfied": "https://survey.alchemer.com/s3/6665054/relaycsatvs",
+type SurveyLinks = {
+  "Very Dissatisfied": string;
+  Dissatisfied: string;
+  Neutral: string;
+  Satisfied: string;
+  "Very Satisfied": string;
+};
+const surveyLinks: Record<"free" | "premium", SurveyLinks> = {
+  free: {
+    "Very Dissatisfied": "https://survey.alchemer.com/s3/6665054/4ffc17ee53cc",
+    Dissatisfied: "https://survey.alchemer.com/s3/6665054/5c8a66981273",
+    Neutral: "https://survey.alchemer.com/s3/6665054/a9f6fc6493de",
+    Satisfied: "https://survey.alchemer.com/s3/6665054/1669a032ed19",
+    "Very Satisfied": "https://survey.alchemer.com/s3/6665054/ba159b3a792f",
+  },
+  premium: {
+    "Very Dissatisfied": "https://survey.alchemer.com/s3/6665054/2e10c92e6360",
+    Dissatisfied: "https://survey.alchemer.com/s3/6665054/1961150a57d1",
+    Neutral: "https://survey.alchemer.com/s3/6665054/e606b4a664d3",
+    Satisfied: "https://survey.alchemer.com/s3/6665054/1fb00ea39755",
+    "Very Satisfied": "https://survey.alchemer.com/s3/6665054/a957749b3de6",
+  },
 };
 
 type Props = {
@@ -44,7 +60,7 @@ export const CsatSurvey = (props: Props) => {
   );
   const firstSeen = useFirstSeen();
   const { l10n } = useLocalization();
-  const [answer, setAnswer] = useState<keyof typeof surveyLinks>();
+  const [answer, setAnswer] = useState<keyof SurveyLinks>();
 
   let reasonToShow:
     | null
@@ -115,7 +131,7 @@ export const CsatSurvey = (props: Props) => {
     }
   };
 
-  const submit = (satisfaction: keyof typeof surveyLinks) => {
+  const submit = (satisfaction: keyof SurveyLinks) => {
     setAnswer(satisfaction);
     dismiss({ soft: true });
     gaEvent({
@@ -129,7 +145,11 @@ export const CsatSurvey = (props: Props) => {
     typeof answer !== "undefined" ? (
       <div className={styles.prompt}>
         <a
-          href={surveyLinks[answer]}
+          href={
+            props.profile.has_premium
+              ? surveyLinks.premium[answer]
+              : surveyLinks.free[answer]
+          }
           onClick={() => dismiss()}
           target="_blank"
           rel="noopen noreferrer"
