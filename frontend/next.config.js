@@ -15,6 +15,7 @@ const runtimeConfigs = {
     googleAnalyticsId: "UA-77033033-33",
     maxOnboardingAvailable: 3,
     featureFlags: {
+      // Also add keys here to RuntimeConfig in src/config.ts
       generateCustomAliasMenu: false,
       generateCustomAliasSubdomain: false,
       generateCustomAliasTip: false,
