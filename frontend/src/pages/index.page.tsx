@@ -50,7 +50,7 @@ const Home: NextPage = () => {
   const plansSection = isPremiumAvailableInCountry(
     premiumCountriesData.data
   ) ? (
-    <section id="plans" className={styles.plansWrapper}>
+    <section id="pricing" className={styles.plansWrapper}>
       <div className={styles.plans}>
         <div className={styles.planComparison}>
           <Plans premiumCountriesData={premiumCountriesData.data} />
@@ -201,10 +201,14 @@ const Home: NextPage = () => {
                     a: (
                       <>
                         <p>
-                          {l10n.getString("faq-question-use-cases-answer-part1")}
+                          {l10n.getString(
+                            "faq-question-use-cases-answer-part1"
+                          )}
                         </p>
                         <p>
-                          {l10n.getString("faq-question-use-cases-answer-part2")}
+                          {l10n.getString(
+                            "faq-question-use-cases-answer-part2"
+                          )}
                         </p>
                       </>
                     ),

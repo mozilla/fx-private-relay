@@ -55,7 +55,7 @@ const PremiumPromo: NextPage = () => {
   const plansSection = isPremiumAvailableInCountry(
     premiumCountriesData.data
   ) ? (
-    <section id="plans" className={styles.plansWrapper}>
+    <section id="pricing" className={styles.plansWrapper}>
       <div className={styles.plans}>
         <div className={styles.planComparison}>
           <Plans premiumCountriesData={premiumCountriesData.data} />
@@ -150,9 +150,13 @@ const PremiumPromo: NextPage = () => {
               <img src={PerkIllustrationUnlimited.src} alt="" />
               <div className={styles.description}>
                 <h3>
-                  {l10n.getString("premium-promo-perks-perk-unlimited-headline")}
+                  {l10n.getString(
+                    "premium-promo-perks-perk-unlimited-headline"
+                  )}
                 </h3>
-                <p>{l10n.getString("premium-promo-perks-perk-unlimited-body")}</p>
+                <p>
+                  {l10n.getString("premium-promo-perks-perk-unlimited-body")}
+                </p>
                 {getPerkCta("premium-promo-perk-unlimited-cta")}
               </div>
             </div>
@@ -165,7 +169,9 @@ const PremiumPromo: NextPage = () => {
                   )}
                 </h3>
                 <p>
-                  {l10n.getString("premium-promo-perks-perk-custom-domain-body")}
+                  {l10n.getString(
+                    "premium-promo-perks-perk-custom-domain-body"
+                  )}
                 </p>
                 {getPerkCta("premium-promo-perk-custom-domain-cta")}
               </div>
@@ -174,9 +180,13 @@ const PremiumPromo: NextPage = () => {
               <img src={PerkIllustrationDashboard.src} alt="" />
               <div className={styles.description}>
                 <h3>
-                  {l10n.getString("premium-promo-perks-perk-dashboard-headline")}
+                  {l10n.getString(
+                    "premium-promo-perks-perk-dashboard-headline"
+                  )}
                 </h3>
-                <p>{l10n.getString("premium-promo-perks-perk-dashboard-body")}</p>
+                <p>
+                  {l10n.getString("premium-promo-perks-perk-dashboard-body")}
+                </p>
                 {getPerkCta("premium-promo-perk-dashboard-cta")}
               </div>
             </div>
@@ -215,7 +225,9 @@ const PremiumPromo: NextPage = () => {
                   heading: l10n.getString(
                     "premium-promo-use-cases-gaming-heading"
                   ),
-                  content: l10n.getString("premium-promo-use-cases-gaming-body"),
+                  content: l10n.getString(
+                    "premium-promo-use-cases-gaming-body"
+                  ),
                   illustration: GamingIllustration,
                 },
               ]}
