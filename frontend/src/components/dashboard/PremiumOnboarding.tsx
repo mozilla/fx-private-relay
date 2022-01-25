@@ -310,7 +310,7 @@ const StepTwo = (props: Step2Props) => {
             {l10n.getString(
               "multi-part-onboarding-premium-get-domain-description-2",
               {
-                mozmail: "mozmail.com",
+                mozmail: ".mozmail.com",
               }
             )}
           </p>
