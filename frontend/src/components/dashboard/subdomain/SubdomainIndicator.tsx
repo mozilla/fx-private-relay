@@ -1,6 +1,20 @@
 import { useLocalization } from "@fluent/react";
-import { useButton, useOverlay, useModal, useDialog, FocusScope, OverlayContainer, useOverlayPosition } from "react-aria";
-import { forwardRef, HTMLAttributes, ReactNode, RefObject, useRef } from "react";
+import {
+  useButton,
+  useOverlay,
+  useModal,
+  useDialog,
+  FocusScope,
+  OverlayContainer,
+  useOverlayPosition,
+} from "react-aria";
+import {
+  forwardRef,
+  HTMLAttributes,
+  ReactNode,
+  RefObject,
+  useRef,
+} from "react";
 import { useOverlayTriggerState } from "react-stately";
 import { OverlayProps } from "@react-aria/overlays";
 import styles from "./SubdomainIndicator.module.scss";
@@ -19,7 +33,12 @@ export const SubdomainIndicator = (props: Props) => {
   }
 
   if (getRuntimeConfig().featureFlags.generateCustomAliasSubdomain === true) {
-    return <ExplainerTrigger subdomain={props.subdomain} onCreateAlias={props.onCreateAlias} />;
+    return (
+      <ExplainerTrigger
+        subdomain={props.subdomain}
+        onCreateAlias={props.onCreateAlias}
+      />
+    );
   }
 
   return (
@@ -34,7 +53,7 @@ type ExplainerTriggerProps = {
   onCreateAlias: (address: string) => void;
 };
 const ExplainerTrigger = (props: ExplainerTriggerProps) => {
-  const {l10n} = useLocalization();
+  const { l10n } = useLocalization();
   const explainerState = useOverlayTriggerState({});
   const addressPickerState = useOverlayTriggerState({});
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -42,12 +61,23 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const generateButtonRef = useRef<HTMLButtonElement>(null);
 
-  const openButtonProps = useButton({ onPress: () => explainerState.open() }, openButtonRef).buttonProps;
-  const closeButtonProps = useButton({ onPress: () => explainerState.close() }, closeButtonRef).buttonProps;
-  const generateButtonProps = useButton({ onPress: () => {
-    explainerState.close();
-    addressPickerState.open();
-  }}, generateButtonRef).buttonProps;
+  const openButtonProps = useButton(
+    { onPress: () => explainerState.open() },
+    openButtonRef
+  ).buttonProps;
+  const closeButtonProps = useButton(
+    { onPress: () => explainerState.close() },
+    closeButtonRef
+  ).buttonProps;
+  const generateButtonProps = useButton(
+    {
+      onPress: () => {
+        explainerState.close();
+        addressPickerState.open();
+      },
+    },
+    generateButtonRef
+  ).buttonProps;
 
   const positionProps = useOverlayPosition({
     targetRef: openButtonRef,
@@ -56,6 +86,11 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
     offset: 16,
     isOpen: explainerState.isOpen,
   }).overlayProps;
+
+  const onPick = (address: string) => {
+    props.onCreateAlias(address);
+    addressPickerState.close();
+  };
 
   return (
     <>
@@ -110,7 +145,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
         <AddressPickerModal
           isOpen={addressPickerState.isOpen}
           onClose={() => addressPickerState.close()}
-          onPick={props.onCreateAlias}
+          onPick={onPick}
           subdomain={props.subdomain}
         />
       )}
@@ -118,31 +153,42 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
   );
 };
 
-type ExplainerProps = OverlayProps & { children: ReactNode; positionProps: HTMLAttributes<HTMLElement> };
-const Explainer = forwardRef<HTMLDivElement, ExplainerProps>((props, overlayRef) => {
-  const {l10n} = useLocalization();
+type ExplainerProps = OverlayProps & {
+  children: ReactNode;
+  positionProps: HTMLAttributes<HTMLElement>;
+};
+const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
+  (props, overlayRef) => {
+    const { l10n } = useLocalization();
 
-  const {overlayProps} = useOverlay(props, overlayRef as RefObject<HTMLDivElement>);
+    const { overlayProps } = useOverlay(
+      props,
+      overlayRef as RefObject<HTMLDivElement>
+    );
 
-  const {modalProps} = useModal();
+    const { modalProps } = useModal();
 
-  const {dialogProps, titleProps} = useDialog({}, overlayRef as RefObject<HTMLDivElement>);
+    const { dialogProps, titleProps } = useDialog(
+      {},
+      overlayRef as RefObject<HTMLDivElement>
+    );
 
-  return (
-    <FocusScope contain restoreFocus autoFocus>
-      <div
-        {...overlayProps}
-        {...props.positionProps}
-        {...dialogProps}
-        {...modalProps}
-        ref={overlayRef}
-        className={styles.explainerWrapper}
-      >
-        <h3 {...titleProps}>
-          {l10n.getString("popover-custom-alias-explainer-heading")}
-        </h3>
-        {props.children}
-      </div>
-    </FocusScope>
-  );
-});
+    return (
+      <FocusScope contain restoreFocus autoFocus>
+        <div
+          {...overlayProps}
+          {...props.positionProps}
+          {...dialogProps}
+          {...modalProps}
+          ref={overlayRef}
+          className={styles.explainerWrapper}
+        >
+          <h3 {...titleProps}>
+            {l10n.getString("popover-custom-alias-explainer-heading")}
+          </h3>
+          {props.children}
+        </div>
+      </FocusScope>
+    );
+  }
+);
