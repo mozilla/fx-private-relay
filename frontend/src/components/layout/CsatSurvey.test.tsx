@@ -1,6 +1,7 @@
 import { jest, describe, it, expect } from "@jest/globals";
 import { render, screen } from "@testing-library/react";
 import { mockCookiesModule } from "../../../__mocks__/functions/cookies";
+import { mockGetLocaleModule } from "../../../__mocks__/functions/getLocale";
 import { getMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 
@@ -8,6 +9,7 @@ import { CsatSurvey } from "./CsatSurvey";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("../../functions/cookies.ts", () => mockCookiesModule);
+jest.mock("../../functions/getLocale.ts", () => mockGetLocaleModule);
 jest.mock("../../hooks/firstSeen.ts");
 
 describe("The CSAT survey", () => {
@@ -674,5 +676,57 @@ describe("The CSAT survey", () => {
 
     expect(veryDissatisfiedButton).toBeInTheDocument();
     expect(verySatisfiedButton).toBeInTheDocument();
+  });
+
+  it("displays the survey if the user's language is set without a country code", () => {
+    // TypeScript can't follow paths in `jest.requireMock`:
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const useFirstSeen = (jest.requireMock("../../hooks/firstSeen.ts") as any)
+      .useFirstSeen;
+    useFirstSeen.mockReturnValueOnce(new Date(0));
+    // TypeScript can't follow paths in `jest.requireMock`:
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getLocale = (jest.requireMock("../../functions/getLocale.ts") as any)
+      .getLocale;
+    getLocale.mockReturnValueOnce("fr");
+    const mockProfileData = getMockProfileData({ has_premium: false });
+
+    render(<CsatSurvey profile={mockProfileData} />);
+
+    const veryDissatisfiedButton = screen.getByRole("button", {
+      name: /very-dissatisfied/,
+    });
+    const verySatisfiedButton = screen.getByRole("button", {
+      name: /very-satisfied/,
+    });
+
+    expect(veryDissatisfiedButton).toBeInTheDocument();
+    expect(verySatisfiedButton).toBeInTheDocument();
+  });
+
+  it("does not display the survey if the user's language is set to something other than English, French, or German", () => {
+    // TypeScript can't follow paths in `jest.requireMock`:
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const useFirstSeen = (jest.requireMock("../../hooks/firstSeen.ts") as any)
+      .useFirstSeen;
+    useFirstSeen.mockReturnValueOnce(new Date(0));
+    // TypeScript can't follow paths in `jest.requireMock`:
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const getLocale = (jest.requireMock("../../functions/getLocale.ts") as any)
+      .getLocale;
+    getLocale.mockReturnValueOnce("fy");
+    const mockProfileData = getMockProfileData({ has_premium: false });
+
+    render(<CsatSurvey profile={mockProfileData} />);
+
+    const veryDissatisfiedButton = screen.queryByRole("button", {
+      name: /very-dissatisfied/,
+    });
+    const verySatisfiedButton = screen.queryByRole("button", {
+      name: /very-satisfied/,
+    });
+
+    expect(veryDissatisfiedButton).not.toBeInTheDocument();
+    expect(verySatisfiedButton).not.toBeInTheDocument();
   });
 });
