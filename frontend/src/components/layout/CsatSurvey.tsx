@@ -7,6 +7,7 @@ import { ProfileData } from "../../hooks/api/profile";
 import { CloseIcon } from "../icons/close";
 import { parseDate } from "../../functions/parseDate";
 import { useState } from "react";
+import { getLocale } from "../../functions/getLocale";
 
 type SurveyLinks = {
   "Very Dissatisfied": string;
@@ -106,7 +107,11 @@ export const CsatSurvey = (props: Props) => {
     }
   }
 
-  if (reasonToShow === null) {
+  const locale = getLocale(l10n);
+  if (
+    reasonToShow === null ||
+    !["en", "fr", "de"].includes(locale.split("-")[0])
+  ) {
     return null;
   }
 
