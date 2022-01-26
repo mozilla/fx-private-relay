@@ -128,10 +128,57 @@ function setSurveyedCookie() {
 }
 
 function analyticsSurveyLogic() {
-
-  if (!isGoogleAnalyticsAvailable) {
+  const csatWrapperEl = document.querySelector(".js-csat-wrapper");
+  if (!isGoogleAnalyticsAvailable()) {
+    csatWrapperEl.remove();
     return;
   }
+
+  const csatQuestionEl = document.querySelector(".js-csat-question");
+  const csatFollowupEl = document.querySelector(".js-csat-followup");
+  const csatFollowupLinkEl = csatFollowupEl?.querySelector("a");
+  const csatAnswerEls = Array.from(csatQuestionEl?.getElementsByTagName("button") ?? []);
+  const csatDismissEl = document.querySelector(".js-csat-dismiss");
+  const surveyLinks = {
+    free: {
+      "Very Dissatisfied": "https://survey.alchemer.com/s3/6665054/4ffc17ee53cc",
+      "Dissatisfied": "https://survey.alchemer.com/s3/6665054/5c8a66981273",
+      "Neutral": "https://survey.alchemer.com/s3/6665054/a9f6fc6493de",
+      "Satisfied": "https://survey.alchemer.com/s3/6665054/1669a032ed19",
+      "Very Satisfied": "https://survey.alchemer.com/s3/6665054/ba159b3a792f",
+    },
+    premium: {
+      "Very Dissatisfied": "https://survey.alchemer.com/s3/6665054/2e10c92e6360",
+      "Dissatisfied": "https://survey.alchemer.com/s3/6665054/1961150a57d1",
+      "Neutral": "https://survey.alchemer.com/s3/6665054/e606b4a664d3",
+      "Satisfied": "https://survey.alchemer.com/s3/6665054/1fb00ea39755",
+      "Very Satisfied": "https://survey.alchemer.com/s3/6665054/a957749b3de6",
+    },
+  };
+  const setCsatCookie = () => {
+    const dismissCookieId = csatWrapperEl?.dataset.cookieId ?? "";
+    const expiresIn = dismissCookieId.indexOf("3month") !== -1
+      // Repeat the last (3-month) survey every 3 months
+      ? 30*24*60*60*1000
+      // Don't show the other surveys again:
+      : 1000*24*60*60*1000;
+    const date = new Date();
+    date.setTime(date.getTime() + expiresIn)
+    document.cookie = `${dismissCookieId}=${Date.now()}; expires=` + date.toUTCString() + "; path=/";
+  };
+  csatAnswerEls.forEach(answerElement => {
+    answerElement.addEventListener("click", (event) => {
+      ga("send", "event", "CSAT Survey", "submitted", event.target.dataset.satisfaction);
+      csatFollowupLinkEl.href = surveyLinks[csatWrapperEl.dataset.hasPremium === "True" ? "premium" : "free"][event.target.dataset.satisfaction];
+      csatQuestionEl.classList.add("is-hidden");
+      csatFollowupEl.classList.remove("is-hidden");
+      setCsatCookie();
+    });
+  });
+  csatDismissEl?.addEventListener("click", () => {
+    setCsatCookie();
+    csatWrapperEl.remove();
+  });
 
   const recruitmentSurveyBanner = document.getElementById("recruitment-banner");
   if (recruitmentSurveyBanner) {
