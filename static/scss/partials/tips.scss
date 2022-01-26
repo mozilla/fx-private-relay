@@ -32,6 +32,8 @@
             @include text-body-sm;
             font-weight: normal;
             flex: 1 0 auto;
+            // Overwrites the margin-botom set by _titles.scss on all <h2> elements:
+            margin-bottom: 0;
         }
 
         .c-tips-close-button {
