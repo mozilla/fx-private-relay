@@ -19,30 +19,51 @@ def common(request):
         get_premium_countries_info_from_request(request)
     )
 
+    profile = request.user.profile_set.first()
     first_visit = request.COOKIES.get("first_visit")
-    date_subscribed = not request.user.is_anonymous and request.user.profile_set.first().date_subscribed ;
-    show_nps = (
-        not request.user.is_anonymous and
-        (
-            # Show the NPS survey if the user created their account at least three days ago:
-            (
-                first_visit is not None and
-                datetime.now(timezone.utc) > datetime.fromisoformat(first_visit) + timedelta(days = 3)
-            ) or
-            # Show the NPS survey if the user subscribed to Premium at least three days ago:
-            (
-                date_subscribed and
-                datetime.now(timezone.utc) > (date_subscribed + timedelta(days = 3))
-            )
-        )
-    )
+    reason_to_show_csat_survey = None
+    csat_dismissal_cookie = ""
+    if (not request.user.is_anonymous and profile.has_premium and profile.date_subscribed):
+        days_since_subscription = (datetime.now(timezone.utc) - profile.date_subscribed).days
+        if (days_since_subscription >= 3 * 30):
+            csat_dismissal_cookie = f'csat-survey-premium-3month_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "premium3month"
+        elif (days_since_subscription >= 30):
+            csat_dismissal_cookie = f'csat-survey-premium-1month_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "premium1month"
+        elif (days_since_subscription >= 7):
+            csat_dismissal_cookie = f'csat-survey-premium-1week_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "premium1week"
+    elif (not request.user.is_anonymous and not profile.has_premium and first_visit):
+        days_since_first_visit = (datetime.now(timezone.utc) - first_visit).days
+        if (days_since_first_visit >= 3 * 30):
+            csat_dismissal_cookie = f'csat-survey-free-3month_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "free3month"
+        elif (days_since_first_visit >= 30):
+            csat_dismissal_cookie = f'csat-survey-free-1month_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "free1month"
+        elif (days_since_first_visit >= 7):
+            csat_dismissal_cookie = f'csat-survey-free-1week_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "free1week"
+
+    lang = accept_language.split(',')[0]
+    lang_parts = lang.split("-") if lang and "-" in lang else [lang]
+    lang = lang_parts[0].lower()
+    show_csat = (reason_to_show_csat_survey is not None and (lang == 'en' or lang == 'fr' or lang == 'de'))
 
     common_vars = {
         'avatar': avatar,
         'ftl_mode': 'server',
         'accept_language': accept_language,
         'country_code': country_code,
-        'show_nps': show_nps,
+        'show_csat': show_csat,
+        'csat_dismissal_cookie': csat_dismissal_cookie,
         'monthly_price': premium_plan_price(
             accept_language, premium_countries_vars['country_code']
         ),
