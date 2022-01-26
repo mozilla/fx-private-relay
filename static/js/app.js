@@ -237,7 +237,7 @@ function addEventListeners() {
 
   const tipsCard = document.querySelector(".js-tips");
   const tipsDismissButton = document.querySelector(".js-tips-dismiss");
-  tipsDismissButton.addEventListener("click", () => {
+  tipsDismissButton?.addEventListener("click", () => {
     tipsCard.remove();
     const date = new Date();
     date.setTime(date.getTime() + 10000*24*60*60*1000);
