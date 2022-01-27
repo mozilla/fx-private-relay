@@ -247,7 +247,7 @@ function addEventListeners() {
   const generateAliasMenuTrigger = document.querySelector(".js-dash-create-new-alias-menu-trigger ");
   const generateAliasMenuPopup = document.querySelector(".js-dash-create-new-alias-menu-popup ");
 
-  generateAliasMenuTrigger.addEventListener("click", (e) => {
+  generateAliasMenuTrigger?.addEventListener("click", (e) => {
     e.preventDefault();
     generateAliasMenuPopup.classList.toggle("is-hidden");
   });
