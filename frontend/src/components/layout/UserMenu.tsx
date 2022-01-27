@@ -32,8 +32,10 @@ import { useUsers } from "../../hooks/api/user";
 import { useProfiles } from "../../hooks/api/profile";
 import { getRuntimeConfig } from "../../config";
 import { getCsrfToken } from "../../functions/cookies";
+import { useRuntimeData } from "../../hooks/api/runtimeData";
 
 export const UserMenu = () => {
+  const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const usersData = useUsers();
   const { l10n } = useLocalization();
@@ -51,7 +53,11 @@ export const UserMenu = () => {
   const helpLinkRef = useRef<HTMLAnchorElement>(null);
   const logoutFormRef = useRef<HTMLFormElement>(null);
 
-  if (!Array.isArray(usersData.data) || usersData.data.length !== 1) {
+  if (
+    !Array.isArray(usersData.data) ||
+    usersData.data.length !== 1 ||
+    !runtimeData.data
+  ) {
     // Still fetching the user's account data...
     return null;
   }
@@ -87,7 +93,7 @@ export const UserMenu = () => {
       >
         <a
           ref={contactLinkRef}
-          href={`${getRuntimeConfig().fxaOrigin}/support/?utm_source=${
+          href={`${runtimeData.data.FXA_ORIGIN}/support/?utm_source=${
             getRuntimeConfig().frontendOrigin
           }`}
           title={l10n.getString("nav-profile-contact-tooltip")}
@@ -120,7 +126,7 @@ export const UserMenu = () => {
         <span className={styles.accountMenuItem}>
           <b className={styles.userEmail}>{usersData.data[0].email}</b>
           <a
-            href={`${getRuntimeConfig().fxaOrigin}/settings/`}
+            href={`${runtimeData.data.FXA_ORIGIN}/settings/`}
             ref={accountLinkRef}
             target="_blank"
             rel="noopener noreferrer"

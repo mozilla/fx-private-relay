@@ -9,6 +9,7 @@ import { mockReactGa } from "../../../__mocks__/modules/react-ga";
 import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { setMockAliasesData } from "../../../__mocks__/hooks/api/aliases";
+import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Settings from "./settings.page";
@@ -20,6 +21,7 @@ jest.mock("../../config.ts", () => mockConfigModule);
 
 setMockAliasesData();
 setMockProfileData();
+setMockRuntimeData();
 
 describe("The settings screen", () => {
   describe("under axe accessibility testing", () => {

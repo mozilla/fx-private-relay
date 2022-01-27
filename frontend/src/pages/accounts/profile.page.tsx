@@ -18,7 +18,7 @@ import { AliasList } from "../../components/dashboard/aliases/AliasList";
 import { SubdomainPicker } from "../../components/dashboard/SubdomainPicker";
 import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
 import { LinkButton } from "../../components/Button";
-import { usePremiumCountries } from "../../hooks/api/premiumCountries";
+import { useRuntimeData } from "../../hooks/api/runtimeData";
 import {
   getPlan,
   getPremiumSubscribeLink,
@@ -34,10 +34,10 @@ import { Tips } from "../../components/dashboard/Tips";
 import { clearCookie, getCookie } from "../../functions/cookies";
 
 const Profile: NextPage = () => {
+  const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const userData = useUsers();
   const { randomAliasData, customAliasData } = useAliases();
-  const premiumCountriesData = usePremiumCountries();
   const { l10n } = useLocalization();
   const bottomBannerSubscriptionLinkRef = useGaPing({
     category: "Purchase Button",
@@ -66,7 +66,13 @@ const Profile: NextPage = () => {
 
   const profile = profileData.data?.[0];
   const user = userData.data?.[0];
-  if (!profile || !user || !randomAliasData.data || !customAliasData.data) {
+  if (
+    !runtimeData.data ||
+    !profile ||
+    !user ||
+    !randomAliasData.data ||
+    !customAliasData.data
+  ) {
     // TODO: Show a loading spinner?
     return null;
   }
@@ -205,7 +211,7 @@ const Profile: NextPage = () => {
 
   const bottomBanner =
     profile.has_premium ||
-    !isPremiumAvailableInCountry(premiumCountriesData.data) ? null : (
+    !isPremiumAvailableInCountry(runtimeData.data) ? null : (
       <section className={styles.bottomBanner}>
         <div className={styles.bottomBannerWrapper}>
           <div className={styles.bottomBannerContent}>
@@ -217,7 +223,7 @@ const Profile: NextPage = () => {
             </Localized>
             <p>{l10n.getString("banner-pack-upgrade-copy")}</p>
             <LinkButton
-              href={getPremiumSubscribeLink(premiumCountriesData.data)}
+              href={getPremiumSubscribeLink(runtimeData.data)}
               ref={bottomBannerSubscriptionLinkRef}
               onClick={() =>
                 trackPurchaseStart({ label: "profile-bottom-promo" })
@@ -238,13 +244,11 @@ const Profile: NextPage = () => {
         // TODO: Make it look for this custom element instead.
         id="profile-main"
         data-api-token={profile.api_token}
-        data-fxa-subscriptions-url={`${
-          getRuntimeConfig().fxaOrigin
-        }/subscriptions`}
-        data-premium-prod-id={getRuntimeConfig().premiumProductId}
+        data-fxa-subscriptions-url={`${runtimeData.data.FXA_ORIGIN}/subscriptions`}
+        data-premium-prod-id={runtimeData.data.PREMIUM_PRODUCT_ID}
         data-premium-price-id={
-          isPremiumAvailableInCountry(premiumCountriesData.data)
-            ? getPlan(premiumCountriesData.data).id
+          isPremiumAvailableInCountry(runtimeData.data)
+            ? getPlan(runtimeData.data).id
             : undefined
         }
         data-aliases-used-val={allAliases.length}
@@ -262,7 +266,7 @@ const Profile: NextPage = () => {
             <ProfileBanners
               profile={profile}
               user={user}
-              premiumCountries={premiumCountriesData.data}
+              runtimeData={runtimeData.data}
             />
           </section>
           <section className={styles.mainWrapper}>
@@ -278,7 +282,7 @@ const Profile: NextPage = () => {
               onDelete={deleteAlias}
               profile={profile}
               user={user}
-              premiumCountries={premiumCountriesData.data}
+              runtimeData={runtimeData.data}
             />
             <p className={styles.sizeInformation}>
               {l10n.getString("profile-supports-email-forwarding", {

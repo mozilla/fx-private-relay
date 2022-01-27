@@ -11,7 +11,7 @@ import {
 import { isUsingFirefox } from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
-import { PremiumCountriesData } from "../../hooks/api/premiumCountries";
+import { RuntimeData } from "../../hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
@@ -19,7 +19,7 @@ import { renderDate } from "../../functions/renderDate";
 export type Props = {
   profile: ProfileData;
   user: UserData;
-  premiumCountries?: PremiumCountriesData;
+  runtimeData?: RuntimeData;
 };
 
 export const ProfileBanners = (props: Props) => {
@@ -42,10 +42,10 @@ export const ProfileBanners = (props: Props) => {
             date: renderDate(props.profile.next_email_try, l10n),
           }}
           elems={{
-            em: <em/>,
+            em: <em />,
           }}
         >
-          <p/>
+          <p />
         </Localized>
       </Banner>
     );
@@ -97,7 +97,7 @@ export const ProfileBanners = (props: Props) => {
 
   if (
     !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.premiumCountries)
+    isPremiumAvailableInCountry(props.runtimeData)
   ) {
     banners.push(
       <Banner
@@ -106,7 +106,7 @@ export const ProfileBanners = (props: Props) => {
         title={l10n.getString("banner-upgrade-headline")}
         illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
         cta={{
-          target: getPremiumSubscribeLink(props.premiumCountries),
+          target: getPremiumSubscribeLink(props.runtimeData),
           content: l10n.getString("banner-upgrade-cta"),
           onClick: () => trackPurchaseStart(),
           gaPing: {

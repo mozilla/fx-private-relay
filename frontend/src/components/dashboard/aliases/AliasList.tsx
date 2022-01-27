@@ -8,7 +8,7 @@ import { Alias } from "./Alias";
 import { filterAliases } from "../../../functions/filterAliases";
 import { CategoryFilter, SelectedFilters } from "./CategoryFilter";
 import { UserData } from "../../../hooks/api/user";
-import { PremiumCountriesData } from "../../../hooks/api/premiumCountries";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
 
@@ -16,8 +16,10 @@ export type Props = {
   aliases: AliasData[];
   profile: ProfileData;
   user: UserData;
-  premiumCountries?: PremiumCountriesData;
-  onCreate: (options: { type: "random" } | { type: "custom", address: string }) => void;
+  runtimeData?: RuntimeData;
+  onCreate: (
+    options: { type: "random" } | { type: "custom"; address: string }
+  ) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   onDelete: (alias: AliasData) => void;
 };
@@ -40,17 +42,26 @@ export const AliasList = (props: Props) => {
   );
 
   const aliasCards = aliases.map((alias, index) => {
-    const aliasWithLocalLabel = {...alias};
-    if (alias.description.length === 0 && props.profile.server_storage === false && localLabels !== null) {
+    const aliasWithLocalLabel = { ...alias };
+    if (
+      alias.description.length === 0 &&
+      props.profile.server_storage === false &&
+      localLabels !== null
+    ) {
       const type = isRandomAlias(alias) ? "random" : "custom";
-      const localLabel = localLabels.find(localLabel => localLabel.id === alias.id && localLabel.type === type);
+      const localLabel = localLabels.find(
+        (localLabel) => localLabel.id === alias.id && localLabel.type === type
+      );
       if (localLabel !== undefined) {
         aliasWithLocalLabel.description = localLabel.description;
       }
     }
 
     const onUpdate = (updatedFields: Partial<AliasData>) => {
-      if (localLabels !== null && typeof updatedFields.description === "string") {
+      if (
+        localLabels !== null &&
+        typeof updatedFields.description === "string"
+      ) {
         storeLocalLabel(alias, updatedFields.description);
       }
       return props.onUpdate(alias, updatedFields);
@@ -113,7 +124,7 @@ export const AliasList = (props: Props) => {
           <AliasGenerationButton
             aliases={props.aliases}
             profile={props.profile}
-            premiumCountries={props.premiumCountries}
+            runtimeData={props.runtimeData}
             onCreate={props.onCreate}
           />
         </div>

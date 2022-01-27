@@ -12,25 +12,28 @@ import {
 } from "react-aria";
 import { OverlayProps } from "@react-aria/overlays";
 import { AriaMenuItemProps } from "@react-aria/menu";
-import { Item, MenuTriggerState, TreeProps, TreeState, useMenuTriggerState, useOverlayTriggerState, useTreeState } from "react-stately";
 import {
-  HTMLAttributes,
-  Key,
-  ReactNode,
-  useRef,
-  useState,
-} from "react";
+  Item,
+  MenuTriggerState,
+  TreeProps,
+  TreeState,
+  useMenuTriggerState,
+  useOverlayTriggerState,
+  useTreeState,
+} from "react-stately";
+import { HTMLAttributes, Key, ReactNode, useRef, useState } from "react";
 import styles from "./AliasGenerationButton.module.scss";
 import plusIcon from "../../../../../static/images/plus-sign-white.svg";
 import arrowHeadIcon from "../../../../../static/images/arrowhead-white.svg";
 import { ProfileData } from "../../../hooks/api/profile";
 import { Button, LinkButton } from "../../Button";
-import {
-  AliasData,
-} from "../../../hooks/api/aliases";
+import { AliasData } from "../../../hooks/api/aliases";
 import { getRuntimeConfig } from "../../../config";
-import { PremiumCountriesData } from "../../../hooks/api/premiumCountries";
-import { getPremiumSubscribeLink, isPremiumAvailableInCountry } from "../../../functions/getPlan";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
+import {
+  getPremiumSubscribeLink,
+  isPremiumAvailableInCountry,
+} from "../../../functions/getPlan";
 import { useGaPing } from "../../../hooks/gaPing";
 import { trackPurchaseStart } from "../../../functions/trackPurchase";
 import { AddressPickerModal } from "./AddressPickerModal";
@@ -38,8 +41,10 @@ import { AddressPickerModal } from "./AddressPickerModal";
 export type Props = {
   aliases: AliasData[];
   profile: ProfileData;
-  premiumCountries?: PremiumCountriesData;
-  onCreate: (options: { type: "random" } | { type: "custom", address: string }) => void;
+  runtimeData?: RuntimeData;
+  onCreate: (
+    options: { type: "random" } | { type: "custom"; address: string }
+  ) => void;
 };
 
 export const AliasGenerationButton = (props: Props) => {
@@ -53,7 +58,7 @@ export const AliasGenerationButton = (props: Props) => {
   if (!props.profile.has_premium && props.aliases.length >= maxAliases) {
     // If the user does not have Premium, has reached the alias limit,
     // and Premium is not available to them, show a greyed-out button:
-    if (!isPremiumAvailableInCountry(props.premiumCountries)) {
+    if (!isPremiumAvailableInCountry(props.runtimeData)) {
       return (
         <Button disabled>
           <img src={plusIcon.src} alt="" width={16} height={16} />
@@ -66,7 +71,7 @@ export const AliasGenerationButton = (props: Props) => {
     // and Premium is available to them, prompt them to upgrade:
     return (
       <LinkButton
-        href={getPremiumSubscribeLink(props.premiumCountries)}
+        href={getPremiumSubscribeLink(props.runtimeData)}
         target="_blank"
         rel="noopener noreferrer"
         ref={getUnlimitedButtonRef}
@@ -79,8 +84,17 @@ export const AliasGenerationButton = (props: Props) => {
     );
   }
 
-  if (getRuntimeConfig().featureFlags.generateCustomAliasMenu === true && props.profile.has_premium && typeof props.profile.subdomain === "string") {
-    return <AliasTypeMenu onCreate={props.onCreate} subdomain={props.profile.subdomain} />;
+  if (
+    getRuntimeConfig().featureFlags.generateCustomAliasMenu === true &&
+    props.profile.has_premium &&
+    typeof props.profile.subdomain === "string"
+  ) {
+    return (
+      <AliasTypeMenu
+        onCreate={props.onCreate}
+        subdomain={props.profile.subdomain}
+      />
+    );
   }
 
   return (
@@ -96,7 +110,9 @@ export const AliasGenerationButton = (props: Props) => {
 
 type AliasTypeMenuProps = {
   subdomain: string;
-  onCreate: (options: { type: "random" } | { type: "custom", address: string }) => void;
+  onCreate: (
+    options: { type: "random" } | { type: "custom"; address: string }
+  ) => void;
 };
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
   const { l10n } = useLocalization();
@@ -117,14 +133,14 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     modalState.close();
   };
 
-  const dialog = modalState.isOpen
-    ? <AddressPickerModal
+  const dialog = modalState.isOpen ? (
+    <AddressPickerModal
       isOpen={modalState.isOpen}
       onClose={() => modalState.close()}
       onPick={onPick}
       subdomain={props.subdomain}
     />
-    : null;
+  ) : null;
 
   return (
     <>
@@ -133,7 +149,9 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
           {l10n.getString("profile-label-generate-new-alias-menu-random")}
         </Item>
         <Item key="custom">
-          {l10n.getString("profile-label-generate-new-alias-menu-custom", { subdomain: props.subdomain })}
+          {l10n.getString("profile-label-generate-new-alias-menu-custom", {
+            subdomain: props.subdomain,
+          })}
         </Item>
       </AliasTypeMenuButton>
       {dialog}
@@ -149,7 +167,11 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
   const { l10n } = useLocalization();
   const triggerState = useMenuTriggerState(props);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const {menuTriggerProps, menuProps} = useMenuTrigger({}, triggerState, triggerRef);
+  const { menuTriggerProps, menuProps } = useMenuTrigger(
+    {},
+    triggerState,
+    triggerRef
+  );
 
   const triggerButtonProps = useButton(
     menuTriggerProps,
@@ -182,7 +204,7 @@ type AliasTypeMenuPopupProps = TreeProps<Record<string, never>> & {
   autoFocus?: MenuTriggerState["focusStrategy"];
 };
 const AliasTypeMenuPopup = (props: AliasTypeMenuPopupProps) => {
-  const popupState = useTreeState({...props, selectionMode: "none"});
+  const popupState = useTreeState({ ...props, selectionMode: "none" });
 
   const popupRef = useRef<HTMLUListElement>(null);
   const popupProps = useMenu(props, popupState, popupRef).menuProps;
