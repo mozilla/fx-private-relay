@@ -2,12 +2,12 @@
 const runtimeConfigs = {
   production: {
     environment: "production",
-    backendOrigin: "https://relay.firefox.com",
-    frontendOrigin: "https://relay.firefox.com",
-    fxaOrigin: "https://accounts.firefox.com",
-    fxaLoginUrl: "https://relay.firefox.com/accounts/fxa/login/?process=login",
-    fxaLogoutUrl: "https://relay.firefox.com/accounts/logout/",
-    premiumProductId: "prod_K29ULZL9pUR9Fr",
+    // The front-end and back-end are served from the same domain in production,
+    // so relative URLs can be used:
+    backendOrigin: "",
+    frontendOrigin: "",
+    fxaLoginUrl: "/accounts/fxa/login/?process=login",
+    fxaLogoutUrl: "/accounts/logout/",
     emailSizeLimitNumber: 150,
     emailSizeLimitUnit: "KB",
     maxFreeAliases: 5,
@@ -30,11 +30,6 @@ const runtimeConfigs = {
 runtimeConfigs.watch_build = {
   ...runtimeConfigs.production,
   environment: "development",
-  backendOrigin: "http://127.0.0.1:8000",
-  frontendOrigin: "http://127.0.0.1:8000",
-  fxaOrigin: "https://accounts.stage.mozaws.net",
-  fxaLoginUrl: "http://127.0.0.1:8000/accounts/fxa/login/?process=login",
-  fxaLogoutUrl: "http://127.0.0.1:8000/accounts/logout/",
 };
 
 // This configuration is for the setup where the Next.js dev server
@@ -42,11 +37,9 @@ runtimeConfigs.watch_build = {
 // Due to not running on the same server as the back-end,
 // login and logout needs to be simulated using the `/mock/` pages.
 runtimeConfigs.development = {
-  ...runtimeConfigs.production,
-  environment: "development",
+  ...runtimeConfigs.watch_build,
   backendOrigin: "http://127.0.0.1:8000",
   frontendOrigin: "http://localhost:3000",
-  fxaOrigin: "https://accounts.stage.mozaws.net",
   fxaLoginUrl: "http://localhost:3000/mock/login",
   fxaLogoutUrl: "http://localhost:3000/mock/logout",
 };

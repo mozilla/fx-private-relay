@@ -7,13 +7,13 @@ import { useGaPing } from "../../hooks/gaPing";
 import {
   getPlan,
   getPremiumSubscribeLink,
-  PremiumCountriesDataWithPremiumAvailable,
+  RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../config";
 
 export type Props = {
-  premiumCountriesData: PremiumCountriesDataWithPremiumAvailable;
+  premiumCountriesData: RuntimeDataWithPremiumAvailable;
 };
 
 export const Plans = (props: Props) => {

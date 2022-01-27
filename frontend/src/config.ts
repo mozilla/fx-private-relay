@@ -10,10 +10,8 @@ export type RuntimeConfig = {
   environment: "production" | "development";
   backendOrigin: string;
   frontendOrigin: string;
-  fxaOrigin: string;
   fxaLoginUrl: string;
   fxaLogoutUrl: string;
-  premiumProductId: string;
   emailSizeLimitNumber: number;
   emailSizeLimitUnit: string;
   maxFreeAliases: number;
@@ -21,7 +19,10 @@ export type RuntimeConfig = {
   googleAnalyticsId: `UA-${number}-${number}`;
   maxOnboardingAvailable: number;
   featureFlags: Record<
-    "generateCustomAliasMenu" | "generateCustomAliasSubdomain" | "generateCustomAliasTip" | "csatSurvey",
+    | "generateCustomAliasMenu"
+    | "generateCustomAliasSubdomain"
+    | "generateCustomAliasTip"
+    | "csatSurvey",
     boolean
   >;
 };

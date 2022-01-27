@@ -1,13 +1,10 @@
-import { getRuntimeConfig } from "../config";
-import { PremiumCountriesData } from "../hooks/api/premiumCountries";
+import { RuntimeData } from "../hooks/api/runtimeData";
 
-export const getPlan = (
-  premiumCountriesData: PremiumCountriesDataWithPremiumAvailable
-) => {
+export const getPlan = (runtimeData: RuntimeDataWithPremiumAvailable) => {
   const languageCode = navigator.language.split("-")[0].toLowerCase();
   const countryPlans =
-    premiumCountriesData.plan_country_lang_mapping[
-      premiumCountriesData.country_code
+    runtimeData.PREMIUM_PLANS.plan_country_lang_mapping[
+      runtimeData.PREMIUM_PLANS.country_code
     ];
   const plan =
     countryPlans[languageCode] ?? countryPlans[Object.keys(countryPlans)[0]];
@@ -16,13 +13,11 @@ export const getPlan = (
 };
 
 export const getPremiumSubscribeLink = (
-  premiumCountriesData: PremiumCountriesDataWithPremiumAvailable
+  runtimeData: RuntimeDataWithPremiumAvailable
 ) => {
-  const plan = getPlan(premiumCountriesData);
+  const plan = getPlan(runtimeData);
 
-  return `${getRuntimeConfig().fxaOrigin}/subscriptions/products/${
-    getRuntimeConfig().premiumProductId
-  }?plan=${plan.id}`;
+  return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PREMIUM_PRODUCT_ID}?plan=${plan.id}`;
 };
 
 /**
@@ -31,12 +26,14 @@ export const getPremiumSubscribeLink = (
  * (i.e. after that's been checked with our user-defined type guard
  * [isPremiumAvailableInCountry]).
  */
-export type PremiumCountriesDataWithPremiumAvailable = PremiumCountriesData & {
-  premium_available_in_country: true;
+export type RuntimeDataWithPremiumAvailable = RuntimeData & {
+  PREMIUM_PLANS: RuntimeData["PREMIUM_PLANS"] & {
+    premium_available_in_country: true;
+  };
 };
 
 export function isPremiumAvailableInCountry(
-  premiumCountriesData: PremiumCountriesData | undefined
-): premiumCountriesData is PremiumCountriesDataWithPremiumAvailable {
-  return premiumCountriesData?.premium_available_in_country === true;
+  runtimeData: RuntimeData | undefined
+): runtimeData is RuntimeDataWithPremiumAvailable {
+  return runtimeData?.PREMIUM_PLANS?.premium_available_in_country === true;
 }
