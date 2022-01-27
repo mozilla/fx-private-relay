@@ -14,8 +14,10 @@ import { Button } from "../../components/Button";
 import { getRuntimeConfig } from "../../config";
 import { useLocalLabels } from "../../hooks/localLabels";
 import { useAliases } from "../../hooks/api/aliases";
+import { useRuntimeData } from "../../hooks/api/runtimeData";
 
 const Settings: NextPage = () => {
+  const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const { l10n } = useLocalization();
   const [localLabels] = useLocalLabels();
@@ -36,7 +38,7 @@ const Settings: NextPage = () => {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
   }
 
-  if (!profileData.data) {
+  if (!profileData.data || !runtimeData.data) {
     // TODO: Show a loading spinner?
     return null;
   }
@@ -65,21 +67,39 @@ const Settings: NextPage = () => {
 
     try {
       // If server-side data storage was newly enabled, prepare locally stored labels:
-      const shouldUploadLocalLabels = profileData.data?.[0].server_storage === false && labelCollectionEnabled === true;
-      const updatedRandomAliases = aliasData.randomAliasData.data?.map(alias => {
-        const localLabel = localLabels?.find(localLabel => localLabel.type === "random" && localLabel.id === alias.id);
-        return typeof localLabel === "undefined" ? null : {
-          id: alias.id,
-          description: localLabel.description,
-        };
-      }).filter(isNotNull) ?? [];
-      const updatedCustomAliases = aliasData.customAliasData.data?.map(alias => {
-        const localLabel = localLabels?.find(localLabel => localLabel.type === "custom" && localLabel.id === alias.id);
-        return typeof localLabel === "undefined" ? null : {
-          id: alias.id,
-          description: localLabel.description,
-        };
-      }).filter(isNotNull) ?? [];
+      const shouldUploadLocalLabels =
+        profileData.data?.[0].server_storage === false &&
+        labelCollectionEnabled === true;
+      const updatedRandomAliases =
+        aliasData.randomAliasData.data
+          ?.map((alias) => {
+            const localLabel = localLabels?.find(
+              (localLabel) =>
+                localLabel.type === "random" && localLabel.id === alias.id
+            );
+            return typeof localLabel === "undefined"
+              ? null
+              : {
+                  id: alias.id,
+                  description: localLabel.description,
+                };
+          })
+          .filter(isNotNull) ?? [];
+      const updatedCustomAliases =
+        aliasData.customAliasData.data
+          ?.map((alias) => {
+            const localLabel = localLabels?.find(
+              (localLabel) =>
+                localLabel.type === "custom" && localLabel.id === alias.id
+            );
+            return typeof localLabel === "undefined"
+              ? null
+              : {
+                  id: alias.id,
+                  description: localLabel.description,
+                };
+          })
+          .filter(isNotNull) ?? [];
 
       await profileData.update(profile.id, {
         server_storage: labelCollectionEnabled,
@@ -87,10 +107,10 @@ const Settings: NextPage = () => {
 
       // After having enabled new server-side data storage, upload the locally stored labels:
       if (shouldUploadLocalLabels) {
-        updatedRandomAliases.forEach(updatedAlias => {
+        updatedRandomAliases.forEach((updatedAlias) => {
           aliasData.randomAliasData.update(updatedAlias);
         });
-        updatedCustomAliases.forEach(updatedAlias => {
+        updatedCustomAliases.forEach((updatedAlias) => {
           aliasData.customAliasData.update(updatedAlias);
         });
       }
@@ -104,7 +124,7 @@ const Settings: NextPage = () => {
   const contactUsLink = profile.has_premium ? (
     <li>
       <a
-        href={`${getRuntimeConfig().fxaOrigin}/support/?utm_source=${
+        href={`${runtimeData.data.FXA_ORIGIN}/support/?utm_source=${
           getRuntimeConfig().frontendOrigin
         }`}
         target="_blank"

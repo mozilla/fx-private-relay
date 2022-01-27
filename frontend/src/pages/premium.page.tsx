@@ -12,7 +12,7 @@ import { Layout } from "../components/layout/Layout";
 import { useGaPing } from "../hooks/gaPing";
 import { Button, LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
-import { usePremiumCountries } from "../hooks/api/premiumCountries";
+import { useRuntimeData } from "../hooks/api/runtimeData";
 import { Carousel } from "../components/landing/Carousel";
 import { Plans } from "../components/landing/Plans";
 import {
@@ -24,7 +24,7 @@ import { trackPurchaseStart } from "../functions/trackPurchase";
 
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
-  const premiumCountriesData = usePremiumCountries();
+  const runtimeData = useRuntimeData();
   const heroCtaRef = useGaPing({
     category: "Purchase Button",
     label: "premium-promo-cta",
@@ -52,18 +52,16 @@ const PremiumPromo: NextPage = () => {
     });
   };
 
-  const plansSection = isPremiumAvailableInCountry(
-    premiumCountriesData.data
-  ) ? (
+  const plansSection = isPremiumAvailableInCountry(runtimeData.data) ? (
     <section id="pricing" className={styles.plansWrapper}>
       <div className={styles.plans}>
         <div className={styles.planComparison}>
-          <Plans premiumCountriesData={premiumCountriesData.data} />
+          <Plans premiumCountriesData={runtimeData.data} />
         </div>
         <div className={styles.callout}>
           <h2>
             {l10n.getString("landing-pricing-headline", {
-              monthly_price: getPlan(premiumCountriesData.data).price,
+              monthly_price: getPlan(runtimeData.data).price,
             })}
           </h2>
           <p>{l10n.getString("landing-pricing-body")}</p>
@@ -72,10 +70,10 @@ const PremiumPromo: NextPage = () => {
     </section>
   ) : null;
 
-  const cta = isPremiumAvailableInCountry(premiumCountriesData.data) ? (
+  const cta = isPremiumAvailableInCountry(runtimeData.data) ? (
     <LinkButton
       ref={heroCtaRef}
-      href={getPremiumSubscribeLink(premiumCountriesData.data)}
+      href={getPremiumSubscribeLink(runtimeData.data)}
       onClick={() => purchase()}
     >
       {l10n.getString("premium-promo-hero-cta")}
@@ -90,14 +88,14 @@ const PremiumPromo: NextPage = () => {
   );
 
   const getPerkCta = (label: keyof typeof perkCtaRefs) => {
-    if (!isPremiumAvailableInCountry(premiumCountriesData.data)) {
+    if (!isPremiumAvailableInCountry(runtimeData.data)) {
       return null;
     }
     return (
       <LinkButton
         ref={perkCtaRefs[label]}
         onClick={() => trackPurchaseStart({ label: label })}
-        href={getPremiumSubscribeLink(premiumCountriesData.data)}
+        href={getPremiumSubscribeLink(runtimeData.data)}
         title={l10n.getString("premium-promo-perks-cta-tooltip")}
       >
         {l10n.getString("premium-promo-perks-cta-label")}
@@ -114,12 +112,10 @@ const PremiumPromo: NextPage = () => {
             <Localized
               id="premium-promo-hero-body-html"
               vars={{
-                monthly_price: isPremiumAvailableInCountry(
-                  premiumCountriesData.data
-                )
-                  ? getPlan(premiumCountriesData.data).price
-                  : premiumCountriesData.data?.plan_country_lang_mapping.us.en
-                      .price ?? "&hellip;",
+                monthly_price: isPremiumAvailableInCountry(runtimeData.data)
+                  ? getPlan(runtimeData.data).price
+                  : runtimeData.data?.PREMIUM_PLANS.plan_country_lang_mapping.us
+                      .en.price ?? "&hellip;",
               }}
               elems={{
                 b: <b />,
@@ -133,7 +129,8 @@ const PremiumPromo: NextPage = () => {
           <div className={styles.demoPhone}>
             <DemoPhone
               premium={
-                premiumCountriesData.data?.premium_available_in_country === true
+                runtimeData.data?.PREMIUM_PLANS.premium_available_in_country ===
+                true
               }
             />
           </div>

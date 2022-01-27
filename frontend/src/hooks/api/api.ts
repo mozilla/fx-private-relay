@@ -1,4 +1,5 @@
 import useSWR, { Fetcher, SWRResponse } from "swr";
+import { PublicConfiguration } from "swr/dist/types";
 import { getRuntimeConfig } from "../../config";
 import { getCsrfToken } from "../../functions/cookies";
 
@@ -54,13 +55,15 @@ const fetcher: Fetcher<unknown> = async (...args) => {
 };
 
 export function useApiV1<Data = unknown, Error = unknown>(
-  route: string
+  route: string,
+  swrOptions: Partial<PublicConfiguration> = {}
 ): SWRResponse<Data, Error> {
   // TODO: Also use the sessionId cookie in the key,
   //       to ensure no data is cached from different users?
   //       (This is currently enforced by doing a full page refresh when logging out.)
   const result = useSWR(route, fetcher, {
     revalidateOnFocus: false,
+    ...swrOptions,
   }) as SWRResponse<Data, Error>;
   return result;
 }

@@ -14,7 +14,7 @@ def test_swagger_unknown_format(client, subpath):
     response = client.get(path)
     assert response.status_code == 404
 
-def test_premium_countries(client):
-    path = '/api/v1/premium_countries'
+def test_runtime_data(client):
+    path = '/api/v1/runtime_data'
     response = client.get(path)
     assert response.status_code == 200

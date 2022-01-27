@@ -18,7 +18,7 @@ import { Layout } from "../components/layout/Layout";
 import { useGaPing } from "../hooks/gaPing";
 import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
-import { usePremiumCountries } from "../hooks/api/premiumCountries";
+import { useRuntimeData } from "../hooks/api/runtimeData";
 import { Carousel } from "../components/landing/Carousel";
 import { Plans } from "../components/landing/Plans";
 import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
@@ -28,7 +28,7 @@ import { getRuntimeConfig } from "../config";
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
   const router = useRouter();
-  const premiumCountriesData = usePremiumCountries();
+  const runtimeData = useRuntimeData();
   const userData = useUsers();
   const heroCtaRef = useGaPing({
     category: "Sign In",
@@ -47,18 +47,16 @@ const Home: NextPage = () => {
     });
   };
 
-  const plansSection = isPremiumAvailableInCountry(
-    premiumCountriesData.data
-  ) ? (
+  const plansSection = isPremiumAvailableInCountry(runtimeData.data) ? (
     <section id="pricing" className={styles.plansWrapper}>
       <div className={styles.plans}>
         <div className={styles.planComparison}>
-          <Plans premiumCountriesData={premiumCountriesData.data} />
+          <Plans premiumCountriesData={runtimeData.data} />
         </div>
         <div className={styles.callout}>
           <h2>
             {l10n.getString("landing-pricing-headline", {
-              monthly_price: getPlan(premiumCountriesData.data).price,
+              monthly_price: getPlan(runtimeData.data).price,
             })}
           </h2>
           <p>{l10n.getString("landing-pricing-body")}</p>
@@ -90,7 +88,8 @@ const Home: NextPage = () => {
           <div className={styles.demoPhone}>
             <DemoPhone
               premium={
-                premiumCountriesData.data?.premium_available_in_country === true
+                runtimeData.data?.PREMIUM_PLANS.premium_available_in_country ===
+                true
               }
             />
           </div>
