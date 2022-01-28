@@ -126,7 +126,7 @@ const Home: NextPage = () => {
             </ol>
           </div>
         </section>
-        <section id="use_cases" className={styles.useCasesWrapper}>
+        <section id="use-cases" className={styles.useCasesWrapper}>
           <div className={styles.useCases}>
             <Carousel
               title={l10n.getString("landing-use-cases-heading")}
@@ -136,6 +136,7 @@ const Home: NextPage = () => {
                   heading: l10n.getString("landing-use-cases-shopping"),
                   content: l10n.getString("landing-use-cases-shopping-body"),
                   illustration: ShoppingIllustration,
+                  id: "use-cases/shopping",
                 },
                 {
                   color: "orange",
@@ -144,12 +145,14 @@ const Home: NextPage = () => {
                     "landing-use-cases-social-networks-body"
                   ),
                   illustration: SocialNetworksIllustration,
+                  id: "use-cases/social-networks",
                 },
                 {
                   color: "teal",
                   heading: l10n.getString("landing-use-cases-offline"),
                   content: l10n.getString("landing-use-cases-offline-body"),
                   illustration: OfflineIllustration,
+                  id: "use-cases/offline",
                 },
                 {
                   color: "red",
@@ -158,12 +161,14 @@ const Home: NextPage = () => {
                     "landing-use-cases-access-content-body"
                   ),
                   illustration: AccessContentIllustration,
+                  id: "use-cases/access-content",
                 },
                 {
                   color: "pink",
                   heading: l10n.getString("landing-use-cases-gaming"),
                   content: l10n.getString("landing-use-cases-gaming-body"),
                   illustration: GamingIllustration,
+                  id: "use-cases/gaming",
                 },
               ]}
             />
