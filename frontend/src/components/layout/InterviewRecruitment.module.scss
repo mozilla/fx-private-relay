@@ -1,0 +1,42 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  background-color: $color-purple-90;
+  color: $color-white;
+  position: relative;
+
+  .dismissButton {
+    position: absolute;
+    top: 50%;
+    right: $spacing-md;
+    background-color: transparent;
+    border-style: none;
+    color: $color-white;
+    width: 30px;
+    height: 30px;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+    }
+  }
+
+  a {
+    text-decoration: underline;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
