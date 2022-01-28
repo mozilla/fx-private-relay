@@ -150,7 +150,7 @@ def profile_refresh(request):
     return JsonResponse({})
 
 
-@api_view()
+@api_view(['POST', 'GET'])
 @require_http_methods(['POST', 'GET'])
 def profile_subdomain(request):
     if (not request.user or request.user.is_anonymous):
