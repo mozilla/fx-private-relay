@@ -4,7 +4,7 @@ function apiRequest(path, options) {
     const cookieStringArray = cookieString
         .split(";")
         .map(individualCookieString => individualCookieString.split("="))
-        .map(([cookieKey, cookieValue]) => [cookieKey.trim(), cookieValue.trim()]);
+        .map(([cookieKey, cookieValue]) => [cookieKey?.trim(), cookieValue?.trim()]);
     // Looks like the `argsIgnorePattern` option for ESLint doesn't like array destructuring:
     // eslint-disable-next-line no-unused-vars
     const [_csrfCookieKey, csrfCookieValue] = cookieStringArray.find(([cookieKey, _cookieValue]) => cookieKey === "csrftoken");
@@ -43,7 +43,7 @@ async function postProfileSubdomain( { domain }){
     const cookieStringArray = cookieString
         .split(";")
         .map(individualCookieString => individualCookieString.split("="))
-        .map(([cookieKey, cookieValue]) => [cookieKey.trim(), cookieValue.trim()]);
+        .map(([cookieKey, cookieValue]) => [cookieKey?.trim(), cookieValue?.trim()]);
         
     // Looks like the `argsIgnorePattern` option for ESLint doesn't like array destructuring:
     // eslint-disable-next-line no-unused-vars
