@@ -189,7 +189,7 @@ const PremiumPromo: NextPage = () => {
             </div>
           </div>
         </section>
-        <section id="use_cases" className={styles.useCasesWrapper}>
+        <section id="use-cases" className={styles.useCasesWrapper}>
           <div className={styles.useCases}>
             <h2 className={styles.headline}>
               {l10n.getString("premium-promo-use-cases-headline")}
@@ -206,6 +206,7 @@ const PremiumPromo: NextPage = () => {
                     "premium-promo-use-cases-shopping-body"
                   ),
                   illustration: ShoppingIllustration,
+                  id: "use-cases/shopping",
                 },
                 {
                   color: "orange",
@@ -216,6 +217,7 @@ const PremiumPromo: NextPage = () => {
                     "premium-promo-use-cases-social-networks-body"
                   ),
                   illustration: SocialNetworksIllustration,
+                  id: "use-cases/social-networks",
                 },
                 {
                   color: "pink",
@@ -226,6 +228,7 @@ const PremiumPromo: NextPage = () => {
                     "premium-promo-use-cases-gaming-body"
                   ),
                   illustration: GamingIllustration,
+                  id: "use-cases/gaming",
                 },
               ]}
             />
