@@ -22,7 +22,14 @@
           <label for="customAliasPrefix" class="mzp-u-inline">
             {% ftlmsg 'modal-custom-alias-picker-form-prefix-label' subdomain='' %}
           </label>
-          <input required type="text" name="customAliasPrefix" id="customAliasPrefix" autofocus>
+          <input
+            required
+            autofocus
+            placeholder="{% ftlmsg 'modal-custom-alias-picker-form-prefix-placeholder' %}"
+            type="text"
+            name="customAliasPrefix"
+            id="customAliasPrefix"
+          >
         </div>
         <span class="t-custom-alias-suffix">@<b>{{ user_profile.subdomain }}</b>.{{ MOZMAIL_DOMAIN }}</span>
       </div>
