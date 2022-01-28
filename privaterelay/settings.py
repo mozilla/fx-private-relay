@@ -116,6 +116,7 @@ RECRUITMENT_BANNER_LINK = config('RECRUITMENT_BANNER_LINK', None)
 RECRUITMENT_BANNER_TEXT = config('RECRUITMENT_BANNER_TEXT', None)
 RECRUITMENT_EMAIL_BANNER_TEXT = config('RECRUITMENT_EMAIL_BANNER_TEXT', None)
 RECRUITMENT_EMAIL_BANNER_LINK = config('RECRUITMENT_EMAIL_BANNER_LINK', None)
+SERVE_REACT = config('SERVE_REACT', False, cast=bool)
 
 TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
 TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)
@@ -446,16 +447,16 @@ USE_TZ = True
 
 # Static files (the front-end in /frontend/)
 # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
-STATIC_URL = '/'
+STATIC_URL = '/' if SERVE_REACT else '/static/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/out'),
+    os.path.join(BASE_DIR, 'frontend/out') if SERVE_REACT else os.path.join(BASE_DIR, 'static'),
 ]
 
 WHITENOISE_INDEX_FILE = True
-if settings.DEBUG:
+if settings.DEBUG and SERVE_REACT:
     # In production, we run collectstatic to index all static files.
     # However, when running locally, we want to automatically pick up
     # all files spewed out by `npm run watch` in /frontend/out,
