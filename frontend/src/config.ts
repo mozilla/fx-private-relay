@@ -22,6 +22,7 @@ export type RuntimeConfig = {
     | "generateCustomAliasMenu"
     | "generateCustomAliasSubdomain"
     | "generateCustomAliasTip"
+    | "interviewRecruitment"
     | "csatSurvey",
     boolean
   >;
