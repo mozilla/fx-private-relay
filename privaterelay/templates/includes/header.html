@@ -11,7 +11,7 @@
     {% include "includes/vpn-promo-banner.html" %}
   {% endif %}
 
-  {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" and country_code == "us" and not request.user.is_anonymous %}
+  {% if settings.RECRUITMENT_BANNER_LINK and LANGUAGE_CODE|slice:"0:2" == "en" and country_code == "us" and not request.user.is_anonymous and not "Disabled while we figure out why this is shown to anonymous users as well." %}
     <div class="recruitment-banner">
       <a id="recruitment-banner" class="text-link" href="{{ settings.RECRUITMENT_BANNER_LINK }}" target="_blank" rel="noopener noreferrer" data-ga="send-ga-pings" data-event-category="Recruitment" data-event-label="{{ settings.RECRUITMENT_BANNER_TEXT }}">{{ settings.RECRUITMENT_BANNER_TEXT }}</a>
       <button id="recruitment-dismiss" class="dismiss-btn">
