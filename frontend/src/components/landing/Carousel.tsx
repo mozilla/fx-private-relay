@@ -17,6 +17,7 @@ export type CarouselTab = {
   illustration: StaticImageData;
   color: "yellow" | "orange" | "teal" | "red" | "pink";
   content: ReactNode;
+  id: string;
 };
 
 export type Props = {
@@ -26,8 +27,8 @@ export type Props = {
 
 export const Carousel = (props: Props) => {
   return (
-    <Tabs aria-label={props.title} defaultSelectedKey="tab_0">
-      {props.tabs.map((tab, index) => {
+    <Tabs aria-label={props.title} defaultSelectedKey={props.tabs[0].id}>
+      {props.tabs.map((tab) => {
         const titleElement = (
           <div className={`${styles.title} ${styles[tab.color]}`}>
             <img src={tab.illustration.src} alt="" />
@@ -35,11 +36,7 @@ export const Carousel = (props: Props) => {
           </div>
         );
         return (
-          <Item
-            key={`tab_${index}`}
-            title={titleElement}
-            aria-label={tab.heading}
-          >
+          <Item key={tab.id} title={titleElement} aria-label={tab.heading}>
             {tab.content}
           </Item>
         );
@@ -64,7 +61,9 @@ const Tabs = (props: TabsProps) => {
 
   useEffect(() => {
     function selectByHash() {
-      const selectedItem = Array.from(state.collection).find(item => item.key === document.location.hash.substring("#carousel_".length));
+      const selectedItem = Array.from(state.collection).find(
+        (item) => item.key === document.location.hash.substring("#".length)
+      );
       if (typeof selectedItem !== "undefined") {
         state.setSelectedKey(selectedItem.key);
       }
@@ -117,9 +116,7 @@ const Tab = (props: TabProps) => {
       ref={tabRef}
       className={`${styles.tab} ${isSelected ? styles.isSelected : ""}`}
       data-tab-key={props.item.key}
-      // Since IDs should be unique, this assumes there's only one <Carousel>
-      // on each page. This is true at the time of writing at least ¯\_(ツ)_/¯
-      id={`carousel_${props.item.key.toString()}`}
+      id={props.item.key.toString()}
     >
       {props.item.rendered}
     </div>
