@@ -406,29 +406,57 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
 }
 
 .c-premium-onboarding-action-completed {
-    padding: $spacing-md;
+    padding: $spacing-lg;
     padding-inline-end: $spacing-lg;
     background-color: $color-white;
     display: none;
     align-items: center;
     border-radius: $border-radius-md;
-    width: auto;
+    width: 100%;
 
-    samp {
-        margin-bottom: 0;
-        color: $color-informational;
-        max-width: 100%;
-        word-break: break-all;
-
-        @include text-title-3xs;
+    @media #{$mq-md} {
+        width: auto;
     }
 
     &.is-visible {
         display: inline-flex;
     }
 
-    img {
-        margin-right: $spacing-sm;
+    p {
+        margin: 0;
+    }
+
+    .c-premium-onboarding-subdomain-set-module {
+        font-family: $font-stack-firefox;
+        text-align: center;
+        font-weight: 600;
+        margin: 0 auto;
+    }
+
+    .c-premium-onboarding-label {
+        color: $color-dark-gray-05;
+    }
+
+    .c-premium-onboarding-label::before {
+        width: $layout-2xs;
+        height: $layout-2xs;
+        display: inline-block;
+        content: "";
+        background-image: url("/static/images/icon-check.svg");
+        background-repeat: no-repeat;
+        background-position: center center;
+        padding-right:$spacing-sm;
+    }
+
+    .c-premium-onboarding-subdomain {
+        @include text-body-lg;
+        font-weight: bold;
+        color: $color-purple-50;
+    }
+
+    .c-premium-onboarding-mozmail {
+        @include text-body-sm;
+        color: $color-light-gray-90;
     }
 }
 

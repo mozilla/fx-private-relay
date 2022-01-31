@@ -59,8 +59,11 @@
                         {% endif %}
                         
                         <div class="c-premium-onboarding-action-completed {% if user_profile.subdomain %} is-visible {% endif %}">
-                            <img class="margin-right" src="/static/images/icon-check.svg" alt="">
-                            <samp class="js-premium-onboarding-domain-registration-preview">{{ user_profile.custom_domain }}</samp>
+                            <div class="c-premium-onboarding-subdomain-set-module">
+                                <p class="c-premium-onboarding-label">{% ftlmsg 'profile-label-domain' %}</p>
+                                <p class="c-premium-onboarding-subdomain">@{{ user_profile.subdomain }}</p>
+                                <span class="c-premium-onboarding-mozmail">.mozmail.com</span>
+                            </div>
                         </div>
                     </div>
                 </div>
