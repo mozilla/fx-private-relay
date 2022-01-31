@@ -702,15 +702,46 @@ if ( document.getElementById("survey-dismiss") ) {
 }
 
 
-//Landing page use case accordion 
+//Landing page use case accordion
+const useCaseSection = document.getElementById("use-cases");
 const useCaseTitle = document.querySelectorAll(".use-case-title");
 
 function toggleClass(elem) {
    useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
   });
+  useCaseSection.scrollIntoView();
   elem.target.classList.add("is-active");
+  window.location.hash = "#use-cases" + "/" + elem.target.dataset.useCase;
 }
+
+function resetAccordianAndSetActiveSection(useCaseName) {
+  const urlHash = location.hash;
+    if (urlHash.includes(useCaseName)){
+      useCaseTitle.forEach( item => {
+        item.classList.remove("is-active");
+      });
+      document.querySelector(".use-case-" + useCaseName).classList.add("is-active");
+    }
+}
+
+function hashChangeAccordion(){
+  const urlHash = location.hash;
+
+  if (urlHash.includes("#use-cases")){
+    useCaseSection.scrollIntoView();
+
+    resetAccordianAndSetActiveSection("shopping");
+    resetAccordianAndSetActiveSection("social-networks");
+    resetAccordianAndSetActiveSection("offline");
+    resetAccordianAndSetActiveSection("access-content");
+    resetAccordianAndSetActiveSection("gaming");
+  }
+}
+
+hashChangeAccordion();
+
+window.onhashchange = hashChangeAccordion;
 
 useCaseTitle.forEach( item => {
     item.addEventListener("click", toggleClass, false);
