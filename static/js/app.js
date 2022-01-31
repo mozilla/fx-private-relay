@@ -699,40 +699,28 @@ function toggleClass(elem) {
   window.location.hash = "#use-cases" + "/" + elem.target.dataset.useCase;
 }
 
+function resetAccordianAndSetActiveSection(useCaseName) {
+  const urlHash = location.hash;
+    if (urlHash.includes(useCaseName)){
+      useCaseTitle.forEach( item => {
+        item.classList.remove("is-active");
+      });
+      document.querySelector(".use-case-" + useCaseName).classList.add("is-active");
+    }
+}
+
 function hashChangeAccordion(){
   const urlHash = location.hash;
+
   if (urlHash.includes("#use-cases")){
     useCaseSection.scrollIntoView();
-    
-    if (urlHash === "#use-cases/shopping"){
-      useCaseTitle.forEach( item => {
-        item.classList.remove("is-active");
-      });
-      document.querySelector(".use-case-shopping").classList.add("is-active");
-    }
-  
-    if (urlHash === "#use-cases/social-networks"){
-      useCaseTitle.forEach( item => {
-        item.classList.remove("is-active");
-      });
-      document.querySelector(".use-case-social-networks").classList.add("is-active");
-    }
-  
-    if (urlHash === "#use-cases/offline"){
-      useCaseTitle.forEach( item => {
-        item.classList.remove("is-active");
-      });
-      document.querySelector(".use-case-offline").classList.add("is-active");
-    }
-  
-    if (urlHash === "#use-cases/gaming"){
-      useCaseTitle.forEach( item => {
-        item.classList.remove("is-active");
-      });
-      document.querySelector(".use-case-gaming").classList.add("is-active");
-    }
+
+    resetAccordianAndSetActiveSection("shopping");
+    resetAccordianAndSetActiveSection("social-networks");
+    resetAccordianAndSetActiveSection("offline");
+    resetAccordianAndSetActiveSection("access-content");
+    resetAccordianAndSetActiveSection("gaming");
   }
- 
 }
 
 hashChangeAccordion();
