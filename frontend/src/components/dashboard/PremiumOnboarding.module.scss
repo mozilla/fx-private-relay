@@ -54,14 +54,34 @@
   }
 
   .actionComplete {
-    @include text-title-3xs;
-    display: inline-flex;
+    @include text-body-sm;
+    font-family: $font-stack-firefox;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     padding: $spacing-md;
     border-radius: $border-radius-md;
     background-color: $color-white;
-    color: $color-blue-50;
-    gap: $spacing-sm;
-    width: auto;
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: $spacing-xs;
+      padding-bottom: $spacing-xs;
+    }
+
+    samp {
+      @include text-body-lg;
+      font-family: $font-stack-firefox;
+      font-weight: bold;
+      color: $color-purple-50;
+    }
+
+    .domain {
+      @include text-body-xs;
+      color: $color-light-gray-90;
+    }
   }
 
   &.stepCustomDomain {
