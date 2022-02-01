@@ -279,12 +279,16 @@ const StepTwo = (props: Step2Props) => {
 
   const subdomain =
     typeof props.profile.subdomain === "string" ? (
-      <div className={styles.actionComplete}>
-        <img src={checkIcon.src} alt="" width={18} />
-        <samp>
-          @{props.profile.subdomain}.{getRuntimeConfig().mozmailDomain}
-        </samp>
-      </div>
+      <p className={styles.actionComplete}>
+        <span className={styles.label}>
+          <img src={checkIcon.src} alt="" width={18} />
+          {l10n.getString("profile-label-domain")}
+        </span>
+        <samp>@{props.profile.subdomain}</samp>
+        <span className={styles.domain}>
+          .{getRuntimeConfig().mozmailDomain}
+        </span>
+      </p>
     ) : (
       <Step2SubdomainPicker
         onPickSubdomain={props.onPickSubdomain}
