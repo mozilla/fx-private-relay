@@ -12,11 +12,13 @@ from model_bakery import baker
 from emails.models import (
     address_hash,
     DeletedAddress,
+    DomainAddress,
     Profile,
     RelayAddress,
 )
 from emails.views import _get_address, _sns_notification
 
+from .models_tests import make_premium_test_user
 
 # Load the sns json fixtures from files
 real_abs_cwd = os.path.realpath(
@@ -27,7 +29,9 @@ single_rec_file = os.path.join(
 )
 
 EMAIL_SNS_BODIES = {}
-for email_type in ['spamVerdict_FAIL', 'single_recipient']:
+for email_type in [
+    'spamVerdict_FAIL', 'single_recipient', 'domain_recipient'
+]:
     email_file = os.path.join(
         real_abs_cwd, 'fixtures', '%s_email_sns_body.json' % email_type
     )
@@ -54,6 +58,11 @@ class SNSNotificationTest(TestCase):
         self.ra = baker.make(
             RelayAddress, user=self.user, address='ebsbdsan7', domain=2
         )
+        self.premium_user = make_premium_test_user()
+        self.premium_profile = Profile.objects.get(user=self.premium_user)
+        self.premium_profile.subdomain = 'subdomain'
+        self.premium_profile.save()
+
 
     @patch('emails.views.ses_relay_email')
     def test_single_recipient_sns_notification(self, mock_ses_relay_email):
@@ -85,6 +94,17 @@ class SNSNotificationTest(TestCase):
         mock_ses_relay_email.assert_not_called()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
+
+    @patch('emails.views.ses_relay_email')
+    def test_domain_recipient(self, mock_ses_relay_email):
+        _sns_notification(EMAIL_SNS_BODIES['domain_recipient'])
+
+        mock_ses_relay_email.assert_called_once()
+        da = DomainAddress.objects.get(
+            user=self.premium_user, address='wildcard'
+        )
+        assert da.num_forwarded == 1
+        assert da.last_used_at.date() == datetime.today().date()
 
 
 class BounceHandlingTest(TestCase):

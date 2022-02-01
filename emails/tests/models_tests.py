@@ -22,6 +22,7 @@ from ..models import (
     CannotMakeSubdomainException,
     DeletedAddress,
     DomainAddress,
+    get_domains_from_settings,
     get_domain_numerical,
     has_bad_words,
     hash_subdomain,
@@ -35,7 +36,36 @@ from ..models import (
     valid_address
 )
 
-TEST_DOMAINS = {'RELAY_FIREFOX_DOMAIN': 'default.com', 'MOZMAIL_DOMAIN': 'test.com'}
+
+def make_free_test_user():
+    user = baker.make(User)
+    user_profile = Profile.objects.get(user=user)
+    user_profile.server_storage = True
+    user_profile.save()
+    return user
+
+
+def make_premium_test_user():
+    # premium user
+    premium_user = baker.make(User)
+    premium_user_profile = Profile.objects.get(user=premium_user)
+    premium_user_profile.server_storage = True
+    premium_user_profile.save()
+    upgrade_test_user_to_premium(premium_user)
+    return premium_user
+
+
+def upgrade_test_user_to_premium(user):
+    random_sub = random.choice(
+        settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
+    )
+    baker.make(
+        SocialAccount,
+        user=user,
+        provider='fxa',
+        extra_data={'subscriptions': [random_sub]}
+    )
+    return user
 
 
 class MiscEmailModelsTest(TestCase):
@@ -83,7 +113,7 @@ class MiscEmailModelsTest(TestCase):
     def test_address_hash_with_subdomain(self):
         address = 'aaaaaaaaa'
         subdomain = 'test'
-        domain = TEST_DOMAINS.get('MOZMAIL_DOMAIN')
+        domain = get_domains_from_settings().get('MOZMAIL_DOMAIN')
         expected_hash = sha256(
             f'{address}@{subdomain}.{domain}'.encode('utf-8')
         ).hexdigest()
@@ -102,25 +132,10 @@ class MiscEmailModelsTest(TestCase):
 
 class RelayAddressTest(TestCase):
     def setUp(self):
-        self.user = baker.make(User)
-        self.user_profile = Profile.objects.get(user=self.user)
-        self.user_profile.server_storage = True
-        self.user_profile.save()
-
-        # premium user
-        self.premium_user = baker.make(User)
-        random_sub = random.choice(
-            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
-        )
-        baker.make(
-            SocialAccount,
-            user=self.premium_user,
-            provider='fxa',
-            extra_data={'subscriptions': [random_sub]}
-        )
-        self.premium_user_profile = Profile.objects.get(user=self.premium_user)
-        self.premium_user_profile.server_storage = True
-        self.premium_user_profile.save()
+        self.user = make_free_test_user()
+        self.user_profile = self.user.profile_set.first()
+        self.premium_user = make_premium_test_user()
+        self.premium_user_profile = self.premium_user.profile_set.first()
 
     def test_create_assigns_to_user(self):
         relay_address = RelayAddress.objects.create(user=self.user_profile.user)
@@ -799,16 +814,7 @@ class ProfileTest(TestCase):
 class DomainAddressTest(TestCase):
     def setUp(self):
         self.subdomain = 'test'
-        self.user = baker.make(User)
-        random_sub = random.choice(
-            settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(',')
-        )
-        baker.make(
-            SocialAccount,
-            user=self.user,
-            provider='fxa',
-            extra_data={'subscriptions': [random_sub]}
-        )
+        self.user = make_premium_test_user()
         # get rather than create profile since profile is auto-generated
         # when user is created
         self.user_profile = Profile.objects.get(user=self.user)
@@ -843,7 +849,7 @@ class DomainAddressTest(TestCase):
         )
         assert domain_address.address == 'foobar'
         assert domain_address.first_emailed_at is None
-    
+
     @override_settings(MAX_ADDRESS_CREATION_PER_DAY=10)
     def test_make_domain_address_has_limit(self):
         try:
