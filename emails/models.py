@@ -595,7 +595,6 @@ class DomainAddress(models.Model):
     domain = models.PositiveSmallIntegerField(choices=DOMAIN_CHOICES, default=2)
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     first_emailed_at = models.DateTimeField(null=True, db_index=True)
-    last_used_at = models.DateTimeField(auto_now_add=True, db_index=True)
     last_modified_at = models.DateTimeField(auto_now=True, db_index=True)
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
