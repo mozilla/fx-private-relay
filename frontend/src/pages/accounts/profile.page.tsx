@@ -32,6 +32,7 @@ import { getRuntimeConfig } from "../../config";
 import { SubdomainIndicator } from "../../components/dashboard/subdomain/SubdomainIndicator";
 import { Tips } from "../../components/dashboard/Tips";
 import { clearCookie, getCookie } from "../../functions/cookies";
+import { toast } from "react-toastify";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -77,6 +78,20 @@ const Profile: NextPage = () => {
     return null;
   }
 
+  const setCustomSubdomain = async (customSubdomain: string) => {
+    const response = await profileData.update(profile.id, {
+      subdomain: customSubdomain,
+    });
+    if (!response.ok) {
+      toast(
+        l10n.getString("error-subdomain-not-available", {
+          unavailable_subdomain: customSubdomain,
+        }),
+        { type: "error" }
+      );
+    }
+  };
+
   if (
     profile.has_premium &&
     profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
@@ -86,16 +101,13 @@ const Profile: NextPage = () => {
         onboarding_state: step,
       });
     };
-    const onPickSubdomain = (subdomain: string) => {
-      profileData.update(profile.id, { subdomain: subdomain });
-    };
 
     return (
       <Layout>
         <PremiumOnboarding
           profile={profile}
           onNextStep={onNextStep}
-          onPickSubdomain={onPickSubdomain}
+          onPickSubdomain={setCustomSubdomain}
         />
       </Layout>
     );
@@ -137,12 +149,6 @@ const Profile: NextPage = () => {
     (count, alias) => count + alias.num_forwarded,
     0
   );
-
-  const setCustomSubdomain = async (customSubdomain: string) => {
-    await profileData.update(profile.id, {
-      subdomain: customSubdomain,
-    });
-  };
 
   const subdomainIndicator =
     typeof profile.subdomain === "string" ? (
