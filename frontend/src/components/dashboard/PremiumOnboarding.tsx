@@ -256,7 +256,9 @@ const StepOne = () => {
           </span>
           <br />
           <strong>
-            {l10n.getString("multi-part-onboarding-premium-welcome-title")}
+            {l10n.getString(
+              "multi-part-onboarding-premium-generate-unlimited-title"
+            )}
           </strong>
           <br />
           {l10n.getString(
