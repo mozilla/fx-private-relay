@@ -230,6 +230,7 @@ $toggleTransitionDuration: 200ms;
     border-style: none;
     padding: $spacing-sm;
     border-radius: $border-radius-sm;
+    cursor: pointer;
 
     img {
       transition: transform 200ms;
