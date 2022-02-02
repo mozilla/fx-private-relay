@@ -301,6 +301,19 @@
             @include text-title-2xs;
         }
     }
+
+    .c-premium-onboarding-domain-registration-form {
+        display: flex;
+        flex-direction: column;
+
+        @media #{$mq-md} {
+            display: inline;
+        }
+    }
+
+    .subdomain-banner-input {
+        margin-bottom: $spacing-md;
+    }
 }
 
 // Step 3: Install add-on
