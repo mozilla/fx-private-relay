@@ -1,5 +1,8 @@
+import { useRef, Key, ReactNode } from "react";
 import { useLocalization } from "@fluent/react";
 import Link from "next/link";
+import { useTabList, useTabPanel, useTab } from "react-aria";
+import { useTabListState, TabListState, Item } from "react-stately";
 import styles from "./Tips.module.scss";
 import { CloseIcon } from "../icons/close";
 import { InfoIcon } from "../icons/info";
@@ -15,24 +18,42 @@ export type Props = {
 
 export const Tips = (props: Props) => {
   const { l10n } = useLocalization();
-  const dismissal = useLocalDismissal(`tips_${props.profile.id}`);
+  const dismissals = {
+    customAlias: useLocalDismissal(`tips_customAlias_${props.profile.id}`),
+    criticalEmails: useLocalDismissal(
+      `tips_criticalEmails_${props.profile.id}`
+    ),
+  };
 
-  if (getRuntimeConfig().featureFlags.generateCustomAliasTip !== true) {
-    return null;
-  }
+  const tips: Record<Key, ReactNode> = {};
 
-  if (dismissal.isDismissed) {
-    return null;
+  // If the user has a custom subdomain, but does not have custom aliases yet,
+  // show a tip about how they get created:
+  if (
+    typeof props.profile.subdomain === "string" &&
+    props.customAliases.length === 0 &&
+    getRuntimeConfig().featureFlags.generateCustomAliasTip === true &&
+    !dismissals.customAlias.isDismissed
+  ) {
+    tips.customAlias = <CustomAliasTip subdomain={props.profile.subdomain} />;
   }
 
   if (
-    typeof props.profile.subdomain !== "string" ||
-    props.customAliases.length > 0
+    getRuntimeConfig().featureFlags.criticalEmailsTip === true &&
+    !dismissals.criticalEmails.isDismissed
   ) {
-    // TODO: When we have more than a single tip,
-    // only do this check for the subdomain tip.
+    tips.criticalEmails = <CriticalEmailsTip />;
+  }
+
+  if (Object.keys(tips).length === 0) {
     return null;
   }
+
+  const dismissAll = () => {
+    Object.values(dismissals).forEach((dismissal) => {
+      dismissal.dismiss();
+    });
+  };
 
   return (
     <aside className={styles.wrapper}>
@@ -42,10 +63,7 @@ export const Tips = (props: Props) => {
             <InfoIcon alt="" width={20} height={20} />
           </span>
           <h2>{l10n.getString("tips-header-title")}</h2>
-          <button
-            onClick={() => dismissal.dismiss()}
-            className={styles.closeButton}
-          >
+          <button onClick={() => dismissAll()} className={styles.closeButton}>
             <CloseIcon
               alt={l10n.getString("tips-header-button-close-label")}
               width={20}
@@ -53,8 +71,12 @@ export const Tips = (props: Props) => {
             />
           </button>
         </header>
-        <div className={styles.tip}>
-          <CustomAliasTip subdomain={props.profile.subdomain} />
+        <div className={styles.tipCarousel}>
+          <TipsCarousel defaultSelectedKey={Object.keys(tips)[0]}>
+            {Object.entries(tips).map(([key, tip]) => (
+              <Item key={key}>{tip}</Item>
+            ))}
+          </TipsCarousel>
         </div>
         <footer className={styles.footer}>
           <ul>
@@ -97,6 +119,111 @@ const CustomAliasTip = (props: CustomAliasTipProps) => {
       </samp>
       <h3>{l10n.getString("tips-custom-alias-heading")}</h3>
       <p>{l10n.getString("tips-custom-alias-content")}</p>
+    </div>
+  );
+};
+
+// Note: Content of this tip is not yet final, and an animation will be added:
+const CriticalEmailsTip = () => {
+  const { l10n } = useLocalization();
+
+  return (
+    <div className={styles.criticalEmailsTip}>
+      <h3>{l10n.getString("tips-critical-emails-heading")}</h3>
+      <p>{l10n.getString("tips-critical-emails-content")}</p>
+    </div>
+  );
+};
+
+const TipsCarousel = (props: Parameters<typeof useTabListState>[0]) => {
+  const tabListState = useTabListState(props);
+  const tabListRef = useRef<HTMLDivElement>(null);
+  const { tabListProps } = useTabList(
+    { ...props, orientation: "horizontal" },
+    tabListState,
+    tabListRef
+  );
+
+  const tipSwitcher =
+    tabListState.collection.size === 1
+      ? null
+      : Array.from(tabListState.collection).map((item) => (
+          <PanelDot key={item.key} item={item} tabListState={tabListState} />
+        ));
+
+  return (
+    <div>
+      <TipPanel
+        key={tabListState.selectedItem.key}
+        tabListState={tabListState}
+      />
+      <div {...tabListProps} ref={tabListRef} className={styles.tipSwitcher}>
+        {tipSwitcher}
+      </div>
+    </div>
+  );
+};
+
+type PanelDotProps = {
+  item: {
+    key: Key;
+    rendered: ReactNode;
+    index?: number;
+  };
+  tabListState: TabListState<object>;
+};
+const PanelDot = (props: PanelDotProps) => {
+  const { l10n } = useLocalization();
+  const dotRef = useRef<HTMLDivElement>(null);
+  const { tabProps } = useTab(
+    { key: props.item.key },
+    props.tabListState,
+    dotRef
+  );
+  const isSelected = props.tabListState.selectedKey === props.item.key;
+  const alt = l10n.getString("tips-switcher-label", {
+    nr: (props.item.index ?? 0) + 1,
+  });
+  return (
+    <div
+      {...tabProps}
+      ref={dotRef}
+      className={`${styles.panelDot} ${isSelected ? styles.isSelected : ""}`}
+    >
+      <svg
+        role="img"
+        aria-label={alt}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 8 8"
+        width={8}
+        height={8}
+      >
+        <title>{alt}</title>
+        <circle
+          style={{
+            fill: "currentcolor",
+          }}
+          cx="4"
+          cy="4"
+          r="4"
+        />
+      </svg>
+    </div>
+  );
+};
+
+const TipPanel = ({
+  tabListState,
+  ...props
+}: { tabListState: TabListState<object> } & Parameters<
+  typeof useTabPanel
+>[0]) => {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const { tabPanelProps } = useTabPanel(props, tabListState, panelRef);
+
+  return (
+    <div {...tabPanelProps} ref={panelRef} className={styles.tip}>
+      {tabListState.selectedItem.props.children}
     </div>
   );
 };

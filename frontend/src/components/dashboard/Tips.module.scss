@@ -46,11 +46,36 @@
     }
   }
 
-  .tip {
+  .tipCarousel {
     padding: $spacing-md;
-    // In lieu of there being multiple tips and a widget to switch between then,
-    // add some whitespace at the bottom:
-    padding-bottom: $spacing-2xl;
+
+    .tip {
+      min-height: 15rem;
+    }
+
+    .tipSwitcher {
+      display: flex;
+      gap: $spacing-xs;
+      justify-content: center;
+
+      .panelDot {
+        color: $color-light-gray-50;
+        // Increase the tap target for these dots:
+        padding: $spacing-sm $spacing-xs;
+        cursor: pointer;
+        // Avoid layout shifts when adding a bottom border on focus:
+        border: 2px solid transparent;
+
+        &.isSelected {
+          color: $color-pink-30;
+        }
+
+        &:focus {
+          outline: none;
+          border-bottom-color: $color-pink-30;
+        }
+      }
+    }
   }
 
   .footer {
@@ -73,16 +98,32 @@
 .customAliasTip {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: $spacing-xs;
+  @include text-body-sm;
 
   samp {
-    @include text-body-md;
+    @include text-body-sm;
     font-family: $font-stack-base;
     color: $color-blue-50;
     font-weight: bold;
   }
 
   h3 {
-    @include text-title-2xs;
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    color: $color-purple-90;
+  }
+}
+
+.criticalEmailsTip {
+  @include text-body-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  h3 {
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    color: $color-purple-90;
   }
 }

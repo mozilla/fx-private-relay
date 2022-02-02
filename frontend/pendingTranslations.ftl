@@ -82,5 +82,15 @@ popover-custom-alias-explainer-generate-button-heading = Generate a custom alias
 popover-custom-alias-explainer-generate-button-label = Generate custom alias
 popover-custom-alias-explainer-close-button-label = Close
 
+# Label for each of the dots representing a tip in a panel in the bottom right-hand corner.
+# Variables
+#   $nr (number) - Which tip can be seen by clicking/tapping this particular dot.
+tips-switcher-label = Tip { $nr }
+
 tips-custom-alias-heading = Creating aliases using your custom domain
 tips-custom-alias-content = All you need to do is make up and share a unique alias that uses your custom domain — the alias will be generated automatically. Try “shop@customdomain.mozmail.com” next time you shop online, for example.
+
+# This copy (and the term "critical email") is not final yet:
+tips-critical-emails-heading = Critical email forwarding
+# This copy (and the term "critical email") is not final yet:
+tips-critical-emails-content = Relay allows you to receive only critical emails sent to an alias. You’ll receive emails like receipts but not spam or marketing emails.
