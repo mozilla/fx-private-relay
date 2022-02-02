@@ -174,23 +174,20 @@
                 
                 switch (e.target.parentFormHTMLElement.id) {
                     case "domainRegistration":
-                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain,{ "form": "dashboard" });
+                        domainRegistration.modal.showSuccessState({ "form": "dashboard" });
                         break;
                     case "onboardingDomainRegistration":
-                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain, { "form": "onboarding" });
+                        domainRegistration.modal.showSuccessState({ "form": "onboarding" });
                         break;
                 }
                 
             },
-            showSuccessState: (domain, {form})=> {
+            showSuccessState: ({form})=> {
                 const modalRegistrationForm = document.querySelector(".js-domain-registration-form");
                 const modalRegistrationSuccessState = document.querySelector(".js-domain-registration-success");
                 modalRegistrationForm.classList.add("is-hidden");
                 modalRegistrationSuccessState.classList.remove("is-hidden");
 
-                const domainPreview = document.querySelector(".js-premium-onboarding-domain-registration-preview");
-                domainPreview.textContent = domain + ".mozmail.com";
-                
                 const modalContinue = document.querySelector(".js-modal-domain-registration-continue");
 
                 if (form === "onboarding") {
