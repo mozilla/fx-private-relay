@@ -24,8 +24,11 @@ class FxaTokenAuthentication(BaseAuthentication):
         resp = requests.post(verify_token_url,json={'token': token})
         if resp.status_code == 200:
             resp_json = json.loads(resp.content)
-            sa = SocialAccount.objects.get(uid=resp_json.get('user'))
-            # TODO: cache sa.user for as long as access_token is valid
-            return (sa.user, None)
+            try:
+                sa = SocialAccount.objects.get(uid=resp_json.get('user'))
+                # TODO: cache sa.user for as long as access_token is valid
+                return (sa.user, None)
+            except SocialAccount.DoesNotExist:
+                return None
 
         return None
