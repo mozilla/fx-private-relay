@@ -19,6 +19,7 @@ import { UserData } from "../../../hooks/api/user";
 import { renderDate } from "../../../functions/renderDate";
 import { AliasDeletionButton } from "./AliasDeletionButton";
 import { getRuntimeConfig } from "../../../config";
+import { getLocale } from "../../../functions/getLocale";
 
 export type Props = {
   alias: AliasData;
@@ -97,6 +98,11 @@ export const Alias = (props: Props) => {
     backgroundImage = IllustrationLibrary.src;
   }
 
+  const numberFormatter = new Intl.NumberFormat(getLocale(l10n), {
+    notation: "compact",
+    compactDisplay: "short",
+  });
+
   return (
     <div
       className={`${styles.aliasCard} ${
@@ -149,13 +155,17 @@ export const Alias = (props: Props) => {
         </div>
         <div className={styles.aliasStats}>
           <BlockedTooltip>
-            <span className={styles.number}>{props.alias.num_blocked}</span>
+            <span className={styles.number}>
+              {numberFormatter.format(props.alias.num_blocked)}
+            </span>
             <span className={styles.label}>
               {l10n.getString("profile-label-blocked")}
             </span>
           </BlockedTooltip>
           <ForwardedTooltip>
-            <span className={styles.number}>{props.alias.num_forwarded}</span>
+            <span className={styles.number}>
+              {numberFormatter.format(props.alias.num_forwarded)}
+            </span>
             <span className={styles.label}>
               {l10n.getString("profile-label-forwarded")}
             </span>

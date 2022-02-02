@@ -33,6 +33,7 @@ import { SubdomainIndicator } from "../../components/dashboard/subdomain/Subdoma
 import { Tips } from "../../components/dashboard/Tips";
 import { clearCookie, getCookie } from "../../functions/cookies";
 import { toast } from "react-toastify";
+import { getLocale } from "../../functions/getLocale";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -164,6 +165,10 @@ const Profile: NextPage = () => {
       </strong>
     ) : null;
 
+  const numberFormatter = new Intl.NumberFormat(getLocale(l10n), {
+    notation: "compact",
+    compactDisplay: "short",
+  });
   // Non-Premium users have only five aliases, making the stats less insightful,
   // so only show them for Premium users:
   const stats = profile.has_premium ? (
@@ -188,19 +193,25 @@ const Profile: NextPage = () => {
             <dt className={styles.label}>
               {l10n.getString("profile-stat-label-aliases-used")}
             </dt>
-            <dd className={styles.value}>{allAliases.length}</dd>
+            <dd className={styles.value}>
+              {numberFormatter.format(allAliases.length)}
+            </dd>
           </div>
           <div className={styles.stat}>
             <dt className={styles.label}>
               {l10n.getString("profile-stat-label-blocked")}
             </dt>
-            <dd className={styles.value}>{totalBlockedEmails}</dd>
+            <dd className={styles.value}>
+              {numberFormatter.format(totalBlockedEmails)}
+            </dd>
           </div>
           <div className={styles.stat}>
             <dt className={styles.label}>
               {l10n.getString("profile-stat-label-forwarded")}
             </dt>
-            <dd className={styles.value}>{totalForwardedEmails}</dd>
+            <dd className={styles.value}>
+              {numberFormatter.format(totalForwardedEmails)}
+            </dd>
           </div>
         </dl>
       </div>

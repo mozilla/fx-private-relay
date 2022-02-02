@@ -23,6 +23,7 @@ import {
   setMockRuntimeData,
   setMockRuntimeDataOnce,
 } from "../../../__mocks__/hooks/api/runtimeData";
+import { mockGetLocaleModule } from "../../../__mocks__/functions/getLocale";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Profile from "./profile.page";
@@ -34,6 +35,7 @@ jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../functions/renderDate.ts");
+jest.mock("../../functions/getLocale.ts", () => mockGetLocaleModule);
 jest.mock("../../hooks/gaPing.ts");
 
 setMockAliasesData();
