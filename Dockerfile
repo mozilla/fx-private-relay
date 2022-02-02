@@ -27,7 +27,7 @@ COPY static ./static
 WORKDIR /app/frontend
 COPY frontend ./
 RUN npm install
-RUN npm run lint
+RUN npm run lint -- --max-warnings=0
 RUN npm run test
 RUN npm run build
 
