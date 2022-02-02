@@ -187,10 +187,6 @@
                 const modalRegistrationSuccessState = document.querySelector(".js-domain-registration-success");
                 modalRegistrationForm.classList.add("is-hidden");
                 modalRegistrationSuccessState.classList.remove("is-hidden");
-
-                const domainPreview = document.querySelector(".js-premium-onboarding-domain-registration-preview");
-                domainPreview.textContent = domain + ".mozmail.com";
-
                 const modalContinue = document.querySelector(".js-modal-domain-registration-continue");
 
                 if (form === "onboarding") {
