@@ -241,7 +241,7 @@ function addEventListeners() {
     tipsCard.remove();
     const date = new Date();
     date.setTime(date.getTime() + 10000*24*60*60*1000);
-    document.cookie = `tips_${tipsDismissButton.dataset.profileId}_dismissed=true; expires=` + date.toUTCString() + "; path=/";
+    document.cookie = `tips_customAlias_${tipsDismissButton.dataset.profileId}_dismissed=true; expires=` + date.toUTCString() + "; path=/";
   });
 
 
