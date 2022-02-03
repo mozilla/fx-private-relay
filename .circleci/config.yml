@@ -17,7 +17,15 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - setup_remote_docker
+      - setup_remote_docker:
+          # Use a version of Docker that works with Node, see
+          # https://support.circleci.com/hc/en-us/articles/360050934711-Docker-build-fails-with-EPERM-operation-not-permitted-copyfile-when-using-node-14-9-0-or-later-
+          # (apparently version 17.09.0-ce is lower than 1.9.1, but 19.03.13 is not?)
+          # and
+          # https://github.com/nodejs/docker-node#supported-docker-versions
+          # and
+          # https://circleci.com/docs/2.0/building-docker-images/#docker-version
+          version: 20.10.11
 
       - run:
           name: Create a version.json
