@@ -165,6 +165,10 @@ a.fx-bento-app-link {
     background-position-x: -18px;
 }
 
+.fx-bento-app-link-span.fx-vpn::before {
+    background-position-x: -162px;
+}
+
 .fx-bento-app-link-span.fx-monitor::before {
     background-position-x: -88px;
 }
@@ -359,6 +363,10 @@ body.hide-bento firefox-apps > button {
 
     .fx-bento-app-link-span.pocket::before {
         background-position-x: -26px;
+    }
+
+    .fx-bento-app-link-span.fx-vpn::before {
+        background-position-x: -243px;
     }
 
     .fx-bento-app-link-span.fx-monitor::before {

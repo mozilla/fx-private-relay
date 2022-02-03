@@ -2,10 +2,11 @@
 
 function getFxAppLinkInfo(localizedBentoStrings, referringSiteURL) {
   return [
-    [localizedBentoStrings.fxMonitor, "https://monitor.firefox.com/", "fx-monitor"],
+    [localizedBentoStrings.fxMonitor, "https://monitor.firefox.com/?utm_source=${referringSiteURL}&amp;utm_medium=referral&amp;utm_campaign=bento&amp;utm_content=desktop", "fx-monitor"],
     [localizedBentoStrings.fxPocket, "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447", "pocket"],
     [localizedBentoStrings.fxDesktop, `https://www.mozilla.org/firefox/new/?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`, "fx-desktop"],
     [localizedBentoStrings.fxMobile, `http://mozilla.org/firefox/mobile?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`, "fx-mobile"],
+    [localizedBentoStrings.fxVpn, "https://www.mozilla.org/products/vpn?utm_source=${referringSiteURL}&utm_medium=referral&utm_campaign=bento&utm_content=desktop/", "fx-vpn"],
   ];
 }
 
@@ -32,6 +33,7 @@ async function getlocalizedBentoStrings() {
       "fxMobile":"Firefox Browser for Mobile",
       "fxMonitor":"Firefox Monitor",
       "fxPocket":"Pocket",
+      "fxVpn":"Mozilla VPN",
       "bentoButtonCloseLabel":"Close menu",
     };
   }
@@ -48,6 +50,7 @@ async function getlocalizedBentoStrings() {
     "fxMobile",
     "fxMonitor",
     "fxPocket",
+    "fxVpn",
     "bentoButtonCloseLabel",
   ]
 
