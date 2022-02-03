@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from functools import lru_cache
 
 from django.conf import settings
 
+from ..emails.models import Profile
 from .templatetags.relay_tags import premium_plan_price
 from .utils import get_premium_countries_info_from_request
 
@@ -19,43 +20,15 @@ def common(request):
         get_premium_countries_info_from_request(request)
     )
 
-    profile = request.user.profile_set.first()
-    first_visit = request.COOKIES.get("first_visit")
-    reason_to_show_csat_survey = None
-    csat_dismissal_cookie = ""
-    if (not request.user.is_anonymous and profile.has_premium and profile.date_subscribed):
-        days_since_subscription = (datetime.now(timezone.utc) - profile.date_subscribed).days
-        if (days_since_subscription >= 3 * 30):
-            csat_dismissal_cookie = f'csat-survey-premium-3month_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium3month"
-        elif (days_since_subscription >= 30):
-            csat_dismissal_cookie = f'csat-survey-premium-1month_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium1month"
-        elif (days_since_subscription >= 7):
-            csat_dismissal_cookie = f'csat-survey-premium-1week_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium1week"
-    elif (not request.user.is_anonymous and not profile.has_premium and first_visit):
-        days_since_first_visit = (datetime.now(timezone.utc) - first_visit).days
-        if (days_since_first_visit >= 3 * 30):
-            csat_dismissal_cookie = f'csat-survey-free-3month_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free3month"
-        elif (days_since_first_visit >= 30):
-            csat_dismissal_cookie = f'csat-survey-free-1month_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free1month"
-        elif (days_since_first_visit >= 7):
-            csat_dismissal_cookie = f'csat-survey-free-1week_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free1week"
+    csat_dismissal_cookie, csat_reason = _get_csat_cookie_and_reason(request)
 
     lang = accept_language.split(',')[0]
     lang_parts = lang.split("-") if lang and "-" in lang else [lang]
     lang = lang_parts[0].lower()
-    show_csat = (reason_to_show_csat_survey is not None and (lang == 'en' or lang == 'fr' or lang == 'de'))
+    show_csat = (
+        csat_reason is not None and
+        (lang == 'en' or lang == 'fr' or lang == 'de')
+    )
 
     common_vars = {
         'avatar': avatar,
@@ -77,3 +50,44 @@ def _get_fxa(request):
         return fxa
     except AttributeError:
         return None
+
+
+@lru_cache(maxsize=None)
+def _get_csat_cookie_and_reason(request):
+    if request.user.is_anonymous:
+        return '', None
+
+    day_periods = [7, 30, 90]
+    profile = request.user.profile_set.first()
+    first_visit = request.COOKIES.get("first_visit")
+    reasons = ['free', 'premium']
+    days_since_args = {
+        'free': first_visit,
+        'premium': profile,
+    }
+
+    for reason in reasons:
+        days_since = _get_days_since(days_since_args[reason])
+        if reason == 'premium' and days_since == None:
+            return '', None
+        for num_days in day_periods:
+            if (days_since >= num_days):
+                csat_dismissal_cookie = (
+                    f'csat-survey-{reason}-{num_days}days_dismissed'
+                )
+                if (request.COOKIES.get(csat_dismissal_cookie)):
+                    return csat_dismissal_cookie, None
+                return csat_dismissal_cookie, f'{reason}{num_days}days'
+
+    return '', None
+
+
+def _get_days_since(days_since_arg):
+    now = datetime.now(timezone.utc)
+    if type(days_since_arg == Profile):
+        profile = days_since_arg
+        if not profile.has_premium or not profile.date_subscribed:
+            return None
+        return (now - profile.date_subscribed).days
+    first_visit = days_since_arg
+    return (now - first_visit).days
