@@ -110,7 +110,6 @@
     form {
       display: flex;
       flex-direction: column;
-      width: 80%;
       margin: 0 auto;
 
       @media screen and #{$mq-md} {
@@ -118,6 +117,7 @@
         justify-content: space-between;
         align-items: center;
         margin: 0;
+        width: 80%;
       }
 
       input {
