@@ -23,7 +23,7 @@ function MyApp({ Component, pageProps }: AppProps) {
     }
     ReactGa.initialize(getRuntimeConfig().googleAnalyticsId, {
       titleCase: false,
-      debug: getRuntimeConfig().environment === "development",
+      debug: process.env.NEXT_PUBLIC_DEBUG === "true",
     });
     ReactGa.set({
       anonymizeIp: true,
