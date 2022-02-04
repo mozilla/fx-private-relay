@@ -127,3 +127,16 @@
     color: $color-purple-90;
   }
 }
+
+.addonSigninTip {
+  @include text-body-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  h3 {
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    color: $color-purple-90;
+  }
+}

@@ -23,7 +23,9 @@ export const Tips = (props: Props) => {
     criticalEmails: useLocalDismissal(
       `tips_criticalEmails_${props.profile.id}`
     ),
+    addonSignin: useLocalDismissal(`tips_addonSignin_${props.profile.id}`),
   };
+  dismissals.customAlias.isDismissed;
 
   const tips: Record<Key, ReactNode> = {};
 
@@ -43,6 +45,13 @@ export const Tips = (props: Props) => {
     !dismissals.criticalEmails.isDismissed
   ) {
     tips.criticalEmails = <CriticalEmailsTip />;
+  }
+
+  if (
+    getRuntimeConfig().featureFlags.addonSigninTip === true &&
+    !dismissals.addonSignin.isDismissed
+  ) {
+    tips.addonSignin = <AddonSigninTip />;
   }
 
   if (Object.keys(tips).length === 0) {
@@ -131,6 +140,18 @@ const CriticalEmailsTip = () => {
     <div className={styles.criticalEmailsTip}>
       <h3>{l10n.getString("tips-critical-emails-heading")}</h3>
       <p>{l10n.getString("tips-critical-emails-content")}</p>
+    </div>
+  );
+};
+
+// Note: Content of this tip is not yet final, and an animation will be added:
+const AddonSigninTip = () => {
+  const { l10n } = useLocalization();
+
+  return (
+    <div className={styles.addonSignin}>
+      <h3>{l10n.getString("tips-addon-signin-heading")}</h3>
+      <p>{l10n.getString("tips-addon-signin-content")}</p>
     </div>
   );
 };
