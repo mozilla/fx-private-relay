@@ -5,7 +5,7 @@ export function parseDate(iso8601DateString: DateString): Date {
   // Our back-end generates full ISO 8601 date strings, which we should be able
   // to parse consistently:
   // > Support for ISO 8601 formats differs in that date-only strings
-  // > (e.g. "1970-01-01") are treated as UTC, not local. 
+  // > (e.g. "1970-01-01") are treated as UTC, not local.
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/Date#parameters
   // (though if Temporal ever gets accepted by TC39, we should switch to that):
   return new Date(iso8601DateString);

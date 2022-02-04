@@ -13,7 +13,9 @@ const Faq: NextPage = () => {
       <main>
         <div className={styles.faqPage}>
           <div className={styles.faqsWrapper}>
-            <h1 className={styles.headline}>{l10n.getString("faq-headline")}</h1>
+            <h1 className={styles.headline}>
+              {l10n.getString("faq-headline")}
+            </h1>
             <div className={styles.faqs}>
               <QAndA
                 id="faq-what-is"
@@ -23,7 +25,9 @@ const Faq: NextPage = () => {
               </QAndA>
               <QAndA
                 id="faq-missing-emails"
-                question={l10n.getString("faq-question-missing-emails-question")}
+                question={l10n.getString(
+                  "faq-question-missing-emails-question"
+                )}
               >
                 <p>{l10n.getString("faq-question-missing-emails-answer-a")}</p>
                 <ul>
@@ -141,12 +145,16 @@ const Faq: NextPage = () => {
                 )}
               >
                 <p>
-                  {l10n.getString("faq-question-subdomain-characters-answer-v2")}
+                  {l10n.getString(
+                    "faq-question-subdomain-characters-answer-v2"
+                  )}
                 </p>
               </QAndA>
               <QAndA
                 id="faq-browser-support"
-                question={l10n.getString("faq-question-browser-support-question")}
+                question={l10n.getString(
+                  "faq-question-browser-support-question"
+                )}
               >
                 <p>{l10n.getString("faq-question-browser-support-answer")}</p>
               </QAndA>
@@ -179,7 +187,9 @@ const Faq: NextPage = () => {
                   "faq-question-unsubscribe-domain-question"
                 )}
               >
-                <p>{l10n.getString("faq-question-unsubscribe-domain-answer")}</p>
+                <p>
+                  {l10n.getString("faq-question-unsubscribe-domain-answer")}
+                </p>
               </QAndA>
               <QAndA
                 id="faq-data-collection"

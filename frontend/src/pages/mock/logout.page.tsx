@@ -35,8 +35,8 @@ const MockLogout: NextPage = () => {
         This page mocks logging out to be able to run a separate development
         server for the front-end. To use a production-like login/logout
         procedure, create a production build of the front-end using{" "}
-        <code>npm run watch</code>. This will then be served by the
-        back-end at &nbsp;<samp>{getRuntimeConfig().backendOrigin}</samp>.
+        <code>npm run watch</code>. This will then be served by the back-end at
+        &nbsp;<samp>{getRuntimeConfig().backendOrigin}</samp>.
       </p>
       <button onClick={onLogout}>Logout</button>
     </div>
