@@ -155,6 +155,22 @@ function analyticsSurveyLogic() {
       "Very Satisfied": "https://survey.alchemer.com/s3/6665054/a957749b3de6",
     },
   };
+
+  function getNumericValueOfSatisfaction(satisfaction) {
+    switch (satisfaction) {
+      case "Very Dissatisfied":
+        return 1;
+      case "Dissatisfied":
+        return 2;
+      case "Neutral":
+        return 3;
+      case "Satisfied":
+        return 4;
+      case "Very Satisfied":
+        return 5;
+    }
+  }
+
   const setCsatCookie = () => {
     const dismissCookieId = csatWrapperEl?.dataset.cookieId ?? "";
     const expiresIn = dismissCookieId.indexOf("90days") !== -1
@@ -168,7 +184,14 @@ function analyticsSurveyLogic() {
   };
   csatAnswerEls.forEach(answerElement => {
     answerElement.addEventListener("click", (event) => {
-      ga("send", "event", "CSAT Survey", "submitted", event.target.dataset.satisfaction);
+      ga(
+        "send",
+        "event",
+        "CSAT Survey",
+        "submitted",
+        event.target.dataset.satisfaction,
+        getNumericValueOfSatisfaction(event.target.dataset.satisfaction),
+      );
       csatFollowupLinkEl.href = surveyLinks[csatWrapperEl.dataset.hasPremium === "True" ? "premium" : "free"][event.target.dataset.satisfaction];
       csatQuestionEl.classList.add("is-hidden");
       csatFollowupEl.classList.remove("is-hidden");
