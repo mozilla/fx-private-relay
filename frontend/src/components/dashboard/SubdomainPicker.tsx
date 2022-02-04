@@ -14,6 +14,9 @@ export type Props = {
   onCreate: (subdomain: string) => void;
 };
 
+/**
+ * Allows the user to search for available subdomains, and pops up a modal to claim it if available.
+ */
 export const SubdomainPicker = (props: Props) => {
   const { l10n } = useLocalization();
   const [chosenSubdomain, setChosenSubdomain] = useState("");

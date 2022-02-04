@@ -24,6 +24,9 @@ export type Props = {
   onConfirm: () => void;
 };
 
+/**
+ * Modal in which the user can confirm that they really want to permanently claim a given subdomain.
+ */
 export const SubdomainConfirmationModal = (props: Props) => {
   const { l10n } = useLocalization();
 

@@ -28,6 +28,10 @@ export type Props = {
   subdomain: string;
 };
 
+/**
+ * Modal in which the user can create a new custom alias,
+ * while also being educated on why they don't need to do that.
+ */
 export const AddressPickerModal = (props: Props) => {
   const { l10n } = useLocalization();
   const [address, setAddress] = useState("");

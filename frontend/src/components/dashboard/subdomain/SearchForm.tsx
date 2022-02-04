@@ -9,6 +9,9 @@ export type Props = {
   onPick: (_subdomain: string) => void;
 };
 
+/**
+ * Form with which the user can check whether a given subdomain is still available for them to claim.
+ */
 export const SubdomainSearchForm = (props: Props) => {
   const { l10n } = useLocalization();
   const [subdomainInput, setSubdomainInput] = useState("");

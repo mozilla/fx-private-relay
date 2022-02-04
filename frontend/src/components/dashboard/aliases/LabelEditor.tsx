@@ -13,6 +13,9 @@ export type Props = {
   onSubmit: (newLabel: string) => void;
 };
 
+/**
+ * Input field that allows the user to update the label of an alias.
+ */
 export const LabelEditor = (props: Props) => {
   const { l10n } = useLocalization();
   const [inputValue, setInputValue] = useState(props.label);

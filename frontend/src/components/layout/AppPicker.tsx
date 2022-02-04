@@ -72,6 +72,9 @@ const getProducts = (referringSiteUrl: string) => ({
   },
 });
 
+/**
+ * Menu that can be opened to see other relevant products Mozilla has available for people.
+ */
 export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
   const { l10n } = useLocalization();
 

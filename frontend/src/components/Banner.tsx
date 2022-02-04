@@ -18,6 +18,9 @@ export type BannerProps = {
     onClick?: () => void;
     gaPing?: Parameters<typeof useGaPing>[0];
   };
+  /**
+   * See {@link useLocalDismissal}; determines whether and for how long the user can dismiss this banner.
+   */
   dismissal?: {
     key: string;
     duration?: number;
@@ -25,6 +28,11 @@ export type BannerProps = {
   hiddenWithAddon?: boolean;
 };
 
+/**
+ * Standard layouts for banners we can show to the user.
+ *
+ * See {@link BannerProps["type"]} for the different types of banner themes supported.
+ */
 export const Banner = (props: BannerProps) => {
   const ctaRef = useGaPing(props.cta?.gaPing ?? null);
   const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", {

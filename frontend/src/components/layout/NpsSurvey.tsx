@@ -7,6 +7,11 @@ import { useLocalization } from "@fluent/react";
 import { useProfiles } from "../../hooks/api/profile";
 import { CloseIcon } from "../icons/close";
 
+/**
+ * Quickly survey the user for input to our Net Promotor Score.
+ *
+ * @deprecated We'll replace this with {@link CsatSurvey}.
+ */
 export const NpsSurvey = () => {
   const profileData = useProfiles();
   const dismissal = useLocalDismissal(

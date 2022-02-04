@@ -1,5 +1,8 @@
 import { RuntimeData } from "../hooks/api/runtimeData";
 
+/**
+ * Given {@link RuntimeDataWithPremiumAvailable}, selects the plan that is available to the current user.
+ */
 export const getPlan = (runtimeData: RuntimeDataWithPremiumAvailable) => {
   const languageCode = navigator.language.split("-")[0].toLowerCase();
   const countryPlans =
@@ -12,6 +15,9 @@ export const getPlan = (runtimeData: RuntimeDataWithPremiumAvailable) => {
   return plan;
 };
 
+/**
+ * Given {@link RuntimeDataWithPremiumAvailable}, returns the URL the user should visit to purchase Premium.
+ */
 export const getPremiumSubscribeLink = (
   runtimeData: RuntimeDataWithPremiumAvailable
 ) => {
@@ -21,10 +27,10 @@ export const getPremiumSubscribeLink = (
 };
 
 /**
- * This type ensures that [[getPlan]] and [[getPremiumSubscribeLink]] are not called
+ * This type ensures that {@link getPlan} and {@link getPremiumSubscribeLink} are not called
  * unless we can count on a plan being available for them to return
  * (i.e. after that's been checked with our user-defined type guard
- * [isPremiumAvailableInCountry]).
+ * {@link isPremiumAvailableInCountry}).
  */
 export type RuntimeDataWithPremiumAvailable = RuntimeData & {
   PREMIUM_PLANS: RuntimeData["PREMIUM_PLANS"] & {

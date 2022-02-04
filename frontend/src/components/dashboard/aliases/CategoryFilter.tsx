@@ -32,6 +32,9 @@ export type Props = {
   onChange: (selected: SelectedFilters) => void;
 };
 
+/**
+ * Menu to select alias filters to apply, based on properties like being random or custom, or enabled or disabled.
+ */
 export const CategoryFilter = (props: Props) => {
   const { l10n } = useLocalization();
   const menuState = useOverlayTriggerState({});

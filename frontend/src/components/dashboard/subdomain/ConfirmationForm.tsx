@@ -10,6 +10,11 @@ export type Props = {
   onCancel: () => void;
 };
 
+/**
+ * Form to ask the user whether they're sure about their chosen domain, because it's permanent.
+ *
+ * Primarily used in {@link ConfirmationModal}.
+ */
 export const SubdomainConfirmationForm = (props: Props) => {
   const { l10n } = useLocalization();
   const [confirmCheckbox, setConfirmCheckbox] = useState(false);

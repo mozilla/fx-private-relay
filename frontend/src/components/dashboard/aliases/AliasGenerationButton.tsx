@@ -47,6 +47,14 @@ export type Props = {
   ) => void;
 };
 
+/**
+ * A button to initiate the different flows for creating an alias.
+ *
+ * Usually, this will be a simple button to generate a new random alias,
+ * but it adapts to the situation to e.g. prompt the user to upgrade to Premium
+ * when they run out of aliases, or to allow generating a custom alias if the
+ * user is able to.
+ */
 export const AliasGenerationButton = (props: Props) => {
   const { l10n } = useLocalization();
   const getUnlimitedButtonRef = useGaPing({

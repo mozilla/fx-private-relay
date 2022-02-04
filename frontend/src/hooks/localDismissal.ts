@@ -20,7 +20,7 @@ export type DismissalOptions = {
  * This can be used to store a cookie to remember that something was dismissed.
  *
  * @param key Key to identity the item-to-be-dismissed with (i.e. to use in the cookie name). Tip: incorporate the user's ID to make a dismissal user-specific.
- * @param options See {@see DismissalOptions}.
+ * @param options See {@link DismissalOptions}.
  * @returns Whether the item has been dismissed yet, and a function to call to dismiss the item.
  */
 export function useLocalDismissal(

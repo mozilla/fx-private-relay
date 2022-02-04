@@ -30,6 +30,9 @@ export type Props = {
   theme?: "free" | "premium";
 };
 
+/**
+ * Standard page layout for Relay, wrapping its children in the relevant header and footer.
+ */
 export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();

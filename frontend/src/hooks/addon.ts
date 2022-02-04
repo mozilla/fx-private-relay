@@ -104,14 +104,14 @@ const parseAddonData = (addonElement: HTMLElement): AddonData => {
  * Hook to keep track of the actual attributes of the <firefox-private-relay-addon> element in the DOM.
  *
  * Note: if you need a component to know whether the add-on is installed, use
- * {@see useAddonData}.
+ * {@link useAddonData}.
  *
  * Our add-on looks for that element on the page and manipulates its attributes
  * (e.g. it sets `data-atton-installed="true"`). This hook keeps track of those
  * changes and returns the current data, which can then be used to 1) ensure the
  * props in the virtual DOM are aligned with the attributes in the real one, and
- * 2) pass those values to the {@see AddonDataContext} provider so that other
- * components can have access to it using {@see useAddonData}.
+ * 2) pass those values to the {@link AddonDataContext} provider so that other
+ * components can have access to it using {@link useAddonData}.
  *
  * @param addonElementRef React Ref to the custom element that the add-on looks at (i.e. <firefox-private-relay-addon>).
  * @returns The data that should be set as the element's props, to ensure they're aligned with its in-DOM attributes.

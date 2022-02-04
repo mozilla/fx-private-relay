@@ -34,6 +34,9 @@ import { getRuntimeConfig } from "../../config";
 import { getCsrfToken } from "../../functions/cookies";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 
+/**
+ * Display the user's avatar, which can open a menu allowing the user to log out or go to their settings page.
+ */
 export const UserMenu = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();

@@ -11,6 +11,9 @@ export type Props = {
   variant?: "normal" | "destructive";
 };
 
+/**
+ * Standard consistent styles for primary buttons.
+ */
 export const Button = forwardRef<
   HTMLButtonElement,
   Props & ButtonHTMLAttributes<HTMLButtonElement>
@@ -27,6 +30,9 @@ export const Button = forwardRef<
 });
 Button.displayName = "Button";
 
+/**
+ * Like {@link Button}, but for links (`<a>`).
+ */
 export const LinkButton = forwardRef<
   HTMLAnchorElement,
   Props & AnchorHTMLAttributes<HTMLAnchorElement>

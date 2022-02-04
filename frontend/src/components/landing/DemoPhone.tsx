@@ -12,6 +12,9 @@ export type Props = {
   premium?: boolean;
 };
 
+/**
+ * Image of a phone showing the Relay interface, either the Premium or regular UI as desired.
+ */
 export const DemoPhone = (props: Props) => {
   const { l10n } = useLocalization();
   const lang = getLocale(l10n).split("-")[0] ?? "en";

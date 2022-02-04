@@ -7,6 +7,11 @@ export type Filters = {
   status?: "forwarding" | "blocking";
 };
 
+/**
+ * Given a set of filters, only returns the aliases that match.
+ *
+ * @see CategoryFilter
+ */
 export const filterAliases = (
   aliases: AliasData[],
   profile: ProfileData,
