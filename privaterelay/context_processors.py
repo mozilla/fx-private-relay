@@ -26,31 +26,31 @@ def common(request):
     if (not request.user.is_anonymous and profile.has_premium and profile.date_subscribed):
         days_since_subscription = (datetime.now(timezone.utc) - profile.date_subscribed).days
         if (days_since_subscription >= 3 * 30):
-            csat_dismissal_cookie = f'csat-survey-premium-3month_{profile.id}_dismissed'
+            csat_dismissal_cookie = f'csat-survey-premium-90days_{profile.id}_dismissed'
             if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium3month"
+                reason_to_show_csat_survey = "premium90days"
         elif (days_since_subscription >= 30):
-            csat_dismissal_cookie = f'csat-survey-premium-1month_{profile.id}_dismissed'
+            csat_dismissal_cookie = f'csat-survey-premium-30days_{profile.id}_dismissed'
             if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium1month"
+                reason_to_show_csat_survey = "premium30days"
         elif (days_since_subscription >= 7):
-            csat_dismissal_cookie = f'csat-survey-premium-1week_{profile.id}_dismissed'
+            csat_dismissal_cookie = f'csat-survey-premium-7days_{profile.id}_dismissed'
             if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium1week"
+                reason_to_show_csat_survey = "premium7days"
     elif (not request.user.is_anonymous and not profile.has_premium and first_visit):
         days_since_first_visit = (datetime.now(timezone.utc) - first_visit).days
         if (days_since_first_visit >= 3 * 30):
-            csat_dismissal_cookie = f'csat-survey-free-3month_{profile.id}_dismissed'
+            csat_dismissal_cookie = f'csat-survey-free-90days_{profile.id}_dismissed'
             if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free3month"
+                reason_to_show_csat_survey = "free90days"
         elif (days_since_first_visit >= 30):
-            csat_dismissal_cookie = f'csat-survey-free-1month_{profile.id}_dismissed'
+            csat_dismissal_cookie = f'csat-survey-free-30days_{profile.id}_dismissed'
             if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free1month"
+                reason_to_show_csat_survey = "free30days"
         elif (days_since_first_visit >= 7):
-            csat_dismissal_cookie = f'csat-survey-free-1week_{profile.id}_dismissed'
+            csat_dismissal_cookie = f'csat-survey-free-7days_{profile.id}_dismissed'
             if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free1week"
+                reason_to_show_csat_survey = "free7days"
 
     lang = accept_language.split(',')[0]
     lang_parts = lang.split("-") if lang and "-" in lang else [lang]
