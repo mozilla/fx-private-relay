@@ -22,6 +22,9 @@ export type ProfileUpdateFn = (
   data: Partial<ProfileData>
 ) => Promise<Response>;
 
+/**
+ * Fetch the user's profile data from our API using [SWR](https://swr.vercel.app).
+ */
 export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
   update: ProfileUpdateFn;
 } {

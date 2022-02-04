@@ -36,6 +36,9 @@ const surveyLinks: Record<"free" | "premium", SurveyLinks> = {
 type Props = {
   profile: ProfileData;
 };
+/**
+ * Quickly survey the user about their satisfaction with Relay, and invite them to share more information.
+ */
 export const CsatSurvey = (props: Props) => {
   const free7DaysDismissal = useLocalDismissal(
     "csat-survey-free-7days_" + props.profile.id

@@ -10,6 +10,9 @@ export type Props = {
   onCreate: () => void;
 };
 
+/**
+ * Shows the user instructions on how to use Relay if they don't have aliases yet.
+ */
 export const Onboarding = (props: Props) => {
   const { l10n } = useLocalization();
 

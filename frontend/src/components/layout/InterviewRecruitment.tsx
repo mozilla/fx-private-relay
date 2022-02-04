@@ -13,6 +13,9 @@ export type Props = {
   profile?: ProfileData;
 };
 
+/**
+ * Ask people whether they're be interested in discussing their experience in using Relay.
+ */
 export const InterviewRecruitment = (props: Props) => {
   const recruitmentLink =
     "https://survey.alchemer.com/s3/6678255/Firefox-Relay-Research-Study";

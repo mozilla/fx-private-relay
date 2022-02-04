@@ -2,6 +2,9 @@ import { ReactLocalization } from "@fluent/react";
 import { getLocale } from "./getLocale";
 import { parseDate } from "./parseDate";
 
+/**
+ * Make sure that when we render a date, we do so consistently across the website.
+ */
 export const renderDate = (
   iso8601DateString: string,
   l10n: ReactLocalization

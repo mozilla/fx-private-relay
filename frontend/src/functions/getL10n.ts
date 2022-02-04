@@ -2,7 +2,10 @@ import { FluentBundle, FluentResource } from "@fluent/bundle";
 import { negotiateLanguages } from "@fluent/langneg";
 import { MarkupParser, ReactLocalization } from "@fluent/react";
 
-// TODO: Get the relevant .ftl injected by the server:
+/**
+ * @returns Initialise `@fluent/react`.
+ * @todo Get the relevant .ftl injected by the server.
+ */
 export function getL10n() {
   // Store all translations as a simple object which is available
   // synchronously and bundled with the rest of the code.

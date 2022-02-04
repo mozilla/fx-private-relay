@@ -27,6 +27,9 @@ export type Props = {
   onCreateAlias: (address: string) => void;
 };
 
+/**
+ * Shows the user whichc subdomain they've chosen, and can show them more info on how to use it.
+ */
 export const SubdomainIndicator = (props: Props) => {
   if (props.subdomain === null) {
     return null;

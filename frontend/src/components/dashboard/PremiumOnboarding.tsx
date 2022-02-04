@@ -22,6 +22,9 @@ export type Props = {
   onPickSubdomain: (subdomain: string) => void;
 };
 
+/**
+ * Shows the user how to take advantage of Premium features when they've just upgraded.
+ */
 export const PremiumOnboarding = (props: Props) => {
   const { l10n } = useLocalization();
   const getStartedButtonRef = useGaPing({

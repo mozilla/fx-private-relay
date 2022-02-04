@@ -24,6 +24,9 @@ export type Props = {
   onDelete: (alias: AliasData) => void;
 };
 
+/**
+ * Display a list of <Alias> cards, with the ability to filter them or create a new alias.
+ */
 export const AliasList = (props: Props) => {
   const { l10n } = useLocalization();
   const [stringFilterInput, setStringFilterInput] = useState("");

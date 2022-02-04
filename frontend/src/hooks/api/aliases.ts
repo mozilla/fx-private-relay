@@ -48,6 +48,9 @@ type WithDeleter = {
   delete: AliasDeleteFn;
 };
 
+/**
+ * Fetch aliases (both random and custom) from our API using [SWR](https://swr.vercel.app).
+ */
 export function useAliases(): {
   randomAliasData: SWRResponse<RandomAliasData[], unknown> &
     WithRandomAliasCreater &

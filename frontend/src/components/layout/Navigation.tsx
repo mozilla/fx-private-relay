@@ -7,6 +7,7 @@ import { useIsLoggedIn } from "../../hooks/session";
 import { getRuntimeConfig } from "../../config";
 import { useGaPing } from "../../hooks/gaPing";
 
+/** Switch between the different pages of the Relay website. */
 export const Navigation = () => {
   const { l10n } = useLocalization();
   const router = useRouter();

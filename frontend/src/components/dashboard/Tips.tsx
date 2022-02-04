@@ -16,6 +16,9 @@ export type Props = {
   customAliases: CustomAliasData[];
 };
 
+/**
+ * Panel to be used on the bottom of the page, displaying tips relevant to the user.
+ */
 export const Tips = (props: Props) => {
   const { l10n } = useLocalization();
   const dismissals = {
