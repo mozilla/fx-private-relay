@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from functools import lru_cache
 
 from django.conf import settings
@@ -19,43 +19,14 @@ def common(request):
         get_premium_countries_info_from_request(request)
     )
 
-    profile = request.user.profile_set.first()
-    first_visit = request.COOKIES.get("first_visit")
-    reason_to_show_csat_survey = None
-    csat_dismissal_cookie = ""
-    if (not request.user.is_anonymous and profile.has_premium and profile.date_subscribed):
-        days_since_subscription = (datetime.now(timezone.utc) - profile.date_subscribed).days
-        if (days_since_subscription >= 3 * 30):
-            csat_dismissal_cookie = f'csat-survey-premium-90days_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium90days"
-        elif (days_since_subscription >= 30):
-            csat_dismissal_cookie = f'csat-survey-premium-30days_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium30days"
-        elif (days_since_subscription >= 7):
-            csat_dismissal_cookie = f'csat-survey-premium-7days_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "premium7days"
-    elif (not request.user.is_anonymous and not profile.has_premium and first_visit):
-        days_since_first_visit = (datetime.now(timezone.utc) - first_visit).days
-        if (days_since_first_visit >= 3 * 30):
-            csat_dismissal_cookie = f'csat-survey-free-90days_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free90days"
-        elif (days_since_first_visit >= 30):
-            csat_dismissal_cookie = f'csat-survey-free-30days_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free30days"
-        elif (days_since_first_visit >= 7):
-            csat_dismissal_cookie = f'csat-survey-free-7days_{profile.id}_dismissed'
-            if (not request.COOKIES.get(csat_dismissal_cookie)):
-                reason_to_show_csat_survey = "free7days"
-
+    csat_dismissal_cookie, reason_to_show_csat_survey = _get_csat_cookie_and_reason(request)
     lang = accept_language.split(',')[0]
     lang_parts = lang.split("-") if lang and "-" in lang else [lang]
     lang = lang_parts[0].lower()
-    show_csat = (reason_to_show_csat_survey is not None and (lang == 'en' or lang == 'fr' or lang == 'de'))
+    show_csat = (
+        reason_to_show_csat_survey is not None and
+        (lang == 'en' or lang == 'fr' or lang == 'de')
+    )
 
     common_vars = {
         'avatar': avatar,
@@ -77,3 +48,43 @@ def _get_fxa(request):
         return fxa
     except AttributeError:
         return None
+
+@lru_cache(maxsize=None)
+def _get_csat_cookie_and_reason(request):
+    if not request.user.is_authenticated:
+        return None, None
+    profile = request.user.profile_set.first()
+    first_visit = request.COOKIES.get("first_visit")
+
+    reason_to_show_csat_survey = None
+    csat_dismissal_cookie = ""
+    if (profile.has_premium and profile.date_subscribed):
+        days_since_subscription = (datetime.now(timezone.utc) - profile.date_subscribed).days
+        if (days_since_subscription >= 3 * 30):
+            csat_dismissal_cookie = f'csat-survey-premium-90days_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "premium90days"
+        elif (days_since_subscription >= 30):
+            csat_dismissal_cookie = f'csat-survey-premium-30days_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "premium30days"
+        elif (days_since_subscription >= 7):
+            csat_dismissal_cookie = f'csat-survey-premium-7days_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "premium7days"
+    elif (not profile.has_premium and first_visit):
+        days_since_first_visit = (datetime.now(timezone.utc) - datetime.fromisoformat(first_visit)).days
+        if (days_since_first_visit >= 3 * 30):
+            csat_dismissal_cookie = f'csat-survey-free-90days_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "free90days"
+        elif (days_since_first_visit >= 30):
+            csat_dismissal_cookie = f'csat-survey-free-30days_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "free30days"
+        elif (days_since_first_visit >= 7):
+            csat_dismissal_cookie = f'csat-survey-free-7days_{profile.id}_dismissed'
+            if (not request.COOKIES.get(csat_dismissal_cookie)):
+                reason_to_show_csat_survey = "free7days"
+
+    return csat_dismissal_cookie, reason_to_show_csat_survey
