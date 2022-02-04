@@ -3,7 +3,7 @@ import { getCookie, setCookie } from "../functions/cookies";
 
 export type DismissOptions = {
   /** If true, the dismissal won't take effect right away, but the cookie to store the dismissal _will_ be set. */
-  soft?: boolean,
+  soft?: boolean;
 };
 
 export type DismissalData = {

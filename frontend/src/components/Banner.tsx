@@ -21,14 +21,16 @@ export type BannerProps = {
   dismissal?: {
     key: string;
     duration?: number;
-  },
+  };
   hiddenWithAddon?: boolean;
 };
 
 export const Banner = (props: BannerProps) => {
   const ctaRef = useGaPing(props.cta?.gaPing ?? null);
-  const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", { duration: props.dismissal?.duration });
-  const {l10n} = useLocalization();
+  const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", {
+    duration: props.dismissal?.duration,
+  });
+  const { l10n } = useLocalization();
   const type = props.type ?? "warning";
   const icon =
     props.type === "warning" ? (
@@ -60,11 +62,16 @@ export const Banner = (props: BannerProps) => {
     </div>
   ) : null;
 
-  const dismissButton = typeof props.dismissal !== "undefined"
-    ? <button className={styles.dismissButton} onClick={() => dismissal.dismiss()} title={l10n.getString("banner-dismiss")}>
-      <CloseIcon alt={l10n.getString("banner-dismiss")}/>
-    </button>
-    : null;
+  const dismissButton =
+    typeof props.dismissal !== "undefined" ? (
+      <button
+        className={styles.dismissButton}
+        onClick={() => dismissal.dismiss()}
+        title={l10n.getString("banner-dismiss")}
+      >
+        <CloseIcon alt={l10n.getString("banner-dismiss")} />
+      </button>
+    ) : null;
 
   return (
     // The add-on will hide anything with the class `is-hidden-with-addon`

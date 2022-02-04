@@ -115,7 +115,11 @@ export const NpsSurvey = () => {
           {l10n.getString("survey-option-very-likely")}
         </span>
       </div>
-      <button className={styles.dismissButton} onClick={() => dismissal.dismiss()} title={l10n.getString("survey-option-dismiss")}>
+      <button
+        className={styles.dismissButton}
+        onClick={() => dismissal.dismiss()}
+        title={l10n.getString("survey-option-dismiss")}
+      >
         <CloseIcon alt={l10n.getString("survey-option-dismiss")} />
       </button>
     </aside>

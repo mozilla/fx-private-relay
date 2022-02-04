@@ -35,10 +35,7 @@ export const DemoPhone = (props: Props) => {
   return (
     <div className={styles.container}>
       <img src={BgImage.src} alt="" className={styles.background} />
-      <img
-        src={screenshot}
-        alt=""
-      />
+      <img src={screenshot} alt="" />
       <img src={FgImage.src} alt="" className={styles.foreground} />
     </div>
   );

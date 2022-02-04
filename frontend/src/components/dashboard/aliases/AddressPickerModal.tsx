@@ -1,4 +1,10 @@
-import { FormEventHandler, ReactElement, ReactNode, useRef, useState } from "react";
+import {
+  FormEventHandler,
+  ReactElement,
+  ReactNode,
+  useRef,
+  useState,
+} from "react";
 import { useLocalization } from "@fluent/react";
 import {
   OverlayContainer,
@@ -47,10 +53,10 @@ export const AddressPickerModal = (props: Props) => {
           isDismissable={true}
         >
           <div className={styles.warning}>
-            <span className={styles.warningIcon}><InfoIcon alt="" /></span>
-            <p>
-              {l10n.getString("modal-custom-alias-picker-warning")}
-            </p>
+            <span className={styles.warningIcon}>
+              <InfoIcon alt="" />
+            </span>
+            <p>{l10n.getString("modal-custom-alias-picker-warning")}</p>
           </div>
           <form onSubmit={onSubmit}>
             <div className={styles.formWrapper}>
@@ -59,14 +65,18 @@ export const AddressPickerModal = (props: Props) => {
               </p>
               <div className={styles.prefix}>
                 <label htmlFor="address">
-                  {l10n.getString("modal-custom-alias-picker-form-prefix-label")}
+                  {l10n.getString(
+                    "modal-custom-alias-picker-form-prefix-label"
+                  )}
                 </label>
                 <input
                   id="address"
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  placeholder={l10n.getString("modal-custom-alias-picker-form-prefix-placeholder")}
+                  placeholder={l10n.getString(
+                    "modal-custom-alias-picker-form-prefix-placeholder"
+                  )}
                 />
               </div>
               <span className={styles.suffix}>
