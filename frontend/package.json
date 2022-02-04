@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NEXT_PUBLIC_DEBUG=true next dev",
     "watch": "chokidar \"src/**/*\" \"next.config.js\" --initial --command=\"npm run watch_build\"",
-    "watch_build": "NODE_ENV='watch_build' npm run build",
+    "watch_build": "NEXT_PUBLIC_DEBUG=true npm run build",
     "build": "next build && next export",
     "start": "next start",
     "lint": "next lint",
