@@ -68,7 +68,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-1week") ? Date.now() : undefined
+      key.includes("free-7days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({ has_premium: false });
 
@@ -121,7 +121,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-1week") ? Date.now() : undefined
+      key.includes("free-7days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({ has_premium: false });
 
@@ -151,7 +151,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-1month") ? Date.now() : undefined
+      key.includes("free-30days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({ has_premium: false });
 
@@ -204,7 +204,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-1month") ? Date.now() : undefined
+      key.includes("free-30days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({ has_premium: false });
 
@@ -234,7 +234,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-1week") ? Date.now() : undefined
+      key.includes("free-7days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({ has_premium: false });
 
@@ -264,7 +264,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-3month") ? Date.now() : undefined
+      key.includes("free-90days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({ has_premium: false });
 
@@ -294,7 +294,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-3month")
+      key.includes("free-90days")
         ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1000
         : undefined
     );
@@ -388,7 +388,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("premium-1week") ? Date.now() : undefined
+      key.includes("premium-7days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
@@ -437,7 +437,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("premium-1week") ? Date.now() : undefined
+      key.includes("premium-7days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
@@ -465,7 +465,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-1month") ? Date.now() : undefined
+      key.includes("free-30days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
@@ -493,7 +493,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("premium-1month") ? Date.now() : undefined
+      key.includes("premium-30days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
@@ -542,7 +542,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("premium-1month") ? Date.now() : undefined
+      key.includes("premium-30days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
@@ -570,7 +570,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("premium-1week") ? Date.now() : undefined
+      key.includes("premium-7days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
@@ -598,7 +598,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("free-3month") ? Date.now() : undefined
+      key.includes("free-90days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
@@ -626,7 +626,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("premium-3month") ? Date.now() : undefined
+      key.includes("premium-90days") ? Date.now() : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
@@ -654,7 +654,7 @@ describe("The CSAT survey", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
-      key.includes("premium-3month")
+      key.includes("premium-90days")
         ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1000
         : undefined
     );
