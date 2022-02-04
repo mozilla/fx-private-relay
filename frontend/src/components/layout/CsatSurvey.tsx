@@ -143,6 +143,7 @@ export const CsatSurvey = (props: Props) => {
       category: "CSAT Survey",
       action: "submitted",
       label: satisfaction,
+      value: getNumericValueOfSatisfaction(satisfaction),
     });
   };
 
@@ -227,3 +228,20 @@ export const CsatSurvey = (props: Props) => {
     </aside>
   );
 };
+
+function getNumericValueOfSatisfaction(
+  satisfaction: keyof SurveyLinks
+): 1 | 2 | 3 | 4 | 5 {
+  switch (satisfaction) {
+    case "Very Dissatisfied":
+      return 1;
+    case "Dissatisfied":
+      return 2;
+    case "Neutral":
+      return 3;
+    case "Satisfied":
+      return 4;
+    case "Very Satisfied":
+      return 5;
+  }
+}
