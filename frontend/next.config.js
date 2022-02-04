@@ -20,6 +20,7 @@ const runtimeConfigs = {
       generateCustomAliasSubdomain: false,
       generateCustomAliasTip: false,
       criticalEmailsTip: false,
+      addonSigninTip: false,
       interviewRecruitment: false,
       csatSurvey: false,
     },
