@@ -158,7 +158,7 @@ type ExplainerProps = OverlayProps & {
   positionProps: HTMLAttributes<HTMLElement>;
 };
 const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
-  (props, overlayRef) => {
+  function ExplainerWithForwardedRef(props, overlayRef) {
     const { l10n } = useLocalization();
 
     const { overlayProps } = useOverlay(

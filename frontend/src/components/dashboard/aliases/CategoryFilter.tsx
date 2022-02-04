@@ -102,7 +102,10 @@ type FilterMenuProps = HTMLAttributes<HTMLDivElement> & {
   isOpen: boolean;
 };
 const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
-  ({ selectedFilters, onClose, isOpen, ...otherProps }, overlayRef) => {
+  function FilterMenuWithForwardedRef(
+    { selectedFilters, onClose, isOpen, ...otherProps },
+    overlayRef
+  ) {
     const { l10n } = useLocalization();
     const [domainType, setDomainType] = useState<Filters["domainType"]>(
       selectedFilters.domainType
