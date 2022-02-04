@@ -7,7 +7,6 @@ export function getRuntimeConfig(): RuntimeConfig {
 }
 
 export type RuntimeConfig = {
-  environment: "production" | "development";
   backendOrigin: string;
   frontendOrigin: string;
   fxaLoginUrl: string;

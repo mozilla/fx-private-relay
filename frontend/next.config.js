@@ -1,7 +1,6 @@
 /** @type { Record<string, import("./src/config").RuntimeConfig> } */
 const runtimeConfigs = {
   production: {
-    environment: "production",
     // The front-end and back-end are served from the same domain in production,
     // so relative URLs can be used:
     backendOrigin: "",
@@ -27,20 +26,12 @@ const runtimeConfigs = {
   },
 };
 
-// This configuration is for the setup where we have a watch process
-// that looks for changes to files in src/ to trigger builds,
-// with the build output being served by Django/Whitenoise.
-runtimeConfigs.watch_build = {
-  ...runtimeConfigs.production,
-  environment: "development",
-};
-
 // This configuration is for the setup where the Next.js dev server
 // is running concurrently with the Django server.
 // Due to not running on the same server as the back-end,
 // login and logout needs to be simulated using the `/mock/` pages.
 runtimeConfigs.development = {
-  ...runtimeConfigs.watch_build,
+  ...runtimeConfigs.production,
   backendOrigin: "http://127.0.0.1:8000",
   frontendOrigin: "http://localhost:3000",
   fxaLoginUrl: "http://localhost:3000/mock/login",
