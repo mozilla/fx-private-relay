@@ -45,8 +45,8 @@ export const apiFetch = async (
   return authenticatedFetch(path, init);
 };
 
-const fetcher: Fetcher<unknown> = async (...args) => {
-  const response = await apiFetch(args[0], args[1]);
+const fetcher: Fetcher = async (route: string, init?: RequestInit) => {
+  const response = await apiFetch(route, init);
   if (!response.ok) {
     throw new Error(`${response.status}: ${response.statusText}`);
   }
