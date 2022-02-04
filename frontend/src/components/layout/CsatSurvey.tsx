@@ -37,26 +37,26 @@ type Props = {
   profile: ProfileData;
 };
 export const CsatSurvey = (props: Props) => {
-  const free1WeekDismissal = useLocalDismissal(
-    "csat-survey-free-1week_" + props.profile.id
+  const free7DaysDismissal = useLocalDismissal(
+    "csat-survey-free-7days_" + props.profile.id
   );
-  const free1MonthDismissal = useLocalDismissal(
-    "csat-survey-free-1month_" + props.profile.id
+  const free30DaysDismissal = useLocalDismissal(
+    "csat-survey-free-30days_" + props.profile.id
   );
-  const free3MonthDismissal = useLocalDismissal(
-    "csat-survey-free-3month_" + props.profile.id,
-    // After the first month, show every three months:
+  const free90DaysDismissal = useLocalDismissal(
+    "csat-survey-free-90days_" + props.profile.id,
+    // After the third month, show every three months:
     { duration: 30 * 24 * 60 * 60 }
   );
-  const premium1WeekDismissal = useLocalDismissal(
-    "csat-survey-premium-1week_" + props.profile.id
+  const premium7DaysDismissal = useLocalDismissal(
+    "csat-survey-premium-7days_" + props.profile.id
   );
-  const premium1MonthDismissal = useLocalDismissal(
-    "csat-survey-premium-1month_" + props.profile.id
+  const premium30DaysDismissal = useLocalDismissal(
+    "csat-survey-premium-30days_" + props.profile.id
   );
-  const premium3MonthDismissal = useLocalDismissal(
-    "csat-survey-premium-3month_" + props.profile.id,
-    // After the first month, show every three months:
+  const premium90DaysDismissal = useLocalDismissal(
+    "csat-survey-premium-90days_" + props.profile.id,
+    // After the third month, show every three months:
     { duration: 30 * 24 * 60 * 60 }
   );
   const firstSeen = useFirstSeen();
@@ -65,44 +65,44 @@ export const CsatSurvey = (props: Props) => {
 
   let reasonToShow:
     | null
-    | "free1week"
-    | "free1month"
-    | "free3month"
-    | "premium1week"
-    | "premium1month"
-    | "premium3month" = null;
+    | "free7days"
+    | "free30days"
+    | "free90days"
+    | "premium7days"
+    | "premium30days"
+    | "premium90days" = null;
 
   if (props.profile.has_premium && props.profile.date_subscribed) {
     const subscriptionDate = parseDate(props.profile.date_subscribed);
     const daysSinceSubscription =
       (Date.now() - subscriptionDate.getTime()) / 1000 / 60 / 60 / 24;
-    if (daysSinceSubscription >= 3 * 30) {
-      if (!premium3MonthDismissal.isDismissed) {
-        reasonToShow = "premium3month";
+    if (daysSinceSubscription >= 90) {
+      if (!premium90DaysDismissal.isDismissed) {
+        reasonToShow = "premium90days";
       }
     } else if (daysSinceSubscription >= 30) {
-      if (!premium1MonthDismissal.isDismissed) {
-        reasonToShow = "premium1month";
+      if (!premium30DaysDismissal.isDismissed) {
+        reasonToShow = "premium30days";
       }
     } else if (daysSinceSubscription >= 7) {
-      if (!premium1WeekDismissal.isDismissed) {
-        reasonToShow = "premium1week";
+      if (!premium7DaysDismissal.isDismissed) {
+        reasonToShow = "premium7days";
       }
     }
   } else if (!props.profile.has_premium && firstSeen instanceof Date) {
     const daysSinceFirstSeen =
       (Date.now() - firstSeen.getTime()) / 1000 / 60 / 60 / 24;
-    if (daysSinceFirstSeen >= 3 * 30) {
-      if (!free3MonthDismissal.isDismissed) {
-        reasonToShow = "free3month";
+    if (daysSinceFirstSeen >= 90) {
+      if (!free90DaysDismissal.isDismissed) {
+        reasonToShow = "free90days";
       }
     } else if (daysSinceFirstSeen >= 30) {
-      if (!free1MonthDismissal.isDismissed) {
-        reasonToShow = "free1month";
+      if (!free30DaysDismissal.isDismissed) {
+        reasonToShow = "free30days";
       }
     } else if (daysSinceFirstSeen >= 7) {
-      if (!free1WeekDismissal.isDismissed) {
-        reasonToShow = "free1week";
+      if (!free7DaysDismissal.isDismissed) {
+        reasonToShow = "free7days";
       }
     }
   }
@@ -116,23 +116,23 @@ export const CsatSurvey = (props: Props) => {
   }
 
   const dismiss = (options?: DismissOptions) => {
-    if (reasonToShow === "free1week") {
-      free1WeekDismissal.dismiss(options);
+    if (reasonToShow === "free7days") {
+      free7DaysDismissal.dismiss(options);
     }
-    if (reasonToShow === "free1month") {
-      free3MonthDismissal.dismiss(options);
+    if (reasonToShow === "free30days") {
+      free90DaysDismissal.dismiss(options);
     }
-    if (reasonToShow === "free3month") {
-      free3MonthDismissal.dismiss(options);
+    if (reasonToShow === "free90days") {
+      free90DaysDismissal.dismiss(options);
     }
-    if (reasonToShow === "premium1week") {
-      premium1WeekDismissal.dismiss(options);
+    if (reasonToShow === "premium7days") {
+      premium7DaysDismissal.dismiss(options);
     }
-    if (reasonToShow === "premium1month") {
-      premium1MonthDismissal.dismiss(options);
+    if (reasonToShow === "premium30days") {
+      premium30DaysDismissal.dismiss(options);
     }
-    if (reasonToShow === "premium3month") {
-      premium3MonthDismissal.dismiss(options);
+    if (reasonToShow === "premium90days") {
+      premium90DaysDismissal.dismiss(options);
     }
   };
 
