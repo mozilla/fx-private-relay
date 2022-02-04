@@ -3,6 +3,9 @@ import { PublicConfiguration } from "swr/dist/types";
 import { getRuntimeConfig } from "../../config";
 import { getCsrfToken } from "../../functions/cookies";
 
+/**
+ * Can be used to make API calls to the backend that work both in production and when running on the dev server.
+ */
 export const authenticatedFetch = async (
   path: string,
   init?: Parameters<typeof fetch>[1]
@@ -54,6 +57,9 @@ const fetcher: Fetcher = async (route: string, init?: RequestInit) => {
   return data;
 };
 
+/**
+ * Make calls to our API using [SWR](https://swr.vercel.app). Generally wrapped in endpoint-specific hooks, e.g. {@link useProfiles}.
+ */
 export function useApiV1<Data = unknown, Error = unknown>(
   route: string,
   swrOptions: Partial<PublicConfiguration> = {}

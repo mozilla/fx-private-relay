@@ -16,6 +16,9 @@ export type Props = {
   premiumCountriesData: RuntimeDataWithPremiumAvailable;
 };
 
+/**
+ * Cards to compare and choose between the different plans available to the user.
+ */
 export const Plans = (props: Props) => {
   const { l10n } = useLocalization();
   const freeFauxButtonRef = useGaPing({

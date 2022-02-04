@@ -32,6 +32,9 @@ export type Props = {
   onDelete: () => void;
 };
 
+/**
+ * A button to delete a given alias, which will pop up a confirmation modal before deleting.
+ */
 export const AliasDeletionButton = (props: Props) => {
   const { l10n } = useLocalization();
   const [confirmCheckbox, setConfirmCheckbox] = useState(false);

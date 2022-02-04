@@ -19,6 +19,9 @@ export type RuntimeData = {
   PREMIUM_PLANS: PremiumPlans;
 };
 
+/**
+ * Fetch data from the back-end that wasn't known at build time (e.g. the user's country, or environment variables) using [SWR](https://swr.vercel.app).
+ */
 export function useRuntimeData() {
   const runtimeData: SWRResponse<RuntimeData, unknown> = useApiV1(
     "/runtime_data",

@@ -31,6 +31,9 @@ export type Props = {
   showLabelEditor?: boolean;
 };
 
+/**
+ * A card to manage (toggle it on/off, view details, ...) a single alias.
+ */
 export const Alias = (props: Props) => {
   const { l10n } = useLocalization();
   const [justCopied, setJustCopied] = useState(false);

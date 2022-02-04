@@ -22,6 +22,18 @@ export type Props = {
   runtimeData?: RuntimeData;
 };
 
+/**
+ * Displays relevant banners for on the user's profile page.
+ *
+ * Examples are:
+ * - A banner to download Firefox if you're not on Firefox.
+ * - A banner to download the add-on if you don't have it.
+ * - A banner to upgrade to Premium if you don't have it but can purchase it.
+ * - A banner to inform the user of emails that failed to be delivered.
+ * - Anything else we might come up with in the future.
+ *
+ * See also {@link Banner}.
+ */
 export const ProfileBanners = (props: Props) => {
   const { l10n } = useLocalization();
   const banners: ReactNode[] = [];

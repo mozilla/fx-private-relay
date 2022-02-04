@@ -13,6 +13,9 @@ export type Props = {
   entries: Entry[];
 };
 
+/**
+ * Highlight a selection of questions from the FAQ, allowing people to expand them to see the answers.
+ */
 export const FaqAccordion = (props: Props) => {
   const entries = props.entries.map((entry) => (
     <QAndA key={entry.q} entry={entry} />

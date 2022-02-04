@@ -25,6 +25,9 @@ export type Props = {
   title: string;
 };
 
+/**
+ * Carousel highlighting different use cases of Relay, that people can tab through to learn more.
+ */
 export const Carousel = (props: Props) => {
   return (
     <Tabs aria-label={props.title} defaultSelectedKey={props.tabs[0].id}>
