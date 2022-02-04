@@ -6,6 +6,8 @@ import { MarkupParser, ReactLocalization } from "@fluent/react";
 export function getL10n() {
   // Store all translations as a simple object which is available
   // synchronously and bundled with the rest of the code.
+  // Also, `require` isn't usually valid JS, so skip type checking for that:
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const translationsContext = (require as any).context(
     "../../../privaterelay/locales",
     true,
@@ -36,9 +38,16 @@ export function getL10n() {
     );
 
     for (const locale of currentLocales) {
+      if (typeof RESOURCES[locale] === "undefined") {
+        throw new Error(
+          `Locale [${locale}] not found. You might want to run \`git submodule update --remote\` at the root of this repository?`
+        );
+      }
       const bundle = new FluentBundle(locale);
       bundle.addResource(RESOURCES[locale]);
       if (locale === "en") {
+        // `require` isn't usually valid JS, so skip type checking for that:
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const pendingTranslations = (require as any)(
           "../../pendingTranslations.ftl"
         );
