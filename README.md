@@ -87,6 +87,7 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
     and in a different terminal, build the frontend:
 
     ```sh
+    cd frontend
     npm run watch
     ```
 
