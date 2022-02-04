@@ -23,6 +23,7 @@ export type RuntimeConfig = {
     | "generateCustomAliasSubdomain"
     | "generateCustomAliasTip"
     | "criticalEmailsTip"
+    | "addonSigninTip"
     | "interviewRecruitment"
     | "csatSurvey",
     boolean
