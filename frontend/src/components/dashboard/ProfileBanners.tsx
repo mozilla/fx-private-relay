@@ -36,7 +36,6 @@ export type Props = {
  * See also {@link Banner}.
  */
 export const ProfileBanners = (props: Props) => {
-  const { l10n } = useLocalization();
   const banners: ReactNode[] = [];
 
   const bounceStatus = props.profile.bounce_status;
