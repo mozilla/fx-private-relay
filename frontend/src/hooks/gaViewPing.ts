@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { event as gaEvent, EventArgs } from "react-ga";
 import { IntersectionOptions, useInView } from "react-intersection-observer";
 
-export type GaPingArgs = Omit<EventArgs, "action" | "nonInteraction">;
+export type GaViewPingArgs = Omit<EventArgs, "action" | "nonInteraction">;
 
 /**
  * Returns a React RefObject, and sends a ping to Google Analytics whenever the element the Ref is attached to is scrolled into view.
@@ -11,8 +11,8 @@ export type GaPingArgs = Omit<EventArgs, "action" | "nonInteraction">;
  * @param options Options to configure the InstersectionObserver that influences when the ping is sent
  * @returns A React RefObject that should be attached to the element to track
  */
-export function useGaPing(
-  args: GaPingArgs | null,
+export function useGaViewPing(
+  args: GaViewPingArgs | null,
   options?: IntersectionOptions
 ) {
   const [ref, inView] = useInView({ threshold: 1, ...options });

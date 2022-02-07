@@ -8,7 +8,7 @@ import ManLaptopEmail from "../../../../static/images/dashboard-onboarding/man-l
 import WomanOnCouch from "../../../../static/images/dashboard-onboarding/woman-couch.svg";
 import WomanEmail from "../../../../static/images/dashboard-onboarding/woman-email.svg";
 import { Button, LinkButton } from "../Button";
-import { useGaPing } from "../../hooks/gaPing";
+import { useGaViewPing } from "../../hooks/gaViewPing";
 import { ProfileData } from "../../hooks/api/profile";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
@@ -27,27 +27,27 @@ export type Props = {
  */
 export const PremiumOnboarding = (props: Props) => {
   const { l10n } = useLocalization();
-  const getStartedButtonRef = useGaPing({
+  const getStartedButtonRef = useGaViewPing({
     category: "Premium Onboarding",
     label: "onboarding-step-1-continue",
     value: 1,
   });
-  const skipDomainButtonRef = useGaPing({
+  const skipDomainButtonRef = useGaViewPing({
     category: "Premium Onboarding",
     label: "onboarding-step-2-skip",
     value: 2,
   });
-  const continueWithDomainButtonRef = useGaPing({
+  const continueWithDomainButtonRef = useGaViewPing({
     category: "Premium Onboarding",
     label: "onboarding-step-2-continue",
     value: 2,
   });
-  const skipAddonButtonRef = useGaPing({
+  const skipAddonButtonRef = useGaViewPing({
     category: "Premium Onboarding",
     label: "onboarding-step-3-skip",
     value: 3,
   });
-  const continueWithAddonButtonRef = useGaPing({
+  const continueWithAddonButtonRef = useGaViewPing({
     category: "Premium Onboarding",
     label: "onboarding-step-3-continue",
     value: 3,

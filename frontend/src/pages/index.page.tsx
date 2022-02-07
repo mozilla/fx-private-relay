@@ -15,7 +15,7 @@ import AccessContentIllustration from "../../../static/images/use-case-access-co
 import GamingIllustration from "../../../static/images/use-case-gaming.svg";
 import { useUsers } from "../hooks/api/user";
 import { Layout } from "../components/layout/Layout";
-import { useGaPing } from "../hooks/gaPing";
+import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
@@ -30,7 +30,7 @@ const Home: NextPage = () => {
   const router = useRouter();
   const runtimeData = useRuntimeData();
   const userData = useUsers();
-  const heroCtaRef = useGaPing({
+  const heroCtaRef = useGaViewPing({
     category: "Sign In",
     label: "home-hero-cta",
   });
