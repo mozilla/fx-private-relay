@@ -12,7 +12,7 @@ jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../config.ts", () => mockConfigModule);
-jest.mock("../hooks/gaPing.ts");
+jest.mock("../hooks/gaViewPing.ts");
 
 describe("The promotional page about Relay Premium", () => {
   describe("under axe accessibility testing", () => {

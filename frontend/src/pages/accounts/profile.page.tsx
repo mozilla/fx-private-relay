@@ -24,7 +24,7 @@ import {
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
-import { useGaPing } from "../../hooks/gaPing";
+import { useGaViewPing } from "../../hooks/gaViewPing";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding";
 import { Onboarding } from "../../components/dashboard/Onboarding";
@@ -41,7 +41,7 @@ const Profile: NextPage = () => {
   const userData = useUsers();
   const { randomAliasData, customAliasData } = useAliases();
   const { l10n } = useLocalization();
-  const bottomBannerSubscriptionLinkRef = useGaPing({
+  const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
   });

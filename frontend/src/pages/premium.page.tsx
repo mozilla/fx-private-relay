@@ -9,7 +9,7 @@ import ShoppingIllustration from "../../../static/images/use-case-shopping.svg";
 import SocialNetworksIllustration from "../../../static/images/use-case-social-networks.svg";
 import GamingIllustration from "../../../static/images/use-case-gaming.svg";
 import { Layout } from "../components/layout/Layout";
-import { useGaPing } from "../hooks/gaPing";
+import { useGaViewPing } from "../hooks/gaViewPing";
 import { Button, LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
@@ -25,20 +25,20 @@ import { trackPurchaseStart } from "../functions/trackPurchase";
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
-  const heroCtaRef = useGaPing({
+  const heroCtaRef = useGaViewPing({
     category: "Purchase Button",
     label: "premium-promo-cta",
   });
   const perkCtaRefs = {
-    "premium-promo-perk-unlimited-cta": useGaPing({
+    "premium-promo-perk-unlimited-cta": useGaViewPing({
       category: "Purchase Button",
       label: "premium-promo-perk-unlimited-cta",
     }),
-    "premium-promo-perk-custom-domain-cta": useGaPing({
+    "premium-promo-perk-custom-domain-cta": useGaViewPing({
       category: "Purchase Button",
       label: "premium-promo-perk-custom-domain-cta",
     }),
-    "premium-promo-perk-dashboard-cta": useGaPing({
+    "premium-promo-perk-dashboard-cta": useGaViewPing({
       category: "Purchase Button",
       label: "premium-promo-perk-dashboard-cta",
     }),

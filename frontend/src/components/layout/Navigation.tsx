@@ -5,7 +5,7 @@ import { event as gaEvent } from "react-ga";
 import styles from "./Navigation.module.scss";
 import { useIsLoggedIn } from "../../hooks/session";
 import { getRuntimeConfig } from "../../config";
-import { useGaPing } from "../../hooks/gaPing";
+import { useGaViewPing } from "../../hooks/gaViewPing";
 
 /** Switch between the different pages of the Relay website. */
 export const Navigation = () => {
@@ -15,7 +15,7 @@ export const Navigation = () => {
   const isLoggedIn = useIsLoggedIn();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
-  const signUpButtonRef = useGaPing({
+  const signUpButtonRef = useGaViewPing({
     category: "Sign In",
     label: "nav-profile-sign-up",
   });
@@ -36,7 +36,7 @@ export const Navigation = () => {
     </a>
   );
 
-  const signInButtonRef = useGaPing({
+  const signInButtonRef = useGaViewPing({
     category: "Sign In",
     label: "nav-profile-sign-in",
   });

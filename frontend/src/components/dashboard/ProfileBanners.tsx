@@ -121,7 +121,7 @@ export const ProfileBanners = (props: Props) => {
           target: getPremiumSubscribeLink(props.runtimeData),
           content: l10n.getString("banner-upgrade-cta"),
           onClick: () => trackPurchaseStart(),
-          gaPing: {
+          gaViewPing: {
             category: "Purchase Button",
             label: "profile-banner-promo",
           },

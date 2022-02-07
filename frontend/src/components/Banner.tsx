@@ -5,7 +5,7 @@ import styles from "./Banner.module.scss";
 import warningIcon from "../../../static/images/icon-orange-info.svg";
 import { useLocalDismissal } from "../hooks/localDismissal";
 import { CloseIcon } from "./icons/close";
-import { useGaPing } from "../hooks/gaPing";
+import { useGaViewPing } from "../hooks/gaViewPing";
 
 export type BannerProps = {
   children: ReactNode;
@@ -16,7 +16,7 @@ export type BannerProps = {
     target: string;
     content: string;
     onClick?: () => void;
-    gaPing?: Parameters<typeof useGaPing>[0];
+    gaViewPing?: Parameters<typeof useGaViewPing>[0];
   };
   /**
    * See {@link useLocalDismissal}; determines whether and for how long the user can dismiss this banner.
@@ -34,7 +34,7 @@ export type BannerProps = {
  * See {@link BannerProps["type"]} for the different types of banner themes supported.
  */
 export const Banner = (props: BannerProps) => {
-  const ctaRef = useGaPing(props.cta?.gaPing ?? null);
+  const ctaRef = useGaViewPing(props.cta?.gaViewPing ?? null);
   const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", {
     duration: props.dismissal?.duration,
   });

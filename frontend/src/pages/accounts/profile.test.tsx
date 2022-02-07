@@ -36,7 +36,7 @@ jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../functions/renderDate.ts");
 jest.mock("../../functions/getLocale.ts", () => mockGetLocaleModule);
-jest.mock("../../hooks/gaPing.ts");
+jest.mock("../../hooks/gaViewPing.ts");
 
 setMockAliasesData();
 setMockProfileData();
