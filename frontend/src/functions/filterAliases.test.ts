@@ -23,6 +23,7 @@ const getMockedAliasMatching = (filters: Partial<Filters>): AliasData => {
   };
   if (filters.domainType === "random") {
     (alias as RandomAliasData).generated_for = "";
+    (alias as RandomAliasData).type = "random";
   }
   return alias;
 };
