@@ -41,6 +41,7 @@ export function getMockRandomAlias(
   alias?: Partial<RandomAliasData>
 ): RandomAliasData {
   return {
+    type: "random",
     address: "arbitrary_address",
     created_at: "2021-11-03T13:37:42.000000Z",
     last_modified_at: "2021-11-03T13:37:42.000000Z",
@@ -60,6 +61,7 @@ export function getMockCustomAlias(
   alias?: Partial<CustomAliasData>
 ): CustomAliasData {
   return {
+    type: "custom",
     address: "arbitrary_address",
     created_at: "2021-11-03T13:37:42.000000Z",
     last_modified_at: "2021-11-03T13:37:42.000000Z",
@@ -75,24 +77,28 @@ export function getMockCustomAlias(
   };
 }
 
-type MockData = {  random?: Array<Partial<RandomAliasData>>;
+type MockData = {
+  random?: Array<Partial<RandomAliasData>>;
   custom?: Array<Partial<CustomAliasData>>;
 };
 type Callbacks = {
   creaters?: {
     random?: RandomAliasCreateFn;
     custom?: CustomAliasCreateFn;
-  },
+  };
   updaters?: {
     random?: AliasUpdateFn;
     custom?: AliasUpdateFn;
-  },
+  };
   deleters?: {
     random?: AliasDeleteFn;
     custom?: AliasDeleteFn;
-  },
+  };
 };
-function getReturnValue(aliasesData?: MockData, callbacks?: Callbacks): ReturnType<typeof useAliases> {
+function getReturnValue(
+  aliasesData?: MockData,
+  callbacks?: Callbacks
+): ReturnType<typeof useAliases> {
   const randomAliasData = (aliasesData?.random || [{}]).map((alias) =>
     getMockRandomAlias(alias)
   );
@@ -120,10 +126,16 @@ function getReturnValue(aliasesData?: MockData, callbacks?: Callbacks): ReturnTy
   };
 }
 
-export const setMockAliasesData = (aliasesData?: MockData, callbacks?: Callbacks) => {
+export const setMockAliasesData = (
+  aliasesData?: MockData,
+  callbacks?: Callbacks
+) => {
   mockedUseAliases.mockReturnValue(getReturnValue(aliasesData, callbacks));
 };
 
-export const setMockAliasesDataOnce = (aliasesData?: MockData, callbacks?: Callbacks) => {
+export const setMockAliasesDataOnce = (
+  aliasesData?: MockData,
+  callbacks?: Callbacks
+) => {
   mockedUseAliases.mockReturnValueOnce(getReturnValue(aliasesData, callbacks));
 };
