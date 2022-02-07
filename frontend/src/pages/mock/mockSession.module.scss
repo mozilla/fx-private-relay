@@ -1,4 +1,5 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .mockSession {
   padding: $spacing-lg;
@@ -42,7 +43,8 @@
 
   h1 {
     padding: $spacing-sm 0;
-    font-size: 1rem;
+
+    @include text-title-3xs;
   }
 
   ul {
