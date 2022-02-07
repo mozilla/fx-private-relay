@@ -251,6 +251,19 @@ In detail:
 | `PREMIUM_PRICE_ID` | `price_1IMG7KKb9q6OnNsL15Hsn1HE` (from Stripe)|
 | `SUBSCRIPTIONS_WITH_UNLIMITED` | `"premium-relay"` (match the `capabilities` value you used in Stripe)|
 
+### Optional: Debugging JavaScript bundle sizes
+
+In `frontend/`, set `ANALYZE=true` when running `npm run build` to generate a
+report detailing which modules are taking up most of the bundle size. A report
+will be generated for both the client and server part of the frontend, but since
+we only use the client, we're really only interested in that. The reports will
+automatically open in your browser, and can also be found in
+`/frontend/.next/analyze/`.
+
+```sh
+ANALYZE=true npm run build
+```
+
 #### Test Premium
 
 There is a [comprehensive doc of test
