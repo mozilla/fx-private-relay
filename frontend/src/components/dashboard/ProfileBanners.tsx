@@ -7,6 +7,7 @@ import RelayLogo from "../../../../static/images/placeholder-logo.svg";
 import {
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
+  RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
 import { isUsingFirefox } from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
@@ -35,76 +36,28 @@ export type Props = {
  * See also {@link Banner}.
  */
 export const ProfileBanners = (props: Props) => {
-  const { l10n } = useLocalization();
   const banners: ReactNode[] = [];
 
   const bounceStatus = props.profile.bounce_status;
   if (bounceStatus[0]) {
     banners.push(
-      <Banner
+      <BounceBanner
         key="bounce-banner"
-        type="warning"
-        title={l10n.getString("banner-bounced-headline")}
-      >
-        <Localized
-          id="banner-bounced-copy"
-          vars={{
-            username: props.user.email,
-            bounce_type: bounceStatus[1],
-            date: renderDate(props.profile.next_email_try, l10n),
-          }}
-          elems={{
-            em: <em />,
-          }}
-        >
-          <p />
-        </Localized>
-      </Banner>
+        email={props.user.email}
+        profile={props.profile}
+      />
     );
   }
 
   if (!isUsingFirefox()) {
-    banners.push(
-      <Banner
-        key="firefox-banner"
-        type="promo"
-        title={l10n.getString("banner-download-firefox-headline")}
-        illustration={
-          <img src={FirefoxLogo.src} alt="" width={60} height={60} />
-        }
-        cta={{
-          target:
-            "https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx",
-          content: l10n.getString("banner-download-firefox-cta"),
-        }}
-      >
-        <p>{l10n.getString("banner-download-firefox-copy")}</p>
-      </Banner>
-    );
+    banners.push(<NoFirefoxBanner key="firefox-banner" />);
   }
 
   if (isUsingFirefox()) {
     // This pushes a banner promoting the add-on - detecting the add-on
     // and determining whether to show it based on that is a bit slow,
     // so we'll just let the add-on hide it:
-    banners.push(
-      <Banner
-        key="addon-banner"
-        type="promo"
-        title={l10n.getString("banner-download-install-extension-headline")}
-        illustration={
-          <img src={AddonIllustration.src} alt="" width={60} height={60} />
-        }
-        cta={{
-          target:
-            "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
-          content: l10n.getString("banner-download-install-extension-cta"),
-        }}
-        hiddenWithAddon={true}
-      >
-        <p>{l10n.getString("banner-download-install-extension-copy")}</p>
-      </Banner>
-    );
+    banners.push(<NoAddonBanner key="addon-banner" />);
   }
 
   if (
@@ -112,25 +65,103 @@ export const ProfileBanners = (props: Props) => {
     isPremiumAvailableInCountry(props.runtimeData)
   ) {
     banners.push(
-      <Banner
-        key="premium-banner"
-        type="promo"
-        title={l10n.getString("banner-upgrade-headline")}
-        illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
-        cta={{
-          target: getPremiumSubscribeLink(props.runtimeData),
-          content: l10n.getString("banner-upgrade-cta"),
-          onClick: () => trackPurchaseStart(),
-          gaViewPing: {
-            category: "Purchase Button",
-            label: "profile-banner-promo",
-          },
-        }}
-      >
-        <p>{l10n.getString("banner-upgrade-copy")}</p>
-      </Banner>
+      <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
     );
   }
 
   return <div className={styles.profileBanners}>{banners}</div>;
+};
+
+type BounceBannerProps = {
+  email: string;
+  profile: ProfileData;
+};
+const BounceBanner = (props: BounceBannerProps) => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner type="warning" title={l10n.getString("banner-bounced-headline")}>
+      <Localized
+        id="banner-bounced-copy"
+        vars={{
+          username: props.email,
+          bounce_type: props.profile.bounce_status[1],
+          date: renderDate(props.profile.next_email_try, l10n),
+        }}
+        elems={{
+          em: <em />,
+        }}
+      >
+        <p />
+      </Localized>
+    </Banner>
+  );
+};
+
+const NoFirefoxBanner = () => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      type="promo"
+      title={l10n.getString("banner-download-firefox-headline")}
+      illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
+      cta={{
+        target:
+          "https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx",
+        content: l10n.getString("banner-download-firefox-cta"),
+      }}
+    >
+      <p>{l10n.getString("banner-download-firefox-copy")}</p>
+    </Banner>
+  );
+};
+
+const NoAddonBanner = () => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      type="promo"
+      title={l10n.getString("banner-download-install-extension-headline")}
+      illustration={
+        <img src={AddonIllustration.src} alt="" width={60} height={60} />
+      }
+      cta={{
+        target:
+          "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
+        content: l10n.getString("banner-download-install-extension-cta"),
+      }}
+      hiddenWithAddon={true}
+    >
+      <p>{l10n.getString("banner-download-install-extension-copy")}</p>
+    </Banner>
+  );
+};
+
+type NoPremiumBannerProps = {
+  runtimeData: RuntimeDataWithPremiumAvailable;
+};
+const NoPremiumBanner = (props: NoPremiumBannerProps) => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      key="premium-banner"
+      type="promo"
+      title={l10n.getString("banner-upgrade-headline")}
+      illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
+      cta={{
+        target: getPremiumSubscribeLink(props.runtimeData),
+        content: l10n.getString("banner-upgrade-cta"),
+        onClick: () => trackPurchaseStart(),
+        gaViewPing: {
+          category: "Purchase Button",
+          label: "profile-banner-promo",
+        },
+      }}
+    >
+      <p>{l10n.getString("banner-upgrade-copy")}</p>
+    </Banner>
+  );
 };
