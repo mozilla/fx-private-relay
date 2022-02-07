@@ -6,6 +6,7 @@ type DateTimeString = string;
 type Domain_RelayFirefoxCom = 1;
 type Domain_MozmailCom = 2;
 export type CommonAliasData = {
+  type: "random" | "custom";
   enabled: boolean;
   description: string | "";
   id: number;
@@ -20,10 +21,12 @@ export type CommonAliasData = {
 };
 
 export type RandomAliasData = CommonAliasData & {
+  type: "random";
   generated_for: string | "";
   domain: Domain_RelayFirefoxCom;
 };
 export type CustomAliasData = CommonAliasData & {
+  type: "custom";
   domain: Domain_MozmailCom;
 };
 
@@ -120,12 +123,14 @@ export function useAliases(): {
 
   const randomAliasData = {
     ...randomAliases,
+    data: randomAliases.data?.map((alias) => markAsRandomAlias(alias)),
     create: randomAliasCreater,
     update: getUpdater("random"),
     delete: getDeleter("random"),
   };
   const customAliasData = {
     ...customAliases,
+    data: customAliases.data?.map((alias) => markAsCustomAlias(alias)),
     create: customAliasCreater,
     update: getUpdater("custom"),
     delete: getDeleter("custom"),
@@ -138,7 +143,7 @@ export function useAliases(): {
 }
 
 export function isRandomAlias(alias: AliasData): alias is RandomAliasData {
-  return typeof (alias as RandomAliasData).generated_for === "string";
+  return alias.type === "random";
 }
 
 export function getAllAliases(
@@ -158,4 +163,44 @@ export function getFullAddress(alias: AliasData, profile: ProfileData) {
   }
   // 2 = @mozmail.com
   return `${alias.address}@mozmail.com`;
+}
+
+/**
+ * Make an alias trackable as a random alias
+ *
+ * There is nothing in the properties of an alias that will always distinguish
+ * random aliases from custom aliases. The only certain indication we have of
+ * an alias's type, is whether we fetched it from the Random or Custom Alias
+ * endpoint. Thus, we immediately tack on a `type` property after fetching
+ * (using this function) so that we can pass it on to the rest of the app and
+ * still determine the type of the alias.
+ *
+ * @param randomAliasData A random alias fetched from the API
+ * @returns The same alias, but with a `type` property set to `"random"`
+ */
+function markAsRandomAlias(randomAliasData: RandomAliasData): RandomAliasData {
+  return {
+    ...randomAliasData,
+    type: "random",
+  };
+}
+
+/**
+ * Make an alias trackable as a custom alias
+ *
+ * There is nothing in the properties of an alias that will always distinguish
+ * random aliases from custom aliases. The only certain indication we have of
+ * an alias's type, is whether we fetched it from the Random or Custom Alias
+ * endpoint. Thus, we immediately tack on a `type` property after fetching
+ * (using this function) so that we can pass it on to the rest of the app and
+ * still determine the type of the alias.
+ *
+ * @param randomAliasData A custom alias fetched from the API
+ * @returns The same alias, but with a `type` property set to `"custom"`
+ */
+function markAsCustomAlias(customAliasData: CustomAliasData): CustomAliasData {
+  return {
+    ...customAliasData,
+    type: "custom",
+  };
 }
