@@ -54,11 +54,10 @@ $toggleTransitionDuration: 200ms;
   position: relative;
   overflow: hidden;
   border: none;
-  border-radius: 1.5rem;
+  border-radius: $border-radius-md;
   margin-right: $spacing-sm;
   outline: none;
   background-color: $color-blue-50;
-  background-size: 20px;
 
   &:hover,
   &:focus {
@@ -280,10 +279,11 @@ $toggleTransitionDuration: 200ms;
     flex-direction: row;
 
     .metadata {
+      $metadataIconSize: 20px;
       background-repeat: no-repeat;
       background-position: left center;
-      background-size: 20px 20px;
-      padding-left: calc(20px + $spacing-md);
+      background-size: $metadataIconSize $metadataIconSize;
+      padding-left: calc($metadataIconSize + $spacing-md);
     }
 
     .forwardTarget {
