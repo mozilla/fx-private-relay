@@ -22,9 +22,6 @@ perform the same API authentication as the add-on.
 
 ![FXA OAuth Token Authentication Sequence Diagram](api_auth.png)
 
-### TODOs
-* Cache the token verification check so we don't hit FXA on every client request.
-
 [drf]: https://www.django-rest-framework.org/
 [SessionAuthentication]: https://www.django-rest-framework.org/api-guide/authentication/#sessionauthentication
 [TokenAuthentication]: https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
