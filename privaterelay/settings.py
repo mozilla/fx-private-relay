@@ -444,24 +444,28 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-# Static files (the front-end in /frontend/)
-# https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
-STATIC_URL = '/' if SERVE_REACT else '/static/'
-
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/out') if SERVE_REACT else os.path.join(BASE_DIR, 'static'),
-]
+if SERVE_REACT:
+    # Static files (the front-end in /frontend/)
+    # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
+    STATIC_URL = '/'
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'frontend/out'),
+    ]
+    if settings.DEBUG:
+        # In production, we run collectstatic to index all static files.
+        # However, when running locally, we want to automatically pick up
+        # all files spewed out by `npm run watch` in /frontend/out,
+        # and we're fine with the performance impact of that.
+        WHITENOISE_ROOT = os.path.join(BASE_DIR, 'frontend/out')
+else:
+    STATIC_URL = '/static/'
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static'),
+    ]
 
 WHITENOISE_INDEX_FILE = True
-if settings.DEBUG and SERVE_REACT:
-    # In production, we run collectstatic to index all static files.
-    # However, when running locally, we want to automatically pick up
-    # all files spewed out by `npm run watch` in /frontend/out,
-    # and we're fine with the performance impact of that.
-    WHITENOISE_ROOT = os.path.join(BASE_DIR, 'frontend/out')
 
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.
