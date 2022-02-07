@@ -170,6 +170,28 @@ function analyticsSurveyLogic() {
         return 5;
     }
   }
+  function getCategoryOfSatisfaction(satisfaction) {
+    switch (satisfaction) {
+      case "Very Dissatisfied":
+      case "Dissatisfied":
+        return "Dissatisfied";
+      case "Neutral":
+        return "Neutral";
+      case "Satisfied":
+      case "Very Satisfied":
+        return "Satisfied";
+    }
+  }
+  function getNumericValueOfCategoryOfSatisfaction(satisfactionCategory) {
+    switch (satisfactionCategory) {
+      case "Dissatisfied":
+        return -1;
+      case "Neutral":
+        return 0;
+      case "Satisfied":
+        return 1;
+    }
+  }
 
   const setCsatCookie = () => {
     const dismissCookieId = csatWrapperEl?.dataset.cookieId ?? "";
@@ -191,6 +213,24 @@ function analyticsSurveyLogic() {
         "submitted",
         event.target.dataset.satisfaction,
         getNumericValueOfSatisfaction(event.target.dataset.satisfaction),
+        {
+          // Custom dimension 3 in Google Analytics is "CSAT Category",
+          // i.e. "Dissatisfied", "Neutral" or "Satisfied"
+          dimension3: getCategoryOfSatisfaction(event.target.dataset.satisfaction),
+          // Custom dimension 4 in Google Analytics is "CSAT Survey Rating",
+          // i.e. "Very Dissatisfied", "Dissatisfied", "Neutral", "Satisfied" or "Very Satisfied"
+          dimension4: event.target.dataset.satisfaction,
+          // Metric 10 in Google Analytics is "CSAT Survey Count",
+          // i.e. it tracks how many people have completed the CSAT survey:
+          metric10: 1,
+          // Metric 11 in Google Analytics is "CSAT Survey Rating",
+          // i.e. it tracks which answer survey takers gave ("Very Dissatisfied",
+          // "Dissatisfied", "Neutral", "Satisfied" or "Very Satisfied")
+          metric11: getNumericValueOfSatisfaction(event.target.dataset.satisfaction),
+          // Metric 12 in Google Analytics is "CSAT Satisfaction Value",
+          // i.e. it tracks where users are Satisfied, Neutral or Dissatisfied:
+          metric12: getNumericValueOfCategoryOfSatisfaction(getCategoryOfSatisfaction(event.target.dataset.satisfaction)),
+        }
       );
       csatFollowupLinkEl.href = surveyLinks[csatWrapperEl.dataset.hasPremium === "True" ? "premium" : "free"][event.target.dataset.satisfaction];
       csatQuestionEl.classList.add("is-hidden");
