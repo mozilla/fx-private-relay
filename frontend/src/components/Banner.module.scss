@@ -5,7 +5,7 @@
 .banner {
   border-radius: $border-radius-md;
   padding: $spacing-md;
-  background-color: white;
+  background-color: $color-white;
   position: relative;
 
   &:not(.promo) {
@@ -13,6 +13,7 @@
   }
 
   &.promo {
+    // This is the gradient border width (which is implemented as a background image):
     padding: 2px;
     background-image: $firefoxGradient;
   }

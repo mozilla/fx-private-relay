@@ -50,7 +50,7 @@
     padding: $spacing-md;
 
     .tip {
-      min-height: 15rem;
+      min-height: 15 * 16px;
     }
 
     .tipSwitcher {
