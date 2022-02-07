@@ -20,11 +20,11 @@
 
       .greeting {
         @include text-body-xl;
-        font-weight: bold;
+        font-weight: 700;
 
         .lead {
           @include text-body-md;
-          font-weight: normal;
+          font-weight: 400;
           display: block;
         }
       }
@@ -62,7 +62,7 @@
         .value {
           @include text-title-sm;
           font-family: $font-stack-firefox;
-          font-weight: bold;
+          font-weight: 700;
           padding: $spacing-xs 0;
         }
       }

@@ -212,7 +212,7 @@ $toggleTransitionDuration: 200ms;
     .number {
       @include text-body-xl;
       font-family: $font-stack-firefox;
-      font-weight: bold;
+      font-weight: 700;
     }
 
     .isEnabled &.blockedStat,
