@@ -24,6 +24,7 @@ import {
   useRef,
   useState,
   useEffect,
+  RefObject,
 } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
 import { OverlayProps } from "@react-aria/overlays";
@@ -47,28 +48,33 @@ const getProducts = (referringSiteUrl: string) => ({
     url: `https://monitor.firefox.com/?utm_source=${encodeURIComponent(
       referringSiteUrl
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
+    gaLabel: "fx-monitor",
   },
   pocket: {
     id: "pocket",
     url: "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447",
+    gaLabel: "pocket",
   },
   fxDesktop: {
     id: "fxDesktop",
     url: `https://www.mozilla.org/firefox/new/?utm_source=${encodeURIComponent(
       referringSiteUrl
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
+    gaLabel: "fx-desktop",
   },
   fxMobile: {
     id: "fxMobile",
     url: `https://www.mozilla.org/firefox/new/?utm_source=${encodeURIComponent(
       referringSiteUrl
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
+    gaLabel: "fx-mobile",
   },
   vpn: {
     id: "vpn",
     url: `https://www.mozilla.org/products/vpn/?utm_source=${encodeURIComponent(
       referringSiteUrl
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
+    gaLabel: "vpn",
   },
 });
 
@@ -79,54 +85,29 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
   const { l10n } = useLocalization();
 
   const products = getProducts(getRuntimeConfig().frontendOrigin);
-  const monitorLinkRef = useRef<HTMLAnchorElement>(null);
-  const pocketLinkRef = useRef<HTMLAnchorElement>(null);
-  const fxDesktopLinkRef = useRef<HTMLAnchorElement>(null);
-  const fxMobileLinkRef = useRef<HTMLAnchorElement>(null);
-  const vpnLinkRef = useRef<HTMLAnchorElement>(null);
+  const linkRefs: Record<
+    keyof typeof products,
+    RefObject<HTMLAnchorElement>
+  > = {
+    monitor: useRef<HTMLAnchorElement>(null),
+    pocket: useRef<HTMLAnchorElement>(null),
+    fxDesktop: useRef<HTMLAnchorElement>(null),
+    fxMobile: useRef<HTMLAnchorElement>(null),
+    vpn: useRef<HTMLAnchorElement>(null),
+  };
   const mozillaLinkRef = useRef<HTMLAnchorElement>(null);
 
   const onSelect = (itemKey: Key) => {
-    if (itemKey === products.monitor.id) {
-      monitorLinkRef.current?.click();
-      gaEvent({
-        category: "bento",
-        action: "bento-app-link-click",
-        label: "fx-monitor",
-      });
-    }
-    if (itemKey === products.pocket.id) {
-      pocketLinkRef.current?.click();
-      gaEvent({
-        category: "bento",
-        action: "bento-app-link-click",
-        label: "pocket",
-      });
-    }
-    if (itemKey === products.fxDesktop.id) {
-      fxDesktopLinkRef.current?.click();
-      gaEvent({
-        category: "bento",
-        action: "bento-app-link-click",
-        label: "fx-desktop",
-      });
-    }
-    if (itemKey === products.fxMobile.id) {
-      fxMobileLinkRef.current?.click();
-      gaEvent({
-        category: "bento",
-        action: "bento-app-link-click",
-        label: "fx-mobile",
-      });
-    }
-    if (itemKey === products.vpn.id) {
-      vpnLinkRef.current?.click();
-      gaEvent({
-        category: "bento",
-        action: "bento-app-link-click",
-        label: "vpn",
-      });
-    }
+    Object.entries(products).forEach(([key, productData]) => {
+      if (itemKey === productData.id) {
+        linkRefs[key as keyof typeof products].current?.click();
+        gaEvent({
+          category: "bento",
+          action: "bento-app-link-click",
+          label: productData.gaLabel,
+        });
+      }
+    });
     if (itemKey === "mozilla") {
       mozillaLinkRef.current?.click();
       gaEvent({
@@ -145,7 +126,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
     >
       <Item key={products.monitor.id} textValue={l10n.getString("fx-monitor")}>
         <a
-          ref={monitorLinkRef}
+          ref={linkRefs.monitor}
           href={products.monitor.url}
           className={`${styles.menuLink} ${styles.monitorLink}`}
         >
@@ -155,7 +136,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       </Item>
       <Item key={products.pocket.id} textValue={l10n.getString("fx-pocket")}>
         <a
-          ref={pocketLinkRef}
+          ref={linkRefs.pocket}
           href={products.pocket.url}
           className={`${styles.menuLink} ${styles.pocketLink}`}
         >
@@ -168,7 +149,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         textValue={l10n.getString("fx-desktop")}
       >
         <a
-          ref={fxDesktopLinkRef}
+          ref={linkRefs.fxDesktop}
           href={products.fxDesktop.url}
           className={`${styles.menuLink} ${styles.fxDesktopLink}`}
         >
@@ -178,7 +159,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       </Item>
       <Item key={products.fxMobile.id} textValue={l10n.getString("fx-mobile")}>
         <a
-          ref={fxMobileLinkRef}
+          ref={linkRefs.fxMobile}
           href={products.fxMobile.url}
           className={`${styles.menuLink} ${styles.fxMobileLink}`}
         >
@@ -188,7 +169,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       </Item>
       <Item key={products.vpn.id} textValue={l10n.getString("fx-vpn")}>
         <a
-          ref={vpnLinkRef}
+          ref={linkRefs.vpn}
           href={products.vpn.url}
           className={`${styles.menuLink} ${styles.vpnLink}`}
         >
@@ -198,8 +179,8 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       </Item>
       <Item key="mozilla" textValue={l10n.getString("made-by-mozilla")}>
         <a
-          ref={fxMobileLinkRef}
-          href={products.fxMobile.url}
+          ref={mozillaLinkRef}
+          href="https://www.mozilla.org/"
           className={`${styles.menuLink} ${styles.mozillaLink}`}
         >
           {l10n.getString("made-by-mozilla")}
