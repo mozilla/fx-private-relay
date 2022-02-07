@@ -16,6 +16,7 @@ $toggleTransitionDuration: 200ms;
     box-shadow: $box-shadow-sm;
     background-color: $color-white;
   }
+
   &.isDisabled {
     background-color: rgba($color-white, 0.5);
   }

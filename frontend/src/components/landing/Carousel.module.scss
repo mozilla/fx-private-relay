@@ -10,12 +10,14 @@
       "tab_0"
       "content";
   }
+
   &.selected_tab_1 {
     grid-template-areas:
       "tab_0"
       "tab_1"
       "content";
   }
+
   &.selected_tab_2 {
     grid-template-areas:
       "tab_0"
@@ -23,6 +25,7 @@
       "tab_2"
       "content";
   }
+
   &.selected_tab_3 {
     grid-template-areas:
       "tab_0"
@@ -31,6 +34,7 @@
       "tab_3"
       "content";
   }
+
   &.selected_tab_4 {
     grid-template-areas:
       "tab_0"
@@ -40,6 +44,7 @@
       "tab_4"
       "content";
   }
+
   &.selected_tab_5 {
     grid-template-areas:
       "tab_0"
@@ -50,6 +55,7 @@
       "tab_5"
       "content";
   }
+
   &.selected_tab_6 {
     grid-template-areas:
       "tab_0"
@@ -82,30 +88,39 @@
 
       &.yellow {
         background-color: $color-yellow-20;
+
         &::after {
           background-color: $color-yellow-20;
         }
       }
+
       &.orange {
         background-color: $color-yellow-40;
+
         &::after {
           background-color: $color-yellow-40;
         }
       }
+
       &.teal {
         background-color: $color-green-40;
+
         &::after {
           background-color: $color-green-40;
         }
       }
+
       &.red {
         background-color: $color-red-20;
+
         &::after {
           background-color: $color-red-20;
         }
       }
+
       &.pink {
         background-color: $color-purple-30;
+
         &::after {
           background-color: $color-purple-30;
         }
@@ -126,6 +141,7 @@
     &:focus .title {
       border-color: hsla(0, 0%, 80%, 0.5);
     }
+
     &:not(.isSelected):hover .title {
       cursor: pointer;
       box-shadow: none;
@@ -171,6 +187,7 @@
       &.isSelected .title {
         position: relative;
       }
+
       &.isSelected .title::after {
         $diameter: 40px;
         content: "";
@@ -183,6 +200,7 @@
         transform: rotate(45deg);
       }
     }
+
     .content {
       flex: 1 0 100%;
       display: flex;

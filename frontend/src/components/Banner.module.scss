@@ -11,6 +11,7 @@
   &:not(.promo) {
     box-shadow: $box-shadow-sm;
   }
+
   &.promo {
     padding: 2px;
     background-image: $firefoxGradient;
@@ -46,6 +47,7 @@
     border-left-width: 4px;
     border-left-style: solid;
   }
+
   .banner.promo & {
     padding: $spacing-md;
     // .banner's border-radius - .banner's padding.
@@ -62,6 +64,7 @@
   padding: $spacing-md;
   display: flex;
   align-items: center;
+
   img {
     max-width: 60px;
   }

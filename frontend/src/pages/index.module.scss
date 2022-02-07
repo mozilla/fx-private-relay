@@ -59,6 +59,7 @@
     @include text-title-sm;
     font-family: $font-stack-firefox;
   }
+
   h2,
   .lead {
     padding: $spacing-sm 0;
@@ -133,6 +134,7 @@
     .planComparison {
       padding: $spacing-2xl;
     }
+
     .callout {
       padding: $spacing-2xl;
       text-align: start;
@@ -143,6 +145,7 @@
 .faqWrapper {
   background-color: $color-white;
 }
+
 .faq {
   width: $content-max;
   max-width: 100%;
