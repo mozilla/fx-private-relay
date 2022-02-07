@@ -48,7 +48,7 @@
     &::after {
         content: attr(data-number);
         display: block;
-        font-weight: bold;
+        font-weight: 700;
         font-size: 1rem;
         text-align: center;
         color: $color-light-gray-70;
@@ -450,7 +450,7 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
 
     .c-premium-onboarding-subdomain {
         @include text-body-lg;
-        font-weight: bold;
+        font-weight: 700;
         color: $color-purple-50;
     }
 
