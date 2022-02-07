@@ -147,6 +147,24 @@ export const CsatSurvey = (props: Props) => {
       action: "submitted",
       label: satisfaction,
       value: getNumericValueOfSatisfaction(satisfaction),
+      // Custom dimension 3 in Google Analytics is "CSAT Category",
+      // i.e. "Dissatisfied", "Neutral" or "Satisfied"
+      dimension3: getCategoryOfSatisfaction(satisfaction),
+      // Custom dimension 3 in Google Analytics is "CSAT Survey Rating",
+      // i.e. "Very Dissatisfied", "Dissatisfied", "Neutral", "Satisfied" or "Very Satisfied"
+      dimension4: satisfaction,
+      // Metric 10 in Google Analytics is "CSAT Survey Count",
+      // i.e. it tracks how many people have completed the CSAT survey:
+      metric10: 1,
+      // Metric 11 in Google Analytics is "CSAT Survey Rating",
+      // i.e. it tracks which answer survey takers gave ("Very Dissatisfied",
+      // "Dissatisfied", "Neutral", "Satisfied" or "Very Satisfied")
+      metric11: getNumericValueOfSatisfaction(satisfaction),
+      // Metric 12 in Google Analytics is "CSAT Satisfaction Value",
+      // i.e. it tracks where users are Satisfied, Neutral or Dissatisfied:
+      metric12: getNumericValueOfSatisfactionCategory(
+        getCategoryOfSatisfaction(satisfaction)
+      ),
     });
   };
 
@@ -246,5 +264,34 @@ function getNumericValueOfSatisfaction(
       return 4;
     case "Very Satisfied":
       return 5;
+  }
+}
+
+type SatisfactionCategory = "Dissatisfied" | "Neutral" | "Satisfied";
+function getCategoryOfSatisfaction(
+  satisfaction: keyof SurveyLinks
+): SatisfactionCategory {
+  switch (satisfaction) {
+    case "Very Dissatisfied":
+    case "Dissatisfied":
+      return "Dissatisfied";
+    case "Neutral":
+      return "Neutral";
+    case "Satisfied":
+    case "Very Satisfied":
+      return "Satisfied";
+  }
+}
+
+function getNumericValueOfSatisfactionCategory(
+  satisfactionCategory: SatisfactionCategory
+): -1 | 0 | 1 {
+  switch (satisfactionCategory) {
+    case "Dissatisfied":
+      return -1;
+    case "Neutral":
+      return 0;
+    case "Satisfied":
+      return 1;
   }
 }
