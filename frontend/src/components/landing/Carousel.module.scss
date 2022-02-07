@@ -84,7 +84,7 @@
       border-radius: $border-radius-md;
       border-bottom: 8px solid transparent;
       border-right: 8px solid transparent;
-      font-weight: bold;
+      font-weight: 700;
 
       &.yellow {
         background-color: $color-yellow-20;
@@ -211,7 +211,7 @@
         @include text-title-2xs;
         flex: 1 0 $content-xs;
         font-family: $font-stack-firefox;
-        font-weight: bold;
+        font-weight: 700;
         text-align: center;
         display: block;
         padding: $spacing-xl $spacing-2xl;

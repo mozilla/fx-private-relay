@@ -27,6 +27,7 @@ module.exports = {
     "declaration-block-semicolon-newline-after": "always",
     "declaration-colon-space-after": "always-single-line",
     "declaration-colon-space-before": "never",
+    "font-weight-notation": "numeric",
     "function-url-quotes": "always",
     "no-descending-specificity": null,
     "no-missing-end-of-source-newline": true,

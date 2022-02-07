@@ -16,7 +16,7 @@
 .toast {
   border-radius: $border-radius-md;
   text-align: center;
-  font-weight: bold;
+  font-weight: 700;
   font-family: $font-stack-base;
 }
 
@@ -110,7 +110,7 @@
 .footer {
   background-color: black;
   color: white;
-  font-weight: bold;
+  font-weight: 700;
   display: flex;
   align-items: flex-start;
   flex-direction: column;
