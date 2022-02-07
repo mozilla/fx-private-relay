@@ -84,7 +84,7 @@ def _get_csat_cookie_and_reason(request):
 
 def _get_days_since(days_since_arg):
     now = datetime.now(timezone.utc)
-    if type(days_since_arg == Profile):
+    if type(days_since_arg) == Profile:
         profile = days_since_arg
         if not profile.has_premium or not profile.date_subscribed:
             return None
