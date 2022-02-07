@@ -180,7 +180,9 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       <Item key="mozilla" textValue={l10n.getString("made-by-mozilla")}>
         <a
           ref={mozillaLinkRef}
-          href="https://www.mozilla.org/"
+          href={`https://www.mozilla.org/?utm_source=${encodeURIComponent(
+            getRuntimeConfig().frontendOrigin
+          )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`}
           className={`${styles.menuLink} ${styles.mozillaLink}`}
         >
           {l10n.getString("made-by-mozilla")}
