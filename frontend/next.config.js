@@ -38,8 +38,23 @@ runtimeConfigs.development = {
   fxaLogoutUrl: "http://localhost:3000/mock/logout",
 };
 
+/** @type {(config: import('next').NextConfig) => import('next').NextConfig} */
+const withBundleAnalyzer = (nextConfig) => {
+  if (process.env.ANALYZE !== "true") {
+    return nextConfig;
+  }
+  // This file is only loaded at build time, so we don't care about tree shaking
+  // being made impossible by a `require` call:
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const getAnalyzerWrapper = require("@next/bundle-analyzer");
+  const withAnalyzer = getAnalyzerWrapper({
+    enabled: process.env.ANALYZE === "true",
+  });
+  return withAnalyzer(nextConfig);
+};
+
 /** @type {import('next').NextConfig} */
-module.exports = {
+module.exports = withBundleAnalyzer({
   reactStrictMode: true,
   // This custom value for `pageExtensions` ensures that
   // test files are not picked up as pages to render by Next.js.
@@ -66,4 +81,4 @@ module.exports = {
 
     return config;
   },
-};
+});
