@@ -22,6 +22,7 @@
 
 .callout {
   grid-area: callout;
+
   @include text-body-sm;
   color: $color-blue-50;
   font-weight: bold;
@@ -30,12 +31,11 @@
 
 .plan {
   background-color: $color-white;
-  display: block;
+  display: flex;
   padding: $spacing-xl $spacing-2xl;
   border: 2px solid $color-light-gray-20;
   border-radius: $border-radius-md;
   width: $content-xs;
-  display: flex;
   flex-direction: column;
   align-items: center;
   gap: $spacing-md;
@@ -44,10 +44,12 @@
   &.freePlan {
     grid-area: free-plan;
     margin-top: $spacing-2xl;
+
     @media screen and #{$mq-md} {
       margin-top: 0;
     }
   }
+
   &.premiumPlan {
     grid-area: premium-plan;
     border-color: $color-purple-40;
