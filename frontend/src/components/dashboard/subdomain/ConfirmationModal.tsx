@@ -28,76 +28,86 @@ export type Props = {
  * Modal in which the user can confirm that they really want to permanently claim a given subdomain.
  */
 export const SubdomainConfirmationModal = (props: Props) => {
+  return !props.isSet ? (
+    <OverlayContainer>
+      <ConfirmModal {...props} />
+    </OverlayContainer>
+  ) : (
+    <OverlayContainer>
+      <SuccessModal {...props} />
+    </OverlayContainer>
+  );
+};
+
+const ConfirmModal = (props: Props) => {
   const { l10n } = useLocalization();
 
-  return props.isSet ? (
-    <>
-      <OverlayContainer>
-        <div className={styles.pickedConfirmation}>
-          <PickerDialog
-            title={
-              <Localized
-                id="modal-domain-register-success-v2"
-                vars={{
-                  subdomain: props.subdomain,
-                  domain: getRuntimeConfig().mozmailDomain,
-                }}
-                elems={{
-                  subdomain: <span className={styles.subdomain} />,
-                  domain: <span className={styles.domain} />,
-                }}
-              >
-                <span className={styles.modalTitle} />
-              </Localized>
-            }
-            headline={l10n.getString("modal-domain-register-success-title")}
-            onClose={() => props.onClose()}
-            isOpen={props.isOpen}
-            isDismissable={true}
-          >
-            <div className={styles.pickedConfirmationBody}>
-              <img src={partyIllustration.src} alt="" />
-              <p>{l10n.getString("modal-domain-register-success-copy")}</p>
-              <Button onClick={() => props.onClose()}>
-                {l10n.getString("profile-label-continue")}
-              </Button>
-            </div>
-          </PickerDialog>
-        </div>
-      </OverlayContainer>
-    </>
-  ) : (
-    <>
-      <OverlayContainer>
-        <PickerDialog
-          title={
-            <Localized
-              id="modal-domain-register-available-v2"
-              vars={{
-                subdomain: props.subdomain,
-                domain: getRuntimeConfig().mozmailDomain,
-              }}
-              elems={{
-                subdomain: <span className={styles.subdomain} />,
-                domain: <span className={styles.domain} />,
-              }}
-            >
-              <span className={styles.modalTitle} />
-            </Localized>
-          }
-          headline={l10n.getString("modal-domain-register-good-news")}
-          onClose={() => props.onClose()}
-          isOpen={props.isOpen}
-          isDismissable={true}
+  return (
+    <PickerDialog
+      title={
+        <Localized
+          id="modal-domain-register-available-v2"
+          vars={{
+            subdomain: props.subdomain,
+            domain: getRuntimeConfig().mozmailDomain,
+          }}
+          elems={{
+            subdomain: <span className={styles.subdomain} />,
+            domain: <span className={styles.domain} />,
+          }}
         >
-          <SubdomainConfirmationForm
-            subdomain={props.subdomain}
-            onCancel={() => props.onClose()}
-            onConfirm={() => props.onConfirm()}
-          />
-        </PickerDialog>
-      </OverlayContainer>
-    </>
+          <span className={styles.modalTitle} />
+        </Localized>
+      }
+      headline={l10n.getString("modal-domain-register-good-news")}
+      onClose={() => props.onClose()}
+      isOpen={props.isOpen}
+      isDismissable={true}
+    >
+      <SubdomainConfirmationForm
+        subdomain={props.subdomain}
+        onCancel={() => props.onClose()}
+        onConfirm={() => props.onConfirm()}
+      />
+    </PickerDialog>
+  );
+};
+
+const SuccessModal = (props: Props) => {
+  const { l10n } = useLocalization();
+
+  return (
+    <div className={styles.pickedConfirmation}>
+      <PickerDialog
+        title={
+          <Localized
+            id="modal-domain-register-success-v2"
+            vars={{
+              subdomain: props.subdomain,
+              domain: getRuntimeConfig().mozmailDomain,
+            }}
+            elems={{
+              subdomain: <span className={styles.subdomain} />,
+              domain: <span className={styles.domain} />,
+            }}
+          >
+            <span className={styles.modalTitle} />
+          </Localized>
+        }
+        headline={l10n.getString("modal-domain-register-success-title")}
+        onClose={() => props.onClose()}
+        isOpen={props.isOpen}
+        isDismissable={true}
+      >
+        <div className={styles.pickedConfirmationBody}>
+          <img src={partyIllustration.src} alt="" />
+          <p>{l10n.getString("modal-domain-register-success-copy")}</p>
+          <Button onClick={() => props.onClose()}>
+            {l10n.getString("profile-label-continue")}
+          </Button>
+        </div>
+      </PickerDialog>
+    </div>
   );
 };
 
