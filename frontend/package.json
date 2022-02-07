@@ -8,7 +8,7 @@
     "watch_build": "NEXT_PUBLIC_DEBUG=true npm run build",
     "build": "next build && next export",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "next lint && stylelint '**/*.scss'",
     "test": "jest",
     "prepare": "cd .. && husky install frontend/.husky"
   },
@@ -54,14 +54,14 @@
     "prettier": "2.5.1",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.49.7",
+    "stylelint": "^14.3.0",
+    "stylelint-config-prettier-scss": "^0.0.1",
+    "stylelint-config-recommended-scss": "^5.0.2",
+    "stylelint-scss": "^4.1.0",
     "typescript": "^4.5.5"
   },
   "volta": {
     "node": "14.18.1",
     "npm": "8.1.0"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --cache --fix",
-    "*.{js,jsx,ts,tsx,css,scss,md}": "prettier --write"
   }
 }

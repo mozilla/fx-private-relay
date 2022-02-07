@@ -14,7 +14,7 @@
 
   &:hover,
   &:focus {
-    background-image: url(/icons/edit.svg);
+    background-image: url("/icons/edit.svg");
     background-repeat: no-repeat;
     background-position: calc(100% - $spacing-xs);
     background-color: $color-light-gray-20;

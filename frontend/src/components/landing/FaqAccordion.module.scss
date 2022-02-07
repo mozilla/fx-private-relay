@@ -42,6 +42,7 @@
   .plusIcon {
     transition: transform 0.2s ease-out;
   }
+
   &.isExpanded {
     .plusIcon {
       transform: rotate(45deg);
