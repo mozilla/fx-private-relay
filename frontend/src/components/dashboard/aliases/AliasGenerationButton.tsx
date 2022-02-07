@@ -34,7 +34,7 @@ import {
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../../functions/getPlan";
-import { useGaPing } from "../../../hooks/gaPing";
+import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { trackPurchaseStart } from "../../../functions/trackPurchase";
 import { AddressPickerModal } from "./AddressPickerModal";
 
@@ -57,7 +57,7 @@ export type Props = {
  */
 export const AliasGenerationButton = (props: Props) => {
   const { l10n } = useLocalization();
-  const getUnlimitedButtonRef = useGaPing({
+  const getUnlimitedButtonRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-create-alias-upgrade-promo",
   });

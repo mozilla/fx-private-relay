@@ -6,7 +6,7 @@ import { ProfileData } from "../../hooks/api/profile";
 import { CloseIcon } from "../icons/close";
 import { useLocalDismissal } from "../../hooks/localDismissal";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
-import { useGaPing } from "../../hooks/gaPing";
+import { useGaViewPing } from "../../hooks/gaViewPing";
 import { getLocale } from "../../functions/getLocale";
 
 export type Props = {
@@ -25,7 +25,7 @@ export const InterviewRecruitment = (props: Props) => {
   const { l10n } = useLocalization();
   const dismissal = useLocalDismissal("interview-recruitment");
   const runtimeData = useRuntimeData();
-  const linkRef = useGaPing({
+  const linkRef = useGaViewPing({
     category: "Recruitment",
     label: recruitmentLabel,
   });

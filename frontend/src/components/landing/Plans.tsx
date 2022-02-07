@@ -3,7 +3,7 @@ import { event as gaEvent } from "react-ga";
 import styles from "./Plans.module.scss";
 import RelayWordmark from "../../../../static/images/logos/logo-firefox-relay.svg";
 import RelayPremiumWordmark from "../../../../static/images/logos/logo-firefox-premium-relay.svg";
-import { useGaPing } from "../../hooks/gaPing";
+import { useGaViewPing } from "../../hooks/gaViewPing";
 import {
   getPlan,
   getPremiumSubscribeLink,
@@ -21,11 +21,11 @@ export type Props = {
  */
 export const Plans = (props: Props) => {
   const { l10n } = useLocalization();
-  const freeFauxButtonRef = useGaPing({
+  const freeFauxButtonRef = useGaViewPing({
     category: "Sign In",
     label: "landing-pricing-free-cta",
   });
-  const premiumFauxButtonRef = useGaPing({
+  const premiumFauxButtonRef = useGaViewPing({
     category: "Purchase Button",
     label: "newlanding-plans-button",
   });
