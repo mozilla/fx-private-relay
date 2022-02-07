@@ -189,7 +189,7 @@
                 modalRegistrationSuccessState.classList.remove("is-hidden");
 
                 const domainPreview = document.querySelector(".js-premium-onboarding-domain-registration-preview");
-                domainPreview.textContent = "@" + domain;
+                domainPreview.textContent = domain;
 
                 const modalContinue = document.querySelector(".js-modal-domain-registration-continue");
 

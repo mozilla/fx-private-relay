@@ -282,7 +282,7 @@
 // Step 2: Register custom subdomain 
 .c-premium-onboarding-step-2 {
 
-    samp {
+    .c-premium-onboarding-subdomain-registration {
         @include text-title-2xs;
         display: block;
         color: $color-grey-30;
@@ -428,6 +428,7 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
 
     .c-premium-onboarding-subdomain-set-module {
         font-family: $font-stack-firefox;
+        display: grid;
         text-align: center;
         font-weight: 600;
         margin: 0 auto;
@@ -450,6 +451,8 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
 
     .c-premium-onboarding-subdomain {
         @include text-body-lg;
+        font-family: $font-stack-firefox;
+        word-break: break-word;
         font-weight: 700;
         color: $color-purple-50;
     }
