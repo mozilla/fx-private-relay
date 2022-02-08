@@ -49,7 +49,7 @@ export const CsatSurvey = (props: Props) => {
   const free90DaysDismissal = useLocalDismissal(
     "csat-survey-free-90days_" + props.profile.id,
     // After the third month, show every three months:
-    { duration: 30 * 24 * 60 * 60 }
+    { duration: 90 * 24 * 60 * 60 }
   );
   const premium7DaysDismissal = useLocalDismissal(
     "csat-survey-premium-7days_" + props.profile.id
@@ -60,7 +60,7 @@ export const CsatSurvey = (props: Props) => {
   const premium90DaysDismissal = useLocalDismissal(
     "csat-survey-premium-90days_" + props.profile.id,
     // After the third month, show every three months:
-    { duration: 30 * 24 * 60 * 60 }
+    { duration: 90 * 24 * 60 * 60 }
   );
   const firstSeen = useFirstSeen();
   const { l10n } = useLocalization();
