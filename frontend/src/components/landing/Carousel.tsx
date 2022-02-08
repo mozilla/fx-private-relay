@@ -90,7 +90,7 @@ const Tabs = (props: TabsProps) => {
       {...tabListProps}
       ref={tabsRef}
       className={`${styles.sections} ${
-        styles["selected_" + state.selectedKey]
+        styles["selected_tab_" + state.selectedItem.index]
       }`}
     >
       {Array.from(state.collection).map((item) => (
