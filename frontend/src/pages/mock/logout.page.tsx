@@ -1,18 +1,12 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import { MouseEventHandler, useEffect } from "react";
+import { MouseEventHandler } from "react";
 import { getRuntimeConfig } from "../../config";
 import { authenticatedFetch } from "../../hooks/api/api";
 import styles from "./mockSession.module.scss";
 
 const MockLogout: NextPage = () => {
   const router = useRouter();
-
-  useEffect(() => {
-    if (process.env.NODE_ENV !== "development") {
-      router.replace("/404");
-    }
-  }, [router]);
 
   const onLogout: MouseEventHandler = async (event) => {
     event.preventDefault();

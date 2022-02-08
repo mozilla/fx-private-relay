@@ -22,12 +22,6 @@ const MockLogin: NextPage = () => {
     setUsedTokens(JSON.parse(usedTokensString).sort(byUseDate));
   }, []);
 
-  useEffect(() => {
-    if (process.env.NODE_ENV !== "development") {
-      router.replace("/404");
-    }
-  }, [router]);
-
   const onLogin: FormEventHandler = (event) => {
     event.preventDefault();
 
