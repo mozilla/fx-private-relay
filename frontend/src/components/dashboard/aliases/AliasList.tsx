@@ -1,4 +1,4 @@
-import { useLocalization } from "@fluent/react";
+import { Localized, useLocalization } from "@fluent/react";
 import { useState } from "react";
 import { VisuallyHidden } from "react-aria";
 import styles from "./AliasList.module.scss";
@@ -119,6 +119,26 @@ export const AliasList = (props: Props) => {
     </>
   ) : null;
 
+  const emptyStateMessage =
+    props.aliases.length > 0 && aliases.length === 0 ? (
+      <Localized
+        id="profile-filter-no-results"
+        elems={{
+          "clear-button": (
+            <button
+              onClick={() => {
+                setCategoryFilters({});
+                setStringFilterInput("");
+              }}
+              className={styles.clearFiltersButton}
+            />
+          ),
+        }}
+      >
+        <p className={styles.emptyStateMessage} />
+      </Localized>
+    ) : null;
+
   return (
     <section>
       <div className={styles.controls}>
@@ -133,6 +153,7 @@ export const AliasList = (props: Props) => {
         </div>
       </div>
       <ul>{aliasCards}</ul>
+      {emptyStateMessage}
     </section>
   );
 };
