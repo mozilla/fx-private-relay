@@ -10,6 +10,7 @@ import { useProfiles } from "../../hooks/api/profile";
 import {
   AliasData,
   getAllAliases,
+  getFullAddress,
   isRandomAlias,
   useAliases,
 } from "../../hooks/api/aliases";
@@ -114,29 +115,78 @@ const Profile: NextPage = () => {
     );
   }
 
-  const createAlias = (
+  const createAlias = async (
     options: { type: "random" } | { type: "custom"; address: string }
   ) => {
-    if (options.type === "custom") {
-      customAliasData.create(options.address);
-    } else {
-      randomAliasData.create();
+    try {
+      let response;
+      if (options.type === "custom") {
+        response = await customAliasData.create(options.address);
+      } else {
+        response = await randomAliasData.create();
+      }
+      if (!response.ok) {
+        throw new Error(
+          "Immediately caught to land in the same code path as failed requests."
+        );
+      }
+    } catch (error) {
+      toast(l10n.getString("error-alias-create-failed"), { type: "error" });
     }
   };
 
-  const updateAlias = (alias: AliasData, updatedFields: Partial<AliasData>) => {
-    if (isRandomAlias(alias)) {
-      randomAliasData.update({ ...updatedFields, id: alias.id });
-    } else {
-      customAliasData.update({ ...updatedFields, id: alias.id });
+  const updateAlias = async (
+    alias: AliasData,
+    updatedFields: Partial<AliasData>
+  ) => {
+    try {
+      let response;
+      if (isRandomAlias(alias)) {
+        response = await randomAliasData.update({
+          ...updatedFields,
+          id: alias.id,
+        });
+      } else {
+        response = await customAliasData.update({
+          ...updatedFields,
+          id: alias.id,
+        });
+      }
+      if (!response.ok) {
+        throw new Error(
+          "Immediately caught to land in the same code path as failed requests."
+        );
+      }
+    } catch (error) {
+      toast(
+        l10n.getString("error-alias-update-failed", {
+          alias: getFullAddress(alias, profile),
+        }),
+        { type: "error" }
+      );
     }
   };
 
-  const deleteAlias = (alias: AliasData) => {
-    if (isRandomAlias(alias)) {
-      randomAliasData.delete(alias.id);
-    } else {
-      customAliasData.delete(alias.id);
+  const deleteAlias = async (alias: AliasData) => {
+    try {
+      let response;
+      if (isRandomAlias(alias)) {
+        response = await randomAliasData.delete(alias.id);
+      } else {
+        response = await customAliasData.delete(alias.id);
+      }
+      if (!response.ok) {
+        throw new Error(
+          "Immediately caught to land in the same code path as failed requests."
+        );
+      }
+    } catch (error: unknown) {
+      toast(
+        l10n.getString("error-alias-delete-failed", {
+          alias: getFullAddress(alias, profile),
+        }),
+        { type: "error" }
+      );
     }
   };
 
