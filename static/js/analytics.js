@@ -197,7 +197,7 @@ function analyticsSurveyLogic() {
     const dismissCookieId = csatWrapperEl?.dataset.cookieId ?? "";
     const expiresIn = dismissCookieId.indexOf("90days") !== -1
       // Repeat the last (90days) survey every 3 months
-      ? 30*24*60*60*1000
+      ? 90*24*60*60*1000
       // Don't show the other surveys again:
       : 1000*24*60*60*1000;
     const date = new Date();
