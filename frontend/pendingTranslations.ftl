@@ -40,6 +40,7 @@ profile-details-collapse = Hide alias details
 profile-filter-category-button-label = Filter visible aliases
 profile-filter-category-button-tooltip = Filter aliases by domain and/or whether they are enabled or disabled
 profile-filter-category-title = Filter visible aliases
+profile-filter-no-results = No aliases match your selected criteria. <clear-button>Clear all filters.</clear-button>
 
 # Variables:
 #   $subdomain (string) - Chosen subdomain, i.e. the part after `@` and before `.mozmail.com`
