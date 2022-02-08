@@ -32,12 +32,12 @@ export type CustomAliasData = CommonAliasData & {
 
 export type AliasData = RandomAliasData | CustomAliasData;
 
-export type RandomAliasCreateFn = () => Promise<void>;
-export type CustomAliasCreateFn = (address: string) => Promise<void>;
+export type RandomAliasCreateFn = () => Promise<Response>;
+export type CustomAliasCreateFn = (address: string) => Promise<Response>;
 export type AliasUpdateFn = (
   alias: Partial<AliasData> & { id: number }
-) => Promise<void>;
-export type AliasDeleteFn = (id: number) => Promise<void>;
+) => Promise<Response>;
+export type AliasDeleteFn = (id: number) => Promise<Response>;
 type WithRandomAliasCreater = {
   create: RandomAliasCreateFn;
 };
@@ -70,18 +70,20 @@ export function useAliases(): {
     useApiV1("/domainaddresses/");
 
   const randomAliasCreater: RandomAliasCreateFn = async () => {
-    await apiFetch("/relayaddresses/", {
+    const response = await apiFetch("/relayaddresses/", {
       method: "POST",
       body: JSON.stringify({ enabled: true }),
     });
     randomAliases.mutate();
+    return response;
   };
   const customAliasCreater: CustomAliasCreateFn = async (address) => {
-    await apiFetch("/domainaddresses/", {
+    const response = await apiFetch("/domainaddresses/", {
       method: "POST",
       body: JSON.stringify({ enabled: true, address: address }),
     });
     customAliases.mutate();
+    return response;
   };
 
   const getUpdater: (type: "random" | "custom") => AliasUpdateFn = (type) => {
@@ -91,7 +93,7 @@ export function useAliases(): {
           ? `/relayaddresses/${aliasData.id}/`
           : `/domainaddresses/${aliasData.id}/`;
 
-      await apiFetch(endpoint, {
+      const response = await apiFetch(endpoint, {
         method: "PATCH",
         body: JSON.stringify(aliasData),
       });
@@ -100,6 +102,7 @@ export function useAliases(): {
       } else {
         customAliases.mutate();
       }
+      return response;
     };
   };
 
@@ -110,7 +113,7 @@ export function useAliases(): {
           ? `/relayaddresses/${aliasId}/`
           : `/domainaddresses/${aliasId}/`;
 
-      await apiFetch(endpoint, {
+      const response = await apiFetch(endpoint, {
         method: "DELETE",
       });
       if (type === "random") {
@@ -118,6 +121,7 @@ export function useAliases(): {
       } else {
         customAliases.mutate();
       }
+      return response;
     };
   };
 

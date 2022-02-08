@@ -21,6 +21,13 @@ landing-how-it-works-step-2-body-v2 = As you browse, the { -brand-name-relay } i
 landing-use-cases-heading = Use { -brand-name-firefox-relay } for:
 
 error-settings-update = There was an error updating your settings, please try again
+error-alias-create-failed = The alias could not be created. Please try again.
+# This currently appears when an alias label could not be updated,
+# but in the future it might also appear if other alias data could not be changed.
+error-alias-update-failed = The alias data could not be updated. Please try again.
+# Variables:
+#   $alias (string) - The email alias (e.g. abcdef@mozmail.com) that the user tried to delete
+error-alias-delete-failed = The alias { $alias } could not be deleted. Please try again.
 
 # This will be read to screen readers when focusing the button to copy an alias to the clipboard.
 # Variables:
