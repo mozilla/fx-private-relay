@@ -129,6 +129,8 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           ref={linkRefs.monitor}
           href={products.monitor.url}
           className={`${styles.menuLink} ${styles.monitorLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <img src={MonitorLogo.src} alt="" width={16} height={16} />
           {l10n.getString("fx-monitor")}
@@ -139,6 +141,8 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           ref={linkRefs.pocket}
           href={products.pocket.url}
           className={`${styles.menuLink} ${styles.pocketLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <img src={PocketLogo.src} alt="" width={16} height={16} />
           {l10n.getString("fx-pocket")}
@@ -152,6 +156,8 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           ref={linkRefs.fxDesktop}
           href={products.fxDesktop.url}
           className={`${styles.menuLink} ${styles.fxDesktopLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <img src={FxDesktopLogo.src} alt="" width={16} height={16} />
           {l10n.getString("fx-desktop")}
@@ -162,6 +168,8 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           ref={linkRefs.fxMobile}
           href={products.fxMobile.url}
           className={`${styles.menuLink} ${styles.fxMobileLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <img src={FxMobileLogo.src} alt="" width={16} height={16} />
           {l10n.getString("fx-mobile")}
@@ -172,6 +180,8 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           ref={linkRefs.vpn}
           href={products.vpn.url}
           className={`${styles.menuLink} ${styles.vpnLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           <img src={VpnLogo.src} alt="" width={16} height={16} />
           {l10n.getString("fx-vpn")}
@@ -184,6 +194,8 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
             getRuntimeConfig().frontendOrigin
           )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`}
           className={`${styles.menuLink} ${styles.mozillaLink}`}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           {l10n.getString("made-by-mozilla")}
         </a>
