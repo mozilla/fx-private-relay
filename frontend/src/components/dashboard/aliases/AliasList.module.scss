@@ -76,3 +76,21 @@
 .categoryFilter {
   padding-right: $spacing-md;
 }
+
+.emptyStateMessage {
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+
+  .clearFiltersButton {
+    background-color: transparent;
+    border-style: none;
+    color: $color-blue-50;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: $color-blue-40;
+    }
+  }
+}
