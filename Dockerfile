@@ -22,6 +22,7 @@ WORKDIR /app/frontend
 COPY frontend ./
 RUN npm install
 RUN npm run lint -- --max-warnings=0
+RUN npm run licensecheck
 RUN npm run test
 RUN npm run build
 
