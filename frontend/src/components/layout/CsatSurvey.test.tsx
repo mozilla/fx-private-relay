@@ -281,13 +281,13 @@ describe("The CSAT survey", () => {
     expect(verySatisfiedButton).not.toBeInTheDocument();
   });
 
-  it("displays the survey to a free user for more than three months that has dismissed or completed the 3-month survey three months ago", () => {
+  it("displays the survey to a free user for more than three months that has dismissed or completed the 3-month survey more than three months ago", () => {
     // TypeScript can't follow paths in `jest.requireMock`:
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const useFirstSeen = (jest.requireMock("../../hooks/firstSeen.ts") as any)
       .useFirstSeen;
     useFirstSeen.mockReturnValueOnce(
-      new Date(Date.now() - 3 * 30 * 24 * 60 * 60 * 1000)
+      new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1001)
     );
     const getCookie: jest.Mock =
       // TypeScript can't follow paths in `jest.requireMock`:
@@ -295,7 +295,7 @@ describe("The CSAT survey", () => {
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
       key.includes("free-90days")
-        ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1000
+        ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1001
         : undefined
     );
     const mockProfileData = getMockProfileData({ has_premium: false });
@@ -648,20 +648,20 @@ describe("The CSAT survey", () => {
     expect(verySatisfiedButton).not.toBeInTheDocument();
   });
 
-  it("displays the survey to a new Premium user after more than three months that has dismissed or completed it three months ago", () => {
+  it("displays the survey to a new Premium user after more than three months that has dismissed or completed it more than three months ago", () => {
     const getCookie: jest.Mock =
       // TypeScript can't follow paths in `jest.requireMock`:
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (jest.requireMock("../../functions/cookies.ts") as any).getCookie;
     getCookie.mockImplementation((key: string) =>
       key.includes("premium-90days")
-        ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1000
+        ? Date.now() - 3 * 30 * 24 * 60 * 60 * 1001
         : undefined
     );
     const mockProfileData = getMockProfileData({
       has_premium: true,
       date_subscribed: new Date(
-        Date.now() - 6 * 30 * 24 * 60 * 60 * 1000
+        Date.now() - 6 * 30 * 24 * 60 * 60 * 1001
       ).toISOString(),
     });
 
