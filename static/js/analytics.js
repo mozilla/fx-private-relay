@@ -193,16 +193,21 @@ function analyticsSurveyLogic() {
     }
   }
 
+  function getExpirationDateForCookie(daysFromNow) {
+    const oneDayInMilliseconds = 24 * 60 * 60 * 1000;
+    const date = new Date();
+    date.setTime(date.getTime() + daysFromNow * oneDayInMilliseconds);
+    return date.toUTCString();
+  }
+
   const setCsatCookie = () => {
     const dismissCookieId = csatWrapperEl?.dataset.cookieId ?? "";
-    const expiresIn = dismissCookieId.indexOf("90days") !== -1
+    const expiresOn = dismissCookieId.indexOf("90days") !== -1
       // Repeat the last (90days) survey every 3 months
-      ? 90*24*60*60*1000
+      ? getExpirationDateForCookie(90)
       // Don't show the other surveys again:
-      : 1000*24*60*60*1000;
-    const date = new Date();
-    date.setTime(date.getTime() + expiresIn)
-    document.cookie = `${dismissCookieId}=${Date.now()}; expires=` + date.toUTCString() + "; path=/";
+      : getExpirationDateForCookie(1000);
+    document.cookie = `${dismissCookieId}=${Date.now()}; expires=${expiresOn}; path=/`;
   };
   csatAnswerEls.forEach(answerElement => {
     answerElement.addEventListener("click", (event) => {
