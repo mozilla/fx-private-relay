@@ -18,6 +18,6 @@ export const mockFluentReact = {
         <>[Localized with vars: {JSON.stringify(props.vars ?? {})}]</>
       )
     ) : (
-      <>Invalid Localized element (more than a single child element</>
+      <>Invalid Localized element (more than a single child element)</>
     ),
 };
