@@ -22,7 +22,8 @@ WORKDIR /app/frontend
 COPY frontend ./
 RUN npm install
 RUN npm run lint -- --max-warnings=0
-RUN npm run licensecheck
+# Temporarily disabled for tslib due to https://bugzilla.mozilla.org/show_bug.cgi?id=1754201
+RUN npm run licensecheck -- --excludePackages 'tslib@2.3.1'
 RUN npm run test
 RUN npm run build
 
