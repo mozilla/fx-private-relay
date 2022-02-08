@@ -11,13 +11,7 @@ RUN ./node_modules/.bin/gulp build
 RUN npm run lint:js -- --max-warnings=0
 RUN npm run lint:css
 
-FROM debian as react-builder
-
-# Install Volta, to use the same toolchain (Node+npm) as developers locally:
-RUN apt-get update && apt-get install -y curl ca-certificates --no-install-recommends
-ENV VOLTA_HOME $HOME/.volta
-ENV PATH $VOLTA_HOME/bin:$PATH
-RUN curl https://get.volta.sh | bash
+FROM node:14 as react-builder
 
 WORKDIR /app
 COPY privaterelay/locales ./privaterelay/locales
