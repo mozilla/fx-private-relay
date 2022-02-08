@@ -1,6 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
+  "license": "MPL-2.0",
   "private": true,
   "scripts": {
     "dev": "NEXT_PUBLIC_DEBUG=true next dev",
@@ -9,6 +10,7 @@
     "build": "next build && next export",
     "start": "next start",
     "lint": "stylelint '**/*.scss' && next lint",
+    "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL;'",
     "test": "jest",
     "prepare": "cd .. && husky install frontend/.husky"
   },
@@ -18,7 +20,6 @@
     "@fluent/react": "^0.14.1",
     "@mozilla-protocol/core": "^16.0.0",
     "intl-pluralrules": "^1.3.1",
-    "next": "^12.0.7",
     "react": "17.0.2",
     "react-aria": "^3.12.0",
     "react-dom": "17.0.2",
@@ -50,7 +51,9 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.4.7",
     "jest-axe": "^5.0.1",
+    "license-checker": "^25.0.1",
     "lint-staged": "^12.3.3",
+    "next": "^12.0.7",
     "prettier": "2.5.1",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.49.7",
