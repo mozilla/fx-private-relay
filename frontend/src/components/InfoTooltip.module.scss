@@ -1,0 +1,46 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  position: relative;
+  display: none;
+
+  @media screen and #{$mq-md} {
+    display: initial;
+  }
+
+  .trigger {
+    display: flex;
+    align-items: center;
+    background-color: transparent;
+    border-style: none;
+    color: $color-light-gray-70;
+  }
+
+  .tooltip {
+    $triangleWidth: 10px;
+    position: absolute;
+    background-color: $color-white;
+    box-shadow: $box-shadow-sm;
+    border-radius: $border-radius-sm;
+    padding: $spacing-md;
+    min-width: $content-xs;
+    margin-top: $triangleWidth;
+    margin-left: calc(-1 * ($triangleWidth / 2));
+    // Overlap .banner in <Banner>, which is relatively positioned:
+    z-index: 1;
+
+    &:after {
+      background-color: $color-white;
+
+      content: "\00a0";
+      display: block;
+      width: $triangleWidth;
+      height: $triangleWidth;
+      position: absolute;
+
+      top: calc(-1 * $triangleWidth / 2);
+      transform: rotate(135deg);
+    }
+  }
+}

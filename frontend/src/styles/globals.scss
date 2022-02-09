@@ -30,6 +30,16 @@ body,
   font-family: $font-stack-base;
 }
 
+html {
+  scroll-behavior: smooth;
+
+  @media (prefers-reduced-motion) {
+    & {
+      scroll-behavior: auto;
+    }
+  }
+}
+
 body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;

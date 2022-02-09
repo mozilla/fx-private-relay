@@ -28,7 +28,7 @@ export type Props = {
 };
 
 /**
- * Shows the user whichc subdomain they've chosen, and can show them more info on how to use it.
+ * Shows the user which subdomain they've chosen, and can show them more info on how to use it.
  */
 export const SubdomainIndicator = (props: Props) => {
   if (props.subdomain === null) {

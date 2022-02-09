@@ -34,6 +34,7 @@ import { Tips } from "../../components/dashboard/Tips";
 import { clearCookie, getCookie } from "../../functions/cookies";
 import { toast } from "react-toastify";
 import { getLocale } from "../../functions/getLocale";
+import { InfoTooltip } from "../../components/InfoTooltip";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -200,10 +201,9 @@ const Profile: NextPage = () => {
     0
   );
 
-  const subdomainIndicator =
+  const subdomainMessage =
     typeof profile.subdomain === "string" ? (
-      <strong className={styles.subdomain}>
-        <img src={checkIcon.src} alt="" />
+      <>
         {l10n.getString("profile-label-domain")}&nbsp;
         <SubdomainIndicator
           subdomain={profile.subdomain}
@@ -211,8 +211,19 @@ const Profile: NextPage = () => {
             createAlias({ type: "custom", address: address })
           }
         />
-      </strong>
-    ) : null;
+      </>
+    ) : (
+      <>
+        <a className={styles.openButton} href="#mpp-choose-subdomain">
+          {l10n.getString("profile-label-create-domain")}
+        </a>
+        <InfoTooltip
+          alt={l10n.getString("profile-label-domain-tooltip-trigger")}
+        >
+          {l10n.getString("profile-label-domain-tooltip")}
+        </InfoTooltip>
+      </>
+    );
 
   const numberFormatter = new Intl.NumberFormat(getLocale(l10n), {
     notation: "compact",
@@ -235,7 +246,10 @@ const Profile: NextPage = () => {
           >
             <span className={styles.greeting} />
           </Localized>
-          {subdomainIndicator}
+          <strong className={styles.subdomain}>
+            <img src={checkIcon.src} alt="" />
+            {subdomainMessage}
+          </strong>
         </div>
         <dl className={styles.accountStats}>
           <div className={styles.stat}>

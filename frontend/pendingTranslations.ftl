@@ -29,6 +29,7 @@ error-alias-update-failed = The alias data could not be updated. Please try agai
 #   $alias (string) - The email alias (e.g. abcdef@mozmail.com) that the user tried to delete
 error-alias-delete-failed = The alias { $alias } could not be deleted. Please try again.
 
+profile-label-domain-tooltip-trigger = More info
 # This will be read to screen readers when focusing the button to copy an alias to the clipboard.
 # Variables:
 #   $address (string) - Alias address, e.g. wz7n0vykd@mozmail.com.
