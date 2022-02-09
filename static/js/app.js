@@ -241,6 +241,11 @@ function addEventListeners() {
       sendGaPing("Generate New Alias", "Engage", "btn-enabled");
       e.target.submit();
     });
+
+    const aliasCard = document.querySelector(".js-alias");
+    toggleAliasCardDetailsVisibility(aliasCard);
+    console.log(aliasCard);
+
   }
 
 
