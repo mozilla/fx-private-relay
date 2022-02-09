@@ -18,58 +18,62 @@
         <svg class="x-close-icon" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
       </button>
     </div>
-  {% elif show_nps and request.path != "/premium" %}
-    <div id="micro-survey-banner" class="micro-survey-banner is-hidden">
-      <button id="survey-dismiss" class="dismiss-btn">
-        <svg class="x-close-icon fill-current  text-gray" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+  {% elif show_csat %}
+    <aside
+      class="js-csat-wrapper c-csat-wrapper"
+      data-has-premium="{{ user_profile.has_premium }}"
+      data-cookie-id="{{ csat_dismissal_cookie }}"
+    >
+      <div class="js-csat-question">
+        <div class="c-csat-prompt">
+          {% ftlmsg 'survey-csat-question' %}
+        </div>
+        <div class="js-csat-answers c-csat-answers">
+          <ol>
+            <li>
+              <button data-satisfaction="Very Dissatisfied">
+                {% ftlmsg 'survey-csat-answer-very-dissatisfied' %}
+              </button>
+            </li>
+            <li>
+              <button data-satisfaction="Dissatisfied">
+                {% ftlmsg 'survey-csat-answer-dissatisfied' %}
+              </button>
+            </li>
+            <li>
+              <button data-satisfaction="Neutral">
+                {% ftlmsg 'survey-csat-answer-neutral' %}
+              </button>
+            </li>
+            <li>
+              <button data-satisfaction="Satisfied">
+                {% ftlmsg 'survey-csat-answer-satisfied' %}
+              </button>
+            </li>
+            <li>
+              <button data-satisfaction="Very Satisfied">
+                {% ftlmsg 'survey-csat-answer-very-satisfied' %}
+              </button>
+            </li>
+          </ol>
+        </div>
+      </div>
+      <div class="js-csat-followup is-hidden">
+        <div class="c-csat-prompt">
+          <a target="_blank" rel="noopen noreferrer">
+            {% ftlmsg 'survey-csat-followup' %}
+          </a>
+        </div>
+      </div>
+      <button class="js-csat-dismiss c-csat-dismiss-button" title={% ftlmsg 'survey-option-dismiss' %}>
+        <svg class="x-close-icon" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+          <title>{% ftlmsg 'survey-option-dismiss' %}</title>
+          <path
+            d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"
+          />
+        </svg>
       </button>
-      {% comment %}
-      {% now "U" as now_second %}
-      {% if now_second|last == "1" or now_second|last == "6" %}
-      {% endcomment %}
-      <span id="micro-survey-prompt" data-survey-type="nps">{% ftlmsg 'survey-question-1' %}</span>
-      <ul id="micro-survey-options"
-      data-survey-option-very-likely-translated="{% ftlmsg 'survey-option-very-likely' %}"
-      data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-not-likely' %}"
-      class="micro-survey-options micro-survey-options-numeric"></ul>
-      {% comment %}
-      {% elif now_second|last == "2" or now_second|last == "7" %}
-        <span id="micro-survey-prompt" data-survey-type="usability">{% ftlmsg 'survey-question-2' %}</span>
-        <ul id="micro-survey-options"
-        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
-        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
-        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
-        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
-        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
-        class="micro-survey-options micro-survey-options-likert"></ul>
-      {% elif now_second|last == "3" or now_second|last == "8" %}
-        <span id="micro-survey-prompt" data-survey-type="credibility">{% ftlmsg 'survey-question-3' %}</span>
-        <ul id="micro-survey-options"
-        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
-        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
-        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
-        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
-        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
-        class="micro-survey-options micro-survey-options-likert"></ul>
-      {% elif now_second|last == "4" or now_second|last == "9" %}
-        <span id="micro-survey-prompt" data-survey-type="appearance">{% ftlmsg 'survey-question-4' %}</span>
-        <ul id="micro-survey-options"
-        data-survey-option-strongly-disagree-translated="{% ftlmsg 'survey-option-strongly-disagree' %}"
-        data-survey-option-disagree-translated="{% ftlmsg 'survey-option-disagree' %}"
-        data-survey-option-unsure-translated="{% ftlmsg 'survey-option-unsure' %}"
-        data-survey-option-agree-translated="{% ftlmsg 'survey-option-agree' %}"
-        data-survey-option-strongly-agree-translated="{% ftlmsg 'survey-option-strongly-agree' %}"
-        class="micro-survey-options micro-survey-options-likert"></ul>
-      {% else %}
-        <span id="micro-survey-prompt" data-survey-type="pmf">{% ftlmsg 'survey-question-5' %}</span>
-        <ul id="micro-survey-options" 
-        data-survey-option-i-wouldnt-care-translated="{% ftlmsg 'survey-option-i-wouldnt-care' %}"
-        data-survey-option-somewhat-disappointed-translated="{% ftlmsg 'survey-option-somewhat-disappointed' %}"
-        data-survey-option-not-likely-translated="{% ftlmsg 'survey-option-very-disappointed' %}"
-        class="micro-survey-options micro-survey-options-likert"></ul>
-      {% endif %}
-      {% endcomment %}
-    </div>
+    </aside>
   {% endif %}
 
   <div class="header-top">
