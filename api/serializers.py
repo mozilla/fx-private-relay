@@ -8,7 +8,7 @@ class RelayAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelayAddress
         fields = [
-            'enabled', 'description', 'generated_for',
+            'enabled', 'description', 'generated_for', 'block_list_emails',
             # read-only
             'id', 'address', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',
@@ -25,7 +25,7 @@ class DomainAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = DomainAddress
         fields = [
-            'enabled', 'description',
+            'enabled', 'description', 'block_list_emails',
             # read-only
             'id', 'address', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',

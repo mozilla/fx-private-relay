@@ -490,6 +490,7 @@ class RelayAddress(models.Model):
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
+    block_list_emails = models.BooleanField(default=False)
 
     def __str__(self):
         return self.address
@@ -600,6 +601,7 @@ class DomainAddress(models.Model):
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
+    block_list_emails = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ['user', 'address']
