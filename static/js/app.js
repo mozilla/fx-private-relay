@@ -244,7 +244,6 @@ function addEventListeners() {
 
     const aliasCard = document.querySelector(".js-alias");
     toggleAliasCardDetailsVisibility(aliasCard);
-    console.log(aliasCard);
 
   }
 
