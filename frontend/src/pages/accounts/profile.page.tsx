@@ -16,7 +16,6 @@ import {
 } from "../../hooks/api/aliases";
 import { useUsers } from "../../hooks/api/user";
 import { AliasList } from "../../components/dashboard/aliases/AliasList";
-import { SubdomainPicker } from "../../components/dashboard/SubdomainPicker";
 import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
 import { LinkButton } from "../../components/Button";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
@@ -333,11 +332,11 @@ const Profile: NextPage = () => {
             <ProfileBanners
               profile={profile}
               user={user}
+              onCreateSubdomain={setCustomSubdomain}
               runtimeData={runtimeData.data}
             />
           </section>
           <section className={styles.mainWrapper}>
-            <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
             <Onboarding
               aliases={allAliases}
               onCreate={() => createAlias({ type: "random" })}
