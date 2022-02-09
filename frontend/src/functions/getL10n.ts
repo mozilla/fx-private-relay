@@ -58,6 +58,23 @@ export function getL10n() {
           pendingTranslations
         );
         bundle.addResource(pendingTranslationsResource);
+        if (process.env.NEXT_PUBLIC_DEBUG === "true") {
+          const pendingTranslationsIds = pendingTranslationsResource.body.map(
+            (stringData) => stringData.id
+          );
+          const mergedEnglishTranslationIds = RESOURCES.en.body.map(
+            (stringData) => stringData.id
+          );
+          const unmergedStrings = pendingTranslationsIds.filter(
+            (id) => !mergedEnglishTranslationIds.includes(id)
+          );
+          if (unmergedStrings.length > 0) {
+            console.warn(
+              "The following strings have not yet been merged into the l10n repository, and thus cannot be translated yet:",
+              unmergedStrings
+            );
+          }
+        }
       }
       yield bundle;
     }
