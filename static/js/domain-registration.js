@@ -174,7 +174,7 @@
                 
                 switch (e.target.parentFormHTMLElement.id) {
                     case "domainRegistration":
-                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain,{ "form": "dashboard" });
+                        domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain, { "form": "dashboard" });
                         break;
                     case "onboardingDomainRegistration":
                         domainRegistration.modal.showSuccessState(e.target.parentFormRequestedDomain, { "form": "onboarding" });
@@ -189,7 +189,7 @@
                 modalRegistrationSuccessState.classList.remove("is-hidden");
 
                 const domainPreview = document.querySelector(".js-premium-onboarding-domain-registration-preview");
-                domainPreview.textContent = domain + ".mozmail.com";
+                domainPreview.textContent = domain;
 
                 const modalContinue = document.querySelector(".js-modal-domain-registration-continue");
 
