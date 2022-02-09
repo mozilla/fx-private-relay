@@ -4,7 +4,7 @@ import { useLocalization } from "@fluent/react";
 import styles from "./Banner.module.scss";
 import warningIcon from "../../../static/images/icon-orange-info.svg";
 import { useLocalDismissal } from "../hooks/localDismissal";
-import { CloseIcon } from "./icons/close";
+import { CloseIcon } from "./Icons";
 import { useGaViewPing } from "../hooks/gaViewPing";
 
 export type BannerProps = {

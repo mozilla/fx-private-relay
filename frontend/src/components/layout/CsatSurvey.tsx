@@ -4,7 +4,7 @@ import { useFirstSeen } from "../../hooks/firstSeen";
 import { DismissOptions, useLocalDismissal } from "../../hooks/localDismissal";
 import { useLocalization } from "@fluent/react";
 import { ProfileData } from "../../hooks/api/profile";
-import { CloseIcon } from "../icons/close";
+import { CloseIcon } from "../Icons";
 import { parseDate } from "../../functions/parseDate";
 import { useState } from "react";
 import { getLocale } from "../../functions/getLocale";

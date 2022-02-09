@@ -18,7 +18,7 @@ import {
 import { useOverlayTriggerState } from "react-stately";
 import { OverlayProps } from "@react-aria/overlays";
 import styles from "./SubdomainIndicator.module.scss";
-import { CloseIcon } from "../../icons/close";
+import { CloseIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { AddressPickerModal } from "../aliases/AddressPickerModal";
 
