@@ -42,7 +42,7 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            docker build -t fx-private-relay \
+            docker build --tag fx-private-relay \
             --build-arg CIRCLE_BRANCH="$CIRCLE_BRANCH" \
             --build-arg CIRCLE_TAG="$CIRCLE_TAG" \
             --build-arg CIRCLE_SHA1="$CIRCLE_SHA1" \
@@ -52,7 +52,7 @@ jobs:
       # required since Workflows do not have the same remote docker instance.
       - run:
           name: docker save fx-private-relay
-          command: mkdir -p /cache; docker save -o /cache/docker.tar "fx-private-relay"
+          command: mkdir --parents /cache; docker save --output /cache/docker.tar "fx-private-relay"
       - save_cache:
           key: v1-{{ .Branch }}-{{epoch}}
           paths:
@@ -70,7 +70,7 @@ jobs:
           key: v1-{{.Branch}}
       - run:
           name: Restore Docker image cache
-          command: docker load -i /cache/docker.tar
+          command: docker load --input /cache/docker.tar
 
       - run:
           name: Test Code
@@ -89,8 +89,8 @@ jobs:
               --volumes-from test-results \
               fx-private-relay \
               -c \
-                'mkdir -p /tmp/test-results/pytest && \
-                 mkdir -p /tmp/test-results/coverage && \
+                'mkdir --parents /tmp/test-results/pytest && \
+                 mkdir --parents /tmp/test-results/coverage && \
                  /app/.local/bin/pytest \
                    --cov=. \
                    --cov-config=.coveragerc \
@@ -141,7 +141,7 @@ jobs:
           key: v1-{{.Branch}}
       - run:
           name: Restore Docker image cache
-          command: docker load -i /cache/docker.tar
+          command: docker load --input /cache/docker.tar
 
       - run:
           name: Deploy to Dockerhub
