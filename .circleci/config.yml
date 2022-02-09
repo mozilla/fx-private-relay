@@ -40,13 +40,13 @@ jobs:
 
       - run:
           name: Build Docker image
-          command: docker build -t fx-private-relay .
+          command: docker build --tag fx-private-relay .
 
       # save the built docker container into CircleCI's cache. This is
       # required since Workflows do not have the same remote docker instance.
       - run:
           name: docker save fx-private-relay
-          command: mkdir -p /cache; docker save -o /cache/docker.tar "fx-private-relay"
+          command: mkdir -p /cache; docker save --output /cache/docker.tar "fx-private-relay"
       - save_cache:
           key: v1-{{ .Branch }}-{{epoch}}
           paths:
@@ -64,7 +64,7 @@ jobs:
           key: v1-{{.Branch}}
       - run:
           name: Restore Docker image cache
-          command: docker load -i /cache/docker.tar
+          command: docker load --input /cache/docker.tar
 
       - run:
           name: Test Code
@@ -82,7 +82,7 @@ jobs:
           key: v1-{{.Branch}}
       - run:
           name: Restore Docker image cache
-          command: docker load -i /cache/docker.tar
+          command: docker load --input /cache/docker.tar
 
       - run:
           name: Deploy to Dockerhub
