@@ -16,10 +16,12 @@ import { RuntimeData } from "../../hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
+import { SubdomainPicker } from "./SubdomainPicker";
 
 export type Props = {
   profile: ProfileData;
   user: UserData;
+  onCreateSubdomain: (chosenSubdomain: string) => Promise<void>;
   runtimeData?: RuntimeData;
 };
 
@@ -48,6 +50,13 @@ export const ProfileBanners = (props: Props) => {
       />
     );
   }
+
+  banners.push(
+    <SubdomainPicker
+      profile={props.profile}
+      onCreate={props.onCreateSubdomain}
+    />
+  );
 
   if (!isUsingFirefox()) {
     banners.push(<NoFirefoxBanner key="firefox-banner" />);

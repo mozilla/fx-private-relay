@@ -333,11 +333,11 @@ const Profile: NextPage = () => {
             <ProfileBanners
               profile={profile}
               user={user}
+              onCreateSubdomain={setCustomSubdomain}
               runtimeData={runtimeData.data}
             />
           </section>
           <section className={styles.mainWrapper}>
-            <SubdomainPicker profile={profile} onCreate={setCustomSubdomain} />
             <Onboarding
               aliases={allAliases}
               onCreate={() => createAlias({ type: "random" })}
