@@ -2,6 +2,58 @@
 //       then added to react-icons: https://react-icons.github.io/react-icons/.
 //       These manually-created components are a workaround until that is done.
 
+import { SVGProps } from "react";
+
+/** Info button that inherits the text color of its container */
+export const InfoIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 28 28"
+      width={28}
+      height={28}
+      style={{
+        fill: "currentcolor",
+        ...props.style,
+      }}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path d="M12.666 7.33342H15.3327V10.0001H12.666V7.33342ZM12.666 12.6667H15.3327V20.6667H12.666V12.6667ZM13.9993 0.666748C6.63935 0.666748 0.666016 6.64008 0.666016 14.0001C0.666016 21.3601 6.63935 27.3334 13.9993 27.3334C21.3594 27.3334 27.3327 21.3601 27.3327 14.0001C27.3327 6.64008 21.3594 0.666748 13.9993 0.666748ZM13.9993 24.6667C8.11935 24.6667 3.33268 19.8801 3.33268 14.0001C3.33268 8.12008 8.11935 3.33341 13.9993 3.33341C19.8793 3.33341 24.666 8.12008 24.666 14.0001C24.666 19.8801 19.8793 24.6667 13.9993 24.6667Z"></path>
+    </svg>
+  );
+};
+
+/** Close button that inherits the text color of its container */
+export const CloseIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      style={{
+        fill: "currentcolor",
+        ...props.style,
+      }}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"></path>
+    </svg>
+  );
+};
+
 export const Cogwheel = () => (
   <svg
     width="16"

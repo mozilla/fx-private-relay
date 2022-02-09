@@ -3,7 +3,7 @@ import { event as gaEvent } from "react-ga";
 import styles from "./InterviewRecruitment.module.scss";
 import { getRuntimeConfig } from "../../config";
 import { ProfileData } from "../../hooks/api/profile";
-import { CloseIcon } from "../icons/close";
+import { CloseIcon } from "../Icons";
 import { useLocalDismissal } from "../../hooks/localDismissal";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { useGaViewPing } from "../../hooks/gaViewPing";

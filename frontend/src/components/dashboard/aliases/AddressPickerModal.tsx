@@ -17,7 +17,7 @@ import {
 } from "react-aria";
 import { OverlayProps } from "@react-aria/overlays";
 import styles from "./AddressPickerModal.module.scss";
-import { InfoIcon } from "../../icons/info";
+import { InfoIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
 
