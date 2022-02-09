@@ -4,7 +4,7 @@ from rest_framework import routers
 
 from .views import (
     DomainAddressViewSet, ProfileViewSet, UserViewSet, RelayAddressViewSet,
-    runtime_data, schema_view
+    premium_countries, runtime_data, schema_view
 )
 
 
@@ -35,6 +35,10 @@ api_router.register(
 )
 
 urlpatterns = [
+    path('v1/premium_countries',
+         premium_countries,
+         name='premium_countries'
+    ),
     path('v1/runtime_data',
          runtime_data,
          name='runtime_data'

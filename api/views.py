@@ -82,6 +82,15 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
 
+# Deprecated; prefer runtime_data instead.
+# (This method isn't deleted yet, because the add-on still calls it.)
+@decorators.api_view()
+@decorators.permission_classes([permissions.AllowAny])
+def premium_countries(request):
+    return response.Response(
+        get_premium_countries_info_from_request(request)
+    )
+
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])
 def runtime_data(request):
