@@ -4,8 +4,33 @@
 # DOCKER_USER    - login info for docker hub
 # DOCKER_PASS
 #
-version: 2
+version: 2.1
+orbs:
+  node: circleci/node@5.0.0
 jobs:
+  build_frontend:
+    docker:
+      - image: cimg/node:14.19
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - node/install:
+          node-version: '14'
+      - node/install-packages:
+          app-dir: ./frontend/
+      - run:
+          name: Build Code
+          command: npm run build
+          working_directory: ./frontend/
+      - save_cache:
+          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
+          paths:
+            - ./frontend/out/
+
   build:
     docker:
       - image: docker:stable-git
@@ -26,6 +51,11 @@ jobs:
           # and
           # https://circleci.com/docs/2.0/building-docker-images/#docker-version
           version: 20.10.11
+      - restore_cache:
+          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
+      - run:
+          name: Copy build artefacts from build_frontend into this folder
+          command: mv /home/circleci/project/frontend/out /dockerflow/frontend/
 
       - run:
           name: Create a version.json
@@ -51,6 +81,33 @@ jobs:
           key: v1-{{ .Branch }}-{{epoch}}
           paths:
             - /cache/docker.tar
+
+  test_frontend:
+    docker:
+      - image: cimg/node:14.19
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout
+      - node/install:
+          node-version: '14'
+      - node/install-packages:
+          app-dir: ./frontend/
+
+      - run:
+          name: Check licences of frontend dependencies
+          # Temporarily disabled for tslib due to https://bugzilla.mozilla.org/show_bug.cgi?id=1754201
+          command: npm run licensecheck -- --excludePackages 'tslib@2.3.1'
+          working_directory: ./frontend/
+      - run:
+          name: Lint Code
+          command: npm run lint -- --max-warnings=0
+          working_directory: ./frontend/
+      - run:
+          name: Test Code
+          command: npm test
+          working_directory: ./frontend/
 
   test:
     docker:
@@ -104,7 +161,21 @@ workflows:
   version: 2
   build-test-deploy:
     jobs:
+      - build_frontend:
+          filters:
+            tags:
+              only: /.*/
+
       - build:
+          requires:
+            - build_frontend
+          filters:
+            tags:
+              only: /.*/
+
+      - test_frontend:
+          requires:
+            - build_frontend
           filters:
             tags:
               only: /.*/
