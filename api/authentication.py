@@ -14,8 +14,8 @@ from rest_framework.authentication import (
 
 logger = logging.getLogger('events')
 
-def get_cache_key(token, field):
-    return f'fxa_token_{token}_{field}'
+def get_cache_key(token):
+    return f'fxa_token_{token}'
 
 
 class FxaTokenAuthentication(BaseAuthentication):
@@ -24,10 +24,10 @@ class FxaTokenAuthentication(BaseAuthentication):
         if not authorization or not authorization.startswith('Bearer '):
             return None
 
-        token = request.headers.get('Authorization').split(' ')[1]
-        status_cache_key = get_cache_key(token, 'status')
-        fxa_resp_status = cache.get(status_cache_key)
-        if not fxa_resp_status:
+        token = authorization.split(' ')[1]
+        cache_key = get_cache_key(token)
+        fxa_resp_data = cache.get(cache_key)
+        if not fxa_resp_data:
             introspect_token_url = (
                 '%s/introspect' %
                 settings.SOCIALACCOUNT_PROVIDERS['fxa']['OAUTH_ENDPOINT']
@@ -35,49 +35,46 @@ class FxaTokenAuthentication(BaseAuthentication):
             fxa_resp = requests.post(
                 introspect_token_url, json={'token': token}
             )
-            fxa_resp_status = fxa_resp.status_code
+            try:
+                fxa_resp_json = fxa_resp.json()
+            except requests.exceptions.JSONDecodeError:
+                logger.error('JSONDecodeError from FXA introspect response.')
+                cache.set(cache_key, fxa_resp_data, 60)
+                return None
+            fxa_resp_data = {
+                'status_code': fxa_resp.status_code, 'json': fxa_resp_json
+            }
 
-        if not fxa_resp_status == 200:
+        if not fxa_resp_data.get('status_code') == 200:
             # cache anything besides 200 for 60s - it might be an error
             # we need to re-try, but we don't want to send un-throttled
             # retries at FXA
-            cache.set(status_cache_key, fxa_resp_status, 60)
+            cache.set(cache_key, fxa_resp_data, 60)
             return None
 
-        json_cache_key = get_cache_key(token, 'json')
-        fxa_resp_json = cache.get(json_cache_key)
-        if not fxa_resp_json:
-            try:
-                fxa_resp_json = fxa_resp.json()
-                cache.set(json_cache_key, fxa_resp_json, 60)
-            except requests.exceptions.JSONDecodeError:
-                logger.error('JSONDecodeError from FXA introspect response.')
-                return None
-
-        if not fxa_resp_json.get('active'):
+        if not fxa_resp_data.get('json').get('active'):
             # cache inactive token responses for 60s - it might be a token that
             # isn't active (yet), but we don't want to send un-throttled
             # retries at FXA
-            cache.set(json_cache_key, fxa_resp_json, 60)
+            cache.set(cache_key, fxa_resp_data, 60)
             return None
 
         try:
-            fxa_uid = fxa_resp_json.get('sub')
+            fxa_uid = fxa_resp_data.get('json').get('sub')
             sa = SocialAccount.objects.get(uid=fxa_uid)
 
-            # cache fxa_resp_json for as long as access_token is valid
+            # cache fxa_resp_data for as long as access_token is valid
             # Note: FXA iat and exp are timestamps in *milliseconds*
-            fxa_token_exp_time = int(fxa_resp_json.get('exp')/1000)
+            fxa_token_exp_time = int(fxa_resp_data.get('json').get('exp')/1000)
             now_time = int(datetime.now().timestamp())
             timeout = fxa_token_exp_time - now_time
-            cache.set(status_cache_key, fxa_resp_status, timeout)
-            cache.set(json_cache_key, fxa_resp_json, timeout)
+            cache.set(cache_key, fxa_resp_data, timeout)
             return (sa.user, None)
         except SocialAccount.DoesNotExist:
             # cache non-user token responses for 60s - it might be a user who
             # deleted their Relay account since they first signed up, and we
             # don't want to send un-throttled retries at FXA
-            cache.set(json_cache_key, fxa_resp_json, 60)
+            cache.set(cache_key, fxa_resp_data, 60)
             return None
 
         return None
