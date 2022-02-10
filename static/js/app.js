@@ -215,8 +215,11 @@ function recruitmentLogic() {
 function addEventListeners() {
   document.querySelectorAll(".js-alias").forEach(aliasCard => {
     const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
+    const aliasCardDetails = document.querySelector(".js-alias-details");
     toggleDetailsBtn.addEventListener("click", () => {
-      toggleDetailsBtn.classList.toggle("is-active")
+      if(!(aliasCardDetails.classList.contains("is-visible"))){
+        toggleDetailsBtn.classList.toggle("is-active");
+      }
       toggleAliasCardDetailsVisibility(aliasCard);
     });
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
