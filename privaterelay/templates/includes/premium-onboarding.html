@@ -36,7 +36,7 @@
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p class="c-premium-onboarding-detail">{% ftlmsg 'onboarding-premium-title-detail' %}</p>
-                        <p><strong>{% ftlmsg 'onboarding-premium-domain-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-get-domain-description-2' mozmail='.mozmail.com' %}
+                        <p><strong>Use a custom domain for sharing aliases:</strong> {% ftlmsg 'multi-part-onboarding-premium-get-domain-description-2' mozmail='.mozmail.com' %}
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
@@ -48,7 +48,7 @@
                                     data-domain="{{ MOZMAIL_DOMAIN }}"
                                     required
                                     type="text"
-                                    placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}"
+                                    placeholder="Search your new domain"
                                     name="subdomain"
                                     minlength="1"
                                     maxlength="63"
