@@ -30,6 +30,7 @@ jobs:
           key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
           paths:
             - ./frontend/out/
+            - ./frontend/node_modules/
 
   build:
     docker:
