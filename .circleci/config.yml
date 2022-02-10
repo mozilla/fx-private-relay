@@ -106,8 +106,13 @@ jobs:
           working_directory: ./frontend/
       - run:
           name: Test Code
-          command: npm test
+          command: npm test -- --reporters=jest-junit
           working_directory: ./frontend/
+      - store_test_results:
+          path: frontend/junit.xml
+      - store_artifacts:
+          path: frontend/coverage/
+          destination: frontend_test_coverage
 
   test:
     docker:
