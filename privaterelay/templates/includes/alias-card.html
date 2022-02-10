@@ -1,5 +1,6 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+{% load static %}
 
 <!-- 
   Depending on the card, there are three possible states: 
@@ -14,7 +15,7 @@
   <div class="c-alias-main-info">
     <!-- enable/disable email forwarding -->
     <!-- TODO: Remove toggle/element -->
-    <div class="c-alias-toggle email-forwarding is-hidden">
+    <!-- <div class="c-alias-toggle email-forwarding is-hidden">
       <form action="{% url 'emails-index' %}" method="POST" class="xflx xflx-row al-cntr email-forwarding-form">
         <input type="hidden" name="method_override" value="PUT">
         <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
@@ -46,7 +47,8 @@
         ></button>
         {% endif %}
       </form>
-    </div>
+    </div> -->
+
     <!--end enable/disable toggle -->
 
     <div class="c-alias-name">
@@ -123,27 +125,83 @@
     </button>
   </div>
 
-  <div class="c-alias-additional-info js-alias-details">
-      <div class="c-alias-data-collection">
-        <!-- forwarding message -->
-        <div class="c-alias-data forward ">
-          <img class="" src="/static/images/icon-email.svg" alt="">
-          <div>
-            <span class="c-alias-data-label">{% ftlmsg 'profile-label-forward-emails' %}</span>
-            <span class="c-alias-data-value">{{ request.user.email }}</span>
+  <div class="c-alias-info js-alias-details">
+      <div class="c-alias-block-settings">
+        <form action="{% url 'emails-index' %}" method="POST" class="c-alias-block-settings-form ">
+          <input type="hidden" name="method_override" value="PUT">
+          <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
+          <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">
+          <div class="c-alias-block-settings-inputs">
+            <div class="c-alias-block-settings-input">
+              <input type="radio" name="aliasBlockSettings" id="forwardAll" value="forwardAll" checked />
+              <label for="forwardAll">
+                <div class="c-alias-block-settings-radio-button"></div>
+                <span>Forward</span>
+              </label>
+            </div>
+            <div class="c-alias-block-settings-spacer"></div>
+            <div class="c-alias-block-settings-input">
+              <input type="radio" name="aliasBlockSettings" id="criticalOnly" value="criticalOnly"/>
+              <label for="criticalOnly">
+                <div class="c-alias-block-settings-radio-button"></div>
+                <span>Critical only</span>
+              </label>
+            </div>
+            <div class="c-alias-block-settings-spacer"></div>
+            <div class="c-alias-block-settings-input">
+              <input type="radio" name="aliasBlockSettings" id="blockAll" value="blockAll"/>
+              <label for="blockAll">
+                <div class="c-alias-block-settings-radio-button"></div>
+                <span>Block all</span>
+              </label>
+            </div>
           </div>
-        </div>
-
-        <!-- created by date -->
-        <div class="c-alias-data created-by">
-          <img class="" src="/static/images/icon-calendar-gray.svg" alt="">
-          <div>
-            <span class="c-alias-data-label">{% ftlmsg 'profile-label-created' %}</span>
-            <span class="c-alias-data-value">{{ alias.created_at|date:"M j, Y" }}</span>
-          </div>
+        </form>
+        <div class="c-alias-block-settings-description">
+          <ul>
+            <li data-block-level="blockAll" class="t-block">
+              <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
+              <p>
+                BLOCK Lorem ipsum dolor sit, amet consectetur adipisicing elit. Autem dolor sint dolore eos sapiente sunt fugit voluptas sequi nisi voluptatem facere exercitationem in beatae ab nesciunt reprehenderit, perferendis eveniet reiciendis.
+              </p>    
+            </li>
+            <li data-block-level="criticalOnly" class="t-critical">
+              <img src="{% static '/images/umbrella-semi.svg' %}" alt="" />
+              <p>
+                CRITICAL Lorem ipsum dolor sit, amet consectetur adipisicing elit. Autem dolor sint dolore eos sapiente sunt fugit voluptas sequi nisi voluptatem facere exercitationem in beatae ab nesciunt reprehenderit, perferendis eveniet reiciendis.
+              </p>    
+            </li>
+            <li data-block-level="forwardAll" class="t-forward">
+              <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
+              <p>
+                FORWARD Lorem ipsum dolor sit, amet consectetur adipisicing elit. Autem dolor sint dolore eos sapiente sunt fugit voluptas sequi nisi voluptatem facere exercitationem in beatae ab nesciunt reprehenderit, perferendis eveniet reiciendis.
+              </p>    
+            </li>
+          </ul>
         </div>
       </div>
+      <div class="c-alias-additional-info xdebug">
 
+        <!-- Forward/Created Date -->
+        <div class="c-alias-data-collection">
+          <!-- forwarding message -->
+          <div class="c-alias-data forward ">
+            <img class="" src="/static/images/icon-email.svg" alt="">
+            <div>
+              <span class="c-alias-data-label">{% ftlmsg 'profile-label-forward-emails' %}</span>
+              <span class="c-alias-data-value">{{ request.user.email }}</span>
+            </div>
+          </div>
+
+          <!-- created by date -->
+          <div class="c-alias-data created-by">
+            <img class="" src="/static/images/icon-calendar-gray.svg" alt="">
+            <div>
+              <span class="c-alias-data-label">{% ftlmsg 'profile-label-created' %}</span>
+              <span class="c-alias-data-value">{{ alias.created_at|date:"M j, Y" }}</span>
+            </div>
+          </div>
+      </div>
 
       <!-- delete email address -->
       <div class="column-delete">
@@ -157,6 +215,7 @@
         </form>
       </div> <!--end delete-->
 
+      </div><!--row-end-->
     </div><!--row-end-->
 
 </div>

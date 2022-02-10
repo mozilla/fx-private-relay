@@ -9,46 +9,73 @@ if (typeof(sendGaPing) === "undefined") {
   sendGaPing = () => {};
 }
 
-async function updateEmailForwardingPrefs(submitEvent) {
-  submitEvent.preventDefault();
+async function updateEmailForwardingPrefs(form, status) {
+  // submitEvent.preventDefault();
 
-  const forwardingPrefForm = submitEvent.target;
-  const prefToggle = forwardingPrefForm.querySelector("button");
-  const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
-  const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']") || forwardingPrefForm.querySelector("[name='domain_address_id']");
-  const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}']`);
+  const forwardingPrefForm = form;
+  // const prefToggle = forwardingPrefForm.querySelector("button");
+  // const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
+  // const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']") || forwardingPrefForm.querySelector("[name='domain_address_id']");
+  // const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}']`);
 
-  const analyticsLabel = (prefToggle.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
-  sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
+  // TODO: Add logic to send correct GA event
+  // const analyticsLabel = (prefToggle.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
+  // sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
   const formData = {};
   Array.from(forwardingPrefForm.elements).forEach(elem => {
     formData[elem.name] = elem.value;
   });
 
-  try {
-    const response = await sendForm(forwardingPrefForm.action, formData);
-    if (response && response.status === 200) {
-      prefToggle.classList.toggle("forwarding-disabled");
-      if (prefToggle.value === "Enable") {
-        prefToggle.title = prefToggle.dataset.defaultBlockingTitle;
-        toggleLabel.textContent = toggleLabel.dataset.defaultForwardingLabel;
-        wrappingEmailCard.classList.add("is-enabled");
-        prefToggle.value = "Disable";
-        return;
-      } else if (prefToggle.value === "Disable") {
-        prefToggle.title = prefToggle.dataset.defaultForwardingTitle;
-        toggleLabel.textContent = toggleLabel.dataset.defaultBlockingLabel;
-        wrappingEmailCard.classList.remove("is-enabled");
-        prefToggle.value = "Enable";
-        return;
-      }
+  // try {
+    console.log("formData: ", formData);
+
+    // TODO: Uncomment response/if statement. Adding mock to simulate form submission responses
+    // const response = await sendForm(forwardingPrefForm.action, formData);
+    // if (response && response.status === 200) {
+    if (true) {
+
+      
+      // TODO: Add logic to update status on individual alias of new pref
+      // forwardAll, criticalOnly, blockAll
+      // Default is "forward all"
+      let aliasStatusClassname = "is-forwarded";
+      if ( status == "criticalOnly" ) { aliasStatusClassname = "is-critical" }
+      if ( status == "blockAll" ) { aliasStatusClassname = "is-blocked" }
+
+
+      const alias = form.closest(".c-alias");
+      console.log(alias);
+      // Remove previous status
+      alias.classList.remove("is-blocked", "is-critical", "is-forwarded");
+      alias.classList.add(aliasStatusClassname);
+
+      // updateAliasBlockLevelSettings({
+      //   alias: form.cloesest(".c-alias"),
+      //   status: "criticalOnly"
+      // });
+
+
+      // prefToggle.classList.toggle("forwarding-disabled");
+      // if (prefToggle.value === "Enable") {
+      //   prefToggle.title = prefToggle.dataset.defaultBlockingTitle;
+      //   toggleLabel.textContent = toggleLabel.dataset.defaultForwardingLabel;
+      //   wrappingEmailCard.classList.add("is-enabled");
+      //   prefToggle.value = "Disable";
+      //   return;
+      // } else if (prefToggle.value === "Disable") {
+      //   prefToggle.title = prefToggle.dataset.defaultForwardingTitle;
+      //   toggleLabel.textContent = toggleLabel.dataset.defaultBlockingLabel;
+      //   wrappingEmailCard.classList.remove("is-enabled");
+      //   prefToggle.value = "Enable";
+      //   return;
+      // }
     }
-  } catch(e) {
-    const siteOrigin = document.body.dataset.siteOrigin;
-    const signInUrl = new URL("/accounts/fxa/login/?process=login", siteOrigin);
-    return window.location = signInUrl.href;
-  }
+  // } catch(e) {
+  //   const siteOrigin = document.body.dataset.siteOrigin;
+  //   const signInUrl = new URL("/accounts/fxa/login/?process=login", siteOrigin);
+  //   return window.location = signInUrl.href;
+  // }
 }
 
 async function sendForm(formAction, formData) {
@@ -180,6 +207,12 @@ function deleteAliasConfirmation(submitEvent) {
 	});
 }
 
+function submitEmailForwardingPrefsForm(submitEvent) {
+  // console.log("submitEmailForwardingPrefsForm", submitEvent);
+  const form = submitEvent.target.closest("form");
+  updateEmailForwardingPrefs(form, submitEvent.target.defaultValue);
+}
+
 function toggleAliasCardDetailsVisibility(aliasCard) {
   const detailsWrapper = aliasCard.querySelector(".js-alias-details");
   detailsWrapper.classList.toggle("is-visible");
@@ -214,7 +247,10 @@ function recruitmentLogic() {
 
 
 function addEventListeners() {
-  document.querySelectorAll(".js-alias").forEach(aliasCard => {
+
+  const aliasCards = document.querySelectorAll(".js-alias");
+  
+  aliasCards.forEach(aliasCard => {
     const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
 
     toggleDetailsBtn.addEventListener("click", () => {
@@ -224,12 +260,19 @@ function addEventListeners() {
 
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
     deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
+
+    // Email forwarding toggling
+    const aliasBlockSettingsToggleInputs = aliasCard.querySelectorAll(".c-alias-block-settings-inputs input");
+    aliasBlockSettingsToggleInputs.forEach(aliasBlockSettingsToggleInput => {
+      aliasBlockSettingsToggleInput.addEventListener("change", submitEmailForwardingPrefsForm);
+    });
   });
 
   // Email forwarding toggles
-	document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
-		forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
-  });
+  // TODO: Remove
+	// document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
+	// 	forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
+  // });
 
   const generateAliasForm = document.querySelector(".dash-create");
 
