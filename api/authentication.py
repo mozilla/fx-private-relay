@@ -15,7 +15,7 @@ from rest_framework.authentication import (
 logger = logging.getLogger('events')
 
 def get_cache_key(token, field):
-    return f'fxa_token_{token}'
+    return f'fxa_token_{token}_{field}'
 
 
 class FxaTokenAuthentication(BaseAuthentication):
@@ -70,6 +70,7 @@ class FxaTokenAuthentication(BaseAuthentication):
             fxa_token_exp_time = int(fxa_resp_json.get('exp')/1000)
             now_time = int(datetime.now().timestamp())
             timeout = fxa_token_exp_time - now_time
+            cache.set(status_cache_key, fxa_resp_status, timeout)
             cache.set(json_cache_key, fxa_resp_json, timeout)
             return (sa.user, None)
         except SocialAccount.DoesNotExist:
