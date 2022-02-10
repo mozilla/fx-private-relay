@@ -354,12 +354,14 @@ def _sns_message(message_json):
         user_profile = address.user.profile_set.first()
     except (ObjectDoesNotExist, CannotMakeAddressException, DeletedAddress.MultipleObjectsReturned):
         if to_local_portion == 'replies':
-            return _handle_reply(from_address, message_json, to_address)
+            response = _handle_reply(from_address, message_json, to_address)
+        else:
+            response = HttpResponse("Address does not exist", status=404)
         # remove emails from S3 if the email cannot be delivered
         bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
         if bucket and object_key:
             remove_message_from_s3(bucket, object_key)
-        return HttpResponse("Address does not exist", status=404)
+        return response
 
     _record_receipt_verdicts(receipt, 'valid_user')
     if (user_profile.auto_block_spam and

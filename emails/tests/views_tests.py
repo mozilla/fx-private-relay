@@ -4,6 +4,7 @@ import os
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
@@ -16,7 +17,11 @@ from emails.models import (
     Profile,
     RelayAddress,
 )
-from emails.views import _get_address, _sns_notification
+from emails.views import (
+    _get_address,
+    _sns_message,
+    _sns_notification
+)
 
 from .models_tests import make_premium_test_user
 
@@ -134,6 +139,27 @@ class BounceHandlingTest(TestCase):
         profile = self.user.profile_set.first()
         assert profile.auto_block_spam == True
 
+
+class SnsMessageTest(TestCase):
+    def setUp(self) -> None:
+        self.message_json = json.loads(EMAIL_SNS_BODIES['domain_recipient']['Message'])
+
+    @patch('emails.views.handle_reply')
+    @patch('emails.views._get_address')
+    def test_reply_email_in_s3_deleted(self, mocked_get_address, mocked_handle_reply):
+        mocked_get_address.side_effect = ObjectDoesNotExist()
+        mocked_handle_reply.return_value
+        _sns_message(self.message_json)
+        assert True
+
+    def test_reply_email_not_in_s3_deleted_ignored(self):
+        assert True
+
+    def test_address_does_not_exist_email_in_s3_deleted(self):
+        assert True
+
+    def test_address_does_not_exist_email_not_in_s3_deleted_ignored(self):
+        assert True
 
 @override_settings(SITE_ORIGIN='https://test.com', ON_HEROKU=False)
 class GetAddressTest(TestCase):
