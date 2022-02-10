@@ -10,7 +10,7 @@
     "build": "next build && next export",
     "start": "next start",
     "lint": "stylelint '**/*.scss' && next lint",
-    "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL;'",
+    "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; 0BSD; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL;'",
     "test": "jest",
     "prepare": "cd .. && husky install frontend/.husky"
   },
