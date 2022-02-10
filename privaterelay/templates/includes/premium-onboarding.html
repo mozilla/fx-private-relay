@@ -41,10 +41,10 @@
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
                                 <samp class="c-premium-onboarding-subdomain-registration">***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
-                                <form id="onboardingDomainRegistration" method="post" action="{% url 'profile_subdomain' %}">
+                                <form class="c-premium-onboarding-domain-registration-form" id="onboardingDomainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                                     {% csrf_token %}
                                     <input
-                                    class="js-subdomain-value subdomain-banner-input"
+                                    class="js-subdomain-value subdomain-banner-input subdomain-search-icon"
                                     data-domain="{{ MOZMAIL_DOMAIN }}"
                                     required
                                     type="text"
