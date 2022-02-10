@@ -12,7 +12,6 @@ import logoTypePremiumLight from "../../../../static/images/fx-private-relay-pre
 import logoTypePremiumDark from "../../../../static/images/fx-private-relay-premium-logotype-dark.svg";
 import logo from "../../../../static/images/placeholder-logo.svg";
 import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
-import githubLogo from "../../../../static/images/GitHub.svg";
 import favicon from "../../../public/favicon.svg";
 import socialMediaImage from "../../../../static/images/share-relay.jpg";
 import { useProfiles } from "../../hooks/api/profile";
@@ -187,12 +186,7 @@ export const Layout = (props: Props) => {
                 rel="noopener noreferrer"
                 target="_blank"
               >
-                <img
-                  alt={l10n.getString("logo-github-alt")}
-                  src={githubLogo.src}
-                  width={24}
-                  height={24}
-                />
+                GitHub
               </a>
             </li>
           </ul>
