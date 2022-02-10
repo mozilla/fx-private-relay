@@ -11,3 +11,4 @@ static/css
 static/scss/libs
 staticfiles
 coverage/
+junit.xml
