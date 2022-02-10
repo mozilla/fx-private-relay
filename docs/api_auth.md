@@ -13,8 +13,8 @@ to perform an OAuth2 flow with [the FXA OAuth service][fxa-oauth], including
 After the OAuth flow is complete, the add-on has an FXA access token and a
 long-living FXA refresh token, and authenticates all requests to the Relay
 server by including an `Authorization: Bearer {fxa-access-token}` header in all
-API requests. The Relay server checks the token against [the FXA OAuth `/verify`
-endpoint][fxa-oauth-token-verify].
+API requests. The Relay server checks the token against
+[the FXA OAuth `/verify` endpoint][fxa-oauth-token-verify].
 
 This auth scheme can be used by other clients too. E.g., Firefox browser has a
 [`getOAuthToken`][searchfox-getoauthtoken] function which can be used to
