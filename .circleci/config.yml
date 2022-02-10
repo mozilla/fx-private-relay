@@ -55,8 +55,11 @@ jobs:
       - restore_cache:
           key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
       - run:
+          name: Copy downloaded dependencies from build_frontend into this folder
+          command: mv /home/circleci/project/frontend/node_modules/ /dockerflow/frontend/
+      - run:
           name: Copy build artefacts from build_frontend into this folder
-          command: mv /home/circleci/project/frontend/out /dockerflow/frontend/
+          command: mv /home/circleci/project/frontend/out/ /dockerflow/frontend/
 
       - run:
           name: Create a version.json
