@@ -4,7 +4,17 @@ from emails.models import Profile, DomainAddress, RelayAddress
 from django.contrib.auth.models import User
 
 
-class RelayAddressSerializer(serializers.ModelSerializer):
+class PremiumValidatorsMixin:
+    # the user must be premium to set block_list_emails=True
+    def validate_block_list_emails(self, value):
+        if self.context['request'].user.profile_set.first().has_premium:
+            return value
+        raise serializers.ValidationError(
+            'Must be premium to set block_list_emails'
+        )
+
+
+class RelayAddressSerializer(serializers.ModelSerializer, PremiumValidatorsMixin):
     class Meta:
         model = RelayAddress
         fields = [
@@ -21,7 +31,7 @@ class RelayAddressSerializer(serializers.ModelSerializer):
         ]
 
 
-class DomainAddressSerializer(serializers.ModelSerializer):
+class DomainAddressSerializer(serializers.ModelSerializer, PremiumValidatorsMixin):
     class Meta:
         model = DomainAddress
         fields = [
