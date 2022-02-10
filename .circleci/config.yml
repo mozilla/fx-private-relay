@@ -103,8 +103,7 @@ jobs:
 
       - run:
           name: Check licences of frontend dependencies
-          # Temporarily disabled for tslib due to https://bugzilla.mozilla.org/show_bug.cgi?id=1754201
-          command: npm run licensecheck -- --excludePackages 'tslib@2.3.1'
+          command: npm run licensecheck
           working_directory: ./frontend/
       - run:
           name: Lint Code
