@@ -215,14 +215,33 @@
     padding: $spacing-md $spacing-md 0;
     margin-bottom: $spacing-lg;
 
-    &.is-enabled {
-        background-color: $color-white;
-        box-shadow: $box-shadow-sm;
-    }
-
     &.is-hidden {
         display: none;
     }
+
+    &.is-blocked {
+        .c-alias-block-level.t-block {
+            display: inline-flex;
+        }
+    }
+
+    &.is-forwarded, &.is-enabled {
+        background-color: $color-white;
+        box-shadow: $box-shadow-sm;
+
+        .c-alias-block-level.t-forward {
+            display: inline-flex;
+        }
+    }
+    &.is-critical {
+        background-color: $color-white;
+        box-shadow: $box-shadow-sm;
+
+        .c-alias-block-level.t-critical {
+            display: inline-flex;
+        }
+    }
+
 }
 
 .c-alias-main-info {
@@ -232,6 +251,10 @@
     @media #{$mq-md} {
         margin-bottom: $spacing-md;
     }
+}
+
+.c-alias-toggle.is-hidden {
+    display: none;
 }
 
 .c-alias-name {
@@ -302,6 +325,32 @@
     display: flex;
     flex-wrap: nowrap;
     margin-left: auto;
+}
+
+.c-alias-block-levels {
+    align-self: center;
+}
+
+.c-alias-block-level {
+    display: none;
+    border: 2px solid;
+    border-radius: $border-radius-sm;
+    padding: $spacing-xs $spacing-md;
+    font-weight: 600;
+    @include text-body-sm;
+
+    &.t-forward {
+        color: $color-green-50;
+        border-color: $color-green-30;
+    }
+    &.t-critical {
+        color: $color-yellow-50;
+        border-color: $color-yellow-40;
+    }
+    &.t-block {
+        color: $color-grey-30;
+        border-color: $color-grey-10;
+    }
 }
 
 .c-alias-additional-info {

@@ -1,11 +1,20 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-<div class="c-alias js-alias relay-email is-{{ alias_type }}-alias {% if alias.enabled %} is-enabled {% endif %}" data-relay-address="{{ alias.full_address }}" data-relay-address-id="{{ alias.id }}">
+<!-- 
+  Depending on the card, there are three possible states: 
+  - Forward all (.is-forwarded): All emails send to this alias are forwarded on to the user
+  - Critical only (.is-critical): Only critical emails are sent to the user
+  - Block all (.is-blocked): No emails are sent on to the user. Previously, this was the enabled/disabled toggle 
+-->
+
+<!-- TODO: Remove alias.enabled/is-enabled class/logic -->
+<div class="c-alias js-alias relay-email is-{{ alias_type }}-alias {% if alias.enabled %} is-enabled {% endif %} is-forwarded" data-relay-address="{{ alias.full_address }}" data-relay-address-id="{{ alias.id }}">
 
   <div class="c-alias-main-info">
     <!-- enable/disable email forwarding -->
-    <div class="c-alias-toggle email-forwarding">
+    <!-- TODO: Remove toggle/element -->
+    <div class="c-alias-toggle email-forwarding is-hidden">
       <form action="{% url 'emails-index' %}" method="POST" class="xflx xflx-row al-cntr email-forwarding-form">
         <input type="hidden" name="method_override" value="PUT">
         <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
@@ -80,6 +89,12 @@
 
     <div class="c-alias-meta">
 
+      <div class="c-alias-block-levels">
+        <div class="c-alias-block-level t-forward">Forward all</div>
+        <div class="c-alias-block-level t-critical">Critical only</div>
+        <div class="c-alias-block-level t-block">Block all</div>
+      </div>
+      
       <div class="c-alias-stats hide-mobile">
             {% include "includes/alias-stats.html" %}
       </div>
