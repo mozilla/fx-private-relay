@@ -53,6 +53,7 @@ export const ProfileBanners = (props: Props) => {
 
   banners.push(
     <SubdomainPicker
+      key="subdomain-picker"
       profile={props.profile}
       onCreate={props.onCreateSubdomain}
     />
