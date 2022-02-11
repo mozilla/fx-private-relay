@@ -35,7 +35,12 @@ single_rec_file = os.path.join(
 
 EMAIL_SNS_BODIES = {}
 for email_type in [
-    'spamVerdict_FAIL', 'single_recipient', 'domain_recipient'
+    'spamVerdict_FAIL',
+    'single_recipient',
+    'domain_recipient',
+    'replies',
+    's3_stored',
+    's3_stored_replies',
 ]:
     email_file = os.path.join(
         real_abs_cwd, 'fixtures', '%s_email_sns_body.json' % email_type
@@ -142,24 +147,73 @@ class BounceHandlingTest(TestCase):
 
 class SnsMessageTest(TestCase):
     def setUp(self) -> None:
-        self.message_json = json.loads(EMAIL_SNS_BODIES['domain_recipient']['Message'])
+        self.bucket = 'test-bucket'
+        self.key = '/emails/objectkey123'
 
-    @patch('emails.views.handle_reply')
+    @patch('emails.views.remove_message_from_s3')
+    @patch('emails.views._handle_reply')
     @patch('emails.views._get_address')
-    def test_reply_email_in_s3_deleted(self, mocked_get_address, mocked_handle_reply):
+    @override_settings(SITE_ORIGIN='https://test.com', ON_HEROKU=False)
+    def test_reply_email_in_s3_deleted(
+        self, mocked_get_address, mocked_handle_reply,
+        mocked_message_removed
+    ):
+        expected_response = 'replies worked'
+        replies_message_json = json.loads(EMAIL_SNS_BODIES['s3_stored_replies']['Message'])
         mocked_get_address.side_effect = ObjectDoesNotExist()
-        mocked_handle_reply.return_value
-        _sns_message(self.message_json)
-        assert True
+        mocked_handle_reply.return_value = expected_response
 
-    def test_reply_email_not_in_s3_deleted_ignored(self):
-        assert True
+        response = _sns_message(replies_message_json)
+        mocked_get_address.assert_called_once()
+        mocked_handle_reply.assert_called_once()
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response == expected_response
 
-    def test_address_does_not_exist_email_in_s3_deleted(self):
-        assert True
+    @patch('emails.views.remove_message_from_s3')
+    @patch('emails.views._handle_reply')
+    @patch('emails.views._get_address')
+    def test_reply_email_not_in_s3_deleted_ignored(
+        self, mocked_get_address, mocked_handle_reply,
+        mocked_message_removed
+    ):
+        expected_response = 'replies worked'
+        message_json = json.loads(EMAIL_SNS_BODIES['replies']['Message'])
+        mocked_get_address.side_effect = ObjectDoesNotExist()
+        mocked_handle_reply.return_value = expected_response
 
-    def test_address_does_not_exist_email_not_in_s3_deleted_ignored(self):
-        assert True
+        response = _sns_message(message_json)
+        mocked_get_address.assert_called_once()
+        mocked_handle_reply.asswer_called_once()
+        mocked_message_removed.assert_not_called()
+        assert response == expected_response
+
+    @patch('emails.views.remove_message_from_s3')
+    @patch('emails.views._get_address')
+    def test_address_does_not_exist_email_not_in_s3_deleted_ignored(
+        self, mocked_get_address, mocked_message_removed
+    ):
+        message_json = json.loads(EMAIL_SNS_BODIES['domain_recipient']['Message'])
+        mocked_get_address.side_effect = ObjectDoesNotExist()
+
+        response = _sns_message(message_json)
+        mocked_get_address.assert_called_once()
+        mocked_message_removed.assert_not_called()
+        assert response.status_code == 404
+        assert response.content == b'Address does not exist'
+
+    @patch('emails.views.remove_message_from_s3')
+    @patch('emails.views._get_address')
+    def test_address_does_not_exist_email_in_s3_deleted(
+        self, mocked_get_address, mocked_message_removed
+    ):
+        message_json = json.loads(EMAIL_SNS_BODIES['s3_stored']['Message'])
+        mocked_get_address.side_effect = ObjectDoesNotExist()
+
+        response = _sns_message(message_json)
+        mocked_get_address.assert_called_once()
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 404
+        assert response.content == b'Address does not exist'
 
 @override_settings(SITE_ORIGIN='https://test.com', ON_HEROKU=False)
 class GetAddressTest(TestCase):
