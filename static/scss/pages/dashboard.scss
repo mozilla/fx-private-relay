@@ -421,8 +421,13 @@
             align-items: center;
     
             img {
-                display: block;
+                display: none;
                 margin-right: $spacing-md;
+
+                @media #{$mq-md} {
+                    display: block;
+                }
+
             }
     
             p {
@@ -516,6 +521,12 @@
         width: 100%;
         // justify-content: center;
         align-items: center;
+
+        img {
+            @media #{$mq-md} {
+                display: none;
+            }
+        }
 
         &:hover {
             &::before {

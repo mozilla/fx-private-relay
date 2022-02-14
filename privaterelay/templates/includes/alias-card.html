@@ -135,6 +135,7 @@
             <div class="c-alias-block-settings-input">
               <input type="radio" name="aliasBlockSettings" id="forwardAll" value="forwardAll" checked />
               <label for="forwardAll">
+                <img src="{% static '/images/umbrella-closed.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
                 <span>Forward</span>
               </label>
@@ -143,6 +144,7 @@
             <div class="c-alias-block-settings-input">
               <input type="radio" name="aliasBlockSettings" id="criticalOnly" value="criticalOnly"/>
               <label for="criticalOnly">
+                <img src="{% static '/images/umbrella-semi.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
                 <span>Critical only</span>
               </label>
@@ -151,6 +153,7 @@
             <div class="c-alias-block-settings-input">
               <input type="radio" name="aliasBlockSettings" id="blockAll" value="blockAll"/>
               <label for="blockAll">
+                <img src="{% static '/images/umbrella-open.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
                 <span>Block all</span>
               </label>
@@ -159,10 +162,10 @@
         </form>
         <div class="c-alias-block-settings-description">
           <ul>
-            <li data-block-level="blockAll" class="t-block">
-              <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
+            <li data-block-level="forwardAll" class="t-forward">
+              <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
               <p>
-                BLOCK Lorem ipsum dolor sit, amet consectetur adipisicing elit. Autem dolor sint dolore eos sapiente sunt fugit voluptas sequi nisi voluptatem facere exercitationem in beatae ab nesciunt reprehenderit, perferendis eveniet reiciendis.
+                FORWARD Lorem ipsum dolor sit, amet consectetur adipisicing elit. Autem dolor sint dolore eos sapiente sunt fugit voluptas sequi nisi voluptatem facere exercitationem in beatae ab nesciunt reprehenderit, perferendis eveniet reiciendis.
               </p>    
             </li>
             <li data-block-level="criticalOnly" class="t-critical">
@@ -171,10 +174,10 @@
                 CRITICAL Lorem ipsum dolor sit, amet consectetur adipisicing elit. Autem dolor sint dolore eos sapiente sunt fugit voluptas sequi nisi voluptatem facere exercitationem in beatae ab nesciunt reprehenderit, perferendis eveniet reiciendis.
               </p>    
             </li>
-            <li data-block-level="forwardAll" class="t-forward">
-              <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
+            <li data-block-level="blockAll" class="t-block">
+              <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
               <p>
-                FORWARD Lorem ipsum dolor sit, amet consectetur adipisicing elit. Autem dolor sint dolore eos sapiente sunt fugit voluptas sequi nisi voluptatem facere exercitationem in beatae ab nesciunt reprehenderit, perferendis eveniet reiciendis.
+                BLOCK Lorem ipsum dolor sit, amet consectetur adipisicing elit. Autem dolor sint dolore eos sapiente sunt fugit voluptas sequi nisi voluptatem facere exercitationem in beatae ab nesciunt reprehenderit, perferendis eveniet reiciendis.
               </p>    
             </li>
           </ul>
