@@ -220,12 +220,13 @@
     }
 
     &.is-blocked {
+
         .c-alias-block-level.t-block {
             display: inline-flex;
         }
 
         .c-alias-block-settings-description .t-block {
-            display: block;
+            display: flex;
         }
     }
 
@@ -239,9 +240,10 @@
         }
 
         .c-alias-block-settings-description .t-forward {
-            display: block;
+            display: flex;
         }
     }
+
     &.is-critical {
         background-color: $color-white;
         box-shadow: $box-shadow-sm;
@@ -251,7 +253,7 @@
         }
 
         .c-alias-block-settings-description .t-critical {
-            display: block;
+            display: flex;
         }
     }
 
@@ -351,16 +353,19 @@
     border-radius: $border-radius-sm;
     padding: $spacing-xs $spacing-md;
     font-weight: 600;
+
     @include text-body-sm;
 
     &.t-forward {
         color: $color-green-50;
         border-color: $color-green-30;
     }
+
     &.t-critical {
         color: $color-yellow-50;
         border-color: $color-yellow-40;
     }
+
     &.t-block {
         color: $color-grey-30;
         border-color: $color-grey-10;
@@ -382,6 +387,7 @@
     }
 
     &.is-visible {
+
         .c-alias-block-settings, .c-alias-additional-info {
             border-color: $color-light-gray-30;
         }
@@ -407,6 +413,7 @@
         display: flex;
         justify-content: space-between;
         flex-direction: row;
+        min-height: 120px;
     }
     
 }
@@ -443,7 +450,6 @@
     @media #{$mq-md} {
         max-width: $content-sm;
     }
-
     @media #{$mq-xl} {
         // max-width: $content-md;
     }
@@ -451,7 +457,7 @@
 }
 
 .c-alias-block-settings-form {
-    width: 100%;    
+    width: 100%;
 
     .c-alias-block-settings-inputs {
         display: flex;
@@ -475,7 +481,6 @@
         }
 
         input {
-            display: block;
             margin-bottom: $spacing-sm;
             display: none;
             // visibility: hidden;
@@ -513,14 +518,19 @@
         border-radius: 100%;
         background-color: $color-grey-10;
         box-shadow: 0 0 0 calc(#{($spacing-xs)}) transparent;
+        pointer-events: all;
     }
     
     .c-alias-block-settings-input {
         display: flex;
         flex-direction: column;
         width: 100%;
-        // justify-content: center;
         align-items: center;
+        cursor: pointer;
+
+        &:hover .c-alias-block-settings-radio-button {
+            background-color: $color-purple-10;
+        }
 
         img {
             @media #{$mq-md} {
@@ -529,6 +539,7 @@
         }
 
         &:hover {
+
             &::before {
                 background-color: $color-purple-50;
             }

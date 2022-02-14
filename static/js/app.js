@@ -12,6 +12,29 @@ if (typeof(sendGaPing) === "undefined") {
 async function updateEmailForwardingPrefs(form, status) {
   // submitEvent.preventDefault();
 
+  const formData = {};
+
+  switch (status) {
+    case "forwardAll":
+      formData.enabled = "Enable";
+      formData.block_list_emails = "False";
+      break;
+  
+    case "criticalOnly":
+      formData.enabled = "Enable";
+      formData.block_list_emails = "True";
+      break;
+  
+    case "blockAll":
+      formData.enabled = "Disable";
+      // Note: Revising block_list_emails doesn't do anything as all emails are blocked
+      formData.block_list_emails = "False";
+      break;
+  
+    default:
+      break;
+  }
+
   const forwardingPrefForm = form;
   // const prefToggle = forwardingPrefForm.querySelector("button");
   // const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
@@ -22,18 +45,16 @@ async function updateEmailForwardingPrefs(form, status) {
   // const analyticsLabel = (prefToggle.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
   // sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
-  const formData = {};
+  
   Array.from(forwardingPrefForm.elements).forEach(elem => {
     formData[elem.name] = elem.value;
   });
 
-  // try {
-    console.log("formData: ", formData);
+  try {
 
     // TODO: Uncomment response/if statement. Adding mock to simulate form submission responses
-    // const response = await sendForm(forwardingPrefForm.action, formData);
-    // if (response && response.status === 200) {
-    if (true) {
+    const response = await sendForm(forwardingPrefForm.action, formData);
+    if (response && response.status === 200) {
 
       
       // TODO: Add logic to update status on individual alias of new pref
@@ -45,7 +66,6 @@ async function updateEmailForwardingPrefs(form, status) {
 
 
       const alias = form.closest(".c-alias");
-      console.log(alias);
       // Remove previous status
       alias.classList.remove("is-blocked", "is-critical", "is-forwarded");
       alias.classList.add(aliasStatusClassname);
@@ -71,11 +91,11 @@ async function updateEmailForwardingPrefs(form, status) {
       //   return;
       // }
     }
-  // } catch(e) {
-  //   const siteOrigin = document.body.dataset.siteOrigin;
-  //   const signInUrl = new URL("/accounts/fxa/login/?process=login", siteOrigin);
-  //   return window.location = signInUrl.href;
-  // }
+  } catch(e) {
+    const siteOrigin = document.body.dataset.siteOrigin;
+    const signInUrl = new URL("/accounts/fxa/login/?process=login", siteOrigin);
+    return window.location = signInUrl.href;
+  }
 }
 
 async function sendForm(formAction, formData) {
