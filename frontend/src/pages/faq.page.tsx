@@ -229,6 +229,58 @@ const Faq: NextPage = () => {
                   <p />
                 </Localized>
               </QAndA>
+              <QAndA
+                id="faq-acceptable-use"
+                question={l10n.getString(
+                  "faq-question-acceptable-use-question"
+                )}
+              >
+                <Localized
+                  id="faq-question-acceptable-use-answer-a-html"
+                  vars={{
+                    url: "https://www.mozilla.org/about/legal/acceptable-use/",
+                    attrs: "",
+                  }}
+                  elems={{
+                    a: (
+                      <a href="https://www.mozilla.org/about/legal/acceptable-use/" />
+                    ),
+                  }}
+                >
+                  <p />
+                </Localized>
+                <ul>
+                  <li>
+                    {l10n.getString(
+                      "faq-question-acceptable-use-answer-measure-account"
+                    )}
+                  </li>
+                  <li>
+                    {l10n.getString(
+                      "faq-question-acceptable-use-answer-measure-unlimited-payment"
+                    )}
+                  </li>
+                  <li>
+                    {l10n.getString(
+                      "faq-question-acceptable-use-answer-measure-rate-limit"
+                    )}
+                  </li>
+                </ul>
+                <Localized
+                  id="faq-question-acceptable-use-answer-b-html"
+                  vars={{
+                    url: "https://www.mozilla.org/about/legal/terms/firefox-relay/",
+                    attrs: "",
+                  }}
+                  elems={{
+                    a: (
+                      <a href="https://www.mozilla.org/about/legal/terms/firefox-relay/" />
+                    ),
+                  }}
+                >
+                  <p />
+                </Localized>
+              </QAndA>
             </div>
           </div>
         </div>

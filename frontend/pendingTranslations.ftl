@@ -75,6 +75,19 @@ tips-footer-link-feedback-tooltip = Give feedback
 tips-footer-link-support-label = Support
 tips-footer-link-support-tooltip = Contact support
 
+## The Acceptable Use FAQ entry has already been submitted:
+## https://github.com/mozilla-l10n/fx-private-relay-l10n/pull/60
+faq-question-acceptable-use-question = What are the acceptable uses of { -brand-name-relay }?
+#   $url (url) - link to Mozilla's Acceptable Use Policy, i.e. https://www.mozilla.org/about/legal/acceptable-use/
+#   $attrs (string) - specific attributes added to external links
+faq-question-acceptable-use-answer-a-html = { -brand-name-firefox-relay } has the same <a href="{ $url }" { $attrs }>conditions of use as all { -brand-name-mozilla } products</a>. We have a zero-tolerance policy when it comes to using { -brand-name-relay } for malicious purposes like spam, resulting in the termination of a user’s account. We take measures to prevent users from violating our conditions by:
+faq-question-acceptable-use-answer-measure-account = Requiring a { -brand-name-firefox-account(capitalization: "uppercase") } with a verified email address
+faq-question-acceptable-use-answer-measure-unlimited-payment = Requiring payment for a user to create more than five aliases
+faq-question-acceptable-use-answer-measure-rate-limit = Rate-limiting the number of aliases that can be generated in one day
+#   $url (url) - link to the Terms of Service, i.e. https://www.mozilla.org/about/legal/terms/firefox-relay/
+#   $attrs (string) - specific attributes added to external links
+faq-question-acceptable-use-answer-b-html = Please review our <a href="{ $url }" { $attrs }>Terms of Service</a> for more information.
+
 modal-custom-alias-picker-heading = Create a new custom alias
 modal-custom-alias-picker-warning = All you need to do is make up and share a unique alias that uses your custom domain — the alias will be generated automatically. Try “shop@customdomain.mozmail.com” next time you shop online, for example.
 modal-custom-alias-picker-form-heading = Or, create a custom alias manually
