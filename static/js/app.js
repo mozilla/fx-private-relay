@@ -215,13 +215,12 @@ function recruitmentLogic() {
 function addEventListeners() {
   document.querySelectorAll(".js-alias").forEach(aliasCard => {
     const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
-    const aliasCardDetails = document.querySelector(".js-alias-details");
+
     toggleDetailsBtn.addEventListener("click", () => {
-      if(!(aliasCardDetails.classList.contains("is-visible"))){
-        toggleDetailsBtn.classList.toggle("is-active");
-      }
+      toggleDetailsBtn.classList.toggle("is-active");
       toggleAliasCardDetailsVisibility(aliasCard);
     });
+
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
     deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
   });
@@ -245,9 +244,15 @@ function addEventListeners() {
       e.target.submit();
     });
 
+    openAliasCardWhenGenerated();
+
+  }
+
+  function openAliasCardWhenGenerated() {
     const aliasCard = document.querySelector(".js-alias");
     toggleAliasCardDetailsVisibility(aliasCard);
-
+    const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
+    toggleDetailsBtn.classList.toggle("is-active");
   }
 
 
