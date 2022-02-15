@@ -10,25 +10,26 @@ if (typeof(sendGaPing) === "undefined") {
 }
 
 async function updateEmailForwardingPrefs(form, status) {
+  console.log("updateEmailForwardingPrefs", form);
   // submitEvent.preventDefault();
 
   const formData = {};
 
   switch (status) {
     case "forwardAll":
-      formData.enabled = "Enable";
-      formData.block_list_emails = "False";
+      formData.enabled = true;
+      formData.block_list_emails = false
       break;
   
     case "criticalOnly":
-      formData.enabled = "Enable";
-      formData.block_list_emails = "True";
+      formData.enabled = true;
+      formData.block_list_emails = true;
       break;
   
     case "blockAll":
-      formData.enabled = "Disable";
+      formData.enabled = false;
       // Note: Revising block_list_emails doesn't do anything as all emails are blocked
-      formData.block_list_emails = "False";
+      formData.block_list_emails = false
       break;
   
     default:
@@ -46,17 +47,28 @@ async function updateEmailForwardingPrefs(form, status) {
   // sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
   
-  Array.from(forwardingPrefForm.elements).forEach(elem => {
-    formData[elem.name] = elem.value;
-  });
+  // Array.from(forwardingPrefForm.elements).forEach(elem => {
+  //   formData[elem.name] = elem.value;
+  // });
+
+  console.log(form.dataset);
+  console.log(formData);
+
 
   try {
 
     // TODO: Uncomment response/if statement. Adding mock to simulate form submission responses
-    const response = await sendForm(forwardingPrefForm.action, formData);
+    // const response = await sendForm(forwardingPrefForm.action, formData);
+    const response = await apiRequest(
+      `/${form.dataset.type}addresses/${form.dataset.aliasId}/`,
+      {
+          method: "PATCH",
+          body: JSON.stringify(formData),
+      },
+    );
     if (response && response.status === 200) {
 
-      
+      console.log("GOOD TO GO");
       // TODO: Add logic to update status on individual alias of new pref
       // forwardAll, criticalOnly, blockAll
       // Default is "forward all"
@@ -228,7 +240,7 @@ function deleteAliasConfirmation(submitEvent) {
 }
 
 function submitEmailForwardingPrefsForm(submitEvent) {
-  // console.log("submitEmailForwardingPrefsForm", submitEvent);
+  console.log("submitEmailForwardingPrefsForm", submitEvent);
   const form = submitEvent.target.closest("form");
   updateEmailForwardingPrefs(form, submitEvent.target.defaultValue);
 }

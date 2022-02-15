@@ -228,6 +228,18 @@
         .c-alias-block-settings-description .t-block {
             display: flex;
         }
+
+        .c-alias-block-settings-input.t-forward,
+        .c-alias-block-settings-input.t-critical {
+            img {
+                filter: grayscale(100%);
+                @media #{$mq-md} {
+                    filter: grayscale(0);
+                }
+            }
+        }
+
+
     }
 
     // &.is-forwarded, &.is-enabled {
@@ -242,6 +254,18 @@
         .c-alias-block-settings-description .t-forward {
             display: flex;
         }
+
+        .c-alias-block-settings-input.t-critical,
+        .c-alias-block-settings-input.t-block {
+            img {
+                filter: grayscale(100%);
+                @media #{$mq-md} {
+                    filter: grayscale(0);
+                }
+            }
+        }
+
+
     }
 
     &.is-critical {
@@ -255,6 +279,18 @@
         .c-alias-block-settings-description .t-critical {
             display: flex;
         }
+
+        .c-alias-block-settings-input.t-forward,
+        .c-alias-block-settings-input.t-block {
+            img {
+                filter: grayscale(100%);
+                @media #{$mq-md} {
+                    filter: grayscale(0);
+                }
+            }
+        }
+
+
     }
 
 }
@@ -320,7 +356,7 @@
 }
 
 .c-alias-copy {
-    padding: $spacing-sm 0 $spacing-md;
+    padding: $spacing-sm $spacing-md $spacing-md;
     display: block;
 
     @media #{$mq-md} {
@@ -343,8 +379,13 @@
     margin-left: auto;
 }
 
+// The email delivery label is hidden on mobile
 .c-alias-block-levels {
+    display: none;
     align-self: center;
+    @media #{$mq-md} {
+        display: block;
+    }
 }
 
 .c-alias-block-level {
@@ -419,37 +460,64 @@
 }
 
 .c-alias-block-settings-description {
-
+    
+    width: 100%;
+    
     ul {
         margin: 0;
         
         li {
             display: none;
-            align-items: center;
-    
-            img {
-                display: none;
-                margin-right: $spacing-md;
+            padding-top: $spacing-md;
+            width: 100%;
+            background-color: $color-grey-05;
+            padding: $spacing-md;
+            border-radius: $border-radius-sm;
 
-                @media #{$mq-md} {
-                    display: block;
-                }
-
-            }
-    
             p {
                 margin-bottom: 0;
             }
     
             &.is-visible {
                 display: flex;
+                width: 100%;
+            }
+
+            @media #{$mq-md} {
+                background-color: transparent;
+                padding: 0;
+                margin: 0;
+                border-radius: 0;
+                align-items: center;
             }
         }
+    }
+
+    .c-alias-block-settings-image {
+        display: none;
+        margin-right: $spacing-md;
+        height: 60px;
+        width: 60px;
+        flex-shrink: 0;
+        justify-content: center;
+        align-items: center;
+
+        img {
+            object-fit: contain;
+            object-position: 50% 50%;
+
+        }
+
+        @media #{$mq-md} {
+            display: flex;
+        }
+
     }
 
     @media #{$mq-md} {
         max-width: $content-sm;
     }
+
     @media #{$mq-xl} {
         // max-width: $content-md;
     }
@@ -461,23 +529,25 @@
 
     .c-alias-block-settings-inputs {
         display: flex;
-        justify-content: space-between;
         width: 100%;
         position: relative;
-
-        // &::after {
-        //     position: absolute;
-        //     content: "";
-        //     width: 100%;
-        //     height: 4px;
-        //     background-color: $color-grey-10;
-        //     z-index: 0;
-        //     top: 6px;
-        // }
+        max-width: $content-sm;
+        justify-content: center;
+        margin: 0 auto;
 
         label {
             display: block;
             text-align: center;
+            pointer-events: auto;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+
+            span {
+                display: block;
+                pointer-events: auto;
+                cursor: pointer;
+            }
         }
 
         input {
@@ -494,13 +564,15 @@
             }
 
             &:checked + label .c-alias-block-settings-radio-button {
-                background-color: $color-purple-30;
-                box-shadow: 0 0 0 calc(#{($spacing-xs)}) $color-purple-50;
+                background-color: $color-purple-20;
+                box-shadow: inset 0 0 0 calc(4px) $color-purple-50;
             }
         }
 
         @media #{$mq-md} {
             max-width: $content-sm;
+            justify-content: space-between;
+            margin: 0;
         }
     }
 
@@ -508,31 +580,74 @@
         height: 4px;
         background-color: $color-grey-10;
         width: 100%;
-        margin-top: $spacing-sm;
+        margin-top: 95px;
+        flex-shrink: 2;
+
+        @media #{$mq-md} {
+            margin-top: 10px;
+        }
     }
 
     .c-alias-block-settings-radio-button {
         margin: 0 auto $spacing-sm;
-        width: 16px;
-        height: 16px;
+        width: 32px;
+        height: 32px;
         border-radius: 100%;
         background-color: $color-grey-10;
         box-shadow: 0 0 0 calc(#{($spacing-xs)}) transparent;
         pointer-events: all;
+        display: block;
+        cursor: pointer;
+        
+        @media #{$mq-md} {
+            width: 24px;
+            height: 24px;
+        }
     }
     
     .c-alias-block-settings-input {
-        display: flex;
+        display: block flex;
         flex-direction: column;
         width: 100%;
         align-items: center;
         cursor: pointer;
+        position: relative;
+        flex-grow: 2;
+
+        &:after {
+            content: "";
+            height: 4px;
+            background-color: $color-grey-10;
+            width: 100%;
+            position: absolute;
+            z-index: 0;
+            top: 95px;
+            @media #{$mq-md} {
+                top: 10px;
+            }
+        }
+
+        &.t-line-left {
+            &:after {
+                width: 50%;
+                left: 50%;
+            }
+        }
+
+        &.t-line-right {
+            &:after {
+                width: 50%;
+                right: 50%;
+            }
+        }
 
         &:hover .c-alias-block-settings-radio-button {
             background-color: $color-purple-10;
         }
 
         img {
+            height: 60px;
+            margin-bottom: $spacing-md;
             @media #{$mq-md} {
                 display: none;
             }

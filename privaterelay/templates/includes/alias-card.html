@@ -10,7 +10,20 @@
 -->
 
 <!-- TODO: Remove alias.enabled/is-enabled class/logic -->
-<div class="c-alias js-alias relay-email is-{{ alias_type }}-alias {% if alias.enabled %} is-enabled {% if alias.block_list_emails %} is-critical {% else %} is-forwarded {% endif %} {% else %} is-blocked {% endif %} " data-relay-address="{{ alias.full_address }}" data-relay-address-id="{{ alias.id }}">
+<div class="c-alias js-alias relay-email is-{{ alias_type }}-alias 
+{% if alias.enabled %}
+  is-enabled 
+  
+  {% if alias.block_list_emails %}
+    is-critical 
+  {% else %}
+    is-forwarded 
+  {% endif %} 
+  
+{% else %}
+  is-blocked 
+{% endif %} 
+" data-relay-address="{{ alias.full_address }}" data-relay-address-id="{{ alias.id }}">
 
   <div class="c-alias-main-info">
     <!-- enable/disable email forwarding -->
@@ -93,7 +106,7 @@
 
       <div class="c-alias-block-levels">
         <div class="c-alias-block-level t-forward">Forward all</div>
-        <div class="c-alias-block-level t-critical">Critical only</div>
+        <div class="c-alias-block-level t-critical">Forward some</div>
         <div class="c-alias-block-level t-block">Block all</div>
       </div>
       
@@ -127,33 +140,33 @@
 
   <div class="c-alias-info js-alias-details">
       <div class="c-alias-block-settings">
-        <form action="{% url 'emails-index' %}" method="POST" class="c-alias-block-settings-form ">
+        <form action="{% url 'emails-index' %}" method="POST" class="c-alias-block-settings-form " data-alias-id="{{ alias.id }}" data-type="{{ alias_type }}">
           <input type="hidden" name="method_override" value="PUT">
           <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
           <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">
           <div class="c-alias-block-settings-inputs">
-            <div class="c-alias-block-settings-input">
+            <div class="c-alias-block-settings-input t-line-left t-forward">
               <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="forwardAll{{ alias.id }}" value="forwardAll" checked />
               <label for="forwardAll{{ alias.id }}">
-                <img src="{% static '/images/umbrella-closed.svg' %}" alt="">
+                <img src="{% static '/images/umbrella-closed-mobile.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
-                <span>Forward</span>
+                <span>Forward all</span>
               </label>
             </div>
             <div class="c-alias-block-settings-spacer"></div>
-            <div class="c-alias-block-settings-input">
+            <div class="c-alias-block-settings-input t-line-center t-critical">
               <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="criticalOnly{{ alias.id }}" value="criticalOnly"/>
               <label for="criticalOnly{{ alias.id }}">
-                <img src="{% static '/images/umbrella-semi.svg' %}" alt="">
+                <img src="{% static '/images/umbrella-semi-mobile.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
-                <span>Critical only</span>
+                <span>Forward some</span>
               </label>
             </div>
             <div class="c-alias-block-settings-spacer"></div>
-            <div class="c-alias-block-settings-input">
+            <div class="c-alias-block-settings-input t-line-right t-block">
               <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="blockAll{{ alias.id }}" value="blockAll"/>
               <label for="blockAll{{ alias.id }}">
-                <img src="{% static '/images/umbrella-open.svg' %}" alt="">
+                <img src="{% static '/images/umbrella-open-mobile.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
                 <span>Block all</span>
               </label>
@@ -163,22 +176,29 @@
         <div class="c-alias-block-settings-description">
           <ul>
             <li data-block-level="forwardAll" class="t-forward">
-              <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
+              <div class="c-alias-block-settings-image">
+                <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
+              </div>
               <p>
                 TEMP: Relay is forwarding all emails sent to this alias.
               </p>    
             </li>
             <li data-block-level="criticalOnly" class="t-critical">
-              <img src="{% static '/images/umbrella-semi.svg' %}" alt="" />
+              <div class="c-alias-block-settings-image">
+                <img src="{% static '/images/umbrella-semi.svg' %}" alt="" />
+              </div>
               <p>
                 TEMP: Relay is forwarding only critical emails. 
                 Critical emails are important transactional emails, such as receipts, password resets and confirmations.
               </p>    
             </li>
             <li data-block-level="blockAll" class="t-block">
-              <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
+              <div class="c-alias-block-settings-image">
+                <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
+              </div>
               <p>
-                TEMP: Relay is blocking all emails sent to this alias.
+                <!-- TEMP: Relay is blocking all emails sent to this alias. -->
+                too short
               </p>    
             </li>
           </ul>
