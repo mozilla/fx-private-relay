@@ -357,6 +357,9 @@ def _sns_message(message_json):
             response = _handle_reply(from_address, message_json, to_address)
         else:
             response = HttpResponse("Address does not exist", status=404)
+        if response.status_code == 503:
+            # early return the response to trigger SNS to re-attempt
+            return response
         # remove emails from S3 if the email cannot be delivered
         bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
         if bucket and object_key:
@@ -384,7 +387,7 @@ def _sns_message(message_json):
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record):
             return HttpResponse(
-                "Rely replies require a premium account", status=403
+                "Relay replies require a premium account", status=403
             )
     except (InReplyToNotFound, Reply.DoesNotExist):
         # if there's no In-Reply-To header, or the In-Reply-To value doesn't

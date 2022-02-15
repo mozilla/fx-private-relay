@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponse
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
@@ -145,7 +146,7 @@ class BounceHandlingTest(TestCase):
         assert profile.auto_block_spam == True
 
 
-class SnsMessageTest(TestCase):
+class SnsMessageGetAddressErrorTest(TestCase):
     def setUp(self) -> None:
         self.bucket = 'test-bucket'
         self.key = '/emails/objectkey123'
@@ -160,14 +161,16 @@ class SnsMessageTest(TestCase):
         self, mocked_handle_reply,
         mocked_message_removed
     ):
-        expected_response = 'replies worked'
+        expected_status_code = 200
         replies_message_json = json.loads(EMAIL_SNS_BODIES['s3_stored_replies']['Message'])
-        mocked_handle_reply.return_value = expected_response
+        mocked_handle_reply.return_value = HttpResponse(
+            "Email Relayed", status=expected_status_code
+        )
 
         response = _sns_message(replies_message_json)
         mocked_handle_reply.assert_called_once()
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
-        assert response == expected_response
+        assert response.status_code == expected_status_code
 
     @patch('emails.views.remove_message_from_s3')
     @patch('emails.views._handle_reply')
@@ -175,14 +178,34 @@ class SnsMessageTest(TestCase):
         self, mocked_handle_reply,
         mocked_message_removed
     ):
-        expected_response = 'replies worked'
+        expected_status_code = 200
         message_json = json.loads(EMAIL_SNS_BODIES['replies']['Message'])
-        mocked_handle_reply.return_value = expected_response
+        mocked_handle_reply.return_value = HttpResponse(
+            "Email Relayed", status=expected_status_code
+        )
 
         response = _sns_message(message_json)
-        mocked_handle_reply.asswer_called_once()
+        mocked_handle_reply.assert_called_once()
         mocked_message_removed.assert_not_called()
-        assert response == expected_response
+        assert response.status_code == expected_status_code
+
+    @patch('emails.views.remove_message_from_s3')
+    @patch('emails.views._handle_reply')
+    def test_reply_email_in_s3_ses_client_error_not_deleted(
+        self, mocked_handle_reply,
+        mocked_message_removed
+    ):
+        # SES Client Error caught in _handle_reply responds with 503
+        expected_status_code = 503
+        replies_message_json = json.loads(EMAIL_SNS_BODIES['s3_stored_replies']['Message'])
+        mocked_handle_reply.return_value = HttpResponse(
+            "SES Client Error", status=expected_status_code
+        )
+
+        response = _sns_message(replies_message_json)
+        mocked_handle_reply.assert_called_once()
+        mocked_message_removed.assert_not_called
+        assert response.status_code == expected_status_code
 
     @patch('emails.views.remove_message_from_s3')
     def test_address_does_not_exist_email_not_in_s3_deleted_ignored(
@@ -206,6 +229,16 @@ class SnsMessageTest(TestCase):
         assert response.status_code == 404
         assert response.content == b'Address does not exist'
 
+    @patch('emails.views.remove_message_from_s3')
+    def test_email_not_relayed_returns_503(
+        self, mocked_message_removed
+    ):
+        message_json = json.loads(EMAIL_SNS_BODIES['s3_stored']['Message'])
+
+        response = _sns_message(message_json)
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 404
+        assert response.content == b'Address does not exist'
 @override_settings(SITE_ORIGIN='https://test.com', ON_HEROKU=False)
 class GetAddressTest(TestCase):
     def setUp(self):
