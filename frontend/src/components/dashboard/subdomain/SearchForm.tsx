@@ -37,7 +37,7 @@ export const SubdomainSearchForm = (props: Props) => {
     <form onSubmit={onSubmit}>
       <VisuallyHidden>
         <label htmlFor="subdomain">
-          {l10n.getString("banner-choose-subdomain-input-placeholder")}
+          {l10n.getString("banner-choose-subdomain-input-placeholder-2")}
         </label>
       </VisuallyHidden>
       <input
@@ -45,7 +45,7 @@ export const SubdomainSearchForm = (props: Props) => {
         value={subdomainInput}
         onChange={(e) => setSubdomainInput(e.target.value)}
         placeholder={l10n.getString(
-          "banner-choose-subdomain-input-placeholder"
+          "banner-choose-subdomain-input-placeholder-2"
         )}
         name="subdomain"
         id="subdomain"

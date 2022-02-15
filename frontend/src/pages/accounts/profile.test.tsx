@@ -139,7 +139,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
     );
 
     expect(domainSearchField).toBeInTheDocument();
@@ -150,7 +150,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -164,7 +164,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -360,7 +360,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
     );
 
     expect(subdomainSearchField).toBeInTheDocument();
@@ -376,7 +376,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
     );
 
     expect(subdomainSearchField).not.toBeInTheDocument();
