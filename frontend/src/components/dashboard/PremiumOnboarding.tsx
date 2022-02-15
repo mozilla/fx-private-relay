@@ -314,7 +314,9 @@ const StepTwo = (props: Step2Props) => {
               {l10n.getString("onboarding-premium-title-detail")}
             </span>
             <br />
-            <strong>{l10n.getString("onboarding-premium-domain-title")}</strong>
+            <strong>
+              {l10n.getString("onboarding-premium-domain-title-2")}
+            </strong>
             <br />
             {l10n.getString(
               "multi-part-onboarding-premium-get-domain-description-2",

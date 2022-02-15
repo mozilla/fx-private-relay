@@ -66,6 +66,11 @@ profile-label-generate-new-alias-menu-random = Random Alias
 #   $subdomain (string) - The user's custom subdomain, if any, e.g. `@eduardofeo`.
 profile-label-generate-new-alias-menu-custom = @{ $subdomain } Alias
 
+## The following two strings were already submitted in
+## https://github.com/mozilla-l10n/fx-private-relay-l10n/pull/59:
+banner-choose-subdomain-input-placeholder-2 = Search your new domain
+onboarding-premium-domain-title-2 = Use a custom domain for sharing aliases:
+
 tips-header-title = Help & Tips
 tips-header-button-close-label = Dismiss
 tips-footer-link-faq-label = FAQ
