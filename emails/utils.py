@@ -89,10 +89,10 @@ def ses_send_raw_email(
         incr_if_enabled('ses_send_raw_email', 1)
 
         _store_reply_record(mail, ses_response, address)
-
     except ClientError as e:
         logger.error('ses_client_error_raw_email', extra=e.response['Error'])
-        return HttpResponse("SES client error on Raw Email", status=400)
+        # 503 service unavailable reponse to SNS so it can retry
+        return HttpResponse("SES client error on Raw Email", status=503)
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
@@ -182,21 +182,17 @@ def ses_relay_email(from_address, to_address, subject,
         'replies@%s' % get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
     )
 
-    try:
-        response = ses_send_raw_email(
-            from_address,
-            to_address,
-            subject,
-            message_body,
-            attachments,
-            reply_address,
-            mail,
-            address
-        )
-        return response
-    except ClientError as e:
-        logger.error('ses_client_error', extra=e.response['Error'])
-        return HttpResponse("SES client error", status=400)
+    response = ses_send_raw_email(
+        from_address,
+        to_address,
+        subject,
+        message_body,
+        attachments,
+        reply_address,
+        mail,
+        address
+    )
+    return response
 
 
 def urlize_and_linebreaks(text, autoescape=True):
