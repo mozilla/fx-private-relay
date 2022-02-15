@@ -239,6 +239,53 @@ class SnsMessageGetAddressErrorTest(TestCase):
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 404
         assert response.content == b'Address does not exist'
+
+
+class SnsMessageTest(TestCase):
+    def setUp(self) -> None:
+        self.user = baker.make(User)
+        self.profile = self.user.profile_set.first()
+        self.sa = baker.make(SocialAccount, user=self.user, provider='fxa')
+        # test.com is the second domain listed and has the numerical value 2
+        self.address = baker.make(
+            RelayAddress, user=self.user, address='sender', domain=2
+        )
+
+        self.bucket = 'test-bucket'
+        self.key = '/emails/objectkey123'
+
+        patcher = patch(
+            'emails.views._get_text_html_attachments',
+            return_value=('text', 'html', 'attachments')
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    @patch('emails.views.ses_relay_email')
+    def test_ses_relay_email_has_client_error_early_exits(
+        self, mocked_ses_relay_email
+    ):
+        message_json = json.loads(EMAIL_SNS_BODIES['s3_stored']['Message'])
+        mocked_ses_relay_email.return_value = HttpResponse(status=503)
+
+        response = _sns_message(message_json)
+        mocked_ses_relay_email.assert_called_once()
+        assert response.status_code == 503
+    
+    @patch('emails.views.remove_message_from_s3')
+    @patch('emails.views.ses_relay_email')
+    def test_ses_relay_email_email_relayed_email_deleted_from_s3(
+        self, mocked_ses_relay_email, mocked_message_removed
+    ):
+        message_json = json.loads(EMAIL_SNS_BODIES['s3_stored']['Message'])
+        mocked_ses_relay_email.return_value = HttpResponse(status=200)
+
+        response = _sns_message(message_json)
+        mocked_ses_relay_email.assert_called_once()
+        mocked_message_removed.assert_called_once()
+        assert response.status_code == 200
+
+
 @override_settings(SITE_ORIGIN='https://test.com', ON_HEROKU=False)
 class GetAddressTest(TestCase):
     def setUp(self):

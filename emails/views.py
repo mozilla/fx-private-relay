@@ -457,6 +457,10 @@ def _sns_message(message_json):
         formatted_from_address, to_address, subject,
         message_body, attachments, mail, address
     )
+    if response.status_code == 503:
+        # early return the response to trigger SNS to re-attempt
+        return response
+    
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
     address.save(
