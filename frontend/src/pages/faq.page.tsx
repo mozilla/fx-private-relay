@@ -73,7 +73,13 @@ const Faq: NextPage = () => {
                     attrs: "",
                   }}
                   elems={{
-                    a: <a href="https://support.mozilla.org/products/relay/" />,
+                    a: (
+                      <a
+                        href="https://support.mozilla.org/products/relay/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
+                    ),
                   }}
                 >
                   <p />
@@ -99,7 +105,11 @@ const Faq: NextPage = () => {
                   }}
                   elems={{
                     a: (
-                      <a href="https://addons.mozilla.org/firefox/addon/private-relay/" />
+                      <a
+                        href="https://addons.mozilla.org/firefox/addon/private-relay/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
                     ),
                   }}
                 >
@@ -119,7 +129,11 @@ const Faq: NextPage = () => {
                   }}
                   elems={{
                     a: (
-                      <a href="https://addons.mozilla.org/firefox/addon/private-relay/" />
+                      <a
+                        href="https://addons.mozilla.org/firefox/addon/private-relay/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
                     ),
                   }}
                 >
@@ -203,7 +217,11 @@ const Faq: NextPage = () => {
                   }}
                   elems={{
                     a: (
-                      <a href="https://www.mozilla.org/privacy/firefox-relay/" />
+                      <a
+                        href="https://www.mozilla.org/privacy/firefox-relay/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
                     ),
                   }}
                 >
@@ -222,7 +240,11 @@ const Faq: NextPage = () => {
                   }}
                   elems={{
                     a: (
-                      <a href="https://www.mozilla.org/privacy/firefox-relay/" />
+                      <a
+                        href="https://www.mozilla.org/privacy/firefox-relay/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
                     ),
                   }}
                 >
@@ -243,7 +265,11 @@ const Faq: NextPage = () => {
                   }}
                   elems={{
                     a: (
-                      <a href="https://www.mozilla.org/about/legal/acceptable-use/" />
+                      <a
+                        href="https://www.mozilla.org/about/legal/acceptable-use/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
                     ),
                   }}
                 >
@@ -274,7 +300,11 @@ const Faq: NextPage = () => {
                   }}
                   elems={{
                     a: (
-                      <a href="https://www.mozilla.org/about/legal/terms/firefox-relay/" />
+                      <a
+                        href="https://www.mozilla.org/about/legal/terms/firefox-relay/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      />
                     ),
                   }}
                 >
