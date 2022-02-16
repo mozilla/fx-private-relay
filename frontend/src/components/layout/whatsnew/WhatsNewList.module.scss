@@ -1,0 +1,70 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.empty-message {
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-lg;
+  gap: $spacing-lg;
+  align-items: center;
+  text-align: center;
+
+  p {
+    @include text-body-md;
+    max-width: 75%;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  list-style-type: none;
+  padding: 0 $spacing-md;
+  max-height: min($content-md, 50vh);
+  overflow-y: auto;
+
+  li {
+    padding: $spacing-sm 0;
+    border-bottom: 1px solid $color-light-gray-30;
+
+    &:last-child {
+      border-bottom-style: none;
+    }
+
+    &:focus {
+      outline: none;
+
+      h3 {
+        text-decoration: underline;
+      }
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      border-radius: $border-radius-sm;
+      padding: $spacing-xs 0;
+      cursor: pointer;
+
+      h3 {
+        @include text-body-sm;
+        font-weight: 500;
+      }
+
+      p {
+        @include text-body-sm;
+      }
+
+      &:hover {
+        background-color: $color-blue-50;
+        color: $color-white;
+        // An item is $hoverOverflow wider than its container when hovered,
+        // i.e. the background colour is wider than the separator.
+        $hoverOverflow: $spacing-sm;
+        margin: 0 (-1 * $hoverOverflow);
+        padding: $spacing-xs $hoverOverflow;
+      }
+    }
+  }
+}

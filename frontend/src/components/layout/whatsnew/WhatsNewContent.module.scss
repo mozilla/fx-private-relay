@@ -1,0 +1,23 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-md;
+
+  img {
+    width: 100%;
+  }
+
+  .content {
+    padding: $spacing-lg;
+
+    h2 {
+      @include text-title-2xs;
+      font-family: $font-stack-firefox;
+      padding-bottom: $spacing-sm;
+    }
+  }
+}

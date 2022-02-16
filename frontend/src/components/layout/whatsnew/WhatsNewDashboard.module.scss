@@ -1,0 +1,96 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  background-color: $color-white;
+  border-radius: $border-radius-sm;
+
+  .controls {
+    $closeButtonWidth: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-sm;
+    padding-left: $spacing-sm + $closeButtonWidth;
+    border-bottom: 1px solid $color-light-gray-30;
+
+    .switch-wrapper {
+      flex: 1 1 0;
+      display: flex;
+      justify-content: center;
+
+      .switch {
+        @include text-body-sm;
+        display: inline-flex;
+        gap: $spacing-xs;
+        border-radius: $border-radius-lg;
+        background-color: $color-light-gray-30;
+        padding: $spacing-xs;
+
+        .switch-tab {
+          border-radius: $border-radius-lg;
+          color: $color-dark-gray-50;
+          padding: 0 $spacing-md;
+          border: 2px solid transparent;
+          font-weight: 500;
+
+          &:not(.is-selected) {
+            cursor: pointer;
+
+            &:hover {
+              color: $color-blue-50;
+            }
+          }
+          &.is-selected {
+            background-color: $color-white;
+            color: $color-purple-70;
+            box-shadow: $box-shadow-sm;
+
+            &:focus {
+              border-color: $color-blue-50;
+              color: $color-blue-50;
+              outline: none;
+            }
+          }
+        }
+      }
+    }
+
+    .close-button {
+      width: $closeButtonWidth;
+      padding: 0;
+      background-color: transparent;
+      border-style: none;
+      cursor: pointer;
+    }
+  }
+
+  .footer-controls {
+    padding: $spacing-xs $spacing-md;
+
+    .controls-wrapper {
+      display: flex;
+      align-items: center;
+      border-top: 1px solid $color-light-gray-20;
+
+      .start {
+        flex: 1 0 0;
+      }
+
+      button {
+        @include text-body-sm;
+        font-weight: 500;
+        background-color: transparent;
+        border-style: none;
+        border-radius: $border-radius-sm;
+        color: $color-blue-50;
+        padding: $spacing-sm;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
