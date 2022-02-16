@@ -23,6 +23,7 @@ import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
+import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
 
 export type Props = {
   children: ReactNode;
@@ -80,6 +81,11 @@ export const Layout = (props: Props) => {
       </div>
     ) : null;
 
+  const whatsNew =
+    isLoggedIn && profiles.data ? (
+      <WhatsNewMenu profile={profiles.data[0]} />
+    ) : null;
+
   return (
     <>
       <Head>
@@ -132,6 +138,7 @@ export const Layout = (props: Props) => {
           </div>
           <div className={styles["nav-wrapper"]}>
             <Navigation />
+            {whatsNew}
           </div>
           <div className={styles["app-picker-wrapper"]}>
             <AppPicker theme={isDark ? "free" : "premium"} />

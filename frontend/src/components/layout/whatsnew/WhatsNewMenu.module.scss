@@ -1,0 +1,60 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+
+.trigger {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background-color: transparent;
+  border-style: none;
+  color: inherit;
+  border-radius: $border-radius-lg;
+  cursor: pointer;
+  padding: $spacing-xs $spacing-sm;
+  font-family: $font-stack-firefox;
+
+  &.is-open {
+    background-color: $color-light-gray-20;
+    color: $color-dark-gray-20;
+  }
+
+  .pill {
+    border-radius: 100%;
+    padding: $spacing-sm;
+    font-size: 14px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $color-yellow-40;
+    font-weight: 700;
+    color: $color-white;
+    font-style: normal;
+  }
+}
+
+.popover-wrapper {
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-sm;
+  width: min($content-sm, calc(100vw - 2 * $spacing-md));
+
+  &::before {
+    content: "";
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    top: -6px;
+    right: $spacing-md;
+    transform: rotate(45deg);
+    background-color: $color-white;
+
+    @media screen and #{$mq-md} {
+      // On a small screen, there are no app and user menu's to the right of the
+      // trigger, so the arrow has to be pretty much on the right-hand side.
+      // However, on a wider screen, it should be roughly at a third of the
+      // width to align with the trigger:
+      right: calc($content-sm / 3);
+    }
+  }
+}
