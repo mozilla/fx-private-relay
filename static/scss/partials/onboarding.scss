@@ -309,10 +309,25 @@
         @media #{$mq-md} {
             display: inline;
         }
-    }
 
-    .subdomain-banner-input {
-        margin-bottom: $spacing-md;
+        ::placeholder {
+            text-align: center;
+        }
+
+        input {
+            padding-left: $layout-sm;
+        }
+
+        .subdomain-banner-input {
+            margin-bottom: $spacing-md;
+        }
+
+        .subdomain-search-icon {
+            background-image: url("/static/images/icon-search.svg");
+            background-repeat: no-repeat;
+            background-position: $spacing-sm center;
+            background-size: 16px 16px;
+        }
     }
 }
 
