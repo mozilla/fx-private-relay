@@ -20,7 +20,24 @@ This auth scheme can be used by other clients too. E.g., Firefox browser has a
 [`getOAuthToken`][searchfox-getoauthtoken] function which can be used to
 perform the same API authentication as the add-on.
 
-![FXA OAuth Token Authentication Sequence Diagram](api_auth.png)
+```mermaid
+sequenceDiagram
+    participant Extension
+    participant FXA
+    participant Relay
+
+    rect rgba(34, 0, 51, .09)
+    note right of Extension: OAuth2 Flow
+    Extension->>FXA: GET /v1/authorization?...
+    FXA->>Extension: 301 Moved https://{extension-id}.extensions.allizom.org/?...
+    Extension->>FXA: POST /v1/oauth/token/
+    FXA->>Extension: JSON: {token}
+    end
+    Extension->>Relay: GET /api/v1/relayaddresses Authorization: Token {token}
+    Relay->>FXA: POST /v1/oauth/verify {token}
+    FXA->>Relay: 200 OK
+    Relay->>Extension: [{id:, address:, etc.}, {id:, address:, etc.}]
+```
 
 [drf]: https://www.django-rest-framework.org/
 [SessionAuthentication]: https://www.django-rest-framework.org/api-guide/authentication/#sessionauthentication
