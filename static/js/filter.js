@@ -33,12 +33,14 @@
             // Based on which category(s) the user selected, show that specific aliases
             // Possible Cases: 
             // "active-aliases" – Only show the aliases that are enabled
+            // "critical-aliases"– Only show the aliases that are critical only
             // "disabled-aliases"– Only show the aliases that are disabled
             // "relay-aliases"– Only show aliases that have been generated from the dashboard/add-on 
             // "domain-aliases"– Only show aliases that were created with a unique subdomain. 
             const matchesCategoryFilters = (
                 (!activeCategoryFilters.includes("active-aliases") || aliasContainer.classList.contains("is-enabled")) &&
-                (!activeCategoryFilters.includes("disabled-aliases") || !aliasContainer.classList.contains("is-enabled")) &&
+                (!activeCategoryFilters.includes("critical-aliases") || aliasContainer.classList.contains("is-critical")) &&
+                (!activeCategoryFilters.includes("disabled-aliases") || aliasContainer.classList.contains("is-blocked")) &&
                 (!activeCategoryFilters.includes("relay-aliases") || aliasContainer.classList.contains("is-relay-alias")) &&
                 (!activeCategoryFilters.includes("domain-aliases") || aliasContainer.classList.contains("is-domain-alias"))
             );
