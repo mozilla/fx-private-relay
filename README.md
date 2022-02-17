@@ -130,15 +130,24 @@ To do so:
 
 1. Set `ADMIN_ENABLED=True` in your `.env` file
 
-2. Shutdown the server if running, and run `python manage.py migrate` to add
-   the admin tables. Start the server with `python manage.py runserver`.
+2. Shutdown the server if running, and add the admin tables with:
 
-3. Go to [the django admin page to change the default
+    ```sh
+    python manage.py migrate
+    ```
+
+3. Run  the server, now with `/admin` endpoints:
+
+    ```sh
+    python manage.py runserver
+    ```
+
+4. Go to [the django admin page to change the default
    site](http://127.0.0.1:8000/admin/sites/site/1/change/).
 
-4. Change `example.com` to `127.0.0.1:8000` and click Save.
+5. Change `example.com` to `127.0.0.1:8000` and click Save.
 
-5. [Go to the django-allauth social app admin
+6. [Go to the django-allauth social app admin
    page](http://127.0.0.1:8000/admin/socialaccount/socialapp/), sign in with the
    superuser account you created above, and add a social app for Firefox Accounts:
 
