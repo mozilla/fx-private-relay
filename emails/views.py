@@ -764,8 +764,7 @@ def _get_attachment(part):
 
     attachment = SpooledTemporaryFile(
         max_size=150*1000,  # 150KB max from SES
-        suffix=extension,
-        prefix=os.path.splitext(fn)[0]
+        prefix="relay_attachment_"
     )
     attachment.write(payload)
     return fn, attachment

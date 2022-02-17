@@ -443,7 +443,6 @@ class GetAttachmentTests(TestCase):
         assert att_name == filename
         assert isinstance(att._file, io.BufferedRandom)
 
-    @pytest.mark.xfail(reason="Filename with colon fails")
     def test_attachment_url_filename(self):
         """A URL filename can be stored on disk"""
         filename = "https://example.com/data.bin"
