@@ -232,8 +232,7 @@ function addEventListeners() {
   });
 
   const generateAliasForm = document.querySelector(".dash-create");
-  const aliasCards = document.querySelector(".js-alias");
-  const ogAliasId = aliasCards.dataset.relayAddressId;
+
 
   if (generateAliasForm) {
 
@@ -247,33 +246,21 @@ function addEventListeners() {
       }
 
       sendGaPing("Generate New Alias", "Engage", "btn-enabled");
+    
       e.target.submit();
-
-      const newAliasId = parseInt(ogAliasId) + 1;
-
-      return newAliasId;
-
-      // openAliasCardWhenGenerated(newAliasId);
-
-      // console.log("og alias " + ogAliasId + " and new alias " + newAliasId)
-
+      localStorage.setItem("generateBtn", "True");
     });
 
-    openAliasCardWhenGenerated(newAliasId);
+    const checkGenerateBtnState = localStorage.getItem("generateBtn");
 
+    if (checkGenerateBtnState === "True") {
+      const aliasCard = document.querySelector(".js-alias");
+      const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
+      toggleAliasCardDetailsVisibility(aliasCard);
+      toggleDetailsBtn.classList.toggle("is-active");
+      localStorage.removeItem("generateBtn");
+    }
 
-  }
-
-  function openAliasCardWhenGenerated(newAliasId) {
-    const aliasCard = document.querySelector(".js-alias");
-    const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
-    console.log("working");
-    
-      if (aliasCard.dataset.relayAddressId === newAliasId) {
-        toggleAliasCardDetailsVisibility(aliasCard);
-        toggleDetailsBtn.classList.toggle("is-active");
-      }
-  
   }
 
   const generateAliasMenuTrigger = document.querySelector(".js-dash-create-new-alias-menu-trigger ");
