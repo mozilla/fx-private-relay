@@ -122,7 +122,7 @@ of the translations submodule:
 
 * `git push`
 
-#### Recommended: Enable Firefox Accounts authentication
+### Recommended: Enable Firefox Accounts authentication
 To enable Firefox Accounts authentication on your local server, you can use the
 "Firefox Private Relay local dev" OAuth app on accounts.stage.mozaws.net.
 
@@ -130,25 +130,28 @@ To do so:
 
 1. Set `ADMIN_ENABLED=True` in your `.env` file
 
-2. Go to [the django admin page to change the default
+2. Shutdown the server if running, and run `python manage.py migrate` to add
+   the admin tables. Start the server with `python manage.py runserver`.
+
+3. Go to [the django admin page to change the default
    site](http://127.0.0.1:8000/admin/sites/site/1/change/).
 
-3. Change `example.com` to `127.0.0.1:8000` and click Save.
+4. Change `example.com` to `127.0.0.1:8000` and click Save.
 
-4. [Go to the django-allauth social app admin
-page](http://127.0.0.1:8000/admin/socialaccount/socialapp/), sign in with the
-superuser account you created above, and add a social app for Firefox Accounts:
+5. [Go to the django-allauth social app admin
+   page](http://127.0.0.1:8000/admin/socialaccount/socialapp/), sign in with the
+   superuser account you created above, and add a social app for Firefox Accounts:
 
 | Field | Value |
 |-------|-------|
 | Provider | Firefox Accounts |
 | Name | `accounts.stage.mozaws.net` |
-| Client id | `9ebfe2c2f9ea3c58 ` |
+| Client id | `9ebfe2c2f9ea3c58` |
 | Secret key | Request this from `#fx-private-relay-eng` Slack channel |
-| Sites | `127.0.0.1:8000 ` -> Chosen sites |
+| Sites | `127.0.0.1:8000` -> Chosen sites |
 
 Now you can sign into [http://127.0.0.1:8000/](http://127.0.0.1:8000/) with an
-FxA. 
+FxA.
 
 :warning: Remember that you'll need to use an account on https://accounts.stage.mozaws.net/, not
 the production site, accounts.firefox.com.
