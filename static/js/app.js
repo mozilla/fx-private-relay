@@ -9,56 +9,55 @@ if (typeof(sendGaPing) === "undefined") {
   sendGaPing = () => {};
 }
 
-async function updateEmailForwardingPrefs(form, status) {
-  console.log("updateEmailForwardingPrefs", form);
-  // submitEvent.preventDefault();
+async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEvent) {
+  submitEvent.preventDefault();
 
   const formData = {};
+
+  // Temporary: If free, decode true/false of checkbox to run through logic like three-button system on Premium
+  if (form.classList.contains("email-forwarding-form")) {
+    status = (form.querySelector(".c-alias-email-fowarding-button input").checked) ? "forwardAll" : "blockAll";
+  }
+
+
+  let aliasStatusClassname = "is-forwarded";
 
   switch (status) {
     case "forwardAll":
       formData.enabled = true;
-      formData.block_list_emails = false
+
+      if (isUserPremium) {
+        formData.block_list_emails = false
+        
+      }
       break;
-  
+
     case "criticalOnly":
       formData.enabled = true;
-      formData.block_list_emails = true;
+
+      if (isUserPremium) {
+        formData.block_list_emails = true
+        aliasStatusClassname = "is-critical";
+      }
+      
       break;
-  
+
     case "blockAll":
       formData.enabled = false;
       // Note: Revising block_list_emails doesn't do anything as all emails are blocked
-      formData.block_list_emails = false
+      // formData.block_list_emails = false;
+      aliasStatusClassname = "is-blocked";
       break;
-  
+
     default:
       break;
   }
 
-  const forwardingPrefForm = form;
-  // const prefToggle = forwardingPrefForm.querySelector("button");
-  // const toggleLabel = forwardingPrefForm.querySelector(".forwarding-label-wrapper");
-  // const addressId = forwardingPrefForm.querySelector("[name='relay_address_id']") || forwardingPrefForm.querySelector("[name='domain_address_id']");
-  // const wrappingEmailCard = document.querySelector(`[data-relay-address-id='${addressId.value}']`);
-
   // TODO: Add logic to send correct GA event
-  // const analyticsLabel = (prefToggle.value === "Disable") ? "User disabled forwarding" : "User enabled forwarding";
-  // sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
-
-  
-  // Array.from(forwardingPrefForm.elements).forEach(elem => {
-  //   formData[elem.name] = elem.value;
-  // });
-
-  console.log(form.dataset);
-  console.log(formData);
-
+  const analyticsLabel = (formData.enabled) ? "User disabled forwarding" : "User enabled forwarding";
+  sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
   try {
-
-    // TODO: Uncomment response/if statement. Adding mock to simulate form submission responses
-    // const response = await sendForm(forwardingPrefForm.action, formData);
     const response = await apiRequest(
       `/${form.dataset.type}addresses/${form.dataset.aliasId}/`,
       {
@@ -66,42 +65,43 @@ async function updateEmailForwardingPrefs(form, status) {
           body: JSON.stringify(formData),
       },
     );
+
     if (response && response.status === 200) {
+      // If free, update the blue/gray toggle switch
+      if (form.classList.contains("email-forwarding-form")) {
+        const button = form.querySelector(".c-alias-email-fowarding-button");
+        button.classList.toggle("t-disabled");
 
-      console.log("GOOD TO GO");
-      // TODO: Add logic to update status on individual alias of new pref
-      // forwardAll, criticalOnly, blockAll
-      // Default is "forward all"
-      let aliasStatusClassname = "is-forwarded";
-      if ( status == "criticalOnly" ) { aliasStatusClassname = "is-critical" }
-      if ( status == "blockAll" ) { aliasStatusClassname = "is-blocked" }
-
-
+        // TODO: Update label text per previous function:
+        // prefToggle.classList.toggle("forwarding-disabled");
+        // if (prefToggle.value === "Enable") {
+        //   prefToggle.title = prefToggle.dataset.defaultBlockingTitle;
+        //   toggleLabel.textContent = toggleLabel.dataset.defaultForwardingLabel;
+        //   wrappingEmailCard.classList.add("is-enabled");
+        //   prefToggle.value = "Disable";
+        //   return;
+        // } else if (prefToggle.value === "Disable") {
+        //   prefToggle.title = prefToggle.dataset.defaultForwardingTitle;
+        //   toggleLabel.textContent = toggleLabel.dataset.defaultBlockingLabel;
+        //   wrappingEmailCard.classList.remove("is-enabled");
+        //   prefToggle.value = "Enable";
+        //   return;
+        // }        
+      }
+      
+      // Update the overall alias status class: 
       const alias = form.closest(".c-alias");
+
       // Remove previous status
       alias.classList.remove("is-blocked", "is-critical", "is-forwarded");
       alias.classList.add(aliasStatusClassname);
 
-      // updateAliasBlockLevelSettings({
-      //   alias: form.cloesest(".c-alias"),
-      //   status: "criticalOnly"
-      // });
-
-
-      // prefToggle.classList.toggle("forwarding-disabled");
-      // if (prefToggle.value === "Enable") {
-      //   prefToggle.title = prefToggle.dataset.defaultBlockingTitle;
-      //   toggleLabel.textContent = toggleLabel.dataset.defaultForwardingLabel;
-      //   wrappingEmailCard.classList.add("is-enabled");
-      //   prefToggle.value = "Disable";
-      //   return;
-      // } else if (prefToggle.value === "Disable") {
-      //   prefToggle.title = prefToggle.dataset.defaultForwardingTitle;
-      //   toggleLabel.textContent = toggleLabel.dataset.defaultBlockingLabel;
-      //   wrappingEmailCard.classList.remove("is-enabled");
-      //   prefToggle.value = "Enable";
-      //   return;
-      // }
+      // For premium only
+      if (form.classList.contains("c-alias-block-settings-form")) {
+        if (!isUserPremium && status == "criticalOnly") {
+          alias.classList.add("is-forwarded");
+        } 
+      }
     }
   } catch(e) {
     const siteOrigin = document.body.dataset.siteOrigin;
@@ -240,9 +240,10 @@ function deleteAliasConfirmation(submitEvent) {
 }
 
 function submitEmailForwardingPrefsForm(submitEvent) {
-  console.log("submitEmailForwardingPrefsForm", submitEvent);
+  submitEvent.preventDefault();
+  const isUserPremium = document.querySelector("body").classList.contains("is-premium");
   const form = submitEvent.target.closest("form");
-  updateEmailForwardingPrefs(form, submitEvent.target.defaultValue);
+  updateEmailForwardingPrefs(form, submitEvent.target.defaultValue, isUserPremium, submitEvent);
 }
 
 function toggleAliasCardDetailsVisibility(aliasCard) {
@@ -279,7 +280,7 @@ function recruitmentLogic() {
 
 
 function addEventListeners() {
-
+  
   const aliasCards = document.querySelectorAll(".js-alias");
   
   aliasCards.forEach(aliasCard => {
@@ -295,16 +296,17 @@ function addEventListeners() {
 
     // Email forwarding toggling
     const aliasBlockSettingsToggleInputs = aliasCard.querySelectorAll(".c-alias-block-settings-inputs input");
-    aliasBlockSettingsToggleInputs.forEach(aliasBlockSettingsToggleInput => {
+    aliasBlockSettingsToggleInputs?.forEach(aliasBlockSettingsToggleInput => {
       aliasBlockSettingsToggleInput.addEventListener("change", submitEmailForwardingPrefsForm);
     });
-  });
 
-  // Email forwarding toggles
-  // TODO: Remove
-	// document.querySelectorAll(".email-forwarding-form").forEach(forwardEmailsToggleForm => {
-	// 	forwardEmailsToggleForm.addEventListener("submit", updateEmailForwardingPrefs);
-  // });
+    // Email forwarding toggles for free users  
+    const aliasBlockSettingsFreeToggleInputs = aliasCard.querySelectorAll(".c-alias-email-fowarding-button input")
+    aliasBlockSettingsFreeToggleInputs?.forEach(aliasBlockSettingsFreeToggleInput => {
+      aliasBlockSettingsFreeToggleInput.addEventListener("change", submitEmailForwardingPrefsForm);
+    });
+    
+  });
 
   const generateAliasForm = document.querySelector(".dash-create");
 

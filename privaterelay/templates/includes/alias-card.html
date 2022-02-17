@@ -28,8 +28,8 @@
   <div class="c-alias-main-info">
     <!-- enable/disable email forwarding -->
     <!-- TODO: Remove toggle/element -->
-    <!-- <div class="c-alias-toggle email-forwarding is-hidden">
-      <form action="{% url 'emails-index' %}" method="POST" class="xflx xflx-row al-cntr email-forwarding-form">
+    <div class="c-alias-toggle email-forwarding {% if user_profile.has_premium %}is-hidden{% endif %}">
+      <form action="{% url 'emails-index' %}" method="POST" class="email-forwarding-form" data-alias-id="{{ alias.id }}" data-type="{{ alias_type }}">
         <input type="hidden" name="method_override" value="PUT">
         <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
         <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">
@@ -37,30 +37,40 @@
           class="forwarding-label-wrapper card-small-text hidden"
           data-default-forwarding-label="{% ftlmsg 'profile-label-forwarding' %}"
           data-default-blocking-label="{% ftlmsg 'profile-label-blocking' %}"
-        >{% if alias.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
-        {% if alias.enabled %}
+        >{% if alias.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}
+      </span>
+
+      <div class="c-alias-email-fowarding-button {% if not alias.enabled %}t-disabled{% endif %}">
+        <input {% if alias.enabled %}checked{% endif %}  name="aliasForwardingToggle{{ alias.id }}" id="aliasForwardingToggle{{ alias.id }}" value="true" type="checkbox" data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}" data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}">
+        <label for="aliasForwardingToggle{{ alias.id }}">
+          <div class="forwarding-toggle js-forwarding-toggle"></div>
+        </label>
+      </div>
+
+        <!-- <button
+            id="aliasForwardingToggle"
+            type="submit"
+            name="enabled"
+            value="Disable"
+            title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
+            data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
+            data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
+            class="text-center forwarding-toggle {% if not alias.enabled %} is-hidden {% endif %}"
+          ></button>
+        
         <button
-          type="submit"
-          name="enabled"
-          value="Disable"
-          title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-          data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
-          data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-          class="text-center forwarding-toggle"
-        ></button>
-        {% else %}
-        <button
+          id="aliasForwardingToggle"
           type="submit"
           name="enabled"
           value="Enable"
           title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
           data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
           data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-          class="text-center forwarding-disabled forwarding-toggle"
-        ></button>
-        {% endif %}
+          class="text-center forwarding-disabled forwarding-toggle {% if alias.enabled %} is-hidden {% endif %}"
+        ></button> -->
+        
       </form>
-    </div> -->
+    </div>
 
     <!--end enable/disable toggle -->
 
@@ -103,12 +113,13 @@
     </div>
 
     <div class="c-alias-meta">
-
+      {% if user_profile.has_premium %}
       <div class="c-alias-block-levels">
         <div class="c-alias-block-level t-forward">Forward all</div>
         <div class="c-alias-block-level t-critical">Forward some</div>
         <div class="c-alias-block-level t-block">Block all</div>
       </div>
+      {% endif %}
       
       <div class="c-alias-stats hide-mobile">
             {% include "includes/alias-stats.html" %}
@@ -139,8 +150,8 @@
   </div>
 
   <div class="c-alias-info js-alias-details">
-      <div class="c-alias-block-settings">
-        <form action="{% url 'emails-index' %}" method="POST" class="c-alias-block-settings-form " data-alias-id="{{ alias.id }}" data-type="{{ alias_type }}">
+      <div class="c-alias-block-settings {% if not user_profile.has_premium %}is-hidden{% endif %}">
+        <form action="{% url 'emails-index' %}" method="POST" class="c-alias-block-settings-form" data-alias-id="{{ alias.id }}" data-type="{{ alias_type }}">
           <input type="hidden" name="method_override" value="PUT">
           <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
           <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">

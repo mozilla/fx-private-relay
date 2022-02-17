@@ -450,6 +450,10 @@
     flex-direction: column;
     align-items: center;
 
+    &.is-hidden {
+        display: none;
+    }
+
     @media #{$mq-md} {
         display: flex;
         justify-content: space-between;
@@ -526,6 +530,7 @@
 
 .c-alias-block-settings-form {
     width: 100%;
+
 
     .c-alias-block-settings-inputs {
         display: flex;
@@ -793,5 +798,85 @@
         pointer-events: none;
         background-size: contain;
         opacity: .6;
+    }
+}
+
+.email-forwarding-form {
+    align-items: center;
+}
+
+
+.c-alias-email-fowarding-button {
+    
+    &.t-disabled {
+        
+        
+        label {
+            background-color: $color-grey-30;
+
+            &::after {
+                left: 4px;
+                right: 18px;
+                transition: all .2s ease;
+            }
+        
+            &:hover,
+            &:focus {
+                background-color: $color-grey-40
+            }
+            
+            &:active {
+                background-color: $color-grey-50
+            }
+        }
+
+    }
+
+    input {
+        display: none;
+    }
+
+    label {
+        display: block;
+        height: 2rem;
+        height: 1.15em;
+        width: 2em;
+        position: relative;
+        overflow: hidden;
+        border: none;
+        border-radius: 1.5em;
+        outline: none;
+        background-color: $color-blue-50;
+        background-size: 20px;
+        margin: auto 0;
+
+        &::after {
+            content: "";
+            height: .75em;
+            width: .75em;
+            position: absolute;
+            border-radius: 50%;
+            background-color: $color-white;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            right: 4px;
+            transition: all .2s ease;
+        }
+
+        &:hover {
+            background-color: $color-blue-70;
+        }
+        
+        &:active {
+            background-color: $color-blue-80;
+        }
+
+        
+
+    }
+
+    &.is-hidden {
+        display: none;
     }
 }
