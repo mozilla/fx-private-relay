@@ -14,7 +14,7 @@ class PremiumValidatorsMixin:
         )
 
 
-class RelayAddressSerializer(serializers.ModelSerializer, PremiumValidatorsMixin):
+class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
     class Meta:
         model = RelayAddress
         fields = [
@@ -31,7 +31,7 @@ class RelayAddressSerializer(serializers.ModelSerializer, PremiumValidatorsMixin
         ]
 
 
-class DomainAddressSerializer(serializers.ModelSerializer, PremiumValidatorsMixin):
+class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
     class Meta:
         model = DomainAddress
         fields = [
