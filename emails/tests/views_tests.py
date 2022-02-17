@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
+from email.message import EmailMessage
 import glob
+import io
 import json
 import os
 from unittest.mock import patch
@@ -11,6 +13,7 @@ from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
+import pytest
 
 from emails.models import (
     address_hash,
@@ -21,6 +24,7 @@ from emails.models import (
 )
 from emails.views import (
     _get_address,
+    _get_attachment,
     _sns_message,
     _sns_notification
 )
@@ -382,3 +386,72 @@ class GetAddressTest(TestCase):
         except Exception as e:
             assert e.args[0] == 'RelayAddress matching query does not exist.'
             incr_mocked.assert_called_once_with('email_for_deleted_address_multiple', 1)
+
+
+class GetAttachmentTests(TestCase):
+
+    def setUp(self):
+        # Define contents large enough to be stored on disk
+        self.long_data = b'0123456789' * 16_000
+
+    def create_message(self, data, mimetype, filename):
+        """Create an EmailMessage with an attachment."""
+        message = EmailMessage()
+        message['Subject'] = 'A Test Message'
+        message['From'] = 'test sender <sender@example.com>'
+        message['To'] = 'test receiver <receiver@example.com>'
+        message.preamble = 'This email has attachments.\n'
+
+        assert isinstance(data, bytes)
+        maintype, subtype = mimetype.split('/', 1)
+        assert maintype
+        assert subtype
+        message.add_attachment(data, maintype=maintype, subtype=subtype, filename=filename)
+        return message
+
+    def test_short_attachment(self):
+        """A short attachment is stored in memory"""
+        message = self.create_message(b"A short attachment", "text/plain", "short.txt")
+        att_name, att = None, None
+        for part in message.walk():
+            if part.is_attachment():
+                att_name, att = _get_attachment(part)
+                break
+        assert att_name == 'short.txt'
+        assert isinstance(att._file, io.BytesIO)
+
+    def test_long_attachment(self):
+        """A long attachment is stored on disk"""
+        message = self.create_message(self.long_data, "application/octet-stream", "long.txt")
+        att_name, att = None, None
+        for part in message.walk():
+            if part.is_attachment():
+                att_name, att = _get_attachment(part)
+                break
+        assert att_name == 'long.txt'
+        assert isinstance(att._file, io.BufferedRandom)
+
+    def test_attachment_unicode_filename(self):
+        """A unicode filename can be stored on disk"""
+        filename = "Some Binary data 😀.bin"
+        message = self.create_message(self.long_data, "application/octet-stream", filename)
+        att_name, att = None, None
+        for part in message.walk():
+            if part.is_attachment():
+                att_name, att = _get_attachment(part)
+                break
+        assert att_name == filename
+        assert isinstance(att._file, io.BufferedRandom)
+
+    @pytest.mark.xfail(reason="Filename with colon fails")
+    def test_attachment_url_filename(self):
+        """A URL filename can be stored on disk"""
+        filename = "https://example.com/data.bin"
+        message = self.create_message(self.long_data, "application/octet-stream", filename)
+        att_name, att = None, None
+        for part in message.walk():
+            if part.is_attachment():
+                att_name, att = _get_attachment(part)
+                break
+        assert att_name == filename
+        assert isinstance(att._file, io.BufferedRandom)
