@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import glob
 import json
 import os
 from unittest.mock import patch
@@ -35,17 +36,12 @@ single_rec_file = os.path.join(
 )
 
 EMAIL_SNS_BODIES = {}
-for email_type in [
-    'spamVerdict_FAIL',
-    'single_recipient',
-    'domain_recipient',
-    'replies',
-    's3_stored',
-    's3_stored_replies',
-]:
-    email_file = os.path.join(
-        real_abs_cwd, 'fixtures', '%s_email_sns_body.json' % email_type
-    )
+file_suffix = '_email_sns_body.json'
+for email_file in glob.glob(
+    os.path.join(real_abs_cwd, 'fixtures', '*' + file_suffix)
+):
+    file_name = os.path.basename(email_file)
+    email_type = file_name[:-len(file_suffix)]
     with open(email_file, 'r') as f:
         email_sns_body = json.load(f)
         EMAIL_SNS_BODIES[email_type] = email_sns_body
@@ -84,6 +80,31 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at.date() == datetime.today().date()
+
+    @patch('emails.views.ses_relay_email')
+    def test_list_email_sns_notification(self, mock_ses_relay_email):
+        # by default, list emails should still forward
+        _sns_notification(EMAIL_SNS_BODIES['single_recipient_list'])
+
+        mock_ses_relay_email.assert_called_once()
+
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at.date() == datetime.today().date()
+
+    @patch('emails.views.ses_relay_email')
+    def test_block_list_email_sns_notification(self, mock_ses_relay_email):
+        # when an alias is blocking list emails, list emails should not forward
+        self.ra.block_list_emails = True
+        self.ra.save()
+
+        _sns_notification(EMAIL_SNS_BODIES['single_recipient_list'])
+
+        mock_ses_relay_email.assert_not_called()
+
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 0
+        assert self.ra.num_blocked == 1
 
     @patch('emails.views.ses_relay_email')
     def test_spamVerdict_FAIL_default_still_relays(self, mock_ses_relay_email):

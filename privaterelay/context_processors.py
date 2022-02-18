@@ -54,12 +54,14 @@ def _get_csat_cookie_and_reason(request):
     if not request.user.is_authenticated:
         return None, None
     profile = request.user.profile_set.first()
-    first_visit = request.COOKIES.get("first_visit")
+    first_visit = request.COOKIES.get(
+        "first_visit", datetime.now(timezone.utc).isoformat()
+    )
 
     reason_to_show_csat_survey = None
     csat_dismissal_cookie = ""
-    if (profile.has_premium):
-        # There are two reasons why someone might not have a subscription date set:
+    if (profile.has_premium and not profile.date_subscribed):
+        # There are two reasons why a premium user might NOT have a subscription date set:
         # - They subscribed before we started tracking that.
         # - They have Premium because they have a Mozilla email address.
         # In the latter case, their first visit date is effectively their

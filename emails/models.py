@@ -490,6 +490,7 @@ class RelayAddress(models.Model):
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
+    block_list_emails = models.BooleanField(default=False)
 
     def __str__(self):
         return self.address
@@ -521,6 +522,7 @@ class RelayAddress(models.Model):
                 self.address = address_default()
             profile = self.user.profile_set.first()
             profile.update_abuse_metric(address_created=True)
+        # TODO: validate user is premium to set block_list_emails
         return super().save(*args, **kwargs)
 
     @property
@@ -600,6 +602,7 @@ class DomainAddress(models.Model):
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
+    block_list_emails = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ['user', 'address']
@@ -612,6 +615,7 @@ class DomainAddress(models.Model):
             user_profile = self.user.profile_set.first()
             check_user_can_make_domain_address(user_profile)
             user_profile.update_abuse_metric(address_created=True)
+        # TODO: validate user is premium to set block_list_emails
         return super().save(*args, **kwargs)
 
     @property

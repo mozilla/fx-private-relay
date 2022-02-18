@@ -367,12 +367,13 @@ def _sns_message(message_json):
         return response
 
     _record_receipt_verdicts(receipt, 'valid_user')
+    # if this is spam and the user is set to auto-block spam, early return
     if (user_profile.auto_block_spam and
         _get_verdict(receipt, 'spam') == 'FAIL'):
         incr_if_enabled('email_auto_suppressed_for_spam', 1)
         return HttpResponse("Address rejects spam.")
 
-    # first see if this user is over bounce limits
+    # if this user is over bounce limits, early return
     bounce_paused, bounce_type = user_profile.check_bounce_pause()
     if bounce_paused:
         _record_receipt_verdicts(receipt, 'user_bounce_paused')
@@ -395,7 +396,8 @@ def _sns_message(message_json):
         # an external sender to a relay user
         pass
 
-    if address and not address.enabled:
+    # if address is set to block, early return
+    if not address.enabled:
         incr_if_enabled('email_for_disabled_address', 1)
         address.num_blocked += 1
         address.save(update_fields=['num_blocked'])
@@ -404,6 +406,14 @@ def _sns_message(message_json):
 
     _record_receipt_verdicts(receipt, 'active_alias')
     incr_if_enabled('email_for_active_address', 1)
+
+    # if address is blocking list emails, and email is from list, early return
+    email_is_from_list = _check_email_from_list(mail['headers'])
+    if address and address.block_list_emails and email_is_from_list:
+        incr_if_enabled('list_email_for_address_blocking_lists', 1)
+        address.num_blocked += 1
+        address.save(update_fields=['num_blocked'])
+        return HttpResponse("Address is not accepting list emails.")
 
     subject = common_headers.get('subject', '')
 
@@ -477,6 +487,13 @@ def _sns_message(message_json):
 
 def _get_verdict(receipt, verdict_type):
     return receipt['%sVerdict' % verdict_type]['status']
+
+
+def _check_email_from_list(headers):
+    for header in headers:
+        if header['name'].lower().startswith('list-'):
+            return True
+    return False
 
 
 def _record_receipt_verdicts(receipt, state):

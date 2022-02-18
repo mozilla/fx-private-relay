@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
+import json
 import random
 from unittest import skip
 from unittest.mock import patch
@@ -42,6 +43,12 @@ def make_free_test_user():
     user_profile = Profile.objects.get(user=user)
     user_profile.server_storage = True
     user_profile.save()
+    baker.make(
+        SocialAccount,
+        user=user,
+        provider='fxa',
+        extra_data={'avatar': 'avatar.png'}
+    )
     return user
 
 
@@ -50,6 +57,7 @@ def make_premium_test_user():
     premium_user = baker.make(User)
     premium_user_profile = Profile.objects.get(user=premium_user)
     premium_user_profile.server_storage = True
+    premium_user_profile.date_subscribed = datetime.now()
     premium_user_profile.save()
     upgrade_test_user_to_premium(premium_user)
     return premium_user
@@ -63,7 +71,10 @@ def upgrade_test_user_to_premium(user):
         SocialAccount,
         user=user,
         provider='fxa',
-        extra_data={'subscriptions': [random_sub]}
+        extra_data={
+            'avatar': 'avatar.png',
+            'subscriptions': [random_sub]
+        }
     )
     return user
 
