@@ -10,6 +10,7 @@ import { getL10n } from "../functions/getL10n";
 import { hasDoNotTrackEnabled } from "../functions/userAgent";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
 import { getRuntimeConfig } from "../config";
+import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
@@ -55,7 +56,7 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <SSRProvider>
       <LocalizationProvider l10n={getL10n()}>
-        <>
+        <ReactAriaI18nProvider>
           <AddonDataContext.Provider value={addonData}>
             <firefox-private-relay-addon
               ref={addonDataElementRef}
@@ -67,7 +68,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               <Component {...pageProps} />
             </OverlayProvider>
           </AddonDataContext.Provider>
-        </>
+        </ReactAriaI18nProvider>
       </LocalizationProvider>
     </SSRProvider>
   );
