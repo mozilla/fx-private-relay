@@ -397,7 +397,7 @@ def _sns_message(message_json):
         pass
 
     # if address is set to block, early return
-    if address and not address.enabled:
+    if not address.enabled:
         incr_if_enabled('email_for_disabled_address', 1)
         address.num_blocked += 1
         address.save(update_fields=['num_blocked'])

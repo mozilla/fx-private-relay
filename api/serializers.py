@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 
 from emails.models import Profile, DomainAddress, RelayAddress
 from django.contrib.auth.models import User
@@ -9,7 +9,7 @@ class PremiumValidatorsMixin:
     def validate_block_list_emails(self, value):
         if self.context['request'].user.profile_set.first().has_premium:
             return value
-        raise serializers.ValidationError(
+        raise exceptions.AuthenticationFailed(
             'Must be premium to set block_list_emails'
         )
 
