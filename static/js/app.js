@@ -212,13 +212,16 @@ function recruitmentLogic() {
   });
 }
 
+
 function addEventListeners() {
   document.querySelectorAll(".js-alias").forEach(aliasCard => {
     const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
+
     toggleDetailsBtn.addEventListener("click", () => {
-      toggleDetailsBtn.classList.toggle("is-active")
+      toggleDetailsBtn.classList.toggle("is-active");
       toggleAliasCardDetailsVisibility(aliasCard);
     });
+
     const deleteAliasForm = aliasCard.querySelector(".delete-email-form");
     deleteAliasForm.addEventListener("submit", deleteAliasConfirmation);
   });
@@ -229,8 +232,12 @@ function addEventListeners() {
   });
 
   const generateAliasForm = document.querySelector(".dash-create");
+
+
   if (generateAliasForm) {
+
     generateAliasForm.addEventListener("submit", (e) => {
+
       e.preventDefault();
       const submitBtn = generateAliasForm.querySelector("button[type='submit']");
       if (submitBtn.classList.contains("btn-disabled")) {
@@ -239,10 +246,22 @@ function addEventListeners() {
       }
 
       sendGaPing("Generate New Alias", "Engage", "btn-enabled");
+    
       e.target.submit();
+      localStorage.setItem("generateBtn", "True");
     });
-  }
 
+    const checkGenerateBtnState = localStorage.getItem("generateBtn");
+
+    if (checkGenerateBtnState === "True") {
+      const aliasCard = document.querySelector(".js-alias");
+      const toggleDetailsBtn = aliasCard.querySelector(".js-toggle-details");
+      toggleAliasCardDetailsVisibility(aliasCard);
+      toggleDetailsBtn.classList.toggle("is-active");
+      localStorage.removeItem("generateBtn");
+    }
+
+  }
 
   const generateAliasMenuTrigger = document.querySelector(".js-dash-create-new-alias-menu-trigger ");
   const generateAliasMenuPopup = document.querySelector(".js-dash-create-new-alias-menu-popup ");
