@@ -54,22 +54,23 @@ def _get_csat_cookie_and_reason(request):
     if not request.user.is_authenticated:
         return None, None
     profile = request.user.profile_set.first()
-    first_visit = request.COOKIES.get("first_visit")
+    first_visit = request.COOKIES.get(
+        "first_visit", datetime.now(timezone.utc).isoformat()
+    )
 
     reason_to_show_csat_survey = None
     csat_dismissal_cookie = ""
-    if (profile.has_premium):
-        if not profile.date_subscribed:
-            # There are two reasons why someone might not have a subscription date set:
-            # - They subscribed before we started tracking that.
-            # - They have Premium because they have a Mozilla email address.
-            # In the latter case, their first visit date is effectively their
-            # subscription date. In the former case, they will have had Premium for
-            # a while, so they can be shown the survey too. Their first visit will
-            # have been a while ago, so we'll just use that as a proxy for the
-            # subscription date:
-            days_since_subscription = (datetime.now(timezone.utc) - datetime.fromisoformat(first_visit)).days
-        elif (profile.date_subscribed):
+    if (profile.has_premium and not profile.date_subscribed):
+        # There are two reasons why a premium user might NOT have a subscription date set:
+        # - They subscribed before we started tracking that.
+        # - They have Premium because they have a Mozilla email address.
+        # In the latter case, their first visit date is effectively their
+        # subscription date. In the former case, they will have had Premium for
+        # a while, so they can be shown the survey too. Their first visit will
+        # have been a while ago, so we'll just use that as a proxy for the
+        # subscription date:
+        days_since_subscription = (datetime.now(timezone.utc) - datetime.fromisoformat(first_visit)).days
+        if (profile.date_subscribed):
             days_since_subscription = (datetime.now(timezone.utc) - profile.date_subscribed).days
         if (days_since_subscription >= 3 * 30):
             csat_dismissal_cookie = f'csat-survey-premium-90days_{profile.id}_dismissed'
