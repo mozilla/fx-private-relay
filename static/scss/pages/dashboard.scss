@@ -536,6 +536,13 @@
 .c-alias-block-settings-form {
     width: 100%;
 
+    .c-alias-block-settings-title {
+        text-align: center;
+
+        @media #{$mq-md} {
+            text-align: start;
+        }
+    }
 
     .c-alias-block-settings-inputs {
         display: flex;

@@ -27,7 +27,6 @@
 
   <div class="c-alias-main-info">
     <!-- enable/disable email forwarding -->
-    <!-- TODO: Remove toggle/element -->
     <div class="c-alias-toggle email-forwarding {% if user_profile.has_premium %}is-hidden{% endif %}">
       <form action="{% url 'emails-index' %}" method="POST" class="email-forwarding-form" data-alias-id="{{ alias.id }}" data-type="{{ alias_type }}">
         <input type="hidden" name="method_override" value="PUT">
@@ -46,29 +45,6 @@
           <div class="forwarding-toggle js-forwarding-toggle"></div>
         </label>
       </div>
-
-        <!-- <button
-            id="aliasForwardingToggle"
-            type="submit"
-            name="enabled"
-            value="Disable"
-            title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-            data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
-            data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-            class="text-center forwarding-toggle {% if not alias.enabled %} is-hidden {% endif %}"
-          ></button>
-        
-        <button
-          id="aliasForwardingToggle"
-          type="submit"
-          name="enabled"
-          value="Enable"
-          title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
-          data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
-          data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-          class="text-center forwarding-disabled forwarding-toggle {% if alias.enabled %} is-hidden {% endif %}"
-        ></button> -->
-        
       </form>
     </div>
 
@@ -115,9 +91,8 @@
     <div class="c-alias-meta">
       {% if user_profile.has_premium %}
       <div class="c-alias-block-levels">
-        <div class="c-alias-block-level t-forward">Forward all</div>
-        <div class="c-alias-block-level t-critical">Forward some</div>
-        <div class="c-alias-block-level t-block">Block all</div>
+        <div class="c-alias-block-level t-critical">{% ftlmsg 'profile-promo-email-blocking-label-promotionals' %}</div>
+        <div class="c-alias-block-level t-block">{% ftlmsg 'profile-promo-email-blocking-label-none' %}</div>
       </div>
       {% endif %}
       
@@ -155,13 +130,16 @@
           <input type="hidden" name="method_override" value="PUT">
           <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
           <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">
+          <div class="c-alias-block-settings-title">
+            {% ftlmsg 'profile-promo-email-blocking-title' %}
+          </div>
           <div class="c-alias-block-settings-inputs">
             <div class="c-alias-block-settings-input t-line-left t-forward">
               <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="forwardAll{{ alias.id }}" value="forwardAll" checked />
               <label for="forwardAll{{ alias.id }}">
                 <img src="{% static '/images/umbrella-closed-mobile.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
-                <span>Forward all</span>
+                <span>{% ftlmsg 'profile-promo-email-blocking-option-none' %}</span>
               </label>
             </div>
             <div class="c-alias-block-settings-spacer"></div>
@@ -170,7 +148,7 @@
               <label for="criticalOnly{{ alias.id }}">
                 <img src="{% static '/images/umbrella-semi-mobile.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
-                <span>Forward some</span>
+                <span>{% ftlmsg 'profile-promo-email-blocking-option-promotionals' %}</span>
               </label>
             </div>
             <div class="c-alias-block-settings-spacer"></div>
@@ -179,7 +157,7 @@
               <label for="blockAll{{ alias.id }}">
                 <img src="{% static '/images/umbrella-open-mobile.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
-                <span>Block all</span>
+                <span>{% ftlmsg 'profile-promo-email-blocking-option-all' %}</span>
               </label>
             </div>
           </div>
@@ -191,25 +169,24 @@
                 <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
               </div>
               <p>
-                TEMP: Relay is forwarding all emails sent to this alias.
+                {% ftlmsg 'profile-promo-emac-alias-block-level t-criticalil-blocking-description-none' %}
               </p>    
             </li>
             <li data-block-level="criticalOnly" class="t-critical">
               <div class="c-alias-block-settings-image">
                 <img src="{% static '/images/umbrella-semi.svg' %}" alt="" />
               </div>
-              <p>
-                TEMP: Relay is forwarding only critical emails. 
-                Critical emails are important transactional emails, such as receipts, password resets and confirmations.
-              </p>    
+              <div>
+                <p>{% ftlmsg 'profile-promo-email-blocking-description-promotionals' %}</p>
+                <a href="/faq#faq-promotional-email-blocking">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
+              </div>
             </li>
             <li data-block-level="blockAll" class="t-block">
               <div class="c-alias-block-settings-image">
                 <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
               </div>
               <p>
-                <!-- TEMP: Relay is blocking all emails sent to this alias. -->
-                too short
+                {% ftlmsg 'profile-promo-email-blocking-description-all' %}
               </p>    
             </li>
           </ul>
