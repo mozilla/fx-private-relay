@@ -32,6 +32,9 @@ export const AliasList = (props: Props) => {
   const [stringFilterInput, setStringFilterInput] = useState("");
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
+  // Whenever a new alias is created, this value tracks the aliases that existed
+  // before that. That allows us to expand newly-created aliases by default.
+  const [existingAliases, setExistingAliases] = useState(props.aliases);
 
   if (props.aliases.length === 0) {
     return null;
@@ -44,7 +47,7 @@ export const AliasList = (props: Props) => {
     })
   );
 
-  const aliasCards = aliases.map((alias, index) => {
+  const aliasCards = aliases.map((alias) => {
     const aliasWithLocalLabel = { ...alias };
     if (
       alias.description.length === 0 &&
@@ -81,7 +84,7 @@ export const AliasList = (props: Props) => {
           profile={props.profile}
           onUpdate={onUpdate}
           onDelete={() => props.onDelete(alias)}
-          defaultOpen={index === 0}
+          defaultOpen={!existingAliases.includes(alias)}
           showLabelEditor={props.profile.server_storage || localLabels !== null}
         />
       </li>
@@ -139,6 +142,12 @@ export const AliasList = (props: Props) => {
       </Localized>
     ) : null;
 
+  const onCreate: typeof props.onCreate = (options) => {
+    setExistingAliases(props.aliases);
+
+    return props.onCreate(options);
+  };
+
   return (
     <section>
       <div className={styles.controls}>
@@ -148,7 +157,7 @@ export const AliasList = (props: Props) => {
             aliases={props.aliases}
             profile={props.profile}
             runtimeData={props.runtimeData}
-            onCreate={props.onCreate}
+            onCreate={onCreate}
           />
         </div>
       </div>
