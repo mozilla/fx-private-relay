@@ -487,6 +487,11 @@
             p {
                 margin-bottom: 0;
             }
+
+            p + a {
+                display: block;
+                margin-top: $spacing-sm;
+            }
     
             &.is-visible {
                 display: flex;
@@ -534,10 +539,13 @@
 }
 
 .c-alias-block-settings-form {
-    width: 100%;
+    // width: 100%;
 
     .c-alias-block-settings-title {
+        @include text-body-md;
         text-align: center;
+        padding: 0 $spacing-md $spacing-lg;
+
 
         @media #{$mq-md} {
             text-align: start;
@@ -546,7 +554,7 @@
 
     .c-alias-block-settings-inputs {
         display: flex;
-        width: 100%;
+        // width: 100%;
         position: relative;
         max-width: $content-sm;
         justify-content: center;
@@ -625,7 +633,7 @@
     .c-alias-block-settings-input {
         display: block flex;
         flex-direction: column;
-        width: 100%;
+        // width: 100%;
         align-items: center;
         cursor: pointer;
         position: relative;
