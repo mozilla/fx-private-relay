@@ -9,6 +9,11 @@ if (typeof(sendGaPing) === "undefined") {
   sendGaPing = () => {};
 }
 
+
+// updateEmailForwardingPrefs handles two different use cases: 
+// Free users: who can turn aliases off and on
+// Premium users: can turn aliases on, off or only allow critical emails
+// The logic in the function normalizes the input between use cases to make a shared API call. 
 async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEvent) {
   submitEvent.preventDefault();
 
@@ -20,6 +25,7 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
   }
 
 
+  let analyticsLabel = "User enabled forwarding";
   let aliasStatusClassname = "is-forwarded";
 
   switch (status) {
@@ -38,6 +44,7 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
       if (isUserPremium) {
         formData.block_list_emails = true
         aliasStatusClassname = "is-critical";
+        analyticsLabel = "User enabled critical-only forwarding"
       }
       
       break;
@@ -47,6 +54,7 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
       // Note: Revising block_list_emails doesn't do anything as all emails are blocked
       // formData.block_list_emails = false;
       aliasStatusClassname = "is-blocked";
+      analyticsLabel = "User disabled forwarding"
       break;
 
     default:
@@ -54,7 +62,6 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
   }
 
   // TODO: Add logic to send correct GA event
-  const analyticsLabel = (formData.enabled) ? "User disabled forwarding" : "User enabled forwarding";
   sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
   try {
