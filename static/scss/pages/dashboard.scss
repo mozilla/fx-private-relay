@@ -231,8 +231,10 @@
 
         .c-alias-block-settings-input.t-forward,
         .c-alias-block-settings-input.t-critical {
+
             img {
                 filter: grayscale(100%);
+
                 @media #{$mq-md} {
                     filter: grayscale(0);
                 }
@@ -257,8 +259,10 @@
 
         .c-alias-block-settings-input.t-critical,
         .c-alias-block-settings-input.t-block {
+
             img {
                 filter: grayscale(100%);
+
                 @media #{$mq-md} {
                     filter: grayscale(0);
                 }
@@ -282,8 +286,10 @@
 
         .c-alias-block-settings-input.t-forward,
         .c-alias-block-settings-input.t-block {
+
             img {
                 filter: grayscale(100%);
+
                 @media #{$mq-md} {
                     filter: grayscale(0);
                 }
@@ -383,6 +389,7 @@
 .c-alias-block-levels {
     display: none;
     align-self: center;
+
     @media #{$mq-md} {
         display: block;
     }
@@ -472,7 +479,6 @@
         
         li {
             display: none;
-            padding-top: $spacing-md;
             width: 100%;
             background-color: $color-grey-05;
             padding: $spacing-md;
@@ -521,7 +527,6 @@
     @media #{$mq-md} {
         max-width: $content-sm;
     }
-
     @media #{$mq-xl} {
         // max-width: $content-md;
     }
@@ -627,12 +632,14 @@
             position: absolute;
             z-index: 0;
             top: 95px;
+
             @media #{$mq-md} {
                 top: 10px;
             }
         }
 
         &.t-line-left {
+
             &:after {
                 width: 50%;
                 left: 50%;
@@ -640,6 +647,7 @@
         }
 
         &.t-line-right {
+
             &:after {
                 width: 50%;
                 right: 50%;
@@ -653,6 +661,7 @@
         img {
             height: 60px;
             margin-bottom: $spacing-md;
+
             @media #{$mq-md} {
                 display: none;
             }

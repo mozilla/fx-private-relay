@@ -1,4 +1,4 @@
-/* global patchProfile */
+/* global patchProfile apiRequest */
 
 function dismissNotification() {
 	const notification = document.querySelector(".js-notification");
@@ -115,25 +115,6 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
     const signInUrl = new URL("/accounts/fxa/login/?process=login", siteOrigin);
     return window.location = signInUrl.href;
   }
-}
-
-async function sendForm(formAction, formData) {
-  // eslint-disable-next-line no-useless-catch
-  try {
-    return fetch(formAction, {
-      headers: {
-        "Content-Type": "application/json",
-        "X-Requested-With": "XMLHttpRequest",
-        "X-CSRFToken": formData.csrfmiddlewaretoken,
-      },
-      credentials: "include",
-      mode: "same-origin",
-      method: "POST",
-      body: JSON.stringify(formData),
-    });
-  } catch(e) {
-    throw e;
-	}
 }
 
 function copyToClipboardAndShowMessage(triggeringEl) {
