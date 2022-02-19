@@ -409,48 +409,39 @@ class GetAttachmentTests(TestCase):
         message.add_attachment(data, maintype=maintype, subtype=subtype, filename=filename)
         return message
 
+    def get_name_and_stream(self, message):
+        """Get the first attachment's filename and data stream from a message."""
+        for part in message.walk():
+            if part.is_attachment():
+                return _get_attachment(part)
+        return None, None
+
     def test_short_attachment(self):
         """A short attachment is stored in memory"""
         message = self.create_message(b"A short attachment", "text/plain", "short.txt")
-        att_name, att = None, None
-        for part in message.walk():
-            if part.is_attachment():
-                att_name, att = _get_attachment(part)
-                break
-        assert att_name == 'short.txt'
-        assert isinstance(att._file, io.BytesIO)
+        name, stream = self.get_name_and_stream(message)
+        assert name == 'short.txt'
+        assert isinstance(stream._file, io.BytesIO)
 
     def test_long_attachment(self):
         """A long attachment is stored on disk"""
         message = self.create_message(self.long_data, "application/octet-stream", "long.txt")
-        att_name, att = None, None
-        for part in message.walk():
-            if part.is_attachment():
-                att_name, att = _get_attachment(part)
-                break
-        assert att_name == 'long.txt'
-        assert isinstance(att._file, io.BufferedRandom)
+        name, stream = self.get_name_and_stream(message)
+        assert name == 'long.txt'
+        assert isinstance(stream._file, io.BufferedRandom)
 
     def test_attachment_unicode_filename(self):
         """A unicode filename can be stored on disk"""
         filename = "Some Binary data 😀.bin"
         message = self.create_message(self.long_data, "application/octet-stream", filename)
-        att_name, att = None, None
-        for part in message.walk():
-            if part.is_attachment():
-                att_name, att = _get_attachment(part)
-                break
-        assert att_name == filename
-        assert isinstance(att._file, io.BufferedRandom)
+        name, stream = self.get_name_and_stream(message)
+        assert name == filename
+        assert isinstance(stream._file, io.BufferedRandom)
 
     def test_attachment_url_filename(self):
         """A URL filename can be stored on disk"""
         filename = "https://example.com/data.bin"
         message = self.create_message(self.long_data, "application/octet-stream", filename)
-        att_name, att = None, None
-        for part in message.walk():
-            if part.is_attachment():
-                att_name, att = _get_attachment(part)
-                break
-        assert att_name == filename
-        assert isinstance(att._file, io.BufferedRandom)
+        name, stream = self.get_name_and_stream(message)
+        assert name == filename
+        assert isinstance(stream._file, io.BufferedRandom)
