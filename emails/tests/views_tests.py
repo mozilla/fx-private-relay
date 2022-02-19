@@ -445,3 +445,10 @@ class GetAttachmentTests(TestCase):
         name, stream = self.get_name_and_stream(message)
         assert name == filename
         assert isinstance(stream._file, io.BufferedRandom)
+
+    def test_attachment_no_filename(self):
+        """An attachment without a filename can be stored on disk"""
+        message = self.create_message(self.long_data, "application/octet-stream", None)
+        name, stream = self.get_name_and_stream(message)
+        assert name is None
+        assert isinstance(stream._file, io.BufferedRandom)
