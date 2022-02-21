@@ -1,0 +1,90 @@
+{% load static %}
+{% load ftl %}
+
+<button class="js-whatsnew-trigger c-whatsnew-trigger header-link">
+  {% ftlmsg 'whatsnew-trigger-label' %}
+  <i class="js-whatsnew-trigger-pill c-whatsnew-trigger-pill">0</i>
+</button>
+<div
+  class="js-whatsnew-popup c-whatsnew-popup"
+  data-profile-id={{ user_profile.id }}
+  data-has-premium={{ user_profile.has_premium }}
+>
+  <ul class="js-whatsnew-list c-whatsnew-list">
+    <li class="js-whatsnew-listitem-size-limit">
+      <button>
+        <img src={% static 'images/whatsnew/size-limit-icon.svg' %} alt="">
+        <div class="c-whatsnew-entry-content">
+          <h3>
+            {% ftlmsg 'whatsnew-feature-size-limit-heading' %}
+          </h3>
+          <p>
+            {% ftlmsg 'whatsnew-feature-size-limit-snippet' %}
+          </p>
+        </div>
+      </button>
+    </li>
+    <li class="js-whatsnew-listitem-sign-back-in">
+      <button>
+        <img src={% static 'images/whatsnew/sign-back-in-icon.svg' %} alt="">
+        <div class="c-whatsnew-entry-content">
+          <h3>
+            {% ftlmsg 'whatsnew-feature-sign-back-in-heading' %}
+          </h3>
+          <p>
+            {% ftlmsg 'whatsnew-feature-sign-back-in-snippet' %}
+          </p>
+        </div>
+      </button>
+    </li>
+    <li class="js-whatsnew-listitem-forward-some">
+      <button>
+        <img src={% static 'images/whatsnew/forward-some-icon.svg' %} alt="">
+        <div class="c-whatsnew-entry-content">
+          <h3>
+            {% ftlmsg 'whatsnew-feature-forward-some-heading' %}
+          </h3>
+          <p>
+            {% ftlmsg 'whatsnew-feature-forward-some-snippet' %}
+          </p>
+        </div>
+      </button>
+    </li>
+  </ul>
+  <div class="c-whatsnew-content-wrapper">
+    <div class="js-whatsnew-content-size-limit js-whatsnew-content c-whatsnew-content">
+      <img src={% static 'images/whatsnew/size-limit-hero.svg' %} alt="">
+      <h2>
+        {% ftlmsg 'whatsnew-feature-size-limit-heading' %}
+      </h2>
+      <p>
+        {% ftlmsg 'whatsnew-feature-size-limit-description' %}
+      </p>
+    </div>
+    <div class="js-whatsnew-content-sign-back-in js-whatsnew-content c-whatsnew-content">
+      <img src={% static 'images/whatsnew/sign-back-in-hero.svg' %} alt="">
+      <h2>
+        {% ftlmsg 'whatsnew-feature-sign-back-in-heading' %}
+      </h2>
+      <p>
+        {% ftlmsg 'whatsnew-feature-sign-back-in-description' %}
+      </p>
+    </div>
+    <div class="js-whatsnew-content-forward-some js-whatsnew-content c-whatsnew-content">
+      <img src={% static 'images/whatsnew/forward-some-hero.svg' %} alt="">
+      <h2>
+        {% ftlmsg 'whatsnew-feature-forward-some-heading' %}
+      </h2>
+      <p>
+        {% ftlmsg 'whatsnew-feature-forward-some-description' %}
+      </p>
+    </div>
+    <div class="js-whatsnew-footer c-whatsnew-footer">
+      <button class="c-whatsnew-back-button">
+        {% ftlmsg 'whatsnew-footer-back-label' %}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/whatsnew.js' %}"></script>

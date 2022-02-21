@@ -1,0 +1,157 @@
+// The `header .user-area:not(.arbitrary-class) is there to make this rule
+// more specific than some rules that apply to `.header-link` elements,
+// which we want to overwrite (in particular, the `display` property):
+header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
+    flex-shrink: 0;
+    display: none;
+    align-items: center;
+    gap: $spacing-sm;
+    background-color: transparent;
+    border-style: none;
+    // This is to make sure the label is vertically aligned with other menu items,
+    // which have a 2px bottom border when they're the active page:
+    border-bottom: 2px solid transparent;
+    border-radius: $border-radius-lg;
+    cursor: pointer;
+    padding: $spacing-xs $spacing-sm;
+
+    @media screen and #{$mq-md} {
+        display: flex;
+    }
+
+    &.is-open {
+        background-color: $color-light-gray-20;
+        color: $color-dark-gray-20;
+    }
+
+    .c-whatsnew-trigger-pill {
+        display: none;
+        border-radius: 100%;
+        padding: $spacing-sm;
+        font-size: 14px;
+        width: 20px;
+        height: 20px;
+        align-items: center;
+        justify-content: center;
+        background-color: $color-yellow-40;
+        font-weight: 700;
+        color: $color-white;
+
+        &.is-visible {
+            display: flex;
+        }
+    }
+}
+
+.c-whatsnew-popup {
+    display: none;
+    position: absolute;
+    transform: translateX(-50%) translateY(calc(50% + #{$spacing-md}));
+    color: $color-black;
+    background-color: $color-white;
+    box-shadow: $box-shadow-sm;
+    border-radius: $border-radius-sm;
+    width: $content-sm;
+
+    &.is-visible {
+        display: flex;
+    }
+
+    .c-whatsnew-list {
+        // Overwrite the bottom margin set on <ul>s by _common.scss:
+        margin: 0;
+
+        &.is-hidden {
+            display: none;
+        }
+
+        li {
+            display: none;
+
+            &.is-visible {
+                display: initial;
+            }
+
+            button {
+                display: flex;
+                align-items: center;
+                gap: $spacing-md;
+                border-radius: $border-radius-sm;
+                padding: $spacing-sm;
+                cursor: pointer;
+                background-color: transparent;
+                border-style: none;
+                text-align: start;
+
+                h3 {
+                    @include text-body-sm;
+                    font-weight: 500;
+                    padding-top: $spacing-sm;
+                }
+
+                p {
+                    @include text-body-sm;
+                }
+
+                &:hover {
+                    background-color: $color-blue-50;
+                    color: $color-white;
+                }
+            }
+        }
+    }
+
+    .c-whatsnew-content-wrapper {
+        display: flex;
+        flex-direction: column;
+
+        .c-whatsnew-content {
+            display: none;
+            flex-direction: column;
+            gap: $spacing-sm;
+            padding: $spacing-md $spacing-md;
+
+            &.is-visible {
+                display: flex;
+            }
+
+            img {
+                width: 100%;
+            }
+
+            h2 {
+                @include text-title-2xs;
+                font-family: $font-stack-firefox;
+                padding-top: $spacing-lg;
+                padding-bottom: $spacing-sm;
+            }
+        }
+
+        .c-whatsnew-footer {
+            display: none;
+            padding: $spacing-xs $spacing-md;
+            border-top: 1px solid $color-light-gray-20;
+
+            &.is-visible {
+                display: block;
+            }
+
+            .c-whatsnew-back-button {
+                @include text-body-sm;
+                display: flex;
+                align-items: center;
+                background-color: transparent;
+                border-style: none;
+                font-weight: 500;
+                border-radius: $border-radius-sm;
+                color: $color-blue-50;
+                padding: $spacing-sm;
+                cursor: pointer;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
