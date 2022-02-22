@@ -1,9 +1,19 @@
 /*
  * For a detailed explanation regarding each configuration property, visit:
  * https://jestjs.io/docs/configuration
+ *
+ * Also see https://nextjs.org/docs/testing#setting-up-jest-with-the-rust-compiler
  */
 
-module.exports = {
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const nextJest = require("next/jest");
+
+const createJestConfig = nextJest({
+  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+  dir: "./",
+});
+
+const customJestConfig = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -17,25 +27,23 @@ module.exports = {
   clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
-  collectCoverage: true,
+  // collectCoverage: true,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  collectCoverageFrom: [
-    "src/**/*.{js,jsx,ts,tsx}",
-    "!**/*.d.ts",
-    "!**/node_modules/**",
-  ],
+  // collectCoverageFrom: [
+  //   "src/**/*.{js,jsx,ts,tsx}",
+  //   "!**/*.d.ts",
+  //   "!**/node_modules/**",
+  // ],
 
   // The directory where Jest should output its coverage files
-  coverageDirectory: "coverage",
+  // coverageDirectory: "coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: [
-    "pages/mock/"
-  ],
+  coveragePathIgnorePatterns: ["pages/mock/"],
 
   // Indicates which provider should be used to instrument code for coverage
-  coverageProvider: "v8",
+  // coverageProvider: "v8",
 
   // A list of reporter names that Jest uses when writing coverage reports
   // coverageReporters: [
@@ -91,19 +99,19 @@ module.exports = {
 
   // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // See https://nextjs.org/docs/testing#manual-setup-2
-  moduleNameMapper: {
-    /* Handle CSS imports (with CSS modules)
-    https://jestjs.io/docs/webpack#mocking-css-modules */
-    "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
+  // moduleNameMapper: {
+  //   /* Handle CSS imports (with CSS modules)
+  //   https://jestjs.io/docs/webpack#mocking-css-modules */
+  //   "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy",
 
-    // Handle CSS imports (without CSS modules)
-    "^.+\\.(css|sass|scss)$": "<rootDir>/__mocks__/styleMock.js",
+  //   // Handle CSS imports (without CSS modules)
+  //   "^.+\\.(css|sass|scss)$": "<rootDir>/__mocks__/styleMock.js",
 
-    /* Handle image imports
-    https://jestjs.io/docs/webpack#handling-static-assets */
-    "^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$":
-      "<rootDir>/__mocks__/fileMock.js",
-  },
+  //   /* Handle image imports
+  //   https://jestjs.io/docs/webpack#handling-static-assets */
+  //   "^.+\\.(jpg|jpeg|png|gif|webp|avif|svg)$":
+  //     "<rootDir>/__mocks__/fileMock.js",
+  // },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -159,7 +167,7 @@ module.exports = {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: "jsdom",
+  testEnvironment: "jest-environment-jsdom",
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
@@ -174,7 +182,7 @@ module.exports = {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: ["/node_modules/", "/.next/"],
+  // testPathIgnorePatterns: ["/node_modules/", "/.next/"],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
@@ -193,18 +201,15 @@ module.exports = {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    /* Use babel-jest to transpile tests with the next/babel preset
-    See also https://nextjs.org/docs/testing#manual-setup-2.
-    https://jestjs.io/docs/configuration#transform-objectstring-pathtotransformer--pathtotransformer-object */
     "^.+\\.(js|jsx|ts|tsx)$": ["babel-jest", { presets: ["next/babel"] }],
   },
 
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
-  transformIgnorePatterns: [
-    "/node_modules/",
-    "^.+\\.module\\.(css|sass|scss)$",
-    "\\.pnp\\.[^\\/]+$",
-  ],
+  // transformIgnorePatterns: [
+  //   "/node_modules/",
+  //   "^.+\\.module\\.(css|sass|scss)$",
+  //   "\\.pnp\\.[^\\/]+$",
+  // ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them
   // unmockedModulePathPatterns: undefined,
@@ -218,3 +223,6 @@ module.exports = {
   // Whether to use watchman for file crawling
   // watchman: true,
 };
+
+// createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async
+module.exports = createJestConfig(customJestConfig);
