@@ -391,7 +391,8 @@ class GetAddressTest(TestCase):
 class GetAttachmentTests(TestCase):
 
     def setUp(self):
-        # Define contents large enough to be stored on disk
+        # Binary string of 10 chars * 16,000 = 160,000 byte string, longer than
+        # 150k max size of SpooledTemporaryFile, so it is written to disk
         self.long_data = b'0123456789' * 16_000
 
     def create_message(self, data, mimetype, filename):
