@@ -30,8 +30,8 @@
     "swr": "^1.2.1"
   },
   "devDependencies": {
-    "@next/bundle-analyzer": "^12.0.10",
-    "@next/eslint-plugin-next": "^12.0.10",
+    "@next/bundle-analyzer": "^12.1.0",
+    "@next/eslint-plugin-next": "^12.1.0",
     "@testing-library/dom": "^8.11.3",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
@@ -54,7 +54,7 @@
     "jest-junit": "^13.0.0",
     "license-checker": "^25.0.1",
     "lint-staged": "^12.3.3",
-    "next": "^12.0.7",
+    "next": "^12.1.0",
     "prettier": "2.5.1",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.49.7",
