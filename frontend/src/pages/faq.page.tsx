@@ -293,6 +293,28 @@ const Faq: NextPage = () => {
                   <p />
                 </Localized>
               </QAndA>
+              <QAndA
+                id="faq-promotional-email-blocking"
+                question={l10n.getString(
+                  "faq-question-promotional-email-blocking-question"
+                )}
+              >
+                <p>
+                  {l10n.getString(
+                    "faq-question-promotional-email-blocking-answer"
+                  )}
+                </p>
+              </QAndA>
+              <QAndA
+                id="faq-detect-promotional"
+                question={l10n.getString(
+                  "faq-question-detect-promotional-question"
+                )}
+              >
+                <p>
+                  {l10n.getString("faq-question-detect-promotional-answer")}
+                </p>
+              </QAndA>
             </div>
           </div>
         </div>

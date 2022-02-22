@@ -106,6 +106,27 @@ faq-question-acceptable-use-answer-b-html = Please review our <a href="{ $url }"
 faq-question-availability-answer-v2 = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } is available in the United States, Germany, United Kingdom, Canada, Singapore, Malaysia, New Zealand, Finland, France, Belgium, Austria, Spain, Italy, Sweden, Switzerland, Netherlands, and Ireland.
 
 
+faq-question-promotional-email-blocking-question = What is promotional email blocking?
+faq-question-promotional-email-blocking-answer = { -brand-name-relay-premium } subscribers can enable promotional email blocking. This feature will forward you important emails, such as receipts, password resets and confirmations, while still blocking marketing messages. There is a slight risk that an important message could still be blocked, so we recommend that you not use this feature for very important places like your bank. If an email is blocked, it cannot be recovered.
+faq-question-detect-promotional-question = How does { -brand-name-relay } detect if an email is Promotional or not?
+faq-question-detect-promotional-answer = Many emails are sent with “header” metadata to indicate that they are from list-based automated tools. { -brand-name-firefox-relay } detects this header data so it can block these emails.
+
+## Alias Promotional Email Blocking (displayed on the profile page)
+profile-promo-email-blocking-title = What emails do you want to block?
+# Block all emails sent to a speciic alias
+profile-promo-email-blocking-option-all = All
+# Block promotional emails sent to a speciic alias
+profile-promo-email-blocking-option-promotionals = Promotionals
+# Allow/forward all emails sent to a speciic alias
+profile-promo-email-blocking-option-none = None
+profile-promo-email-blocking-description-all = { -brand-name-relay } is blocking all emails sent to this alias.
+profile-promo-email-blocking-description-promotionals = { -brand-name-relay } will attempt to block promotional emails, while still forwarding emails like receipts and shipping information.
+profile-promo-email-blocking-description-none = { -brand-name-relay } is not blocking any emails for this alias.
+profile-promo-email-blocking-label-promotionals = Block promotions
+profile-promo-email-blocking-label-none = Block all
+profile-promo-email-blocking-label-forwarding = { profile-label-forwarding }
+profile-promo-email-blocking-label-not-forwarding = Not forwarding
+
 modal-custom-alias-picker-heading = Create a new custom alias
 modal-custom-alias-picker-warning = All you need to do is make up and share a unique alias that uses your custom domain — the alias will be generated automatically. Try “shop@customdomain.mozmail.com” next time you shop online, for example.
 modal-custom-alias-picker-form-heading = Or, create a custom alias manually
@@ -121,6 +142,9 @@ popover-custom-alias-explainer-explanation = All you need to do is make up and s
 popover-custom-alias-explainer-generate-button-heading = Generate a custom alias manually
 popover-custom-alias-explainer-generate-button-label = Generate custom alias
 popover-custom-alias-explainer-close-button-label = Close
+# Checkbox the user can click to adjust the block level of the new alias
+popover-custom-alias-explainer-promotional-block-checkbox = Block promotional emails
+popover-custom-alias-explainer-promotional-block-tooltip = Enable Block Promotional Emails on an alias to stop marketing emails from reaching your inbox.
 
 # Label for each of the dots representing a tip in a panel in the bottom right-hand corner.
 # Variables
@@ -129,6 +153,11 @@ tips-switcher-label = Tip { $nr }
 
 tips-custom-alias-heading = Creating aliases using your custom domain
 tips-custom-alias-content = All you need to do is make up and share a unique alias that uses your custom domain — the alias will be generated automatically. Try “shop@customdomain.mozmail.com” next time you shop online, for example.
+
+## Tip about using custom aliases
+
+tips-promo-email-blocking-heading = Block Promotional Emails
+tips-promo-email-blocking-content = With { -brand-name-relay-premium }, you can block promotional emails from reaching your inbox while still allowing you to receive emails like receipts or shipping information.
 
 # This copy (and the term "critical email") is not final yet:
 tips-critical-emails-heading = Critical email forwarding
