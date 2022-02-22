@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
+from email.message import EmailMessage
 import glob
+import io
 import json
 import os
 from unittest.mock import patch
@@ -11,6 +13,7 @@ from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
+import pytest
 
 from emails.models import (
     address_hash,
@@ -21,6 +24,7 @@ from emails.models import (
 )
 from emails.views import (
     _get_address,
+    _get_attachment,
     _sns_message,
     _sns_notification
 )
@@ -382,3 +386,70 @@ class GetAddressTest(TestCase):
         except Exception as e:
             assert e.args[0] == 'RelayAddress matching query does not exist.'
             incr_mocked.assert_called_once_with('email_for_deleted_address_multiple', 1)
+
+
+class GetAttachmentTests(TestCase):
+
+    def setUp(self):
+        # Binary string of 10 chars * 16,000 = 160,000 byte string, longer than
+        # 150k max size of SpooledTemporaryFile, so it is written to disk
+        self.long_data = b'0123456789' * 16_000
+
+    def create_message(self, data, mimetype, filename):
+        """Create an EmailMessage with an attachment."""
+        message = EmailMessage()
+        message['Subject'] = 'A Test Message'
+        message['From'] = 'test sender <sender@example.com>'
+        message['To'] = 'test receiver <receiver@example.com>'
+        message.preamble = 'This email has attachments.\n'
+
+        assert isinstance(data, bytes)
+        maintype, subtype = mimetype.split('/', 1)
+        assert maintype
+        assert subtype
+        message.add_attachment(data, maintype=maintype, subtype=subtype, filename=filename)
+        return message
+
+    def get_name_and_stream(self, message):
+        """Get the first attachment's filename and data stream from a message."""
+        for part in message.walk():
+            if part.is_attachment():
+                return _get_attachment(part)
+        return None, None
+
+    def test_short_attachment(self):
+        """A short attachment is stored in memory"""
+        message = self.create_message(b"A short attachment", "text/plain", "short.txt")
+        name, stream = self.get_name_and_stream(message)
+        assert name == 'short.txt'
+        assert isinstance(stream._file, io.BytesIO)
+
+    def test_long_attachment(self):
+        """A long attachment is stored on disk"""
+        message = self.create_message(self.long_data, "application/octet-stream", "long.txt")
+        name, stream = self.get_name_and_stream(message)
+        assert name == 'long.txt'
+        assert isinstance(stream._file, io.BufferedRandom)
+
+    def test_attachment_unicode_filename(self):
+        """A unicode filename can be stored on disk"""
+        filename = "Some Binary data 😀.bin"
+        message = self.create_message(self.long_data, "application/octet-stream", filename)
+        name, stream = self.get_name_and_stream(message)
+        assert name == filename
+        assert isinstance(stream._file, io.BufferedRandom)
+
+    def test_attachment_url_filename(self):
+        """A URL filename can be stored on disk"""
+        filename = "https://example.com/data.bin"
+        message = self.create_message(self.long_data, "application/octet-stream", filename)
+        name, stream = self.get_name_and_stream(message)
+        assert name == filename
+        assert isinstance(stream._file, io.BufferedRandom)
+
+    def test_attachment_no_filename(self):
+        """An attachment without a filename can be stored on disk"""
+        message = self.create_message(self.long_data, "application/octet-stream", None)
+        name, stream = self.get_name_and_stream(message)
+        assert name is None
+        assert isinstance(stream._file, io.BufferedRandom)
