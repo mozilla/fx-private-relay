@@ -15,14 +15,17 @@ import IllustrationLibrary from "../../../../public/illustrations/library.svg";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
 import { LabelEditor } from "./LabelEditor";
 import { UserData } from "../../../hooks/api/user";
+import { ProfileData } from "../../../hooks/api/profile";
 import { renderDate } from "../../../functions/renderDate";
 import { AliasDeletionButton } from "./AliasDeletionButton";
 import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
+import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
 
 export type Props = {
   alias: AliasData;
   user: UserData;
+  profile: ProfileData;
   onUpdate: (updatedFields: Partial<AliasData>) => void;
   onDelete: () => void;
   defaultOpen?: boolean;
@@ -104,12 +107,47 @@ export const Alias = (props: Props) => {
     compactDisplay: "short",
   });
 
+  // We have the <BlockLevelSlider> for Premium users, so don't show the toggle
+  // for them:
+  const toggleButton = props.profile.has_premium ? (
+    // An empty span can take the cell in the grid layout that otherwise
+    // would have been taken by the <button>:
+    <span />
+  ) : (
+    <button
+      {...buttonProps}
+      ref={toggleButtonRef}
+      className={styles["toggle-button"]}
+      aria-label={l10n.getString(
+        toggleButtonState.isSelected
+          ? "profile-label-disable-forwarding-button"
+          : "profile-label-enable-forwarding-button"
+      )}
+    ></button>
+  );
+
+  const setBlockLevel = (blockLevel: BlockLevel) => {
+    if (blockLevel === "none") {
+      return props.onUpdate({ enabled: true, block_list_emails: false });
+    }
+    if (blockLevel === "promotional") {
+      return props.onUpdate({ enabled: true, block_list_emails: true });
+    }
+    if (blockLevel === "all") {
+      return props.onUpdate({ enabled: false, block_list_emails: true });
+    }
+  };
+
+  const blockLevelSlider = props.profile.has_premium ? (
+    <div className={styles.row}>
+      <BlockLevelSlider alias={props.alias} onChange={setBlockLevel} />
+    </div>
+  ) : null;
+
   return (
     <div
       className={`${styles["alias-card"]} ${
-        toggleButtonState.isSelected
-          ? styles["is-enabled"]
-          : styles["is-disabled"]
+        props.alias.enabled ? styles["is-enabled"] : styles["is-disabled"]
       } ${
         expandButtonState.isSelected
           ? styles["is-expanded"]
@@ -123,16 +161,7 @@ export const Alias = (props: Props) => {
     >
       <div className={styles["main-data"]}>
         <div className={styles.controls}>
-          <button
-            {...buttonProps}
-            ref={toggleButtonRef}
-            className={styles["toggle-button"]}
-            aria-label={l10n.getString(
-              toggleButtonState.isSelected
-                ? "profile-label-disable-forwarding-button"
-                : "profile-label-enable-forwarding-button"
-            )}
-          ></button>
+          {toggleButton}
           {labelEditor}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
@@ -196,17 +225,20 @@ export const Alias = (props: Props) => {
         </div>
       </div>
       <div className={styles["secondary-data"]}>
-        <dl>
-          <div className={`${styles["forward-target"]} ${styles.metadata}`}>
-            <dt>{l10n.getString("profile-label-forward-emails")}</dt>
-            <dd>{props.user.email}</dd>
-          </div>
-          <div className={`${styles["date-created"]} ${styles.metadata}`}>
-            <dt>{l10n.getString("profile-label-created")}</dt>
-            <dd>{renderDate(props.alias.created_at, l10n)}</dd>
-          </div>
-        </dl>
-        <AliasDeletionButton onDelete={props.onDelete} alias={props.alias} />
+        {blockLevelSlider}
+        <div className={styles.row}>
+          <dl>
+            <div className={`${styles["forward-target"]} ${styles.metadata}`}>
+              <dt>{l10n.getString("profile-label-forward-emails")}</dt>
+              <dd>{props.user.email}</dd>
+            </div>
+            <div className={`${styles["date-created"]} ${styles.metadata}`}>
+              <dt>{l10n.getString("profile-label-created")}</dt>
+              <dd>{renderDate(props.alias.created_at, l10n)}</dd>
+            </div>
+          </dl>
+          <AliasDeletionButton onDelete={props.onDelete} alias={props.alias} />
+        </div>
       </div>
     </div>
   );

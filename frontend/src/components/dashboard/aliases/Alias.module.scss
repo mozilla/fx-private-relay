@@ -257,40 +257,53 @@ $toggleTransitionDuration: 200ms;
     padding: $spacing-md 0;
   }
 
-  dl {
-    flex-grow: 2;
+  .row {
     display: flex;
-    gap: $spacing-sm;
     flex-direction: column;
+    gap: $spacing-md;
+    padding-bottom: $spacing-md;
+    border-bottom: 1px solid $color-light-gray-20;
+
+    &:last-child {
+      border-bottom-style: none;
+      padding-bottom: 0;
+    }
+
+    dl {
+      flex-grow: 2;
+      display: flex;
+      gap: $spacing-sm;
+      flex-direction: column;
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+        gap: $spacing-xl;
+      }
+
+      dt {
+        @include text-body-xs;
+        color: $color-dark-gray-05;
+      }
+    }
 
     @media screen and #{$mq-md} {
       flex-direction: row;
-      gap: $spacing-xl;
-    }
 
-    dt {
-      @include text-body-xs;
-      color: $color-dark-gray-05;
-    }
-  }
+      .metadata {
+        $metadataIconSize: 24px;
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-size: $metadataIconSize $metadataIconSize;
+        padding-left: calc($metadataIconSize + $spacing-md);
+      }
 
-  @media screen and #{$mq-md} {
-    flex-direction: row;
+      .forward-target {
+        background-image: url("/icons/email.svg");
+      }
 
-    .metadata {
-      $metadataIconSize: 24px;
-      background-repeat: no-repeat;
-      background-position: left center;
-      background-size: $metadataIconSize $metadataIconSize;
-      padding-left: calc($metadataIconSize + $spacing-md);
-    }
-
-    .forward-target {
-      background-image: url("/icons/email.svg");
-    }
-
-    .date-created {
-      background-image: url("/icons/calendar.svg");
+      .date-created {
+        background-image: url("/icons/calendar.svg");
+      }
     }
   }
 }
