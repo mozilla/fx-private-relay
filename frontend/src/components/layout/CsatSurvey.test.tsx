@@ -678,6 +678,56 @@ describe("The CSAT survey", () => {
     expect(verySatisfiedButton).toBeInTheDocument();
   });
 
+  it("displays the survey to a new Premium whose subscription date is unknown, but who was first seen more than 7 days ago", () => {
+    // TypeScript can't follow paths in `jest.requireMock`:
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const useFirstSeen = (jest.requireMock("../../hooks/firstSeen.ts") as any)
+      .useFirstSeen;
+    useFirstSeen.mockReturnValueOnce(
+      new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    );
+    const mockProfileData = getMockProfileData({
+      has_premium: true,
+      date_subscribed: null,
+    });
+
+    render(<CsatSurvey profile={mockProfileData} />);
+
+    const veryDissatisfiedButton = screen.getByRole("button", {
+      name: /very-dissatisfied/,
+    });
+    const verySatisfiedButton = screen.getByRole("button", {
+      name: /very-satisfied/,
+    });
+
+    expect(veryDissatisfiedButton).toBeInTheDocument();
+    expect(verySatisfiedButton).toBeInTheDocument();
+  });
+
+  it("does not display the survey to a new Premium whose subscription date is unknown, and who was first seen less than 7 days ago", () => {
+    // TypeScript can't follow paths in `jest.requireMock`:
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const useFirstSeen = (jest.requireMock("../../hooks/firstSeen.ts") as any)
+      .useFirstSeen;
+    useFirstSeen.mockReturnValueOnce(new Date(Date.now()));
+    const mockProfileData = getMockProfileData({
+      has_premium: true,
+      date_subscribed: null,
+    });
+
+    render(<CsatSurvey profile={mockProfileData} />);
+
+    const veryDissatisfiedButton = screen.queryByRole("button", {
+      name: /very-dissatisfied/,
+    });
+    const verySatisfiedButton = screen.queryByRole("button", {
+      name: /very-satisfied/,
+    });
+
+    expect(veryDissatisfiedButton).not.toBeInTheDocument();
+    expect(verySatisfiedButton).not.toBeInTheDocument();
+  });
+
   it("displays the survey if the user's language is set without a country code", () => {
     // TypeScript can't follow paths in `jest.requireMock`:
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

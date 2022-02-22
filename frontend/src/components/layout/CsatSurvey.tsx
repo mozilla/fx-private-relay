@@ -75,8 +75,25 @@ export const CsatSurvey = (props: Props) => {
     | "premium30days"
     | "premium90days" = null;
 
-  if (props.profile.has_premium && props.profile.date_subscribed) {
-    const subscriptionDate = parseDate(props.profile.date_subscribed);
+  if (
+    props.profile.has_premium &&
+    (props.profile.date_subscribed || firstSeen instanceof Date)
+  ) {
+    // There are two reasons why someone might not have a subscription date set:
+    // - They subscribed before we started tracking that.
+    // - They have Premium because they have a Mozilla email address.
+    // In the latter case, their first visit date is effectively their
+    // subscription date. In the former case, they will have had Premium for
+    // a while, so they can be shown the survey too. Their first visit will
+    // have been a while ago, so we'll just use that as a proxy for the
+    // subscription date:
+    const subscriptionDate = props.profile.date_subscribed
+      ? parseDate(props.profile.date_subscribed)
+      : // We've verified that `firstSeen` is a Date if `date_subscribed` is null
+        // with instanceof above, but that logic is a bit too complex to allow
+        // TypeScript to be able to narrow the type of `firstSeen` by inference,
+        // hence the type assertion:
+        (firstSeen as Date);
     const daysSinceSubscription =
       (Date.now() - subscriptionDate.getTime()) / 1000 / 60 / 60 / 24;
     if (daysSinceSubscription >= 90) {
