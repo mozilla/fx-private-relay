@@ -81,6 +81,7 @@ export const AliasList = (props: Props) => {
         <Alias
           alias={aliasWithLocalLabel}
           user={props.user}
+          profile={props.profile}
           onUpdate={onUpdate}
           onDelete={() => props.onDelete(alias)}
           defaultOpen={!existingAliases.includes(alias)}

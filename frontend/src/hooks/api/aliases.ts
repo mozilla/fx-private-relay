@@ -8,6 +8,7 @@ type Domain_MozmailCom = 2;
 export type CommonAliasData = {
   type: "random" | "custom";
   enabled: boolean;
+  block_list_emails: boolean;
   description: string | "";
   id: number;
   address: string;
