@@ -435,12 +435,19 @@ header {
 }
 
 .c-csat-wrapper {
-    display: none;
     padding: $spacing-md 0;
     background-color: $color-purple-90;
     color: $color-white;
     position: relative;
     text-align: center;
+    display: none;
+
+    @media screen and #{$mq-md} {
+
+        &.is-visible {
+            display: flex;
+        }
+    }
 
     & > div {
         display: flex;
@@ -449,10 +456,6 @@ header {
         justify-content: space-around;
         gap: $spacing-sm;
         width: 100%;
-    }
-
-    @media screen and #{$mq-md} {
-        display: flex;
     }
 
     .is-hidden {
