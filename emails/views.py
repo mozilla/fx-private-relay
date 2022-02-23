@@ -52,7 +52,6 @@ from .utils import (
     ses_send_raw_email,
     get_message_id_bytes,
     generate_relay_From,
-    S3ClientException,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -421,9 +420,10 @@ def _sns_message(message_json):
         text_content, html_content, attachments = _get_text_html_attachments(
             message_json
         )
-    except S3ClientException as e:
+    except ClientError as e:
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
-        return HttpResponse("Cannot find the message content from S3", status=400)
+        # we are returning a 503 so that SNS can retry the email processing
+        return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -584,9 +584,14 @@ def _handle_reply(from_address, message_json, to_address):
         decrypted_metadata.get('reply-to') or decrypted_metadata.get('from')
     )
 
-    text_content, html_content, attachments = _get_text_html_attachments(
-        message_json
-    )
+    try:
+        text_content, html_content, attachments = _get_text_html_attachments(
+            message_json
+        )
+    except ClientError as e:
+        logger.error('s3_client_error_get_email', extra=e.response['Error'])
+        # we are returning a 500 so that SNS can retry the email processing
+        return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     message_body = {}
     if html_content:

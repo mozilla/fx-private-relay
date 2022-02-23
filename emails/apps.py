@@ -2,6 +2,7 @@ import logging
 import os
 
 import boto3
+from botocore.config import Config
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -19,7 +20,13 @@ class EmailsConfig(AppConfig):
             self.ses_client = boto3.client(
                 'ses', region_name=settings.AWS_REGION
             )
-            self.s3_client = boto3.client('s3', region_name=settings.AWS_REGION)
+            s3_config = Config(
+                region_name=settings.AWS_REGION,
+                retries = {
+                    "max_attempts": 1,  # this includes the initial attempt to get the email
+                    "mode": "standard",
+                })
+            self.s3_client = boto3.client('s3', config=s3_config)
         except Exception:
             logger.exception("exception during SES connect")
 
