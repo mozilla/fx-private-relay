@@ -32,20 +32,20 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
   switch (status) {
     case "forwardAll":
       formData.enabled = true;
-
+      
+      // This premium check seems verbose, but currently any API Patch to the `block_list_emails` as a free user will error out.
       if (isUserPremium) {
         formData.block_list_emails = false
-        
       }
       break;
 
-    case "criticalOnly":
+    case "promoBlocking":
       formData.enabled = true;
 
       if (isUserPremium) {
         formData.block_list_emails = true
-        aliasStatusClassname = "is-critical";
-        analyticsLabel = "User enabled critical-only forwarding"
+        aliasStatusClassname = "is-promo-blocking";
+        analyticsLabel = "User enabled promotional emails blocking"
       }
       
       break;
@@ -78,34 +78,18 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
       if (form.classList.contains("email-forwarding-form")) {
         const button = form.querySelector(".c-alias-email-fowarding-button");
         button.classList.toggle("t-disabled");
-
-        // TODO: Update label text per previous function:
-        // prefToggle.classList.toggle("forwarding-disabled");
-        // if (prefToggle.value === "Enable") {
-        //   prefToggle.title = prefToggle.dataset.defaultBlockingTitle;
-        //   toggleLabel.textContent = toggleLabel.dataset.defaultForwardingLabel;
-        //   wrappingEmailCard.classList.add("is-enabled");
-        //   prefToggle.value = "Disable";
-        //   return;
-        // } else if (prefToggle.value === "Disable") {
-        //   prefToggle.title = prefToggle.dataset.defaultForwardingTitle;
-        //   toggleLabel.textContent = toggleLabel.dataset.defaultBlockingLabel;
-        //   wrappingEmailCard.classList.remove("is-enabled");
-        //   prefToggle.value = "Enable";
-        //   return;
-        // }        
       }
       
       // Update the overall alias status class: 
       const alias = form.closest(".c-alias");
 
       // Remove previous status
-      alias.classList.remove("is-blocked", "is-critical", "is-forwarded");
+      alias.classList.remove("is-blocked", "is-promo-blocking", "is-forwarded");
       alias.classList.add(aliasStatusClassname);
 
       // For premium only
       if (form.classList.contains("c-alias-block-settings-form")) {
-        if (!isUserPremium && status == "criticalOnly") {
+        if (!isUserPremium && status == "promoBlocking") {
           alias.classList.add("is-forwarded");
         } 
       }
@@ -227,11 +211,11 @@ function deleteAliasConfirmation(submitEvent) {
 	});
 }
 
-function submitEmailForwardingPrefsForm(submitEvent) {
-  submitEvent.preventDefault();
+function submitEmailForwardingPrefsForm(changeEvent) {
+  changeEvent.preventDefault();
   const isUserPremium = document.querySelector("body").classList.contains("is-premium");
-  const form = submitEvent.target.closest("form");
-  updateEmailForwardingPrefs(form, submitEvent.target.defaultValue, isUserPremium, submitEvent);
+  const form = changeEvent.target.closest("form");
+  updateEmailForwardingPrefs(form, changeEvent.target.defaultValue, isUserPremium, changeEvent);
 }
 
 function toggleAliasCardDetailsVisibility(aliasCard) {
@@ -284,13 +268,13 @@ function addEventListeners() {
 
     // Email forwarding toggling
     const aliasBlockSettingsToggleInputs = aliasCard.querySelectorAll(".c-alias-block-settings-inputs input");
-    aliasBlockSettingsToggleInputs?.forEach(aliasBlockSettingsToggleInput => {
+    aliasBlockSettingsToggleInputs.forEach(aliasBlockSettingsToggleInput => {
       aliasBlockSettingsToggleInput.addEventListener("change", submitEmailForwardingPrefsForm);
     });
 
     // Email forwarding toggles for free users  
     const aliasBlockSettingsFreeToggleInputs = aliasCard.querySelectorAll(".c-alias-email-fowarding-button input")
-    aliasBlockSettingsFreeToggleInputs?.forEach(aliasBlockSettingsFreeToggleInput => {
+    aliasBlockSettingsFreeToggleInputs.forEach(aliasBlockSettingsFreeToggleInput => {
       aliasBlockSettingsFreeToggleInput.addEventListener("change", submitEmailForwardingPrefsForm);
     });
     

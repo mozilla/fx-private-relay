@@ -230,14 +230,10 @@
         }
 
         .c-alias-block-settings-input.t-forward,
-        .c-alias-block-settings-input.t-critical {
+        .c-alias-block-settings-input.t-promo-blocking {
 
             img {
                 filter: grayscale(100%);
-
-                @media #{$mq-md} {
-                    filter: grayscale(0);
-                }
             }
         }
 
@@ -257,30 +253,26 @@
             display: flex;
         }
 
-        .c-alias-block-settings-input.t-critical,
+        .c-alias-block-settings-input.t-promo-blocking,
         .c-alias-block-settings-input.t-block {
 
             img {
                 filter: grayscale(100%);
-
-                @media #{$mq-md} {
-                    filter: grayscale(0);
-                }
             }
         }
 
 
     }
 
-    &.is-critical {
+    &.is-promo-blocking {
         background-color: $color-white;
         box-shadow: $box-shadow-sm;
 
-        .c-alias-block-level.t-critical {
+        .c-alias-block-level.t-promo-blocking {
             display: inline-flex;
         }
 
-        .c-alias-block-settings-description .t-critical {
+        .c-alias-block-settings-description .t-promo-blocking {
             display: flex;
         }
 
@@ -289,10 +281,6 @@
 
             img {
                 filter: grayscale(100%);
-
-                @media #{$mq-md} {
-                    filter: grayscale(0);
-                }
             }
         }
 
@@ -311,8 +299,12 @@
     }
 }
 
-.c-alias-toggle.is-hidden {
-    display: none;
+.c-alias-toggle {
+    margin-top: $spacing-sm;
+
+    &.is-hidden {
+        display: none;
+    }
 }
 
 .c-alias-name {
@@ -397,7 +389,7 @@
 
 .c-alias-block-level {
     display: none;
-    border: 2px solid;
+    border: 2px solid transparent;
     border-radius: $border-radius-sm;
     padding: $spacing-xs $spacing-md;
     font-weight: 600;
@@ -409,7 +401,7 @@
         border-color: $color-green-30;
     }
 
-    &.t-critical {
+    &.t-promo-blocking {
         color: $color-yellow-50;
         border-color: $color-yellow-40;
     }
@@ -449,8 +441,7 @@
 }
 
 .c-alias-block-settings {
-    border-top: 1px solid transparent;
-    border-color: $color-light-gray-30;
+    border-top: 1px solid $color-light-gray-30;
     padding: $spacing-md;
     width: 100%;
     display: flex;
@@ -465,7 +456,6 @@
         display: flex;
         justify-content: space-between;
         flex-direction: row;
-        min-height: 120px;
     }
     
 }
@@ -532,10 +522,6 @@
     @media #{$mq-md} {
         max-width: $content-sm;
     }
-    @media #{$mq-xl} {
-        // max-width: $content-md;
-    }
-
 }
 
 .c-alias-block-settings-form {
