@@ -317,9 +317,6 @@ def get_message_content_from_s3(bucket, object_key):
                 Bucket=bucket, Key=object_key
             ).get('Body')
             return streamed_s3_object.read()
-    except ClientError as e:
-        logger.error('s3_client_error_get_email', extra=e.response['Error'])
-    raise S3ClientException('Failed to fetch email from S3')
 
 
 def remove_message_from_s3(bucket, object_key):

@@ -421,7 +421,7 @@ def _sns_message(message_json):
         text_content, html_content, attachments = _get_text_html_attachments(
             message_json
         )
-    except S3ClientException as e:
+    except ClientError as e:
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
         return HttpResponse("Cannot find the message content from S3", status=400)
 
@@ -584,9 +584,13 @@ def _handle_reply(from_address, message_json, to_address):
         decrypted_metadata.get('reply-to') or decrypted_metadata.get('from')
     )
 
-    text_content, html_content, attachments = _get_text_html_attachments(
-        message_json
-    )
+    try:
+        text_content, html_content, attachments = _get_text_html_attachments(
+            message_json
+        )
+    except ClientError as e:
+        logger.error('s3_client_error_get_email', extra=e.response['Error'])
+        return HttpResponse("Cannot find the message content from S3", status=400)
 
     message_body = {}
     if html_content:
