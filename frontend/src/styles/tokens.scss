@@ -1,3 +1,5 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+
 $firefoxGradient: linear-gradient(
   -90deg,
   #ff9100 0%,
@@ -8,3 +10,144 @@ $firefoxGradient: linear-gradient(
 // For use with box-shadow:
 $buttonFocusOutline: 0 0 0 1px #0a84ff, 0 0 0 1px #0a84ff,
   0 0 0 4px rgba(10, 132, 255, 0.3);
+
+// Overwrite the Protocol colours with Nebula colours:
+// Purple:
+$color-purple-90: #321c64;
+$color-purple-80: #45278d;
+$color-purple-70: #592acb;
+$color-purple-60: #7542e5;
+$color-purple-50: #9059ff;
+$color-purple-40: #ab71ff;
+$color-purple-30: #c689ff;
+$color-purple-20: #cb9eff;
+$color-purple-10: #d9bfff;
+$color-purple-05: #e7dfff;
+
+// Green:
+$color-green-90: #00736c;
+$color-green-80: #00a49a;
+$color-green-70: #1cc4a0;
+$color-green-60: #3ad4b3;
+$color-green-50: #3fe1b0;
+$color-green-40: #54ffbd;
+$color-green-30: #88ffd1;
+$color-green-20: #b3ffe3;
+$color-green-10: #d1ffee;
+$color-green-05: #e3fff3;
+
+// Neutral Colors
+// Grays:
+$color-black: #000000;
+$color-grey-60: #0c0c0d;
+$color-grey-50: #3d3d3d;
+$color-grey-40: #6d6d6e;
+$color-grey-30: #9e9e9e;
+$color-grey-20: #cececf;
+$color-grey-10: #e7e7e7;
+$color-grey-05: #f9f9fa;
+
+// Whites:
+$color-white: #ffffff;
+$color-white-80: rgba($color-white, 0.8);
+$color-white-60: rgba($color-white, 0.6);
+$color-white-40: rgba($color-white, 0.4);
+$color-white-20: rgba($color-white, 0.2);
+
+// Functional Colors
+// Informational:
+$color-informational: #0060df;
+$color-informational-active: #054096;
+$color-informational-hover: #0250bb;
+$color-informational-focus: #99bff2;
+
+// Success:
+$color-success: #3ad4b3;
+$color-success-active: #1cc4a0;
+$color-success-hover: #b3ffe3;
+$color-success-focus: #3fe1b0;
+
+// Error
+$color-error: #ff4f5e;
+$color-error-active: #c50042;
+$color-error-hover: #e22850;
+$color-error-focus: #ffbdc5;
+
+// Warning
+$color-warning: #ffa436;
+$color-warning-active: #c45a27;
+$color-warning-hover: #e27f2e;
+$color-warning-focus: #ffd5b2;
+
+// Secondary Colors
+// Violet
+$color-violet-90: #2b1141;
+$color-violet-80: #4e1a69;
+$color-violet-70: #722291;
+$color-violet-60: #952bb9;
+$color-violet-50: #b833e1;
+$color-violet-40: #d74cf0;
+$color-violet-30: #f770ff;
+$color-violet-20: #f68fff;
+$color-violet-10: #f6b8ff;
+$color-violet-05: #f7e2ff;
+
+// Blue
+$color-blue-90: #09204d;
+$color-blue-80: #073072;
+$color-blue-70: #054096;
+$color-blue-60: #0250bb;
+$color-blue-50: #0060df;
+$color-blue-40: #0090ed;
+$color-blue-30: #00b3f4;
+$color-blue-20: #00ddff;
+$color-blue-10: #80ebff;
+$color-blue-05: #aaf2ff;
+
+// Orange
+$color-orange-90: #7c1504;
+$color-orange-80: #9e280b;
+$color-orange-70: #cc3d00;
+$color-orange-60: #e25920;
+$color-orange-50: #ff7139;
+$color-orange-40: #ff8a50;
+$color-orange-30: #ffa266;
+$color-orange-20: #ffb587;
+$color-orange-10: #ffd5b2;
+$color-orange-05: #fff4de;
+
+// Yellow
+$color-yellow-90: #960e18;
+$color-yellow-80: #a7341f;
+$color-yellow-70: #c45a27;
+$color-yellow-60: #e27f2e;
+$color-yellow-50: #ffa436;
+$color-yellow-40: #ffbd4f;
+$color-yellow-30: #ffd567;
+$color-yellow-20: #ffea80;
+$color-yellow-10: #ffff98;
+$color-yellow-05: #ffffcc;
+
+// Red
+$color-red-90: #440306;
+$color-red-80: #810220;
+$color-red-70: #c50042;
+$color-red-60: #e22850;
+$color-red-50: #ff4f5e;
+$color-red-40: #ff6a75;
+$color-red-30: #ff848b;
+$color-red-20: #ff9aa2;
+$color-red-10: #ffbdc5;
+$color-red-05: #ffdfe7;
+
+// Pink
+$color-pink-90: #50134b;
+$color-pink-80: #7f145b;
+$color-pink-70: #c60084;
+$color-pink-60: #e31587;
+$color-pink-50: #ff298a;
+$color-pink-40: #ff4aa2;
+$color-pink-30: #ff6bba;
+$color-pink-20: #ff8ac5;
+$color-pink-10: #ffb4db;
+$color-pink-05: #ffdef0;
