@@ -278,17 +278,6 @@ def decrypt_reply_metadata(key, jwe):
     return e.plaintext
 
 
-class S3ClientException(Exception):
-    """Exception raised by error on S3 Client using Boto3.
-
-    Attributes:
-        message -- optional explanation of the error
-    """
-
-    def __init__(self, message=None):
-        self.message = message
-
-
 def _get_bucket_and_key_from_s3_json(message_json):
     bucket = None
     object_key = None

@@ -52,7 +52,6 @@ from .utils import (
     ses_send_raw_email,
     get_message_id_bytes,
     generate_relay_From,
-    S3ClientException,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
