@@ -130,9 +130,9 @@ function setSurveyedCookie() {
 function analyticsSurveyLogic() {
   const csatWrapperEl = document.querySelector(".js-csat-wrapper");
   if (!isGoogleAnalyticsAvailable()) {
-    csatWrapperEl.remove();
     return;
   }
+  csatWrapperEl?.classList.add("is-visible");
 
   const csatQuestionEl = document.querySelector(".js-csat-question");
   const csatFollowupEl = document.querySelector(".js-csat-followup");
