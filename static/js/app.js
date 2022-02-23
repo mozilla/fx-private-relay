@@ -19,7 +19,8 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
 
   const formData = {};
 
-  // Temporary: If free, decode true/false of checkbox to run through logic like three-button system on Premium
+  // Temporary until the "forwarding status" slider is also implemented for free users:
+  // If free, decode true/false of checkbox to run through logic like three-button system on Premium
   if (form.classList.contains("email-forwarding-form")) {
     status = (form.querySelector(".c-alias-email-fowarding-button input").checked) ? "forwardAll" : "blockAll";
   }
