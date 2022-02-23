@@ -62,7 +62,6 @@ async function updateEmailForwardingPrefs(form, status, isUserPremium, submitEve
       break;
   }
 
-  // TODO: Add logic to send correct GA event
   sendGaPing("Dashboard Alias Settings", "Toggle Forwarding", analyticsLabel);
 
   try {
