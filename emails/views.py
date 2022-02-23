@@ -422,7 +422,8 @@ def _sns_message(message_json):
         )
     except ClientError as e:
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
-        return HttpResponse("Cannot find the message content from S3", status=400)
+        # we are returning a 503 so that SNS can retry the email processing
+        return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     # scramble alias so that clients don't recognize it
     # and apply default link styles
@@ -589,7 +590,8 @@ def _handle_reply(from_address, message_json, to_address):
         )
     except ClientError as e:
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
-        return HttpResponse("Cannot find the message content from S3", status=400)
+        # we are returning a 500 so that SNS can retry the email processing
+        return HttpResponse("Cannot fetch the message content from S3", status=503)
 
     message_body = {}
     if html_content:
