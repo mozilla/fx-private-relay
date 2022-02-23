@@ -57,8 +57,7 @@
       }
 
       &:hover {
-        background-color: $color-blue-50;
-        color: $color-white;
+        background-color: $color-violet-05;
         // An item is $hoverOverflow wider than its container when hovered,
         // i.e. the background colour is wider than the separator.
         $hoverOverflow: $spacing-sm;
