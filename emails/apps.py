@@ -19,12 +19,13 @@ class EmailsConfig(AppConfig):
             self.ses_client = boto3.client(
                 'ses', region_name=settings.AWS_REGION
             )
-            self.s3_client = boto3.client(
-                's3',
+            s3_config = Config(
                 region_name=settings.AWS_REGION,
-                max_attempts=1,  # this includes the initial attempt to get the email
-                retry_mode='standard',
-            )
+                retries = {
+                    "max_attempts": 1,  # this includes the initial attempt to get the email
+                    "mode": "standard",
+                })
+            self.s3_client = boto3.client('s3', config=s3_config)
         except Exception:
             logger.exception("exception during SES connect")
 
