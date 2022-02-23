@@ -2,6 +2,7 @@ import logging
 import os
 
 import boto3
+from botocore.config import Config
 
 from django.apps import AppConfig
 from django.conf import settings
