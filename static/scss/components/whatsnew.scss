@@ -96,6 +96,10 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
                 &:hover {
                     background-color: $color-blue-50;
                     color: $color-white;
+
+                    h3 {
+                        color: $color-white;
+                    }
                 }
             }
         }
