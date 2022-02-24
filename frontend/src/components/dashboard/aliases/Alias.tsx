@@ -126,6 +126,25 @@ export const Alias = (props: Props) => {
     ></button>
   );
 
+  let blockLevelLabel = null;
+  if (props.alias.enabled === false) {
+    blockLevelLabel = (
+      <b
+        className={`${styles["block-level-label"]} ${styles["block-level-all-label"]}`}
+      >
+        {l10n.getString("profile-promo-email-blocking-label-none")}
+      </b>
+    );
+  } else if (props.alias.block_list_emails === true) {
+    blockLevelLabel = (
+      <b
+        className={`${styles["block-level-label"]} ${styles["block-level-promotional-label"]}`}
+      >
+        {l10n.getString("profile-promo-email-blocking-label-promotionals")}
+      </b>
+    );
+  }
+
   const setBlockLevel = (blockLevel: BlockLevel) => {
     if (blockLevel === "none") {
       return props.onUpdate({ enabled: true, block_list_emails: false });
@@ -190,6 +209,9 @@ export const Alias = (props: Props) => {
               </span>
             </span>
           </span>
+        </div>
+        <div className={styles["block-level-label-wrapper"]}>
+          {blockLevelLabel}
         </div>
         <div className={styles["alias-stats"]}>
           <BlockedTooltip>

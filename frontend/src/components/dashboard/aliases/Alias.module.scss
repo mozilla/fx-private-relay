@@ -171,6 +171,33 @@ $toggleTransitionDuration: 200ms;
   }
 }
 
+.block-level-label-wrapper {
+  display: none;
+  align-items: center;
+
+  @media screen and #{$mq-md} {
+    display: flex;
+  }
+
+  .block-level-label {
+    @include text-body-sm;
+    border: 2px solid transparent;
+    border-radius: $border-radius-sm;
+    padding: $spacing-xs $spacing-md;
+    font-weight: 600;
+
+    &.block-level-all-label {
+      color: $color-light-gray-70;
+      border-color: $color-light-gray-40;
+    }
+
+    &.block-level-promotional-label {
+      color: $color-yellow-50;
+      border-color: $color-yellow-40;
+    }
+  }
+}
+
 .alias-stats {
   display: none;
 
