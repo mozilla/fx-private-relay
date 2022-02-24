@@ -50,7 +50,7 @@
                       {% ftlmsg 'nav-faq' as faq_text %}
                       {% url 'faq' as faq_url %}
                       {% bold_violet_link faq_url faq_text as faq_link %}
-                      {% ftlmsg 'forwarded-email-header-attachment' faq_link=faq_link size='150' unit='KB' as forwarded_email_wrap_attachment %}
+                      {% ftlmsg 'forwarded-email-header-attachment' faq_link=faq_link size='25' unit='MB' as forwarded_email_wrap_attachment %}
                       {{ forwarded_email_wrap_attachment|safe }}
                   {% else %}
                     {% if survey_text and survey_link %}
