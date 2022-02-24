@@ -214,7 +214,7 @@ function deleteAliasConfirmation(submitEvent) {
 function submitEmailForwardingPrefsForm(changeEvent) {
   changeEvent.preventDefault();
   const isUserPremium = document.querySelector("body").classList.contains("is-premium");
-  const form = changeEvent.target.closest("form");
+  const form = changeEvent.target.form;
   updateEmailForwardingPrefs(form, changeEvent.target.defaultValue, isUserPremium, changeEvent);
 }
 
