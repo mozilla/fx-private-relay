@@ -464,37 +464,34 @@
     
     width: 100%;
     
-    ul {
+    output {
         margin: 0;
-        
-        li {
-            display: none;
+        display: none;
+        width: 100%;
+        background-color: $color-grey-05;
+        padding: $spacing-md;
+        border-radius: $border-radius-sm;
+
+        p {
+            margin-bottom: 0;
+        }
+
+        p + a {
+            display: block;
+            margin-top: $spacing-sm;
+        }
+
+        &.is-visible {
+            display: flex;
             width: 100%;
-            background-color: $color-grey-05;
-            padding: $spacing-md;
-            border-radius: $border-radius-sm;
+        }
 
-            p {
-                margin-bottom: 0;
-            }
-
-            p + a {
-                display: block;
-                margin-top: $spacing-sm;
-            }
-    
-            &.is-visible {
-                display: flex;
-                width: 100%;
-            }
-
-            @media #{$mq-md} {
-                background-color: transparent;
-                padding: 0;
-                margin: 0;
-                border-radius: 0;
-                align-items: center;
-            }
+        @media #{$mq-md} {
+            background-color: transparent;
+            padding: 0;
+            margin: 0;
+            border-radius: 0;
+            align-items: center;
         }
     }
 

@@ -137,7 +137,7 @@ Premium users:
           </div>
           <div class="c-alias-block-settings-inputs">
             <div class="c-alias-block-settings-input t-line-left t-forward">
-              <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="forwardAll{{ alias.id }}" value="forwardAll" {% if alias.enabled %} {% if not alias.block_list_emails %}checked{% endif %} {% endif %} />
+              <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="forwardAll{{ alias.id }}" value="forwardAll" {% if alias.enabled and not alias.block_list_emails %}checked{% endif %} />
               <label for="forwardAll{{ alias.id }}">
                 <img src="{% static '/images/umbrella-closed-mobile.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
@@ -146,7 +146,7 @@ Premium users:
             </div>
             <div class="c-alias-block-settings-spacer"></div>
             <div class="c-alias-block-settings-input t-line-center t-promo-blocking">
-              <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="promoBlocking{{ alias.id }}" value="promoBlocking" {% if alias.enabled %} {% if alias.block_list_emails %}checked{% endif %} {% endif %} />
+              <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="promoBlocking{{ alias.id }}" value="promoBlocking" {% if alias.enabled and alias.block_list_emails %}checked{% endif %} />
               <label for="promoBlocking{{ alias.id }}">
                 <img src="{% static '/images/umbrella-semi-mobile.svg' %}" alt="">
                 <div class="c-alias-block-settings-radio-button"></div>
@@ -165,33 +165,31 @@ Premium users:
           </div>
         </form>
         <div class="c-alias-block-settings-description">
-          <ul>
-            <li data-block-level="forwardAll" class="t-forward">
-              <div class="c-alias-block-settings-image">
-                <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
-              </div>
-              <p>
-                {% ftlmsg 'profile-promo-email-blocking-description-none' %}
-              </p>    
-            </li>
-            <li data-block-level="promoBlocking" class="t-promo-blocking">
-              <div class="c-alias-block-settings-image">
-                <img src="{% static '/images/umbrella-semi.svg' %}" alt="" />
-              </div>
-              <div>
-                <p>{% ftlmsg 'profile-promo-email-blocking-description-promotionals' %}</p>
-                <a href="/faq#faq-promotional-email-blocking">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
-              </div>
-            </li>
-            <li data-block-level="blockAll" class="t-block">
-              <div class="c-alias-block-settings-image">
-                <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
-              </div>
-              <p>
-                {% ftlmsg 'profile-promo-email-blocking-description-all' %}
-              </p>    
-            </li>
-          </ul>
+          <output data-block-level="forwardAll" class="t-forward">
+            <div class="c-alias-block-settings-image">
+              <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
+            </div>
+            <p>
+              {% ftlmsg 'profile-promo-email-blocking-description-none' %}
+            </p>    
+          </output>
+          <output data-block-level="promoBlocking" class="t-promo-blocking">
+            <div class="c-alias-block-settings-image">
+              <img src="{% static '/images/umbrella-semi.svg' %}" alt="" />
+            </div>
+            <div>
+              <p>{% ftlmsg 'profile-promo-email-blocking-description-promotionals' %}</p>
+              <a href="/faq#faq-promotional-email-blocking">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
+            </div>
+          </output>
+          <output data-block-level="blockAll" class="t-block">
+            <div class="c-alias-block-settings-image">
+              <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
+            </div>
+            <p>
+              {% ftlmsg 'profile-promo-email-blocking-description-all' %}
+            </p>    
+          </output>
         </div>
       </div>
       <div class="c-alias-additional-info">
