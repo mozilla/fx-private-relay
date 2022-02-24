@@ -194,6 +194,20 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
             <label>
               <input
                 type="checkbox"
+                checked={status === "promo-blocking"}
+                onChange={(e) =>
+                  setStatus(e.target.checked ? "promo-blocking" : undefined)
+                }
+                name="promoBlockingAliases"
+                id="promoBlockingAliases"
+              />
+              {l10n.getString(
+                "profile-filter-category-option-promo-blocking-masks"
+              )}
+            </label>
+            <label>
+              <input
+                type="checkbox"
                 checked={status === "blocking"}
                 onChange={(e) =>
                   setStatus(e.target.checked ? "blocking" : undefined)
