@@ -72,7 +72,7 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
                 display: initial;
             }
 
-            button {
+            .whatsnew-entry {
                 display: flex;
                 align-items: center;
                 gap: $spacing-md;
