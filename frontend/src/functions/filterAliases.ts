@@ -3,7 +3,7 @@ import { AliasData, getFullAddress, isRandomAlias } from "../hooks/api/aliases";
 export type Filters = {
   string: string;
   domainType?: "random" | "custom";
-  status?: "forwarding" | "blocking";
+  status?: "forwarding" | "promo-blocking" | "blocking";
 };
 
 /**
@@ -30,7 +30,10 @@ export const filterAliases = (
   };
   const matchesStatusFilter = (alias: AliasData) => {
     return (
-      (filters.status !== "forwarding" || alias.enabled) &&
+      (filters.status !== "forwarding" ||
+        (alias.enabled && alias.block_list_emails === false)) &&
+      (filters.status !== "promo-blocking" ||
+        (alias.block_list_emails === true && alias.enabled)) &&
       (filters.status !== "blocking" || alias.enabled === false)
     );
   };
