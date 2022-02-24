@@ -72,7 +72,7 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
                 display: initial;
             }
 
-            .whatsnew-entry {
+            .c-whatsnew-entry {
                 display: flex;
                 align-items: center;
                 gap: $spacing-md;
@@ -94,12 +94,7 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
                 }
 
                 &:hover {
-                    background-color: $color-blue-50;
-                    color: $color-white;
-
-                    h3 {
-                        color: $color-white;
-                    }
+                    background-color: $color-violet-05;
                 }
             }
         }
