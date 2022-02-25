@@ -75,6 +75,7 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
     .c-whatsnew-list {
         // Overwrite the bottom margin set on <ul>s by _common.scss:
         margin: 0;
+        padding: 0 $spacing-md;
 
         &.is-hidden {
             display: none;
@@ -82,9 +83,11 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
 
         li {
             display: none;
+            padding: $spacing-sm 0;
+            border-bottom: 1px solid $color-light-gray-30;
 
             &.is-visible {
-                display: initial;
+                display: block;
             }
 
             .c-whatsnew-entry {
@@ -92,6 +95,9 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
                 align-items: center;
                 gap: $spacing-md;
                 border-radius: $border-radius-sm;
+                // The hover background should be slightly wider than the
+                // containing <li>'s bottom border, hence the negative margin:
+                margin: 0 (-1 * $spacing-sm);
                 padding: $spacing-sm;
                 cursor: pointer;
                 background-color: transparent;
