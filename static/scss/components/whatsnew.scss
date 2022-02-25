@@ -35,6 +35,7 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
         justify-content: center;
         background-color: $color-yellow-40;
         font-weight: 700;
+        font-style: normal;
         color: $color-white;
 
         &.is-visible {
