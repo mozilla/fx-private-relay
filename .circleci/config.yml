@@ -60,7 +60,32 @@ jobs:
 
       - run:
           name: Test Code
-          command: docker run --entrypoint "/app/.local/bin/coverage" fx-private-relay run --source=. -m pytest --cov=./ --cov-fail-under=60
+          command: |
+            # Create a volume owned by the app user
+            docker run \
+              --volume /tmp/test-results \
+              --name test-results \
+              alpine \
+              /bin/sh -c \
+                "chmod 0777 /tmp/test-results && \
+                 chown 10001:10001 /tmp/test-results"
+            # Run coverage tests, outputting the results in XML format
+            docker run \
+              --entrypoint "/bin/bash" \
+              --volumes-from test-results \
+              fx-private-relay \
+              -c \
+                'mkdir -p /tmp/test-results/pytest && \
+                 mkdir -p /tmp/test-results/coverage && \
+                 /app/.local/bin/coverage run --source=. --branch -m pytest \
+                   --cov=./ --cov-fail-under=60 \
+                   --junitxml=/tmp/test-results/pytest/results.xml && \
+                 /app/.local/bin/coverage xml -o /tmp/test-results/coverage/results.xml'
+            # Copy results to local disk
+            docker cp test-results:/tmp/test-results /tmp
+
+      - store_test_results:
+          path: /tmp/test-results
 
   deploy:
     docker:
