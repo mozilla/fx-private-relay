@@ -132,6 +132,7 @@ function analyticsSurveyLogic() {
   if (!isGoogleAnalyticsAvailable()) {
     return;
   }
+  
   csatWrapperEl?.classList.add("is-visible");
 
   const csatQuestionEl = document.querySelector(".js-csat-question");

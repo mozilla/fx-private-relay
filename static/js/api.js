@@ -1,4 +1,3 @@
-// TODO Find a way to make this reusable across the app?
 function apiRequest(path, options) {
     const cookieString = typeof document.cookie === "string" ? document.cookie : "";
     const cookieStringArray = cookieString

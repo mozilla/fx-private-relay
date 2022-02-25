@@ -1,12 +1,36 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+{% load static %}
 
-<div class="c-alias js-alias relay-email is-{{ alias_type }}-alias {% if alias.enabled %} is-enabled {% endif %}" data-relay-address="{{ alias.full_address }}" data-relay-address-id="{{ alias.id }}">
+{% comment %}
+Premium users: 
+  Depending on the card, there are three possible states: 
+  - Forward all (.is-forwarded): All emails send to this alias are forwarded on to the user
+  - Promotion email blocking (.is-promo-blocking): Only critical emails are sent to the user (and all promotional emails are blocked)
+  - Block all (.is-blocked): No emails are sent on to the user. Previously, this was the enabled/disabled toggle 
+
+  The `is-enabled` class is still important/necessary logic for free-tier users. 
+{% endcomment %}
+
+<div class="c-alias js-alias relay-email is-{{ alias_type }}-alias 
+{% if alias.enabled %}
+  is-enabled 
+  
+  {% if alias.block_list_emails %}
+    is-promo-blocking 
+  {% else %}
+    is-forwarded 
+  {% endif %} 
+  
+{% else %}
+  is-blocked 
+{% endif %} 
+" data-relay-address="{{ alias.full_address }}" data-relay-address-id="{{ alias.id }}">
 
   <div class="c-alias-main-info">
     <!-- enable/disable email forwarding -->
-    <div class="c-alias-toggle email-forwarding">
-      <form action="{% url 'emails-index' %}" method="POST" class="xflx xflx-row al-cntr email-forwarding-form">
+    <div class="c-alias-toggle email-forwarding {% if user_profile.has_premium %}is-hidden{% endif %}">
+      <form action="{% url 'emails-index' %}" method="POST" class="email-forwarding-form" data-alias-id="{{ alias.id }}" data-type="{{ alias_type }}">
         <input type="hidden" name="method_override" value="PUT">
         <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
         <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">
@@ -14,30 +38,18 @@
           class="forwarding-label-wrapper card-small-text hidden"
           data-default-forwarding-label="{% ftlmsg 'profile-label-forwarding' %}"
           data-default-blocking-label="{% ftlmsg 'profile-label-blocking' %}"
-        >{% if alias.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}</span>
-        {% if alias.enabled %}
-        <button
-          type="submit"
-          name="enabled"
-          value="Disable"
-          title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-          data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
-          data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-          class="text-center forwarding-toggle"
-        ></button>
-        {% else %}
-        <button
-          type="submit"
-          name="enabled"
-          value="Enable"
-          title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
-          data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}"
-          data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}"
-          class="text-center forwarding-disabled forwarding-toggle"
-        ></button>
-        {% endif %}
+        >{% if alias.enabled %} {% ftlmsg 'profile-label-forwarding' %} {% else %} {% ftlmsg 'profile-label-blocking' %} {% endif %}
+      </span>
+
+      <div class="c-alias-email-fowarding-button {% if not alias.enabled %}t-disabled{% endif %}">
+        <input {% if alias.enabled %}checked{% endif %}  name="aliasForwardingToggle{{ alias.id }}" id="aliasForwardingToggle{{ alias.id }}" value="true" type="checkbox" data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}" data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}">
+        <label for="aliasForwardingToggle{{ alias.id }}">
+          <div class="forwarding-toggle js-forwarding-toggle"></div>
+        </label>
+      </div>
       </form>
     </div>
+
     <!--end enable/disable toggle -->
 
     <div class="c-alias-name">
@@ -79,7 +91,13 @@
     </div>
 
     <div class="c-alias-meta">
-
+      {% if user_profile.has_premium %}
+      <div class="c-alias-block-levels">
+        <div class="c-alias-block-level t-promo-blocking">{% ftlmsg 'profile-promo-email-blocking-label-promotionals' %}</div>
+        <div class="c-alias-block-level t-block">{% ftlmsg 'profile-promo-email-blocking-label-none' %}</div>
+      </div>
+      {% endif %}
+      
       <div class="c-alias-stats hide-mobile">
             {% include "includes/alias-stats.html" %}
       </div>
@@ -108,27 +126,94 @@
     </button>
   </div>
 
-  <div class="c-alias-additional-info js-alias-details">
-      <div class="c-alias-data-collection">
-        <!-- forwarding message -->
-        <div class="c-alias-data forward ">
-          <img class="" src="/static/images/icon-email.svg" alt="">
-          <div>
-            <span class="c-alias-data-label">{% ftlmsg 'profile-label-forward-emails' %}</span>
-            <span class="c-alias-data-value">{{ request.user.email }}</span>
+  <div class="c-alias-info js-alias-details">
+      <div class="c-alias-block-settings {% if not user_profile.has_premium %}is-hidden{% endif %}">
+        <form action="{% url 'emails-index' %}" method="POST" class="c-alias-block-settings-form" data-alias-id="{{ alias.id }}" data-type="{{ alias_type }}">
+          <input type="hidden" name="method_override" value="PUT">
+          <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
+          <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">
+          <div class="c-alias-block-settings-title">
+            {% ftlmsg 'profile-promo-email-blocking-title' %}
           </div>
-        </div>
-
-        <!-- created by date -->
-        <div class="c-alias-data created-by">
-          <img class="" src="/static/images/icon-calendar-gray.svg" alt="">
-          <div>
-            <span class="c-alias-data-label">{% ftlmsg 'profile-label-created' %}</span>
-            <span class="c-alias-data-value">{{ alias.created_at|date:"M j, Y" }}</span>
+          <div class="c-alias-block-settings-inputs">
+            <div class="c-alias-block-settings-input t-line-left t-forward">
+              <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="forwardAll{{ alias.id }}" value="forwardAll" {% if alias.enabled and not alias.block_list_emails %}checked{% endif %} />
+              <label for="forwardAll{{ alias.id }}">
+                <img src="{% static '/images/umbrella-closed-mobile.svg' %}" alt="">
+                <div class="c-alias-block-settings-radio-button"></div>
+                <span>{% ftlmsg 'profile-promo-email-blocking-option-none' %}</span>
+              </label>
+            </div>
+            <div class="c-alias-block-settings-spacer"></div>
+            <div class="c-alias-block-settings-input t-line-center t-promo-blocking">
+              <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="promoBlocking{{ alias.id }}" value="promoBlocking" {% if alias.enabled and alias.block_list_emails %}checked{% endif %} />
+              <label for="promoBlocking{{ alias.id }}">
+                <img src="{% static '/images/umbrella-semi-mobile.svg' %}" alt="">
+                <div class="c-alias-block-settings-radio-button"></div>
+                <span>{% ftlmsg 'profile-promo-email-blocking-option-promotionals' %}</span>
+              </label>
+            </div>
+            <div class="c-alias-block-settings-spacer"></div>
+            <div class="c-alias-block-settings-input t-line-right t-block">
+              <input type="radio" name="aliasBlockSettings{{ alias.id }}" id="blockAll{{ alias.id }}" value="blockAll" {% if not alias.enabled %}checked{% endif %} />
+              <label for="blockAll{{ alias.id }}">
+                <img src="{% static '/images/umbrella-open-mobile.svg' %}" alt="">
+                <div class="c-alias-block-settings-radio-button"></div>
+                <span>{% ftlmsg 'profile-promo-email-blocking-option-all' %}</span>
+              </label>
+            </div>
           </div>
+        </form>
+        <div class="c-alias-block-settings-description">
+          <output data-block-level="forwardAll" class="t-forward">
+            <div class="c-alias-block-settings-image">
+              <img src="{% static '/images/umbrella-closed.svg' %}" alt="" />
+            </div>
+            <p>
+              {% ftlmsg 'profile-promo-email-blocking-description-none' %}
+            </p>    
+          </output>
+          <output data-block-level="promoBlocking" class="t-promo-blocking">
+            <div class="c-alias-block-settings-image">
+              <img src="{% static '/images/umbrella-semi.svg' %}" alt="" />
+            </div>
+            <div>
+              <p>{% ftlmsg 'profile-promo-email-blocking-description-promotionals' %}</p>
+              <a href="/faq#faq-promotional-email-blocking">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
+            </div>
+          </output>
+          <output data-block-level="blockAll" class="t-block">
+            <div class="c-alias-block-settings-image">
+              <img src="{% static '/images/umbrella-open.svg' %}" alt="" />
+            </div>
+            <p>
+              {% ftlmsg 'profile-promo-email-blocking-description-all' %}
+            </p>    
+          </output>
         </div>
       </div>
+      <div class="c-alias-additional-info">
 
+        <!-- Forward/Created Date -->
+        <div class="c-alias-data-collection">
+          <!-- forwarding message -->
+          <div class="c-alias-data forward ">
+            <img class="" src="/static/images/icon-email.svg" alt="">
+            <div>
+              <span class="c-alias-data-label">{% ftlmsg 'profile-label-forward-emails' %}</span>
+              <span class="c-alias-data-value">{{ request.user.email }}</span>
+            </div>
+          </div>
+
+          <!-- created by date -->
+          <div class="c-alias-data created-by">
+            <img class="" src="/static/images/icon-calendar-gray.svg" alt="">
+            <div>
+              <span class="c-alias-data-label">{% ftlmsg 'profile-label-created' %}</span>
+              <span class="c-alias-data-value">{{ alias.created_at|date:"M j, Y" }}</span>
+            </div>
+          </div>
+      </div>
 
       <!-- delete email address -->
       <div class="column-delete">
@@ -142,6 +227,7 @@
         </form>
       </div> <!--end delete-->
 
+      </div><!--row-end-->
     </div><!--row-end-->
 
 </div>

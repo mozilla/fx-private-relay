@@ -212,25 +212,98 @@
 .c-alias {
     background-color: rgba($color-white, .5);
     border-radius: $border-radius-md;
-    padding: $spacing-md $spacing-md 0;
+    padding: $spacing-md 0 0;
     margin-bottom: $spacing-lg;
-
-    &.is-enabled {
-        background-color: $color-white;
-        box-shadow: $box-shadow-sm;
-    }
 
     &.is-hidden {
         display: none;
     }
+
+    &.is-blocked {
+
+        .c-alias-block-level.t-block {
+            display: inline-flex;
+        }
+
+        .c-alias-block-settings-description .t-block {
+            display: flex;
+        }
+
+        .c-alias-block-settings-input.t-forward,
+        .c-alias-block-settings-input.t-promo-blocking {
+
+            img {
+                filter: grayscale(100%);
+            }
+        }
+
+
+    }
+
+    // &.is-forwarded, &.is-enabled {
+    &.is-forwarded {
+        background-color: $color-white;
+        box-shadow: $box-shadow-sm;
+
+        .c-alias-block-level.t-forward {
+            display: inline-flex;
+        }
+
+        .c-alias-block-settings-description .t-forward {
+            display: flex;
+        }
+
+        .c-alias-block-settings-input.t-promo-blocking,
+        .c-alias-block-settings-input.t-block {
+
+            img {
+                filter: grayscale(100%);
+            }
+        }
+
+
+    }
+
+    &.is-promo-blocking {
+        background-color: $color-white;
+        box-shadow: $box-shadow-sm;
+
+        .c-alias-block-level.t-promo-blocking {
+            display: inline-flex;
+        }
+
+        .c-alias-block-settings-description .t-promo-blocking {
+            display: flex;
+        }
+
+        .c-alias-block-settings-input.t-forward,
+        .c-alias-block-settings-input.t-block {
+
+            img {
+                filter: grayscale(100%);
+            }
+        }
+
+
+    }
+
 }
 
 .c-alias-main-info {
     min-height: $layout-sm;
+    padding: 0 $spacing-md;
     display: flex;
     
     @media #{$mq-md} {
         margin-bottom: $spacing-md;
+    }
+}
+
+.c-alias-toggle {
+    margin-top: $spacing-sm;
+
+    &.is-hidden {
+        display: none;
     }
 }
 
@@ -281,7 +354,7 @@
 }
 
 .c-alias-copy {
-    padding: $spacing-sm 0 $spacing-md;
+    padding: $spacing-sm $spacing-md $spacing-md;
     display: block;
 
     @media #{$mq-md} {
@@ -304,20 +377,300 @@
     margin-left: auto;
 }
 
-.c-alias-additional-info {
-    border-top: 1px solid transparent;
+// The email delivery label is hidden on mobile
+.c-alias-block-levels {
+    display: none;
+    align-self: center;
+
+    @media #{$mq-md} {
+        display: block;
+    }
+}
+
+.c-alias-block-level {
+    display: none;
+    border: 2px solid transparent;
+    border-radius: $border-radius-sm;
+    padding: $spacing-xs $spacing-md;
+    font-weight: 600;
+
+    @include text-body-sm;
+
+    &.t-forward {
+        color: $color-green-50;
+        border-color: $color-green-30;
+    }
+
+    &.t-promo-blocking {
+        color: $color-yellow-50;
+        border-color: $color-yellow-40;
+    }
+
+    &.t-block {
+        color: $color-grey-30;
+        border-color: $color-grey-10;
+    }
+}
+
+.c-alias-info {
     overflow: hidden;
     max-height: 0;
     transition: all .2s ease-out;
+    padding: 0;
+
+    .c-alias-block-settings, .c-alias-additional-info {
+        border-top: 1px solid transparent;
+    }
     
     @media #{$mq-sm} {
-        display: flex;
+        display: block;
     }
 
     &.is-visible {
-        border-color: $color-light-gray-30;
+
+        .c-alias-block-settings, .c-alias-additional-info {
+            border-color: $color-light-gray-30;
+        }
         max-height: 900px;
-        padding: $spacing-md 0;
+    }
+}
+
+.c-alias-additional-info {
+    display: flex;
+    padding: $spacing-md;
+}
+
+.c-alias-block-settings {
+    border-top: 1px solid $color-light-gray-30;
+    padding: $spacing-md;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    &.is-hidden {
+        display: none;
+    }
+
+    @media #{$mq-md} {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row;
+    }
+    
+}
+
+.c-alias-block-settings-description {
+    
+    width: 100%;
+    
+    output {
+        margin: 0;
+        display: none;
+        width: 100%;
+        background-color: $color-grey-05;
+        padding: $spacing-md;
+        border-radius: $border-radius-sm;
+
+        p {
+            margin-bottom: 0;
+        }
+
+        p + a {
+            display: block;
+            margin-top: $spacing-sm;
+        }
+
+        &.is-visible {
+            display: flex;
+            width: 100%;
+        }
+
+        @media #{$mq-md} {
+            background-color: transparent;
+            padding: 0;
+            margin: 0;
+            border-radius: 0;
+            align-items: center;
+        }
+    }
+
+    .c-alias-block-settings-image {
+        display: none;
+        margin-right: $spacing-md;
+        height: 60px;
+        width: 60px;
+        flex-shrink: 0;
+        justify-content: center;
+        align-items: center;
+
+        img {
+            object-fit: contain;
+            object-position: 50% 50%;
+
+        }
+
+        @media #{$mq-md} {
+            display: flex;
+        }
+
+    }
+
+    @media #{$mq-md} {
+        max-width: $content-sm;
+    }
+}
+
+.c-alias-block-settings-form {
+    // width: 100%;
+
+    .c-alias-block-settings-title {
+        @include text-body-md;
+        text-align: center;
+        padding: 0 $spacing-md $spacing-lg;
+
+
+        @media #{$mq-md} {
+            text-align: start;
+        }
+    }
+
+    .c-alias-block-settings-inputs {
+        display: flex;
+        // width: 100%;
+        position: relative;
+        max-width: $content-sm;
+        justify-content: center;
+        margin: 0 auto;
+
+        label {
+            display: block;
+            text-align: center;
+            pointer-events: auto;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+
+            span {
+                display: block;
+                pointer-events: auto;
+                cursor: pointer;
+            }
+        }
+
+        input {
+            margin-bottom: $spacing-sm;
+            display: none;
+            // visibility: hidden;
+            
+            &:checked {
+                color: $color-purple-50;
+            }
+
+            &:checked + label {
+                color: $color-purple-50;
+            }
+
+            &:checked + label .c-alias-block-settings-radio-button {
+                background-color: $color-purple-20;
+                box-shadow: inset 0 0 0 calc(4px) $color-purple-50;
+            }
+        }
+
+        @media #{$mq-md} {
+            max-width: $content-sm;
+            justify-content: space-between;
+            margin: 0;
+        }
+    }
+
+    .c-alias-block-settings-spacer {
+        height: 4px;
+        background-color: $color-grey-10;
+        width: 100%;
+        margin-top: 95px;
+        flex-shrink: 2;
+
+        @media #{$mq-md} {
+            margin-top: 10px;
+        }
+    }
+
+    .c-alias-block-settings-radio-button {
+        margin: 0 auto $spacing-sm;
+        width: 32px;
+        height: 32px;
+        border-radius: 100%;
+        background-color: $color-grey-10;
+        box-shadow: 0 0 0 calc(#{($spacing-xs)}) transparent;
+        pointer-events: all;
+        display: block;
+        cursor: pointer;
+        
+        @media #{$mq-md} {
+            width: 24px;
+            height: 24px;
+        }
+    }
+    
+    .c-alias-block-settings-input {
+        display: block flex;
+        flex-direction: column;
+        align-items: center;
+        cursor: pointer;
+        position: relative;
+        flex-grow: 2;
+
+        &:after {
+            content: "";
+            height: 4px;
+            background-color: $color-grey-10;
+            width: 100%;
+            position: absolute;
+            z-index: 0;
+            top: 95px;
+
+            @media #{$mq-md} {
+                top: 10px;
+            }
+        }
+
+        &.t-line-left {
+
+            &:after {
+                width: 50%;
+                left: 50%;
+            }
+        }
+
+        &.t-line-right {
+
+            &:after {
+                width: 50%;
+                right: 50%;
+            }
+        }
+
+        &:hover .c-alias-block-settings-radio-button {
+            background-color: $color-purple-10;
+        }
+
+        img {
+            height: 60px;
+            margin-bottom: $spacing-md;
+
+            @media #{$mq-md} {
+                display: none;
+            }
+        }
+
+        &:hover {
+
+            &::before {
+                background-color: $color-purple-50;
+            }
+        }
+
     }
 }
 
@@ -451,5 +804,85 @@
         pointer-events: none;
         background-size: contain;
         opacity: .6;
+    }
+}
+
+.email-forwarding-form {
+    align-items: center;
+}
+
+
+.c-alias-email-fowarding-button {
+    
+    &.t-disabled {
+        
+        
+        label {
+            background-color: $color-grey-30;
+
+            &::after {
+                left: 4px;
+                right: 18px;
+                transition: all .2s ease;
+            }
+        
+            &:hover,
+            &:focus {
+                background-color: $color-grey-40
+            }
+            
+            &:active {
+                background-color: $color-grey-50
+            }
+        }
+
+    }
+
+    input {
+        display: none;
+    }
+
+    label {
+        display: block;
+        height: 2rem;
+        height: 1.15em;
+        width: 2em;
+        position: relative;
+        overflow: hidden;
+        border: none;
+        border-radius: 1.5em;
+        outline: none;
+        background-color: $color-blue-50;
+        background-size: 20px;
+        margin: auto 0;
+
+        &::after {
+            content: "";
+            height: .75em;
+            width: .75em;
+            position: absolute;
+            border-radius: 50%;
+            background-color: $color-white;
+            top: 0;
+            bottom: 0;
+            margin: auto;
+            right: 4px;
+            transition: all .2s ease;
+        }
+
+        &:hover {
+            background-color: $color-blue-70;
+        }
+        
+        &:active {
+            background-color: $color-blue-80;
+        }
+
+        
+
+    }
+
+    &.is-hidden {
+        display: none;
     }
 }
