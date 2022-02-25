@@ -45,6 +45,7 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
 }
 
 .c-whatsnew-popup {
+    $arrow-height: 12px;
     display: none;
     position: absolute;
     transform: translateX(-50%) translateY(calc(50% + #{$spacing-md}));
@@ -53,9 +54,22 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
     box-shadow: $box-shadow-sm;
     border-radius: $border-radius-sm;
     width: $content-sm;
+    margin-top: $arrow-height;
 
     &.is-visible {
         display: flex;
+    }
+
+
+    &::before {
+        content: "";
+        height: $arrow-height;
+        width: $arrow-height;
+        position: absolute;
+        top: -1 * $arrow-height / 2;
+        right: 33%;
+        transform: rotate(45deg);
+        background-color: $color-white;
     }
 
     .c-whatsnew-list {
