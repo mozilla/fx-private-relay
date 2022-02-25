@@ -19,7 +19,9 @@ export type Props = {
   user: UserData;
   runtimeData?: RuntimeData;
   onCreate: (
-    options: { mask_type: "random" } | { mask_type: "custom"; address: string }
+    options:
+      | { mask_type: "random" }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
   ) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   onDelete: (alias: AliasData) => void;
