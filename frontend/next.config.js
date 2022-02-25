@@ -15,7 +15,7 @@ const runtimeConfigs = {
     maxOnboardingAvailable: 3,
     featureFlags: {
       // Also add keys here to RuntimeConfig in src/config.ts
-      generateCustomAliasMenu: false,
+      generateCustomAliasMenu: true,
       generateCustomAliasSubdomain: false,
       generateCustomAliasTip: false,
       criticalEmailsTip: false,
