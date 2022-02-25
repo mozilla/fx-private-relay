@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from "react";
+import Link from "next/link";
 import { useLocalization } from "@fluent/react";
 import {
   OverlayContainer,
@@ -20,6 +21,7 @@ import styles from "./AddressPickerModal.module.scss";
 import { InfoIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
+import { InfoTooltip } from "../../InfoTooltip";
 
 export type Props = {
   isOpen: boolean;
@@ -101,6 +103,29 @@ export const AddressPickerModal = (props: Props) => {
                   "popover-custom-alias-explainer-promotional-block-checkbox"
                 )}
               </label>
+              <InfoTooltip
+                alt={l10n.getString(
+                  "popover-custom-alias-explainer-promotional-block-tooltip-trigger"
+                )}
+              >
+                <h3>
+                  {l10n.getString(
+                    "popover-custom-alias-explainer-promotional-block-checkbox"
+                  )}
+                </h3>
+                <p className={styles["promotionals-blocking-description"]}>
+                  {l10n.getString(
+                    "popover-custom-alias-explainer-promotional-block-tooltip-2"
+                  )}
+                  <Link href="/faq#faq-promotional-email-blocking">
+                    <a>
+                      {l10n.getString(
+                        "banner-label-data-notification-body-cta"
+                      )}
+                    </a>
+                  </Link>
+                </p>
+              </InfoTooltip>
             </div>
             <div className={styles.buttons}>
               <button
