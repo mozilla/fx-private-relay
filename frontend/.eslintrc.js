@@ -5,6 +5,7 @@ module.exports = {
     "plugin:@typescript-eslint/recommended",
     "plugin:jest-dom/recommended",
     "next",
+    "plugin:storybook/recommended",
   ],
   parser: "@typescript-eslint/parser",
   plugins: ["@typescript-eslint", "testing-library", "jest-dom"],

@@ -15,6 +15,9 @@ export type Props = {
 
 /**
  * Ask people whether they're be interested in discussing their experience in using Relay.
+ *
+ * Only shown for people in the US who are signed in and haven't dismissed the
+ * banner before.
  */
 export const InterviewRecruitment = (props: Props) => {
   const recruitmentLink =

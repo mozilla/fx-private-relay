@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals";
+import { RuntimeDataWithPremiumAvailable } from "../../../src/functions/getPlan";
 import {
   RuntimeData,
   useRuntimeData,
@@ -12,7 +13,7 @@ const mockedUseRuntimeData = useRuntimeData as jest.MockedFunction<
   typeof useRuntimeData
 >;
 
-export function getMockRuntimeDataWithPremium(): RuntimeData {
+export function getMockRuntimeDataWithPremium(): RuntimeDataWithPremiumAvailable {
   return {
     FXA_ORIGIN: "https://example.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
