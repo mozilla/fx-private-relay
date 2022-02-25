@@ -35,7 +35,9 @@ export type CustomAliasData = CommonAliasData & {
 export type AliasData = RandomAliasData | CustomAliasData;
 
 export type AliasCreateFn = (
-  options: { mask_type: "random" } | { mask_type: "custom"; address: string }
+  options:
+    | { mask_type: "random" }
+    | { mask_type: "custom"; address: string; blockPromotionals: boolean }
 ) => Promise<Response>;
 export type AliasUpdateFn = (
   alias: Pick<CommonAliasData, "id" | "mask_type">,
@@ -69,17 +71,23 @@ export function useAliases(): {
 
   const createAlias: AliasCreateFn = async (options) => {
     if (options.mask_type === "custom") {
+      const body: Partial<CustomAliasData> = {
+        enabled: true,
+        address: options.address,
+        block_list_emails: options.blockPromotionals,
+      };
       const response = await apiFetch("/domainaddresses/", {
         method: "POST",
-        body: JSON.stringify({ enabled: true, address: options.address }),
+        body: JSON.stringify(body),
       });
       customAliases.mutate();
       return response;
     }
 
+    const body: Partial<RandomAliasData> = { enabled: true };
     const response = await apiFetch("/relayaddresses/", {
       method: "POST",
-      body: JSON.stringify({ enabled: true }),
+      body: JSON.stringify(body),
     });
     randomAliases.mutate();
     return response;

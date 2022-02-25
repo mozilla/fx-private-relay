@@ -73,13 +73,26 @@
 
         input {
           @include form-input;
+          // Override form-input's margin:
+          margin: 0;
         }
       }
 
       .suffix {
         font-family: $font-stack-firefox;
         display: block;
+        padding-top: $spacing-xs;
       }
+    }
+
+    .promotionals-blocking-control {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-sm;
+      padding: $spacing-lg $spacing-sm 0;
+      font-family: $font-stack-firefox;
+      accent-color: $color-blue-50;
     }
 
     .buttons {
