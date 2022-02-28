@@ -522,7 +522,6 @@ class RelayAddress(models.Model):
                 self.address = address_default()
             profile = self.user.profile_set.first()
             profile.update_abuse_metric(address_created=True)
-        # TODO: validate user is premium to set block_list_emails
         return super().save(*args, **kwargs)
 
     @property

@@ -7,6 +7,7 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
 from django.test import (
     override_settings,
     TestCase,
@@ -236,6 +237,23 @@ class RelayAddressTest(TestCase):
         assert not valid_address(
             relay_address.address, relay_address.domain_value
         )
+
+    def test_free_user_cant_set_block_list_emails(self):
+        relay_address = RelayAddress.objects.create(user=self.user)
+        try:
+            relay_address.block_list_emails = True
+            relay_address.save()
+        except ValidationError:
+            relay_address.refresh_from_db()
+            assert relay_address.block_list_emails == False
+
+    def test_premium_user_can_set_block_list_emails(self):
+        relay_address = RelayAddress.objects.create(user=self.premium_user)
+        assert relay_address.block_list_emails == False
+        relay_address.block_list_emails = True
+        relay_address.save()
+        relay_address.refresh_from_db()
+        assert relay_address.block_list_emails == True
 
 
 class ProfileTest(TestCase):
@@ -957,3 +975,11 @@ class DomainAddressTest(TestCase):
         )
         assert deleted_address_qs.count() == 1
         assert deleted_address_qs.first().address_hash == domain_address_hash
+
+    def test_premium_user_can_set_block_list_emails(self):
+        domain_address = DomainAddress.objects.create(user=self.user)
+        assert domain_address.block_list_emails == False
+        domain_address.block_list_emails = True
+        domain_address.save()
+        domain_address.refresh_from_db()
+        assert domain_address.block_list_emails == True
