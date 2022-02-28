@@ -81,7 +81,7 @@ jobs:
           command: |
             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
             # deploy master
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+            if [ "${CIRCLE_BRANCH}" == "main" ]; then
               docker tag fx-private-relay ${DOCKERHUB_REPO}:latest
               docker push ${DOCKERHUB_REPO}:latest
             elif  [ ! -z "${CIRCLE_TAG}" ]; then
