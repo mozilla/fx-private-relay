@@ -566,11 +566,26 @@ if DEBUG:
         'http://localhost:3000',
     ]
 
+SENTRY_RELEASE = config("SENTRY_RELEASE", "")
+CIRCLE_SHA1 = config("CIRCLE_SHA1", "")
+CIRCLE_TAG = config("CIRCLE_TAG", "")
+CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
+
+if SENTRY_RELEASE:
+    sentry_release = SENTRY_RELEASE
+elif CIRCLE_TAG and CIRCLE_TAG != "unknown":
+    sentry_release = CIRCLE_TAG
+elif CIRCLE_SHA1 and CIRCLE_SHA1 != "unknown" and CIRCLE_BRANCH and CIRCLE_BRANCH != "unknown":
+    sentry_release = f"{CIRCLE_BRANCH}:{CIRCLE_SHA1}"
+else:
+    sentry_release = None
+
 sentry_sdk.init(
     dsn=config('SENTRY_DSN', None),
     integrations=[DjangoIntegration()],
     debug=DEBUG,
-    with_locals=DEBUG
+    with_locals=DEBUG,
+    release=sentry_release,
 )
 
 markus.configure(

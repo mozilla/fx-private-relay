@@ -32,7 +32,12 @@ jobs:
 
       - run:
           name: Build Docker image
-          command: docker build -t fx-private-relay .
+          command: |
+            docker build -t fx-private-relay \
+            --build-arg CIRCLE_BRANCH="$CIRCLE_BRANCH" \
+            --build-arg CIRCLE_TAG="$CIRCLE_TAG" \
+            --build-arg CIRCLE_SHA1="$CIRCLE_SHA1" \
+            .
 
       # save the built docker container into CircleCI's cache. This is
       # required since Workflows do not have the same remote docker instance.

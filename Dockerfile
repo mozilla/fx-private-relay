@@ -12,6 +12,13 @@ RUN npm run lint:css
 
 FROM python:3.7.9
 
+ARG CIRCLE_BRANCH
+ARG CIRCLE_SHA1
+ARG CIRCLE_TAG
+ENV CIRCLE_BRANCH=${CIRCLE_BRANCH:-unknown} \
+    CIRCLE_TAG=${CIRCLE_TAG:-unknown} \
+    CIRCLE_SHA1=${CIRCLE_SHA1:-unknown}
+
 RUN apt-get update && apt-get install -y libpq-dev
 RUN pip install --upgrade pip
 
