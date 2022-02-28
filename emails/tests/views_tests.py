@@ -13,7 +13,6 @@ from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
-import pytest
 
 from emails.models import (
     address_hash,
@@ -99,6 +98,8 @@ class SNSNotificationTest(TestCase):
     @patch('emails.views.ses_relay_email')
     def test_block_list_email_sns_notification(self, mock_ses_relay_email):
         # when an alias is blocking list emails, list emails should not forward
+        self.ra.user = self.premium_user
+        self.ra.save()
         self.ra.block_list_emails = True
         self.ra.save()
 

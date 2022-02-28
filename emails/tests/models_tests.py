@@ -1,13 +1,12 @@
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
-import json
 import random
 from unittest import skip
 from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
+from django.core.exceptions import SuspiciousOperation
 from django.test import (
     override_settings,
     TestCase,
@@ -240,12 +239,11 @@ class RelayAddressTest(TestCase):
 
     def test_free_user_cant_set_block_list_emails(self):
         relay_address = RelayAddress.objects.create(user=self.user)
-        try:
+        with self.assertRaises(SuspiciousOperation):
             relay_address.block_list_emails = True
             relay_address.save()
-        except ValidationError:
-            relay_address.refresh_from_db()
-            assert relay_address.block_list_emails == False
+        relay_address.refresh_from_db()
+        assert relay_address.block_list_emails == False
 
     def test_premium_user_can_set_block_list_emails(self):
         relay_address = RelayAddress.objects.create(user=self.premium_user)
