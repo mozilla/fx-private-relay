@@ -86,6 +86,10 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
             padding: $spacing-sm 0;
             border-bottom: 1px solid $color-light-gray-30;
 
+            &:last-child {
+                border-bottom-style: none;
+            }
+
             &.is-visible {
                 display: block;
             }
