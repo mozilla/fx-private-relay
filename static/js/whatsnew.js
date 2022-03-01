@@ -22,14 +22,20 @@
   }, 500)
 
   trigger.addEventListener("click", (event) => {
-    popup.classList.add("is-visible");
-    trigger.classList.add("is-open");
-
     const closeEventListener = () => {
       popup.classList.remove("is-visible");
       trigger.classList.remove("is-open");
       window.removeEventListener("click", closeEventListener);
     };
+
+    if (trigger.classList.contains("is-open")) {
+      closeEventListener();
+      return;
+    }
+
+    popup.classList.add("is-visible");
+    trigger.classList.add("is-open");
+
     event.stopImmediatePropagation();
     window.addEventListener("click", closeEventListener);
   });
