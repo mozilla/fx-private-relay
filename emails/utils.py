@@ -292,9 +292,17 @@ def _get_bucket_and_key_from_s3_json(message_json):
         )
         return None, None
 
-    if 'S3' in message_json_receipt['action']['type']:
-        bucket = message_json_receipt['action']['bucketName']
-        object_key = message_json_receipt['action']['objectKey']
+    try:
+        if 'S3' in message_json_receipt['action']['type']:
+            bucket = message_json_receipt['action']['bucketName']
+            object_key = message_json_receipt['action']['objectKey']
+    except (KeyError, TypeError) as e:
+        logger.error(
+            'sns_inbound_message_receipt_malformed',
+            extra={
+                'receipt_action': message_json_receipt['action'],
+            }
+        )
     return bucket, object_key
 
 
