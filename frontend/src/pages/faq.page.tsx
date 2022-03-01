@@ -96,25 +96,7 @@ const Faq: NextPage = () => {
                 id="faq-rejections"
                 question={l10n.getString("faq-question-2-question")}
               >
-                <p>{l10n.getString("faq-question-missing-emails-answer-a")}</p>
-                <Localized
-                  id="faq-question-2-answer-v3-html"
-                  vars={{
-                    url: "https://addons.mozilla.org/firefox/addon/private-relay/",
-                    attrs: "",
-                  }}
-                  elems={{
-                    a: (
-                      <a
-                        href="https://addons.mozilla.org/firefox/addon/private-relay/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      />
-                    ),
-                  }}
-                >
-                  <p />
-                </Localized>
+                <p>{l10n.getString("faq-question-2-answer-v4")}</p>
               </QAndA>
               <QAndA
                 id="faq-spam"
