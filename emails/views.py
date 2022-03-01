@@ -21,7 +21,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
@@ -63,6 +63,23 @@ info_logger = logging.getLogger('eventsinfo')
 class InReplyToNotFound(Exception):
     def __init__(self, message="No In-Reply-To header."):
         self.message = message
+
+
+def wrapped_email_test(request):
+    html_content = '<p><strong>strong</strong></p><hr><p>plain</p>'
+    display_email = 'test@relay.firefox.com'
+    attachments = None
+    user_profile = Profile.objects.order_by('?').first()
+    test_email_context = {
+        'original_html': html_content,
+        'recipient_profile': user_profile,
+        'display_email': display_email,
+        'SITE_ORIGIN': settings.SITE_ORIGIN,
+        'has_attachment': bool(attachments),
+        'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
+        'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK
+    }
+    return render(request, 'emails/wrapped_email.html', test_email_context)
 
 
 @csrf_exempt
