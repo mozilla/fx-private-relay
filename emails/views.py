@@ -228,7 +228,7 @@ def validate_sns_header(topic_arn, message_type):
             'SNS message for wrong ARN',
             extra={
                 'configured_arn': settings.AWS_SNS_TOPIC,
-                'received_arn': topic_arn,
+                'received_arn': shlex.quote(topic_arn),
             }
         )
         return HttpResponse(
@@ -268,7 +268,7 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
 
     logger.error(
         'SNS message type did not fall under the SNS inbound logic',
-        extra={'message_type': message_type}
+        extra={'message_type': shlex.quote(message_type)}
     )
     capture_message(
         'Received SNS message with type not handled in inbound log',
@@ -291,7 +291,11 @@ def _sns_notification(json_body):
     ):
         logger.error(
             'SNS notification for unsupported type',
-            extra={'notification_type': shlex.quote(notification_type)},
+            extra={
+                'notification_type': shlex.quote(notification_type),
+                'event_type': shlex.quote(event_type),
+                'keys': shlex.quote(list(message_json.keys())),
+            },
         )
         return HttpResponse(
             'Received SNS notification for unsupported Type: %s' %
