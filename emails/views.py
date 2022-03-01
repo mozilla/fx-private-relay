@@ -281,7 +281,12 @@ def _sns_notification(json_body):
             html.escape(shlex.quote(notification_type)),
             status=400
         )
-    return _sns_message(message_json)
+    response = _sns_message(message_json)
+    bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
+    if response.status_code < 500:
+        remove_message_from_s3(bucket, object_key)
+
+    return response
 
 
 def _get_recipient_with_relay_domain(recipients):
@@ -340,6 +345,7 @@ def _sns_message(message_json):
     try:
         [to_local_portion, to_domain_portion] = to_address.split('@')
     except ValueError:
+        # TODO: Add metric
         return HttpResponse('Malformed to field.', 400)
 
     if to_local_portion == 'noreply':
@@ -356,13 +362,6 @@ def _sns_message(message_json):
             response = _handle_reply(from_address, message_json, to_address)
         else:
             response = HttpResponse("Address does not exist", status=404)
-        if response.status_code == 503:
-            # early return the response to trigger SNS to re-attempt
-            return response
-        # remove emails from S3 if the email cannot be delivered
-        bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
-        if bucket and object_key:
-            remove_message_from_s3(bucket, object_key)
         return response
 
     _record_receipt_verdicts(receipt, 'valid_user')
@@ -386,6 +385,7 @@ def _sns_message(message_json):
         address = reply_record.address
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record):
+            # TODO: Add metrics
             return HttpResponse(
                 "Relay replies require a premium account", status=403
             )
@@ -401,6 +401,7 @@ def _sns_message(message_json):
         address.num_blocked += 1
         address.save(update_fields=['num_blocked'])
         _record_receipt_verdicts(receipt, 'disabled_alias')
+        # TODO: Add metrics
         return HttpResponse("Address is temporarily disabled.")
 
     _record_receipt_verdicts(receipt, 'active_alias')
@@ -476,12 +477,6 @@ def _sns_message(message_json):
     address.save(
         update_fields=['num_forwarded', 'last_used_at']
     )
-
-    # only remove message from S3 if the email was stored in S3
-    bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
-    if bucket and object_key:
-        remove_message_from_s3(bucket, object_key)
-
     return response
 
 
