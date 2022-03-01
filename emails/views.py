@@ -274,7 +274,11 @@ def _sns_notification(json_body):
     ):
         logger.error(
             'SNS notification for unsupported type',
-            extra={'notification_type': shlex.quote(notification_type)},
+            extra={
+                'notification_type': shlex.quote(notification_type),
+                'event_type': shlex.quote(event_type),
+                'keys': shlex.quote(list(message_json.keys())),
+            },
         )
         return HttpResponse(
             'Received SNS notification for unsupported Type: %s' %
