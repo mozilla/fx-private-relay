@@ -1,5 +1,6 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
+from functools import lru_cache
 from hashlib import sha256
 import logging
 import random
@@ -252,6 +253,7 @@ class Profile(models.Model):
         return f'@{self.subdomain}.{settings.MOZMAIL_DOMAIN}'
 
     @property
+    @lru_cache(maxsize=None)
     def has_premium(self):
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
