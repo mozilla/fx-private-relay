@@ -3,12 +3,13 @@
 
 .header {
   background-color: $color-light-gray-05;
-  padding: $spacing-sm 0;
+  width: 100%;
+  padding: $spacing-lg 0;
 
   .headerWrapper {
     display: flex;
     flex-direction: column;
-    gap: $spacing-sm;
+    gap: $spacing-md;
 
     @media screen and #{$mq-md} {
       flex-direction: row;
@@ -17,6 +18,9 @@
 
     .userDetails {
       flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
 
       .greeting {
         @include text-body-xl;
@@ -33,7 +37,6 @@
         display: flex;
         align-items: center;
         gap: $spacing-sm;
-        padding: $spacing-md 0;
         color: $color-blue-50;
       }
     }
@@ -70,14 +73,22 @@
   }
 }
 
+.profileWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+  gap: $spacing-md;
+}
+
 .mainWrapper,
 .bannersWrapper,
 .bottomBannerWrapper,
 .noPremiumHeader,
 .headerWrapper {
   max-width: $content-xl;
+  width: 100%;
   margin: 0 auto;
-  padding: $spacing-md $spacing-md;
+  padding: 0 $spacing-md;
 }
 
 .noPremiumHeader {
@@ -96,6 +107,7 @@
 
 .bottomBanner {
   background-color: $color-white;
+  width: 100%;
 
   .bottomBannerWrapper {
     display: flex;
