@@ -289,7 +289,7 @@ const Profile: NextPage = () => {
     </Localized>
   );
 
-  const bottomBanner =
+  const bottomPremiumSection =
     profile.has_premium ||
     !isPremiumAvailableInCountry(runtimeData.data) ? null : (
       <section className={styles.bottomBanner}>
@@ -317,6 +317,19 @@ const Profile: NextPage = () => {
       </section>
     );
 
+  const banners = (
+    <section className={styles.bannersWrapper}>
+      <ProfileBanners
+        profile={profile}
+        user={user}
+        onCreateSubdomain={setCustomSubdomain}
+        runtimeData={runtimeData.data}
+      />
+    </section>
+  );
+  const topBanners = allAliases.length > 0 ? banners : null;
+  const bottomBanners = allAliases.length === 0 ? banners : null;
+
   return (
     <>
       <firefox-private-relay-addon-data
@@ -340,16 +353,9 @@ const Profile: NextPage = () => {
         data-premium-enabled="True"
       ></firefox-private-relay-addon-data>
       <Layout>
-        <main>
+        <main className={styles.profileWrapper}>
           {stats}
-          <section className={styles.bannersWrapper}>
-            <ProfileBanners
-              profile={profile}
-              user={user}
-              onCreateSubdomain={setCustomSubdomain}
-              runtimeData={runtimeData.data}
-            />
-          </section>
+          {topBanners}
           <section className={styles.mainWrapper}>
             <Onboarding
               aliases={allAliases}
@@ -371,7 +377,8 @@ const Profile: NextPage = () => {
               })}
             </p>
           </section>
-          {bottomBanner}
+          {bottomBanners}
+          {bottomPremiumSection}
         </main>
         <Tips profile={profile} customAliases={customAliasData.data} />
       </Layout>
