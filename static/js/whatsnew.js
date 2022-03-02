@@ -22,14 +22,21 @@
   }, 500)
 
   trigger.addEventListener("click", (event) => {
-    const closeEventListener = () => {
+    const close = () => {
       popup.classList.remove("is-visible");
       trigger.classList.remove("is-open");
-      window.removeEventListener("click", closeEventListener);
+      window.removeEventListener("click", close);
+      window.removeEventListener("keydown", onKeyPress);
+    };
+    /** @param event {KeyboardEvent} */
+    const onKeyPress = (event) => {
+      if (event.key === "Escape") {
+        close();
+      }
     };
 
     if (trigger.classList.contains("is-open")) {
-      closeEventListener();
+      close();
       return;
     }
 
@@ -37,7 +44,8 @@
     trigger.classList.add("is-open");
 
     event.stopImmediatePropagation();
-    window.addEventListener("click", closeEventListener);
+    window.addEventListener("click", close);
+    window.addEventListener("keydown", onKeyPress);
   });
   backButton.addEventListener("click", (event) => {
     // Prevent the event listener on the window, which closes the popup,
