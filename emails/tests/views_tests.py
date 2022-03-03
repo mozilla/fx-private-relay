@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
+from botocore.exceptions import ClientError
 from model_bakery import baker
 import pytest
 
@@ -446,6 +447,46 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b'Address is not accepting list emails.'
+
+    @patch('emails.views._get_text_html_attachments')
+    @patch('emails.views.remove_message_from_s3')
+    def test_get_text_hteml_s3_client_error_email_in_s3_not_deleted(
+        self, mocked_message_removed, mocked_get_text_html,
+    ):
+        mocked_get_text_html.side_effect = ClientError({'Error': {'error': 'message'}}, '')
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.assert_not_called()
+        assert response.status_code == 503
+        assert response.content == b'Cannot fetch the message content from S3'
+
+    @patch('emails.views.ses_relay_email')
+    @patch('emails.views._get_text_html_attachments')
+    @patch('emails.views.remove_message_from_s3')
+    def test_ses_client_error_email_in_s3_not_deleted(
+        self, mocked_message_removed, mocked_get_text_html, mocked_relay_email,
+    ):
+        mocked_get_text_html.return_value = ('text_content', None, ['attachments'])
+        mocked_relay_email.return_value = HttpResponse('SES client failed', status=503)
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.assert_not_called()
+        assert response.status_code == 503
+        assert response.content == b'SES client failed'
+
+    @patch('emails.views.ses_relay_email')
+    @patch('emails.views._get_text_html_attachments')
+    @patch('emails.views.remove_message_from_s3')
+    def test_successful_email_in_s3_deleted(
+        self, mocked_message_removed, mocked_get_text_html, mocked_relay_email,
+    ):
+        mocked_get_text_html.return_value = ('text_content', None, ['attachments'])
+        mocked_relay_email.return_value = HttpResponse('Email relayed', status=200)
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b'Email relayed'
 
 
 class SnsMessageTest(TestCase):
