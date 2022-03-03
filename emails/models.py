@@ -14,6 +14,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.dispatch import receiver
+from django.utils.functional import cached_property
 from django.utils.translation.trans_real import (
     parse_accept_lang_header,
     get_supported_language_variant,
@@ -237,7 +238,7 @@ class Profile(models.Model):
         ).count()
         return relay_addresses_count >= settings.MAX_NUM_FREE_ALIASES
 
-    @property
+    @cached_property
     def fxa(self):
         return self.user.socialaccount_set.filter(provider='fxa').first()
 
