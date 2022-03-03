@@ -284,12 +284,16 @@ def _get_bucket_and_key_from_s3_json(message_json):
     if 'receipt' in message_json and 'action' in message_json['receipt']:
         message_json_receipt = message_json['receipt']
     else:
-        # TODO: sns inbound notification does not have 'receipt'
-        # we need to look into this more
-        logger.error(
-            'sns_inbound_message_without_receipt',
-            extra={'message_json_keys': message_json.keys()}
-        )
+        notification_type = message_json.get('notificationType')
+        event_type = message_json.get('eventType')
+        is_bounce_notification = notification_type == 'Bounce' or event_type == 'Bounce'
+        if not is_bounce_notification:
+            # TODO: sns inbound notification does not have 'receipt'
+            # we need to look into this more
+            logger.error(
+                'sns_inbound_message_without_receipt',
+                extra={'message_json_keys': message_json.keys()}
+            )
         return None, None
 
     try:

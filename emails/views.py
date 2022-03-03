@@ -346,7 +346,7 @@ def _sns_message(message_json):
         [to_local_portion, to_domain_portion] = to_address.split('@')
     except ValueError:
         # TODO: Add metric
-        return HttpResponse('Malformed to field.', 400)
+        return HttpResponse('Malformed to field.', status=400)
 
     if to_local_portion == 'noreply':
         incr_if_enabled('email_for_noreply_address', 1)
