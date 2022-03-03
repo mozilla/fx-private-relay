@@ -48,12 +48,13 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
     $arrow-height: 12px;
     display: none;
     position: absolute;
-    transform: translateX(-50%) translateY(calc(50% + #{$spacing-md}));
+    transform: translateX(-50%) translateY(calc(50% + #{$spacing-lg}));
     color: $color-black;
     background-color: $color-white;
     box-shadow: $box-shadow-sm;
     border-radius: $border-radius-sm;
     width: $content-sm;
+    padding-top: $spacing-md;
     margin-top: $arrow-height;
 
     &.is-visible {
@@ -76,7 +77,7 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
         // Overwrite the bottom margin set on <ul>s by _common.scss:
         margin: 0;
         padding: 0 $spacing-md;
-
+       
         &.is-hidden {
             display: none;
         }
@@ -108,20 +109,30 @@ header .user-area:not(.arbitrary-class) .c-whatsnew-trigger {
                 border-style: none;
                 text-align: start;
 
+                img {
+                    width: $layout-xl;
+                }
+
                 h3 {
-                    @include text-body-sm;
+                    @include text-body-md;
+                    @include font-base;
                     font-weight: 500;
-                    padding-top: $spacing-sm;
+                    margin: 0;
+                    padding: $spacing-xs 0;
                 }
 
                 p {
                     @include text-body-sm;
+                    font-weight: 400;
+                    color: $color-dark-gray-05;
+                    padding-top: $spacing-xs;
                 }
 
                 &:hover {
                     background-color: $color-violet-05;
                 }
             }
+
         }
     }
 

@@ -257,6 +257,11 @@ header {
     display: flex;
     flex-direction: row;
     align-items: center;
+    font-family: inherit;
+
+    button {
+        @include font-firefox;
+    }
 }
 
 
