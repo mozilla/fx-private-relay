@@ -1,14 +1,26 @@
 import { ReactLocalization, useLocalization } from "@fluent/react";
-import { useRef } from "react";
+import { HTMLAttributes, ReactNode, useRef } from "react";
 import {
+  FocusScope,
   mergeProps,
+  OverlayContainer,
+  useButton,
+  useDialog,
   useFocusRing,
+  useModal,
+  useOverlay,
+  useOverlayPosition,
+  useOverlayTrigger,
   useSlider,
   useSliderThumb,
   VisuallyHidden,
 } from "react-aria";
 import Link from "next/link";
-import { SliderState, useSliderState } from "react-stately";
+import {
+  SliderState,
+  useOverlayTriggerState,
+  useSliderState,
+} from "react-stately";
 import { event as gaEvent } from "react-ga";
 import styles from "./BlockLevelSlider.module.scss";
 import UmbrellaClosed from "./images/umbrella-closed.svg";
@@ -18,13 +30,14 @@ import UmbrellaSemiMobile from "../../../../../static/images/umbrella-semi-mobil
 import UmbrellaOpen from "./images/umbrella-open.svg";
 import UmbrellaOpenMobile from "../../../../../static/images/umbrella-open-mobile.svg";
 import { AliasData } from "../../../hooks/api/aliases";
-import { LockIcon } from "../../Icons";
+import { CloseIcon, LockIcon } from "../../Icons";
 
 export type BlockLevel = "none" | "promotional" | "all";
 export type Props = {
   alias: AliasData;
   onChange: (blockLevel: BlockLevel) => void;
   hasPremium: boolean;
+  premiumAvailableInCountry: boolean;
 };
 
 /**
@@ -39,7 +52,7 @@ export const BlockLevelSlider = (props: Props) => {
   const sliderSettings: Parameters<typeof useSliderState>[0] = {
     minValue: 0,
     maxValue: 100,
-    step: 50,
+    step: props.hasPremium ? 50 : 100,
     numberFormatter: numberFormatter,
     label: l10n.getString("profile-promo-email-blocking-title"),
     onChange: (value) => {
@@ -79,41 +92,6 @@ export const BlockLevelSlider = (props: Props) => {
     </>
   );
 
-  const isBlockLevelActive = (blockLevel: BlockLevel): boolean => {
-    if (
-      blockLevel === "none" &&
-      props.alias.enabled === true &&
-      props.alias.block_list_emails !== true
-    ) {
-      return true;
-    }
-    if (
-      blockLevel === "promotional" &&
-      props.alias.enabled === true &&
-      props.alias.block_list_emails === true
-    ) {
-      return true;
-    }
-    if (blockLevel === "all" && props.alias.enabled === false) {
-      return true;
-    }
-    return false;
-  };
-  const getTrackStopClassNames = (blockLevel: BlockLevel): string => {
-    const isActiveClass = isBlockLevelActive(blockLevel)
-      ? styles["is-active"]
-      : "";
-    const isSelectedClass =
-      getBlockLevelFromSliderValue(
-        sliderState.getThumbValue(onlyThumbIndex)
-      ) === blockLevel
-        ? styles["is-selected"]
-        : "";
-    const blockLevelClassName = styles[`track-stop-${blockLevel}`];
-
-    return `${styles["track-stop"]} ${blockLevelClassName} ${isActiveClass} ${isSelectedClass}`;
-  };
-
   return (
     <div
       {...groupProps}
@@ -127,19 +105,28 @@ export const BlockLevelSlider = (props: Props) => {
         </label>
         <div {...trackProps} ref={trackRef} className={styles.track}>
           <div className={styles["track-line"]} />
-          <div className={getTrackStopClassNames("none")}>
+          <div
+            className={getTrackStopClassNames(props.alias, sliderState, "none")}
+          >
             <img src={UmbrellaClosedMobile.src} alt="" />
             <p aria-hidden="true">{getLabelForBlockLevel("none", l10n)}</p>
           </div>
-          <div className={getTrackStopClassNames("promotional")}>
+          <PromotionalTrackStop
+            alias={props.alias}
+            sliderState={sliderState}
+            hasPremium={props.hasPremium}
+            premiumAvailableInCountry={props.premiumAvailableInCountry}
+          >
             <img src={UmbrellaSemiMobile.src} alt="" />
             {lockIcon}
-            <p aria-hidden="true">
+            <p>
               {getLabelForBlockLevel("promotional", l10n)}
               {premiumOnlyMarker}
             </p>
-          </div>
-          <div className={getTrackStopClassNames("all")}>
+          </PromotionalTrackStop>
+          <div
+            className={getTrackStopClassNames(props.alias, sliderState, "all")}
+          >
             <img src={UmbrellaOpenMobile.src} alt="" />
             <p aria-hidden="true">{getLabelForBlockLevel("all", l10n)}</p>
           </div>
@@ -164,7 +151,6 @@ export const BlockLevelSlider = (props: Props) => {
           level={getBlockLevelFromSliderValue(
             sliderState.getThumbValue(onlyThumbIndex)
           )}
-          hasPremium={props.hasPremium}
         />
       </output>
     </div>
@@ -212,10 +198,7 @@ const Thumb = (props: ThumbProps) => {
   );
 };
 
-const BlockLevelDescription = (props: {
-  level: BlockLevel;
-  hasPremium: boolean;
-}) => {
+const BlockLevelDescription = (props: { level: BlockLevel }) => {
   const { l10n } = useLocalization();
 
   if (props.level === "none") {
@@ -226,7 +209,7 @@ const BlockLevelDescription = (props: {
     );
   }
 
-  if (props.level === "promotional" && props.hasPremium) {
+  if (props.level === "promotional") {
     return (
       <span className={styles["value-description-content"]}>
         {l10n.getString(
@@ -234,29 +217,6 @@ const BlockLevelDescription = (props: {
         )}
         <Link href="/faq#faq-promotional-email-blocking">
           <a>{l10n.getString("banner-label-data-notification-body-cta")}</a>
-        </Link>
-      </span>
-    );
-  }
-
-  if (props.level === "promotional" && !props.hasPremium) {
-    return (
-      <span className={styles["value-description-content"]}>
-        <b className={styles["locked-message"]}>
-          <LockIcon alt="" className={styles["lock-icon"]} />
-          {l10n.getString(
-            "profile-promo-email-blocking-description-promotionals-locked-label"
-          )}
-        </b>
-        {l10n.getString(
-          "profile-promo-email-blocking-description-promotionals"
-        )}
-        <Link href="/premium/">
-          <a>
-            {l10n.getString(
-              "profile-promo-email-blocking-description-promotionals-locked-cta"
-            )}
-          </a>
         </Link>
       </span>
     );
@@ -280,6 +240,173 @@ const BlockLevelIllustration = (props: { level: BlockLevel }) => {
   }
 
   return <img src={UmbrellaOpen.src} height={UmbrellaOpen.height} alt="" />;
+};
+
+type PromotionalTrackStopProps = {
+  alias: AliasData;
+  sliderState: SliderState;
+  hasPremium: boolean;
+  premiumAvailableInCountry: boolean;
+  children: ReactNode;
+};
+/**
+ * This is a regular track stop for Premium users, but turns into a tooltip
+ * trigger for non-Premium users.
+ */
+const PromotionalTrackStop = (props: PromotionalTrackStopProps) => {
+  const overlayTriggerState = useOverlayTriggerState({});
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  const { triggerProps, overlayProps } = useOverlayTrigger(
+    {
+      type: "dialog",
+    },
+    overlayTriggerState,
+    triggerRef
+  );
+  const { buttonProps } = useButton(
+    { onPress: () => overlayTriggerState.open() },
+    triggerRef
+  );
+
+  if (!props.hasPremium) {
+    return (
+      <span className={styles.wrapper}>
+        <button
+          {...buttonProps}
+          {...triggerProps}
+          ref={triggerRef}
+          type="button"
+          className={`${styles["track-stop"]} ${
+            styles["track-stop-promotional"]
+          } ${overlayTriggerState.isOpen ? styles["is-selected"] : ""}`}
+        >
+          {props.children}
+        </button>
+        {overlayTriggerState.isOpen && (
+          <OverlayContainer>
+            <PromotionalTooltip
+              onClose={overlayTriggerState.close}
+              triggerRef={triggerRef}
+              overlayProps={overlayProps}
+              premiumAvailableInCountry={props.premiumAvailableInCountry}
+            />
+          </OverlayContainer>
+        )}
+      </span>
+    );
+  }
+
+  return (
+    <div
+      className={getTrackStopClassNames(
+        props.alias,
+        props.sliderState,
+        "promotional"
+      )}
+    >
+      {props.children}
+    </div>
+  );
+};
+
+type PromotionalTooltipProps = {
+  onClose: () => void;
+  triggerRef: React.RefObject<HTMLButtonElement>;
+  overlayProps: HTMLAttributes<HTMLDivElement>;
+  premiumAvailableInCountry: boolean;
+};
+const PromotionalTooltip = (props: PromotionalTooltipProps) => {
+  const { l10n } = useLocalization();
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const { overlayProps, underlayProps } = useOverlay(
+    { isOpen: true, onClose: props.onClose, isDismissable: true },
+    overlayRef
+  );
+
+  const { modalProps } = useModal();
+
+  const { dialogProps, titleProps } = useDialog({}, overlayRef);
+
+  const overlayPositionProps = useOverlayPosition({
+    targetRef: props.triggerRef,
+    overlayRef: overlayRef,
+    placement: "bottom left",
+    offset: 60,
+  }).overlayProps;
+
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonProps = useButton(
+    {
+      onPress: () => props.onClose(),
+    },
+    closeButtonRef
+  ).buttonProps;
+
+  const link = props.premiumAvailableInCountry ? (
+    <Link href="/premium/">
+      <a>
+        {l10n.getString(
+          "profile-promo-email-blocking-description-promotionals-locked-cta"
+        )}
+      </a>
+    </Link>
+  ) : (
+    <Link href="/premium/waitlist">
+      <a>
+        {l10n.getString(
+          "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta"
+        )}
+      </a>
+    </Link>
+  );
+
+  return (
+    <div {...underlayProps} className={styles["upgrade-tooltip-underlay"]}>
+      <FocusScope restoreFocus contain autoFocus>
+        <div
+          {...mergeProps(
+            overlayProps,
+            dialogProps,
+            props.overlayProps,
+            overlayPositionProps,
+            modalProps
+          )}
+          ref={overlayRef}
+          className={styles["upgrade-tooltip"]}
+        >
+          <img
+            className={styles["promotionals-blocking-icon"]}
+            src={UmbrellaSemi.src}
+            alt=""
+          />
+          <span className={styles["upgrade-message"]}>
+            <b className={styles["locked-message"]} {...titleProps}>
+              <LockIcon alt="" className={styles["lock-icon"]} />
+              {l10n.getString(
+                "profile-promo-email-blocking-description-promotionals-locked-label"
+              )}
+            </b>
+            {l10n.getString(
+              "profile-promo-email-blocking-description-promotionals"
+            )}
+            {link}
+          </span>
+          <button
+            {...closeButtonProps}
+            ref={closeButtonRef}
+            className={styles["close-button"]}
+          >
+            <CloseIcon
+              alt={l10n.getString(
+                "profile-promo-email-blocking-description-promotionals-locked-close"
+              )}
+            />
+          </button>
+        </div>
+      </FocusScope>
+    </div>
+  );
 };
 
 function getSliderValueForAlias(alias: AliasData): number {
@@ -362,3 +489,44 @@ function getBlockLevelGaEventLabel(blockLevel: BlockLevel): string {
       return "User disabled forwarding";
   }
 }
+
+const isBlockLevelActive = (
+  alias: AliasData,
+  blockLevel: BlockLevel
+): boolean => {
+  if (
+    blockLevel === "none" &&
+    alias.enabled === true &&
+    alias.block_list_emails !== true
+  ) {
+    return true;
+  }
+  if (
+    blockLevel === "promotional" &&
+    alias.enabled === true &&
+    alias.block_list_emails === true
+  ) {
+    return true;
+  }
+  if (blockLevel === "all" && alias.enabled === false) {
+    return true;
+  }
+  return false;
+};
+const getTrackStopClassNames = (
+  alias: AliasData,
+  sliderState: SliderState,
+  blockLevel: BlockLevel
+): string => {
+  const isActiveClass = isBlockLevelActive(alias, blockLevel)
+    ? styles["is-active"]
+    : "";
+  const isSelectedClass =
+    getBlockLevelFromSliderValue(sliderState.getThumbValue(onlyThumbIndex)) ===
+    blockLevel
+      ? styles["is-selected"]
+      : "";
+  const blockLevelClassName = styles[`track-stop-${blockLevel}`];
+
+  return `${styles["track-stop"]} ${blockLevelClassName} ${isActiveClass} ${isSelectedClass}`;
+};

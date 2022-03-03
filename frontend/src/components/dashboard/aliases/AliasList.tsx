@@ -97,6 +97,7 @@ export const AliasList = (props: Props) => {
           onDelete={() => props.onDelete(alias)}
           defaultOpen={!isExistingAlias}
           showLabelEditor={props.profile.server_storage || localLabels !== null}
+          runtimeData={props.runtimeData}
         />
       </li>
     );

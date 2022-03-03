@@ -21,6 +21,7 @@ import { AliasDeletionButton } from "./AliasDeletionButton";
 import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
 
 export type Props = {
   alias: AliasData;
@@ -30,6 +31,7 @@ export type Props = {
   onDelete: () => void;
   defaultOpen?: boolean;
   showLabelEditor?: boolean;
+  runtimeData?: RuntimeData;
 };
 
 /**
@@ -207,6 +209,10 @@ export const Alias = (props: Props) => {
             alias={props.alias}
             onChange={setBlockLevel}
             hasPremium={props.profile.has_premium}
+            premiumAvailableInCountry={
+              props.runtimeData?.PREMIUM_PLANS.premium_available_in_country ??
+              false
+            }
           />
         </div>
         <div className={styles.row}>
