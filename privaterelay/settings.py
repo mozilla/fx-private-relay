@@ -81,7 +81,13 @@ CSP_SCRIPT_SRC = (
     "'self'",
     'https://www.google-analytics.com/',
 )
+if settings.DEBUG:
+    CSP_SCRIPT_SRC += ("'unsafe-inline'",)
+
 CSP_STYLE_SRC = ("'self'",)
+if settings.DEBUG:
+    CSP_STYLE_SRC += ("'unsafe-inline'",)
+
 CSP_IMG_SRC = ["'self'"] + AVATAR_IMG_SRC
 REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
@@ -159,6 +165,7 @@ if DEBUG:
     INSTALLED_APPS += [
         'debug_toolbar',
         'drf_yasg',
+#        'silk',
     ]
 
 if ADMIN_ENABLED:
@@ -189,6 +196,7 @@ MIDDLEWARE = _get_initial_middleware()
 
 if DEBUG:
     MIDDLEWARE += [
+#        'silk.middleware.SilkyMiddleware',
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     ]
 
