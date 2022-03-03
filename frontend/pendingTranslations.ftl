@@ -28,6 +28,8 @@ multi-part-onboarding-premium-chrome-extension-get-description-2 = The { -brand-
 profile-promo-email-blocking-option-promotionals-premiumonly-marker = ({ -brand-name-premium } only)
 profile-promo-email-blocking-description-promotionals-locked-label = Available to { -brand-name-relay-premium } subscribers
 profile-promo-email-blocking-description-promotionals-locked-cta = Upgrade now
+profile-promo-email-blocking-description-promotionals-locked-waitlist-cta = Join the { -brand-name-relay-premium } wait list
+profile-promo-email-blocking-description-promotionals-locked-close = Close
 
 popover-custom-alias-explainer-promotional-block-tooltip-trigger = More info
 
