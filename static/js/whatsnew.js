@@ -6,6 +6,7 @@
   const footer = document.querySelector(".js-whatsnew-footer");
   const backButton = footer.querySelector("button");
   const profileId = popup.dataset.profileId;
+  const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
 
   enableEntry("size-limit");
   if (popup.dataset.hasPremium === "True") {
@@ -14,7 +15,8 @@
   // Wait until the add-on has initialised:
   setTimeout(() => {
     const isAddonPresent = document.querySelector("firefox-private-relay-addon")?.dataset.addonInstalled === "true";
-    if (isAddonPresent) {
+    // Only show sign-back in news item if the user is in Firefox AND has the add-on installed
+    if (isAddonPresent && browserIsFirefox) {
       enableEntry("sign-back-in")
     }
   }, 500)
