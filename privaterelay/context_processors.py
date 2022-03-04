@@ -44,8 +44,7 @@ def common(request):
 @lru_cache(maxsize=None)
 def _get_fxa(request):
     try:
-        fxa = request.user.socialaccount_set.filter(provider='fxa').first()
-        return fxa
+        return request.fxa_account
     except AttributeError:
         return None
 

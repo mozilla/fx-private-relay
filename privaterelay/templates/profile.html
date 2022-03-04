@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 
-{% load socialaccount %}
 {% load static %}
 {% load relay_tags %}
 {% load ftl %}
@@ -15,7 +14,6 @@
 
 {% block content %}
 
-{% get_social_accounts request.user as accounts %}
 <firefox-private-relay-addon-data 
   data-fxa-subscriptions-url="{{ settings.FXA_SUBSCRIPTIONS_URL }}" 
   data-premium-prod-id="{{ settings.PREMIUM_PROD_ID }}" 
@@ -23,9 +21,7 @@
   data-aliases-used-val="{{ user_profile.num_active_address }}"
   data-emails-forwarded-val="{{ user_profile.emails_forwarded }}"
   data-emails-blocked-val="{{ user_profile.emails_blocked }}"
-  {% with request.user.profile_set.first as user_profile %}
-    data-premium-subdomain-set="{{ user_profile.subdomain }}"
-  {% endwith %}
+  data-premium-subdomain-set="{{ user_profile.subdomain }}"
 {# TODO: Remove the `premium-enabled` attribute once https://github.com/mozilla/fx-private-relay-add-on/pull/246 has been merged/deployed   #}
   data-premium-enabled="True"
 >
@@ -36,7 +32,7 @@
     class="
     bg-light dashboard-container
     {% if user_profile.server_storage %} js-server-storage-enabled {% endif %}
-    {% if user_profile.has_premium and user_profile.onboarding_state < settings.MAX_ONBOARDING_AVAILABLE %} is-premium-onboarding {% endif %}
+    {% if user_has_premium and user_profile.onboarding_state < settings.MAX_ONBOARDING_AVAILABLE %} is-premium-onboarding {% endif %}
     "
     data-api-token="{{ user_profile.api_token }}"
     data-onboarding-state="{{ user_profile.onboarding_state }}"
@@ -51,7 +47,7 @@
   
   {% include "includes/premium-onboarding.html" %}
   
-  {% if user_profile.has_premium and user_profile.num_active_address > 0 %}
+  {% if user_has_premium and user_profile.num_active_address > 0 %}
   <div class="mpp-dashbaord-header">
     <div class="mpp-dashbaord-header-container inset">
       <div class="mpp-dashbaord-header-title">
@@ -96,7 +92,7 @@
    
 
     <div class="alias-list">
-      {% if not user_profile.has_premium %}
+      {% if not user_has_premium %}
       <div class="dashboard-greeting">
         <span class="dashboard-greeting-message">{% ftlmsg 'profile-label-welcome-html' email=request.user.email %}
       </div>
@@ -106,11 +102,9 @@
       {% include "includes/banners/announcement-banner.html" %}
       
       <!-- Register Subdomain Banner -->
-      {% with request.user.profile_set.first as user_profile %}
-      {% if user_profile.has_premium and not user_profile.subdomain %}
+      {% if user_has_premium and not user_profile.subdomain %}
         {% include "includes/banners/subdomain-banner.html" %}
       {% endif %}
-      {% endwith %}
   
       <!-- Upgrade, Firefox and Add On Banners -->
       {% if relay_addresses|length > 0 %}
