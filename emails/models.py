@@ -1,6 +1,6 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
-from functools import lru_cache
+from django.utils.functional import cached_property
 from hashlib import sha256
 import logging
 import random
@@ -122,6 +122,10 @@ class Profile(models.Model):
         if self.subdomain and not self.subdomain.islower():
             self.subdomain = self.subdomain.lower()
         ret = super().save(*args, **kwargs)
+        try:
+            del self.has_premium # clear the cached value
+        except AttributeError:
+            pass # the cached value hasn't been accessed
         # any time a profile is saved with server_storage False, delete the
         # appropriate server-stored Relay address data.
         if not self.server_storage:
@@ -252,8 +256,7 @@ class Profile(models.Model):
     def custom_domain(self):
         return f'@{self.subdomain}.{settings.MOZMAIL_DOMAIN}'
 
-    @property
-    @lru_cache(maxsize=None)
+    @cached_property
     def has_premium(self):
         # FIXME: as we don't have all the tiers defined we are over-defining
         # this to mark the user as a premium user as well
