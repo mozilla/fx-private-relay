@@ -131,6 +131,7 @@ SERVE_ADDON = config('SERVE_ADDON', None)
 # Application definition
 INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
+    'django_gulp',
     'django.contrib.staticfiles',
 
     'django.contrib.auth',
@@ -138,8 +139,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.sites',
-
-    'django_gulp',
 
     'django_ftl.apps.DjangoFtlConfig',
 
