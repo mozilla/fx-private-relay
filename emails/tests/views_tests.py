@@ -75,7 +75,7 @@ class SNSNotificationTest(TestCase):
         self.premium_profile.save()
 
         patcher = patch('emails.views.remove_message_from_s3')
-        patcher.start()
+        self.mock_remove_message_from_s3 = self.patcher.start()
         self.addCleanup(patcher.stop)
 
 
