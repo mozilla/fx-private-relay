@@ -75,9 +75,9 @@ class SNSNotificationTest(TestCase):
         self.premium_profile.subdomain = 'subdomain'
         self.premium_profile.save()
 
-        patcher = patch('emails.views.remove_message_from_s3')
+        self.patcher = patch('emails.views.remove_message_from_s3')
         self.mock_remove_message_from_s3 = self.patcher.start()
-        self.addCleanup(patcher.stop)
+        self.addCleanup(self.patcher.stop)
 
 
     @patch('emails.views.ses_relay_email')
@@ -160,35 +160,27 @@ class SNSNotificationTest(TestCase):
         assert da.num_forwarded == 1
         assert da.last_used_at.date() == datetime.today().date()
 
-    @patch('emails.views.remove_message_from_s3')
     @patch('emails.views.ses_relay_email')
-    def test_successful_email_relay_message_removed_from_s3(
-        self, mock_ses_relay_email, mock_remove_message_from_s3
-    ):
+    def test_successful_email_relay_message_removed_from_s3(self, mock_ses_relay_email):
         mock_ses_relay_email.return_value = HttpResponse(
             "Relayed email", status=200
         )
         _sns_notification(EMAIL_SNS_BODIES['single_recipient'])
 
         mock_ses_relay_email.assert_called_once()
-        mock_remove_message_from_s3.assert_called_once()
+        self.mock_remove_message_from_s3.assert_called_once()
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert self.ra.last_used_at.date() == datetime.today().date()
 
-    @patch('emails.views.remove_message_from_s3')
     @patch('emails.views.ses_relay_email')
-    def test_unsuccessful_email_relay_message_not_removed_from_s3(
-        self, mock_ses_relay_email, mock_remove_message_from_s3
-    ):
-        mock_ses_relay_email.return_value = HttpResponse(
-            "Failed to relay email", status=500
-        )
+    def test_unsuccessful_email_relay_message_not_removed_from_s3(self, mock_ses_relay_email):
+        mock_ses_relay_email.return_value = HttpResponse("Failed to relay email", status=500)
         _sns_notification(EMAIL_SNS_BODIES['single_recipient'])
 
         mock_ses_relay_email.assert_called_once()
-        mock_remove_message_from_s3.assert_not_called()
+        self.mock_remove_message_from_s3.assert_not_called()
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
