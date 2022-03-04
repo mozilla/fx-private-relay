@@ -13,13 +13,13 @@
   <ul class="js-whatsnew-list c-whatsnew-list">
     <li class="js-whatsnew-listitem-size-limit">
       <button class="c-whatsnew-entry">
-        <img src={% static 'images/whatsnew/size-limit-icon.svg' %} alt="">
+        <img src={% static 'images/whatsnew/size-limit-icon-10mb.svg' %} alt="">
         <div class="c-whatsnew-entry-content">
           <h3>
             {% ftlmsg 'whatsnew-feature-size-limit-heading' %}
           </h3>
           <p>
-            {% ftlmsg 'whatsnew-feature-size-limit-snippet' %}
+            {% ftlmsg 'whatsnew-feature-size-limit-snippet-var' size='10' unit='MB' %}
           </p>
         </div>
       </button>
@@ -53,12 +53,12 @@
   </ul>
   <div class="c-whatsnew-content-wrapper">
     <div class="js-whatsnew-content-size-limit js-whatsnew-content c-whatsnew-content">
-      <img src={% static 'images/whatsnew/size-limit-hero.svg' %} alt="">
+      <img src={% static 'images/whatsnew/size-limit-hero-10mb.svg' %} alt="">
       <h2>
         {% ftlmsg 'whatsnew-feature-size-limit-heading' %}
       </h2>
       <p>
-        {% ftlmsg 'whatsnew-feature-size-limit-description' %}
+        {% ftlmsg 'whatsnew-feature-size-limit-description-var' size='10' unit='MB' %}
       </p>
     </div>
     <div class="js-whatsnew-content-sign-back-in js-whatsnew-content c-whatsnew-content">
