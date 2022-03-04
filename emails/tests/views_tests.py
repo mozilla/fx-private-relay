@@ -12,6 +12,7 @@ from django.http import HttpResponse
 from django.test import override_settings, TestCase
 
 from allauth.socialaccount.models import SocialAccount
+from botocore.exceptions import ClientError
 from model_bakery import baker
 
 from emails.models import (
@@ -73,9 +74,16 @@ class SNSNotificationTest(TestCase):
         self.premium_profile.subdomain = 'subdomain'
         self.premium_profile.save()
 
+        self.patcher = patch('emails.views.remove_message_from_s3')
+        self.mock_remove_message_from_s3 = self.patcher.start()
+        self.addCleanup(self.patcher.stop)
+
 
     @patch('emails.views.ses_relay_email')
     def test_single_recipient_sns_notification(self, mock_ses_relay_email):
+        mock_ses_relay_email.return_value = HttpResponse(
+            "Successfully relayed emails", status=200
+        )
         _sns_notification(EMAIL_SNS_BODIES['single_recipient'])
 
         mock_ses_relay_email.assert_called_once()
@@ -86,6 +94,9 @@ class SNSNotificationTest(TestCase):
 
     @patch('emails.views.ses_relay_email')
     def test_list_email_sns_notification(self, mock_ses_relay_email):
+        mock_ses_relay_email.return_value = HttpResponse(
+            "Successfully relayed emails", status=200
+        )
         # by default, list emails should still forward
         _sns_notification(EMAIL_SNS_BODIES['single_recipient_list'])
 
@@ -113,6 +124,9 @@ class SNSNotificationTest(TestCase):
 
     @patch('emails.views.ses_relay_email')
     def test_spamVerdict_FAIL_default_still_relays(self, mock_ses_relay_email):
+        mock_ses_relay_email.return_value = HttpResponse(
+            "Successfully relayed emails", status=200
+        )
         # for a default user, spam email will still relay
         _sns_notification(EMAIL_SNS_BODIES['spamVerdict_FAIL'])
 
@@ -134,6 +148,9 @@ class SNSNotificationTest(TestCase):
 
     @patch('emails.views.ses_relay_email')
     def test_domain_recipient(self, mock_ses_relay_email):
+        mock_ses_relay_email.return_value = HttpResponse(
+            "Successfully relayed emails", status=200
+        )
         _sns_notification(EMAIL_SNS_BODIES['domain_recipient'])
 
         mock_ses_relay_email.assert_called_once()
@@ -142,6 +159,32 @@ class SNSNotificationTest(TestCase):
         )
         assert da.num_forwarded == 1
         assert da.last_used_at.date() == datetime.today().date()
+
+    @patch('emails.views.ses_relay_email')
+    def test_successful_email_relay_message_removed_from_s3(self, mock_ses_relay_email):
+        mock_ses_relay_email.return_value = HttpResponse(
+            "Relayed email", status=200
+        )
+        _sns_notification(EMAIL_SNS_BODIES['single_recipient'])
+
+        mock_ses_relay_email.assert_called_once()
+        self.mock_remove_message_from_s3.assert_called_once()
+
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at.date() == datetime.today().date()
+
+    @patch('emails.views.ses_relay_email')
+    def test_unsuccessful_email_relay_message_not_removed_from_s3(self, mock_ses_relay_email):
+        mock_ses_relay_email.return_value = HttpResponse("Failed to relay email", status=500)
+        _sns_notification(EMAIL_SNS_BODIES['single_recipient'])
+
+        mock_ses_relay_email.assert_called_once()
+        self.mock_remove_message_from_s3.assert_not_called()
+
+        self.ra.refresh_from_db()
+        assert self.ra.num_forwarded == 1
+        assert self.ra.last_used_at.date() == datetime.today().date()
 
 
 class BounceHandlingTest(TestCase):
@@ -172,14 +215,14 @@ class BounceHandlingTest(TestCase):
         assert profile.auto_block_spam == True
 
 
-class SnsMessageGetAddressErrorTest(TestCase):
+class SNSNotificationRemoveEmailsInS3Test(TestCase):
     def setUp(self) -> None:
         self.bucket = 'test-bucket'
         self.key = '/emails/objectkey123'
 
-        patcher = patch('emails.views._get_address', side_effect=ObjectDoesNotExist())
-        patcher.start()
-        self.addCleanup(patcher.stop)
+        self.patcher = patch('emails.views._get_address', side_effect=ObjectDoesNotExist())
+        self.patcher.start()
+        self.addCleanup(self.patcher.stop)
 
     @patch('emails.views.remove_message_from_s3')
     @patch('emails.views._handle_reply')
@@ -188,12 +231,11 @@ class SnsMessageGetAddressErrorTest(TestCase):
         mocked_message_removed
     ):
         expected_status_code = 200
-        replies_message_json = json.loads(EMAIL_SNS_BODIES['s3_stored_replies']['Message'])
         mocked_handle_reply.return_value = HttpResponse(
             "Email Relayed", status=expected_status_code
         )
 
-        response = _sns_message(replies_message_json)
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored_replies'])
         mocked_handle_reply.assert_called_once()
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == expected_status_code
@@ -205,14 +247,13 @@ class SnsMessageGetAddressErrorTest(TestCase):
         mocked_message_removed
     ):
         expected_status_code = 200
-        message_json = json.loads(EMAIL_SNS_BODIES['replies']['Message'])
         mocked_handle_reply.return_value = HttpResponse(
             "Email Relayed", status=expected_status_code
         )
 
-        response = _sns_message(message_json)
+        response = _sns_notification(EMAIL_SNS_BODIES['replies'])
         mocked_handle_reply.assert_called_once()
-        mocked_message_removed.assert_not_called()
+        mocked_message_removed.assert_called_once_with(None, None)
         assert response.status_code == expected_status_code
 
     @patch('emails.views.remove_message_from_s3')
@@ -223,24 +264,21 @@ class SnsMessageGetAddressErrorTest(TestCase):
     ):
         # SES Client Error caught in _handle_reply responds with 503
         expected_status_code = 503
-        replies_message_json = json.loads(EMAIL_SNS_BODIES['s3_stored_replies']['Message'])
         mocked_handle_reply.return_value = HttpResponse(
             "SES Client Error", status=expected_status_code
         )
 
-        response = _sns_message(replies_message_json)
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored_replies'])
         mocked_handle_reply.assert_called_once()
-        mocked_message_removed.assert_not_called
+        mocked_message_removed.assert_not_called()
         assert response.status_code == expected_status_code
 
     @patch('emails.views.remove_message_from_s3')
     def test_address_does_not_exist_email_not_in_s3_deleted_ignored(
         self, mocked_message_removed
     ):
-        message_json = json.loads(EMAIL_SNS_BODIES['domain_recipient']['Message'])
-
-        response = _sns_message(message_json)
-        mocked_message_removed.assert_not_called()
+        response = _sns_notification(EMAIL_SNS_BODIES['domain_recipient'])
+        mocked_message_removed.assert_called_once_with(None, None)
         assert response.status_code == 404
         assert response.content == b'Address does not exist'
 
@@ -248,23 +286,199 @@ class SnsMessageGetAddressErrorTest(TestCase):
     def test_address_does_not_exist_email_in_s3_deleted(
         self, mocked_message_removed
     ):
-        message_json = json.loads(EMAIL_SNS_BODIES['s3_stored']['Message'])
-
-        response = _sns_message(message_json)
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 404
         assert response.content == b'Address does not exist'
 
     @patch('emails.views.remove_message_from_s3')
-    def test_email_not_relayed_returns_503(
+    def test_bounce_notification_not_in_s3_deleted_ignored(
         self, mocked_message_removed
     ):
-        message_json = json.loads(EMAIL_SNS_BODIES['s3_stored']['Message'])
+        response = _sns_notification(BOUNCE_SNS_BODIES['soft'])
+        mocked_message_removed.assert_called_once_with(None, None)
+        assert response.status_code == 404
+        assert response.content == b'Address does not exist'
 
-        response = _sns_message(message_json)
+    @patch('emails.views.remove_message_from_s3')
+    def test_email_without_commonheaders_in_s3_deleted(
+        self, mocked_message_removed
+    ):
+        message_wo_commonheaders = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
+            'commonHeaders', 'invalidHeaders'
+        )
+        notification_wo_commonheaders = EMAIL_SNS_BODIES['s3_stored'].copy()
+        notification_wo_commonheaders['Message'] = message_wo_commonheaders
+        response = _sns_notification(notification_wo_commonheaders)
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 400
+        assert response.content == b'Received SNS notification without commonHeaders.'
+
+    @patch('emails.views.remove_message_from_s3')
+    def test_email_to_non_relay_domain_in_s3_deleted(
+        self, mocked_message_removed
+    ):
+        message_w_non_relay_as_recipient = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
+            'sender@test.com', 'to@not-relay.com'
+        )
+        notification_w_non_relay_domain = EMAIL_SNS_BODIES['s3_stored'].copy()
+        notification_w_non_relay_domain['Message'] = message_w_non_relay_as_recipient
+        response = _sns_notification(notification_w_non_relay_domain)
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 404
         assert response.content == b'Address does not exist'
+
+    @patch('emails.views.remove_message_from_s3')
+    def test_malformed_to_field_email_in_s3_deleted(
+        self, mocked_message_removed
+    ):
+        message_w_malformed_to_field = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
+            'sender@test.com', 'not-relay-test.com'
+        )
+        notification_w_malformed_to_field = EMAIL_SNS_BODIES['s3_stored'].copy()
+        notification_w_malformed_to_field['Message'] = message_w_malformed_to_field
+        response = _sns_notification(notification_w_malformed_to_field)
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 400
+        assert response.content == b'Malformed to field.'
+
+    @patch('emails.views.remove_message_from_s3')
+    def test_noreply_email_in_s3_deleted(
+        self, mocked_message_removed
+    ):
+        message_w_email_to_noreply = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
+            'sender@test.com', 'noreply@default.com'
+        )
+        notification_w_email_to_noreply = EMAIL_SNS_BODIES['s3_stored'].copy()
+        notification_w_email_to_noreply['Message'] = message_w_email_to_noreply
+        response = _sns_notification(notification_w_email_to_noreply)
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b'noreply address is not supported.'
+
+
+class SNSNotificationValidUserEmailsInS3Test(TestCase):
+    def setUp(self) -> None:
+        self.bucket = 'test-bucket'
+        self.key = '/emails/objectkey123'
+        self.user = baker.make(
+            User, email='sender@test.com', make_m2m=True
+        )
+        self.profile = self.user.profile_set.first()
+        self.address = baker.make(
+            RelayAddress, user=self.user, address='sender', domain=2
+        )
+
+    @patch('emails.views.remove_message_from_s3')
+    def test_auto_block_spam_true_email_in_s3_deleted(
+        self, mocked_message_removed
+    ):
+        self.profile.auto_block_spam = True
+        self.profile.save()
+        message_spamverdict_failed = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
+            '"spamVerdict":{"status":"PASS"}', '"spamVerdict":{"status":"FAIL"}'
+        )
+        notification_w_spamverdict_failed = EMAIL_SNS_BODIES['s3_stored'].copy()
+        notification_w_spamverdict_failed['Message'] = message_spamverdict_failed
+
+        response = _sns_notification(notification_w_spamverdict_failed)
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b'Address rejects spam.'
+
+    @patch('emails.views.remove_message_from_s3')
+    def test_user_bounce_paused_email_in_s3_deleted(
+        self, mocked_message_removed
+    ):
+        self.profile.last_soft_bounce = datetime.now(timezone.utc)
+        self.profile.save()
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b'Address is temporarily disabled.'
+
+    @patch('emails.views._reply_allowed')
+    @patch('emails.views._get_reply_record_from_lookup_key')
+    @patch('emails.views.remove_message_from_s3')
+    def test_reply_not_allowed_email_in_s3_deleted(
+        self, mocked_message_removed, mocked_reply_record, mocked_reply_allowed,
+    ):
+        # external user sending a reply to Relay user
+        # where the replies were being exchanged but now the user
+        # no longer has the premium subscription
+        mocked_reply_allowed.return_value = False
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 403
+        assert response.content == b'Relay replies require a premium account'
+
+    @patch('emails.views.remove_message_from_s3')
+    def test_relay_address_disabled_email_in_s3_deleted(
+        self, mocked_message_removed
+    ):
+        self.address.enabled = False
+        self.address.save()
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b'Address is temporarily disabled.'
+
+    @patch('emails.views._check_email_from_list')
+    @patch('emails.views.remove_message_from_s3')
+    def test_blocked_list_email_in_s3_deleted(
+        self, mocked_message_removed, mocked_email_is_from_list
+    ):
+        self.address.block_list_emails = True
+        self.address.save()
+        mocked_email_is_from_list.return_value = True
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b'Address is not accepting list emails.'
+
+    @patch('emails.views._get_text_html_attachments')
+    @patch('emails.views.remove_message_from_s3')
+    def test_get_text_hteml_s3_client_error_email_in_s3_not_deleted(
+        self, mocked_message_removed, mocked_get_text_html,
+    ):
+        mocked_get_text_html.side_effect = ClientError({'Error': {'error': 'message'}}, '')
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.assert_not_called()
+        assert response.status_code == 503
+        assert response.content == b'Cannot fetch the message content from S3'
+
+    @patch('emails.views.ses_relay_email')
+    @patch('emails.views._get_text_html_attachments')
+    @patch('emails.views.remove_message_from_s3')
+    def test_ses_client_error_email_in_s3_not_deleted(
+        self, mocked_message_removed, mocked_get_text_html, mocked_relay_email,
+    ):
+        mocked_get_text_html.return_value = ('text_content', None, ['attachments'])
+        mocked_relay_email.return_value = HttpResponse('SES client failed', status=503)
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.assert_not_called()
+        assert response.status_code == 503
+        assert response.content == b'SES client failed'
+
+    @patch('emails.views.ses_relay_email')
+    @patch('emails.views._get_text_html_attachments')
+    @patch('emails.views.remove_message_from_s3')
+    def test_successful_email_in_s3_deleted(
+        self, mocked_message_removed, mocked_get_text_html, mocked_relay_email,
+    ):
+        mocked_get_text_html.return_value = ('text_content', None, ['attachments'])
+        mocked_relay_email.return_value = HttpResponse('Email relayed', status=200)
+
+        response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
+        mocked_message_removed.called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b'Email relayed'
 
 
 class SnsMessageTest(TestCase):
@@ -297,18 +511,16 @@ class SnsMessageTest(TestCase):
         response = _sns_message(message_json)
         mocked_ses_relay_email.assert_called_once()
         assert response.status_code == 503
-    
-    @patch('emails.views.remove_message_from_s3')
+
     @patch('emails.views.ses_relay_email')
     def test_ses_relay_email_email_relayed_email_deleted_from_s3(
-        self, mocked_ses_relay_email, mocked_message_removed
+        self, mocked_ses_relay_email
     ):
         message_json = json.loads(EMAIL_SNS_BODIES['s3_stored']['Message'])
         mocked_ses_relay_email.return_value = HttpResponse(status=200)
 
         response = _sns_message(message_json)
         mocked_ses_relay_email.assert_called_once()
-        mocked_message_removed.assert_called_once()
         assert response.status_code == 200
 
 
