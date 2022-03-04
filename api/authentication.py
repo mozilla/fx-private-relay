@@ -1,5 +1,7 @@
 from datetime import datetime
+import json
 import logging
+import shlex
 
 import requests
 
@@ -35,15 +37,17 @@ class FxaTokenAuthentication(BaseAuthentication):
             fxa_resp = requests.post(
                 introspect_token_url, json={'token': token}
             )
+            fxa_resp_data = {'status_code': fxa_resp.status_code, 'json': None}
             try:
-                fxa_resp_json = fxa_resp.json()
-            except requests.exceptions.JSONDecodeError:
-                logger.error('JSONDecodeError from FXA introspect response.')
+                fxa_resp_data['json'] = fxa_resp.json()
+            except json.JSONDecodeError:
+                # TODO: change to requests.exceptions.JSONDecodeError with requests 2.27.0
+                logger.error(
+                    'JSONDecodeError from FXA introspect response.',
+                    extra = {'fxa_response': shlex.quote(fxa_resp.text)}
+                )
                 cache.set(cache_key, fxa_resp_data, 60)
                 return None
-            fxa_resp_data = {
-                'status_code': fxa_resp.status_code, 'json': fxa_resp_json
-            }
 
         if not fxa_resp_data.get('status_code') == 200:
             # cache anything besides 200 for 60s - it might be an error

@@ -1,7 +1,6 @@
 from datetime import datetime
 
 from model_bakery import baker
-import pytest
 import responses
 
 from django.core.cache import cache
@@ -55,7 +54,6 @@ class FxaTokenAuthenticationTest(TestCase):
         assert self.auth.authenticate(self.auth, get_addresses_req) is None
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
-    @pytest.mark.xfail(reason="json.decoder.JSONDecodeError is in requests 2.27.0")
     @responses.activate()
     def test_non_200_non_json_resp_from_fxa_returns_none_and_caches(self):
         responses.add(
