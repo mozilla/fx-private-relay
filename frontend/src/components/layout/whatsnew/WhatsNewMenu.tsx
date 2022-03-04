@@ -35,6 +35,7 @@ import {
 import { ProfileData } from "../../../hooks/api/profile";
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import { useAddonData } from "../../../hooks/addon";
+import { isUsingFirefox } from "../../../functions/userAgent";
 
 export type WhatsNewEntry = {
   title: string;
@@ -140,7 +141,7 @@ export const WhatsNewMenu = (props: Props) => {
       day: 1,
     },
   };
-  if (addonData.present) {
+  if (addonData.present && isUsingFirefox()) {
     entries.push(signBackInEntry);
   }
 
