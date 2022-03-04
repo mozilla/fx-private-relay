@@ -337,6 +337,7 @@ const Profile: NextPage = () => {
         // TODO: Make it look for this custom element instead.
         id="profile-main"
         data-api-token={profile.api_token}
+        data-has-premium={profile.has_premium}
         data-fxa-subscriptions-url={`${runtimeData.data.FXA_ORIGIN}/subscriptions`}
         data-premium-prod-id={runtimeData.data.PREMIUM_PRODUCT_ID}
         data-premium-price-id={
