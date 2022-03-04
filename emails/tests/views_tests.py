@@ -95,7 +95,6 @@ class SNSNotificationTest(TestCase):
 
     @patch('emails.views.ses_relay_email')
     def test_list_email_sns_notification(self, mock_ses_relay_email):
-        expected_status_code = 200
         mock_ses_relay_email.return_value = HttpResponse(
             "Successfully relayed emails", status=200
         )
