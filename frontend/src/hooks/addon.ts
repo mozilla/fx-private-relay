@@ -31,9 +31,13 @@ export type AddonData = Partial<{
    * are contained in this property, if available.
    */
   localLabels: LocalLabel[];
-}>;
+}> & {
+  sendEvent: (type: string, data: object) => void;
+};
 
-const defaultAddonData: AddonData = {};
+const defaultAddonData: AddonData = {
+  sendEvent: () => undefined,
+};
 
 function useMutationObserver(
   elementRef: RefObject<HTMLElement>,
@@ -66,7 +70,10 @@ function useMutationObserver(
  * be strings, the parsers in this object describe how to turn those
  * strings into actual data structures:
  */
-const attributeParsers: Record<string, (addonElement: Element) => AddonData> = {
+const attributeParsers: Record<
+  string,
+  (addonElement: Element) => Partial<AddonData>
+> = {
   "data-addon-installed": (addonElement) => ({
     present: addonElement.getAttribute("data-addon-installed") === "true",
   }),
@@ -90,7 +97,13 @@ const attributeParsers: Record<string, (addonElement: Element) => AddonData> = {
  * MutationObserver).
  */
 const parseAddonData = (addonElement: HTMLElement): AddonData => {
-  let addonData: AddonData = {};
+  let addonData: AddonData = {
+    sendEvent: (type, data) => {
+      addonElement.dispatchEvent(
+        new CustomEvent("website", { detail: { ...data, type: type } })
+      );
+    },
+  };
   Object.values(attributeParsers).forEach((parser) => {
     addonData = {
       ...addonData,
