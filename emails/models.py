@@ -177,10 +177,12 @@ class Profile(models.Model):
 
     @cached_property
     def relay_addresses(self):
+        # TODO: Remove cached_property, to avoid cache invalidation
         return RelayAddress.objects.filter(user=self.user)
 
     @cached_property
     def domain_addresses(self):
+        # TODO: Remove cached_property, to avoid cache invalidation
         return DomainAddress.objects.filter(user=self.user)
 
 

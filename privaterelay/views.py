@@ -5,7 +5,7 @@ import json
 import logging
 import os
 from rest_framework.decorators import api_view
-from silk.profiling.profiler import silk_profile
+# from silk.profiling.profiler import silk_profile
 
 from google_measurement_protocol import event, report
 import jwt
@@ -73,7 +73,7 @@ def faq(request):
     return render(request, 'faq.html', context)
 
 
-@silk_profile(name='Account Profile')
+# @silk_profile(name='Account Profile')
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
@@ -132,14 +132,6 @@ def settings_update_view(request):
 @lru_cache(maxsize=None)
 def _get_fxa(request):
     return request.user.socialaccount_set.filter(provider='fxa').first()
-
-@lru_cache(maxsize=None)
-def _fxa_has_premium(socialaccount_fxa):
-    user_subscriptions = socialaccount_fxa.extra_data.get('subscriptions', [])
-    for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
-        if sub in user_subscriptions:
-            return True
-    return False
 
 
 @api_view()

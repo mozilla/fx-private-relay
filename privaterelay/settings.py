@@ -81,12 +81,14 @@ CSP_SCRIPT_SRC = (
     "'self'",
     'https://www.google-analytics.com/',
 )
-if settings.DEBUG:
-    CSP_SCRIPT_SRC += ("'unsafe-inline'",)
+# TODO: Add with silk
+# if settings.DEBUG:
+#     CSP_SCRIPT_SRC += ("'unsafe-inline'",)
 
 CSP_STYLE_SRC = ("'self'",)
-if settings.DEBUG:
-    CSP_STYLE_SRC += ("'unsafe-inline'",)
+# TODO: Add with silk
+# if settings.DEBUG:
+#     CSP_STYLE_SRC += ("'unsafe-inline'",)
 
 CSP_IMG_SRC = ["'self'"] + AVATAR_IMG_SRC
 REFERRER_POLICY = 'strict-origin-when-cross-origin'
