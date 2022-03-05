@@ -57,7 +57,7 @@ def make_premium_test_user():
     premium_user = baker.make(User)
     premium_user_profile = Profile.objects.get(user=premium_user)
     premium_user_profile.server_storage = True
-    premium_user_profile.date_subscribed = datetime.now()
+    premium_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
     premium_user_profile.save()
     upgrade_test_user_to_premium(premium_user)
     return premium_user
