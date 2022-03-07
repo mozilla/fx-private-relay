@@ -29,7 +29,7 @@ from emails.views import (
     _sns_notification
 )
 
-from .models_tests import make_premium_test_user
+from .models_tests import make_premium_test_user, upgrade_test_user_to_premium
 
 # Load the sns json fixtures from files
 real_abs_cwd = os.path.realpath(
@@ -431,6 +431,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def test_blocked_list_email_in_s3_deleted(
         self, mocked_message_removed, mocked_email_is_from_list
     ):
+        upgrade_test_user_to_premium(self.user)
         self.address.block_list_emails = True
         self.address.save()
         mocked_email_is_from_list.return_value = True
