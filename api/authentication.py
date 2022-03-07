@@ -1,5 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
+import json
 import logging
+import shlex
 
 import requests
 
@@ -26,7 +28,8 @@ class FxaTokenAuthentication(BaseAuthentication):
 
         token = authorization.split(' ')[1]
         cache_key = get_cache_key(token)
-        fxa_resp_data = cache.get(cache_key)
+        cached_fxa_resp_data = fxa_resp_data = cache.get(cache_key)
+        cache_timeout = 60
         if not fxa_resp_data:
             introspect_token_url = (
                 '%s/introspect' %
@@ -35,46 +38,48 @@ class FxaTokenAuthentication(BaseAuthentication):
             fxa_resp = requests.post(
                 introspect_token_url, json={'token': token}
             )
+            fxa_resp_data = {'status_code': fxa_resp.status_code, 'json': None}
             try:
-                fxa_resp_json = fxa_resp.json()
-            except requests.exceptions.JSONDecodeError:
-                logger.error('JSONDecodeError from FXA introspect response.')
-                cache.set(cache_key, fxa_resp_data, 60)
-                return None
-            fxa_resp_data = {
-                'status_code': fxa_resp.status_code, 'json': fxa_resp_json
-            }
+                fxa_resp_data['json'] = fxa_resp.json()
+            except json.JSONDecodeError:
+                # TODO: change to requests.exceptions.JSONDecodeError with requests 2.27.0
+                logger.error(
+                    'JSONDecodeError from FXA introspect response.',
+                    extra = {'fxa_response': shlex.quote(fxa_resp.text)}
+                )
 
-        if not fxa_resp_data.get('status_code') == 200:
-            # cache anything besides 200 for 60s - it might be an error
-            # we need to re-try, but we don't want to send un-throttled
-            # retries at FXA
-            cache.set(cache_key, fxa_resp_data, 60)
-            return None
+        user = None
+        if (
+                fxa_resp_data and
+                fxa_resp_data['status_code'] == 200 and
+                fxa_resp_data['json'] and
+                fxa_resp_data['json'].get('active')):
 
-        if not fxa_resp_data.get('json').get('active'):
-            # cache inactive token responses for 60s - it might be a token that
-            # isn't active (yet), but we don't want to send un-throttled
-            # retries at FXA
-            cache.set(cache_key, fxa_resp_data, 60)
-            return None
-
-        try:
+            # FxA user is active, check for the associated Relay account
             fxa_uid = fxa_resp_data.get('json').get('sub')
-            sa = SocialAccount.objects.get(uid=fxa_uid)
+            if fxa_uid:
+                try:
+                    sa = SocialAccount.objects.get(uid=fxa_uid)
+                except SocialAccount.DoesNotExist:
+                    # No Relay account associated with the FxA ID. It might be
+                    # a user who deleted their Relay account since they first
+                    # signed up
+                    pass
+                else:
+                    user = sa.user
 
-            # cache fxa_resp_data for as long as access_token is valid
-            # Note: FXA iat and exp are timestamps in *milliseconds*
-            fxa_token_exp_time = int(fxa_resp_data.get('json').get('exp')/1000)
-            now_time = int(datetime.now().timestamp())
-            timeout = fxa_token_exp_time - now_time
-            cache.set(cache_key, fxa_resp_data, timeout)
-            return (sa.user, None)
-        except SocialAccount.DoesNotExist:
-            # cache non-user token responses for 60s - it might be a user who
-            # deleted their Relay account since they first signed up, and we
-            # don't want to send un-throttled retries at FXA
-            cache.set(cache_key, fxa_resp_data, 60)
+                    # cache fxa_resp_data for as long as access_token is valid
+                    # Note: FXA iat and exp are timestamps in *milliseconds*
+                    fxa_token_exp_time = int(fxa_resp_data.get('json').get('exp')/1000)
+                    now_time = int(datetime.now(timezone.utc).timestamp())
+                    cache_timeout = fxa_token_exp_time - now_time
+
+        # Store FxA response for 60 seconds (errors, inactive users, etc.) or
+        # until access_token expires (matched Relay user)
+        if not cached_fxa_resp_data:
+            cache.set(cache_key, fxa_resp_data, cache_timeout)
+
+        if user:
+            return (user, None)
+        else:
             return None
-
-        return None
