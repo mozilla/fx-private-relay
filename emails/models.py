@@ -249,6 +249,9 @@ class Profile(models.Model):
 
     @property
     def fxa(self):
+        # Note: we are NOT using .filter() here because it invalidates
+        # any profile instances that were queried with prefetch_related, which
+        # we use in at least the profile view to minimize queries
         for sa in self.user.socialaccount_set.all():
             if sa.provider == 'fxa':
                 return sa
