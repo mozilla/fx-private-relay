@@ -27,7 +27,6 @@
 	<firefox-apps class="fx-bento-home-page"></firefox-apps>
 	{% else %}
 		{% include 'includes/whatsnew.html' %}
-		{% get_social_accounts request.user as accounts %}
 		<firefox-apps class="fx-bento-profile-page"></firefox-apps>
 		<glocal-menu class="glocal-menu">
 			<button class="avatar-wrapper" aria-label="{% ftlmsg 'label-open-menu' %}" title="{% ftlmsg 'avatar-tooltip' %}">

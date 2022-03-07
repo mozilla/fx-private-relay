@@ -5,6 +5,7 @@ import json
 import logging
 import os
 from rest_framework.decorators import api_view
+# from silk.profiling.profiler import silk_profile
 
 from google_measurement_protocol import event, report
 import jwt
@@ -72,10 +73,11 @@ def faq(request):
     return render(request, 'faq.html', context)
 
 
+# @silk_profile(name='Account Profile')
 def profile(request):
     if (not request.user or request.user.is_anonymous):
         return redirect(reverse('fxa_login'))
-    profile = request.user.profile_set.first()
+    profile = request.user.profile_set.prefetch_related('user__socialaccount_set').first()
     if 'fxa_refresh' in request.GET:
         fxa = _get_fxa(request)
         _handle_fxa_profile_change(fxa)

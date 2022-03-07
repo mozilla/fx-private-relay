@@ -32,7 +32,6 @@
     </div>
 
     <!-- Upgrade Banner -->
-    {% with request.user.profile_set.first as user_profile %}
     {% if not user_profile.has_premium and premium_available_in_country %}
     <div class="flx">
         <div class="banner-gradient-bg">
@@ -52,7 +51,6 @@
         </div>
     </div>
     {% endif %}
-    {% endwith %}
 </div>
 
 

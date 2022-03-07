@@ -14,6 +14,7 @@ from django.core.exceptions import SuspiciousOperation
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.dispatch import receiver
+from django.utils.functional import cached_property
 from django.utils.translation.trans_real import (
     parse_accept_lang_header,
     get_supported_language_variant,
@@ -174,11 +175,22 @@ class Profile(models.Model):
     def avatar(self):
         return self.fxa.extra_data.get('avatar')
 
+    @cached_property
+    def relay_addresses(self):
+        # TODO: Remove cached_property, to avoid cache invalidation
+        return RelayAddress.objects.filter(user=self.user)
+
+    @cached_property
+    def domain_addresses(self):
+        # TODO: Remove cached_property, to avoid cache invalidation
+        return DomainAddress.objects.filter(user=self.user)
+
+
     @property
     def num_active_address(self):
         return (
-            RelayAddress.objects.filter(user=self.user).count() +
-            DomainAddress.objects.filter(user=self.user).count()
+            len(self.relay_addresses) +
+            len(self.domain_addresses)
         )
 
     def check_bounce_pause(self):
@@ -232,14 +244,18 @@ class Profile(models.Model):
 
     @property
     def at_max_free_aliases(self):
-        relay_addresses_count = RelayAddress.objects.filter(
-            user=self.user
-        ).count()
+        relay_addresses_count = len(self.relay_addresses)
         return relay_addresses_count >= settings.MAX_NUM_FREE_ALIASES
 
     @property
     def fxa(self):
-        return self.user.socialaccount_set.filter(provider='fxa').first()
+        # Note: we are NOT using .filter() here because it invalidates
+        # any profile instances that were queried with prefetch_related, which
+        # we use in at least the profile view to minimize queries
+        for sa in self.user.socialaccount_set.all():
+            if sa.provider == 'fxa':
+                return sa
+        return None
 
     @property
     def display_name(self):
@@ -268,29 +284,17 @@ class Profile(models.Model):
 
     @property
     def emails_forwarded(self):
-        relay_addresses_forwarded = RelayAddress.objects.filter(
-            user=self.user
-        ).values('num_forwarded')
-        domain_addresses_forwarded = DomainAddress.objects.filter(
-            user=self.user
-        ).values('num_forwarded')
         return (
-            sum(forwarded['num_forwarded'] for forwarded in relay_addresses_forwarded) +
-            sum(forwarded['num_forwarded'] for forwarded in domain_addresses_forwarded) +
+            sum(ra.num_forwarded for ra in self.relay_addresses) +
+            sum(da.num_forwarded for da in self.domain_addresses) +
             self.num_email_forwarded_in_deleted_address
         )
 
     @property
     def emails_blocked(self):
-        relay_addresses_blocked = RelayAddress.objects.filter(
-            user=self.user
-        ).values('num_blocked')
-        domain_addresses_blocked = DomainAddress.objects.filter(
-            user=self.user
-        ).values('num_blocked')
         return (
-            sum(blocked['num_blocked'] for blocked in relay_addresses_blocked) +
-            sum(blocked['num_blocked'] for blocked in domain_addresses_blocked) +
+            sum(ra.num_blocked for ra in self.relay_addresses) +
+            sum(da.num_blocked for da in self.domain_addresses) +
             self.num_email_blocked_in_deleted_address
         )
 
