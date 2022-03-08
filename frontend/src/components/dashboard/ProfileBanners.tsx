@@ -9,7 +9,11 @@ import {
   isPremiumAvailableInCountry,
   RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
-import { isUsingFirefox } from "../../functions/userAgent";
+import {
+  isUsingFirefox,
+  supportsChromeExtension,
+  supportsFirefoxExtension,
+} from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../hooks/api/runtimeData";
@@ -59,15 +63,24 @@ export const ProfileBanners = (props: Props) => {
     />
   );
 
-  if (!isUsingFirefox()) {
+  // Don't show the "Get Firefox" banner if we have an extension available,
+  // to avoid banner overload:
+  if (!isUsingFirefox() && !supportsChromeExtension()) {
     banners.push(<NoFirefoxBanner key="firefox-banner" />);
   }
 
-  if (isUsingFirefox()) {
+  if (supportsFirefoxExtension()) {
     // This pushes a banner promoting the add-on - detecting the add-on
     // and determining whether to show it based on that is a bit slow,
     // so we'll just let the add-on hide it:
     banners.push(<NoAddonBanner key="addon-banner" />);
+  }
+
+  if (supportsChromeExtension()) {
+    // This pushes a banner promoting the add-on - detecting the add-on
+    // and determining whether to show it based on that is a bit slow,
+    // so we'll just let the add-on hide it:
+    banners.push(<NoChromeExtensionBanner key="chrome-extension-banner" />);
   }
 
   if (
@@ -145,6 +158,30 @@ const NoAddonBanner = () => {
       hiddenWithAddon={true}
     >
       <p>{l10n.getString("banner-download-install-extension-copy")}</p>
+    </Banner>
+  );
+};
+
+const NoChromeExtensionBanner = () => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      type="promo"
+      title={l10n.getString(
+        "banner-download-install-chrome-extension-headline"
+      )}
+      illustration={
+        <img src={AddonIllustration.src} alt="" width={60} height={60} />
+      }
+      cta={{
+        target:
+          "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
+        content: l10n.getString("banner-download-install-chrome-extension-cta"),
+      }}
+      hiddenWithAddon={true}
+    >
+      <p>{l10n.getString("banner-download-install-chrome-extension-copy")}</p>
     </Banner>
   );
 };

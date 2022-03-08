@@ -170,7 +170,26 @@ describe("The dashboard", () => {
     expect(domainSearchField).not.toBeInTheDocument();
   });
 
-  it("shows a banner to download Firefox if using a different browser", () => {
+  it("shows a banner to download Firefox if using a different browser that does not support Chrome extensions", () => {
+    // navigator.userAgent is read-only, so we use `Object.defineProperty`
+    // as a workaround to be able to replace it with mock data anyway:
+    const previousUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, "userAgent", {
+      value:
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+      configurable: true,
+    });
+    render(<Profile />);
+    Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
+
+    const firefoxBanner = screen.getByRole("link", {
+      name: "l10n string: [banner-download-firefox-cta], with vars: {}",
+    });
+
+    expect(firefoxBanner).toBeInTheDocument();
+  });
+
+  it("shows a banner to download the Chrome extension if using a different browser that supports Chrome extensions", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
     // as a workaround to be able to replace it with mock data anyway:
     const previousUserAgent = navigator.userAgent;
@@ -182,11 +201,11 @@ describe("The dashboard", () => {
     render(<Profile />);
     Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
 
-    const firefoxBanner = screen.getByRole("link", {
-      name: "l10n string: [banner-download-firefox-cta], with vars: {}",
+    const chromeExtensionBanner = screen.getByRole("link", {
+      name: "l10n string: [banner-download-install-chrome-extension-cta], with vars: {}",
     });
 
-    expect(firefoxBanner).toBeInTheDocument();
+    expect(chromeExtensionBanner).toBeInTheDocument();
   });
 
   it("does not show a banner to download Firefox if the user is already using it", () => {

@@ -15,6 +15,10 @@ import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { VisuallyHidden } from "react-aria";
 import { getRuntimeConfig } from "../../config";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
+import {
+  supportsChromeExtension,
+  supportsFirefoxExtension,
+} from "../../functions/userAgent";
 
 export type Props = {
   profile: ProfileData;
@@ -384,21 +388,69 @@ const StepThree = () => {
   const { l10n } = useLocalization();
   const isLargeScreen = useMinViewportWidth("md");
 
+  let addonDescription = null;
+  let title = l10n.getString("multi-part-onboarding-reply-headline");
+  if (isLargeScreen && supportsFirefoxExtension()) {
+    title = l10n.getString("multi-part-onboarding-premium-extension-get-title");
+    addonDescription = (
+      <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
+        <h3>
+          {l10n.getString("multi-part-onboarding-premium-extension-get-title")}
+        </h3>
+        <p>
+          {l10n.getString(
+            "multi-part-onboarding-premium-extension-get-description"
+          )}
+        </p>
+        <LinkButton
+          href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
+          target="_blank"
+          className={styles["get-addon-button"]}
+        >
+          {l10n.getString(
+            "multi-part-onboarding-premium-extension-button-download"
+          )}
+        </LinkButton>
+      </div>
+    );
+  } else if (isLargeScreen && supportsChromeExtension()) {
+    title = l10n.getString(
+      "multi-part-onboarding-premium-chrome-extension-get-title"
+    );
+    addonDescription = (
+      <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
+        <h3>
+          {l10n.getString(
+            "multi-part-onboarding-premium-chrome-extension-get-title"
+          )}
+        </h3>
+        <p>
+          {l10n.getString(
+            "multi-part-onboarding-premium-chrome-extension-get-description"
+          )}
+        </p>
+        <LinkButton
+          href="https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
+          target="_blank"
+          className={styles["get-addon-button"]}
+        >
+          {l10n.getString(
+            "multi-part-onboarding-premium-chrome-extension-button-download"
+          )}
+        </LinkButton>
+      </div>
+    );
+  }
+
   return (
     <div className={`${styles.step} ${styles["step-addon"]}`}>
       <div>
-        <h2>
-          {l10n.getString(
-            isLargeScreen
-              ? "multi-part-onboarding-premium-extension-get-title"
-              : "multi-part-onboarding-reply-headline"
-          )}
-        </h2>
+        <h2>{title}</h2>
       </div>
       <div className={styles.description}>
         <img src={ManLaptopEmail.src} alt="" width={500} />
         <div>
-          <p>
+          <p className={styles["reply-description"]}>
             <span className={styles["description-caption"]}>
               {l10n.getString("onboarding-premium-title-detail")}
             </span>
@@ -407,29 +459,7 @@ const StepThree = () => {
             <br />
             {l10n.getString("onboarding-premium-reply-description")}
           </p>
-          <div
-            className={`${styles["addon-description"]} is-hidden-with-addon`}
-          >
-            <h3>
-              {l10n.getString(
-                "multi-part-onboarding-premium-extension-get-title"
-              )}
-            </h3>
-            <p>
-              {l10n.getString(
-                "multi-part-onboarding-premium-extension-get-description"
-              )}
-            </p>
-            <LinkButton
-              href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
-              target="_blank"
-              className={styles["get-addon-button"]}
-            >
-              {l10n.getString(
-                "multi-part-onboarding-premium-extension-button-download"
-              )}
-            </LinkButton>
-          </div>
+          {addonDescription}
           <div
             className={`${styles["addon-description"]} is-visible-with-addon`}
           >

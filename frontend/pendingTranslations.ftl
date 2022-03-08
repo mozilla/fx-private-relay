@@ -80,6 +80,17 @@ tips-footer-link-feedback-tooltip = Give feedback
 tips-footer-link-support-label = Support
 tips-footer-link-support-tooltip = Contact support
 
+## The Chrome extension strings have already been submitted:
+## https://github.com/mozilla-l10n/fx-private-relay-l10n/pull/65
+-brand-name-chrome = Chrome
+-brand-name-google-chrome = Google Chrome
+banner-download-install-chrome-extension-headline = Try { -brand-name-relay } for { -brand-name-google-chrome }
+banner-download-install-chrome-extension-copy = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using aliases even easier.
+banner-download-install-chrome-extension-cta = Get the { -brand-name-relay } extension
+multi-part-onboarding-premium-chrome-extension-get-title = Get the { -brand-name-relay } extension for { -brand-name-google-chrome }
+multi-part-onboarding-premium-chrome-extension-get-description = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using email aliases even easier.
+multi-part-onboarding-premium-chrome-extension-button-download = Get { -brand-name-relay } Extension
+
 ## The Acceptable Use FAQ entry has already been submitted:
 ## https://github.com/mozilla-l10n/fx-private-relay-l10n/pull/60
 faq-question-acceptable-use-question = What are the acceptable uses of { -brand-name-relay }?

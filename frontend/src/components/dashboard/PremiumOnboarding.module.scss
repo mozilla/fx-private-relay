@@ -151,6 +151,17 @@
       }
     }
 
+    @media screen and #{$mq-md} {
+      // Don't show the description of replies on small screens,
+      // to focus on the add-on availability:
+      .reply-description {
+        display: none;
+      }
+      .addon-description {
+        display: block;
+      }
+    }
+
     h3 {
       @include text-body-md;
     }
