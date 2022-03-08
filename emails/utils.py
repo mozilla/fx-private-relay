@@ -134,7 +134,7 @@ def _add_body_to_message(msg, message_body):
 
 def _add_attachments_to_message(msg, attachments):
     # attach attachments
-    for actual_att_name, attachment in attachments.items():
+    for actual_att_name, attachment in attachments:
         # Define the attachment part and encode it using MIMEApplication.
         attachment.seek(0)
         att = MIMEApplication(attachment.read())

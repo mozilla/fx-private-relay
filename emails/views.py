@@ -794,7 +794,7 @@ def _get_attachment(part):
 def _get_all_contents(email_message):
     text_content = None
     html_content = None
-    attachments = {}
+    attachments = []
     if email_message.is_multipart():
         for part in email_message.walk():
             try:
@@ -802,7 +802,7 @@ def _get_all_contents(email_message):
                     att_name, att = (
                         _get_attachment(part)
                     )
-                    attachments[att_name] = att
+                    attachments.append((att_name, att))
                     continue
                 if part.get_content_type() == 'text/plain':
                     text_content = part.get_content()
