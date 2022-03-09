@@ -18,6 +18,7 @@ from decouple import config
 import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.logging import ignore_logger
 
 from django.conf import settings
 
@@ -597,6 +598,11 @@ sentry_sdk.init(
     with_locals=DEBUG,
     release=sentry_release,
 )
+# Duplicates events for unhandled exceptions, but without useful tracebacks
+ignore_logger("request.summary")
+# Security scanner attempts, no action required
+# Can be re-enabled when hostname allow list implemented at the load balancer
+ignore_logger("django.security.DisallowedHost")
 
 markus.configure(
     backends=[
