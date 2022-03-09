@@ -351,9 +351,12 @@ def _update_all_data(social_account, extra_data, new_email):
             profile = social_account.user.profile_set.first()
             now_has_premium = profile.has_premium
             newly_premium = not had_premium and now_has_premium
+            no_longer_premium = had_premium and not now_has_premium
             if newly_premium:
                 profile.date_subscribed = datetime.now(timezone.utc)
                 profile.save()
+            if no_longer_premium:
+                incr_if_enabled('user_has_downgraded', 1)
             social_account.user.email = new_email
             social_account.user.save()
             email_address_record = social_account.user.emailaddress_set.first()
