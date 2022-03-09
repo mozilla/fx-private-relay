@@ -38,6 +38,17 @@ runtimeConfigs.development = {
   fxaLogoutUrl: "http://localhost:3000/mock/logout",
 };
 
+// This configuration is for the setup where the front-end is built and served
+// on its own, with the back-end mocked out using Mock Service Worker.
+// Login and logout need to be simulated using the `/mock/` pages.
+runtimeConfigs.apimock = {
+  ...runtimeConfigs.production,
+  backendOrigin: "",
+  frontendOrigin: "",
+  fxaLoginUrl: "/mock/login",
+  fxaLogoutUrl: "/mock/logout",
+};
+
 /** @type {(config: import('next').NextConfig) => import('next').NextConfig} */
 const withBundleAnalyzer = (nextConfig) => {
   if (process.env.ANALYZE !== "true") {
@@ -52,6 +63,14 @@ const withBundleAnalyzer = (nextConfig) => {
   });
   return withAnalyzer(nextConfig);
 };
+
+let applicableConfig = "production";
+if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
+  applicableConfig = "apimock";
+}
+if (process.env.NODE_ENV === "development") {
+  applicableConfig = "development";
+}
 
 /** @type {import('next').NextConfig} */
 module.exports = withBundleAnalyzer({
@@ -70,9 +89,7 @@ module.exports = withBundleAnalyzer({
   // Thus, we cannot use different .env files for different environments
   // (https://nextjs.org/docs/basic-features/environment-variables),
   // and use this mechanism instead:
-  publicRuntimeConfig:
-    runtimeConfigs[process.env.NODE_ENV ?? "production"] ??
-    runtimeConfigs.production,
+  publicRuntimeConfig: runtimeConfigs[applicableConfig],
   webpack: (config, options) => {
     config.module.rules.push({
       test: /\.ftl/,

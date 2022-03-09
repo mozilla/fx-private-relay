@@ -11,7 +11,10 @@ export const authenticatedFetch = async (
   init?: Parameters<typeof fetch>[1]
 ) => {
   let authToken;
-  if (process.env.NODE_ENV === "development") {
+  if (
+    process.env.NODE_ENV === "development" ||
+    process.env.NEXT_PUBLIC_MOCK_API === "true"
+  ) {
     // Note: If running on a separate (dev) server, logging in doesn't work.
     //       As a workaround, you can authenticate by opening http://127.0.0.1:8000/admin/authtoken/tokenproxy/,
     //       copying the token you need, then running:

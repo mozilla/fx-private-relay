@@ -5,6 +5,7 @@ import styles from "./mockSession.module.scss";
 import { getRuntimeConfig } from "../../config";
 import { apiFetch } from "../../hooks/api/api";
 import { UsersData } from "../../hooks/api/user";
+import { mockIds } from "../../apiMocks/mockData";
 
 type UsedToken = {
   token: string;
@@ -18,6 +19,16 @@ const MockLogin: NextPage = () => {
   const [token, setToken] = useState("");
 
   useEffect(() => {
+    if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
+      // When the API is mocked out, the API tokens are fake as well:
+      const mockIdsAsTokens: UsedToken[] = mockIds.map((id) => ({
+        lastUsed: 0,
+        token: id,
+        user: `${id}@example.com`,
+      }));
+      setUsedTokens(mockIdsAsTokens);
+      return;
+    }
     const usedTokensString = localStorage.getItem("usedTokens") ?? "[]";
     setUsedTokens(JSON.parse(usedTokensString).sort(byUseDate));
   }, []);
@@ -31,8 +42,9 @@ const MockLogin: NextPage = () => {
   const login = async (token: string) => {
     localStorage.setItem("authToken", token);
     await new Promise((resolve) => setTimeout(resolve));
-    const userDataResponse = await apiFetch("/users");
+    const userDataResponse = await apiFetch("/users/");
     const userData: UsersData = await userDataResponse.json();
+
     const newUsedTokens = usedTokens.concat([
       {
         token: token,
@@ -40,8 +52,12 @@ const MockLogin: NextPage = () => {
         lastUsed: Date.now(),
       },
     ]);
-    localStorage.setItem("usedTokens", JSON.stringify(newUsedTokens));
     setUsedTokens(newUsedTokens);
+    if (process.env.NEXT_PUBLIC_MOCK_API !== "true") {
+      // When the API is mocked out, the API tokens are fake as well,
+      // and thus aren't useful to remember for the next login:
+      localStorage.setItem("usedTokens", JSON.stringify(newUsedTokens));
+    }
 
     router.push("/");
   };
@@ -63,41 +79,54 @@ const MockLogin: NextPage = () => {
       );
     });
 
+  const form =
+    process.env.NEXT_PUBLIC_MOCK_API === "true" ? null : (
+      <>
+        <p className={styles.lead}>
+          Visit{" "}
+          <a
+            href={
+              getRuntimeConfig().backendOrigin + "/admin/authtoken/tokenproxy/"
+            }
+          >
+            the Django admin panel
+          </a>{" "}
+          to obtain the token for the user you wish to log in as, or{" "}
+          <a
+            href={
+              getRuntimeConfig().backendOrigin +
+              "/accounts/fxa/login/?process=login"
+            }
+          >
+            create a new account
+          </a>{" "}
+          first.
+        </p>
+        <form onSubmit={onLogin}>
+          <label htmlFor="token">Token:</label>
+          <input
+            type="text"
+            name="token"
+            id="token"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            autoFocus
+          />
+          <button type="submit">Login</button>
+        </form>
+      </>
+    );
+
   return (
     <div className={styles["mock-session"]}>
-      <p className={styles.lead}>
-        Visit{" "}
-        <a
-          href={
-            getRuntimeConfig().backendOrigin + "/admin/authtoken/tokenproxy/"
-          }
-        >
-          the Django admin panel
-        </a>{" "}
-        to obtain the token for the user you wish to log in as, or{" "}
-        <a
-          href={
-            getRuntimeConfig().backendOrigin +
-            "/accounts/fxa/login/?process=login"
-          }
-        >
-          create a new account
-        </a>{" "}
-        first.
-      </p>
-      <form onSubmit={onLogin}>
-        <label htmlFor="token">Token:</label>
-        <input
-          type="text"
-          name="token"
-          id="token"
-          value={token}
-          onChange={(e) => setToken(e.target.value)}
-          autoFocus
-        />
-        <button type="submit">Login</button>
-      </form>
-      <h1>Previously used tokens:</h1>
+      {form}
+      <h1>
+        {process.env.NEXT_PUBLIC_MOCK_API === "true" ? (
+          <>Which mock account would you like to log in with?</>
+        ) : (
+          <>Previously used tokens:</>
+        )}
+      </h1>
       <ul>{existingTokenElements}</ul>
     </div>
   );
