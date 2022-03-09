@@ -20,6 +20,7 @@ import styles from "./AddressPickerModal.module.scss";
 import { InfoIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
+import { suggestAddress } from "../../../functions/suggestAddress";
 
 export type Props = {
   isOpen: boolean;
@@ -34,7 +35,7 @@ export type Props = {
  */
 export const AddressPickerModal = (props: Props) => {
   const { l10n } = useLocalization();
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(suggestAddress(l10n));
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => props.onClose() },
