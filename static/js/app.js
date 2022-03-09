@@ -765,7 +765,6 @@ function toggleClass(elem) {
    useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
   });
-  useCaseSection.scrollIntoView();
   elem.target.classList.add("is-active");
   window.location.hash = "#use-cases" + "/" + elem.target.dataset.useCase;
 }
@@ -796,7 +795,7 @@ function hashChangeAccordion(){
 
 hashChangeAccordion();
 
-window.onhashchange = hashChangeAccordion;
+window.addEventListener("hashchange", hashChangeAccordion, false);
 
 useCaseTitle.forEach( item => {
     item.addEventListener("click", toggleClass, false);
