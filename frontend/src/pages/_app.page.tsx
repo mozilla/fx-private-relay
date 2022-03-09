@@ -11,6 +11,11 @@ import { hasDoNotTrackEnabled } from "../functions/userAgent";
 import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
 import { getRuntimeConfig } from "../config";
 import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
+import { initialiseApiMocks } from "../apiMocks/initialise";
+
+if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
+  initialiseApiMocks();
+}
 
 function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter();
