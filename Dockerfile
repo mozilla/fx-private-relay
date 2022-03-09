@@ -11,7 +11,7 @@ RUN ./node_modules/.bin/gulp build
 RUN npm run lint:js -- --max-warnings=0
 RUN npm run lint:css
 
-FROM python:3.7.9
+FROM python:3.9.10
 
 ARG CIRCLE_BRANCH
 ARG CIRCLE_SHA1

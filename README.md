@@ -13,7 +13,7 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 Please refer to our [coding standards](docs/coding-standards.md) for code styles, naming conventions and other methodologies.
 
 ### Requirements
-* python 3.7 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
+* python 3.9 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
 * PostgreSQL - even if you are using sqlite for development, requirements.txt installs
   psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites) and Python header files.
   The following should work:
