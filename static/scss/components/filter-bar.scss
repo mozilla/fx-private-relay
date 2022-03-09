@@ -215,7 +215,8 @@
     top: calc(100% + #{$spacing-md});
     background-color: $color-white;
     box-shadow: $box-shadow-sm;
-    z-index: 1;
+    // #fx-private-relay/issues/1605: Z-index is 2 to appear over the Promo Blocking UI form
+    z-index: 2;
     padding: 0;
     border-radius: $border-radius-md;
     
