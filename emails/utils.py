@@ -330,6 +330,9 @@ def remove_message_from_s3(bucket, object_key):
         )
         return response.get('DeleteMarker')
     except ClientError as e:
-        logger.error('s3_client_error_delete_email', extra=e.response['Error'])
+        if e.response['Error'].get('Code', '') == 'NoSuchKey':
+            logger.error('s3_object_does_not_exist', extra=e.response['Error'])
+        else:
+            logger.error('s3_client_error_delete_email', extra=e.response['Error'])
         incr_if_enabled('message_not_removed_from_s3', 1)
     return False
