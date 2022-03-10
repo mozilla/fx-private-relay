@@ -144,6 +144,11 @@ whatsnew-feature-size-limit-heading = Attachment size increase
 # length as the English version.
 whatsnew-feature-size-limit-snippet = { -brand-name-firefox-relay } can now forward emails up to 25MB, including…
 whatsnew-feature-size-limit-description = { -brand-name-firefox-relay } can now forward emails up to 25MB, including attachments.
+# A preview of the full content of `whatsnew-feature-size-limit-description-var`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-size-limit-snippet-var = { -brand-name-firefox-relay } can now forward emails up to { email-size-limit }, including…
+whatsnew-feature-size-limit-description-var = { -brand-name-firefox-relay } can now forward emails up to { email-size-limit }, including attachments.
 
 whatsnew-feature-sign-back-in-heading = Sign back in with your aliases
 # A preview of the full content of `whatsnew-feature-sign-back-in-description`.

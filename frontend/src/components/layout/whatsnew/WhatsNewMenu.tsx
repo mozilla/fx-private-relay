@@ -21,8 +21,8 @@ import {
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
 import styles from "./WhatsNewMenu.module.scss";
-import SizeLimitHero from "./images/size-limit-hero.svg";
-import SizeLimitIcon from "./images/size-limit-icon.svg";
+import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
+import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
 import SignBackInHero from "./images/sign-back-in-hero.svg";
 import SignBackInIcon from "./images/sign-back-in-icon.svg";
 import ForwardSomeHero from "./images/forward-some-hero.svg";
@@ -69,11 +69,18 @@ export const WhatsNewMenu = (props: Props) => {
   const entries: WhatsNewEntry[] = [
     {
       title: l10n.getString("whatsnew-feature-size-limit-heading"),
-      snippet: l10n.getString("whatsnew-feature-size-limit-snippet"),
+      snippet: l10n.getString("whatsnew-feature-size-limit-snippet-var", {
+        size: 10,
+        unit: "MB",
+      }),
       content: (
         <WhatsNewContent
           description={l10n.getString(
-            "whatsnew-feature-size-limit-description"
+            "whatsnew-feature-size-limit-description-var",
+            {
+              size: 10,
+              unit: "MB",
+            }
           )}
           heading={l10n.getString("whatsnew-feature-size-limit-heading")}
           image={SizeLimitHero.src}
