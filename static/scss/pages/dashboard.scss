@@ -302,7 +302,7 @@
 .c-alias-toggle {
     margin-top: $spacing-sm;
 
-    &.is-hidden {
+    &.is-hidden, .is-premium &  {
         display: none;
     }
 }
@@ -382,8 +382,10 @@
     display: none;
     align-self: center;
 
-    @media #{$mq-md} {
-        display: block;
+    .is-premium & {
+        @media #{$mq-md} {
+            display: block;
+        }
     }
 }
 
@@ -444,9 +446,13 @@
     border-top: 1px solid $color-light-gray-30;
     padding: $spacing-md;
     width: 100%;
-    display: flex;
+    display: none;
     flex-direction: column;
     align-items: center;
+
+    .is-premium & {
+        display: flex;
+    }
 
     &.is-hidden {
         display: none;
