@@ -13,6 +13,10 @@ export type Props = {
 
 /**
  * Standard consistent styles for primary buttons.
+ *
+ * Note: it's wrapped in a `forwardRef` so that we can get access to the actual
+ * button element in the DOM and send events when it is scrolled into view
+ * using {@see useGaViewPing}.
  */
 export const Button = forwardRef<
   HTMLButtonElement,
