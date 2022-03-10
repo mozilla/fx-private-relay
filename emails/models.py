@@ -621,7 +621,7 @@ class DomainAddress(models.Model):
         # TODO: validate user is premium to set block_list_emails
         return super().save(*args, **kwargs)
 
-    @property
+    @cached_property
     def user_profile(self):
         return Profile.objects.get(user=self.user)
 
