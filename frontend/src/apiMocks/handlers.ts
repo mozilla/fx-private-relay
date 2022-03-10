@@ -4,16 +4,18 @@ import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { mockIds, domainaddresses, profiles, relayaddresses } from "./mockData";
 
-export function getHandlers(): RestHandler[] {
+export function getHandlers(
+  defaultMockId: null | typeof mockIds[number] = null
+): RestHandler[] {
   const handlers: RestHandler[] = [];
 
   const getMockId = (req: RestRequest): typeof mockIds[number] | null => {
     const authHeader = req.headers.get("Authorization");
     if (typeof authHeader !== "string") {
-      return null;
+      return defaultMockId;
     }
     const token = authHeader.split(" ")[1];
-    return mockIds.find((mockId) => mockId === token) ?? null;
+    return mockIds.find((mockId) => mockId === token) ?? defaultMockId;
   };
 
   const addGetHandler: (...args: Parameters<typeof rest.get>) => void = (
