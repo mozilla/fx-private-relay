@@ -72,6 +72,14 @@ export const Layout = (props: Props) => {
       <NpsSurvey />
     ) : null;
 
+  const apiMockWarning =
+    process.env.NEXT_PUBLIC_MOCK_API === "true" ? (
+      <div className={styles["api-mock-warning"]}>
+        This is a site to demo the Relay UI; data is fake, and changes will be
+        lost after a page refresh.
+      </div>
+    ) : null;
+
   return (
     <>
       <Head>
@@ -99,6 +107,7 @@ export const Layout = (props: Props) => {
         <meta name="twitter:image" content={socialMediaImage.src} />
       </Head>
       <div className={styles.wrapper}>
+        {apiMockWarning}
         <InterviewRecruitment profile={profiles.data?.[0]} />
         {csatSurvey}
         {npsSurvey}
