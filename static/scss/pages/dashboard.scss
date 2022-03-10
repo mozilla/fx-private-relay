@@ -452,18 +452,17 @@
 
     .is-premium & {
         display: flex;
+
+        @media #{$mq-md} {
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row;
+        }
     }
 
     &.is-hidden {
         display: none;
     }
-
-    @media #{$mq-md} {
-        display: flex;
-        justify-content: space-between;
-        flex-direction: row;
-    }
-    
 }
 
 .c-alias-block-settings-description {
