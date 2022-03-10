@@ -1,6 +1,7 @@
 from django import template
 from django.conf import settings
 
+from emails.models import RelayAddress
 from emails.utils import get_email_domain_from_settings
 
 from ..utils import get_premium_country_lang
@@ -51,3 +52,10 @@ def premium_plan_price(accept_lang, cc=None):
 def premium_subscribe_url(accept_lang=None, cc=None):
     plan_id = premium_plan_id(accept_lang, cc)
     return f'{settings.FXA_SUBSCRIPTIONS_URL}/products/{settings.PREMIUM_PROD_ID}?plan={plan_id}'
+
+
+@register.filter
+def full_address(alias, user_profile):
+    if type(alias) == RelayAddress:
+        return '%s@%s' % (alias.address, alias.domain_value)
+    return '%s@%s.%s' % (alias.address, user_profile.subdomain, alias.domain_value)

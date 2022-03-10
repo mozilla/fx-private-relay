@@ -1,5 +1,6 @@
 {% load ftl %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
+{% load relay_tags %}
 {% load static %}
 
 {% comment %}
@@ -25,7 +26,7 @@ Premium users:
 {% else %}
   is-blocked 
 {% endif %} 
-" data-relay-address="{{ alias.full_address }}" data-relay-address-id="{{ alias.id }}">
+" data-relay-address="{{ alias|full_address:user_profile }}" data-relay-address-id="{{ alias.id }}">
 
   <div class="c-alias-main-info">
     <!-- enable/disable email forwarding -->
@@ -81,9 +82,9 @@ Premium users:
           data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
           data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
           data-id="{{ alias.id }}"
-          data-clipboard-text="{{ alias.full_address }}"
+          data-clipboard-text="{{ alias|full_address:user_profile }}"
           class="relay-address click-copy alias-on-desktop ff-Met xflx jst-cntr al-cntr">
-            <span class="relay-address--label">{{ alias.full_address }}</span>
+            <span class="relay-address--label">{{ alias|full_address:user_profile }}</span>
             <span class="alias-copied-icon"></span>
             <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
         </button>
@@ -118,9 +119,9 @@ Premium users:
       data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
       data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
       data-id="{{ alias.id }}"
-      data-clipboard-text="{{ alias.full_address }}"
+      data-clipboard-text="{{ alias|full_address:user_profile }}"
       class="relay-address click-copy alias-on-mobile ff-Met jst-cntr al-cntr">
-        <span class="relay-address--label">{{ alias.full_address }}</span>
+        <span class="relay-address--label">{{ alias|full_address:user_profile }}</span>
         <span class="alias-copied-icon"></span>
         <span class="alias-copied-message">{% ftlmsg 'profile-label-copied' %}</span>
     </button>
@@ -217,7 +218,7 @@ Premium users:
 
       <!-- delete email address -->
       <div class="column-delete">
-        <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-type="{{ alias_type }}" data-delete-relay="{{ alias.full_address }}">
+        <form action="{% url 'emails-index' %}" method="POST" class="delete-email-form xflx jst-cntr al-cntr" data-type="{{ alias_type }}" data-delete-relay="{{ alias|full_address:user_profile }}">
           <input type="hidden" name="method_override" value="DELETE">
           <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
           <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">
