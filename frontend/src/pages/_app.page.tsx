@@ -12,9 +12,28 @@ import { AddonDataContext, useAddonElementWatcher } from "../hooks/addon";
 import { getRuntimeConfig } from "../config";
 import { ReactAriaI18nProvider } from "../components/ReactAriaI18nProvider";
 import { initialiseApiMocks } from "../apiMocks/initialise";
+import { mockIds } from "../apiMocks/mockData";
 
 if (process.env.NEXT_PUBLIC_MOCK_API === "true") {
   initialiseApiMocks();
+
+  if (
+    typeof URLSearchParams !== "undefined" &&
+    typeof document !== "undefined"
+  ) {
+    // When deploying the frontend with a mocked back-end,
+    // this query parameter will allow us to automatically "sign in" with one
+    // of the mock users. This is useful to be able to give testers a link
+    // in which to see a particular feature:
+    const searchParams = new URLSearchParams(document.location.search);
+    const mockId = searchParams.get("mockId");
+    const selectedMockId = mockIds.find((id) => id === mockId);
+    if (typeof selectedMockId === "string") {
+      // See `src/hooks/api/api.ts`; this localStorage entry is how we tell the
+      // API mock what mock data we want to load:
+      localStorage.setItem("authToken", selectedMockId);
+    }
+  }
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
