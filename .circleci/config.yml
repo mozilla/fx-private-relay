@@ -82,10 +82,14 @@ jobs:
               -c \
                 'mkdir -p /tmp/test-results/pytest && \
                  mkdir -p /tmp/test-results/coverage && \
-                 /app/.local/bin/coverage run --source=. --branch -m pytest \
-                   --cov=./ --cov-fail-under=60 \
+                 /app/.local/bin/pytest \
+                   --cov=. \
+                   --cov-report=term-missing \
+                   --cov-report=xml \
+                   --cov-fail-under=60 \
+                   --cov-branch \
                    --junitxml=/tmp/test-results/pytest/results.xml && \
-                 /app/.local/bin/coverage xml -o /tmp/test-results/coverage/results.xml'
+                 mv coverage.xml /tmp/test-results/coverage/results.xml'
             # Copy results to local disk
             docker cp test-results:/tmp/test-results /tmp
 
