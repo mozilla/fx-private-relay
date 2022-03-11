@@ -50,7 +50,7 @@ jobs:
           paths:
             - /cache/docker.tar
 
-  test:
+  test_backend:
     docker:
       - image: docker:18.02.0-ce
         auth:
@@ -160,7 +160,7 @@ workflows:
             tags:
               only: /.*/
 
-      - test:
+      - test_backend:
           requires:
             - build
           filters:
@@ -169,7 +169,7 @@ workflows:
 
       - upload_coverage:
           requires:
-            - test
+            - test_backend
           filters:
             tags:
               only: /.*/
@@ -177,7 +177,7 @@ workflows:
       - deploy:
           requires:
             - build
-            - test
+            - test_backend
           filters:
             tags:
               ignore: /addon-.*/
