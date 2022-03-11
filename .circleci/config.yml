@@ -85,6 +85,7 @@ jobs:
                  mkdir -p /tmp/test-results/coverage && \
                  /app/.local/bin/pytest \
                    --cov=. \
+                   --cov-config=.coveragerc \
                    --cov-report=term-missing \
                    --cov-report=xml \
                    --cov-fail-under=60 \
