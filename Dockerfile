@@ -35,6 +35,11 @@ COPY --from=gulp-builder --chown=app /app/static ./static
 COPY --chown=app ./requirements.txt /app/requirements.txt
 RUN pip install --no-cache -r requirements.txt
 COPY --chown=app . /app
+# When the user's Accept-Language is set to `fy`, Django's LocaleMiddleware
+# doesn't load `fy-NL`. This is a workaround to force the Frysian and Swedish
+# localisations to load anyway when appropriate.
+RUN cp -r /app/privaterelay/locales/fy-NL/ privaterelay/locales/fy/
+RUN cp -r /app/privaterelay/locales/sv-SE/ privaterelay/locales/sv/
 COPY --chown=app .env-dist /app/.env
 
 RUN mkdir -p /app/staticfiles && \
