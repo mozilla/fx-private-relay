@@ -3,6 +3,7 @@
 # DOCKERHUB_REPO - docker hub repo, format: <username>/<repo>
 # DOCKER_USER    - login info for docker hub
 # DOCKER_PASS
+# COVERALLS_REPO_TOKEN - used by coveralls-python
 #
 version: 2
 jobs:
@@ -88,13 +89,36 @@ jobs:
                    --cov-report=xml \
                    --cov-fail-under=60 \
                    --cov-branch \
-                   --junitxml=/tmp/test-results/pytest/results.xml && \
-                 mv coverage.xml /tmp/test-results/coverage/results.xml'
+                   --junitxml=/tmp/test-results/pytest/results.xml ; \
+                 mv coverage.xml /tmp/test-results/coverage/results.xml ; \
+                 mv .coverage /tmp/test-results/coverage/.coverage'
+
             # Copy results to local disk
             docker cp test-results:/tmp/test-results /tmp
 
       - store_test_results:
           path: /tmp/test-results
+
+      - save_cache:
+          key: v1-coverage-{{ .Branch }}-{{epoch}}
+          paths:
+            - /tmp/test-results/coverage/.coverage
+
+  upload_coverage:
+    docker:
+      - image: cimg/python:3.7.9-node
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - restore_cache:
+          key: v1-coverage-{{.Branch}}
+      - run:
+          name: Upload coverage
+          command: |
+            pip install coveralls
+            cp /tmp/test-results/coverage/.coverage .
+            coveralls
 
   deploy:
     docker:
@@ -138,6 +162,13 @@ workflows:
       - test:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+
+      - upload_coverage:
+          requires:
+            - test
           filters:
             tags:
               only: /.*/
