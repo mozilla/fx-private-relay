@@ -4,6 +4,7 @@ export type Props = {
   heading: string;
   description: string;
   image: string;
+  videos?: Record<string, string>;
 };
 
 /**
@@ -18,11 +19,40 @@ export type Props = {
 export const WhatsNewContent = (props: Props) => {
   return (
     <div className={styles.wrapper}>
-      <img src={props.image} alt="" />
+      <Hero image={props.image} videos={props.videos} />
       <div className={styles.content}>
         <h2>{props.heading}</h2>
         <p>{props.description}</p>
       </div>
     </div>
+  );
+};
+
+const Hero = (props: Pick<Props, "image" | "videos">) => {
+  if (typeof props.videos === "undefined") {
+    return <img src={props.image} alt="" />;
+  }
+
+  const sources = Object.entries(props.videos).map(([type, source]) => (
+    <source key={source} type={type} src={source} />
+  ));
+
+  return (
+    <>
+      <video
+        // This animation is purely decorative, so screen readers should ignore it:
+        aria-hidden={true}
+        poster={props.image}
+        autoPlay={true}
+        loop={true}
+        muted={true}
+      >
+        {sources}
+        {/* Fall back to the image if the video formats are not supported: */}
+        <img src={props.image} alt="" />
+      </video>
+      {/* This image will only be shown if the user has prefers-reduced-motion on */}
+      <img className={styles["still-alternative"]} src={props.image} alt="" />
+    </>
   );
 };
