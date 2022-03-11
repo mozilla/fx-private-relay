@@ -20,4 +20,20 @@
       padding-bottom: $spacing-sm;
     }
   }
+
+  .still-alternative {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion) {
+    video {
+      display: none;
+    }
+    // Ideally a `display: none` on <source> elements would be enough to
+    // cause the <img> inside <video> to be displayed, but it's not.
+    // Hence, another <img> element:
+    .still-alternative {
+      display: inline-block;
+    }
+  }
 }

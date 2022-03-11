@@ -84,6 +84,14 @@ export const WhatsNewMenu = (props: Props) => {
           )}
           heading={l10n.getString("whatsnew-feature-size-limit-heading")}
           image={SizeLimitHero.src}
+          videos={{
+            // Unfortunately video files cannot currently be imported, so make
+            // sure these files are present in /public. See
+            // https://github.com/vercel/next.js/issues/35248
+            "video/webm; codecs='vp9'":
+              "/animations/whatsnew/size-limit-hero-10mb.webm",
+            "video/mp4": "/animations/whatsnew/size-limit-hero-10mb.mp4",
+          }}
         />
       ),
       hero: SizeLimitHero.src,
