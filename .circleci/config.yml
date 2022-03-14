@@ -3,6 +3,7 @@
 # DOCKERHUB_REPO - docker hub repo, format: <username>/<repo>
 # DOCKER_USER    - login info for docker hub
 # DOCKER_PASS
+# COVERALLS_REPO_TOKEN - used by coveralls-python
 #
 version: 2
 jobs:
@@ -49,7 +50,7 @@ jobs:
           paths:
             - /cache/docker.tar
 
-  test:
+  test_backend:
     docker:
       - image: docker:18.02.0-ce
         auth:
@@ -82,15 +83,43 @@ jobs:
               -c \
                 'mkdir -p /tmp/test-results/pytest && \
                  mkdir -p /tmp/test-results/coverage && \
-                 /app/.local/bin/coverage run --source=. --branch -m pytest \
-                   --cov=./ --cov-fail-under=60 \
-                   --junitxml=/tmp/test-results/pytest/results.xml && \
-                 /app/.local/bin/coverage xml -o /tmp/test-results/coverage/results.xml'
+                 /app/.local/bin/pytest \
+                   --cov=. \
+                   --cov-config=.coveragerc \
+                   --cov-report=term-missing \
+                   --cov-report=xml \
+                   --cov-fail-under=60 \
+                   --cov-branch \
+                   --junitxml=/tmp/test-results/pytest/results.xml ; \
+                 mv coverage.xml /tmp/test-results/coverage/results.xml ; \
+                 mv .coverage /tmp/test-results/coverage/.coverage'
+
             # Copy results to local disk
             docker cp test-results:/tmp/test-results /tmp
 
       - store_test_results:
           path: /tmp/test-results
+
+      - save_cache:
+          key: v1-coverage-{{ .Branch }}-{{epoch}}
+          paths:
+            - /tmp/test-results/coverage/.coverage
+
+  upload_coverage:
+    docker:
+      - image: cimg/python:3.7.9-node
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - restore_cache:
+          key: v1-coverage-{{.Branch}}
+      - run:
+          name: Upload coverage
+          command: |
+            pip install coveralls
+            cp /tmp/test-results/coverage/.coverage .
+            coveralls
 
   deploy:
     docker:
@@ -131,9 +160,16 @@ workflows:
             tags:
               only: /.*/
 
-      - test:
+      - test_backend:
           requires:
             - build
+          filters:
+            tags:
+              only: /.*/
+
+      - upload_coverage:
+          requires:
+            - test_backend
           filters:
             tags:
               only: /.*/
@@ -141,7 +177,7 @@ workflows:
       - deploy:
           requires:
             - build
-            - test
+            - test_backend
           filters:
             tags:
               ignore: /addon-.*/
