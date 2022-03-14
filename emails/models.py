@@ -1,6 +1,7 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
 from hashlib import sha256
+from human_id import generate_id
 import logging
 import random
 import re
@@ -403,7 +404,7 @@ def address_hash(address, subdomain=None, domain=None):
 
 
 def address_default():
-    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
+    return ''.join(generate_id())
 
 
 def has_bad_words(value):

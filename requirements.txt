@@ -15,6 +15,7 @@ dockerflow==2021.7.0
 drf-yasg==1.20.0
 google-measurement-protocol==1.0.0
 gunicorn==19.9.0
+human_id==0.1.0.post3
 jwcrypto==1.0
 markus[datadog]==2.1.0
 pem==20.1.0
