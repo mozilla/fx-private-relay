@@ -85,7 +85,7 @@ export const CategoryFilter = (props: Props) => {
         {...triggerProps}
         ref={triggerRef}
         title={l10n.getString("profile-filter-category-button-tooltip")}
-        className={styles.filterButton}
+        className={styles["filter-button"]}
       >
         <img
           src={filterIcon.src}
@@ -142,12 +142,12 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
         <div
           {...mergeProps(overlayProps, otherProps)}
           ref={overlayRef}
-          className={styles.filterMenu}
+          className={styles["filter-menu"]}
         >
           <form
             onSubmit={onSubmit}
             onReset={onReset}
-            className={styles.filterForm}
+            className={styles["filter-form"]}
           >
             <label>
               <input

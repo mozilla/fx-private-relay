@@ -35,7 +35,7 @@ export const Carousel = (props: Props) => {
         const titleElement = (
           <div className={`${styles.title} ${styles[tab.color]}`}>
             <img src={tab.illustration.src} alt="" />
-            <span className={styles.titleText}>{tab.heading}</span>
+            <span className={styles["title-text"]}>{tab.heading}</span>
           </div>
         );
         return (
@@ -90,7 +90,7 @@ const Tabs = (props: TabsProps) => {
       {...tabListProps}
       ref={tabsRef}
       className={`${styles.sections} ${
-        styles["selected_tab_" + state.selectedItem.index]
+        styles["selected-tab-" + state.selectedItem.index]
       }`}
     >
       {Array.from(state.collection).map((item) => (
@@ -117,7 +117,7 @@ const Tab = (props: TabProps) => {
     <div
       {...tabProps}
       ref={tabRef}
-      className={`${styles.tab} ${isSelected ? styles.isSelected : ""}`}
+      className={`${styles.tab} ${isSelected ? styles["is-selected"] : ""}`}
       data-tab-key={props.item.key}
       id={props.item.key.toString()}
     >
@@ -134,10 +134,10 @@ const Container = ({ state, ...otherProps }: ContainerProps) => {
   const { tabPanelProps } = useTabPanel(otherProps, state, containerRef);
   return (
     <div {...tabPanelProps} ref={containerRef} className={styles.content}>
-      <div className={styles.contentHeading}>
+      <div className={styles["content-heading"]}>
         {state.selectedItem.props["aria-label"]}
       </div>
-      <div className={styles.contentBody}>
+      <div className={styles["content-body"]}>
         {state.selectedItem.props.children}
       </div>
     </div>

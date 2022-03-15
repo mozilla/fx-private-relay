@@ -1,7 +1,7 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
-.faqPage {
+.faq-page {
   background-color: $color-blue-90;
   color: $color-white;
   height: 100%;
@@ -20,7 +20,7 @@
   }
 }
 
-.faqsWrapper {
+.faqs-wrapper {
   max-width: $content-xl;
   margin: 0 auto;
   padding-top: $spacing-2xl;

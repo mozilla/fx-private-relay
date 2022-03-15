@@ -14,7 +14,7 @@
   align-items: center;
   justify-content: center;
 
-  .dialogWrapper {
+  .dialog-wrapper {
     background: $color-white;
     width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
     max-width: 90%;
@@ -39,7 +39,7 @@
       padding: $spacing-lg $spacing-sm;
       border-bottom: 1px solid $color-light-gray-20;
 
-      .warningIcon {
+      .warning-icon {
         color: $color-pink-30;
         padding: $spacing-sm;
 
@@ -49,10 +49,10 @@
       }
     }
 
-    .formWrapper {
+    .form-wrapper {
       text-align: center;
 
-      .formHeading {
+      .form-heading {
         color: $color-dark-gray-70;
         padding: $spacing-lg 0;
       }
@@ -88,7 +88,7 @@
       justify-content: space-between;
       padding-top: $spacing-xl;
 
-      .cancelButton {
+      .cancel-button {
         border-style: none;
         background-color: transparent;
         cursor: pointer;

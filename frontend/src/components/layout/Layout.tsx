@@ -42,7 +42,7 @@ export const Layout = (props: Props) => {
     typeof props.theme !== "undefined"
       ? props.theme === "free"
       : !profiles.data?.[0].has_premium;
-  const darkClass = isDark ? styles.isDark : "";
+  const darkClass = isDark ? styles["is-dark"] : "";
   const premiumLogo = isDark ? logoTypePremiumLight : logoTypePremiumDark;
   const regularLogo = isDark ? logoTypeLight : logoTypeDark;
   // The Premium logo is always shown if the user has Premium
@@ -103,7 +103,7 @@ export const Layout = (props: Props) => {
         {csatSurvey}
         {npsSurvey}
         <header className={`${styles.header} ${darkClass}`}>
-          <div className={styles.logoWrapper}>
+          <div className={styles["logo-wrapper"]}>
             <Link href={homePath}>
               <a className={styles.logo}>
                 <img
@@ -121,13 +121,13 @@ export const Layout = (props: Props) => {
               </a>
             </Link>
           </div>
-          <div className={styles.navWrapper}>
+          <div className={styles["nav-wrapper"]}>
             <Navigation />
           </div>
-          <div className={styles.appPickerWrapper}>
+          <div className={styles["app-picker-wrapper"]}>
             <AppPicker theme={isDark ? "free" : "premium"} />
           </div>
-          <nav className={styles.userMenuWrapper}>
+          <nav className={styles["user-menu-wrapper"]}>
             <UserMenu />
           </nav>
         </header>
@@ -142,7 +142,7 @@ export const Layout = (props: Props) => {
         <footer className={styles.footer}>
           <a
             href="https://www.mozilla.org"
-            className={styles.mozillaLogo}
+            className={styles["mozilla-logo"]}
             target="_blank"
             rel="noopener noreferrer"
           >

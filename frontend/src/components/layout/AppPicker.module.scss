@@ -47,7 +47,7 @@
     background-color: $color-light-gray-10;
   }
 
-  .appPickerHeading {
+  .app-picker-heading {
     color: $color-black;
     padding: $spacing-lg;
     text-align: center;
@@ -66,8 +66,8 @@
     list-style-type: none;
   }
 
-  .menuItemWrapper {
-    .menuLink {
+  .menu-item-wrapper {
+    .menu-link {
       display: flex;
       align-items: center;
       padding: $spacing-md $spacing-lg;
@@ -82,7 +82,7 @@
         color: $color-violet-90;
       }
 
-      &.mozillaLink {
+      &.mozilla-link {
         color: $color-blue-50;
         justify-content: center;
       }
@@ -91,7 +91,7 @@
     &:focus {
       outline: none;
 
-      .menuLink {
+      .menu-link {
         text-decoration: underline;
       }
     }

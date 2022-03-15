@@ -48,9 +48,9 @@ const Home: NextPage = () => {
   };
 
   const plansSection = isPremiumAvailableInCountry(runtimeData.data) ? (
-    <section id="pricing" className={styles.plansWrapper}>
+    <section id="pricing" className={styles["plans-wrapper"]}>
       <div className={styles.plans}>
-        <div className={styles.planComparison}>
+        <div className={styles["plan-comparison"]}>
           <Plans premiumCountriesData={runtimeData.data} />
         </div>
         <div className={styles.callout}>
@@ -82,10 +82,10 @@ const Home: NextPage = () => {
             <img
               src={Testimonials.src}
               alt="Forbes, ZDNet, Lifehacker, PCMag"
-              className={styles.socialProof}
+              className={styles["social-proof"]}
             />
           </div>
-          <div className={styles.demoPhone}>
+          <div className={styles["demo-phone"]}>
             <DemoPhone
               premium={
                 runtimeData.data?.PREMIUM_PLANS.premium_available_in_country ===
@@ -94,8 +94,8 @@ const Home: NextPage = () => {
             />
           </div>
         </section>
-        <section id="how_it_works" className={styles.howItWorksWrapper}>
-          <div className={styles.howItWorks}>
+        <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
+          <div className={styles["how-it-works"]}>
             <h2 className={styles.headline}>
               {l10n.getString("landing-how-it-works-headline")}
             </h2>
@@ -126,8 +126,8 @@ const Home: NextPage = () => {
             </ol>
           </div>
         </section>
-        <section id="use-cases" className={styles.useCasesWrapper}>
-          <div className={styles.useCases}>
+        <section id="use-cases" className={styles["use-cases-wrapper"]}>
+          <div className={styles["use-cases"]}>
             <Carousel
               title={l10n.getString("landing-use-cases-heading")}
               tabs={[
@@ -175,7 +175,7 @@ const Home: NextPage = () => {
           </div>
         </section>
         {plansSection}
-        <section id="faq" className={styles.faqWrapper}>
+        <section id="faq" className={styles["faq-wrapper"]}>
           <div className={styles.faq}>
             <div className={styles.lead}>
               <h2 className={styles.headline}>
@@ -183,7 +183,7 @@ const Home: NextPage = () => {
               </h2>
               <p>
                 <Link href="/faq">
-                  <a className={styles.readMore}>
+                  <a className={styles["read-more"]}>
                     {l10n.getString("landing-faq-cta")}
                   </a>
                 </Link>

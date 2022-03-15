@@ -128,7 +128,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         <a
           ref={linkRefs.monitor}
           href={products.monitor.url}
-          className={`${styles.menuLink} ${styles.monitorLink}`}
+          className={`${styles["menu-link"]} ${styles["monitor-link"]}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -140,7 +140,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         <a
           ref={linkRefs.pocket}
           href={products.pocket.url}
-          className={`${styles.menuLink} ${styles.pocketLink}`}
+          className={`${styles["menu-link"]} ${styles["pocket-link"]}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -155,7 +155,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         <a
           ref={linkRefs.fxDesktop}
           href={products.fxDesktop.url}
-          className={`${styles.menuLink} ${styles.fxDesktopLink}`}
+          className={`${styles["menu-link"]} ${styles["fx-desktop-link"]}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -167,7 +167,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         <a
           ref={linkRefs.fxMobile}
           href={products.fxMobile.url}
-          className={`${styles.menuLink} ${styles.fxMobileLink}`}
+          className={`${styles["menu-link"]} ${styles["fx-mobile-link"]}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -179,7 +179,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         <a
           ref={linkRefs.vpn}
           href={products.vpn.url}
-          className={`${styles.menuLink} ${styles.vpnLink}`}
+          className={`${styles["menu-link"]} ${styles["vpn-link"]}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -193,7 +193,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           href={`https://www.mozilla.org/?utm_source=${encodeURIComponent(
             getRuntimeConfig().frontendOrigin
           )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`}
-          className={`${styles.menuLink} ${styles.mozillaLink}`}
+          className={`${styles["menu-link"]} ${styles["mozilla-link"]}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -306,7 +306,7 @@ const AppPickerPopup = (props: AppPickerPopupProps) => {
           ref={popupRef}
           className={styles.popup}
         >
-          <div className={styles.appPickerHeading}>
+          <div className={styles["app-picker-heading"]}>
             <img src={FirefoxLogo.src} alt="" width={40} height={40} />
             <h2>{l10n.getString("fx-makes-tech")}</h2>
           </div>
@@ -361,7 +361,7 @@ const AppPickerItem = (props: AppPickerItemProps) => {
     <li
       {...mergeProps(menuItemProps, focusProps)}
       ref={menuItemRef}
-      className={styles.menuItemWrapper}
+      className={styles["menu-item-wrapper"]}
     >
       {props.item.rendered}
     </li>

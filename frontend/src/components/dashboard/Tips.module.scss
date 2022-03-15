@@ -30,7 +30,7 @@
       flex: 1 0 auto;
     }
 
-    .closeButton {
+    .close-button {
       background-color: transparent;
       border-style: none;
       border-radius: $border-radius-sm;
@@ -46,19 +46,19 @@
     }
   }
 
-  .tipCarousel {
+  .tip-carousel {
     padding: $spacing-md;
 
     .tip {
       min-height: 15 * 16px;
     }
 
-    .tipSwitcher {
+    .tip-switcher {
       display: flex;
       gap: $spacing-xs;
       justify-content: center;
 
-      .panelDot {
+      .panel-dot {
         color: $color-light-gray-50;
         // Increase the tap target for these dots:
         padding: $spacing-sm $spacing-xs;
@@ -66,7 +66,7 @@
         // Avoid layout shifts when adding a bottom border on focus:
         border: 2px solid transparent;
 
-        &.isSelected {
+        &.is-selected {
           color: $color-pink-30;
         }
 
@@ -95,7 +95,7 @@
   }
 }
 
-.customAliasTip {
+.custom-alias-tip {
   display: flex;
   flex-direction: column;
   gap: $spacing-xs;
@@ -116,7 +116,7 @@
   }
 }
 
-.criticalEmailsTip {
+.critical-emails-tip {
   @include text-body-sm;
   display: flex;
   flex-direction: column;
@@ -129,7 +129,7 @@
   }
 }
 
-.addonSigninTip {
+.addon-signin-tip {
   @include text-body-sm;
   display: flex;
   flex-direction: column;

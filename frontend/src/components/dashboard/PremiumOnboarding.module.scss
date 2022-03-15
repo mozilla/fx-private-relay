@@ -46,14 +46,14 @@
       flex-direction: row;
     }
 
-    .descriptionCaption {
+    .description-caption {
       @include text-body-sm;
       color: $color-purple-30;
       font-weight: 500;
     }
   }
 
-  .actionComplete {
+  .action-complete {
     @include text-body-sm;
     font-family: $font-stack-firefox;
     display: flex;
@@ -84,26 +84,26 @@
     }
   }
 
-  &.stepCustomDomain {
+  &.step-custom-domain {
     max-width: $content-xl;
 
-    .subdomainPickerHeading {
+    .subdomain-picker-heading {
       padding: $spacing-md 0;
     }
 
-    .domainExample {
+    .domain-example {
       @include text-title-2xs;
       color: $color-light-gray-70;
       display: inline-block;
       padding: $spacing-md 0;
 
-      .customizablePart {
+      .customizable-part {
         color: $color-purple-50;
         font-weight: 700;
       }
     }
 
-    .subdomainDescription {
+    .subdomain-description {
       padding: $spacing-md 0;
     }
 
@@ -139,8 +139,8 @@
     }
   }
 
-  &.stepAddon {
-    .addonDescription {
+  &.step-addon {
+    .addon-description {
       // Hide the description of the add-on on small screens,
       // because it isn't available on mobile.
       display: none;
@@ -155,7 +155,7 @@
       @include text-body-md;
     }
 
-    .getAddonButton {
+    .get-addon-button {
       margin-top: $spacing-md;
       // The extension isn't available on mobile,
       // so hide it on small screens:
@@ -175,7 +175,7 @@
   align-items: center;
   width: 100%;
 
-  .skipLink {
+  .skip-link {
     background-color: transparent;
     border-style: none;
     color: $color-blue-50;
@@ -189,11 +189,11 @@
   }
 
   @media screen and (max-width: #{$screen-md}) {
-    .getAddonButton {
+    .get-addon-button {
       display: none;
     }
 
-    .goToDashboardButton {
+    .go-to-dashboard-button {
       display: inline-block;
       visibility: visible;
     }
@@ -204,7 +204,7 @@
     max-width: $content-md;
   }
 
-  .styledProgressBar {
+  .styled-progress-bar {
     display: flex;
     width: 100%;
     max-width: $content-md;
@@ -225,7 +225,7 @@
         transition: box-shadow 1s ease-out, color 0.2s ease-out;
       }
 
-      &.isCompleted {
+      &.is-completed {
         color: $color-violet-30;
 
         span {

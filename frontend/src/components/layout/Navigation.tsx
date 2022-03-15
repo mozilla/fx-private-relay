@@ -51,18 +51,18 @@ export const Navigation = () => {
           label: "nav-profile-sign-in",
         })
       }
-      className={`${styles.link} ${styles.signInButton}`}
+      className={`${styles.link} ${styles["sign-in-button"]}`}
     >
       {l10n.getString("nav-profile-sign-in")}
     </a>
   );
 
   return (
-    <nav aria-label={l10n.getString("nav-menu")} className={styles.siteNav}>
+    <nav aria-label={l10n.getString("nav-menu")} className={styles["site-nav"]}>
       <Link href={homePath}>
         <a
-          className={`${styles.link} ${styles.homeLink} ${
-            router.pathname === homePath ? styles.isActive : null
+          className={`${styles.link} ${styles["home-link"]} ${
+            router.pathname === homePath ? styles["is-active"] : null
           }`}
         >
           {l10n.getString("nav-home")}
@@ -71,7 +71,7 @@ export const Navigation = () => {
       <Link href="/faq">
         <a
           className={`${styles.link} ${
-            router.pathname === "/faq" ? styles.isActive : null
+            router.pathname === "/faq" ? styles["is-active"] : null
           }`}
         >
           {l10n.getString("nav-faq")}

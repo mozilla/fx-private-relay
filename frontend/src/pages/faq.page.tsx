@@ -11,8 +11,8 @@ const Faq: NextPage = () => {
   return (
     <Layout theme="free">
       <main>
-        <div className={styles.faqPage}>
-          <div className={styles.faqsWrapper}>
+        <div className={styles["faq-page"]}>
+          <div className={styles["faqs-wrapper"]}>
             <h1 className={styles.headline}>
               {l10n.getString("faq-headline")}
             </h1>
