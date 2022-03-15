@@ -108,10 +108,14 @@ export const Alias = (props: Props) => {
 
   return (
     <div
-      className={`${styles.aliasCard} ${
-        toggleButtonState.isSelected ? styles.isEnabled : styles.isDisabled
+      className={`${styles["alias-card"]} ${
+        toggleButtonState.isSelected
+          ? styles["is-enabled"]
+          : styles["is-disabled"]
       } ${
-        expandButtonState.isSelected ? styles.isExpanded : styles.isCollapsed
+        expandButtonState.isSelected
+          ? styles["is-expanded"]
+          : styles["is-collapsed"]
       }`}
       style={{
         backgroundImage: backgroundImage
@@ -119,12 +123,12 @@ export const Alias = (props: Props) => {
           : undefined,
       }}
     >
-      <div className={styles.mainData}>
+      <div className={styles["main-data"]}>
         <div className={styles.controls}>
           <button
             {...buttonProps}
             ref={toggleButtonRef}
-            className={styles.toggleButton}
+            className={styles["toggle-button"]}
             aria-label={l10n.getString(
               toggleButtonState.isSelected
                 ? "profile-label-disable-forwarding-button"
@@ -132,10 +136,10 @@ export const Alias = (props: Props) => {
             )}
           ></button>
           {labelEditor}
-          <span className={styles.copyControls}>
-            <span className={styles.copyButtonWrapper}>
+          <span className={styles["copy-controls"]}>
+            <span className={styles["copy-button-wrapper"]}>
               <button
-                className={styles.copyButton}
+                className={styles["copy-button"]}
                 title={l10n.getString("profile-label-click-to-copy")}
                 aria-label={l10n.getString("profile-label-click-to-copy-alt", {
                   address: address,
@@ -143,12 +147,16 @@ export const Alias = (props: Props) => {
                 onClick={copyAddressToClipboard}
               >
                 <samp className={styles.address}>{address}</samp>
-                <img src={copyIcon.src} alt="" className={styles.copyIcon} />
+                <img
+                  src={copyIcon.src}
+                  alt=""
+                  className={styles["copy-icon"]}
+                />
               </button>
               <span
                 aria-hidden={!justCopied}
-                className={`${styles.copiedConfirmation} ${
-                  justCopied ? styles.isShown : ""
+                className={`${styles["copied-confirmation"]} ${
+                  justCopied ? styles["is-shown"] : ""
                 }`}
               >
                 {l10n.getString("profile-label-copied")}
@@ -156,7 +164,7 @@ export const Alias = (props: Props) => {
             </span>
           </span>
         </div>
-        <div className={styles.aliasStats}>
+        <div className={styles["alias-stats"]}>
           <BlockedTooltip>
             <span className={styles.number}>
               {numberFormatter.format(props.alias.num_blocked)}
@@ -174,7 +182,7 @@ export const Alias = (props: Props) => {
             </span>
           </ForwardedTooltip>
         </div>
-        <div className={styles.expandToggle}>
+        <div className={styles["expand-toggle"]}>
           <button {...expandButtonProps} ref={expandButtonRef}>
             <img
               src={arrowDownIcon.src}
@@ -189,13 +197,13 @@ export const Alias = (props: Props) => {
           </button>
         </div>
       </div>
-      <div className={styles.secondaryData}>
+      <div className={styles["secondary-data"]}>
         <dl>
-          <div className={`${styles.forwardTarget} ${styles.metadata}`}>
+          <div className={`${styles["forward-target"]} ${styles.metadata}`}>
             <dt>{l10n.getString("profile-label-forward-emails")}</dt>
             <dd>{props.user.email}</dd>
           </div>
-          <div className={`${styles.dateCreated} ${styles.metadata}`}>
+          <div className={`${styles["date-created"]} ${styles.metadata}`}>
             <dt>{l10n.getString("profile-label-created")}</dt>
             <dd>{renderDate(props.alias.created_at, l10n)}</dd>
           </div>
@@ -222,11 +230,11 @@ const ForwardedTooltip = (props: TooltipProps) => {
   const { tooltipProps } = useTooltip({}, triggerState);
 
   return (
-    <span className={styles.statWrapper}>
+    <span className={styles["stat-wrapper"]}>
       <span
         ref={triggerRef}
         {...tooltipTrigger.triggerProps}
-        className={`${styles.stat} ${styles.forwardedStat}`}
+        className={`${styles.stat} ${styles["forwarded-stat"]}`}
       >
         {props.children}
       </span>
@@ -258,11 +266,11 @@ const BlockedTooltip = (props: TooltipProps) => {
   const { tooltipProps } = useTooltip({}, triggerState);
 
   return (
-    <span className={styles.statWrapper}>
+    <span className={styles["stat-wrapper"]}>
       <span
         ref={triggerRef}
         {...tooltipTrigger.triggerProps}
-        className={`${styles.stat} ${styles.blockedStat}`}
+        className={`${styles.stat} ${styles["blocked-stat"]}`}
       >
         {props.children}
       </span>

@@ -27,7 +27,7 @@ export const Button = forwardRef<
       {...props}
       ref={ref}
       className={`${styles.button} ${props.className} ${
-        props.variant === "destructive" ? styles.isDestructive : ""
+        props.variant === "destructive" ? styles["is-destructive"] : ""
       }`}
     />
   );
@@ -46,7 +46,7 @@ export const LinkButton = forwardRef<
       {...props}
       ref={ref}
       className={`${styles.button} ${props.className} ${
-        props.variant === "destructive" ? styles.isDestructive : ""
+        props.variant === "destructive" ? styles["is-destructive"] : ""
       }`}
     />
   );

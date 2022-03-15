@@ -1,7 +1,7 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
-.permanenceWarning {
+.permanence-warning {
   @include text-body-sm;
   text-align: center;
   padding: $spacing-md $spacing-lg;
@@ -40,7 +40,7 @@
     justify-content: space-between;
     padding-top: $spacing-xl;
 
-    .cancelButton {
+    .cancel-button {
       border-style: none;
       background-color: transparent;
       cursor: pointer;

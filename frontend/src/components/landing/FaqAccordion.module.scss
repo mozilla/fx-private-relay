@@ -33,18 +33,18 @@
     gap: $spacing-md;
   }
 
-  &.isCollapsed {
+  &.is-collapsed {
     dd {
       display: none;
     }
   }
 
-  .plusIcon {
+  .plus-icon {
     transition: transform 0.2s ease-out;
   }
 
-  &.isExpanded {
-    .plusIcon {
+  &.is-expanded {
+    .plus-icon {
       transform: rotate(45deg);
     }
   }

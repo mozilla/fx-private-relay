@@ -34,7 +34,7 @@ export const Plans = (props: Props) => {
     <div className={styles.comparison}>
       <a
         href={getRuntimeConfig().fxaLoginUrl}
-        className={`${styles.plan} ${styles.freePlan}`}
+        className={`${styles.plan} ${styles["free-plan"]}`}
         onClick={() =>
           gaEvent({
             category: "Sign In",
@@ -46,7 +46,7 @@ export const Plans = (props: Props) => {
         <img
           src={RelayWordmark.src}
           alt="Firefox Relay"
-          className={styles.wordMark}
+          className={styles["word-mark"]}
         />
         <b className={styles.price}>
           {l10n.getString("landing-pricing-free-price")}
@@ -55,7 +55,7 @@ export const Plans = (props: Props) => {
           <li>{l10n.getString("landing-pricing-free-feature-1")}</li>
           <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
         </ul>
-        <div ref={freeFauxButtonRef} className={styles.fauxButton}>
+        <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
           {l10n.getString("landing-pricing-free-cta")}
         </div>
       </a>
@@ -65,12 +65,12 @@ export const Plans = (props: Props) => {
       <a
         href={getPremiumSubscribeLink(props.premiumCountriesData)}
         onClick={() => trackPurchaseStart()}
-        className={`${styles.plan} ${styles.premiumPlan}`}
+        className={`${styles.plan} ${styles["premium-plan"]}`}
       >
         <img
           src={RelayPremiumWordmark.src}
           alt="Firefox Relay Premium"
-          className={styles.wordMark}
+          className={styles["word-mark"]}
         />
         <b className={styles.price}>
           {l10n.getString("landing-pricing-premium-price", {
@@ -83,7 +83,7 @@ export const Plans = (props: Props) => {
           <li>{l10n.getString("landing-pricing-premium-feature-3")}</li>
           <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
         </ul>
-        <div ref={premiumFauxButtonRef} className={styles.fauxButton}>
+        <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
           {l10n.getString("nav-profile-sign-up")}
         </div>
       </a>

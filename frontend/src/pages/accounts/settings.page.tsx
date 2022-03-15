@@ -46,7 +46,7 @@ const Settings: NextPage = () => {
   const profile = profileData.data[0];
 
   const currentSettingWarning = profile.server_storage ? null : (
-    <div className={styles.bannerWrapper}>
+    <div className={styles["banner-wrapper"]}>
       <Banner title={l10n.getString("settings-warning-collection-off-heading")}>
         {l10n.getString("settings-warning-collection-off-description")}
       </Banner>
@@ -56,7 +56,7 @@ const Settings: NextPage = () => {
   // i.e. not when it is off on page load.
   const labelCollectionWarning =
     labelCollectionDisabledWarningToggles > 1 && !labelCollectionEnabled ? (
-      <aside role="alert" className={styles.fieldWarning}>
+      <aside role="alert" className={styles["field-warning"]}>
         <img src={infoTriangleIcon.src} alt="" width={20} />
         <p>{l10n.getString("setting-label-collection-off-warning")}</p>
       </aside>
@@ -140,17 +140,17 @@ const Settings: NextPage = () => {
   return (
     <>
       <Layout>
-        <div className={styles.settingsPage}>
+        <div className={styles["settings-page"]}>
           <main className={styles.main}>
             {currentSettingWarning}
-            <div className={styles.settingsFormWrapper}>
-              <form onSubmit={saveSettings} className={styles.settingsForm}>
+            <div className={styles["settings-form-wrapper"]}>
+              <form onSubmit={saveSettings} className={styles["settings-form"]}>
                 <div className={styles.field}>
-                  <h2 className={styles.fieldHeading}>
+                  <h2 className={styles["field-heading"]}>
                     {l10n.getString("setting-label-collection-heading-v2")}
                   </h2>
-                  <div className={styles.fieldContent}>
-                    <div className={styles.fieldControl}>
+                  <div className={styles["field-content"]}>
+                    <div className={styles["field-control"]}>
                       <input
                         type="checkbox"
                         name="label-collection"

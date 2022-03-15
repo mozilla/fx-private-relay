@@ -64,7 +64,7 @@ const MockLogin: NextPage = () => {
     });
 
   return (
-    <div className={styles.mockSession}>
+    <div className={styles["mock-session"]}>
       <p className={styles.lead}>
         Visit{" "}
         <a

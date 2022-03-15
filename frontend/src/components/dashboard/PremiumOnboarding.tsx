@@ -108,7 +108,7 @@ export const PremiumOnboarding = (props: Props) => {
         <button
           ref={skipDomainButtonRef}
           onClick={skipDomain}
-          className={styles.skipLink}
+          className={styles["skip-link"]}
         >
           {l10n.getString("multi-part-onboarding-premium-domain-button-skip")}
         </button>
@@ -158,7 +158,7 @@ export const PremiumOnboarding = (props: Props) => {
         <Button
           ref={continueWithAddonButtonRef}
           onClick={goToDashboard}
-          className={`is-visible-with-addon ${styles.goToDashboardButton}`}
+          className={`is-visible-with-addon ${styles["go-to-dashboard-button"]}`}
         >
           {l10n.getString(
             "multi-part-onboarding-premium-extension-button-dashboard"
@@ -167,7 +167,7 @@ export const PremiumOnboarding = (props: Props) => {
         <button
           ref={skipAddonButtonRef}
           onClick={skipAddon}
-          className={`is-hidden-with-addon ${styles.getAddonButton} ${styles.skipLink}`}
+          className={`is-hidden-with-addon ${styles["get-addon-button"]} ${styles["skip-link"]}`}
         >
           {l10n.getString(
             "multi-part-onboarding-premium-extension-button-skip"
@@ -199,11 +199,11 @@ export const PremiumOnboarding = (props: Props) => {
               })}
             </progress>
           </VisuallyHidden>
-          <ol className={styles.styledProgressBar} aria-hidden={true}>
+          <ol className={styles["styled-progress-bar"]} aria-hidden={true}>
             <li
               className={
                 props.profile.onboarding_state >= 0
-                  ? styles.isCompleted
+                  ? styles["is-completed"]
                   : undefined
               }
             >
@@ -212,7 +212,7 @@ export const PremiumOnboarding = (props: Props) => {
             <li
               className={
                 props.profile.onboarding_state >= 1
-                  ? styles.isCompleted
+                  ? styles["is-completed"]
                   : undefined
               }
             >
@@ -221,14 +221,14 @@ export const PremiumOnboarding = (props: Props) => {
             <li
               className={
                 props.profile.onboarding_state >= 2
-                  ? styles.isCompleted
+                  ? styles["is-completed"]
                   : undefined
               }
             >
               <span></span>3
             </li>
           </ol>
-          <button className={styles.skipLink} onClick={() => quit()}>
+          <button className={styles["skip-link"]} onClick={() => quit()}>
             {l10n.getString("profile-label-skip")}
           </button>
         </div>
@@ -242,7 +242,7 @@ const StepOne = () => {
   const isLargeScreen = useMinViewportWidth("md");
 
   return (
-    <div className={`${styles.step} ${styles.stepWelcome}`}>
+    <div className={`${styles.step} ${styles["step-welcome"]}`}>
       <div>
         <h2>
           {l10n.getString("multi-part-onboarding-premium-welcome-headline")}
@@ -254,7 +254,7 @@ const StepOne = () => {
       <div className={styles.description}>
         <img src={WomanOnCouch.src} alt="" width={350} />
         <p>
-          <span className={styles.descriptionCaption}>
+          <span className={styles["description-caption"]}>
             {l10n.getString("onboarding-premium-title-detail")}
           </span>
           <br />
@@ -284,7 +284,7 @@ const StepTwo = (props: Step2Props) => {
 
   const subdomain =
     typeof props.profile.subdomain === "string" ? (
-      <p className={styles.actionComplete}>
+      <p className={styles["action-complete"]}>
         <span className={styles.label}>
           <img src={checkIcon.src} alt="" width={18} />
           {l10n.getString("profile-label-domain")}
@@ -302,15 +302,15 @@ const StepTwo = (props: Step2Props) => {
     );
 
   return (
-    <div className={`${styles.step} ${styles.stepCustomDomain}`}>
+    <div className={`${styles.step} ${styles["step-custom-domain"]}`}>
       <div>
         <h2>{l10n.getString("multi-part-onboarding-premium-get-domain")}</h2>
       </div>
       <div className={styles.description}>
         <img src={WomanEmail.src} alt="" width={400} />
         <div>
-          <p className={styles.subdomainDescription}>
-            <span className={styles.descriptionCaption}>
+          <p className={styles["subdomain-description"]}>
+            <span className={styles["description-caption"]}>
               {l10n.getString("onboarding-premium-title-detail")}
             </span>
             <br />
@@ -364,12 +364,12 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
 
   return (
     <>
-      <p className={styles.subdomainPickerHeading}>
+      <p className={styles["subdomain-picker-heading"]}>
         {l10n.getString("multi-part-onboarding-premium-domain-cta")}
       </p>
-      <samp className={styles.domainExample}>
+      <samp className={styles["domain-example"]}>
         ***@
-        <span className={styles.customizablePart}>
+        <span className={styles["customizable-part"]}>
           {l10n.getString("banner-register-subdomain-example-address")}
         </span>
         .{getRuntimeConfig().mozmailDomain}
@@ -385,7 +385,7 @@ const StepThree = () => {
   const isLargeScreen = useMinViewportWidth("md");
 
   return (
-    <div className={`${styles.step} ${styles.stepAddon}`}>
+    <div className={`${styles.step} ${styles["step-addon"]}`}>
       <div>
         <h2>
           {l10n.getString(
@@ -399,7 +399,7 @@ const StepThree = () => {
         <img src={ManLaptopEmail.src} alt="" width={500} />
         <div>
           <p>
-            <span className={styles.descriptionCaption}>
+            <span className={styles["description-caption"]}>
               {l10n.getString("onboarding-premium-title-detail")}
             </span>
             <br />
@@ -407,7 +407,9 @@ const StepThree = () => {
             <br />
             {l10n.getString("onboarding-premium-reply-description")}
           </p>
-          <div className={`${styles.addonDescription} is-hidden-with-addon`}>
+          <div
+            className={`${styles["addon-description"]} is-hidden-with-addon`}
+          >
             <h3>
               {l10n.getString(
                 "multi-part-onboarding-premium-extension-get-title"
@@ -421,15 +423,17 @@ const StepThree = () => {
             <LinkButton
               href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
               target="_blank"
-              className={styles.getAddonButton}
+              className={styles["get-addon-button"]}
             >
               {l10n.getString(
                 "multi-part-onboarding-premium-extension-button-download"
               )}
             </LinkButton>
           </div>
-          <div className={`${styles.addonDescription} is-visible-with-addon`}>
-            <div className={styles.actionComplete}>
+          <div
+            className={`${styles["addon-description"]} is-visible-with-addon`}
+          >
+            <div className={styles["action-complete"]}>
               <img src={checkIcon.src} alt="" width={18} />
               {l10n.getString("multi-part-onboarding-premium-extension-added")}
             </div>

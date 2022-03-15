@@ -257,7 +257,7 @@ export const CsatSurvey = (props: Props) => {
     <aside className={styles.wrapper}>
       {question}
       <button
-        className={styles.dismissButton}
+        className={styles["dismiss-button"]}
         onClick={() => dismiss()}
         title={l10n.getString("survey-option-dismiss")}
       >

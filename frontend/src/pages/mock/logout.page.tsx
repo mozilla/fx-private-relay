@@ -24,7 +24,7 @@ const MockLogout: NextPage = () => {
   };
 
   return (
-    <div className={styles.mockSession}>
+    <div className={styles["mock-session"]}>
       <p className={styles.lead}>
         This page mocks logging out to be able to run a separate development
         server for the front-end. To use a production-like login/logout

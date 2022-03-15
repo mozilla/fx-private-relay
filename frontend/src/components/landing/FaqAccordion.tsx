@@ -32,13 +32,13 @@ const QAndA = (props: { entry: Entry }) => {
   return (
     <div
       className={`${styles.entry} ${
-        state.isSelected ? styles.isExpanded : styles.isCollapsed
+        state.isSelected ? styles["is-expanded"] : styles["is-collapsed"]
       }`}
     >
       <dt>
         <button {...buttonProps} ref={buttonRef}>
           <span>{props.entry.q}</span>
-          <img src={PlusIcon.src} alt="" className={styles.plusIcon} />
+          <img src={PlusIcon.src} alt="" className={styles["plus-icon"]} />
         </button>
       </dt>
       <dd>{props.entry.a}</dd>

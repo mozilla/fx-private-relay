@@ -100,7 +100,7 @@ export const UserMenu = () => {
             getRuntimeConfig().frontendOrigin
           }`}
           title={l10n.getString("nav-profile-contact-tooltip")}
-          className={styles.menuLink}
+          className={styles["menu-link"]}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -126,14 +126,14 @@ export const UserMenu = () => {
         key={itemKeys.account}
         textValue={l10n.getString("nav-profile-manage-fxa")}
       >
-        <span className={styles.accountMenuItem}>
-          <b className={styles.userEmail}>{usersData.data[0].email}</b>
+        <span className={styles["account-menu-item"]}>
+          <b className={styles["user-email"]}>{usersData.data[0].email}</b>
           <a
             href={`${runtimeData.data.FXA_ORIGIN}/settings/`}
             ref={accountLinkRef}
             target="_blank"
             rel="noopener noreferrer"
-            className={styles.settingsLink}
+            className={styles["settings-link"]}
           >
             {l10n.getString("nav-profile-manage-fxa")}
           </a>
@@ -147,7 +147,7 @@ export const UserMenu = () => {
           <a
             ref={settingsLinkRef}
             title={l10n.getString("nav-profile-settings-tooltip")}
-            className={styles.menuLink}
+            className={styles["menu-link"]}
           >
             <MenuItemIcon src={SettingsImage.src} />
             {l10n.getString("nav-profile-settings")}
@@ -162,7 +162,7 @@ export const UserMenu = () => {
             getRuntimeConfig().frontendOrigin
           }`}
           title={l10n.getString("nav-profile-help-tooltip")}
-          className={styles.menuLink}
+          className={styles["menu-link"]}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -184,7 +184,7 @@ export const UserMenu = () => {
             name="csrfmiddlewaretoken"
             value={getCsrfToken()}
           />
-          <button type="submit" className={styles.menuButton}>
+          <button type="submit" className={styles["menu-button"]}>
             <MenuItemIcon src={SignoutImage.src} />
             {l10n.getString("nav-profile-sign-out")}
           </button>
@@ -330,7 +330,7 @@ const UserMenuItem = (props: UserMenuItemProps) => {
     <li
       {...mergeProps(menuItemProps, focusProps)}
       ref={menuItemRef}
-      className={styles.menuItemWrapper}
+      className={styles["menu-item-wrapper"]}
     >
       {props.item.rendered}
     </li>

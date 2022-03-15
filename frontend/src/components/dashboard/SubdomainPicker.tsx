@@ -55,13 +55,13 @@ export const SubdomainPicker = (props: Props) => {
   return (
     <div className={styles.card} id="mpp-choose-subdomain">
       <div className={styles.description}>
-        <span aria-hidden={true} className={styles.actionStep}>
+        <span aria-hidden={true} className={styles["action-step"]}>
           {l10n.getString("banner-label-action")}
         </span>
         <h2>{l10n.getString("banner-register-subdomain-headline-aliases")}</h2>
         <samp className={styles.example} aria-hidden={true}>
           ***@
-          <span className={styles.subdomainPart}>
+          <span className={styles["subdomain-part"]}>
             {l10n.getString("banner-register-subdomain-example-address")}
           </span>
           .{getRuntimeConfig().mozmailDomain}

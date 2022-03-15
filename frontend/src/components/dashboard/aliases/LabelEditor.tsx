@@ -49,14 +49,14 @@ export const LabelEditor = (props: Props) => {
   };
 
   return (
-    <form onSubmit={onSubmit} ref={formRef} className={styles.labelForm}>
+    <form onSubmit={onSubmit} ref={formRef} className={styles["label-form"]}>
       <input
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onBlur={onBlur}
         aria-label={l10n.getString("profile-label-edit")}
         ref={inputRef}
-        className={styles.labelInput}
+        className={styles["label-input"]}
         placeholder={l10n.getString("profile-label-placeholder")}
         type="text"
         maxLength={50}
@@ -64,8 +64,8 @@ export const LabelEditor = (props: Props) => {
         pattern=".*\S.*"
       />
       <span
-        className={`${styles.confirmationMessage} ${
-          justSaved ? styles.isShown : styles.isHidden
+        className={`${styles["confirmation-message"]} ${
+          justSaved ? styles["is-shown"] : styles["is-hidden"]
         }`}
         aria-hidden={!justSaved}
       >

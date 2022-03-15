@@ -57,14 +57,14 @@ export const AddressPickerModal = (props: Props) => {
           isDismissable={true}
         >
           <div className={styles.warning}>
-            <span className={styles.warningIcon}>
+            <span className={styles["warning-icon"]}>
               <InfoIcon alt="" />
             </span>
             <p>{l10n.getString("modal-custom-alias-picker-warning")}</p>
           </div>
           <form onSubmit={onSubmit}>
-            <div className={styles.formWrapper}>
-              <p className={styles.formHeading}>
+            <div className={styles["form-wrapper"]}>
+              <p className={styles["form-heading"]}>
                 {l10n.getString("modal-custom-alias-picker-form-heading")}
               </p>
               <div className={styles.prefix}>
@@ -91,7 +91,7 @@ export const AddressPickerModal = (props: Props) => {
               <button
                 {...cancelButton.buttonProps}
                 ref={cancelButtonRef}
-                className={styles.cancelButton}
+                className={styles["cancel-button"]}
               >
                 {l10n.getString("profile-label-cancel")}
               </button>
@@ -123,7 +123,7 @@ const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
     <div className={styles.underlay} {...underlayProps}>
       <FocusScope contain restoreFocus autoFocus>
         <div
-          className={styles.dialogWrapper}
+          className={styles["dialog-wrapper"]}
           {...overlayProps}
           {...dialogProps}
           {...modalProps}

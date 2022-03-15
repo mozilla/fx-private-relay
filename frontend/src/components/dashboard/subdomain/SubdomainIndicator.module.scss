@@ -1,7 +1,7 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
-.openButton {
+.open-button {
   border-style: none;
   background-color: transparent;
   color: inherit;
@@ -13,7 +13,7 @@
   }
 }
 
-.explainerWrapper {
+.explainer-wrapper {
   background-color: $color-white;
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
@@ -43,11 +43,11 @@
     padding: $spacing-md;
   }
 
-  .buttonHeading {
+  .button-heading {
     padding: $spacing-sm 0;
   }
 
-  .generateButton {
+  .generate-button {
     padding: $spacing-sm $spacing-md;
     background-color: transparent;
     border: 2px solid $color-blue-50;
@@ -63,7 +63,7 @@
     }
   }
 
-  .closeButton {
+  .close-button {
     position: absolute;
     top: $spacing-sm;
     right: $spacing-sm;

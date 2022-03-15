@@ -38,7 +38,7 @@
     margin: 0 $spacing-xs;
   }
 
-  &.isDestructive {
+  &.is-destructive {
     background-color: $color-red-50;
 
     &:hover:not(:disabled) {

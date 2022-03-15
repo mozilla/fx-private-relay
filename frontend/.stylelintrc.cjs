@@ -31,6 +31,12 @@ module.exports = {
     "function-url-quotes": "always",
     "no-descending-specificity": null,
     "no-missing-end-of-source-newline": true,
+    "selector-class-pattern": [
+      "^([a-z][a-z0-9]*)(-[a-z0-9]+)*$",
+      {
+        "message": "Expected class selector to be kebab-case",
+      },
+    ],
     "scss/at-rule-no-unknown": true,
     "scss/at-import-partial-extension": null,
     "scss/at-import-partial-extension-whitelist": "scss"

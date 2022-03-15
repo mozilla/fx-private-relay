@@ -1,13 +1,13 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
 
-.buttonWrapper {
+.button-wrapper {
   position: relative;
 }
 
 .popup {
   position: absolute;
   margin-top: $spacing-sm;
-  // Move to the left by the amount of horizontal padding in .menuItemWrapper:
+  // Move to the left by the amount of horizontal padding in .menu-item-wrapper:
   margin-left: -1 * $spacing-md;
   background-color: $color-white;
   border-radius: $border-radius-md;
@@ -17,7 +17,7 @@
   // Overlap the stats with position: relative in the alias cards:
   z-index: 2;
 
-  .menuItemWrapper {
+  .menu-item-wrapper {
     font-family: $font-stack-firefox;
     color: $color-blue-50;
     padding: $spacing-md $spacing-lg;

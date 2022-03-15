@@ -74,7 +74,10 @@ export const Tips = (props: Props) => {
             <InfoIcon alt="" width={20} height={20} />
           </span>
           <h2>{l10n.getString("tips-header-title")}</h2>
-          <button onClick={() => dismissAll()} className={styles.closeButton}>
+          <button
+            onClick={() => dismissAll()}
+            className={styles["close-button"]}
+          >
             <CloseIcon
               alt={l10n.getString("tips-header-button-close-label")}
               width={20}
@@ -82,7 +85,7 @@ export const Tips = (props: Props) => {
             />
           </button>
         </header>
-        <div className={styles.tipCarousel}>
+        <div className={styles["tip-carousel"]}>
           <TipsCarousel defaultSelectedKey={Object.keys(tips)[0]}>
             {Object.entries(tips).map(([key, tip]) => (
               <Item key={key}>{tip}</Item>
@@ -124,7 +127,7 @@ const CustomAliasTip = (props: CustomAliasTipProps) => {
   const { l10n } = useLocalization();
 
   return (
-    <div className={styles.customAliasTip}>
+    <div className={styles["custom-alias-tip"]}>
       <samp>
         @{props.subdomain}.{getRuntimeConfig().mozmailDomain}
       </samp>
@@ -139,7 +142,7 @@ const CriticalEmailsTip = () => {
   const { l10n } = useLocalization();
 
   return (
-    <div className={styles.criticalEmailsTip}>
+    <div className={styles["critical-emails-tip"]}>
       <h3>{l10n.getString("tips-critical-emails-heading")}</h3>
       <p>{l10n.getString("tips-critical-emails-content")}</p>
     </div>
@@ -151,7 +154,7 @@ const AddonSigninTip = () => {
   const { l10n } = useLocalization();
 
   return (
-    <div className={styles.addonSignin}>
+    <div className={styles["addon-signin"]}>
       <h3>{l10n.getString("tips-addon-signin-heading")}</h3>
       <p>{l10n.getString("tips-addon-signin-content")}</p>
     </div>
@@ -180,7 +183,11 @@ const TipsCarousel = (props: Parameters<typeof useTabListState>[0]) => {
         key={tabListState.selectedItem.key}
         tabListState={tabListState}
       />
-      <div {...tabListProps} ref={tabListRef} className={styles.tipSwitcher}>
+      <div
+        {...tabListProps}
+        ref={tabListRef}
+        className={styles["tip-switcher"]}
+      >
         {tipSwitcher}
       </div>
     </div>
@@ -211,7 +218,9 @@ const PanelDot = (props: PanelDotProps) => {
     <div
       {...tabProps}
       ref={dotRef}
-      className={`${styles.panelDot} ${isSelected ? styles.isSelected : ""}`}
+      className={`${styles["panel-dot"]} ${
+        isSelected ? styles["is-selected"] : ""
+      }`}
     >
       <svg
         role="img"

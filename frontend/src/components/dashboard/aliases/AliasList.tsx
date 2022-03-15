@@ -72,7 +72,7 @@ export const AliasList = (props: Props) => {
 
     return (
       <li
-        className={styles.aliasCardWrapper}
+        className={styles["alias-card-wrapper"]}
         key={alias.address + isRandomAlias(alias)}
       >
         <Alias
@@ -92,7 +92,7 @@ export const AliasList = (props: Props) => {
   // for non-Premium users.
   const filters = props.profile.has_premium ? (
     <>
-      <div className={styles.stringFilter}>
+      <div className={styles["string-filter"]}>
         <VisuallyHidden>
           <label htmlFor="stringFilter">
             {l10n.getString("profile-filter-search-placeholder")}
@@ -106,11 +106,11 @@ export const AliasList = (props: Props) => {
           id="stringFilter"
           placeholder={l10n.getString("profile-filter-search-placeholder")}
         />
-        <span className={styles.matchCount}>
+        <span className={styles["match-count"]}>
           {aliases.length}/{props.aliases.length}
         </span>
       </div>
-      <div className={styles.categoryFilter}>
+      <div className={styles["category-filter"]}>
         <CategoryFilter
           onChange={setCategoryFilters}
           selectedFilters={categoryFilters}
@@ -130,12 +130,12 @@ export const AliasList = (props: Props) => {
                 setCategoryFilters({});
                 setStringFilterInput("");
               }}
-              className={styles.clearFiltersButton}
+              className={styles["clear-filters-button"]}
             />
           ),
         }}
       >
-        <p className={styles.emptyStateMessage} />
+        <p className={styles["empty-state-message"]} />
       </Localized>
     ) : null;
 
@@ -143,7 +143,7 @@ export const AliasList = (props: Props) => {
     <section>
       <div className={styles.controls}>
         {filters}
-        <div className={styles.newAliasButton}>
+        <div className={styles["new-alias-button"]}>
           <AliasGenerationButton
             aliases={props.aliases}
             profile={props.profile}

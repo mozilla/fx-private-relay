@@ -16,7 +16,7 @@
   }
 
   .lead,
-  .demoPhone {
+  .demo-phone {
     flex: 1 0 0;
   }
 
@@ -32,7 +32,7 @@
     font-family: $font-stack-firefox;
   }
 
-  .socialProof {
+  .social-proof {
     border: 0 solid $color-light-gray-20;
     border-top-width: 1px;
     border-bottom-width: 1px;
@@ -45,7 +45,7 @@
   }
 }
 
-.perksWrapper {
+.perks-wrapper {
   background-color: $color-white;
 }
 
@@ -106,11 +106,11 @@
   }
 }
 
-.useCasesWrapper {
+.use-cases-wrapper {
   background-color: $color-white;
 }
 
-.useCases {
+.use-cases {
   width: $content-max;
   max-width: 100%;
   margin: 0 auto;
@@ -124,7 +124,7 @@
   }
 }
 
-.plansWrapper {
+.plans-wrapper {
   background: linear-gradient(
     180deg,
     $color-light-gray-20 0%,
@@ -156,7 +156,7 @@
   @media screen and #{$mq-xl} {
     flex-direction: row;
 
-    .planComparison {
+    .plan-comparison {
       padding: $spacing-2xl;
     }
 

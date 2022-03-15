@@ -69,7 +69,7 @@ export const AliasDeletionButton = (props: Props) => {
         isOpen={modalState.isOpen}
         isDismissable={true}
       >
-        <samp className={styles.aliasToDelete}>
+        <samp className={styles["alias-to-delete"]}>
           {getFullAddress(props.alias, props.profile)}
         </samp>
         <Localized
@@ -79,9 +79,9 @@ export const AliasDeletionButton = (props: Props) => {
             strong: <strong />,
           }}
         >
-          <p className={styles.permanenceWarning} />
+          <p className={styles["permanence-warning"]} />
         </Localized>
-        <p className={styles.usageWarning}>
+        <p className={styles["usage-warning"]}>
           {l10n.getString(
             isRandomAlias(props.alias)
               ? "modal-delete-warning-upgrade"
@@ -103,7 +103,7 @@ export const AliasDeletionButton = (props: Props) => {
             <button
               {...cancelButton.buttonProps}
               ref={cancelButtonRef}
-              className={styles.cancelButton}
+              className={styles["cancel-button"]}
             >
               {l10n.getString("profile-label-cancel")}
             </button>
@@ -124,7 +124,7 @@ export const AliasDeletionButton = (props: Props) => {
     <>
       <button
         {...openModalButtonProps}
-        className={styles.deletionButton}
+        className={styles["deletion-button"]}
         ref={openModalButtonRef}
       >
         {l10n.getString("profile-label-delete")}
@@ -151,7 +151,7 @@ const ConfirmationDialog = (props: ConfirmationDialogProps & OverlayProps) => {
     <div className={styles.underlay} {...underlayProps}>
       <FocusScope contain restoreFocus autoFocus>
         <div
-          className={styles.dialogWrapper}
+          className={styles["dialog-wrapper"]}
           {...overlayProps}
           {...dialogProps}
           {...modalProps}

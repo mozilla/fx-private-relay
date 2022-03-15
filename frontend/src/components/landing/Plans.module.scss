@@ -41,7 +41,7 @@
   gap: $spacing-md;
   cursor: pointer;
 
-  &.freePlan {
+  &.free-plan {
     grid-area: free-plan;
     margin-top: $spacing-2xl;
 
@@ -50,12 +50,12 @@
     }
   }
 
-  &.premiumPlan {
+  &.premium-plan {
     grid-area: premium-plan;
     border-color: $color-purple-40;
   }
 
-  .wordMark {
+  .word-mark {
     margin: 0 auto;
   }
 
@@ -76,7 +76,7 @@
     }
   }
 
-  .fauxButton {
+  .faux-button {
     border: 2px solid $color-blue-50;
     border-radius: $border-radius-sm;
     color: $color-blue-50;
@@ -87,7 +87,7 @@
   &:focus {
     outline: none;
 
-    .fauxButton {
+    .faux-button {
       background-color: $color-blue-70;
       border-color: $color-blue-70;
       color: $color-white;
@@ -97,7 +97,7 @@
   &:hover {
     border-color: $color-blue-50;
 
-    .fauxButton {
+    .faux-button {
       background-color: $color-blue-50;
       border-color: $color-blue-50;
       color: $color-white;

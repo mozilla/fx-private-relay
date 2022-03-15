@@ -13,7 +13,7 @@
   align-items: center;
   justify-content: center;
 
-  .dialogWrapper {
+  .dialog-wrapper {
     background: $color-white;
     width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
     max-width: 90%;
@@ -32,7 +32,7 @@
       background-color: $color-light-gray-10;
       padding: $spacing-lg $spacing-md;
 
-      .pickedConfirmation & {
+      .picked-confirmation & {
         padding-bottom: $illustrationOverlap + $spacing-lg;
       }
 
@@ -47,7 +47,7 @@
         }
       }
 
-      .modalTitle {
+      .modal-title {
         font-weight: 400;
 
         .subdomain {
@@ -64,7 +64,7 @@
       }
     }
 
-    .pickedConfirmationBody {
+    .picked-confirmation-body {
       display: flex;
       flex-direction: column;
       gap: $spacing-md;

@@ -73,7 +73,7 @@ export const Banner = (props: BannerProps) => {
   const dismissButton =
     typeof props.dismissal !== "undefined" ? (
       <button
-        className={styles.dismissButton}
+        className={styles["dismiss-button"]}
         onClick={() => dismissal.dismiss()}
         title={l10n.getString("banner-dismiss")}
       >
@@ -91,7 +91,7 @@ export const Banner = (props: BannerProps) => {
         props.hiddenWithAddon === true ? "is-hidden-with-addon" : ""
       }`}
     >
-      <div className={`${styles.highlightWrapper}`}>
+      <div className={`${styles["highlight-wrapper"]}`}>
         {illustration}
         <div>
           {title}
