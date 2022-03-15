@@ -412,8 +412,17 @@ function showBannersIfNecessary() {
   }
 
   const browserIsFirefox = /firefox|FxiOS/i.test(navigator.userAgent);
+  const browserIsChrome = /Chrome|Chromium/i.test(navigator.userAgent);
 
   if (!browserIsFirefox) {
+    if (browserIsChrome) {
+      const chromeExtensionBanner = document.querySelector(".js-install-chrome-extension-banner");
+      chromeExtensionBanner.classList.remove("hidden");
+      // Used to show/hide add-on download prompts in onboarding
+      document.getElementById("profile-main").classList.add("is-not-addon-compatible", "is-chrome-extension-compatible");
+
+      return;
+    }
     const firefoxBanner = document.querySelector(".download-fx-banner");
     firefoxBanner.classList.remove("hidden");
     // Used to show/hide add-on download prompts in onboarding
@@ -765,7 +774,6 @@ function toggleClass(elem) {
    useCaseTitle.forEach( item => {
       item.classList.remove("is-active");
   });
-  useCaseSection.scrollIntoView();
   elem.target.classList.add("is-active");
   window.location.hash = "#use-cases" + "/" + elem.target.dataset.useCase;
 }
@@ -796,7 +804,7 @@ function hashChangeAccordion(){
 
 hashChangeAccordion();
 
-window.onhashchange = hashChangeAccordion;
+window.addEventListener("hashchange", hashChangeAccordion, false);
 
 useCaseTitle.forEach( item => {
     item.addEventListener("click", toggleClass, false);

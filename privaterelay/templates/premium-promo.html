@@ -158,8 +158,8 @@
     <section>
         <div class="container mzp-l-content">
             <h2 class="use-case-headline">{% ftlmsg 'premium-promo-use-cases-headline' %}</h2>
-            <ul class="c-use-case-content has-3">
-                <li class="use-case-title use-case-shopping is-active remove-box-shadow">
+            <ul class="c-use-case-content has-3" id="use-cases">
+                <li class="use-case-title use-case-shopping is-active remove-box-shadow" data-use-case="shopping">
                     <div class="use-case-title-text">{% ftlmsg 'premium-promo-use-cases-shopping-heading' %}</div>
                     <div class="drop-down"></div>
                 </li>
@@ -169,7 +169,7 @@
                         {% ftlmsg 'premium-promo-use-cases-shopping-body' %}
                     </div>
                 </li>
-                <li class="use-case-title use-case-social-networks">
+                <li class="use-case-title use-case-social-networks" data-use-case="social-networks">
                     <div class="use-case-title-text">{% ftlmsg 'premium-promo-use-cases-social-networks-heading' %}</div>
                     <div class="drop-down"></div>
                 </li>
@@ -179,7 +179,7 @@
                         {% ftlmsg 'premium-promo-use-cases-social-networks-body' %}
                     </div>
                 </li>
-                <li class="use-case-title use-case-gaming">
+                <li class="use-case-title use-case-gaming" data-use-case="gaming">
                     <div class="use-case-title-text">{% ftlmsg 'premium-promo-use-cases-gaming-heading' %}</div>
                     <div class="drop-down"></div>
                 </li>

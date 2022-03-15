@@ -420,6 +420,23 @@ firefox-private-relay-addon[data-addon-installed="true"] + firefox-private-relay
     }
 }
 
+// A selector with high specificity to overwrite classes that activate when
+// the extension is installed on Firefox:
+.t-chrome-extension, .is-premium-onboarding .c-premium-onboarding .t-chrome-extension {
+    display: none;
+}
+
+.is-not-addon-compatible.is-chrome-extension-compatible {
+
+    .t-firefox-extension {
+        display: none;
+    }
+
+    .t-chrome-extension {
+        display: initial;
+    }
+}
+
 .c-premium-onboarding-action-completed {
     padding: $spacing-lg;
     padding-inline-end: $spacing-lg;

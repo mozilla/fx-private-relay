@@ -443,6 +443,9 @@ def _sns_message(message_json):
             message_json
         )
     except ClientError as e:
+        if e.response['Error'].get('Code', '') == 'NoSuchKey':
+            logger.error('s3_object_does_not_exist', extra=e.response['Error'])
+            return HttpResponse("Email not in S3", status=404)
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
@@ -605,6 +608,9 @@ def _handle_reply(from_address, message_json, to_address):
             message_json
         )
     except ClientError as e:
+        if e.response['Error'].get('Code', '') == 'NoSuchKey':
+            logger.error('s3_object_does_not_exist', extra=e.response['Error'])
+            return HttpResponse("Email not in S3", status=404)
         logger.error('s3_client_error_get_email', extra=e.response['Error'])
         # we are returning a 500 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
