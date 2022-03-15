@@ -6,7 +6,7 @@
   width: 100%;
   padding: $spacing-lg 0;
 
-  .headerWrapper {
+  .header-wrapper {
     display: flex;
     flex-direction: column;
     gap: $spacing-md;
@@ -16,7 +16,7 @@
       align-items: center;
     }
 
-    .userDetails {
+    .user-details {
       flex: 1 0 auto;
       display: flex;
       flex-direction: column;
@@ -41,7 +41,7 @@
       }
     }
 
-    .accountStats {
+    .account-stats {
       display: flex;
       text-align: center;
       justify-content: space-evenly;
@@ -73,43 +73,43 @@
   }
 }
 
-.profileWrapper {
+.profile-wrapper {
   display: flex;
   flex-direction: column;
   align-items: baseline;
   gap: $spacing-md;
 }
 
-.mainWrapper,
-.bannersWrapper,
-.bottomBannerWrapper,
-.noPremiumHeader,
-.headerWrapper {
+.main-wrapper,
+.banners-wrapper,
+.bottom-banner-wrapper,
+.no-premium-header,
+.header-wrapper {
   max-width: $content-xl;
   width: 100%;
   margin: 0 auto;
   padding: 0 $spacing-md;
 }
 
-.noPremiumHeader {
+.no-premium-header {
   padding-top: $spacing-xl;
 }
 
-.mainWrapper {
+.main-wrapper {
   display: flex;
   flex-direction: column;
   gap: $spacing-xl;
 }
 
-.sizeInformation {
+.size-information {
   padding: 0 0 $spacing-lg;
 }
 
-.bottomBanner {
+.bottom-banner {
   background-color: $color-white;
   width: 100%;
 
-  .bottomBannerWrapper {
+  .bottom-banner-wrapper {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -121,7 +121,7 @@
     }
   }
 
-  .bottomBannerContent {
+  .bottom-banner-content {
     max-width: $screen-sm;
     display: flex;
     flex-direction: column;

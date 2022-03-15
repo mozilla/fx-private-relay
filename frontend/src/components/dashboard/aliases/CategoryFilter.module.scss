@@ -1,6 +1,6 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
 
-.filterButton {
+.filter-button {
   background-color: transparent;
   border-radius: 100%;
   border-style: none;
@@ -24,13 +24,13 @@
   }
 }
 
-.filterMenu {
+.filter-menu {
   box-shadow: $box-shadow-sm;
   background-color: $color-white;
   border-radius: $border-radius-md;
   font-family: $font-stack-firefox;
 
-  .filterForm {
+  .filter-form {
     display: flex;
     flex-direction: column;
 

@@ -14,15 +14,15 @@
   // The focus indicators of contained elements can overflow:
   overflow: visible;
 
-  .stringFilter {
+  .string-filter {
     grid-area: stringFilter;
   }
 
-  .categoryFilter {
+  .category-filter {
     grid-area: categoryFilter;
   }
 
-  .newAliasButton {
+  .new-alias-button {
     grid-area: newAliasButton;
   }
 
@@ -31,7 +31,7 @@
   }
 }
 
-.aliasCardWrapper {
+.alias-card-wrapper {
   padding-top: $spacing-lg;
   list-style-type: none;
 
@@ -40,7 +40,7 @@
   }
 }
 
-.stringFilter {
+.string-filter {
   input {
     @include form-input;
     margin: 0;
@@ -49,7 +49,7 @@
     background-position: left $spacing-sm top 50%;
     // The search icon is 20px wide, surrounded by padding:
     padding-left: calc($spacing-sm + 20px + $spacing-sm);
-    // Leave some space on the right for `.matchCount`
+    // Leave some space on the right for `.match-count`
     padding-right: calc($spacing-sm + 30px);
     width: 100%;
 
@@ -58,7 +58,7 @@
     }
   }
 
-  .matchCount {
+  .match-count {
     opacity: 0;
     transition: opacity 200ms;
     position: absolute;
@@ -67,22 +67,22 @@
   }
   // Show the counter when the search field is focused
   // or has a value:
-  input:not(:placeholder-shown) + .matchCount,
-  input:focus + .matchCount {
+  input:not(:placeholder-shown) + .match-count,
+  input:focus + .match-count {
     opacity: 1;
   }
 }
 
-.categoryFilter {
+.category-filter {
   padding-right: $spacing-md;
 }
 
-.emptyStateMessage {
+.empty-state-message {
   background-color: $color-white;
   border-radius: $border-radius-md;
   padding: $spacing-lg;
 
-  .clearFiltersButton {
+  .clear-filters-button {
     background-color: transparent;
     border-style: none;
     color: $color-blue-50;

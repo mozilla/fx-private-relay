@@ -51,7 +51,7 @@
       padding-right: $spacing-lg;
     }
 
-    .actionStep {
+    .action-step {
       @include text-body-sm;
       color: $color-purple-60;
     }
@@ -65,7 +65,7 @@
       @include text-title-2xs;
       color: $color-light-gray-90;
 
-      .subdomainPart {
+      .subdomain-part {
         color: $color-purple-50;
         font-weight: 700;
       }

@@ -4,7 +4,7 @@
 
 $toggleTransitionDuration: 200ms;
 
-.aliasCard {
+.alias-card {
   border-radius: $border-radius-md;
   padding: 0 $spacing-md;
   transition: background-color $toggleTransitionDuration ease,
@@ -12,12 +12,12 @@ $toggleTransitionDuration: 200ms;
   background-size: cover;
   background-position: top;
 
-  &.isEnabled {
+  &.is-enabled {
     box-shadow: $box-shadow-sm;
     background-color: $color-white;
   }
 
-  &.isDisabled {
+  &.is-disabled {
     background-color: rgba($color-white, 0.5);
   }
 
@@ -26,7 +26,7 @@ $toggleTransitionDuration: 200ms;
   }
 }
 
-.mainData {
+.main-data {
   display: flex;
   padding: $spacing-md 0;
 }
@@ -47,7 +47,7 @@ $toggleTransitionDuration: 200ms;
   }
 }
 
-.toggleButton {
+.toggle-button {
   cursor: pointer;
   height: 1.15rem;
   width: 2rem;
@@ -86,7 +86,7 @@ $toggleTransitionDuration: 200ms;
       background-color $toggleTransitionDuration ease;
   }
 
-  .isDisabled & {
+  .is-disabled & {
     background-color: $color-light-gray-30;
 
     &:hover,
@@ -105,15 +105,15 @@ $toggleTransitionDuration: 200ms;
   }
 }
 
-.copyControls {
+.copy-controls {
   display: flex;
   align-items: center;
 }
 
-.copyButtonWrapper {
+.copy-button-wrapper {
   position: relative;
 
-  .copyButton {
+  .copy-button {
     @include text-body-lg;
     display: flex;
     align-items: center;
@@ -129,7 +129,7 @@ $toggleTransitionDuration: 200ms;
       max-width: $content-md;
     }
 
-    .copyIcon {
+    .copy-icon {
       padding: 0 $spacing-sm;
       opacity: 0.5;
     }
@@ -139,13 +139,13 @@ $toggleTransitionDuration: 200ms;
         text-decoration: underline;
       }
 
-      .copyIcon {
+      .copy-icon {
         opacity: 1;
       }
     }
   }
 
-  .copiedConfirmation {
+  .copied-confirmation {
     opacity: 0;
     pointer-events: none;
     transition: opacity 2s;
@@ -156,14 +156,14 @@ $toggleTransitionDuration: 200ms;
     // By allowing this to overlap other elements,
     // we don't need to reserve empty space for it.
     // Otherwise, this empty space would push the
-    // .expandToggle out of the card on small screens:
+    // .expand-toggle out of the card on small screens:
     position: absolute;
     left: 50%;
     top: 0;
     // right: 0;
     transform: translateX(-50%) translateY(-100%);
 
-    &.isShown {
+    &.is-shown {
       pointer-events: auto;
       opacity: 1;
       // Don't fade in when appearing:
@@ -172,14 +172,14 @@ $toggleTransitionDuration: 200ms;
   }
 }
 
-.aliasStats {
+.alias-stats {
   display: none;
 
   @media screen and #{$mq-md} {
     display: flex;
   }
 
-  .statWrapper {
+  .stat-wrapper {
     position: relative;
     display: flex;
     align-items: center;
@@ -195,7 +195,7 @@ $toggleTransitionDuration: 200ms;
       box-shadow: $box-shadow-sm;
       padding: $spacing-sm $spacing-md;
       border-radius: $border-radius-sm;
-      // Prevent other .statWrapper elements from overlapping this tooltip:
+      // Prevent other .stat-wrapper elements from overlapping this tooltip:
       z-index: 2;
     }
   }
@@ -214,14 +214,14 @@ $toggleTransitionDuration: 200ms;
       font-weight: 700;
     }
 
-    .isEnabled &.blockedStat,
-    .isDisabled &.forwardedStat {
+    .is-enabled &.blocked-stat,
+    .is-disabled &.forwarded-stat {
       opacity: 0.3;
     }
   }
 }
 
-.expandToggle {
+.expand-toggle {
   display: flex;
   align-items: center;
 
@@ -235,14 +235,14 @@ $toggleTransitionDuration: 200ms;
     img {
       transition: transform 200ms;
 
-      .isExpanded & {
+      .is-expanded & {
         transform: rotate(0.5turn);
       }
     }
   }
 }
 
-.secondaryData {
+.secondary-data {
   max-height: 0;
   overflow: hidden;
   border-top: 1px solid transparent;
@@ -251,7 +251,7 @@ $toggleTransitionDuration: 200ms;
   flex-direction: column;
   gap: $spacing-md;
 
-  .isExpanded & {
+  .is-expanded & {
     // An arbitrary high value that allows it to expand to its full height:
     max-height: 100vh;
     border-color: $color-light-gray-30;
@@ -286,11 +286,11 @@ $toggleTransitionDuration: 200ms;
       padding-left: calc($metadataIconSize + $spacing-md);
     }
 
-    .forwardTarget {
+    .forward-target {
       background-image: url("/icons/email.svg");
     }
 
-    .dateCreated {
+    .date-created {
       background-image: url("/icons/calendar.svg");
     }
   }

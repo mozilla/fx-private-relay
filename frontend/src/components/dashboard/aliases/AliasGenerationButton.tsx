@@ -187,7 +187,7 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
   ).buttonProps;
 
   return (
-    <div className={styles.buttonWrapper}>
+    <div className={styles["button-wrapper"]}>
       <Button ref={triggerRef} {...triggerButtonProps}>
         {l10n.getString("profile-label-generate-new-alias")}
         <img src={arrowHeadIcon.src} alt="" width={16} height={16} />
@@ -290,7 +290,7 @@ const AliasTypeMenuItem = (props: AliasTypeMenuItemProps) => {
     <li
       {...mergeProps(menuItemProps, focusProps)}
       ref={menuItemRef}
-      className={styles.menuItemWrapper}
+      className={styles["menu-item-wrapper"]}
     >
       {props.item.rendered}
     </li>

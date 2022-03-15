@@ -18,7 +18,7 @@
     background-image: $firefoxGradient;
   }
 
-  .dismissButton {
+  .dismiss-button {
     position: absolute;
     top: $spacing-sm;
     right: $spacing-sm;
@@ -39,7 +39,7 @@
   }
 }
 
-.highlightWrapper {
+.highlight-wrapper {
   display: flex;
   background-color: $color-white;
 

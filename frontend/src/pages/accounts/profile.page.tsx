@@ -214,7 +214,7 @@ const Profile: NextPage = () => {
       </>
     ) : (
       <>
-        <a className={styles.openButton} href="#mpp-choose-subdomain">
+        <a className={styles["open-button"]} href="#mpp-choose-subdomain">
           {l10n.getString("profile-label-create-domain")}
         </a>
         <InfoTooltip
@@ -233,8 +233,8 @@ const Profile: NextPage = () => {
   // so only show them for Premium users:
   const stats = profile.has_premium ? (
     <section className={styles.header}>
-      <div className={styles.headerWrapper}>
-        <div className={styles.userDetails}>
+      <div className={styles["header-wrapper"]}>
+        <div className={styles["user-details"]}>
           <Localized
             id="profile-label-welcome-html"
             vars={{
@@ -251,7 +251,7 @@ const Profile: NextPage = () => {
             {subdomainMessage}
           </strong>
         </div>
-        <dl className={styles.accountStats}>
+        <dl className={styles["account-stats"]}>
           <div className={styles.stat}>
             <dt className={styles.label}>
               {l10n.getString("profile-stat-label-aliases-used")}
@@ -285,16 +285,16 @@ const Profile: NextPage = () => {
       vars={{ email: user.email }}
       elems={{ span: <span /> }}
     >
-      <section className={styles.noPremiumHeader} />
+      <section className={styles["no-premium-header"]} />
     </Localized>
   );
 
   const bottomPremiumSection =
     profile.has_premium ||
     !isPremiumAvailableInCountry(runtimeData.data) ? null : (
-      <section className={styles.bottomBanner}>
-        <div className={styles.bottomBannerWrapper}>
-          <div className={styles.bottomBannerContent}>
+      <section className={styles["bottom-banner"]}>
+        <div className={styles["bottom-banner-wrapper"]}>
+          <div className={styles["bottom-banner-content"]}>
             <Localized
               id="banner-pack-upgrade-headline-html"
               elems={{ strong: <strong /> }}
@@ -318,7 +318,7 @@ const Profile: NextPage = () => {
     );
 
   const banners = (
-    <section className={styles.bannersWrapper}>
+    <section className={styles["banners-wrapper"]}>
       <ProfileBanners
         profile={profile}
         user={user}
@@ -354,10 +354,10 @@ const Profile: NextPage = () => {
         data-premium-enabled="True"
       ></firefox-private-relay-addon-data>
       <Layout>
-        <main className={styles.profileWrapper}>
+        <main className={styles["profile-wrapper"]}>
           {stats}
           {topBanners}
-          <section className={styles.mainWrapper}>
+          <section className={styles["main-wrapper"]}>
             <Onboarding
               aliases={allAliases}
               onCreate={() => createAlias({ type: "random" })}
@@ -371,7 +371,7 @@ const Profile: NextPage = () => {
               user={user}
               runtimeData={runtimeData.data}
             />
-            <p className={styles.sizeInformation}>
+            <p className={styles["size-information"]}>
               {l10n.getString("profile-supports-email-forwarding", {
                 size: getRuntimeConfig().emailSizeLimitNumber,
                 unit: getRuntimeConfig().emailSizeLimitUnit,

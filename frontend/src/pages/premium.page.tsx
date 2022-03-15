@@ -53,9 +53,9 @@ const PremiumPromo: NextPage = () => {
   };
 
   const plansSection = isPremiumAvailableInCountry(runtimeData.data) ? (
-    <section id="pricing" className={styles.plansWrapper}>
+    <section id="pricing" className={styles["plans-wrapper"]}>
       <div className={styles.plans}>
-        <div className={styles.planComparison}>
+        <div className={styles["plan-comparison"]}>
           <Plans premiumCountriesData={runtimeData.data} />
         </div>
         <div className={styles.callout}>
@@ -126,7 +126,7 @@ const PremiumPromo: NextPage = () => {
             {cta}
             <p>{l10n.getString("premium-promo-availability-warning")}</p>
           </div>
-          <div className={styles.demoPhone}>
+          <div className={styles["demo-phone"]}>
             <DemoPhone
               premium={
                 runtimeData.data?.PREMIUM_PLANS.premium_available_in_country ===
@@ -135,7 +135,7 @@ const PremiumPromo: NextPage = () => {
             />
           </div>
         </section>
-        <section id="perks" className={styles.perksWrapper}>
+        <section id="perks" className={styles["perks-wrapper"]}>
           <div className={styles.perks}>
             <h2 className={styles.headline}>
               {l10n.getString("premium-promo-perks-headline")}
@@ -189,8 +189,8 @@ const PremiumPromo: NextPage = () => {
             </div>
           </div>
         </section>
-        <section id="use-cases" className={styles.useCasesWrapper}>
-          <div className={styles.useCases}>
+        <section id="use-cases" className={styles["use-cases-wrapper"]}>
+          <div className={styles["use-cases"]}>
             <h2 className={styles.headline}>
               {l10n.getString("premium-promo-use-cases-headline")}
             </h2>

@@ -79,7 +79,7 @@ export const ProfileBanners = (props: Props) => {
     );
   }
 
-  return <div className={styles.profileBanners}>{banners}</div>;
+  return <div className={styles["profile-banners"]}>{banners}</div>;
 };
 
 type BounceBannerProps = {

@@ -5,66 +5,66 @@
   display: grid;
   gap: $spacing-lg;
 
-  &.selected_tab_0 {
+  &.selected-tab-0 {
     grid-template-areas:
-      "tab_0"
+      "tab-0"
       "content";
   }
 
-  &.selected_tab_1 {
+  &.selected-tab-1 {
     grid-template-areas:
-      "tab_0"
-      "tab_1"
+      "tab-0"
+      "tab-1"
       "content";
   }
 
-  &.selected_tab_2 {
+  &.selected-tab-2 {
     grid-template-areas:
-      "tab_0"
-      "tab_1"
-      "tab_2"
+      "tab-0"
+      "tab-1"
+      "tab-2"
       "content";
   }
 
-  &.selected_tab_3 {
+  &.selected-tab-3 {
     grid-template-areas:
-      "tab_0"
-      "tab_1"
-      "tab_2"
-      "tab_3"
+      "tab-0"
+      "tab-1"
+      "tab-2"
+      "tab-3"
       "content";
   }
 
-  &.selected_tab_4 {
+  &.selected-tab-4 {
     grid-template-areas:
-      "tab_0"
-      "tab_1"
-      "tab_2"
-      "tab_3"
-      "tab_4"
+      "tab-0"
+      "tab-1"
+      "tab-2"
+      "tab-3"
+      "tab-4"
       "content";
   }
 
-  &.selected_tab_5 {
+  &.selected-tab-5 {
     grid-template-areas:
-      "tab_0"
-      "tab_1"
-      "tab_2"
-      "tab_3"
-      "tab_4"
-      "tab_5"
+      "tab-0"
+      "tab-1"
+      "tab-2"
+      "tab-3"
+      "tab-4"
+      "tab-5"
       "content";
   }
 
-  &.selected_tab_6 {
+  &.selected-tab-6 {
     grid-template-areas:
-      "tab_0"
-      "tab_1"
-      "tab_2"
-      "tab_3"
-      "tab_4"
-      "tab_5"
-      "tab_6"
+      "tab-0"
+      "tab-1"
+      "tab-2"
+      "tab-3"
+      "tab-4"
+      "tab-5"
+      "tab-6"
       "content";
   }
 
@@ -131,7 +131,7 @@
         height: 50px;
       }
 
-      .titleText {
+      .title-text {
         // The ::after of .title has position `absolute`,
         // so without this z-index it would overlap the title text.
         z-index: 2;
@@ -142,12 +142,12 @@
       border-color: hsla(0, 0%, 80%, 0.5);
     }
 
-    &:not(.isSelected):hover .title {
+    &:not(.is-selected):hover .title {
       cursor: pointer;
       box-shadow: none;
     }
 
-    &.isSelected .title {
+    &.is-selected .title {
       box-shadow: none;
     }
   }
@@ -158,7 +158,7 @@
     border-radius: $border-radius-md;
     padding: $spacing-lg;
 
-    .contentHeading {
+    .content-heading {
       display: none;
     }
   }
@@ -184,11 +184,11 @@
         }
       }
 
-      &.isSelected .title {
+      &.is-selected .title {
         position: relative;
       }
 
-      &.isSelected .title::after {
+      &.is-selected .title::after {
         $diameter: 40px;
         content: "";
         display: block;
@@ -207,7 +207,7 @@
       align-items: center;
       gap: $spacing-2xl;
 
-      .contentHeading {
+      .content-heading {
         @include text-title-2xs;
         flex: 1 0 $content-xs;
         font-family: $font-stack-firefox;

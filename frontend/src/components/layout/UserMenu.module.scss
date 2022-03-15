@@ -31,7 +31,7 @@
   list-style-type: none;
   box-shadow: $box-shadow-md;
   border-radius: $border-radius-md;
-  // The .accountMenuItem has its own background color
+  // The .account-menu-item has its own background color
   // (to overlap the $firefoxGradient everywhere but at the bottom),
   // so we need to push it down a bit to avoid that from covering
   // .popup's rounded corners:
@@ -50,8 +50,8 @@
     background-color: $popupBackgroundColor;
   }
 
-  .menuItemWrapper {
-    .accountMenuItem {
+  .menu-item-wrapper {
+    .account-menu-item {
       display: block;
       $gradientWidth: 3px;
       background-image: linear-gradient(
@@ -64,30 +64,30 @@
       padding: $spacing-lg;
       // To avoid overlapping .popup's rounded corners,
       // it has its own padding-top of $border-radius-md. Subtract that from
-      // the .accountMenuItem's padding-top:
+      // the .account-menu-item's padding-top:
       padding-top: $spacing-lg - $border-radius-md;
 
-      .userEmail {
+      .user-email {
         font-weight: 700;
         display: block;
         color: $color-violet-90;
       }
 
-      .settingsLink {
+      .settings-link {
         color: $color-dark-gray-50;
       }
 
       &:hover {
         cursor: pointer;
 
-        .settingsLink {
+        .settings-link {
           text-decoration: underline;
         }
       }
     }
 
-    .menuLink,
-    .menuButton {
+    .menu-link,
+    .menu-button {
       display: flex;
       align-items: center;
       padding: $spacing-md $spacing-lg;
@@ -110,9 +110,9 @@
     &:focus {
       outline: none;
 
-      .menuLink,
-      .menuButton,
-      .settingsLink {
+      .menu-link,
+      .menu-button,
+      .settings-link {
         text-decoration: underline;
       }
     }

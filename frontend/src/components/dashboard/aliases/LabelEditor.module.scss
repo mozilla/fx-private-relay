@@ -1,10 +1,10 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
 
-.labelForm {
+.label-form {
   position: relative;
 }
 
-.labelInput {
+.label-input {
   font-family: $font-stack-firefox;
   background-color: transparent;
   border-color: transparent;
@@ -22,7 +22,7 @@
   }
 }
 
-.confirmationMessage {
+.confirmation-message {
   position: absolute;
   top: 40px;
   left: 0;
@@ -32,12 +32,12 @@
   border-radius: $border-radius-sm;
   transition: opacity 200ms;
   padding: $spacing-xs;
-  // The .copyButtonWrapper is positioned as `relative` as well,
+  // The .copy-button-wrapper is positioned as `relative` as well,
   // leading it to overlap this confirmation message.
   // Thus, this z-index makes this message overlap that.
   z-index: 2;
 
-  &.isShown {
+  &.is-shown {
     opacity: 1;
   }
 

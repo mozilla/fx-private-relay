@@ -42,7 +42,7 @@
     grid-template-areas: "logoWrapper navWrapper appPickerWrapper userMenuWrapper";
   }
 
-  .logoWrapper {
+  .logo-wrapper {
     grid-area: logoWrapper;
     display: flex;
     align-items: center;
@@ -59,21 +59,21 @@
     }
   }
 
-  .navWrapper {
+  .nav-wrapper {
     grid-area: navWrapper;
     display: flex;
     align-items: center;
     padding: $spacing-sm 0;
   }
 
-  .appPickerWrapper {
+  .app-picker-wrapper {
     grid-area: appPickerWrapper;
     display: flex;
     align-items: center;
     padding: 0 $spacing-sm;
   }
 
-  .userMenuWrapper {
+  .user-menu-wrapper {
     grid-area: userMenuWrapper;
     display: flex;
     align-items: center;
@@ -84,7 +84,7 @@
     color: $color-blue-50;
   }
 
-  &.isDark {
+  &.is-dark {
     background-color: $color-blue-90;
     border-bottom: 1px solid rgba($color-dark-gray-90, 0.5);
     box-shadow: 0 0 3px 0 rgba($color-dark-gray-90, 0.5);
@@ -120,7 +120,7 @@
     align-items: center;
   }
 
-  .mozillaLogo {
+  .mozilla-logo {
     padding: $spacing-xl;
   }
 

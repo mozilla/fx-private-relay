@@ -98,7 +98,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
   return (
     <>
       <button
-        className={styles.openButton}
+        className={styles["open-button"]}
         {...openButtonProps}
         ref={openButtonRef}
       >
@@ -116,7 +116,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
             <p className={styles.explanation}>
               {l10n.getString("popover-custom-alias-explainer-explanation")}
             </p>
-            <p className={styles.buttonHeading}>
+            <p className={styles["button-heading"]}>
               {l10n.getString(
                 "popover-custom-alias-explainer-generate-button-heading"
               )}
@@ -124,7 +124,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
             <button
               {...generateButtonProps}
               ref={generateButtonRef}
-              className={styles.generateButton}
+              className={styles["generate-button"]}
             >
               {l10n.getString(
                 "popover-custom-alias-explainer-generate-button-label"
@@ -133,7 +133,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
             <button
               {...closeButtonProps}
               ref={closeButtonRef}
-              className={styles.closeButton}
+              className={styles["close-button"]}
             >
               <CloseIcon
                 alt={l10n.getString(
@@ -184,7 +184,7 @@ const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
           {...dialogProps}
           {...modalProps}
           ref={overlayRef}
-          className={styles.explainerWrapper}
+          className={styles["explainer-wrapper"]}
         >
           <h3 {...titleProps}>
             {l10n.getString("popover-custom-alias-explainer-heading")}

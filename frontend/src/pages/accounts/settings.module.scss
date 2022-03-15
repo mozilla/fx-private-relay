@@ -10,11 +10,11 @@
   padding: $spacing-lg;
 }
 
-.bannerWrapper {
+.banner-wrapper {
   padding-bottom: $spacing-xl;
 }
 
-.settingsForm {
+.settings-form {
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
   padding: $spacing-lg $spacing-xl;
@@ -26,15 +26,15 @@
   padding-bottom: $spacing-sm;
 }
 
-.fieldHeading {
+.field-heading {
   @include text-title-3xs;
   color: $color-dark-gray-50;
   font-weight: 400;
   padding-bottom: $spacing-md;
 }
 
-.fieldContent {
-  .fieldControl {
+.field-content {
+  .field-control {
     display: flex;
     align-items: center;
     gap: $spacing-sm;
@@ -44,7 +44,7 @@
     }
   }
 
-  .fieldWarning {
+  .field-warning {
     display: flex;
     gap: $spacing-sm;
     align-items: flex-start;
@@ -62,7 +62,7 @@
 }
 
 @media screen and #{$mq-md} {
-  .settingsPage {
+  .settings-page {
     display: flex;
     flex-direction: row-reverse;
   }
@@ -106,7 +106,7 @@
     display: flex;
   }
 
-  .fieldHeading {
+  .field-heading {
     width: $content-sm;
     flex-shrink: 0;
   }

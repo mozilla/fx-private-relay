@@ -2,7 +2,7 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 
-.deletionButton {
+.deletion-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -31,7 +31,7 @@
   align-items: center;
   justify-content: center;
 
-  .dialogWrapper {
+  .dialog-wrapper {
     background: $color-white;
     width: calc((#{$content-sm} + #{$content-md}) / 2); // 560px
     max-width: 90%;
@@ -49,21 +49,21 @@
       padding: $spacing-lg $spacing-md;
     }
 
-    .aliasToDelete {
+    .alias-to-delete {
       font-family: $font-stack-firefox;
       display: block;
       text-align: center;
       padding: $spacing-lg $spacing-lg $spacing-sm;
     }
 
-    .permanenceWarning {
+    .permanence-warning {
       @include text-body-sm;
       text-align: center;
       padding: $spacing-sm $spacing-lg;
       color: $color-dark-gray-70;
     }
 
-    .usageWarning {
+    .usage-warning {
       @include text-body-sm;
       text-align: center;
       padding: $spacing-sm $spacing-lg $spacing-lg;
@@ -94,7 +94,7 @@
         justify-content: space-between;
         padding-top: $spacing-xl;
 
-        .cancelButton {
+        .cancel-button {
           border-style: none;
           background-color: transparent;
           cursor: pointer;

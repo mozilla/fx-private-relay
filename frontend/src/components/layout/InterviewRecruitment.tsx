@@ -65,7 +65,7 @@ export const InterviewRecruitment = (props: Props) => {
         {recruitmentLabel}
       </a>
       <button
-        className={styles.dismissButton}
+        className={styles["dismiss-button"]}
         onClick={() => dismissal.dismiss()}
         title={l10n.getString("survey-option-dismiss")}
       >

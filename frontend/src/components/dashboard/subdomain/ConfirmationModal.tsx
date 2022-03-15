@@ -56,7 +56,7 @@ const ConfirmModal = (props: Props) => {
             domain: <span className={styles.domain} />,
           }}
         >
-          <span className={styles.modalTitle} />
+          <span className={styles["modal-title"]} />
         </Localized>
       }
       headline={l10n.getString("modal-domain-register-good-news")}
@@ -77,7 +77,7 @@ const SuccessModal = (props: Props) => {
   const { l10n } = useLocalization();
 
   return (
-    <div className={styles.pickedConfirmation}>
+    <div className={styles["picked-confirmation"]}>
       <PickerDialog
         title={
           <Localized
@@ -91,7 +91,7 @@ const SuccessModal = (props: Props) => {
               domain: <span className={styles.domain} />,
             }}
           >
-            <span className={styles.modalTitle} />
+            <span className={styles["modal-title"]} />
           </Localized>
         }
         headline={l10n.getString("modal-domain-register-success-title")}
@@ -99,7 +99,7 @@ const SuccessModal = (props: Props) => {
         isOpen={props.isOpen}
         isDismissable={true}
       >
-        <div className={styles.pickedConfirmationBody}>
+        <div className={styles["picked-confirmation-body"]}>
           <img src={partyIllustration.src} alt="" />
           <p>{l10n.getString("modal-domain-register-success-copy")}</p>
           <Button onClick={() => props.onClose()}>
@@ -129,7 +129,7 @@ const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
     <div className={styles.underlay} {...underlayProps}>
       <FocusScope contain restoreFocus autoFocus>
         <div
-          className={styles.dialogWrapper}
+          className={styles["dialog-wrapper"]}
           {...overlayProps}
           {...dialogProps}
           {...modalProps}
