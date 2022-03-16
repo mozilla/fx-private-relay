@@ -32,7 +32,7 @@ jobs:
           paths:
             - ./frontend/out/
 
-  build:
+  build_backend:
     docker:
       - image: docker:stable-git
         auth:
@@ -84,7 +84,7 @@ jobs:
           name: docker save fx-private-relay
           command: mkdir --parents /cache; docker save --output /cache/docker.tar "fx-private-relay"
       - save_cache:
-          key: v1-{{ .Branch }}-{{epoch}}
+          key: v1-backend-build-{{ .Branch }}-{{epoch}}
           paths:
             - /cache/docker.tar
 
@@ -128,7 +128,7 @@ jobs:
     steps:
       - setup_remote_docker
       - restore_cache:
-          key: v1-{{.Branch}}
+          key: v1-backend-build-{{.Branch}}
       - run:
           name: Restore Docker image cache
           command: docker load --input /cache/docker.tar
@@ -170,7 +170,7 @@ jobs:
           path: /tmp/test-results
 
       - save_cache:
-          key: v1-coverage-{{ .Branch }}-{{epoch}}
+          key: v1-backend-coverage-{{ .Branch }}-{{epoch}}
           paths:
             - /tmp/test-results/coverage/.coverage
 
@@ -182,7 +182,7 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - restore_cache:
-          key: v1-coverage-{{.Branch}}
+          key: v1-backend-coverage-{{.Branch}}
       - run:
           name: Upload coverage
           command: |
@@ -199,7 +199,7 @@ jobs:
     steps:
       - setup_remote_docker
       - restore_cache:
-          key: v1-{{.Branch}}
+          key: v1-backend-build-{{.Branch}}
       - run:
           name: Restore Docker image cache
           command: docker load --input /cache/docker.tar
@@ -229,7 +229,7 @@ workflows:
             tags:
               only: /.*/
 
-      - build:
+      - build_backend:
           requires:
             - build_frontend
           filters:
@@ -245,7 +245,7 @@ workflows:
 
       - test_backend:
           requires:
-            - build
+            - build_backend
           filters:
             tags:
               only: /.*/
@@ -259,7 +259,7 @@ workflows:
 
       - deploy:
           requires:
-            - build
+            - build_backend
             - test_backend
           filters:
             tags:
