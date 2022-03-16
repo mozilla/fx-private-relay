@@ -27,7 +27,7 @@
     "react-intersection-observer": "^8.33.1",
     "react-stately": "^3.12.2",
     "react-toastify": "^8.1.1",
-    "swr": "^1.2.1"
+    "swr": "^1.2.2"
   },
   "devDependencies": {
     "@next/bundle-analyzer": "^12.1.0",
