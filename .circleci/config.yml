@@ -180,7 +180,7 @@ jobs:
 
   upload_frontend_coverage:
     docker:
-      - image: cimg/python:3.7.9-node
+      - image: cimg/python:3.7.9
     steps:
       - checkout
       - run: git submodule sync
@@ -191,12 +191,12 @@ jobs:
           name: Upload coverage
           command: |
             pip install coveralls
-            cp frontend/coverage/* .
+            cp --recursive frontend/coverage/* .
             coveralls
 
   upload_backend_coverage:
     docker:
-      - image: cimg/python:3.7.9-node
+      - image: cimg/python:3.7.9
     steps:
       - checkout
       - run: git submodule sync
