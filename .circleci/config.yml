@@ -118,10 +118,10 @@ jobs:
       - store_artifacts:
           path: frontend/coverage/
           destination: frontend_test_coverage
-      - save_cache:
-          key: v1-frontend-coverage-{{ .Branch }}-{{epoch}}
+      - persist_to_workspace:
+          root: ./frontend/
           paths:
-            - frontend/coverage/
+            - coverage/
 
   test_backend:
     docker:
@@ -173,10 +173,10 @@ jobs:
       - store_test_results:
           path: /tmp/test-results
 
-      - save_cache:
-          key: v1-backend-coverage-{{ .Branch }}-{{epoch}}
+      - persist_to_workspace:
+          root: /tmp/test-results/
           paths:
-            - /tmp/test-results/coverage/.coverage
+            - coverage/.coverage
 
   upload_coverage:
     docker:
@@ -185,8 +185,10 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - restore_cache:
-          key: v1-coverage-{{.Branch}}
+      - attach_workspace:
+          at: frontend
+      - attach_workspace:
+          at: /tmp/test-results/
       - run:
           name: Upload coverage
           command: |
