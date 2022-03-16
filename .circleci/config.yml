@@ -178,7 +178,7 @@ jobs:
           paths:
             - coverage/.coverage
 
-  upload_coverage:
+  upload_frontend_coverage:
     docker:
       - image: cimg/python:3.7.9-node
     steps:
@@ -187,6 +187,20 @@ jobs:
       - run: git submodule update --init
       - attach_workspace:
           at: frontend
+      - run:
+          name: Upload coverage
+          command: |
+            pip install coveralls
+            cp frontend/coverage/* .
+            coveralls
+
+  upload_backend_coverage:
+    docker:
+      - image: cimg/python:3.7.9-node
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       - attach_workspace:
           at: /tmp/test-results/
       - run:
@@ -194,11 +208,7 @@ jobs:
           command: |
             pip install coveralls
             cp /tmp/test-results/coverage/.coverage .
-            # Using coveralls-lcov as per
-            # https://coveralls-python.readthedocs.io/en/latest/usage/multilang.html
-            gem install coveralls-lcov
-            coveralls-lcov --verbose --dry-run frontend/coverage/lcov.info > frontend_coverage.json
-            coveralls --merge=frontend_coverage.json
+            coveralls
 
   deploy:
     docker:
@@ -260,9 +270,15 @@ workflows:
             tags:
               only: /.*/
 
-      - upload_coverage:
+      - upload_frontend_coverage:
           requires:
             - test_frontend
+          filters:
+            tags:
+              only: /.*/
+
+      - upload_backend_coverage:
+          requires:
             - test_backend
           filters:
             tags:
