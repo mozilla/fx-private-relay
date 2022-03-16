@@ -121,7 +121,7 @@ jobs:
       - persist_to_workspace:
           root: ./frontend/
           paths:
-            - coverage/
+            - coverage/*
 
   test_backend:
     docker:
