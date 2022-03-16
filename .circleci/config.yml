@@ -118,6 +118,10 @@ jobs:
       - store_artifacts:
           path: frontend/coverage/
           destination: frontend_test_coverage
+      - save_cache:
+          key: v1-frontend-coverage-{{ .Branch }}-{{epoch}}
+          paths:
+            - frontend/coverage/
 
   test_backend:
     docker:
@@ -170,7 +174,7 @@ jobs:
           path: /tmp/test-results
 
       - save_cache:
-          key: v1-coverage-{{ .Branch }}-{{epoch}}
+          key: v1-backend-coverage-{{ .Branch }}-{{epoch}}
           paths:
             - /tmp/test-results/coverage/.coverage
 
@@ -188,7 +192,11 @@ jobs:
           command: |
             pip install coveralls
             cp /tmp/test-results/coverage/.coverage .
-            coveralls
+            # Using coveralls-lcov as per
+            # https://coveralls-python.readthedocs.io/en/latest/usage/multilang.html
+            gem install coveralls-lcov
+            coveralls-lcov --verbose --dry-run frontend/coverage/lcov.info > frontend_coverage.json
+            coveralls --merge=frontend_coverage.json
 
   deploy:
     docker:
@@ -252,6 +260,7 @@ workflows:
 
       - upload_coverage:
           requires:
+            - test_frontend
             - test_backend
           filters:
             tags:
