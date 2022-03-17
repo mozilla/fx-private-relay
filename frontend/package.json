@@ -14,6 +14,7 @@
     "lint": "stylelint '**/*.scss' && prettier --check './src' && next lint",
     "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; 0BSD; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL;'",
     "test": "jest",
+    "ui-test": "playwright test",
     "postinstall": "msw init public/ --save",
     "prepare": "cd .. && husky install frontend/.husky"
   },
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^12.1.0",
     "@next/eslint-plugin-next": "^12.1.0",
+    "@playwright/test": "^1.19.2",
     "@testing-library/dom": "^8.11.3",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.4",

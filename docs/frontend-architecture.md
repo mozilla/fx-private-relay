@@ -54,3 +54,29 @@ then set its value in `next.config.js`.
 
 When the feature is rolled out to everyone, the flag can be removed by removing it from
 the mentioned `Record`. TypeScript will then point out everywhere it is used.
+
+## Fix a visual regression test
+
+We use [Playwright](https://playwright.dev/) vor Visual Regression tests.
+To ensure that they render consistently, the screenshots are generated in CI (GitHub Actions).
+Hence, you'll need to push your new code to run the UI tests and generate new screenshots.
+When creating a new Pull Request targeting `main`, the "Playwright Tests"
+workflow will be triggered. If your changes affect what the page looks like,
+they will fail. If you open the relevant workflow run (see
+https://github.com/mozilla/fx-private-relay/actions), you should see that it
+has produced a `playwright-report` artifact. Download and extract that, then open
+the contained `index.html`. You will see an overview of the failed tests,
+along with the "actual" vs "expected" screenshots. Ensure that the difference
+is what you'd expect, then save the actual screenshot to
+/frontend/ui-tests/visualRegression.spec.ts-snapshots/, overwriting the
+relevant previous screenshot.
+
+## Add a new visual regression test
+
+To add a new Visual Regression test, take a look at
+/frontend/ui-tests/visualRegression.spec.ts. After adding the code that
+captures the element you want to snapshot, as above, push your change to GitHub
+and wait for the Workflow to fail. Then, in the workflow's artifacts, download
+the `screenshots` artifact. It should contain the desired snapshot; add it to
+/frontend/ui-tests/visualRegression.spec.ts-snapshots/ and do another push.
+Your test should now succeed.
