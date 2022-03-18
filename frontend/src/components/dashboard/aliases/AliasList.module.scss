@@ -94,3 +94,63 @@
     }
   }
 }
+
+.stale-wrapper {
+  .stale-toggle-button {
+    display: block;
+    width: 100%;
+    cursor: pointer;
+    background-color: transparent;
+    border-style: none;
+    text-align: center;
+    padding: $spacing-lg;
+    color: $color-dark-gray-10;
+    $lineWidth: 2px;
+    background-image: linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(50% - ($lineWidth / 2)),
+      $color-light-gray-30 calc(50% - ($lineWidth / 2)),
+      $color-light-gray-30 calc(50% + ($lineWidth / 2)),
+      transparent calc(50% + ($lineWidth / 2))
+    );
+
+    span {
+      display: inline-flex;
+      gap: $spacing-xs;
+      align-items: center;
+      background-color: $color-light-gray-10;
+      padding: 0 $spacing-xl;
+
+      img {
+        display: inline-block;
+        transition: transform 200ms;
+      }
+    }
+  }
+
+  .stale-aliases {
+    display: flex;
+    flex-direction: column;
+    height: 0;
+    // `visibility` and `overflow` are needed to prevent the hidden element
+    // from taking up space on the page (resulting in white space below the footer):
+    visibility: collapse;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 400ms, height 400ms;
+  }
+
+  &.is-expanded {
+    .stale-toggle-button img {
+      transform: rotate(180deg);
+    }
+
+    .stale-aliases {
+      overflow: initial;
+      height: auto;
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+}

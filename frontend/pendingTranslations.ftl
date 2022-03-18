@@ -44,6 +44,24 @@ profile-filter-category-title = Filter visible aliases
 profile-filter-no-results = No aliases match your selected criteria. <clear-button>Clear all filters.</clear-button>
 
 # Variables:
+#   $count (number) - Number of stale aliases.
+profile-stale-button-active =
+    { $count ->
+        [one] Hide 1 stale alias
+        *[other] Hide { $count } stale aliases
+    }
+# Variables:
+#   $count (number) - Number of stale aliases.
+profile-stale-button-inactive =
+    { $count ->
+        [one] 1 stale alias hidden
+        *[other] { $count } stale aliases hidden
+    }
+# Variables:
+#   $days (number) - Number of days without an email before an alias is marked as stales.
+profile-stale-button-tooltip = Stale aliases have not sent or received emails for { $days } days.
+
+# Variables:
 #   $subdomain (string) - Chosen subdomain, i.e. the part after `@` and before `.mozmail.com`
 #   $domain (string) - Applicable domain, i.e. `.mozmail.com`
 modal-domain-register-available-v2 = <subdomain>{ $subdomain }</subdomain><domain>.{ $domain }</domain> is available!

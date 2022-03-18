@@ -99,7 +99,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
         generated_for: "",
         id: 0,
         last_modified_at: "2020-04-09T00:00:00.000Z",
-        last_used_at: "2020-04-09T00:00:00.000Z",
+        last_used_at: new Date(Date.now()).toISOString(),
         num_blocked: 42,
         num_forwarded: 1337,
         num_spam: 0,

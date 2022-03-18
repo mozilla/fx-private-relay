@@ -2,6 +2,7 @@ import { Localized, useLocalization } from "@fluent/react";
 import { useState } from "react";
 import { VisuallyHidden } from "react-aria";
 import styles from "./AliasList.module.scss";
+import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
 import { Alias } from "./Alias";
@@ -11,6 +12,7 @@ import { UserData } from "../../../hooks/api/user";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
+import { parseDate } from "../../../functions/parseDate";
 
 export type Props = {
   aliases: AliasData[];
@@ -32,6 +34,7 @@ export const AliasList = (props: Props) => {
   const [stringFilterInput, setStringFilterInput] = useState("");
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
+  const [showStale, setShowStale] = useState(false);
 
   if (props.aliases.length === 0) {
     return null;
@@ -43,8 +46,9 @@ export const AliasList = (props: Props) => {
       string: stringFilterInput,
     })
   );
+  const [staleAliases, activeAliases] = splitArray(aliases, isStale);
 
-  const aliasCards = aliases.map((alias, index) => {
+  const aliasToCard = (alias: AliasData, index: number) => {
     const aliasWithLocalLabel = { ...alias };
     if (
       alias.description.length === 0 &&
@@ -86,7 +90,9 @@ export const AliasList = (props: Props) => {
         />
       </li>
     );
-  });
+  };
+  const activeAliasCards = activeAliases.map(aliasToCard);
+  const staleAliasCards = staleAliases.map(aliasToCard);
 
   // With at most five aliases, filters aren't really useful
   // for non-Premium users.
@@ -139,6 +145,34 @@ export const AliasList = (props: Props) => {
       </Localized>
     ) : null;
 
+  const staleSection =
+    staleAliases.length === 0 ? null : (
+      <div
+        className={`${styles["stale-wrapper"]} ${
+          showStale ? styles["is-expanded"] : styles["is-collapsed"]
+        }`}
+      >
+        <button
+          onClick={() => setShowStale(!showStale)}
+          className={styles["stale-toggle-button"]}
+          title={l10n.getString("profile-stale-button-tooltip", { days: 30 })}
+        >
+          <span>
+            <img src={arrowDownIcon.src} alt="" />
+            {l10n.getString(
+              showStale
+                ? "profile-stale-button-active"
+                : "profile-stale-button-inactive",
+              {
+                count: staleAliases.length,
+              }
+            )}
+          </span>
+        </button>
+        <ul className={styles["stale-aliases"]}>{staleAliasCards}</ul>
+      </div>
+    );
+
   return (
     <section>
       <div className={styles.controls}>
@@ -152,7 +186,8 @@ export const AliasList = (props: Props) => {
           />
         </div>
       </div>
-      <ul>{aliasCards}</ul>
+      <ul>{activeAliasCards}</ul>
+      {staleSection}
       {emptyStateMessage}
     </section>
   );
@@ -169,4 +204,37 @@ function sortAliases(aliases: AliasData[]): AliasData[] {
     return aliasBTimestamp - aliasATimestamp;
   });
   return aliasDataCopy;
+}
+
+/**
+ * Returns true if an alias hasn't been used nor modified in the last 30 days.
+ */
+function isStale(alias: AliasData): boolean {
+  const lastModifiedUnixTime = parseDate(alias.last_modified_at).getTime();
+  const now = Date.now();
+  const staleAge = 30 * 24 * 60 * 60 * 1000;
+  if (alias.last_used_at === null) {
+    return now - lastModifiedUnixTime > staleAge;
+  }
+  const lastUsedUnixTime = parseDate(alias.last_used_at).getTime();
+  return (
+    now - lastUsedUnixTime > staleAge && now - lastModifiedUnixTime > staleAge
+  );
+}
+
+function splitArray<T>(
+  array: T[],
+  predicate: (item: T) => boolean
+): [T[], T[]] {
+  return array.reduce(
+    ([matchingEntries, nonMatchingEntries], entry) => {
+      if (predicate(entry)) {
+        matchingEntries.push(entry);
+      } else {
+        nonMatchingEntries.push(entry);
+      }
+      return [matchingEntries, nonMatchingEntries];
+    },
+    [[], []] as [T[], T[]]
+  );
 }
