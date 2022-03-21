@@ -40,7 +40,7 @@
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
                                 <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
-                                <samp class="c-premium-onboarding-subdomain-registration">***@<span id="js-output-mirror"></span>.mozmail.com</samp>
+                                <samp class="c-premium-onboarding-subdomain-registration">***@<span id="js-output-mirror">{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
                                 <form class="c-premium-onboarding-domain-registration-form" id="onboardingDomainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                                     {% csrf_token %}
                                     <input

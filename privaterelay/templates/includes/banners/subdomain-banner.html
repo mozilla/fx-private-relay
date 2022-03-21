@@ -13,7 +13,7 @@
     <div class="subdomain-banner-copy">
       <div class="c-notification-banner-label">{% ftlmsg 'banner-label-action' %}</div>
       <h2>{% ftlmsg 'banner-register-subdomain-headline-aliases' %}</h2>
-      <samp>***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
+      <samp>***@<span id="js-output-mirror">{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
       <p>{% ftlmsg 'banner-register-subdomain-copy' mozmail='mozmail.com' %}</p>
       <a href="/faq">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
     </div>
@@ -21,6 +21,7 @@
       <form id="domainRegistration" method="post" action="{% url 'profile_subdomain' %}">
           {% csrf_token %}
           <input
+            id="js-input-mirror"
             class="js-subdomain-value subdomain-banner-input"
             data-domain="{{ MOZMAIL_DOMAIN }}"
             required
