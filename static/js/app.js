@@ -965,3 +965,12 @@ const premiumOnboarding = {
     
   },
 }
+
+
+// Mirror subdomain typing effect
+const inputMirror = document.getElementById('js-input-mirror');
+const outputMirror = document.getElementById('js-output-mirror');
+
+inputMirror.addEventListener('input', function(event) {
+  outputMirror.innerText = event.target.value.split('').join('');
+});
