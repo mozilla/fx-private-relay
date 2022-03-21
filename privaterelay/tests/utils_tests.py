@@ -50,3 +50,9 @@ class PremiumPlanIDTest(TestCase):
 
         plan_id = premium_plan_id('en', 'at')
         assert plan_id == plans['euro']['at']['id']
+
+        plan_id = premium_plan_id('sv', 'se')
+        assert plan_id == plans['euro']['sv']['id']
+
+        plan_id = premium_plan_id('fi', 'fi')
+        assert plan_id == plans['euro']['fi']['id']

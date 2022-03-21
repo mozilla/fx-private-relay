@@ -304,6 +304,14 @@ PREMIUM_PLAN_ID_MATRIX = {
             "id": "price_1JmRCQJNcmPzuWtRprMnmtax",
             "price": "0,99 €",
         },
+        "sv": {
+            "id": "price_1KQc1PJNcmPzuWtRsEfb6inB",
+            "price": "0,99 €",
+        },
+        "fi": {
+            "id": "price_1KQcA7JNcmPzuWtRPKNacfdn",
+            "price": "0,99 €",
+        },
     },
     "usd": {
         "en": {
@@ -352,6 +360,14 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     # Netherlands
     "nl": {
         "nl": PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
+    },
+    # Sweden
+    "se": {
+        "sv": PREMIUM_PLAN_ID_MATRIX["euro"]["sv"],
+    },
+    # Finland
+    "fi": {
+        "fi": PREMIUM_PLAN_ID_MATRIX["euro"]["fi"],
     },
     "us": {
         "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
@@ -439,8 +455,9 @@ if ADMIN_ENABLED:
 
 LANGUAGE_CODE = 'en'
 
-# Mozilla l10n uses 'zh-tw' and 'zh-cn' language codes, so we need to add those
-# to LANGUAGES so Django's LocaleMiddleware can find them.
+# Mozilla l10n directories use lang-locale language codes,
+# so we need to add those to LANGUAGES so Django's LocaleMiddleware
+# can find them.
 LANGUAGES = settings.LANGUAGES + [
     ('zh-tw', 'Chinese'),
     ('zh-cn', 'Chinese'),
