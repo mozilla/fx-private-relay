@@ -62,7 +62,7 @@
     "prettier": "2.6.0",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.49.9",
-    "stylelint": "^14.5.3",
+    "stylelint": "^14.6.0",
     "stylelint-config-prettier-scss": "^0.0.1",
     "stylelint-config-recommended-scss": "^5.0.2",
     "stylelint-scss": "^4.2.0",
