@@ -56,7 +56,7 @@
     "jest-axe": "^6.0.0",
     "jest-junit": "^13.0.0",
     "license-checker": "^25.0.1",
-    "lint-staged": "^12.3.6",
+    "lint-staged": "^12.3.7",
     "msw": "^0.39.2",
     "next": "^12.1.0",
     "prettier": "2.6.0",
