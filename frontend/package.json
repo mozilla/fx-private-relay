@@ -64,7 +64,7 @@
     "sass": "^1.49.9",
     "stylelint": "^14.6.0",
     "stylelint-config-prettier-scss": "^0.0.1",
-    "stylelint-config-recommended-scss": "^5.0.2",
+    "stylelint-config-recommended-scss": "^6.0.0",
     "stylelint-scss": "^4.2.0",
     "typescript": "^4.6.2"
   },
