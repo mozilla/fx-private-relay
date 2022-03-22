@@ -25,6 +25,8 @@ landing-use-cases-signups-hero-content2 = Before you complete that next signup, 
 banner-download-install-chrome-extension-copy-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using masks even easier.
 multi-part-onboarding-premium-chrome-extension-get-description-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using email masks even easier.
 
+tips-toast-button-expand-label = Learn more
+
 # This copy (and the term "critical email") is not final yet:
 tips-critical-emails-heading = Critical email forwarding
 # This copy (and the term "critical email") is not final yet:

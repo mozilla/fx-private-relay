@@ -360,6 +360,7 @@ const Profile: NextPage = () => {
         <aside>{bottomPremiumSection}</aside>
         <Tips
           profile={profile}
+          randomAliases={aliasData.randomAliasData.data}
           customAliases={aliasData.customAliasData.data}
         />
       </Layout>
