@@ -20,6 +20,8 @@ This is the Analytics plan for Firefox Relay. It documents our use of Google Ana
 
 >Which devices are most commonly used to access the Firefox Relay website?
 
+>Which browser is running the Firefox Relay the add-on?  
+
 **User Behavior:**
 
 >Do users delete aliases?
@@ -69,7 +71,6 @@ We collect data for the following extension events:
 - When the Relay icon is clicked by an unauthenticated user
 
 - When the Relay icon is clicked by a user who has already reached the maximum number of allowed aliases
-
 
 ### Post-install page events:
 
