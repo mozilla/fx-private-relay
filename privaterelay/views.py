@@ -220,11 +220,14 @@ def metrics_event(request):
         return JsonResponse({'msg': 'Could not decode JSON'}, status=415)
     if 'ga_uuid' not in request_data:
         return JsonResponse({'msg': 'No GA uuid found'}, status=404)
+    # "dimension5" is a Google Analytics-specific variable to track a custom dimension.
+    # This dimension is used to determine which browser vendor the add-on is using: Firefox or Chrome
     event_data = event(
         request_data.get('category', None),
         request_data.get('action', None),
         request_data.get('label', None),
         request_data.get('value', None),
+        dimension5=request_data.get('dimension5', None),
     )
     try:
         report(
