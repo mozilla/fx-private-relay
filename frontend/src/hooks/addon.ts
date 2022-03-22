@@ -19,8 +19,6 @@ export type AddonData = Partial<{
    * add-on can take a couple of milliseconds.
    */
   present: boolean;
-  /** Whether the user is logged in in the add-on. */
-  isLoggedIn: boolean;
   /**
    * Alias labels as stored in the add-on.
    *
@@ -76,9 +74,6 @@ const attributeParsers: Record<
 > = {
   "data-addon-installed": (addonElement) => ({
     present: addonElement.getAttribute("data-addon-installed") === "true",
-  }),
-  "data-user-logged-in": (addonElement) => ({
-    isLoggedIn: addonElement.getAttribute("data-user-logged-in") === "true",
   }),
   "data-local-labels": (addonElement) => {
     const localLabelsString = addonElement.getAttribute("data-local-labels");
