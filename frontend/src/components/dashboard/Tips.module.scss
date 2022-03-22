@@ -2,12 +2,38 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
+  // TODO: Stop .expand-button and .card being position: fixed when they overlap
+  //       the footer:
+  // position: relative;
+}
+
+.expand-button {
+  position: fixed;
+  right: $spacing-md;
+  bottom: $spacing-md;
   display: flex;
-  justify-content: flex-end;
-  padding: $spacing-md $spacing-2xl;
+  align-items: center;
+  gap: $spacing-sm;
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  border-style: none;
+  padding: $spacing-md;
+  box-shadow: $box-shadow-sm;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $color-violet-05;
+  }
+
+  .icon {
+    color: $color-pink-30;
+  }
 }
 
 .card {
+  position: fixed;
+  right: $spacing-md;
+  bottom: $spacing-md;
   border-radius: $border-radius-md;
   padding: $spacing-md;
   box-shadow: $box-shadow-sm;
@@ -42,6 +68,33 @@
 
       &:hover {
         color: $color-blue-50;
+      }
+    }
+  }
+
+  .summary {
+    display: flex;
+    gap: $spacing-md;
+    justify-content: space-between;
+    padding-bottom: $spacing-xs;
+
+    b {
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+    }
+
+    button {
+      @include text-body-sm;
+      background-color: transparent;
+      border-style: none;
+      border-radius: $border-radius-sm;
+      color: $color-blue-50;
+      flex-shrink: 0;
+      cursor: pointer;
+
+      &:hover {
+        color: $color-blue-70;
+        text-decoration: underline;
       }
     }
   }
@@ -95,6 +148,19 @@
   }
 }
 
+.generic-tip {
+  @include text-body-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  h3 {
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    color: $color-purple-90;
+  }
+}
+
 .custom-alias-tip {
   display: flex;
   flex-direction: column;
@@ -108,32 +174,6 @@
     color: $color-blue-50;
     font-weight: 700;
   }
-
-  h3 {
-    @include text-title-3xs;
-    font-family: $font-stack-firefox;
-    color: $color-purple-90;
-  }
-}
-
-.critical-emails-tip {
-  @include text-body-sm;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-
-  h3 {
-    @include text-title-3xs;
-    font-family: $font-stack-firefox;
-    color: $color-purple-90;
-  }
-}
-
-.addon-signin-tip {
-  @include text-body-sm;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
 
   h3 {
     @include text-title-3xs;

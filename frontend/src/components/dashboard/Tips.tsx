@@ -1,18 +1,30 @@
-import { useRef, Key, ReactNode } from "react";
+import { useRef, Key, ReactNode, useState } from "react";
 import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { useTabList, useTabPanel, useTab } from "react-aria";
 import { useTabListState, TabListState, Item } from "react-stately";
 import styles from "./Tips.module.scss";
-import { InfoIcon, CloseIcon } from "../Icons";
+import arrowDownIcon from "../../../../static/images/arrowhead.svg";
+import { InfoIcon } from "../Icons";
 import { ProfileData } from "../../hooks/api/profile";
-import { useLocalDismissal } from "../../hooks/localDismissal";
+import { DismissalData, useLocalDismissal } from "../../hooks/localDismissal";
 import { getRuntimeConfig } from "../../config";
-import { CustomAliasData } from "../../hooks/api/aliases";
+import {
+  AliasData,
+  CustomAliasData,
+  RandomAliasData,
+} from "../../hooks/api/aliases";
 
 export type Props = {
   profile: ProfileData;
   customAliases: CustomAliasData[];
+  randomAliases: RandomAliasData[];
+};
+
+export type TipEntry = {
+  title: string;
+  content: ReactNode;
+  dismissal: DismissalData;
 };
 
 /**
@@ -20,51 +32,129 @@ export type Props = {
  */
 export const Tips = (props: Props) => {
   const { l10n } = useLocalization();
-  const dismissals = {
-    customAlias: useLocalDismissal(`tips_customAlias_${props.profile.id}`),
-    criticalEmails: useLocalDismissal(
-      `tips_criticalEmails_${props.profile.id}`
-    ),
-    addonSignin: useLocalDismissal(`tips_addonSignin_${props.profile.id}`),
-  };
-  dismissals.customAlias.isDismissed;
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const tips: Record<Key, ReactNode> = {};
+  const tips: TipEntry[] = [];
 
   // If the user has a custom subdomain, but does not have custom aliases yet,
   // show a tip about how they get created:
+  const customAliasDismissal = useLocalDismissal(
+    `tips_customAlias_${props.profile.id}`
+  );
   if (
     typeof props.profile.subdomain === "string" &&
     props.customAliases.length === 0 &&
-    getRuntimeConfig().featureFlags.generateCustomAliasTip === true &&
-    !dismissals.customAlias.isDismissed
+    getRuntimeConfig().featureFlags.generateCustomAliasTip === true
   ) {
-    tips.customAlias = <CustomAliasTip subdomain={props.profile.subdomain} />;
+    tips.push({
+      title: l10n.getString("tips-custom-alias-heading"),
+      content: <CustomAliasTip subdomain={props.profile.subdomain} />,
+      dismissal: customAliasDismissal,
+    });
   }
 
+  const criticalEmailsDismissal = useLocalDismissal(
+    `tips_criticalEmails_${props.profile.id}`
+  );
+  const allAliases = (props.customAliases as AliasData[]).concat(
+    props.randomAliases
+  );
   if (
     getRuntimeConfig().featureFlags.criticalEmailsTip === true &&
-    !dismissals.criticalEmails.isDismissed
+    props.profile.has_premium &&
+    allAliases.length > 0
+    // TODO: uncomment this when the promo-blocking React UI is merged:
+    // && allAliases.every((alias) => !alias.block_list_emails
   ) {
-    tips.criticalEmails = <CriticalEmailsTip />;
+    tips.push({
+      title: l10n.getString("tips-critical-emails-heading"),
+      // Note: Content of this tip is not yet final, and an animation will be added:
+      content: (
+        <GenericTip
+          title={l10n.getString("tips-critical-emails-heading")}
+          content={<p>{l10n.getString("tips-critical-emails-content")}</p>}
+        />
+      ),
+      dismissal: criticalEmailsDismissal,
+    });
   }
 
-  if (
-    getRuntimeConfig().featureFlags.addonSigninTip === true &&
-    !dismissals.addonSignin.isDismissed
-  ) {
-    tips.addonSignin = <AddonSigninTip />;
+  const addonSigninDismissal = useLocalDismissal(
+    `tips_addonSignin_${props.profile.id}`
+  );
+  if (getRuntimeConfig().featureFlags.addonSigninTip === true) {
+    tips.push({
+      title: l10n.getString("tips-addon-signin-heading"),
+      // Note: Content of this tip is not yet final, and an animation will be added:
+      content: (
+        <GenericTip
+          title={l10n.getString("tips-addon-signin-heading")}
+          content={<p>{l10n.getString("tips-addon-signin-content")}</p>}
+        />
+      ),
+      dismissal: addonSigninDismissal,
+    });
   }
 
-  if (Object.keys(tips).length === 0) {
+  if (tips.length === 0) {
     return null;
   }
 
-  const dismissAll = () => {
-    Object.values(dismissals).forEach((dismissal) => {
-      dismissal.dismiss();
+  const minimise = () => {
+    tips.forEach((tipEntry) => {
+      tipEntry.dismissal.dismiss();
     });
+    setIsExpanded(false);
   };
+
+  if (!isExpanded) {
+    if (tips.every((tipEntry) => tipEntry.dismissal.isDismissed)) {
+      // If there are no active tips that have not been seen yet,
+      // just show a small button that allows pulling up the panel again:
+      return (
+        <div className={styles.wrapper}>
+          <button
+            className={styles["expand-button"]}
+            onClick={() => setIsExpanded(true)}
+          >
+            <span className={styles.icon}>
+              <InfoIcon alt="" width={20} height={20} />
+            </span>
+            <span>{l10n.getString("tips-header-title")}</span>
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <aside className={styles.card}>
+        <header className={styles.header}>
+          <span className={styles.icon}>
+            <InfoIcon alt="" width={20} height={20} />
+          </span>
+          <h2>{l10n.getString("tips-header-title")}</h2>
+          <button
+            onClick={() => minimise()}
+            className={styles["close-button"]}
+            aria-label={l10n.getString("tips-header-button-close-label")}
+          >
+            <img
+              src={arrowDownIcon.src}
+              alt={l10n.getString("tips-header-button-close-label")}
+              width={20}
+              height={20}
+            />
+          </button>
+        </header>
+        <div className={styles.summary}>
+          <b>{tips[0].title}</b>
+          <button onClick={() => setIsExpanded(true)}>
+            {l10n.getString("tips-toast-button-expand-label")}
+          </button>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside className={styles.wrapper}>
@@ -74,11 +164,9 @@ export const Tips = (props: Props) => {
             <InfoIcon alt="" width={20} height={20} />
           </span>
           <h2>{l10n.getString("tips-header-title")}</h2>
-          <button
-            onClick={() => dismissAll()}
-            className={styles["close-button"]}
-          >
-            <CloseIcon
+          <button onClick={() => minimise()} className={styles["close-button"]}>
+            <img
+              src={arrowDownIcon.src}
               alt={l10n.getString("tips-header-button-close-label")}
               width={20}
               height={20}
@@ -86,9 +174,9 @@ export const Tips = (props: Props) => {
           </button>
         </header>
         <div className={styles["tip-carousel"]}>
-          <TipsCarousel defaultSelectedKey={Object.keys(tips)[0]}>
-            {Object.entries(tips).map(([key, tip]) => (
-              <Item key={key}>{tip}</Item>
+          <TipsCarousel defaultSelectedKey={"tip_0"}>
+            {tips.map((tip, index) => (
+              <Item key={`tip_${index}`}>{tip.content}</Item>
             ))}
           </TipsCarousel>
         </div>
@@ -120,9 +208,26 @@ export const Tips = (props: Props) => {
   );
 };
 
+type GenericTipProps = {
+  title: string;
+  content: ReactNode;
+};
+const GenericTip = (props: GenericTipProps) => {
+  return (
+    <div className={styles["generic-tip"]}>
+      <h3>{props.title}</h3>
+      {props.content}
+    </div>
+  );
+};
+
 type CustomAliasTipProps = {
   subdomain: string;
 };
+/**
+ * The tip on using custom aliases also shows the user's domain on top,
+ * so it can't use {@see GenericTip}.
+ */
 const CustomAliasTip = (props: CustomAliasTipProps) => {
   const { l10n } = useLocalization();
 
@@ -133,30 +238,6 @@ const CustomAliasTip = (props: CustomAliasTipProps) => {
       </samp>
       <h3>{l10n.getString("tips-custom-alias-heading-2")}</h3>
       <p>{l10n.getString("tips-custom-alias-content-2")}</p>
-    </div>
-  );
-};
-
-// Note: Content of this tip is not yet final, and an animation will be added:
-const CriticalEmailsTip = () => {
-  const { l10n } = useLocalization();
-
-  return (
-    <div className={styles["critical-emails-tip"]}>
-      <h3>{l10n.getString("tips-critical-emails-heading")}</h3>
-      <p>{l10n.getString("tips-critical-emails-content")}</p>
-    </div>
-  );
-};
-
-// Note: Content of this tip is not yet final, and an animation will be added:
-const AddonSigninTip = () => {
-  const { l10n } = useLocalization();
-
-  return (
-    <div className={styles["addon-signin"]}>
-      <h3>{l10n.getString("tips-addon-signin-heading")}</h3>
-      <p>{l10n.getString("tips-addon-signin-content")}</p>
     </div>
   );
 };
