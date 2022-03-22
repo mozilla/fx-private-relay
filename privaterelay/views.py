@@ -225,6 +225,7 @@ def metrics_event(request):
         request_data.get('action', None),
         request_data.get('label', None),
         request_data.get('value', None),
+        dimension5 = request_data.get('dimension5', None),
     )
     try:
         report(
