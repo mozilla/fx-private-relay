@@ -4,6 +4,7 @@
 .wrapper {
   position: relative;
   padding-bottom: calc($spacing-md * 2 + 2rem);
+  flex: 1 0 0;
 
   .expand-button,
   .card {
