@@ -195,6 +195,9 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run:
+          name: Debug workspace
+          command: find /tmp/workspace -type f
+      - run:
           name: Upload coverage
           command: |
             pip install coveralls
