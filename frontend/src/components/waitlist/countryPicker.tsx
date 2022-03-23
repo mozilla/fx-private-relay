@@ -1,0 +1,63 @@
+import { useLocalization } from "@fluent/react";
+import { SelectHTMLAttributes, useEffect, useState } from "react";
+import { getLocale } from "../../functions/getLocale";
+
+type LocaleDisplayNames = Record<string, string>;
+type Territories = {
+  main: Record<
+    string,
+    {
+      localeDisplayNames: {
+        territories: LocaleDisplayNames;
+      };
+    }
+  >;
+};
+export const CountryPicker = (
+  props: SelectHTMLAttributes<HTMLSelectElement>
+) => {
+  const { l10n } = useLocalization();
+  const currentLocale = getLocale(l10n);
+  const [localeDisplayNames, setLocaleDisplayNames] =
+    useState<LocaleDisplayNames>();
+
+  useEffect(() => {
+    importTerritories(currentLocale).then((localeDisplayNames) => {
+      setLocaleDisplayNames(localeDisplayNames);
+    });
+  }, [currentLocale]);
+
+  const options = Object.entries(localeDisplayNames ?? {})
+    // cldr-localenames-modern also includes names of continents,
+    // whose territory codes consist of numbers.
+    // (See e.g. node_modules/cldr-localenames-modern/main/en/territories.json.)
+    // Since we're only interested in countries, filter those out:
+    .filter(
+      ([code]) =>
+        !["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].some((nr) =>
+          code.includes(nr)
+        )
+    )
+    .sort(([_codeA, nameA], [_codeB, nameB]) => nameA.localeCompare(nameB))
+    .map(([code, name]) => (
+      <option key={code} value={code}>
+        {name}
+      </option>
+    ));
+
+  return <select {...props}>{options}</select>;
+};
+
+async function importTerritories(locale: string): Promise<LocaleDisplayNames> {
+  try {
+    const territories: Territories = await import(
+      `cldr-localenames-modern/main/${locale}/territories.json`
+    );
+    return territories.main[locale].localeDisplayNames.territories;
+  } catch (_e) {
+    const territoriesEn = await import(
+      "cldr-localenames-modern/main/en/territories.json"
+    );
+    return territoriesEn.main.en.localeDisplayNames.territories;
+  }
+}
