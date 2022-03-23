@@ -109,6 +109,8 @@
 
 .content {
   flex-grow: 2;
+  display: flex;
+  flex-direction: column;
   background-color: $color-light-gray-10;
 }
 
