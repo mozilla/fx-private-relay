@@ -130,6 +130,32 @@ jobs:
           paths:
             - test-results/frontend-coverage
 
+  convert_frontend_coverage:
+    docker:
+      - image: cimg/ruby:2.7.2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run:
+          name: Convert Frontend Coverage Report
+          command: |
+            gem install coveralls-lcov
+            # Add frontend to lcov filepaths
+            sed 's|^SF:|SF:frontend/|' \
+              /tmp/workspace/test-results/frontend-coverage/lcov.info \
+              > /tmp/workspace/test-results/frontend-coverage/lcov-prefixed.info
+            # Generate coveralls.json report
+            coveralls-lcov \
+              --verbose --dry-run \
+              /tmp/workspace/test-results/frontend-coverage/lcov-prefixed.info \
+              > /tmp/workspace/test-results/frontend-coverage/coveralls.json
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - test-results/frontend-coverage/lcov-prefixed.info
+            - test-results/frontend-coverage/coveralls.json
+
   test_backend:
     docker:
       - image: docker:18.02.0-ce
@@ -265,9 +291,16 @@ workflows:
             tags:
               only: /.*/
 
-      - upload_coverage:
+      - convert_frontend_coverage:
           requires:
             - test_backend
+          filters:
+            tags:
+              only: /.*/
+
+      - upload_coverage:
+          requires:
+            - convert_frontend_coverage
             - test_frontend
           filters:
             tags:
