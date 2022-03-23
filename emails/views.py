@@ -487,7 +487,7 @@ def _sns_message(message_json):
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     to_address = user_profile.user.email
-    formatted_from_address = generate_relay_From(from_address)
+    formatted_from_address = generate_relay_From(from_address, user_profile)
     response = ses_relay_email(
         formatted_from_address, to_address, subject,
         message_body, attachments, mail, address

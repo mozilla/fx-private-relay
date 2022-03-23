@@ -12,10 +12,16 @@ from emails.utils import (
     get_email_domain_from_settings,
 )
 
+from .models_tests import make_premium_test_user
+
 
 class FormattingToolsTest(TestCase):
     def setUp(self):
         _, self.relay_from = parseaddr(settings.RELAY_FROM_ADDRESS)
+        domain = get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
+        _, self.premium_from = parseaddr(
+            f'replies@{domain}'
+        )
 
     def test_generate_relay_From_with_umlaut(self):
         original_from_address = '"foö bär" <foo@bar.com>'
@@ -66,6 +72,21 @@ class FormattingToolsTest(TestCase):
             expected_encoded_display_name, '<%s>' % self.relay_from
         )
         assert formatted_from_address == expected_formatted_from
+
+    def test_generate_relay_From_with_premium_user(self):
+        premium_user = make_premium_test_user()
+        premium_profile = premium_user.profile_set.first()
+        original_from_address = '"foo bar" <foo@bar.com>'
+        formatted_from_address = generate_relay_From(original_from_address, premium_profile)
+
+        expected_encoded_display_name = (
+            '=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?='
+        )
+        expected_formatted_from = '%s %s' % (
+            expected_encoded_display_name, '<%s>' % self.premium_from
+        )
+        assert formatted_from_address == expected_formatted_from
+
 
     @override_settings(ON_HEROKU=True, SITE_ORIGIN='https://test.com')
     def test_get_email_domain_from_settings_on_heroku(self):
