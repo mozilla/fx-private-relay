@@ -122,6 +122,9 @@ jobs:
           working_directory: ./frontend/
       - store_test_results:
           path: frontend/junit.xml
+      - store_artifacts:
+          path: /tmp/workspace/test-results/frontend-coverage
+          destination: frontend_test_coverage
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
