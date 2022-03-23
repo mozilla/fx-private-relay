@@ -2,15 +2,29 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
-  // TODO: Stop .expand-button and .card being position: fixed when they overlap
-  //       the footer:
-  // position: relative;
+  position: relative;
+  padding-bottom: calc($spacing-md * 2 + 2rem);
+
+  .expand-button,
+  .card {
+    position: fixed;
+    right: $spacing-md;
+    bottom: $spacing-md;
+  }
+
+  // .expand-button and .card stay fixed in the bottom right-hand corner,
+  // until the user has scrolled down enough to move .wrapper in view (which is
+  // located just above the footer), as which point they start scrolling up
+  // again so as not to overlap the footer.
+  &.is-in-view {
+    .expand-button,
+    .card {
+      position: absolute;
+    }
+  }
 }
 
 .expand-button {
-  position: fixed;
-  right: $spacing-md;
-  bottom: $spacing-md;
   display: flex;
   align-items: center;
   gap: $spacing-sm;
@@ -31,9 +45,6 @@
 }
 
 .card {
-  position: fixed;
-  right: $spacing-md;
-  bottom: $spacing-md;
   border-radius: $border-radius-md;
   padding: $spacing-md;
   box-shadow: $box-shadow-sm;

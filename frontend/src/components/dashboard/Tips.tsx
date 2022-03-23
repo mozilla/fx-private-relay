@@ -3,6 +3,7 @@ import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { useTabList, useTabPanel, useTab } from "react-aria";
 import { useTabListState, TabListState, Item } from "react-stately";
+import { useInView } from "react-intersection-observer";
 import styles from "./Tips.module.scss";
 import arrowDownIcon from "../../../../static/images/arrowhead.svg";
 import { InfoIcon } from "../Icons";
@@ -33,6 +34,7 @@ export type TipEntry = {
 export const Tips = (props: Props) => {
   const { l10n } = useLocalization();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [wrapperRef, wrapperIsInView] = useInView({ threshold: 1 });
 
   const tips: TipEntry[] = [];
 
@@ -107,27 +109,70 @@ export const Tips = (props: Props) => {
     setIsExpanded(false);
   };
 
+  let elementToShow = (
+    <div className={styles.card}>
+      <header className={styles.header}>
+        <span className={styles.icon}>
+          <InfoIcon alt="" width={20} height={20} />
+        </span>
+        <h2>{l10n.getString("tips-header-title")}</h2>
+        <button onClick={() => minimise()} className={styles["close-button"]}>
+          <img
+            src={arrowDownIcon.src}
+            alt={l10n.getString("tips-header-button-close-label")}
+            width={20}
+            height={20}
+          />
+        </button>
+      </header>
+      <div className={styles["tip-carousel"]}>
+        <TipsCarousel defaultSelectedKey={"tip_0"}>
+          {tips.map((tip, index) => (
+            <Item key={`tip_${index}`}>{tip.content}</Item>
+          ))}
+        </TipsCarousel>
+      </div>
+      <footer className={styles.footer}>
+        <ul>
+          <li>
+            <Link href="/faq">
+              <a title={l10n.getString("tips-footer-link-faq-tooltip")}>
+                {l10n.getString("tips-footer-link-faq-label")}
+              </a>
+            </Link>
+          </li>
+          <li>
+            <a
+              href={`https://support.mozilla.org/products/relay/?utm_source=${
+                getRuntimeConfig().frontendOrigin
+              }`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={l10n.getString("tips-footer-link-support-tooltip")}
+            >
+              {l10n.getString("tips-footer-link-support-label")}
+            </a>
+          </li>
+        </ul>
+      </footer>
+    </div>
+  );
+
   if (!isExpanded) {
-    if (tips.every((tipEntry) => tipEntry.dismissal.isDismissed)) {
+    elementToShow = tips.every((tipEntry) => tipEntry.dismissal.isDismissed) ? (
       // If there are no active tips that have not been seen yet,
       // just show a small button that allows pulling up the panel again:
-      return (
-        <div className={styles.wrapper}>
-          <button
-            className={styles["expand-button"]}
-            onClick={() => setIsExpanded(true)}
-          >
-            <span className={styles.icon}>
-              <InfoIcon alt="" width={20} height={20} />
-            </span>
-            <span>{l10n.getString("tips-header-title")}</span>
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <aside className={styles.card}>
+      <button
+        className={styles["expand-button"]}
+        onClick={() => setIsExpanded(true)}
+      >
+        <span className={styles.icon}>
+          <InfoIcon alt="" width={20} height={20} />
+        </span>
+        <span>{l10n.getString("tips-header-title")}</span>
+      </button>
+    ) : (
+      <div className={styles.card}>
         <header className={styles.header}>
           <span className={styles.icon}>
             <InfoIcon alt="" width={20} height={20} />
@@ -152,58 +197,18 @@ export const Tips = (props: Props) => {
             {l10n.getString("tips-toast-button-expand-label")}
           </button>
         </div>
-      </aside>
+      </div>
     );
   }
 
   return (
-    <aside className={styles.wrapper}>
-      <div className={styles.card}>
-        <header className={styles.header}>
-          <span className={styles.icon}>
-            <InfoIcon alt="" width={20} height={20} />
-          </span>
-          <h2>{l10n.getString("tips-header-title")}</h2>
-          <button onClick={() => minimise()} className={styles["close-button"]}>
-            <img
-              src={arrowDownIcon.src}
-              alt={l10n.getString("tips-header-button-close-label")}
-              width={20}
-              height={20}
-            />
-          </button>
-        </header>
-        <div className={styles["tip-carousel"]}>
-          <TipsCarousel defaultSelectedKey={"tip_0"}>
-            {tips.map((tip, index) => (
-              <Item key={`tip_${index}`}>{tip.content}</Item>
-            ))}
-          </TipsCarousel>
-        </div>
-        <footer className={styles.footer}>
-          <ul>
-            <li>
-              <Link href="/faq">
-                <a title={l10n.getString("tips-footer-link-faq-tooltip")}>
-                  {l10n.getString("tips-footer-link-faq-label")}
-                </a>
-              </Link>
-            </li>
-            <li>
-              <a
-                href={`https://support.mozilla.org/products/relay/?utm_source=${
-                  getRuntimeConfig().frontendOrigin
-                }`}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={l10n.getString("tips-footer-link-support-tooltip")}
-              >
-                {l10n.getString("tips-footer-link-support-label")}
-              </a>
-            </li>
-          </ul>
-        </footer>
-      </div>
+    <aside
+      ref={wrapperRef}
+      className={`${styles.wrapper} ${
+        wrapperIsInView ? styles["is-in-view"] : styles["is-out-of-view"]
+      }`}
+    >
+      {elementToShow}
     </aside>
   );
 };
