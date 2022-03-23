@@ -111,13 +111,23 @@ jobs:
           working_directory: ./frontend/
       - run:
           name: Test Code
-          command: npm test -- --reporters=jest-junit
+          command: |
+            mkdir --parents /tmp/workspace/test-results/frontend-coverage
+            npm test -- \
+              --ci \
+              --coverage \
+              --coverageDirectory=/tmp/workspace/test-results/frontend-coverage \
+              --coverageReporters=text \
+              --coverageReporters=lcov \
+              --reporters=jest-junit \
+              --reporters=default
           working_directory: ./frontend/
       - store_test_results:
           path: frontend/junit.xml
-      - store_artifacts:
-          path: frontend/coverage/
-          destination: frontend_test_coverage
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - test-results/frontend-coverage
 
   test_backend:
     docker:
@@ -138,20 +148,20 @@ jobs:
           command: |
             # Create a volume owned by the app user
             docker run \
-              --volume /tmp/test-results \
-              --name test-results \
+              --volume /tmp/workspace \
+              --name workspace-test-results \
               alpine \
               /bin/sh -c \
-                "chmod 0777 /tmp/test-results && \
-                 chown 10001:10001 /tmp/test-results"
+                "chmod 0777 /tmp/workspace && \
+                 chown 10001:10001 /tmp/workspace"
             # Run coverage tests, outputting the results in XML format
             docker run \
               --entrypoint "/bin/bash" \
-              --volumes-from test-results \
+              --volumes-from workspace-test-results \
               fx-private-relay \
               -c \
-                'mkdir --parents /tmp/test-results/pytest && \
-                 mkdir --parents /tmp/test-results/coverage && \
+                'mkdir --parents /tmp/workspace/test-results/pytest && \
+                 mkdir --parents /tmp/workspace/test-results/backend-coverage && \
                  /app/.local/bin/pytest \
                    --cov=. \
                    --cov-config=.coveragerc \
@@ -159,36 +169,37 @@ jobs:
                    --cov-report=xml \
                    --cov-fail-under=60 \
                    --cov-branch \
-                   --junitxml=/tmp/test-results/pytest/results.xml ; \
-                 mv coverage.xml /tmp/test-results/coverage/results.xml ; \
-                 mv .coverage /tmp/test-results/coverage/.coverage'
+                   --junitxml=/tmp/workspace/test-results/pytest/results.xml ; \
+                 mv coverage.xml /tmp/workspace/test-results/backend-coverage/results.xml ; \
+                 mv .coverage /tmp/workspace/test-results/backend-coverage/.coverage'
 
             # Copy results to local disk
-            docker cp test-results:/tmp/test-results /tmp
+            docker cp workspace-test-results:/tmp/workspace /tmp
 
       - store_test_results:
-          path: /tmp/test-results
+          path: /tmp/workspace/test-results
 
-      - save_cache:
-          key: v1-backend-coverage-{{ .Branch }}-{{epoch}}
+      - persist_to_workspace:
+          root: /tmp/workspace
           paths:
-            - /tmp/test-results/coverage/.coverage
+            - test-results/pytest
+            - test-results/backend-coverage
 
   upload_coverage:
     docker:
       - image: cimg/python:3.7.9-node
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - restore_cache:
-          key: v1-backend-coverage-{{.Branch}}
       - run:
           name: Upload coverage
           command: |
             pip install coveralls
-            cp /tmp/test-results/coverage/.coverage .
-            coveralls
+            cp /tmp/workspace/test-results/backend-coverage/.coverage .
+            coveralls --merge=/tmp/workspace/frontend-coverage/coverage-final.json
 
   deploy:
     docker:
@@ -253,6 +264,7 @@ workflows:
       - upload_coverage:
           requires:
             - test_backend
+            - test_frontend
           filters:
             tags:
               only: /.*/
