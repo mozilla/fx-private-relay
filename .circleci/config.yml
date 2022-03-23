@@ -293,7 +293,7 @@ workflows:
 
       - convert_frontend_coverage:
           requires:
-            - test_backend
+            - test_frontend
           filters:
             tags:
               only: /.*/
