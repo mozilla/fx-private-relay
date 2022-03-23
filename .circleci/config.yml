@@ -302,7 +302,7 @@ workflows:
       - upload_coverage:
           requires:
             - convert_frontend_coverage
-            - test_frontend
+            - test_backend
           filters:
             tags:
               only: /.*/
