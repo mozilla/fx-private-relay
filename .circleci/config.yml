@@ -117,8 +117,6 @@ jobs:
               --ci \
               --coverage \
               --coverageDirectory=/tmp/workspace/test-results/frontend-coverage \
-              --coverageReporters=text \
-              --coverageReporters=lcov \
               --reporters=jest-junit \
               --reporters=default
           working_directory: ./frontend/
