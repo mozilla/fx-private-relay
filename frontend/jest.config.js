@@ -50,7 +50,14 @@ const customJestConfig = {
   // ],
 
   // An object that configures minimum threshold enforcement for coverage results
-  // coverageThreshold: undefined,
+  coverageThreshold: {
+    global: {
+      branches: 40,
+      functions: 30,
+      lines: 40,
+      statements: 40,
+    },
+  },
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
