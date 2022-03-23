@@ -111,13 +111,51 @@ jobs:
           working_directory: ./frontend/
       - run:
           name: Test Code
-          command: npm test -- --reporters=jest-junit
+          command: |
+            mkdir --parents /tmp/workspace/test-results/frontend-coverage
+            npm test -- \
+              --ci \
+              --coverage \
+              --coverageDirectory=/tmp/workspace/test-results/frontend-coverage \
+              --reporters=jest-junit \
+              --reporters=default
           working_directory: ./frontend/
       - store_test_results:
           path: frontend/junit.xml
       - store_artifacts:
-          path: frontend/coverage/
+          path: /tmp/workspace/test-results/frontend-coverage
           destination: frontend_test_coverage
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - test-results/frontend-coverage
+
+  convert_frontend_coverage:
+    docker:
+      - image: cimg/ruby:2.7.2
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - run: gem install coveralls-lcov
+      - run:
+          name: Add frontend prefix to lcov.info
+          command: |
+            sed 's|^SF:|SF:frontend/|' \
+              /tmp/workspace/test-results/frontend-coverage/lcov.info \
+              > /tmp/workspace/test-results/frontend-coverage/lcov-prefixed.info
+      - run:
+          name: Generate coveralls.json report
+          command: |
+            coveralls-lcov \
+              --verbose --dry-run \
+              /tmp/workspace/test-results/frontend-coverage/lcov-prefixed.info \
+              > /tmp/workspace/test-results/frontend-coverage/coveralls.json
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - test-results/frontend-coverage/lcov-prefixed.info
+            - test-results/frontend-coverage/coveralls.json
 
   test_backend:
     docker:
@@ -189,7 +227,7 @@ jobs:
           command: |
             pip install coveralls
             cp /tmp/workspace/test-results/backend-coverage/.coverage .
-            coveralls
+            coveralls --merge=/tmp/workspace/test-results/frontend-coverage/coveralls.json
 
   deploy:
     docker:
@@ -251,8 +289,16 @@ workflows:
             tags:
               only: /.*/
 
+      - convert_frontend_coverage:
+          requires:
+            - test_frontend
+          filters:
+            tags:
+              only: /.*/
+
       - upload_coverage:
           requires:
+            - convert_frontend_coverage
             - test_backend
           filters:
             tags:
