@@ -137,15 +137,16 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - checkout
+      - run: gem install coveralls-lcov
       - run:
-          name: Convert Frontend Coverage Report
+          name: Add frontend prefix to lcov.info
           command: |
-            gem install coveralls-lcov
-            # Add frontend to lcov filepaths
             sed 's|^SF:|SF:frontend/|' \
               /tmp/workspace/test-results/frontend-coverage/lcov.info \
               > /tmp/workspace/test-results/frontend-coverage/lcov-prefixed.info
-            # Generate coveralls.json report
+      - run:
+          name: Generate coveralls.json report
+          command: |
             coveralls-lcov \
               --verbose --dry-run \
               /tmp/workspace/test-results/frontend-coverage/lcov-prefixed.info \
