@@ -27,14 +27,10 @@ const customJestConfig = {
   clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
-  // collectCoverage: true,
+  collectCoverage: true,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  // collectCoverageFrom: [
-  //   "src/**/*.{js,jsx,ts,tsx}",
-  //   "!**/*.d.ts",
-  //   "!**/node_modules/**",
-  // ],
+  collectCoverageFrom: ["src/**", "!src/apiMocks/**"],
 
   // The directory where Jest should output its coverage files
   // coverageDirectory: "coverage",
@@ -54,7 +50,14 @@ const customJestConfig = {
   // ],
 
   // An object that configures minimum threshold enforcement for coverage results
-  // coverageThreshold: undefined,
+  coverageThreshold: {
+    global: {
+      branches: 50,
+      functions: 30,
+      lines: 50,
+      statements: 50,
+    },
+  },
 
   // A path to a custom dependency extractor
   // dependencyExtractor: undefined,
@@ -129,7 +132,7 @@ const customJestConfig = {
   // projects: undefined,
 
   // Use this configuration option to add custom reporters to Jest
-  // reporters: undefined,
+  reporters: ["jest-junit", "default"],
 
   // Automatically reset mock state between every test
   // resetMocks: false,
