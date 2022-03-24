@@ -30,7 +30,7 @@ const customJestConfig = {
   // collectCoverage: true,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
-  collectCoverageFrom: ["src/**"],
+  collectCoverageFrom: ["src/**", "!src/apiMocks/**"],
 
   // The directory where Jest should output its coverage files
   // coverageDirectory: "coverage",
@@ -52,10 +52,10 @@ const customJestConfig = {
   // An object that configures minimum threshold enforcement for coverage results
   coverageThreshold: {
     global: {
-      branches: 40,
+      branches: 50,
       functions: 30,
-      lines: 40,
-      statements: 40,
+      lines: 50,
+      statements: 50,
     },
   },
 
