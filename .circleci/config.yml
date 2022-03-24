@@ -306,7 +306,6 @@ workflows:
 
       - deploy:
           requires:
-            - build_backend
             - test_backend
           filters:
             tags:
