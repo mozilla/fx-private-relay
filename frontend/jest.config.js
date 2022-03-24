@@ -27,7 +27,7 @@ const customJestConfig = {
   clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
-  // collectCoverage: true,
+  collectCoverage: true,
 
   // An array of glob patterns indicating a set of files for which coverage information should be collected
   collectCoverageFrom: ["src/**", "!src/apiMocks/**"],
@@ -132,7 +132,7 @@ const customJestConfig = {
   // projects: undefined,
 
   // Use this configuration option to add custom reporters to Jest
-  // reporters: undefined,
+  reporters: ["jest-junit", "default"],
 
   // Automatically reset mock state between every test
   // resetMocks: false,

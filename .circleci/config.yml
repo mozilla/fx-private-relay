@@ -115,10 +115,7 @@ jobs:
             mkdir --parents /tmp/workspace/test-results/frontend-coverage
             npm test -- \
               --ci \
-              --coverage \
-              --coverageDirectory=/tmp/workspace/test-results/frontend-coverage \
-              --reporters=jest-junit \
-              --reporters=default
+              --coverageDirectory=/tmp/workspace/test-results/frontend-coverage
           working_directory: ./frontend/
       - store_test_results:
           path: frontend/junit.xml
