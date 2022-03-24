@@ -628,7 +628,9 @@ class GetAttachmentTests(TestCase):
         """Get the first attachment's filename and data stream from a message."""
         for part in message.walk():
             if part.is_attachment():
-                return _get_attachment(part)
+                name, stream = _get_attachment(part)
+                self.addCleanup(stream.close)
+                return name, stream
         return None, None
 
     def test_short_attachment(self):
