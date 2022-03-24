@@ -6,6 +6,7 @@ import { authenticatedFetch } from "../../../hooks/api/api";
 import { Button } from "../../Button";
 
 export type Props = {
+  onType: (_partial: string) => void;
   onPick: (_subdomain: string) => void;
 };
 
@@ -33,6 +34,11 @@ export const SubdomainSearchForm = (props: Props) => {
     props.onPick(subdomainInput);
   };
 
+  const onInput: FormEventHandler<HTMLInputElement> = async (event: any) => {
+    setSubdomainInput(event.target.value);
+    props.onType(event.target.value);
+  };
+
   return (
     <form onSubmit={onSubmit}>
       <VisuallyHidden>
@@ -43,7 +49,7 @@ export const SubdomainSearchForm = (props: Props) => {
       <input
         type="search"
         value={subdomainInput}
-        onChange={(e) => setSubdomainInput(e.target.value)}
+        onInput={onInput}
         placeholder={l10n.getString(
           "banner-choose-subdomain-input-placeholder-2"
         )}
