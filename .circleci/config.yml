@@ -52,6 +52,7 @@ jobs:
           # and
           # https://circleci.com/docs/2.0/building-docker-images/#docker-version
           version: 20.10.11
+          docker_layer_caching: True
       - restore_cache:
           key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
       - run:
