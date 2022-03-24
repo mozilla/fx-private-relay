@@ -1,4 +1,4 @@
-_Last updated: May 20 2020_
+_Last updated: March 24 2022_
 &nbsp;
 &nbsp;
 
@@ -35,6 +35,8 @@ This is the Analytics plan for Firefox Relay. It documents our use of Google Ana
 >Do users change the forwarding settings for their aliases?
 
 >Do users who have not installed the Relay add-on, choose to install the add-on?
+
+>When do users decide to upgrade to Premium?
 
 &nbsp;
 
@@ -117,7 +119,7 @@ We collect data for the following events:
 
 ### Sign Up Buttons & Links
 
-**`Sign In Button`** -&nbsp;  **`Add to Firefox Button`**  &nbsp; **`Join the Waitlist Button`**  &nbsp;
+**`Sign In Button`** -&nbsp;  **`Add to Firefox Button`**  -&nbsp; **`Join the Waitlist Button`**
 
 - When a button appears on the page
   * `hitType` : event
@@ -152,13 +154,87 @@ We collect data for the following events:
   * `eventAction` : bento-app-link-click
   * `eventLabel` : link identifier
 
+### Interview recruitment
+
+(This is only shown occasionally, when we're trying to recruit people to join in user research.)
+
+- When the recruitment link appears on the page
+  * `hitType` : event
+  * `eventCategory` : Recruitment
+  * `eventAction` : View
+  * `eventLabel` : Recruitment text
+
+- When the recruitment link is clicked
+  * `hitType` : event
+  * `eventCategory` : Recruitment
+  * `eventAction` : Engage
+  * `eventLabel` : Recruitment text
+
+### Net Promoter Score (NPS)/Customer Satisfaction (CSAT) surveys
+
+- When a CSAT survey answer is selected
+  * `hitType` : event
+  * `eventCategory` : CSAT Survey
+  * `eventAction` : submitted
+  * `eventLabel` : The given answer
+  * `value` : A numeric value representing the given answer
+  * `dimension3` : Whether the given answer respresents satisfaction, neutral feeling, or dissastisfaction.
+  * `dimension4` : The given answer
+  * `metric10` : Always "1" (to count the number of answers)
+  * `metric11` : A numeric value representing `dimenstion4`
+  * `metric12` : A numeric value representing `dimenstion3`
+
+- When an NPS survey answer is selected
+  * `hitType` : event
+  * `eventCategory` : NPS Survey
+  * `eventAction` : submitted
+  * `eventLabel` : A label for the category of the given answer
+  * `value` : A numeric value representing the given answer
+  * `dimension1` : A label for the category of the given answer
+  * `metric10` : Always "1" (to count the number of answers)
+  * `metric11` : The given answer
+  * `metric12` : A numeric value representing the category of the given answer
+
+### Banners
+
+- When a user clicks the link in one of the banners
+  * `hitType` : event
+  * `eventCategory` : Outbound
+  * `eventAction` : Click
+  * `eventLabel` : link content
+
+### Links to upgrade to Premium
+
+- When the link appears on the page
+  * `hitType` : event
+  * `eventCategory` : Purchase Button
+  * `eventAction` : View
+  * `eventLabel` : link identifier
+
+- When a user clicks the link
+  * `hitType` : event
+  * `eventCategory` : Purchase Button
+  * `eventAction` : Engage
+  * `eventLabel` : link identifier
+
+### The onboarding flow for new Premium subscribers
+
+- When a button/link to continue to the next step scrolls into view
+  * `hitType` : event
+  * `eventCategory` : Premium Onboarding
+  * `eventAction` : View
+  * `eventLabel` : link identifier
+
+- When a user clicks a button/link to continue to the next step
+  * `hitType` : event
+  * `eventCategory` : Premium Onboarding
+  * `eventAction` : Engage
+  * `eventLabel` : link identifier
 
 ## Opt Out of Google Analytics Tracking
 
 **Firefox Relay detects and respects user privacy and honors DNT headers.**
 
 Before initializing Google Analytics, we check the user's browser settings for a **DNT** signal. If the **DNT** header is enabled, Analytics is never initialized and is not used to collect data for that session.
-
->[How Firefox Relay detects and respects DNT.](https://github.com/schalkneethling/dnt-helper)
 
 >[How do I turn on the Do Not Track feature?](https://support.mozilla.org/en-US/kb/how-do-i-turn-do-not-track-feature)

@@ -44,7 +44,7 @@ Import tokens from [Protocol](https://protocol.mozilla.org).
 ## Add telemetry
 
 Uses [`react-ga`](https://www.npmjs.com/package/react-ga).
-`useGaPing` and `trackPurchaseStart`.
+See `useGaViewPing` and `trackPurchaseStart`.
 
 ## Add a feature flag
 
