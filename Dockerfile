@@ -40,6 +40,8 @@ COPY --chown=app . /app
 # localisations to load anyway when appropriate.
 RUN ln --symbolic /app/privaterelay/locales/fy-NL/ privaterelay/locales/fy
 RUN ln --symbolic /app/privaterelay/locales/sv-SE/ privaterelay/locales/sv
+RUN ln --symbolic /app/privaterelay/locales/pt-BR/ privaterelay/locales/pt
+RUN ln --symbolic /app/privaterelay/locales/es-ES/ privaterelay/locales/es
 COPY --chown=app .env-dist /app/.env
 
 RUN mkdir -p /app/staticfiles && \
