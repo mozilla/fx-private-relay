@@ -81,13 +81,18 @@ jobs:
 
       # save the built docker container into CircleCI's cache. This is
       # required since Workflows do not have the same remote docker instance.
+      # The container is saved as 100 MB chunks to work with CircleCI's 500MB limit
       - run:
           name: docker save fx-private-relay
-          command: mkdir --parents /cache; docker save --output /cache/docker.tar "fx-private-relay"
+          command: |
+            mkdir --parents /cache/docker_split;
+            cd /cache/docker_split;
+            docker save "fx-private-relay" | split -b 100m - part_;
+            ls
       - save_cache:
-          key: v1-backend-build-{{ .Branch }}-{{epoch}}
+          key: v2-backend-build-{{ .Branch }}-{{epoch}}
           paths:
-            - /cache/docker.tar
+            - /cache/docker_split
 
   test_frontend:
     docker:
@@ -164,10 +169,10 @@ jobs:
     steps:
       - setup_remote_docker
       - restore_cache:
-          key: v1-backend-build-{{.Branch}}
+          key: v2-backend-build-{{.Branch}}
       - run:
           name: Restore Docker image cache
-          command: docker load --input /cache/docker.tar
+          command: cat /cache/docket_split/part_* | docker load
 
       - run:
           name: Test Code
@@ -236,10 +241,10 @@ jobs:
     steps:
       - setup_remote_docker
       - restore_cache:
-          key: v1-backend-build-{{.Branch}}
+          key: v2-backend-build-{{.Branch}}
       - run:
           name: Restore Docker image cache
-          command: docker load --input /cache/docker.tar
+          command: cat /cache/docket_split/part_* | docker load
 
       - run:
           name: Deploy to Dockerhub
