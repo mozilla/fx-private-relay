@@ -11,7 +11,7 @@ RUN ./node_modules/.bin/gulp build
 RUN npm run lint:js -- --max-warnings=0
 RUN npm run lint:css
 
-FROM python:3.9.10
+FROM python:3.9.10-alpine
 
 ARG CIRCLE_BRANCH
 ARG CIRCLE_SHA1
@@ -20,11 +20,12 @@ ENV CIRCLE_BRANCH=${CIRCLE_BRANCH:-unknown} \
     CIRCLE_TAG=${CIRCLE_TAG:-unknown} \
     CIRCLE_SHA1=${CIRCLE_SHA1:-unknown}
 
-RUN apt-get update && apt-get install -y libpq-dev
+# Install libraries needed for psycopg and cryptography
+RUN apk add --update --no-cache postgresql-dev gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 RUN pip install --upgrade pip
 
-RUN groupadd --gid 10001 app && \
-    useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
+RUN addgroup -g 10001 app && \
+    adduser -D -G app -h /app -u 10001 app
 
 WORKDIR /app
 
