@@ -195,7 +195,8 @@ jobs:
               echo "Skipping exporting Docker image, not main branch or tag."
               circleci step halt
             fi
-            if [[ "${CIRCLE_TAG}" =~ ^addon-.* ]]; then
+            # https://stackoverflow.com/a/18558871/10612
+            if case $CIRCLE_TAG in addon-*) ;; *) false;; esac; then
               echo "Skipping exporting Docker image, ${CIRCLE_TAG} has addon- prefix."
               circleci step halt
             fi
