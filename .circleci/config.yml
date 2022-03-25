@@ -176,6 +176,7 @@ jobs:
                  mv .coverage /tmp/workspace/test-results/backend-coverage/.coverage'
 
             # Copy results to local disk
+            mkdir --parents /tmp/workspace/
             docker cp workspace-test-results:/tmp/workspace/test-results /tmp/workspace
 
       - store_test_results:
