@@ -135,9 +135,22 @@
           color: $color-pink-30;
         }
 
+        &:hover {
+          color: $color-pink-40;
+        }
+
+        // .focus-wrapper exists just to add an outlined border to the dot
+        // when it is focused.
+        .focus-wrapper {
+          border: 3px solid transparent;
+          border-radius: 100%;
+          padding: 3px;
+        }
         &:focus {
           outline: none;
-          border-bottom-color: $color-pink-30;
+          .focus-wrapper {
+            border-color: $color-blue-50;
+          }
         }
       }
     }
