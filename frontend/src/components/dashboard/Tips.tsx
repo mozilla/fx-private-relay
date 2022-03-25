@@ -308,24 +308,26 @@ const PanelDot = (props: PanelDotProps) => {
         isSelected ? styles["is-selected"] : ""
       }`}
     >
-      <svg
-        role="img"
-        aria-label={alt}
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 8 8"
-        width={8}
-        height={8}
-      >
-        <title>{alt}</title>
-        <circle
-          style={{
-            fill: "currentcolor",
-          }}
-          cx="4"
-          cy="4"
-          r="4"
-        />
-      </svg>
+      <div className={styles["focus-wrapper"]}>
+        <svg
+          role="img"
+          aria-label={alt}
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 8 8"
+          width={8}
+          height={8}
+        >
+          <title>{alt}</title>
+          <circle
+            style={{
+              fill: "currentcolor",
+            }}
+            cx="4"
+            cy="4"
+            r="4"
+          />
+        </svg>
+      </div>
     </div>
   );
 };
