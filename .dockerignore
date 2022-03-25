@@ -1,10 +1,8 @@
-**/.DS_store
-.coverage
+# .gitignore
 .env
 .envrc
-.git
-extension
 *.sqlite3
+node_modules
 env/
 __pycache__
 web-ext-artifacts/
@@ -13,3 +11,38 @@ static/downloads
 static/css
 static/scss/libs
 staticfiles
+coverage/
+junit.xml
+
+# frontend/.gitignore
+frontend/public/mockServiceWorker.js
+frontend/node_modules
+frontend/.pnp
+frontend/.pnp.js
+frontend/coverage
+frontend/.next/
+# Needed by Docker
+# frontend/out/
+frontend/build
+frontend/.DS_Store
+frontend/*.pem
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/.vercel
+
+# frontend/.husky/_/.gitignore
+frontend/.husky
+
+# Other
+**/.DS_store
+**/__pycache__
+.buildpacks
+.coverage
+.git
+.pytest_cache
+extension
