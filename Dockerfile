@@ -20,10 +20,6 @@ ENV CIRCLE_BRANCH=${CIRCLE_BRANCH:-unknown} \
     CIRCLE_TAG=${CIRCLE_TAG:-unknown} \
     CIRCLE_SHA1=${CIRCLE_SHA1:-unknown}
 
-RUN set -eux; \
-        apt-get update; \
-        apt-get install -y --no-install-recommends libpq-dev; \
-        rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache --upgrade pip
 
 RUN groupadd --gid 10001 app && \
