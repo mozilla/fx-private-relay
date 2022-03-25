@@ -98,7 +98,7 @@ jobs:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
 
-  build_and_test_backend:
+  build_test_backend:
     docker:
       - image: docker:stable-git
         auth:
@@ -269,7 +269,7 @@ workflows:
             tags:
               only: /.*/
 
-      - build_and_test_backend:
+      - build_test_backend:
           requires:
             - build_frontend
           filters:
@@ -293,14 +293,14 @@ workflows:
       - upload_coverage:
           requires:
             - convert_frontend_coverage
-            - build_and_test_backend
+            - build_test_backend
           filters:
             tags:
               only: /.*/
 
       - deploy:
           requires:
-            - build_and_test_backend
+            - build_test_backend
           filters:
             tags:
               ignore: /addon-.*/
