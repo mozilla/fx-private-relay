@@ -83,11 +83,13 @@ jobs:
       # required since Workflows do not have the same remote docker instance.
       - run:
           name: docker save fx-private-relay
-          command: mkdir --parents /cache; docker save --output /cache/docker.tar "fx-private-relay"
-      - save_cache:
-          key: v1-backend-build-{{ .Branch }}-{{epoch}}
+          command: |
+            mkdir --parents /tmp/workspace/build_backend;
+            docker save --output /tmp/workspace/build_backend/docker.tar "fx-private-relay"
+      - persist_to_workspace:
+          root: /tmp/workspace
           paths:
-            - /cache/docker.tar
+            - build_backend/docker.tar
 
   test_frontend:
     docker:
@@ -164,11 +166,11 @@ jobs:
     steps:
       - setup_remote_docker:
           docker_layer_caching: True
-      - restore_cache:
-          key: v1-backend-build-{{.Branch}}
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Restore Docker image cache
-          command: docker load --input /cache/docker.tar
+          command: docker load --input /tmp/workspace/build_backend/docker.tar
 
       - run:
           name: Test Code
@@ -201,7 +203,7 @@ jobs:
                  mv .coverage /tmp/workspace/test-results/backend-coverage/.coverage'
 
             # Copy results to local disk
-            docker cp workspace-test-results:/tmp/workspace /tmp
+            docker cp workspace-test-results:/tmp/workspace/test-results /tmp/workspace
 
       - store_test_results:
           path: /tmp/workspace/test-results
@@ -237,11 +239,11 @@ jobs:
     steps:
       - setup_remote_docker:
           docker_layer_caching: True
-      - restore_cache:
-          key: v1-backend-build-{{.Branch}}
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Restore Docker image cache
-          command: docker load --input /cache/docker.tar
+          command: docker load --input /tmp/workspace/build_backend/docker.tar
 
       - run:
           name: Deploy to Dockerhub
