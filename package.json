@@ -23,7 +23,8 @@
     "stylelint-scss": "^3.19.0"
   },
   "engines": {
-    "node": "14.x"
+    "node": "14.x",
+    "npm": "8.x"
   },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme",
   "keywords": [],
@@ -38,7 +39,8 @@
     "lint:js": "eslint .",
     "lint:css": "stylelint static/scss/",
     "lint:fix-css": "stylelint --fix static/scss/",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "heroku-postbuild": "git clone https://github.com/mozilla-l10n/fx-private-relay-l10n.git privaterelay/locales; cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
   },
   "volta": {
     "node": "12.22.6",
