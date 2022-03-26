@@ -26,6 +26,7 @@ export type RandomAliasData = CommonAliasData & {
   type: "random";
   generated_for: string | "";
   domain: Domain_RelayFirefoxCom;
+  used_on: string | "";
 };
 export type CustomAliasData = CommonAliasData & {
   type: "custom";

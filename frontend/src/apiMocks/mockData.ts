@@ -1,7 +1,7 @@
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
-import { UserData } from "../hooks/api/user";
+import { UserData } from nooks/api/user";
 
 export const mockIds = ["empty", "onboarding", "some", "full"] as const;
 
@@ -103,6 +103,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
         num_forwarded: 1337,
         num_spam: 0,
         type: "random",
+        used_on: "",
       },
       {
         address: "random_1",
@@ -120,6 +121,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
         num_forwarded: 0,
         num_spam: 0,
         type: "random",
+        used_on: "",
       },
     ],
     full: [
@@ -139,6 +141,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
         num_forwarded: 1337,
         num_spam: 0,
         type: "random",
+        used_on: "",
       },
       {
         address: "random_1",
@@ -148,7 +151,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
         domain: 1,
         enabled: false,
         block_list_emails: false,
-        generated_for: "",
+        generated_for: "disneyplus.com",
         id: 1,
         last_modified_at: "2020-04-09T00:00:00.000Z",
         last_used_at: "2020-04-09T00:00:00.000Z",
@@ -156,6 +159,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
         num_forwarded: 0,
         num_spam: 0,
         type: "random",
+        used_on: "disneyplus.com,netflix.com",
       },
     ],
   };

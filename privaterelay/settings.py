@@ -149,6 +149,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.sites',
 
+    'django_filters',
     'django_ftl.apps.DjangoFtlConfig',
 
     'dockerflow.django',
@@ -585,6 +586,9 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated'
     ],
     'DEFAULT_RENDERER_CLASSES': DRF_RENDERERS,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ]
 }
 
 # Turn on logging out on GET in development.

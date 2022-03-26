@@ -19,6 +19,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
         model = RelayAddress
         fields = [
             'enabled', 'description', 'generated_for', 'block_list_emails',
+            'used_on',
             # read-only
             'id', 'address', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',

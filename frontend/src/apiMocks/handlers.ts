@@ -119,6 +119,7 @@ export function getHandlers(
       num_forwarded: 0,
       num_spam: 0,
       type: "random",
+      used_on: "",
     });
     return res(ctx.status(200));
   });
