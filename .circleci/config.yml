@@ -32,62 +32,6 @@ jobs:
           paths:
             - ./frontend/out/
 
-  build_backend:
-    docker:
-      - image: docker:stable-git
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
-    working_directory: /dockerflow
-    steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
-      - setup_remote_docker:
-          # Use a version of Docker that works with Node, see
-          # https://support.circleci.com/hc/en-us/articles/360050934711-Docker-build-fails-with-EPERM-operation-not-permitted-copyfile-when-using-node-14-9-0-or-later-
-          # (apparently version 17.09.0-ce is lower than 1.9.1, but 19.03.13 is not?)
-          # and
-          # https://github.com/nodejs/docker-node#supported-docker-versions
-          # and
-          # https://circleci.com/docs/2.0/building-docker-images/#docker-version
-          version: 20.10.11
-      - restore_cache:
-          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
-      - run:
-          name: Copy build artefacts from build_frontend into this folder
-          command: mv /home/circleci/project/frontend/out /dockerflow/frontend/
-
-      - run:
-          name: Create a version.json
-          command: |
-            # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
-            printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
-            "$CIRCLE_SHA1" \
-            "$CIRCLE_TAG" \
-            "$CIRCLE_PROJECT_USERNAME" \
-            "$CIRCLE_PROJECT_REPONAME" \
-            "$CIRCLE_BUILD_URL" > version.json
-
-      - run:
-          name: Build Docker image
-          command: |
-            docker build --tag fx-private-relay \
-            --build-arg CIRCLE_BRANCH="$CIRCLE_BRANCH" \
-            --build-arg CIRCLE_TAG="$CIRCLE_TAG" \
-            --build-arg CIRCLE_SHA1="$CIRCLE_SHA1" \
-            .
-
-      # save the built docker container into CircleCI's cache. This is
-      # required since Workflows do not have the same remote docker instance.
-      - run:
-          name: docker save fx-private-relay
-          command: mkdir --parents /cache; docker save --output /cache/docker.tar "fx-private-relay"
-      - save_cache:
-          key: v1-backend-build-{{ .Branch }}-{{epoch}}
-          paths:
-            - /cache/docker.tar
-
   test_frontend:
     docker:
       - image: cimg/node:14.19
@@ -154,19 +98,52 @@ jobs:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
 
-  test_backend:
+  build_test_backend:
     docker:
-      - image: docker:18.02.0-ce
+      - image: docker:stable-git
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
+    working_directory: /dockerflow
     steps:
-      - setup_remote_docker
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - setup_remote_docker:
+          # Use a version of Docker that works with Node, see
+          # https://support.circleci.com/hc/en-us/articles/360050934711-Docker-build-fails-with-EPERM-operation-not-permitted-copyfile-when-using-node-14-9-0-or-later-
+          # (apparently version 17.09.0-ce is lower than 1.9.1, but 19.03.13 is not?)
+          # and
+          # https://github.com/nodejs/docker-node#supported-docker-versions
+          # and
+          # https://circleci.com/docs/2.0/building-docker-images/#docker-version
+          version: 20.10.11
+          docker_layer_caching: True
       - restore_cache:
-          key: v1-backend-build-{{.Branch}}
+          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
       - run:
-          name: Restore Docker image cache
-          command: docker load --input /cache/docker.tar
+          name: Copy build artefacts from build_frontend into this folder
+          command: mv /home/circleci/project/frontend/out /dockerflow/frontend/
+
+      - run:
+          name: Create a version.json
+          command: |
+            # create a version.json per https://github.com/mozilla-services/Dockerflow/blob/master/docs/version_object.md
+            printf '{"commit":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}\n' \
+            "$CIRCLE_SHA1" \
+            "$CIRCLE_TAG" \
+            "$CIRCLE_PROJECT_USERNAME" \
+            "$CIRCLE_PROJECT_REPONAME" \
+            "$CIRCLE_BUILD_URL" > version.json
+
+      - run:
+          name: Build Docker image
+          command: |
+            docker build --tag fx-private-relay \
+            --build-arg CIRCLE_BRANCH="$CIRCLE_BRANCH" \
+            --build-arg CIRCLE_TAG="$CIRCLE_TAG" \
+            --build-arg CIRCLE_SHA1="$CIRCLE_SHA1" \
+            .
 
       - run:
           name: Test Code
@@ -199,7 +176,8 @@ jobs:
                  mv .coverage /tmp/workspace/test-results/backend-coverage/.coverage'
 
             # Copy results to local disk
-            docker cp workspace-test-results:/tmp/workspace /tmp
+            mkdir --parents /tmp/workspace/
+            docker cp workspace-test-results:/tmp/workspace/test-results /tmp/workspace
 
       - store_test_results:
           path: /tmp/workspace/test-results
@@ -209,6 +187,31 @@ jobs:
           paths:
             - test-results/pytest
             - test-results/backend-coverage
+
+      - run:
+          name: Check if deploying
+          command: |
+            if [ "${CIRCLE_BRANCH}" != "main" ] && [ -z "${CIRCLE_TAG}" ]; then
+              echo "Skipping exporting Docker image, not main branch or tag."
+              circleci step halt
+            fi
+            # https://stackoverflow.com/a/18558871/10612
+            if case $CIRCLE_TAG in addon-*) ;; *) false;; esac; then
+              echo "Skipping exporting Docker image, ${CIRCLE_TAG} has addon- prefix."
+              circleci step halt
+            fi
+
+      # save the built docker container into CircleCI's cache. This is
+      # required since Workflows do not have the same remote docker instance.
+      - run:
+          name: docker save fx-private-relay
+          command: |
+            mkdir --parents /tmp/workspace;
+            docker save --output /tmp/workspace/docker.tar "fx-private-relay"
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - docker.tar
 
   upload_coverage:
     docker:
@@ -233,12 +236,13 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
     steps:
-      - setup_remote_docker
-      - restore_cache:
-          key: v1-backend-build-{{.Branch}}
+      - setup_remote_docker:
+          docker_layer_caching: True
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           name: Restore Docker image cache
-          command: docker load --input /cache/docker.tar
+          command: docker load --input /tmp/workspace/docker.tar
 
       - run:
           name: Deploy to Dockerhub
@@ -265,7 +269,7 @@ workflows:
             tags:
               only: /.*/
 
-      - build_backend:
+      - build_test_backend:
           requires:
             - build_frontend
           filters:
@@ -275,13 +279,6 @@ workflows:
       - test_frontend:
           requires:
             - build_frontend
-          filters:
-            tags:
-              only: /.*/
-
-      - test_backend:
-          requires:
-            - build_backend
           filters:
             tags:
               only: /.*/
@@ -296,15 +293,14 @@ workflows:
       - upload_coverage:
           requires:
             - convert_frontend_coverage
-            - test_backend
+            - build_test_backend
           filters:
             tags:
               only: /.*/
 
       - deploy:
           requires:
-            - build_backend
-            - test_backend
+            - build_test_backend
           filters:
             tags:
               ignore: /addon-.*/

@@ -20,8 +20,7 @@ ENV CIRCLE_BRANCH=${CIRCLE_BRANCH:-unknown} \
     CIRCLE_TAG=${CIRCLE_TAG:-unknown} \
     CIRCLE_SHA1=${CIRCLE_SHA1:-unknown}
 
-RUN apt-get update && apt-get install -y libpq-dev
-RUN pip install --upgrade pip
+RUN pip install --no-cache --upgrade pip
 
 RUN groupadd --gid 10001 app && \
     useradd -g app --uid 10001 --shell /usr/sbin/nologin --create-home --home-dir /app app
@@ -34,12 +33,12 @@ USER app
 COPY --from=gulp-builder --chown=app /app/static ./static
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install --no-cache -r requirements.txt
 COPY --chown=app . /app
 COPY --chown=app .env-dist /app/.env
 
-RUN mkdir -p /app/staticfiles
-RUN python manage.py collectstatic --no-input -v 2
+RUN mkdir -p /app/staticfiles && \
+    python manage.py collectstatic --no-input -v 2
 
 ENTRYPOINT ["/app/.local/bin/gunicorn"]
 
