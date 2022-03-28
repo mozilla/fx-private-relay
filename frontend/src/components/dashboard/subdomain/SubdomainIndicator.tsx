@@ -114,11 +114,11 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
             ref={overlayRef}
           >
             <p className={styles.explanation}>
-              {l10n.getString("popover-custom-alias-explainer-explanation")}
+              {l10n.getString("popover-custom-alias-explainer-explanation-2")}
             </p>
             <p className={styles["button-heading"]}>
               {l10n.getString(
-                "popover-custom-alias-explainer-generate-button-heading"
+                "popover-custom-alias-explainer-generate-button-heading-2"
               )}
             </p>
             <button
@@ -127,7 +127,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
               className={styles["generate-button"]}
             >
               {l10n.getString(
-                "popover-custom-alias-explainer-generate-button-label"
+                "popover-custom-alias-explainer-generate-button-label-2"
               )}
             </button>
             <button
@@ -187,7 +187,7 @@ const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
           className={styles["explainer-wrapper"]}
         >
           <h3 {...titleProps}>
-            {l10n.getString("popover-custom-alias-explainer-heading")}
+            {l10n.getString("popover-custom-alias-explainer-heading-2")}
           </h3>
           {props.children}
         </div>

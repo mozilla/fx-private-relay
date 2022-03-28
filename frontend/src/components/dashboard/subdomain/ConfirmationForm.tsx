@@ -33,7 +33,7 @@ export const SubdomainConfirmationForm = (props: Props) => {
   return (
     <>
       <p className={styles["permanence-warning"]}>
-        {l10n.getString("modal-domain-register-warning-reminder")}
+        {l10n.getString("modal-domain-register-warning-reminder-2")}
       </p>
       <form onSubmit={onSubmit} className={styles.confirm}>
         <label>
@@ -66,7 +66,7 @@ export const SubdomainConfirmationForm = (props: Props) => {
             {l10n.getString("profile-label-cancel")}
           </button>
           <Button type="submit" disabled={!confirmCheckbox}>
-            {l10n.getString("modal-domain-register-button")}
+            {l10n.getString("modal-domain-register-button-2")}
           </Button>
         </div>
       </form>

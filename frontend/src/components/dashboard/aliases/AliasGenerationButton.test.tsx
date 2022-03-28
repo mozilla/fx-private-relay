@@ -31,7 +31,7 @@ describe("<AliasGenerationButton>", () => {
 
     expect(button).toBeEnabled();
     expect(button).toHaveTextContent(
-      "l10n string: [profile-label-generate-new-alias], with vars: {}"
+      "l10n string: [profile-label-generate-new-alias-2], with vars: {}"
     );
   });
 
@@ -56,7 +56,7 @@ describe("<AliasGenerationButton>", () => {
 
     expect(button).toBeEnabled();
     expect(button).toHaveTextContent(
-      "l10n string: [profile-label-generate-new-alias], with vars: {}"
+      "l10n string: [profile-label-generate-new-alias-2], with vars: {}"
     );
   });
 
@@ -79,7 +79,7 @@ describe("<AliasGenerationButton>", () => {
     const button = screen.getByRole("link");
 
     expect(button).toHaveTextContent(
-      "l10n string: [profile-label-upgrade], with vars: {}"
+      "l10n string: [profile-label-upgrade-2], with vars: {}"
     );
   });
 
@@ -150,7 +150,7 @@ describe("<AliasGenerationButton>", () => {
 
       expect(button).toBeEnabled();
       expect(button).toHaveTextContent(
-        "l10n string: [profile-label-generate-new-alias], with vars: {}"
+        "l10n string: [profile-label-generate-new-alias-2], with vars: {}"
       );
     });
 
@@ -191,7 +191,7 @@ describe("<AliasGenerationButton>", () => {
 
       expect(dropDownButton).toBeEnabled();
       expect(dropDownButton).toHaveTextContent(
-        "l10n string: [profile-label-generate-new-alias], with vars: {}"
+        "l10n string: [profile-label-generate-new-alias-2], with vars: {}"
       );
       expect(menu).toBeInTheDocument();
       expect(menuItems).toHaveLength(2);

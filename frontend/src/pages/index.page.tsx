@@ -55,11 +55,11 @@ const Home: NextPage = () => {
         </div>
         <div className={styles.callout}>
           <h2>
-            {l10n.getString("landing-pricing-headline", {
+            {l10n.getString("landing-pricing-headline-2", {
               monthly_price: getPlan(runtimeData.data).price,
             })}
           </h2>
-          <p>{l10n.getString("landing-pricing-body")}</p>
+          <p>{l10n.getString("landing-pricing-body-2")}</p>
         </div>
       </div>
     </section>
@@ -70,8 +70,8 @@ const Home: NextPage = () => {
       <main>
         <section id="hero" className={styles.hero}>
           <div className={styles.lead}>
-            <h2>{l10n.getString("landing-hero-headline")}</h2>
-            <p>{l10n.getString("landing-hero-body")}</p>
+            <h2>{l10n.getString("landing-hero-headline-2")}</h2>
+            <p>{l10n.getString("landing-hero-body-2")}</p>
             <LinkButton
               ref={heroCtaRef}
               onClick={() => signup()}
@@ -100,7 +100,7 @@ const Home: NextPage = () => {
               {l10n.getString("landing-how-it-works-headline")}
             </h2>
             <p className={styles.lead}>
-              {l10n.getString("landing-how-it-works-body")}
+              {l10n.getString("landing-how-it-works-body-2")}
             </p>
             <ol className={styles.steps}>
               <li className={styles.step}>
@@ -111,18 +111,18 @@ const Home: NextPage = () => {
                     {l10n.getString("landing-how-it-works-step-1-body-cta")}
                   </a>
                   &nbsp;
-                  {l10n.getString("landing-how-it-works-step-1-body")}
+                  {l10n.getString("landing-how-it-works-step-1-body-2")}
                 </p>
               </li>
               <li className={styles.step}>
                 <img src={HowItWorks2.src} alt="" />
-                <h3>{l10n.getString("how-it-works-step-2-headline")}</h3>
+                <h3>{l10n.getString("how-it-works-step-2-headline-2")}</h3>
                 <p>{l10n.getString("landing-how-it-works-step-2-body-v2")}</p>
               </li>
               <li className={styles.step}>
                 <img src={HowItWorks3.src} alt="" />
-                <h3>{l10n.getString("how-it-works-step-3-headline")}</h3>
-                <p>{l10n.getString("landing-how-it-works-step-3-body")}</p>
+                <h3>{l10n.getString("how-it-works-step-3-headline-2")}</h3>
+                <p>{l10n.getString("landing-how-it-works-step-3-body-2")}</p>
               </li>
             </ol>
           </div>
@@ -135,7 +135,7 @@ const Home: NextPage = () => {
                 {
                   color: "yellow",
                   heading: l10n.getString("landing-use-cases-shopping"),
-                  content: l10n.getString("landing-use-cases-shopping-body"),
+                  content: l10n.getString("landing-use-cases-shopping-body-2"),
                   illustration: ShoppingIllustration,
                   id: "use-cases/shopping",
                 },
@@ -143,7 +143,7 @@ const Home: NextPage = () => {
                   color: "orange",
                   heading: l10n.getString("landing-use-cases-social-networks"),
                   content: l10n.getString(
-                    "landing-use-cases-social-networks-body"
+                    "landing-use-cases-social-networks-body-2"
                   ),
                   illustration: SocialNetworksIllustration,
                   id: "use-cases/social-networks",
@@ -151,7 +151,7 @@ const Home: NextPage = () => {
                 {
                   color: "teal",
                   heading: l10n.getString("landing-use-cases-offline"),
-                  content: l10n.getString("landing-use-cases-offline-body"),
+                  content: l10n.getString("landing-use-cases-offline-body-2"),
                   illustration: OfflineIllustration,
                   id: "use-cases/offline",
                 },
@@ -159,7 +159,7 @@ const Home: NextPage = () => {
                   color: "red",
                   heading: l10n.getString("landing-use-cases-access-content"),
                   content: l10n.getString(
-                    "landing-use-cases-access-content-body"
+                    "landing-use-cases-access-content-body-2"
                   ),
                   illustration: AccessContentIllustration,
                   id: "use-cases/access-content",
@@ -167,7 +167,7 @@ const Home: NextPage = () => {
                 {
                   color: "pink",
                   heading: l10n.getString("landing-use-cases-gaming"),
-                  content: l10n.getString("landing-use-cases-gaming-body"),
+                  content: l10n.getString("landing-use-cases-gaming-body-2"),
                   illustration: GamingIllustration,
                   id: "use-cases/gaming",
                 },
@@ -198,21 +198,21 @@ const Home: NextPage = () => {
                     a: l10n.getString("faq-question-availability-answer-v2"),
                   },
                   {
-                    q: l10n.getString("faq-question-what-is-question"),
-                    a: l10n.getString("faq-question-what-is-answer"),
+                    q: l10n.getString("faq-question-what-is-question-2"),
+                    a: l10n.getString("faq-question-what-is-answer-2"),
                   },
                   {
-                    q: l10n.getString("faq-question-use-cases-question"),
+                    q: l10n.getString("faq-question-use-cases-question-2"),
                     a: (
                       <>
                         <p>
                           {l10n.getString(
-                            "faq-question-use-cases-answer-part1"
+                            "faq-question-use-cases-answer-part1-2"
                           )}
                         </p>
                         <p>
                           {l10n.getString(
-                            "faq-question-use-cases-answer-part2"
+                            "faq-question-use-cases-answer-part2-2"
                           )}
                         </p>
                       </>
@@ -220,7 +220,7 @@ const Home: NextPage = () => {
                   },
                   {
                     q: l10n.getString("faq-question-browser-support-question"),
-                    a: l10n.getString("faq-question-browser-support-answer"),
+                    a: l10n.getString("faq-question-browser-support-answer-2"),
                   },
                 ]}
               />

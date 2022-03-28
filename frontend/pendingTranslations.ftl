@@ -19,7 +19,7 @@ error-alias-update-failed = The alias data could not be updated. Please try agai
 #   $alias (string) - The email alias (e.g. abcdef@mozmail.com) that the user tried to delete
 error-alias-delete-failed = The alias { $alias } could not be deleted. Please try again.
 
-profile-label-domain-tooltip-trigger = More info
+profile-label-subdomain-tooltip-trigger = More info
 # This will be read to screen readers when focusing the button to copy an alias to the clipboard.
 # Variables:
 #   $address (string) - Alias address, e.g. wz7n0vykd@mozmail.com.
@@ -44,7 +44,7 @@ modal-domain-register-confirmation-checkbox-v2 = Yes, I want to register <subdom
 # Variables:
 #   $subdomain (string) - Chosen subdomain, i.e. the part after `@` and before `.mozmail.com`
 #   $domain (string) - Applicable domain, i.e. `.mozmail.com`
-modal-domain-register-success-v2 = <subdomain>{ $subdomain }</subdomain><domain>.{ $domain }</domain> is now your email domain!
+modal-domain-register-success-3 = <subdomain>{ $subdomain }</subdomain><domain>.{ $domain }</domain> is now your email subdomain!
 
 # Variables:
 #   $step (number) - Which step the user currently is on

@@ -48,8 +48,10 @@ const Settings: NextPage = () => {
 
   const currentSettingWarning = profile.server_storage ? null : (
     <div className={styles["banner-wrapper"]}>
-      <Banner title={l10n.getString("settings-warning-collection-off-heading")}>
-        {l10n.getString("settings-warning-collection-off-description")}
+      <Banner
+        title={l10n.getString("settings-warning-collection-off-heading-2")}
+      >
+        {l10n.getString("settings-warning-collection-off-description-2")}
       </Banner>
     </div>
   );
@@ -59,7 +61,7 @@ const Settings: NextPage = () => {
     labelCollectionDisabledWarningToggles > 1 && !labelCollectionEnabled ? (
       <aside role="alert" className={styles["field-warning"]}>
         <img src={infoTriangleIcon.src} alt="" width={20} />
-        <p>{l10n.getString("setting-label-collection-off-warning")}</p>
+        <p>{l10n.getString("setting-label-collection-off-warning-2")}</p>
       </aside>
     ) : null;
 
@@ -136,7 +138,9 @@ const Settings: NextPage = () => {
                         }
                       />
                       <label htmlFor="label-collection">
-                        {l10n.getString("setting-label-collection-description")}
+                        {l10n.getString(
+                          "setting-label-collection-description-2"
+                        )}
                       </label>
                     </div>
                     {labelCollectionWarning}

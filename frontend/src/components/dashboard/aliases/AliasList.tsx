@@ -134,7 +134,7 @@ export const AliasList = (props: Props) => {
         <div className={styles["string-filter"]}>
           <VisuallyHidden>
             <label htmlFor="stringFilter">
-              {l10n.getString("profile-filter-search-placeholder")}
+              {l10n.getString("profile-filter-search-placeholder-2")}
             </label>
           </VisuallyHidden>
           <input
@@ -143,7 +143,7 @@ export const AliasList = (props: Props) => {
             type="search"
             name="stringFilter"
             id="stringFilter"
-            placeholder={l10n.getString("profile-filter-search-placeholder")}
+            placeholder={l10n.getString("profile-filter-search-placeholder-2")}
           />
           <span className={styles["match-count"]}>
             {aliases.length}/{props.aliases.length}

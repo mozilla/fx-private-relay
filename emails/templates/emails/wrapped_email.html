@@ -62,12 +62,12 @@
                   {% if recipient_profile.has_premium %}
                     <br />
                     <img alt="" width="24" style="display: inline-block; margin-bottom: 0px; width: 24px;"  src="{{ SITE_ORIGIN }}/static/images/email-images/tip-purple.png" />
-                    {% ftlmsg 'forwarded-email-header-cc-notice' %}
+                    {% ftlmsg 'forwarded-email-header-cc-notice-2' %}
                   {% elif not recipient_profile.has_premium and recipient_profile.fxa_locale_in_premium_country %}
                     {% bold_violet_link SITE_ORIGIN|add:'/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=header' 'Firefox Relay Premium' as premium_link %}
                     <br />
                     <img width="15" height="15" src="{{ SITE_ORIGIN }}/static/images/email-images/smile-purple.png" style="display: inline-block; width: 15px;" alt="" />
-                    {% ftlmsg 'forwarded-email-header-premium-banner' premium_link=premium_link as premium_header_banner %}
+                    {% ftlmsg 'forwarded-email-header-premium-banner-2' premium_link=premium_link as premium_header_banner %}
                     {{ premium_header_banner|safe }}
                   {% endif %}
                 </p>
@@ -96,7 +96,7 @@
             <tr>
               <td align="center" style="line-height: 150%; padding-left: 20px; padding-right: 20px;">
                 <p style="display: inline-block; padding-top: 0; font-size: 13px; color: #363959; font-family: sans-serif; padding-left: 20px; padding-right: 20px; margin-top: 0; margin-bottom: 0;">
-                  <a href="{{ SITE_ORIGIN }}/accounts/profile?utm_source=emails&utm_medium=email&utm_campaign=alias-email" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">{% ftlmsg 'forwarded-email-footer' %}</a>
+                  <a href="{{ SITE_ORIGIN }}/accounts/profile?utm_source=emails&utm_medium=email&utm_campaign=alias-email" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">{% ftlmsg 'forwarded-email-footer-2' %}</a>
                   {% if not recipient_profile.has_premium and recipient_profile.fxa_locale_in_premium_country %}
                     |
                     <a href="{{ SITE_ORIGIN }}/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=footer" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">{% ftlmsg 'forwarded-email-footer-premium-banner' %}</a>

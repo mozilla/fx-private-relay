@@ -120,8 +120,8 @@ export const Alias = (props: Props) => {
       className={styles["toggle-button"]}
       aria-label={l10n.getString(
         toggleButtonState.isSelected
-          ? "profile-label-disable-forwarding-button"
-          : "profile-label-enable-forwarding-button"
+          ? "profile-label-disable-forwarding-button-2"
+          : "profile-label-enable-forwarding-button-2"
       )}
     ></button>
   );
@@ -272,7 +272,7 @@ const ForwardedTooltip = (props: TooltipProps) => {
           {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
           className={styles.tooltip}
         >
-          <span>{l10n.getString("profile-forwarded-copy")}</span>
+          <span>{l10n.getString("profile-forwarded-copy-2")}</span>
           <br />
           <strong>{l10n.getString("profile-forwarded-note")}</strong>&nbsp;
           <span>
@@ -308,7 +308,7 @@ const BlockedTooltip = (props: TooltipProps) => {
           {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
           className={styles.tooltip}
         >
-          {l10n.getString("profile-blocked-copy")}
+          {l10n.getString("profile-blocked-copy-2")}
         </span>
       )}
     </span>

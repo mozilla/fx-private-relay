@@ -115,7 +115,7 @@ export const PremiumOnboarding = (props: Props) => {
           onClick={skipDomain}
           className={styles["skip-link"]}
         >
-          {l10n.getString("multi-part-onboarding-premium-domain-button-skip")}
+          {l10n.getString("multi-part-onboarding-premium-domain-button-skip-2")}
         </button>
       );
     } else {
@@ -265,14 +265,14 @@ const StepOne = () => {
           <br />
           <strong>
             {l10n.getString(
-              "multi-part-onboarding-premium-generate-unlimited-title"
+              "multi-part-onboarding-premium-generate-unlimited-title-2"
             )}
           </strong>
           <br />
           {l10n.getString(
             isLargeScreen
-              ? "onboarding-premium-control-description"
-              : "multi-part-onboarding-premium-welcome-description"
+              ? "onboarding-premium-control-description-2"
+              : "multi-part-onboarding-premium-welcome-description-2"
           )}
         </p>
       </div>
@@ -292,7 +292,7 @@ const StepTwo = (props: Step2Props) => {
       <p className={styles["action-complete"]}>
         <span className={styles.label}>
           <img src={checkIcon.src} alt="" width={18} />
-          {l10n.getString("profile-label-domain")}
+          {l10n.getString("profile-label-subdomain")}
         </span>
         <samp>@{props.profile.subdomain}</samp>
         <span className={styles.domain}>
@@ -309,7 +309,7 @@ const StepTwo = (props: Step2Props) => {
   return (
     <div className={`${styles.step} ${styles["step-custom-domain"]}`}>
       <div>
-        <h2>{l10n.getString("multi-part-onboarding-premium-get-domain")}</h2>
+        <h2>{l10n.getString("multi-part-onboarding-premium-get-subdomain")}</h2>
       </div>
       <div className={styles.description}>
         <img src={WomanEmail.src} alt="" width={400} />
@@ -320,11 +320,11 @@ const StepTwo = (props: Step2Props) => {
             </span>
             <br />
             <strong>
-              {l10n.getString("onboarding-premium-domain-title-2")}
+              {l10n.getString("onboarding-premium-domain-title-3")}
             </strong>
             <br />
             {l10n.getString(
-              "multi-part-onboarding-premium-get-domain-description-2",
+              "multi-part-onboarding-premium-get-domain-description-3",
               {
                 mozmail: ".mozmail.com",
               }
@@ -375,7 +375,7 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
   return (
     <>
       <p className={styles["subdomain-picker-heading"]}>
-        {l10n.getString("multi-part-onboarding-premium-domain-cta")}
+        {l10n.getString("multi-part-onboarding-premium-domain-cta-2")}
       </p>
       <samp className={styles["domain-example"]}>
         ***@
@@ -408,9 +408,11 @@ const StepThree = () => {
               {l10n.getString("onboarding-premium-title-detail")}
             </span>
             <br />
-            <strong>{l10n.getString("onboarding-premium-reply-title")}</strong>
+            <strong>
+              {l10n.getString("onboarding-premium-reply-title-2")}
+            </strong>
             <br />
-            {l10n.getString("onboarding-premium-reply-description")}
+            {l10n.getString("onboarding-premium-reply-description-2")}
           </p>
           <AddonDescription />
           <div
@@ -455,7 +457,7 @@ const getAddonDescriptionProps = () => {
     return {
       headerMessageId: "multi-part-onboarding-premium-extension-get-title",
       paragraphMessageId:
-        "multi-part-onboarding-premium-extension-get-description",
+        "multi-part-onboarding-premium-extension-get-description-2",
       linkHref:
         "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
       linkMessageId: "multi-part-onboarding-premium-extension-button-download",

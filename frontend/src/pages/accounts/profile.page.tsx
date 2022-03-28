@@ -83,7 +83,7 @@ const Profile: NextPage = () => {
     const response = await profileData.setSubdomain(customSubdomain);
     if (!response.ok) {
       toast(
-        l10n.getString("error-subdomain-not-available", {
+        l10n.getString("error-subdomain-not-available-2", {
           unavailable_subdomain: customSubdomain,
         }),
         { type: "error" }
@@ -183,7 +183,7 @@ const Profile: NextPage = () => {
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
-        {l10n.getString("profile-label-domain")}&nbsp;
+        {l10n.getString("profile-label-subdomain")}&nbsp;
         <SubdomainIndicator
           subdomain={profile.subdomain}
           onCreateAlias={(address: string) =>
@@ -194,12 +194,12 @@ const Profile: NextPage = () => {
     ) : (
       <>
         <a className={styles["open-button"]} href="#mpp-choose-subdomain">
-          {l10n.getString("profile-label-create-domain")}
+          {l10n.getString("profile-label-create-subdomain")}
         </a>
         <InfoTooltip
-          alt={l10n.getString("profile-label-domain-tooltip-trigger")}
+          alt={l10n.getString("profile-label-subdomain-tooltip-trigger")}
         >
-          {l10n.getString("profile-label-domain-tooltip")}
+          {l10n.getString("profile-label-subdomain-tooltip")}
         </InfoTooltip>
       </>
     );
@@ -233,7 +233,7 @@ const Profile: NextPage = () => {
         <dl className={styles["account-stats"]}>
           <div className={styles.stat}>
             <dt className={styles.label}>
-              {l10n.getString("profile-stat-label-aliases-used")}
+              {l10n.getString("profile-stat-label-aliases-used-2")}
             </dt>
             <dd className={styles.value}>
               {numberFormatter.format(allAliases.length)}
@@ -275,12 +275,12 @@ const Profile: NextPage = () => {
         <div className={styles["bottom-banner-wrapper"]}>
           <div className={styles["bottom-banner-content"]}>
             <Localized
-              id="banner-pack-upgrade-headline-html"
+              id="banner-pack-upgrade-headline-2-html"
               elems={{ strong: <strong /> }}
             >
               <h3 />
             </Localized>
-            <p>{l10n.getString("banner-pack-upgrade-copy")}</p>
+            <p>{l10n.getString("banner-pack-upgrade-copy-2")}</p>
             <LinkButton
               href={getPremiumSubscribeLink(runtimeData.data)}
               ref={bottomBannerSubscriptionLinkRef}
