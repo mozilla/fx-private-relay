@@ -11,7 +11,6 @@ import {
   AliasData,
   getAllAliases,
   getFullAddress,
-  isRandomAlias,
   useAliases,
 } from "../../hooks/api/aliases";
 import { useUsers } from "../../hooks/api/user";
@@ -40,7 +39,7 @@ const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const userData = useUsers();
-  const { randomAliasData, customAliasData } = useAliases();
+  const aliasData = useAliases();
   const { l10n } = useLocalization();
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
@@ -73,8 +72,8 @@ const Profile: NextPage = () => {
     !runtimeData.data ||
     !profile ||
     !user ||
-    !randomAliasData.data ||
-    !customAliasData.data
+    !aliasData.randomAliasData.data ||
+    !aliasData.customAliasData.data
   ) {
     // TODO: Show a loading spinner?
     return null;
@@ -119,12 +118,7 @@ const Profile: NextPage = () => {
     options: { type: "random" } | { type: "custom"; address: string }
   ) => {
     try {
-      let response;
-      if (options.type === "custom") {
-        response = await customAliasData.create(options.address);
-      } else {
-        response = await randomAliasData.create();
-      }
+      const response = await aliasData.create(options);
       if (!response.ok) {
         throw new Error(
           "Immediately caught to land in the same code path as failed requests."
@@ -140,18 +134,7 @@ const Profile: NextPage = () => {
     updatedFields: Partial<AliasData>
   ) => {
     try {
-      let response;
-      if (isRandomAlias(alias)) {
-        response = await randomAliasData.update({
-          ...updatedFields,
-          id: alias.id,
-        });
-      } else {
-        response = await customAliasData.update({
-          ...updatedFields,
-          id: alias.id,
-        });
-      }
+      const response = await aliasData.update(alias, updatedFields);
       if (!response.ok) {
         throw new Error(
           "Immediately caught to land in the same code path as failed requests."
@@ -169,12 +152,7 @@ const Profile: NextPage = () => {
 
   const deleteAlias = async (alias: AliasData) => {
     try {
-      let response;
-      if (isRandomAlias(alias)) {
-        response = await randomAliasData.delete(alias.id);
-      } else {
-        response = await customAliasData.delete(alias.id);
-      }
+      const response = await aliasData.delete(alias);
       if (!response.ok) {
         throw new Error(
           "Immediately caught to land in the same code path as failed requests."
@@ -190,7 +168,10 @@ const Profile: NextPage = () => {
     }
   };
 
-  const allAliases = getAllAliases(randomAliasData.data, customAliasData.data);
+  const allAliases = getAllAliases(
+    aliasData.randomAliasData.data,
+    aliasData.customAliasData.data
+  );
 
   const totalBlockedEmails = allAliases.reduce(
     (count, alias) => count + alias.num_blocked,
@@ -381,7 +362,10 @@ const Profile: NextPage = () => {
           {bottomBanners}
           {bottomPremiumSection}
         </main>
-        <Tips profile={profile} customAliases={customAliasData.data} />
+        <Tips
+          profile={profile}
+          customAliases={aliasData.customAliasData.data}
+        />
       </Layout>
     </>
   );

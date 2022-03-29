@@ -402,7 +402,7 @@ describe("The dashboard", () => {
     const updateFn: AliasUpdateFn = jest.fn();
     setMockAliasesDataOnce(
       { random: [{ enabled: true, id: 42 }], custom: [] },
-      { updaters: { random: updateFn } }
+      { updater: updateFn }
     );
     render(<Profile />);
 
@@ -411,7 +411,10 @@ describe("The dashboard", () => {
     });
     userEvent.click(aliasToggleButton);
 
-    expect(updateFn).toHaveBeenCalledWith({ enabled: false, id: 42 });
+    expect(updateFn).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 42, type: "random" }),
+      { enabled: false }
+    );
   });
 
   it("shows the Generate Alias button if the user is not at the max number of aliases", () => {

@@ -7,9 +7,8 @@ import {
   getAllAliases,
   getFullAddress,
   AliasUpdateFn,
-  RandomAliasCreateFn,
-  CustomAliasCreateFn,
   AliasDeleteFn,
+  AliasCreateFn,
 } from "../../../src/hooks/api/aliases";
 
 jest.mock("../../../src/hooks/api/aliases");
@@ -82,18 +81,9 @@ type MockData = {
   custom?: Array<Partial<CustomAliasData>>;
 };
 type Callbacks = {
-  creaters?: {
-    random?: RandomAliasCreateFn;
-    custom?: CustomAliasCreateFn;
-  };
-  updaters?: {
-    random?: AliasUpdateFn;
-    custom?: AliasUpdateFn;
-  };
-  deleters?: {
-    random?: AliasDeleteFn;
-    custom?: AliasDeleteFn;
-  };
+  creater?: AliasCreateFn;
+  updater?: AliasUpdateFn;
+  deleter?: AliasDeleteFn;
 };
 function getReturnValue(
   aliasesData?: MockData,
@@ -110,19 +100,16 @@ function getReturnValue(
     randomAliasData: {
       isValidating: false,
       mutate: jest.fn(),
-      create: callbacks?.creaters?.random || jest.fn(),
-      update: callbacks?.updaters?.random || jest.fn(),
-      delete: callbacks?.deleters?.random || jest.fn(),
       data: randomAliasData,
     },
     customAliasData: {
       isValidating: false,
       mutate: jest.fn(),
-      create: callbacks?.creaters?.custom || jest.fn(),
-      update: callbacks?.updaters?.custom || jest.fn(),
-      delete: callbacks?.deleters?.custom || jest.fn(),
       data: customAliasData,
     },
+    create: callbacks?.creater || jest.fn(),
+    update: callbacks?.updater || jest.fn(),
+    delete: callbacks?.deleter || jest.fn(),
   };
 }
 
