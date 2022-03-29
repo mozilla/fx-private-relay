@@ -391,15 +391,77 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
   );
 };
 
+const _getStepThreeTitle = (
+  isLargeScreen: boolean,
+  chrome: boolean,
+  firefox: boolean
+): string => {
+  const { l10n } = useLocalization();
+  if (isLargeScreen && firefox) {
+    return l10n.getString("multi-part-onboarding-premium-extension-get-title");
+  }
+  if (isLargeScreen && chrome) {
+    return l10n.getString(
+      "multi-part-onboarding-premium-chrome-extension-get-title"
+    );
+  }
+  return l10n.getString("multi-part-onboarding-reply-headline");
+};
+
 const StepThree = () => {
   const { l10n } = useLocalization();
   const isLargeScreen = useMinViewportWidth("md");
+  const firefox = supportsFirefoxExtension();
+  const chrome = supportsChromeExtension();
+  const title = _getStepThreeTitle(isLargeScreen, chrome, firefox);
 
-  let addonDescription = null;
-  let title = l10n.getString("multi-part-onboarding-reply-headline");
-  if (isLargeScreen && supportsFirefoxExtension()) {
-    title = l10n.getString("multi-part-onboarding-premium-extension-get-title");
-    addonDescription = (
+  return (
+    <div className={`${styles.step} ${styles["step-addon"]}`}>
+      <div>
+        <h2>{title}</h2>
+      </div>
+      <div className={styles.description}>
+        <img src={ManLaptopEmail.src} alt="" width={500} />
+        <div>
+          <p className={styles["reply-description"]}>
+            <span className={styles["description-caption"]}>
+              {l10n.getString("onboarding-premium-title-detail")}
+            </span>
+            <br />
+            <strong>{l10n.getString("onboarding-premium-reply-title")}</strong>
+            <br />
+            {l10n.getString("onboarding-premium-reply-description")}
+          </p>
+          <AddonDescription
+            supportsFirefoxExtension={firefox}
+            supportsChromeExtension={chrome}
+          />
+          <div
+            className={`${styles["addon-description"]} is-visible-with-addon`}
+          >
+            <div className={styles["action-complete"]}>
+              <img src={checkIcon.src} alt="" width={18} />
+              {l10n.getString("multi-part-onboarding-premium-extension-added")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+type AddonDescriptionProps = {
+  supportsFirefoxExtension: boolean;
+  supportsChromeExtension: boolean;
+};
+const AddonDescription = (props: AddonDescriptionProps) => {
+  const { l10n } = useLocalization();
+  const isLargeScreen = useMinViewportWidth("md");
+  if (!isLargeScreen) {
+    return null;
+  }
+  if (props.supportsFirefoxExtension) {
+    return (
       <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
         <h3>
           {l10n.getString("multi-part-onboarding-premium-extension-get-title")}
@@ -420,11 +482,9 @@ const StepThree = () => {
         </LinkButton>
       </div>
     );
-  } else if (isLargeScreen && supportsChromeExtension()) {
-    title = l10n.getString(
-      "multi-part-onboarding-premium-chrome-extension-get-title"
-    );
-    addonDescription = (
+  }
+  if (props.supportsChromeExtension) {
+    return (
       <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
         <h3>
           {l10n.getString(
@@ -448,35 +508,5 @@ const StepThree = () => {
       </div>
     );
   }
-
-  return (
-    <div className={`${styles.step} ${styles["step-addon"]}`}>
-      <div>
-        <h2>{title}</h2>
-      </div>
-      <div className={styles.description}>
-        <img src={ManLaptopEmail.src} alt="" width={500} />
-        <div>
-          <p className={styles["reply-description"]}>
-            <span className={styles["description-caption"]}>
-              {l10n.getString("onboarding-premium-title-detail")}
-            </span>
-            <br />
-            <strong>{l10n.getString("onboarding-premium-reply-title")}</strong>
-            <br />
-            {l10n.getString("onboarding-premium-reply-description")}
-          </p>
-          {addonDescription}
-          <div
-            className={`${styles["addon-description"]} is-visible-with-addon`}
-          >
-            <div className={styles["action-complete"]}>
-              <img src={checkIcon.src} alt="" width={18} />
-              {l10n.getString("multi-part-onboarding-premium-extension-added")}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  return null;
 };
