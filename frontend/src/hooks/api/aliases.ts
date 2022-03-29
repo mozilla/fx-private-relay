@@ -32,44 +32,49 @@ export type CustomAliasData = CommonAliasData & {
 
 export type AliasData = RandomAliasData | CustomAliasData;
 
-export type RandomAliasCreateFn = () => Promise<Response>;
-export type CustomAliasCreateFn = (address: string) => Promise<Response>;
-export type AliasUpdateFn = (
-  alias: Partial<AliasData> & { id: number }
+export type AliasCreateFn = (
+  options: { type: "random" } | { type: "custom"; address: string }
 ) => Promise<Response>;
-export type AliasDeleteFn = (id: number) => Promise<Response>;
-type WithRandomAliasCreater = {
-  create: RandomAliasCreateFn;
-};
-type WithCustomAliasCreater = {
-  create: CustomAliasCreateFn;
-};
-type WithUpdater = {
-  update: AliasUpdateFn;
-};
-type WithDeleter = {
-  delete: AliasDeleteFn;
-};
+export type AliasUpdateFn = (
+  alias: Pick<CommonAliasData, "id" | "type">,
+  updatedFields: Partial<AliasData>
+) => Promise<Response>;
+export type AliasDeleteFn = (alias: AliasData) => Promise<Response>;
 
 /**
  * Fetch aliases (both random and custom) from our API using [SWR](https://swr.vercel.app).
  */
 export function useAliases(): {
-  randomAliasData: SWRResponse<RandomAliasData[], unknown> &
-    WithRandomAliasCreater &
-    WithUpdater &
-    WithDeleter;
-  customAliasData: SWRResponse<CustomAliasData[], unknown> &
-    WithCustomAliasCreater &
-    WithUpdater &
-    WithDeleter;
+  randomAliasData: SWRResponse<RandomAliasData[], unknown>;
+  customAliasData: SWRResponse<CustomAliasData[], unknown>;
+  create: AliasCreateFn;
+  update: AliasUpdateFn;
+  delete: AliasDeleteFn;
 } {
   const randomAliases: SWRResponse<RandomAliasData[], unknown> =
     useApiV1("/relayaddresses/");
   const customAliases: SWRResponse<CustomAliasData[], unknown> =
     useApiV1("/domainaddresses/");
 
-  const randomAliasCreater: RandomAliasCreateFn = async () => {
+  const randomAliasData = {
+    ...randomAliases,
+    data: randomAliases.data?.map((alias) => markAsRandomAlias(alias)),
+  };
+  const customAliasData = {
+    ...customAliases,
+    data: customAliases.data?.map((alias) => markAsCustomAlias(alias)),
+  };
+
+  const createAlias: AliasCreateFn = async (options) => {
+    if (options.type === "custom") {
+      const response = await apiFetch("/domainaddresses/", {
+        method: "POST",
+        body: JSON.stringify({ enabled: true, address: options.address }),
+      });
+      customAliases.mutate();
+      return response;
+    }
+
     const response = await apiFetch("/relayaddresses/", {
       method: "POST",
       body: JSON.stringify({ enabled: true }),
@@ -77,72 +82,48 @@ export function useAliases(): {
     randomAliases.mutate();
     return response;
   };
-  const customAliasCreater: CustomAliasCreateFn = async (address) => {
-    const response = await apiFetch("/domainaddresses/", {
-      method: "POST",
-      body: JSON.stringify({ enabled: true, address: address }),
+
+  const updateAlias: AliasUpdateFn = async (alias, updatedFields) => {
+    const endpoint =
+      alias.type === "random"
+        ? `/relayaddresses/${alias.id}/`
+        : `/domainaddresses/${alias.id}/`;
+
+    const response = await apiFetch(endpoint, {
+      method: "PATCH",
+      body: JSON.stringify(updatedFields),
     });
-    customAliases.mutate();
+    if (alias.type === "random") {
+      randomAliases.mutate();
+    } else {
+      customAliases.mutate();
+    }
     return response;
   };
 
-  const getUpdater: (type: "random" | "custom") => AliasUpdateFn = (type) => {
-    return async (aliasData) => {
-      const endpoint =
-        type === "random"
-          ? `/relayaddresses/${aliasData.id}/`
-          : `/domainaddresses/${aliasData.id}/`;
+  const deleteAlias: AliasDeleteFn = async (aliasData) => {
+    const endpoint =
+      aliasData.type === "random"
+        ? `/relayaddresses/${aliasData.id}/`
+        : `/domainaddresses/${aliasData.id}/`;
 
-      const response = await apiFetch(endpoint, {
-        method: "PATCH",
-        body: JSON.stringify(aliasData),
-      });
-      if (type === "random") {
-        randomAliases.mutate();
-      } else {
-        customAliases.mutate();
-      }
-      return response;
-    };
-  };
-
-  const getDeleter: (type: "random" | "custom") => AliasDeleteFn = (type) => {
-    return async (aliasId) => {
-      const endpoint =
-        type === "random"
-          ? `/relayaddresses/${aliasId}/`
-          : `/domainaddresses/${aliasId}/`;
-
-      const response = await apiFetch(endpoint, {
-        method: "DELETE",
-      });
-      if (type === "random") {
-        randomAliases.mutate();
-      } else {
-        customAliases.mutate();
-      }
-      return response;
-    };
-  };
-
-  const randomAliasData = {
-    ...randomAliases,
-    data: randomAliases.data?.map((alias) => markAsRandomAlias(alias)),
-    create: randomAliasCreater,
-    update: getUpdater("random"),
-    delete: getDeleter("random"),
-  };
-  const customAliasData = {
-    ...customAliases,
-    data: customAliases.data?.map((alias) => markAsCustomAlias(alias)),
-    create: customAliasCreater,
-    update: getUpdater("custom"),
-    delete: getDeleter("custom"),
+    const response = await apiFetch(endpoint, {
+      method: "DELETE",
+    });
+    if (aliasData.type === "random") {
+      randomAliases.mutate();
+    } else {
+      customAliases.mutate();
+    }
+    return response;
   };
 
   return {
     randomAliasData: randomAliasData,
     customAliasData: customAliasData,
+    create: createAlias,
+    update: updateAlias,
+    delete: deleteAlias,
   };
 }
 
