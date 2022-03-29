@@ -591,9 +591,11 @@ if DEBUG:
     SESSION_COOKIE_SAMESITE = None
     CORS_ALLOWED_ORIGINS += [
         'http://localhost:3000',
+        'http://0.0.0.0:3000',
     ]
     CSRF_TRUSTED_ORIGINS += [
         'http://localhost:3000',
+        'http://0.0.0.0:3000',
     ]
 
 SENTRY_RELEASE = config("SENTRY_RELEASE", "")
