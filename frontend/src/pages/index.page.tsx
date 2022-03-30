@@ -194,7 +194,7 @@ const Home: NextPage = () => {
                 entries={[
                   {
                     q: l10n.getString("faq-question-availability-question"),
-                    a: l10n.getString("faq-question-availability-answer"),
+                    a: l10n.getString("faq-question-availability-answer-v2"),
                   },
                   {
                     q: l10n.getString("faq-question-what-is-question"),
