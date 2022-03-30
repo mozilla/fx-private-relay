@@ -46,7 +46,7 @@ const ConfirmModal = (props: Props) => {
     <PickerDialog
       title={
         <Localized
-          id="modal-domain-register-available-v2"
+          id="modal-domain-register-available-2"
           vars={{
             subdomain: props.subdomain,
             domain: getRuntimeConfig().mozmailDomain,

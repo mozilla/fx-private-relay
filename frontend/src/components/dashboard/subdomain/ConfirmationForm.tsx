@@ -46,7 +46,7 @@ export const SubdomainConfirmationForm = (props: Props) => {
             required={true}
           />
           <Localized
-            id="modal-domain-register-confirmation-checkbox-v2"
+            id="modal-domain-register-confirmation-checkbox-2"
             vars={{
               subdomain: props.subdomain,
             }}

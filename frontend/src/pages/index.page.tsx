@@ -117,7 +117,7 @@ const Home: NextPage = () => {
               <li className={styles.step}>
                 <img src={HowItWorks2.src} alt="" />
                 <h3>{l10n.getString("how-it-works-step-2-headline-2")}</h3>
-                <p>{l10n.getString("landing-how-it-works-step-2-body-v2")}</p>
+                <p>{l10n.getString("landing-how-it-works-step-2-body-2")}</p>
               </li>
               <li className={styles.step}>
                 <img src={HowItWorks3.src} alt="" />

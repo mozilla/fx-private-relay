@@ -123,7 +123,7 @@ const Profile: NextPage = () => {
         );
       }
     } catch (error) {
-      toast(l10n.getString("error-alias-create-failed"), { type: "error" });
+      toast(l10n.getString("error-mask-create-failed"), { type: "error" });
     }
   };
 
@@ -140,7 +140,7 @@ const Profile: NextPage = () => {
       }
     } catch (error) {
       toast(
-        l10n.getString("error-alias-update-failed", {
+        l10n.getString("error-mask-update-failed", {
           alias: getFullAddress(alias),
         }),
         { type: "error" }
@@ -158,7 +158,7 @@ const Profile: NextPage = () => {
       }
     } catch (error: unknown) {
       toast(
-        l10n.getString("error-alias-delete-failed", {
+        l10n.getString("error-mask-delete-failed", {
           alias: getFullAddress(alias),
         }),
         { type: "error" }
