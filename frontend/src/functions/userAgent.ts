@@ -18,6 +18,10 @@ export function supportsChromeExtension() {
   );
 }
 
+export function supportsAnExtension() {
+  return supportsFirefoxExtension() || supportsChromeExtension();
+}
+
 export function hasDoNotTrackEnabled() {
   return typeof navigator !== "undefined" && navigator.doNotTrack === "1";
 }
