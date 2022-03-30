@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, createContext, useContext } from "react";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import { useOverlayTriggerState } from "react-stately";
@@ -24,6 +24,54 @@ export type Props = {
   profile: ProfileData;
   onNextStep: (step: number) => void;
   onPickSubdomain: (subdomain: string) => void;
+};
+
+interface IBrowserContext {
+  extensionsSupported: boolean;
+}
+const BrowserContext = createContext<IBrowserContext>({
+  extensionsSupported: supportsFirefoxExtension() || supportsChromeExtension(),
+});
+interface AddonDescriptionProps {
+  extSupported: boolean;
+  headerMessageId: string;
+  paragraphMessageId: string;
+  linkHref: string;
+  linkMessageId: string;
+}
+
+const _getAddonDescriptionProps = (): AddonDescriptionProps => {
+  if (supportsFirefoxExtension()) {
+    return {
+      extSupported: true,
+      headerMessageId: "multi-part-onboarding-premium-extension-get-title",
+      paragraphMessageId:
+        "multi-part-onboarding-premium-extension-get-description",
+      linkHref:
+        "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
+      linkMessageId: "multi-part-onboarding-premium-extension-button-download",
+    };
+  }
+  if (supportsChromeExtension()) {
+    return {
+      extSupported: true,
+      headerMessageId:
+        "multi-part-onboarding-premium-chrome-extension-get-title",
+      paragraphMessageId:
+        "multi-part-onboarding-premium-chrome-extension-get-description",
+      linkHref:
+        "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
+      linkMessageId:
+        "multi-part-onboarding-premium-chrome-extension-button-download",
+    };
+  }
+  return {
+    extSupported: false,
+    headerMessageId: "",
+    paragraphMessageId: "",
+    linkHref: "",
+    linkMessageId: "",
+  };
 };
 
 /**
@@ -425,10 +473,7 @@ const StepThree = () => {
             <br />
             {l10n.getString("onboarding-premium-reply-description")}
           </p>
-          <AddonDescription
-            supportsFirefoxExtension={firefox}
-            supportsChromeExtension={chrome}
-          />
+          <AddonDescription />
           <div
             className={`${styles["addon-description"]} is-visible-with-addon`}
           >
@@ -443,63 +488,73 @@ const StepThree = () => {
   );
 };
 
-type AddonDescriptionProps = {
-  supportsFirefoxExtension: boolean;
-  supportsChromeExtension: boolean;
-};
-const AddonDescription = (props: AddonDescriptionProps) => {
-  const { l10n } = useLocalization();
+const AddonDescription = () => {
   const isLargeScreen = useMinViewportWidth("md");
+  const {
+    extSupported,
+    headerMessageId,
+    paragraphMessageId,
+    linkHref,
+    linkMessageId,
+  }: AddonDescriptionProps = _getAddonDescriptionProps();
   if (!isLargeScreen) {
     return null;
   }
-  if (props.supportsFirefoxExtension) {
+  if (extSupported) {
     return (
-      <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
-        <h3>
-          {l10n.getString("multi-part-onboarding-premium-extension-get-title")}
-        </h3>
-        <p>
-          {l10n.getString(
-            "multi-part-onboarding-premium-extension-get-description"
-          )}
-        </p>
-        <LinkButton
-          href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
-          target="_blank"
-          className={styles["get-addon-button"]}
-        >
-          {l10n.getString(
-            "multi-part-onboarding-premium-extension-button-download"
-          )}
-        </LinkButton>
-      </div>
-    );
-  }
-  if (props.supportsChromeExtension) {
-    return (
-      <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
-        <h3>
-          {l10n.getString(
-            "multi-part-onboarding-premium-chrome-extension-get-title"
-          )}
-        </h3>
-        <p>
-          {l10n.getString(
-            "multi-part-onboarding-premium-chrome-extension-get-description"
-          )}
-        </p>
-        <LinkButton
-          href="https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon"
-          target="_blank"
-          className={styles["get-addon-button"]}
-        >
-          {l10n.getString(
-            "multi-part-onboarding-premium-chrome-extension-button-download"
-          )}
-        </LinkButton>
-      </div>
+      <BrowserContext.Provider value={{ extensionsSupported: extSupported }}>
+        <div className={`${styles["addon-description"]} is-hidden-with-addon`}>
+          <AddonDescriptionHeader headerMessageId={headerMessageId} />
+          <AddonDescriptionParagraph paragraphMessageId={paragraphMessageId} />
+          <AddonDescriptionLinkButton
+            linkHref={linkHref}
+            linkMessageId={linkMessageId}
+          />
+        </div>
+      </BrowserContext.Provider>
     );
   }
   return null;
+};
+
+const AddonDescriptionHeader = ({
+  headerMessageId,
+}: Pick<AddonDescriptionProps, "headerMessageId">) => {
+  const { l10n } = useLocalization();
+  const { extensionsSupported } = useContext(BrowserContext);
+  if (!extensionsSupported) {
+    return null;
+  }
+  return <h3>{l10n.getString(headerMessageId)}</h3>;
+};
+
+const AddonDescriptionParagraph = ({
+  paragraphMessageId,
+}: Pick<AddonDescriptionProps, "paragraphMessageId">) => {
+  const { l10n } = useLocalization();
+  const { extensionsSupported } = useContext(BrowserContext);
+  if (!extensionsSupported) {
+    return null;
+  }
+  return <p>{l10n.getString(paragraphMessageId)}</p>;
+};
+
+const AddonDescriptionLinkButton = ({
+  linkHref,
+  linkMessageId,
+}: Pick<AddonDescriptionProps, "linkHref" | "linkMessageId">) => {
+  const { l10n } = useLocalization();
+  const { extensionsSupported } = useContext(BrowserContext);
+  if (!extensionsSupported) {
+    return null;
+  }
+  return (
+    <LinkButton
+      href={linkHref}
+      target="_blank"
+      className={styles["get-addon-button"]}
+    >
+      {l10n.getString(linkMessageId)}
+    </LinkButton>
+  );
 };
