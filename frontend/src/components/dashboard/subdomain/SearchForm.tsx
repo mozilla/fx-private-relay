@@ -1,5 +1,5 @@
 import { useLocalization } from "@fluent/react";
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, ChangeEventHandler, useState } from "react";
 import { VisuallyHidden } from "react-aria";
 import { toast } from "react-toastify";
 import { authenticatedFetch } from "../../../hooks/api/api";
@@ -34,7 +34,7 @@ export const SubdomainSearchForm = (props: Props) => {
     props.onPick(subdomainInput);
   };
 
-  const onInput: FormEventHandler<HTMLInputElement> = async (event: any) => {
+  const onInput: ChangeEventHandler<HTMLInputElement> = async (event) => {
     setSubdomainInput(event.target.value);
     props.onType(event.target.value);
   };
