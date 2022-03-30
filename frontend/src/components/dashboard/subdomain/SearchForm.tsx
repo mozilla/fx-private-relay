@@ -1,11 +1,12 @@
 import { useLocalization } from "@fluent/react";
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, ChangeEventHandler, useState } from "react";
 import { VisuallyHidden } from "react-aria";
 import { toast } from "react-toastify";
 import { authenticatedFetch } from "../../../hooks/api/api";
 import { Button } from "../../Button";
 
 export type Props = {
+  onType: (_partial: string) => void;
   onPick: (_subdomain: string) => void;
 };
 
@@ -33,6 +34,11 @@ export const SubdomainSearchForm = (props: Props) => {
     props.onPick(subdomainInput);
   };
 
+  const onInput: ChangeEventHandler<HTMLInputElement> = async (event) => {
+    setSubdomainInput(event.target.value);
+    props.onType(event.target.value);
+  };
+
   return (
     <form onSubmit={onSubmit}>
       <VisuallyHidden>
@@ -43,7 +49,7 @@ export const SubdomainSearchForm = (props: Props) => {
       <input
         type="search"
         value={subdomainInput}
-        onChange={(e) => setSubdomainInput(e.target.value)}
+        onInput={onInput}
         placeholder={l10n.getString(
           "banner-choose-subdomain-input-placeholder-2"
         )}

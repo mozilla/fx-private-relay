@@ -339,6 +339,7 @@ type Step2SubdomainPickerProps = {
 const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
   const { l10n } = useLocalization();
   const [chosenSubdomain, setChosenSubdomain] = useState("");
+  const [partialSubdomain, setPartialSubdomain] = useState("");
 
   const modalState = useOverlayTriggerState({});
 
@@ -350,6 +351,10 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
   const onConfirm = () => {
     props.onPickSubdomain(chosenSubdomain);
     modalState.close();
+  };
+
+  const onType = (_partial: string) => {
+    setPartialSubdomain(_partial);
   };
 
   const dialog = modalState.isOpen ? (
@@ -370,11 +375,13 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
       <samp className={styles["domain-example"]}>
         ***@
         <span className={styles["customizable-part"]}>
-          {l10n.getString("banner-register-subdomain-example-address")}
+          {partialSubdomain !== ""
+            ? partialSubdomain
+            : l10n.getString("banner-register-subdomain-example-address")}
         </span>
         .{getRuntimeConfig().mozmailDomain}
       </samp>
-      <SubdomainSearchForm onPick={onPick} />
+      <SubdomainSearchForm onType={onType} onPick={onPick} />
       {dialog}
     </>
   );

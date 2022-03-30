@@ -20,6 +20,7 @@ export type Props = {
 export const SubdomainPicker = (props: Props) => {
   const { l10n } = useLocalization();
   const [chosenSubdomain, setChosenSubdomain] = useState("");
+  const [partialSubdomain, setPartialSubdomain] = useState("");
 
   const modalState = useOverlayTriggerState({});
 
@@ -42,6 +43,10 @@ export const SubdomainPicker = (props: Props) => {
     props.onCreate(chosenSubdomain);
   };
 
+  const onType = (_partial: string) => {
+    setPartialSubdomain(_partial);
+  };
+
   const dialog = modalState.isOpen ? (
     <SubdomainConfirmationModal
       subdomain={chosenSubdomain}
@@ -62,7 +67,9 @@ export const SubdomainPicker = (props: Props) => {
         <samp className={styles.example} aria-hidden={true}>
           ***@
           <span className={styles["subdomain-part"]}>
-            {l10n.getString("banner-register-subdomain-example-address")}
+            {partialSubdomain !== ""
+              ? partialSubdomain
+              : l10n.getString("banner-register-subdomain-example-address")}
           </span>
           .{getRuntimeConfig().mozmailDomain}
         </samp>
@@ -76,7 +83,7 @@ export const SubdomainPicker = (props: Props) => {
         </Link>
       </div>
       <div className={styles.search}>
-        <SubdomainSearchForm onPick={onPick} />
+        <SubdomainSearchForm onType={onType} onPick={onPick} />
         <img
           src={illustration.src}
           width={200}
