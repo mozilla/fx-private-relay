@@ -41,7 +41,7 @@ export const AliasList = (props: Props) => {
   }
 
   const aliases = sortAliases(
-    filterAliases(props.aliases, props.profile, {
+    filterAliases(props.aliases, {
       ...categoryFilters,
       string: stringFilterInput,
     })

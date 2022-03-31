@@ -58,7 +58,7 @@ export const Alias = (props: Props) => {
     expandButtonRef
   ).buttonProps;
 
-  const address = getFullAddress(props.alias, props.profile);
+  const address = getFullAddress(props.alias);
 
   const copyAddressToClipboard = () => {
     navigator.clipboard.writeText(address);

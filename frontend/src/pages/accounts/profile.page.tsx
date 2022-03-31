@@ -143,7 +143,7 @@ const Profile: NextPage = () => {
     } catch (error) {
       toast(
         l10n.getString("error-alias-update-failed", {
-          alias: getFullAddress(alias, profile),
+          alias: getFullAddress(alias),
         }),
         { type: "error" }
       );
@@ -161,7 +161,7 @@ const Profile: NextPage = () => {
     } catch (error: unknown) {
       toast(
         l10n.getString("error-alias-delete-failed", {
-          alias: getFullAddress(alias, profile),
+          alias: getFullAddress(alias),
         }),
         { type: "error" }
       );
