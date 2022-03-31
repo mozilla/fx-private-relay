@@ -21,6 +21,7 @@ import { Banner } from "../Banner";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
+import { useMinViewportWidth } from "../../hooks/mediaQuery";
 
 export type Props = {
   profile: ProfileData;
@@ -43,6 +44,7 @@ export type Props = {
  */
 export const ProfileBanners = (props: Props) => {
   const banners: ReactNode[] = [];
+  const isLargeScreen = useMinViewportWidth("md");
 
   const bounceStatus = props.profile.bounce_status;
   if (bounceStatus[0]) {
@@ -65,18 +67,18 @@ export const ProfileBanners = (props: Props) => {
 
   // Don't show the "Get Firefox" banner if we have an extension available,
   // to avoid banner overload:
-  if (!isUsingFirefox() && !supportsChromeExtension()) {
+  if (!isUsingFirefox() && (!supportsChromeExtension() || !isLargeScreen)) {
     banners.push(<NoFirefoxBanner key="firefox-banner" />);
   }
 
-  if (supportsFirefoxExtension()) {
+  if (supportsFirefoxExtension() && isLargeScreen) {
     // This pushes a banner promoting the add-on - detecting the add-on
     // and determining whether to show it based on that is a bit slow,
     // so we'll just let the add-on hide it:
     banners.push(<NoAddonBanner key="addon-banner" />);
   }
 
-  if (supportsChromeExtension()) {
+  if (supportsChromeExtension() && isLargeScreen) {
     // This pushes a banner promoting the add-on - detecting the add-on
     // and determining whether to show it based on that is a bit slow,
     // so we'll just let the add-on hide it:
