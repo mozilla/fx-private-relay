@@ -19,9 +19,7 @@ class FormattingToolsTest(TestCase):
     def setUp(self):
         _, self.relay_from = parseaddr(settings.RELAY_FROM_ADDRESS)
         domain = get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
-        _, self.premium_from = parseaddr(
-            f'replies@{domain}'
-        )
+        _, self.premium_from = parseaddr(f'replies@{domain}')
 
     def test_generate_relay_From_with_umlaut(self):
         original_from_address = '"foö bär" <foo@bar.com>'
@@ -82,8 +80,8 @@ class FormattingToolsTest(TestCase):
         expected_encoded_display_name = (
             '=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?='
         )
-        expected_formatted_from = '%s %s' % (
-            expected_encoded_display_name, '<%s>' % self.premium_from
+        expected_formatted_from = '%s <%s>' % (
+            expected_encoded_display_name, self.premium_from
         )
         assert formatted_from_address == expected_formatted_from
 
