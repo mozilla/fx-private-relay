@@ -46,6 +46,26 @@ Import tokens from [Protocol](https://protocol.mozilla.org).
 Uses [`react-ga`](https://www.npmjs.com/package/react-ga).
 See `useGaViewPing` and `trackPurchaseStart`.
 
+## Add/modify environment-specific data
+
+We only compile our front-end once, and then deploy the built code to
+our different environments (stage, production). This is different from an
+approach that you might be familiar with from other front-end projects,
+in which the code is built for each environment separately.
+
+The consequence of this is that we can't inline environment-specific variables
+in our built code (i.e.
+[like this](https://nextjs.org/docs/basic-features/environment-variables)).
+And since the front-end code is executed in the user's browser, it can't access
+the server environment like our back-end can.
+
+But of course, the back-end _can_. So instead, what we do is as follows. The
+back-end exposes an API endpoint, `runtime_data`, via which it exposes selected
+environment variables to the outside world. You can extend this endpoint in
+`/api/views.py`. The front-end, then, makes an API request to that endpoint
+using the `useRuntimeData` hook; you can find this in
+`/frontend/src/hooks/api/runtimeData.ts`.
+
 ## Add a feature flag
 
 In `/frontend/src/config.ts`, there's a Record type definition for the `featureFlags` property.
