@@ -24,6 +24,10 @@ import {
   setMockRuntimeDataOnce,
 } from "../../../__mocks__/hooks/api/runtimeData";
 import { mockGetLocaleModule } from "../../../__mocks__/functions/getLocale";
+import {
+  setMockMinViewportWidth,
+  setMockMinViewportWidthOnce,
+} from "../../../__mocks__/hooks/mediaQuery";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Profile from "./profile.page";
@@ -42,6 +46,7 @@ setMockAliasesData();
 setMockProfileData();
 setMockUserData();
 setMockRuntimeData();
+setMockMinViewportWidth();
 
 describe("The dashboard", () => {
   describe("under axe accessibility testing", () => {
@@ -208,6 +213,30 @@ describe("The dashboard", () => {
     expect(chromeExtensionBanner).toBeInTheDocument();
   });
 
+  it("shows a banner to download Firefox if using a different browser that on desktop supports Chrome extensions, but is running on a small screen and thus probably does not support extensions", () => {
+    // navigator.userAgent is read-only, so we use `Object.defineProperty`
+    // as a workaround to be able to replace it with mock data anyway:
+    const previousUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, "userAgent", {
+      value:
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+      configurable: true,
+    });
+    setMockMinViewportWidthOnce(false);
+    render(<Profile />);
+    Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
+
+    const chromeExtensionBanner = screen.queryByRole("link", {
+      name: "l10n string: [banner-download-install-chrome-extension-cta], with vars: {}",
+    });
+    const firefoxBanner = screen.getByRole("link", {
+      name: "l10n string: [banner-download-firefox-cta], with vars: {}",
+    });
+
+    expect(chromeExtensionBanner).not.toBeInTheDocument();
+    expect(firefoxBanner).toBeInTheDocument();
+  });
+
   it("does not show a banner to download Firefox if the user is already using it", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
     // as a workaround to be able to replace it with mock data anyway:
@@ -244,6 +273,26 @@ describe("The dashboard", () => {
     });
 
     expect(addonBanner).toBeInTheDocument();
+  });
+
+  it("does not show a banner to download the add-on if the user is using Firefox, but on a small screen, and therefore probably on mobile, where the extension is not available", () => {
+    // navigator.userAgent is read-only, so we use `Object.defineProperty`
+    // as a workaround to be able to replace it with mock data anyway:
+    const previousUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, "userAgent", {
+      value:
+        "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
+      configurable: true,
+    });
+    setMockMinViewportWidthOnce(false);
+    render(<Profile />);
+    Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
+
+    const addonBanner = screen.queryByRole("link", {
+      name: "l10n string: [banner-download-install-extension-cta], with vars: {}",
+    });
+
+    expect(addonBanner).not.toBeInTheDocument();
   });
 
   it("tells the add-on to hide the banner to install the add-on", () => {
