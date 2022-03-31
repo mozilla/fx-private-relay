@@ -44,6 +44,7 @@ urlpatterns = [
     ),
     path('accounts/', include('allauth.urls')),
     path('api/', include('api.urls')),
+    path('faq', views.faq, name='faq'),
 ]
 
 if not settings.SERVE_REACT:
@@ -52,7 +53,6 @@ if not settings.SERVE_REACT:
         path('accounts/settings/', views.settings_view, name='settings'),
         # This redirects users back to the homepage after updating settings
         path('accounts/profile/settings_update', views.settings_update_view, name='settings-update'),
-        path('faq', views.faq, name='faq'),
         path('premium', views.premium_promo, name='premium-promo'),
         path('', views.home, name='home'),
     ]
