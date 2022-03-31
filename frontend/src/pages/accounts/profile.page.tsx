@@ -360,8 +360,8 @@ const Profile: NextPage = () => {
             </p>
           </section>
           {bottomBanners}
-          {bottomPremiumSection}
         </main>
+        {bottomPremiumSection}
         <Tips
           profile={profile}
           customAliases={aliasData.customAliasData.data}
