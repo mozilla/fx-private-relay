@@ -19,6 +19,7 @@ sequenceDiagram
 * Your own domain and the ability to publish MX and CNAME records to it
 * AWS account
 * (Suggested) [ngrok.io][ngrok] account
+* Enable Firefox Accounts authentication (see README)
 
 ## Overview
 At a high level, you will need to:
@@ -28,7 +29,6 @@ At a high level, you will need to:
 3. Configure your app to accept emails addressed to your domain
 4. Set up your AWS SES to send emails FROM your app
 5. Send a test email
-
 
 ### Publish MX at your domain
 When a sending Mail Transfer Agents (MTA) delivers email to a domain, it 
@@ -69,7 +69,7 @@ Note: This will NOT be the domain of the email aliases for your local server.
 To run `ngrok` with a [custom subdomain][ngrok-custom-subdomain]:
 
 ```
-ngrok http -subdomain=myrelay 8000
+ngrok http -subdomain=myrelay 127.0.0.1:8000
 ```
 
 You should see output containing:
@@ -77,6 +77,18 @@ You should see output containing:
 ```
 Forwarding      https://myrelay.ngrok.io -> 127.0.0.1:8000
 ```
+
+Add the ngrok.io domain to the allowed hosts:
+
+* `DJANGO_ALLOWED_HOST=127.0.0.1,myrelay.ngrok.io`
+
+In a different console, run the development server. Ensure:
+
+* The destination host works, such as http://127.0.0.1:8000
+* The ngrok.io hostname works, such as https://myrelay.ngrok.io
+
+Firefox Accounts authentication doesn't work with multiple domains. Most
+developers will continue to log in with FxA at http://127.0.0.1:8000
 
 #### Create SNS topic subscription that sends HTTPS POSTs to your local server
 To confirm an SNS HTTPS topic subscription, you need to receive and visit a
@@ -102,7 +114,6 @@ proper Topic ARN, so you need to do these steps in this order:
 Django and our Relay code have checks to make sure the HTTPS POSTs are for the
 right domain. So, you'll need to set some environment variable values:
 
-* `DJANGO_ALLOWED_HOST=127.0.0.1,yourdomain.com`
 * `MOZMAIL_DOMAIN=yourdomain.com`
 * `RELAY_FROM_ADDRESS=relay@yourdomain.com`
 
