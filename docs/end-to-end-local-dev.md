@@ -132,8 +132,10 @@ mode, you need to add one of your own email addresses as a verified identity.
 1. [Create an SES configuration set][create-ses-config].
    * (All defaults are fine)
 2. Set the AWS env vars:
-   * `AWS_SES_CONFIGSET`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`,
-     `AWS_SECRET_ACCESS_KEY`
+   * `AWS_SES_CONFIGSET`
+   * `AWS_REGION`
+   * `AWS_ACCESS_KEY_ID` *Must be set in the environment, not just in .env*
+   * `AWS_SECRET_ACCESS_KEY` *Also must be set in the environment*
 2. [Create a new verified identity][create-new-identity] email address.
    * AWS will send you a confirmation link to the address.
 3. Register a local Relay user with this email address.
