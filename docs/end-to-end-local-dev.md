@@ -108,8 +108,11 @@ proper Topic ARN, so you need to do these steps in this order:
 1. In your [SES Email Receiving][ses-email-receiving] panel, create a new rule
    set.
 2. In that rule set, create a rule "ses-all-inbound-to-sns"
-3. In that rule, add an action to publish to SNS topic and select the SNS
-   topic you made before.
+3. In that rule, add an action to Publish to Amazon SNS topic and select the SNS
+   topic you made before. Use UTF-8 encoding instead of Base64.
+4. In [SES Email Receiving][ses-email-receiving], ensure the rule
+   "ses-all-inbound-to-sns" is Active.
+
 
 ### Configure your app to accept emails addressed to your domain
 Django and our Relay code have checks to make sure the HTTPS POSTs are for the
