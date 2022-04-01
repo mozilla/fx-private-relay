@@ -19,6 +19,7 @@ sequenceDiagram
 * Your own domain and the ability to publish MX and CNAME records to it
 * AWS account
 * (Suggested) [ngrok.io][ngrok] account
+* Enable Firefox Accounts authentication (see README)
 
 ## Overview
 At a high level, you will need to:
@@ -28,7 +29,6 @@ At a high level, you will need to:
 3. Configure your app to accept emails addressed to your domain
 4. Set up your AWS SES to send emails FROM your app
 5. Send a test email
-
 
 ### Publish MX at your domain
 When a sending Mail Transfer Agents (MTA) delivers email to a domain, it 
@@ -55,7 +55,8 @@ your 127.0.0.1 server.
 AWS needs to verify you own the domain before it will send its email to you.
 
 1. [Create a new domain identity][create-new-identity] in your SES "Verified
-   identities" panel. (Note: You do NOT need to set up DKIM for local dev.)
+   identities" panel. AWS will set up "Easy DKIM" with 3 CNAME records, which
+   will work for local dev.
 2. Go to your domain's DNS and add the new CNAME records with the values that
    SES generated for you.
 
@@ -69,7 +70,7 @@ Note: This will NOT be the domain of the email aliases for your local server.
 To run `ngrok` with a [custom subdomain][ngrok-custom-subdomain]:
 
 ```
-ngrok http -subdomain=myrelay 8000
+ngrok http -subdomain=myrelay 127.0.0.1:8000
 ```
 
 You should see output containing:
@@ -77,6 +78,18 @@ You should see output containing:
 ```
 Forwarding      https://myrelay.ngrok.io -> 127.0.0.1:8000
 ```
+
+Add the ngrok.io domain to the allowed hosts:
+
+* `DJANGO_ALLOWED_HOST=127.0.0.1,myrelay.ngrok.io`
+
+In a different console, run the development server. Ensure:
+
+* The destination host works, such as http://127.0.0.1:8000
+* The ngrok.io hostname works, such as https://myrelay.ngrok.io
+
+Firefox Accounts authentication doesn't work with multiple domains. Most
+developers will continue to log in with FxA at http://127.0.0.1:8000
 
 #### Create SNS topic subscription that sends HTTPS POSTs to your local server
 To confirm an SNS HTTPS topic subscription, you need to receive and visit a
@@ -95,14 +108,16 @@ proper Topic ARN, so you need to do these steps in this order:
 1. In your [SES Email Receiving][ses-email-receiving] panel, create a new rule
    set.
 2. In that rule set, create a rule "ses-all-inbound-to-sns"
-3. In that rule, add an action to publish to SNS topic and select the SNS
-   topic you made before.
+3. In that rule, add an action to Publish to Amazon SNS topic and select the SNS
+   topic you made before. Use UTF-8 encoding instead of Base64.
+4. In [SES Email Receiving][ses-email-receiving], ensure the rule
+   "ses-all-inbound-to-sns" is Active.
+
 
 ### Configure your app to accept emails addressed to your domain
 Django and our Relay code have checks to make sure the HTTPS POSTs are for the
 right domain. So, you'll need to set some environment variable values:
 
-* `DJANGO_ALLOWED_HOST=127.0.0.1,yourdomain.com`
 * `MOZMAIL_DOMAIN=yourdomain.com`
 * `RELAY_FROM_ADDRESS=relay@yourdomain.com`
 
@@ -117,8 +132,10 @@ mode, you need to add one of your own email addresses as a verified identity.
 1. [Create an SES configuration set][create-ses-config].
    * (All defaults are fine)
 2. Set the AWS env vars:
-   * `AWS_SES_CONFIGSET`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`,
-     `AWS_SECRET_ACCESS_KEY`
+   * `AWS_SES_CONFIGSET`
+   * `AWS_REGION`
+   * `AWS_ACCESS_KEY_ID` *Must be set in the environment, not just in .env*
+   * `AWS_SECRET_ACCESS_KEY` *Also must be set in the environment*
 2. [Create a new verified identity][create-new-identity] email address.
    * AWS will send you a confirmation link to the address.
 3. Register a local Relay user with this email address.
