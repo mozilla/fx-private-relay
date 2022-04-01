@@ -55,7 +55,8 @@ your 127.0.0.1 server.
 AWS needs to verify you own the domain before it will send its email to you.
 
 1. [Create a new domain identity][create-new-identity] in your SES "Verified
-   identities" panel. (Note: You do NOT need to set up DKIM for local dev.)
+   identities" panel. AWS will set up "Easy DKIM" with 3 CNAME records, which
+   will work for local dev.
 2. Go to your domain's DNS and add the new CNAME records with the values that
    SES generated for you.
 
