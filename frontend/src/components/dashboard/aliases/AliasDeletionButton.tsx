@@ -17,7 +17,6 @@ import {
   useState,
 } from "react";
 import styles from "./AliasDeletionButton.module.scss";
-import { ProfileData } from "../../../hooks/api/profile";
 import { Button } from "../../Button";
 import { OverlayProps } from "@react-aria/overlays";
 import {
@@ -28,7 +27,6 @@ import {
 
 export type Props = {
   alias: AliasData;
-  profile: ProfileData;
   onDelete: () => void;
 };
 

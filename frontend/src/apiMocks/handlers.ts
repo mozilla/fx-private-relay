@@ -117,7 +117,7 @@ export function getHandlers(
     const id = (ownAddresses[ownAddresses.length - 1]?.id ?? -1) + 1;
     ownAddresses.push({
       address: body.address ?? `random_${id}`,
-      full_address: body.address ?? `random_${id}`,
+      full_address: body.address ?? `random_${id}` + "@mozmail.com",
       created_at: new Date(Date.now()).toISOString(),
       description: "",
       domain: 1,
@@ -184,7 +184,8 @@ export function getHandlers(
     const id = (ownAddresses[ownAddresses.length - 1]?.id ?? -1) + 1;
     ownAddresses.push({
       address: body.address ?? `custom_alias_${id}`,
-      full_address: body.address ?? `custom_alias_${id}`,
+      full_address:
+        body.address ?? `custom_alias_${id}` + "@mydomain.mozmail.com",
       created_at: new Date(Date.now()).toISOString(),
       description: "",
       domain: 2,

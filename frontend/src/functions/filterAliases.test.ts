@@ -6,12 +6,17 @@ import {
 } from "../hooks/api/aliases";
 import { filterAliases, Filters } from "./filterAliases";
 
-const getMockedAliasMatching = (filters: Partial<Filters>): AliasData => {
+const getMockedAliasMatching = (
+  filters: Partial<Filters>,
+  customSubdomain = "some"
+): AliasData => {
   const alias: CustomAliasData | RandomAliasData = {
     address: filters.string ?? "arbitrary_string",
     full_address:
       filters.domainType === "custom"
-        ? `${filters.string ?? "arbitrary_string"}@some.mozmail.com`
+        ? `${
+            filters.string ?? "arbitrary_string"
+          }@${customSubdomain}.mozmail.com`
         : `${filters.string ?? "arbitrary_string"}@mozmail.com`,
     created_at: "2021-11-08T13:46:40.899003Z",
     description: "",
