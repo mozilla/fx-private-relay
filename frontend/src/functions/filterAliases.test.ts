@@ -4,12 +4,20 @@ import {
   CustomAliasData,
   RandomAliasData,
 } from "../hooks/api/aliases";
-import { ProfileData } from "../hooks/api/profile";
 import { filterAliases, Filters } from "./filterAliases";
 
-const getMockedAliasMatching = (filters: Partial<Filters>): AliasData => {
+const getMockedAliasMatching = (
+  filters: Partial<Filters>,
+  customSubdomain = "some"
+): AliasData => {
   const alias: CustomAliasData | RandomAliasData = {
     address: filters.string ?? "arbitrary_string",
+    full_address:
+      filters.domainType === "custom"
+        ? `${
+            filters.string ?? "arbitrary_string"
+          }@${customSubdomain}.mozmail.com`
+        : `${filters.string ?? "arbitrary_string"}@mozmail.com`,
     created_at: "2021-11-08T13:46:40.899003Z",
     description: "",
     domain: 2,
@@ -72,22 +80,10 @@ const getOneOfEvery = (): AliasData[] => {
   ];
 };
 
-const getMockedProfile = (subdomain = "arbitrary_subdomain"): ProfileData => {
-  return {
-    has_premium: true,
-    id: 1337,
-    server_storage: true,
-    subdomain: subdomain,
-  };
-};
-
 it("returns all aliases if no filters are active", () => {
   const aliases = getOneOfEvery();
-  const profile = getMockedProfile();
 
-  expect(filterAliases(aliases, profile, { string: "" })).toStrictEqual(
-    aliases
-  );
+  expect(filterAliases(aliases, { string: "" })).toStrictEqual(aliases);
 });
 
 it("filters out aliases that do not match the given string", () => {
@@ -95,9 +91,8 @@ it("filters out aliases that do not match the given string", () => {
     getMockedAliasMatching({ string: "some_string" }),
     getMockedAliasMatching({ string: "other_string" }),
   ];
-  const profile = getMockedProfile();
 
-  expect(filterAliases(aliases, profile, { string: "some" })).toStrictEqual([
+  expect(filterAliases(aliases, { string: "some" })).toStrictEqual([
     aliases[0],
   ]);
 });
@@ -107,9 +102,8 @@ it("can match on an alias's subdomain when using a string filter", () => {
     getMockedAliasMatching({ domainType: "random" }),
     getMockedAliasMatching({ domainType: "custom" }),
   ];
-  const profile = getMockedProfile("some_domain");
 
-  expect(filterAliases(aliases, profile, { string: "some" })).toStrictEqual([
+  expect(filterAliases(aliases, { string: "some" })).toStrictEqual([
     aliases[1],
   ]);
 });
@@ -119,10 +113,9 @@ it("can filter out non-random domains", () => {
     getMockedAliasMatching({ domainType: "random" }),
     getMockedAliasMatching({ domainType: "custom" }),
   ];
-  const profile = getMockedProfile();
 
   expect(
-    filterAliases(aliases, profile, { string: "", domainType: "random" })
+    filterAliases(aliases, { string: "", domainType: "random" })
   ).toStrictEqual([aliases[0]]);
 });
 
@@ -131,10 +124,9 @@ it("can filter out non-random domains", () => {
     getMockedAliasMatching({ domainType: "random" }),
     getMockedAliasMatching({ domainType: "custom" }),
   ];
-  const profile = getMockedProfile();
 
   expect(
-    filterAliases(aliases, profile, { string: "", domainType: "custom" })
+    filterAliases(aliases, { string: "", domainType: "custom" })
   ).toStrictEqual([aliases[1]]);
 });
 
@@ -143,10 +135,9 @@ it("can filter out blocking aliases", () => {
     getMockedAliasMatching({ status: "blocking" }),
     getMockedAliasMatching({ status: "forwarding" }),
   ];
-  const profile = getMockedProfile();
 
   expect(
-    filterAliases(aliases, profile, { string: "", status: "forwarding" })
+    filterAliases(aliases, { string: "", status: "forwarding" })
   ).toStrictEqual([aliases[1]]);
 });
 
@@ -155,10 +146,9 @@ it("can filter out forwarding aliases", () => {
     getMockedAliasMatching({ status: "blocking" }),
     getMockedAliasMatching({ status: "forwarding" }),
   ];
-  const profile = getMockedProfile();
 
   expect(
-    filterAliases(aliases, profile, { string: "", status: "blocking" })
+    filterAliases(aliases, { string: "", status: "blocking" })
   ).toStrictEqual([aliases[0]]);
 });
 
@@ -169,9 +159,8 @@ it("can combine filters", () => {
     getMockedAliasMatching({ string: "other_string", status: "blocking" }),
     getMockedAliasMatching({ string: "other_string", status: "forwarding" }),
   ];
-  const profile = getMockedProfile();
 
   expect(
-    filterAliases(aliases, profile, { string: "some", status: "forwarding" })
+    filterAliases(aliases, { string: "some", status: "forwarding" })
   ).toStrictEqual([aliases[1]]);
 });

@@ -42,6 +42,7 @@ export function getMockRandomAlias(
   return {
     type: "random",
     address: "arbitrary_address",
+    full_address: "arbitrary_address@mozmail.com",
     created_at: "2021-11-03T13:37:42.000000Z",
     last_modified_at: "2021-11-03T13:37:42.000000Z",
     last_used_at: "2021-11-03T13:37:42.000000Z",
@@ -62,6 +63,7 @@ export function getMockCustomAlias(
   return {
     type: "custom",
     address: "arbitrary_address",
+    full_address: "arbitrary_address@custom.mozmail.com",
     created_at: "2021-11-03T13:37:42.000000Z",
     last_modified_at: "2021-11-03T13:37:42.000000Z",
     last_used_at: "2021-11-03T13:37:42.000000Z",

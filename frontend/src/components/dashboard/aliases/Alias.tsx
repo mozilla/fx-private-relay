@@ -13,7 +13,6 @@ import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
 import IllustrationHoliday from "../../../../public/illustrations/holiday.svg";
 import IllustrationLibrary from "../../../../public/illustrations/library.svg";
 import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
-import { ProfileData } from "../../../hooks/api/profile";
 import { LabelEditor } from "./LabelEditor";
 import { UserData } from "../../../hooks/api/user";
 import { renderDate } from "../../../functions/renderDate";
@@ -23,7 +22,6 @@ import { getLocale } from "../../../functions/getLocale";
 
 export type Props = {
   alias: AliasData;
-  profile: ProfileData;
   user: UserData;
   onUpdate: (updatedFields: Partial<AliasData>) => void;
   onDelete: () => void;
@@ -58,7 +56,7 @@ export const Alias = (props: Props) => {
     expandButtonRef
   ).buttonProps;
 
-  const address = getFullAddress(props.alias, props.profile);
+  const address = getFullAddress(props.alias);
 
   const copyAddressToClipboard = () => {
     navigator.clipboard.writeText(address);
@@ -208,11 +206,7 @@ export const Alias = (props: Props) => {
             <dd>{renderDate(props.alias.created_at, l10n)}</dd>
           </div>
         </dl>
-        <AliasDeletionButton
-          onDelete={props.onDelete}
-          alias={props.alias}
-          profile={props.profile}
-        />
+        <AliasDeletionButton onDelete={props.onDelete} alias={props.alias} />
       </div>
     </div>
   );

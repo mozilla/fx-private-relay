@@ -60,6 +60,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
     some: [
       {
         address: "random_0",
+        full_address: "random_0@mozmail.com",
         created_at: "2020-04-09T00:00:00.000Z",
         description: "A label",
         domain: 1,
@@ -75,6 +76,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
       },
       {
         address: "random_1",
+        full_address: "random_1@mozmail.com",
         created_at: "2020-04-09T00:00:00.000Z",
         description: "",
         domain: 1,
@@ -92,6 +94,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
     full: [
       {
         address: "random_0",
+        full_address: "random_0@mozmail.com",
         created_at: "2020-04-09T00:00:00.000Z",
         description: "A label",
         domain: 1,
@@ -107,6 +110,7 @@ export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
       },
       {
         address: "random_1",
+        full_address: "random_1@mozmail.com",
         created_at: "2020-04-09T00:00:00.000Z",
         description: "",
         domain: 1,
@@ -132,6 +136,7 @@ export const domainaddresses: Record<
   full: [
     {
       address: "custom_0",
+      full_address: "custom_0@custom.mozmail.com",
       created_at: "2020-04-09T00:00:00.000Z",
       description: "",
       domain: 2,

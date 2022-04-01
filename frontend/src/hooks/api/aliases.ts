@@ -11,6 +11,7 @@ export type CommonAliasData = {
   description: string | "";
   id: number;
   address: string;
+  full_address: string;
   domain: Domain_MozmailCom | Domain_RelayFirefoxCom;
   created_at: DateTimeString;
   last_modified_at: DateTimeString;
@@ -138,16 +139,8 @@ export function getAllAliases(
   return (randomAliases as AliasData[]).concat(customAliases);
 }
 
-export function getFullAddress(alias: AliasData, profile: ProfileData) {
-  if (!isRandomAlias(alias) && typeof profile.subdomain === "string") {
-    return `${alias.address}@${profile.subdomain}.mozmail.com`;
-  }
-  if (alias.domain === (1 as Domain_RelayFirefoxCom)) {
-    // 1 = @relay.firefox.com
-    return `${alias.address}@relay.firefox.com`;
-  }
-  // 2 = @mozmail.com
-  return `${alias.address}@mozmail.com`;
+export function getFullAddress(alias: AliasData) {
+  return alias.full_address;
 }
 
 /**
