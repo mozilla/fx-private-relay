@@ -1,7 +1,7 @@
 import { Key, ReactNode, useEffect, useRef } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Item, TabListState, useTabListState } from "react-stately";
-import { useMinViewportWidth } from "../../hooks/mediaQuery";
+import { useMinViewportWidth } from "../../../hooks/mediaQuery";
 import styles from "./Carousel.module.scss";
 
 // Next.js doesn't export this type at the time of writing,
@@ -134,12 +134,7 @@ const Container = ({ state, ...otherProps }: ContainerProps) => {
   const { tabPanelProps } = useTabPanel(otherProps, state, containerRef);
   return (
     <div {...tabPanelProps} ref={containerRef} className={styles.content}>
-      <div className={styles["content-heading"]}>
-        {state.selectedItem.props["aria-label"]}
-      </div>
-      <div className={styles["content-body"]}>
-        {state.selectedItem.props.children}
-      </div>
+      {state.selectedItem.props.children}
     </div>
   );
 };

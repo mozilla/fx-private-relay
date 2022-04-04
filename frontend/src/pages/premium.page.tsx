@@ -13,7 +13,8 @@ import { useGaViewPing } from "../hooks/gaViewPing";
 import { Button, LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import { Carousel } from "../components/landing/Carousel";
+import { Carousel } from "../components/landing/carousel/Carousel";
+import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
 import { Plans } from "../components/landing/Plans";
 import {
   getPlan,
@@ -202,8 +203,15 @@ const PremiumPromo: NextPage = () => {
                   heading: l10n.getString(
                     "premium-promo-use-cases-shopping-heading"
                   ),
-                  content: l10n.getString(
-                    "premium-promo-use-cases-shopping-body"
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString(
+                        "premium-promo-use-cases-shopping-heading"
+                      )}
+                      body={l10n.getString(
+                        "premium-promo-use-cases-shopping-body"
+                      )}
+                    />
                   ),
                   illustration: ShoppingIllustration,
                   id: "use-cases/shopping",
@@ -213,8 +221,15 @@ const PremiumPromo: NextPage = () => {
                   heading: l10n.getString(
                     "premium-promo-use-cases-social-networks-heading"
                   ),
-                  content: l10n.getString(
-                    "premium-promo-use-cases-social-networks-body"
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString(
+                        "premium-promo-use-cases-social-networks-heading"
+                      )}
+                      body={l10n.getString(
+                        "premium-promo-use-cases-social-networks-body"
+                      )}
+                    />
                   ),
                   illustration: SocialNetworksIllustration,
                   id: "use-cases/social-networks",
@@ -224,8 +239,15 @@ const PremiumPromo: NextPage = () => {
                   heading: l10n.getString(
                     "premium-promo-use-cases-gaming-heading"
                   ),
-                  content: l10n.getString(
-                    "premium-promo-use-cases-gaming-body"
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString(
+                        "premium-promo-use-cases-gaming-heading"
+                      )}
+                      body={l10n.getString(
+                        "premium-promo-use-cases-gaming-body"
+                      )}
+                    />
                   ),
                   illustration: GamingIllustration,
                   id: "use-cases/gaming",

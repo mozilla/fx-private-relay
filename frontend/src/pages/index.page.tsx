@@ -19,7 +19,8 @@ import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import { Carousel } from "../components/landing/Carousel";
+import { Carousel } from "../components/landing/carousel/Carousel";
+import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
 import { Plans } from "../components/landing/Plans";
 import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -134,15 +135,27 @@ const Home: NextPage = () => {
                 {
                   color: "yellow",
                   heading: l10n.getString("landing-use-cases-shopping"),
-                  content: l10n.getString("landing-use-cases-shopping-body"),
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString("landing-use-cases-shopping")}
+                      body={l10n.getString("landing-use-cases-shopping-body")}
+                    />
+                  ),
                   illustration: ShoppingIllustration,
                   id: "use-cases/shopping",
                 },
                 {
                   color: "orange",
                   heading: l10n.getString("landing-use-cases-social-networks"),
-                  content: l10n.getString(
-                    "landing-use-cases-social-networks-body"
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString(
+                        "landing-use-cases-social-networks"
+                      )}
+                      body={l10n.getString(
+                        "landing-use-cases-social-networks-body"
+                      )}
+                    />
                   ),
                   illustration: SocialNetworksIllustration,
                   id: "use-cases/social-networks",
@@ -150,15 +163,27 @@ const Home: NextPage = () => {
                 {
                   color: "teal",
                   heading: l10n.getString("landing-use-cases-offline"),
-                  content: l10n.getString("landing-use-cases-offline-body"),
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString("landing-use-cases-offline")}
+                      body={l10n.getString("landing-use-cases-offline-body")}
+                    />
+                  ),
                   illustration: OfflineIllustration,
                   id: "use-cases/offline",
                 },
                 {
                   color: "red",
                   heading: l10n.getString("landing-use-cases-access-content"),
-                  content: l10n.getString(
-                    "landing-use-cases-access-content-body"
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString(
+                        "landing-use-cases-access-content"
+                      )}
+                      body={l10n.getString(
+                        "landing-use-cases-access-content-body"
+                      )}
+                    />
                   ),
                   illustration: AccessContentIllustration,
                   id: "use-cases/access-content",
@@ -166,7 +191,12 @@ const Home: NextPage = () => {
                 {
                   color: "pink",
                   heading: l10n.getString("landing-use-cases-gaming"),
-                  content: l10n.getString("landing-use-cases-gaming-body"),
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString("landing-use-cases-gaming")}
+                      body={l10n.getString("landing-use-cases-gaming-body")}
+                    />
+                  ),
                   illustration: GamingIllustration,
                   id: "use-cases/gaming",
                 },
