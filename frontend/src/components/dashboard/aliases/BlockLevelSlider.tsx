@@ -65,6 +65,19 @@ export const BlockLevelSlider = (props: Props) => {
     trackRef
   );
 
+  const getTrackStopClassNames = (blockLevel: BlockLevel): string => {
+    const blockLevelClassName = styles[`track-stop-${blockLevel}`];
+    if (
+      getBlockLevelFromSliderValue(
+        sliderState.getThumbValue(onlyThumbIndex)
+      ) === blockLevel
+    ) {
+      return `${styles["track-stop"]} ${blockLevelClassName} ${styles["is-active"]}`;
+    }
+
+    return `${styles["track-stop"]} ${blockLevelClassName}`;
+  };
+
   return (
     <div {...groupProps} className={styles.group}>
       <div className={styles.control}>
@@ -73,43 +86,17 @@ export const BlockLevelSlider = (props: Props) => {
         </label>
         <div {...trackProps} ref={trackRef} className={styles.track}>
           <div className={styles["track-line"]} />
-          <div
-            className={`${styles["track-stop"]} ${styles["track-stop-none"]} ${
-              getBlockLevelFromSliderValue(
-                sliderState.getThumbValue(onlyThumbIndex)
-              ) === "none"
-                ? styles["is-active"]
-                : ""
-            }`}
-          >
+          <div className={getTrackStopClassNames("none")}>
             <img src={UmbrellaClosedMobile.src} alt="" />
             <p aria-hidden="true">{getLabelForBlockLevel("none", l10n)}</p>
           </div>
-          <div
-            className={`${styles["track-stop"]} ${
-              styles["track-stop-promotional"]
-            } ${
-              getBlockLevelFromSliderValue(
-                sliderState.getThumbValue(onlyThumbIndex)
-              ) === "promotional"
-                ? styles["is-active"]
-                : ""
-            }`}
-          >
+          <div className={getTrackStopClassNames("promotional")}>
             <img src={UmbrellaSemiMobile.src} alt="" />
             <p aria-hidden="true">
               {getLabelForBlockLevel("promotional", l10n)}
             </p>
           </div>
-          <div
-            className={`${styles["track-stop"]} ${styles["track-stop-all"]} ${
-              getBlockLevelFromSliderValue(
-                sliderState.getThumbValue(onlyThumbIndex)
-              ) === "all"
-                ? styles["is-active"]
-                : ""
-            }`}
-          >
+          <div className={getTrackStopClassNames("all")}>
             <img src={UmbrellaOpenMobile.src} alt="" />
             <p aria-hidden="true">{getLabelForBlockLevel("all", l10n)}</p>
           </div>
