@@ -361,7 +361,7 @@ const Profile: NextPage = () => {
           </section>
           {bottomBanners}
         </main>
-        {bottomPremiumSection}
+        <aside>{bottomPremiumSection}</aside>
         <Tips
           profile={profile}
           customAliases={aliasData.customAliasData.data}
