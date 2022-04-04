@@ -16,9 +16,11 @@ FROM python:3.9.10
 ARG CIRCLE_BRANCH
 ARG CIRCLE_SHA1
 ARG CIRCLE_TAG
+ARG SERVE_REACT
 ENV CIRCLE_BRANCH=${CIRCLE_BRANCH:-unknown} \
     CIRCLE_TAG=${CIRCLE_TAG:-unknown} \
-    CIRCLE_SHA1=${CIRCLE_SHA1:-unknown}
+    CIRCLE_SHA1=${CIRCLE_SHA1:-unknown} \
+    SERVE_REACT=${SERVE_REACT:-True}
 
 RUN pip install --no-cache --upgrade pip
 

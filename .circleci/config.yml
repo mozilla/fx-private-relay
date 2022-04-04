@@ -143,6 +143,7 @@ jobs:
             --build-arg CIRCLE_BRANCH="$CIRCLE_BRANCH" \
             --build-arg CIRCLE_TAG="$CIRCLE_TAG" \
             --build-arg CIRCLE_SHA1="$CIRCLE_SHA1" \
+            --build-arg SERVE_REACT="$SERVE_REACT:-False" \
             .
 
       - run:
