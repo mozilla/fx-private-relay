@@ -479,6 +479,7 @@ if SERVE_REACT:
     STATIC_URL = '/'
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'frontend/out'),
+        os.path.join(BASE_DIR, 'static'),
     ]
     if settings.DEBUG:
         # In production, we run collectstatic to index all static files.
@@ -490,6 +491,7 @@ else:
     STATIC_URL = '/static/'
     STATICFILES_DIRS = [
         os.path.join(BASE_DIR, 'static'),
+        os.path.join(BASE_DIR, 'frontend/out'),
     ]
 
 WHITENOISE_INDEX_FILE = True
