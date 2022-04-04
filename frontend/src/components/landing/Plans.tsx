@@ -82,6 +82,7 @@ export const Plans = (props: Props) => {
           <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
           <li>{l10n.getString("landing-pricing-premium-feature-3")}</li>
           <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
+          <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
         </ul>
         <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
           {l10n.getString("nav-profile-sign-up")}
