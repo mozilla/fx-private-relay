@@ -8,7 +8,7 @@ import { filterAliases, Filters } from "./filterAliases";
 
 const getMockedAliasMatching = (
   filters: Partial<Filters>,
-  customSubdomain = "some"
+  customSubdomain = "arbitrary_subdomain"
 ): AliasData => {
   const alias = {
     address: filters.string ?? "arbitrary_string",
@@ -122,7 +122,7 @@ it("filters out aliases that do not match the given string", () => {
 it("can match on an alias's subdomain when using a string filter", () => {
   const aliases = [
     getMockedAliasMatching({ domainType: "random" }),
-    getMockedAliasMatching({ domainType: "custom" }),
+    getMockedAliasMatching({ domainType: "custom" }, "some_subdomain"),
   ];
 
   expect(filterAliases(aliases, { string: "some" })).toStrictEqual([
