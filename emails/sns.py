@@ -10,6 +10,7 @@ from OpenSSL import crypto
 
 from django.conf import settings
 from django.core.cache import caches
+from django.core.exceptions import SuspiciousOperation
 from django.utils.encoding import smart_bytes
 
 
@@ -90,6 +91,12 @@ def _get_hash_format(json_body):
 
 
 def _grab_keyfile(cert_url):
+    cert_url_origin = f'https://sns.{settings.AWS_REGION}.amazonaws.com/'
+    if not (cert_url.startswith(cert_url_origin)):
+        raise SuspiciousOperation(
+            f'SNS SigningCertURL "{cert_url}" did not start with "{cert_url_origin}"'
+        )
+
     key_cache = caches[getattr(settings, 'AWS_SNS_KEY_CACHE', 'default')]
 
     pemfile = key_cache.get(cert_url)
