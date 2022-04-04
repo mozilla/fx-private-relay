@@ -472,14 +472,14 @@ USE_L10N = True
 USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'frontend/out'),
+    os.path.join(BASE_DIR, 'static'),
+]
 if SERVE_REACT:
     # Static files (the front-end in /frontend/)
     # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
     STATIC_URL = '/'
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'frontend/out'),
-    ]
     if settings.DEBUG:
         # In production, we run collectstatic to index all static files.
         # However, when running locally, we want to automatically pick up
@@ -488,9 +488,6 @@ if SERVE_REACT:
         WHITENOISE_ROOT = os.path.join(BASE_DIR, 'frontend/out')
 else:
     STATIC_URL = '/static/'
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, 'static'),
-    ]
 
 WHITENOISE_INDEX_FILE = True
 
