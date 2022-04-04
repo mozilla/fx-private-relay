@@ -146,6 +146,11 @@ const Thumb = (props: ThumbProps) => {
 
   const { focusProps, isFocusVisible } = useFocusRing();
 
+  const focusClassName = isFocusVisible ? styles["is-focused"] : "";
+  const draggingClassName = props.sliderState.isThumbDragging(onlyThumbIndex)
+    ? styles["is-dragging"]
+    : "";
+
   return (
     <div
       className={styles["thumb-container"]}
@@ -155,13 +160,7 @@ const Thumb = (props: ThumbProps) => {
     >
       <div
         {...thumbProps}
-        className={`${styles.thumb} ${
-          isFocusVisible ? styles["is-focused"] : ""
-        } ${
-          props.sliderState.isThumbDragging(onlyThumbIndex)
-            ? styles["is-dragging"]
-            : ""
-        }`}
+        className={`${styles.thumb} ${focusClassName} ${draggingClassName}`}
       >
         <VisuallyHidden>
           <input ref={inputRef} {...mergeProps(inputProps, focusProps)} />
