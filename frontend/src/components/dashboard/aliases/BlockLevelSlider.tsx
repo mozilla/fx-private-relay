@@ -42,16 +42,10 @@ export const BlockLevelSlider = (props: Props) => {
     label: l10n.getString("profile-promo-email-blocking-title"),
     onChange: (value) => {
       const blockLevel = getBlockLevelFromSliderValue(value[onlyThumbIndex]);
-      const label =
-        blockLevel === "all"
-          ? "User disabled forwarding"
-          : blockLevel === "promotional"
-          ? "User enabled promotional emails blocking"
-          : "User enabled forwarding";
       gaEvent({
         category: "Dashboard Alias Settings",
         action: "Toggle Forwarding",
-        label: label,
+        label: getBlockLevelGaEventLabel(blockLevel),
       });
       return props.onChange(blockLevel);
     },
@@ -252,5 +246,16 @@ class SliderValueFormatter extends Intl.NumberFormat {
       getBlockLevelFromSliderValue(value),
       this.l10n
     );
+  }
+}
+
+function getBlockLevelGaEventLabel(blockLevel: BlockLevel): string {
+  switch (blockLevel) {
+    case "none":
+      return "User enabled forwarding";
+    case "promotional":
+      return "User enabled promotional emails blocking";
+    case "all":
+      return "User disabled forwarding";
   }
 }
