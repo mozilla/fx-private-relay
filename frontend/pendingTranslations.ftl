@@ -20,6 +20,24 @@ landing-how-it-works-step-2-body-v2 = As you browse, the { -brand-name-relay } i
 
 landing-use-cases-heading = Use { -brand-name-firefox-relay } for:
 
+landing-use-cases-shopping-hero-heading = Shopping with email masks
+landing-use-cases-shopping-hero-content1 = Want to buy something online and don’t know or fully trust the shop?
+landing-use-cases-shopping-hero-content2 = Use an email mask whenever you shop online. Get the confirmation sent to your real email and then easily turn the mask off anytime later.
+
+landing-use-cases-onthego-cards-heading = On the go with { -brand-name-relay }
+landing-use-cases-onthego-cards-lead = Instantly make a custom email mask anywhere and everywhere you go!
+landing-use-cases-onthego-cards-card1-heading = Connect on the go
+landing-use-cases-onthego-cards-card1-content = Use your email mask when you want to privately sign in to your favorite coffee shop or public wifi.
+landing-use-cases-onthego-cards-card2-heading = Get email receipts
+landing-use-cases-onthego-cards-card2-content = Share a custom email mask for in-store shopping receipts without sharing your real email.
+landing-use-cases-onthego-cards-card3-heading = Use on your phone
+landing-use-cases-onthego-cards-card3-content = No matter where you are, create a custom email mask in seconds for anything you want to do.
+
+landing-use-cases-signups = Signups
+landing-use-cases-signups-hero-heading = Worry-free signups
+landing-use-cases-signups-hero-content1 = Want to start a new subscription, RSVP to an event, or get a bargain promo code without having spam flooding your inbox?
+landing-use-cases-signups-hero-content2 = Before you complete that next signup, use an email mask instead of your real one to protect your info and keep control over your inbox.
+
 error-settings-update = There was an error updating your settings, please try again
 error-alias-create-failed = The alias could not be created. Please try again.
 # This currently appears when an alias label could not be updated,

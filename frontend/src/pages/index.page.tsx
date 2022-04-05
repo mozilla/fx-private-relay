@@ -13,6 +13,8 @@ import SocialNetworksIllustration from "../../../static/images/use-case-social-n
 import OfflineIllustration from "../../../static/images/use-case-offline.svg";
 import AccessContentIllustration from "../../../static/images/use-case-access-content.svg";
 import GamingIllustration from "../../../static/images/use-case-gaming.svg";
+import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
+import SignupsHero from "../components/landing/carousel/images/signups-hero.svg";
 import { useUsers } from "../hooks/api/user";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
@@ -21,6 +23,7 @@ import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { Carousel } from "../components/landing/carousel/Carousel";
 import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
+import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
 import { Plans } from "../components/landing/Plans";
 import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -136,9 +139,26 @@ const Home: NextPage = () => {
                   color: "yellow",
                   heading: l10n.getString("landing-use-cases-shopping"),
                   content: (
-                    <CarouselContentTextOnly
-                      heading={l10n.getString("landing-use-cases-shopping")}
-                      body={l10n.getString("landing-use-cases-shopping-body")}
+                    <CarouselContentHero
+                      heroImage={ShoppingHero.src}
+                      heading={l10n.getString(
+                        "landing-use-cases-shopping-hero-heading"
+                      )}
+                      body={
+                        <>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-shopping-hero-content1"
+                            )}
+                          </p>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-shopping-hero-content2"
+                            )}
+                          </p>
+                        </>
+                      }
+                      textFirst={true}
                     />
                   ),
                   illustration: ShoppingIllustration,
@@ -174,15 +194,28 @@ const Home: NextPage = () => {
                 },
                 {
                   color: "pink",
-                  heading: l10n.getString("landing-use-cases-access-content"),
+                  heading: l10n.getString("landing-use-cases-signups"),
                   content: (
-                    <CarouselContentTextOnly
+                    <CarouselContentHero
+                      heroImage={SignupsHero.src}
                       heading={l10n.getString(
-                        "landing-use-cases-access-content"
+                        "landing-use-cases-signups-hero-heading"
                       )}
-                      body={l10n.getString(
-                        "landing-use-cases-access-content-body"
-                      )}
+                      body={
+                        <>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-signups-hero-content1"
+                            )}
+                          </p>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-signups-hero-content2"
+                            )}
+                          </p>
+                        </>
+                      }
+                      textFirst={false}
                     />
                   ),
                   illustration: AccessContentIllustration,
