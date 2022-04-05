@@ -15,7 +15,7 @@ type StaticImageData = {
 export type CarouselTab = {
   heading: string;
   illustration: StaticImageData;
-  color: "yellow" | "orange" | "teal" | "red" | "pink";
+  color: "yellow" | "deep-pink" | "purple" | "orange" | "teal" | "red" | "pink";
   content: ReactNode;
   id: string;
 };

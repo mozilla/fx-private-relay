@@ -145,7 +145,7 @@ const Home: NextPage = () => {
                   id: "use-cases/shopping",
                 },
                 {
-                  color: "orange",
+                  color: "deep-pink",
                   heading: l10n.getString("landing-use-cases-social-networks"),
                   content: (
                     <CarouselContentTextOnly
@@ -161,7 +161,7 @@ const Home: NextPage = () => {
                   id: "use-cases/social-networks",
                 },
                 {
-                  color: "teal",
+                  color: "purple",
                   heading: l10n.getString("landing-use-cases-offline"),
                   content: (
                     <CarouselContentTextOnly
@@ -173,7 +173,7 @@ const Home: NextPage = () => {
                   id: "use-cases/offline",
                 },
                 {
-                  color: "red",
+                  color: "pink",
                   heading: l10n.getString("landing-use-cases-access-content"),
                   content: (
                     <CarouselContentTextOnly
@@ -189,7 +189,7 @@ const Home: NextPage = () => {
                   id: "use-cases/access-content",
                 },
                 {
-                  color: "pink",
+                  color: "orange",
                   heading: l10n.getString("landing-use-cases-gaming"),
                   content: (
                     <CarouselContentTextOnly

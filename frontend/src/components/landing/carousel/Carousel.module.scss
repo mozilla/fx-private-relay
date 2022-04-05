@@ -1,5 +1,5 @@
-@import "../../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/tokens.scss";
 
 .sections {
   display: grid;
@@ -85,7 +85,17 @@
       font-weight: 700;
 
       &.yellow {
-        background-color: $color-yellow-20;
+        background-color: $color-yellow-30;
+      }
+
+      &.deep-pink {
+        background-color: $color-pink-60;
+        color: $color-white;
+      }
+
+      &.purple {
+        background-color: $color-purple-60;
+        color: $color-white;
       }
 
       &.orange {
@@ -101,7 +111,8 @@
       }
 
       &.pink {
-        background-color: $color-purple-30;
+        background-color: $color-violet-30;
+        color: $color-white;
       }
 
       img {
