@@ -206,6 +206,7 @@ if DEBUG:
 
 MIDDLEWARE += [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -218,7 +219,6 @@ MIDDLEWARE += [
     "django.middleware.locale.LocaleMiddleware",
     "django_ftl.middleware.activate_from_request_language_code",
 
-    'csp.middleware.CSPMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
 
@@ -490,15 +490,6 @@ else:
     STATIC_URL = '/static/'
 
 WHITENOISE_INDEX_FILE = True
-
-
-def add_csp_headers(headers, path, url):
-    from csp.utils import build_policy
-    if "Content-Security-Policy" not in headers:
-        headers['Content-Security-Policy'] = build_policy()
-
-WHITENOISE_ADD_HEADERS_FUNCTION = add_csp_headers
-
 
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.
