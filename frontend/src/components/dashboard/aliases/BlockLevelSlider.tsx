@@ -10,11 +10,11 @@ import {
 import { SliderState, useSliderState } from "react-stately";
 import { event as gaEvent } from "react-ga";
 import styles from "./BlockLevelSlider.module.scss";
-import UmbrellaClosed from "../../../../../static/images/umbrella-closed.svg";
+import UmbrellaClosed from "./images/umbrella-closed.svg";
 import UmbrellaClosedMobile from "../../../../../static/images/umbrella-closed-mobile.svg";
-import UmbrellaSemi from "../../../../../static/images/umbrella-semi.svg";
+import UmbrellaSemi from "./images/umbrella-semi.svg";
 import UmbrellaSemiMobile from "../../../../../static/images/umbrella-semi-mobile.svg";
-import UmbrellaOpen from "../../../../../static/images/umbrella-open.svg";
+import UmbrellaOpen from "./images/umbrella-open.svg";
 import UmbrellaOpenMobile from "../../../../../static/images/umbrella-open-mobile.svg";
 import { AliasData } from "../../../hooks/api/aliases";
 import Link from "next/link";
@@ -191,14 +191,16 @@ const BlockLevelDescription = (props: { level: BlockLevel }) => {
 };
 const BlockLevelIllustration = (props: { level: BlockLevel }) => {
   if (props.level === "none") {
-    return <img src={UmbrellaClosed.src} alt="" />;
+    return (
+      <img src={UmbrellaClosed.src} height={UmbrellaClosed.height} alt="" />
+    );
   }
 
   if (props.level === "promotional") {
-    return <img src={UmbrellaSemi.src} alt="" />;
+    return <img src={UmbrellaSemi.src} height={UmbrellaSemi.height} alt="" />;
   }
 
-  return <img src={UmbrellaOpen.src} alt="" />;
+  return <img src={UmbrellaOpen.src} height={UmbrellaOpen.height} alt="" />;
 };
 
 function getSliderValueForAlias(alias: AliasData): number {
