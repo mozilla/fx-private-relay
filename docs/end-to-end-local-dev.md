@@ -144,8 +144,8 @@ mode, you need to add one of your own email addresses as a verified identity.
 ### Send a test email
 
 1. Run your local Relay server and ngrok:
-   * `python manage.py runserver`
-   * `ngrok http -subdomain=myrelay 8000`
+   * `python manage.py runserver 127.0.0.1:8000`
+   * `ngrok http -subdomain=myrelay 127.0.0.1:8000`
 2. Go to your favorite email address and send an email to the Relay alias you
    generated above.
 3. You should see a POST to `/emails/sns-inbound` in your `runserver` process!
@@ -157,3 +157,256 @@ mode, you need to add one of your own email addresses as a verified identity.
 [ngrok-custom-subdomain]: https://ngrok.com/docs#http-subdomain
 [sns-topic-panel]: https://console.aws.amazon.com/sns/v3/home?region=us-east-1#/topics
 [create-ses-config]: https://console.aws.amazon.com/ses/home?region=us-east-1#/configuration-sets/create
+
+## Convert to store in S3
+
+In Q1 2022, we adjusted AWS SES to store emails in S3 before adding them to
+SNS. This allows emails that are larger than an SNS message, such as emails
+with large attachments.
+
+The steps to setup S3 transfer:
+
+1. Add an encryption key
+2. Convert AWS SES to store emails in a new S3 bucket
+3. Configure the new AWS S3 bucket
+4. Allow the app AWS user to access the S3 bucket
+5. Send a test email
+
+### Add an encryption key
+
+By adding the encryption key first, the AWS console will be able to add
+permissions as we use it.
+
+* Load the [Customer managed keys][customer-managed-keys] page, and select "Create Key"
+    * Step 1: Configure key
+        * Key type: Symmetric
+        * Advanced options: defaults are OK:
+            - Key material origin: KMS
+            - Regionality: Single-Region key
+        * Click "Next"
+    * Step 2: Add labels
+        * Alias: RelayKey or similar
+        * Description: This key is used to encrypt incoming SES messages processed by SNS, SQS, and S3.
+        * Tags: *None*
+        * Click "Next"
+    * Step 3: Define key administrative permissions
+        * Key administrators: Add your login user, if applicable
+        * Key deletion: Select Allow key administrators to delete this key (default)
+        * Click "Next"
+    * Step 4: Define key usage permissions
+        * This account: Add the app key user, if applicable
+        * Other AWS accounts: *None*
+    * Step 5: Review
+        * Add the statement below to the key policy
+        * Click "Finish"
+
+This Key Policy statement (change ``111122223333`` to your account number)
+allows SES to access the key. Add it to key policy with the other statements:
+
+```json
+{
+  "Sid": "AllowSESToEncryptMessagesBelongingToThisAccount",
+  "Effect": "Allow",
+  "Principal": {
+    "Service":"ses.amazonaws.com"
+  },
+  "Action": [
+    "kms:GenerateDataKey*",
+    "kms:Encrypt",
+    "kms:Decrypt"
+  ],
+  "Resource": "*",
+  "Condition":{
+    "StringEquals":{
+      "AWS:SourceAccount":"111122223333"
+    },
+    "StringLike": {
+      "AWS:SourceArn": "arn:aws:ses:*"
+    }
+  }
+}
+```
+
+Note the key ARN for following steps, will look something like:
+
+```
+arn:aws:kms:us-east-1:111122223333:key/5565bf0f-8f9c-4fc3-87e1-983dab2416f8
+```
+
+[customer-managed-keys]: https://us-east-1.console.aws.amazon.com/kms/home?region=us-east-1#/kms/keys
+
+### Convert AWS SES to store emails in a new S3 bucket
+
+1. Go to [SES Email Receiving][ses-email-receiving].
+2. Select the ruleset ``ses-all-inbound-to-sns``
+3. Select the rule ``ses-all-inbound-to-sns``
+4. Select the "Actions" tab, and the "Edit"
+    - Step 3: Add actions:
+        * Click "Remove" to remove "Publish to Amazon SNS topic"
+        * In "Add new action", select "Deliver to S3 bucket"
+        * S3 bucket: Select "Create S3 bucket", and select a name like "fxrelay-emails-myusername"
+        * Object key prefix: emails
+        * Message encryption: Deselect Enable (default)
+        * SNS topic: Select your existing SNS topic
+        * Click Next
+    - Review:
+        * Step 3 now shows "S3Action" for Action type
+        * Click "Save changes"
+
+### Configure the new AWS S3 Bucket
+
+On the [S3 Buckets page][s3-buckets-page], select your new bucket to view details.
+
+There will be a single object, `emails/AMAZON_SES_SETUP_NOTIFICATION`, which
+contains a fake email saying that SES is delivering to this S3 bucket.
+
+These changes needed to line up with other deployments:
+
+* Properties - enable server-side encryption
+* Permissions - disabled public access
+* Management - delete after 3 days
+
+#### Update Properties - Enable encryption
+On the **Properties** tab:
+
+* In the "Default encryption" section, select "Edit":
+    - Server-side encryption: select Enable
+    - Encryption key type: AWS Key Management Service key (SSE-KMS)
+    - AWS KMS key: Choose from your AWS KMS keys, select the RelayKey
+    - Bucket Key: Enable
+    - Select "Save Changes"
+
+These are OK, documented in case defaults change:
+
+* Bucket overview
+    - AWS Region: ``us-east-1`` (same as other resources)
+* Bucket Versioning
+    - Bucket Versioning: Disabled
+    - Multi-factor authentication (MFA) delete: Disabled
+* Tags: None
+* Intelligent-Tiering Archive configurations: None
+* Server access logging: Disabled
+* AWS CloudTrail data events: None
+* Event notifications: None
+* Transfer acceleration: Disabled
+* Object Lock: Disabled
+* Requester pays: Disabled
+* Static website hosting: Disabled
+
+#### Update Permissions
+
+On the **Permissions** tab:
+
+* In the "Block public access (bucket settings), select "Edit":
+    - Select "Block *all* public access"
+    - Select "Save Changes"
+    - Type "confirm" to confirm
+
+After this change, the defaults are OK:
+
+* Permissions overview: Bucket and objects not public
+* Block public access (bucket settings): Block *all* public access
+* Bucket policy: see below
+* Object Ownership: Object writer
+* Access control list (ACL)
+    - Bucket owner
+        - Objects: List, Write
+        - Bucket ACL: Read, Write
+    - Everyone: no permissions
+    - Authenticated users group: no permissions
+    - S3 log delivery group: no permissions
+* Cross-origin resource sharing (CORS): No configurations
+
+The generated Bucket policy is something like:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "AllowSESPuts-1234567890123",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "ses.amazonaws.com"
+            },
+            "Action": "s3:PutObject",
+            "Resource": "arn:aws:s3:::fxrelay-emails-myusername/*",
+            "Condition": {
+                "StringEquals": {
+                    "AWS:SourceAccount": "111222233333"
+                },
+                "StringLike": {
+                    "AWS:SourceArn": "arn:aws:ses:*"
+                }
+            }
+        }
+    ]
+}
+```
+
+#### Update Management
+
+On the **Management** tab:
+
+* In the "Lifecycle rules" section (top), select "Create lifecycle rule"
+    * Lifecycle rule configuration
+        * Lifecycle rule name: ``delete-expired``
+        * Choose a rule scope: Leave at "Limit the scope of this rule using one or more filters"
+        * Filter type - Prefix: ``emails/``
+        * Leave with no tags, and no object size filters
+    * Lifecycle rule actions
+        * Select option 3, "Expire current versions of objects". For an
+          unversioned bucket, this deletes the object.
+    * Expire current versions of objects (this section appears after selecting the action)
+        * Days after object creation: 3
+    * Review transition and expiration actions (read-only, confirms settings)
+        * Current version actions:
+            * Day 0: Objects uploaded
+            * Day 3: Objects expire
+        * Noncurrent versions actions
+            * Day 0: No actions defined.
+    * Select "Create rule" to return to the Lifecycle Configuration details.
+    * Select the bucket name from the breadcrumbs to return to bucket details
+
+After this change, the defaults are OK:
+
+* Lifecycle rules: ``delete-expired`` is enabled
+* Replication rules: No replication rules
+* Inventory configurations: No configurations
+
+### Allow the app AWS user to manage the S3 bucket
+Starting at the [Identity and Access Management (IAM) Dashboard][iam-dashboard],
+add the full access policy to the AWS user that you use from the app:
+
+```
+arn:aws:iam::aws:policy/AmazonS3FullAccess
+```
+
+or add the specific permissions needed by the app:
+
+```
+ListBucket (optional)
+GetObject
+DeleteObject
+```
+
+You'll need the bucket permission (like ``arn:aws:s3:::fxrelay-emails-myusername``)
+for ``ListBucket``, and object permission (like
+``arn:aws:s3:::fxrelay-emails-myusername/*`` for ``GetObject`` and ``DeleteObject``.
+
+[iam-dashboard][https://us-east-1.console.aws.amazon.com/iamv2/home#/home]
+
+### Send a test email
+
+Same as before:
+
+1. Run your local Relay server and ngrok:
+   * `python manage.py runserver 127.0.0.1:8000`
+   * `ngrok http -subdomain=myrelay 127.0.0.1:8000`
+2. Go to your favorite email address and send an email to the Relay alias you
+   generated above.
+3. You should see a POST to `/emails/sns-inbound` in your `runserver` process!
+
+One way to see the S3 object is to add a breakpoint to your local code,
+so that you can examine the object in the AWS console before it is deleted.
+However, SNS will quickly try the request again, so be fast!
