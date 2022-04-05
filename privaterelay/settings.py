@@ -86,7 +86,7 @@ CSP_SCRIPT_SRC = (
 # if settings.DEBUG:
 #     CSP_SCRIPT_SRC += ("'unsafe-inline'",)
 
-CSP_STYLE_SRC = ("'self'",)
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
 # TODO: Add with silk
 # if settings.DEBUG:
 #     CSP_STYLE_SRC += ("'unsafe-inline'",)
