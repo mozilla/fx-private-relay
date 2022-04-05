@@ -206,6 +206,7 @@ if DEBUG:
 
 MIDDLEWARE += [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -218,7 +219,6 @@ MIDDLEWARE += [
     "django.middleware.locale.LocaleMiddleware",
     "django_ftl.middleware.activate_from_request_language_code",
 
-    'csp.middleware.CSPMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
 
