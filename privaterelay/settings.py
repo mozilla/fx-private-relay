@@ -491,15 +491,6 @@ else:
 
 WHITENOISE_INDEX_FILE = True
 
-
-def add_csp_headers(headers, path, url):
-    from csp.utils import build_policy
-    if "Content-Security-Policy" not in headers:
-        headers['Content-Security-Policy'] = build_policy()
-
-WHITENOISE_ADD_HEADERS_FUNCTION = add_csp_headers
-
-
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.
 # so, squelch django-gulp in prod so it doesn't run gulp during collectstatic:
