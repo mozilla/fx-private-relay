@@ -227,12 +227,6 @@ allows SES to access the key. Add it to key policy with the other statements:
 }
 ```
 
-Note the key ARN for following steps, will look something like:
-
-```
-arn:aws:kms:us-east-1:111122223333:key/5565bf0f-8f9c-4fc3-87e1-983dab2416f8
-```
-
 [customer-managed-keys]: https://us-east-1.console.aws.amazon.com/kms/home?region=us-east-1#/kms/keys
 
 ### Convert AWS SES to store emails in a new S3 bucket
@@ -246,7 +240,7 @@ arn:aws:kms:us-east-1:111122223333:key/5565bf0f-8f9c-4fc3-87e1-983dab2416f8
         * In "Add new action", select "Deliver to S3 bucket"
         * S3 bucket: Select "Create S3 bucket", and select a name like "fxrelay-emails-myusername"
         * Object key prefix: emails
-        * Message encryption: Deselect Enable (default)
+        * Message encryption: De-select Enable (default)
         * SNS topic: Select your existing SNS topic
         * Click Next
     - Review:
@@ -266,6 +260,8 @@ These changes needed to line up with other deployments:
 * Permissions - disabled public access
 * Management - delete after 3 days
 
+[s3-buckets-page]: https://s3.console.aws.amazon.com/s3/buckets?region=us-east-1
+
 #### Update Properties - Enable encryption
 On the **Properties** tab:
 
@@ -276,23 +272,6 @@ On the **Properties** tab:
     - Bucket Key: Enable
     - Select "Save Changes"
 
-These are OK, documented in case defaults change:
-
-* Bucket overview
-    - AWS Region: ``us-east-1`` (same as other resources)
-* Bucket Versioning
-    - Bucket Versioning: Disabled
-    - Multi-factor authentication (MFA) delete: Disabled
-* Tags: None
-* Intelligent-Tiering Archive configurations: None
-* Server access logging: Disabled
-* AWS CloudTrail data events: None
-* Event notifications: None
-* Transfer acceleration: Disabled
-* Object Lock: Disabled
-* Requester pays: Disabled
-* Static website hosting: Disabled
-
 #### Update Permissions
 
 On the **Permissions** tab:
@@ -301,48 +280,6 @@ On the **Permissions** tab:
     - Select "Block *all* public access"
     - Select "Save Changes"
     - Type "confirm" to confirm
-
-After this change, the defaults are OK:
-
-* Permissions overview: Bucket and objects not public
-* Block public access (bucket settings): Block *all* public access
-* Bucket policy: see below
-* Object Ownership: Object writer
-* Access control list (ACL)
-    - Bucket owner
-        - Objects: List, Write
-        - Bucket ACL: Read, Write
-    - Everyone: no permissions
-    - Authenticated users group: no permissions
-    - S3 log delivery group: no permissions
-* Cross-origin resource sharing (CORS): No configurations
-
-The generated Bucket policy is something like:
-
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "AllowSESPuts-1234567890123",
-            "Effect": "Allow",
-            "Principal": {
-                "Service": "ses.amazonaws.com"
-            },
-            "Action": "s3:PutObject",
-            "Resource": "arn:aws:s3:::fxrelay-emails-myusername/*",
-            "Condition": {
-                "StringEquals": {
-                    "AWS:SourceAccount": "111222233333"
-                },
-                "StringLike": {
-                    "AWS:SourceArn": "arn:aws:ses:*"
-                }
-            }
-        }
-    ]
-}
-```
 
 #### Update Management
 
@@ -368,12 +305,6 @@ On the **Management** tab:
     * Select "Create rule" to return to the Lifecycle Configuration details.
     * Select the bucket name from the breadcrumbs to return to bucket details
 
-After this change, the defaults are OK:
-
-* Lifecycle rules: ``delete-expired`` is enabled
-* Replication rules: No replication rules
-* Inventory configurations: No configurations
-
 ### Allow the app AWS user to manage the S3 bucket
 Starting at the [Identity and Access Management (IAM) Dashboard][iam-dashboard],
 add the full access policy to the AWS user that you use from the app:
@@ -392,9 +323,9 @@ DeleteObject
 
 You'll need the bucket permission (like ``arn:aws:s3:::fxrelay-emails-myusername``)
 for ``ListBucket``, and object permission (like
-``arn:aws:s3:::fxrelay-emails-myusername/*`` for ``GetObject`` and ``DeleteObject``.
+``arn:aws:s3:::fxrelay-emails-myusername/*``) for ``GetObject`` and ``DeleteObject``.
 
-[iam-dashboard][https://us-east-1.console.aws.amazon.com/iamv2/home#/home]
+[iam-dashboard]: https://us-east-1.console.aws.amazon.com/iamv2/home#/home
 
 ### Send a test email
 
