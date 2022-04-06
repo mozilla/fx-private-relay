@@ -37,6 +37,7 @@ const PremiumWaitlist: NextPage = () => {
         email: email,
         countryCode: country,
         locale: locale,
+        detectedCountry: currentCountry,
       });
       const body: BasketResponseBody = await response.json();
       if (response.ok && body.status === "ok") {
@@ -147,6 +148,7 @@ type SubscribeParameters = {
   email: string;
   countryCode: string;
   locale: string;
+  detectedCountry?: string;
 };
 
 /**
@@ -157,6 +159,13 @@ type BasketRequestBody = {
   /** comma-delimited list of newsletters */
   newsletters: string;
   format?: "H" | "html" | "T" | "text";
+  country?: string;
+  /**
+   * `relay_country` is a special parameter added just for Relay.
+   * It contains the country code selected by the user,
+   * as opposed to `country`, which contains the country we detected the user
+   * to be in.
+   */
   relay_country?: string;
   lang?: string;
   first_name?: string;
@@ -180,6 +189,7 @@ async function subscribe(params: SubscribeParameters): Promise<Response> {
     email: params.email,
     newsletters: "relay-waitlist",
     format: "html",
+    country: params.detectedCountry,
     relay_country: params.countryCode,
     lang: params.locale,
     source_url: "https://relay.firefox.com/premium/waitlist/",
