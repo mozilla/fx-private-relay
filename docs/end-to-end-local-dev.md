@@ -149,6 +149,8 @@ mode, you need to add one of your own email addresses as a verified identity.
 2. Go to your favorite email address and send an email to the Relay alias you
    generated above.
 3. You should see a POST to `/emails/sns-inbound` in your `runserver` process!
+4. You should see the test email in the Inbox of the final destination/recipient of the alias!
+   * Note: the final destination/recipient address for the alias must be in your SES "verified identities" for SES to actually send it emails. 
 
 
 [create-new-identity]: https://console.aws.amazon.com/ses/home?region=us-east-1#/verified-identities/create
@@ -337,6 +339,8 @@ Same as before:
 2. Go to your favorite email address and send an email to the Relay alias you
    generated above.
 3. You should see a POST to `/emails/sns-inbound` in your `runserver` process!
+4. You should see the test email in the Inbox of the final destination/recipient of the alias!
+   * Note: the final destination/recipient address for the alias must be in your SES "verified identities" for SES to actually send it emails. 
 
 One way to see the S3 object is to add a breakpoint to your local code,
 so that you can examine the object in the AWS console before it is deleted.
