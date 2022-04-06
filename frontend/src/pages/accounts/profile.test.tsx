@@ -369,16 +369,16 @@ describe("The dashboard", () => {
     expect(searchFilter).toBeInTheDocument();
   });
 
-  it("does not show a search field to filter aliases if the user does not have Premium", () => {
+  it("also shows a search field to filter aliases if the user does not have Premium", () => {
     setMockProfileDataOnce({ has_premium: false });
 
     render(<Profile />);
 
-    const searchFilter = screen.queryByLabelText(
+    const searchFilter = screen.getByLabelText(
       "l10n string: [profile-filter-search-placeholder], with vars: {}"
     );
 
-    expect(searchFilter).not.toBeInTheDocument();
+    expect(searchFilter).toBeInTheDocument();
   });
 
   it("shows the Premium onboarding when the user has Premium and hasn't completed the onboarding yet", () => {
