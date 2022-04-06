@@ -345,3 +345,115 @@ Same as before:
 One way to see the S3 object is to add a breakpoint to your local code,
 so that you can examine the object in the AWS console before it is deleted.
 However, SNS will quickly try the request again, so be fast!
+
+## Convert to back-end processing
+
+*Note: this change is not yet in production*
+
+In Q2 2022, was are switching from handling email as a web request, POSTed via
+an SNS subscription, to a back-end process, pulling from a Simple Queue Service
+(SQS) queue.
+
+
+```mermaid
+sequenceDiagram
+
+    Sending MTA->>yourdomain.com: Fetch DNS MX Record
+    yourdomain.com->>Sending MTA: inbound-smtp.us-west-2.amazonaws.com.
+    Sending MTA->>AWS: SMTP
+    AWS<<-Local app: SQS fetch
+    Local app->>AWS: POST /SendRawEmail
+    AWS->>Reciving MTA: SMTP
+```
+
+To make this change:
+
+* (Optional) Add a dead-letter queue
+* Add an SQS queue
+* Enable the app user to read from the queue
+* Turn off the SNS push subscription
+* Subscribe to SNS topic
+* Run the email task
+
+### (Optional) Add a dead-letter queue
+In production, undeliverable SNS messages are sent to a dead-letter queue
+(DLQ). They can be undeliverable because the service is unavailable, or because
+the email is malformed, or processing is broken. An SQS queue can also have a
+dead-letter queue.  If you have a SNS DLQ, you can use it for the SQS DLQ as
+well. If not, you can create it.
+
+On the [SQS dashboard][sqs-dashboard], select "Create Queue":
+
+* Details
+    * Type: Standard
+    * Name: `fx-relay-emails-dlq`
+* Select "Create Queue" to accept other defaults.
+
+### Add an SQS queue
+
+On the [SQS dashboard][sqs-dashboard], select "Create Queue":
+
+* Details
+    * Type: Standard
+    * Name: `fx-relay-emails`
+* Dead-letter queue - *Optional* - If you created one in the previous step:
+    * Set this queue to receive undeliverable messages: Enabled
+    * Choose Queue: The ARN for `fx-relay-emails-dlq`
+    * Maximum receives: 3
+* Select "Create queue"
+
+### Enable the app user to read from the queue
+Starting at the [Identity and Access Management (IAM) Dashboard][iam-dashboard],
+add the full access policy to the AWS user that you use from the app:
+
+```
+arn:aws:iam::aws:policy/AmazonSQSFullAccess
+```
+
+or add the specific permissions needed by the app:
+
+* ``sqs:ReceiveMessage`` - Needed to read messages
+* ``sqs:DeleteMessage`` - Needed to removed messages
+* ``sqs:ChangeMessageVisibility`` - Needed to reserve a message when reading
+* ``sqs:GetQueueAttributes`` - Needed to get (approximate) queue sizes
+
+### Turn off the SNS push subscription
+
+On the [SNS Topics dashboard][sns-topic-panel]:
+
+* Select the relay topic
+* Select radio button to the left of the `/emails/sns-inbound` subscription
+* Select "Delete"
+* Confirm "Delete"
+
+### Subscribe to SNS topic
+
+Back on the [SQS dashboard][sqs-dashboard], select the queue.
+In the "SNS Subscriptions" tab:
+
+* Select "Subscribe to Amazon SNS topic"
+* In the "Amazon SNS topic" panel, choose the relay topic
+* Select "Save"
+
+### Run the email task
+
+Set environment variables:
+
+* `AWS_ACCESS_KEY_ID`
+* `AWS_SECRET_ACCESS_KEY`
+* `AWS_SQS_EMAIL_QUEUE_URL`: The URL of the `fx-relay-emails` queue
+* `AWS_SQS_EMAIL_DLQ_URL`: The URL of the `fx-relay-emails-dlq` queue, if
+  configured, otherwise omit or set to an empty string (``""``)
+
+These URLs can be found by starting at the [SQS dashboard][sqs-dashboard] and
+clicking on the queue name to view details.
+
+Run the email task:
+
+```
+./manage.py process_emails_from_sqs
+```
+
+Go to your favorite email client and send an email to your Relay alias. In a
+few seconds, you'll see log messages about the email being processed, and then
+the test email in the Inbox of the final destination/recipient of the alias!.
