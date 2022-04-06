@@ -1,7 +1,7 @@
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
-import { UserData } from nooks/api/user";
+import { UserData } from "../hooks/api/user";
 
 export const mockIds = ["empty", "onboarding", "some", "full"] as const;
 
