@@ -28,7 +28,7 @@ import SettingsImage from "../../../../static/images/settings.svg";
 import ContactImage from "../../../../static/images/icon-message.svg";
 import HelpImage from "../../../../static/images/help.svg";
 import SignoutImage from "../../../../static/images/glocal-sign-out.svg";
-import NewTabIcon from "../../../../static/images/open-new.svg";
+import { NewTabIcon } from "../Icons";
 import { useUsers } from "../../hooks/api/user";
 import { useProfiles } from "../../hooks/api/profile";
 import { getRuntimeConfig } from "../../config";
@@ -137,7 +137,7 @@ export const UserMenu = () => {
             className={styles["settings-link"]}
           >
             {l10n.getString("nav-profile-manage-fxa")}
-            <img src={NewTabIcon.src} alt="" />
+            <NewTabIcon alt="" />
           </a>
         </span>
       </Item>

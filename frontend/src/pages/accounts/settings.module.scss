@@ -88,13 +88,13 @@
         display: flex;
         align-items: center;
         color: $color-dark-gray-50;
+        gap: $spacing-sm;
 
         &:hover {
           text-decoration: underline;
         }
 
         img {
-          margin-right: $spacing-sm;
           // The size of text-body-lg, i.e. the same size as the containing <a>'s font:
           width: remify(type-scale("body-lg-size"));
         }
