@@ -68,7 +68,7 @@ class InReplyToNotFound(Exception):
 def wrapped_email_test(request):
     html_content = '<p><strong>strong</strong></p><hr><p>plain</p>'
     display_email = 'test@relay.firefox.com'
-    attachments = None
+    attachments = ['fdsa']
     user_profile = Profile.objects.order_by('?').first()
     test_email_context = {
         'original_html': html_content,
