@@ -10,6 +10,7 @@ import messageIcon from "../../../../static/images/icon-message-purple.svg";
 import helpIcon from "../../../../static/images/help-purple.svg";
 import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
+import { NewTabIcon } from "../../components/Icons";
 import { Button } from "../../components/Button";
 import { getRuntimeConfig } from "../../config";
 import { useLocalLabels } from "../../hooks/localLabels";
@@ -106,6 +107,7 @@ const Settings: NextPage = () => {
       >
         <img src={messageIcon.src} alt="" />
         {l10n.getString("settings-meta-contact-label")}
+        <NewTabIcon alt="" aria-hidden />
       </a>
     </li>
   ) : null;
@@ -165,6 +167,7 @@ const Settings: NextPage = () => {
                 >
                   <img src={helpIcon.src} alt="" />
                   {l10n.getString("settings-meta-help-label")}
+                  <NewTabIcon alt="" aria-hidden />
                 </a>
               </li>
               <li>
@@ -176,6 +179,7 @@ const Settings: NextPage = () => {
                 >
                   <img src={performanceIcon.src} alt="" />
                   {l10n.getString("settings-meta-status-label")}
+                  <NewTabIcon alt="" aria-hidden />
                 </a>
               </li>
             </ul>

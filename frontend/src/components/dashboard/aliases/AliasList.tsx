@@ -93,33 +93,13 @@ export const AliasList = (props: Props) => {
 
   // With at most five aliases, filters aren't really useful
   // for non-Premium users.
-  const filters = props.profile.has_premium ? (
-    <>
-      <div className={styles["string-filter"]}>
-        <VisuallyHidden>
-          <label htmlFor="stringFilter">
-            {l10n.getString("profile-filter-search-placeholder")}
-          </label>
-        </VisuallyHidden>
-        <input
-          value={stringFilterInput}
-          onChange={(e) => setStringFilterInput(e.target.value)}
-          type="search"
-          name="stringFilter"
-          id="stringFilter"
-          placeholder={l10n.getString("profile-filter-search-placeholder")}
-        />
-        <span className={styles["match-count"]}>
-          {aliases.length}/{props.aliases.length}
-        </span>
-      </div>
-      <div className={styles["category-filter"]}>
-        <CategoryFilter
-          onChange={setCategoryFilters}
-          selectedFilters={categoryFilters}
-        />
-      </div>
-    </>
+  const categoryFilter = props.profile.has_premium ? (
+    <div className={styles["category-filter"]}>
+      <CategoryFilter
+        onChange={setCategoryFilters}
+        selectedFilters={categoryFilters}
+      />
+    </div>
   ) : null;
 
   const emptyStateMessage =
@@ -151,7 +131,25 @@ export const AliasList = (props: Props) => {
   return (
     <section>
       <div className={styles.controls}>
-        {filters}
+        <div className={styles["string-filter"]}>
+          <VisuallyHidden>
+            <label htmlFor="stringFilter">
+              {l10n.getString("profile-filter-search-placeholder")}
+            </label>
+          </VisuallyHidden>
+          <input
+            value={stringFilterInput}
+            onChange={(e) => setStringFilterInput(e.target.value)}
+            type="search"
+            name="stringFilter"
+            id="stringFilter"
+            placeholder={l10n.getString("profile-filter-search-placeholder")}
+          />
+          <span className={styles["match-count"]}>
+            {aliases.length}/{props.aliases.length}
+          </span>
+        </div>
+        {categoryFilter}
         <div className={styles["new-alias-button"]}>
           <AliasGenerationButton
             aliases={props.aliases}

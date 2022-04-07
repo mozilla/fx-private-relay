@@ -110,6 +110,7 @@ const Home: NextPage = () => {
                   <a href="https://addons.mozilla.org/firefox/addon/private-relay/">
                     {l10n.getString("landing-how-it-works-step-1-body-cta")}
                   </a>
+                  &nbsp;
                   {l10n.getString("landing-how-it-works-step-1-body")}
                 </p>
               </li>
