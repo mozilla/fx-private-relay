@@ -177,12 +177,12 @@ export const WhatsNewMenu = (props: Props) => {
     hero: aliasToMaskHero.src,
     icon: aliasToMaskIcon.src,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_sign-back-in_${props.profile.id}`
+      `whatsnew-feature_alias-to-mask_${props.profile.id}`
     ),
     announcementDate: {
       year: 2022,
       month: 4,
-      day: 6,
+      day: 19,
     },
   };
   entries.push(aliasToMask);
