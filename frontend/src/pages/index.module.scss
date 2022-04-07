@@ -121,7 +121,7 @@
     text-align: center;
 
     h2 {
-      @include text-title-md;
+      @include text-title-sm;
       font-family: $font-stack-firefox;
       font-weight: 500;
       padding: $spacing-lg 0;
@@ -160,7 +160,7 @@
     padding: 0 $spacing-2xl;
 
     .headline {
-      @include text-title-md;
+      @include text-title-sm;
       font-family: $font-stack-firefox;
       font-weight: 500;
       padding: $spacing-md 0;
