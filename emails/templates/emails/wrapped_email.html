@@ -1,5 +1,6 @@
 {% load ftl %}
 {% load email_extras %}
+{% load static %}
 {% withftl mode='server' bundle='privaterelay.ftl_bundles.main' language=recipient_profile.language %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -61,12 +62,12 @@
                   {% endif %}
                   {% if recipient_profile.has_premium %}
                     <br />
-                    <img alt="" width="24" style="display: inline-block; margin-bottom: 0px; width: 24px;"  src="{{ SITE_ORIGIN }}/static/images/email-images/tip-purple.png" />
+                    <img alt="" width="24" style="display: inline-block; margin-bottom: 0px; width: 24px;"  src="{% static "images/email-images/tip-purple.png" %}" />
                     {% ftlmsg 'forwarded-email-header-cc-notice' %}
                   {% elif not recipient_profile.has_premium and recipient_profile.fxa_locale_in_premium_country %}
                     {% bold_violet_link SITE_ORIGIN|add:'/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=header' 'Firefox Relay Premium' as premium_link %}
                     <br />
-                    <img width="15" height="15" src="{{ SITE_ORIGIN }}/static/images/email-images/smile-purple.png" style="display: inline-block; width: 15px;" alt="" />
+                    <img width="15" height="15" src="{% static "images/email-images/smile-purple.png" %}" style="display: inline-block; width: 15px;" alt="" />
                     {% ftlmsg 'forwarded-email-header-premium-banner' premium_link=premium_link as premium_header_banner %}
                     {{ premium_header_banner|safe }}
                   {% endif %}
@@ -90,7 +91,7 @@
           <table align="center" width="100%" style="max-width: 700px; border-collapse: collapse; padding-top: 0px; padding-bottom: 0px;">
             <tr>
               <td align="center" width="100%" style="padding-top: 0px; padding-bottom: 8px; text-align: center">
-                <img width="160" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-logo-emails.png" style="display: inline-block; margin-bottom: 0px; width: 160px;" alt="Relay Logo" />
+                  <img width="160" src="{% static "images/email-images/relay-logo-emails.png" %}" style="display: inline-block; margin-bottom: 0px; width: 160px;" alt="Relay Logo" />
               </td>
             </tr>
             <tr>
