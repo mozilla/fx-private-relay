@@ -40,6 +40,20 @@
     justify-content: space-between;
     padding-top: $spacing-xl;
 
+    button[type="submit"] {
+      background: $color-blue-50;
+      opacity: 0.4;
+
+      &:not(:disabled) {
+        opacity: 1;
+      }
+
+      &:hover:not(:disabled) {
+        background-color: $color-blue-60;
+        opacity: 1;
+      }
+    }
+
     .cancel-button {
       border-style: none;
       background-color: transparent;
