@@ -5,6 +5,7 @@ from uuid import uuid4
 import json
 
 from botocore.exceptions import ClientError
+from markus.testing import MetricsMock
 import boto3
 import pytest
 import OpenSSL
@@ -120,6 +121,25 @@ def test_main_loop_no_messages():
         "total_s": 4.0,
         "total_messages": 0,
     }
+
+
+@override_settings(
+    STATSD_ENABLED=True,
+    AWS_SQS_EMAIL_QUEUE_URL="https://sqs.us-east-1.amazonaws.example.com/111222333/queue-name",
+)
+def test_main_loop_metrics():
+    """The main loop can run with no messages to process."""
+    with MetricsMock() as mm:
+        res = Command(queue=fake_queue(), max_seconds=2).main_loop()
+    assert res["cycles"] == 1
+    mm.assert_gauge(
+        "fx.private.relay.email_queue_count", 1, ["queue:queue-name"])
+    mm.assert_gauge(
+        "fx.private.relay.email_queue_count_delayed", 2, ["queue:queue-name"]
+    )
+    mm.assert_gauge(
+        "fx.private.relay.email_queue_count_not_visible", 3, ["queue:queue-name"]
+    )
 
 
 def test_main_loop_one_message():

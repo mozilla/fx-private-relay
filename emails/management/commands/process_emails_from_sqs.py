@@ -10,6 +10,7 @@ https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.h
 """
 
 from datetime import datetime, timezone
+from urllib.parse import urlsplit
 import json
 import logging
 import shlex
@@ -18,6 +19,7 @@ import time
 import boto3
 from botocore.exceptions import ClientError
 from codetiming import Timer
+from markus.utils import generate_tag
 import OpenSSL
 
 from django.conf import settings
@@ -89,6 +91,7 @@ class Command(BaseCommand):
         self.sqs_url = sqs_url or settings.AWS_SQS_EMAIL_QUEUE_URL
 
         self.queue = queue
+        self.queue_name = urlsplit(self.sqs_url).path.split("/")[-1]
         self.halt_requested = False
         self.start_time = None
         self.cycles = None
@@ -206,14 +209,17 @@ class Command(BaseCommand):
                 gauge_if_enabled(
                     "email_queue_count",
                     self.queue.attributes["ApproximateNumberOfMessages"],
+                    tags=[generate_tag("queue", self.queue_name)],
                 )
                 gauge_if_enabled(
                     "email_queue_count_delayed",
                     self.queue.attributes["ApproximateNumberOfMessagesDelayed"],
+                    tags=[generate_tag("queue", self.queue_name)],
                 )
                 gauge_if_enabled(
                     "email_queue_count_not_visible",
                     self.queue.attributes["ApproximateNumberOfMessagesNotVisible"],
+                    tags=[generate_tag("queue", self.queue_name)],
                 )
 
                 cycle_data = {
