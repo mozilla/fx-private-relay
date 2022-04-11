@@ -116,11 +116,13 @@ const Tabs = (props: TabProps) => {
           <CloseIcon alt={l10n.getString("whatsnew-close-label")} />
         </button>
       </header>
-      {props.expandedEntry ? (
-        props.expandedEntry.content
-      ) : (
-        <TabContent key={tabListState.selectedKey} state={tabListState} />
-      )}
+      <div className={styles.content}>
+        {props.expandedEntry ? (
+          props.expandedEntry.content
+        ) : (
+          <TabContent key={tabListState.selectedKey} state={tabListState} />
+        )}
+      </div>
       {footer}
     </section>
   );

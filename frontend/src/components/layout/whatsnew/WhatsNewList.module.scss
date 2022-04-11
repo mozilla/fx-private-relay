@@ -4,7 +4,8 @@
 .empty-message {
   display: flex;
   flex-direction: column;
-  padding: $spacing-lg;
+  padding-top: $spacing-lg;
+  padding-bottom: $spacing-2xl;
   gap: $spacing-lg;
   align-items: center;
   text-align: center;
