@@ -185,7 +185,7 @@ export const WhatsNewMenu = (props: Props) => {
   const positionProps = useOverlayPosition({
     targetRef: triggerRef,
     overlayRef: overlayRef,
-    placement: "bottom",
+    placement: "bottom end",
     offset: 10,
     isOpen: triggerState.isOpen,
   }).overlayProps;
