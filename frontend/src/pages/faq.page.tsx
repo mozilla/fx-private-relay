@@ -18,7 +18,6 @@ const Faq: NextPage = () => {
             </h1>
             <div className={styles.faqs}>
               <QAndA
-                className={styles["faq-question"]}
                 id="faq-what-is"
                 question={l10n.getString("faq-question-what-is-question")}
               >
