@@ -21,7 +21,7 @@ const runtimeConfigs = {
       criticalEmailsTip: false,
       addonSigninTip: false,
       interviewRecruitment: false,
-      csatSurvey: false,
+      csatSurvey: true,
     },
   },
 };
