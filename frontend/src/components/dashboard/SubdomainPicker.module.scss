@@ -27,11 +27,11 @@
 
   a {
     @include text-body-sm;
-    color: $color-purple-60;
+    color: $color-blue-50;
 
     &:hover,
     &:focus {
-      color: $color-purple-80;
+      color: $color-blue-60;
     }
   }
 
