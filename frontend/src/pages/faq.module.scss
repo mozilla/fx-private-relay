@@ -28,6 +28,7 @@
 
 .headline {
   @include text-title-sm;
+  @include font-firefox;
 
   padding-bottom: $spacing-xl;
 }
@@ -49,6 +50,7 @@
 
   .question {
     @include text-title-2xs;
+    @include font-firefox;
 
     padding-bottom: $spacing-sm;
   }
