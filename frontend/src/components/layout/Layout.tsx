@@ -43,7 +43,7 @@ export const Layout = (props: Props) => {
     typeof props.theme !== "undefined"
       ? props.theme === "free"
       : !profiles.data?.[0].has_premium;
-  const darkClass = isDark ? styles["is-dark"] : "";
+  const darkClass = isDark ? styles["is-dark"] : styles["is-light"];
   const premiumLogo = isDark ? logoTypePremiumLight : logoTypePremiumDark;
   const regularLogo = isDark ? logoTypeLight : logoTypeDark;
   // The Premium logo is always shown if the user has Premium

@@ -94,6 +94,9 @@
       color: $color-light-gray-30;
     }
   }
+  &.is-light {
+    color: $color-grey-40;
+  }
 
   @media screen and #{$mq-md} {
     .logo {
