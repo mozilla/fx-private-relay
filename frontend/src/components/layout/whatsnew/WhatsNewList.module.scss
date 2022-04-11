@@ -35,7 +35,7 @@
     &:focus {
       outline: none;
 
-      h3 {
+      &:not(:hover) h3 {
         text-decoration: underline;
       }
     }
