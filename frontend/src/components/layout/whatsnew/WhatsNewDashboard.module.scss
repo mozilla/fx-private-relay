@@ -65,6 +65,10 @@
     }
   }
 
+  .content {
+    padding-bottom: $spacing-sm;
+  }
+
   .footer-controls {
     padding: $spacing-xs $spacing-md;
 
@@ -72,6 +76,7 @@
       display: flex;
       align-items: center;
       border-top: 1px solid $color-light-gray-20;
+      padding: $spacing-sm 0;
 
       .start {
         flex: 1 0 0;
