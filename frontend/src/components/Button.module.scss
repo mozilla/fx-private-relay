@@ -19,6 +19,7 @@
 
   &:hover:not(:disabled) {
     background-color: $color-blue-60;
+    opacity: 1;
   }
 
   &:focus {
