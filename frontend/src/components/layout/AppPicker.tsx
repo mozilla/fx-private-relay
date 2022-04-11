@@ -84,7 +84,11 @@ const getProducts = (referringSiteUrl: string) => ({
 export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
   const { l10n } = useLocalization();
 
-  const products = getProducts(getRuntimeConfig().frontendOrigin);
+  const products = getProducts(
+    typeof document !== "undefined"
+      ? document.location.host
+      : "relay.firefox.com"
+  );
   const linkRefs: Record<
     keyof typeof products,
     RefObject<HTMLAnchorElement>
