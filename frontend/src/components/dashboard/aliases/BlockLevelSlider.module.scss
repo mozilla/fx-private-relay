@@ -104,8 +104,9 @@ $stopLabelHeight: 2rem;
         }
 
         p {
-          font-family: $font-stack-firefox;
+          @include text-body-sm;
           color: $color-dark-gray-05;
+          font-weight: 700;
           position: absolute;
           // To position the track sop label below the track stops (which are as
           // high as the slider thumb), we place it at a distance of the thumb
@@ -189,7 +190,6 @@ $stopLabelHeight: 2rem;
   }
 
   .value-description {
-    @include text-body-sm;
     $arrowEdgeLength: 8px;
     margin-top: $arrowEdgeLength;
     background-color: $color-light-gray-10;
