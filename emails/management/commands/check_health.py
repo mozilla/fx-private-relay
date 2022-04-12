@@ -11,6 +11,7 @@ https://docs.python.org/3/library/datetime.html#datetime.datetime.isoformat
 https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 """
 
+from argparse import FileType
 from datetime import datetime, timezone
 import json
 import logging
@@ -29,6 +30,7 @@ class Command(BaseCommand):
         """Add command-line arguments (called by BaseCommand)"""
         parser.add_argument(
             "healthcheck_path",
+            type=FileType("r", encoding="utf8"),
             help="Path to healthcheck JSON file",
         )
         parser.add_argument(

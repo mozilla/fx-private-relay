@@ -9,9 +9,11 @@ https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-s
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html#SQS.Queue.receive_messages
 """
 
+from argparse import FileType
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
 import json
+import io
 import logging
 import shlex
 import time
@@ -44,7 +46,7 @@ class Command(BaseCommand):
         batch_size=None,
         wait_seconds=None,
         visibility_seconds=None,
-        healthcheck_path=None,
+        healthcheck_file=None,
         delete_failed_messages=False,
         max_seconds=None,
         aws_region=None,
@@ -58,7 +60,7 @@ class Command(BaseCommand):
             batch_size=batch_size,
             wait_seconds=wait_seconds,
             visibility_seconds=visibility_seconds,
-            healthcheck_path=healthcheck_path,
+            healthcheck_path=healthcheck_file,
             delete_failed_messages=delete_failed_messages,
             max_seconds=max_seconds,
             aws_region=aws_region,
@@ -72,7 +74,7 @@ class Command(BaseCommand):
         batch_size=None,
         wait_seconds=None,
         visibility_seconds=None,
-        healthcheck_path=None,
+        healthcheck_path=None,  # saved as self.healthcheck_file
         delete_failed_messages=False,
         max_seconds=None,
         aws_region=None,
@@ -84,7 +86,7 @@ class Command(BaseCommand):
         self.batch_size = batch_size or self.DEFAULT_BATCH_SIZE
         self.wait_seconds = wait_seconds or self.DEFAULT_WAIT_SECONDS
         self.visibility_seconds = visibility_seconds or self.DEFAULT_VISIBILITY_SECONDS
-        self.healthcheck_path = healthcheck_path
+        self.healthcheck_file = healthcheck_path
         self.delete_failed_messages = delete_failed_messages
         self.max_seconds = max_seconds
         self.aws_region = aws_region or settings.AWS_REGION
@@ -103,6 +105,9 @@ class Command(BaseCommand):
         assert self.wait_seconds > 0
         assert self.visibility_seconds > 0
         assert self.max_seconds is None or self.max_seconds > 0.0
+        assert self.healthcheck_file is None or isinstance(
+            self.healthcheck_file, io.TextIOWrapper
+        )
 
     def add_arguments(self, parser):
         """Add command-line arguments (called by BaseCommand)"""
@@ -127,7 +132,8 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--healthcheck-path",
-            help="Path to file to write healthcheck data",
+            type=FileType("w", encoding="utf8"),
+            help="Path to file to write healthcheck data, default is no healthcheck",
         )
         parser.add_argument(
             "--delete-failed-messages",
@@ -152,13 +158,14 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
         self.init_vars(*args, **kwargs)
+        healthcheck_path = self.healthcheck_file.name if self.healthcheck_file else None
         logger.info(
             "Starting process_emails_from_sqs",
             extra={
                 "batch_size": self.batch_size,
                 "wait_seconds": self.wait_seconds,
                 "visibility_seconds": self.visibility_seconds,
-                "healthcheck_path": self.healthcheck_path,
+                "healthcheck_path": healthcheck_path,
                 "delete_failed_messages": self.delete_failed_messages,
                 "max_seconds": self.max_seconds,
                 "aws_region": self.aws_region,
@@ -420,24 +427,23 @@ class Command(BaseCommand):
 
     def write_healthcheck(self):
         """Update the healthcheck file with operations data, if path is set."""
-        if not self.healthcheck_path:
+        if not self.healthcheck_file:
             return
-        with open(self.healthcheck_path, "w", encoding="utf8") as health_file:
-            data = {
-                "timestamp": datetime.now(tz=timezone.utc).isoformat(),
-                "cycles": self.cycles,
-                "total_messages": self.total_messages,
-                "failed_messages": self.failed_messages,
-                "pause_count": self.pause_count,
-                "queue_count": self.queue.attributes["ApproximateNumberOfMessages"],
-                "queue_count_delayed": self.queue.attributes[
-                    "ApproximateNumberOfMessagesDelayed"
-                ],
-                "queue_count_not_visible": self.queue.attributes[
-                    "ApproximateNumberOfMessagesNotVisible"
-                ],
-            }
-            json.dump(data, health_file)
+        data = {
+            "timestamp": datetime.now(tz=timezone.utc).isoformat(),
+            "cycles": self.cycles,
+            "total_messages": self.total_messages,
+            "failed_messages": self.failed_messages,
+            "pause_count": self.pause_count,
+            "queue_count": self.queue.attributes["ApproximateNumberOfMessages"],
+            "queue_count_delayed": self.queue.attributes[
+                "ApproximateNumberOfMessagesDelayed"
+            ],
+            "queue_count_not_visible": self.queue.attributes[
+                "ApproximateNumberOfMessagesNotVisible"
+            ],
+        }
+        json.dump(data, self.healthcheck_file)
 
     def pluralize(self, value, singular, plural=None):
         """Returns 's' suffix to make plural, like 's' in tasks"""

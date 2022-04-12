@@ -132,8 +132,7 @@ def test_main_loop_metrics():
     with MetricsMock() as mm:
         res = Command(queue=fake_queue(), max_seconds=2).main_loop()
     assert res["cycles"] == 1
-    mm.assert_gauge(
-        "fx.private.relay.email_queue_count", 1, ["queue:queue-name"])
+    mm.assert_gauge("fx.private.relay.email_queue_count", 1, ["queue:queue-name"])
     mm.assert_gauge(
         "fx.private.relay.email_queue_count_delayed", 2, ["queue:queue-name"]
     )
@@ -284,7 +283,8 @@ def test_command_sqs_client_error(mock_boto3_queue_constructor):
 def test_write_healthcheck(tmp_path):
     """write_healthcheck writes the timestamp to the specified path."""
     healthcheck_path = tmp_path / "healthcheck.json"
-    Command(queue=fake_queue(), healthcheck_path=healthcheck_path).write_healthcheck()
+    with open(healthcheck_path, "w", encoding="utf8") as hc_file:
+        Command(queue=fake_queue(), healthcheck_file=hc_file).write_healthcheck()
     content = json.loads(healthcheck_path.read_bytes())
     assert content == {
         "timestamp": content["timestamp"],
