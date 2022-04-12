@@ -14,7 +14,6 @@ https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-read
 from datetime import datetime, timezone
 import json
 import logging
-import sys
 
 from django.core.management.base import BaseCommand, CommandError
 
