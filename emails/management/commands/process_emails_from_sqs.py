@@ -212,7 +212,6 @@ class Command(BaseCommand):
                 with Timer(logger=None) as attribute_timer:
                     self.queue.load()  # Refresh attributes
                 self.write_healthcheck()
-                incr_if_enabled("message_from_sqs_error", 1)
                 gauge_if_enabled(
                     "email_queue_count",
                     self.queue.attributes["ApproximateNumberOfMessages"],
