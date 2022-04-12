@@ -344,7 +344,6 @@ class Command(BaseCommand):
         * success: True if message was processed successfully
         * error: The processing error, omitted on success
         * message_body_quoted: Set if the message was non-JSON, omitted for valid JSON
-        * json_body: Set to the JSON on SNS verification failures, or omitted on verified
         * pause_count: Set to 1 if paused due to temporary error, or omitted with no error
         * pause_s: The pause in seconds (ms precision) for temp error, or omitted
         * pause_error: The temporary error, or omitted if no temp error
@@ -368,13 +367,12 @@ class Command(BaseCommand):
             verified_json_body = verify_from_sns(json_body)
         except (KeyError, OpenSSL.crypto.Error) as e:
             logger.error(
-                "Failed SNS verification", extra={"error": str(e), "body": json_body}
+                "Failed SNS verification", extra={"error": str(e)}
             )
             results.update(
                 {
                     "success": False,
                     "error": f"Failed SNS verification: {e}",
-                    "json_body": json_body,
                 }
             )
             return results
