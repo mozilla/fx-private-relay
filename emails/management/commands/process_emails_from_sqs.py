@@ -146,7 +146,7 @@ class Command(BaseCommand):
             "--aws-region", help="AWS region, defaults to settings.AWS_REGION"
         )
         parser.add_argument(
-            "--sqs-url", help="SQS URL, defaults to AWS_SQS_EMAIL_QUEUE_URL"
+            "--sqs-url", help="SQS URL, defaults to settings.AWS_SQS_EMAIL_QUEUE_URL"
         )
 
     def handle(self, *args, **kwargs):
