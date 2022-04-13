@@ -23,8 +23,11 @@ export const authenticatedFetch = async (
     authToken = localStorage.getItem("authToken");
   }
   const headers = new Headers(init?.headers ?? undefined);
-  headers.set("Content-Type", "application/json");
-  headers.set("Accept", "application/json");
+  headers.set(
+    "Content-Type",
+    headers.get("Content-Type") ?? "application/json"
+  );
+  headers.set("Accept", headers.get("Accept") ?? "application/json");
   if (typeof authToken === "string") {
     headers.set("Authorization", `Token ${authToken}`);
   }

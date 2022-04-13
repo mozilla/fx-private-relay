@@ -19,7 +19,10 @@ export type ProfilesData = [ProfileData];
 
 export type ProfileUpdateFn = (
   id: ProfileData["id"],
-  data: Partial<ProfileData>
+  data: Omit<Partial<ProfileData>, "subdomain">
+) => Promise<Response>;
+export type SetSubdomainFn = (
+  subdomain: Exclude<ProfileData["subdomain"], null>
 ) => Promise<Response>;
 
 /**
@@ -27,11 +30,17 @@ export type ProfileUpdateFn = (
  */
 export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
   update: ProfileUpdateFn;
+  setSubdomain: SetSubdomainFn;
 } {
   const profiles = useSWR("/profiles/", profileFetcher, {
     revalidateOnFocus: false,
   }) as SWRResponse<ProfilesData, Error>;
 
+  /**
+   * Update a user's profile. Note that setting a subdomain currently requires
+   * the use of `setSubdomain`, because that calls a special API endpoint that
+   * will also hash the subdomain to prevent duplicate subdomains.
+   */
   const update: ProfileUpdateFn = async (id, data) => {
     const response = await apiFetch(`/profiles/${id}/`, {
       method: "PATCH",
@@ -40,10 +49,22 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
     profiles.mutate();
     return response;
   };
+  const setSubdomain: SetSubdomainFn = async (subdomain) => {
+    const response = await authenticatedFetch("/accounts/profile/subdomain", {
+      method: "POST",
+      body: new URLSearchParams({ subdomain: subdomain }).toString(),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+    profiles.mutate();
+    return response;
+  };
 
   return {
     ...profiles,
     update: update,
+    setSubdomain: setSubdomain,
   };
 }
 
