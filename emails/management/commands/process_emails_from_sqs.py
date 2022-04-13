@@ -181,8 +181,8 @@ class Command(BaseCommand):
         except ClientError as e:
             raise CommandError("Unable to connect to SQS") from e
 
-        exec_stats = self.main_loop()
-        logger.info("Exiting process_emails_from_sqs", extra=exec_stats)
+        process_data = self.process_queue()
+        logger.info("Exiting process_emails_from_sqs", extra=process_data)
 
     def create_client(self):
         """Create the SQS client."""
@@ -191,12 +191,12 @@ class Command(BaseCommand):
         sqs_client = boto3.resource("sqs", region_name=self.aws_region)
         return sqs_client.Queue(self.sqs_url)
 
-    def main_loop(self):
+    def process_queue(self):
         """
         Process the SQS email queue until an exit condition is reached.
 
         Return is a dict suitable for logging context, with these keys:
-        * exit_on: Why the loop exited - "interrupt", "max_seconds", "unknown"
+        * exit_on: Why processing exited - "interrupt", "max_seconds", "unknown"
         * cycles: How many polling cycles completed
         * total_s: The total execution time, in seconds with millisecond precision
         * total_messages: The number of messages processed, with and without errors
@@ -242,17 +242,17 @@ class Command(BaseCommand):
                 self.halt_requested = True
                 exit_on = "interrupt"
 
-        loop_data = {
+        process_data = {
             "exit_on": exit_on,
             "cycles": self.cycles,
             "total_s": round(time.monotonic() - self.start_time, 3),
             "total_messages": self.total_messages,
         }
         if self.failed_messages:
-            loop_data["failed_messages"] = self.failed_messages
+            process_data["failed_messages"] = self.failed_messages
         if self.pause_count:
-            loop_data["pause_count"] = self.pause_count
-        return loop_data
+            process_data["pause_count"] = self.pause_count
+        return process_data
 
     def refresh_and_emit_queue_count_metrics(self):
         """
