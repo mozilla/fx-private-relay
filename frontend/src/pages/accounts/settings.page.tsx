@@ -107,7 +107,7 @@ const Settings: NextPage = () => {
       >
         <img src={messageIcon.src} alt="" />
         {l10n.getString("settings-meta-contact-label")}
-        <NewTabIcon alt="" aria-hidden />
+        <NewTabIcon />
       </a>
     </li>
   ) : null;
@@ -167,7 +167,7 @@ const Settings: NextPage = () => {
                 >
                   <img src={helpIcon.src} alt="" />
                   {l10n.getString("settings-meta-help-label")}
-                  <NewTabIcon alt="" aria-hidden />
+                  <NewTabIcon />
                 </a>
               </li>
               <li>
@@ -179,7 +179,7 @@ const Settings: NextPage = () => {
                 >
                   <img src={performanceIcon.src} alt="" />
                   {l10n.getString("settings-meta-status-label")}
-                  <NewTabIcon alt="" aria-hidden />
+                  <NewTabIcon />
                 </a>
               </li>
             </ul>
