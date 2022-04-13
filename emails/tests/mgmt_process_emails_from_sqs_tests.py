@@ -112,6 +112,12 @@ def fake_sqs_message(body):
     return msg
 
 
+def make_client_error(message="Unknown", code="Unknown", operation_name="Unknown"):
+    """Create a minimal botocore.exceptions.ClientError"""
+    err_response = {"Error": {"Message": message, "Code": code}}
+    return ClientError(err_response, operation_name)
+
+
 def test_process_queue_no_messages():
     """process_queue can exit after the max time and processng no messages."""
     res = Command(queue=fake_queue(), max_seconds=3).process_queue()
@@ -185,14 +191,8 @@ def test_process_queue_no_body_deleted():
 
 def test_process_queue_ses_temp_failure_retry(mock_sns_inbound_logic):
     """process_queue retries a message with a temporary SES failure."""
-    temp_error = ClientError(
-        {
-            "Error": {
-                "Message": "Maximum sending rate exceeded.",
-                "Code": "ThrottlingException",
-            }
-        },
-        "",
+    temp_error = make_client_error(
+        "Maximum sending rate exceeded.", "ThrottlingException"
     )
     mock_sns_inbound_logic.side_effect = (temp_error, None)
     msg = fake_sqs_message(json.dumps(EMAIL_SNS_BODIES["s3_stored"]))
@@ -203,14 +203,8 @@ def test_process_queue_ses_temp_failure_retry(mock_sns_inbound_logic):
 
 def test_process_queue_ses_temp_failure_twice(mock_sns_inbound_logic):
     """A temporary error followed by a second error is not retried."""
-    temp_error = ClientError(
-        {
-            "Error": {
-                "Message": "Maximum sending rate exceeded.",
-                "Code": "ThrottlingException",
-            }
-        },
-        "",
+    temp_error = make_client_error(
+        "Email sending has been disabled.", "AccountSendingPausedException"
     )
     mock_sns_inbound_logic.side_effect = (temp_error, temp_error)
     msg = fake_sqs_message(json.dumps(EMAIL_SNS_BODIES["s3_stored"]))
@@ -223,16 +217,8 @@ def test_process_queue_ses_temp_failure_twice(mock_sns_inbound_logic):
 
 def test_process_queue_ses_generic_failure(mock_sns_inbound_logic):
     """process_queue does not retry generic SES failures."""
-    temp_error = ClientError(
-        {
-            "Error": {
-                "Message": "Some other error.",
-                "Code": "InternalError",
-            }
-        },
-        "",
-    )
-    mock_sns_inbound_logic.side_effect = (temp_error, None)
+    internal_error = make_client_error(code="InternalError")
+    mock_sns_inbound_logic.side_effect = (internal_error, None)
     msg = fake_sqs_message(json.dumps(EMAIL_SNS_BODIES["s3_stored"]))
     res = Command(queue=fake_queue([msg], []), max_seconds=3).process_queue()
     assert res["total_messages"] == 1
