@@ -79,7 +79,7 @@
       display: flex;
       align-items: center;
       gap: $spacing-sm;
-      padding: $spacing-xs $spacing-sm 0 $spacing-sm;
+      padding: $spacing-xs $spacing-sm;
       box-shadow: $box-shadow-sm;
       border-radius: $border-radius-md;
       font-weight: 700;
@@ -155,7 +155,6 @@
     background-color: $color-light-gray-10;
     border-radius: $border-radius-md;
     padding: $spacing-lg;
-    margin-top: $spacing-md;
 
     .content-heading {
       display: none;
@@ -180,8 +179,6 @@
         img {
           width: calc(#{$layout-2xl} - #{$layout-lg});
           height: calc(#{$layout-2xl} - #{$layout-lg});
-
-          // calc(#{$screen-sm} - #{$spacing-md} - #{$spacing-md})
 
           @media screen and #{$mq-xl} {
             width: $layout-2xl;
@@ -212,6 +209,7 @@
       display: flex;
       align-items: center;
       gap: $spacing-2xl;
+      margin-top: $spacing-lg;
 
       .content-heading {
         @include text-title-2xs;
