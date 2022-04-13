@@ -218,25 +218,30 @@ class Command(BaseCommand):
                 }
                 cycle_data.update(self.refresh_and_emit_queue_count_metrics())
 
+                # Check if we should exit due to time limit
                 if self.max_seconds is not None:
                     elapsed = time.monotonic() - self.start_time
                     if elapsed >= self.max_seconds:
                         exit_on = "max_seconds"
                         break
 
+                # Request and process a chunk of messages
                 with Timer(logger=None) as cycle_timer:
-                    cycle_data.update(self.cycle_loop())
-                message_count = cycle_data.get("message_count", 0)
-                self.total_messages += message_count
+                    message_batch, cycle_data = self.poll_queue_for_messages()
+                    cycle_data.update(self.process_message_batch(message_batch))
+
+                # Collect data and log progress
+                self.total_messages += len(message_batch)
                 self.failed_messages += cycle_data.get("failed_count", 0)
                 self.pause_count += cycle_data.get("pause_count", 0)
                 cycle_data["message_total"] = self.total_messages
                 cycle_data["cycle_s"] = round(cycle_timer.last, 3)
                 logger.log(
-                    logging.INFO if message_count else logging.DEBUG,
-                    f"Cycle {self.cycles}: processed {self.pluralize(message_count, 'message')}",
+                    logging.INFO if message_batch else logging.DEBUG,
+                    f"Cycle {self.cycles}: processed {self.pluralize(len(message_batch), 'message')}",
                     extra=cycle_data,
                 )
+
                 self.cycles += 1
             except KeyboardInterrupt:
                 self.halt_requested = True
@@ -297,13 +302,37 @@ class Command(BaseCommand):
             "queue_count_not_visible": self.queue_count_not_visible,
         }
 
-    def cycle_loop(self):
+    def poll_queue_for_messages(self):
+        """Request a batch of messages, using the long-poll method.
+
+        Return is a tuple:
+        * message_batch: a list of messages, which may be empty
+        * data: A dict suitable for logging context, with these keys:
+            - message_count: the number of messages
+            - sqs_poll_s: The poll time, in seconds with millisecond precision
         """
-        Request and process a batch of messages, using long-poll method.
+        with Timer(logger=None) as poll_timer:
+            message_batch = self.queue.receive_messages(
+                MaxNumberOfMessages=self.batch_size,
+                VisibilityTimeout=self.visibility_seconds,
+                WaitTimeSeconds=self.wait_seconds,
+            )
+        return (
+            message_batch,
+            {
+                "message_count": len(message_batch),
+                "sqs_poll_s": round(poll_timer.last, 3),
+            },
+        )
+
+    def process_message_batch(self, message_batch):
+        """
+        Process a batch of messages.
+
+        Arguments:
+        * messages - a list of SQS messages, possibly empty
 
         Return is a dict suitable for logging context, with these keys:
-        * message_count: How many messages were returned from SQS
-        * sqs_poll_s: How long the ReceiveMessage call took
         * process_s: How long processing took, omitted if no messages
         * pause_count: How many pauses were taken for temporary errors, omitted if 0
         * pause_s: How long pauses took, omitted if no pauses
@@ -311,18 +340,13 @@ class Command(BaseCommand):
 
         Times are in seconds, with millisecond precision
         """
-        with Timer(logger=None) as poll_timer:
-            messages = self.queue.receive_messages(
-                MaxNumberOfMessages=self.batch_size,
-                VisibilityTimeout=self.visibility_seconds,
-                WaitTimeSeconds=self.wait_seconds,
-            )
-        message_count = len(messages)
+        if not message_batch:
+            return {}
         failed_count = 0
         pause_time = 0.0
         pause_count = 0
         process_time = 0.0
-        for message in messages:
+        for message in message_batch:
             with Timer(logger=None) as message_timer:
                 message_data = self.process_message(message)
                 if message_data["success"]:
@@ -342,20 +366,13 @@ class Command(BaseCommand):
                 extra=message_data,
             )
 
-        loop_data = {
-            "message_count": message_count,
-            "sqs_poll_s": round(poll_timer.last, 3),
-        }
-        if message_count:
-            if pause_count:
-                loop_data["process_s"] = round((process_time - pause_time), 3)
-                loop_data["pause_count"] = pause_count
-                loop_data["pause_s"] = round(pause_time, 3)
-            else:
-                loop_data["process_s"] = round(process_time, 3)
+        batch_data = {"process_s": round((process_time - pause_time), 3)}
+        if pause_count:
+            batch_data["pause_count"] = pause_count
+            batch_data["pause_s"] = round(pause_time, 3)
         if failed_count:
-            loop_data["failed_count"] = failed_count
-        return loop_data
+            batch_data["failed_count"] = failed_count
+        return batch_data
 
     def process_message(self, message):
         """
