@@ -166,18 +166,18 @@ jobs:
               -c \
                 'mkdir --parents /tmp/workspace/test-results/pytest && \
                  mkdir --parents /tmp/workspace/test-results/backend-coverage && \
-                 (/app/.local/bin/pytest \
+                 /app/.local/bin/pytest \
                    --cov=. \
                    --cov-config=.coveragerc \
                    --cov-report=term-missing \
                    --cov-report=xml \
                    --cov-fail-under=60 \
                    --cov-branch \
-                   --junitxml=/tmp/workspace/test-results/pytest/results.xml) ; \
-                 TEST_STATUS=$?
+                   --junitxml=/tmp/workspace/test-results/pytest/results.xml ; \
+                 STATUS=$?
                  mv coverage.xml /tmp/workspace/test-results/backend-coverage/results.xml ; \
                  mv .coverage /tmp/workspace/test-results/backend-coverage/.coverage; \
-                 exit $TEST_STATUS'
+                 exit $STATUS'
             TEST_STATUS=$?
             set -e
 
