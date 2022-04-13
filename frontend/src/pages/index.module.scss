@@ -79,21 +79,37 @@
   .steps {
     display: flex;
     flex-direction: column;
-    gap: $spacing-2xl;
+    gap: $layout-xl;
     list-style-type: none;
-    margin: 0;
     padding: $spacing-2xl 0;
-    text-align: center;
+    text-align: left;
+    margin: 0;
 
     @media screen and #{$mq-md} {
+      margin: 0 $layout-2xl;
+    }
+    @media screen and #{$mq-lg} {
       flex-direction: row;
+      margin: 0;
+    }
+
+    h3 {
+      @include font-firefox;
+      @include text-title-2xs;
+      padding-top: $spacing-2xl;
+    }
+
+    p {
+      padding-top: $spacing-sm;
     }
 
     .step {
-      flex: 1 0 0;
+      flex: 1;
+      margin-top: $spacing-2xl;
     }
 
     img {
+      width: 100%;
       display: inline-block;
     }
   }
