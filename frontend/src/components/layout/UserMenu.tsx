@@ -137,7 +137,7 @@ export const UserMenu = () => {
             className={styles["settings-link"]}
           >
             {l10n.getString("nav-profile-manage-fxa")}
-            <NewTabIcon alt="" />
+            <NewTabIcon />
           </a>
         </span>
       </Item>

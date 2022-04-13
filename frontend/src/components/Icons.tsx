@@ -2,6 +2,7 @@
 //       then added to react-icons: https://react-icons.github.io/react-icons/.
 //       These manually-created components are a workaround until that is done.
 
+import { useLocalization } from "@fluent/react";
 import { SVGProps } from "react";
 
 /** Info button that inherits the text color of its container */
@@ -55,14 +56,15 @@ export const CloseIcon = ({
 };
 
 /** Icon to indicate links that open in a new tab, that inherits the text color of its container */
-export const NewTabIcon = ({
-  alt,
-  ...props
-}: SVGProps<SVGSVGElement> & { alt: string }) => {
+export const NewTabIcon = (
+  props: SVGProps<SVGSVGElement> & { alt?: string }
+) => {
+  const { l10n } = useLocalization();
+
   return (
     <svg
       role="img"
-      aria-label={alt}
+      aria-label={props.alt ?? l10n.getString("common-link-newtab-alt")}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 16 16"
       width={16}
@@ -73,7 +75,7 @@ export const NewTabIcon = ({
       }}
       {...props}
     >
-      <title>{alt}</title>
+      <title>{props.alt ?? l10n.getString("common-link-newtab-alt")}</title>
       <path d="M5 1H4a3 3 0 00-3 3v8a3 3 0 003 3h8a3 3 0 003-3v-1a1 1 0 00-2 0v1a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 100-2z" />
       <path d="M14.935 1.618A1 1 0 0014.012 1h-5a1 1 0 100 2h2.586L8.305 6.293A1 1 0 109.72 7.707l3.293-3.293V7a1 1 0 102 0V2a1 1 0 00-.077-.382z" />
     </svg>
