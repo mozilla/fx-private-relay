@@ -156,7 +156,7 @@ export const WhatsNewMenu = (props: Props) => {
       day: 1,
     },
   };
-  if (isUsingFirefox()) {
+  if (addonData.present && isUsingFirefox()) {
     entries.push(signBackInEntry);
   }
 
