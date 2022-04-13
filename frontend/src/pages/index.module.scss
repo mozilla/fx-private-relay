@@ -146,6 +146,7 @@
 
   .callout {
     text-align: center;
+    max-width: $content-md;
 
     h2 {
       @include text-title-sm;
