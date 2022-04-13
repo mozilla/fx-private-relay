@@ -156,8 +156,8 @@ jobs:
               /bin/sh -c \
                 "chmod 0777 /tmp/workspace && \
                  chown 10001:10001 /tmp/workspace"
-            # Run coverage tests, outputting the results in XML format
-            docker run \
+            # Run coverage tests, outputting the results in XML format, capture exit code
+            (docker run \
               --entrypoint "/bin/bash" \
               --volumes-from workspace-test-results \
               fx-private-relay \
@@ -172,12 +172,18 @@ jobs:
                    --cov-fail-under=60 \
                    --cov-branch \
                    --junitxml=/tmp/workspace/test-results/pytest/results.xml ; \
+                 TEST_STATUS=$?
                  mv coverage.xml /tmp/workspace/test-results/backend-coverage/results.xml ; \
-                 mv .coverage /tmp/workspace/test-results/backend-coverage/.coverage'
+                 mv .coverage /tmp/workspace/test-results/backend-coverage/.coverage; \
+                 exit $TEST_STATUS')
+            TEST_STATUS=$?
 
             # Copy results to local disk
             mkdir --parents /tmp/workspace/
             docker cp workspace-test-results:/tmp/workspace/test-results /tmp/workspace
+
+            # Exit with test error code
+            exit $TEST_STATUS
 
       - store_test_results:
           path: /tmp/workspace/test-results
