@@ -350,7 +350,7 @@ However, SNS will quickly try the request again, so be fast!
 
 *Note: this change is not yet in production*
 
-In Q2 2022, was are switching from handling email as a web request, POSTed via
+In Q2 2022, we are switching from handling email as a web request, POSTed via
 an SNS subscription, to a back-end process, pulling from a Simple Queue Service
 (SQS) queue.
 
