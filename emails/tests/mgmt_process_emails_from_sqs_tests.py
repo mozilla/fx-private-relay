@@ -259,9 +259,7 @@ def test_command_golden_path(mock_boto3_queue_constructor):
 
 def test_command_sqs_client_error(mock_boto3_queue_constructor):
     """The command fails early on a client error."""
-    mock_boto3_queue_constructor.side_effect = ClientError(
-        {"Error": {"Message": "error message", "Code": "InternalError"}}, ""
-    )
+    mock_boto3_queue_constructor.side_effect = make_client_error(code="InternalError")
     with pytest.raises(CommandError):
         call_command(
             "process_emails_from_sqs",
