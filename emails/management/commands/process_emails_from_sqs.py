@@ -349,12 +349,10 @@ class Command(BaseCommand):
         for message in message_batch:
             with Timer(logger=None) as message_timer:
                 message_data = self.process_message(message)
-                if message_data["success"]:
-                    message.delete()
-                else:
+                if not message_data["success"]:
                     failed_count += 1
-                    if self.delete_failed_messages:
-                        message.delete()
+                if message_data["success"] or self.delete_failed_messages:
+                    message.delete()
                 pause_time += message_data.get("pause_s", 0.0)
                 pause_count += message_data.get("pause_count", 0)
 
