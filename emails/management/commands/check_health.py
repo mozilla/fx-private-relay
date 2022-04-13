@@ -69,9 +69,8 @@ class Command(BaseCommand):
         * The timestamp doesn't match the format of datetime.toisoformat()
         * The timestamp doesn't include timezone data
         """
-        context = {"success": False, "healthcheck_path": str(healthcheck_path)}
-        with open(healthcheck_path, "r", encoding="utf8") as health_file:
-            data = json.load(health_file)
+        context = {"success": False, "healthcheck_path": healthcheck_path.name}
+        data = json.load(healthcheck_path)
 
         context["data"] = data
         raw_timestamp = data["timestamp"]
