@@ -142,7 +142,7 @@ export const WhatsNewMenu = (props: Props) => {
           "whatsnew-feature-sign-back-in-description"
         )}
         heading={l10n.getString("whatsnew-feature-sign-back-in-heading")}
-        image={SizeLimitHero.src}
+        image={SignBackInHero.src}
       />
     ),
     hero: SignBackInHero.src,
@@ -156,7 +156,7 @@ export const WhatsNewMenu = (props: Props) => {
       day: 1,
     },
   };
-  if (addonData.present && isUsingFirefox()) {
+  if (isUsingFirefox()) {
     entries.push(signBackInEntry);
   }
 
