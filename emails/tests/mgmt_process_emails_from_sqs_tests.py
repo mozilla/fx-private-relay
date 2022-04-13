@@ -247,8 +247,8 @@ def test_process_queue_verify_from_sns_raises_keyerror(mock_verify_from_sns):
     AWS_REGION="us-east-2",
     AWS_SQS_EMAIL_QUEUE_URL="https://sqs.us-east-2.amazonaws.example.com/111222333/queue-name",
 )
-def test_command_golden_path(mock_boto3_queue_constructor):
-    """The command runs successfully until completion."""
+def test_command_successful_setup(mock_boto3_queue_constructor):
+    """The command constructs a Queue from Django settings."""
     mock_boto3_queue_constructor.return_value = fake_queue()
     call_command("process_emails_from_sqs", "--max-seconds=4")
     mock_boto3_queue_constructor.assert_called_once_with(
