@@ -56,3 +56,8 @@ class PremiumPlanIDTest(TestCase):
 
         plan_id = premium_plan_id('fi', 'fi')
         assert plan_id == plans['euro']['fi']['id']
+
+
+def test_circleci_failure():
+    """Test that a test failure will fail the CircleCI build (issue #1778)"""
+    assert 0 == 1
