@@ -100,6 +100,9 @@ class Command(BaseCommand):
         self.total_messages = None
         self.failed_messages = None
         self.pause_count = None
+        self.queue_count = None
+        self.queue_count_delayed = None
+        self.queue_count_not_visible = None
 
         assert 0 < self.batch_size <= 10
         assert self.wait_seconds > 0
@@ -209,37 +212,12 @@ class Command(BaseCommand):
 
         while not self.halt_requested:
             try:
-                with Timer(logger=None) as attribute_timer:
-                    self.queue.load()  # Refresh attributes
-                self.write_healthcheck()
-                gauge_if_enabled(
-                    "email_queue_count",
-                    self.queue.attributes["ApproximateNumberOfMessages"],
-                    tags=[generate_tag("queue", self.queue_name)],
-                )
-                gauge_if_enabled(
-                    "email_queue_count_delayed",
-                    self.queue.attributes["ApproximateNumberOfMessagesDelayed"],
-                    tags=[generate_tag("queue", self.queue_name)],
-                )
-                gauge_if_enabled(
-                    "email_queue_count_not_visible",
-                    self.queue.attributes["ApproximateNumberOfMessagesNotVisible"],
-                    tags=[generate_tag("queue", self.queue_name)],
-                )
-
                 cycle_data = {
                     "cycle_num": self.cycles,
                     "cycle_s": 0.0,
-                    "queue_attributes_s": round(attribute_timer.last, 3),
-                    "queue_count": self.queue.attributes["ApproximateNumberOfMessages"],
-                    "queue_count_delayed": self.queue.attributes[
-                        "ApproximateNumberOfMessagesDelayed"
-                    ],
-                    "queue_count_not_visible": self.queue.attributes[
-                        "ApproximateNumberOfMessagesNotVisible"
-                    ],
                 }
+                cycle_data.update(self.refresh_and_emit_queue_count_metrics())
+
                 if self.max_seconds is not None:
                     elapsed = time.monotonic() - self.start_time
                     if elapsed >= self.max_seconds:
@@ -275,6 +253,49 @@ class Command(BaseCommand):
         if self.pause_count:
             loop_data["pause_count"] = self.pause_count
         return loop_data
+
+    def refresh_and_emit_queue_count_metrics(self):
+        """
+        Query SQS queue attributes, store backlog metrics, and emit them as gauge stats
+
+        Return is a dict suitable for logging context, with these keys:
+        * queue_load_s: How long, in seconds (millisecond precision) it took to load attributes
+        * queue_count: Approximate number of messages in queue
+        * queue_count_delayed: Approx. messages not yet ready for receiving
+        * queue_count_not_visible: Approx. messages reserved by other receiver
+
+        """
+        # Load attributes from SQS
+        with Timer(logger=None) as attribute_timer:
+            self.queue.load()
+
+        # Save approximate queue counts
+        self.queue_count = self.queue.attributes["ApproximateNumberOfMessages"]
+        self.queue_count_delayed = self.queue.attributes[
+            "ApproximateNumberOfMessagesDelayed"
+        ]
+        self.queue_count_not_visible = self.queue.attributes[
+            "ApproximateNumberOfMessagesNotVisible"
+        ]
+
+        # Emit gauges for approximate queue counts
+        queue_tag = generate_tag("queue", self.queue_name)
+        gauge_if_enabled("email_queue_count", self.queue_count, tags=[queue_tag])
+        gauge_if_enabled(
+            "email_queue_count_delayed", self.queue_count_delayed, tags=[queue_tag]
+        )
+        gauge_if_enabled(
+            "email_queue_count_not_visible",
+            self.queue_count_not_visible,
+            tags=[queue_tag],
+        )
+
+        return {
+            "queue_load_s": round(attribute_timer.last, 3),
+            "queue_count": self.queue_count,
+            "queue_count_delayed": self.queue_count_delayed,
+            "queue_count_not_visible": self.queue_count_not_visible,
+        }
 
     def cycle_loop(self):
         """
@@ -366,9 +387,7 @@ class Command(BaseCommand):
         try:
             verified_json_body = verify_from_sns(json_body)
         except (KeyError, OpenSSL.crypto.Error) as e:
-            logger.error(
-                "Failed SNS verification", extra={"error": str(e)}
-            )
+            logger.error("Failed SNS verification", extra={"error": str(e)})
             results.update(
                 {
                     "success": False,
