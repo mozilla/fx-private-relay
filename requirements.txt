@@ -31,7 +31,7 @@ whitenoise==5.0.1
 # twilio==6.35.1
 
 # tests
-coverage==6.2
+coverage==6.3.2
 model-bakery==1.1.0
 pytest-cov==3.0.0
 pytest-django==3.9.0
