@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -24,6 +24,7 @@ import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
+import { makeToast } from "./Toast";
 
 export type Props = {
   children: ReactNode;
@@ -34,6 +35,10 @@ export type Props = {
  * Standard page layout for Relay, wrapping its children in the relevant header and footer.
  */
 export const Layout = (props: Props) => {
+  useEffect(() => {
+    makeToast();
+  }, []);
+
   const { l10n } = useLocalization();
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
