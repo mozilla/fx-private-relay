@@ -11,6 +11,7 @@ import { UserData } from "../../../hooks/api/user";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
+import searchIcon from "../../../../../static/images/icon-search-blue.svg";
 
 export type Props = {
   aliases: AliasData[];
@@ -30,6 +31,7 @@ export type Props = {
 export const AliasList = (props: Props) => {
   const { l10n } = useLocalization();
   const [stringFilterInput, setStringFilterInput] = useState("");
+  const [stringFilterVisible, setStringFilterVisible] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
   // Whenever a new alias is created, this value tracks the aliases that existed
@@ -135,7 +137,11 @@ export const AliasList = (props: Props) => {
   return (
     <section>
       <div className={styles.controls}>
-        <div className={styles["string-filter"]}>
+        <div
+          className={`${styles["string-filter"]} ${
+            stringFilterVisible ? styles["is-visible"] : ""
+          }`}
+        >
           <VisuallyHidden>
             <label htmlFor="stringFilter">
               {l10n.getString("profile-filter-search-placeholder-2")}
@@ -153,7 +159,20 @@ export const AliasList = (props: Props) => {
             {aliases.length}/{props.aliases.length}
           </span>
         </div>
+
         {categoryFilter}
+        <button
+          onClick={(e) => setStringFilterVisible(!stringFilterVisible)}
+          title={l10n.getString("banner-register-subdomain-button-search")}
+          className={styles["string-filter-toggle"]}
+        >
+          <img
+            src={searchIcon.src}
+            alt={l10n.getString("banner-register-subdomain-button-search")}
+            width={20}
+            height={20}
+          />
+        </button>
         <div className={styles["new-alias-button"]}>
           <AliasGenerationButton
             aliases={props.aliases}
