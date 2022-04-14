@@ -54,7 +54,7 @@ def incr_if_enabled(name, value=1, tags=None):
 
 def histogram_if_enabled(name, value, tags=None):
     if settings.STATSD_ENABLED:
-        metrics.histogram(name, value=value, tags=None)
+        metrics.histogram(name, value=value, tags=tags)
 
 
 def get_email_domain_from_settings():
