@@ -162,7 +162,7 @@ export const AliasList = (props: Props) => {
 
         {categoryFilter}
         <button
-          onClick={(e) => setStringFilterVisible(!stringFilterVisible)}
+          onClick={() => setStringFilterVisible(!stringFilterVisible)}
           title={l10n.getString("banner-register-subdomain-button-search")}
           className={styles["string-filter-toggle"]}
         >
