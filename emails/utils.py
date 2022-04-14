@@ -350,28 +350,24 @@ def remove_message_from_s3(bucket, object_key):
 
 
 
-def count_tracker(html_content, tracker_domain, level='general'):
+def count_tracker(html_content, trackers):
+    tracker_total = 0
+    details = {}
     # html_content needs to be str for count()
-    tracker_count = html_content.count(tracker_domain)
-    study_logger.info(
-        'email_tracker',
-        extra={'domain': tracker_domain, 'level': level, 'count': tracker_count}
-    )
-    return tracker_count
+    for tracker in trackers:
+        count = html_content.count(tracker)
+        if count:
+            tracker_total += count
+            details[tracker] = count
+    return {'count': tracker_total, 'trackers': details}
 
 def count_all_trackers(html_content):
-    general_count = 0
-    strict_count = 0
-
-    for tracker in GENERAL_TRACKERS:
-        general_count += count_tracker(html_content, tracker)
+    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
+    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
     
-    for tracker in STRICT_TRACKERS:
-        strict_count += count_tracker(html_content, tracker, 'strict')
-    
-    incr_if_enabled('tracker.strict_count', strict_count)
-    incr_if_enabled('tracker.general_count', general_count)
+    incr_if_enabled('tracker.general_count', general_detail['count'])
+    incr_if_enabled('tracker.strict_count', strict_detail['count'])
     study_logger.info(
         'email_tracker_summary',
-        extra={'general': general_count, 'strict': strict_count}
+        extra={'general': general_detail, 'strict': strict_detail}
     )
