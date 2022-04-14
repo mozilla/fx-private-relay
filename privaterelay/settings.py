@@ -190,6 +190,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
 
+    'waffle',
+
     'privaterelay.apps.PrivateRelayConfig',
 ]
 
@@ -249,6 +251,8 @@ MIDDLEWARE += [
 
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'dockerflow.django.middleware.DockerflowMiddleware',
+
+    'waffle.middleware.WaffleMiddleware',
 
     'privaterelay.middleware.FxAToRequest',
     'privaterelay.middleware.AddDetectedCountryToResponseHeaders',
