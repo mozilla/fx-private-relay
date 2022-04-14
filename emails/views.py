@@ -14,6 +14,7 @@ from tempfile import SpooledTemporaryFile
 from botocore.exceptions import ClientError
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
+from waffle import sample_is_active
 
 from django.conf import settings
 from django.contrib import messages
@@ -40,6 +41,7 @@ from .models import (
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
+    count_all_trackers,
     get_message_content_from_s3,
     get_post_data_from_request,
     incr_if_enabled,
@@ -501,6 +503,9 @@ def _sns_message(message_json):
     address.save(
         update_fields=['num_forwarded', 'last_used_at']
     )
+    # successful email relayed count number of trackers
+    if sample_is_active('tracker-sample') and html_content:
+        count_all_trackers(html_content)
     return response
 
 

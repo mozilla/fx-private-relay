@@ -28,6 +28,7 @@ from .models import (
 
 
 logger = logging.getLogger('events')
+study_logger = logging.getLogger('studymetrics')
 metrics = markus.get_metrics('fx-private-relay')
 
 with open('emails/tracker_lists/general-tracker.json', 'r') as f:
@@ -346,3 +347,31 @@ def remove_message_from_s3(bucket, object_key):
             logger.error('s3_client_error_delete_email', extra=e.response['Error'])
         incr_if_enabled('message_not_removed_from_s3', 1)
     return False
+
+
+
+def count_tracker(html_content, tracker_domain, level='general'):
+    # html_content needs to be str for count()
+    tracker_count = html_content.count(tracker_domain)
+    study_logger.info(
+        'email_tracker',
+        extra={'domain': tracker_domain, 'level': level, 'count': tracker_count}
+    )
+    return tracker_count
+
+def count_all_trackers(html_content):
+    general_count = 0
+    strict_count = 0
+
+    for tracker in GENERAL_TRACKERS:
+        general_count += count_tracker(html_content, tracker)
+    
+    for tracker in STRICT_TRACKERS:
+        strict_count += count_tracker(html_content, tracker, 'strict')
+    
+    incr_if_enabled('tracker.strict_count', strict_count)
+    incr_if_enabled('tracker.general_count', general_count)
+    study_logger.info(
+        'email_tracker_summary',
+        extra={'general': general_count, 'strict': strict_count}
+    )

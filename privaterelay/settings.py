@@ -593,6 +593,10 @@ LOGGING = {
         'abusemetrics': {
             'handlers': ['console_out'],
             'level': 'INFO'
+        },
+        'studymetrics': {
+            'handlers': ['console_out'],
+            'level': 'INFO'
         }
     }
 }
