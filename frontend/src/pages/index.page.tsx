@@ -35,7 +35,7 @@ const Home: NextPage = () => {
     label: "home-hero-cta",
   });
 
-  if (typeof userData.data?.[0] === "object") {
+  if (typeof userData.data?.[0] === "object" && !userData.error) {
     router.push("/accounts/profile/");
   }
 
