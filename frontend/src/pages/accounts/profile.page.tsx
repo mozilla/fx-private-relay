@@ -80,9 +80,7 @@ const Profile: NextPage = () => {
   }
 
   const setCustomSubdomain = async (customSubdomain: string) => {
-    const response = await profileData.update(profile.id, {
-      subdomain: customSubdomain,
-    });
+    const response = await profileData.setSubdomain(customSubdomain);
     if (!response.ok) {
       toast(
         l10n.getString("error-subdomain-not-available", {
