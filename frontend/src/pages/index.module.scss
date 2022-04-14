@@ -82,7 +82,7 @@
     gap: $layout-xl;
     list-style-type: none;
     padding: $spacing-2xl 0;
-    text-align: left;
+    text-align: start;
     margin: 0;
 
     @media screen and #{$mq-md} {
