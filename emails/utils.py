@@ -30,6 +30,11 @@ from .models import (
 logger = logging.getLogger('events')
 metrics = markus.get_metrics('fx-private-relay')
 
+with open('emails/tracker_lists/general-tracker.json', 'r') as f:
+    GENERAL_TRACKERS = json.load(f)
+with open('emails/tracker_lists/strict-tracker.json', 'r') as f:
+    STRICT_TRACKERS = json.load(f)
+
 
 def time_if_enabled(name):
     def timing_decorator(func):
