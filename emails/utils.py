@@ -58,6 +58,11 @@ def histogram_if_enabled(name, value, tags=None):
         metrics.histogram(name, value=value, tags=tags)
 
 
+def gauge_if_enabled(name, value, tags=None):
+    if settings.STATSD_ENABLED:
+        metrics.gauge(name, value, tags)
+
+
 def get_email_domain_from_settings():
     email_network_locality = urlparse(settings.SITE_ORIGIN).netloc
     # on Heroku we need to add "mail" prefix
