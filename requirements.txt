@@ -7,6 +7,7 @@ django-allauth==0.39.1
 django-cors-headers==3.10.0
 django-csp==3.5
 django-debug-toolbar==2.2.1
+django-filter==21.1
 django-gulp==4.1.0
 django-redis==4.12.1
 django-ftl==0.12.1
