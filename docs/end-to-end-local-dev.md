@@ -29,6 +29,8 @@ At a high level, you will need to:
 3. Configure your app to accept emails addressed to your domain
 4. Set up your AWS SES to send emails FROM your app
 5. Send a test email
+6. (Optional) [Convert to store in S3](#convert-to-store-in-s3)
+7. (Optional) [Convert to back-end processing](#convert-to-back-end-processing)
 
 ### Publish MX at your domain
 When a sending Mail Transfer Agents (MTA) delivers email to a domain, it 
@@ -160,7 +162,8 @@ mode, you need to add one of your own email addresses as a verified identity.
 [sns-topic-panel]: https://console.aws.amazon.com/sns/v3/home?region=us-east-1#/topics
 [create-ses-config]: https://console.aws.amazon.com/ses/home?region=us-east-1#/configuration-sets/create
 
-## (Optional) Convert to store in S3
+
+## <a name="convert-to-store-in-s3"></a> (Optional) Convert to store in S3
 
 In Q1 2022, we adjusted AWS SES to store emails in S3 before adding them to
 SNS. This allows emails that are larger than an SNS message (150K), such as
@@ -346,7 +349,7 @@ One way to see the S3 object is to add a breakpoint to your local code,
 so that you can examine the object in the AWS console before it is deleted.
 However, SNS will quickly try the request again, so be fast!
 
-## (Optional) Convert to back-end processing
+## <a name="convert-to-back-end-processing"></a> (Optional) Convert to back-end processing
 
 *Note: this change is not yet in production*
 
