@@ -35,14 +35,14 @@ export type Props = {
  * Standard page layout for Relay, wrapping its children in the relevant header and footer.
  */
 export const Layout = (props: Props) => {
-  useEffect(() => {
-    makeToast();
-  }, []);
-
   const { l10n } = useLocalization();
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
+
+  useEffect(() => {
+    makeToast(l10n);
+  }, []);
 
   const isDark =
     typeof props.theme !== "undefined"
@@ -160,6 +160,7 @@ export const Layout = (props: Props) => {
           theme="colored"
           transition={Slide}
           autoClose={5000}
+          hideProgressBar={true}
           toastClassName={`Toastify__toast ${styles.toast}`}
         />
         <div className={styles.content}>{props.children}</div>

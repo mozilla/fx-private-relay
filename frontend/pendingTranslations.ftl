@@ -112,3 +112,6 @@ whatsnew-feature-forward-some-description = { -brand-name-relay-premium } allows
 whatsnew-feature-alias-to-mask-heading = Aliases are now masks
 whatsnew-feature-alias-to-mask-snippet = Notice a change? We’re now calling aliases “masks” to make { -brand-name-firefox-relay }…
 whatsnew-feature-alias-to-mask-description = Notice a change? We’re now calling aliases “masks” to make { -brand-name-firefox-relay } easier to use and open the door for new features.
+
+success-signed-out-message = You have signed out.
+success-signed-in-message = Successfully signed in as 
