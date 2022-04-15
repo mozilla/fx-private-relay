@@ -160,11 +160,11 @@ mode, you need to add one of your own email addresses as a verified identity.
 [sns-topic-panel]: https://console.aws.amazon.com/sns/v3/home?region=us-east-1#/topics
 [create-ses-config]: https://console.aws.amazon.com/ses/home?region=us-east-1#/configuration-sets/create
 
-## Convert to store in S3
+## (Optional) Convert to store in S3
 
 In Q1 2022, we adjusted AWS SES to store emails in S3 before adding them to
-SNS. This allows emails that are larger than an SNS message, such as emails
-with large attachments.
+SNS. This allows emails that are larger than an SNS message (150K), such as
+emails with large attachments.
 
 The steps to setup S3 transfer:
 
@@ -346,7 +346,7 @@ One way to see the S3 object is to add a breakpoint to your local code,
 so that you can examine the object in the AWS console before it is deleted.
 However, SNS will quickly try the request again, so be fast!
 
-## Convert to back-end processing
+## (Optional) Convert to back-end processing
 
 *Note: this change is not yet in production*
 
