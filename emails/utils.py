@@ -28,7 +28,13 @@ from .models import (
 
 
 logger = logging.getLogger('events')
+study_logger = logging.getLogger('studymetrics')
 metrics = markus.get_metrics('fx-private-relay')
+
+with open('emails/tracker_lists/general-tracker.json', 'r') as f:
+    GENERAL_TRACKERS = json.load(f)
+with open('emails/tracker_lists/strict-tracker.json', 'r') as f:
+    STRICT_TRACKERS = json.load(f)
 
 
 def time_if_enabled(name):
@@ -49,7 +55,7 @@ def incr_if_enabled(name, value=1, tags=None):
 
 def histogram_if_enabled(name, value, tags=None):
     if settings.STATSD_ENABLED:
-        metrics.histogram(name, value=value, tags=None)
+        metrics.histogram(name, value=value, tags=tags)
 
 
 def get_email_domain_from_settings():
@@ -341,3 +347,27 @@ def remove_message_from_s3(bucket, object_key):
             logger.error('s3_client_error_delete_email', extra=e.response['Error'])
         incr_if_enabled('message_not_removed_from_s3', 1)
     return False
+
+
+
+def count_tracker(html_content, trackers):
+    tracker_total = 0
+    details = {}
+    # html_content needs to be str for count()
+    for tracker in trackers:
+        count = html_content.count(tracker)
+        if count:
+            tracker_total += count
+            details[tracker] = count
+    return {'count': tracker_total, 'trackers': details}
+
+def count_all_trackers(html_content):
+    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
+    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
+    
+    incr_if_enabled('tracker.general_count', general_detail['count'])
+    incr_if_enabled('tracker.strict_count', strict_detail['count'])
+    study_logger.info(
+        'email_tracker_summary',
+        extra={'general': general_detail, 'strict': strict_detail}
+    )
