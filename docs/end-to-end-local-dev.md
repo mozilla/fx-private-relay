@@ -361,7 +361,7 @@ sequenceDiagram
     Sending MTA->>yourdomain.com: Fetch DNS MX Record
     yourdomain.com->>Sending MTA: inbound-smtp.us-west-2.amazonaws.com.
     Sending MTA->>AWS: SMTP
-    AWS<<-Local app: SQS fetch
+    Local app->>AWS: SQS fetch
     Local app->>AWS: POST /SendRawEmail
     AWS->>Reciving MTA: SMTP
 ```
