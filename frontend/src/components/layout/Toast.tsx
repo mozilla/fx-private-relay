@@ -1,6 +1,6 @@
 import { clearCookie, getCookie } from "../../functions/cookies";
 import { toast } from "react-toastify";
-import { ReactLocalization, useLocalization } from "@fluent/react";
+import { ReactLocalization } from "@fluent/react";
 
 export function makeToast(l10n: ReactLocalization) {
   const checkUserSignOut = getCookie("user-sign-out");
