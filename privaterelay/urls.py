@@ -62,8 +62,10 @@ if settings.DEBUG:
     urlpatterns += [
         path('__debug__/', include(debug_toolbar.urls)),
         path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-#        path('silk/', include('silk.urls', namespace='silk')),
     ]
+if settings.USE_SILK:
+    import silk
+    urlpatterns.append(path('silk/', include('silk.urls', namespace='silk')))
 
 if settings.ADMIN_ENABLED:
     urlpatterns += [
