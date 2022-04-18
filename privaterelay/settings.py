@@ -22,9 +22,24 @@ from sentry_sdk.integrations.logging import ignore_logger
 from hashlib import sha512
 import base64
 
+
+# This needs to be before markus, which imports pytest
+IN_PYTEST = "pytest" in sys.modules
+if IN_PYTEST:
+    assert 1==2
+
+
 from django.conf import settings
 
 import dj_database_url
+
+try:
+    # Silk is a live profiling and inspection tool for the Django framework
+    # https://github.com/jazzband/django-silk
+    import silk
+    HAS_SILK = True
+except ImportError:
+    HAS_SILK = False
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -42,6 +57,7 @@ if DEBUG:
     INTERNAL_IPS = config(
         'DJANGO_INTERNAL_IPS', default=[]
     )
+USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -84,9 +100,8 @@ CSP_SCRIPT_SRC = (
     "'self'",
     'https://www.google-analytics.com/',
 )
-# TODO: Add with silk
-# if settings.DEBUG:
-#     CSP_SCRIPT_SRC += ("'unsafe-inline'",)
+if USE_SILK:
+    CSP_SCRIPT_SRC += ("'unsafe-inline'",)
 
 csp_style_values = ["'self'"]
 # Next.js dynamically inserts the relevant styles when switching pages,
@@ -115,9 +130,6 @@ else:
             csp_style_values.append("'sha512-%s'" % hash)
 
 CSP_STYLE_SRC = tuple(csp_style_values)
-# TODO: Add with silk
-# if settings.DEBUG:
-#     CSP_STYLE_SRC += ("'unsafe-inline'",)
 
 CSP_IMG_SRC = ["'self'"] + AVATAR_IMG_SRC
 REFERRER_POLICY = 'strict-origin-when-cross-origin'
@@ -204,8 +216,9 @@ if DEBUG:
     INSTALLED_APPS += [
         'debug_toolbar',
         'drf_yasg',
-#        'silk',
     ]
+if USE_SILK:
+    INSTALLED_APPS.append("silk")
 
 if ADMIN_ENABLED:
     INSTALLED_APPS += [
@@ -233,11 +246,10 @@ def _get_initial_middleware():
 
 MIDDLEWARE = _get_initial_middleware()
 
+if USE_SILK:
+    MIDDLEWARE.append('silk.middleware.SilkyMiddleware')
 if DEBUG:
-    MIDDLEWARE += [
-#        'silk.middleware.SilkyMiddleware',
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
-    ]
+    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
 
 MIDDLEWARE += [
     'django.middleware.security.SecurityMiddleware',
@@ -695,3 +707,7 @@ markus.configure(
         }
     ]
 )
+
+if USE_SILK:
+    SILKY_PYTHON_PROFILER=True
+    SILKY_PYTHON_PROFILER_BINARY=True
