@@ -18,6 +18,7 @@ import logging
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
@@ -353,7 +354,18 @@ def remove_message_from_s3(bucket, object_key):
         incr_if_enabled('message_not_removed_from_s3', 1)
     return False
 
-
+def set_user_group(user):
+    email_domain = user.email.split('@')[1]
+    group_attribute = {
+        'mozilla.com': 'mozilla_corporation',
+        'mozillafoundation.org': 'mozilla_foundation',
+        'getpocket.com': 'pocket'
+    }
+    internal_group_qs = Group.objects.filter(name=group_attribute.get(email_domain))
+    internal_group = internal_group_qs.first()
+    if internal_group is None:
+        return None
+    internal_group.user_set.add(user)
 
 def count_tracker(html_content, trackers):
     tracker_total = 0
