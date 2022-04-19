@@ -307,7 +307,7 @@ def _sns_notification(json_body):
             extra={
                 'notification_type': shlex.quote(notification_type),
                 'event_type': shlex.quote(event_type),
-                'keys': shlex.quote(list(message_json.keys())),
+                'keys': [shlex.quote(key) for key in message_json.keys()],
             },
         )
         return HttpResponse(

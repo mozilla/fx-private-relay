@@ -382,7 +382,6 @@ class SNSNotificationInvalidMessageTest(TestCase):
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
-    @pytest.mark.xfail(reason="raises TypeError: expected string or bytes-like object")
     def test_notification_type_complaint(self):
         """A notificationType of complaint returns a 400 error"""
         # Manual json_body because no instances captured, from
