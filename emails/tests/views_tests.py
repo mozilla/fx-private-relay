@@ -376,7 +376,6 @@ class SNSNotificationInvalidMessageTest(TestCase):
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
-    @pytest.mark.xfail(reason="raises JSONDecodeError")
     def test_subscription_confirmation(self):
         """A subscription confirmation returns a 400 error"""
         json_body = INVALID_SNS_BODIES['subscription_confirmation']
