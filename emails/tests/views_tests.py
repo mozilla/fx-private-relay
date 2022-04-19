@@ -14,6 +14,7 @@ from django.test import override_settings, TestCase
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
 from model_bakery import baker
+import pytest
 
 from emails.models import (
     address_hash,
@@ -58,6 +59,17 @@ for bounce_type in ['soft', 'hard', 'spam']:
     with open(bounce_file, 'r') as f:
         bounce_sns_body = json.load(f)
         BOUNCE_SNS_BODIES[bounce_type] = bounce_sns_body
+
+INVALID_SNS_BODIES = {}
+inv_file_suffix = "_invalid_sns_body.json"
+for email_file in glob.glob(
+    os.path.join(real_abs_cwd, "fixtures", "*" + inv_file_suffix)
+):
+    file_name = os.path.basename(email_file)
+    file_type = file_name[:-len(inv_file_suffix)]
+    with open(email_file, "r") as f:
+        sns_body = json.load(f)
+        INVALID_SNS_BODIES[file_type] = sns_body
 
 
 class SNSNotificationTest(TestCase):
@@ -355,6 +367,43 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b'noreply address is not supported.'
+
+
+class SNSNotificationInvalidMessageTest(TestCase):
+    def test_no_message(self):
+        """An empty message returns a 400 error"""
+        json_body = {"Message": "{}"}
+        response = _sns_notification(json_body)
+        assert response.status_code == 400
+
+    @pytest.mark.xfail(reason="raises JSONDecodeError")
+    def test_subscription_confirmation(self):
+        """A subscription confirmation returns a 400 error"""
+        json_body = INVALID_SNS_BODIES['subscription_confirmation']
+        response = _sns_notification(json_body)
+        assert response.status_code == 400
+
+    @pytest.mark.xfail(reason="raises TypeError: expected string or bytes-like object")
+    def test_notification_type_complaint(self):
+        """A notificationType of complaint returns a 400 error"""
+        # Manual json_body because no instances captured, from
+        # https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        complaint = {
+            "notificationType": "Complaint",
+            "complaint": {
+                "userAgent":"ExampleCorp Feedback Loop (V0.01)",
+                "complainedRecipients":[
+                    {"emailAddress":"recipient1@example.com"}
+                ],
+                "complaintFeedbackType":"abuse",
+                "arrivalDate":"2009-12-03T04:24:21.000-05:00",
+                "timestamp":"2012-05-25T14:59:38.623Z",
+                "feedbackId":"000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000"
+            }
+        }
+        json_body = {"Message": json.dumps(complaint)}
+        response = _sns_notification(json_body)
+        assert response.status_code == 400
 
 
 class SNSNotificationValidUserEmailsInS3Test(TestCase):
