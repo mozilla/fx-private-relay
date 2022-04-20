@@ -70,7 +70,7 @@ export const AliasGenerationButton = (props: Props) => {
       return (
         <Button disabled>
           <img src={plusIcon.src} alt="" width={16} height={16} />
-          {l10n.getString("profile-label-generate-new-alias")}
+          {l10n.getString("profile-label-generate-new-alias-2")}
         </Button>
       );
     }
@@ -87,7 +87,7 @@ export const AliasGenerationButton = (props: Props) => {
           trackPurchaseStart({ label: "profile-create-alias-upgrade-promo" })
         }
       >
-        {l10n.getString("profile-label-upgrade")}
+        {l10n.getString("profile-label-upgrade-2")}
       </LinkButton>
     );
   }
@@ -108,10 +108,10 @@ export const AliasGenerationButton = (props: Props) => {
   return (
     <Button
       onClick={() => props.onCreate({ type: "random" })}
-      title={l10n.getString("profile-label-generate-new-alias")}
+      title={l10n.getString("profile-label-generate-new-alias-2")}
     >
       <img src={plusIcon.src} alt="" width={16} height={16} />
-      {l10n.getString("profile-label-generate-new-alias")}
+      {l10n.getString("profile-label-generate-new-alias-2")}
     </Button>
   );
 };
@@ -154,10 +154,10 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     <>
       <AliasTypeMenuButton onAction={onAction}>
         <Item key="random">
-          {l10n.getString("profile-label-generate-new-alias-menu-random")}
+          {l10n.getString("profile-label-generate-new-alias-menu-random-2")}
         </Item>
         <Item key="custom">
-          {l10n.getString("profile-label-generate-new-alias-menu-custom", {
+          {l10n.getString("profile-label-generate-new-alias-menu-custom-2", {
             subdomain: props.subdomain,
           })}
         </Item>
@@ -189,13 +189,13 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
   return (
     <div className={styles["button-wrapper"]}>
       <Button ref={triggerRef} {...triggerButtonProps}>
-        {l10n.getString("profile-label-generate-new-alias")}
+        {l10n.getString("profile-label-generate-new-alias-2")}
         <img src={arrowHeadIcon.src} alt="" width={16} height={16} />
       </Button>
       {triggerState.isOpen && (
         <AliasTypeMenuPopup
           {...props}
-          aria-label={l10n.getString("profile-label-generate-new-alias")}
+          aria-label={l10n.getString("profile-label-generate-new-alias-2")}
           domProps={menuProps}
           autoFocus={triggerState.focusStrategy}
           onClose={() => triggerState.close()}

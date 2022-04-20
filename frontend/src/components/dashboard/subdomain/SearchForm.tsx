@@ -23,7 +23,7 @@ export const SubdomainSearchForm = (props: Props) => {
     const isAvailable = await getAvailability(subdomainInput);
     if (!isAvailable) {
       toast(
-        l10n.getString("error-subdomain-not-available", {
+        l10n.getString("error-subdomain-not-available-2", {
           unavailable_subdomain: subdomainInput,
         }),
         { type: "error" }
@@ -43,7 +43,7 @@ export const SubdomainSearchForm = (props: Props) => {
     <form onSubmit={onSubmit}>
       <VisuallyHidden>
         <label htmlFor="subdomain">
-          {l10n.getString("banner-choose-subdomain-input-placeholder-2")}
+          {l10n.getString("banner-choose-subdomain-input-placeholder-3")}
         </label>
       </VisuallyHidden>
       <input
@@ -51,7 +51,7 @@ export const SubdomainSearchForm = (props: Props) => {
         value={subdomainInput}
         onInput={onInput}
         placeholder={l10n.getString(
-          "banner-choose-subdomain-input-placeholder-2"
+          "banner-choose-subdomain-input-placeholder-3"
         )}
         name="subdomain"
         id="subdomain"

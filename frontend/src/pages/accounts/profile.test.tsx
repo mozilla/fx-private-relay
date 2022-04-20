@@ -90,7 +90,7 @@ describe("The dashboard", () => {
     });
     render(<Profile />);
 
-    const countOf2 = screen.getByText(/profile-stat-label-aliases-used/);
+    const countOf2 = screen.getByText(/profile-stat-label-aliases-used-2/);
 
     // Unfortunately we can't select by role=definition to directly query for
     // the parent item, so we'll have to make do with this crutch. See:
@@ -144,7 +144,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(domainSearchField).toBeInTheDocument();
@@ -155,7 +155,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -169,7 +169,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -363,7 +363,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const searchFilter = screen.getByLabelText(
-      "l10n string: [profile-filter-search-placeholder], with vars: {}"
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
     );
 
     expect(searchFilter).toBeInTheDocument();
@@ -375,7 +375,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const searchFilter = screen.getByLabelText(
-      "l10n string: [profile-filter-search-placeholder], with vars: {}"
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
     );
 
     expect(searchFilter).toBeInTheDocument();
@@ -400,7 +400,7 @@ describe("The dashboard", () => {
 
     // The alias filter servers as a proxy here for the aliases being shown:
     const searchFilter = screen.queryByLabelText(
-      "l10n string: [profile-filter-search-placeholder], with vars: {}"
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
     );
 
     expect(searchFilter).not.toBeInTheDocument();
@@ -428,7 +428,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(subdomainSearchField).toBeInTheDocument();
@@ -444,7 +444,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(subdomainSearchField).not.toBeInTheDocument();
@@ -475,7 +475,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const aliasToggleButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-disable-forwarding-button], with vars: {}",
+      name: "l10n string: [profile-label-disable-forwarding-button-2], with vars: {}",
     });
     userEvent.click(aliasToggleButton);
 
@@ -498,7 +498,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const generateAliasButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+      name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     });
 
     expect(generateAliasButton).toBeInTheDocument();
@@ -520,7 +520,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const generateAliasButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+      name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     });
 
     expect(generateAliasButton).toBeInTheDocument();
@@ -542,7 +542,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const upgradeButton = screen.getByRole("link", {
-      name: "l10n string: [profile-label-upgrade], with vars: {}",
+      name: "l10n string: [profile-label-upgrade-2], with vars: {}",
     });
 
     expect(upgradeButton).toBeInTheDocument();
@@ -563,7 +563,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const generateAliasButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+      name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     });
 
     expect(generateAliasButton).toBeInTheDocument();
@@ -592,7 +592,7 @@ describe("The dashboard", () => {
       render(<Profile />);
 
       const generateAliasButton = screen.getByRole("button", {
-        name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+        name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });
 
       expect(generateAliasButton).toBeInTheDocument();
@@ -623,17 +623,17 @@ describe("The dashboard", () => {
       render(<Profile />);
 
       const generateAliasDropdown = screen.getByRole("button", {
-        name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+        name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });
       userEvent.click(generateAliasDropdown);
       const generateAliasMenu = screen.getByRole("menu", {
-        name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+        name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });
       const generateRandomAliasMenuItem = screen.getByRole("menuitem", {
-        name: "l10n string: [profile-label-generate-new-alias-menu-random], with vars: {}",
+        name: "l10n string: [profile-label-generate-new-alias-menu-random-2], with vars: {}",
       });
       const generateCustomAliasMenuItem = screen.getByRole("menuitem", {
-        name: `l10n string: [profile-label-generate-new-alias-menu-custom], with vars: ${JSON.stringify(
+        name: `l10n string: [profile-label-generate-new-alias-menu-custom-2], with vars: ${JSON.stringify(
           { subdomain: "some_subdomain" }
         )}`,
       });

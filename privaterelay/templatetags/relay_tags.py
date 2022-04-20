@@ -21,9 +21,9 @@ def user_email_domain(user_profile):
 @register.simple_tag
 def message_in_fluent(message):
     ftl_messages = [
-        'success-subdomain-registered',
+        'success-subdomain-registered-2',
         'success-settings-update',
-        'error-subdomain-not-available',
+        'error-subdomain-not-available-2',
         'error-premium-cannot-change-subdomain',
         'error-premium-set-subdomain',
         'error-premium-check-subdomain'

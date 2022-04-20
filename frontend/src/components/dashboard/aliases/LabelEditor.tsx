@@ -54,7 +54,7 @@ export const LabelEditor = (props: Props) => {
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onBlur={onBlur}
-        aria-label={l10n.getString("profile-label-edit")}
+        aria-label={l10n.getString("profile-label-edit-2")}
         ref={inputRef}
         className={styles["label-input"]}
         placeholder={l10n.getString("profile-label-placeholder")}

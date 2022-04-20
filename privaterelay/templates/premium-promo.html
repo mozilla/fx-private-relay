@@ -13,7 +13,7 @@
     <section class="c-landing-hero t-landing-a mzp-l-content">
         <div class="c-landing-hero--lead">
             <h1 class="c-landing-hero--title mzp-c-section-heading">{% ftlmsg 'premium-promo-hero-headline' %}</h1>
-            <p>{% ftlmsg 'premium-promo-hero-body-html' monthly_price=monthly_price %}</p>
+            <p>{% ftlmsg 'premium-promo-hero-body-2-html' monthly_price=monthly_price %}</p>
             <div class="premium-promo-hero-cta">
                 {% if premium_available_in_country %}
                     <a
@@ -61,13 +61,13 @@
         <div class="mzp-l-content">
         <div class="perks-content">
         <h2 class="perks-headline">{% ftlmsg 'premium-promo-perks-headline' %}</h2>
-        <span class="perks-lead">{% ftlmsg 'premium-promo-perks-lead' %}</span>
+        <span class="perks-lead">{% ftlmsg 'premium-promo-perks-lead-2' %}</span>
         <div class="perk">
         <img alt="" src="{% static 'images/premium-promo/illustration-unlimited.svg' %}" class="perk-illustration">
         <div class="perk-description">
-            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-unlimited-headline' %}</h3>
+            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-unlimited-headline-2' %}</h3>
             <p class="perk-body">
-                {% ftlmsg 'premium-promo-perks-perk-unlimited-body' %}
+                {% ftlmsg 'premium-promo-perks-perk-unlimited-body-2' %}
             </p>
             {% if premium_available_in_country %}
                 <a
@@ -95,9 +95,9 @@
         <div class="perk">
         <img alt="" src="{% static 'images/premium-promo/illustration-custom-domain.svg' %}" class="perk-illustration">
         <div class="perk-description">
-            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-custom-domain-headline' %}</h3>
+            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-custom-domain-headline-2' %}</h3>
             <p class="perk-body">
-            {% ftlmsg 'premium-promo-perks-perk-custom-domain-body' %}
+            {% ftlmsg 'premium-promo-perks-perk-custom-domain-body-2' %}
             </p>
             {% if premium_available_in_country %}
                 <a
@@ -125,9 +125,9 @@
         <div class="perk">
         <img alt="" src="{% static 'images/premium-promo/illustration-dashboard.svg' %}" class="perk-illustration">
         <div class="perk-description">
-            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-dashboard-headline' %}</h3>
+            <h3 class="perk-headline ff-Met">{% ftlmsg 'premium-promo-perks-perk-dashboard-headline-2' %}</h3>
             <p class="perk-body">
-            {% ftlmsg 'premium-promo-perks-perk-dashboard-body' %}
+            {% ftlmsg 'premium-promo-perks-perk-dashboard-body-2' %}
             </p>
             {% if premium_available_in_country %}
                 <a
@@ -157,7 +157,7 @@
 
     <section>
         <div class="container mzp-l-content">
-            <h2 class="use-case-headline">{% ftlmsg 'premium-promo-use-cases-headline' %}</h2>
+            <h2 class="use-case-headline">{% ftlmsg 'premium-promo-use-cases-headline-2' %}</h2>
             <ul class="c-use-case-content has-3" id="use-cases">
                 <li class="use-case-title use-case-shopping is-active remove-box-shadow" data-use-case="shopping">
                     <div class="use-case-title-text">{% ftlmsg 'premium-promo-use-cases-shopping-heading' %}</div>
@@ -166,7 +166,7 @@
                 <li class="use-case-desc">
                     <div class="desc-headline">{% ftlmsg 'premium-promo-use-cases-shopping-heading' %}</div>
                     <div class="desc-body">
-                        {% ftlmsg 'premium-promo-use-cases-shopping-body' %}
+                        {% ftlmsg 'premium-promo-use-cases-shopping-body-2' %}
                     </div>
                 </li>
                 <li class="use-case-title use-case-social-networks" data-use-case="social-networks">
@@ -176,7 +176,7 @@
                 <li class="use-case-desc">
                     <div class="desc-headline">{% ftlmsg 'premium-promo-use-cases-social-networks-heading' %}</div>
                     <div class="desc-body">
-                        {% ftlmsg 'premium-promo-use-cases-social-networks-body' %}
+                        {% ftlmsg 'premium-promo-use-cases-social-networks-body-2' %}
                     </div>
                 </li>
                 <li class="use-case-title use-case-gaming" data-use-case="gaming">
@@ -186,7 +186,7 @@
                 <li class="use-case-desc">
                     <div class="desc-headline">{% ftlmsg 'premium-promo-use-cases-gaming-heading' %}</div>
                     <div class="desc-body">
-                        {% ftlmsg 'premium-promo-use-cases-gaming-body' %}
+                        {% ftlmsg 'premium-promo-use-cases-gaming-body-2' %}
                     </div>
                 </li>
             </ul>
@@ -204,7 +204,7 @@
                             <p class="c-price non-premium-price">{% ftlmsg 'premium-promo-pricing-free-price' %}</p>
                             <div class="c-features non-premium-list">
                                 <ul class="c-list">
-                                    <li>{% ftlmsg 'landing-pricing-free-feature-1' %}</li>
+                                    <li>{% ftlmsg 'landing-pricing-free-feature-1-2' %}</li>
                                     <li>{% ftlmsg 'landing-pricing-free-feature-2' %}</li>
                                 </ul>
                             </div>
@@ -228,9 +228,9 @@
                             </p>
                             <div class="c-features premium-list">
                                 <ul class="c-list">
-                                    <li>{% ftlmsg 'landing-pricing-premium-feature-1' %}</li>
+                                    <li>{% ftlmsg 'landing-pricing-premium-feature-1-2' %}</li>
                                     <li>{% ftlmsg 'landing-pricing-premium-feature-2' %}</li>
-                                    <li>{% ftlmsg 'landing-pricing-premium-feature-3' %}</li>
+                                    <li>{% ftlmsg 'landing-pricing-premium-feature-3-2' %}</li>
                                     <li>{% ftlmsg 'landing-pricing-premium-feature-4' %}</li>
                                 </ul>
                             </div>
@@ -250,8 +250,8 @@
 
                     <div class="c-pricing-text">
                         <div class="c-text">
-                            <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline' monthly_price=monthly_price %}</h2>
-                            <p class="c-pricing-body">{% ftlmsg 'landing-pricing-body' %}</p>
+                            <h2 class="c-main-header">{% ftlmsg 'landing-pricing-headline-2' monthly_price=monthly_price %}</h2>
+                            <p class="c-pricing-body">{% ftlmsg 'landing-pricing-body-2' %}</p>
                         </div>
                     </div>
                 </div>

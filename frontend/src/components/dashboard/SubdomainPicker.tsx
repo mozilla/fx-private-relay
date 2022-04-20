@@ -63,7 +63,9 @@ export const SubdomainPicker = (props: Props) => {
         <span aria-hidden={true} className={styles["action-step"]}>
           {l10n.getString("banner-label-action")}
         </span>
-        <h2>{l10n.getString("banner-register-subdomain-headline-aliases")}</h2>
+        <h2>
+          {l10n.getString("banner-register-subdomain-headline-aliases-2")}
+        </h2>
         <samp className={styles.example} aria-hidden={true}>
           ***@
           <span className={styles["subdomain-part"]}>
@@ -74,7 +76,7 @@ export const SubdomainPicker = (props: Props) => {
           .{getRuntimeConfig().mozmailDomain}
         </samp>
         <p className={styles.lead}>
-          {l10n.getString("banner-register-subdomain-copy", {
+          {l10n.getString("banner-register-subdomain-copy-2", {
             mozmail: getRuntimeConfig().mozmailDomain,
           })}
         </p>

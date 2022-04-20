@@ -42,7 +42,7 @@ Premium users:
       </span>
 
       <div class="c-alias-email-fowarding-button {% if not alias.enabled %}t-disabled{% endif %}">
-        <input {% if alias.enabled %}checked{% endif %}  name="aliasForwardingToggle{{ alias.id }}" id="aliasForwardingToggle{{ alias.id }}" value="true" type="checkbox" data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button' %}" data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button' %}">
+        <input {% if alias.enabled %}checked{% endif %}  name="aliasForwardingToggle{{ alias.id }}" id="aliasForwardingToggle{{ alias.id }}" value="true" type="checkbox" data-default-forwarding-title="{% ftlmsg 'profile-label-enable-forwarding-button-2' %}" data-default-blocking-title="{% ftlmsg 'profile-label-disable-forwarding-button-2' %}">
         <label for="aliasForwardingToggle{{ alias.id }}">
           <div class="forwarding-toggle js-forwarding-toggle"></div>
         </label>
@@ -66,7 +66,7 @@ Premium users:
               type="text"
               maxlength="50"
               value="{{ alias.description }}"
-              aria-label="{% ftlmsg 'profile-label-edit' %}"
+              aria-label="{% ftlmsg 'profile-label-edit-2' %}"
               placeholder="{% ftlmsg 'profile-label-placeholder' %}"
               class="relay-email-address-label js-relay-email-address-label ff-Met"
               {# Require at least one non-whitespace character:  #}
@@ -79,7 +79,7 @@ Premium users:
 
         <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
           data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
-          data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
+          data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation-2' %}"
           data-id="{{ alias.id }}"
           data-clipboard-text="{{ alias.full_address }}"
           class="relay-address click-copy alias-on-desktop ff-Met xflx jst-cntr al-cntr">
@@ -116,7 +116,7 @@ Premium users:
   <div class="c-alias-copy">
     <button title="{% ftlmsg 'profile-label-click-to-copy' %}"
       data-ftl-click-to-copy="{% ftlmsg 'profile-label-click-to-copy' %}"
-      data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation' %}"
+      data-ftl-copy-confirmation="{% ftlmsg 'profile-label-copy-confirmation-2' %}"
       data-id="{{ alias.id }}"
       data-clipboard-text="{{ alias.full_address }}"
       class="relay-address click-copy alias-on-mobile ff-Met jst-cntr al-cntr">
@@ -221,7 +221,7 @@ Premium users:
           <input type="hidden" name="method_override" value="DELETE">
           <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
           <input type="hidden" name="{{ alias_type }}_address_id" value="{{ alias.id }}">
-          <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="{% ftlmsg 'profile-label-delete-alias' %}">
+          <button type="submit" name="delete" value="" class="dashboard-delete-button delete-relay-email-button" aria-label="{% ftlmsg 'profile-label-delete-alias-2' %}">
             <span class="remove-label relay-email-label">{% ftlmsg 'profile-label-delete' %}</span>
           </button>
         </form>

@@ -137,7 +137,7 @@ const NoFirefoxBanner = () => {
         content: l10n.getString("banner-download-firefox-cta"),
       }}
     >
-      <p>{l10n.getString("banner-download-firefox-copy")}</p>
+      <p>{l10n.getString("banner-download-firefox-copy-2")}</p>
     </Banner>
   );
 };
@@ -159,7 +159,7 @@ const NoAddonBanner = () => {
       }}
       hiddenWithAddon={true}
     >
-      <p>{l10n.getString("banner-download-install-extension-copy")}</p>
+      <p>{l10n.getString("banner-download-install-extension-copy-2")}</p>
     </Banner>
   );
 };
@@ -210,7 +210,7 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
         },
       }}
     >
-      <p>{l10n.getString("banner-upgrade-copy")}</p>
+      <p>{l10n.getString("banner-upgrade-copy-2")}</p>
     </Banner>
   );
 };

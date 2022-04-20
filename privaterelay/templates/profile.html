@@ -61,26 +61,26 @@
         {% if not user_profile.subdomain %}
           <div class="mpp-dashbaord-header-action">
             <a href="#mpp-choose-subdomain" class="mpp-action-link">
-              <img src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-domain' %}
+              <img src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-create-subdomain' %}
             </a>
             <div class="mpp-action-tooltip">
               <img src="/static/images/icon-info.svg" alt="">
               <div class="mpp-action-tooltip-hover">
                 <div class="mpp-action-tooltip-hover-wrapper">
-                  {% ftlmsg 'profile-label-domain-tooltip' %}
+                  {% ftlmsg 'profile-label-subdomain-tooltip' %}
                 </div>
               </div>
             </div>
           </div>
         {% else %}
           <div class="mpp-dashbaord-header-action">
-              <img src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-domain' %} 
+              <img src="/static/images/icon-check.svg" alt=""> {% ftlmsg 'profile-label-subdomain' %}
               <samp>{{ user_profile.custom_domain }}</samp>
           </div>
         {% endif %}
       </div>
       <ul class="mpp-dashbaord-header-stats">
-        <li><span class="label">{% ftlmsg 'profile-stat-label-aliases-used' %}</span> <span>{{user_profile.num_active_address}}</span> </li>
+        <li><span class="label">{% ftlmsg 'profile-stat-label-aliases-used-2' %}</span> <span>{{user_profile.num_active_address}}</span> </li>
         <li><span class="label">{% ftlmsg 'profile-stat-label-blocked' %}</span> <span>{{user_profile.emails_blocked}}</span> </li>
         <li><span class="label">{% ftlmsg 'profile-stat-label-forwarded' %}</span> <span>{{user_profile.emails_forwarded}}</span> </li>
       </ul>

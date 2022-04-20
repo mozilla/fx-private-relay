@@ -62,7 +62,7 @@ export const AliasDeletionButton = (props: Props) => {
   const dialog = modalState.isOpen ? (
     <OverlayContainer>
       <ConfirmationDialog
-        title={l10n.getString("modal-delete-headline")}
+        title={l10n.getString("modal-delete-headline-2")}
         onClose={() => modalState.close()}
         isOpen={modalState.isOpen}
         isDismissable={true}
@@ -71,7 +71,7 @@ export const AliasDeletionButton = (props: Props) => {
           {getFullAddress(props.alias)}
         </samp>
         <Localized
-          id="modal-delete-warning-recovery-html"
+          id="modal-delete-warning-recovery-2-html"
           vars={{ email: getFullAddress(props.alias) }}
           elems={{
             strong: <strong />,
@@ -82,8 +82,8 @@ export const AliasDeletionButton = (props: Props) => {
         <p className={styles["usage-warning"]}>
           {l10n.getString(
             isRandomAlias(props.alias)
-              ? "modal-delete-warning-upgrade"
-              : "modal-delete-domain-address-warning-upgrade"
+              ? "modal-delete-warning-upgrade-2"
+              : "modal-delete-domain-address-warning-upgrade-2"
           )}
         </p>
         <form onSubmit={onConfirm} className={styles.confirm}>
@@ -95,7 +95,7 @@ export const AliasDeletionButton = (props: Props) => {
               onChange={(e) => setConfirmCheckbox(e.target.checked)}
               required={true}
             />
-            {l10n.getString("modal-delete-confirmation")}
+            {l10n.getString("modal-delete-confirmation-2")}
           </label>
           <div className={styles.buttons}>
             <button

@@ -5,14 +5,14 @@
 <div class="column-blocked relay-stat">
   <span class="email-value relay-stat-value num-blocked">{{ alias.num_blocked }}</span>
   <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-blocked' %}</span>
-  <span class="blocked-description stat-description">{% ftlmsg 'profile-blocked-copy' %}</span>
+  <span class="blocked-description stat-description">{% ftlmsg 'profile-blocked-copy-2' %}</span>
 </div>
 <!-- forwarded emails -->
 <div class="column-forwarded relay-stat">
   <span class="email-value relay-stat-value num-forwarded">{{ alias.num_forwarded }}</span>
   <span class="relay-email-label card-small-text">{% ftlmsg 'profile-label-forwarded' %}</span>
   <span class="forwarding-description stat-description">
-    {% ftlmsg 'profile-forwarded-copy' %}
+    {% ftlmsg 'profile-forwarded-copy-2' %}
     <p>
       <strong>{% ftlmsg 'profile-forwarded-note' %}</strong> {% ftlmsg 'profile-forwarded-note-copy' size='10' unit='MB' %}
     </p>

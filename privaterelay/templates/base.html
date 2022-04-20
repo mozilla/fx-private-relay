@@ -15,7 +15,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="{% ftlmsg 'meta-description' %}" />
+    <meta name="description" content="{% ftlmsg 'meta-description-2' %}" />
     <title>{% ftlmsg 'meta-title' %}</title>
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <link rel="icon" type="image/svg+xml" href="{% static 'images/logos/relay-logo-dark.svg' %}">
@@ -26,14 +26,14 @@
     <meta property="og:url" content="{{request.scheme}}://{{request.META.HTTP_HOST}}{{ request.path }}" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="{% ftlmsg 'meta-title' %}" />
-    <meta property="og:description" content="{% ftlmsg 'meta-description' %}" />
+    <meta property="og:description" content="{% ftlmsg 'meta-description-2' %}" />
     <meta property="og:image" content="{{request.scheme}}://{{request.META.HTTP_HOST}}{% static 'images/share-relay.jpg' %}" />
     
     <!-- Twitter Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@firefox">
     <meta name="twitter:title" content="{% ftlmsg 'meta-title' %}">
-    <meta name="twitter:description" content="{% ftlmsg 'meta-description' %}">
+    <meta name="twitter:description" content="{% ftlmsg 'meta-description-2' %}">
     <meta name="twitter:image" content="{{request.scheme}}://{{request.META.HTTP_HOST}}{% static 'images/share-relay.jpg' %}">
   </head>
   <body class="{% if user_has_premium %}is-premium{% endif %} {% if request.resolver_match.url_name == "faq" %}is-dark{% endif %}" data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}" data-google-analytics-id="{{ settings.GOOGLE_ANALYTICS_ID }}" data-debug="{{ settings.DEBUG }}">

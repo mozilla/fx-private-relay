@@ -18,7 +18,7 @@
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p class="c-premium-onboarding-detail">{% ftlmsg 'onboarding-premium-title-detail' %}</p>
-                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-generate-unlimited-title' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-welcome-description' %}</p>
+                        <p><strong>{% ftlmsg 'multi-part-onboarding-premium-generate-unlimited-title-2' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-welcome-description-2' %}</p>
                     </div>
                 </div>
             </div>
@@ -27,7 +27,7 @@
         <li class="c-premium-onboarding-step c-premium-onboarding-step-2 {% if user_profile.onboarding_state == 1 %} is-visible {% endif %}">
             <div class="mzp-l-content mzp-t-content-xl mzp-t-content-nospace">
                 <div class="c-premium-onboarding-headlines">
-                    <h1>{% ftlmsg 'multi-part-onboarding-premium-get-domain' %}</h1>
+                    <h1>{% ftlmsg 'multi-part-onboarding-premium-get-subdomain' %}</h1>
                 </div>
 
                 <div class="c-premium-onboarding-content">
@@ -36,10 +36,10 @@
                     </div>
                     <div class="c-premium-onboarding-content-description">
                         <p class="c-premium-onboarding-detail">{% ftlmsg 'onboarding-premium-title-detail' %}</p>
-                        <p><strong>{% ftlmsg 'onboarding-premium-domain-title-2' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-get-domain-description-2' mozmail='.mozmail.com' %}
+                        <p><strong>{% ftlmsg 'onboarding-premium-domain-title-3' %}</strong> {% ftlmsg 'multi-part-onboarding-premium-get-domain-description-3' mozmail='.mozmail.com' %}
                         {% if not user_profile.subdomain %}
                             <div class="js-premium-onboarding-domain-registration-form">
-                                <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta' %}</p>
+                                <p>{% ftlmsg 'multi-part-onboarding-premium-domain-cta-2' %}</p>
                                 <samp class="c-premium-onboarding-subdomain-registration">***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
                                 <form class="c-premium-onboarding-domain-registration-form" id="onboardingDomainRegistration" method="post" action="{% url 'profile_subdomain' %}">
                                     {% csrf_token %}
@@ -48,19 +48,19 @@
                                     data-domain="{{ MOZMAIL_DOMAIN }}"
                                     required
                                     type="text"
-                                    placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder-2' %}"
+                                    placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder-3' %}"
                                     name="subdomain"
                                     minlength="1"
                                     maxlength="63"
                                     >
-                                    <input class="mzp-c-button mzp-t-product" type="submit" value="{% ftlmsg 'multi-part-onboarding-premium-get-domain' %}">
+                                    <input class="mzp-c-button mzp-t-product" type="submit" value="{% ftlmsg 'multi-part-onboarding-premium-get-subdomain' %}">
                                 </form>
                             </div>
                         {% endif %}
                         
                         <div class="c-premium-onboarding-action-completed {% if user_profile.subdomain %} is-visible {% endif %}">
                             <div class="c-premium-onboarding-subdomain-set-module">
-                                <p class="c-premium-onboarding-label">{% ftlmsg 'profile-label-domain' %}</p>
+                                <p class="c-premium-onboarding-label">{% ftlmsg 'profile-label-subdomain' %}</p>
                                 <samp class="c-premium-onboarding-subdomain">@<span class="js-premium-onboarding-domain-registration-preview">{{ user_profile.subdomain }}</span></samp>
                                 <span class="c-premium-onboarding-mozmail">.mozmail.com</span>
                             </div>
@@ -90,15 +90,15 @@
                         <div class="c-premium-onboarding-install-addon">
                             <strong>
                                 <!-- Mobile title -->
-                                <span class="c-premium-onboarding-replies-copy">{% ftlmsg 'onboarding-premium-reply-title' %}</span>
+                                <span class="c-premium-onboarding-replies-copy">{% ftlmsg 'onboarding-premium-reply-title-2' %}</span>
                                 <!-- Desktop title -->
                                 <span class="c-premium-onboarding-extension-copy t-firefox-extension">{% ftlmsg 'multi-part-onboarding-premium-extension-get-title' %}</span>
                                 <span class="c-premium-onboarding-extension-copy t-chrome-extension">{% ftlmsg 'multi-part-onboarding-premium-chrome-extension-get-title' %}</span>
                             </strong> 
                                 <!-- Mobile copy -->
-                                <span class="c-premium-onboarding-replies-copy">{% ftlmsg 'onboarding-premium-reply-description' %}</span>
+                                <span class="c-premium-onboarding-replies-copy">{% ftlmsg 'onboarding-premium-reply-description-2' %}</span>
                                 <!-- Desktop copy -->
-                                <span class="c-premium-onboarding-extension-copy t-firefox-extension">{% ftlmsg 'multi-part-onboarding-premium-extension-get-description' %}</span>
+                                <span class="c-premium-onboarding-extension-copy t-firefox-extension">{% ftlmsg 'multi-part-onboarding-premium-extension-get-description-2' %}</span>
                                 <span class="c-premium-onboarding-extension-copy t-chrome-extension">{% ftlmsg 'multi-part-onboarding-premium-chrome-extension-get-description' %}</span>
                             </p>
                             <a target="_blank" href="https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon" class=" mzp-c-button mzp-t-product">{% ftlmsg 'multi-part-onboarding-premium-extension-button-download' %}</a>
@@ -135,7 +135,7 @@
                             data-event-label="onboarding-step-2-skip"    
                             data-event-value="2"
                             data-event-nonInteraction="false"
-                         >{% ftlmsg 'multi-part-onboarding-premium-domain-button-skip' %}</button>
+                         >{% ftlmsg 'multi-part-onboarding-premium-domain-button-skip-2' %}</button>
                     {% endif %}
                     <button class="mzp-c-button mzp-t-product js-premium-onboarding-next-step {% if not user_profile.subdomain %} is-hidden {% endif %}"
                         data-ga="send-ga-pings"

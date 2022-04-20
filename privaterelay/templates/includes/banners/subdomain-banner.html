@@ -12,9 +12,9 @@
 <div class="c-notification-banner subdomain-banner" id="mpp-choose-subdomain">
     <div class="subdomain-banner-copy">
       <div class="c-notification-banner-label">{% ftlmsg 'banner-label-action' %}</div>
-      <h2>{% ftlmsg 'banner-register-subdomain-headline-aliases' %}</h2>
+      <h2>{% ftlmsg 'banner-register-subdomain-headline-aliases-2' %}</h2>
       <samp>***@<span>{% ftlmsg 'banner-register-subdomain-example-address' %}</span>.mozmail.com</samp>
-      <p>{% ftlmsg 'banner-register-subdomain-copy' mozmail='mozmail.com' %}</p>
+      <p>{% ftlmsg 'banner-register-subdomain-copy-2' mozmail='mozmail.com' %}</p>
       <a href="/faq">{% ftlmsg 'banner-label-data-notification-body-cta' %}</a>
     </div>
     <div class="subdomain-banner-form">
@@ -25,7 +25,7 @@
             data-domain="{{ MOZMAIL_DOMAIN }}"
             required
             type="text"
-            placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder' %}"
+            placeholder="{% ftlmsg 'banner-choose-subdomain-input-placeholder-3' %}"
             name="subdomain"
             minlength="1"
             maxlength="63"
