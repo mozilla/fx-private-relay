@@ -70,6 +70,9 @@
                     {% ftlmsg 'forwarded-email-header-premium-banner' premium_link=premium_link as premium_header_banner %}
                     {{ premium_header_banner|safe }}
                   {% endif %}
+                  {% if email_tracker %}
+                    <br> Strict: {{ email_tracker.strict }} General Removed: {{ email_tracker.general }}
+                  {% endif %}
                 </p>
               </td>
             </tr>
