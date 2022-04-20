@@ -137,7 +137,7 @@
     }
 
     &:focus .title {
-      box-shadow: none;
+      border-color: hsla(0, 0%, 80%, 0.5);
     }
 
     &:not(.is-selected):hover .title {
@@ -164,9 +164,11 @@
   @media screen and #{$mq-lg} {
     display: flex;
     flex-wrap: wrap;
+    padding-bottom: $spacing-lg;
 
     .tab {
       flex: 1 0 0;
+      margin-bottom: $spacing-lg;
 
       .title {
         flex-direction: column;
@@ -209,7 +211,6 @@
       display: flex;
       align-items: center;
       gap: $spacing-2xl;
-      margin-top: $spacing-lg;
 
       .content-heading {
         @include text-title-2xs;
