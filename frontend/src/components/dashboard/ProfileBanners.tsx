@@ -89,8 +89,7 @@ export const ProfileBanners = (props: Props) => {
 
   if (
     !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.runtimeData) &&
-    props.aliases.length > 0
+    isPremiumAvailableInCountry(props.runtimeData)
   ) {
     banners.push(
       <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
