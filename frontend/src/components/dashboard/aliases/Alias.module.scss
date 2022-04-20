@@ -183,7 +183,7 @@ $toggleTransitionDuration: 200ms;
     @include text-body-sm;
     border: 2px solid transparent;
     border-radius: $border-radius-sm;
-    padding: $spacing-xs $spacing-md;
+    padding: $spacing-sm;
     font-weight: 600;
 
     &.block-level-all-label {
@@ -281,7 +281,7 @@ $toggleTransitionDuration: 200ms;
     // An arbitrary high value that allows it to expand to its full height:
     max-height: 100vh;
     border-color: $color-light-gray-30;
-    padding: $spacing-md 0;
+    padding: $spacing-sm 0;
   }
 
   .row {
