@@ -230,7 +230,7 @@ def validate_sns_header(topic_arn, message_type):
     """
     if not topic_arn:
         error = "Received SNS request without Topic ARN."
-    elif topic_arn != settings.AWS_SNS_TOPIC:
+    elif topic_arn not in settings.AWS_SNS_TOPIC:
         error = "Received SNS message for wrong topic."
     elif not message_type:
         error = "Received SNS request without Message Type."
@@ -243,7 +243,7 @@ def validate_sns_header(topic_arn, message_type):
         return {
             "error": error,
             "received_topic_arn": shlex.quote(topic_arn),
-            "supported_topic_arn": settings.AWS_SNS_TOPIC,
+            "supported_topic_arn": sorted(settings.AWS_SNS_TOPIC),
             "received_sns_type": shlex.quote(message_type),
             "supported_sns_types": SUPPORTED_SNS_TYPES,
         }

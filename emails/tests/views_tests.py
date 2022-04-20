@@ -720,7 +720,8 @@ class GetAttachmentTests(TestCase):
 
 
 TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
-@override_settings(AWS_SNS_TOPIC=TEST_AWS_SNS_TOPIC)
+TEST_AWS_SNS_TOPIC2 = TEST_AWS_SNS_TOPIC + "-alt"
+@override_settings(AWS_SNS_TOPIC={TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2})
 class ValidateSnsHeaderTests(SimpleTestCase):
 
     def test_valid_headers(self):
@@ -732,7 +733,7 @@ class ValidateSnsHeaderTests(SimpleTestCase):
         assert ret == {
             "error": "Received SNS request without Topic ARN.",
             "received_topic_arn": "''",
-            "supported_topic_arn": TEST_AWS_SNS_TOPIC,
+            "supported_topic_arn": [TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2],
             "received_sns_type": "Notification",
             "supported_sns_types": ["SubscriptionConfirmation", "Notification"],
         }
@@ -742,7 +743,7 @@ class ValidateSnsHeaderTests(SimpleTestCase):
         assert ret["error"] == "Received SNS message for wrong topic."
 
     def test_no_message_type(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, None)
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC2, None)
         assert ret["error"] == "Received SNS request without Message Type."
 
     def test_unsupported_message_type(self):
@@ -750,7 +751,7 @@ class ValidateSnsHeaderTests(SimpleTestCase):
         assert ret["error"] == "Received SNS message for unsupported Type: UnsubscribeConfirmation"
 
 
-@override_settings(AWS_SNS_TOPIC=EMAIL_SNS_BODIES['s3_stored']['TopicArn'])
+@override_settings(AWS_SNS_TOPIC={EMAIL_SNS_BODIES['s3_stored']['TopicArn']})
 class SnsInboundViewSimpleTests(SimpleTestCase):
     """Tests for /emails/sns_inbound that do not require database access."""
 

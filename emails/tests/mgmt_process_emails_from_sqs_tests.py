@@ -61,7 +61,7 @@ def mock_sns_inbound_logic():
 
 @pytest.fixture(autouse=True)
 def use_test_topic_arn(settings):
-    settings.AWS_SNS_TOPIC = TEST_SNS_MESSAGE['TopicArn']
+    settings.AWS_SNS_TOPIC = {TEST_SNS_MESSAGE['TopicArn']}
     return settings
 
 
@@ -251,7 +251,7 @@ def test_process_queue_verify_from_sns_raises_keyerror(mock_verify_from_sns):
 
 def test_process_queue_verify_sns_header_fails(use_test_topic_arn):
     """Invalid SNS headers fail."""
-    use_test_topic_arn.AWS_SNS_TOPIC="arn:aws:sns:us-east-1:111122223333:not-relay"
+    use_test_topic_arn.AWS_SNS_TOPIC={"arn:aws:sns:us-east-1:111122223333:not-relay"}
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     res = Command(queue=fake_queue([msg], []), max_seconds=3).process_queue()
     assert res["total_messages"] == 1

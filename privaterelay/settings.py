@@ -17,7 +17,7 @@ from datetime import datetime
 # This needs to be before markus, which imports pytest
 IN_PYTEST = "pytest" in sys.modules
 
-from decouple import config
+from decouple import config, Csv
 import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -148,7 +148,7 @@ ADMIN_ENABLED = config('ADMIN_ENABLED', False, cast=bool)
 AWS_REGION = config('AWS_REGION', None)
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', None)
 AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', None)
-AWS_SNS_TOPIC = config('AWS_SNS_TOPIC', None)
+AWS_SNS_TOPIC = set(config('AWS_SNS_TOPIC', '', cast=Csv()))
 AWS_SNS_KEY_CACHE = config('AWS_SNS_KEY_CACHE', 'default')
 AWS_SES_CONFIGSET = config('AWS_SES_CONFIGSET', None)
 AWS_SQS_EMAIL_QUEUE_URL = config('AWS_SQS_EMAIL_QUEUE_URL', None)
