@@ -86,7 +86,7 @@
     margin: 0;
 
     @media screen and #{$mq-md} {
-      margin: 0 $layout-2xl;
+      margin: $spacing-2xl $layout-2xl 0 $layout-2xl;
     }
     @media screen and #{$mq-lg} {
       flex-direction: row;
@@ -105,10 +105,6 @@
 
     .step {
       flex: 1;
-
-      @media screen and #{$mq-md} {
-        margin-top: $spacing-2xl;
-      }
     }
 
     img {
