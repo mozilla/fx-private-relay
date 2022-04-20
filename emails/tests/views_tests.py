@@ -4,12 +4,12 @@ import glob
 import io
 import json
 import os
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.test import override_settings, TestCase
+from django.test import override_settings, Client, SimpleTestCase, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
@@ -27,7 +27,8 @@ from emails.views import (
     _get_address,
     _get_attachment,
     _sns_message,
-    _sns_notification
+    _sns_notification,
+    validate_sns_header,
 )
 
 from .models_tests import make_premium_test_user, upgrade_test_user_to_premium
@@ -716,3 +717,116 @@ class GetAttachmentTests(TestCase):
         name, stream = self.get_name_and_stream(message)
         assert name is None
         assert isinstance(stream._file, io.BufferedRandom)
+
+
+TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
+@override_settings(AWS_SNS_TOPIC=TEST_AWS_SNS_TOPIC)
+class ValidateSnsHeaderTests(SimpleTestCase):
+
+    def test_valid_headers(self):
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "SubscriptionConfirmation")
+        assert ret is None
+
+    def test_no_topic_arn(self):
+        ret = validate_sns_header(None, "Notification")
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS request without Topic ARN."
+
+    def test_wrong_topic_arn(self):
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC + "-new", "Notification")
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS message for wrong topic."
+
+    def test_no_message_type(self):
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, None)
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS request without Message Type."
+
+    def test_unsupported_message_type(self):
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS message for unsupported Type: UnsubscribeConfirmation"
+
+
+@override_settings(AWS_SNS_TOPIC=EMAIL_SNS_BODIES['s3_stored']['TopicArn'])
+class SnsInboundViewSimpleTests(SimpleTestCase):
+    """Tests for /emails/sns_inbound that do not require database access."""
+
+    def setUp(self):
+        self.valid_message = EMAIL_SNS_BODIES['s3_stored']
+        self.client = Client(
+            HTTP_X_AMZ_SNS_TOPIC_ARN=self.valid_message['TopicArn'],
+            HTTP_X_AMZ_SNS_MESSAGE_TYPE=self.valid_message['Type'],
+        )
+        self.url = '/emails/sns-inbound'
+        patcher1 = patch('emails.views.verify_from_sns', side_effect=self._verify_from_sns_pass)
+        self.mock_verify_from_sns = patcher1.start()
+        self.addCleanup(patcher1.stop)
+
+        patcher2 = patch('emails.views._sns_inbound_logic', side_effect=self._sns_inbound_logic_ok)
+        self.mock_sns_inbound_logic = patcher2.start()
+        self.addCleanup(patcher2.stop)
+
+    def _verify_from_sns_pass(self, json_body):
+        """A verify_from_sns that passes content"""
+        return json_body
+
+    def _sns_inbound_logic_ok(self, topic_arn, message_type, verified_json_body):
+        """A _sns_inbound_logic that returns a 200 OK"""
+        return HttpResponse("Looks good to me.")
+
+    def test_valid_message(self):
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+        )
+        assert ret.status_code == 200
+
+    @pytest.mark.xfail(reason="Return from validate_sns_header not processed.")
+    def test_no_topic_arn_header(self):
+        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+            HTTP_X_AMZ_SNS_TOPIC_ARN=None,
+        )
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS request without Topic ARN."
+
+    @pytest.mark.xfail(reason="Return from validate_sns_header not processed.")
+    def test_wrong_topic_arn_header(self):
+        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+            HTTP_X_AMZ_SNS_TOPIC_ARN="wrong_arn",
+        )
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS message for wrong topic."
+
+    @pytest.mark.xfail(reason="Return from validate_sns_header not processed.")
+    def test_no_message_type_header(self):
+        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+            HTTP_X_AMZ_SNS_MESSAGE_TYPE=None,
+        )
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS request without Message Type."
+
+    @pytest.mark.xfail(reason="Return from validate_sns_header not processed.")
+    def test_unsupported_message_type_header(self):
+        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+            HTTP_X_AMZ_SNS_MESSAGE_TYPE="UnsubscribeConfirmation",
+        )
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS message for unsupported Type: UnsubscribeConfirmation"
