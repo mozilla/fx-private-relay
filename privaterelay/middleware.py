@@ -50,6 +50,20 @@ class FxAToRequest:
         return self.get_response(request)
 
 
+class RedirectRootIfLoggedIn:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        response = self.get_response(request)
+        # To prevent showing a flash of the landing page when a user is logged
+        # in, use a server-side redirect to send them to the dashboard,
+        # rather than handling that on the client-side:
+        if (request.path == '/' and request.user.is_authenticated):
+            return redirect('accounts/profile/')
+        return response
+
+
 class AddDetectedCountryToResponseHeaders:
     def __init__(self, get_response):
         self.get_response = get_response
