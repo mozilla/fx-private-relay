@@ -19,6 +19,7 @@ from emails.tests.views_tests import EMAIL_SNS_BODIES
 
 
 MOCK_BASE = "emails.management.commands.process_emails_from_sqs"
+TEST_SNS_MESSAGE = EMAIL_SNS_BODIES["s3_stored"]
 
 
 @pytest.fixture(autouse=True)
@@ -56,6 +57,12 @@ def mock_sns_inbound_logic():
     """Mock _sns_inbound_logic(topic_arn, message_type, json_body) to do nothing"""
     with patch(f"{MOCK_BASE}._sns_inbound_logic") as mock_sns_inbound_logic:
         yield mock_sns_inbound_logic
+
+
+@pytest.fixture(autouse=True)
+def use_test_topic_arn(settings):
+    settings.AWS_SNS_TOPIC = TEST_SNS_MESSAGE['TopicArn']
+    return settings
 
 
 @pytest.fixture()
@@ -119,7 +126,7 @@ def make_client_error(message="Unknown", code="Unknown", operation_name="Unknown
 
 
 def test_process_queue_no_messages():
-    """process_queue can exit after the max time and processng no messages."""
+    """process_queue can exit after the max time and processing no messages."""
     res = Command(queue=fake_queue(), max_seconds=3).process_queue()
     assert res == {
         "exit_on": "max_seconds",
@@ -149,15 +156,14 @@ def test_process_queue_metrics():
 
 def test_process_queue_one_message(mock_verify_from_sns, mock_sns_inbound_logic):
     """process_queue will process an available message."""
-    sns_content = EMAIL_SNS_BODIES["s3_stored"]
-    msg = fake_sqs_message(json.dumps(sns_content))
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     res = Command(queue=fake_queue([msg], []), max_seconds=3).process_queue()
     assert res["total_messages"] == 1
-    mock_verify_from_sns.assert_called_once_with(sns_content)
+    mock_verify_from_sns.assert_called_once_with(TEST_SNS_MESSAGE)
     mock_sns_inbound_logic.assert_called_once_with(
         "arn:aws:sns:us-east-1:927034868273:fxprivaterelay-SES-processor-topic",
         "Notification",
-        sns_content,
+        TEST_SNS_MESSAGE,
     )
 
 
@@ -195,7 +201,7 @@ def test_process_queue_ses_temp_failure_retry(mock_sns_inbound_logic):
         "Maximum sending rate exceeded.", "ThrottlingException"
     )
     mock_sns_inbound_logic.side_effect = (temp_error, None)
-    msg = fake_sqs_message(json.dumps(EMAIL_SNS_BODIES["s3_stored"]))
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     res = Command(queue=fake_queue([msg], []), max_seconds=4).process_queue()
     assert res["total_messages"] == 1
     assert res["pause_count"] == 1
@@ -207,7 +213,7 @@ def test_process_queue_ses_temp_failure_twice(mock_sns_inbound_logic):
         "Email sending has been disabled.", "AccountSendingPausedException"
     )
     mock_sns_inbound_logic.side_effect = (temp_error, temp_error)
-    msg = fake_sqs_message(json.dumps(EMAIL_SNS_BODIES["s3_stored"]))
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     res = Command(queue=fake_queue([msg], []), max_seconds=4).process_queue()
     assert res["total_messages"] == 1
     assert res["failed_messages"] == 1
@@ -219,7 +225,7 @@ def test_process_queue_ses_generic_failure(mock_sns_inbound_logic):
     """process_queue does not retry generic SES failures."""
     internal_error = make_client_error(code="InternalError")
     mock_sns_inbound_logic.side_effect = (internal_error, None)
-    msg = fake_sqs_message(json.dumps(EMAIL_SNS_BODIES["s3_stored"]))
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     res = Command(queue=fake_queue([msg], []), max_seconds=3).process_queue()
     assert res["total_messages"] == 1
     assert res["failed_messages"] == 1
@@ -228,7 +234,7 @@ def test_process_queue_ses_generic_failure(mock_sns_inbound_logic):
 def test_process_queue_verify_from_sns_raises_openssl_error(mock_verify_from_sns):
     """If verify_from_sns raises an exception, the message is deleted."""
     mock_verify_from_sns.side_effect = OpenSSL.crypto.Error("failed")
-    msg = fake_sqs_message(json.dumps(EMAIL_SNS_BODIES["s3_stored"]))
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     res = Command(queue=fake_queue([msg], []), max_seconds=3).process_queue()
     assert res["total_messages"] == 1
     assert res["failed_messages"] == 1
@@ -238,6 +244,15 @@ def test_process_queue_verify_from_sns_raises_keyerror(mock_verify_from_sns):
     """If verify_from_sns raises an exception, the message is deleted."""
     mock_verify_from_sns.side_effect = KeyError("SigningCertURL")
     msg = fake_sqs_message('{"json": "yes", "from_sns": "na"}')
+    res = Command(queue=fake_queue([msg], []), max_seconds=3).process_queue()
+    assert res["total_messages"] == 1
+    assert res["failed_messages"] == 1
+
+
+def test_process_queue_verify_sns_header_fails(use_test_topic_arn):
+    """Invalid SNS headers fail."""
+    use_test_topic_arn.AWS_SNS_TOPIC="arn:aws:sns:us-east-1:111122223333:not-relay"
+    msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     res = Command(queue=fake_queue([msg], []), max_seconds=3).process_queue()
     assert res["total_messages"] == 1
     assert res["failed_messages"] == 1
