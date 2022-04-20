@@ -284,7 +284,18 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
 
 
 def _sns_notification(json_body):
-    message_json = json.loads(json_body['Message'])
+    try:
+        message_json = json.loads(json_body["Message"])
+    except JSONDecodeError:
+        logger.error(
+            "SNS notification has non-JSON message body",
+            extra={"content": shlex.quote(json_body['Message'])},
+        )
+        return HttpResponse(
+            "Received SNS notification with non-JSON body",
+            status=400
+        )
+
     event_type = message_json.get('eventType')
     notification_type = message_json.get('notificationType')
     if (
@@ -296,7 +307,7 @@ def _sns_notification(json_body):
             extra={
                 'notification_type': shlex.quote(notification_type),
                 'event_type': shlex.quote(event_type),
-                'keys': shlex.quote(list(message_json.keys())),
+                'keys': [shlex.quote(key) for key in message_json.keys()],
             },
         )
         return HttpResponse(
