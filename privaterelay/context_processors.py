@@ -30,7 +30,6 @@ def common(request):
 
     common_vars = {
         'avatar': avatar,
-        'ftl_mode': 'server',
         'accept_language': accept_language,
         'country_code': country_code,
         'show_csat': show_csat,

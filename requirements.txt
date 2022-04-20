@@ -10,7 +10,7 @@ django-debug-toolbar==3.2.4
 django-filter==21.1
 django-gulp==4.1.0
 django-redis==4.12.1
-django-ftl==0.12.1
+django-ftl==0.13
 django-referrer-policy==1.0
 djangorestframework==3.12.4
 django-waffle==2.3.0
