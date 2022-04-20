@@ -27,6 +27,8 @@ import SignBackInHero from "./images/sign-back-in-hero.svg";
 import SignBackInIcon from "./images/sign-back-in-icon.svg";
 import ForwardSomeHero from "./images/forward-some-hero.svg";
 import ForwardSomeIcon from "./images/forward-some-icon.svg";
+import aliasToMaskHero from "./images/alias-to-mask-hero.svg";
+import aliasToMaskIcon from "./images/alias-to-mask-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -159,6 +161,31 @@ export const WhatsNewMenu = (props: Props) => {
   if (addonData.present && isUsingFirefox()) {
     entries.push(signBackInEntry);
   }
+
+  const aliasToMask: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-alias-to-mask-heading"),
+    snippet: l10n.getString("whatsnew-feature-alias-to-mask-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-alias-to-mask-description"
+        )}
+        heading={l10n.getString("whatsnew-feature-alias-to-mask-heading")}
+        image={aliasToMaskHero.src}
+      />
+    ),
+    hero: aliasToMaskHero.src,
+    icon: aliasToMaskIcon.src,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_alias-to-mask_${props.profile.id}`
+    ),
+    announcementDate: {
+      year: 2022,
+      month: 4,
+      day: 19,
+    },
+  };
+  entries.push(aliasToMask);
 
   entries.sort(entriesDescByDateSorter);
 

@@ -70,4 +70,45 @@ tips-critical-emails-content = Relay allows you to receive only critical emails 
 # This copy is not final yet:
 tips-addon-signin-heading = Sign in with your masks
 # This copy is not final yet:
-tips-addon-signin-content = To sign in with a previously-used mask, open the context menu (right-click or control-click) where the site asks for your email. You’ll be able to select the mask and auto-fill the email field.
+tips-addon-signin-content = To sign in with a previously-used alias, open the context menu (right-click or control-click) where the site asks for your email. You’ll be able to select the alias and auto-fill the email field.
+
+whatsnew-trigger-label = News
+whatsnew-counter-label = { $count } new announcements.
+whatsnew-close-label = Close
+whatsnew-tab-new-label = News
+whatsnew-tab-archive-label = History
+whatsnew-footer-clear-all-label = Clear all
+whatsnew-footer-back-label = Back
+whatsnew-footer-learn-more-label = Learn more
+
+whatsnew-empty-message = Be sure to check back here—we’re always working on great new features to make { -brand-name-relay } even better.
+
+whatsnew-feature-size-limit-heading = Attachment size increase
+# A preview of the full content of `whatsnew-feature-size-limit-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-size-limit-snippet = { -brand-name-firefox-relay } can now forward emails up to 25MB, including…
+whatsnew-feature-size-limit-description = { -brand-name-firefox-relay } can now forward emails up to 25MB, including attachments.
+# A preview of the full content of `whatsnew-feature-size-limit-description-var`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-size-limit-snippet-var = { -brand-name-firefox-relay } can now forward emails up to { email-size-limit }, including…
+whatsnew-feature-size-limit-description-var = { -brand-name-firefox-relay } can now forward emails up to { email-size-limit }, including attachments.
+
+whatsnew-feature-sign-back-in-heading = Sign back in with your aliases
+# A preview of the full content of `whatsnew-feature-sign-back-in-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-sign-back-in-snippet = To create a new alias when you’re asked for your email, open...
+whatsnew-feature-sign-back-in-description = To sign in with a previously-used alias, open the context menu where the site asks for your email. You’ll be able to select the alias and auto-fill the email field.
+
+whatsnew-feature-forward-some-heading = Promotional email blocking
+# A preview of the full content of `whatsnew-feature-forward-some-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-forward-some-snippet = { -brand-name-relay-premium } allows you to block only promotional emails...
+whatsnew-feature-forward-some-description = { -brand-name-relay-premium } allows you to block only promotional emails sent to an alias. You’ll receive emails like receipts but not marketing emails.
+
+whatsnew-feature-alias-to-mask-heading = Aliases are now masks
+whatsnew-feature-alias-to-mask-snippet = Notice a change? We’re now calling aliases “masks” to make { -brand-name-firefox-relay }…
+whatsnew-feature-alias-to-mask-description = Notice a change? We’re now calling aliases “masks” to make { -brand-name-firefox-relay } easier to use and open the door for new features.
