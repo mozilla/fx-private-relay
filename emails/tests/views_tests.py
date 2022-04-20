@@ -729,23 +729,25 @@ class ValidateSnsHeaderTests(SimpleTestCase):
 
     def test_no_topic_arn(self):
         ret = validate_sns_header(None, "Notification")
-        assert ret.status_code == 400
-        assert ret.content == b"Received SNS request without Topic ARN."
+        assert ret == {
+            "error": "Received SNS request without Topic ARN.",
+            "received_topic_arn": "''",
+            "supported_topic_arn": TEST_AWS_SNS_TOPIC,
+            "received_sns_type": "Notification",
+            "supported_sns_types": ["SubscriptionConfirmation", "Notification"],
+        }
 
     def test_wrong_topic_arn(self):
         ret = validate_sns_header(TEST_AWS_SNS_TOPIC + "-new", "Notification")
-        assert ret.status_code == 400
-        assert ret.content == b"Received SNS message for wrong topic."
+        assert ret["error"] == "Received SNS message for wrong topic."
 
     def test_no_message_type(self):
         ret = validate_sns_header(TEST_AWS_SNS_TOPIC, None)
-        assert ret.status_code == 400
-        assert ret.content == b"Received SNS request without Message Type."
+        assert ret["error"] == "Received SNS request without Message Type."
 
     def test_unsupported_message_type(self):
         ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
-        assert ret.status_code == 400
-        assert ret.content == b"Received SNS message for unsupported Type: UnsubscribeConfirmation"
+        assert ret["error"] == "Received SNS message for unsupported Type: UnsubscribeConfirmation"
 
 
 @override_settings(AWS_SNS_TOPIC=EMAIL_SNS_BODIES['s3_stored']['TopicArn'])
@@ -783,7 +785,6 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         )
         assert ret.status_code == 200
 
-    @pytest.mark.xfail(reason="Return from validate_sns_header not processed.")
     def test_no_topic_arn_header(self):
         self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
         ret = self.client.post(
@@ -795,7 +796,6 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Topic ARN."
 
-    @pytest.mark.xfail(reason="Return from validate_sns_header not processed.")
     def test_wrong_topic_arn_header(self):
         self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
         ret = self.client.post(
@@ -807,7 +807,6 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.status_code == 400
         assert ret.content == b"Received SNS message for wrong topic."
 
-    @pytest.mark.xfail(reason="Return from validate_sns_header not processed.")
     def test_no_message_type_header(self):
         self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
         ret = self.client.post(
@@ -819,7 +818,6 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Message Type."
 
-    @pytest.mark.xfail(reason="Return from validate_sns_header not processed.")
     def test_unsupported_message_type_header(self):
         self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
         ret = self.client.post(
