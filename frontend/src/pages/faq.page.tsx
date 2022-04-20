@@ -267,12 +267,12 @@ const Faq: NextPage = () => {
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-acceptable-use-answer-measure-unlimited-payment"
+                      "faq-question-acceptable-use-answer-measure-unlimited-payment-2"
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-acceptable-use-answer-measure-rate-limit"
+                      "faq-question-acceptable-use-answer-measure-rate-limit-2"
                     )}
                   </li>
                 </ul>

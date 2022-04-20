@@ -169,7 +169,7 @@ const BlockLevelDescription = (props: { level: BlockLevel }) => {
 
   if (props.level === "none") {
     return (
-      <>{l10n.getString("profile-promo-email-blocking-description-none")}</>
+      <>{l10n.getString("profile-promo-email-blocking-description-none-2")}</>
     );
   }
 
@@ -187,7 +187,9 @@ const BlockLevelDescription = (props: { level: BlockLevel }) => {
     );
   }
 
-  return <>{l10n.getString("profile-promo-email-blocking-description-all")}</>;
+  return (
+    <>{l10n.getString("profile-promo-email-blocking-description-all-2")}</>
+  );
 };
 const BlockLevelIllustration = (props: { level: BlockLevel }) => {
   if (props.level === "none") {

@@ -10,6 +10,9 @@ landing-how-it-works-step-2-body-2 = As you browse, the { -brand-name-relay } ic
 
 landing-use-cases-heading = Use { -brand-name-firefox-relay } for:
 
+faq-question-acceptable-use-answer-measure-unlimited-payment-2 = Requiring payment for a user to create more than five masks
+faq-question-acceptable-use-answer-measure-rate-limit-2 = Rate-limiting the number of masks that can be generated in one day
+
 error-settings-update = There was an error updating your settings, please try again
 error-mask-create-failed = The mask could not be created. Please try again.
 # This currently appears when a mask label could not be updated,
@@ -32,6 +35,9 @@ profile-filter-category-button-label = Filter visible masks
 profile-filter-category-button-tooltip = Filter masks by subdomain and/or whether they are currently blocking incoming email
 profile-filter-category-title = Filter visible masks
 profile-filter-no-results = No masks match your selected criteria. <clear-button>Clear all filters.</clear-button>
+
+profile-promo-email-blocking-description-all-2 = { -brand-name-relay } is blocking all emails sent to this mask.
+profile-promo-email-blocking-description-none-2 = { -brand-name-relay } is not blocking any emails for this mask.
 
 # Variables:
 #   $subdomain (string) - Chosen subdomain, i.e. the part after `@` and before `.mozmail.com`
