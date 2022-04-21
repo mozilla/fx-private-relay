@@ -134,15 +134,15 @@ jobs:
           name: Set test defaults
           command: cp .env-dist .env
       - run:
-          name: Check settings
-          command: python3 ./manage.py diffsettings
-          environment:
-            DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
+          name: Create test-report directory
+          command: mkdir test-report
       - run:
           name: Run tests
-          command: pytest .
+          command: pytest --junit-xml=test-report/report.xml .
           environment:
             DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
+      - store_test_results:
+          path: test-report
 
   build_test_backend:
     docker:
