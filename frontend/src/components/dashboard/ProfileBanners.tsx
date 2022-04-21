@@ -22,7 +22,7 @@ import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
-import { AliasData } from "../../hooks/api/aliases";
+import { AliasData, useAliases } from "../../hooks/api/aliases";
 
 export type Props = {
   profile: ProfileData;
@@ -89,7 +89,8 @@ export const ProfileBanners = (props: Props) => {
 
   if (
     !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.runtimeData)
+    isPremiumAvailableInCountry(props.runtimeData) &&
+    props.aliases.length > 0
   ) {
     banners.push(
       <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
