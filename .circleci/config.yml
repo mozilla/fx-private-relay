@@ -121,7 +121,7 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
       - run:
-          name: install dockerize
+          name: Install dockerize
           command: |
             wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
             sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
@@ -129,9 +129,10 @@ jobs:
           environment:
             DOCKERIZE_VERSION: v0.6.1
       - run:
-          name: wait for the database
+          name: Wait for the database
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run: pytest .
+      - run: python3 ./manage.py diffsettings
+      - run: pytest . -sx
 
   build_test_backend:
     docker:
