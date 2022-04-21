@@ -137,7 +137,8 @@
     }
 
     &:focus .title {
-      border-color: hsla(0, 0%, 80%, 0.5);
+      outline: solid 4px hsla(0, 0%, 80%, 0.5);
+      outline-offset: -4px;
     }
 
     &:not(.is-selected):hover .title {
