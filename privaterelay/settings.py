@@ -242,6 +242,7 @@ if DEBUG:
 MIDDLEWARE += [
     'django.middleware.security.SecurityMiddleware',
     'csp.middleware.CSPMiddleware',
+    'privaterelay.middleware.RedirectRootIfLoggedIn',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',

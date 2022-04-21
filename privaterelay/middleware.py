@@ -4,6 +4,7 @@ import time
 import markus
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 
+from django.conf import settings
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -48,6 +49,23 @@ class FxAToRequest:
 
         request.fxa_account = fxa_account
         return self.get_response(request)
+
+
+class RedirectRootIfLoggedIn:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # To prevent showing a flash of the landing page when a user is logged
+        # in, use a server-side redirect to send them to the dashboard,
+        # rather than handling that on the client-side:
+        if (request.path == '/' and
+            settings.SESSION_COOKIE_NAME in request.COOKIES
+           ):
+            return redirect('accounts/profile/')
+
+        response = self.get_response(request)
+        return response
 
 
 class AddDetectedCountryToResponseHeaders:
