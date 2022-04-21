@@ -3,20 +3,20 @@ import { Localized, useLocalization } from "@fluent/react";
 import styles from "./waitlist.module.scss";
 import { Layout } from "../../components/layout/Layout";
 import { Button } from "../../components/Button";
-import { FormEventHandler, useState } from "react";
+import { FormEventHandler, useEffect, useState } from "react";
 import { getLocale } from "../../functions/getLocale";
 import { toast } from "react-toastify";
 import { getRuntimeConfig } from "../../config";
 import { CountryPicker } from "../../components/waitlist/countryPicker";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { LocalePicker } from "../../components/waitlist/localePicker";
+import { useUsers } from "../../hooks/api/user";
 
 /** These are the languages that marketing can send emails in: */
 const supportedLocales = ["en", "es", "pl", "pt", "ja"];
 
 const PremiumWaitlist: NextPage = () => {
   const { l10n } = useLocalization();
-  const [email, setEmail] = useState("");
   const currentLocale = getLocale(l10n);
   const runtimeData = useRuntimeData();
   const currentCountry: string | undefined =
@@ -28,9 +28,30 @@ const PremiumWaitlist: NextPage = () => {
         supportedLocale.toLowerCase() === currentLocale.toLowerCase()
     ) ?? "en"
   );
+  const usersData = useUsers();
+  const [email, setEmail] = useState<string | undefined>(
+    usersData.data?.[0]?.email
+  );
+
+  useEffect(() => {
+    if (
+      typeof email === "undefined" &&
+      typeof usersData.data?.[0]?.email === "string"
+    ) {
+      setEmail(usersData.data[0].email);
+    }
+  }, [email, usersData]);
 
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
+
+    if (!email) {
+      // Modern browsers should prevent this from happening, due to the `required` attribute:
+      console.error(
+        "PremiumWaitlist.onSubmit: form submitted while required input field was empty."
+      );
+      return;
+    }
 
     try {
       const response = await subscribe({
