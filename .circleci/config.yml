@@ -183,11 +183,41 @@ jobs:
         description: "What command should the job run?"
         default: "exit 1"
         type: string
+      has_results:
+        description: "Job will place JUnit XML in job-results subfolder"
+        type: boolean
+        default: false
+      allow_fail:
+        description: "Allow the command to fail without failing job."
+        type: boolean
+        default: false
     steps:
       - checkout_with_submodules
       - python/install-packages:
           pkg-manager: pip
-      - run: << parameters.command >>
+      - when:
+          condition: << parameters.has_results >>
+          steps:
+            - run:
+              name: Create job-results directory
+              command: mkdir job-results
+      - unless:
+          condition: << parameters.allow_fail >>
+          steps:
+            - run: << parameters.command >>
+      - when:
+          condition: << parameters.allow_fail >>
+          steps:
+            - run:
+              name: << parameters.command >> (failure allowed)
+              command: |
+                set +x
+                << parameters.command >> || echo "\n*** Command '<< parameters.command >>' failed! ***"
+      - when:
+          condition: << parameters.has_results >>
+          steps:
+            - store_test_results:
+              path: job-results
 
   build_test_backend:
     docker:
@@ -377,21 +407,25 @@ workflows:
 
       - python_job:
           name: python style check
-          command: set +e && black --check . || echo "black failed, but continuing..."
+          command: black --check .
+          allow_fail: true
           filters:
             tags:
               only: /.*/
 
       - python_job:
           name: python lint
-          command: flake8 --exit-zero .
+          command: flake8 .
+          allow_fail: true
           filters:
             tags:
               only: /.*/
 
       - python_job:
           name: python type check
-          command: set +e && mypy --no-incremental . || echo "mypy failed, but continuing..."
+          command: mypy --no-incremental --junit-xml job-results/mypy.xml .
+          has_results: true
+          allow_fail: true
           filters:
             tags:
               only: /.*/
