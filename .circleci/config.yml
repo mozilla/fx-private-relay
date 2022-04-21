@@ -99,6 +99,28 @@ jobs:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
 
+  python_test_postgres:
+    docker:
+      - image: cimg/python:3.9.10
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+        environment:
+          TEST_DATABASE_URL: postgresql://postgres@localhost
+      - image: cimg/postgres:14.2
+        environment:
+          POSTGRES_USER: postgres
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - python/install-packages:
+          pkg-manager: pip
+      - run: pytest .
+
   build_test_backend:
     docker:
       - image: docker:stable-git
@@ -279,11 +301,10 @@ workflows:
             tags:
               only: /.*/
 
-      - python/test:
-          version: 3.9.10
-          pre-install-steps:
-            - run: git submodule sync
-            - run: git submodule update --init
+      - python_test_postgres:
+          filters:
+            tags:
+              only: /.*/
 
       - build_test_backend:
           requires:
