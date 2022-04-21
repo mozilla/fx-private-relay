@@ -9,6 +9,14 @@ version: 2.1
 orbs:
   node: circleci/node@5.0.0
   python: circleci/python@2.0.3
+commands:
+  checkout-relay:
+    description: Checkout Relay code and submodules
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+
 jobs:
   build_frontend:
     docker:
@@ -114,9 +122,7 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - checkout-relay
       - python/install-packages:
           pkg-manager: pip
       - run:
