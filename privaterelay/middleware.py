@@ -4,6 +4,7 @@ import time
 import markus
 from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 
+from django.conf import settings
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -55,12 +56,15 @@ class RedirectRootIfLoggedIn:
         self.get_response = get_response
 
     def __call__(self, request):
-        response = self.get_response(request)
         # To prevent showing a flash of the landing page when a user is logged
         # in, use a server-side redirect to send them to the dashboard,
         # rather than handling that on the client-side:
-        if (request.path == '/' and request.user.is_authenticated):
+        if (request.path == '/' and
+            settings.SESSION_COOKIE_NAME in request.COOKIES
+           ):
             return redirect('accounts/profile/')
+
+        response = self.get_response(request)
         return response
 
 
