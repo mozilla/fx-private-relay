@@ -377,21 +377,21 @@ workflows:
 
       - python_job:
           name: python style check
-          command: black --check .
+          command: set -x && black --check .
           filters:
             tags:
               only: /.*/
 
       - python_job:
           name: python lint
-          command: flake8 .
+          command: flake8 --exit-zero .
           filters:
             tags:
               only: /.*/
 
       - python_job:
           name: python type check
-          command: mypy .
+          command: set -x && mypy .
           filters:
             tags:
               only: /.*/
