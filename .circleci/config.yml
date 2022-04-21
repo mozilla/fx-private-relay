@@ -199,8 +199,8 @@ jobs:
           condition: << parameters.has_results >>
           steps:
             - run:
-              name: Create job-results directory
-              command: mkdir job-results
+                name: Create job-results directory
+                command: mkdir job-results
       - unless:
           condition: << parameters.allow_fail >>
           steps:
@@ -209,15 +209,15 @@ jobs:
           condition: << parameters.allow_fail >>
           steps:
             - run:
-              name: << parameters.command >> (failure allowed)
-              command: |
-                set +x
-                << parameters.command >> || echo "\n*** Command '<< parameters.command >>' failed! ***"
+                name: << parameters.command >> (failure allowed)
+                command: |
+                  set +x
+                  << parameters.command >> || echo "\n*** Command '<< parameters.command >>' failed! ***"
       - when:
           condition: << parameters.has_results >>
           steps:
             - store_test_results:
-              path: job-results
+                path: job-results
 
   build_test_backend:
     docker:
