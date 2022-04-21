@@ -105,8 +105,6 @@ jobs:
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
-        environment:
-          DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
       - image: cimg/postgres:14.2
         environment:
           POSTGRES_USER: postgres
@@ -131,9 +129,16 @@ jobs:
       - run:
           name: Wait for the database
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
-      - run: python3 ./manage.py diffsettings
-      - run: echo "$DATABASE_URL"
-      - run: pytest . -sx
+      - run:
+          name: Check settings
+          command: python3 ./manage.py diffsettings
+          environment:
+            DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
+      - run:
+          name: Run tests
+          command: pytest . -sx
+          environment:
+            DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
 
   build_test_backend:
     docker:
