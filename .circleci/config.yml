@@ -132,6 +132,7 @@ jobs:
           name: Wait for the database
           command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run: python3 ./manage.py diffsettings
+      - run: echo "$DATABASE_URL"
       - run: pytest . -sx
 
   build_test_backend:
