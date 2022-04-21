@@ -106,10 +106,11 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
         environment:
-          TEST_DATABASE_URL: postgresql://postgres@localhost
+          DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
       - image: cimg/postgres:14.2
         environment:
           POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -119,6 +120,17 @@ jobs:
       - run: git submodule update --init
       - python/install-packages:
           pkg-manager: pip
+      - run:
+          name: install dockerize
+          command: |
+            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
+            sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
+            rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.1
+      - run:
+          name: wait for the database
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
       - run: pytest .
 
   build_test_backend:
