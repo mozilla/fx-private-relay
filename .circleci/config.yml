@@ -8,6 +8,7 @@
 version: 2.1
 orbs:
   node: circleci/node@5.0.0
+  python: circleci/python@2.0.3
 jobs:
   build_frontend:
     docker:
@@ -277,6 +278,12 @@ workflows:
           filters:
             tags:
               only: /.*/
+
+      - python/test:
+          version: 3.9.10
+          pre-install-steps:
+            - run: git submodule sync
+            - run: git submodule update --init
 
       - build_test_backend:
           requires:
