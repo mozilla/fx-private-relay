@@ -212,7 +212,8 @@ jobs:
                 name: << parameters.command >> (failure allowed)
                 command: |
                   set +x
-                  << parameters.command >> || echo "\n*** Command '<< parameters.command >>' failed! ***"
+                  << parameters.command >> ||
+                  echo "*** Command '<< parameters.command >>' failed, but it is allowed to fail. ***"
       - when:
           condition: << parameters.has_results >>
           steps:
