@@ -148,6 +148,30 @@ jobs:
       - store_test_results:
           path: test-report
 
+  python_test_sqlite:
+    docker:
+      - image: cimg/python:3.9.10
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout_with_submodules
+      - python/install-packages:
+          pkg-manager: pip
+      - run:
+          name: Set test defaults
+          command: cp .env-dist .env
+      - run:
+          name: Create test-report directory
+          command: mkdir test-report
+      - run:
+          name: Run tests
+          command: pytest --junit-xml=test-report/report.xml .
+          environment:
+            DATABASE_URL: "sqlite:///$PWD/db.sqlite3"
+      - store_test_results:
+          path: test-report
+
   build_test_backend:
     docker:
       - image: docker:stable-git
@@ -325,6 +349,11 @@ workflows:
               only: /.*/
 
       - python_test_postgres:
+          filters:
+            tags:
+              only: /.*/
+
+      - python_test_sqlite:
           filters:
             tags:
               only: /.*/
