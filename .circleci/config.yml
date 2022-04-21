@@ -377,7 +377,7 @@ workflows:
 
       - python_job:
           name: python style check
-          command: set -x && black --check .
+          command: set -e && black --check .
           filters:
             tags:
               only: /.*/
@@ -391,7 +391,7 @@ workflows:
 
       - python_job:
           name: python type check
-          command: set -x && mypy .
+          command: set -e && mypy .
           filters:
             tags:
               only: /.*/
