@@ -16,6 +16,14 @@ commands:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
+executors:
+  python:
+    docker:
+      - image: cimg/python:3.9.10
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+
 
 jobs:
   build_frontend:
@@ -149,11 +157,7 @@ jobs:
           path: test-report
 
   python_test_sqlite:
-    docker:
-      - image: cimg/python:3.9.10
-        auth:
-          username: $DOCKER_USER
-          password: $DOCKER_PASS
+    executor: python
     steps:
       - checkout_with_submodules
       - python/install-packages:
@@ -171,6 +175,19 @@ jobs:
             DATABASE_URL: "sqlite:///$PWD/db.sqlite3"
       - store_test_results:
           path: test-report
+
+  python_job:
+    executor: python
+    parameters:
+      command:
+        description: "What command should the job run?"
+        default: "exit 1"
+        type: string
+    steps:
+      - checkout_with_submodules
+      - python/install-packages:
+          pkg-manager: pip
+      - run: << parameters.command >>
 
   build_test_backend:
     docker:
@@ -354,6 +371,27 @@ workflows:
               only: /.*/
 
       - python_test_sqlite:
+          filters:
+            tags:
+              only: /.*/
+
+      - python_job:
+          name: python style check
+          command: black --check .
+          filters:
+            tags:
+              only: /.*/
+
+      - python_job:
+          name: python lint
+          command: flake8 .
+          filters:
+            tags:
+              only: /.*/
+
+      - python_job:
+          name: python type check
+          command: mypy .
           filters:
             tags:
               only: /.*/
