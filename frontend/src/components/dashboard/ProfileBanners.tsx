@@ -22,7 +22,7 @@ import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
-import { AliasData, useAliases } from "../../hooks/api/aliases";
+import { AliasData } from "../../hooks/api/aliases";
 
 export type Props = {
   profile: ProfileData;
