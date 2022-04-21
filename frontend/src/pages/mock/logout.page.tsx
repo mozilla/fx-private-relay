@@ -1,6 +1,7 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import { MouseEventHandler } from "react";
+import { useSWRConfig } from "swr";
 import { getRuntimeConfig } from "../../config";
 import { authenticatedFetch } from "../../hooks/api/api";
 import { useProfiles } from "../../hooks/api/profile";
@@ -11,6 +12,7 @@ const MockLogout: NextPage = () => {
   const router = useRouter();
   const profiles = useProfiles();
   const users = useUsers();
+  const { cache } = useSWRConfig();
 
   const onLogout: MouseEventHandler = async (event) => {
     event.preventDefault();
@@ -23,7 +25,11 @@ const MockLogout: NextPage = () => {
       method: "GET",
       redirect: "manual",
     });
-    // Revalidate account data to reflect logged out status:
+    // Revalidate account data to reflect logged out status.
+    // Note that the `clear` method exists, even though it's not exposed on the
+    // type yet:
+    // https://github.com/vercel/swr/issues/161#issuecomment-1079198998
+    (cache as unknown as { clear: () => void }).clear();
     await profiles.mutate();
     await users.mutate();
 
