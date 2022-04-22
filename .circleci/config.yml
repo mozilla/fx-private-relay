@@ -8,6 +8,13 @@
 version: 2.1
 orbs:
   node: circleci/node@5.0.0
+commands:
+  checkout_with_submodules:
+    description: Checkout Relay code and submodules
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
 jobs:
   build_frontend:
     docker:
@@ -16,9 +23,7 @@ jobs:
           username: $DOCKER_USER
           password: $DOCKER_PASS
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - checkout_with_submodules
       - node/install:
           node-version: '14'
       - node/install-packages:
@@ -106,9 +111,7 @@ jobs:
           password: $DOCKER_PASS
     working_directory: /dockerflow
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - checkout_with_submodules
       - setup_remote_docker:
           # Use a version of Docker that works with Node, see
           # https://support.circleci.com/hc/en-us/articles/360050934711-Docker-build-fails-with-EPERM-operation-not-permitted-copyfile-when-using-node-14-9-0-or-later-
@@ -229,8 +232,6 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
       - run:
           name: Upload coverage
           command: |
