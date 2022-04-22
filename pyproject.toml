@@ -1,0 +1,48 @@
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+python_version = "3.9"
+show_error_codes = true
+warn_return_any = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
+[tool.django-stubs]
+django_settings_module = "privaterelay.settings"
+
+[[tool.mypy.overrides]]
+module = [
+    "OpenSSL",
+    "allauth.account.models",
+    "allauth.account.signals",
+    "allauth.socialaccount.models",
+    "allauth.socialaccount.providers.fxa.views",
+    "boto3",
+    "botocore.config",
+    "botocore.exceptions",
+    "codetiming",
+    "debug_toolbar",
+    "decouple",
+    "dj_database_url",
+    "django_filters",
+    "django_ftl",
+    "django_ftl",
+    "django_ftl.bundles",
+    "drf_yasg",
+    "drf_yasg.views",
+    "google_measurement_protocol",
+    "jwcrypto",
+    "jwcrypto.jwe",
+    "jwcrypto.jwk",
+    "jwt",
+    "markus",
+    "markus.testing",
+    "markus.utils",
+    "oauthlib.oauth2.rfc6749.errors",
+    "phonenumbers",
+    "requests_oauthlib",
+    "silk",
+    "twilio.rest",
+    "twilio.twiml.messaging_response",
+    "waffle",
+]
+ignore_missing_imports = true

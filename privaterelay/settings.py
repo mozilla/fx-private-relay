@@ -95,7 +95,7 @@ CSP_CONNECT_SRC = (
     BASKET_ORIGIN,
 )
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = (
+CSP_SCRIPT_SRC: tuple[str, ...] = (
     "'self'",
     "https://www.google-analytics.com/",
 )
@@ -610,7 +610,7 @@ LOGGING = {
 }
 
 if DEBUG:
-    DRF_RENDERERS = (
+    DRF_RENDERERS: tuple[str, ...] = (
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework.renderers.JSONRenderer",
     )
