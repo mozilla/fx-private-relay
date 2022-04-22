@@ -413,7 +413,12 @@ class Command(BaseCommand):
 
         topic_arn = verified_json_body["TopicArn"]
         message_type = verified_json_body["Type"]
-        validate_sns_header(topic_arn, message_type)
+        error_details = validate_sns_header(topic_arn, message_type)
+        if error_details:
+            results["success"] = False
+            results.update(error_details)
+            return results
+
         try:
             _sns_inbound_logic(topic_arn, message_type, verified_json_body)
         except ClientError as e:

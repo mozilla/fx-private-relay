@@ -211,8 +211,10 @@ def sns_inbound(request):
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
 
     # Validates header
-    # TODO: we are not returning the Http Response from the method call below
-    validate_sns_header(topic_arn, message_type)
+    error_details = validate_sns_header(topic_arn, message_type)
+    if error_details:
+        logger.error('validate_sns_header_error', extra=error_details)
+        return HttpResponse(error_details['error'], status=400)
 
     json_body = json.loads(request.body)
     verified_json_body = verify_from_sns(json_body)
@@ -220,41 +222,32 @@ def sns_inbound(request):
 
 
 def validate_sns_header(topic_arn, message_type):
-    if not topic_arn:
-        logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
-        return HttpResponse(
-            'Received SNS request without Topic ARN.', status=400
-        )
-    if topic_arn != settings.AWS_SNS_TOPIC:
-        logger.error(
-            'SNS message for wrong ARN',
-            extra={
-                'configured_arn': settings.AWS_SNS_TOPIC,
-                'received_arn': shlex.quote(topic_arn),
-            }
-        )
-        return HttpResponse(
-            'Received SNS message for wrong topic.', status=400
-        )
+    """
+    Validate Topic ARN and SNS Message Type.
 
-    if not message_type:
-        logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
-        return HttpResponse(
-            'Received SNS request without Message Type.', status=400
-        )
-    if message_type not in SUPPORTED_SNS_TYPES:
-        logger.error(
-            'SNS message for unsupported type',
-            extra={
-                'supported_sns_types': SUPPORTED_SNS_TYPES,
-                'message_type': shlex.quote(message_type),
-            }
-        )
-        return HttpResponse(
-            'Received SNS message for unsupported Type: %s' %
-            html.escape(shlex.quote(message_type)),
-            status=400
-        )
+    If an error is detected, the return is a dictionary of error details.
+    If no error is detected, the return is None.
+    """
+    if not topic_arn:
+        error = "Received SNS request without Topic ARN."
+    elif topic_arn not in settings.AWS_SNS_TOPIC:
+        error = "Received SNS message for wrong topic."
+    elif not message_type:
+        error = "Received SNS request without Message Type."
+    elif message_type not in SUPPORTED_SNS_TYPES:
+        error = "Received SNS message for unsupported Type."
+    else:
+        error = None
+
+    if error:
+        return {
+            "error": error,
+            "received_topic_arn": shlex.quote(topic_arn),
+            "supported_topic_arn": sorted(settings.AWS_SNS_TOPIC),
+            "received_sns_type": shlex.quote(message_type),
+            "supported_sns_types": SUPPORTED_SNS_TYPES,
+        }
+    return None
 
 
 def _sns_inbound_logic(topic_arn, message_type, json_body):
