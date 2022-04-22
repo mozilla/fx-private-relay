@@ -748,7 +748,7 @@ class ValidateSnsHeaderTests(SimpleTestCase):
 
     def test_unsupported_message_type(self):
         ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
-        assert ret["error"] == "Received SNS message for unsupported Type: UnsubscribeConfirmation"
+        assert ret["error"] == "Received SNS message for unsupported Type."
 
 
 @override_settings(AWS_SNS_TOPIC={EMAIL_SNS_BODIES['s3_stored']['TopicArn']})
@@ -828,4 +828,4 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
             HTTP_X_AMZ_SNS_MESSAGE_TYPE="UnsubscribeConfirmation",
         )
         assert ret.status_code == 400
-        assert ret.content == b"Received SNS message for unsupported Type: UnsubscribeConfirmation"
+        assert ret.content == b"Received SNS message for unsupported Type."

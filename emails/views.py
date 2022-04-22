@@ -235,7 +235,7 @@ def validate_sns_header(topic_arn, message_type):
     elif not message_type:
         error = "Received SNS request without Message Type."
     elif message_type not in SUPPORTED_SNS_TYPES:
-        error = f"Received SNS message for unsupported Type: {shlex.quote(message_type)}"
+        error = "Received SNS message for unsupported Type."
     else:
         error = None
 
