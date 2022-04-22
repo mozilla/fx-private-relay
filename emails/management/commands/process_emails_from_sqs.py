@@ -52,6 +52,7 @@ class Command(BaseCommand):
         aws_region=None,
         sqs_url=None,
         queue=None,
+        verbosity=1,
         **kwargs,
     ):
         """Initialize variables via constructor."""
@@ -66,6 +67,7 @@ class Command(BaseCommand):
             aws_region=aws_region,
             sqs_url=sqs_url,
             queue=queue,
+            verbosity=verbosity,
         )
 
     def init_vars(
@@ -80,6 +82,7 @@ class Command(BaseCommand):
         aws_region=None,
         sqs_url=None,
         queue=None,
+        verbosity=1,
         **kwargs,
     ):
         """Initialize command variables"""
@@ -91,6 +94,7 @@ class Command(BaseCommand):
         self.max_seconds = max_seconds
         self.aws_region = aws_region or settings.AWS_REGION
         self.sqs_url = sqs_url or settings.AWS_SQS_EMAIL_QUEUE_URL
+        self.verbosity = verbosity
 
         self.queue = queue
         self.queue_name = urlsplit(self.sqs_url).path.split("/")[-1]
@@ -111,6 +115,7 @@ class Command(BaseCommand):
         assert self.healthcheck_file is None or isinstance(
             self.healthcheck_file, io.TextIOWrapper
         )
+        assert 0 <= self.verbosity <= 3
 
     def add_arguments(self, parser):
         """Add command-line arguments (called by BaseCommand)"""
@@ -173,6 +178,7 @@ class Command(BaseCommand):
                 "max_seconds": self.max_seconds,
                 "aws_region": self.aws_region,
                 "sqs_url": self.sqs_url,
+                "verbosity": self.verbosity,
             },
         )
 
@@ -237,7 +243,7 @@ class Command(BaseCommand):
                 cycle_data["message_total"] = self.total_messages
                 cycle_data["cycle_s"] = round(cycle_timer.last, 3)
                 logger.log(
-                    logging.INFO if message_batch else logging.DEBUG,
+                    logging.INFO if (message_batch or self.verbosity > 1) else logging.DEBUG,
                     f"Cycle {self.cycles}: processed {self.pluralize(len(message_batch), 'message')}",
                     extra=cycle_data,
                 )
@@ -359,7 +365,7 @@ class Command(BaseCommand):
             message_data["message_process_time_s"] = round(message_timer.last, 3)
             process_time += message_timer.last
             logger.log(
-                logging.DEBUG if message_data["success"] else logging.INFO,
+                logging.DEBUG if (message_data["success"] or self.verbosity < 2) else logging.INFO,
                 "Message processed",
                 extra=message_data,
             )
