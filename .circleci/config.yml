@@ -389,6 +389,15 @@ workflows:
             tags:
               only: /.*/
 
+      - python_job:
+          name: mypy type check
+          command: mypy --no-incremental --junit-xml job-results/mypy.xml .
+          has_results: true
+          allow_fail: true
+          filters:
+            tags:
+              only: /.*/
+
       - python_test_postgres:
           filters:
             tags:
