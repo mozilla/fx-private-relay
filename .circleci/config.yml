@@ -8,6 +8,7 @@
 version: 2.1
 orbs:
   node: circleci/node@5.0.0
+  python: circleci/python@2.0.3
 commands:
   checkout_with_submodules:
     description: Checkout Relay code and submodules
@@ -15,6 +16,13 @@ commands:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
+executors:
+  python:
+    docker:
+      - image: cimg/python:3.9.10
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
 jobs:
   build_frontend:
     docker:
@@ -270,6 +278,49 @@ jobs:
               docker push "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
             fi
 
+  python_job:
+    executor: python
+    parameters:
+      command:
+        description: "What command should the job run?"
+        default: "exit 1"
+        type: string
+      has_results:
+        description: "Job will place JUnit XML in job-results subfolder"
+        type: boolean
+        default: false
+      allow_fail:
+        description: "Allow the command to fail without failing job."
+        type: boolean
+        default: false
+    steps:
+      - checkout_with_submodules
+      - python/install-packages:
+          pkg-manager: pip
+      - when:
+          condition: << parameters.has_results >>
+          steps:
+            - run:
+                name: Create job-results directory
+                command: mkdir job-results
+      - unless:
+          condition: << parameters.allow_fail >>
+          steps:
+            - run: << parameters.command >>
+      - when:
+          condition: << parameters.allow_fail >>
+          steps:
+            - run:
+                name: << parameters.command >> (failure allowed)
+                command: |
+                  set +x
+                  << parameters.command >> ||
+                  echo "*** Command '<< parameters.command >>' failed, but it is allowed to fail. ***"
+      - when:
+          condition: << parameters.has_results >>
+          steps:
+            - store_test_results:
+                path: job-results
 workflows:
   version: 2
   build-test-deploy:
@@ -282,6 +333,14 @@ workflows:
       - build_test_backend:
           requires:
             - build_frontend
+          filters:
+            tags:
+              only: /.*/
+
+      - python_job:
+          name: black style check
+          command: black --check .
+          allow_fail: true
           filters:
             tags:
               only: /.*/
