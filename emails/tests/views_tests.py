@@ -1,11 +1,12 @@
 from datetime import datetime, timezone
 from email.message import EmailMessage
+from typing import Optional
+from unittest.mock import patch, Mock
 import glob
 import io
 import json
 import os
 import re
-from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -479,7 +480,8 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.bucket = "test-bucket"
         self.key = "/emails/objectkey123"
         self.user = baker.make(User, email="sender@test.com", make_m2m=True)
-        self.profile: Profile = self.user.profile_set.first()  # type: ignore[attr-defined]
+        self.profile: Optional[Profile] = self.user.profile_set.first()  # type: ignore[attr-defined]
+        assert self.profile is not None
         self.address = baker.make(
             RelayAddress, user=self.user, address="sender", domain=2
         )
@@ -631,10 +633,11 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 class SnsMessageTest(TestCase):
     def setUp(self) -> None:
         self.user = baker.make(User)
-        self.profile: Profile = self.user.profile_set.first()  # type: ignore[attr-defined]
+        self.profile: Optional[Profile] = self.user.profile_set.first()  # type: ignore[attr-defined]
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa"
         )
+        assert self.profile is not None
         # test.com is the second domain listed and has the numerical value 2
         self.address = baker.make(
             RelayAddress, user=self.user, address="sender", domain=2
