@@ -5,7 +5,7 @@ Django==2.2.27
 dj-database-url==0.5.0
 django-allauth==0.50.0
 django-cors-headers==3.11.0
-django-csp==3.5
+django-csp==3.6
 django-debug-toolbar==3.2.4
 django-filter==21.1
 django-gulp==4.1.0
