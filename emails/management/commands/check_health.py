@@ -61,13 +61,13 @@ class Command(BaseCommand):
                 logger.error("Healthcheck failed", extra=context)
             raise CommandError(f"Healthcheck failed: {context['error']}")
 
-    def check_healthcheck(self, healthcheck_path, max_age):
+    def check_healthcheck(self, healthcheck_file, max_age):
         """
         Read and analyze the healthcheck.
 
         Returns data suitable for logging context:
         * success: True if healthcheck is valid and recent, False if not
-        * healthcheck_path: The healthcheck path tested
+        * healthcheck_file: The open healthcheck file
         * error: If failed, the failure detail, else omitted
         * data: The healthcheck data, or omitted if non-JSON
         * age_s: The timestamp age in seconds, millisecond precision, if found
@@ -79,8 +79,11 @@ class Command(BaseCommand):
         * The timestamp doesn't match the format of datetime.toisoformat()
         * The timestamp doesn't include timezone data
         """
-        context = {"success": False, "healthcheck_path": healthcheck_path.name}
-        data = json.load(healthcheck_path)
+        try:
+            context = {"success": False, "healthcheck_path": healthcheck_file.name}
+            data = json.load(healthcheck_file)
+        finally:
+            healthcheck_file.close()
 
         context["data"] = data
         raw_timestamp = data["timestamp"]
