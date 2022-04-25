@@ -1,4 +1,3 @@
-import { jest } from "@jest/globals";
 import { useMinViewportWidth } from "../../src/hooks/mediaQuery";
 
 jest.mock("../../src/hooks/mediaQuery");
