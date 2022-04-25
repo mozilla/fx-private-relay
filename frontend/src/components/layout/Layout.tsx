@@ -26,6 +26,7 @@ import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
 import { makeToast } from "./Toast";
 import { useUsers } from "../../hooks/api/user";
+import { users } from "../../apiMocks/mockData";
 
 export type Props = {
   children: ReactNode;
@@ -43,8 +44,10 @@ export const Layout = (props: Props) => {
   const usersData = useUsers().data?.[0];
 
   useEffect(() => {
-    makeToast(l10n, usersData);
-  }, []);
+    if (typeof usersData !== "undefined") {
+      makeToast(l10n, usersData);
+    }
+  }, [l10n, usersData]);
 
   const isDark =
     typeof props.theme !== "undefined"

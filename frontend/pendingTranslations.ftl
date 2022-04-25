@@ -114,4 +114,5 @@ whatsnew-feature-alias-to-mask-snippet = Notice a change? We’re now calling al
 whatsnew-feature-alias-to-mask-description = Notice a change? We’re now calling aliases “masks” to make { -brand-name-firefox-relay } easier to use and open the door for new features.
 
 success-signed-out-message = You have signed out.
-success-signed-in-message = Successfully signed in as 
+success-signed-in-message = Successfully signed in as
+
