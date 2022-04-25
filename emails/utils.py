@@ -364,7 +364,10 @@ def set_user_group(user):
         'mozillafoundation.org': 'mozilla_foundation',
         'getpocket.com': 'pocket'
     }
-    internal_group_qs = Group.objects.filter(name=group_attribute.get(email_domain))
+    group_name = group_attribute.get(email_domain)
+    if not group_name:
+        return None
+    internal_group_qs = Group.objects.filter(name=group_name)
     internal_group = internal_group_qs.first()
     if internal_group is None:
         return None
