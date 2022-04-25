@@ -454,6 +454,10 @@ def _sns_message(message_json):
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
+    # sample tracker numbers
+    if sample_is_active('tracker-sample') and html_content:
+        count_all_trackers(html_content)
+
     # scramble alias so that clients don't recognize it
     # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
@@ -517,9 +521,6 @@ def _sns_message(message_json):
     address.save(
         update_fields=['num_forwarded', 'last_used_at']
     )
-    # successful email relayed count number of trackers
-    if sample_is_active('tracker-sample') and html_content:
-        count_all_trackers(html_content)
     return response
 
 
