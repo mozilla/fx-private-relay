@@ -397,7 +397,7 @@ def convert_domains_to_regex_patterns(domain_pattern):
 
 def remove_trackers(html_content, level='general'):
     trackers = GENERAL_TRACKERS if level == 'general' else STRICT_TRACKERS
-    tracker_count = 0
+    tracker_removed = 0
     changed_content = html_content
 
     general_detail = count_tracker(html_content, GENERAL_TRACKERS)
@@ -406,13 +406,14 @@ def remove_trackers(html_content, level='general'):
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
         changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
-        tracker_count += matched
+        tracker_removed += matched
 
     
-    incr_if_enabled('tracker_foxfooding.general_count', tracker_count)
+    incr_if_enabled(f'tracker_foxfooding.{level}_removed_count', tracker_removed)
+    incr_if_enabled('tracker_foxfooding.general_count', general_detail['count'])
     incr_if_enabled('tracker_foxfooding.strict_count', strict_detail['count'])
     study_logger.info(
         'email_tracker_foxfooding_summary',
-        extra={'general': general_detail, 'strict': strict_detail}
+        extra={'level': level, 'tracker_removed': tracker_removed, 'general': general_detail, 'strict': strict_detail}
     )
-    return changed_content, tracker_count, strict_detail['count']
+    return changed_content, tracker_removed, general_detail['count'], strict_detail['count']
