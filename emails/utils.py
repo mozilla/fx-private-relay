@@ -399,7 +399,7 @@ def remove_trackers(html_content, level='general'):
     import re
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
-        changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq', changed_content)
+        changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
         tracker_count += matched
 
     strict_count = count_tracker(html_content, STRICT_TRACKERS)['count']
