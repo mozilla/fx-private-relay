@@ -738,3 +738,6 @@ PROCESS_EMAIL_WAIT_SECONDS = config("PROCESS_EMAIL_WAIT_SECONDS", 5, cast=int)
 PROCESS_EMAIL_HEALTHCHECK_MAX_AGE = config(
     "PROCESS_EMAIL_HEALTHCHECK_MAX_AGE", 120, cast=int
 )
+
+# Django 3.2 switches default to BigAutoField
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
