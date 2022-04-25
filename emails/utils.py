@@ -406,7 +406,7 @@ def remove_trackers(html_content, level='general'):
     incr_if_enabled('tracker_foxfooding.general_count', tracker_count)
     incr_if_enabled('tracker_foxfooding.strict_count', strict_count)
     study_logger.info(
-        'email_tracker_fodfooding_summary',
+        'email_tracker_foxfooding_summary',
         extra={'general': tracker_count, 'strict': strict_count}
     )
     return changed_content, tracker_count, strict_count
