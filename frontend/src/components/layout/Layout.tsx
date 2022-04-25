@@ -26,7 +26,6 @@ import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
 import { makeToast } from "./Toast";
 import { useUsers } from "../../hooks/api/user";
-import { users } from "../../apiMocks/mockData";
 
 export type Props = {
   children: ReactNode;
