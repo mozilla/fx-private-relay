@@ -2,7 +2,7 @@ import { clearCookie, getCookie } from "../../functions/cookies";
 import { toast } from "react-toastify";
 import { ReactLocalization } from "@fluent/react";
 
-export function makeToast(l10n: ReactLocalization) {
+export function makeToast(l10n: ReactLocalization, usersData: any) {
   const checkUserSignOut = getCookie("user-sign-out");
 
   const checkUserSignIn = getCookie("user-sign-in");
@@ -14,6 +14,8 @@ export function makeToast(l10n: ReactLocalization) {
 
   if (checkUserSignIn) {
     clearCookie("user-sign-in");
-    return toast.success(l10n.getString("success-signed-in-message"));
+    return toast.success(
+      l10n.getString("success-signed-in-message") + "  " + usersData.email
+    );
   }
 }

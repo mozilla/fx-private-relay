@@ -25,6 +25,7 @@ import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
 import { makeToast } from "./Toast";
+import { useUsers } from "../../hooks/api/user";
 
 export type Props = {
   children: ReactNode;
@@ -39,9 +40,10 @@ export const Layout = (props: Props) => {
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
+  const usersData = useUsers().data?.[0];
 
   useEffect(() => {
-    makeToast(l10n);
+    makeToast(l10n, usersData);
   }, []);
 
   const isDark =
