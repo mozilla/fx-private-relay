@@ -464,10 +464,10 @@ def _sns_message(message_json):
         incr_if_enabled('email_with_html_content', 1)
         foxfood_flag = Flag.objects.filter(name='foxfood').first()
         if foxfood_flag and foxfood_flag.is_active_for_user(address.user):
-            html_content, removed_count, strict_count = remove_trackers(html_content)
+            html_content, removed_count, general_count, strict_count = remove_trackers(html_content)
             email_tracker_study_link = (
                 'https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?'
-                + f'general-found={removed_count}&'
+                + f'general-found={general_count}&'
                 + f'general-removed={removed_count}&'
                 + f'strict-found={strict_count}'
             )
