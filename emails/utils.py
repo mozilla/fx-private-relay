@@ -393,7 +393,7 @@ def count_all_trackers(html_content):
     )
 
 def convert_domains_to_regex_patterns(domain_pattern):
-    return '(["])(\\S*://\\S*.' + domain_pattern + '\\S*)\\1'
+    return '(["\'])(\\S*://(\\S*\.)*' + re.escape(domain_pattern) + '\\S*)\\1'
 
 def remove_trackers(html_content, level='general'):
     trackers = GENERAL_TRACKERS if level == 'general' else STRICT_TRACKERS

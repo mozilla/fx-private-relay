@@ -5,11 +5,14 @@ from django.test import (
     TestCase,
     override_settings
 )
+from unittest.mock import patch
 
 from emails.models import get_domains_from_settings
+from emails import utils
 from emails.utils import (
     generate_relay_From,
     get_email_domain_from_settings,
+    remove_trackers,
 )
 
 from .models_tests import make_premium_test_user
