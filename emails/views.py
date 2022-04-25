@@ -63,8 +63,6 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 logger = logging.getLogger('events')
 info_logger = logging.getLogger('eventsinfo')
 
-foxfood_flag = Flag.objects.filter(name='foxfood').first()
-
 
 class InReplyToNotFound(Exception):
     def __init__(self, message="No In-Reply-To header."):
@@ -464,6 +462,7 @@ def _sns_message(message_json):
     email_tracker_study_link = ''
     if html_content:
         incr_if_enabled('email_with_html_content', 1)
+        foxfood_flag = Flag.objects.filter(name='foxfood').first()
         if foxfood_flag and foxfood_flag.is_active_for_user(address.user):
             html_content, removed_count, strict_count = remove_trackers(html_content)
             email_tracker_study_link = (
