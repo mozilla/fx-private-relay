@@ -63,7 +63,7 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 logger = logging.getLogger('events')
 info_logger = logging.getLogger('eventsinfo')
 
-foxfood_flag = Flag.objects.filter('foxfood').first()
+foxfood_flag = Flag.objects.filter(name='foxfood').first()
 
 
 class InReplyToNotFound(Exception):
@@ -461,16 +461,23 @@ def _sns_message(message_json):
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
 
     message_body = {}
+    email_tracker_study_link = ''
     if html_content:
         incr_if_enabled('email_with_html_content', 1)
         if foxfood_flag and foxfood_flag.is_active_for_user(address.user):
             html_content, removed_count, strict_count = remove_trackers(html_content)
+            email_tracker = (
+                'https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?'
+                + f'general-found={removed_count}&'
+                + f'general-removed={removed_count}&'
+                + f'strict-found={strict_count}'
+            )
         
         wrapped_html = render_to_string('emails/wrapped_email.html', {
             'original_html': html_content,
             'recipient_profile': user_profile,
             'email_to': to_address,
-            'email_tracker': {'strict': strict_count, 'general': removed_count},
+            'email_tracker_study_link': email_tracker_study_link,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
             'has_attachment': bool(attachments),
