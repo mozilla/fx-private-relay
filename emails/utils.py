@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
 import json
+import re
 
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
@@ -396,17 +397,20 @@ def remove_trackers(html_content, level='general'):
     trackers = GENERAL_TRACKERS if level == 'general' else STRICT_TRACKERS
     tracker_count = 0
     changed_content = html_content
-    import re
+
+    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
+    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
+    
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
         changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
         tracker_count += matched
 
-    strict_count = count_tracker(html_content, STRICT_TRACKERS)['count']
+    
     incr_if_enabled('tracker_foxfooding.general_count', tracker_count)
-    incr_if_enabled('tracker_foxfooding.strict_count', strict_count)
+    incr_if_enabled('tracker_foxfooding.strict_count', strict_detail['count'])
     study_logger.info(
         'email_tracker_foxfooding_summary',
-        extra={'general': tracker_count, 'strict': strict_count}
+        extra={'general': general_detail, 'strict': strict_detail}
     )
-    return changed_content, tracker_count, strict_count
+    return changed_content, tracker_count, strict_detail['count']
