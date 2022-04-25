@@ -237,12 +237,34 @@ function getLabelForBlockLevel(
       return l10n.getString("profile-promo-email-blocking-option-all");
   }
 }
-class SliderValueFormatter extends Intl.NumberFormat {
+class SliderValueFormatter implements Intl.NumberFormat {
   l10n: ReactLocalization;
 
   constructor(l10n: ReactLocalization) {
-    super();
     this.l10n = l10n;
+  }
+  // This method is only implemented to conform with the `Intl.NumberFormat`
+  // interface, but react-aria should only call the `.format` method:
+  resolvedOptions(): Intl.ResolvedNumberFormatOptions {
+    throw new Error("Method not implemented.");
+  }
+  // This method is only implemented to conform with the `Intl.NumberFormat`
+  // interface, but react-aria should only call the `.format` method:
+  formatToParts(_number?: number | bigint): Intl.NumberFormatPart[] {
+    throw new Error("Method not implemented.");
+  }
+  // This method is only implemented to conform with the `Intl.NumberFormat`
+  // interface, but react-aria should only call the `.format` method:
+  formatRange(_startDate: number | bigint, _endDate: number | bigint): string {
+    throw new Error("Method not implemented.");
+  }
+  // This method is only implemented to conform with the `Intl.NumberFormat`
+  // interface, but react-aria should only call the `.format` method:
+  formatRangeToParts(
+    _startDate: number | bigint,
+    _endDate: number | bigint
+  ): Intl.NumberFormatPart[] {
+    throw new Error("Method not implemented.");
   }
 
   format(value: number): string {
