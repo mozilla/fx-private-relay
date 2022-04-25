@@ -1,7 +1,6 @@
 import { ReactNode, useRef } from "react";
-import { useTooltip, useTooltipTrigger } from "@react-aria/tooltip";
-import { useTooltipTriggerState } from "@react-stately/tooltip";
-import { mergeProps } from "@react-aria/utils";
+import { useTooltip, useTooltipTrigger, mergeProps } from "react-aria";
+import { useTooltipTriggerState } from "react-stately";
 import styles from "./InfoTooltip.module.scss";
 import { InfoIcon } from "./Icons";
 

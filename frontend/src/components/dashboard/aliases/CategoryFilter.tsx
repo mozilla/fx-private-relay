@@ -19,7 +19,7 @@ import { useLocalization } from "@fluent/react";
 import styles from "./CategoryFilter.module.scss";
 import filterIcon from "../../../../../static/images/icon-filter-blue.svg";
 import { Filters } from "../../../functions/filterAliases";
-import { useOverlayTriggerState } from "@react-stately/overlays";
+import { useOverlayTriggerState } from "react-stately";
 import { Button } from "../../Button";
 
 export type SelectedFilters = {
