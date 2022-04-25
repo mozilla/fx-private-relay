@@ -356,7 +356,9 @@ def remove_message_from_s3(bucket, object_key):
     return False
 
 def set_user_group(user):
-    email_domain = user.email.split('@')[1]
+    email_domain = ''
+    if '@' in user.email:
+        email_domain = user.email.split('@')[1]
     group_attribute = {
         'mozilla.com': 'mozilla_corporation',
         'mozillafoundation.org': 'mozilla_foundation',
