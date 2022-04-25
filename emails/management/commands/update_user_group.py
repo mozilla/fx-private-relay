@@ -16,4 +16,4 @@ class Command(BaseCommand):
         for user in user_qs:
             set_user_group(user)
             update_count += 1
-        self.stdout.write(f"Updated {update_count} users group.")
+        self.stdout.write(f"Updated {update_count} users' group.")
