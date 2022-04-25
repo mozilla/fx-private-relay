@@ -58,7 +58,7 @@
     "license-checker": "^25.0.1",
     "lint-staged": "^12.3.7",
     "msw": "^0.39.2",
-    "next": "^12.1.0",
+    "next": "^12.1.5",
     "prettier": "2.6.1",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.50.1",
