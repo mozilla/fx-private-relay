@@ -537,6 +537,10 @@ if SERVE_REACT:
 else:
     STATIC_URL = '/static/'
 
+# Relay does not support user-uploaded files
+MEDIA_ROOT = None
+MEDIA_URL = None
+
 WHITENOISE_INDEX_FILE = True
 
 # for dev statics, we use django-gulp during runserver.
