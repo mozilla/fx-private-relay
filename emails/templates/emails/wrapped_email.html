@@ -70,6 +70,9 @@
                     {% ftlmsg 'forwarded-email-header-premium-banner-2' premium_link=premium_link as premium_header_banner %}
                     {{ premium_header_banner|safe }}
                   {% endif %}
+                  {% if email_tracker_study_link %}
+                    <br><a href="{{ email_tracker_study_link }}" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">Report breakage</a>.
+                  {% endif %}
                 </p>
               </td>
             </tr>

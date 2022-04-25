@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
 import json
+import re
 
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
@@ -18,6 +19,7 @@ import logging
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
@@ -353,7 +355,23 @@ def remove_message_from_s3(bucket, object_key):
         incr_if_enabled('message_not_removed_from_s3', 1)
     return False
 
-
+def set_user_group(user):
+    if '@' not in user.email:
+        return None
+    email_domain = user.email.split('@')[1]
+    group_attribute = {
+        'mozilla.com': 'mozilla_corporation',
+        'mozillafoundation.org': 'mozilla_foundation',
+        'getpocket.com': 'pocket'
+    }
+    group_name = group_attribute.get(email_domain)
+    if not group_name:
+        return None
+    internal_group_qs = Group.objects.filter(name=group_name)
+    internal_group = internal_group_qs.first()
+    if internal_group is None:
+        return None
+    internal_group.user_set.add(user)
 
 def count_tracker(html_content, trackers):
     tracker_total = 0
@@ -376,3 +394,29 @@ def count_all_trackers(html_content):
         'email_tracker_summary',
         extra={'general': general_detail, 'strict': strict_detail}
     )
+
+def convert_domains_to_regex_patterns(domain_pattern):
+    return '(["\'])(\\S*://(\\S*\.)*' + re.escape(domain_pattern) + '\\S*)\\1'
+
+def remove_trackers(html_content, level='general'):
+    trackers = GENERAL_TRACKERS if level == 'general' else STRICT_TRACKERS
+    tracker_removed = 0
+    changed_content = html_content
+
+    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
+    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
+    
+    for tracker in trackers:
+        pattern = convert_domains_to_regex_patterns(tracker)
+        changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
+        tracker_removed += matched
+
+    
+    incr_if_enabled(f'tracker_foxfooding.{level}_removed_count', tracker_removed)
+    incr_if_enabled('tracker_foxfooding.general_count', general_detail['count'])
+    incr_if_enabled('tracker_foxfooding.strict_count', strict_detail['count'])
+    study_logger.info(
+        'email_tracker_foxfooding_summary',
+        extra={'level': level, 'tracker_removed': tracker_removed, 'general': general_detail, 'strict': strict_detail}
+    )
+    return changed_content, tracker_removed, general_detail['count'], strict_detail['count']

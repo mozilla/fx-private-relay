@@ -15,6 +15,7 @@ from botocore.exceptions import ClientError
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
 from waffle import sample_is_active
+from waffle.models import Flag
 
 from django.conf import settings
 from django.contrib import messages
@@ -41,6 +42,7 @@ from .models import (
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
+    remove_trackers,
     count_all_trackers,
     get_message_content_from_s3,
     get_post_data_from_request,
@@ -456,17 +458,33 @@ def _sns_message(message_json):
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
+    # sample tracker numbers
+    if sample_is_active('tracker-sample') and html_content:
+        count_all_trackers(html_content)
+
     # scramble alias so that clients don't recognize it
     # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
 
     message_body = {}
+    email_tracker_study_link = ''
     if html_content:
         incr_if_enabled('email_with_html_content', 1)
+        foxfood_flag = Flag.objects.filter(name='foxfood').first()
+        if foxfood_flag and foxfood_flag.is_active_for_user(address.user):
+            html_content, removed_count, general_count, strict_count = remove_trackers(html_content)
+            email_tracker_study_link = (
+                'https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?'
+                + f'general-found={general_count}&'
+                + f'general-removed={removed_count}&'
+                + f'strict-found={strict_count}'
+            )
+        
         wrapped_html = render_to_string('emails/wrapped_email.html', {
             'original_html': html_content,
             'recipient_profile': user_profile,
             'email_to': to_address,
+            'email_tracker_study_link': email_tracker_study_link,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
             'has_attachment': bool(attachments),
@@ -507,9 +525,6 @@ def _sns_message(message_json):
     address.save(
         update_fields=['num_forwarded', 'last_used_at']
     )
-    # successful email relayed count number of trackers
-    if sample_is_active('tracker-sample') and html_content:
-        count_all_trackers(html_content)
     return response
 
 
