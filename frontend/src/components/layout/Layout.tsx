@@ -43,9 +43,7 @@ export const Layout = (props: Props) => {
   const usersData = useUsers().data?.[0];
 
   useEffect(() => {
-    if (typeof usersData !== "undefined") {
-      makeToast(l10n, usersData);
-    }
+    makeToast(l10n, usersData);
   }, [l10n, usersData]);
 
   const isDark =
