@@ -148,7 +148,7 @@ class RemoveTrackers(TestCase):
         )
         changed_content, general_removed, general_count, strict_count = remove_trackers(content)
 
-        # assert changed_content == self.expected_content
+        assert changed_content == self.expected_content.replace('"', "'")
         assert general_removed == 2
         assert general_count == 2
         assert strict_count == 0
