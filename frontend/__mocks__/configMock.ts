@@ -1,4 +1,3 @@
-import { jest } from "@jest/globals";
 import type { RuntimeConfig } from "../src/config";
 
 export const mockConfigModule = {

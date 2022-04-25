@@ -1,4 +1,3 @@
-import { describe, it, expect } from "@jest/globals";
 import { act, renderHook } from "@testing-library/react-hooks";
 import { setMockAddonDataOnce } from "../../__mocks__/hooks/addon";
 import { getMockRandomAlias } from "../../__mocks__/hooks/api/aliases";

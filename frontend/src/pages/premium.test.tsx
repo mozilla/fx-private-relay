@@ -1,4 +1,3 @@
-import { jest, describe, it, expect } from "@jest/globals";
 import { act, render } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { mockConfigModule } from "../../__mocks__/configMock";

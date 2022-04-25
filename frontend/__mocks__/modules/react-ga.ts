@@ -1,5 +1,3 @@
-import { jest } from "@jest/globals";
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const { OutboundLink } = jest.requireActual("react-ga") as any;
 

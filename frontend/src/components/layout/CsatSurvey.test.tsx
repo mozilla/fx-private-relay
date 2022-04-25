@@ -1,4 +1,3 @@
-import { jest, describe, it, expect } from "@jest/globals";
 import { render, screen } from "@testing-library/react";
 import { mockCookiesModule } from "../../../__mocks__/functions/cookies";
 import { mockGetLocaleModule } from "../../../__mocks__/functions/getLocale";
