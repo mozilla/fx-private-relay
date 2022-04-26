@@ -406,10 +406,11 @@ def remove_trackers(html_content, level='general'):
     general_detail = count_tracker(html_content, GENERAL_TRACKERS)
     strict_detail = count_tracker(html_content, STRICT_TRACKERS)
     
-    for tracker in trackers:
-        pattern = convert_domains_to_regex_patterns(tracker)
-        changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
-        tracker_removed += matched
+    if sample_is_active('foxfood-email-sample'):
+        for tracker in trackers:
+            pattern = convert_domains_to_regex_patterns(tracker)
+            changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
+            tracker_removed += matched
 
     
     incr_if_enabled(f'tracker_foxfooding.{level}_removed_count', tracker_removed)
