@@ -23,8 +23,8 @@
     "stylelint-scss": "^3.19.0"
   },
   "engines": {
-    "node": "14.x",
-    "npm": "8.x"
+    "node": "14.18.x",
+    "npm": "8.1.x"
   },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme",
   "keywords": [],
@@ -43,7 +43,7 @@
     "heroku-postbuild": "git clone https://github.com/mozilla-l10n/fx-private-relay-l10n.git privaterelay/locales; cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
   },
   "volta": {
-    "node": "12.22.6",
-    "npm": "6.14.15"
+    "node": "14.18.1",
+    "npm": "8.1.0"
   }
 }
