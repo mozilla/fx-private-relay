@@ -16,6 +16,7 @@ import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
 import logging
+from waffle import sample_is_active
 
 from django.apps import apps
 from django.conf import settings
@@ -402,21 +403,25 @@ def remove_trackers(html_content, level='general'):
     trackers = GENERAL_TRACKERS if level == 'general' else STRICT_TRACKERS
     tracker_removed = 0
     changed_content = html_content
+    control = True  # tracker is NOT removed
 
     general_detail = count_tracker(html_content, GENERAL_TRACKERS)
     strict_detail = count_tracker(html_content, STRICT_TRACKERS)
     
-    for tracker in trackers:
-        pattern = convert_domains_to_regex_patterns(tracker)
-        changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
-        tracker_removed += matched
+    if sample_is_active('foxfood-tracker-removal-sample'):
+        control = False  # tracker is removed
+        for tracker in trackers:
+            pattern = convert_domains_to_regex_patterns(tracker)
+            changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
+            tracker_removed += matched
 
     
     incr_if_enabled(f'tracker_foxfooding.{level}_removed_count', tracker_removed)
     incr_if_enabled('tracker_foxfooding.general_count', general_detail['count'])
     incr_if_enabled('tracker_foxfooding.strict_count', strict_detail['count'])
+    study_details = {'tracker_removed': tracker_removed, 'general': general_detail, 'strict': strict_detail}
     study_logger.info(
         'email_tracker_foxfooding_summary',
-        extra={'level': level, 'tracker_removed': tracker_removed, 'general': general_detail, 'strict': strict_detail}
+        extra={'level': level, 'is_control': control}.update(study_details)
     )
-    return changed_content, tracker_removed, general_detail['count'], strict_detail['count']
+    return changed_content, control, study_details
