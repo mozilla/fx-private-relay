@@ -67,7 +67,29 @@ export function getHandlers(
     return res(ctx.status(200), ctx.json([users[mockId]]));
   });
   addGetHandler("/accounts/profile/subdomain", (req, res, ctx) => {
+    if (req.url.searchParams.get("subdomain") === "not-available") {
+      return res(
+        ctx.status(400),
+        ctx.json({
+          message: "error-subdomain-not-available",
+          subdomain: "not-available",
+        })
+      );
+    }
     return res(ctx.status(200), ctx.json({ available: true }));
+  });
+  addPostHandler("/accounts/profile/subdomain", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+    const body = req.body as string;
+    const data = new URLSearchParams(body);
+    profiles[mockId] = {
+      ...profiles[mockId],
+      subdomain: data.get("subdomain"),
+    };
+    return res(ctx.status(200));
   });
   addGetHandler("/api/v1/profiles/", (req, res, ctx) => {
     const mockId = getMockId(req);
