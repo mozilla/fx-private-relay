@@ -408,7 +408,7 @@ def remove_trackers(html_content, level='general'):
     general_detail = count_tracker(html_content, GENERAL_TRACKERS)
     strict_detail = count_tracker(html_content, STRICT_TRACKERS)
     
-    if sample_is_active('foxfood-email-sample'):
+    if sample_is_active('foxfood-tracker-removal-sample'):
         control = False  # tracker is removed
         for tracker in trackers:
             pattern = convert_domains_to_regex_patterns(tracker)
@@ -424,4 +424,4 @@ def remove_trackers(html_content, level='general'):
         'email_tracker_foxfooding_summary',
         extra={'level': level}.update(study_details)
     )
-    return changed_content, study_details, control
+    return changed_content, control, study_details
