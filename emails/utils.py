@@ -16,6 +16,7 @@ import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
 import logging
+from waffle import sample_is_active
 
 from django.apps import apps
 from django.conf import settings
