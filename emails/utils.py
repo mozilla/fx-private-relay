@@ -422,6 +422,6 @@ def remove_trackers(html_content, level='general'):
     study_details = {'tracker_removed': tracker_removed, 'general': general_detail, 'strict': strict_detail}
     study_logger.info(
         'email_tracker_foxfooding_summary',
-        extra={'level': level, 'control': control}.update(study_details)
+        extra={'level': level, 'is_control': control}.update(study_details)
     )
     return changed_content, control, study_details
