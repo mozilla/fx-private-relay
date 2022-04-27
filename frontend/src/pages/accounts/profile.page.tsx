@@ -303,6 +303,7 @@ const Profile: NextPage = () => {
         user={user}
         onCreateSubdomain={setCustomSubdomain}
         runtimeData={runtimeData.data}
+        aliases={allAliases}
       />
     </section>
   );

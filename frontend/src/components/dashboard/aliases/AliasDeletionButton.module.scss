@@ -7,16 +7,21 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  background-color: $color-light-gray-30;
+  background-color: transparent;
   padding: $spacing-sm $spacing-md;
   border-radius: $border-radius-sm;
+  font-weight: 600;
   border: 2px solid transparent;
   // Keep some space for the focus outline
   margin: 2px;
-  color: $color-blue-50;
+  color: $color-red-60;
   line-height: 1.25;
 
   @include text-body-md;
+
+  &:hover {
+    color: $color-red-70;
+  }
 }
 
 .underlay {

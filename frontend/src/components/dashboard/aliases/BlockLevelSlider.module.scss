@@ -29,11 +29,11 @@ $stopLabelHeight: 2rem;
 
   .control {
     width: 100%;
-    max-width: $content-sm;
+    max-width: $content-xs;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 0 $spacing-lg;
+    padding-left: $spacing-md;
 
     .slider-label {
       padding-bottom: $spacing-md;
