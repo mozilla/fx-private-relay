@@ -38,6 +38,12 @@ module.exports = {
         "message": "Expected class selector to be kebab-case",
       },
     ],
+    "selector-pseudo-class-no-unknown": [
+      true,
+      {
+        "ignorePseudoClasses": ["global"]
+      }
+    ],
     "scss/at-rule-no-unknown": true,
     "scss/at-import-partial-extension": null,
     "scss/at-import-partial-extension-whitelist": "scss"

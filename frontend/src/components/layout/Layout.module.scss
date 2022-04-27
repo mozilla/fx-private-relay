@@ -14,9 +14,12 @@
   --toastify-color-warning: #{$color-yellow-50};
   --toastify-color-error: #{$color-red-60};
 
-  // --toastify-toast-min-height: 40px;
-  // --toastify-toast-max-height: 40px;
+  --toastify-toast-min-height: $layout-md;
+  --toastify-toast-max-height: $layout-md;
 }
+
+// Allows us to dynamically set the background color based on Toast container state
+$toastify-toast-close-button: var(--toast-close-button);
 
 .toast {
   text-align: center;
@@ -25,12 +28,45 @@
   line-height: 21px;
   border-radius: $border-radius-sm;
   font-family: $font-stack-base;
-  padding-top: 9.5px;
-  padding-bottom: 9.5px;
+  padding-top: 0;
+  padding-bottom: 0;
+  max-width: $content-xl;
+  margin: 0 auto;
+
+  &:global {
+    &[class*="toast--error"] {
+      --toast-close-button: #{$color-red-60};
+
+      &:hover {
+        background-color: $color-red-70;
+      }
+
+      &:active {
+        background-color: $color-red-80;
+      }
+
+      &:focus {
+        --toast-close-button: #{$color-red-70};
+      }
+
+      &:disabled {
+        --toast-close-button: #{$color-red-80};
+      }
+
+      &:focus,
+      &:disabled {
+        $toastify-toast-close-button: #{$color-red-80};
+      }
+    }
+  }
 }
 
 .close-toast-button-container {
-  padding: 11px;
+  padding: $spacing-md $spacing-md;
+  position: relative;
+  right: -8px;
+  border-radius: 0 $border-radius-sm $border-radius-sm 0;
+  background-color: $toastify-toast-close-button;
 }
 
 .close-toast-button-icon {
