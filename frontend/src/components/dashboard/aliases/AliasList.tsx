@@ -73,6 +73,10 @@ export const AliasList = (props: Props) => {
       return props.onUpdate(alias, updatedFields);
     };
 
+    const isExistingAlias = existingAliases.some(
+      (existingAlias) => existingAlias.id === alias.id
+    );
+
     return (
       <li
         className={styles["alias-card-wrapper"]}
@@ -84,7 +88,7 @@ export const AliasList = (props: Props) => {
           profile={props.profile}
           onUpdate={onUpdate}
           onDelete={() => props.onDelete(alias)}
-          defaultOpen={!existingAliases.includes(alias)}
+          defaultOpen={!isExistingAlias}
           showLabelEditor={props.profile.server_storage || localLabels !== null}
         />
       </li>
