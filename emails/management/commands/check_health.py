@@ -16,6 +16,7 @@ from datetime import datetime, timezone
 import json
 import logging
 
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 logger = logging.getLogger("eventsinfo.check_health")
@@ -24,20 +25,29 @@ logger = logging.getLogger("eventsinfo.check_health")
 class Command(BaseCommand):
     help = "Check that a healthcheck JSON file exists and is recent."
 
-    DEFAULT_MAX_AGE_SECONDS = 120
+    def help_message(self, text, setting_name):
+        """Construct the command-line help message."""
+        value = getattr(settings, setting_name)
+        return f"{text} Defaults to {value!r} from settings.{setting_name}."
 
     def add_arguments(self, parser):
         """Add command-line arguments (called by BaseCommand)"""
         parser.add_argument(
             "healthcheck_path",
             type=FileType("r", encoding="utf8"),
-            help="Path to healthcheck JSON file",
+            default=settings.PROCESS_EMAIL_HEALTHCHECK_PATH,
+            help=self.help_message(
+                "Path to healthcheck JSON file.", "PROCESS_EMAIL_HEALTHCHECK_PATH"
+            ),
         )
         parser.add_argument(
             "--max-age",
             type=int,
-            default=self.DEFAULT_MAX_AGE_SECONDS,
-            help=f"Timestamp age in seconds before failure, default {self.DEFAULT_MAX_AGE_SECONDS}",
+            default=settings.PROCESS_EMAIL_HEALTHCHECK_MAX_AGE,
+            help=self.help_message(
+                "Timestamp age in seconds before failure.",
+                "PROCESS_EMAIL_HEALTHCHECK_MAX_AGE",
+            ),
         )
 
     def handle(self, healthcheck_path, max_age, verbosity, *args, **kwargs):
