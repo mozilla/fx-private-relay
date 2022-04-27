@@ -7,17 +7,28 @@
 
   // See https://fkhadra.github.io/react-toastify/how-to-style#override-css-variables
   --toastify-toast-width: 95%;
-  --toastify-color-success: #{$color-green-60};
-  --toastify-text-color-success: #{$color-white};
-  --toastify-color-error: #{$color-red-50};
-  --toastify-text-color-error: #{$color-white};
+  // --toastify-color-success: #{$color-green-60};
+  // --toastify-text-color-success: #{$color-white};
+  // --toastify-color-error: #{$color-red-60};
+  // --toastify-text-color-error: #{$color-white};
+
+  --toastify-color-light: #{$color-white};
+  --toastify-color-dark: #{$color-grey-50};
+  --toastify-color-info: #{$color-blue-50};
+  --toastify-color-success: #{$color-green-50};
+  --toastify-color-warning: #{$color-yellow-50};
+  --toastify-color-error: #{$color-red-60};
 }
 
 .toast {
-  border-radius: $border-radius-md;
   text-align: center;
-  font-weight: 700;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 21px;
+  border-radius: $border-radius-sm;
   font-family: $font-stack-base;
+  padding-top: 9.5px;
+  padding-bottom: 9.5px;
 }
 
 .header {
