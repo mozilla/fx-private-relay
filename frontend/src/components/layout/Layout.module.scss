@@ -26,10 +26,10 @@ $toastify-toast-close-button: var(--toast-close-button);
   font-weight: 400;
   font-size: 13px;
   line-height: 21px;
+  height: $layout-md;
   border-radius: $border-radius-sm;
   font-family: $font-stack-base;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: 0;
   max-width: $content-xl;
   margin: 0 auto;
 
@@ -62,11 +62,12 @@ $toastify-toast-close-button: var(--toast-close-button);
 }
 
 .close-toast-button-container {
-  padding: $spacing-md $spacing-md;
+  padding: $spacing-md;
   position: relative;
-  right: -8px;
   border-radius: 0 $border-radius-sm $border-radius-sm 0;
   background-color: $toastify-toast-close-button;
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .close-toast-button-icon {
