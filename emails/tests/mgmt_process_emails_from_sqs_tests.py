@@ -60,8 +60,21 @@ def mock_sns_inbound_logic():
 
 
 @pytest.fixture(autouse=True)
-def use_test_topic_arn(settings):
-    settings.AWS_SNS_TOPIC = {TEST_SNS_MESSAGE['TopicArn']}
+def test_settings(settings):
+    settings.AWS_SNS_TOPIC = {TEST_SNS_MESSAGE["TopicArn"]}
+    settings.AWS_REGION = "us-east-1"
+
+    # Set to defaults
+    settings.AWS_SQS_EMAIL_QUEUE_URL = (
+        "https://sqs.us-east-1.amazonaws.example.com/111222333/queue-name"
+    )
+    settings.PROCESS_EMAIL_BATCH_SIZE = 10
+    settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES = False
+    settings.PROCESS_EMAIL_HEALTHCHECK_PATH = None
+    settings.PROCESS_EMAIL_MAX_SECONDS = None
+    settings.PROCESS_EMAIL_VERBOSITY = 2
+    settings.PROCESS_EMAIL_VISIBILITY_SECONDS = 120
+    settings.PROCESS_EMAIL_WAIT_SECONDS = 5
     return settings
 
 
@@ -136,10 +149,7 @@ def test_process_queue_no_messages():
     }
 
 
-@override_settings(
-    STATSD_ENABLED=True,
-    AWS_SQS_EMAIL_QUEUE_URL="https://sqs.us-east-1.amazonaws.example.com/111222333/queue-name",
-)
+@override_settings(STATSD_ENABLED=True)
 def test_process_queue_metrics():
     """process_queue emits metrics on the SQS queue backlog."""
     with MetricsMock() as mm:
@@ -249,9 +259,9 @@ def test_process_queue_verify_from_sns_raises_keyerror(mock_verify_from_sns):
     assert res["failed_messages"] == 1
 
 
-def test_process_queue_verify_sns_header_fails(use_test_topic_arn):
+def test_process_queue_verify_sns_header_fails(test_settings):
     """Invalid SNS headers fail."""
-    use_test_topic_arn.AWS_SNS_TOPIC={"arn:aws:sns:us-east-1:111122223333:not-relay"}
+    test_settings.AWS_SNS_TOPIC = {"arn:aws:sns:us-east-1:111122223333:not-relay"}
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     res = Command(queue=fake_queue([msg], []), max_seconds=3).process_queue()
     assert res["total_messages"] == 1
@@ -286,6 +296,35 @@ def test_command_sqs_client_error(mock_boto3_queue_constructor):
     )
 
 
+@override_settings(
+    AWS_REGION="us-east-3",
+    AWS_SQS_EMAIL_QUEUE_URL="https://sqs.us-east-3.amazonaws.example.com/444555666/queue-name",
+    PROCESS_EMAIL_BATCH_SIZE=2,
+    PROCESS_EMAIL_DELETE_FAILED_MESSAGES=1,
+    PROCESS_EMAIL_HEALTHCHECK_PATH="/tmp/healthcheck.json",
+    PROCESS_EMAIL_MAX_SECONDS=3600,
+    PROCESS_EMAIL_VERBOSITY=2,
+    PROCESS_EMAIL_VISIBILITY_SECONDS=1200,
+    PROCESS_EMAIL_WAIT_SECONDS=10,
+)
+def test_command_setup_from_settings():
+    """The command can be configured from Django settings."""
+    command = Command()
+    assert command.aws_region == "us-east-3"
+    assert (
+        command.sqs_url
+        == "https://sqs.us-east-3.amazonaws.example.com/444555666/queue-name"
+    )
+    assert command.batch_size == 2
+    assert command.delete_failed_messages
+    assert command.healthcheck_file.name == "/tmp/healthcheck.json"
+    assert command.max_seconds == 3600
+    assert command.verbosity == 2
+    assert command.visibility_seconds == 1200
+    assert command.wait_seconds == 10
+    command.close_healthcheck()
+
+
 def test_write_healthcheck(tmp_path):
     """write_healthcheck writes the timestamp to the specified path."""
     healthcheck_path = tmp_path / "healthcheck.json"
@@ -305,3 +344,13 @@ def test_write_healthcheck(tmp_path):
     ts = datetime.fromisoformat(content["timestamp"])
     duration = (datetime.now(tz=timezone.utc) - ts).total_seconds()
     assert 0.0 < duration < 0.5
+
+
+def test_close_healthcheck(tmp_path):
+    """close_healthcheck() can be used to manually close the healthcheck file."""
+    healthcheck_path = tmp_path / "healthcheck.json"
+    command = Command(healthcheck_file=healthcheck_path)
+    assert command.healthcheck_file.name == str(healthcheck_path)
+    command.close_healthcheck()
+    assert command.healthcheck_file is None
+    command.close_healthcheck()  # Closing twice is OK

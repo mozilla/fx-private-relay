@@ -17,7 +17,7 @@ from datetime import datetime
 # This needs to be before markus, which imports pytest
 IN_PYTEST = "pytest" in sys.modules
 
-from decouple import config, Csv
+from decouple import config, Choices, Csv
 import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -710,3 +710,20 @@ markus.configure(
 if USE_SILK:
     SILKY_PYTHON_PROFILER=True
     SILKY_PYTHON_PROFILER_BINARY=True
+
+# Settings for manage.py process_emails_from_sqs
+PROCESS_EMAIL_BATCH_SIZE = config(
+    "PROCESS_EMAIL_BATCH_SIZE", 10, cast=Choices(range(1, 11), cast=int)
+)
+PROCESS_EMAIL_DELETE_FAILED_MESSAGES = config(
+    "PROCESS_EMAIL_DELETE_FAILED_MESSAGES", False, cast=bool
+)
+PROCESS_EMAIL_HEALTHCHECK_PATH = config("PROCESS_EMAIL_HEALTHCHECK_PATH", "") or None
+PROCESS_EMAIL_MAX_SECONDS = config("PROCESS_EMAIL_MAX_SECONDS", 0, cast=int) or None
+PROCESS_EMAIL_VERBOSITY = config(
+    "PROCESS_EMAIL_VERBOSITY", 1, cast=Choices(range(0, 4), cast=int)
+)
+PROCESS_EMAIL_VISIBILITY_SECONDS = config(
+    "PROCESS_EMAIL_VISIBILITY_SECONDS", 120, cast=int
+)
+PROCESS_EMAIL_WAIT_SECONDS = config("PROCESS_EMAIL_WAIT_SECONDS", 5, cast=int)

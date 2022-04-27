@@ -36,10 +36,6 @@ logger = logging.getLogger("eventsinfo.process_emails_from_sqs")
 class Command(BaseCommand):
     help = "Fetch email tasks from SQS and process them."
 
-    DEFAULT_BATCH_SIZE = 10
-    DEFAULT_WAIT_SECONDS = 5
-    DEFAULT_VISIBILITY_SECONDS = 120
-
     def __init__(
         self,
         *args,
@@ -47,12 +43,12 @@ class Command(BaseCommand):
         wait_seconds=None,
         visibility_seconds=None,
         healthcheck_file=None,
-        delete_failed_messages=False,
+        delete_failed_messages=None,
         max_seconds=None,
         aws_region=None,
         sqs_url=None,
         queue=None,
-        verbosity=1,
+        verbosity=None,
         **kwargs,
     ):
         """Initialize variables via constructor."""
@@ -77,26 +73,41 @@ class Command(BaseCommand):
         wait_seconds=None,
         visibility_seconds=None,
         healthcheck_path=None,  # saved as self.healthcheck_file
-        delete_failed_messages=False,
+        delete_failed_messages=None,
         max_seconds=None,
         aws_region=None,
         sqs_url=None,
         queue=None,
-        verbosity=1,
+        verbosity=None,
         **kwargs,
     ):
         """Initialize command variables"""
-        self.batch_size = batch_size or self.DEFAULT_BATCH_SIZE
-        self.wait_seconds = wait_seconds or self.DEFAULT_WAIT_SECONDS
-        self.visibility_seconds = visibility_seconds or self.DEFAULT_VISIBILITY_SECONDS
-        self.healthcheck_file = healthcheck_path
-        self.delete_failed_messages = delete_failed_messages
-        self.max_seconds = max_seconds
+        self.batch_size = batch_size or settings.PROCESS_EMAIL_BATCH_SIZE
+        self.wait_seconds = wait_seconds or settings.PROCESS_EMAIL_WAIT_SECONDS
+        self.visibility_seconds = (
+            visibility_seconds or settings.PROCESS_EMAIL_VISIBILITY_SECONDS
+        )
+
+        healthcheck_path = healthcheck_path or settings.PROCESS_EMAIL_HEALTHCHECK_PATH
+        if healthcheck_path is None:
+            self.healthcheck_file = None
+        elif isinstance(healthcheck_path, io.TextIOWrapper):
+            self.healthcheck_file = healthcheck_path
+        else:
+            self.healthcheck_file = open(healthcheck_path, mode="w", encoding="utf8")
+
+        if delete_failed_messages is None:
+            self.delete_failed_messages = settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES
+        else:
+            self.delete_failed_messages = delete_failed_messages
+
+        self.max_seconds = max_seconds or settings.PROCESS_EMAIL_MAX_SECONDS
         self.aws_region = aws_region or settings.AWS_REGION
         self.sqs_url = sqs_url or settings.AWS_SQS_EMAIL_QUEUE_URL
-        self.verbosity = verbosity
+        self.verbosity = verbosity or settings.PROCESS_EMAIL_VERBOSITY
 
         self.queue = queue
+        assert self.sqs_url is not None
         self.queue_name = urlsplit(self.sqs_url).path.split("/")[-1]
         self.halt_requested = False
         self.start_time = None
@@ -117,50 +128,72 @@ class Command(BaseCommand):
         )
         assert 0 <= self.verbosity <= 3
 
+    def help_message(self, text, setting_name):
+        """Construct the command-line help message."""
+        value = getattr(settings, setting_name)
+        return f"{text} Defaults to {value!r} from settings.{setting_name}."
+
     def add_arguments(self, parser):
         """Add command-line arguments (called by BaseCommand)"""
         parser.add_argument(
             "--batch-size",
             type=int,
-            default=self.DEFAULT_BATCH_SIZE,
-            choices=range(1, self.DEFAULT_BATCH_SIZE + 1),
-            help="Number of SQS messages to fetch at a time",
+            default=settings.PROCESS_EMAIL_BATCH_SIZE,
+            choices=range(1, 11),
+            help=self.help_message(
+                "Number of SQS messages to fetch at a time.", "PROCESS_EMAIL_BATCH_SIZE"
+            ),
         )
         parser.add_argument(
             "--wait-seconds",
             type=int,
-            default=self.DEFAULT_WAIT_SECONDS,
-            help="Time to wait for messages with long polling",
+            default=settings.PROCESS_EMAIL_WAIT_SECONDS,
+            help=self.help_message(
+                "Time to wait for messages with long polling.",
+                "PROCESS_EMAIL_WAIT_SECONDS",
+            ),
         )
         parser.add_argument(
             "--visibility-seconds",
             type=int,
-            default=self.DEFAULT_VISIBILITY_SECONDS,
-            help="Time to mark a message as reserved for this process",
+            default=settings.PROCESS_EMAIL_VISIBILITY_SECONDS,
+            help=self.help_message(
+                "Time to mark a message as reserved for this process.",
+                "PROCESS_EMAIL_VISIBILITY_SECONDS",
+            ),
         )
         parser.add_argument(
             "--healthcheck-path",
             type=FileType("w", encoding="utf8"),
-            help="Path to file to write healthcheck data, default is no healthcheck",
+            default=settings.PROCESS_EMAIL_HEALTHCHECK_PATH,
+            help=self.help_message(
+                "Path to file to write healthcheck data.",
+                "PROCESS_EMAIL_HEALTHCHECK_PATH",
+            ),
         )
         parser.add_argument(
             "--delete-failed-messages",
             action="store_true",
-            help=(
+            default=settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES,
+            help=self.help_message(
                 "If a message fails to process, delete it from the queue, "
-                " instead of letting SQS resend or move to a dead-letter queue,"
+                " instead of letting SQS resend or move to a dead-letter queue.",
+                "PROCESS_EMAIL_DELETE_FAILED_MESSAGES",
             ),
         )
         parser.add_argument(
             "--max-seconds",
             type=int,
-            help=f"Maximum time to process before exiting",
+            default=settings.PROCESS_EMAIL_MAX_SECONDS,
+            help=self.help_message(
+                "Maximum time to process before exiting.", "PROCESS_EMAIL_MAX_SECONDS"
+            ),
         )
         parser.add_argument(
-            "--aws-region", help="AWS region, defaults to settings.AWS_REGION"
+            "--aws-region", help=self.help_message("AWS region.", "AWS_REGION")
         )
         parser.add_argument(
-            "--sqs-url", help="SQS URL, defaults to settings.AWS_SQS_EMAIL_QUEUE_URL"
+            "--sqs-url", help=self.help_message("SQS URL.", "AWS_SQS_EMAIL_QUEUE_URL")
         )
 
     def handle(self, *args, **kwargs):
@@ -497,3 +530,9 @@ class Command(BaseCommand):
             return f"{value} {singular}"
         else:
             return f"{value} {plural or (singular + 's')}"
+
+    def close_healthcheck(self):
+        """Close the healthcheck file if open."""
+        if self.healthcheck_file:
+            self.healthcheck_file.close()
+            self.healthcheck_file = None
