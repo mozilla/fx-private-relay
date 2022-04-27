@@ -24,6 +24,7 @@ import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
+import { CloseIcon } from "../Icons";
 
 export type Props = {
   children: ReactNode;
@@ -85,6 +86,20 @@ export const Layout = (props: Props) => {
     isLoggedIn && profiles.data ? (
       <WhatsNewMenu profile={profiles.data[0]} />
     ) : null;
+
+  const closeToastButton = ({ closeToast }: any) => {
+    return (
+      <div className={styles["close-toast-button-container"]}>
+        <button className="Toastify__close-button Toastify__close-button--colored">
+          {CloseIcon({
+            alt: "",
+            onClick: closeToast,
+            className: styles["close-toast-button-icon"],
+          })}
+        </button>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -151,11 +166,13 @@ export const Layout = (props: Props) => {
           </nav>
         </header>
         <ToastContainer
+          icon={false}
           position={toast.POSITION.TOP_CENTER}
           theme="colored"
           transition={Slide}
-          autoClose={5000}
+          autoClose={5555000} // TODO: change this back
           toastClassName={`Toastify__toast ${styles.toast}`}
+          closeButton={closeToastButton}
         />
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>

@@ -13,17 +13,29 @@
   --toastify-color-success: #{$color-green-50};
   --toastify-color-warning: #{$color-yellow-50};
   --toastify-color-error: #{$color-red-60};
+
+  // --toastify-toast-min-height: 40px;
+  // --toastify-toast-max-height: 40px;
 }
 
 .toast {
   text-align: center;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 13px;
   line-height: 21px;
   border-radius: $border-radius-sm;
   font-family: $font-stack-base;
   padding-top: 9.5px;
   padding-bottom: 9.5px;
+}
+
+.close-toast-button-container {
+  padding: 11px;
+}
+
+.close-toast-button-icon {
+  width: 20px !important;
+  height: 20px !important;
 }
 
 .header {
