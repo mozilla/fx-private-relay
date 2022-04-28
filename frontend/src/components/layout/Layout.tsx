@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -87,7 +87,11 @@ export const Layout = (props: Props) => {
       <WhatsNewMenu profile={profiles.data[0]} />
     ) : null;
 
-  const closeToastButton = ({ closeToast }: any) => {
+  const closeToastButton = ({
+    closeToast,
+  }: {
+    closeToast: () => {};
+  }): React.ReactElement => {
     return (
       <div className={styles["close-toast-button-container"]}>
         <button className="Toastify__close-button Toastify__close-button--colored">
@@ -170,7 +174,7 @@ export const Layout = (props: Props) => {
           position={toast.POSITION.TOP_CENTER}
           theme="colored"
           transition={Slide}
-          autoClose={5555000} // TODO: change this back
+          autoClose={5000}
           toastClassName={`Toastify__toast ${styles.toast}`}
           closeButton={closeToastButton}
         />
