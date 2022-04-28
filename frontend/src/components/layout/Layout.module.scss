@@ -14,6 +14,11 @@
   --toastify-color-warning: #{$color-yellow-50};
   --toastify-color-error: #{$color-red-60};
 
+  --toastify-text-color-info: #{$color-white};
+  --toastify-text-color-success: #{$color-grey-50};
+  --toastify-text-color-warning: #{$color-grey-50};
+  --toastify-text-color-error: #{$color-white};
+
   --toastify-toast-min-height: $layout-md;
   --toastify-toast-max-height: $layout-md;
 }
@@ -34,6 +39,20 @@ $toastify-toast-close-button: var(--toast-close-button);
   margin: 0 auto;
 
   &:global {
+    &[class*="toast--error"],
+    &[class*="toast--info"] {
+      [class*="close-toast-button-icon"] {
+        color: #{$color-white};
+      }
+    }
+
+    &[class*="toast--success"],
+    &[class*="toast--warning"] {
+      [class*="close-toast-button-icon"] {
+        color: #{$color-grey-50};
+      }
+    }
+
     &[class*="toast--error"] {
       --toast-close-button: #{$color-red-60};
 
@@ -51,6 +70,66 @@ $toastify-toast-close-button: var(--toast-close-button);
 
       &:disabled {
         --toast-close-button: #{$color-red-80};
+      }
+    }
+
+    &[class*="toast--info"] {
+      --toast-close-button: #{$color-blue-50};
+
+      &:hover {
+        --toastify-color-info: #{$color-blue-60};
+      }
+
+      &:active {
+        --toastify-color-info: #{$color-blue-70};
+      }
+
+      &:focus {
+        --toast-close-button: #{$color-blue-60};
+      }
+
+      &:disabled {
+        --toast-close-button: #{$color-blue-70};
+      }
+    }
+
+    &[class*="toast--success"] {
+      --toast-close-button: #{$color-green-50};
+
+      &:hover {
+        --toastify-color-success: #{$color-green-60};
+      }
+
+      &:active {
+        --toastify-color-success: #{$color-green-70};
+      }
+
+      &:focus {
+        --toast-close-button: #{$color-green-60};
+      }
+
+      &:disabled {
+        --toast-close-button: #{$color-green-70};
+      }
+    }
+
+    &[class*="toast--warning"] {
+      --toast-close-button: #{$color-yellow-50};
+
+      &:hover {
+        --toastify-color-warning: #{$color-yellow-60};
+      }
+
+      &:active {
+        --toastify-color-warning: #{$color-yellow-70};
+      }
+
+      &:focus {
+        --toast-close-button: #{$color-yellow-60};
+      }
+
+      &:disabled {
+        --toast-close-button: #{$color-yellow-70};
       }
     }
   }

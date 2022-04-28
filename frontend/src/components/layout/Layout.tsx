@@ -170,6 +170,7 @@ export const Layout = (props: Props) => {
           position={toast.POSITION.TOP_CENTER}
           theme="colored"
           transition={Slide}
+          hideProgressBar={true}
           autoClose={5000}
           toastClassName={`Toastify__toast ${styles.toast}`}
           closeButton={(closeToastObject) =>
