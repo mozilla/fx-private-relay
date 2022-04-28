@@ -3,7 +3,7 @@
 
 .entry {
   button {
-    @include text-title-xs;
+    @include text-title-2xs;
     background-color: transparent;
     border-style: none;
     display: flex;
@@ -11,7 +11,7 @@
     gap: $spacing-md;
     justify-content: space-between;
     cursor: pointer;
-    padding: $spacing-lg $spacing-sm;
+    padding: $spacing-xl $spacing-sm;
     width: 100%;
     border-top: 1px solid $color-light-gray-30;
     text-align: start;

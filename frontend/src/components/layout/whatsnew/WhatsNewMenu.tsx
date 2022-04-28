@@ -144,7 +144,7 @@ export const WhatsNewMenu = (props: Props) => {
           "whatsnew-feature-sign-back-in-description"
         )}
         heading={l10n.getString("whatsnew-feature-sign-back-in-heading")}
-        image={SizeLimitHero.src}
+        image={SignBackInHero.src}
       />
     ),
     hero: SignBackInHero.src,
