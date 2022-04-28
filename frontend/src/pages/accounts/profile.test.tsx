@@ -418,6 +418,24 @@ describe("The dashboard", () => {
     expect(onboardingHeading).not.toBeInTheDocument();
   });
 
+  it("exposes user data to the add-on when onboarding the user", () => {
+    setMockProfileDataOnce({ has_premium: true, onboarding_state: 0 });
+
+    const { container } = render(<Profile />);
+
+    // Since we're explicitly testing for something that's not visible to the user,
+    // but instead is for data exposed to the add-on which will explicitly be
+    // looking for this tag name, direct node access (i.e. mimicking the API
+    // used by the add-on) is fine here:
+    // eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
+    const addonDataElements = container.getElementsByTagName(
+      "firefox-private-relay-addon-data"
+    );
+
+    expect(addonDataElements).toHaveLength(1);
+    expect(addonDataElements[0]).toBeInTheDocument();
+  });
+
   it("allows picking a subdomain in the second step of the Premium onboarding", () => {
     setMockProfileDataOnce({
       has_premium: true,
@@ -702,6 +720,22 @@ describe("The dashboard", () => {
 
     const customAlias = screen.queryByText(/address3/);
     expect(customAlias).toBeInTheDocument();
+  });
+
+  it("exposes user data to the add-on", () => {
+    const { container } = render(<Profile />);
+
+    // Since we're explicitly testing for something that's not visible to the user,
+    // but instead is for data exposed to the add-on which will explicitly be
+    // looking for this tag name, direct node access (i.e. mimicking the API
+    // used by the add-on) is fine here:
+    // eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
+    const addonDataElements = container.getElementsByTagName(
+      "firefox-private-relay-addon-data"
+    );
+
+    expect(addonDataElements).toHaveLength(1);
+    expect(addonDataElements[0]).toBeInTheDocument();
   });
 
   describe("with the `generateCustomAlias` feature flag enabled", () => {
