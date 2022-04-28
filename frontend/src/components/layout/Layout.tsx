@@ -87,11 +87,7 @@ export const Layout = (props: Props) => {
       <WhatsNewMenu profile={profiles.data[0]} />
     ) : null;
 
-  const closeToastButton = ({
-    closeToast,
-  }: {
-    closeToast: () => {};
-  }): React.ReactElement => {
+  const closeToastButton = (closeToast: () => {}): React.ReactElement => {
     return (
       <div className={styles["close-toast-button-container"]}>
         <button className="Toastify__close-button Toastify__close-button--colored">
@@ -176,7 +172,9 @@ export const Layout = (props: Props) => {
           transition={Slide}
           autoClose={5000}
           toastClassName={`Toastify__toast ${styles.toast}`}
-          closeButton={closeToastButton}
+          closeButton={(closeToastObject) =>
+            closeToastButton(closeToastObject.closeToast)
+          }
         />
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>
