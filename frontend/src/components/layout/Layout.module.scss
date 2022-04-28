@@ -61,15 +61,9 @@ $toastify-toast-close-button: var(--toast-close-button);
         --toastify-color-error: #{$color-red-70};
       }
 
-      &:active {
-        --toastify-color-error: #{$color-red-80};
-      }
-
+      &:active,
       &:focus {
-        --toast-close-button: #{$color-red-70};
-      }
-
-      &:disabled {
+        --toastify-color-error: #{$color-red-80};
         --toast-close-button: #{$color-red-80};
       }
     }
@@ -78,18 +72,12 @@ $toastify-toast-close-button: var(--toast-close-button);
       --toast-close-button: #{$color-blue-50};
 
       &:hover {
-        --toastify-color-info: #{$color-blue-60};
-      }
-
-      &:active {
-        --toastify-color-info: #{$color-blue-70};
-      }
-
-      &:focus {
         --toast-close-button: #{$color-blue-60};
       }
 
-      &:disabled {
+      &:active,
+      &:focus {
+        --toastify-color-info: #{$color-blue-70};
         --toast-close-button: #{$color-blue-70};
       }
     }
@@ -98,18 +86,12 @@ $toastify-toast-close-button: var(--toast-close-button);
       --toast-close-button: #{$color-green-50};
 
       &:hover {
-        --toastify-color-success: #{$color-green-60};
-      }
-
-      &:active {
-        --toastify-color-success: #{$color-green-70};
-      }
-
-      &:focus {
         --toast-close-button: #{$color-green-60};
       }
 
-      &:disabled {
+      &:active,
+      &:focus {
+        --toastify-color-success: #{$color-green-70};
         --toast-close-button: #{$color-green-70};
       }
     }
@@ -118,18 +100,12 @@ $toastify-toast-close-button: var(--toast-close-button);
       --toast-close-button: #{$color-yellow-50};
 
       &:hover {
-        --toastify-color-warning: #{$color-yellow-60};
-      }
-
-      &:active {
-        --toastify-color-warning: #{$color-yellow-70};
-      }
-
-      &:focus {
         --toast-close-button: #{$color-yellow-60};
       }
 
-      &:disabled {
+      &:active,
+      &:focus {
+        --toastify-color-warning: #{$color-yellow-70};
         --toast-close-button: #{$color-yellow-70};
       }
     }
