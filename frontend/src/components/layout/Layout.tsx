@@ -87,7 +87,7 @@ export const Layout = (props: Props) => {
       <WhatsNewMenu profile={profiles.data[0]} />
     ) : null;
 
-  const closeToastButton = (closeToast: () => {}): React.ReactElement => {
+  const closeToastButton = (closeToast: any): React.ReactElement => {
     return (
       <div className={styles["close-toast-button-container"]}>
         <button className="Toastify__close-button Toastify__close-button--colored">
