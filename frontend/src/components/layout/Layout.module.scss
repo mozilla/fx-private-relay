@@ -1,4 +1,5 @@
 @import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
   display: flex;
@@ -27,9 +28,9 @@
 $toastify-toast-close-button: var(--toast-close-button);
 
 .toast {
+  @include text-body-sm;
   text-align: center;
   font-weight: 400;
-  font-size: 13px;
   line-height: 21px;
   height: $layout-md;
   border-radius: $border-radius-sm;
@@ -41,14 +42,14 @@ $toastify-toast-close-button: var(--toast-close-button);
   &:global {
     &[class*="toast--error"],
     &[class*="toast--info"] {
-      [class*="close-toast-button-icon"] {
+      [id*="close-toast-button-icon"] {
         color: #{$color-white};
       }
     }
 
     &[class*="toast--success"],
     &[class*="toast--warning"] {
-      [class*="close-toast-button-icon"] {
+      [id*="close-toast-button-icon"] {
         color: #{$color-grey-50};
       }
     }
@@ -137,16 +138,16 @@ $toastify-toast-close-button: var(--toast-close-button);
 
 .close-toast-button-container {
   padding: $spacing-md;
-  position: relative;
   border-radius: 0 $border-radius-sm $border-radius-sm 0;
   background-color: $toastify-toast-close-button;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.close-toast-button-icon {
-  width: 20px !important;
-  height: 20px !important;
+#close-toast-button-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .header {

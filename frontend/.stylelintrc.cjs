@@ -28,6 +28,7 @@ module.exports = {
     "declaration-block-semicolon-newline-after": "always",
     "declaration-colon-space-after": "always-single-line",
     "declaration-colon-space-before": "never",
+    "declaration-no-important" : true,
     "font-weight-notation": "numeric",
     "function-url-quotes": "always",
     "no-descending-specificity": null,
@@ -41,7 +42,8 @@ module.exports = {
     "selector-pseudo-class-no-unknown": [
       true,
       {
-        "ignorePseudoClasses": ["global"]
+        // https://github.com/webpack-contrib/css-loader#scope
+        "ignorePseudoClasses": ["global"] 
       }
     ],
     "scss/at-rule-no-unknown": true,

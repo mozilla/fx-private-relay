@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactElement, ReactNode } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -87,14 +87,14 @@ export const Layout = (props: Props) => {
       <WhatsNewMenu profile={profiles.data[0]} />
     ) : null;
 
-  const closeToastButton = (closeToast: () => void): React.ReactElement => {
+  const closeToastButton = (closeToast: () => void): ReactElement => {
     return (
       <div className={styles["close-toast-button-container"]}>
         <button className="Toastify__close-button Toastify__close-button--colored">
           {CloseIcon({
             alt: "",
             onClick: closeToast,
-            className: styles["close-toast-button-icon"],
+            id: styles["close-toast-button-icon"],
           })}
         </button>
       </div>
