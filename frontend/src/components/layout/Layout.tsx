@@ -92,7 +92,7 @@ export const Layout = (props: Props) => {
       <div className={styles["close-toast-button-container"]}>
         <button className="Toastify__close-button Toastify__close-button--colored">
           {CloseIcon({
-            alt: "",
+            alt: l10n.getString("toast-button-close-label"),
             onClick: closeToast,
             id: styles["close-toast-button-icon"],
           })}
