@@ -12,7 +12,7 @@
     "build:mocked": "NEXT_PUBLIC_MOCK_API=true NEXT_PUBLIC_DEBUG=true npm run build",
     "start": "next start",
     "lint": "stylelint '**/*.scss' && prettier --check './src' && next lint",
-    "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; 0BSD; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL;'",
+    "licensecheck": "license-checker --excludePrivatePackages --production --onlyAllow 'MPL; MIT; BSD-3-Clause; BSD-2-Clause; 0BSD; Apache-2.0; ISC; Zlib; CC0; Unlicense; WTFPL; Unicode-DFS-2016;'",
     "test": "jest",
     "postinstall": "msw init public/ --save",
     "prepare": "cd .. && husky install frontend/.husky"
