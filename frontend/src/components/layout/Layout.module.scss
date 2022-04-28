@@ -38,11 +38,11 @@ $toastify-toast-close-button: var(--toast-close-button);
       --toast-close-button: #{$color-red-60};
 
       &:hover {
-        background-color: $color-red-70;
+        --toastify-color-error: #{$color-red-70};
       }
 
       &:active {
-        background-color: $color-red-80;
+        --toastify-color-error: #{$color-red-80};
       }
 
       &:focus {
@@ -51,11 +51,6 @@ $toastify-toast-close-button: var(--toast-close-button);
 
       &:disabled {
         --toast-close-button: #{$color-red-80};
-      }
-
-      &:focus,
-      &:disabled {
-        $toastify-toast-close-button: #{$color-red-80};
       }
     }
   }
