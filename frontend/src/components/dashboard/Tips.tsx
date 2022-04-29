@@ -10,11 +10,9 @@ import { InfoIcon } from "../Icons";
 import { ProfileData } from "../../hooks/api/profile";
 import { DismissalData, useLocalDismissal } from "../../hooks/localDismissal";
 import { getRuntimeConfig } from "../../config";
-import { CustomAliasData } from "../../hooks/api/aliases";
 
 export type Props = {
   profile: ProfileData;
-  customAliases: CustomAliasData[];
 };
 
 export type TipEntry = {
@@ -38,10 +36,7 @@ export const Tips = (props: Props) => {
   const customAliasDismissal = useLocalDismissal(
     `tips_customAlias_${props.profile.id}`
   );
-  if (
-    typeof props.profile.subdomain === "string" &&
-    props.customAliases.length === 0
-  ) {
+  if (typeof props.profile.subdomain === "string") {
     tips.push({
       title: l10n.getString("tips-custom-alias-heading"),
       content: <CustomAliasTip subdomain={props.profile.subdomain} />,
