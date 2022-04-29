@@ -1,5 +1,4 @@
 import React from "react";
-import { jest, describe, it, expect } from "@jest/globals";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
@@ -42,7 +41,7 @@ describe("The settings screen", () => {
     render(<Settings />);
 
     const bannerHeading = screen.getByRole("heading", {
-      name: "l10n string: [settings-warning-collection-off-heading], with vars: {}",
+      name: "l10n string: [settings-warning-collection-off-heading-2], with vars: {}",
     });
 
     expect(bannerHeading).toBeInTheDocument();
@@ -53,7 +52,7 @@ describe("The settings screen", () => {
     render(<Settings />);
 
     const bannerHeading = screen.queryByRole("heading", {
-      name: "l10n string: [settings-warning-collection-off-heading], with vars: {}",
+      name: "l10n string: [settings-warning-collection-off-heading-2], with vars: {}",
     });
 
     expect(bannerHeading).not.toBeInTheDocument();
@@ -65,7 +64,7 @@ describe("The settings screen", () => {
 
     userEvent.click(
       screen.getByLabelText(
-        "l10n string: [setting-label-collection-description], with vars: {}"
+        "l10n string: [setting-label-collection-description-2], with vars: {}"
       )
     );
 

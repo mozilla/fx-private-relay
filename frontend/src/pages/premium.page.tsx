@@ -61,11 +61,11 @@ const PremiumPromo: NextPage = () => {
         </div>
         <div className={styles.callout}>
           <h2>
-            {l10n.getString("landing-pricing-headline", {
+            {l10n.getString("landing-pricing-headline-2", {
               monthly_price: getPlan(runtimeData.data).price,
             })}
           </h2>
-          <p>{l10n.getString("landing-pricing-body")}</p>
+          <p>{l10n.getString("landing-pricing-body-2")}</p>
         </div>
       </div>
     </section>
@@ -82,7 +82,7 @@ const PremiumPromo: NextPage = () => {
   ) : (
     <Button
       disabled={true}
-      title={l10n.getString("premium-promo-availability-warning")}
+      title={l10n.getString("premium-promo-availability-warning-2")}
     >
       {l10n.getString("premium-promo-hero-cta")}
     </Button>
@@ -111,7 +111,7 @@ const PremiumPromo: NextPage = () => {
           <div className={styles.lead}>
             <h2>{l10n.getString("premium-promo-hero-headline")}</h2>
             <Localized
-              id="premium-promo-hero-body-html"
+              id="premium-promo-hero-body-2-html"
               vars={{
                 monthly_price: isPremiumAvailableInCountry(runtimeData.data)
                   ? getPlan(runtimeData.data).price
@@ -125,7 +125,7 @@ const PremiumPromo: NextPage = () => {
               <p />
             </Localized>
             {cta}
-            <p>{l10n.getString("premium-promo-availability-warning")}</p>
+            <p>{l10n.getString("premium-promo-availability-warning-2")}</p>
           </div>
           <div className={styles["demo-phone"]}>
             <DemoPhone
@@ -142,18 +142,18 @@ const PremiumPromo: NextPage = () => {
               {l10n.getString("premium-promo-perks-headline")}
             </h2>
             <p className={styles.lead}>
-              {l10n.getString("premium-promo-perks-lead")}
+              {l10n.getString("premium-promo-perks-lead-2")}
             </p>
             <div className={styles.perk}>
               <img src={PerkIllustrationUnlimited.src} alt="" />
               <div className={styles.description}>
                 <h3>
                   {l10n.getString(
-                    "premium-promo-perks-perk-unlimited-headline"
+                    "premium-promo-perks-perk-unlimited-headline-2"
                   )}
                 </h3>
                 <p>
-                  {l10n.getString("premium-promo-perks-perk-unlimited-body")}
+                  {l10n.getString("premium-promo-perks-perk-unlimited-body-2")}
                 </p>
                 {getPerkCta("premium-promo-perk-unlimited-cta")}
               </div>
@@ -163,12 +163,12 @@ const PremiumPromo: NextPage = () => {
               <div className={styles.description}>
                 <h3>
                   {l10n.getString(
-                    "premium-promo-perks-perk-custom-domain-headline"
+                    "premium-promo-perks-perk-custom-domain-headline-2"
                   )}
                 </h3>
                 <p>
                   {l10n.getString(
-                    "premium-promo-perks-perk-custom-domain-body"
+                    "premium-promo-perks-perk-custom-domain-body-2"
                   )}
                 </p>
                 {getPerkCta("premium-promo-perk-custom-domain-cta")}
@@ -179,11 +179,11 @@ const PremiumPromo: NextPage = () => {
               <div className={styles.description}>
                 <h3>
                   {l10n.getString(
-                    "premium-promo-perks-perk-dashboard-headline"
+                    "premium-promo-perks-perk-dashboard-headline-2"
                   )}
                 </h3>
                 <p>
-                  {l10n.getString("premium-promo-perks-perk-dashboard-body")}
+                  {l10n.getString("premium-promo-perks-perk-dashboard-body-2")}
                 </p>
                 {getPerkCta("premium-promo-perk-dashboard-cta")}
               </div>
@@ -193,10 +193,10 @@ const PremiumPromo: NextPage = () => {
         <section id="use-cases" className={styles["use-cases-wrapper"]}>
           <div className={styles["use-cases"]}>
             <h2 className={styles.headline}>
-              {l10n.getString("premium-promo-use-cases-headline")}
+              {l10n.getString("premium-promo-use-cases-headline-2")}
             </h2>
             <Carousel
-              title={l10n.getString("premium-promo-use-cases-headline")}
+              title={l10n.getString("premium-promo-use-cases-headline-2")}
               tabs={[
                 {
                   color: "yellow",

@@ -19,7 +19,7 @@ import { useLocalization } from "@fluent/react";
 import styles from "./CategoryFilter.module.scss";
 import filterIcon from "../../../../../static/images/icon-filter-blue.svg";
 import { Filters } from "../../../functions/filterAliases";
-import { useOverlayTriggerState } from "@react-stately/overlays";
+import { useOverlayTriggerState } from "react-stately";
 import { Button } from "../../Button";
 
 export type SelectedFilters = {
@@ -159,9 +159,7 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
                 name="customAliases"
                 id="customAliases"
               />
-              {l10n.getString(
-                "profile-filter-category-option-domain-based-aliases-v2"
-              )}
+              {l10n.getString("profile-filter-category-option-custom-masks")}
             </label>
             <label>
               <input
@@ -173,9 +171,7 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
                 name="randomAliases"
                 id="randomAliases"
               />
-              {l10n.getString(
-                "profile-filter-category-option-relay-aliases-v2"
-              )}
+              {l10n.getString("profile-filter-category-option-random-masks")}
             </label>
             <label>
               <input
@@ -187,8 +183,20 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
                 name="forwardingAliases"
                 id="forwardingAliases"
               />
+              {l10n.getString("profile-filter-category-option-active-masks")}
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={status === "promo-blocking"}
+                onChange={(e) =>
+                  setStatus(e.target.checked ? "promo-blocking" : undefined)
+                }
+                name="promoBlockingAliases"
+                id="promoBlockingAliases"
+              />
               {l10n.getString(
-                "profile-filter-category-option-active-aliases-v2"
+                "profile-filter-category-option-promo-blocking-masks"
               )}
             </label>
             <label>
@@ -201,9 +209,7 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
                 name="blockingAliases"
                 id="blockingAliases"
               />
-              {l10n.getString(
-                "profile-filter-category-option-disabled-aliases-v2"
-              )}
+              {l10n.getString("profile-filter-category-option-disabled-masks")}
             </label>
             <div className={styles.buttons}>
               <button type="reset">

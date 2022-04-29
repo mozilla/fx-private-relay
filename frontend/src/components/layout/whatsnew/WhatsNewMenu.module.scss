@@ -45,16 +45,8 @@
     width: 12px;
     position: absolute;
     top: -6px;
-    right: $spacing-md;
+    right: $spacing-lg;
     transform: rotate(45deg);
     background-color: $color-white;
-
-    @media screen and #{$mq-md} {
-      // On a small screen, there are no app and user menu's to the right of the
-      // trigger, so the arrow has to be pretty much on the right-hand side.
-      // However, on a wider screen, it should be roughly at a third of the
-      // width to align with the trigger:
-      right: calc($content-sm / 3);
-    }
   }
 }

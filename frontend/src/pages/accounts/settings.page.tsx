@@ -10,6 +10,7 @@ import messageIcon from "../../../../static/images/icon-message-purple.svg";
 import helpIcon from "../../../../static/images/help-purple.svg";
 import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
+import { NewTabIcon } from "../../components/Icons";
 import { Button } from "../../components/Button";
 import { getRuntimeConfig } from "../../config";
 import { useLocalLabels } from "../../hooks/localLabels";
@@ -47,8 +48,10 @@ const Settings: NextPage = () => {
 
   const currentSettingWarning = profile.server_storage ? null : (
     <div className={styles["banner-wrapper"]}>
-      <Banner title={l10n.getString("settings-warning-collection-off-heading")}>
-        {l10n.getString("settings-warning-collection-off-description")}
+      <Banner
+        title={l10n.getString("settings-warning-collection-off-heading-2")}
+      >
+        {l10n.getString("settings-warning-collection-off-description-2")}
       </Banner>
     </div>
   );
@@ -58,7 +61,7 @@ const Settings: NextPage = () => {
     labelCollectionDisabledWarningToggles > 1 && !labelCollectionEnabled ? (
       <aside role="alert" className={styles["field-warning"]}>
         <img src={infoTriangleIcon.src} alt="" width={20} />
-        <p>{l10n.getString("setting-label-collection-off-warning")}</p>
+        <p>{l10n.getString("setting-label-collection-off-warning-2")}</p>
       </aside>
     ) : null;
 
@@ -106,6 +109,7 @@ const Settings: NextPage = () => {
       >
         <img src={messageIcon.src} alt="" />
         {l10n.getString("settings-meta-contact-label")}
+        <NewTabIcon />
       </a>
     </li>
   ) : null;
@@ -134,7 +138,9 @@ const Settings: NextPage = () => {
                         }
                       />
                       <label htmlFor="label-collection">
-                        {l10n.getString("setting-label-collection-description")}
+                        {l10n.getString(
+                          "setting-label-collection-description-2"
+                        )}
                       </label>
                     </div>
                     {labelCollectionWarning}
@@ -165,6 +171,7 @@ const Settings: NextPage = () => {
                 >
                   <img src={helpIcon.src} alt="" />
                   {l10n.getString("settings-meta-help-label")}
+                  <NewTabIcon />
                 </a>
               </li>
               <li>
@@ -176,6 +183,7 @@ const Settings: NextPage = () => {
                 >
                   <img src={performanceIcon.src} alt="" />
                   {l10n.getString("settings-meta-status-label")}
+                  <NewTabIcon />
                 </a>
               </li>
             </ul>

@@ -29,6 +29,8 @@ At a high level, you will need to:
 3. Configure your app to accept emails addressed to your domain
 4. Set up your AWS SES to send emails FROM your app
 5. Send a test email
+6. (Optional) [Convert to store in S3](#convert-to-store-in-s3)
+7. (Optional) [Convert to back-end processing](#convert-to-back-end-processing)
 
 ### Publish MX at your domain
 When a sending Mail Transfer Agents (MTA) delivers email to a domain, it 
@@ -144,11 +146,13 @@ mode, you need to add one of your own email addresses as a verified identity.
 ### Send a test email
 
 1. Run your local Relay server and ngrok:
-   * `python manage.py runserver`
-   * `ngrok http -subdomain=myrelay 8000`
+   * `python manage.py runserver 127.0.0.1:8000`
+   * `ngrok http -subdomain=myrelay 127.0.0.1:8000`
 2. Go to your favorite email address and send an email to the Relay alias you
    generated above.
 3. You should see a POST to `/emails/sns-inbound` in your `runserver` process!
+4. You should see the test email in the Inbox of the final destination/recipient of the alias!
+   * Note: the final destination/recipient address for the alias must be in your SES "verified identities" for SES to actually send it emails. 
 
 
 [create-new-identity]: https://console.aws.amazon.com/ses/home?region=us-east-1#/verified-identities/create
@@ -157,3 +161,302 @@ mode, you need to add one of your own email addresses as a verified identity.
 [ngrok-custom-subdomain]: https://ngrok.com/docs#http-subdomain
 [sns-topic-panel]: https://console.aws.amazon.com/sns/v3/home?region=us-east-1#/topics
 [create-ses-config]: https://console.aws.amazon.com/ses/home?region=us-east-1#/configuration-sets/create
+
+
+## <a name="convert-to-store-in-s3"></a> (Optional) Convert to store in S3
+
+In Q1 2022, we adjusted AWS SES to store emails in S3 before adding them to
+SNS. This allows emails that are larger than an SNS message (150K), such as
+emails with large attachments.
+
+The steps to setup S3 transfer:
+
+1. Add an encryption key
+2. Convert AWS SES to store emails in a new S3 bucket
+3. Configure the new AWS S3 bucket
+4. Allow the app AWS user to access the S3 bucket
+5. Send a test email
+
+### Add an encryption key
+
+By adding the encryption key first, the AWS console will be able to add
+permissions as we use it.
+
+* Load the [Customer managed keys][customer-managed-keys] page, and select "Create Key"
+    * Step 1: Configure key
+        * Key type: Symmetric
+        * Advanced options: defaults are OK:
+            - Key material origin: KMS
+            - Regionality: Single-Region key
+        * Click "Next"
+    * Step 2: Add labels
+        * Alias: RelayKey or similar
+        * Description: This key is used to encrypt incoming SES messages processed by SNS, SQS, and S3.
+        * Tags: *None*
+        * Click "Next"
+    * Step 3: Define key administrative permissions
+        * Key administrators: Add your login user, if applicable
+        * Key deletion: Select Allow key administrators to delete this key (default)
+        * Click "Next"
+    * Step 4: Define key usage permissions
+        * This account: Add the app key user, if applicable
+        * Other AWS accounts: *None*
+    * Step 5: Review
+        * Add the statement below to the key policy
+        * Click "Finish"
+
+This Key Policy statement (change ``111122223333`` to your account number)
+allows SES to access the key. Add it to key policy with the other statements:
+
+```json
+{
+  "Sid": "AllowSESToEncryptMessagesBelongingToThisAccount",
+  "Effect": "Allow",
+  "Principal": {
+    "Service":"ses.amazonaws.com"
+  },
+  "Action": [
+    "kms:GenerateDataKey*",
+    "kms:Encrypt",
+    "kms:Decrypt"
+  ],
+  "Resource": "*",
+  "Condition":{
+    "StringEquals":{
+      "AWS:SourceAccount":"111122223333"
+    },
+    "StringLike": {
+      "AWS:SourceArn": "arn:aws:ses:*"
+    }
+  }
+}
+```
+
+[customer-managed-keys]: https://us-east-1.console.aws.amazon.com/kms/home?region=us-east-1#/kms/keys
+
+### Convert AWS SES to store emails in a new S3 bucket
+
+1. Go to [SES Email Receiving][ses-email-receiving].
+2. Select the ruleset ``ses-all-inbound-to-sns``
+3. Select the rule ``ses-all-inbound-to-sns``
+4. Select the "Actions" tab, and the "Edit"
+    - Step 3: Add actions:
+        * Click "Remove" to remove "Publish to Amazon SNS topic"
+        * In "Add new action", select "Deliver to S3 bucket"
+        * S3 bucket: Select "Create S3 bucket", and select a name like "fxrelay-emails-myusername"
+        * Object key prefix: emails
+        * Message encryption: De-select Enable (default)
+        * SNS topic: Select your existing SNS topic
+        * Click Next
+    - Review:
+        * Step 3 now shows "S3Action" for Action type
+        * Click "Save changes"
+
+### Configure the new AWS S3 Bucket
+
+On the [S3 Buckets page][s3-buckets-page], select your new bucket to view details.
+
+There will be a single object, `emails/AMAZON_SES_SETUP_NOTIFICATION`, which
+contains a fake email saying that SES is delivering to this S3 bucket.
+
+These changes needed to line up with other deployments:
+
+* Properties - enable server-side encryption
+* Permissions - disabled public access
+* Management - delete after 3 days
+
+[s3-buckets-page]: https://s3.console.aws.amazon.com/s3/buckets?region=us-east-1
+
+#### Update Properties - Enable encryption
+On the **Properties** tab:
+
+* In the "Default encryption" section, select "Edit":
+    - Server-side encryption: select Enable
+    - Encryption key type: AWS Key Management Service key (SSE-KMS)
+    - AWS KMS key: Choose from your AWS KMS keys, select the RelayKey
+    - Bucket Key: Enable
+    - Select "Save Changes"
+
+#### Update Permissions
+
+On the **Permissions** tab:
+
+* In the "Block public access (bucket settings), select "Edit":
+    - Select "Block *all* public access"
+    - Select "Save Changes"
+    - Type "confirm" to confirm
+
+#### Update Management
+
+On the **Management** tab:
+
+* In the "Lifecycle rules" section (top), select "Create lifecycle rule"
+    * Lifecycle rule configuration
+        * Lifecycle rule name: ``delete-expired``
+        * Choose a rule scope: Leave at "Limit the scope of this rule using one or more filters"
+        * Filter type - Prefix: ``emails/``
+        * Leave with no tags, and no object size filters
+    * Lifecycle rule actions
+        * Select option 3, "Expire current versions of objects". For an
+          unversioned bucket, this deletes the object.
+    * Expire current versions of objects (this section appears after selecting the action)
+        * Days after object creation: 3
+    * Review transition and expiration actions (read-only, confirms settings)
+        * Current version actions:
+            * Day 0: Objects uploaded
+            * Day 3: Objects expire
+        * Noncurrent versions actions
+            * Day 0: No actions defined.
+    * Select "Create rule" to return to the Lifecycle Configuration details.
+    * Select the bucket name from the breadcrumbs to return to bucket details
+
+### Allow the app AWS user to manage the S3 bucket
+Starting at the [Identity and Access Management (IAM) Dashboard][iam-dashboard],
+add the full access policy to the AWS user that you use from the app:
+
+```
+arn:aws:iam::aws:policy/AmazonS3FullAccess
+```
+
+or add the specific permissions needed by the app:
+
+```
+ListBucket (optional)
+GetObject
+DeleteObject
+```
+
+You'll need the bucket permission (like ``arn:aws:s3:::fxrelay-emails-myusername``)
+for ``ListBucket``, and object permission (like
+``arn:aws:s3:::fxrelay-emails-myusername/*``) for ``GetObject`` and ``DeleteObject``.
+
+[iam-dashboard]: https://us-east-1.console.aws.amazon.com/iamv2/home#/home
+
+### Send a test email
+
+Same as before:
+
+1. Run your local Relay server and ngrok:
+   * `python manage.py runserver 127.0.0.1:8000`
+   * `ngrok http -subdomain=myrelay 127.0.0.1:8000`
+2. Go to your favorite email address and send an email to the Relay alias you
+   generated above.
+3. You should see a POST to `/emails/sns-inbound` in your `runserver` process!
+4. You should see the test email in the Inbox of the final destination/recipient of the alias!
+   * Note: the final destination/recipient address for the alias must be in your SES "verified identities" for SES to actually send it emails. 
+
+One way to see the S3 object is to add a breakpoint to your local code,
+so that you can examine the object in the AWS console before it is deleted.
+However, SNS will quickly try the request again, so be fast!
+
+## <a name="convert-to-back-end-processing"></a> (Optional) Convert to back-end processing
+
+*Note: this change is not yet in production*
+
+In Q2 2022, we are switching from handling email as a web request, POSTed via
+an SNS subscription, to a back-end process, pulling from a Simple Queue Service
+(SQS) queue.
+
+
+```mermaid
+sequenceDiagram
+
+    Sending MTA->>yourdomain.com: Fetch DNS MX Record
+    yourdomain.com->>Sending MTA: inbound-smtp.us-west-2.amazonaws.com.
+    Sending MTA->>AWS: SMTP
+    Local app->>AWS: SQS fetch
+    Local app->>AWS: POST /SendRawEmail
+    AWS->>Reciving MTA: SMTP
+```
+
+To make this change:
+
+* (Optional) Add a dead-letter queue
+* Add an SQS queue
+* Enable the app user to read from the queue
+* Turn off the SNS push subscription
+* Subscribe to SNS topic
+* Run the email task
+
+### (Optional) Add a dead-letter queue
+In production, undeliverable SNS messages are sent to a dead-letter queue
+(DLQ). They can be undeliverable because the service is unavailable, or because
+the email is malformed, or processing is broken. An SQS queue can also have a
+dead-letter queue.  If you have a SNS DLQ, you can use it for the SQS DLQ as
+well. If not, you can create it.
+
+On the [SQS dashboard][sqs-dashboard], select "Create Queue":
+
+* Details
+    * Type: Standard
+    * Name: `fx-relay-emails-dlq`
+* Select "Create Queue" to accept other defaults.
+
+### Add an SQS queue
+
+On the [SQS dashboard][sqs-dashboard], select "Create Queue":
+
+* Details
+    * Type: Standard
+    * Name: `fx-relay-emails`
+* Dead-letter queue - *Optional* - If you created one in the previous step:
+    * Set this queue to receive undeliverable messages: Enabled
+    * Choose Queue: The ARN for `fx-relay-emails-dlq`
+    * Maximum receives: 3
+* Select "Create queue"
+
+### Enable the app user to read from the queue
+Starting at the [Identity and Access Management (IAM) Dashboard][iam-dashboard],
+add the full access policy to the AWS user that you use from the app:
+
+```
+arn:aws:iam::aws:policy/AmazonSQSFullAccess
+```
+
+or add the specific permissions needed by the app:
+
+* ``sqs:ReceiveMessage`` - Needed to read messages
+* ``sqs:DeleteMessage`` - Needed to removed messages
+* ``sqs:ChangeMessageVisibility`` - Needed to reserve a message when reading
+* ``sqs:GetQueueAttributes`` - Needed to get (approximate) queue sizes
+
+### Turn off the SNS push subscription
+
+On the [SNS Topics dashboard][sns-topic-panel]:
+
+* Select the relay topic
+* Select radio button to the left of the `/emails/sns-inbound` subscription
+* Select "Delete"
+* Confirm "Delete"
+
+### Subscribe to SNS topic
+
+Back on the [SQS dashboard][sqs-dashboard], select the queue.
+In the "SNS Subscriptions" tab:
+
+* Select "Subscribe to Amazon SNS topic"
+* In the "Amazon SNS topic" panel, choose the relay topic
+* Select "Save"
+
+### Run the email task
+
+Set environment variables:
+
+* `AWS_ACCESS_KEY_ID`
+* `AWS_SECRET_ACCESS_KEY`
+* `AWS_SQS_EMAIL_QUEUE_URL`: The URL of the `fx-relay-emails` queue
+* `AWS_SQS_EMAIL_DLQ_URL`: The URL of the `fx-relay-emails-dlq` queue, if
+  configured, otherwise omit or set to an empty string (``""``)
+
+These URLs can be found by starting at the [SQS dashboard][sqs-dashboard] and
+clicking on the queue name to view details.
+
+Run the email task:
+
+```
+./manage.py process_emails_from_sqs
+```
+
+Go to your favorite email client and send an email to your Relay alias. In a
+few seconds, you'll see log messages about the email being processed, and then
+the test email in the Inbox of the final destination/recipient of the alias!.

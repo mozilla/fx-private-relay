@@ -43,7 +43,7 @@ const Home: NextPage = () => {
     label: "home-hero-cta",
   });
 
-  if (typeof userData.data?.[0] === "object") {
+  if (typeof userData.data?.[0] === "object" && !userData.error) {
     router.push("/accounts/profile/");
   }
 
@@ -63,11 +63,11 @@ const Home: NextPage = () => {
         </div>
         <div className={styles.callout}>
           <h2>
-            {l10n.getString("landing-pricing-headline", {
+            {l10n.getString("landing-pricing-headline-2", {
               monthly_price: getPlan(runtimeData.data).price,
             })}
           </h2>
-          <p>{l10n.getString("landing-pricing-body")}</p>
+          <p>{l10n.getString("landing-pricing-body-2")}</p>
         </div>
       </div>
     </section>
@@ -78,8 +78,8 @@ const Home: NextPage = () => {
       <main>
         <section id="hero" className={styles.hero}>
           <div className={styles.lead}>
-            <h2>{l10n.getString("landing-hero-headline")}</h2>
-            <p>{l10n.getString("landing-hero-body")}</p>
+            <h2>{l10n.getString("landing-hero-headline-2")}</h2>
+            <p>{l10n.getString("landing-hero-body-2")}</p>
             <LinkButton
               ref={heroCtaRef}
               onClick={() => signup()}
@@ -108,7 +108,7 @@ const Home: NextPage = () => {
               {l10n.getString("landing-how-it-works-headline")}
             </h2>
             <p className={styles.lead}>
-              {l10n.getString("landing-how-it-works-body")}
+              {l10n.getString("landing-how-it-works-body-2")}
             </p>
             <ol className={styles.steps}>
               <li className={styles.step}>
@@ -118,18 +118,19 @@ const Home: NextPage = () => {
                   <a href="https://addons.mozilla.org/firefox/addon/private-relay/">
                     {l10n.getString("landing-how-it-works-step-1-body-cta")}
                   </a>
-                  {l10n.getString("landing-how-it-works-step-1-body")}
+                  &nbsp;
+                  {l10n.getString("landing-how-it-works-step-1-body-2")}
                 </p>
               </li>
               <li className={styles.step}>
                 <img src={HowItWorks2.src} alt="" />
-                <h3>{l10n.getString("how-it-works-step-2-headline")}</h3>
-                <p>{l10n.getString("landing-how-it-works-step-2-body-v2")}</p>
+                <h3>{l10n.getString("how-it-works-step-2-headline-2")}</h3>
+                <p>{l10n.getString("landing-how-it-works-step-2-body-2")}</p>
               </li>
               <li className={styles.step}>
                 <img src={HowItWorks3.src} alt="" />
-                <h3>{l10n.getString("how-it-works-step-3-headline")}</h3>
-                <p>{l10n.getString("landing-how-it-works-step-3-body")}</p>
+                <h3>{l10n.getString("how-it-works-step-3-headline-2")}</h3>
+                <p>{l10n.getString("landing-how-it-works-step-3-body-2")}</p>
               </li>
             </ol>
           </div>
@@ -278,24 +279,24 @@ const Home: NextPage = () => {
                 entries={[
                   {
                     q: l10n.getString("faq-question-availability-question"),
-                    a: l10n.getString("faq-question-availability-answer"),
+                    a: l10n.getString("faq-question-availability-answer-v2"),
                   },
                   {
-                    q: l10n.getString("faq-question-what-is-question"),
-                    a: l10n.getString("faq-question-what-is-answer"),
+                    q: l10n.getString("faq-question-what-is-question-2"),
+                    a: l10n.getString("faq-question-what-is-answer-2"),
                   },
                   {
-                    q: l10n.getString("faq-question-use-cases-question"),
+                    q: l10n.getString("faq-question-use-cases-question-2"),
                     a: (
                       <>
                         <p>
                           {l10n.getString(
-                            "faq-question-use-cases-answer-part1"
+                            "faq-question-use-cases-answer-part1-2"
                           )}
                         </p>
                         <p>
                           {l10n.getString(
-                            "faq-question-use-cases-answer-part2"
+                            "faq-question-use-cases-answer-part2-2"
                           )}
                         </p>
                       </>
@@ -303,7 +304,7 @@ const Home: NextPage = () => {
                   },
                   {
                     q: l10n.getString("faq-question-browser-support-question"),
-                    a: l10n.getString("faq-question-browser-support-answer"),
+                    a: l10n.getString("faq-question-browser-support-answer-2"),
                   },
                 ]}
               />

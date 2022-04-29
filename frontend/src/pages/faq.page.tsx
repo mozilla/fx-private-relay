@@ -19,17 +19,19 @@ const Faq: NextPage = () => {
             <div className={styles.faqs}>
               <QAndA
                 id="faq-what-is"
-                question={l10n.getString("faq-question-what-is-question")}
+                question={l10n.getString("faq-question-what-is-question-2")}
               >
-                <p>{l10n.getString("faq-question-what-is-answer")}</p>
+                <p>{l10n.getString("faq-question-what-is-answer-2")}</p>
               </QAndA>
               <QAndA
                 id="faq-missing-emails"
                 question={l10n.getString(
-                  "faq-question-missing-emails-question"
+                  "faq-question-missing-emails-question-2"
                 )}
               >
-                <p>{l10n.getString("faq-question-missing-emails-answer-a")}</p>
+                <p>
+                  {l10n.getString("faq-question-missing-emails-answer-a-2")}
+                </p>
                 <ul>
                   <li>
                     {l10n.getString(
@@ -38,7 +40,7 @@ const Faq: NextPage = () => {
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-missing-emails-answer-reason-blocked"
+                      "faq-question-missing-emails-answer-reason-blocked-2"
                     )}
                   </li>
                   <li>
@@ -52,12 +54,12 @@ const Faq: NextPage = () => {
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-missing-emails-answer-reason-not-accepted"
+                      "faq-question-missing-emails-answer-reason-not-accepted-2"
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-missing-emails-answer-reason-turned-off"
+                      "faq-question-missing-emails-answer-reason-turned-off-2"
                     )}
                   </li>
                   <li>
@@ -87,14 +89,14 @@ const Faq: NextPage = () => {
               </QAndA>
               <QAndA
                 id="faq-use-cases"
-                question={l10n.getString("faq-question-use-cases-question")}
+                question={l10n.getString("faq-question-use-cases-question-2")}
               >
-                <p>{l10n.getString("faq-question-use-cases-answer-part1")}</p>
-                <p>{l10n.getString("faq-question-use-cases-answer-part2")}</p>
+                <p>{l10n.getString("faq-question-use-cases-answer-part1-2")}</p>
+                <p>{l10n.getString("faq-question-use-cases-answer-part2-2")}</p>
               </QAndA>
               <QAndA
                 id="faq-rejections"
-                question={l10n.getString("faq-question-2-question")}
+                question={l10n.getString("faq-question-2-question-2")}
               >
                 <p>{l10n.getString("faq-question-2-answer-v4")}</p>
               </QAndA>
@@ -102,9 +104,9 @@ const Faq: NextPage = () => {
                 id="faq-spam"
                 question={l10n.getString("faq-question-1-question")}
               >
-                <p>{l10n.getString("faq-question-1-answer-a")}</p>
+                <p>{l10n.getString("faq-question-1-answer-a-2")}</p>
                 <Localized
-                  id="faq-question-1-answer-b-html"
+                  id="faq-question-1-answer-b-2-html"
                   vars={{
                     url: "https://addons.mozilla.org/firefox/addon/private-relay/",
                     attrs: "",
@@ -126,11 +128,11 @@ const Faq: NextPage = () => {
                 id="faq-availability"
                 question={l10n.getString("faq-question-availability-question")}
               >
-                <p>{l10n.getString("faq-question-availability-answer")}</p>
+                <p>{l10n.getString("faq-question-availability-answer-v2")}</p>
               </QAndA>
               <QAndA
                 id="faq-replies"
-                question={l10n.getString("faq-question-4-question")}
+                question={l10n.getString("faq-question-4-question-2")}
               >
                 <p>{l10n.getString("faq-question-4-answer-v4")}</p>
               </QAndA>
@@ -152,19 +154,19 @@ const Faq: NextPage = () => {
                   "faq-question-browser-support-question"
                 )}
               >
-                <p>{l10n.getString("faq-question-browser-support-answer")}</p>
+                <p>{l10n.getString("faq-question-browser-support-answer-2")}</p>
               </QAndA>
               <QAndA
                 id="faq-longevity"
                 question={l10n.getString("faq-question-longevity-question")}
               >
-                <p>{l10n.getString("faq-question-longevity-answer")}</p>
+                <p>{l10n.getString("faq-question-longevity-answer-2")}</p>
               </QAndA>
               <QAndA
                 id="faq-mozmail"
-                question={l10n.getString("faq-question-mozmail-question")}
+                question={l10n.getString("faq-question-mozmail-question-2")}
               >
-                <p>{l10n.getString("faq-question-mozmail-answer")}</p>
+                <p>{l10n.getString("faq-question-mozmail-answer-2")}</p>
               </QAndA>
               <QAndA
                 id="faq-attachments"
@@ -180,11 +182,11 @@ const Faq: NextPage = () => {
               <QAndA
                 id="faq-unsubscribe-domain"
                 question={l10n.getString(
-                  "faq-question-unsubscribe-domain-question"
+                  "faq-question-unsubscribe-domain-question-2"
                 )}
               >
                 <p>
-                  {l10n.getString("faq-question-unsubscribe-domain-answer")}
+                  {l10n.getString("faq-question-unsubscribe-domain-answer-2")}
                 </p>
               </QAndA>
               <QAndA
@@ -192,7 +194,7 @@ const Faq: NextPage = () => {
                 question={l10n.getString("faq-question-8-question")}
               >
                 <Localized
-                  id="faq-question-8-answer-html"
+                  id="faq-question-8-answer-2-html"
                   vars={{
                     url: "https://www.mozilla.org/privacy/firefox-relay/",
                     attrs: "",
@@ -265,12 +267,12 @@ const Faq: NextPage = () => {
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-acceptable-use-answer-measure-unlimited-payment"
+                      "faq-question-acceptable-use-answer-measure-unlimited-payment-2"
                     )}
                   </li>
                   <li>
                     {l10n.getString(
-                      "faq-question-acceptable-use-answer-measure-rate-limit"
+                      "faq-question-acceptable-use-answer-measure-rate-limit-2"
                     )}
                   </li>
                 </ul>
@@ -292,6 +294,28 @@ const Faq: NextPage = () => {
                 >
                   <p />
                 </Localized>
+              </QAndA>
+              <QAndA
+                id="faq-promotional-email-blocking"
+                question={l10n.getString(
+                  "faq-question-promotional-email-blocking-question"
+                )}
+              >
+                <p>
+                  {l10n.getString(
+                    "faq-question-promotional-email-blocking-answer"
+                  )}
+                </p>
+              </QAndA>
+              <QAndA
+                id="faq-detect-promotional"
+                question={l10n.getString(
+                  "faq-question-detect-promotional-question"
+                )}
+              >
+                <p>
+                  {l10n.getString("faq-question-detect-promotional-answer")}
+                </p>
               </QAndA>
             </div>
           </div>

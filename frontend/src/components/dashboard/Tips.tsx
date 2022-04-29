@@ -131,8 +131,8 @@ const CustomAliasTip = (props: CustomAliasTipProps) => {
       <samp>
         @{props.subdomain}.{getRuntimeConfig().mozmailDomain}
       </samp>
-      <h3>{l10n.getString("tips-custom-alias-heading")}</h3>
-      <p>{l10n.getString("tips-custom-alias-content")}</p>
+      <h3>{l10n.getString("tips-custom-alias-heading-2")}</h3>
+      <p>{l10n.getString("tips-custom-alias-content-2")}</p>
     </div>
   );
 };

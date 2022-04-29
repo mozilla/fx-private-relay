@@ -137,7 +137,7 @@
 
   .content {
     grid-area: content;
-    background-color: $color-light-gray-20;
+    background-color: $color-light-gray-10;
     border-radius: $border-radius-md;
     padding: $spacing-lg;
   }
@@ -145,9 +145,11 @@
   @media screen and #{$mq-lg} {
     display: flex;
     flex-wrap: wrap;
+    padding-bottom: $spacing-lg;
 
     .tab {
       flex: 1 0 0;
+      margin-bottom: $spacing-lg;
 
       .title {
         flex-direction: column;
@@ -158,8 +160,13 @@
         text-align: center;
 
         img {
-          width: 150px;
-          height: 150px;
+          width: calc(#{$layout-2xl} - #{$layout-lg});
+          height: calc(#{$layout-2xl} - #{$layout-lg});
+
+          @media screen and #{$mq-xl} {
+            width: $layout-2xl;
+            height: $layout-2xl;
+          }
         }
       }
 

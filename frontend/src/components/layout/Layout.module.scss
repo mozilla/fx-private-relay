@@ -22,6 +22,7 @@
 
 .header {
   position: sticky;
+  top: 0;
   // The sticky position causes a new stacking context,
   // which is stacked below elements lower in the document
   // with their own stacking contexts (specifically,
@@ -93,6 +94,10 @@
     a:hover {
       color: $color-light-gray-30;
     }
+  }
+  &.is-light {
+    background-color: $color-white;
+    color: $color-grey-40;
   }
 
   @media screen and #{$mq-md} {

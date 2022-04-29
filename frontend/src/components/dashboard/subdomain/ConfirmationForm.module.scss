@@ -40,21 +40,34 @@
     justify-content: space-between;
     padding-top: $spacing-xl;
 
+    button[type="submit"] {
+      background: $color-blue-50;
+      opacity: 0.4;
+
+      &:not(:disabled) {
+        opacity: 1;
+      }
+
+      &:hover:not(:disabled) {
+        background-color: $color-blue-60;
+        opacity: 1;
+      }
+    }
+
     .cancel-button {
       border-style: none;
       background-color: transparent;
       cursor: pointer;
       border-radius: $border-radius-sm;
       color: $color-blue-50;
-      padding: $spacing-sm $spacing-2xl;
+      padding: $spacing-sm $spacing-md;
 
       &:hover {
-        background-color: $color-blue-50;
-        color: $color-white;
+        color: $color-link-hover;
       }
 
       &:focus {
-        text-decoration: underline;
+        color: $color-blue-50;
       }
     }
   }

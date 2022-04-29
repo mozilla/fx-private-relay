@@ -52,7 +52,7 @@ export const Plans = (props: Props) => {
           {l10n.getString("landing-pricing-free-price")}
         </b>
         <ul className={styles.features}>
-          <li>{l10n.getString("landing-pricing-free-feature-1")}</li>
+          <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
           <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
         </ul>
         <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
@@ -78,10 +78,11 @@ export const Plans = (props: Props) => {
           })}
         </b>
         <ul className={styles.features}>
-          <li>{l10n.getString("landing-pricing-premium-feature-1")}</li>
+          <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
           <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
-          <li>{l10n.getString("landing-pricing-premium-feature-3")}</li>
+          <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
           <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
+          <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
         </ul>
         <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
           {l10n.getString("nav-profile-sign-up")}

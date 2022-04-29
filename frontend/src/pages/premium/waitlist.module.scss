@@ -1,0 +1,88 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.wrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 100%;
+  padding: $spacing-sm $spacing-lg;
+
+  .form {
+    width: $content-md;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2xl;
+    padding: $spacing-md 0;
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+
+      .control {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-xs;
+        width: 100%;
+
+        label {
+          @include field-label;
+          @include text-body-md;
+          padding: 0;
+        }
+
+        i {
+          @include text-body-sm;
+        }
+
+        input {
+          @include form-input;
+          width: 100%;
+        }
+
+        select {
+          @include form-input;
+          width: 100%;
+        }
+      }
+    }
+
+    button {
+      align-self: center;
+    }
+
+    .privacy {
+      @include text-body-sm;
+      align-self: center;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+
+      a {
+        color: $color-blue-50;
+        text-decoration: underline;
+
+        &:hover {
+          color: $color-blue-60;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+
+  .heading {
+    @include text-title-sm;
+    font-family: $font-stack-firefox;
+    align-self: center;
+    text-align: center;
+  }
+
+  .lead {
+    @include text-body-lg;
+    align-self: center;
+    text-align: center;
+  }
+}

@@ -30,7 +30,6 @@ def common(request):
 
     common_vars = {
         'avatar': avatar,
-        'ftl_mode': 'server',
         'accept_language': accept_language,
         'country_code': country_code,
         'show_csat': show_csat,
@@ -52,7 +51,7 @@ def _get_fxa(request):
 def _get_csat_cookie_and_reason(request):
     if not request.user.is_authenticated:
         return None, None
-    profile = request.user.profile_set.first()
+    profile = request.user.profile_set.prefetch_related('user__socialaccount_set').first()
     first_visit = request.COOKIES.get(
         "first_visit", datetime.now(timezone.utc).isoformat()
     )

@@ -51,7 +51,7 @@ export const AddressPickerModal = (props: Props) => {
     <>
       <OverlayContainer>
         <PickerDialog
-          title={l10n.getString("modal-custom-alias-picker-heading")}
+          title={l10n.getString("modal-custom-alias-picker-heading-2")}
           onClose={() => props.onClose()}
           isOpen={props.isOpen}
           isDismissable={true}
@@ -60,17 +60,17 @@ export const AddressPickerModal = (props: Props) => {
             <span className={styles["warning-icon"]}>
               <InfoIcon alt="" />
             </span>
-            <p>{l10n.getString("modal-custom-alias-picker-warning")}</p>
+            <p>{l10n.getString("modal-custom-alias-picker-warning-2")}</p>
           </div>
           <form onSubmit={onSubmit}>
             <div className={styles["form-wrapper"]}>
               <p className={styles["form-heading"]}>
-                {l10n.getString("modal-custom-alias-picker-form-heading")}
+                {l10n.getString("modal-custom-alias-picker-form-heading-2")}
               </p>
               <div className={styles.prefix}>
                 <label htmlFor="address">
                   {l10n.getString(
-                    "modal-custom-alias-picker-form-prefix-label"
+                    "modal-custom-alias-picker-form-prefix-label-2"
                   )}
                 </label>
                 <input
@@ -96,7 +96,9 @@ export const AddressPickerModal = (props: Props) => {
                 {l10n.getString("profile-label-cancel")}
               </button>
               <Button type="submit" disabled={address.length === 0}>
-                {l10n.getString("modal-custom-alias-picker-form-submit-label")}
+                {l10n.getString(
+                  "modal-custom-alias-picker-form-submit-label-2"
+                )}
               </Button>
             </div>
           </form>

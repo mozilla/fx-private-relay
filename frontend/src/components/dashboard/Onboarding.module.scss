@@ -8,6 +8,7 @@
 
   h2 {
     @include text-title-2xs;
+    @include font-firefox;
     padding: $spacing-sm 0;
   }
 

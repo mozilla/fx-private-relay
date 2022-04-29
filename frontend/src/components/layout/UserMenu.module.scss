@@ -74,6 +74,9 @@
 
       .settings-link {
         color: $color-dark-gray-50;
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
       }
 
       &:hover {
@@ -98,6 +101,7 @@
 
       img {
         margin-right: $spacing-md;
+        width: 16px;
       }
 
       &:hover {

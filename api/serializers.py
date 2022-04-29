@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 class PremiumValidatorsMixin:
     # the user must be premium to set block_list_emails=True
     def validate_block_list_emails(self, value):
-        if self.context['request'].user.profile_set.first().has_premium:
+        if self.context['request'].user.profile_set.prefetch_related('user__socialaccount_set').first().has_premium:
             return value
         raise exceptions.AuthenticationFailed(
             'Must be premium to set block_list_emails'
@@ -19,6 +19,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
         model = RelayAddress
         fields = [
             'enabled', 'description', 'generated_for', 'block_list_emails',
+            'used_on',
             # read-only
             'id', 'address', 'domain', 'full_address',
             'created_at', 'last_modified_at','last_used_at',

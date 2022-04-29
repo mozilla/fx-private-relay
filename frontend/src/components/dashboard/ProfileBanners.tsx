@@ -9,7 +9,11 @@ import {
   isPremiumAvailableInCountry,
   RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
-import { isUsingFirefox } from "../../functions/userAgent";
+import {
+  isUsingFirefox,
+  supportsChromeExtension,
+  supportsFirefoxExtension,
+} from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../hooks/api/runtimeData";
@@ -17,12 +21,15 @@ import { Banner } from "../Banner";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
+import { useMinViewportWidth } from "../../hooks/mediaQuery";
+import { AliasData } from "../../hooks/api/aliases";
 
 export type Props = {
   profile: ProfileData;
   user: UserData;
   onCreateSubdomain: (chosenSubdomain: string) => Promise<void>;
   runtimeData?: RuntimeData;
+  aliases: AliasData[];
 };
 
 /**
@@ -39,6 +46,7 @@ export type Props = {
  */
 export const ProfileBanners = (props: Props) => {
   const banners: ReactNode[] = [];
+  const isLargeScreen = useMinViewportWidth("md");
 
   const bounceStatus = props.profile.bounce_status;
   if (bounceStatus[0]) {
@@ -59,20 +67,30 @@ export const ProfileBanners = (props: Props) => {
     />
   );
 
-  if (!isUsingFirefox()) {
+  // Don't show the "Get Firefox" banner if we have an extension available,
+  // to avoid banner overload:
+  if (!isUsingFirefox() && (!supportsChromeExtension() || !isLargeScreen)) {
     banners.push(<NoFirefoxBanner key="firefox-banner" />);
   }
 
-  if (isUsingFirefox()) {
+  if (supportsFirefoxExtension() && isLargeScreen) {
     // This pushes a banner promoting the add-on - detecting the add-on
     // and determining whether to show it based on that is a bit slow,
     // so we'll just let the add-on hide it:
     banners.push(<NoAddonBanner key="addon-banner" />);
   }
 
+  if (supportsChromeExtension() && isLargeScreen) {
+    // This pushes a banner promoting the add-on - detecting the add-on
+    // and determining whether to show it based on that is a bit slow,
+    // so we'll just let the add-on hide it:
+    banners.push(<NoChromeExtensionBanner key="chrome-extension-banner" />);
+  }
+
   if (
     !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.runtimeData)
+    isPremiumAvailableInCountry(props.runtimeData) &&
+    props.aliases.length > 0
   ) {
     banners.push(
       <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
@@ -122,7 +140,7 @@ const NoFirefoxBanner = () => {
         content: l10n.getString("banner-download-firefox-cta"),
       }}
     >
-      <p>{l10n.getString("banner-download-firefox-copy")}</p>
+      <p>{l10n.getString("banner-download-firefox-copy-2")}</p>
     </Banner>
   );
 };
@@ -144,7 +162,31 @@ const NoAddonBanner = () => {
       }}
       hiddenWithAddon={true}
     >
-      <p>{l10n.getString("banner-download-install-extension-copy")}</p>
+      <p>{l10n.getString("banner-download-install-extension-copy-2")}</p>
+    </Banner>
+  );
+};
+
+const NoChromeExtensionBanner = () => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      type="promo"
+      title={l10n.getString(
+        "banner-download-install-chrome-extension-headline"
+      )}
+      illustration={
+        <img src={AddonIllustration.src} alt="" width={60} height={60} />
+      }
+      cta={{
+        target:
+          "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
+        content: l10n.getString("banner-download-install-chrome-extension-cta"),
+      }}
+      hiddenWithAddon={true}
+    >
+      <p>{l10n.getString("banner-download-install-chrome-extension-copy")}</p>
     </Banner>
   );
 };
@@ -171,7 +213,7 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
         },
       }}
     >
-      <p>{l10n.getString("banner-upgrade-copy")}</p>
+      <p>{l10n.getString("banner-upgrade-copy-2")}</p>
     </Banner>
   );
 };

@@ -43,7 +43,7 @@ export const Layout = (props: Props) => {
     typeof props.theme !== "undefined"
       ? props.theme === "free"
       : !profiles.data?.[0].has_premium;
-  const darkClass = isDark ? styles["is-dark"] : "";
+  const darkClass = isDark ? styles["is-dark"] : styles["is-light"];
   const premiumLogo = isDark ? logoTypePremiumLight : logoTypePremiumDark;
   const regularLogo = isDark ? logoTypeLight : logoTypeDark;
   // The Premium logo is always shown if the user has Premium
@@ -91,7 +91,10 @@ export const Layout = (props: Props) => {
       <Head>
         <link rel="icon" type="image/svg+xml" href={favicon.src}></link>
         <title>{l10n.getString("meta-title")}</title>
-        <meta name="description" content={l10n.getString("meta-description")} />
+        <meta
+          name="description"
+          content={l10n.getString("meta-description-2")}
+        />
         <meta
           property="og:url"
           content={getRuntimeConfig().frontendOrigin + router.asPath}
@@ -100,7 +103,7 @@ export const Layout = (props: Props) => {
         <meta property="og:title" content={l10n.getString("meta-title")} />
         <meta
           property="og:description"
-          content={l10n.getString("meta-description")}
+          content={l10n.getString("meta-description-2")}
         />
         <meta property="og:image" content={socialMediaImage.src} />
         <meta name="twitter:card" content="summary_large_image" />
@@ -108,7 +111,7 @@ export const Layout = (props: Props) => {
         <meta name="twitter:title" content={l10n.getString("meta-title")} />
         <meta
           name="twitter:description"
-          content={l10n.getString("meta-description")}
+          content={l10n.getString("meta-description-2")}
         />
         <meta name="twitter:image" content={socialMediaImage.src} />
       </Head>

@@ -4,16 +4,17 @@ import glob
 import io
 import json
 import os
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.test import override_settings, TestCase
+from django.test import override_settings, Client, SimpleTestCase, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
 from model_bakery import baker
+import pytest
 
 from emails.models import (
     address_hash,
@@ -26,7 +27,8 @@ from emails.views import (
     _get_address,
     _get_attachment,
     _sns_message,
-    _sns_notification
+    _sns_notification,
+    validate_sns_header,
 )
 
 from .models_tests import make_premium_test_user, upgrade_test_user_to_premium
@@ -58,6 +60,17 @@ for bounce_type in ['soft', 'hard', 'spam']:
     with open(bounce_file, 'r') as f:
         bounce_sns_body = json.load(f)
         BOUNCE_SNS_BODIES[bounce_type] = bounce_sns_body
+
+INVALID_SNS_BODIES = {}
+inv_file_suffix = "_invalid_sns_body.json"
+for email_file in glob.glob(
+    os.path.join(real_abs_cwd, "fixtures", "*" + inv_file_suffix)
+):
+    file_name = os.path.basename(email_file)
+    file_type = file_name[:-len(inv_file_suffix)]
+    with open(email_file, "r") as f:
+        sns_body = json.load(f)
+        INVALID_SNS_BODIES[file_type] = sns_body
 
 
 class SNSNotificationTest(TestCase):
@@ -355,6 +368,41 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b'noreply address is not supported.'
+
+
+class SNSNotificationInvalidMessageTest(TestCase):
+    def test_no_message(self):
+        """An empty message returns a 400 error"""
+        json_body = {"Message": "{}"}
+        response = _sns_notification(json_body)
+        assert response.status_code == 400
+
+    def test_subscription_confirmation(self):
+        """A subscription confirmation returns a 400 error"""
+        json_body = INVALID_SNS_BODIES['subscription_confirmation']
+        response = _sns_notification(json_body)
+        assert response.status_code == 400
+
+    def test_notification_type_complaint(self):
+        """A notificationType of complaint returns a 400 error"""
+        # Manual json_body because no instances captured, from
+        # https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        complaint = {
+            "notificationType": "Complaint",
+            "complaint": {
+                "userAgent":"ExampleCorp Feedback Loop (V0.01)",
+                "complainedRecipients":[
+                    {"emailAddress":"recipient1@example.com"}
+                ],
+                "complaintFeedbackType":"abuse",
+                "arrivalDate":"2009-12-03T04:24:21.000-05:00",
+                "timestamp":"2012-05-25T14:59:38.623Z",
+                "feedbackId":"000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000"
+            }
+        }
+        json_body = {"Message": json.dumps(complaint)}
+        response = _sns_notification(json_body)
+        assert response.status_code == 400
 
 
 class SNSNotificationValidUserEmailsInS3Test(TestCase):
@@ -669,3 +717,115 @@ class GetAttachmentTests(TestCase):
         name, stream = self.get_name_and_stream(message)
         assert name is None
         assert isinstance(stream._file, io.BufferedRandom)
+
+
+TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
+TEST_AWS_SNS_TOPIC2 = TEST_AWS_SNS_TOPIC + "-alt"
+@override_settings(AWS_SNS_TOPIC={TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2})
+class ValidateSnsHeaderTests(SimpleTestCase):
+
+    def test_valid_headers(self):
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "SubscriptionConfirmation")
+        assert ret is None
+
+    def test_no_topic_arn(self):
+        ret = validate_sns_header(None, "Notification")
+        assert ret == {
+            "error": "Received SNS request without Topic ARN.",
+            "received_topic_arn": "''",
+            "supported_topic_arn": [TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2],
+            "received_sns_type": "Notification",
+            "supported_sns_types": ["SubscriptionConfirmation", "Notification"],
+        }
+
+    def test_wrong_topic_arn(self):
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC + "-new", "Notification")
+        assert ret["error"] == "Received SNS message for wrong topic."
+
+    def test_no_message_type(self):
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC2, None)
+        assert ret["error"] == "Received SNS request without Message Type."
+
+    def test_unsupported_message_type(self):
+        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
+        assert ret["error"] == "Received SNS message for unsupported Type."
+
+
+@override_settings(AWS_SNS_TOPIC={EMAIL_SNS_BODIES['s3_stored']['TopicArn']})
+class SnsInboundViewSimpleTests(SimpleTestCase):
+    """Tests for /emails/sns_inbound that do not require database access."""
+
+    def setUp(self):
+        self.valid_message = EMAIL_SNS_BODIES['s3_stored']
+        self.client = Client(
+            HTTP_X_AMZ_SNS_TOPIC_ARN=self.valid_message['TopicArn'],
+            HTTP_X_AMZ_SNS_MESSAGE_TYPE=self.valid_message['Type'],
+        )
+        self.url = '/emails/sns-inbound'
+        patcher1 = patch('emails.views.verify_from_sns', side_effect=self._verify_from_sns_pass)
+        self.mock_verify_from_sns = patcher1.start()
+        self.addCleanup(patcher1.stop)
+
+        patcher2 = patch('emails.views._sns_inbound_logic', side_effect=self._sns_inbound_logic_ok)
+        self.mock_sns_inbound_logic = patcher2.start()
+        self.addCleanup(patcher2.stop)
+
+    def _verify_from_sns_pass(self, json_body):
+        """A verify_from_sns that passes content"""
+        return json_body
+
+    def _sns_inbound_logic_ok(self, topic_arn, message_type, verified_json_body):
+        """A _sns_inbound_logic that returns a 200 OK"""
+        return HttpResponse("Looks good to me.")
+
+    def test_valid_message(self):
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+        )
+        assert ret.status_code == 200
+
+    def test_no_topic_arn_header(self):
+        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+            HTTP_X_AMZ_SNS_TOPIC_ARN=None,
+        )
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS request without Topic ARN."
+
+    def test_wrong_topic_arn_header(self):
+        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+            HTTP_X_AMZ_SNS_TOPIC_ARN="wrong_arn",
+        )
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS message for wrong topic."
+
+    def test_no_message_type_header(self):
+        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+            HTTP_X_AMZ_SNS_MESSAGE_TYPE=None,
+        )
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS request without Message Type."
+
+    def test_unsupported_message_type_header(self):
+        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        ret = self.client.post(
+            self.url,
+            data=self.valid_message,
+            content_type='application/json',
+            HTTP_X_AMZ_SNS_MESSAGE_TYPE="UnsubscribeConfirmation",
+        )
+        assert ret.status_code == 400
+        assert ret.content == b"Received SNS message for unsupported Type."

@@ -1,0 +1,242 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/tokens/dist/index.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+$stopLabelHeight: 2rem;
+
+.group {
+  // A CSS variable to enable different values depending on the screen size:
+  --thumbDiameter: 32px;
+
+  @media screen and #{$mq-md} {
+    --thumbDiameter: 24px;
+  }
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  touch-action: none;
+  padding: 0 $spacing-md;
+  width: 100%;
+
+  @media screen and #{$mq-md} {
+    flex-direction: row;
+    gap: $spacing-xl;
+    padding: 0 $spacing-lg;
+  }
+  @media screen and #{$mq-lg} {
+    gap: 10%;
+  }
+
+  .control {
+    width: 100%;
+    max-width: $content-xs;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-left: $spacing-md;
+
+    .slider-label {
+      padding-bottom: $spacing-md;
+      display: inline-block;
+    }
+
+    .track {
+      $iconHeight: 50px;
+      $trackLineHeight: 4px;
+      // To absolutely position the track in the middle of the control, it needs
+      // to be offset from the top by:
+      // 1. the height of the icon on top of it ($iconHeight), plus
+      // 2. half the width of the thumb, so it gets placed right in the middle
+      //    of the thumb ($thumbDiameter / 2), minus
+      // 3. half the height of the track itself ($trackLineHeight / 2):
+      --trackLineOffset: calc(
+        #{$iconHeight} + (var(--thumbDiameter) / 2) - (#{$trackLineHeight} / 2)
+      );
+      position: relative;
+      width: 100%;
+      cursor: pointer;
+      padding-top: $iconHeight;
+      // The thumb, its labels, and the track are absolutely positioned and thus
+      // don't take up space by default. Hence, we need to add bottom padding
+      // for them so no other content overlaps them:
+      padding-bottom: calc(
+        var(--thumbDiameter) + #{$trackLineHeight} + #{$stopLabelHeight}
+      );
+
+      .track-line {
+        position: absolute;
+        background-color: $color-light-gray-20;
+        height: $trackLineHeight;
+        top: var(--trackLineOffset);
+
+        width: 100%;
+      }
+
+      .track-stop {
+        width: var(--thumbDiameter);
+        height: var(--thumbDiameter);
+        border-radius: 50%;
+        background-color: $color-light-gray-20;
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:hover {
+          background-color: $color-purple-10;
+
+          img {
+            filter: grayscale(0%);
+          }
+
+          p {
+            color: $color-purple-30;
+          }
+        }
+
+        img {
+          filter: grayscale(100%) brightness(150%);
+          // To position the icon above the track stops (which are as high as
+          // the slider thumb), we set a negative top margin of its own height,
+          // and the height of the thumb:
+          margin-top: calc(-1 * #{$iconHeight} - var(--thumbDiameter));
+          padding-bottom: $spacing-sm;
+        }
+
+        p {
+          @include text-body-sm;
+          color: $color-dark-gray-05;
+          font-weight: 700;
+          position: absolute;
+          // To position the track sop label below the track stops (which are as
+          // high as the slider thumb), we place it at a distance of the thumb
+          // from the top, and some spacing so that it's not glued to the track
+          // stop:
+          top: calc(var(--thumbDiameter) + #{$spacing-xs});
+          height: $stopLabelHeight;
+        }
+
+        &.is-active {
+          img {
+            filter: grayscale(0%);
+          }
+          p {
+            color: $color-black;
+          }
+        }
+
+        &.track-stop-none {
+          // To make the left-hand side of the track end in the middle, rather
+          // than at the edge, of the first track stop, we offset the first
+          // track stop by half of its width to the left:
+          left: calc(-1 * var(--thumbDiameter) / 2);
+        }
+        &.track-stop-promotional {
+          // To position the second track stop precisely in the middle, we
+          // offset it by half of the width of the track, minus half its own
+          // width:
+          left: calc(50% - var(--thumbDiameter) / 2);
+        }
+        &.track-stop-all {
+          // To make the right-hand side of the track end in the middle, rather
+          // than at the edge, of the last track stop, we offset the last
+          // track stop by half of its width to the right:
+          right: calc(-1 * (var(--thumbDiameter) / 2));
+        }
+      }
+
+      .thumb-container {
+        position: absolute;
+        transform: translateX(-50%);
+        cursor: pointer;
+
+        .thumb {
+          width: var(--thumbDiameter);
+          height: var(--thumbDiameter);
+          border-radius: 50%;
+          background-color: $color-purple-20;
+          border: 4px solid $color-purple-50;
+          box-shadow: $box-shadow-sm;
+
+          &.is-focused {
+            background-color: $color-purple-30;
+            border-color: $color-purple-60;
+          }
+          &.is-dragging {
+            // This class can be used if we want to style the thumb
+            // while it's being dragged.
+          }
+        }
+      }
+
+      @media screen and #{$mq-md} {
+        padding-top: 0;
+
+        .track-line {
+          // --trackLineOffset was calculated to include the height of the image
+          // on top that accompanies track stops on small screens. However, on
+          // large screens, that icon is not visible, so we need to subtract it
+          // from the offset again:
+          top: calc(var(--trackLineOffset) - #{$iconHeight});
+        }
+
+        .track-stop {
+          img {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+
+  .value-description {
+    $arrowEdgeLength: 8px;
+    margin-top: $arrowEdgeLength;
+    background-color: $color-light-gray-10;
+    padding: $spacing-md $spacing-xl;
+    border-radius: $border-radius-md;
+    position: relative;
+    width: 100%;
+
+    &::after {
+      background-color: $color-light-gray-10;
+      height: 2 * $arrowEdgeLength;
+      width: 2 * $arrowEdgeLength;
+      transform: rotate(45deg);
+      content: "";
+      position: absolute;
+      top: -1 * $arrowEdgeLength;
+      left: calc(50% - #{$arrowEdgeLength});
+    }
+
+    a {
+      display: inline-block;
+      color: $color-blue-50;
+      padding-top: $spacing-sm;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    img {
+      display: none;
+    }
+
+    @media screen and #{$mq-md} {
+      display: flex;
+      align-items: center;
+      justify-content: end;
+      gap: $spacing-md;
+      background-color: transparent;
+      // The content changes depending on the selected blocking mode,
+      // so if the height would be based on the content, switching blocking modes
+      // would cause a lot of jumping around:
+      min-height: 130px;
+
+      img {
+        display: inline-block;
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 
+from django_filters import rest_framework as filters
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import decorators, permissions, response, viewsets, exceptions
@@ -39,9 +40,25 @@ class SaveToRequestUser:
         serializer.save(user=self.request.user)
 
 
+class RelayAddressFilter(filters.FilterSet):
+    used_on = filters.CharFilter(field_name='used_on', lookup_expr='icontains')
+
+    class Meta:
+        model = RelayAddress
+        fields = [
+        'enabled', 'description', 'generated_for', 'block_list_emails',
+        'used_on',
+        # read-only
+        'id', 'address', 'domain',
+        'created_at', 'last_modified_at','last_used_at',
+        'num_forwarded', 'num_blocked', 'num_spam'
+    ]
+
+
 class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = RelayAddressSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
+    filterset_class = RelayAddressFilter
 
     def get_queryset(self):
         return RelayAddress.objects.filter(user=self.request.user)

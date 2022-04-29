@@ -3,26 +3,26 @@
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
 <section class="c-onboarding">
-  <h2>{% ftlmsg 'onboarding-headline' %}</h2>
+  <h2>{% ftlmsg 'onboarding-headline-2' %}</h2>
   <ol class="c-onboarding-steps mzp-l-columns mzp-t-columns-three">
     <li class="c-onboarding-step">
       <div class="c-onboarding-step-number" data-number="1"></div>
       <p class="c-onboarding-step-copy">
-        {% ftlmsg 'onboarding-alias-tip-1' %}
+        {% ftlmsg 'onboarding-alias-tip-1-2' %}
       </p>
       <div class="c-onboarding-step-action">
         <form action="{% url 'emails-index' %}" class="dash-create" method="POST">
             <input type="hidden" name="api_token" value="{{ user_profile.api_token }}">
               <button
                   class="mzp-c-button mzp-t-product has-icon"
-                  title="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                  title="{% ftlmsg 'profile-label-generate-new-alias-2' %}"
                   type="submit"
-                  value="{% ftlmsg 'profile-label-generate-new-alias' %}"
+                  value="{% ftlmsg 'profile-label-generate-new-alias-2' %}"
                   data-event-label="Create New Relay Alias"
               >
                 <span class="generate-new-relay-icon"></span>
                 <span class="generate-new-alias-text">
-                {% ftlmsg 'profile-label-generate-new-alias' %}</span>
+                {% ftlmsg 'profile-label-generate-new-alias-2' %}</span>
               </button>
           </form>
       </div>
@@ -39,7 +39,7 @@
     <li class="c-onboarding-step">
       <div class="c-onboarding-step-number" data-number="3"></div>
       <p class="c-onboarding-step-copy">
-        {% ftlmsg 'onboarding-alias-tip-3' %}
+        {% ftlmsg 'onboarding-alias-tip-3-2' %}
       </p>
       <div class="c-onboarding-step-graphic">
         <img class="" src="{% static 'images/dashboard-onboarding/onboarding-step-3.svg' %}" aria-hidden="true" alt="">

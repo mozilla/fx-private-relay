@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
 import json
+import re
 
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
@@ -15,9 +16,11 @@ import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
 import logging
+from waffle import sample_is_active
 
 from django.apps import apps
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
@@ -28,7 +31,13 @@ from .models import (
 
 
 logger = logging.getLogger('events')
+study_logger = logging.getLogger('studymetrics')
 metrics = markus.get_metrics('fx-private-relay')
+
+with open('emails/tracker_lists/general-tracker.json', 'r') as f:
+    GENERAL_TRACKERS = json.load(f)
+with open('emails/tracker_lists/strict-tracker.json', 'r') as f:
+    STRICT_TRACKERS = json.load(f)
 
 
 def time_if_enabled(name):
@@ -49,7 +58,12 @@ def incr_if_enabled(name, value=1, tags=None):
 
 def histogram_if_enabled(name, value, tags=None):
     if settings.STATSD_ENABLED:
-        metrics.histogram(name, value=value, tags=None)
+        metrics.histogram(name, value=value, tags=tags)
+
+
+def gauge_if_enabled(name, value, tags=None):
+    if settings.STATSD_ENABLED:
+        metrics.gauge(name, value, tags)
 
 
 def get_email_domain_from_settings():
@@ -341,3 +355,73 @@ def remove_message_from_s3(bucket, object_key):
             logger.error('s3_client_error_delete_email', extra=e.response['Error'])
         incr_if_enabled('message_not_removed_from_s3', 1)
     return False
+
+def set_user_group(user):
+    if '@' not in user.email:
+        return None
+    email_domain = user.email.split('@')[1]
+    group_attribute = {
+        'mozilla.com': 'mozilla_corporation',
+        'mozillafoundation.org': 'mozilla_foundation',
+        'getpocket.com': 'pocket'
+    }
+    group_name = group_attribute.get(email_domain)
+    if not group_name:
+        return None
+    internal_group_qs = Group.objects.filter(name=group_name)
+    internal_group = internal_group_qs.first()
+    if internal_group is None:
+        return None
+    internal_group.user_set.add(user)
+
+def count_tracker(html_content, trackers):
+    tracker_total = 0
+    details = {}
+    # html_content needs to be str for count()
+    for tracker in trackers:
+        count = html_content.count(tracker)
+        if count:
+            tracker_total += count
+            details[tracker] = count
+    return {'count': tracker_total, 'trackers': details}
+
+def count_all_trackers(html_content):
+    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
+    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
+    
+    incr_if_enabled('tracker.general_count', general_detail['count'])
+    incr_if_enabled('tracker.strict_count', strict_detail['count'])
+    study_logger.info(
+        'email_tracker_summary',
+        extra={'general': general_detail, 'strict': strict_detail}
+    )
+
+def convert_domains_to_regex_patterns(domain_pattern):
+    return '(["\'])(\\S*://(\\S*\.)*' + re.escape(domain_pattern) + '\\S*)\\1'
+
+def remove_trackers(html_content, level='general'):
+    trackers = GENERAL_TRACKERS if level == 'general' else STRICT_TRACKERS
+    tracker_removed = 0
+    changed_content = html_content
+    control = True  # tracker is NOT removed
+
+    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
+    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
+    
+    if sample_is_active('foxfood-tracker-removal-sample'):
+        control = False  # tracker is removed
+        for tracker in trackers:
+            pattern = convert_domains_to_regex_patterns(tracker)
+            changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
+            tracker_removed += matched
+
+    
+    incr_if_enabled(f'tracker_foxfooding.{level}_removed_count', tracker_removed)
+    incr_if_enabled('tracker_foxfooding.general_count', general_detail['count'])
+    incr_if_enabled('tracker_foxfooding.strict_count', strict_detail['count'])
+    study_details = {'tracker_removed': tracker_removed, 'general': general_detail, 'strict': strict_detail}
+    study_logger.info(
+        'email_tracker_foxfooding_summary',
+        extra={'level': level, 'is_control': control}.update(study_details)
+    )
+    return changed_content, control, study_details

@@ -8,7 +8,7 @@
   width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: $spacing-2xl;
+  padding: $spacing-lg;
 
   @media screen and #{$mq-md} {
     flex-direction: row;
@@ -53,7 +53,7 @@
   width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: $spacing-2xl;
+  padding: $spacing-lg;
 
   h2 {
     @include text-title-sm;
@@ -65,24 +65,50 @@
     padding: $spacing-sm 0;
   }
 
+  a {
+    color: $color-blue-50;
+    text-decoration: underline;
+    font-weight: 700;
+
+    &:hover {
+      color: $color-blue-60;
+      text-decoration: none;
+    }
+  }
+
   .steps {
     display: flex;
     flex-direction: column;
-    gap: $spacing-2xl;
+    gap: $layout-xl;
     list-style-type: none;
-    margin: 0;
     padding: $spacing-2xl 0;
-    text-align: center;
+    text-align: start;
+    margin: 0;
 
     @media screen and #{$mq-md} {
+      margin: $spacing-2xl $layout-2xl 0 $layout-2xl;
+    }
+    @media screen and #{$mq-lg} {
       flex-direction: row;
+      margin: 0;
+    }
+
+    h3 {
+      @include font-firefox;
+      @include text-title-2xs;
+      padding-top: $spacing-2xl;
+    }
+
+    p {
+      padding-top: $spacing-sm;
     }
 
     .step {
-      flex: 1 0 0;
+      flex: 1;
     }
 
     img {
+      width: 100%;
       display: inline-block;
     }
   }
@@ -96,7 +122,7 @@
   width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: $spacing-xl;
+  padding: $spacing-lg;
 }
 
 .plans-wrapper {
@@ -119,9 +145,10 @@
 
   .callout {
     text-align: center;
+    max-width: $content-md;
 
     h2 {
-      @include text-title-md;
+      @include text-title-sm;
       font-family: $font-stack-firefox;
       font-weight: 500;
       padding: $spacing-lg 0;
@@ -150,17 +177,19 @@
   width: $content-max;
   max-width: 100%;
   margin: 0 auto;
-  padding: $spacing-2xl;
+  padding: $spacing-lg;
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
 
   .lead {
     flex: 1 0 0;
-    padding: 0 $spacing-2xl;
+
+    @media screen and #{$mq-md} {
+      padding: 0 $spacing-2xl;
+    }
 
     .headline {
-      @include text-title-md;
+      @include text-title-sm;
       font-family: $font-stack-firefox;
       font-weight: 500;
       padding: $spacing-md 0;
@@ -179,10 +208,15 @@
 
   .entries {
     flex: 1 0 0;
-    padding: 0 $spacing-2xl;
+    padding-top: $spacing-lg;
+
+    @media screen and #{$mq-md} {
+      padding: 0 $spacing-2xl;
+    }
   }
 
   @media screen and #{$mq-md} {
     flex-direction: row;
+    gap: $spacing-md;
   }
 }

@@ -1,4 +1,3 @@
-import { jest } from "@jest/globals";
 import { AddonData, useAddonData } from "../../src/hooks/addon";
 
 jest.mock("../../src/hooks/addon");

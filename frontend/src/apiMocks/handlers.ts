@@ -1,8 +1,14 @@
 import { rest, RestHandler, RestRequest } from "msw";
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
 import { ProfileData } from "../hooks/api/profile";
-import { RuntimeData } from "../hooks/api/runtimeData";
-import { mockIds, domainaddresses, profiles, relayaddresses } from "./mockData";
+import {
+  mockIds,
+  domainaddresses,
+  profiles,
+  relayaddresses,
+  runtimeData,
+  users,
+} from "./mockData";
 
 export function getHandlers(
   defaultMockId: null | typeof mockIds[number] = null
@@ -51,24 +57,6 @@ export function getHandlers(
     return res();
   });
   addGetHandler("/api/v1/runtime_data", (_req, res, ctx) => {
-    const runtimeData: RuntimeData = {
-      FXA_ORIGIN: "https://example.com",
-      GOOGLE_ANALYTICS_ID: "UA-123456789-0",
-      PREMIUM_PRODUCT_ID: "prod_123456789",
-      PREMIUM_PLANS: {
-        country_code: "nl",
-        plan_country_lang_mapping: {
-          nl: {
-            nl: {
-              id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-              price: "€0,99",
-            },
-          },
-        },
-        premium_countries: ["nl"],
-        premium_available_in_country: true,
-      },
-    };
     return res(ctx.status(200), ctx.json(runtimeData));
   });
   addGetHandler("/api/v1/users/", (req, res, ctx) => {
@@ -76,7 +64,7 @@ export function getHandlers(
     if (mockId === null) {
       return res(ctx.status(400));
     }
-    return res(ctx.status(200), ctx.json([{ email: `${mockId}@example.com` }]));
+    return res(ctx.status(200), ctx.json([users[mockId]]));
   });
   addGetHandler("/accounts/profile/subdomain", (req, res, ctx) => {
     return res(ctx.status(200), ctx.json({ available: true }));
@@ -122,6 +110,7 @@ export function getHandlers(
       description: "",
       domain: 1,
       enabled: true,
+      block_list_emails: false,
       generated_for: "",
       id: id,
       last_modified_at: new Date(Date.now()).toISOString(),
@@ -130,6 +119,7 @@ export function getHandlers(
       num_forwarded: 0,
       num_spam: 0,
       type: "random",
+      used_on: "",
     });
     return res(ctx.status(200));
   });
@@ -190,6 +180,7 @@ export function getHandlers(
       description: "",
       domain: 2,
       enabled: true,
+      block_list_emails: false,
       id: id,
       last_modified_at: new Date(Date.now()).toISOString(),
       last_used_at: new Date(Date.now()).toISOString(),

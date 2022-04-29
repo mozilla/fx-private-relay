@@ -24,6 +24,7 @@ module.exports = {
     "at-rule-no-unknown": null,
     "block-opening-brace-newline-after": "always",
     "block-closing-brace-newline-after": "always",
+    "declaration-block-no-shorthand-property-overrides": true,
     "declaration-block-semicolon-newline-after": "always",
     "declaration-colon-space-after": "always-single-line",
     "declaration-colon-space-before": "never",

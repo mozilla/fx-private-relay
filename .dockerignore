@@ -2,6 +2,7 @@
 .env
 .envrc
 *.sqlite3
+*.prof
 node_modules
 env/
 __pycache__

@@ -14,6 +14,8 @@ from tempfile import SpooledTemporaryFile
 from botocore.exceptions import ClientError
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
+from waffle import sample_is_active
+from waffle.models import Flag
 
 from django.conf import settings
 from django.contrib import messages
@@ -40,6 +42,8 @@ from .models import (
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
+    remove_trackers,
+    count_all_trackers,
     get_message_content_from_s3,
     get_post_data_from_request,
     incr_if_enabled,
@@ -68,7 +72,7 @@ class InReplyToNotFound(Exception):
 def wrapped_email_test(request):
     html_content = '<p><strong>strong</strong></p><hr><p>plain</p>'
     display_email = 'test@relay.firefox.com'
-    attachments = None
+    attachments = ['fdsa']
     user_profile = Profile.objects.order_by('?').first()
     test_email_context = {
         'original_html': html_content,
@@ -209,8 +213,10 @@ def sns_inbound(request):
     message_type = request.headers.get('X-Amz-Sns-Message-Type', None)
 
     # Validates header
-    # TODO: we are not returning the Http Response from the method call below
-    validate_sns_header(topic_arn, message_type)
+    error_details = validate_sns_header(topic_arn, message_type)
+    if error_details:
+        logger.error('validate_sns_header_error', extra=error_details)
+        return HttpResponse(error_details['error'], status=400)
 
     json_body = json.loads(request.body)
     verified_json_body = verify_from_sns(json_body)
@@ -218,41 +224,32 @@ def sns_inbound(request):
 
 
 def validate_sns_header(topic_arn, message_type):
-    if not topic_arn:
-        logger.error('SNS inbound request without X-Amz-Sns-Topic-Arn')
-        return HttpResponse(
-            'Received SNS request without Topic ARN.', status=400
-        )
-    if topic_arn != settings.AWS_SNS_TOPIC:
-        logger.error(
-            'SNS message for wrong ARN',
-            extra={
-                'configured_arn': settings.AWS_SNS_TOPIC,
-                'received_arn': shlex.quote(topic_arn),
-            }
-        )
-        return HttpResponse(
-            'Received SNS message for wrong topic.', status=400
-        )
+    """
+    Validate Topic ARN and SNS Message Type.
 
-    if not message_type:
-        logger.error('SNS inbound request without X-Amz-Sns-Message-Type')
-        return HttpResponse(
-            'Received SNS request without Message Type.', status=400
-        )
-    if message_type not in SUPPORTED_SNS_TYPES:
-        logger.error(
-            'SNS message for unsupported type',
-            extra={
-                'supported_sns_types': SUPPORTED_SNS_TYPES,
-                'message_type': shlex.quote(message_type),
-            }
-        )
-        return HttpResponse(
-            'Received SNS message for unsupported Type: %s' %
-            html.escape(shlex.quote(message_type)),
-            status=400
-        )
+    If an error is detected, the return is a dictionary of error details.
+    If no error is detected, the return is None.
+    """
+    if not topic_arn:
+        error = "Received SNS request without Topic ARN."
+    elif topic_arn not in settings.AWS_SNS_TOPIC:
+        error = "Received SNS message for wrong topic."
+    elif not message_type:
+        error = "Received SNS request without Message Type."
+    elif message_type not in SUPPORTED_SNS_TYPES:
+        error = "Received SNS message for unsupported Type."
+    else:
+        error = None
+
+    if error:
+        return {
+            "error": error,
+            "received_topic_arn": shlex.quote(topic_arn),
+            "supported_topic_arn": sorted(settings.AWS_SNS_TOPIC),
+            "received_sns_type": shlex.quote(message_type),
+            "supported_sns_types": SUPPORTED_SNS_TYPES,
+        }
+    return None
 
 
 def _sns_inbound_logic(topic_arn, message_type, json_body):
@@ -282,7 +279,18 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
 
 
 def _sns_notification(json_body):
-    message_json = json.loads(json_body['Message'])
+    try:
+        message_json = json.loads(json_body["Message"])
+    except JSONDecodeError:
+        logger.error(
+            "SNS notification has non-JSON message body",
+            extra={"content": shlex.quote(json_body['Message'])},
+        )
+        return HttpResponse(
+            "Received SNS notification with non-JSON body",
+            status=400
+        )
+
     event_type = message_json.get('eventType')
     notification_type = message_json.get('notificationType')
     if (
@@ -294,7 +302,7 @@ def _sns_notification(json_body):
             extra={
                 'notification_type': shlex.quote(notification_type),
                 'event_type': shlex.quote(event_type),
-                'keys': shlex.quote(list(message_json.keys())),
+                'keys': [shlex.quote(key) for key in message_json.keys()],
             },
         )
         return HttpResponse(
@@ -450,17 +458,37 @@ def _sns_message(message_json):
         # we are returning a 503 so that SNS can retry the email processing
         return HttpResponse("Cannot fetch the message content from S3", status=503)
 
+    # sample tracker numbers
+    if sample_is_active('tracker-sample') and html_content:
+        count_all_trackers(html_content)
+
     # scramble alias so that clients don't recognize it
     # and apply default link styles
     display_email = re.sub('([@.:])', r'<span>\1</span>', to_address)
 
     message_body = {}
+    email_tracker_study_link = ''
     if html_content:
         incr_if_enabled('email_with_html_content', 1)
+        foxfood_flag = Flag.objects.filter(name='foxfood').first()
+        if foxfood_flag and foxfood_flag.is_active_for_user(address.user):
+            html_content, control, study_details = remove_trackers(html_content)
+            removed_count = study_details['tracker_removed']
+            general_count = study_details['general']['count']
+            strict_count = study_details['strict']['count']
+            email_tracker_study_link = (
+                'https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?'
+                + f'general-found={general_count}&'
+                + f'general-removed={removed_count}&'
+                + f'strict-found={strict_count}'
+                + f'control={control}'
+            )
+        
         wrapped_html = render_to_string('emails/wrapped_email.html', {
             'original_html': html_content,
             'recipient_profile': user_profile,
             'email_to': to_address,
+            'email_tracker_study_link': email_tracker_study_link,
             'display_email': display_email,
             'SITE_ORIGIN': settings.SITE_ORIGIN,
             'has_attachment': bool(attachments),

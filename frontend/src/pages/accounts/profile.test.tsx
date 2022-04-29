@@ -1,5 +1,4 @@
 import React from "react";
-import { jest, describe, it, expect } from "@jest/globals";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
@@ -24,6 +23,10 @@ import {
   setMockRuntimeDataOnce,
 } from "../../../__mocks__/hooks/api/runtimeData";
 import { mockGetLocaleModule } from "../../../__mocks__/functions/getLocale";
+import {
+  setMockMinViewportWidth,
+  setMockMinViewportWidthOnce,
+} from "../../../__mocks__/hooks/mediaQuery";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Profile from "./profile.page";
@@ -42,6 +45,7 @@ setMockAliasesData();
 setMockProfileData();
 setMockUserData();
 setMockRuntimeData();
+setMockMinViewportWidth();
 
 describe("The dashboard", () => {
   describe("under axe accessibility testing", () => {
@@ -85,7 +89,7 @@ describe("The dashboard", () => {
     });
     render(<Profile />);
 
-    const countOf2 = screen.getByText(/profile-stat-label-aliases-used/);
+    const countOf2 = screen.getByText(/profile-stat-label-aliases-used-2/);
 
     // Unfortunately we can't select by role=definition to directly query for
     // the parent item, so we'll have to make do with this crutch. See:
@@ -139,7 +143,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(domainSearchField).toBeInTheDocument();
@@ -150,7 +154,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
@@ -164,13 +168,32 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const domainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
   });
 
-  it("shows a banner to download Firefox if using a different browser", () => {
+  it("shows a banner to download Firefox if using a different browser that does not support Chrome extensions", () => {
+    // navigator.userAgent is read-only, so we use `Object.defineProperty`
+    // as a workaround to be able to replace it with mock data anyway:
+    const previousUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, "userAgent", {
+      value:
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+      configurable: true,
+    });
+    render(<Profile />);
+    Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
+
+    const firefoxBanner = screen.getByRole("link", {
+      name: "l10n string: [banner-download-firefox-cta], with vars: {}",
+    });
+
+    expect(firefoxBanner).toBeInTheDocument();
+  });
+
+  it("shows a banner to download the Chrome extension if using a different browser that supports Chrome extensions", () => {
     // navigator.userAgent is read-only, so we use `Object.defineProperty`
     // as a workaround to be able to replace it with mock data anyway:
     const previousUserAgent = navigator.userAgent;
@@ -182,10 +205,34 @@ describe("The dashboard", () => {
     render(<Profile />);
     Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
 
+    const chromeExtensionBanner = screen.getByRole("link", {
+      name: "l10n string: [banner-download-install-chrome-extension-cta], with vars: {}",
+    });
+
+    expect(chromeExtensionBanner).toBeInTheDocument();
+  });
+
+  it("shows a banner to download Firefox if using a different browser that on desktop supports Chrome extensions, but is running on a small screen and thus probably does not support extensions", () => {
+    // navigator.userAgent is read-only, so we use `Object.defineProperty`
+    // as a workaround to be able to replace it with mock data anyway:
+    const previousUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, "userAgent", {
+      value:
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36",
+      configurable: true,
+    });
+    setMockMinViewportWidthOnce(false);
+    render(<Profile />);
+    Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
+
+    const chromeExtensionBanner = screen.queryByRole("link", {
+      name: "l10n string: [banner-download-install-chrome-extension-cta], with vars: {}",
+    });
     const firefoxBanner = screen.getByRole("link", {
       name: "l10n string: [banner-download-firefox-cta], with vars: {}",
     });
 
+    expect(chromeExtensionBanner).not.toBeInTheDocument();
     expect(firefoxBanner).toBeInTheDocument();
   });
 
@@ -225,6 +272,26 @@ describe("The dashboard", () => {
     });
 
     expect(addonBanner).toBeInTheDocument();
+  });
+
+  it("does not show a banner to download the add-on if the user is using Firefox, but on a small screen, and therefore probably on mobile, where the extension is not available", () => {
+    // navigator.userAgent is read-only, so we use `Object.defineProperty`
+    // as a workaround to be able to replace it with mock data anyway:
+    const previousUserAgent = navigator.userAgent;
+    Object.defineProperty(navigator, "userAgent", {
+      value:
+        "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
+      configurable: true,
+    });
+    setMockMinViewportWidthOnce(false);
+    render(<Profile />);
+    Object.defineProperty(navigator, "userAgent", { value: previousUserAgent });
+
+    const addonBanner = screen.queryByRole("link", {
+      name: "l10n string: [banner-download-install-extension-cta], with vars: {}",
+    });
+
+    expect(addonBanner).not.toBeInTheDocument();
   });
 
   it("tells the add-on to hide the banner to install the add-on", () => {
@@ -295,22 +362,22 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const searchFilter = screen.getByLabelText(
-      "l10n string: [profile-filter-search-placeholder], with vars: {}"
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
     );
 
     expect(searchFilter).toBeInTheDocument();
   });
 
-  it("does not show a search field to filter aliases if the user does not have Premium", () => {
+  it("also shows a search field to filter aliases if the user does not have Premium", () => {
     setMockProfileDataOnce({ has_premium: false });
 
     render(<Profile />);
 
-    const searchFilter = screen.queryByLabelText(
-      "l10n string: [profile-filter-search-placeholder], with vars: {}"
+    const searchFilter = screen.getByLabelText(
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
     );
 
-    expect(searchFilter).not.toBeInTheDocument();
+    expect(searchFilter).toBeInTheDocument();
   });
 
   it("shows the Premium onboarding when the user has Premium and hasn't completed the onboarding yet", () => {
@@ -332,7 +399,7 @@ describe("The dashboard", () => {
 
     // The alias filter servers as a proxy here for the aliases being shown:
     const searchFilter = screen.queryByLabelText(
-      "l10n string: [profile-filter-search-placeholder], with vars: {}"
+      "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
     );
 
     expect(searchFilter).not.toBeInTheDocument();
@@ -360,7 +427,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.getByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(subdomainSearchField).toBeInTheDocument();
@@ -376,7 +443,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const subdomainSearchField = screen.queryByLabelText(
-      "l10n string: [banner-choose-subdomain-input-placeholder-2], with vars: {}"
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
     );
 
     expect(subdomainSearchField).not.toBeInTheDocument();
@@ -407,7 +474,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const aliasToggleButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-disable-forwarding-button], with vars: {}",
+      name: "l10n string: [profile-label-disable-forwarding-button-2], with vars: {}",
     });
     userEvent.click(aliasToggleButton);
 
@@ -430,7 +497,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const generateAliasButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+      name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     });
 
     expect(generateAliasButton).toBeInTheDocument();
@@ -452,7 +519,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const generateAliasButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+      name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     });
 
     expect(generateAliasButton).toBeInTheDocument();
@@ -474,7 +541,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const upgradeButton = screen.getByRole("link", {
-      name: "l10n string: [profile-label-upgrade], with vars: {}",
+      name: "l10n string: [profile-label-upgrade-2], with vars: {}",
     });
 
     expect(upgradeButton).toBeInTheDocument();
@@ -495,7 +562,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const generateAliasButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+      name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
     });
 
     expect(generateAliasButton).toBeInTheDocument();
@@ -524,7 +591,7 @@ describe("The dashboard", () => {
       render(<Profile />);
 
       const generateAliasButton = screen.getByRole("button", {
-        name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+        name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });
 
       expect(generateAliasButton).toBeInTheDocument();
@@ -555,17 +622,17 @@ describe("The dashboard", () => {
       render(<Profile />);
 
       const generateAliasDropdown = screen.getByRole("button", {
-        name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+        name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });
       userEvent.click(generateAliasDropdown);
       const generateAliasMenu = screen.getByRole("menu", {
-        name: "l10n string: [profile-label-generate-new-alias], with vars: {}",
+        name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });
       const generateRandomAliasMenuItem = screen.getByRole("menuitem", {
-        name: "l10n string: [profile-label-generate-new-alias-menu-random], with vars: {}",
+        name: "l10n string: [profile-label-generate-new-alias-menu-random-2], with vars: {}",
       });
       const generateCustomAliasMenuItem = screen.getByRole("menuitem", {
-        name: `l10n string: [profile-label-generate-new-alias-menu-custom], with vars: ${JSON.stringify(
+        name: `l10n string: [profile-label-generate-new-alias-menu-custom-2], with vars: ${JSON.stringify(
           { subdomain: "some_subdomain" }
         )}`,
       });

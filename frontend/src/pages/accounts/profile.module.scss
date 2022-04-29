@@ -1,5 +1,6 @@
 @import "../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
 
 .header {
   background-color: $color-light-gray-05;
@@ -78,6 +79,7 @@
   flex-direction: column;
   align-items: baseline;
   gap: $spacing-md;
+  padding-bottom: $spacing-xl;
 }
 
 .main-wrapper,
@@ -130,6 +132,7 @@
     gap: $spacing-md;
 
     h3 {
+      @include font-mozilla;
       @include text-title-xs;
       font-weight: 500;
 

@@ -6,7 +6,6 @@ import random
 import re
 import string
 import uuid
-
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -495,6 +494,7 @@ class RelayAddress(models.Model):
     num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
     block_list_emails = models.BooleanField(default=False)
+    used_on = models.TextField(default=None, blank=True, null=True)
 
     def __str__(self):
         return self.address

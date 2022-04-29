@@ -4,12 +4,14 @@ from django.core.exceptions import SuspiciousOperation
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 
-from .models import DomainAddress, Profile, RelayAddress
+from emails.models import DomainAddress, Profile, RelayAddress
+from emails.utils import set_user_group
 
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
+        set_user_group(instance)
         Profile.objects.create(user=instance)
 
 

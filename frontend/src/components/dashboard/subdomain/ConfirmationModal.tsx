@@ -46,7 +46,7 @@ const ConfirmModal = (props: Props) => {
     <PickerDialog
       title={
         <Localized
-          id="modal-domain-register-available-v2"
+          id="modal-domain-register-available-2"
           vars={{
             subdomain: props.subdomain,
             domain: getRuntimeConfig().mozmailDomain,
@@ -81,7 +81,7 @@ const SuccessModal = (props: Props) => {
       <PickerDialog
         title={
           <Localized
-            id="modal-domain-register-success-v2"
+            id="modal-domain-register-success-3"
             vars={{
               subdomain: props.subdomain,
               domain: getRuntimeConfig().mozmailDomain,
@@ -101,7 +101,7 @@ const SuccessModal = (props: Props) => {
       >
         <div className={styles["picked-confirmation-body"]}>
           <img src={partyIllustration.src} alt="" />
-          <p>{l10n.getString("modal-domain-register-success-copy")}</p>
+          <p>{l10n.getString("modal-domain-register-success-copy-2")}</p>
           <Button onClick={() => props.onClose()}>
             {l10n.getString("profile-label-continue")}
           </Button>

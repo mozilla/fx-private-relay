@@ -8,7 +8,7 @@
   justify-content: center;
   cursor: pointer;
   background-color: $color-blue-50;
-  padding: $spacing-sm $spacing-2xl;
+  padding: $spacing-sm $spacing-md;
   border-radius: $border-radius-sm;
   border: 2px solid transparent;
   color: $color-white;
@@ -19,6 +19,7 @@
 
   &:hover:not(:disabled) {
     background-color: $color-blue-60;
+    opacity: 1;
   }
 
   &:focus {
@@ -29,7 +30,6 @@
   }
 
   &:disabled {
-    opacity: 0.6;
     cursor: not-allowed;
     background-color: $color-light-gray-80;
   }
@@ -39,10 +39,15 @@
   }
 
   &.is-destructive {
-    background-color: $color-red-50;
+    background-color: $color-red-60;
+
+    &:disabled {
+      background-color: $color-red-10;
+    }
 
     &:hover:not(:disabled) {
-      background-color: $color-red-60;
+      background-color: $color-red-70;
+      opacity: 1;
     }
   }
 }

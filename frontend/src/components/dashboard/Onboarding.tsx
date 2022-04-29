@@ -22,16 +22,16 @@ export const Onboarding = (props: Props) => {
 
   return (
     <section className={styles.wrapper}>
-      <h2>{l10n.getString("onboarding-headline")}</h2>
+      <h2>{l10n.getString("onboarding-headline-2")}</h2>
       <ol className={styles.steps}>
         <li className={styles.step}>
-          <p>{l10n.getString("onboarding-alias-tip-1")}</p>
+          <p>{l10n.getString("onboarding-alias-tip-1-2")}</p>
           <div className={styles.footer}>
             <Button
               onClick={() => props.onCreate()}
-              title={l10n.getString("profile-label-generate-new-alias")}
+              title={l10n.getString("profile-label-generate-new-alias-2")}
             >
-              {l10n.getString("profile-label-generate-new-alias")}
+              {l10n.getString("profile-label-generate-new-alias-2")}
             </Button>
           </div>
         </li>
@@ -42,7 +42,7 @@ export const Onboarding = (props: Props) => {
           </div>
         </li>
         <li className={styles.step}>
-          <p>{l10n.getString("onboarding-alias-tip-3")}</p>
+          <p>{l10n.getString("onboarding-alias-tip-3-2")}</p>
           <div className={styles.footer}>
             <img src={RightClickImage.src} alt="" />
           </div>

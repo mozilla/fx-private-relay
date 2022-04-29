@@ -138,46 +138,23 @@ tips-custom-alias-content = All you need to do is make up and share a unique ali
 # This copy (and the term "critical email") is not final yet:
 tips-critical-emails-heading = Critical email forwarding
 # This copy (and the term "critical email") is not final yet:
-tips-critical-emails-content = Relay allows you to receive only critical emails sent to an alias. You’ll receive emails like receipts but not spam or marketing emails.
+tips-critical-emails-content = Relay allows you to receive only critical emails sent to an mask. You’ll receive emails like receipts but not spam or marketing emails.
 
 # This copy is not final yet:
-tips-addon-signin-heading = Sign in with your aliases
+tips-addon-signin-heading = Sign in with your masks
 # This copy is not final yet:
 tips-addon-signin-content = To sign in with a previously-used alias, open the context menu (right-click or control-click) where the site asks for your email. You’ll be able to select the alias and auto-fill the email field.
 
-whatsnew-trigger-label = News
-whatsnew-counter-label = { $count } new announcements.
-whatsnew-close-label = Close
-whatsnew-tab-new-label = News
-whatsnew-tab-archive-label = History
-whatsnew-footer-clear-all-label = Clear all
-whatsnew-footer-back-label = Back
-whatsnew-footer-learn-more-label = Learn more
-
-whatsnew-empty-message = Be sure to check back here—we’re always working on great new features to make { -brand-name-relay } even better.
-
-whatsnew-feature-size-limit-heading = Attachment size increase
-# A preview of the full content of `whatsnew-feature-size-limit-description`.
-# When translating, please make sure the resulting string is of roughly similar
-# length as the English version.
-whatsnew-feature-size-limit-snippet = { -brand-name-firefox-relay } can now forward emails up to 25MB, including…
-whatsnew-feature-size-limit-description = { -brand-name-firefox-relay } can now forward emails up to 25MB, including attachments.
-# A preview of the full content of `whatsnew-feature-size-limit-description-var`.
-# When translating, please make sure the resulting string is of roughly similar
-# length as the English version.
-whatsnew-feature-size-limit-snippet-var = { -brand-name-firefox-relay } can now forward emails up to { email-size-limit }, including…
-whatsnew-feature-size-limit-description-var = { -brand-name-firefox-relay } can now forward emails up to { email-size-limit }, including attachments.
-
-whatsnew-feature-sign-back-in-heading = Sign back in with your aliases
-# A preview of the full content of `whatsnew-feature-sign-back-in-description`.
-# When translating, please make sure the resulting string is of roughly similar
-# length as the English version.
-whatsnew-feature-sign-back-in-snippet = To create a new alias when you’re asked for your email, open...
-whatsnew-feature-sign-back-in-description = To sign in with a previously-used alias, open the context menu where the site asks for your email. You’ll be able to select the alias and auto-fill the email field.
-
-whatsnew-feature-forward-some-heading = Promotional email blocking
-# A preview of the full content of `whatsnew-feature-forward-some-description`.
-# When translating, please make sure the resulting string is of roughly similar
-# length as the English version.
-whatsnew-feature-forward-some-snippet = { -brand-name-relay-premium } allows you to block only promotional emails...
-whatsnew-feature-forward-some-description = { -brand-name-relay-premium } allows you to block only promotional emails sent to an alias. You’ll receive emails like receipts but not marketing emails.
+waitlist-heading = Join the { -brand-name-relay-premium } Waitlist
+waitlist-lead = Get notified when { -brand-name-firefox-relay-premium } is available for your region.
+waitlist-control-required = Required
+waitlist-control-email-label = What is your email address?
+waitlist-control-email-placeholder = yourname@example.com
+waitlist-control-country-label = What country do you live in?
+waitlist-control-locale-label = Select your preferred language.
+waitlist-submit-label = Join the Waitlist
+waitlist-privacy-policy-agree = By clicking “{ waitlist-submit-label }”, you agree to our <a>Privacy Policy</a>.
+waitlist-privacy-policy-use = Your information will only be used to notify you about { -brand-name-firefox-relay-premium } availability.
+waitlist-subscribe-success = You’re on the list! Once { -brand-name-firefox-relay-premium } becomes available for your region, we’ll email you.
+waitlist-subscribe-error-connection = There was an error adding you to the waitlist. Please check your connection, then try again.
+waitlist-subscribe-error-unknown = There was an error adding you to the waitlist. Please try again.
