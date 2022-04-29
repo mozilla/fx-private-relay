@@ -17,9 +17,6 @@ const runtimeConfigs = {
       // Also add keys here to RuntimeConfig in src/config.ts
       generateCustomAliasMenu: true,
       generateCustomAliasSubdomain: false,
-      generateCustomAliasTip: false,
-      criticalEmailsTip: false,
-      addonSigninTip: false,
       interviewRecruitment: false,
       csatSurvey: true,
     },
