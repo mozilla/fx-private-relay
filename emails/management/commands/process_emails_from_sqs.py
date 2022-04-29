@@ -399,13 +399,7 @@ class Command(BaseCommand):
 
             message_data["message_process_time_s"] = round(message_timer.last, 3)
             process_time += message_timer.last
-            logger.log(
-                logging.DEBUG
-                if (message_data["success"] or self.verbosity < 2)
-                else logging.INFO,
-                "Message processed",
-                extra=message_data,
-            )
+            logger.log(logging.INFO, "Message processed", extra=message_data)
 
         batch_data = {"process_s": round((process_time - pause_time), 3)}
         if pause_count:
