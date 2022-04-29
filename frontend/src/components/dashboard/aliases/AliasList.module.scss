@@ -7,7 +7,7 @@
   grid-template-columns: auto 1fr auto;
   row-gap: $spacing-md;
   grid-template-areas:
-    "stringFilterToggle categoryFilter  newAliasButton"
+    "stringFilterToggle categoryFilter newAliasButton"
     "stringFilter stringFilter stringFilter";
   align-items: center;
   padding: $spacing-md 0;
