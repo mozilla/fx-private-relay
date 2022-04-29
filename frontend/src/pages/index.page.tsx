@@ -15,6 +15,9 @@ import AccessContentIllustration from "../../../static/images/use-case-access-co
 import GamingIllustration from "../../../static/images/use-case-gaming.svg";
 import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
 import SignupsHero from "../components/landing/carousel/images/signups-hero.svg";
+import OnTheGoConnect from "../components/landing/carousel/images/onthego-illustration-connect.svg";
+import OnTheGoPhone from "../components/landing/carousel/images/onthego-illustration-phone.svg";
+import OnTheGoReceipt from "../components/landing/carousel/images/onthego-illustration-receipts.svg";
 import { useUsers } from "../hooks/api/user";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
@@ -24,6 +27,7 @@ import { useRuntimeData } from "../hooks/api/runtimeData";
 import { Carousel } from "../components/landing/carousel/Carousel";
 import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
 import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
+import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 import { Plans } from "../components/landing/Plans";
 import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -184,9 +188,26 @@ const Home: NextPage = () => {
                   color: "purple",
                   heading: l10n.getString("landing-use-cases-offline"),
                   content: (
-                    <CarouselContentTextOnly
-                      heading={l10n.getString("landing-use-cases-offline")}
-                      body={l10n.getString("landing-use-cases-offline-body")}
+                    <CarouselContentCards
+                      heading="On the Go with Relay"
+                      lead="Instantly make a custom email mask anywhere and everywhere you go!"
+                      cards={[
+                        {
+                          image: OnTheGoConnect.src,
+                          heading: "Connect on the go",
+                          body: "Use your email mask when you want to privately sign into your favorite coffee shop or public wifi",
+                        },
+                        {
+                          image: OnTheGoReceipt.src,
+                          heading: "Get email receipts",
+                          body: "Share a custom email mask for in-store shopping receipts without sharing your real email",
+                        },
+                        {
+                          image: OnTheGoPhone.src,
+                          heading: "Use on your phone",
+                          body: "No matter where you are, create a custom email mask in seconds for anything you want to do",
+                        },
+                      ]}
                     />
                   ),
                   illustration: OfflineIllustration,

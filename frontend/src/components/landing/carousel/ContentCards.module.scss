@@ -1,0 +1,53 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: $spacing-md;
+
+  .heading {
+    @include text-title-sm;
+    font-family: $font-stack-firefox;
+    font-weight: 700;
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    text-align: center;
+  }
+
+  .lead {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero {
+    display: flex;
+  }
+
+  @media screen and #{$mq-lg} {
+    flex-direction: column;
+    padding: $spacing-2xl;
+    justify-content: space-evenly;
+    gap: $spacing-sm;
+
+    @media screen and #{$mq-xl} {
+      gap: $spacing-2xl;
+    }
+
+    .body {
+      width: $content-sm;
+    }
+  }
+}
