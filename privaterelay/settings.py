@@ -569,6 +569,7 @@ FXA_BASE_ORIGIN = config('FXA_BASE_ORIGIN', 'https://accounts.firefox.com')
 FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', f'{FXA_BASE_ORIGIN}/settings')
 FXA_SUBSCRIPTIONS_URL = config('FXA_SUBSCRIPTIONS_URL', f'{FXA_BASE_ORIGIN}/subscriptions')
 FXA_SUPPORT_URL = config('FXA_SUPPORT_URL', f'{FXA_BASE_ORIGIN}/support/')
+BASKET_ORIGIN = config('BASKET_ORIGIN', 'https://basket.mozilla.org')
 
 LOGGING = {
     'version': 1,
