@@ -19,9 +19,10 @@ const PremiumWaitlist: NextPage = () => {
   const { l10n } = useLocalization();
   const currentLocale = getLocale(l10n);
   const runtimeData = useRuntimeData();
-  const currentCountry: string | undefined =
-    runtimeData.data?.PREMIUM_PLANS.country_code ?? currentLocale.split("-")[1];
-  const [country, setCountry] = useState<string>(currentCountry ?? "US");
+  const currentCountry =
+    runtimeData.data?.PREMIUM_PLANS.country_code ??
+    (currentLocale.split("-")[1] as string | undefined);
+  const [country, setCountry] = useState<string>();
   const [locale, setLocale] = useState<string>(
     supportedLocales.find(
       (supportedLocale) =>
@@ -56,7 +57,7 @@ const PremiumWaitlist: NextPage = () => {
     try {
       const response = await subscribe({
         email: email,
-        countryCode: country,
+        countryCode: country ?? currentCountry ?? "US",
         locale: locale,
         detectedCountry: currentCountry,
       });
@@ -95,7 +96,7 @@ const PremiumWaitlist: NextPage = () => {
                 type="email"
                 name="email"
                 id="email"
-                value={email}
+                value={email ?? ""}
                 required={true}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder={l10n.getString(
@@ -111,7 +112,7 @@ const PremiumWaitlist: NextPage = () => {
               <CountryPicker
                 name="country"
                 id="country"
-                value={country}
+                value={country ?? currentCountry ?? "US"}
                 onChange={(event) =>
                   setCountry(
                     event.target.selectedOptions.item(0)?.value ?? country
