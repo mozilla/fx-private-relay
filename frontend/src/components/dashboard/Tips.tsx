@@ -10,16 +10,11 @@ import { InfoIcon } from "../Icons";
 import { ProfileData } from "../../hooks/api/profile";
 import { DismissalData, useLocalDismissal } from "../../hooks/localDismissal";
 import { getRuntimeConfig } from "../../config";
-import {
-  AliasData,
-  CustomAliasData,
-  RandomAliasData,
-} from "../../hooks/api/aliases";
+import { CustomAliasData } from "../../hooks/api/aliases";
 
 export type Props = {
   profile: ProfileData;
   customAliases: CustomAliasData[];
-  randomAliases: RandomAliasData[];
 };
 
 export type TipEntry = {
@@ -45,56 +40,12 @@ export const Tips = (props: Props) => {
   );
   if (
     typeof props.profile.subdomain === "string" &&
-    props.customAliases.length === 0 &&
-    getRuntimeConfig().featureFlags.generateCustomAliasTip === true
+    props.customAliases.length === 0
   ) {
     tips.push({
       title: l10n.getString("tips-custom-alias-heading"),
       content: <CustomAliasTip subdomain={props.profile.subdomain} />,
       dismissal: customAliasDismissal,
-    });
-  }
-
-  const criticalEmailsDismissal = useLocalDismissal(
-    `tips_criticalEmails_${props.profile.id}`
-  );
-  const allAliases = (props.customAliases as AliasData[]).concat(
-    props.randomAliases
-  );
-  if (
-    getRuntimeConfig().featureFlags.criticalEmailsTip === true &&
-    props.profile.has_premium &&
-    allAliases.length > 0
-    // TODO: uncomment this when the promo-blocking React UI is merged:
-    // && allAliases.every((alias) => !alias.block_list_emails
-  ) {
-    tips.push({
-      title: l10n.getString("tips-critical-emails-heading"),
-      // Note: Content of this tip is not yet final, and an animation will be added:
-      content: (
-        <GenericTip
-          title={l10n.getString("tips-critical-emails-heading")}
-          content={<p>{l10n.getString("tips-critical-emails-content")}</p>}
-        />
-      ),
-      dismissal: criticalEmailsDismissal,
-    });
-  }
-
-  const addonSigninDismissal = useLocalDismissal(
-    `tips_addonSignin_${props.profile.id}`
-  );
-  if (getRuntimeConfig().featureFlags.addonSigninTip === true) {
-    tips.push({
-      title: l10n.getString("tips-addon-signin-heading"),
-      // Note: Content of this tip is not yet final, and an animation will be added:
-      content: (
-        <GenericTip
-          title={l10n.getString("tips-addon-signin-heading")}
-          content={<p>{l10n.getString("tips-addon-signin-content")}</p>}
-        />
-      ),
-      dismissal: addonSigninDismissal,
     });
   }
 
@@ -217,6 +168,8 @@ type GenericTipProps = {
   title: string;
   content: ReactNode;
 };
+// This component will probably be used for future tips that are yet to be added:
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const GenericTip = (props: GenericTipProps) => {
   return (
     <div className={styles["generic-tip"]}>
