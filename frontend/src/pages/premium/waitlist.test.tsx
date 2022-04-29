@@ -80,7 +80,7 @@ describe("The waitlist", () => {
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
-      "https://basket.mozilla.org/news/subscribe/",
+      expect.any(String),
       expect.objectContaining({ body: expect.stringContaining("") })
     );
     const requestBody = (global.fetch as jest.Mock).mock.calls[0][1].body;
