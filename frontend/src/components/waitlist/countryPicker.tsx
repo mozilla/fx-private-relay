@@ -13,9 +13,8 @@ type Territories = {
     }
   >;
 };
-export const CountryPicker = (
-  props: SelectHTMLAttributes<HTMLSelectElement>
-) => {
+export type Props = SelectHTMLAttributes<HTMLSelectElement>;
+export const CountryPicker = (props: Props) => {
   const { l10n } = useLocalization();
   const currentLocale = getLocale(l10n);
   const [localeDisplayNames, setLocaleDisplayNames] =

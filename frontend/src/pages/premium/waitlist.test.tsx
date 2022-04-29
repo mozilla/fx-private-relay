@@ -2,6 +2,8 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
+import { type Props as CountryPickerProps } from "../../components/waitlist/countryPicker";
+import { type Props as LocalePickerProps } from "../../components/waitlist/localePicker";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockConfigModule } from "../../../__mocks__/configMock";
@@ -16,13 +18,21 @@ jest.mock("next/router", () => mockNextRouter);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../components/waitlist/countryPicker.tsx", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  CountryPicker: (props: any) => <select {...props} />,
+  // We're mocking out the country picker because it dynamically imports the
+  // list of available countries, which would make the test pretty cumbersome
+  // while waiting for the promise to resolve.
+  // Since it's otherwise just a `<select>` element, we can just mock it out by
+  // an empty <select>.
+  CountryPicker: (props: CountryPickerProps) => <select {...props} />,
 }));
 jest.mock("../../components/waitlist/localePicker.tsx", () => ({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  LocalePicker: (allProps: any) => {
-    const props = {
+  // We're mocking out the locale picker because it dynamically imports the
+  // list of available countries, which would make the test pretty cumbersome
+  // while waiting for the promise to resolve.
+  // Since it's otherwise just a `<select>` element, we can just mock it out by
+  // an empty <select>.
+  LocalePicker: (allProps: LocalePickerProps) => {
+    const props: Partial<LocalePickerProps> = {
       ...allProps,
     };
     delete props.supportedLocales;
