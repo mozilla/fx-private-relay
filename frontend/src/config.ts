@@ -11,7 +11,6 @@ export type RuntimeConfig = {
   frontendOrigin: string;
   fxaLoginUrl: string;
   fxaLogoutUrl: string;
-  basketOrigin: string;
   emailSizeLimitNumber: number;
   emailSizeLimitUnit: string;
   maxFreeAliases: number;

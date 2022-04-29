@@ -6,7 +6,6 @@ import { Button } from "../../components/Button";
 import { FormEventHandler, useEffect, useState } from "react";
 import { getLocale } from "../../functions/getLocale";
 import { toast } from "react-toastify";
-import { getRuntimeConfig } from "../../config";
 import { CountryPicker } from "../../components/waitlist/countryPicker";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { LocalePicker } from "../../components/waitlist/localePicker";
@@ -56,6 +55,11 @@ const PremiumWaitlist: NextPage = () => {
 
     try {
       const response = await subscribe({
+        // The back-end should provide the URL to Basket, pointing to its dev environment
+        // if running on stage. If the back-end's response doesn't come in in time,
+        // we just assume production:
+        basketOrigin:
+          runtimeData.data?.BASKET_ORIGIN ?? "https://basket.mozilla.org",
         email: email,
         countryCode: country ?? currentCountry ?? "US",
         locale: locale,
@@ -167,6 +171,7 @@ const PremiumWaitlist: NextPage = () => {
 };
 
 type SubscribeParameters = {
+  basketOrigin: string;
   email: string;
   countryCode: string;
   locale: string;
@@ -206,7 +211,7 @@ type BasketResponseBody =
  * @see {@link https://basket.readthedocs.io/newsletter_api.html}
  */
 async function subscribe(params: SubscribeParameters): Promise<Response> {
-  const url = `${getRuntimeConfig().basketOrigin}/news/subscribe/`;
+  const url = `${params.basketOrigin}/news/subscribe/`;
   const body: BasketRequestBody = {
     email: params.email,
     newsletters: "relay-waitlist",
@@ -214,7 +219,7 @@ async function subscribe(params: SubscribeParameters): Promise<Response> {
     country: params.detectedCountry,
     relay_country: params.countryCode,
     lang: params.locale,
-    source_url: "https://relay.firefox.com/premium/waitlist/",
+    source_url: document.location.origin + document.location.pathname,
   };
 
   const response = await fetch(url, {
