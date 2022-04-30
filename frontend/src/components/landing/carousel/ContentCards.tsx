@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import styles from "./ContentCards.module.scss";
 
 export type Props = {
@@ -19,9 +18,9 @@ export const CarouselContentCards = (props: Props) => {
         <div className={styles.lead}>{props.lead}</div>
       </div>
       <div className={styles.hero}>
-        {props.cards.map((card) => {
+        {props.cards.map((card, index) => {
           return (
-            <div className={styles.card}>
+            <div className={styles.card} key={index}>
               <div className={styles["card-image-container"]}>
                 <img src={card.image} />
               </div>
