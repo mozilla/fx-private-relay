@@ -12,6 +12,7 @@ import {
 } from "../../../__mocks__/hooks/api/profile";
 import { setMockUserData } from "../../../__mocks__/hooks/api/user";
 import {
+  getMockCustomAlias,
   getMockRandomAlias,
   setMockAliasesData,
   setMockAliasesDataOnce,
@@ -568,6 +569,136 @@ describe("The dashboard", () => {
     expect(generateAliasButton).toBeInTheDocument();
     expect(generateAliasButton).toBeEnabled();
     mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+  });
+
+  it("shows the category filter button if the user has Premium", () => {
+    setMockProfileDataOnce({ has_premium: true });
+    setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
+
+    render(<Profile />);
+
+    const categoryFilterButton = screen.getByRole("button", {
+      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+    });
+
+    expect(categoryFilterButton).toBeInTheDocument();
+  });
+
+  it("has a category filter for the list of aliases that can be closed and applied, which is available to users with premium", () => {
+    setMockProfileDataOnce({ has_premium: true });
+    setMockAliasesDataOnce({
+      random: [
+        getMockRandomAlias({ address: "address1" }),
+        getMockRandomAlias({ address: "address2" }),
+      ],
+      custom: [getMockCustomAlias({ address: "address3" })],
+    });
+
+    render(<Profile />);
+
+    // Open and select a category filter option
+    const categoryFilterButton = screen.getByRole("button", {
+      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+    });
+    userEvent.click(categoryFilterButton);
+
+    const categoryFilterCheckboxCustomMask = screen.getByLabelText(
+      "l10n string: [profile-filter-category-option-custom-masks], with vars: {}"
+    );
+    userEvent.click(categoryFilterCheckboxCustomMask);
+
+    // Apply category filter selection
+    const categoryFilterApplyButton = screen.getByRole("button", {
+      name: "l10n string: [profile-label-apply], with vars: {}",
+    });
+    userEvent.click(categoryFilterApplyButton);
+
+    // The blocked label serves as a proxy for an alias card
+    const aliasCardBlockedLabels = screen.queryByText(
+      "l10n string: [profile-label-blocked], with vars: {}"
+    );
+
+    expect(aliasCardBlockedLabels).toBeInTheDocument();
+  });
+
+  it("has a category filter for the list of aliases that can be closed and cancelled, which is available to users with premium", () => {
+    setMockProfileDataOnce({ has_premium: true });
+    setMockAliasesDataOnce({
+      random: [
+        getMockRandomAlias({ address: "address1" }),
+        getMockRandomAlias({ address: "address2" }),
+      ],
+      custom: [getMockCustomAlias({ address: "address3" })],
+    });
+
+    render(<Profile />);
+
+    // Open and select a category filter option
+    const categoryFilterButton = screen.getByRole("button", {
+      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+    });
+    userEvent.click(categoryFilterButton);
+
+    const categoryFilterCheckboxRandomMask = screen.getByLabelText(
+      "l10n string: [profile-filter-category-option-random-masks], with vars: {}"
+    );
+    userEvent.click(categoryFilterCheckboxRandomMask);
+
+    // Close and discard changes
+    userEvent.click(categoryFilterButton);
+
+    // The blocked label serves as a proxy for an alias card
+    const aliasCardBlockedLabel = screen.queryAllByText(
+      "l10n string: [profile-label-blocked], with vars: {}"
+    );
+
+    expect(aliasCardBlockedLabel).toHaveLength(3);
+  });
+
+  it("has a category filter for the list of aliases that can be closed and cleared, which is available to users with premium", () => {
+    setMockProfileDataOnce({ has_premium: true });
+    setMockAliasesDataOnce({
+      random: [
+        getMockRandomAlias({ address: "address1" }),
+        getMockRandomAlias({ address: "address2" }),
+      ],
+      custom: [getMockCustomAlias({ address: "address3" })],
+    });
+
+    render(<Profile />);
+
+    // Open and select a category filter option
+    const categoryFilterButton = screen.getByRole("button", {
+      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+    });
+    userEvent.click(categoryFilterButton);
+
+    const categoryFilterCheckboxCustomMask = screen.getByLabelText(
+      "l10n string: [profile-filter-category-option-custom-masks], with vars: {}"
+    );
+    userEvent.click(categoryFilterCheckboxCustomMask);
+
+    // Apply category filter selection
+    const categoryFilterApplyButton = screen.getByRole("button", {
+      name: "l10n string: [profile-label-reset], with vars: {}",
+    });
+    userEvent.click(categoryFilterApplyButton);
+
+    // Reopen and clear category filter selection
+    userEvent.click(categoryFilterButton);
+    userEvent.click(categoryFilterCheckboxCustomMask);
+
+    const categoryFilterResetButton = screen.getByRole("button", {
+      name: "l10n string: [profile-label-reset], with vars: {}",
+    });
+    userEvent.click(categoryFilterResetButton);
+
+    // The blocked label serves as a proxy for an alias card
+    const aliasCardBlockedLabel = screen.queryAllByText(
+      "l10n string: [profile-label-blocked], with vars: {}"
+    );
+
+    expect(aliasCardBlockedLabel).toHaveLength(3);
   });
 
   describe("with the `generateCustomAlias` feature flag enabled", () => {
