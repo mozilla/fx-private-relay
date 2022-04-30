@@ -141,6 +141,7 @@ const Home: NextPage = () => {
               title={l10n.getString("landing-use-cases-heading")}
               tabs={[
                 {
+                  alt: l10n.getString("landing-use-cases-shopping-image-alt"),
                   color: "yellow",
                   heading: l10n.getString("landing-use-cases-shopping"),
                   content: (
@@ -170,6 +171,9 @@ const Home: NextPage = () => {
                   id: "use-cases/shopping",
                 },
                 {
+                  alt: l10n.getString(
+                    "landing-use-cases-social-networks-image-alt"
+                  ),
                   color: "deep-pink",
                   heading: l10n.getString("landing-use-cases-social-networks"),
                   content: (
@@ -186,27 +190,51 @@ const Home: NextPage = () => {
                   id: "use-cases/social-networks",
                 },
                 {
+                  alt: l10n.getString("landing-use-cases-on-the-go-image-alt"),
                   color: "purple",
-                  heading: l10n.getString("landing-use-cases-offline"),
+                  heading: l10n.getString("landing-use-cases-on-the-go"),
                   content: (
                     <CarouselContentCards
-                      heading="On the Go with Relay"
-                      lead="Instantly make a custom email mask anywhere and everywhere you go!"
+                      heading={l10n.getString(
+                        "landing-use-cases-on-the-go-heading"
+                      )}
+                      lead={l10n.getString("landing-use-cases-on-the-go-lead")}
                       cards={[
                         {
                           image: OnTheGoConnect.src,
-                          heading: "Connect on the go",
-                          body: "Use your email mask when you want to privately sign into your favorite coffee shop or public wifi",
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-connect-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-connect-body"
+                          ),
+                          alt: l10n.getString(
+                            "landing-use-cases-on-the-go-connect-image-alt"
+                          ),
                         },
                         {
                           image: OnTheGoReceipt.src,
-                          heading: "Get email receipts",
-                          body: "Share a custom email mask for in-store shopping receipts without sharing your real email",
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-receipt-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-receipt-body"
+                          ),
+                          alt: l10n.getString(
+                            "landing-use-cases-on-the-go-receipt-image-alt"
+                          ),
                         },
                         {
                           image: OnTheGoPhone.src,
-                          heading: "Use on your phone",
-                          body: "No matter where you are, create a custom email mask in seconds for anything you want to do",
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-phone-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-phone-body"
+                          ),
+                          alt: l10n.getString(
+                            "landing-use-cases-on-the-go-phone-image-alt"
+                          ),
                         },
                       ]}
                     />
@@ -215,6 +243,7 @@ const Home: NextPage = () => {
                   id: "use-cases/offline",
                 },
                 {
+                  alt: l10n.getString("landing-use-cases-signups-image-alt"),
                   color: "pink",
                   heading: l10n.getString("landing-use-cases-signups"),
                   content: (
@@ -244,6 +273,7 @@ const Home: NextPage = () => {
                   id: "use-cases/access-content",
                 },
                 {
+                  alt: l10n.getString("landing-use-cases-gaming-image-alt"),
                   color: "orange",
                   heading: l10n.getString("landing-use-cases-gaming"),
                   content: (
