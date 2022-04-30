@@ -5,7 +5,14 @@
   display: flex;
   align-items: center;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: $spacing-2xl;
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: $spacing-2xl;
+  }
 
   .heading {
     @include text-title-sm;
@@ -21,8 +28,8 @@
   }
 
   .lead {
+    @include text-title-2xs;
     display: flex;
-    flex-direction: column;
   }
 
   .card {
@@ -30,24 +37,49 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
+    justify-content: end;
+    gap: $spacing-md;
 
-  .hero {
-    display: flex;
-  }
-
-  @media screen and #{$mq-lg} {
-    flex-direction: column;
-    padding: $spacing-2xl;
-    justify-content: space-evenly;
-    gap: $spacing-sm;
-
-    @media screen and #{$mq-xl} {
-      gap: $spacing-2xl;
+    .card-heading {
+      @include text-title-2xs;
+      font-family: $font-stack-firefox;
+      font-weight: 700;
     }
 
-    .body {
-      width: $content-sm;
+    .card-body {
+      @include text-body-md;
+      font-family: $font-stack-firefox;
+      font-weight: 400;
+    }
+  }
+
+  @media screen and #{$mq-md} {
+    .hero {
+      flex-direction: row;
+      width: $content-md;
+    }
+
+    .card {
+      gap: $spacing-md;
+
+      .card-heading {
+        @include text-title-3xs;
+      }
+    }
+  }
+  @media screen and #{$mq-lg} {
+    .hero {
+      width: 100%;
+    }
+
+    .card {
+      .card-heading {
+        @include text-title-2xs;
+      }
+
+      .card-body {
+        max-width: $content-xs;
+      }
     }
   }
 }
