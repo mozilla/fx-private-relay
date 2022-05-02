@@ -32,6 +32,11 @@ export type Props = {
   onChange: (selected: SelectedFilters) => void;
 };
 
+type OnCloseParams = {
+  selectedFilters: SelectedFilters;
+  saveFilters?: boolean;
+};
+
 /**
  * Menu to select alias filters to apply, based on properties like being random or custom, or enabled or disabled.
  */
@@ -60,9 +65,13 @@ export const CategoryFilter = (props: Props) => {
     triggerRef
   );
 
-  const onClose = (selectedFilters: SelectedFilters) => {
+  const onClose = (onCloseParams: OnCloseParams) => {
+    const { selectedFilters, saveFilters = true } = onCloseParams;
+    if (saveFilters) {
+      props.onChange(selectedFilters);
+    }
+
     menuState.close();
-    props.onChange(selectedFilters);
   };
 
   const menu = menuState.isOpen ? (
@@ -101,7 +110,7 @@ export const CategoryFilter = (props: Props) => {
 
 type FilterMenuProps = HTMLAttributes<HTMLDivElement> & {
   selectedFilters: SelectedFilters;
-  onClose: (selectedFilters: SelectedFilters) => void;
+  onClose: (onCloseParams: OnCloseParams) => void;
   isOpen: boolean;
 };
 const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
@@ -117,11 +126,20 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
       selectedFilters.status
     );
     const saveAndClose = () => {
-      onClose({ domainType, status });
+      onClose({ selectedFilters: { domainType, status } });
     };
+    const cancelAndClose = () => {
+      onClose({ selectedFilters: { domainType, status }, saveFilters: false });
+    };
+    const resetAndClose = () => {
+      onClose({
+        selectedFilters: { domainType: undefined, status: undefined },
+      });
+    };
+
     const { overlayProps } = useOverlay(
       {
-        onClose: saveAndClose,
+        onClose: cancelAndClose,
         isOpen: isOpen,
         isDismissable: true,
       },
@@ -134,7 +152,7 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
       saveAndClose();
     };
     const onReset: FormEventHandler = () => {
-      onClose({ domainType: undefined, status: undefined });
+      resetAndClose();
     };
 
     return (
