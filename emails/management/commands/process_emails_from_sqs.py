@@ -128,7 +128,7 @@ class Command(BaseCommand):
         )
         assert 0 <= self.verbosity <= 3
 
-    def help_message(self, text, setting_name):
+    def help_message_for_setting(self, text, setting_name):
         """Construct the command-line help message."""
         value = getattr(settings, setting_name)
         return f"{text} Defaults to {value!r} from settings.{setting_name}."
@@ -140,7 +140,7 @@ class Command(BaseCommand):
             type=int,
             default=settings.PROCESS_EMAIL_BATCH_SIZE,
             choices=range(1, 11),
-            help=self.help_message(
+            help=self.help_message_for_setting(
                 "Number of SQS messages to fetch at a time.", "PROCESS_EMAIL_BATCH_SIZE"
             ),
         )
@@ -148,7 +148,7 @@ class Command(BaseCommand):
             "--wait-seconds",
             type=int,
             default=settings.PROCESS_EMAIL_WAIT_SECONDS,
-            help=self.help_message(
+            help=self.help_message_for_setting(
                 "Time to wait for messages with long polling.",
                 "PROCESS_EMAIL_WAIT_SECONDS",
             ),
@@ -157,7 +157,7 @@ class Command(BaseCommand):
             "--visibility-seconds",
             type=int,
             default=settings.PROCESS_EMAIL_VISIBILITY_SECONDS,
-            help=self.help_message(
+            help=self.help_message_for_setting(
                 "Time to mark a message as reserved for this process.",
                 "PROCESS_EMAIL_VISIBILITY_SECONDS",
             ),
@@ -166,7 +166,7 @@ class Command(BaseCommand):
             "--healthcheck-path",
             type=FileType("w", encoding="utf8"),
             default=settings.PROCESS_EMAIL_HEALTHCHECK_PATH,
-            help=self.help_message(
+            help=self.help_message_for_setting(
                 "Path to file to write healthcheck data.",
                 "PROCESS_EMAIL_HEALTHCHECK_PATH",
             ),
@@ -175,7 +175,7 @@ class Command(BaseCommand):
             "--delete-failed-messages",
             action="store_true",
             default=settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES,
-            help=self.help_message(
+            help=self.help_message_for_setting(
                 "If a message fails to process, delete it from the queue, "
                 " instead of letting SQS resend or move to a dead-letter queue.",
                 "PROCESS_EMAIL_DELETE_FAILED_MESSAGES",
@@ -185,15 +185,17 @@ class Command(BaseCommand):
             "--max-seconds",
             type=int,
             default=settings.PROCESS_EMAIL_MAX_SECONDS,
-            help=self.help_message(
+            help=self.help_message_for_setting(
                 "Maximum time to process before exiting.", "PROCESS_EMAIL_MAX_SECONDS"
             ),
         )
         parser.add_argument(
-            "--aws-region", help=self.help_message("AWS region.", "AWS_REGION")
+            "--aws-region",
+            help=self.help_message_for_setting("AWS region.", "AWS_REGION"),
         )
         parser.add_argument(
-            "--sqs-url", help=self.help_message("SQS URL.", "AWS_SQS_EMAIL_QUEUE_URL")
+            "--sqs-url",
+            help=self.help_message_for_setting("SQS URL.", "AWS_SQS_EMAIL_QUEUE_URL"),
         )
 
     def handle(self, *args, **kwargs):

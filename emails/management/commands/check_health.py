@@ -25,7 +25,7 @@ logger = logging.getLogger("eventsinfo.check_health")
 class Command(BaseCommand):
     help = "Check that a healthcheck JSON file exists and is recent."
 
-    def help_message(self, text, setting_name):
+    def help_message_for_setting(self, text, setting_name):
         """Construct the command-line help message."""
         value = getattr(settings, setting_name)
         return f"{text} Defaults to {value!r} from settings.{setting_name}."
@@ -36,7 +36,7 @@ class Command(BaseCommand):
             "healthcheck_path",
             type=FileType("r", encoding="utf8"),
             default=settings.PROCESS_EMAIL_HEALTHCHECK_PATH,
-            help=self.help_message(
+            help=self.help_message_for_setting(
                 "Path to healthcheck JSON file.", "PROCESS_EMAIL_HEALTHCHECK_PATH"
             ),
         )
@@ -44,7 +44,7 @@ class Command(BaseCommand):
             "--max-age",
             type=int,
             default=settings.PROCESS_EMAIL_HEALTHCHECK_MAX_AGE,
-            help=self.help_message(
+            help=self.help_message_for_setting(
                 "Timestamp age in seconds before failure.",
                 "PROCESS_EMAIL_HEALTHCHECK_MAX_AGE",
             ),
