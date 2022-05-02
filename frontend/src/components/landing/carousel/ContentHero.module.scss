@@ -40,12 +40,6 @@
       flex-direction: row-reverse;
     }
 
-    &.text-first {
-      .heading {
-        width: $content-md;
-      }
-    }
-
     .body {
       width: $content-sm;
     }
