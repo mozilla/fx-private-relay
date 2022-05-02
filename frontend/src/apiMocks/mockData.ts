@@ -7,8 +7,8 @@ export const mockIds = ["empty", "onboarding", "some", "full"] as const;
 
 // This is the same for all mock users, at this time:
 export const runtimeData: RuntimeData = {
-  FXA_ORIGIN: "https://example.com",
-  BASKET_ORIGIN: "https://example.com",
+  FXA_ORIGIN: "https://fxa-mock.com",
+  BASKET_ORIGIN: "https://basket-mock.com",
   GOOGLE_ANALYTICS_ID: "UA-123456789-0",
   PREMIUM_PRODUCT_ID: "prod_123456789",
   PREMIUM_PLANS: {

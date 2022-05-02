@@ -13,8 +13,8 @@ const mockedUseRuntimeData = useRuntimeData as jest.MockedFunction<
 
 export function getMockRuntimeDataWithPremium(): RuntimeData {
   return {
-    FXA_ORIGIN: "https://example.com",
-    BASKET_ORIGIN: "https://example.com",
+    FXA_ORIGIN: "https://fxa-mock.com",
+    BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
     PREMIUM_PRODUCT_ID: "prod_123456789",
     PREMIUM_PLANS: {
@@ -34,8 +34,8 @@ export function getMockRuntimeDataWithPremium(): RuntimeData {
 }
 export function getMockRuntimeDataWithoutPremium(): RuntimeData {
   return {
-    FXA_ORIGIN: "https://example.com",
-    BASKET_ORIGIN: "https://example.com",
+    FXA_ORIGIN: "https://fxa-mock.com",
+    BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
     PREMIUM_PRODUCT_ID: "prod_123456789",
     PREMIUM_PLANS: {
