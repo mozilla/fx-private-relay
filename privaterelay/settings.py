@@ -167,7 +167,6 @@ RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
 RECRUITMENT_BANNER_TEXT = config("RECRUITMENT_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_TEXT = config("RECRUITMENT_EMAIL_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_LINK = config("RECRUITMENT_EMAIL_BANNER_LINK", None)
-SERVE_REACT = config("SERVE_REACT", False, cast=bool)
 
 TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
@@ -182,7 +181,6 @@ SERVE_ADDON = config("SERVE_ADDON", None)
 # Application definition
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
-    "django_gulp",
     "django.contrib.staticfiles",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -507,25 +505,21 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "frontend/out"),
     os.path.join(BASE_DIR, "static"),
 ]
-if SERVE_REACT:
-    # Static files (the front-end in /frontend/)
-    # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
-    STATIC_URL = "/"
-    if settings.DEBUG:
-        # In production, we run collectstatic to index all static files.
-        # However, when running locally, we want to automatically pick up
-        # all files spewed out by `npm run watch` in /frontend/out,
-        # and we're fine with the performance impact of that.
-        WHITENOISE_ROOT = os.path.join(BASE_DIR, "frontend/out")
-else:
-    STATIC_URL = "/static/"
+# Static files (the front-end in /frontend/)
+# https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
+STATIC_URL = "/"
+if settings.DEBUG:
+    # In production, we run collectstatic to index all static files.
+    # However, when running locally, we want to automatically pick up
+    # all files spewed out by `npm run watch` in /frontend/out,
+    # and we're fine with the performance impact of that.
+    WHITENOISE_ROOT = os.path.join(BASE_DIR, "frontend/out")
 
 # Relay does not support user-uploaded files
 MEDIA_ROOT = None
 MEDIA_URL = None
 
 WHITENOISE_INDEX_FILE = True
-
 
 # See
 # https://whitenoise.evans.io/en/stable/django.html#WHITENOISE_ADD_HEADERS_FUNCTION
@@ -542,12 +536,6 @@ def set_index_cache_control_headers(headers, path, url):
 
 
 WHITENOISE_ADD_HEADERS_FUNCTION = set_index_cache_control_headers
-
-# for dev statics, we use django-gulp during runserver.
-# for stage/prod statics, we run "gulp build" in docker.
-# so, squelch django-gulp in prod so it doesn't run gulp during collectstatic:
-if not RELAY_CHANNEL == "dev":
-    GULP_PRODUCTION_COMMAND = ""
 
 SITE_ID = 1
 
