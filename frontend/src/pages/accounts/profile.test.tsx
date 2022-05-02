@@ -613,12 +613,13 @@ describe("The dashboard", () => {
     });
     userEvent.click(categoryFilterApplyButton);
 
-    // The blocked label serves as a proxy for an alias card
-    const aliasCardBlockedLabels = screen.queryByText(
-      "l10n string: [profile-label-blocked], with vars: {}"
-    );
+    const randomAlias1 = screen.queryByText(/address1/);
+    const randomAlias2 = screen.queryByText(/address2/);
+    expect(randomAlias1).not.toBeInTheDocument();
+    expect(randomAlias2).not.toBeInTheDocument();
 
-    expect(aliasCardBlockedLabels).toBeInTheDocument();
+    const customAlias = screen.queryByText(/address3/);
+    expect(customAlias).toBeInTheDocument();
   });
 
   it("has a category filter for the list of aliases that can be closed and cancelled, which is available to users with premium", () => {
@@ -647,12 +648,13 @@ describe("The dashboard", () => {
     // Close and discard changes
     userEvent.click(categoryFilterButton);
 
-    // The blocked label serves as a proxy for an alias card
-    const aliasCardBlockedLabel = screen.queryAllByText(
-      "l10n string: [profile-label-blocked], with vars: {}"
-    );
+    const randomAlias1 = screen.queryByText(/address1/);
+    const randomAlias2 = screen.queryByText(/address2/);
+    expect(randomAlias1).toBeInTheDocument();
+    expect(randomAlias2).toBeInTheDocument();
 
-    expect(aliasCardBlockedLabel).toHaveLength(3);
+    const customAlias = screen.queryByText(/address3/);
+    expect(customAlias).toBeInTheDocument();
   });
 
   it("has a category filter for the list of aliases that can be closed and cleared, which is available to users with premium", () => {
@@ -693,12 +695,13 @@ describe("The dashboard", () => {
     });
     userEvent.click(categoryFilterResetButton);
 
-    // The blocked label serves as a proxy for an alias card
-    const aliasCardBlockedLabel = screen.queryAllByText(
-      "l10n string: [profile-label-blocked], with vars: {}"
-    );
+    const randomAlias1 = screen.queryByText(/address1/);
+    const randomAlias2 = screen.queryByText(/address2/);
+    expect(randomAlias1).toBeInTheDocument();
+    expect(randomAlias2).toBeInTheDocument();
 
-    expect(aliasCardBlockedLabel).toHaveLength(3);
+    const customAlias = screen.queryByText(/address3/);
+    expect(customAlias).toBeInTheDocument();
   });
 
   describe("with the `generateCustomAlias` feature flag enabled", () => {
