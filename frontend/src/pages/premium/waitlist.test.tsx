@@ -19,16 +19,18 @@ jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../components/waitlist/countryPicker.tsx", () => ({
   // We're mocking out the country picker because it dynamically imports the
-  // list of available countries, which would make the test pretty cumbersome
-  // while waiting for the promise to resolve.
+  // list of available countries, which would mean the test would have to mock
+  // out that import's Promise and wait for that to resolve, distracting from
+  // the actual test code.
   // Since it's otherwise just a `<select>` element, we can just mock it out by
   // an empty <select>.
   CountryPicker: (props: CountryPickerProps) => <select {...props} />,
 }));
 jest.mock("../../components/waitlist/localePicker.tsx", () => ({
   // We're mocking out the locale picker because it dynamically imports the
-  // list of available countries, which would make the test pretty cumbersome
-  // while waiting for the promise to resolve.
+  // list of available countries, which would mean the test would have to mock
+  // out that import's Promise and wait for that to resolve, distracting from
+  // the actual test code.
   // Since it's otherwise just a `<select>` element, we can just mock it out by
   // an empty <select>.
   LocalePicker: (allProps: LocalePickerProps) => {
