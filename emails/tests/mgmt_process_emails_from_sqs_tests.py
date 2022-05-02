@@ -300,7 +300,7 @@ def test_command_sqs_client_error(mock_boto3_queue_constructor):
     AWS_REGION="us-east-3",
     AWS_SQS_EMAIL_QUEUE_URL="https://sqs.us-east-3.amazonaws.example.com/444555666/queue-name",
     PROCESS_EMAIL_BATCH_SIZE=2,
-    PROCESS_EMAIL_DELETE_FAILED_MESSAGES=1,
+    PROCESS_EMAIL_DELETE_FAILED_MESSAGES=True,
     PROCESS_EMAIL_HEALTHCHECK_PATH="/tmp/healthcheck.json",
     PROCESS_EMAIL_MAX_SECONDS=3600,
     PROCESS_EMAIL_VERBOSITY=2,
