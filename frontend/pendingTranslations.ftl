@@ -20,7 +20,8 @@ landing-how-it-works-step-2-body-v2 = As you browse, the { -brand-name-relay } i
 
 landing-use-cases-heading = Use { -brand-name-firefox-relay } for:
 
- landing-use-cases-shopping-hero-heading = Shopping with email masks
+landing-use-cases-shopping = Shopping
+landing-use-cases-shopping-hero-heading = Shopping with email masks
 landing-use-cases-shopping-hero-content1 = Want to buy something online and don’t know or fully trust the shop?
 landing-use-cases-shopping-hero-content2 = Use an email mask whenever you shop online. Get the confirmation sent to your real email and then easily turn the mask off anytime later.
 
