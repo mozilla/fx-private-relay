@@ -40,22 +40,13 @@ urlpatterns = [
     ),
     path("accounts/profile/refresh", views.profile_refresh, name="profile_refresh"),
     path("api/", include("api.urls")),
+    # This route is still referred to in wrapped_email.html, so leave it in
+    # (even though the FAQ is no longer rendered by Django):
     path("faq", views.faq, name="faq"),
+    # This route is still referred to in middleware.py, so leave it in
+    # (even though the homepage is no longer rendered by Django):
+    path("", views.home, name="home"),
 ]
-
-if not settings.SERVE_REACT:
-    urlpatterns += [
-        path("accounts/profile/", views.profile, name="profile"),
-        path("accounts/settings/", views.settings_view, name="settings"),
-        # This redirects users back to the homepage after updating settings
-        path(
-            "accounts/profile/settings_update",
-            views.settings_update_view,
-            name="settings-update",
-        ),
-        path("premium", views.premium_promo, name="premium-promo"),
-        path("", views.home, name="home"),
-    ]
 
 if settings.DEBUG:
     import debug_toolbar

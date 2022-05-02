@@ -1,16 +1,3 @@
-# TODO: Remove until next FROM once we've transitioned to the React-based website
-FROM node:14 AS gulp-builder
-WORKDIR /app
-COPY package*.json ./
-COPY gulpfile.js ./
-COPY .eslint* ./
-COPY .stylelintrc.json ./
-COPY static ./static/
-RUN npm install
-RUN ./node_modules/.bin/gulp build
-RUN npm run lint:js -- --max-warnings=0
-RUN npm run lint:css
-
 FROM python:3.9.12
 
 ARG CIRCLE_BRANCH
@@ -30,7 +17,6 @@ WORKDIR /app
 EXPOSE 8000
 
 USER app
-COPY --from=gulp-builder --chown=app /app/static ./static
 
 COPY --chown=app ./requirements.txt /app/requirements.txt
 RUN pip install --no-cache -r requirements.txt

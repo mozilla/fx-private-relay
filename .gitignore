@@ -7,9 +7,6 @@ env/
 __pycache__
 web-ext-artifacts/
 htmlcov
-static/downloads
-static/css
-static/scss/libs
 staticfiles
 coverage/
 junit.xml
