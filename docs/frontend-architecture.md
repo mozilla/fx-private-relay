@@ -44,7 +44,8 @@ Import tokens from [Protocol](https://protocol.mozilla.org).
 ## Add telemetry
 
 Uses [`react-ga`](https://www.npmjs.com/package/react-ga).
-See `useGaViewPing` and `trackPurchaseStart`.
+See `useGaViewPing` (and `useFxaFlowTracker` when measuring use of sign in/up
+links in particular) and `trackPurchaseStart`.
 
 ## Add/modify environment-specific data
 
