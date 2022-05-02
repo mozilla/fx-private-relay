@@ -83,7 +83,7 @@ describe("The waitlist", () => {
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
       expect.any(String),
-      expect.objectContaining({ body: expect.stringContaining("") })
+      expect.objectContaining({ body: expect.any(String) })
     );
     const requestBody = (global.fetch as jest.Mock).mock.calls[0][1].body;
     const params = new URLSearchParams(requestBody);
