@@ -1,49 +1,29 @@
 {
   "name": "fx-private-relay",
-  "description": "Private Relay provides generated email addresses to use in place of personal email addresses.",
+  "description": "Firefox Relay provides generated email addresses to use in place of personal email addresses.",
   "version": "1.0.0",
   "author": "Mozilla",
   "bugs": {
     "url": "https://github.com/mozilla/fx-private-relay/issues"
   },
-  "dependencies": {
-    "@mozilla-protocol/core": "^14.0.3",
-    "del": "^6.0.0",
-    "eslint": "^7.8.1",
-    "gulp": "^4.0.2",
-    "gulp-if": "^3.0.0",
-    "gulp-sass": "^5.0.0",
-    "gulp-sourcemaps": "^3.0.0",
-    "merge-stream": "^2.0.0",
-    "sass": "1.32.13"
-  },
-  "devDependencies": {
-    "stylelint": "^13.13.1",
-    "stylelint-config-recommended": "^5.0.0",
-    "stylelint-scss": "^3.19.0"
-  },
   "engines": {
     "node": "14.18.x",
     "npm": "8.1.x"
   },
-  "homepage": "https://github.com/mozilla/fx-private-relay#readme",
-  "keywords": [],
+  "volta": {
+    "node": "14.18.1",
+    "npm": "8.1.0"
+  },
   "license": "MPL-2.0",
   "private": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mozilla/fx-private-relay.git"
   },
+  "workspaces": [
+    "frontend"
+  ],
   "scripts": {
-    "lint": "npm run lint:js && npm run lint:css",
-    "lint:js": "eslint .",
-    "lint:css": "stylelint static/scss/",
-    "lint:fix-css": "stylelint --fix static/scss/",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "heroku-postbuild": "git clone https://github.com/mozilla-l10n/fx-private-relay-l10n.git privaterelay/locales; cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
-  },
-  "volta": {
-    "node": "14.18.1",
-    "npm": "8.1.0"
   }
 }
