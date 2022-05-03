@@ -9,6 +9,7 @@ export function getRuntimeConfig(): RuntimeConfig {
 export type RuntimeConfig = {
   backendOrigin: string;
   frontendOrigin: string;
+  upgradeUrl: string;
   fxaLoginUrl: string;
   fxaLogoutUrl: string;
   basketOrigin: string;

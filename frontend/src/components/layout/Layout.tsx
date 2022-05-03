@@ -24,6 +24,8 @@ import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
+import { event as gaEvent } from "react-ga";
+import { useGaViewPing } from "../../hooks/gaViewPing";
 
 export type Props = {
   children: ReactNode;
@@ -38,6 +40,7 @@ export const Layout = (props: Props) => {
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
+  const hasPremium: boolean = profiles.data?.[0].has_premium || false;
 
   const isDark =
     typeof props.theme !== "undefined"
@@ -51,11 +54,9 @@ export const Layout = (props: Props) => {
   // set to "free", like the FAQ), and if the theme is explicitly
   // set to Premium (i.e. on the `/premium` promo page).
   const logoType =
-    props.theme === "premium" || profiles.data?.[0].has_premium
-      ? premiumLogo
-      : regularLogo;
+    props.theme === "premium" || hasPremium ? premiumLogo : regularLogo;
   const logoAlt =
-    props.theme === "premium" || profiles.data?.[0].has_premium
+    props.theme === "premium" || hasPremium
       ? l10n.getString("logo-alt")
       : l10n.getString("logo-premium-alt");
 
@@ -84,6 +85,29 @@ export const Layout = (props: Props) => {
   const whatsNew =
     isLoggedIn && profiles.data ? (
       <WhatsNewMenu profile={profiles.data[0]} />
+    ) : null;
+
+  const upgradeButtonRef = useGaViewPing({
+    category: "Upgrade",
+    label: "profile-upgrade",
+  });
+
+  const upgradeButton =
+    isLoggedIn && !hasPremium ? (
+      <a
+        href={getRuntimeConfig().upgradeUrl}
+        ref={upgradeButtonRef}
+        onClick={() =>
+          gaEvent({
+            category: "Upgrade",
+            action: "Engage",
+            label: "profile-upgrade",
+          })
+        }
+        className={`btn ${styles["upgrade-button"]}`}
+      >
+        {l10n.getString("profile-upgrade-button")}
+      </a>
     ) : null;
 
   return (
@@ -142,6 +166,7 @@ export const Layout = (props: Props) => {
           <div className={styles["nav-wrapper"]}>
             <Navigation />
             {whatsNew}
+            {upgradeButton}
           </div>
           <div className={styles["app-picker-wrapper"]}>
             <AppPicker theme={isDark ? "free" : "premium"} />

@@ -165,3 +165,15 @@
   padding: $spacing-md $spacing-lg;
   text-align: center;
 }
+
+.upgrade-button {
+  appearance: none;
+  font-size: 18px;
+  padding: 4px $spacing-md;
+  margin: 0 ($spacing-lg/2);
+  background-color: $color-purple-20;
+  color: $color-blue-90;
+  font-weight: 600;
+  border-radius: $border-radius-md;
+  font-family: $font-stack-firefox;
+}

@@ -5,6 +5,7 @@ const runtimeConfigs = {
     // so relative URLs can be used:
     backendOrigin: "",
     frontendOrigin: "",
+    upgradeUrl: "https://relay.firefox.com/premium",
     fxaLoginUrl: "/accounts/fxa/login/?process=login",
     fxaLogoutUrl: "/accounts/logout/",
     basketOrigin: "https://basket.mozilla.org",

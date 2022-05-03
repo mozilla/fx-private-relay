@@ -25,3 +25,6 @@ waitlist-privacy-policy-use = Your information will only be used to notify you a
 waitlist-subscribe-success = You’re on the list! Once { -brand-name-firefox-relay-premium } becomes available for your region, we’ll email you.
 waitlist-subscribe-error-connection = There was an error adding you to the waitlist. Please check your connection, then try again.
 waitlist-subscribe-error-unknown = There was an error adding you to the waitlist. Please try again.
+
+
+profile-upgrade-button = Upgrade
