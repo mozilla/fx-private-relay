@@ -4,8 +4,7 @@ import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./Navigation.module.scss";
 import { useIsLoggedIn } from "../../hooks/session";
-import { getRuntimeConfig } from "../../config";
-import { useFxaFlowTracker } from "../../hooks/fxaFlowTracker";
+import { getLoginUrl, useFxaFlowTracker } from "../../hooks/fxaFlowTracker";
 
 /** Switch between the different pages of the Relay website. */
 export const Navigation = () => {
@@ -20,29 +19,13 @@ export const Navigation = () => {
     label: "nav-profile-sign-up",
     entrypoint: "relay-sign-up-header",
   });
-  // document is undefined when prerendering the website,
-  // so just use the production URL there:
-  const signUpUrl = new URL(
-    getRuntimeConfig().fxaLoginUrl,
-    typeof document !== "undefined"
-      ? document.location.origin
-      : "https://relay.firefox.com"
+  const signUpUrl = getLoginUrl(
+    "relay-sign-up-header",
+    signUpFxaFlowTracker.flowData
   );
-  signUpUrl.searchParams.append("form_type", "button");
-  signUpUrl.searchParams.append("entrypoint", "relay-sign-up-header");
-  if (signUpFxaFlowTracker.flowData) {
-    signUpUrl.searchParams.append(
-      "flowId",
-      signUpFxaFlowTracker.flowData.flowId
-    );
-    signUpUrl.searchParams.append(
-      "flowBeginTime",
-      signUpFxaFlowTracker.flowData.flowBeginTime
-    );
-  }
   const signUpButton = isLoggedIn ? null : (
     <a
-      href={signUpUrl.href}
+      href={signUpUrl}
       ref={signUpFxaFlowTracker.ref}
       onClick={() =>
         gaEvent({
@@ -62,29 +45,13 @@ export const Navigation = () => {
     label: "nav-profile-sign-in",
     entrypoint: "relay-sign-in-header",
   });
-  // document is undefined when prerendering the website,
-  // so just use the production URL there:
-  const signInUrl = new URL(
-    getRuntimeConfig().fxaLoginUrl,
-    typeof document !== "undefined"
-      ? document.location.origin
-      : "https://relay.firefox.com"
+  const signInUrl = getLoginUrl(
+    "relay-sign-in-header",
+    signInFxaFlowTracker.flowData
   );
-  signInUrl.searchParams.append("form_type", "button");
-  signInUrl.searchParams.append("entrypoint", "relay-sign-in-header");
-  if (signInFxaFlowTracker.flowData) {
-    signInUrl.searchParams.append(
-      "flowId",
-      signInFxaFlowTracker.flowData.flowId
-    );
-    signInUrl.searchParams.append(
-      "flowBeginTime",
-      signInFxaFlowTracker.flowData.flowBeginTime
-    );
-  }
   const signInButton = isLoggedIn ? null : (
     <a
-      href={signInUrl.href}
+      href={signInUrl}
       ref={signInFxaFlowTracker.ref}
       onClick={() =>
         gaEvent({

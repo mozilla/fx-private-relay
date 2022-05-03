@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import { event as gaEvent, EventArgs } from "react-ga";
 import { IntersectionOptions, useInView } from "react-intersection-observer";
+import { getRuntimeConfig } from "../config";
 import { useRuntimeData } from "./api/runtimeData";
 
 export type FxaFlowTrackerArgs = Omit<
   EventArgs,
   "action" | "nonInteraction"
 > & { entrypoint: string };
+
+export type FlowData = {
+  flowId: string;
+  flowBeginTime: string;
+};
 
 /**
  * This is similar to {@see useGaViewPing}, but this also gives you a `flowId`
@@ -18,10 +24,7 @@ export function useFxaFlowTracker(
 ) {
   const runtimeData = useRuntimeData();
   const [ref, inView] = useInView({ threshold: 1, ...options });
-  const [flowData, setFlowData] = useState<{
-    flowId: string;
-    flowBeginTime: string;
-  }>();
+  const [flowData, setFlowData] = useState<FlowData>();
 
   // If the API hasn't responded with the environment variables by the time this
   // hook fires, we assume we're dealing with the production instance of FxA:
@@ -68,4 +71,23 @@ export function useFxaFlowTracker(
   }, [inView]);
 
   return { flowData: flowData, ref: ref };
+}
+
+export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
+  // document is undefined when prerendering the website,
+  // so just use the production URL there:
+  const urlObject = new URL(
+    getRuntimeConfig().fxaLoginUrl,
+    typeof document !== "undefined"
+      ? document.location.origin
+      : "https://relay.firefox.com"
+  );
+  urlObject.searchParams.append("form_type", "button");
+  urlObject.searchParams.append("entrypoint", entrypoint);
+  if (flowData) {
+    urlObject.searchParams.append("flowId", flowData.flowId);
+    urlObject.searchParams.append("flowBeginTime", flowData.flowBeginTime);
+  }
+
+  return urlObject.href;
 }
