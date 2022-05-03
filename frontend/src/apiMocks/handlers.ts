@@ -230,6 +230,17 @@ export function getHandlers(
       return res(ctx.status(200), ctx.json({ status: "ok" }));
     })
   );
+  handlers.push(
+    rest.get("https://accounts.firefox.com/metrics-flow", (_req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          flowId: "mock-flow-id",
+          flowBeginTime: new Date(Date.now()).toISOString(),
+        })
+      );
+    })
+  );
 
   return handlers;
 }
