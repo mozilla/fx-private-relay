@@ -141,7 +141,6 @@ const Home: NextPage = () => {
               title={l10n.getString("landing-use-cases-heading")}
               tabs={[
                 {
-                  alt: l10n.getString("landing-use-cases-shopping-image-alt"),
                   color: "yellow",
                   heading: l10n.getString("landing-use-cases-shopping"),
                   content: (
@@ -171,9 +170,6 @@ const Home: NextPage = () => {
                   id: "use-cases/shopping",
                 },
                 {
-                  alt: l10n.getString(
-                    "landing-use-cases-social-networks-image-alt"
-                  ),
                   color: "deep-pink",
                   heading: l10n.getString("landing-use-cases-social-networks"),
                   content: (
@@ -190,7 +186,6 @@ const Home: NextPage = () => {
                   id: "use-cases/social-networks",
                 },
                 {
-                  alt: l10n.getString("landing-use-cases-on-the-go-image-alt"),
                   color: "purple",
                   heading: l10n.getString("landing-use-cases-on-the-go"),
                   content: (
@@ -208,9 +203,6 @@ const Home: NextPage = () => {
                           body: l10n.getString(
                             "landing-use-cases-on-the-go-connect-body"
                           ),
-                          alt: l10n.getString(
-                            "landing-use-cases-on-the-go-connect-image-alt"
-                          ),
                         },
                         {
                           image: OnTheGoReceipt.src,
@@ -219,9 +211,6 @@ const Home: NextPage = () => {
                           ),
                           body: l10n.getString(
                             "landing-use-cases-on-the-go-receipt-body"
-                          ),
-                          alt: l10n.getString(
-                            "landing-use-cases-on-the-go-receipt-image-alt"
                           ),
                         },
                         {
@@ -232,9 +221,6 @@ const Home: NextPage = () => {
                           body: l10n.getString(
                             "landing-use-cases-on-the-go-phone-body"
                           ),
-                          alt: l10n.getString(
-                            "landing-use-cases-on-the-go-phone-image-alt"
-                          ),
                         },
                       ]}
                     />
@@ -243,7 +229,6 @@ const Home: NextPage = () => {
                   id: "use-cases/offline",
                 },
                 {
-                  alt: l10n.getString("landing-use-cases-signups-image-alt"),
                   color: "pink",
                   heading: l10n.getString("landing-use-cases-signups"),
                   content: (
@@ -273,7 +258,6 @@ const Home: NextPage = () => {
                   id: "use-cases/access-content",
                 },
                 {
-                  alt: l10n.getString("landing-use-cases-gaming-image-alt"),
                   color: "orange",
                   heading: l10n.getString("landing-use-cases-gaming"),
                   content: (

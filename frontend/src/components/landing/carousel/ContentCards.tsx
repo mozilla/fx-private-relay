@@ -7,7 +7,6 @@ export type Props = {
     image: string;
     heading: string;
     body: string;
-    alt: string;
   }>;
 };
 
@@ -23,7 +22,7 @@ export const CarouselContentCards = (props: Props) => {
           return (
             <div className={styles.card} key={index}>
               <div className={styles["card-image-container"]}>
-                <img src={card.image} alt={card.alt} />
+                <img src={card.image} alt="" />
               </div>
               <p className={styles["card-heading"]}>{card.heading}</p>
               <p className={styles["card-body"]}>{card.body}</p>
