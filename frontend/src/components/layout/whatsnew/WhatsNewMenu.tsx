@@ -202,8 +202,6 @@ export const WhatsNewMenu = (props: Props) => {
       "sv-se",
       "el",
       "hu",
-      "ia",
-      "id",
       "sk",
       "skr",
       "uk",
