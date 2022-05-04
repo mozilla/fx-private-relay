@@ -1,9 +1,9 @@
 import { Localized, useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
-import FirefoxLogo from "../../../../static/images/logos/fx-logo.svg";
-import RelayLogo from "../../../../static/images/placeholder-logo.svg";
-import AddonIllustration from "../../../../static/images/banner-addon.svg";
+import FirefoxLogo from "./images/fx-logo.svg";
+import AddonIllustration from "./images/banner-addon.svg";
+import RelayLogo from "./images/placeholder-logo.svg";
 import {
   getPlan,
   getPremiumSubscribeLink,

@@ -195,7 +195,7 @@ export const UserMenu = (props: Props) => {
             value={getCsrfToken()}
           />
           <button type="submit" className={styles["menu-button"]}>
-            <SignOutIcon width={20} height={20} alt="" />
+            <SignOutIcon alt="" />
             {l10n.getString("nav-profile-sign-out")}
           </button>
         </form>

@@ -23,8 +23,7 @@ import {
 } from "react-stately";
 import { HTMLAttributes, Key, ReactNode, useRef, useState } from "react";
 import styles from "./AliasGenerationButton.module.scss";
-import plusIcon from "../../../../../static/images/plus-sign-white.svg";
-import arrowHeadIcon from "../../../../../static/images/arrowhead-white.svg";
+import { ArrowDownIcon, PlusIcon } from "../../Icons";
 import { ProfileData } from "../../../hooks/api/profile";
 import { Button, LinkButton } from "../../Button";
 import { AliasData } from "../../../hooks/api/aliases";
@@ -71,7 +70,7 @@ export const AliasGenerationButton = (props: Props) => {
     if (!isPremiumAvailableInCountry(props.runtimeData)) {
       return (
         <Button disabled>
-          <img src={plusIcon.src} alt="" width={16} height={16} />
+          <PlusIcon alt="" width={16} height={16} />
           {l10n.getString("profile-label-generate-new-alias-2")}
         </Button>
       );
@@ -112,7 +111,7 @@ export const AliasGenerationButton = (props: Props) => {
       onClick={() => props.onCreate({ mask_type: "random" })}
       title={l10n.getString("profile-label-generate-new-alias-2")}
     >
-      <img src={plusIcon.src} alt="" width={16} height={16} />
+      <PlusIcon alt="" width={16} height={16} />
       {l10n.getString("profile-label-generate-new-alias-2")}
     </Button>
   );
@@ -201,7 +200,7 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
     <div className={styles["button-wrapper"]}>
       <Button ref={triggerRef} {...triggerButtonProps}>
         {l10n.getString("profile-label-generate-new-alias-2")}
-        <img src={arrowHeadIcon.src} alt="" width={16} height={16} />
+        <ArrowDownIcon alt="" width={16} height={16} />
       </Button>
       {triggerState.isOpen && (
         <AliasTypeMenuPopup

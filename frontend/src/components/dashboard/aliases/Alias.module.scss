@@ -123,6 +123,7 @@ $trackerRemovalIndicatorWidth: 20px;
       flex-grow: 2;
       flex-shrink: 0;
       max-width: $layout-sm;
+      color: $color-light-gray-90;
     }
 
     &:hover {
@@ -345,9 +346,10 @@ $trackerRemovalIndicatorWidth: 20px;
     border-style: none;
     padding: $spacing-sm;
     border-radius: $border-radius-sm;
+    color: $color-dark-gray-50;
     cursor: pointer;
 
-    img {
+    svg {
       transition: transform 200ms;
 
       .is-expanded & {

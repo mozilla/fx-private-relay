@@ -503,7 +503,6 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "frontend/out"),
-    os.path.join(BASE_DIR, "static"),
 ]
 # Static files (the front-end in /frontend/)
 # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing

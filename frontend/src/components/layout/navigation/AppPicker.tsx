@@ -31,13 +31,13 @@ import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./AppPicker.module.scss";
-import FirefoxLogo from "../../../../../static/images/logos/bento/fx.png";
-import MonitorLogo from "../../../../../static/images/logos/bento/monitor.png";
-import PocketLogo from "../../../../../static/images/logos/bento/pocket.png";
-import VpnLogo from "../../../../../static/images/logos/bento/vpn.svg";
-import FxDesktopLogo from "../../../../../static/images/logos/fx-logo.svg";
-import FxMobileLogo from "../../../../../static/images/logos/bento/fx-mobile.png";
-import { Props as LayoutProps } from "../../layout/Layout";
+import FirefoxLogo from "../images/fx.png";
+import MonitorLogo from "../images/monitor.png";
+import PocketLogo from "../images/pocket.png";
+import VpnLogo from "../images/vpn.svg";
+import FxDesktopLogo from "../images/fx-logo.svg";
+import FxMobileLogo from "../images/fx-mobile.png";
+import { Props as LayoutProps } from "../Layout";
 import { getRuntimeConfig } from "../../../config";
 import { BentoIcon } from "../../Icons";
 
@@ -264,7 +264,9 @@ const AppPickerTrigger = ({
         {...triggerButtonProps}
         ref={triggerButtonRef}
         title={l10n.getString("bento-button-title")}
-        className={styles.trigger}
+        className={`${styles.trigger} ${
+          theme === "premium" ? styles["is-premium"] : styles["is-free"]
+        }`}
       >
         <BentoIcon
           alt={label}

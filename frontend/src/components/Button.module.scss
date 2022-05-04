@@ -6,6 +6,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: $spacing-xs;
   cursor: pointer;
   background-color: $color-blue-50;
   padding: $spacing-sm $spacing-md;
@@ -32,10 +33,6 @@
   &:disabled {
     cursor: not-allowed;
     background-color: $color-light-gray-80;
-  }
-
-  img {
-    margin: 0 $spacing-xs;
   }
 
   &.is-destructive {

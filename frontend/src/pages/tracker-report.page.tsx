@@ -2,8 +2,8 @@ import { useLocalization } from "@fluent/react";
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
 import styles from "./tracker-report.module.scss";
-import logoType from "../../../static/images/fx-private-relay-logotype-dark.svg";
-import logo from "../../../static/images/placeholder-logo.svg";
+import logoType from "./images/fx-private-relay-logotype-dark.svg";
+import logo from "./images/placeholder-logo.svg";
 import { PageMetadata } from "../components/layout/PageMetadata";
 import {
   HideIcon,

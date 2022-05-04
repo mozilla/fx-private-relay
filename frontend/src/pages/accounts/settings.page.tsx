@@ -13,12 +13,15 @@ import styles from "./settings.module.scss";
 import { Layout } from "../../components/layout/Layout";
 import { Banner } from "../../components/Banner";
 import { useProfiles } from "../../hooks/api/profile";
-import messageIcon from "../../../../static/images/icon-message-purple.svg";
-import copyIcon from "../../../../static/images/copy-to-clipboard.svg";
-import helpIcon from "../../../../static/images/help-purple.svg";
-import performanceIcon from "../../../../static/images/performance-purple.svg";
-import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
-import { HideIcon, NewTabIcon } from "../../components/Icons";
+import {
+  InfoTriangleIcon,
+  HideIcon,
+  NewTabIcon,
+  PerformanceIcon,
+  CopyIcon,
+  SupportIcon,
+  ContactIcon,
+} from "../../components/Icons";
 import { Button } from "../../components/Button";
 import { getRuntimeConfig } from "../../config";
 import { useLocalLabels } from "../../hooks/localLabels";
@@ -76,7 +79,7 @@ const Settings: NextPage = () => {
   const labelCollectionWarning =
     labelCollectionDisabledWarningToggles > 1 && !labelCollectionEnabled ? (
       <div role="alert" className={styles["field-warning"]}>
-        <img src={infoTriangleIcon.src} alt="" width={20} />
+        <InfoTriangleIcon alt="" />
         <p>{l10n.getString("setting-label-collection-off-warning-2")}</p>
       </div>
     ) : null;
@@ -134,7 +137,7 @@ const Settings: NextPage = () => {
         rel="noopener noreferrer"
         title={l10n.getString("nav-profile-contact-tooltip")}
       >
-        <img src={messageIcon.src} alt="" />
+        <ContactIcon className={styles["menu-icon"]} alt="" />
         {l10n.getString("settings-meta-contact-label")}
         <NewTabIcon />
       </a>
@@ -176,7 +179,7 @@ const Settings: NextPage = () => {
             </label>
           </div>
           <div className={styles["field-warning"]}>
-            <img src={infoTriangleIcon.src} alt="" width={20} />
+            <InfoTriangleIcon alt="" />
             <p>{l10n.getString("setting-tracker-removal-warning")}</p>
           </div>
         </div>
@@ -241,10 +244,11 @@ const Settings: NextPage = () => {
                             title={l10n.getString("settings-button-copy")}
                             onClick={copyApiKeyToClipboard}
                           >
-                            <img
-                              src={copyIcon.src}
+                            <CopyIcon
                               alt={l10n.getString("settings-button-copy")}
                               className={styles["copy-icon"]}
+                              width={24}
+                              height={24}
                             />
                           </button>
                           <span
@@ -293,7 +297,7 @@ const Settings: NextPage = () => {
                   rel="noopener noreferrer"
                   title={l10n.getString("settings-meta-help-tooltip")}
                 >
-                  <img src={helpIcon.src} alt="" />
+                  <SupportIcon className={styles["menu-icon"]} alt="" />
                   {l10n.getString("settings-meta-help-label")}
                   <NewTabIcon />
                 </a>
@@ -305,7 +309,7 @@ const Settings: NextPage = () => {
                   rel="noopener noreferrer"
                   title={l10n.getString("settings-meta-status-tooltip")}
                 >
-                  <img src={performanceIcon.src} alt="" />
+                  <PerformanceIcon className={styles["menu-icon"]} alt="" />
                   {l10n.getString("settings-meta-status-label")}
                   <NewTabIcon />
                 </a>

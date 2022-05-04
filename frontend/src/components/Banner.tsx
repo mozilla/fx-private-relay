@@ -2,9 +2,8 @@ import { ReactNode } from "react";
 import { OutboundLink } from "react-ga";
 import { useLocalization } from "@fluent/react";
 import styles from "./Banner.module.scss";
-import warningIcon from "../../../static/images/icon-orange-info.svg";
 import { useLocalDismissal } from "../hooks/localDismissal";
-import { CloseIcon } from "./Icons";
+import { CloseIcon, InfoFilledIcon } from "./Icons";
 import { useGaViewPing } from "../hooks/gaViewPing";
 
 export type BannerProps = {
@@ -48,7 +47,7 @@ export const Banner = (props: BannerProps) => {
   const type = props.type ?? "warning";
   const icon =
     props.type === "warning" ? (
-      <img src={warningIcon.src} alt="" className={styles.icon} />
+      <InfoFilledIcon alt="" className={styles.icon} width={20} height={20} />
     ) : null;
   const title =
     typeof props.title !== "undefined" ? (

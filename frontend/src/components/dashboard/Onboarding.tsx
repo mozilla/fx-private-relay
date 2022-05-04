@@ -1,7 +1,7 @@
 import { useLocalization } from "@fluent/react";
 import styles from "./Onboarding.module.scss";
-import IconImage from "../../../../static/images/dashboard-onboarding/onboarding-step-2.svg";
-import RightClickImage from "../../../../static/images/dashboard-onboarding/onboarding-step-3.svg";
+import IconImage from "./images/onboarding-step-2.svg";
+import RightClickImage from "./images/onboarding-step-3.svg";
 import { AliasData } from "../../hooks/api/aliases";
 import { Button } from "../Button";
 

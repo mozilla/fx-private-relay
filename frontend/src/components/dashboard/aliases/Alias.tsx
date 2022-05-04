@@ -8,8 +8,7 @@ import {
   useTooltipTrigger,
 } from "react-aria";
 import styles from "./Alias.module.scss";
-import copyIcon from "../../../../../static/images/copy-to-clipboard.svg";
-import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
+import { ArrowDownIcon, CopyIcon } from "../../Icons";
 import IllustrationHoliday from "../../../../public/illustrations/holiday.svg";
 import IllustrationLibrary from "../../../../public/illustrations/library.svg";
 import {
@@ -164,11 +163,9 @@ export const Alias = (props: Props) => {
                 onClick={copyAddressToClipboard}
               >
                 <samp className={styles.address}>{address}</samp>
-                <img
-                  src={copyIcon.src}
-                  alt=""
-                  className={styles["copy-icon"]}
-                />
+                <span className={styles["copy-icon"]}>
+                  <CopyIcon alt="" />
+                </span>
               </button>
               <span
                 aria-hidden={!justCopied}
@@ -188,8 +185,7 @@ export const Alias = (props: Props) => {
         <Stats alias={props.alias} profile={props.profile} />
         <div className={styles["expand-toggle"]}>
           <button {...expandButtonProps} ref={expandButtonRef}>
-            <img
-              src={arrowDownIcon.src}
+            <ArrowDownIcon
               alt={l10n.getString(
                 expandButtonState.isSelected
                   ? "profile-details-collapse"
