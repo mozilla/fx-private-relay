@@ -1,23 +1,23 @@
 @import "../../styles/tokens.scss";
 
 .site-nav {
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: flex-end;
   width: 100%;
   padding: $spacing-sm $spacing-md;
   gap: $spacing-lg;
 
+  @media screen and #{$mq-md} {
+    display: flex;
+  }
+
   .link {
-    display: none;
+    display: inline;
     text-align: center;
     font-family: $font-stack-firefox;
     border: 2px solid transparent;
     min-width: $spacing-2xl + $spacing-lg;
-
-    @media screen and #{$mq-md} {
-      display: inline;
-    }
 
     &.is-active {
       padding-top: $spacing-xs;
@@ -30,7 +30,7 @@
       content: "";
       background: $firefoxGradient;
       position: relative;
-      bottom: -1 * ($spacing-lg);
+      bottom: -1 * ($spacing-lg - 1);
     }
 
     &.sign-in-button {
@@ -43,6 +43,20 @@
       &:focus {
         color: $color-blue-30;
       }
+    }
+  }
+
+  .sign-up-button,
+  .home-link,
+  .faq-link {
+    display: none;
+  }
+
+  @media screen and #{$mq-md} {
+    .sign-up-button,
+    .home-link,
+    .faq-link {
+      display: inline;
     }
   }
 }

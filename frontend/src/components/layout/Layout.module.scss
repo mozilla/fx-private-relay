@@ -64,10 +64,11 @@
     grid-area: unset;
     display: flex;
     align-items: center;
-    padding: $spacing-sm 0;
+    padding: 0;
 
     @media screen and #{$mq-md} {
       grid-area: navWrapper;
+      padding: $spacing-sm 0;
     }
   }
 
@@ -179,9 +180,21 @@
   font-size: 18px;
   padding: 4px $spacing-md;
   margin: 0 ($spacing-lg/2);
-  background-color: $color-purple-20;
-  color: $color-blue-90;
+  color: $color-purple-10;
   font-weight: 600;
   border-radius: $border-radius-md;
   font-family: $font-stack-firefox;
+
+  @media screen and #{$mq-md} {
+    background-color: $color-purple-20;
+    color: $color-blue-90;
+  }
+}
+
+.mobile-menu-toggle {
+  display: block;
+
+  @media screen and #{$mq-md} {
+    display: none;
+  }
 }

@@ -30,7 +30,7 @@ export const Navigation = () => {
           label: "nav-profile-sign-up",
         })
       }
-      className={styles.link}
+      className={`${styles.link} ${styles["sign-up-button"]}`}
     >
       {l10n.getString("nav-profile-sign-up")}
     </a>
@@ -70,7 +70,7 @@ export const Navigation = () => {
       </Link>
       <Link href="/faq">
         <a
-          className={`${styles.link} ${
+          className={`${styles.link} ${styles["faq-link"]} ${
             router.pathname === "/faq" ? styles["is-active"] : null
           }`}
         >

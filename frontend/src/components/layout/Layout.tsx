@@ -26,6 +26,7 @@ import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
 import { event as gaEvent } from "react-ga";
 import { useGaViewPing } from "../../hooks/gaViewPing";
+import { MenuIcon } from "../Icons";
 
 export type Props = {
   children: ReactNode;
@@ -110,6 +111,11 @@ export const Layout = (props: Props) => {
       </a>
     ) : null;
 
+  const mobileMenuToggle = MenuIcon({
+    alt: "Toggle mobile menu",
+    className: `${styles["mobile-menu-toggle"]}`,
+  });
+
   return (
     <>
       <Head>
@@ -167,6 +173,7 @@ export const Layout = (props: Props) => {
             <Navigation />
             {whatsNew}
             {upgradeButton}
+            {mobileMenuToggle}
           </div>
           <div className={styles["app-picker-wrapper"]}>
             <AppPicker theme={isDark ? "free" : "premium"} />
