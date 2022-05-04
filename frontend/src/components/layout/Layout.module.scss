@@ -61,17 +61,25 @@
   }
 
   .nav-wrapper {
-    grid-area: navWrapper;
+    grid-area: unset;
     display: flex;
     align-items: center;
     padding: $spacing-sm 0;
+
+    @media screen and #{$mq-md} {
+      grid-area: navWrapper;
+    }
   }
 
   .app-picker-wrapper {
     grid-area: appPickerWrapper;
-    display: flex;
+    display: none;
     align-items: center;
     padding: 0 $spacing-sm;
+
+    @media screen and #{$mq-md} {
+      display: flex;
+    }
   }
 
   .user-menu-wrapper {

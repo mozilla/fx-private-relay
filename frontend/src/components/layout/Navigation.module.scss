@@ -7,34 +7,42 @@
   width: 100%;
   padding: $spacing-sm $spacing-md;
   gap: $spacing-lg;
-}
 
-.link {
-  display: inline;
-  text-align: center;
-  font-family: $font-stack-firefox;
-  border: 2px solid transparent;
-  min-width: $spacing-2xl + $spacing-lg;
+  .link {
+    display: none;
+    text-align: center;
+    font-family: $font-stack-firefox;
+    border: 2px solid transparent;
+    min-width: $spacing-2xl + $spacing-lg;
 
-  &.is-active::after {
-    width: 100%;
-    height: 4px;
-    display: block;
-    content: "";
-    background: $firefoxGradient;
-    position: relative;
-    bottom: -1 * (1px + $spacing-lg);
-  }
+    @media screen and #{$mq-md} {
+      display: inline;
+    }
 
-  &.sign-in-button {
-    // We're using CSS's `currentColor` here because the colour
-    // is different in the light (Premium) and dark (regular) themes:
-    border-color: currentColor;
-    border-radius: $border-radius-sm;
-    padding: $spacing-sm;
+    &.is-active {
+      padding-top: $spacing-xs;
+    }
 
-    &:focus {
-      color: $color-blue-30;
+    &.is-active::after {
+      width: 100%;
+      height: 4px;
+      display: block;
+      content: "";
+      background: $firefoxGradient;
+      position: relative;
+      bottom: -1 * ($spacing-lg);
+    }
+
+    &.sign-in-button {
+      // We're using CSS's `currentColor` here because the colour
+      // is different in the light (Premium) and dark (regular) themes:
+      border-color: currentColor;
+      border-radius: $border-radius-sm;
+      padding: $spacing-sm;
+
+      &:focus {
+        color: $color-blue-30;
+      }
     }
   }
 }

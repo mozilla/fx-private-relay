@@ -2,7 +2,7 @@
 
 .trigger {
   flex-shrink: 0;
-  display: flex;
+  display: none;
   align-items: center;
   gap: $spacing-sm;
   background-color: transparent;
@@ -12,6 +12,10 @@
   cursor: pointer;
   padding: $spacing-xs $spacing-sm;
   font-family: $font-stack-firefox;
+
+  @media screen and #{$mq-md} {
+    display: flex;
+  }
 
   &.is-open {
     background-color: $color-light-gray-20;
