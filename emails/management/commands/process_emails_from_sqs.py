@@ -195,6 +195,12 @@ class Command(BaseCommand):
             help=self.help_message_for_setting("SQS URL.", "AWS_SQS_EMAIL_QUEUE_URL"),
         )
 
+    def create_parser(self, prog_name, subcommand, **kwargs):
+        """Inject vebosity from settings"""
+        parser = super().create_parser(prog_name, subcommand, **kwargs)
+        parser.set_defaults(verbosity=settings.PROCESS_EMAIL_VERBOSITY)
+        return parser
+
     def handle(self, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
         self.init_vars(*args, **kwargs)
