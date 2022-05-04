@@ -52,7 +52,11 @@
       display: inline-flex;
       align-items: center;
       gap: $spacing-sm;
-      padding: $spacing-md $spacing-xl;
+      padding: $spacing-md;
+
+      @media screen and (min-width: $content-xl) {
+        padding: $spacing-md $spacing-xl;
+      }
 
       .logotype {
         height: 20px;

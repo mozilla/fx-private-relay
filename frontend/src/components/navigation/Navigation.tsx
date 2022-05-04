@@ -49,13 +49,13 @@ export const Navigation = ({ ...props }) => {
       {!isLoggedIn && <SignUpButton className={`${styles.link}`} />}
       {!isLoggedIn && <SignInButton className={`${styles.link}`} />}
 
-      {/* if user is logged in and doesn't have premium, show upgrade button */}
-      {isLoggedIn && !hasPremium && <UpgradeButton />}
-
       {/* if user is logged in and we have their profile data, show whatsnew menu */}
       {isLoggedIn && profiles.data && (
         <WhatsNewMenu profile={profiles.data[0]} />
       )}
+
+      {/* if user is logged in and doesn't have premium, show upgrade button */}
+      {isLoggedIn && !hasPremium && <UpgradeButton />}
 
       {mobileMenuToggle}
     </nav>

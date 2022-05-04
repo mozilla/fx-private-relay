@@ -42,3 +42,11 @@
     bottom: -1 * ($spacing-lg - 1);
   }
 }
+
+.mobile-menu-toggle {
+  display: flex;
+
+  @media screen and #{$mq-md} {
+    display: none;
+  }
+}
