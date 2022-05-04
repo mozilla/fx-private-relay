@@ -19,8 +19,8 @@ const PremiumWaitlist: NextPage = () => {
   const currentLocale = getLocale(l10n);
   const runtimeData = useRuntimeData();
   const currentCountry =
-    runtimeData.data?.PREMIUM_PLANS.country_code ??
-    (currentLocale.split("-")[1] as string | undefined);
+    runtimeData.data?.PREMIUM_PLANS.country_code.toUpperCase() ??
+    (currentLocale.split("-")[1]?.toUpperCase() as string | undefined);
   const [country, setCountry] = useState<string>();
   const [locale, setLocale] = useState<string>(
     supportedLocales.find(
