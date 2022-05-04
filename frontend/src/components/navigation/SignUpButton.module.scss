@@ -1,0 +1,9 @@
+@import "../../styles/tokens.scss";
+
+.sign-up-button {
+  display: none;
+
+  @media screen and #{$mq-md} {
+    display: inline;
+  }
+}

@@ -16,7 +16,7 @@ import favicon from "../../../public/favicon.svg";
 import socialMediaImage from "../../../../static/images/share-relay.jpg";
 import { useProfiles } from "../../hooks/api/profile";
 import { UserMenu } from "./UserMenu";
-import { Navigation } from "./Navigation";
+import { Navigation } from "../navigation/Navigation";
 import { AppPicker } from "./AppPicker";
 import { useIsLoggedIn } from "../../hooks/session";
 import { NpsSurvey } from "./NpsSurvey";

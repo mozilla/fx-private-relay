@@ -1,0 +1,44 @@
+@import "../../styles/tokens.scss";
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding: $spacing-sm $spacing-md;
+  gap: $spacing-lg;
+
+  .home-link,
+  .faq-link {
+    display: none;
+  }
+
+  @media screen and #{$mq-md} {
+    .home-link,
+    .faq-link {
+      display: inline;
+    }
+  }
+}
+
+.link {
+  display: inline;
+  text-align: center;
+  font-family: $font-stack-firefox;
+  border: 2px solid transparent;
+  min-width: $spacing-2xl + $spacing-lg;
+
+  &.is-active {
+    padding-top: $spacing-xs;
+  }
+
+  &.is-active::after {
+    width: 100%;
+    height: 4px;
+    display: block;
+    content: "";
+    background: $firefoxGradient;
+    position: relative;
+    bottom: -1 * ($spacing-lg - 1);
+  }
+}
