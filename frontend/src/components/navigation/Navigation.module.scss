@@ -13,6 +13,9 @@
     display: none;
   }
 
+  @media screen and (min-width: $content-xl) {
+    padding: $spacing-sm $spacing-xl;
+  }
   @media screen and #{$mq-md} {
     .home-link,
     .faq-link {

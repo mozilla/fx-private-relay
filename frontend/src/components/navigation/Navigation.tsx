@@ -9,6 +9,8 @@ import { useProfiles } from "../../hooks/api/profile";
 import { UpgradeButton } from "./UpgradeButton";
 import { WhatsNewMenu } from "../layout/whatsnew/WhatsNewMenu";
 import { MenuIcon } from "../Icons";
+import { UserMenu } from "./UserMenu";
+import { AppPicker } from "./AppPicker";
 
 /** Switch between the different pages of the Relay website. */
 export const Navigation = ({ ...props }) => {
@@ -18,7 +20,7 @@ export const Navigation = ({ ...props }) => {
   const profiles = useProfiles();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
-
+  const { theme } = props;
   const mobileMenuToggle = MenuIcon({
     alt: "Toggle mobile menu",
     className: `${styles["mobile-menu-toggle"]}`,
@@ -58,6 +60,10 @@ export const Navigation = ({ ...props }) => {
       {isLoggedIn && !hasPremium && <UpgradeButton />}
 
       {mobileMenuToggle}
+
+      <AppPicker theme={theme} />
+
+      <UserMenu />
     </nav>
   );
 };

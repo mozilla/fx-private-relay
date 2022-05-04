@@ -2,9 +2,13 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
-  display: flex;
+  display: none;
   align-items: center;
   position: relative;
+
+  @media screen and #{$mq-md} {
+    display: flex;
+  }
 }
 
 .trigger {

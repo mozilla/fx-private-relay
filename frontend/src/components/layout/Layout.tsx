@@ -15,9 +15,7 @@ import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
 import favicon from "../../../public/favicon.svg";
 import socialMediaImage from "../../../../static/images/share-relay.jpg";
 import { useProfiles } from "../../hooks/api/profile";
-import { UserMenu } from "./UserMenu";
 import { Navigation } from "../navigation/Navigation";
-import { AppPicker } from "./AppPicker";
 import { useIsLoggedIn } from "../../hooks/session";
 import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
@@ -133,14 +131,8 @@ export const Layout = (props: Props) => {
             </Link>
           </div>
           <div className={styles["nav-wrapper"]}>
-            <Navigation />
+            <Navigation theme={isDark ? "free" : "premium"} />
           </div>
-          <div className={styles["app-picker-wrapper"]}>
-            <AppPicker theme={isDark ? "free" : "premium"} />
-          </div>
-          <nav className={styles["user-menu-wrapper"]}>
-            <UserMenu />
-          </nav>
         </header>
         <ToastContainer
           position={toast.POSITION.TOP_CENTER}
