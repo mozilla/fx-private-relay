@@ -13,6 +13,7 @@ https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-read
 
 from argparse import FileType
 from datetime import datetime, timezone
+import io
 import json
 import logging
 
@@ -33,7 +34,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         """Add command-line arguments (called by BaseCommand)"""
         parser.add_argument(
-            "healthcheck_path",
+            "--healthcheck_path",
             type=FileType("r", encoding="utf8"),
             default=settings.PROCESS_EMAIL_HEALTHCHECK_PATH,
             help=self.help_message_for_setting(
@@ -52,7 +53,11 @@ class Command(BaseCommand):
 
     def handle(self, healthcheck_path, max_age, verbosity, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
-        context = self.check_healthcheck(healthcheck_path, max_age)
+        if isinstance(healthcheck_path, io.TextIOWrapper):
+            healthcheck_file = healthcheck_path
+        else:
+            healthcheck_file = open(healthcheck_path, mode="r", encoding="utf8")
+        context = self.check_healthcheck(healthcheck_file, max_age)
         if context["success"]:
             if verbosity > 1:
                 logger.info("Healthcheck passed", extra=context)

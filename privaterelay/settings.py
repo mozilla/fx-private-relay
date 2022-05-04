@@ -39,7 +39,7 @@ except ImportError:
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+TMP_DIR = os.path.join(BASE_DIR, "tmp")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -718,7 +718,9 @@ PROCESS_EMAIL_BATCH_SIZE = config(
 PROCESS_EMAIL_DELETE_FAILED_MESSAGES = config(
     "PROCESS_EMAIL_DELETE_FAILED_MESSAGES", False, cast=bool
 )
-PROCESS_EMAIL_HEALTHCHECK_PATH = config("PROCESS_EMAIL_HEALTHCHECK_PATH", "") or None
+PROCESS_EMAIL_HEALTHCHECK_PATH = config(
+    "PROCESS_EMAIL_HEALTHCHECK_PATH", os.path.join(TMP_DIR, "healthcheck.json")
+)
 PROCESS_EMAIL_MAX_SECONDS = config("PROCESS_EMAIL_MAX_SECONDS", 0, cast=int) or None
 PROCESS_EMAIL_VERBOSITY = config(
     "PROCESS_EMAIL_VERBOSITY", 1, cast=Choices(range(0, 4), cast=int)

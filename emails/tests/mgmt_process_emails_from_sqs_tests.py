@@ -60,7 +60,7 @@ def mock_sns_inbound_logic():
 
 
 @pytest.fixture(autouse=True)
-def test_settings(settings):
+def test_settings(settings, tmp_path):
     settings.AWS_SNS_TOPIC = {TEST_SNS_MESSAGE["TopicArn"]}
     settings.AWS_REGION = "us-east-1"
 
@@ -70,7 +70,7 @@ def test_settings(settings):
     )
     settings.PROCESS_EMAIL_BATCH_SIZE = 10
     settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES = False
-    settings.PROCESS_EMAIL_HEALTHCHECK_PATH = None
+    settings.PROCESS_EMAIL_HEALTHCHECK_PATH = tmp_path / "healthcheck.json"
     settings.PROCESS_EMAIL_MAX_SECONDS = None
     settings.PROCESS_EMAIL_VERBOSITY = 2
     settings.PROCESS_EMAIL_VISIBILITY_SECONDS = 120
@@ -268,13 +268,9 @@ def test_process_queue_verify_sns_header_fails(test_settings):
     assert res["failed_messages"] == 1
 
 
-def test_process_queue_write_healthcheck(tmp_path):
-    """write_healthcheck writes the timestamp to the specified path."""
-    healthcheck_path = tmp_path / "healthcheck.json"
-    with open(healthcheck_path, "w", encoding="utf8") as hc_file:
-        Command(
-            queue=fake_queue(), healthcheck_file=hc_file, max_seconds=3
-        ).process_queue()
+def test_process_queue_write_healthcheck(test_settings):
+    healthcheck_path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
+    Command(queue=fake_queue(), max_seconds=3).process_queue()
     content = json.loads(healthcheck_path.read_bytes())
     ts = datetime.fromisoformat(content["timestamp"])
     duration = (datetime.now(tz=timezone.utc) - ts).total_seconds()
@@ -335,14 +331,12 @@ def test_command_setup_from_settings():
     assert command.verbosity == 2
     assert command.visibility_seconds == 1200
     assert command.wait_seconds == 10
-    command.close_healthcheck()
 
 
-def test_write_healthcheck(tmp_path):
+def test_write_healthcheck(test_settings):
     """write_healthcheck writes the timestamp to the specified path."""
-    healthcheck_path = tmp_path / "healthcheck.json"
-    with open(healthcheck_path, "w", encoding="utf8") as hc_file:
-        Command(queue=fake_queue(), healthcheck_file=hc_file).write_healthcheck()
+    healthcheck_path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
+    Command(queue=fake_queue()).write_healthcheck()
     content = json.loads(healthcheck_path.read_bytes())
     assert content == {
         "timestamp": content["timestamp"],
@@ -359,22 +353,11 @@ def test_write_healthcheck(tmp_path):
     assert 0.0 < duration < 0.5
 
 
-def test_write_healthcheck_twice(tmp_path):
+def test_write_healthcheck_twice(test_settings):
     """write_healthcheck overwrites the file each time."""
-    healthcheck_path = tmp_path / "healthcheck.json"
-    with open(healthcheck_path, "w", encoding="utf8") as hc_file:
-        cmd = Command(queue=fake_queue(), healthcheck_file=hc_file)
-        cmd.write_healthcheck()
-        cmd.write_healthcheck()
+    healthcheck_path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
+    cmd = Command(queue=fake_queue())
+    cmd.write_healthcheck()
+    cmd.write_healthcheck()
     content = json.loads(healthcheck_path.read_bytes())
     assert content['queue_count_not_visible'] == 3
-
-
-def test_close_healthcheck(tmp_path):
-    """close_healthcheck() can be used to manually close the healthcheck file."""
-    healthcheck_path = tmp_path / "healthcheck.json"
-    command = Command(healthcheck_file=healthcheck_path)
-    assert command.healthcheck_file.name == str(healthcheck_path)
-    command.close_healthcheck()
-    assert command.healthcheck_file is None
-    command.close_healthcheck()  # Closing twice is OK

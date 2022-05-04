@@ -89,9 +89,8 @@ class Command(BaseCommand):
         )
 
         healthcheck_path = healthcheck_path or settings.PROCESS_EMAIL_HEALTHCHECK_PATH
-        if healthcheck_path is None:
-            self.healthcheck_file = None
-        elif isinstance(healthcheck_path, io.TextIOWrapper):
+        assert healthcheck_path
+        if isinstance(healthcheck_path, io.TextIOWrapper):
             self.healthcheck_file = healthcheck_path
         else:
             self.healthcheck_file = open(healthcheck_path, mode="w", encoding="utf8")
@@ -123,9 +122,7 @@ class Command(BaseCommand):
         assert self.wait_seconds > 0
         assert self.visibility_seconds > 0
         assert self.max_seconds is None or self.max_seconds > 0.0
-        assert self.healthcheck_file is None or isinstance(
-            self.healthcheck_file, io.TextIOWrapper
-        )
+        assert isinstance(self.healthcheck_file, io.TextIOWrapper)
         assert 0 <= self.verbosity <= 3
 
     def help_message_for_setting(self, text, setting_name):
@@ -201,14 +198,13 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
         self.init_vars(*args, **kwargs)
-        healthcheck_path = self.healthcheck_file.name if self.healthcheck_file else None
         logger.info(
             "Starting process_emails_from_sqs",
             extra={
                 "batch_size": self.batch_size,
                 "wait_seconds": self.wait_seconds,
                 "visibility_seconds": self.visibility_seconds,
-                "healthcheck_path": healthcheck_path,
+                "healthcheck_path": self.healthcheck_file.name,
                 "delete_failed_messages": self.delete_failed_messages,
                 "max_seconds": self.max_seconds,
                 "aws_region": self.aws_region,
@@ -224,6 +220,7 @@ class Command(BaseCommand):
 
         process_data = self.process_queue()
         logger.info("Exiting process_emails_from_sqs", extra=process_data)
+        self.healthcheck_file.close()
 
     def create_client(self):
         """Create the SQS client."""
@@ -504,8 +501,6 @@ class Command(BaseCommand):
 
     def write_healthcheck(self):
         """Update the healthcheck file with operations data, if path is set."""
-        if not self.healthcheck_file:
-            return
         data = {
             "timestamp": datetime.now(tz=timezone.utc).isoformat(),
             "cycles": self.cycles,
@@ -530,9 +525,3 @@ class Command(BaseCommand):
             return f"{value} {singular}"
         else:
             return f"{value} {plural or (singular + 's')}"
-
-    def close_healthcheck(self):
-        """Close the healthcheck file if open."""
-        if self.healthcheck_file:
-            self.healthcheck_file.close()
-            self.healthcheck_file = None
