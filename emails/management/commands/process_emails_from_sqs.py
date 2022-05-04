@@ -258,6 +258,7 @@ class Command(BaseCommand):
                     "cycle_s": 0.0,
                 }
                 cycle_data.update(self.refresh_and_emit_queue_count_metrics())
+                self.write_healthcheck()
 
                 # Check if we should exit due to time limit
                 if self.max_seconds is not None:
@@ -390,6 +391,7 @@ class Command(BaseCommand):
         pause_count = 0
         process_time = 0.0
         for message in message_batch:
+            self.write_healthcheck()
             with Timer(logger=None) as message_timer:
                 message_data = self.process_message(message)
                 if not message_data["success"]:
@@ -518,7 +520,9 @@ class Command(BaseCommand):
                 "ApproximateNumberOfMessagesNotVisible"
             ],
         }
+        self.healthcheck_file.seek(0)
         json.dump(data, self.healthcheck_file)
+        self.healthcheck_file.truncate()
 
     def pluralize(self, value, singular, plural=None):
         """Returns 's' suffix to make plural, like 's' in tasks"""

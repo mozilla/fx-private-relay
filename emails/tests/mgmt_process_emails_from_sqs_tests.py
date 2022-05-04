@@ -268,7 +268,6 @@ def test_process_queue_verify_sns_header_fails(test_settings):
     assert res["failed_messages"] == 1
 
 
-@pytest.mark.xfail(reason='healthcheck not written')
 def test_process_queue_write_healthcheck(tmp_path):
     """write_healthcheck writes the timestamp to the specified path."""
     healthcheck_path = tmp_path / "healthcheck.json"
@@ -360,7 +359,6 @@ def test_write_healthcheck(tmp_path):
     assert 0.0 < duration < 0.5
 
 
-@pytest.mark.xfail(reason="New healthcheck is appended")
 def test_write_healthcheck_twice(tmp_path):
     """write_healthcheck overwrites the file each time."""
     healthcheck_path = tmp_path / "healthcheck.json"
