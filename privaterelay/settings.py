@@ -90,6 +90,8 @@ CSP_CONNECT_SRC = (
     'https://www.google-analytics.com/',
     'https://accounts.firefox.com',
     'https://location.services.mozilla.com',
+    'https://basket-dev.allizom.org',
+    'https://basket.mozilla.org',
 )
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = (
