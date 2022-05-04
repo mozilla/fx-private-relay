@@ -9,7 +9,6 @@ https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-s
 https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.html#SQS.Queue.receive_messages
 """
 
-from argparse import FileType
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
 import json
@@ -25,192 +24,89 @@ from markus.utils import generate_tag
 import OpenSSL
 
 from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import CommandError
 
 from emails.views import _sns_inbound_logic, validate_sns_header, verify_from_sns
 from emails.utils import incr_if_enabled, gauge_if_enabled
+from emails.management.command_from_django_settings import (
+    CommandFromDjangoSettings,
+    SettingToLocal,
+)
 
 logger = logging.getLogger("eventsinfo.process_emails_from_sqs")
 
 
-class Command(BaseCommand):
+class Command(CommandFromDjangoSettings):
     help = "Fetch email tasks from SQS and process them."
 
-    def __init__(
-        self,
-        *args,
-        batch_size=None,
-        wait_seconds=None,
-        visibility_seconds=None,
-        healthcheck_file=None,
-        delete_failed_messages=None,
-        max_seconds=None,
-        aws_region=None,
-        sqs_url=None,
-        queue=None,
-        verbosity=None,
-        **kwargs,
-    ):
-        """Initialize variables via constructor."""
-        super().__init__(*args, **kwargs)
-        self.init_vars(
-            batch_size=batch_size,
-            wait_seconds=wait_seconds,
-            visibility_seconds=visibility_seconds,
-            healthcheck_path=healthcheck_file,
-            delete_failed_messages=delete_failed_messages,
-            max_seconds=max_seconds,
-            aws_region=aws_region,
-            sqs_url=sqs_url,
-            queue=queue,
-            verbosity=verbosity,
-        )
-
-    def init_vars(
-        self,
-        *,
-        batch_size=None,
-        wait_seconds=None,
-        visibility_seconds=None,
-        healthcheck_path=None,  # saved as self.healthcheck_file
-        delete_failed_messages=None,
-        max_seconds=None,
-        aws_region=None,
-        sqs_url=None,
-        queue=None,
-        verbosity=None,
-        **kwargs,
-    ):
-        """Initialize command variables"""
-        self.batch_size = batch_size or settings.PROCESS_EMAIL_BATCH_SIZE
-        self.wait_seconds = wait_seconds or settings.PROCESS_EMAIL_WAIT_SECONDS
-        self.visibility_seconds = (
-            visibility_seconds or settings.PROCESS_EMAIL_VISIBILITY_SECONDS
-        )
-
-        healthcheck_path = healthcheck_path or settings.PROCESS_EMAIL_HEALTHCHECK_PATH
-        assert healthcheck_path
-        if isinstance(healthcheck_path, io.TextIOWrapper):
-            self.healthcheck_file = healthcheck_path
-        else:
-            self.healthcheck_file = open(healthcheck_path, mode="w", encoding="utf8")
-
-        if delete_failed_messages is None:
-            self.delete_failed_messages = settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES
-        else:
-            self.delete_failed_messages = delete_failed_messages
-
-        self.max_seconds = max_seconds or settings.PROCESS_EMAIL_MAX_SECONDS
-        self.aws_region = aws_region or settings.AWS_REGION
-        self.sqs_url = sqs_url or settings.AWS_SQS_EMAIL_QUEUE_URL
-        self.verbosity = verbosity or settings.PROCESS_EMAIL_VERBOSITY
-
-        self.queue = queue
-        assert self.sqs_url is not None
-        self.queue_name = urlsplit(self.sqs_url).path.split("/")[-1]
-        self.halt_requested = False
-        self.start_time = None
-        self.cycles = None
-        self.total_messages = None
-        self.failed_messages = None
-        self.pause_count = None
-        self.queue_count = None
-        self.queue_count_delayed = None
-        self.queue_count_not_visible = None
-
-        assert 0 < self.batch_size <= 10
-        assert self.wait_seconds > 0
-        assert self.visibility_seconds > 0
-        assert self.max_seconds is None or self.max_seconds > 0.0
-        assert isinstance(self.healthcheck_file, io.TextIOWrapper)
-        assert 0 <= self.verbosity <= 3
-
-    def help_message_for_setting(self, text, setting_name):
-        """Construct the command-line help message."""
-        value = getattr(settings, setting_name)
-        return f"{text} Defaults to {value!r} from settings.{setting_name}."
-
-    def add_arguments(self, parser):
-        """Add command-line arguments (called by BaseCommand)"""
-        parser.add_argument(
-            "--batch-size",
-            type=int,
-            default=settings.PROCESS_EMAIL_BATCH_SIZE,
-            choices=range(1, 11),
-            help=self.help_message_for_setting(
-                "Number of SQS messages to fetch at a time.", "PROCESS_EMAIL_BATCH_SIZE"
-            ),
-        )
-        parser.add_argument(
-            "--wait-seconds",
-            type=int,
-            default=settings.PROCESS_EMAIL_WAIT_SECONDS,
-            help=self.help_message_for_setting(
-                "Time to wait for messages with long polling.",
-                "PROCESS_EMAIL_WAIT_SECONDS",
-            ),
-        )
-        parser.add_argument(
-            "--visibility-seconds",
-            type=int,
-            default=settings.PROCESS_EMAIL_VISIBILITY_SECONDS,
-            help=self.help_message_for_setting(
-                "Time to mark a message as reserved for this process.",
-                "PROCESS_EMAIL_VISIBILITY_SECONDS",
-            ),
-        )
-        parser.add_argument(
-            "--healthcheck-path",
-            type=FileType("w", encoding="utf8"),
-            default=settings.PROCESS_EMAIL_HEALTHCHECK_PATH,
-            help=self.help_message_for_setting(
-                "Path to file to write healthcheck data.",
-                "PROCESS_EMAIL_HEALTHCHECK_PATH",
-            ),
-        )
-        parser.add_argument(
-            "--delete-failed-messages",
-            action="store_true",
-            default=settings.PROCESS_EMAIL_DELETE_FAILED_MESSAGES,
-            help=self.help_message_for_setting(
-                "If a message fails to process, delete it from the queue, "
-                " instead of letting SQS resend or move to a dead-letter queue.",
-                "PROCESS_EMAIL_DELETE_FAILED_MESSAGES",
-            ),
-        )
-        parser.add_argument(
-            "--max-seconds",
-            type=int,
-            default=settings.PROCESS_EMAIL_MAX_SECONDS,
-            help=self.help_message_for_setting(
-                "Maximum time to process before exiting.", "PROCESS_EMAIL_MAX_SECONDS"
-            ),
-        )
-        parser.add_argument(
-            "--aws-region",
-            help=self.help_message_for_setting("AWS region.", "AWS_REGION"),
-        )
-        parser.add_argument(
-            "--sqs-url",
-            help=self.help_message_for_setting("SQS URL.", "AWS_SQS_EMAIL_QUEUE_URL"),
-        )
-
-    def create_parser(self, prog_name, subcommand, **kwargs):
-        """Inject vebosity from settings"""
-        parser = super().create_parser(prog_name, subcommand, **kwargs)
-        parser.set_defaults(verbosity=settings.PROCESS_EMAIL_VERBOSITY)
-        return parser
+    settings_to_locals = [
+        SettingToLocal(
+            "PROCESS_EMAIL_BATCH_SIZE",
+            "batch_size",
+            "Number of SQS messages to fetch at a time.",
+            lambda batch_size: 0 < batch_size <= 10,
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_WAIT_SECONDS",
+            "wait_seconds",
+            "Time to wait for messages with long polling.",
+            lambda wait_seconds: wait_seconds > 0,
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_VISIBILITY_SECONDS",
+            "visibility_seconds",
+            "Time to mark a message as reserved for this process.",
+            lambda visibility_seconds: visibility_seconds > 0,
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_HEALTHCHECK_PATH",
+            "healthcheck_path",
+            "Path to file to write healthcheck data.",
+            lambda healthcheck_path: healthcheck_path is not None,
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_DELETE_FAILED_MESSAGES",
+            "delete_failed_messages",
+            "If a message fails to process, delete it from the queue, instead of letting SQS resend or move to a dead-letter queue.",
+            lambda delete_failed_messages: delete_failed_messages in (True, False),
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_MAX_SECONDS",
+            "max_seconds",
+            "Maximum time to process before exiting, or None to run forever.",
+            lambda max_seconds: max_seconds is None or max_seconds > 0.0,
+        ),
+        SettingToLocal(
+            "AWS_REGION",
+            "aws_region",
+            "AWS region of the SQS queue",
+            lambda aws_region: bool(aws_region),
+        ),
+        SettingToLocal(
+            "AWS_SQS_EMAIL_QUEUE_URL",
+            "sqs_url",
+            "URL of the SQL queue",
+            lambda sqs_url: bool(sqs_url),
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_VERBOSITY",
+            "verbosity",
+            "Default verbosity of the process logs",
+            lambda verbosity: verbosity in range(5),
+        ),
+    ]
 
     def handle(self, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
-        self.init_vars(*args, **kwargs)
+        super().handle(*args, **kwargs)
+        self.init_locals()
         logger.info(
             "Starting process_emails_from_sqs",
             extra={
                 "batch_size": self.batch_size,
                 "wait_seconds": self.wait_seconds,
                 "visibility_seconds": self.visibility_seconds,
-                "healthcheck_path": self.healthcheck_file.name,
+                "healthcheck_path": self.healthcheck_path,
                 "delete_failed_messages": self.delete_failed_messages,
                 "max_seconds": self.max_seconds,
                 "aws_region": self.aws_region,
@@ -226,7 +122,19 @@ class Command(BaseCommand):
 
         process_data = self.process_queue()
         logger.info("Exiting process_emails_from_sqs", extra=process_data)
-        self.healthcheck_file.close()
+
+    def init_locals(self):
+        """Initialize command attributes that don't come from settings."""
+        self.queue_name = urlsplit(self.sqs_url).path.split("/")[-1]
+        self.halt_requested = False
+        self.start_time = None
+        self.cycles = None
+        self.total_messages = None
+        self.failed_messages = None
+        self.pause_count = None
+        self.queue_count = None
+        self.queue_count_delayed = None
+        self.queue_count_not_visible = None
 
     def create_client(self):
         """Create the SQS client."""
@@ -521,9 +429,8 @@ class Command(BaseCommand):
                 "ApproximateNumberOfMessagesNotVisible"
             ],
         }
-        self.healthcheck_file.seek(0)
-        json.dump(data, self.healthcheck_file)
-        self.healthcheck_file.truncate()
+        with open(self.healthcheck_path, "w", encoding="utf-8") as healthcheck_file:
+            json.dump(data, healthcheck_file)
 
     def pluralize(self, value, singular, plural=None):
         """Returns 's' suffix to make plural, like 's' in tasks"""

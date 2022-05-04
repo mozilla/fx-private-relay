@@ -20,49 +20,48 @@ import logging
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
+from emails.management.command_from_django_settings import (
+    CommandFromDjangoSettings,
+    SettingToLocal,
+)
+
 logger = logging.getLogger("eventsinfo.check_health")
 
 
-class Command(BaseCommand):
+class Command(CommandFromDjangoSettings):
     help = "Check that a healthcheck JSON file exists and is recent."
 
-    def help_message_for_setting(self, text, setting_name):
-        """Construct the command-line help message."""
-        value = getattr(settings, setting_name)
-        return f"{text} Defaults to {value!r} from settings.{setting_name}."
+    settings_to_locals = [
+        SettingToLocal(
+            "PROCESS_EMAIL_HEALTHCHECK_PATH",
+            "healthcheck_path",
+            "Path to file to write healthcheck data.",
+            lambda healthcheck_path: healthcheck_path is not None,
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_HEALTHCHECK_MAX_AGE",
+            "max_age",
+            "Timestamp age in seconds before failure.",
+            lambda max_age: max_age > 0.0,
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_VERBOSITY",
+            "verbosity",
+            "Default verbosity of the process logs",
+            lambda verbosity: verbosity in range(5),
+        ),
+    ]
 
-    def add_arguments(self, parser):
-        """Add command-line arguments (called by BaseCommand)"""
-        parser.add_argument(
-            "--healthcheck_path",
-            type=FileType("r", encoding="utf8"),
-            default=settings.PROCESS_EMAIL_HEALTHCHECK_PATH,
-            help=self.help_message_for_setting(
-                "Path to healthcheck JSON file.", "PROCESS_EMAIL_HEALTHCHECK_PATH"
-            ),
-        )
-        parser.add_argument(
-            "--max-age",
-            type=int,
-            default=settings.PROCESS_EMAIL_HEALTHCHECK_MAX_AGE,
-            help=self.help_message_for_setting(
-                "Timestamp age in seconds before failure.",
-                "PROCESS_EMAIL_HEALTHCHECK_MAX_AGE",
-            ),
-        )
-
-    def handle(self, healthcheck_path, max_age, verbosity, *args, **kwargs):
+    def handle(self, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
-        if isinstance(healthcheck_path, io.TextIOWrapper):
-            healthcheck_file = healthcheck_path
-        else:
-            healthcheck_file = open(healthcheck_path, mode="r", encoding="utf8")
-        context = self.check_healthcheck(healthcheck_file, max_age)
+        super().handle(*args, **kwargs)
+        with open(self.healthcheck_path, mode="r", encoding="utf8") as healthcheck_file:
+            context = self.check_healthcheck(healthcheck_file, self.max_age)
         if context["success"]:
-            if verbosity > 1:
+            if self.verbosity > 1:
                 logger.info("Healthcheck passed", extra=context)
         else:
-            if verbosity > 0:
+            if self.verbosity > 0:
                 logger.error("Healthcheck failed", extra=context)
             raise CommandError(f"Healthcheck failed: {context['error']}")
 
