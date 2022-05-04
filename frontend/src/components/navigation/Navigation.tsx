@@ -5,14 +5,24 @@ import styles from "./Navigation.module.scss";
 import { useIsLoggedIn } from "../../hooks/session";
 import { SignUpButton } from "./SignUpButton";
 import { SignInButton } from "./SignInButton";
+import { useProfiles } from "../../hooks/api/profile";
+import { UpgradeButton } from "./UpgradeButton";
+import { WhatsNewMenu } from "../layout/whatsnew/WhatsNewMenu";
+import { MenuIcon } from "../Icons";
 
 /** Switch between the different pages of the Relay website. */
-export const Navigation = () => {
+export const Navigation = ({ ...props }) => {
   const { l10n } = useLocalization();
   const router = useRouter();
-
   const isLoggedIn = useIsLoggedIn();
+  const profiles = useProfiles();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
+  const hasPremium: boolean = profiles.data?.[0].has_premium || false;
+
+  const mobileMenuToggle = MenuIcon({
+    alt: "Toggle mobile menu",
+    className: `${styles["mobile-menu-toggle"]}`,
+  });
 
   return (
     <nav aria-label={l10n.getString("nav-menu")} className={styles["site-nav"]}>
@@ -34,8 +44,20 @@ export const Navigation = () => {
           {l10n.getString("nav-faq")}
         </a>
       </Link>
+
+      {/* if user is not logged in, show sign in and sign up buttons */}
       {!isLoggedIn && <SignUpButton className={`${styles.link}`} />}
       {!isLoggedIn && <SignInButton className={`${styles.link}`} />}
+
+      {/* if user is logged in and doesn't have premium, show upgrade button */}
+      {isLoggedIn && !hasPremium && <UpgradeButton />}
+
+      {/* if user is logged in and we have their profile data, show whatsnew menu */}
+      {isLoggedIn && profiles.data && (
+        <WhatsNewMenu profile={profiles.data[0]} />
+      )}
+
+      {mobileMenuToggle}
     </nav>
   );
 };

@@ -23,10 +23,6 @@ import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
-import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
-import { event as gaEvent } from "react-ga";
-import { useGaViewPing } from "../../hooks/gaViewPing";
-import { MenuIcon } from "../Icons";
 
 export type Props = {
   children: ReactNode;
@@ -83,39 +79,6 @@ export const Layout = (props: Props) => {
       </div>
     ) : null;
 
-  const whatsNew =
-    isLoggedIn && profiles.data ? (
-      <WhatsNewMenu profile={profiles.data[0]} />
-    ) : null;
-
-  const upgradeButtonRef = useGaViewPing({
-    category: "Upgrade",
-    label: "profile-upgrade",
-  });
-
-  const upgradeButton =
-    isLoggedIn && !hasPremium ? (
-      <a
-        href={getRuntimeConfig().upgradeUrl}
-        ref={upgradeButtonRef}
-        onClick={() =>
-          gaEvent({
-            category: "Upgrade",
-            action: "Engage",
-            label: "profile-upgrade",
-          })
-        }
-        className={`btn ${styles["upgrade-button"]}`}
-      >
-        {l10n.getString("profile-upgrade-button")}
-      </a>
-    ) : null;
-
-  const mobileMenuToggle = MenuIcon({
-    alt: "Toggle mobile menu",
-    className: `${styles["mobile-menu-toggle"]}`,
-  });
-
   return (
     <>
       <Head>
@@ -171,9 +134,6 @@ export const Layout = (props: Props) => {
           </div>
           <div className={styles["nav-wrapper"]}>
             <Navigation />
-            {whatsNew}
-            {upgradeButton}
-            {mobileMenuToggle}
           </div>
           <div className={styles["app-picker-wrapper"]}>
             <AppPicker theme={isDark ? "free" : "premium"} />
