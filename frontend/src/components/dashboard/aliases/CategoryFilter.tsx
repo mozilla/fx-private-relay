@@ -17,10 +17,10 @@ import {
 } from "react-aria";
 import { useLocalization } from "@fluent/react";
 import styles from "./CategoryFilter.module.scss";
-import filterIcon from "../../../../../static/images/icon-filter-blue.svg";
 import { Filters } from "../../../functions/filterAliases";
 import { useOverlayTriggerState } from "react-stately";
 import { Button } from "../../Button";
+import { FilterIcon } from "../../Icons";
 
 export type SelectedFilters = {
   domainType?: Filters["domainType"];
@@ -96,8 +96,7 @@ export const CategoryFilter = (props: Props) => {
         title={l10n.getString("profile-filter-category-button-tooltip")}
         className={styles["filter-button"]}
       >
-        <img
-          src={filterIcon.src}
+        <FilterIcon
           alt={l10n.getString("profile-filter-category-button-label")}
           width={20}
           height={20}

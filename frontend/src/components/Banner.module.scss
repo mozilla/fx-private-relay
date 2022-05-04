@@ -85,6 +85,10 @@
 
   .icon {
     margin-right: $spacing-md;
+
+    .warning & {
+      color: $color-yellow-50;
+    }
   }
 }
 

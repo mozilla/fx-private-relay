@@ -16,7 +16,6 @@
   publish = "out/"
 
   # Default build command.
-  # We need to run the `postinstall` script again,
-  # because Netlify doesn't cache the generated service worker after it runs
-  # `npm install`.
-  command = "npm run postinstall; npm run build:mocked"
+  command = "npm install; npm run build:mocked"
+
+  environment = { NODE_VERSION = "14.18.1", NPM_VERSION = "8.1.0" }

@@ -17,9 +17,10 @@ import {
   useOverlayPosition,
 } from "react-aria";
 import { useMenuTriggerState } from "react-stately";
+import { toast } from "react-toastify";
 import styles from "./profile.module.scss";
-import BottomBannerIllustration from "../../../../static/images/woman-couch-left.svg";
-import checkIcon from "../../../../static/images/icon-check.svg";
+import BottomBannerIllustration from "../../../public/images/woman-couch-left.svg";
+import { CheckBadgeIcon } from "../../components/Icons";
 import { Layout } from "../../components/layout/Layout";
 import { useProfiles } from "../../hooks/api/profile";
 import {
@@ -45,7 +46,6 @@ import { getRuntimeConfig } from "../../config";
 import { SubdomainIndicator } from "../../components/dashboard/subdomain/SubdomainIndicator";
 import { Tips } from "../../components/dashboard/tips/Tips";
 import { clearCookie, getCookie } from "../../functions/cookies";
-import { toast } from "react-toastify";
 import { getLocale } from "../../functions/getLocale";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { AddonData } from "../../components/dashboard/AddonData";
@@ -258,7 +258,7 @@ const Profile: NextPage = () => {
             <span className={styles.greeting} />
           </Localized>
           <strong className={styles.subdomain}>
-            <img src={checkIcon.src} alt="" />
+            <CheckBadgeIcon alt="" />
             {subdomainMessage}
           </strong>
         </div>

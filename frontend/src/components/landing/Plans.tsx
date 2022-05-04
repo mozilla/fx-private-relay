@@ -1,8 +1,8 @@
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./Plans.module.scss";
-import RelayWordmark from "../../../../static/images/logos/logo-firefox-relay.svg";
-import RelayPremiumWordmark from "../../../../static/images/logos/logo-firefox-premium-relay.svg";
+import RelayWordmark from "./images/logo-firefox-relay.svg";
+import RelayPremiumWordmark from "./images/logo-firefox-premium-relay.svg";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import {
   getPlan,

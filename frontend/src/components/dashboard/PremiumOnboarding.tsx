@@ -3,10 +3,9 @@ import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import { useOverlayTriggerState } from "react-stately";
 import styles from "./PremiumOnboarding.module.scss";
-import checkIcon from "../../../../static/images/icon-check.svg";
-import ManLaptopEmail from "../../../../static/images/dashboard-onboarding/man-laptop-email-alt.svg";
-import WomanOnCouch from "../../../../static/images/dashboard-onboarding/woman-couch.svg";
-import WomanEmail from "../../../../static/images/dashboard-onboarding/woman-email.svg";
+import ManLaptopEmail from "./images/man-laptop-email-alt.svg";
+import WomanOnCouch from "./images/woman-couch.svg";
+import WomanEmail from "./images/woman-email.svg";
 import { Button, LinkButton } from "../Button";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { ProfileData } from "../../hooks/api/profile";
@@ -20,6 +19,7 @@ import {
   supportsFirefoxExtension,
   supportsAnExtension,
 } from "../../functions/userAgent";
+import { CheckBadgeIcon } from "../Icons";
 
 export type Props = {
   profile: ProfileData;
@@ -291,7 +291,7 @@ const StepTwo = (props: Step2Props) => {
     typeof props.profile.subdomain === "string" ? (
       <p className={styles["action-complete"]}>
         <span className={styles.label}>
-          <img src={checkIcon.src} alt="" width={18} />
+          <CheckBadgeIcon alt="" width={18} height={18} />
           {l10n.getString("profile-label-subdomain")}
         </span>
         <samp>@{props.profile.subdomain}</samp>
@@ -419,7 +419,7 @@ const StepThree = () => {
             className={`${styles["addon-description"]} is-visible-with-addon`}
           >
             <div className={styles["action-complete"]}>
-              <img src={checkIcon.src} alt="" width={18} />
+              <CheckBadgeIcon alt="" width={18} height={18} />
               {l10n.getString("multi-part-onboarding-premium-extension-added")}
             </div>
           </div>

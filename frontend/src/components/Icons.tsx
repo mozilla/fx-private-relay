@@ -43,11 +43,8 @@ export const InfoFilledIcon = ({
       viewBox="0 0 20 20"
       width={20}
       height={20}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z" />
@@ -69,11 +66,8 @@ export const InfoTriangleIcon = ({
       viewBox="0 0 18 15"
       width={18}
       height={15}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M0.75 14.75H17.25L9 0.5L0.75 14.75ZM9.75 12.5H8.25V11H9.75V12.5ZM9.75 9.5H8.25V6.5H9.75V9.5Z" />
@@ -204,11 +198,223 @@ export const LockIcon = ({
   );
 };
 
+/** Icon to indicate the ability to copy something to your clipboard, that inherits the text color of its container */
+export const CopyIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width={16}
+      height={16}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M14.707 8.293l-3-3A1 1 0 0011 5h-1V4a1 1 0 00-.293-.707l-3-3A1 1 0 006 0H3a2 2 0 00-2 2v7a2 2 0 002 2h3v3a2 2 0 002 2h5a2 2 0 002-2V9a1 1 0 00-.293-.707zM12.586 9H11V7.414zm-5-5H6V2.414zM6 7v2H3V2h2v2.5a.5.5 0 00.5.5H8a2 2 0 00-2 2zm2 7V7h2v2.5a.5.5 0 00.5.5H13v4z" />
+    </svg>
+  );
+};
+
+/** Icon of an arrow pointing down, that inherits the text color of its container */
+export const ArrowDownIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width={16}
+      height={16}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M8 12a1 1 0 01-.707-.293l-5-5a1 1 0 011.414-1.414L8 9.586l4.293-4.293a1 1 0 011.414 1.414l-5 5A1 1 0 018 12z" />
+    </svg>
+  );
+};
+
+/** Icon of plus sign, that inherits the text color of its container */
+export const PlusIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width={16}
+      height={16}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M14 7H9V2a1 1 0 00-2 0v5H2a1 1 0 100 2h5v5a1 1 0 002 0V9h5a1 1 0 000-2z" />
+    </svg>
+  );
+};
+
+/** Icon for searches, that inherits the text color of its container */
+export const SearchIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 9.84872 15.3729 11.551 14.3199 12.9057L19.7071 18.2929C20.0976 18.6834 20.0976 19.3166 19.7071 19.7071C19.3166 20.0976 18.6834 20.0976 18.2929 19.7071L12.9056 14.3199C11.551 15.3729 9.84871 16 8 16ZM8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14Z"
+        fill="currentColor"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15Z"
+        stroke="currentColor"
+        strokeWidth="1.23077"
+      />
+      <path
+        d="M13 13L19 19"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.23077"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+
+/** Icon for the filter button, that inherits the text color of its container */
+export const FilterIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width={24}
+      height={24}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M10 18H14V16H10V18ZM3 6V8H21V6H3ZM6 13H18V11H6V13Z" />
+    </svg>
+  );
+};
+
+/** Check circle icon that inherits the text color of its container */
+export const CheckCircleIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width={24}
+      height={24}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path
+        d="M12 0C5.376 0 0 5.376 0 12C0 18.624 5.376 24 12 24C18.624 24 24 18.624 24 12C24 5.376 18.624 0 12 0ZM9.6 18L3.6 12L5.292 10.308L9.6 14.604L18.708 5.496L20.4 7.2L9.6 18Z"
+        fill="#3AD4B3"
+      />
+    </svg>
+  );
+};
+
+/** Check badge icon that inherits the text color of its container */
+export const CheckBadgeIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 18"
+      width={18}
+      height={18}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M17.25 9L15.42 6.9075L15.675 4.14L12.9675 3.525L11.55 1.125L9 2.22L6.45 1.125L5.0325 3.5175L2.325 4.125L2.58 6.9L0.75 9L2.58 11.0925L2.325 13.8675L5.0325 14.4825L6.45 16.875L9 15.7725L11.55 16.8675L12.9675 14.475L15.675 13.86L15.42 11.0925L17.25 9ZM7.5675 12.54L4.7175 9.6825L5.8275 8.5725L7.5675 10.32L11.955 5.9175L13.065 7.0275L7.5675 12.54Z" />
+    </svg>
+  );
+};
+
+/** Icon for links to the status page, that inherits the text color of its container */
+export const PerformanceIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 18"
+      width={18}
+      height={18}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M3.8168 3.81705C5.19159 2.44226 7.05559 1.66894 8.99984 1.66676C10.2376 1.66487 11.4556 1.97678 12.5401 2.57332C13.6246 3.16987 14.5401 4.03159 15.2013 5.07797C15.8624 6.12435 16.2475 7.32124 16.3205 8.55682C16.3936 9.7924 16.1523 11.0263 15.6191 12.1433C15.5674 12.2521 15.4949 12.3496 15.4056 12.4303C15.3162 12.5111 15.2119 12.5734 15.0984 12.6138C14.985 12.6542 14.8648 12.6718 14.7445 12.6657C14.6243 12.6597 14.5064 12.6299 14.3976 12.5783C14.2889 12.5267 14.1913 12.4541 14.1106 12.3648C14.0299 12.2754 13.9676 12.1711 13.9272 12.0577C13.8868 11.9442 13.8691 11.824 13.8752 11.7037C13.8813 11.5835 13.911 11.4656 13.9627 11.3568C14.3188 10.6114 14.5023 9.79532 14.4998 8.9692C14.4972 8.14308 14.3086 7.32815 13.948 6.58492C13.5873 5.84169 13.0638 5.18926 12.4164 4.67607C11.769 4.16289 11.0143 3.80213 10.2084 3.6206C9.40248 3.43906 8.56601 3.44141 7.76112 3.62747C6.95622 3.81353 6.20357 4.17852 5.55907 4.69533C4.91457 5.21214 4.39478 5.86751 4.03828 6.61275C3.68178 7.35799 3.49775 8.17397 3.49984 9.00009C3.49857 9.81526 3.68026 10.6203 4.03151 11.3559C4.09375 11.4654 4.13279 11.5864 4.14619 11.7116C4.15959 11.8368 4.14705 11.9634 4.10938 12.0835C4.0717 12.2036 4.00968 12.3147 3.92719 12.4098C3.84469 12.5049 3.7435 12.582 3.6299 12.6363C3.51631 12.6905 3.39275 12.7208 3.26694 12.7253C3.14112 12.7297 3.01574 12.7081 2.89862 12.662C2.78149 12.6158 2.67513 12.546 2.58616 12.457C2.49719 12.3679 2.42753 12.2614 2.38151 12.1443C1.91041 11.1631 1.66605 10.0885 1.6665 9.00009C1.66869 7.05584 2.44201 5.19185 3.8168 3.81705ZM12.1095 7.17745C12.2281 7.15115 12.3523 7.17301 12.4548 7.23823C12.5567 7.30398 12.6285 7.40749 12.6542 7.52606C12.68 7.64462 12.6577 7.76857 12.5923 7.87073L10.3345 11.4191C10.6242 11.7177 10.8009 12.1078 10.8344 12.5224C10.8678 12.9371 10.7559 13.3504 10.5178 13.6916C10.386 13.8867 10.2179 14.0547 10.0228 14.1866C9.76509 14.3609 9.46721 14.4667 9.15725 14.4941C8.84729 14.5216 8.53545 14.4696 8.25111 14.3432C7.96676 14.2168 7.71927 14.0202 7.53192 13.7717C7.34458 13.5233 7.22356 13.2312 7.18026 12.9231C7.13696 12.6149 7.1728 12.3008 7.28441 12.0104C7.39601 11.7199 7.57972 11.4626 7.81821 11.2628C8.05671 11.0629 8.34216 10.927 8.64766 10.868C8.95317 10.8089 9.26869 10.8285 9.56451 10.9251L11.8223 7.37848C11.8876 7.27605 11.9909 7.20375 12.1095 7.17745Z"
+      />
+    </svg>
+  );
+};
+
 export const Cogwheel = ({
   alt,
   ...props
 }: SVGProps<SVGSVGElement> & { alt?: string }) => (
   <svg
+    role="img"
+    aria-label={alt}
+    aria-hidden={alt === ""}
     width={16}
     height={16}
     viewBox="0 0 16 16"
@@ -313,6 +519,7 @@ export const SupportIcon = ({
   </svg>
 );
 
+/** Icon to indicate signing out, that inherits the text color of its container */
 export const SignOutIcon = ({
   alt,
   ...props

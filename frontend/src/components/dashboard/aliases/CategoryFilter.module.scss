@@ -10,17 +10,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: $color-dark-gray-50;
 
   &:hover {
     background-color: $color-white;
-  }
-
-  img {
-    filter: grayscale(1);
-  }
-
-  &:hover img {
-    filter: none;
+    color: $color-blue-50;
   }
 }
 

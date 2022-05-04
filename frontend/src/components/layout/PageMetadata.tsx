@@ -2,7 +2,7 @@ import Head from "next/head";
 import { useLocalization } from "@fluent/react";
 import { useRouter } from "next/router";
 import favicon from "../../../public/favicon.svg";
-import socialMediaImage from "../../../../static/images/share-relay.jpg";
+import socialMediaImage from "./images/share-relay.jpg";
 import { getRuntimeConfig } from "../../config";
 
 export const PageMetadata = () => {
