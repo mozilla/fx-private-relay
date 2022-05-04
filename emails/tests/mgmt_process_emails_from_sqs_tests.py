@@ -268,6 +268,20 @@ def test_process_queue_verify_sns_header_fails(test_settings):
     assert res["failed_messages"] == 1
 
 
+@pytest.mark.xfail(reason='healthcheck not written')
+def test_process_queue_write_healthcheck(tmp_path):
+    """write_healthcheck writes the timestamp to the specified path."""
+    healthcheck_path = tmp_path / "healthcheck.json"
+    with open(healthcheck_path, "w", encoding="utf8") as hc_file:
+        Command(
+            queue=fake_queue(), healthcheck_file=hc_file, max_seconds=3
+        ).process_queue()
+    content = json.loads(healthcheck_path.read_bytes())
+    ts = datetime.fromisoformat(content["timestamp"])
+    duration = (datetime.now(tz=timezone.utc) - ts).total_seconds()
+    assert 0.0 < duration < 0.5
+
+
 @override_settings(
     AWS_REGION="us-east-2",
     AWS_SQS_EMAIL_QUEUE_URL="https://sqs.us-east-2.amazonaws.example.com/111222333/queue-name",
@@ -344,6 +358,18 @@ def test_write_healthcheck(tmp_path):
     ts = datetime.fromisoformat(content["timestamp"])
     duration = (datetime.now(tz=timezone.utc) - ts).total_seconds()
     assert 0.0 < duration < 0.5
+
+
+@pytest.mark.xfail(reason="New healthcheck is appended")
+def test_write_healthcheck_twice(tmp_path):
+    """write_healthcheck overwrites the file each time."""
+    healthcheck_path = tmp_path / "healthcheck.json"
+    with open(healthcheck_path, "w", encoding="utf8") as hc_file:
+        cmd = Command(queue=fake_queue(), healthcheck_file=hc_file)
+        cmd.write_healthcheck()
+        cmd.write_healthcheck()
+    content = json.loads(healthcheck_path.read_bytes())
+    assert content['queue_count_not_visible'] == 3
 
 
 def test_close_healthcheck(tmp_path):
