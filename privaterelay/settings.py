@@ -71,6 +71,7 @@ SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
 SESSION_COOKIE_SECURE = config(
     'DJANGO_SESSION_COOKIE_SECURE', False, cast=bool
 )
+BASKET_ORIGIN = config('BASKET_ORIGIN', 'https://basket.mozilla.org')
 # maps fxa profile hosts to respective avatar hosts for CSP
 AVATAR_IMG_SRC_MAP = {
     'https://profile.stage.mozaws.net/v1':      [
@@ -90,6 +91,7 @@ CSP_CONNECT_SRC = (
     'https://www.google-analytics.com/',
     'https://accounts.firefox.com',
     'https://location.services.mozilla.com',
+    BASKET_ORIGIN,
 )
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = (
@@ -569,7 +571,6 @@ FXA_BASE_ORIGIN = config('FXA_BASE_ORIGIN', 'https://accounts.firefox.com')
 FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', f'{FXA_BASE_ORIGIN}/settings')
 FXA_SUBSCRIPTIONS_URL = config('FXA_SUBSCRIPTIONS_URL', f'{FXA_BASE_ORIGIN}/subscriptions')
 FXA_SUPPORT_URL = config('FXA_SUPPORT_URL', f'{FXA_BASE_ORIGIN}/support/')
-BASKET_ORIGIN = config('BASKET_ORIGIN', 'https://basket.mozilla.org')
 
 LOGGING = {
     'version': 1,
