@@ -243,7 +243,9 @@ class Command(BaseCommand):
                 cycle_data["message_total"] = self.total_messages
                 cycle_data["cycle_s"] = round(cycle_timer.last, 3)
                 logger.log(
-                    logging.INFO if (message_batch or self.verbosity > 1) else logging.DEBUG,
+                    logging.INFO
+                    if (message_batch or self.verbosity > 1)
+                    else logging.DEBUG,
                     f"Cycle {self.cycles}: processed {self.pluralize(len(message_batch), 'message')}",
                     extra=cycle_data,
                 )
@@ -365,7 +367,9 @@ class Command(BaseCommand):
             message_data["message_process_time_s"] = round(message_timer.last, 3)
             process_time += message_timer.last
             logger.log(
-                logging.DEBUG if (message_data["success"] or self.verbosity < 2) else logging.INFO,
+                logging.DEBUG
+                if (message_data["success"] or self.verbosity < 2)
+                else logging.INFO,
                 "Message processed",
                 extra=message_data,
             )
