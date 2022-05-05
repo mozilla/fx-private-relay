@@ -21,7 +21,7 @@ gunicorn==19.9.0
 jwcrypto==1.0
 markus[datadog]==4.0.0
 pem==21.2.0
-psycopg2==2.8.4
+psycopg2==2.9.3
 PyJWT==1.7.1
 python-decouple==3.6
 pyOpenSSL==22.0.0
