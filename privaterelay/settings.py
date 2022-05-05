@@ -65,8 +65,6 @@ SECURE_REDIRECT_EXEMPT = [
     r'^__lbheartbeat__',
 ]
 SECURE_HSTS_SECONDS = config('DJANGO_SECURE_HSTS_SECONDS', None)
-SECURE_CONTENT_TYPE_NOSNIFF = config('DJANGO_SECURE_CONTENT_TYPE_NOSNIFF',
-                                     True)
 SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
 SESSION_COOKIE_SECURE = config(
     'DJANGO_SESSION_COOKIE_SECURE', False, cast=bool
@@ -537,6 +535,10 @@ if SERVE_REACT:
 else:
     STATIC_URL = '/static/'
 
+# Relay does not support user-uploaded files
+MEDIA_ROOT = None
+MEDIA_URL = None
+
 WHITENOISE_INDEX_FILE = True
 
 # for dev statics, we use django-gulp during runserver.
@@ -566,6 +568,8 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_USERNAME_REQUIRED=False
 ACCOUNT_PRESERVE_USERNAME_CASING=False
 SOCIALACCOUNT_AUTO_SIGNUP=True
+SOCIALACCOUNT_LOGIN_ON_GET=True
+SOCIALACCOUNT_STORE_TOKENS=True
 
 FXA_BASE_ORIGIN = config('FXA_BASE_ORIGIN', 'https://accounts.firefox.com')
 FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', f'{FXA_BASE_ORIGIN}/settings')
@@ -732,3 +736,6 @@ PROCESS_EMAIL_WAIT_SECONDS = config("PROCESS_EMAIL_WAIT_SECONDS", 5, cast=int)
 PROCESS_EMAIL_HEALTHCHECK_MAX_AGE = config(
     "PROCESS_EMAIL_HEALTHCHECK_MAX_AGE", 120, cast=int
 )
+
+# Django 3.2 switches default to BigAutoField
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
