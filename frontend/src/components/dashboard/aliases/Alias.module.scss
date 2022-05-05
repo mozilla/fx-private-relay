@@ -107,10 +107,12 @@ $toggleTransitionDuration: 200ms;
 .copy-controls {
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 .copy-button-wrapper {
   position: relative;
+  width: 100%;
 
   .copy-button {
     @include text-body-lg;
@@ -120,17 +122,26 @@ $toggleTransitionDuration: 200ms;
     border: 0px none transparent;
     cursor: pointer;
     padding: 0 $spacing-sm;
+    width: 100%;
+    flex-basis: 0;
 
     .address {
       font-family: $font-stack-firefox;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: $content-md;
+      display: inline-block;
+      text-align: start;
+      flex-grow: 0;
+      flex-shrink: 1;
     }
 
     .copy-icon {
       padding: 0 $spacing-sm;
       opacity: 0.5;
+      display: inline-block;
+      flex-grow: 2;
+      flex-shrink: 0;
+      max-width: $layout-sm;
     }
 
     &:hover {
