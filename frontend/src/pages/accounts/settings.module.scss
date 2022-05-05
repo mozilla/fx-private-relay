@@ -14,6 +14,8 @@
   }
 
   ul {
+    // The list of links is hidden on mobile
+    display: none;
     list-style-type: none;
 
     li {
@@ -116,6 +118,10 @@
 
   .menu {
     width: $content-sm;
+
+    ul {
+      display: block;
+    }
   }
 
   .field {
