@@ -96,9 +96,9 @@ class Command(CommandFromDjangoSettings):
         ),
     ]
 
-    def handle(self, *args, **kwargs):
+    def handle(self, verbosity, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
-        super().handle(*args, **kwargs)
+        self.init_from_settings(verbosity)
         self.init_locals()
         logger.info(
             "Starting process_emails_from_sqs",

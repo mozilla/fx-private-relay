@@ -73,7 +73,3 @@ class CommandFromDjangoSettings(BaseCommand):
                 self.verbosity = verbosity
             else:
                 setattr(self, local_name, getattr(settings, setting_key))
-
-    def handle(self, *args, **kwargs):
-        verbosity = kwargs.get("verbosity")
-        self.init_from_settings(verbosity)
