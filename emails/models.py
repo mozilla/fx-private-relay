@@ -466,6 +466,7 @@ class RelayAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
     block_list_emails = models.BooleanField(default=False)
@@ -579,6 +580,7 @@ class DomainAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     block_list_emails = models.BooleanField(default=False)
     used_on = models.TextField(default=None, blank=True, null=True)
@@ -687,6 +689,15 @@ class Reply(models.Model):
     @property
     def owner_has_premium(self):
         return self.profile.has_premium
+
+    def increment_num_replied(self):
+        address = self.relay_address or self.domain_address
+        address.num_replied += 1
+        address.last_used_at = datetime.now(timezone.utc)
+        address.save(
+            update_fields=['num_replied', 'last_used_at']
+        )
+        return address.num_replied
 
 
 class AbuseMetrics(models.Model):
