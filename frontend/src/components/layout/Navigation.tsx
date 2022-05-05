@@ -6,6 +6,7 @@ import styles from "./Navigation.module.scss";
 import { useIsLoggedIn } from "../../hooks/session";
 import { getRuntimeConfig } from "../../config";
 import { useGaViewPing } from "../../hooks/gaViewPing";
+import { setCookie } from "../../functions/cookies";
 
 /** Switch between the different pages of the Relay website. */
 export const Navigation = () => {
@@ -23,13 +24,14 @@ export const Navigation = () => {
     <a
       href={getRuntimeConfig().fxaLoginUrl}
       ref={signUpButtonRef}
-      onClick={() =>
+      onClick={() => {
         gaEvent({
           category: "Sign In",
           action: "Engage",
           label: "nav-profile-sign-up",
-        })
-      }
+        });
+        setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
+      }}
       className={styles.link}
     >
       {l10n.getString("nav-profile-sign-up")}
@@ -44,13 +46,14 @@ export const Navigation = () => {
     <a
       href={getRuntimeConfig().fxaLoginUrl}
       ref={signInButtonRef}
-      onClick={() =>
+      onClick={() => {
         gaEvent({
           category: "Sign In",
           action: "Engage",
           label: "nav-profile-sign-in",
-        })
-      }
+        });
+        setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
+      }}
       className={`${styles.link} ${styles["sign-in-button"]}`}
     >
       {l10n.getString("nav-profile-sign-in")}

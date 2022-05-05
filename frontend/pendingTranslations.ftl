@@ -29,3 +29,5 @@ waitlist-subscribe-error-unknown = There was an error adding you to the waitlist
 ## Notifications component
 
 toast-button-close-label = Close notification
+success-signed-out-message = You have signed out.
+success-signed-in-message = Successfully signed in as { $username }.
