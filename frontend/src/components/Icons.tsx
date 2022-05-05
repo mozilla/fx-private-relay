@@ -88,9 +88,9 @@ export const MenuIcon = ({
 }: SVGProps<SVGSVGElement> & { alt: string }) => {
   return (
     <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
+      width={20}
+      height={20}
+      viewBox="0 0 20 20"
       role="img"
       aria-label={alt}
       xmlns="http://www.w3.org/2000/svg"

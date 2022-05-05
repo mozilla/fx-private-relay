@@ -1,0 +1,19 @@
+@import "../../styles/tokens.scss";
+
+.mobile-menu-toggle,
+.mobile-menu-close {
+  display: block;
+  width: ($layout-xs);
+  height: ($layout-xs);
+
+  @media screen and #{$mq-md} {
+    display: none;
+  }
+}
+
+.menu-toggle,
+.menu-toggle-active {
+  @media screen and #{$mq-md} {
+    display: none;
+  }
+}

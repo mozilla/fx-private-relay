@@ -11,6 +11,7 @@ import { WhatsNewMenu } from "../layout/whatsnew/WhatsNewMenu";
 import { MenuIcon } from "../Icons";
 import { UserMenu } from "./UserMenu";
 import { AppPicker } from "./AppPicker";
+import { MenuToggle } from "./MenuToggle";
 
 /** Switch between the different pages of the Relay website. */
 export const Navigation = ({ ...props }) => {
@@ -21,10 +22,6 @@ export const Navigation = ({ ...props }) => {
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
   const { theme } = props;
-  const mobileMenuToggle = MenuIcon({
-    alt: "Toggle mobile menu",
-    className: `${styles["mobile-menu-toggle"]}`,
-  });
 
   return (
     <nav aria-label={l10n.getString("nav-menu")} className={styles["site-nav"]}>
@@ -59,7 +56,7 @@ export const Navigation = ({ ...props }) => {
       {/* if user is logged in and doesn't have premium, show upgrade button */}
       {isLoggedIn && !hasPremium && <UpgradeButton />}
 
-      {mobileMenuToggle}
+      {<MenuToggle />}
 
       <AppPicker theme={theme} />
 

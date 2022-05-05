@@ -5,7 +5,7 @@
   // is different in the light (Premium) and dark (regular) themes:
   border-color: currentColor;
   border-radius: $border-radius-sm;
-  padding: $spacing-sm;
+  padding: $spacing-xs $spacing-md;
 
   &:focus {
     color: $color-blue-30;
