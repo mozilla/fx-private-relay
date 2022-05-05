@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from io import StringIO
 from unittest.mock import patch, Mock
-from uuid import uuid4
+from uuid import uuid4, UUID
 import json
 
 from botocore.exceptions import ClientError
@@ -239,7 +239,19 @@ def test_one_message(
     msg = fake_sqs_message(json.dumps(TEST_SNS_MESSAGE))
     mock_sqs_client.return_value = fake_queue([msg], [])
     call_command(COMMAND_NAME)
+
+    msg_log = caplog.records[1]
+    assert msg_log.getMessage() == "Message processed"
+    msg_extra = log_extra(msg_log)
+    assert set(msg_extra.keys()) == {
+        "message_process_time_s",
+        "sqs_message_id",
+        "success",
+    }
+    assert msg_extra["success"]
+
     assert summary_from_exit_log(caplog)["total_messages"] == 1
+
     mock_verify_from_sns.assert_called_once_with(TEST_SNS_MESSAGE)
     mock_sns_inbound_logic.assert_called_once_with(
         "arn:aws:sns:us-east-1:927034868273:fxprivaterelay-SES-processor-topic",
@@ -395,5 +407,5 @@ def test_command_sqs_client_error(mock_sqs_client, test_settings):
     mock_sqs_client.side_effect = make_client_error(code="InternalError")
     with pytest.raises(CommandError) as err:
         call_command(COMMAND_NAME)
-    assert str(err.value) == 'Unable to connect to SQS'
+    assert str(err.value) == "Unable to connect to SQS"
     mock_sqs_client.assert_called_once_with(test_settings.AWS_SQS_EMAIL_QUEUE_URL)
