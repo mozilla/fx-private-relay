@@ -83,11 +83,8 @@ class Command(CommandFromDjangoSettings):
         * The timestamp doesn't match the format of datetime.toisoformat()
         * The timestamp doesn't include timezone data
         """
-        try:
-            context = {"success": False, "healthcheck_path": healthcheck_file.name}
-            data = json.load(healthcheck_file)
-        finally:
-            healthcheck_file.close()
+        context = {"success": False, "healthcheck_path": healthcheck_file.name}
+        data = json.load(healthcheck_file)
 
         context["data"] = data
         raw_timestamp = data["timestamp"]
