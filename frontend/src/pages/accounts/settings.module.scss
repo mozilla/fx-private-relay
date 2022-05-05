@@ -1,8 +1,42 @@
 @import "../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
+.settings-page {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
 .menu {
-  display: none;
+  padding: $spacing-lg $spacing-lg 0;
+
+  h1 {
+    padding-bottom: $spacing-lg;
+  }
+
+  ul {
+    list-style-type: none;
+
+    li {
+      padding: $spacing-sm 0;
+    }
+
+    a {
+      @include text-body-lg;
+      display: flex;
+      align-items: center;
+      color: $color-dark-gray-50;
+      gap: $spacing-sm;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      img {
+        // The size of text-body-lg, i.e. the same size as the containing <a>'s font:
+        width: remify(type-scale("body-lg-size"));
+      }
+    }
+  }
 }
 
 .main {
@@ -17,7 +51,7 @@
 .settings-form {
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
-  padding: $spacing-lg $spacing-xl;
+  padding: $spacing-md;
   background-color: white;
 }
 
@@ -31,13 +65,23 @@
   color: $color-dark-gray-50;
   font-weight: 400;
   padding-bottom: $spacing-md;
+  flex-basis: 0;
 }
 
 .field-content {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+  padding-bottom: $spacing-md;
+
   .field-control {
     display: flex;
-    align-items: center;
-    gap: $spacing-sm;
+    align-items: flex-start;
+    gap: $spacing-md;
+
+    input {
+      margin-top: $spacing-xs;
+    }
 
     label {
       display: inline-block;
@@ -50,14 +94,13 @@
     align-items: flex-start;
     background-color: $color-light-gray-20;
     width: 100%;
-    margin-top: $spacing-lg;
     padding: $spacing-md $spacing-lg;
     border-radius: $border-radius-sm;
   }
 }
 
 .controls {
-  padding: $spacing-md 0;
+  padding-top: $spacing-md;
   text-align: center;
 }
 
@@ -67,51 +110,38 @@
     flex-direction: row-reverse;
   }
 
+  .settings-form {
+    padding: $spacing-lg;
+  }
+
   .menu {
-    display: block;
     width: $content-sm;
-    padding: $spacing-lg $spacing-lg;
-
-    h1 {
-      padding-bottom: $spacing-lg;
-    }
-
-    ul {
-      list-style-type: none;
-
-      li {
-        padding: $spacing-sm 0;
-      }
-
-      a {
-        @include text-body-lg;
-        display: flex;
-        align-items: center;
-        color: $color-dark-gray-50;
-        gap: $spacing-sm;
-
-        &:hover {
-          text-decoration: underline;
-        }
-
-        img {
-          // The size of text-body-lg, i.e. the same size as the containing <a>'s font:
-          width: remify(type-scale("body-lg-size"));
-        }
-      }
-    }
   }
 
   .field {
     display: flex;
+    gap: $spacing-2xl;
   }
 
   .field-heading {
-    width: $content-sm;
     flex-shrink: 0;
   }
 
   .controls {
+    padding-top: $spacing-lg;
     text-align: end;
+  }
+}
+@media screen and #{$mq-lg} {
+  .field-heading {
+    flex-basis: auto;
+    // Custom percentage to accomidate tablet/laptop screens
+    width: 33%;
+  }
+}
+@media screen and #{$mq-xl} {
+  .field-heading {
+    flex-basis: auto;
+    width: $content-sm;
   }
 }
