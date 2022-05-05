@@ -9,6 +9,8 @@
   margin-top: $spacing-sm;
   // Move to the left by the amount of horizontal padding in .menu-item-wrapper:
   margin-left: -1 * $spacing-md;
+  // Align the popup to the edge of the screen at narrow widths
+  inset-inline-end: 0;
   background-color: $color-white;
   border-radius: $border-radius-md;
   box-shadow: $box-shadow-md;
@@ -16,6 +18,10 @@
   min-width: $content-xs;
   // Overlap the stats with position: relative in the alias cards:
   z-index: 2;
+
+  @media screen and #{$mq-xl} {
+    inset-inline-end: auto;
+  }
 
   .menu-item-wrapper {
     font-family: $font-stack-firefox;
