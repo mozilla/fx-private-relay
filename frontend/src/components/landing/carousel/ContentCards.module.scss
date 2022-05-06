@@ -1,0 +1,85 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: $spacing-2xl;
+
+  .hero {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: $spacing-2xl;
+  }
+
+  .heading {
+    @include text-title-sm;
+    font-family: $font-stack-firefox;
+    font-weight: 700;
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    text-align: center;
+  }
+
+  .lead {
+    @include text-title-2xs;
+    display: flex;
+  }
+
+  .card {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: end;
+    gap: $spacing-md;
+
+    .card-heading {
+      @include text-title-2xs;
+      font-family: $font-stack-firefox;
+      font-weight: 700;
+    }
+
+    .card-body {
+      @include text-body-md;
+      font-family: $font-stack-firefox;
+      font-weight: 400;
+    }
+  }
+
+  @media screen and #{$mq-md} {
+    .hero {
+      flex-direction: row;
+      width: $content-md;
+    }
+
+    .card {
+      gap: $spacing-md;
+
+      .card-heading {
+        @include text-title-3xs;
+      }
+    }
+  }
+  @media screen and #{$mq-lg} {
+    .hero {
+      width: 100%;
+    }
+
+    .card {
+      .card-heading {
+        @include text-title-2xs;
+      }
+
+      .card-body {
+        max-width: $content-xs;
+      }
+    }
+  }
+}

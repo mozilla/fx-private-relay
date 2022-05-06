@@ -8,12 +8,19 @@ import PerkIllustrationDashboard from "../../../static/images/premium-promo/illu
 import ShoppingIllustration from "../../../static/images/use-case-shopping.svg";
 import SocialNetworksIllustration from "../../../static/images/use-case-social-networks.svg";
 import GamingIllustration from "../../../static/images/use-case-gaming.svg";
+import OfflineIllustration from "../../../static/images/use-case-offline.svg";
+import AccessContentIllustration from "../../../static/images/use-case-access-content.svg";
+import SignupsHero from "../components/landing/carousel/images/signups-hero.svg";
+import OnTheGoConnect from "../components/landing/carousel/images/onthego-illustration-connect.svg";
+import OnTheGoPhone from "../components/landing/carousel/images/onthego-illustration-phone.svg";
+import OnTheGoReceipt from "../components/landing/carousel/images/onthego-illustration-receipts.svg";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { Button, LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import { Carousel } from "../components/landing/Carousel";
+import { Carousel } from "../components/landing/carousel/Carousel";
+import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
 import { Plans } from "../components/landing/Plans";
 import {
   getPlan,
@@ -21,7 +28,9 @@ import {
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { trackPurchaseStart } from "../functions/trackPurchase";
-
+import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
+import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
+import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
@@ -195,37 +204,133 @@ const PremiumPromo: NextPage = () => {
               {l10n.getString("premium-promo-use-cases-headline-2")}
             </h2>
             <Carousel
-              title={l10n.getString("premium-promo-use-cases-headline-2")}
+              title={l10n.getString("landing-use-cases-heading")}
               tabs={[
                 {
                   color: "yellow",
-                  heading: l10n.getString(
-                    "premium-promo-use-cases-shopping-heading"
-                  ),
-                  content: l10n.getString(
-                    "premium-promo-use-cases-shopping-body-2"
+                  heading: l10n.getString("landing-use-cases-shopping"),
+                  content: (
+                    <CarouselContentHero
+                      heroImage={ShoppingHero.src}
+                      heading={l10n.getString(
+                        "landing-use-cases-shopping-hero-heading"
+                      )}
+                      body={
+                        <>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-shopping-hero-content1"
+                            )}
+                          </p>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-shopping-hero-content2"
+                            )}
+                          </p>
+                        </>
+                      }
+                      textFirst={true}
+                    />
                   ),
                   illustration: ShoppingIllustration,
                   id: "use-cases/shopping",
                 },
                 {
-                  color: "orange",
-                  heading: l10n.getString(
-                    "premium-promo-use-cases-social-networks-heading"
-                  ),
-                  content: l10n.getString(
-                    "premium-promo-use-cases-social-networks-body-2"
+                  color: "deep-pink",
+                  heading: l10n.getString("landing-use-cases-social-networks"),
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString(
+                        "landing-use-cases-social-networks"
+                      )}
+                      body={l10n.getString(
+                        "landing-use-cases-social-networks-body"
+                      )}
+                    />
                   ),
                   illustration: SocialNetworksIllustration,
                   id: "use-cases/social-networks",
                 },
                 {
-                  color: "pink",
-                  heading: l10n.getString(
-                    "premium-promo-use-cases-gaming-heading"
+                  color: "purple",
+                  heading: l10n.getString("landing-use-cases-on-the-go"),
+                  content: (
+                    <CarouselContentCards
+                      heading={l10n.getString(
+                        "landing-use-cases-on-the-go-heading"
+                      )}
+                      lead={l10n.getString("landing-use-cases-on-the-go-lead")}
+                      cards={[
+                        {
+                          image: OnTheGoConnect.src,
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-connect-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-connect-body"
+                          ),
+                        },
+                        {
+                          image: OnTheGoReceipt.src,
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-receipt-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-receipt-body"
+                          ),
+                        },
+                        {
+                          image: OnTheGoPhone.src,
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-phone-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-phone-body"
+                          ),
+                        },
+                      ]}
+                    />
                   ),
-                  content: l10n.getString(
-                    "premium-promo-use-cases-gaming-body-2"
+                  illustration: OfflineIllustration,
+                  id: "use-cases/offline",
+                },
+                {
+                  color: "pink",
+                  heading: l10n.getString("landing-use-cases-signups"),
+                  content: (
+                    <CarouselContentHero
+                      heroImage={SignupsHero.src}
+                      heading={l10n.getString(
+                        "landing-use-cases-signups-hero-heading"
+                      )}
+                      body={
+                        <>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-signups-hero-content1"
+                            )}
+                          </p>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-signups-hero-content2"
+                            )}
+                          </p>
+                        </>
+                      }
+                      textFirst={false}
+                    />
+                  ),
+                  illustration: AccessContentIllustration,
+                  id: "use-cases/access-content",
+                },
+                {
+                  color: "orange",
+                  heading: l10n.getString("landing-use-cases-gaming"),
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString("landing-use-cases-gaming")}
+                      body={l10n.getString("landing-use-cases-gaming-body")}
+                    />
                   ),
                   illustration: GamingIllustration,
                   id: "use-cases/gaming",
