@@ -31,8 +31,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   @include text-body-sm;
   text-align: center;
   font-weight: 400;
-  line-height: 21px;
-  height: $layout-md;
+  min-height: $layout-md;
   border-radius: $border-radius-sm;
   font-family: $font-stack-base;
   padding: 0;
@@ -45,6 +44,10 @@ $toastify-toast-close-button: var(--toast-close-button);
       [id*="close-toast-button-icon"] {
         color: #{$color-white};
       }
+    }
+
+    & > [class*="toast-body"] {
+      padding: 16px;
     }
 
     &[class*="toast--success"],
@@ -124,6 +127,7 @@ $toastify-toast-close-button: var(--toast-close-button);
 #close-toast-button-icon {
   width: 20px;
   height: 20px;
+  min-width: 20px;
 }
 
 .header {
