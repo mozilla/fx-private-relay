@@ -38,6 +38,7 @@
       gap: $spacing-lg;
       padding: $spacing-lg $spacing-sm;
       border-bottom: 1px solid $color-light-gray-20;
+      word-break: break-word;
 
       .warning-icon {
         color: $color-pink-30;

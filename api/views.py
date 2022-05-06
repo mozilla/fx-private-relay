@@ -13,7 +13,7 @@ from emails.models import (
     Profile,
     RelayAddress
 )
-from privaterelay.settings import FXA_BASE_ORIGIN, GOOGLE_ANALYTICS_ID, PREMIUM_PROD_ID
+from privaterelay.settings import BASKET_ORIGIN, FXA_BASE_ORIGIN, GOOGLE_ANALYTICS_ID, PREMIUM_PROD_ID
 from privaterelay.utils import get_premium_countries_info_from_request
 
 from .permissions import IsOwner
@@ -117,5 +117,6 @@ def runtime_data(request):
             "GOOGLE_ANALYTICS_ID": GOOGLE_ANALYTICS_ID,
             "PREMIUM_PRODUCT_ID": PREMIUM_PROD_ID,
             "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
+            "BASKET_ORIGIN": BASKET_ORIGIN,
         }
     )

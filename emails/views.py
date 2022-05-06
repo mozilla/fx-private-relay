@@ -385,7 +385,7 @@ def _sns_message(message_json):
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
         address = _get_address(to_address, to_local_portion, to_domain_portion)
-        user_profile = address.user.profile_set.first()
+        user_profile = address.user.profile_set.prefetch_related('user__socialaccount_set').first()
     except (ObjectDoesNotExist, CannotMakeAddressException, DeletedAddress.MultipleObjectsReturned):
         if to_local_portion == 'replies':
             response = _handle_reply(from_address, message_json, to_address)
@@ -480,7 +480,7 @@ def _sns_message(message_json):
                 'https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?'
                 + f'general-found={general_count}&'
                 + f'general-removed={removed_count}&'
-                + f'strict-found={strict_count}'
+                + f'strict-found={strict_count}&'
                 + f'control={control}'
             )
         

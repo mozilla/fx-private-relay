@@ -38,6 +38,7 @@ import { ProfileData } from "../../../hooks/api/profile";
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import { useAddonData } from "../../../hooks/addon";
 import { isUsingFirefox } from "../../../functions/userAgent";
+import { getLocale } from "../../../functions/getLocale";
 
 export type WhatsNewEntry = {
   title: string;
@@ -185,7 +186,29 @@ export const WhatsNewMenu = (props: Props) => {
       day: 19,
     },
   };
-  entries.push(aliasToMask);
+  // Not all localisations transitioned from "alias" to "mask", so only show this
+  // announcement for those of which we _know_ did:
+  if (
+    [
+      "en",
+      "en-gb",
+      "nl",
+      "fy-nl",
+      "zh-tw",
+      "es-es",
+      "es-mx",
+      "de",
+      "pt-br",
+      "sv-se",
+      "el",
+      "hu",
+      "sk",
+      "skr",
+      "uk",
+    ].includes(getLocale(l10n).toLowerCase())
+  ) {
+    entries.push(aliasToMask);
+  }
 
   entries.sort(entriesDescByDateSorter);
 

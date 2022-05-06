@@ -468,7 +468,7 @@ const getAddonDescriptionProps = () => {
       headerMessageId:
         "multi-part-onboarding-premium-chrome-extension-get-title",
       paragraphMessageId:
-        "multi-part-onboarding-premium-chrome-extension-get-description",
+        "multi-part-onboarding-premium-chrome-extension-get-description-2",
       linkHref:
         "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=onboarding&utm_campaign=install-addon",
       linkMessageId:

@@ -36,9 +36,14 @@
 
       .subdomain {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         gap: $spacing-sm;
         color: $color-blue-50;
+      }
+
+      .profile-registered-domain-value {
+        word-break: break-word;
       }
     }
 
