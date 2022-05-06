@@ -126,6 +126,78 @@ export const Cogwheel = () => (
   </svg>
 );
 
+export const FaqIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
+  <svg
+    width={20}
+    height={20}
+    viewBox="0 0 20 20"
+    role="img"
+    aria-label={alt}
+    xmlns="http://www.w3.org/2000/svg"
+    style={{
+      fill: "currentcolor",
+      ...props.style,
+    }}
+    {...props}
+  >
+    <title>{alt}</title>
+    <path
+      d="M2 4H0V18C0 19.1 0.9 20 2 20H16V18H2V4ZM18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM18 14H6V2H18V14ZM11.51 8.16C11.92 7.43 12.69 7 13.14 6.36C13.62 5.68 13.35 4.42 12 4.42C11.12 4.42 10.68 5.09 10.5 5.65L9.13 5.08C9.51 3.96 10.52 3 11.99 3C13.22 3 14.07 3.56 14.5 4.26C14.87 4.86 15.08 5.99 14.51 6.83C13.88 7.76 13.28 8.04 12.95 8.64C12.82 8.88 12.77 9.04 12.77 9.82H11.25C11.26 9.41 11.19 8.74 11.51 8.16ZM10.95 11.95C10.95 11.36 11.42 10.91 12 10.91C12.59 10.91 13.04 11.36 13.04 11.95C13.04 12.53 12.6 13 12 13C11.42 13 10.95 12.53 10.95 11.95Z"
+      fill="#AB71FF"
+    />
+  </svg>
+);
+
+export const DashboardIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
+  <svg
+    width={20}
+    height={20}
+    viewBox="0 0 20 20"
+    role="img"
+    aria-label={alt}
+    xmlns="http://www.w3.org/2000/svg"
+    style={{
+      fill: "currentcolor",
+      ...props.style,
+    }}
+    {...props}
+  >
+    <path
+      d="M5 5H9V9H5V5ZM3 5C3 3.89543 3.89543 3 5 3H9C10.1046 3 11 3.89543 11 5V9C11 10.1046 10.1046 11 9 11H5C3.89543 11 3 10.1046 3 9V5ZM15 5H19V9H15V5ZM13 5C13 3.89543 13.8954 3 15 3H19C20.1046 3 21 3.89543 21 5V9C21 10.1046 20.1046 11 19 11H15C13.8954 11 13 10.1046 13 9V5ZM9 15H5V19H9V15ZM5 13C3.89543 13 3 13.8954 3 15V19C3 20.1046 3.89543 21 5 21H9C10.1046 21 11 20.1046 11 19V15C11 13.8954 10.1046 13 9 13H5ZM15 15H19V19H15V15ZM13 15C13 13.8954 13.8954 13 15 13H19C20.1046 13 21 13.8954 21 15V19C21 20.1046 20.1046 21 19 21H15C13.8954 21 13 20.1046 13 19V15Z"
+      fill="#AB71FF"
+    />
+  </svg>
+);
+
+export const HomeIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
+  <svg
+    width="20"
+    height="17"
+    viewBox="0 0 20 17"
+    role="img"
+    aria-label={alt}
+    xmlns="http://www.w3.org/2000/svg"
+    style={{
+      fill: "currentcolor",
+      ...props.style,
+    }}
+    {...props}
+  >
+    <path
+      d="M10 2.69L15 7.19V15H13V9H7V15H5V7.19L10 2.69ZM10 0L0 9H3V17H9V11H11V17H17V9H20L10 0Z"
+      fill="#AB71FF"
+    />
+  </svg>
+);
 export const Logout = () => (
   <svg xmlns="http://www.w3.org/2000/svg">
     <path

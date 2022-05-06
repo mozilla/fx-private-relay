@@ -1,0 +1,24 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.mobile-menu {
+  display: flex;
+  width: 100%;
+  position: absolute;
+  top: 75px;
+  left: 0;
+  background: $color-white;
+  flex-direction: column;
+}
+
+.link {
+  display: flex;
+  gap: $spacing-md;
+
+  @include text-display-xxs;
+  font-weight: 500;
+  color: $color-grey-40;
+  padding: $spacing-md;
+  font-family: $font-stack-firefox;
+  border-bottom: 2px solid #ececec;
+}
