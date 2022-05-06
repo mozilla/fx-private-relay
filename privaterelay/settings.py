@@ -17,7 +17,7 @@ from datetime import datetime
 # This needs to be before markus, which imports pytest
 IN_PYTEST = "pytest" in sys.modules
 
-from decouple import config, Csv
+from decouple import config, Choices, Csv
 import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -39,7 +39,7 @@ except ImportError:
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+TMP_DIR = os.path.join(BASE_DIR, "tmp")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -65,12 +65,11 @@ SECURE_REDIRECT_EXEMPT = [
     r'^__lbheartbeat__',
 ]
 SECURE_HSTS_SECONDS = config('DJANGO_SECURE_HSTS_SECONDS', None)
-SECURE_CONTENT_TYPE_NOSNIFF = config('DJANGO_SECURE_CONTENT_TYPE_NOSNIFF',
-                                     True)
 SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
 SESSION_COOKIE_SECURE = config(
     'DJANGO_SESSION_COOKIE_SECURE', False, cast=bool
 )
+BASKET_ORIGIN = config('BASKET_ORIGIN', 'https://basket.mozilla.org')
 # maps fxa profile hosts to respective avatar hosts for CSP
 AVATAR_IMG_SRC_MAP = {
     'https://profile.stage.mozaws.net/v1':      [
@@ -90,6 +89,7 @@ CSP_CONNECT_SRC = (
     'https://www.google-analytics.com/',
     'https://accounts.firefox.com',
     'https://location.services.mozilla.com',
+    BASKET_ORIGIN,
 )
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = (
@@ -535,6 +535,10 @@ if SERVE_REACT:
 else:
     STATIC_URL = '/static/'
 
+# Relay does not support user-uploaded files
+MEDIA_ROOT = None
+MEDIA_URL = None
+
 WHITENOISE_INDEX_FILE = True
 
 # for dev statics, we use django-gulp during runserver.
@@ -564,6 +568,8 @@ SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 ACCOUNT_USERNAME_REQUIRED=False
 ACCOUNT_PRESERVE_USERNAME_CASING=False
 SOCIALACCOUNT_AUTO_SIGNUP=True
+SOCIALACCOUNT_LOGIN_ON_GET=True
+SOCIALACCOUNT_STORE_TOKENS=True
 
 FXA_BASE_ORIGIN = config('FXA_BASE_ORIGIN', 'https://accounts.firefox.com')
 FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', f'{FXA_BASE_ORIGIN}/settings')
@@ -708,3 +714,28 @@ markus.configure(
 if USE_SILK:
     SILKY_PYTHON_PROFILER=True
     SILKY_PYTHON_PROFILER_BINARY=True
+
+# Settings for manage.py process_emails_from_sqs
+PROCESS_EMAIL_BATCH_SIZE = config(
+    "PROCESS_EMAIL_BATCH_SIZE", 10, cast=Choices(range(1, 11), cast=int)
+)
+PROCESS_EMAIL_DELETE_FAILED_MESSAGES = config(
+    "PROCESS_EMAIL_DELETE_FAILED_MESSAGES", False, cast=bool
+)
+PROCESS_EMAIL_HEALTHCHECK_PATH = config(
+    "PROCESS_EMAIL_HEALTHCHECK_PATH", os.path.join(TMP_DIR, "healthcheck.json")
+)
+PROCESS_EMAIL_MAX_SECONDS = config("PROCESS_EMAIL_MAX_SECONDS", 0, cast=int) or None
+PROCESS_EMAIL_VERBOSITY = config(
+    "PROCESS_EMAIL_VERBOSITY", 1, cast=Choices(range(0, 4), cast=int)
+)
+PROCESS_EMAIL_VISIBILITY_SECONDS = config(
+    "PROCESS_EMAIL_VISIBILITY_SECONDS", 120, cast=int
+)
+PROCESS_EMAIL_WAIT_SECONDS = config("PROCESS_EMAIL_WAIT_SECONDS", 5, cast=int)
+PROCESS_EMAIL_HEALTHCHECK_MAX_AGE = config(
+    "PROCESS_EMAIL_HEALTHCHECK_MAX_AGE", 120, cast=int
+)
+
+# Django 3.2 switches default to BigAutoField
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

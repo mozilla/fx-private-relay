@@ -1,0 +1,23 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2xl;
+
+  .heading {
+    display: none;
+
+    @media screen and #{$mq-lg} {
+      @include text-title-2xs;
+      flex: 1 0 $content-xs;
+      font-family: $font-stack-firefox;
+      font-weight: 700;
+      text-align: center;
+      display: block;
+      padding: $spacing-xl $spacing-2xl;
+      border-right: 1px solid $color-light-gray-40;
+    }
+  }
+}

@@ -12,7 +12,6 @@ export type RuntimeConfig = {
   upgradeUrl: string;
   fxaLoginUrl: string;
   fxaLogoutUrl: string;
-  basketOrigin: string;
   emailSizeLimitNumber: number;
   emailSizeLimitUnit: string;
   maxFreeAliases: number;

@@ -480,7 +480,7 @@ def _sns_message(message_json):
                 'https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?'
                 + f'general-found={general_count}&'
                 + f'general-removed={removed_count}&'
-                + f'strict-found={strict_count}'
+                + f'strict-found={strict_count}&'
                 + f'control={control}'
             )
         

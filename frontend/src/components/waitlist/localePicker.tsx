@@ -13,7 +13,7 @@ type Languages = {
     }
   >;
 };
-type Props = SelectHTMLAttributes<HTMLSelectElement> & {
+export type Props = SelectHTMLAttributes<HTMLSelectElement> & {
   supportedLocales: string[];
 };
 export const LocalePicker = ({ supportedLocales, ...selectProps }: Props) => {

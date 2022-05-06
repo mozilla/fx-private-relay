@@ -1,0 +1,47 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  gap: $spacing-2xl;
+  padding: $spacing-md;
+
+  .heading {
+    @include text-title-sm;
+    font-family: $font-stack-firefox;
+    font-weight: 700;
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xl;
+
+    .body {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xl;
+    }
+  }
+
+  @media screen and #{$mq-lg} {
+    flex-direction: row;
+    padding: $spacing-2xl;
+    justify-content: space-evenly;
+    gap: $spacing-sm;
+
+    @media screen and #{$mq-xl} {
+      gap: $spacing-2xl;
+    }
+
+    &.hero-first {
+      flex-direction: row-reverse;
+    }
+
+    .body {
+      width: $content-sm;
+    }
+  }
+}

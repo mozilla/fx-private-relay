@@ -13,13 +13,21 @@ import SocialNetworksIllustration from "../../../static/images/use-case-social-n
 import OfflineIllustration from "../../../static/images/use-case-offline.svg";
 import AccessContentIllustration from "../../../static/images/use-case-access-content.svg";
 import GamingIllustration from "../../../static/images/use-case-gaming.svg";
+import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
+import SignupsHero from "../components/landing/carousel/images/signups-hero.svg";
+import OnTheGoConnect from "../components/landing/carousel/images/onthego-illustration-connect.svg";
+import OnTheGoPhone from "../components/landing/carousel/images/onthego-illustration-phone.svg";
+import OnTheGoReceipt from "../components/landing/carousel/images/onthego-illustration-receipts.svg";
 import { useUsers } from "../hooks/api/user";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import { Carousel } from "../components/landing/Carousel";
+import { Carousel } from "../components/landing/carousel/Carousel";
+import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
+import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
+import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 import { Plans } from "../components/landing/Plans";
 import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -137,39 +145,129 @@ const Home: NextPage = () => {
                 {
                   color: "yellow",
                   heading: l10n.getString("landing-use-cases-shopping"),
-                  content: l10n.getString("landing-use-cases-shopping-body-2"),
+                  content: (
+                    <CarouselContentHero
+                      heroImage={ShoppingHero.src}
+                      heading={l10n.getString(
+                        "landing-use-cases-shopping-hero-heading"
+                      )}
+                      body={
+                        <>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-shopping-hero-content1"
+                            )}
+                          </p>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-shopping-hero-content2"
+                            )}
+                          </p>
+                        </>
+                      }
+                      textFirst={true}
+                    />
+                  ),
                   illustration: ShoppingIllustration,
                   id: "use-cases/shopping",
                 },
                 {
-                  color: "orange",
+                  color: "deep-pink",
                   heading: l10n.getString("landing-use-cases-social-networks"),
-                  content: l10n.getString(
-                    "landing-use-cases-social-networks-body-2"
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString(
+                        "landing-use-cases-social-networks"
+                      )}
+                      body={l10n.getString(
+                        "landing-use-cases-social-networks-body"
+                      )}
+                    />
                   ),
                   illustration: SocialNetworksIllustration,
                   id: "use-cases/social-networks",
                 },
                 {
-                  color: "teal",
-                  heading: l10n.getString("landing-use-cases-offline"),
-                  content: l10n.getString("landing-use-cases-offline-body-2"),
+                  color: "purple",
+                  heading: l10n.getString("landing-use-cases-on-the-go"),
+                  content: (
+                    <CarouselContentCards
+                      heading={l10n.getString(
+                        "landing-use-cases-on-the-go-heading"
+                      )}
+                      lead={l10n.getString("landing-use-cases-on-the-go-lead")}
+                      cards={[
+                        {
+                          image: OnTheGoConnect.src,
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-connect-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-connect-body"
+                          ),
+                        },
+                        {
+                          image: OnTheGoReceipt.src,
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-receipt-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-receipt-body"
+                          ),
+                        },
+                        {
+                          image: OnTheGoPhone.src,
+                          heading: l10n.getString(
+                            "landing-use-cases-on-the-go-phone-heading"
+                          ),
+                          body: l10n.getString(
+                            "landing-use-cases-on-the-go-phone-body"
+                          ),
+                        },
+                      ]}
+                    />
+                  ),
                   illustration: OfflineIllustration,
                   id: "use-cases/offline",
                 },
                 {
-                  color: "red",
-                  heading: l10n.getString("landing-use-cases-access-content"),
-                  content: l10n.getString(
-                    "landing-use-cases-access-content-body-2"
+                  color: "pink",
+                  heading: l10n.getString("landing-use-cases-signups"),
+                  content: (
+                    <CarouselContentHero
+                      heroImage={SignupsHero.src}
+                      heading={l10n.getString(
+                        "landing-use-cases-signups-hero-heading"
+                      )}
+                      body={
+                        <>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-signups-hero-content1"
+                            )}
+                          </p>
+                          <p>
+                            {l10n.getString(
+                              "landing-use-cases-signups-hero-content2"
+                            )}
+                          </p>
+                        </>
+                      }
+                      textFirst={false}
+                    />
                   ),
                   illustration: AccessContentIllustration,
                   id: "use-cases/access-content",
                 },
                 {
-                  color: "pink",
+                  color: "orange",
                   heading: l10n.getString("landing-use-cases-gaming"),
-                  content: l10n.getString("landing-use-cases-gaming-body-2"),
+                  content: (
+                    <CarouselContentTextOnly
+                      heading={l10n.getString("landing-use-cases-gaming")}
+                      body={l10n.getString("landing-use-cases-gaming-body")}
+                    />
+                  ),
                   illustration: GamingIllustration,
                   id: "use-cases/gaming",
                 },
