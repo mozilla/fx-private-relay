@@ -25,5 +25,6 @@
   ],
   "scripts": {
     "heroku-postbuild": "git clone https://github.com/mozilla-l10n/fx-private-relay-l10n.git privaterelay/locales; cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
-  }
+  },
+  "homepage": "https://github.com/mozilla/fx-private-relay#readme"
 }
