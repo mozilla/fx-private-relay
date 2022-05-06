@@ -4,9 +4,8 @@ import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./Navigation.module.scss";
 import { useIsLoggedIn } from "../../hooks/session";
-import { getRuntimeConfig } from "../../config";
-import { useGaViewPing } from "../../hooks/gaViewPing";
 import { setCookie } from "../../functions/cookies";
+import { getLoginUrl, useFxaFlowTracker } from "../../hooks/fxaFlowTracker";
 
 /** Switch between the different pages of the Relay website. */
 export const Navigation = () => {
@@ -16,14 +15,19 @@ export const Navigation = () => {
   const isLoggedIn = useIsLoggedIn();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
-  const signUpButtonRef = useGaViewPing({
+  const signUpFxaFlowTracker = useFxaFlowTracker({
     category: "Sign In",
     label: "nav-profile-sign-up",
+    entrypoint: "relay-sign-up-header",
   });
+  const signUpUrl = getLoginUrl(
+    "relay-sign-up-header",
+    signUpFxaFlowTracker.flowData
+  );
   const signUpButton = isLoggedIn ? null : (
     <a
-      href={getRuntimeConfig().fxaLoginUrl}
-      ref={signUpButtonRef}
+      href={signUpUrl}
+      ref={signUpFxaFlowTracker.ref}
       onClick={() => {
         gaEvent({
           category: "Sign In",
@@ -38,14 +42,19 @@ export const Navigation = () => {
     </a>
   );
 
-  const signInButtonRef = useGaViewPing({
+  const signInFxaFlowTracker = useFxaFlowTracker({
     category: "Sign In",
     label: "nav-profile-sign-in",
+    entrypoint: "relay-sign-in-header",
   });
+  const signInUrl = getLoginUrl(
+    "relay-sign-in-header",
+    signInFxaFlowTracker.flowData
+  );
   const signInButton = isLoggedIn ? null : (
     <a
-      href={getRuntimeConfig().fxaLoginUrl}
-      ref={signInButtonRef}
+      href={signInUrl}
+      ref={signInFxaFlowTracker.ref}
       onClick={() => {
         gaEvent({
           category: "Sign In",
