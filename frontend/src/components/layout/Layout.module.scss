@@ -52,7 +52,7 @@ $toastify-toast-close-button: var(--toast-close-button);
     }
 
     & > [class*="toast-body"] {
-      padding: 16px;
+      padding: $spacing-md;
     }
 
     &[class*="toast--success"],
