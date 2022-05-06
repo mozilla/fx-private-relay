@@ -21,34 +21,34 @@ export const DemoPhone = (props: Props) => {
   const { l10n } = useLocalization();
   const lang = getLocale(l10n).split("-")[0] ?? "en";
 
-  // Show an English-language non-Premium interface by default:
-  let screenshot = NoPremiumScreenshot.src;
-  if (props.premium) {
-    // if Premium is available in the user's country,
-    // show the English-language Premium interface:
-    screenshot = PremiumScreenshot.src;
-    if (lang === "fr") {
-      // ...except if the user speaks French, in which case it will be localised in French:
-      screenshot = PremiumScreenshotFr.src;
-    }
-    if (lang === "de") {
-      // ...except if the user speaks German, in which case it will be localised in German:
-      screenshot = PremiumScreenshotDe.src;
-    }
-  }
-  let foreground = FgImage.src;
-  if (lang === "fr") {
-    foreground = FgImageFr.src;
-  }
-  if (lang === "de") {
-    foreground = FgImageDe.src;
-  }
-
   return (
     <div className={styles.container}>
       <img src={BgImage.src} alt="" className={styles.background} />
-      <img src={screenshot} alt="" />
-      <img src={foreground} alt="" className={styles.foreground} />
+      <img src={getScreenshotUrl(props.premium ?? false, lang)} alt="" />
+      <img src={getForegroundUrl(lang)} alt="" className={styles.foreground} />
     </div>
   );
 };
+
+function getScreenshotUrl(isPremium: boolean, lang: string): string {
+  if (isPremium) {
+    if (lang === "fr") {
+      return PremiumScreenshotFr.src;
+    }
+    if (lang === "de") {
+      return PremiumScreenshotDe.src;
+    }
+    return PremiumScreenshot.src;
+  }
+  return NoPremiumScreenshot.src;
+}
+
+function getForegroundUrl(lang: string): string {
+  if (lang === "fr") {
+    return FgImageFr.src;
+  }
+  if (lang === "de") {
+    return FgImageDe.src;
+  }
+  return FgImage.src;
+}
