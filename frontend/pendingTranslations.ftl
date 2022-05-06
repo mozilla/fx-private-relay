@@ -27,6 +27,6 @@ waitlist-subscribe-error-connection = There was an error adding you to the waitl
 waitlist-subscribe-error-unknown = There was an error adding you to the waitlist. Please try again.
 
 
-profile-upgrade-button = Upgrade to premium
+profile-upgrade-button = Upgrade 
 menu-toggle-open = Open menu
 menu-toggle-close = Close menu

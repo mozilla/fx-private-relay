@@ -3,6 +3,7 @@ import { getRuntimeConfig } from "../../config";
 import { event as gaEvent } from "react-ga";
 import styles from "./SignUpButton.module.scss";
 import { useGaViewPing } from "../../hooks/gaViewPing";
+import { setCookie } from "../../functions/cookies";
 
 export const SignUpButton = ({ ...props }): JSX.Element => {
   const { l10n } = useLocalization();
@@ -15,13 +16,14 @@ export const SignUpButton = ({ ...props }): JSX.Element => {
     <a
       href={getRuntimeConfig().fxaLoginUrl}
       ref={signUpButtonRef}
-      onClick={() =>
+      onClick={() => {
         gaEvent({
           category: "Sign In",
           action: "Engage",
           label: "nav-profile-sign-up",
-        })
-      }
+        });
+        setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
+      }}
       className={`${styles.link} ${props.className} ${styles["sign-up-button"]}`}
     >
       {l10n.getString("nav-profile-sign-up")}

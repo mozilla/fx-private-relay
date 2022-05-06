@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -21,6 +21,8 @@ import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
+import { makeToast } from "../../functions/makeToast";
+import { useUsers } from "../../hooks/api/user";
 
 export type Props = {
   children: ReactNode;
@@ -36,6 +38,11 @@ export const Layout = (props: Props) => {
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
+  const usersData = useUsers().data?.[0];
+
+  useEffect(() => {
+    makeToast(l10n, usersData);
+  }, [l10n, usersData]);
 
   const isDark =
     typeof props.theme !== "undefined"
