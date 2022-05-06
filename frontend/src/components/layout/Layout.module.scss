@@ -38,6 +38,11 @@ $toastify-toast-close-button: var(--toast-close-button);
   max-width: $content-xl;
   margin: 0 auto;
 
+  @media screen and (max-width: $screen-sm) {
+    width: calc(100% - $spacing-xl);
+    margin-top: $spacing-md;
+  }
+
   &:global {
     &[class*="toast--error"],
     &[class*="toast--info"] {
