@@ -13,51 +13,65 @@ https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-read
 
 from argparse import FileType
 from datetime import datetime, timezone
+import io
 import json
 import logging
 
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+
+from emails.management.command_from_django_settings import (
+    CommandFromDjangoSettings,
+    SettingToLocal,
+)
 
 logger = logging.getLogger("eventsinfo.check_health")
 
 
-class Command(BaseCommand):
+class Command(CommandFromDjangoSettings):
     help = "Check that a healthcheck JSON file exists and is recent."
 
-    DEFAULT_MAX_AGE_SECONDS = 120
-
-    def add_arguments(self, parser):
-        """Add command-line arguments (called by BaseCommand)"""
-        parser.add_argument(
+    settings_to_locals = [
+        SettingToLocal(
+            "PROCESS_EMAIL_HEALTHCHECK_PATH",
             "healthcheck_path",
-            type=FileType("r", encoding="utf8"),
-            help="Path to healthcheck JSON file",
-        )
-        parser.add_argument(
-            "--max-age",
-            type=int,
-            default=self.DEFAULT_MAX_AGE_SECONDS,
-            help=f"Timestamp age in seconds before failure, default {self.DEFAULT_MAX_AGE_SECONDS}",
-        )
+            "Path to file to write healthcheck data.",
+            lambda healthcheck_path: healthcheck_path is not None,
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_HEALTHCHECK_MAX_AGE",
+            "max_age",
+            "Timestamp age in seconds before failure.",
+            lambda max_age: max_age > 0.0,
+        ),
+        SettingToLocal(
+            "PROCESS_EMAIL_VERBOSITY",
+            "verbosity",
+            "Default verbosity of the process logs",
+            lambda verbosity: verbosity in range(5),
+        ),
+    ]
 
-    def handle(self, healthcheck_path, max_age, verbosity, *args, **kwargs):
+    def handle(self, verbosity, *args, **kwargs):
         """Handle call from command line (called by BaseCommand)"""
-        context = self.check_healthcheck(healthcheck_path, max_age)
+        self.init_from_settings(verbosity)
+        with open(self.healthcheck_path, mode="r", encoding="utf8") as healthcheck_file:
+            context = self.check_healthcheck(healthcheck_file, self.max_age)
         if context["success"]:
-            if verbosity > 1:
+            if self.verbosity > 1:
                 logger.info("Healthcheck passed", extra=context)
         else:
-            if verbosity > 0:
+            if self.verbosity > 0:
                 logger.error("Healthcheck failed", extra=context)
             raise CommandError(f"Healthcheck failed: {context['error']}")
 
-    def check_healthcheck(self, healthcheck_path, max_age):
+    def check_healthcheck(self, healthcheck_file, max_age):
         """
         Read and analyze the healthcheck.
 
         Returns data suitable for logging context:
         * success: True if healthcheck is valid and recent, False if not
-        * healthcheck_path: The healthcheck path tested
+        * healthcheck_file: The open healthcheck file
         * error: If failed, the failure detail, else omitted
         * data: The healthcheck data, or omitted if non-JSON
         * age_s: The timestamp age in seconds, millisecond precision, if found
@@ -69,8 +83,8 @@ class Command(BaseCommand):
         * The timestamp doesn't match the format of datetime.toisoformat()
         * The timestamp doesn't include timezone data
         """
-        context = {"success": False, "healthcheck_path": healthcheck_path.name}
-        data = json.load(healthcheck_path)
+        context = {"success": False, "healthcheck_path": healthcheck_file.name}
+        data = json.load(healthcheck_file)
 
         context["data"] = data
         raw_timestamp = data["timestamp"]

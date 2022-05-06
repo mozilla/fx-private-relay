@@ -6,7 +6,6 @@ import { Button } from "../../components/Button";
 import { FormEventHandler, useEffect, useState } from "react";
 import { getLocale } from "../../functions/getLocale";
 import { toast } from "react-toastify";
-import { getRuntimeConfig } from "../../config";
 import { CountryPicker } from "../../components/waitlist/countryPicker";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { LocalePicker } from "../../components/waitlist/localePicker";
@@ -19,9 +18,10 @@ const PremiumWaitlist: NextPage = () => {
   const { l10n } = useLocalization();
   const currentLocale = getLocale(l10n);
   const runtimeData = useRuntimeData();
-  const currentCountry: string | undefined =
-    runtimeData.data?.PREMIUM_PLANS.country_code ?? currentLocale.split("-")[1];
-  const [country, setCountry] = useState<string>(currentCountry ?? "US");
+  const currentCountry =
+    runtimeData.data?.PREMIUM_PLANS.country_code.toUpperCase() ??
+    (currentLocale.split("-")[1]?.toUpperCase() as string | undefined);
+  const [country, setCountry] = useState<string>();
   const [locale, setLocale] = useState<string>(
     supportedLocales.find(
       (supportedLocale) =>
@@ -55,8 +55,13 @@ const PremiumWaitlist: NextPage = () => {
 
     try {
       const response = await subscribe({
+        // The back-end should provide the URL to Basket, pointing to its dev environment
+        // if running on stage. If the back-end's response doesn't come in in time,
+        // we just assume production:
+        basketOrigin:
+          runtimeData.data?.BASKET_ORIGIN ?? "https://basket.mozilla.org",
         email: email,
-        countryCode: country,
+        countryCode: country ?? currentCountry ?? "US",
         locale: locale,
         detectedCountry: currentCountry,
       });
@@ -95,7 +100,7 @@ const PremiumWaitlist: NextPage = () => {
                 type="email"
                 name="email"
                 id="email"
-                value={email}
+                value={email ?? ""}
                 required={true}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder={l10n.getString(
@@ -111,7 +116,7 @@ const PremiumWaitlist: NextPage = () => {
               <CountryPicker
                 name="country"
                 id="country"
-                value={country}
+                value={country ?? currentCountry ?? "US"}
                 onChange={(event) =>
                   setCountry(
                     event.target.selectedOptions.item(0)?.value ?? country
@@ -166,6 +171,7 @@ const PremiumWaitlist: NextPage = () => {
 };
 
 type SubscribeParameters = {
+  basketOrigin: string;
   email: string;
   countryCode: string;
   locale: string;
@@ -205,7 +211,7 @@ type BasketResponseBody =
  * @see {@link https://basket.readthedocs.io/newsletter_api.html}
  */
 async function subscribe(params: SubscribeParameters): Promise<Response> {
-  const url = `${getRuntimeConfig().basketOrigin}/news/subscribe/`;
+  const url = `${params.basketOrigin}/news/subscribe/`;
   const body: BasketRequestBody = {
     email: params.email,
     newsletters: "relay-waitlist",
@@ -213,7 +219,7 @@ async function subscribe(params: SubscribeParameters): Promise<Response> {
     country: params.detectedCountry,
     relay_country: params.countryCode,
     lang: params.locale,
-    source_url: "https://relay.firefox.com/premium/waitlist/",
+    source_url: document.location.origin + document.location.pathname,
   };
 
   const response = await fetch(url, {

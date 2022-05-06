@@ -186,7 +186,7 @@ const NoChromeExtensionBanner = () => {
       }}
       hiddenWithAddon={true}
     >
-      <p>{l10n.getString("banner-download-install-chrome-extension-copy")}</p>
+      <p>{l10n.getString("banner-download-install-chrome-extension-copy-2")}</p>
     </Banner>
   );
 };

@@ -4,11 +4,11 @@
 
 .controls {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: auto 1fr auto;
   row-gap: $spacing-md;
   grid-template-areas:
-    "categoryFilter newAliasButton"
-    "stringFilter stringFilter";
+    "stringFilterToggle categoryFilter newAliasButton"
+    "stringFilter stringFilter stringFilter";
   align-items: center;
   padding: $spacing-md 0;
   // The focus indicators of contained elements can overflow:
@@ -16,6 +16,10 @@
 
   .string-filter {
     grid-area: stringFilter;
+  }
+
+  .string-filter-toggle {
+    grid-area: stringFilterToggle;
   }
 
   .category-filter {
@@ -28,6 +32,10 @@
 
   @media screen and #{$mq-md} {
     grid-template-areas: "stringFilter categoryFilter newAliasButton";
+
+    .string-filter-toggle {
+      display: none;
+    }
   }
 }
 
@@ -40,7 +48,41 @@
   }
 }
 
+.string-filter-toggle {
+  background-color: transparent;
+  border-radius: 100%;
+  border-style: none;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: $color-white;
+  }
+
+  img {
+    filter: grayscale(1);
+  }
+
+  &:hover img {
+    filter: none;
+  }
+}
+
 .string-filter {
+  display: none;
+
+  &.is-visible {
+    display: block;
+  }
+
+  @media screen and #{$mq-md} {
+    display: block;
+  }
+
   input {
     @include form-input;
     margin: 0;

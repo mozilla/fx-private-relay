@@ -7,7 +7,6 @@ const runtimeConfigs = {
     frontendOrigin: "",
     fxaLoginUrl: "/accounts/fxa/login/?process=login",
     fxaLogoutUrl: "/accounts/logout/",
-    basketOrigin: "https://basket.mozilla.org",
     emailSizeLimitNumber: 10,
     emailSizeLimitUnit: "MB",
     maxFreeAliases: 5,
@@ -37,7 +36,6 @@ runtimeConfigs.development = {
   frontendOrigin: "http://localhost:3000",
   fxaLoginUrl: "http://localhost:3000/mock/login",
   fxaLogoutUrl: "http://localhost:3000/mock/logout",
-  basketOrigin: "https://basket-dev.allizom.org",
 };
 
 // This configuration is for the setup where the front-end is built and served
@@ -49,7 +47,6 @@ runtimeConfigs.apimock = {
   frontendOrigin: "",
   fxaLoginUrl: "/mock/login",
   fxaLogoutUrl: "/mock/logout",
-  basketOrigin: "https://basket-dev.allizom.org",
 };
 
 /** @type {(config: import('next').NextConfig) => import('next').NextConfig} */

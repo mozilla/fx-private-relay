@@ -1,2 +1,2 @@
 web: gunicorn privaterelay.wsgi
-worker: python ./manage.py process_emails_from_sqs --verbosity 2
+worker: python ./manage.py process_emails_from_sqs

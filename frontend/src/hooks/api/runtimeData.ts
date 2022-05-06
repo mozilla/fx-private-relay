@@ -17,6 +17,7 @@ export type RuntimeData = {
   GOOGLE_ANALYTICS_ID: `UA-${number}-${number}`;
   PREMIUM_PRODUCT_ID: `prod_${string}`;
   PREMIUM_PLANS: PremiumPlans;
+  BASKET_ORIGIN: string;
 };
 
 /**

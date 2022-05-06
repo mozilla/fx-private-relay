@@ -183,13 +183,15 @@ const Profile: NextPage = () => {
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
-        {l10n.getString("profile-label-subdomain")}&nbsp;
-        <SubdomainIndicator
-          subdomain={profile.subdomain}
-          onCreateAlias={(address: string) =>
-            createAlias({ type: "custom", address: address })
-          }
-        />
+        <span>{l10n.getString("profile-label-domain")}</span>
+        <span className={styles["profile-registered-domain-value"]}>
+          <SubdomainIndicator
+            subdomain={profile.subdomain}
+            onCreateAlias={(address: string) =>
+              createAlias({ type: "custom", address: address })
+            }
+          />
+        </span>
       </>
     ) : (
       <>
