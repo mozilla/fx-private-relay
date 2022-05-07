@@ -12,9 +12,12 @@ import { MenuIcon } from "../Icons";
 import { UserMenu } from "./UserMenu";
 import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
+import { MobileNavigation } from "./MobileNavigation";
+import { useState } from "react";
 
 /** Switch between the different pages of the Relay website. */
 export const Navigation = ({ ...props }) => {
+  const [mobileMenuState, setMobileMenuState] = useState(false);
   const { l10n } = useLocalization();
   const router = useRouter();
   const isLoggedIn = useIsLoggedIn();
@@ -22,6 +25,10 @@ export const Navigation = ({ ...props }) => {
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
   const { theme } = props;
+
+  const handleToggle = () => {
+    setMobileMenuState(!mobileMenuState);
+  };
 
   return (
     <nav aria-label={l10n.getString("nav-menu")} className={styles["site-nav"]}>
@@ -45,8 +52,16 @@ export const Navigation = ({ ...props }) => {
       </Link>
 
       {/* if user is not logged in, show sign in and sign up buttons */}
-      {!isLoggedIn && <SignUpButton className={`${styles.link}`} />}
-      {!isLoggedIn && <SignInButton className={`${styles.link}`} />}
+      {!isLoggedIn && (
+        <SignUpButton
+          className={`${styles["sign-up-button"]} ${styles.link}`}
+        />
+      )}
+      {!isLoggedIn && (
+        <SignInButton
+          className={`${styles["sign-in-button"]} ${styles.link}`}
+        />
+      )}
 
       {/* if user is logged in and we have their profile data, show whatsnew menu */}
       {isLoggedIn && profiles.data && (
@@ -56,11 +71,22 @@ export const Navigation = ({ ...props }) => {
       {/* if user is logged in and doesn't have premium, show upgrade button */}
       {isLoggedIn && !hasPremium && <UpgradeButton />}
 
-      {<MenuToggle />}
+      <a
+        href="#"
+        className={styles["menu-toggle"]}
+        role="menuitem"
+        aria-controls="mobile-menu-toggle"
+        aria-expanded={mobileMenuState}
+        onClick={handleToggle}
+      >
+        <MenuToggle toggle={mobileMenuState} />
+      </a>
 
       <AppPicker theme={theme} />
 
       <UserMenu />
+
+      <MobileNavigation active={mobileMenuState} />
     </nav>
   );
 };

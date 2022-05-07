@@ -178,11 +178,3 @@
   padding: $spacing-md $spacing-lg;
   text-align: center;
 }
-
-.mobile-menu-toggle {
-  display: block;
-
-  @media screen and #{$mq-md} {
-    display: none;
-  }
-}

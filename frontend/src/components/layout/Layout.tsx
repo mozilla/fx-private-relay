@@ -140,7 +140,6 @@ export const Layout = (props: Props) => {
           </div>
           <div className={styles["nav-wrapper"]}>
             <Navigation theme={isDark ? "free" : "premium"} />
-            <MobileNavigation className={styles["mobile-menu"]} />
           </div>
         </header>
         <ToastContainer

@@ -26,20 +26,31 @@ export const MobileNavigation = ({ ...props }) => {
   return (
     <nav
       aria-label={l10n.getString("nav-menu")}
-      className={styles["mobile-menu"]}
+      className={`${styles["mobile-menu"]} ${
+        props.active ? styles["is-active"] : ""
+      }`}
     >
-      <Link href={homePath}>
-        <a className={`${styles.link}`}>
-          {HomeIcon({ alt: "home icon" })}
-          {l10n.getString("nav-home")}
-        </a>
-      </Link>
-      <Link href="/faq">
-        <a className={`${styles.link}`}>
-          {FaqIcon({ alt: "home icon" })}
-          {l10n.getString("nav-faq")}
-        </a>
-      </Link>
+      <ul>
+        <li className={`${styles["menu-item"]}`}>
+          <Link href={homePath}>
+            <a className={`${styles.link}`}>
+              {HomeIcon({ alt: "home icon" })}
+              {l10n.getString("nav-home")}
+            </a>
+          </Link>
+        </li>
+        <li className={`${styles["menu-item"]}`}>
+          <Link href="/faq">
+            <a className={`${styles.link}`}>
+              {FaqIcon({ alt: "home icon" })}
+              {l10n.getString("nav-faq")}
+            </a>
+          </Link>
+        </li>
+        <li className={`${styles["menu-item"]}`}>
+          <SignUpButton className={`${styles["sign-up-button"]}`} />
+        </li>
+      </ul>
     </nav>
   );
 };

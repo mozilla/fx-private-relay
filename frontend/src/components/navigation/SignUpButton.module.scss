@@ -3,6 +3,10 @@
 .sign-up-button {
   display: none;
 
+  &.mobile-btn {
+    display: block !important;
+  }
+
   @media screen and #{$mq-md} {
     display: inline;
   }

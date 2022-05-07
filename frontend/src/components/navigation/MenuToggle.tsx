@@ -4,7 +4,6 @@ import styles from "./MenuToggle.module.scss";
 import { CloseIcon, MenuIcon } from "../Icons";
 
 export const MenuToggle = ({ ...props }): JSX.Element => {
-  const [isToggle, setToggle] = useState(false);
   const { l10n } = useLocalization();
 
   const ToggleMenuOpen = () =>
@@ -19,21 +18,5 @@ export const MenuToggle = ({ ...props }): JSX.Element => {
       className: `${styles["mobile-menu-close"]}`,
     });
 
-  const handleToggle = () => {
-    setToggle(!isToggle);
-  };
-
-  return (
-    <a
-      href="#"
-      className={`${styles["menu-toggle"]} ${isToggle ? "-active" : ""}`}
-      role="menuitem"
-      aria-controls="mobile-menu"
-      aria-expanded={isToggle}
-      onClick={handleToggle}
-    >
-      {!isToggle && <ToggleMenuOpen />}
-      {isToggle && <CloseMenu />}
-    </a>
-  );
+  return !props.toggle ? <ToggleMenuOpen /> : <CloseMenu />;
 };

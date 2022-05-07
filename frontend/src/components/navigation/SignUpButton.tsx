@@ -24,7 +24,7 @@ export const SignUpButton = ({ ...props }): JSX.Element => {
         });
         setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
       }}
-      className={`${styles.link} ${props.className} ${styles["sign-up-button"]}`}
+      className={`${styles["sign-up-button"]} ${props.className ?? ""}`}
     >
       {l10n.getString("nav-profile-sign-up")}
     </a>
