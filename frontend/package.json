@@ -60,7 +60,7 @@
     "lint-staged": "^12.3.7",
     "msw": "^0.39.2",
     "next": "^12.1.5",
-    "prettier": "2.6.1",
+    "prettier": "2.6.2",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.51.0",
     "stylelint": "^14.8.1",
