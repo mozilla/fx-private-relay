@@ -25,9 +25,7 @@ from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
 
-from .models import (
-    DomainAddress, RelayAddress, Reply, get_domains_from_settings
-)
+from .models import DomainAddress, RelayAddress, Reply, get_domains_from_settings
 
 
 logger = logging.getLogger('events')
@@ -43,11 +41,16 @@ with open('emails/tracker_lists/strict-tracker.json', 'r') as f:
 def time_if_enabled(name):
     def timing_decorator(func):
         def func_wrapper(*args, **kwargs):
-            ctx_manager = (metrics.timer(name) if settings.STATSD_ENABLED
-                           else contextlib.nullcontext())
+            ctx_manager = (
+                metrics.timer(name)
+                if settings.STATSD_ENABLED
+                else contextlib.nullcontext()
+            )
             with ctx_manager:
                 return func(*args, **kwargs)
+
         return func_wrapper
+
     return timing_decorator
 
 
@@ -77,8 +80,14 @@ def get_email_domain_from_settings():
 
 @time_if_enabled('ses_send_raw_email')
 def ses_send_raw_email(
-    from_address, to_address, subject, message_body, attachments,
-    reply_address, mail, address
+    from_address,
+    to_address,
+    subject,
+    message_body,
+    attachments,
+    reply_address,
+    mail,
+    address,
 ):
 
     msg_with_headers = _start_message_with_headers(
@@ -92,9 +101,7 @@ def ses_send_raw_email(
         emails_config = apps.get_app_config('emails')
         ses_response = emails_config.ses_client.send_raw_email(
             Source=from_address,
-            Destinations=[
-                to_address
-            ],
+            Destinations=[to_address],
             RawMessage={
                 'Data': msg_with_attachments.as_string(),
             },
@@ -110,9 +117,7 @@ def ses_send_raw_email(
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def _start_message_with_headers(
-    subject, from_address, to_address, reply_address
-):
+def _start_message_with_headers(subject, from_address, to_address, reply_address):
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart('mixed')
     # Add subject, from and to lines.
@@ -155,11 +160,7 @@ def _add_attachments_to_message(msg, attachments):
 
         # Add a header to tell the email client to treat this
         # part as an attachment, and to give the attachment a name.
-        att.add_header(
-            'Content-Disposition',
-            'attachment',
-            filename=actual_att_name
-        )
+        att.add_header('Content-Disposition', 'attachment', filename=actual_att_name)
         # Add the attachment to the parent container.
         msg.attach(att)
         attachment.close()
@@ -175,12 +176,8 @@ def _store_reply_record(mail, ses_response, address):
     message_id_bytes = get_message_id_bytes(ses_response['MessageId'])
     (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
     lookup = b64_lookup_key(lookup_key)
-    encrypted_metadata = encrypt_reply_metadata(
-        encryption_key, reply_metadata
-    )
-    reply_create_args = {
-        'lookup': lookup, 'encrypted_metadata': encrypted_metadata
-    }
+    encrypted_metadata = encrypt_reply_metadata(encryption_key, reply_metadata)
+    reply_create_args = {'lookup': lookup, 'encrypted_metadata': encrypted_metadata}
     if type(address) == DomainAddress:
         reply_create_args['domain_address'] = address
     elif type(address) == RelayAddress:
@@ -189,11 +186,12 @@ def _store_reply_record(mail, ses_response, address):
     return mail
 
 
-def ses_relay_email(from_address, to_address, subject,
-                    message_body, attachments, mail, address):
+def ses_relay_email(
+    from_address, to_address, subject, message_body, attachments, mail, address
+):
 
-    reply_address = (
-        'replies@%s' % get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
+    reply_address = 'replies@%s' % get_domains_from_settings().get(
+        'RELAY_FIREFOX_DOMAIN'
     )
 
     response = ses_send_raw_email(
@@ -204,16 +202,13 @@ def ses_relay_email(from_address, to_address, subject,
         attachments,
         reply_address,
         mail,
-        address
+        address,
     )
     return response
 
 
 def urlize_and_linebreaks(text, autoescape=True):
-    return linebreaksbr(
-        urlize(text, autoescape=autoescape),
-        autoescape=autoescape
-    )
+    return linebreaksbr(urlize(text, autoescape=autoescape), autoescape=autoescape)
 
 
 def get_post_data_from_request(request):
@@ -228,9 +223,7 @@ def generate_relay_From(original_from_address, user_profile=None):
             'replies@%s' % get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
         )
     else:
-        relay_display_name, relay_from_address = parseaddr(
-            settings.RELAY_FROM_ADDRESS
-        )
+        relay_display_name, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
     # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
     # says email header lines must not be more than 998 chars long.
     # Encoding display names to longer than 998 chars will add wrap
@@ -241,19 +234,12 @@ def generate_relay_From(original_from_address, user_profile=None):
         original_from_address = '%s ...' % original_from_address[:900]
     # line breaks in From: will encode to unsafe chars, so strip them.
     original_from_address = (
-        original_from_address
-        .replace('\u2028', '')
-        .replace('\r', '')
-        .replace('\n', '')
+        original_from_address.replace('\u2028', '').replace('\r', '').replace('\n', '')
     )
 
-    display_name = Header(
-        '"%s [via Relay]"' % (original_from_address), 'UTF-8'
-    )
+    display_name = Header('"%s [via Relay]"' % (original_from_address), 'UTF-8')
     formatted_from_address = str(
-        Address(
-            display_name.encode(maxlinelen=998), addr_spec=relay_from_address
-        )
+        Address(display_name.encode(maxlinelen=998), addr_spec=relay_from_address)
     )
     return formatted_from_address
 
@@ -272,7 +258,9 @@ def derive_reply_keys(message_id):
     algorithm = hashes.SHA256()
     hkdf = HKDFExpand(algorithm=algorithm, length=16, info=b"replay replies lookup key")
     lookup_key = hkdf.derive(message_id)
-    hkdf = HKDFExpand(algorithm=algorithm, length=32, info=b"replay replies encryption key")
+    hkdf = HKDFExpand(
+        algorithm=algorithm, length=32, info=b"replay replies encryption key"
+    )
     encryption_key = hkdf.derive(message_id)
     return (lookup_key, encryption_key)
 
@@ -280,7 +268,9 @@ def derive_reply_keys(message_id):
 def encrypt_reply_metadata(key, payload):
     """Encrypt the given payload into a JWE, using the given key."""
     # This is a bit dumb, we have to base64-encode the key in order to load it :-/
-    k = jwcrypto.jwk.JWK(kty="oct", k=base64.urlsafe_b64encode(key).rstrip(b"=").decode('ascii'))
+    k = jwcrypto.jwk.JWK(
+        kty="oct", k=base64.urlsafe_b64encode(key).rstrip(b"=").decode('ascii')
+    )
     e = jwcrypto.jwe.JWE(
         json.dumps(payload), json.dumps({"alg": "dir", "enc": "A256GCM"}), recipient=k
     )
@@ -290,7 +280,9 @@ def encrypt_reply_metadata(key, payload):
 def decrypt_reply_metadata(key, jwe):
     """Decrypt the given JWE into a json payload, using the given key."""
     # This is a bit dumb, we have to base64-encode the key in order to load it :-/
-    k = jwcrypto.jwk.JWK(kty="oct", k=base64.urlsafe_b64encode(key).rstrip(b"=").decode('ascii'))
+    k = jwcrypto.jwk.JWK(
+        kty="oct", k=base64.urlsafe_b64encode(key).rstrip(b"=").decode('ascii')
+    )
     e = jwcrypto.jwe.JWE()
     e.deserialize(jwe)
     e.decrypt(k)
@@ -311,7 +303,7 @@ def _get_bucket_and_key_from_s3_json(message_json):
             # we need to look into this more
             logger.error(
                 'sns_inbound_message_without_receipt',
-                extra={'message_json_keys': message_json.keys()}
+                extra={'message_json_keys': message_json.keys()},
             )
         return None, None
 
@@ -324,7 +316,7 @@ def _get_bucket_and_key_from_s3_json(message_json):
             'sns_inbound_message_receipt_malformed',
             extra={
                 'receipt_action': message_json_receipt['action'],
-            }
+            },
         )
     return bucket, object_key
 
@@ -332,9 +324,9 @@ def _get_bucket_and_key_from_s3_json(message_json):
 def get_message_content_from_s3(bucket, object_key):
     if bucket and object_key:
         s3_client = apps.get_app_config('emails').s3_client
-        streamed_s3_object = s3_client.get_object(
-            Bucket=bucket, Key=object_key
-        ).get('Body')
+        streamed_s3_object = s3_client.get_object(Bucket=bucket, Key=object_key).get(
+            'Body'
+        )
         return streamed_s3_object.read()
 
 
@@ -343,10 +335,7 @@ def remove_message_from_s3(bucket, object_key):
         return False
     try:
         s3_client = apps.get_app_config('emails').s3_client
-        response = s3_client.delete_object(
-            Bucket=bucket,
-            Key=object_key
-        )
+        response = s3_client.delete_object(Bucket=bucket, Key=object_key)
         return response.get('DeleteMarker')
     except ClientError as e:
         if e.response['Error'].get('Code', '') == 'NoSuchKey':
@@ -356,6 +345,7 @@ def remove_message_from_s3(bucket, object_key):
         incr_if_enabled('message_not_removed_from_s3', 1)
     return False
 
+
 def set_user_group(user):
     if '@' not in user.email:
         return None
@@ -363,7 +353,7 @@ def set_user_group(user):
     group_attribute = {
         'mozilla.com': 'mozilla_corporation',
         'mozillafoundation.org': 'mozilla_foundation',
-        'getpocket.com': 'pocket'
+        'getpocket.com': 'pocket',
     }
     group_name = group_attribute.get(email_domain)
     if not group_name:
@@ -373,6 +363,7 @@ def set_user_group(user):
     if internal_group is None:
         return None
     internal_group.user_set.add(user)
+
 
 def count_tracker(html_content, trackers):
     tracker_total = 0
@@ -385,19 +376,22 @@ def count_tracker(html_content, trackers):
             details[tracker] = count
     return {'count': tracker_total, 'trackers': details}
 
+
 def count_all_trackers(html_content):
     general_detail = count_tracker(html_content, GENERAL_TRACKERS)
     strict_detail = count_tracker(html_content, STRICT_TRACKERS)
-    
+
     incr_if_enabled('tracker.general_count', general_detail['count'])
     incr_if_enabled('tracker.strict_count', strict_detail['count'])
     study_logger.info(
         'email_tracker_summary',
-        extra={'general': general_detail, 'strict': strict_detail}
+        extra={'general': general_detail, 'strict': strict_detail},
     )
+
 
 def convert_domains_to_regex_patterns(domain_pattern):
     return '(["\'])(\\S*://(\\S*\.)*' + re.escape(domain_pattern) + '\\S*)\\1'
+
 
 def remove_trackers(html_content, level='general'):
     trackers = GENERAL_TRACKERS if level == 'general' else STRICT_TRACKERS
@@ -407,21 +401,26 @@ def remove_trackers(html_content, level='general'):
 
     general_detail = count_tracker(html_content, GENERAL_TRACKERS)
     strict_detail = count_tracker(html_content, STRICT_TRACKERS)
-    
+
     if sample_is_active('foxfood-tracker-removal-sample'):
         control = False  # tracker is removed
         for tracker in trackers:
             pattern = convert_domains_to_regex_patterns(tracker)
-            changed_content, matched = re.subn(pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content)
+            changed_content, matched = re.subn(
+                pattern, f'\g<1>{settings.SITE_ORIGIN}/faq\g<1>', changed_content
+            )
             tracker_removed += matched
 
-    
     incr_if_enabled(f'tracker_foxfooding.{level}_removed_count', tracker_removed)
     incr_if_enabled('tracker_foxfooding.general_count', general_detail['count'])
     incr_if_enabled('tracker_foxfooding.strict_count', strict_detail['count'])
-    study_details = {'tracker_removed': tracker_removed, 'general': general_detail, 'strict': strict_detail}
+    study_details = {
+        'tracker_removed': tracker_removed,
+        'general': general_detail,
+        'strict': strict_detail,
+    }
     study_logger.info(
         'email_tracker_foxfooding_summary',
-        extra={'level': level, 'is_control': control}.update(study_details)
+        extra={'level': level, 'is_control': control}.update(study_details),
     )
     return changed_content, control, study_details

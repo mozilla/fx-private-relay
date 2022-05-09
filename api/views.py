@@ -11,14 +11,22 @@ from emails.models import (
     CannotMakeAddressException,
     DomainAddress,
     Profile,
-    RelayAddress
+    RelayAddress,
 )
-from privaterelay.settings import BASKET_ORIGIN, FXA_BASE_ORIGIN, GOOGLE_ANALYTICS_ID, PREMIUM_PROD_ID
+from privaterelay.settings import (
+    BASKET_ORIGIN,
+    FXA_BASE_ORIGIN,
+    GOOGLE_ANALYTICS_ID,
+    PREMIUM_PROD_ID,
+)
 from privaterelay.utils import get_premium_countries_info_from_request
 
 from .permissions import IsOwner
 from .serializers import (
-    DomainAddressSerializer, ProfileSerializer, RelayAddressSerializer, UserSerializer
+    DomainAddressSerializer,
+    ProfileSerializer,
+    RelayAddressSerializer,
+    UserSerializer,
 )
 from .exceptions import ConflictError
 
@@ -46,13 +54,22 @@ class RelayAddressFilter(filters.FilterSet):
     class Meta:
         model = RelayAddress
         fields = [
-        'enabled', 'description', 'generated_for', 'block_list_emails',
-        'used_on',
-        # read-only
-        'id', 'address', 'domain',
-        'created_at', 'last_modified_at','last_used_at',
-        'num_forwarded', 'num_blocked', 'num_spam'
-    ]
+            'enabled',
+            'description',
+            'generated_for',
+            'block_list_emails',
+            'used_on',
+            # read-only
+            'id',
+            'address',
+            'domain',
+            'created_at',
+            'last_modified_at',
+            'last_used_at',
+            'num_forwarded',
+            'num_blocked',
+            'num_spam',
+        ]
 
 
 class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
@@ -80,7 +97,9 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             domain_address = DomainAddress.objects.filter(
                 user=self.request.user, address=serializer.validated_data.get('address')
             ).first()
-            raise ConflictError({'id': domain_address.id, 'full_address': domain_address.full_address})
+            raise ConflictError(
+                {'id': domain_address.id, 'full_address': domain_address.full_address}
+            )
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
@@ -91,6 +110,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
 
+
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
@@ -99,14 +119,14 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
 
+
 # Deprecated; prefer runtime_data instead.
 # (This method isn't deleted yet, because the add-on still calls it.)
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])
 def premium_countries(request):
-    return response.Response(
-        get_premium_countries_info_from_request(request)
-    )
+    return response.Response(get_premium_countries_info_from_request(request))
+
 
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])

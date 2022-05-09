@@ -17,15 +17,14 @@ class EmailsConfig(AppConfig):
     def __init__(self, app_name, app_module):
         super(EmailsConfig, self).__init__(app_name, app_module)
         try:
-            self.ses_client = boto3.client(
-                'ses', region_name=settings.AWS_REGION
-            )
+            self.ses_client = boto3.client('ses', region_name=settings.AWS_REGION)
             s3_config = Config(
                 region_name=settings.AWS_REGION,
-                retries = {
+                retries={
                     "max_attempts": 1,  # this includes the initial attempt to get the email
                     "mode": "standard",
-                })
+                },
+            )
             self.s3_client = boto3.client('s3', config=s3_config)
         except Exception:
             logger.exception("exception during SES connect")
@@ -37,9 +36,7 @@ class EmailsConfig(AppConfig):
 
     def _load_terms(self, filename):
         terms = []
-        terms_file_path = os.path.join(
-            settings.BASE_DIR, 'emails', filename
-        )
+        terms_file_path = os.path.join(settings.BASE_DIR, 'emails', filename)
         with open(terms_file_path, 'r') as terms_file:
             for word in terms_file:
                 if len(word.strip()) > 0 and word.strip()[0] == "#":

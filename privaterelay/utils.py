@@ -1,15 +1,16 @@
 from django.conf import settings
 
+
 def get_premium_countries_info_from_request(request):
     country_code = _get_cc_from_request(request)
     premium_countries = settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
     premium_available_in_country = country_code in premium_countries
-    return({
+    return {
         'country_code': country_code,
         'premium_countries': premium_countries,
         'premium_available_in_country': premium_available_in_country,
-        'plan_country_lang_mapping': settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING
-    })
+        'plan_country_lang_mapping': settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING,
+    }
 
 
 def _get_cc_from_request(request):

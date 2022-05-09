@@ -16,12 +16,35 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='AbuseMetrics',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_recorded', models.DateTimeField(auto_now_add=True, db_index=True)),
-                ('last_recorded', models.DateTimeField(auto_now_add=True, db_index=True)),
-                ('num_address_created_per_day', models.PositiveSmallIntegerField(default=0)),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
+                (
+                    'first_recorded',
+                    models.DateTimeField(auto_now_add=True, db_index=True),
+                ),
+                (
+                    'last_recorded',
+                    models.DateTimeField(auto_now_add=True, db_index=True),
+                ),
+                (
+                    'num_address_created_per_day',
+                    models.PositiveSmallIntegerField(default=0),
+                ),
                 ('num_replies_per_day', models.PositiveSmallIntegerField(default=0)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
                 'unique_together': {('user', 'first_recorded')},

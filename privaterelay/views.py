@@ -5,6 +5,7 @@ import json
 import logging
 import os
 from rest_framework.decorators import api_view
+
 # from silk.profiling.profiler import silk_profile
 
 from google_measurement_protocol import event, report
@@ -24,29 +25,23 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from allauth.socialaccount.models import SocialAccount, SocialApp
-from allauth.socialaccount.providers.fxa.views import (
-    FirefoxAccountsOAuth2Adapter
-)
+from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 
 from emails.models import (
     CannotMakeSubdomainException,
     DomainAddress,
     RelayAddress,
-    valid_available_subdomain
+    valid_available_subdomain,
 )
 from emails.utils import incr_if_enabled
 from privaterelay.utils import get_premium_countries_info_from_request
 
 
-FXA_PROFILE_CHANGE_EVENT = (
-    'https://schemas.accounts.firefox.com/event/profile-change'
-)
+FXA_PROFILE_CHANGE_EVENT = 'https://schemas.accounts.firefox.com/event/profile-change'
 FXA_SUBSCRIPTION_CHANGE_EVENT = (
     'https://schemas.accounts.firefox.com/event/subscription-state-change'
 )
-FXA_DELETE_EVENT = (
-    'https://schemas.accounts.firefox.com/event/delete-user'
-)
+FXA_DELETE_EVENT = 'https://schemas.accounts.firefox.com/event/delete-user'
 PROFILE_EVENTS = [FXA_PROFILE_CHANGE_EVENT, FXA_SUBSCRIPTION_CHANGE_EVENT]
 
 logger = logging.getLogger('events')
@@ -54,9 +49,9 @@ info_logger = logging.getLogger('eventsinfo')
 
 
 def home(request):
-    if (request.user and not request.user.is_anonymous):
+    if request.user and not request.user.is_anonymous:
         return redirect(reverse('profile'))
-    
+
     return render(request, 'home.html')
 
 
@@ -66,18 +61,18 @@ def premium_promo(request):
 
 def faq(request):
     context = {}
-    if (request.user and not request.user.is_anonymous):
-        context.update({
-            'user_profile': request.user.profile_set.first()
-        })
+    if request.user and not request.user.is_anonymous:
+        context.update({'user_profile': request.user.profile_set.first()})
     return render(request, 'faq.html', context)
 
 
 # @silk_profile(name='Account Profile')
 def profile(request):
-    if (not request.user or request.user.is_anonymous):
+    if not request.user or request.user.is_anonymous:
         return redirect(reverse('fxa_login'))
-    profile = request.user.profile_set.prefetch_related('user__socialaccount_set').first()
+    profile = request.user.profile_set.prefetch_related(
+        'user__socialaccount_set'
+    ).first()
     if 'fxa_refresh' in request.GET:
         fxa = _get_fxa(request)
         _handle_fxa_profile_change(fxa)
@@ -96,15 +91,15 @@ def profile(request):
 
     bounce_status = profile.check_bounce_pause()
     if bounce_status.paused:
-        context.update({
-            'last_bounce_type': bounce_status.type,
-            'last_bounce_date': profile.last_bounce_date,
-            'next_email_try': profile.next_email_try
-        })
+        context.update(
+            {
+                'last_bounce_type': bounce_status.type,
+                'last_bounce_date': profile.last_bounce_date,
+                'next_email_try': profile.next_email_try,
+            }
+        )
     response = render(request, 'profile.html', context)
-    if ('clicked-purchase' in request.COOKIES and
-        profile.has_premium
-       ):
+    if 'clicked-purchase' in request.COOKIES and profile.has_premium:
         event = 'user_purchased_premium'
         incr_if_enabled(event, 1)
         response.delete_cookie('clicked-purchase')
@@ -113,7 +108,7 @@ def profile(request):
 
 
 def settings_view(request):
-    if (not request.user or request.user.is_anonymous):
+    if not request.user or request.user.is_anonymous:
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
     context = {
@@ -122,10 +117,9 @@ def settings_view(request):
 
     return render(request, 'settings.html', context)
 
+
 def settings_update_view(request):
-    messages.success(
-        request, 'success-settings-update'
-    )
+    messages.success(request, 'success-settings-update')
     return redirect(reverse('profile'))
 
 
@@ -137,13 +131,13 @@ def _get_fxa(request):
 @api_view()
 @require_http_methods(['GET'])
 def profile_refresh(request):
-    if (not request.user or request.user.is_anonymous):
+    if not request.user or request.user.is_anonymous:
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
 
     fxa = _get_fxa(request)
     _handle_fxa_profile_change(fxa)
-    if ('clicked-purchase' in request.COOKIES and profile.has_premium):
+    if 'clicked-purchase' in request.COOKIES and profile.has_premium:
         event = 'user_purchased_premium'
         incr_if_enabled(event, 1)
 
@@ -153,7 +147,7 @@ def profile_refresh(request):
 @api_view(['POST', 'GET'])
 @require_http_methods(['POST', 'GET'])
 def profile_subdomain(request):
-    if (not request.user or request.user.is_anonymous):
+    if not request.user or request.user.is_anonymous:
         return redirect(reverse('fxa_login'))
     profile = request.user.profile_set.first()
     if not profile.has_premium:
@@ -166,15 +160,12 @@ def profile_subdomain(request):
         else:
             subdomain = request.POST.get('subdomain', None)
             profile.add_subdomain(subdomain)
-            return JsonResponse({
-                'status': 'Accepted',
-                'message': 'success-subdomain-registered'
-            }, status=202)
+            return JsonResponse(
+                {'status': 'Accepted', 'message': 'success-subdomain-registered'},
+                status=202,
+            )
     except CannotMakeSubdomainException as e:
-        return JsonResponse({
-            'message': e.message,
-            'subdomain': subdomain
-        }, status=400)
+        return JsonResponse({'message': e.message, 'subdomain': subdomain}, status=400)
 
 
 def version(request):
@@ -230,17 +221,10 @@ def metrics_event(request):
         dimension5=request_data.get('dimension5', None),
     )
     try:
-        report(
-            settings.GOOGLE_ANALYTICS_ID,
-            request_data.get('ga_uuid'),
-            event_data
-        )
+        report(settings.GOOGLE_ANALYTICS_ID, request_data.get('ga_uuid'), event_data)
     except Exception as e:
         logger.error('metrics_event', extra={'error': e})
-        return JsonResponse(
-            {'msg': 'Unable to report metrics event.'},
-            status=500
-        )
+        return JsonResponse({'msg': 'Unable to report metrics event.'}, status=500)
     return JsonResponse({'msg': 'OK'}, status=200)
 
 
@@ -257,16 +241,17 @@ def fxa_rp_events(request):
         return HttpResponse('202 Accepted', status=202)
 
     for event_key in event_keys:
-        if (event_key in PROFILE_EVENTS):
+        if event_key in PROFILE_EVENTS:
             if settings.DEBUG:
-                info_logger.info('fxa_profile_update', extra={
-                    'jwt': authentic_jwt,
-                    'event_key': event_key,
-                })
-            _handle_fxa_profile_change(
-                social_account, authentic_jwt, event_key
-            )
-        if (event_key == FXA_DELETE_EVENT):
+                info_logger.info(
+                    'fxa_profile_update',
+                    extra={
+                        'jwt': authentic_jwt,
+                        'event_key': event_key,
+                    },
+                )
+            _handle_fxa_profile_change(social_account, authentic_jwt, event_key)
+        if event_key == FXA_DELETE_EVENT:
             _handle_fxa_delete(authentic_jwt, social_account, event_key)
     return HttpResponse('200 OK', status=200)
 
@@ -303,7 +288,7 @@ def _verify_jwt_with_fxa_key(req_jwt, private_relay_config):
                 req_jwt,
                 verifying_key,
                 audience=social_app.client_id,
-                algorithms=['RS256']
+                algorithms=['RS256'],
             )
 
 
@@ -316,9 +301,7 @@ def _get_event_keys_from_jwt(authentic_jwt):
     return authentic_jwt['events'].keys()
 
 
-def _handle_fxa_profile_change(
-    social_account, authentic_jwt=None, event_key=None
-):
+def _handle_fxa_profile_change(social_account, authentic_jwt=None, event_key=None):
     client = _get_oauth2_session(social_account)
     # TODO: more graceful handling of profile fetch failures
     try:
@@ -336,13 +319,17 @@ def _handle_fxa_profile_change(
         return HttpResponse('202 Accepted', status=202)
 
     if authentic_jwt and event_key:
-        info_logger.info('fxa_rp_event', extra={
-            'fxa_uid': authentic_jwt['sub'],
-            'event_key': event_key,
-            'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
-        })
+        info_logger.info(
+            'fxa_rp_event',
+            extra={
+                'fxa_uid': authentic_jwt['sub'],
+                'event_key': event_key,
+                'real_address': sha256(new_email.encode('utf-8')).hexdigest(),
+            },
+        )
 
     return _update_all_data(social_account, extra_data, new_email)
+
 
 def _update_all_data(social_account, extra_data, new_email):
     try:
@@ -376,10 +363,13 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
     # to create hard bounce receipt rules in SES,
     # because cascade deletes like this don't necessarily call delete()
     social_account.user.delete()
-    info_logger.info('fxa_rp_event', extra={
-        'fxa_uid': authentic_jwt['sub'],
-        'event_key': event_key,
-    })
+    info_logger.info(
+        'fxa_rp_event',
+        extra={
+            'fxa_uid': authentic_jwt['sub'],
+            'event_key': event_key,
+        },
+    )
 
 
 # use "raw" requests_oauthlib to automatically refresh the access token
@@ -399,27 +389,28 @@ def _get_oauth2_session(social_account):
         'client_secret': client_secret,
     }
 
-    expires_in = (
-        social_token.expires_at - datetime.now(timezone.utc)
-    ).total_seconds()
+    expires_in = (social_token.expires_at - datetime.now(timezone.utc)).total_seconds()
     token = {
         'access_token': social_token.token,
         'refresh_token': social_token.token_secret,
         'token_type': 'Bearer',
-        'expires_in': expires_in
+        'expires_in': expires_in,
     }
 
     client = OAuth2Session(
-        client_id, token=token, auto_refresh_url=refresh_token_url,
-        auto_refresh_kwargs=extra, token_updater=_token_updater
+        client_id,
+        token=token,
+        auto_refresh_url=refresh_token_url,
+        auto_refresh_kwargs=extra,
+        token_updater=_token_updater,
     )
     return client
+
 
 def update_social_token(existing_social_token, new_oauth2_token):
     existing_social_token.token = new_oauth2_token['access_token']
     existing_social_token.token_secret = new_oauth2_token['refresh_token']
-    existing_social_token.expires_at = (
-        datetime.now(timezone.utc) +
-        timedelta(seconds=int(new_oauth2_token['expires_in']))
+    existing_social_token.expires_at = datetime.now(timezone.utc) + timedelta(
+        seconds=int(new_oauth2_token['expires_in'])
     )
     existing_social_token.save()

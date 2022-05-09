@@ -1,10 +1,7 @@
 from email.utils import parseaddr
 
 from django.conf import settings
-from django.test import (
-    TestCase,
-    override_settings
-)
+from django.test import TestCase, override_settings
 from unittest.mock import patch
 from waffle.testutils import override_sample
 
@@ -32,7 +29,8 @@ class FormattingToolsTest(TestCase):
             '=?utf-8?b?IiJmb8O2IGLDpHIiIDxmb29AYmFyLmNvbT4gW3ZpYSBSZWxheV0i?='
         )
         expected_formatted_from = '%s %s' % (
-            expected_encoded_display_name, '<%s>' % self.relay_from
+            expected_encoded_display_name,
+            '<%s>' % self.relay_from,
         )
         assert formatted_from_address == expected_formatted_from
 
@@ -45,19 +43,21 @@ class FormattingToolsTest(TestCase):
             '=3E_=5Bvia_Relay=5D=22?='
         )
         expected_formatted_from = '%s %s' % (
-            expected_encoded_display_name, '<%s>' % self.relay_from
+            expected_encoded_display_name,
+            '<%s>' % self.relay_from,
         )
         assert formatted_from_address == expected_formatted_from
 
     def test_generate_relay_From_with_rfc_2822_invalid_address(self):
-        original_from_address = 'l%sng <long@long.com>' % ('o'*999)
+        original_from_address = 'l%sng <long@long.com>' % ('o' * 999)
         formatted_from_address = generate_relay_From(original_from_address)
 
         expected_encoded_display_name = (
-            '=?utf-8?q?=22l%s_=2E=2E=2E_=5Bvia_Relay=5D=22?=' % ('o'*899)
+            '=?utf-8?q?=22l%s_=2E=2E=2E_=5Bvia_Relay=5D=22?=' % ('o' * 899)
         )
         expected_formatted_from = '%s %s' % (
-            expected_encoded_display_name, '<%s>' % self.relay_from
+            expected_encoded_display_name,
+            '<%s>' % self.relay_from,
         )
         assert formatted_from_address == expected_formatted_from
 
@@ -66,11 +66,11 @@ class FormattingToolsTest(TestCase):
         formatted_from_address = generate_relay_From(original_from_address)
 
         expected_encoded_display_name = (
-            '=?utf-8?b?IiJUZXJ5ICBjdCIgPGluZm9AYS4uLnQub3JnPiBbdmlhIFJlbGF5XSI'
-            '=?='
+            '=?utf-8?b?IiJUZXJ5ICBjdCIgPGluZm9AYS4uLnQub3JnPiBbdmlhIFJlbGF5XSI' '=?='
         )
         expected_formatted_from = '%s %s' % (
-            expected_encoded_display_name, '<%s>' % self.relay_from
+            expected_encoded_display_name,
+            '<%s>' % self.relay_from,
         )
         assert formatted_from_address == expected_formatted_from
 
@@ -78,16 +78,18 @@ class FormattingToolsTest(TestCase):
         premium_user = make_premium_test_user()
         premium_profile = premium_user.profile_set.first()
         original_from_address = '"foo bar" <foo@bar.com>'
-        formatted_from_address = generate_relay_From(original_from_address, premium_profile)
+        formatted_from_address = generate_relay_From(
+            original_from_address, premium_profile
+        )
 
         expected_encoded_display_name = (
             '=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?='
         )
         expected_formatted_from = '%s <%s>' % (
-            expected_encoded_display_name, self.premium_from
+            expected_encoded_display_name,
+            self.premium_from,
         )
         assert formatted_from_address == expected_formatted_from
-
 
     @override_settings(ON_HEROKU=True, SITE_ORIGIN='https://test.com')
     def test_get_email_domain_from_settings_on_heroku(self):
@@ -104,8 +106,9 @@ class FormattingToolsTest(TestCase):
         domains = get_domains_from_settings()
         assert domains == {
             'RELAY_FIREFOX_DOMAIN': 'default.com',
-            'MOZMAIL_DOMAIN': 'test.com'
+            'MOZMAIL_DOMAIN': 'test.com',
         }
+
 
 @override_settings(SITE_ORIGIN='https://test.com')
 @override_sample('foxfood-tracker-removal-sample', active=True)
@@ -133,7 +136,7 @@ class RemoveTrackers(TestCase):
         assert general_count == 2
         assert strict_count == 0
         assert control == False
-    
+
     def test_complex_general_tracker_replaced_with_relay_content(self):
         content = (
             '<a href="https://foo.open.tracker.com/foo/bar.html">A link</a>\n'
@@ -165,7 +168,7 @@ class RemoveTrackers(TestCase):
         assert general_count == 2
         assert strict_count == 0
         assert control == False
-    
+
     def test_no_tracker_replaced_with_relay_content(self):
         content = (
             '<a href="https://fooopen.tracker.com/foo/bar.html">A link</a>\n'
@@ -178,7 +181,9 @@ class RemoveTrackers(TestCase):
 
         assert changed_content == content
         assert general_removed == 0
-        assert general_count == 2  # this is because the count uses search and not regex pattern
+        assert (
+            general_count == 2
+        )  # this is because the count uses search and not regex pattern
         assert strict_count == 0
         assert control == False
 

@@ -18,17 +18,50 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RelayAddress',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('address', models.CharField(default=emails.models.address_default, max_length=64)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
+                (
+                    'address',
+                    models.CharField(
+                        default=emails.models.address_default, max_length=64
+                    ),
+                ),
+                (
+                    'user',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
             name='Messages',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('message', models.TextField()),
-                ('relay_address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='emails.RelayAddress')),
+                (
+                    'relay_address',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to='emails.RelayAddress',
+                    ),
+                ),
             ],
         ),
     ]

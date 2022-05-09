@@ -13,6 +13,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='domainaddress',
             name='domain',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')], default=2),
+            field=models.PositiveSmallIntegerField(
+                choices=[(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')], default=2
+            ),
         ),
     ]

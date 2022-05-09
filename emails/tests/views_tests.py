@@ -34,20 +34,16 @@ from emails.views import (
 from .models_tests import make_premium_test_user, upgrade_test_user_to_premium
 
 # Load the sns json fixtures from files
-real_abs_cwd = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__))
-)
+real_abs_cwd = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 single_rec_file = os.path.join(
     real_abs_cwd, 'fixtures', 'single_recipient_sns_body.json'
 )
 
 EMAIL_SNS_BODIES = {}
 file_suffix = '_email_sns_body.json'
-for email_file in glob.glob(
-    os.path.join(real_abs_cwd, 'fixtures', '*' + file_suffix)
-):
+for email_file in glob.glob(os.path.join(real_abs_cwd, 'fixtures', '*' + file_suffix)):
     file_name = os.path.basename(email_file)
-    email_type = file_name[:-len(file_suffix)]
+    email_type = file_name[: -len(file_suffix)]
     with open(email_file, 'r') as f:
         email_sns_body = json.load(f)
         EMAIL_SNS_BODIES[email_type] = email_sns_body
@@ -67,7 +63,7 @@ for email_file in glob.glob(
     os.path.join(real_abs_cwd, "fixtures", "*" + inv_file_suffix)
 ):
     file_name = os.path.basename(email_file)
-    file_type = file_name[:-len(inv_file_suffix)]
+    file_type = file_name[: -len(inv_file_suffix)]
     with open(email_file, "r") as f:
         sns_body = json.load(f)
         INVALID_SNS_BODIES[file_type] = sns_body
@@ -90,7 +86,6 @@ class SNSNotificationTest(TestCase):
         self.patcher = patch('emails.views.remove_message_from_s3')
         self.mock_remove_message_from_s3 = self.patcher.start()
         self.addCleanup(self.patcher.stop)
-
 
     @patch('emails.views.ses_relay_email')
     def test_single_recipient_sns_notification(self, mock_ses_relay_email):
@@ -167,17 +162,13 @@ class SNSNotificationTest(TestCase):
         _sns_notification(EMAIL_SNS_BODIES['domain_recipient'])
 
         mock_ses_relay_email.assert_called_once()
-        da = DomainAddress.objects.get(
-            user=self.premium_user, address='wildcard'
-        )
+        da = DomainAddress.objects.get(user=self.premium_user, address='wildcard')
         assert da.num_forwarded == 1
         assert da.last_used_at.date() == datetime.today().date()
 
     @patch('emails.views.ses_relay_email')
     def test_successful_email_relay_message_removed_from_s3(self, mock_ses_relay_email):
-        mock_ses_relay_email.return_value = HttpResponse(
-            "Relayed email", status=200
-        )
+        mock_ses_relay_email.return_value = HttpResponse("Relayed email", status=200)
         _sns_notification(EMAIL_SNS_BODIES['single_recipient'])
 
         mock_ses_relay_email.assert_called_once()
@@ -188,8 +179,12 @@ class SNSNotificationTest(TestCase):
         assert self.ra.last_used_at.date() == datetime.today().date()
 
     @patch('emails.views.ses_relay_email')
-    def test_unsuccessful_email_relay_message_not_removed_from_s3(self, mock_ses_relay_email):
-        mock_ses_relay_email.return_value = HttpResponse("Failed to relay email", status=500)
+    def test_unsuccessful_email_relay_message_not_removed_from_s3(
+        self, mock_ses_relay_email
+    ):
+        mock_ses_relay_email.return_value = HttpResponse(
+            "Failed to relay email", status=500
+        )
         _sns_notification(EMAIL_SNS_BODIES['single_recipient'])
 
         mock_ses_relay_email.assert_called_once()
@@ -202,9 +197,7 @@ class SNSNotificationTest(TestCase):
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
-        self.user = baker.make(
-            User, email='relayuser@test.com', make_m2m=True
-        )
+        self.user = baker.make(User, email='relayuser@test.com', make_m2m=True)
 
     def test_sns_message_with_hard_bounce(self):
         pre_request_datetime = datetime.now(timezone.utc)
@@ -233,15 +226,16 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         self.bucket = 'test-bucket'
         self.key = '/emails/objectkey123'
 
-        self.patcher = patch('emails.views._get_address', side_effect=ObjectDoesNotExist())
+        self.patcher = patch(
+            'emails.views._get_address', side_effect=ObjectDoesNotExist()
+        )
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
 
     @patch('emails.views.remove_message_from_s3')
     @patch('emails.views._handle_reply')
     def test_reply_email_in_s3_deleted(
-        self, mocked_handle_reply,
-        mocked_message_removed
+        self, mocked_handle_reply, mocked_message_removed
     ):
         expected_status_code = 200
         mocked_handle_reply.return_value = HttpResponse(
@@ -256,8 +250,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
     @patch('emails.views.remove_message_from_s3')
     @patch('emails.views._handle_reply')
     def test_reply_email_not_in_s3_deleted_ignored(
-        self, mocked_handle_reply,
-        mocked_message_removed
+        self, mocked_handle_reply, mocked_message_removed
     ):
         expected_status_code = 200
         mocked_handle_reply.return_value = HttpResponse(
@@ -272,8 +265,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
     @patch('emails.views.remove_message_from_s3')
     @patch('emails.views._handle_reply')
     def test_reply_email_in_s3_ses_client_error_not_deleted(
-        self, mocked_handle_reply,
-        mocked_message_removed
+        self, mocked_handle_reply, mocked_message_removed
     ):
         # SES Client Error caught in _handle_reply responds with 503
         expected_status_code = 503
@@ -296,9 +288,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         assert response.content == b'Address does not exist'
 
     @patch('emails.views.remove_message_from_s3')
-    def test_address_does_not_exist_email_in_s3_deleted(
-        self, mocked_message_removed
-    ):
+    def test_address_does_not_exist_email_in_s3_deleted(self, mocked_message_removed):
         response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 404
@@ -314,9 +304,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         assert response.content == b'Address does not exist'
 
     @patch('emails.views.remove_message_from_s3')
-    def test_email_without_commonheaders_in_s3_deleted(
-        self, mocked_message_removed
-    ):
+    def test_email_without_commonheaders_in_s3_deleted(self, mocked_message_removed):
         message_wo_commonheaders = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
             'commonHeaders', 'invalidHeaders'
         )
@@ -328,12 +316,10 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         assert response.content == b'Received SNS notification without commonHeaders.'
 
     @patch('emails.views.remove_message_from_s3')
-    def test_email_to_non_relay_domain_in_s3_deleted(
-        self, mocked_message_removed
-    ):
-        message_w_non_relay_as_recipient = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
-            'sender@test.com', 'to@not-relay.com'
-        )
+    def test_email_to_non_relay_domain_in_s3_deleted(self, mocked_message_removed):
+        message_w_non_relay_as_recipient = EMAIL_SNS_BODIES['s3_stored'][
+            'Message'
+        ].replace('sender@test.com', 'to@not-relay.com')
         notification_w_non_relay_domain = EMAIL_SNS_BODIES['s3_stored'].copy()
         notification_w_non_relay_domain['Message'] = message_w_non_relay_as_recipient
         response = _sns_notification(notification_w_non_relay_domain)
@@ -342,9 +328,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         assert response.content == b'Address does not exist'
 
     @patch('emails.views.remove_message_from_s3')
-    def test_malformed_to_field_email_in_s3_deleted(
-        self, mocked_message_removed
-    ):
+    def test_malformed_to_field_email_in_s3_deleted(self, mocked_message_removed):
         message_w_malformed_to_field = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
             'sender@test.com', 'not-relay-test.com'
         )
@@ -356,9 +340,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         assert response.content == b'Malformed to field.'
 
     @patch('emails.views.remove_message_from_s3')
-    def test_noreply_email_in_s3_deleted(
-        self, mocked_message_removed
-    ):
+    def test_noreply_email_in_s3_deleted(self, mocked_message_removed):
         message_w_email_to_noreply = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
             'sender@test.com', 'noreply@default.com'
         )
@@ -390,15 +372,13 @@ class SNSNotificationInvalidMessageTest(TestCase):
         complaint = {
             "notificationType": "Complaint",
             "complaint": {
-                "userAgent":"ExampleCorp Feedback Loop (V0.01)",
-                "complainedRecipients":[
-                    {"emailAddress":"recipient1@example.com"}
-                ],
-                "complaintFeedbackType":"abuse",
-                "arrivalDate":"2009-12-03T04:24:21.000-05:00",
-                "timestamp":"2012-05-25T14:59:38.623Z",
-                "feedbackId":"000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000"
-            }
+                "userAgent": "ExampleCorp Feedback Loop (V0.01)",
+                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
+                "complaintFeedbackType": "abuse",
+                "arrivalDate": "2009-12-03T04:24:21.000-05:00",
+                "timestamp": "2012-05-25T14:59:38.623Z",
+                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+            },
         }
         json_body = {"Message": json.dumps(complaint)}
         response = _sns_notification(json_body)
@@ -409,18 +389,14 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def setUp(self) -> None:
         self.bucket = 'test-bucket'
         self.key = '/emails/objectkey123'
-        self.user = baker.make(
-            User, email='sender@test.com', make_m2m=True
-        )
+        self.user = baker.make(User, email='sender@test.com', make_m2m=True)
         self.profile = self.user.profile_set.first()
         self.address = baker.make(
             RelayAddress, user=self.user, address='sender', domain=2
         )
 
     @patch('emails.views.remove_message_from_s3')
-    def test_auto_block_spam_true_email_in_s3_deleted(
-        self, mocked_message_removed
-    ):
+    def test_auto_block_spam_true_email_in_s3_deleted(self, mocked_message_removed):
         self.profile.auto_block_spam = True
         self.profile.save()
         message_spamverdict_failed = EMAIL_SNS_BODIES['s3_stored']['Message'].replace(
@@ -435,9 +411,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.content == b'Address rejects spam.'
 
     @patch('emails.views.remove_message_from_s3')
-    def test_user_bounce_paused_email_in_s3_deleted(
-        self, mocked_message_removed
-    ):
+    def test_user_bounce_paused_email_in_s3_deleted(self, mocked_message_removed):
         self.profile.last_soft_bounce = datetime.now(timezone.utc)
         self.profile.save()
 
@@ -450,7 +424,10 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     @patch('emails.views._get_reply_record_from_lookup_key')
     @patch('emails.views.remove_message_from_s3')
     def test_reply_not_allowed_email_in_s3_deleted(
-        self, mocked_message_removed, mocked_reply_record, mocked_reply_allowed,
+        self,
+        mocked_message_removed,
+        mocked_reply_record,
+        mocked_reply_allowed,
     ):
         # external user sending a reply to Relay user
         # where the replies were being exchanged but now the user
@@ -463,9 +440,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.content == b'Relay replies require a premium account'
 
     @patch('emails.views.remove_message_from_s3')
-    def test_relay_address_disabled_email_in_s3_deleted(
-        self, mocked_message_removed
-    ):
+    def test_relay_address_disabled_email_in_s3_deleted(self, mocked_message_removed):
         self.address.enabled = False
         self.address.save()
 
@@ -492,9 +467,13 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     @patch('emails.views._get_text_html_attachments')
     @patch('emails.views.remove_message_from_s3')
     def test_get_text_hteml_s3_client_error_email_in_s3_not_deleted(
-        self, mocked_message_removed, mocked_get_text_html,
+        self,
+        mocked_message_removed,
+        mocked_get_text_html,
     ):
-        mocked_get_text_html.side_effect = ClientError({'Error': {'error': 'message'}}, '')
+        mocked_get_text_html.side_effect = ClientError(
+            {'Error': {'error': 'message'}}, ''
+        )
 
         response = _sns_notification(EMAIL_SNS_BODIES['s3_stored'])
         mocked_message_removed.assert_not_called()
@@ -505,7 +484,10 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     @patch('emails.views._get_text_html_attachments')
     @patch('emails.views.remove_message_from_s3')
     def test_ses_client_error_email_in_s3_not_deleted(
-        self, mocked_message_removed, mocked_get_text_html, mocked_relay_email,
+        self,
+        mocked_message_removed,
+        mocked_get_text_html,
+        mocked_relay_email,
     ):
         mocked_get_text_html.return_value = ('text_content', None, ['attachments'])
         mocked_relay_email.return_value = HttpResponse('SES client failed', status=503)
@@ -519,7 +501,10 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     @patch('emails.views._get_text_html_attachments')
     @patch('emails.views.remove_message_from_s3')
     def test_successful_email_in_s3_deleted(
-        self, mocked_message_removed, mocked_get_text_html, mocked_relay_email,
+        self,
+        mocked_message_removed,
+        mocked_get_text_html,
+        mocked_relay_email,
     ):
         mocked_get_text_html.return_value = ('text_content', None, ['attachments'])
         mocked_relay_email.return_value = HttpResponse('Email relayed', status=200)
@@ -545,15 +530,13 @@ class SnsMessageTest(TestCase):
 
         patcher = patch(
             'emails.views._get_text_html_attachments',
-            return_value=('text', 'html', 'attachments')
+            return_value=('text', 'html', 'attachments'),
         )
         patcher.start()
         self.addCleanup(patcher.stop)
 
     @patch('emails.views.ses_relay_email')
-    def test_ses_relay_email_has_client_error_early_exits(
-        self, mocked_ses_relay_email
-    ):
+    def test_ses_relay_email_has_client_error_early_exits(self, mocked_ses_relay_email):
         message_json = json.loads(EMAIL_SNS_BODIES['s3_stored']['Message'])
         mocked_ses_relay_email.return_value = HttpResponse(status=503)
 
@@ -588,7 +571,7 @@ class GetAddressTest(TestCase):
         actual = _get_address(
             to_address=f'{self.local_portion}@subdomain.{self.service_domain}',
             local_portion=self.local_portion,
-            domain_portion=f'subdomain.{self.service_domain}'
+            domain_portion=f'subdomain.{self.service_domain}',
         )
         assert actual == expected
 
@@ -599,7 +582,7 @@ class GetAddressTest(TestCase):
         actual = _get_address(
             to_address=f'{self.local_portion}@{self.service_domain}',
             local_portion=f'{self.local_portion}',
-            domain_portion=f'{self.service_domain}'
+            domain_portion=f'{self.service_domain}',
         )
         assert actual == relay_address
 
@@ -612,7 +595,7 @@ class GetAddressTest(TestCase):
             _get_address(
                 to_address=f'{self.local_portion}@{self.service_domain}',
                 local_portion=self.local_portion,
-                domain_portion=self.service_domain
+                domain_portion=self.service_domain,
             )
         except Exception as e:
             assert e.args[0] == 'RelayAddress matching query does not exist.'
@@ -627,7 +610,7 @@ class GetAddressTest(TestCase):
             _get_address(
                 to_address=f'{self.local_portion}@{self.service_domain}',
                 local_portion={self.local_portion},
-                domain_portion=f'{self.service_domain}'
+                domain_portion=f'{self.service_domain}',
             )
         except Exception as e:
             assert e.args[0] == 'RelayAddress matching query does not exist.'
@@ -643,7 +626,7 @@ class GetAddressTest(TestCase):
             _get_address(
                 to_address=f'{self.local_portion}@{self.service_domain}',
                 local_portion=self.local_portion,
-                domain_portion=f'{self.service_domain}'
+                domain_portion=f'{self.service_domain}',
             )
         except Exception as e:
             assert e.args[0] == 'RelayAddress matching query does not exist.'
@@ -651,7 +634,6 @@ class GetAddressTest(TestCase):
 
 
 class GetAttachmentTests(TestCase):
-
     def setUp(self):
         # Binary string of 10 chars * 16,000 = 160,000 byte string, longer than
         # 150k max size of SpooledTemporaryFile, so it is written to disk
@@ -669,7 +651,9 @@ class GetAttachmentTests(TestCase):
         maintype, subtype = mimetype.split('/', 1)
         assert maintype
         assert subtype
-        message.add_attachment(data, maintype=maintype, subtype=subtype, filename=filename)
+        message.add_attachment(
+            data, maintype=maintype, subtype=subtype, filename=filename
+        )
         return message
 
     def get_name_and_stream(self, message):
@@ -690,7 +674,9 @@ class GetAttachmentTests(TestCase):
 
     def test_long_attachment(self):
         """A long attachment is stored on disk"""
-        message = self.create_message(self.long_data, "application/octet-stream", "long.txt")
+        message = self.create_message(
+            self.long_data, "application/octet-stream", "long.txt"
+        )
         name, stream = self.get_name_and_stream(message)
         assert name == 'long.txt'
         assert isinstance(stream._file, io.BufferedRandom)
@@ -698,7 +684,9 @@ class GetAttachmentTests(TestCase):
     def test_attachment_unicode_filename(self):
         """A unicode filename can be stored on disk"""
         filename = "Some Binary data 😀.bin"
-        message = self.create_message(self.long_data, "application/octet-stream", filename)
+        message = self.create_message(
+            self.long_data, "application/octet-stream", filename
+        )
         name, stream = self.get_name_and_stream(message)
         assert name == filename
         assert isinstance(stream._file, io.BufferedRandom)
@@ -706,7 +694,9 @@ class GetAttachmentTests(TestCase):
     def test_attachment_url_filename(self):
         """A URL filename can be stored on disk"""
         filename = "https://example.com/data.bin"
-        message = self.create_message(self.long_data, "application/octet-stream", filename)
+        message = self.create_message(
+            self.long_data, "application/octet-stream", filename
+        )
         name, stream = self.get_name_and_stream(message)
         assert name == filename
         assert isinstance(stream._file, io.BufferedRandom)
@@ -721,9 +711,10 @@ class GetAttachmentTests(TestCase):
 
 TEST_AWS_SNS_TOPIC = "arn:aws:sns:us-east-1:111222333:relay"
 TEST_AWS_SNS_TOPIC2 = TEST_AWS_SNS_TOPIC + "-alt"
+
+
 @override_settings(AWS_SNS_TOPIC={TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2})
 class ValidateSnsHeaderTests(SimpleTestCase):
-
     def test_valid_headers(self):
         ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "SubscriptionConfirmation")
         assert ret is None
@@ -762,11 +753,15 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
             HTTP_X_AMZ_SNS_MESSAGE_TYPE=self.valid_message['Type'],
         )
         self.url = '/emails/sns-inbound'
-        patcher1 = patch('emails.views.verify_from_sns', side_effect=self._verify_from_sns_pass)
+        patcher1 = patch(
+            'emails.views.verify_from_sns', side_effect=self._verify_from_sns_pass
+        )
         self.mock_verify_from_sns = patcher1.start()
         self.addCleanup(patcher1.stop)
 
-        patcher2 = patch('emails.views._sns_inbound_logic', side_effect=self._sns_inbound_logic_ok)
+        patcher2 = patch(
+            'emails.views._sns_inbound_logic', side_effect=self._sns_inbound_logic_ok
+        )
         self.mock_sns_inbound_logic = patcher2.start()
         self.addCleanup(patcher2.stop)
 

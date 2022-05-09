@@ -56,7 +56,7 @@ def main_twilio_webhook(request):
     # we can add them as the 2nd participant and open the session
     expiration_datetime = session.date_created + timedelta(minutes=ttl_minutes)
     db_session = Session.objects.create(
-        twilio_sid = session.sid,
+        twilio_sid=session.sid,
         initiating_proxy_number=proxy_num,
         initiating_real_number=from_num,
         initiating_participant_sid=participant.sid,
@@ -68,8 +68,7 @@ def main_twilio_webhook(request):
     pretty_from = format_number(parse(from_num), PhoneNumberFormat.NATIONAL)
     pretty_proxy = format_number(parse(proxy_num), PhoneNumberFormat.NATIONAL)
     resp.message(
-        '%s will forward to this number for %s minutes' %
-        (pretty_proxy, ttl_minutes)
+        '%s will forward to this number for %s minutes' % (pretty_proxy, ttl_minutes)
     )
     return HttpResponse(resp)
 
@@ -106,11 +105,12 @@ def twilio_proxy_out_of_session(request):
         resp.message('The number you are trying to reach is busy.')
         return HttpResponse(resp)
 
-
     twilio_session = service.sessions(db_session.twilio_sid).fetch()
-    if (twilio_session.status in ['closed', 'failed', 'unknown']):
-        error_message = ('Twilio session %s status: %s' %
-                         (db_session.twilio_sid, twilio_session.status))
+    if twilio_session.status in ['closed', 'failed', 'unknown']:
+        error_message = 'Twilio session %s status: %s' % (
+            db_session.twilio_sid,
+            twilio_session.status,
+        )
         print(error_message)
         return HttpResponseNotFound(error_message)
 
@@ -135,17 +135,15 @@ def twilio_proxy_out_of_session(request):
 def _reset_numbers_sessions(number):
     # If this number already has any sessions, close them on Twilio
     # and delete them from the local DB
-    from_num_sessions = Session.objects.filter(
-        initiating_real_number=number
-    )
+    from_num_sessions = Session.objects.filter(initiating_real_number=number)
     for session in from_num_sessions:
         service.sessions(session.twilio_sid).update(status='closed')
     from_num_sessions.delete()
 
+
 def _delete_expired_sessions():
     expired_sessions = Session.objects.filter(
-        status='waiting-for-party',
-        expiration__lte=datetime.now()
+        status='waiting-for-party', expiration__lte=datetime.now()
     )
     expired_sessions.delete()
 
@@ -165,7 +163,9 @@ def _get_session_and_participant_with_available_number(
     # already in use, we need to keep trying to create a session until we get
     # a session with one of the available numbers.
     while True:
-        session = service.sessions.create(ttl=ttl_minutes*60,)
+        session = service.sessions.create(
+            ttl=ttl_minutes * 60,
+        )
         participant = service.sessions(session.sid).participants.create(
             identifier=from_num
         )

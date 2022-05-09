@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 
 from emails.utils import set_user_group
 
+
 class Command(BaseCommand):
     help = 'Update existing user group who are Mozillians'
 

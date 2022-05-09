@@ -7,6 +7,7 @@ from django.conf import settings
 
 ROOT_DIR = os.path.abspath(os.curdir)
 
+
 class PrivateRelayConfig(AppConfig):
     name = 'privaterelay'
 
@@ -20,8 +21,7 @@ class PrivateRelayConfig(AppConfig):
         import privaterelay.signals
 
         resp = requests.get(
-            '%s/jwks' %
-            settings.SOCIALACCOUNT_PROVIDERS['fxa']['OAUTH_ENDPOINT']
+            '%s/jwks' % settings.SOCIALACCOUNT_PROVIDERS['fxa']['OAUTH_ENDPOINT']
         )
         if resp.status_code == 200:
             resp_json = resp.json()

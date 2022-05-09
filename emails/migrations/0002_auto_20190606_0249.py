@@ -15,7 +15,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Message',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('from_address', models.CharField(max_length=255)),
                 ('subject', models.CharField(max_length=255)),
                 ('message', models.TextField()),
@@ -24,7 +32,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='relayaddress',
             name='address',
-            field=models.CharField(default=emails.models.address_default, max_length=64, unique=True),
+            field=models.CharField(
+                default=emails.models.address_default, max_length=64, unique=True
+            ),
         ),
         migrations.DeleteModel(
             name='Messages',
@@ -32,6 +42,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='message',
             name='relay_address',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='emails.RelayAddress'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to='emails.RelayAddress'
+            ),
         ),
     ]

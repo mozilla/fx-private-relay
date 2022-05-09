@@ -4,11 +4,14 @@ from django.db import migrations, models
 
 from emails.models import hash_subdomain
 
+
 def copy_already_registered_subdomains_from_profile(apps, schema_editor):
     Profile = apps.get_model('emails', 'Profile')
     RegisteredSubdomain = apps.get_model('emails', 'RegisteredSubdomain')
     for profile in Profile.objects.exclude(subdomain=None):
-        RegisteredSubdomain.objects.create(subdomain_hash=hash_subdomain(profile.subdomain))
+        RegisteredSubdomain.objects.create(
+            subdomain_hash=hash_subdomain(profile.subdomain)
+        )
 
 
 class Migration(migrations.Migration):
@@ -17,6 +20,4 @@ class Migration(migrations.Migration):
         ('emails', '0027_registeredsubdomain'),
     ]
 
-    operations = [
-        migrations.RunPython(copy_already_registered_subdomains_from_profile)
-    ]
+    operations = [migrations.RunPython(copy_already_registered_subdomains_from_profile)]

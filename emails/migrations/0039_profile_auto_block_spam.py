@@ -6,7 +6,10 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0038_domain_address_min_length_validator_and_unique_together_user_and_address'),
+        (
+            'emails',
+            '0038_domain_address_min_length_validator_and_unique_together_user_and_address',
+        ),
     ]
 
     operations = [

@@ -14,6 +14,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='profile',
             name='subdomain',
-            field=models.CharField(blank=True, db_index=True, max_length=63, null=True, unique=True, validators=[emails.models.valid_available_subdomain]),
+            field=models.CharField(
+                blank=True,
+                db_index=True,
+                max_length=63,
+                null=True,
+                unique=True,
+                validators=[emails.models.valid_available_subdomain],
+            ),
         ),
     ]

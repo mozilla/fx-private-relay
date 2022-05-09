@@ -37,7 +37,7 @@ from .models import (
     DomainAddress,
     Profile,
     RelayAddress,
-    Reply
+    Reply,
 )
 from .utils import (
     _get_bucket_and_key_from_s3_json,
@@ -81,7 +81,7 @@ def wrapped_email_test(request):
         'SITE_ORIGIN': settings.SITE_ORIGIN,
         'has_attachment': bool(attachments),
         'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
-        'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK
+        'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK,
     }
     return render(request, 'emails/wrapped_email.html', test_email_context)
 
@@ -93,13 +93,11 @@ def index(request):
         request_data = get_post_data_from_request(request)
     except JSONDecodeError:
         return HttpResponse("Could not process request.", status=422)
-    is_validated_create = (
-        request_data.get('method_override', None) is None and
-        request_data.get("api_token", False)
-    )
-    is_validated_user = (
-        request.user.is_authenticated and
-        request_data.get("api_token", False)
+    is_validated_create = request_data.get(
+        'method_override', None
+    ) is None and request_data.get("api_token", False)
+    is_validated_user = request.user.is_authenticated and request_data.get(
+        "api_token", False
     )
     if is_validated_create:
         return _index_POST(request)
@@ -139,9 +137,7 @@ def _index_POST(request):
     incr_if_enabled('emails_index_post', 1)
 
     with transaction.atomic():
-        locked_profile = Profile.objects.select_for_update().get(
-            user=user_profile.user
-        )
+        locked_profile = Profile.objects.select_for_update().get(user=user_profile.user)
         try:
             relay_address = RelayAddress.objects.create(
                 user=locked_profile.user,
@@ -150,19 +146,19 @@ def _index_POST(request):
             if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
                 # add-on request
                 return HttpResponse(e.message, status=402)
-            messages.error(
-                request,
-                e.message
-            )
+            messages.error(request, e.message)
             return redirect('profile')
 
     if settings.SITE_ORIGIN not in request.headers.get('Origin', ''):
-        return JsonResponse({
-            'id': relay_address.id,
-            'address': relay_address.full_address,
-            'domain': relay_address.domain_value,
-            'local_portion': relay_address.address
-        }, status=201)
+        return JsonResponse(
+            {
+                'id': relay_address.id,
+                'address': relay_address.full_address,
+                'domain': relay_address.domain_value,
+                'local_portion': relay_address.address,
+            },
+            status=201,
+        )
 
     return redirect('profile')
 
@@ -170,13 +166,11 @@ def _index_POST(request):
 def _get_address_from_id(request_data, user_profile):
     if request_data.get('relay_address_id', False):
         relay_address = RelayAddress.objects.get(
-            id=request_data['relay_address_id'],
-            user=user_profile.user
+            id=request_data['relay_address_id'], user=user_profile.user
         )
         return relay_address
     domain_address = DomainAddress.objects.get(
-        id=request_data['domain_address_id'],
-        user=user_profile.user
+        id=request_data['domain_address_id'], user=user_profile.user
     )
     return domain_address
 
@@ -256,7 +250,7 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
     if message_type == 'SubscriptionConfirmation':
         info_logger.info(
             'SNS SubscriptionConfirmation',
-            extra={'SubscribeURL': json_body['SubscribeURL']}
+            extra={'SubscribeURL': json_body['SubscribeURL']},
         )
         return HttpResponse('Logged SubscribeURL', status=200)
     if message_type == 'Notification':
@@ -265,16 +259,15 @@ def _sns_inbound_logic(topic_arn, message_type, json_body):
 
     logger.error(
         'SNS message type did not fall under the SNS inbound logic',
-        extra={'message_type': shlex.quote(message_type)}
+        extra={'message_type': shlex.quote(message_type)},
     )
     capture_message(
         'Received SNS message with type not handled in inbound log',
         level="error",
-        stack=True
+        stack=True,
     )
     return HttpResponse(
-        'Received SNS message with type not handled in inbound log',
-        status=400
+        'Received SNS message with type not handled in inbound log', status=400
     )
 
 
@@ -286,17 +279,11 @@ def _sns_notification(json_body):
             "SNS notification has non-JSON message body",
             extra={"content": shlex.quote(json_body['Message'])},
         )
-        return HttpResponse(
-            "Received SNS notification with non-JSON body",
-            status=400
-        )
+        return HttpResponse("Received SNS notification with non-JSON body", status=400)
 
     event_type = message_json.get('eventType')
     notification_type = message_json.get('notificationType')
-    if (
-        notification_type not in['Received', 'Bounce'] and
-        event_type != 'Bounce'
-    ):
+    if notification_type not in ['Received', 'Bounce'] and event_type != 'Bounce':
         logger.error(
             'SNS notification for unsupported type',
             extra={
@@ -306,9 +293,9 @@ def _sns_notification(json_body):
             },
         )
         return HttpResponse(
-            'Received SNS notification for unsupported Type: %s' %
-            html.escape(shlex.quote(notification_type)),
-            status=400
+            'Received SNS notification for unsupported Type: %s'
+            % html.escape(shlex.quote(notification_type)),
+            status=400,
         )
     response = _sns_message(message_json)
     bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
@@ -336,9 +323,7 @@ def _get_relay_recipient_from_message_json(message_json):
     common_headers = message_json['mail']['commonHeaders']
     for header in headers_to_check:
         if header in common_headers:
-            recipient = _get_recipient_with_relay_domain(
-                common_headers[header]
-            )
+            recipient = _get_recipient_with_relay_domain(common_headers[header])
             if recipient is not None:
                 return parseaddr(recipient)[1]
 
@@ -357,8 +342,7 @@ def _sns_message(message_json):
     if 'commonHeaders' not in mail:
         logger.error('SNS message without commonHeaders')
         return HttpResponse(
-            'Received SNS notification without commonHeaders.',
-            status=400
+            'Received SNS notification without commonHeaders.', status=400
         )
     common_headers = mail['commonHeaders']
     receipt = message_json['receipt']
@@ -385,8 +369,14 @@ def _sns_message(message_json):
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
         address = _get_address(to_address, to_local_portion, to_domain_portion)
-        user_profile = address.user.profile_set.prefetch_related('user__socialaccount_set').first()
-    except (ObjectDoesNotExist, CannotMakeAddressException, DeletedAddress.MultipleObjectsReturned):
+        user_profile = address.user.profile_set.prefetch_related(
+            'user__socialaccount_set'
+        ).first()
+    except (
+        ObjectDoesNotExist,
+        CannotMakeAddressException,
+        DeletedAddress.MultipleObjectsReturned,
+    ):
         if to_local_portion == 'replies':
             response = _handle_reply(from_address, message_json, to_address)
         else:
@@ -395,8 +385,7 @@ def _sns_message(message_json):
 
     _record_receipt_verdicts(receipt, 'valid_user')
     # if this is spam and the user is set to auto-block spam, early return
-    if (user_profile.auto_block_spam and
-        _get_verdict(receipt, 'spam') == 'FAIL'):
+    if user_profile.auto_block_spam and _get_verdict(receipt, 'spam') == 'FAIL':
         incr_if_enabled('email_auto_suppressed_for_spam', 1)
         return HttpResponse("Address rejects spam.")
 
@@ -415,9 +404,7 @@ def _sns_message(message_json):
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record):
             # TODO: Add metrics
-            return HttpResponse(
-                "Relay replies require a premium account", status=403
-            )
+            return HttpResponse("Relay replies require a premium account", status=403)
     except (InReplyToNotFound, Reply.DoesNotExist):
         # if there's no In-Reply-To header, or the In-Reply-To value doesn't
         # match a Reply record, continue to treat this as a regular email from
@@ -483,18 +470,21 @@ def _sns_message(message_json):
                 + f'strict-found={strict_count}&'
                 + f'control={control}'
             )
-        
-        wrapped_html = render_to_string('emails/wrapped_email.html', {
-            'original_html': html_content,
-            'recipient_profile': user_profile,
-            'email_to': to_address,
-            'email_tracker_study_link': email_tracker_study_link,
-            'display_email': display_email,
-            'SITE_ORIGIN': settings.SITE_ORIGIN,
-            'has_attachment': bool(attachments),
-            'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
-            'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK
-        })
+
+        wrapped_html = render_to_string(
+            'emails/wrapped_email.html',
+            {
+                'original_html': html_content,
+                'recipient_profile': user_profile,
+                'email_to': to_address,
+                'email_tracker_study_link': email_tracker_study_link,
+                'display_email': display_email,
+                'SITE_ORIGIN': settings.SITE_ORIGIN,
+                'has_attachment': bool(attachments),
+                'survey_text': settings.RECRUITMENT_EMAIL_BANNER_TEXT,
+                'survey_link': settings.RECRUITMENT_EMAIL_BANNER_LINK,
+            },
+        )
         message_body['Html'] = {'Charset': 'UTF-8', 'Data': wrapped_html}
 
     if text_content:
@@ -508,27 +498,28 @@ def _sns_message(message_json):
             '{alias}. To stop receiving emails sent to this alias, '
             'update the forwarding settings in your dashboard.\n'
             '{extra_msg}---Begin Email---\n'
-        ).format(
-            alias=to_address, extra_msg=attachment_msg
-        )
+        ).format(alias=to_address, extra_msg=attachment_msg)
         wrapped_text = relay_header_text + text_content
         message_body['Text'] = {'Charset': 'UTF-8', 'Data': wrapped_text}
 
     to_address = user_profile.user.email
     formatted_from_address = generate_relay_From(from_address, user_profile)
     response = ses_relay_email(
-        formatted_from_address, to_address, subject,
-        message_body, attachments, mail, address
+        formatted_from_address,
+        to_address,
+        subject,
+        message_body,
+        attachments,
+        mail,
+        address,
     )
     if response.status_code == 503:
         # early return the response to trigger SNS to re-attempt
         return response
-    
+
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
-    address.save(
-        update_fields=['num_forwarded', 'last_used_at']
-    )
+    address.save(update_fields=['num_forwarded', 'last_used_at'])
     return response
 
 
@@ -549,9 +540,7 @@ def _record_receipt_verdicts(receipt, state):
         if key.endswith('Verdict'):
             value = value['status']
             verdict_tags.append(f'{key}:{value}')
-            incr_if_enabled(
-                f'relay.emails.verdicts.{key}', 1, [f'state:{state}']
-            )
+            incr_if_enabled(f'relay.emails.verdicts.{key}', 1, [f'state:{state}'])
     incr_if_enabled(f'relay.emails.state.{state}', 1, verdict_tags)
 
 
@@ -582,9 +571,8 @@ def _reply_allowed(from_address, to_address, reply_record):
     stripped_from_address = _strip_localpart_tag(from_address)
     reply_record_email = reply_record.address.user.email
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
-    if (
-        (from_address == reply_record_email) or
-        (stripped_from_address == stripped_reply_record_address)
+    if (from_address == reply_record_email) or (
+        stripped_from_address == stripped_reply_record_address
     ):
         # This is a Relay user replying to an external sender;
         # verify they are premium
@@ -598,9 +586,7 @@ def _reply_allowed(from_address, to_address, reply_record):
         # premium Relay user
         try:
             [to_local_portion, to_domain_portion] = to_address.split('@')
-            address = _get_address(
-                to_address, to_local_portion, to_domain_portion
-            )
+            address = _get_address(to_address, to_local_portion, to_domain_portion)
             user_profile = address.user.profile_set.first()
             if user_profile.has_premium:
                 return True
@@ -617,19 +603,15 @@ def _handle_reply(from_address, message_json, to_address):
     address = reply_record.address
 
     if not _reply_allowed(from_address, to_address, reply_record):
-        return HttpResponse(
-            "Rely replies require a premium account", status=403
-        )
+        return HttpResponse("Rely replies require a premium account", status=403)
 
     outbound_from_address = address.full_address
-    decrypted_metadata = json.loads(decrypt_reply_metadata(
-        encryption_key, reply_record.encrypted_metadata
-    ))
+    decrypted_metadata = json.loads(
+        decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
+    )
     incr_if_enabled('reply_email', 1)
     subject = mail['commonHeaders'].get('subject', '')
-    to_address = (
-        decrypted_metadata.get('reply-to') or decrypted_metadata.get('from')
-    )
+    to_address = decrypted_metadata.get('reply-to') or decrypted_metadata.get('from')
 
     try:
         text_content, html_content, attachments = _get_text_html_attachments(
@@ -659,13 +641,11 @@ def _handle_reply(from_address, message_json, to_address):
             attachments,
             outbound_from_address,
             mail,
-            address
+            address,
         )
         address.num_forwarded += 1
         address.last_used_at = datetime.now(timezone.utc)
-        address.save(
-            update_fields=['num_forwarded', 'last_used_at']
-        )
+        address.save(update_fields=['num_forwarded', 'last_used_at'])
         profile = address.user.profile_set.first()
         profile.update_abuse_metric(replied=True)
         return response
@@ -715,7 +695,9 @@ def _get_address(to_address, local_portion, domain_portion):
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
         domain_numerical = get_domain_numerical(domain_portion)
-        relay_address = RelayAddress.objects.get(address=local_portion, domain=domain_numerical)
+        relay_address = RelayAddress.objects.get(
+            address=local_portion, domain=domain_numerical
+        )
         return relay_address
     except RelayAddress.DoesNotExist as e:
         try:
@@ -743,8 +725,7 @@ def _handle_bounce(message_json):
         recipient_address = parseaddr(recipient_address)[1]
         recipient_domain = recipient_address.split('@')[1]
         info_logger.info(
-            f'bounced recipient domain: {recipient_domain}',
-            extra=recipient
+            f'bounced recipient domain: {recipient_domain}', extra=recipient
         )
         try:
             user = User.objects.get(email=recipient_address)
@@ -756,14 +737,13 @@ def _handle_bounce(message_json):
             return HttpResponse("Address does not exist", status=404)
         now = datetime.now(timezone.utc)
         incr_if_enabled(
-            'email_bounce_%s_%s' % (
-                bounce.get('bounceType'), bounce.get('bounceSubType')
-            ),
-            1
+            'email_bounce_%s_%s'
+            % (bounce.get('bounceType'), bounce.get('bounceSubType')),
+            1,
         )
         # if an email bounced as spam, set to auto block spam for this user
         # and DON'T set them into bounce pause state
-        if (any('spam' in val.lower() for val in recipient.values())):
+        if any('spam' in val.lower() for val in recipient.values()):
             profile.auto_block_spam = True
             profile.save()
             continue
@@ -785,16 +765,11 @@ def _get_text_html_attachments(message_json):
         # assume email content in S3
         bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
         message_content = get_message_content_from_s3(bucket, object_key)
-        histogram_if_enabled(
-            'relayed_email.size',
-            len(message_content)
-        )
+        histogram_if_enabled('relayed_email.size', len(message_content))
 
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
-    text_content, html_content, attachments = _get_all_contents(
-        bytes_email_message
-    )
+    text_content, html_content, attachments = _get_all_contents(bytes_email_message)
     return text_content, html_content, attachments
 
 
@@ -814,12 +789,11 @@ def _get_attachment(part):
     histogram_if_enabled(
         'attachment.size',
         payload_size,
-        [attachment_extension_tag, attachment_content_type_tag]
+        [attachment_extension_tag, attachment_content_type_tag],
     )
 
     attachment = SpooledTemporaryFile(
-        max_size=150*1000,  # 150KB max from SES
-        prefix="relay_attachment_"
+        max_size=150 * 1000, prefix="relay_attachment_"  # 150KB max from SES
     )
     attachment.write(payload)
     return fn, attachment
@@ -833,9 +807,7 @@ def _get_all_contents(email_message):
         for part in email_message.walk():
             try:
                 if part.is_attachment():
-                    att_name, att = (
-                        _get_attachment(part)
-                    )
+                    att_name, att = _get_attachment(part)
                     attachments.append((att_name, att))
                     continue
                 if part.get_content_type() == 'text/plain':
@@ -845,12 +817,9 @@ def _get_all_contents(email_message):
             except KeyError:
                 # log the un-handled content type but don't stop processing
                 logger.error(
-                    'part.get_content()',
-                    extra={'type': part.get_content_type()}
+                    'part.get_content()', extra={'type': part.get_content_type()}
                 )
-        histogram_if_enabled(
-            'attachment.count_per_email', len(attachments)
-        )
+        histogram_if_enabled('attachment.count_per_email', len(attachments))
         if text_content is not None and html_content is None:
             html_content = urlize_and_linebreaks(text_content)
     else:

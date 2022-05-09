@@ -13,8 +13,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='RegisteredSubdomain',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('subdomain_hash', models.CharField(db_index=True, max_length=64, unique=True)),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
+                (
+                    'subdomain_hash',
+                    models.CharField(db_index=True, max_length=64, unique=True),
+                ),
                 ('registered_at', models.DateTimeField(auto_now_add=True)),
             ],
         ),

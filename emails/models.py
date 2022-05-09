@@ -35,13 +35,10 @@ ACCOUNT_PAUSED_ERR_MSG = 'Your account is on pause.'
 def get_domains_from_settings():
     # HACK: detect if code is running in django tests
     if 'testserver' in settings.ALLOWED_HOSTS:
-        return {
-            'RELAY_FIREFOX_DOMAIN': 'default.com',
-            'MOZMAIL_DOMAIN': 'test.com'
-        }
+        return {'RELAY_FIREFOX_DOMAIN': 'default.com', 'MOZMAIL_DOMAIN': 'test.com'}
     return {
         'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
-        'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN
+        'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN,
     }
 
 
@@ -61,9 +58,12 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     #   can't have "blocked" words in them
     blocked_word = is_blocklisted(subdomain)
     #   can't be taken by someone else
-    taken = RegisteredSubdomain.objects.filter(
-        subdomain_hash=hash_subdomain(subdomain)
-    ).count() > 0
+    taken = (
+        RegisteredSubdomain.objects.filter(
+            subdomain_hash=hash_subdomain(subdomain)
+        ).count()
+        > 0
+    )
     if not valid or bad_word or blocked_word or taken:
         raise CannotMakeSubdomainException('error-subdomain-not-available')
     return True
@@ -85,27 +85,21 @@ class Profile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
     num_address_deleted = models.PositiveIntegerField(default=0)
-    date_subscribed = models.DateTimeField(
-        blank=True, null=True
-    )
-    address_last_deleted = models.DateTimeField(
-        blank=True, null=True, db_index=True
-    )
-    last_soft_bounce = models.DateTimeField(
-        blank=True, null=True, db_index=True
-    )
-    last_hard_bounce = models.DateTimeField(
-        blank=True, null=True, db_index=True
-    )
-    last_account_flagged = models.DateTimeField(
-        blank=True, null=True, db_index=True
-    )
+    date_subscribed = models.DateTimeField(blank=True, null=True)
+    address_last_deleted = models.DateTimeField(blank=True, null=True, db_index=True)
+    last_soft_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
+    last_hard_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
+    last_account_flagged = models.DateTimeField(blank=True, null=True, db_index=True)
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
     subdomain = models.CharField(
-        blank=True, null=True, unique=True, max_length=63, db_index=True,
-        validators=[valid_available_subdomain]
+        blank=True,
+        null=True,
+        unique=True,
+        max_length=63,
+        db_index=True,
+        validators=[valid_available_subdomain],
     )
     server_storage = models.BooleanField(default=default_server_storage)
     onboarding_state = models.PositiveIntegerField(default=0)
@@ -148,14 +142,12 @@ class Profile(models.Model):
     @property
     def fxa_locale_in_premium_country(self):
         if self.fxa.extra_data.get('locale'):
-            accept_langs = parse_accept_lang_header(
-                self.fxa.extra_data.get('locale')
-            )
+            accept_langs = parse_accept_lang_header(self.fxa.extra_data.get('locale'))
             if (
-                len(accept_langs) >= 1 and
-                len(accept_langs[0][0].split('-')) >= 2 and
-                accept_langs[0][0].split('-')[1]
-                    in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+                len(accept_langs) >= 1
+                and len(accept_langs[0][0].split('-')) >= 2
+                and accept_langs[0][0].split('-')[1]
+                in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
             # If a language but no country is known, check if there's a country
@@ -163,10 +155,11 @@ class Profile(models.Model):
             # (For example, if the locale is just the language code `fr` rather than
             # `fr-fr`, it will still match country code `fr`.)
             if (
-                len(accept_langs) >= 1 and
-                len(accept_langs[0][0].split('-')) == 1 and
-                accept_langs[0][0].split('-')[0]
-                    in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()):
+                len(accept_langs) >= 1
+                and len(accept_langs[0][0].split('-')) == 1
+                and accept_langs[0][0].split('-')[0]
+                in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+            ):
                 return True
         return False
 
@@ -184,28 +177,22 @@ class Profile(models.Model):
         # TODO: Remove cached_property, to avoid cache invalidation
         return DomainAddress.objects.filter(user=self.user)
 
-
     @property
     def num_active_address(self):
-        return (
-            len(self.relay_addresses) +
-            len(self.domain_addresses)
-        )
+        return len(self.relay_addresses) + len(self.domain_addresses)
 
     def check_bounce_pause(self):
         if self.last_hard_bounce:
-            last_hard_bounce_allowed = (
-                datetime.now(timezone.utc) -
-                timedelta(days=settings.HARD_BOUNCE_ALLOWED_DAYS)
+            last_hard_bounce_allowed = datetime.now(timezone.utc) - timedelta(
+                days=settings.HARD_BOUNCE_ALLOWED_DAYS
             )
             if self.last_hard_bounce > last_hard_bounce_allowed:
                 return BounceStatus(True, 'hard')
             self.last_hard_bounce = None
             self.save()
         if self.last_soft_bounce:
-            last_soft_bounce_allowed = (
-                datetime.now(timezone.utc) -
-                timedelta(days=settings.SOFT_BOUNCE_ALLOWED_DAYS)
+            last_soft_bounce_allowed = datetime.now(timezone.utc) - timedelta(
+                days=settings.SOFT_BOUNCE_ALLOWED_DAYS
             )
             if self.last_soft_bounce > last_soft_bounce_allowed:
                 return BounceStatus(True, 'soft')
@@ -229,9 +216,7 @@ class Profile(models.Model):
                 days=settings.SOFT_BOUNCE_ALLOWED_DAYS
             )
 
-        return self.last_hard_bounce + timedelta(
-            days=settings.HARD_BOUNCE_ALLOWED_DAYS
-        )
+        return self.last_hard_bounce + timedelta(days=settings.HARD_BOUNCE_ALLOWED_DAYS)
 
     @property
     def last_bounce_date(self):
@@ -284,17 +269,17 @@ class Profile(models.Model):
     @property
     def emails_forwarded(self):
         return (
-            sum(ra.num_forwarded for ra in self.relay_addresses) +
-            sum(da.num_forwarded for da in self.domain_addresses) +
-            self.num_email_forwarded_in_deleted_address
+            sum(ra.num_forwarded for ra in self.relay_addresses)
+            + sum(da.num_forwarded for da in self.domain_addresses)
+            + self.num_email_forwarded_in_deleted_address
         )
 
     @property
     def emails_blocked(self):
         return (
-            sum(ra.num_blocked for ra in self.relay_addresses) +
-            sum(da.num_blocked for da in self.domain_addresses) +
-            self.num_email_blocked_in_deleted_address
+            sum(ra.num_blocked for ra in self.relay_addresses)
+            + sum(da.num_blocked for da in self.domain_addresses)
+            + self.num_email_blocked_in_deleted_address
         )
 
     @property
@@ -324,7 +309,8 @@ class Profile(models.Model):
         ).astimezone(timezone.utc)
         midnight_utc_tomorow = midnight_utc_today + timedelta(days=1)
         abuse_metric = self.user.abusemetrics_set.filter(
-            first_recorded__gte=midnight_utc_today, first_recorded__lt=midnight_utc_tomorow
+            first_recorded__gte=midnight_utc_today,
+            first_recorded__lt=midnight_utc_tomorow,
         ).first()
         if not abuse_metric:
             abuse_metric = AbuseMetrics.objects.create(user=self.user)
@@ -342,9 +328,12 @@ class Profile(models.Model):
         hit_max_create = False
         hit_max_replies = False
         hit_max_create = (
-            abuse_metric.num_address_created_per_day >= settings.MAX_ADDRESS_CREATION_PER_DAY
+            abuse_metric.num_address_created_per_day
+            >= settings.MAX_ADDRESS_CREATION_PER_DAY
         )
-        hit_max_replies = abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
+        hit_max_replies = (
+            abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
+        )
         if hit_max_create or hit_max_replies:
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
@@ -352,7 +341,7 @@ class Profile(models.Model):
                 'uid': self.fxa.uid,
                 'flagged': self.last_account_flagged.timestamp(),
                 'replies': abuse_metric.num_replies_per_day,
-                'addresses': abuse_metric.num_address_created_per_day
+                'addresses': abuse_metric.num_address_created_per_day,
             }
             # log for further secops review
             abuse_logger.info('Abuse flagged', extra=data)
@@ -362,9 +351,8 @@ class Profile(models.Model):
     def is_flagged(self):
         if not self.last_account_flagged:
             return False
-        account_premium_feature_resumed = (
-            self.last_account_flagged +
-            timedelta(days=settings.PREMIUM_FEATURE_PAUSED_DAYS)
+        account_premium_feature_resumed = self.last_account_flagged + timedelta(
+            days=settings.PREMIUM_FEATURE_PAUSED_DAYS
         )
         if datetime.now(timezone.utc) > account_premium_feature_resumed:
             # premium feature has been resumed
@@ -389,16 +377,10 @@ def address_hash(address, subdomain=None, domain=None):
     if not domain:
         domain = get_domains_from_settings()['MOZMAIL_DOMAIN']
     if subdomain:
-        return sha256(
-            f'{address}@{subdomain}.{domain}'.encode('utf-8')
-        ).hexdigest()
+        return sha256(f'{address}@{subdomain}.{domain}'.encode('utf-8')).hexdigest()
     if domain == settings.RELAY_FIREFOX_DOMAIN:
-        return sha256(
-            f'{address}'.encode('utf-8')
-        ).hexdigest()
-    return sha256(
-        f'{address}@{domain}'.encode('utf-8')
-    ).hexdigest()
+        return sha256(f'{address}'.encode('utf-8')).hexdigest()
+    return sha256(f'{address}@{domain}'.encode('utf-8')).hexdigest()
 
 
 def address_default():
@@ -416,10 +398,7 @@ def has_bad_words(value):
 
 
 def is_blocklisted(value):
-    return any(
-        blockedword == value
-        for blockedword in emails_config.blocklist
-    )
+    return any(blockedword == value for blockedword in emails_config.blocklist)
 
 
 def get_domain_numerical(domain_address):
@@ -436,9 +415,7 @@ def get_domain_numerical(domain_address):
 
 
 def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
-    return sha256(
-        f'{subdomain}.{domain}'.encode('utf-8')
-    ).hexdigest()
+    return sha256(f'{subdomain}.{domain}'.encode('utf-8')).hexdigest()
 
 
 class RegisteredSubdomain(models.Model):
@@ -478,9 +455,7 @@ class CannotMakeAddressException(SuspiciousOperation):
 class RelayAddress(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address = models.CharField(
-        max_length=64, default=address_default, unique=True
-    )
+    address = models.CharField(max_length=64, default=address_default, unique=True)
     domain = models.PositiveSmallIntegerField(
         choices=DOMAIN_CHOICES, default=default_domain_numerical
     )
@@ -540,14 +515,10 @@ class RelayAddress(models.Model):
 def check_user_can_make_another_address(user):
     user_profile = user.profile_set.first()
     if user_profile.is_flagged:
-        raise CannotMakeAddressException(
-            ACCOUNT_PAUSED_ERR_MSG
-        )
-    if (user_profile.at_max_free_aliases and not user_profile.has_premium):
+        raise CannotMakeAddressException(ACCOUNT_PAUSED_ERR_MSG)
+    if user_profile.at_max_free_aliases and not user_profile.has_premium:
         hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
-        raise CannotMakeAddressException(
-            NOT_PREMIUM_USER_ERR_MSG.format(hit_limit)
-        )
+        raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG.format(hit_limit))
 
 
 def valid_address(address, domain):
@@ -557,9 +528,9 @@ def valid_address(address, domain):
         address_hash=address_hash(address, domain=domain)
     ).count()
     if (
-        address_already_deleted > 0 or
-        address_contains_badword or
-        address_is_blocklisted
+        address_already_deleted > 0
+        or address_contains_badword
+        or address_is_blocklisted
     ):
         return False
     return True
@@ -587,14 +558,14 @@ def check_user_can_make_domain_address(user_profile):
         )
 
     if user_profile.is_flagged:
-        raise CannotMakeAddressException(
-            ACCOUNT_PAUSED_ERR_MSG
-        )
+        raise CannotMakeAddressException(ACCOUNT_PAUSED_ERR_MSG)
 
 
 class DomainAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    address = models.CharField(max_length=64, validators=[MinLengthValidator(limit_value=1)])
+    address = models.CharField(
+        max_length=64, validators=[MinLengthValidator(limit_value=1)]
+    )
     enabled = models.BooleanField(default=True)
     description = models.CharField(max_length=64, blank=True)
     domain = models.PositiveSmallIntegerField(choices=DOMAIN_CHOICES, default=2)
@@ -655,7 +626,9 @@ class DomainAddress(models.Model):
     def delete(self, *args, **kwargs):
         # TODO: create hard bounce receipt rule in AWS for the address
         deleted_address = DeletedAddress.objects.create(
-            address_hash=address_hash(self.address, self.user_profile.subdomain, self.domain_value),
+            address_hash=address_hash(
+                self.address, self.user_profile.subdomain, self.domain_value
+            ),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
             num_spam=self.num_spam,
@@ -679,7 +652,9 @@ class DomainAddress(models.Model):
     @property
     def full_address(self):
         return '%s@%s.%s' % (
-            self.address, self.user_profile.subdomain, self.domain_value
+            self.address,
+            self.user_profile.subdomain,
+            self.domain_value,
         )
 
 
@@ -692,9 +667,7 @@ class Reply(models.Model):
     )
     lookup = models.CharField(max_length=255, blank=False, db_index=True)
     encrypted_metadata = models.TextField(blank=False)
-    created_at = models.DateField(
-        auto_now_add=True, null=False, db_index=True
-    )
+    created_at = models.DateField(auto_now_add=True, null=False, db_index=True)
 
     @property
     def address(self):

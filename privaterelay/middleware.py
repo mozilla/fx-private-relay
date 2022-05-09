@@ -10,9 +10,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 
 from allauth.socialaccount.models import SocialToken
-from allauth.socialaccount.providers.fxa.views import (
-    FirefoxAccountsOAuth2Adapter
-)
+from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 
 from .views import _get_oauth2_session, update_social_token
 
@@ -27,9 +25,7 @@ class FxAToRequest:
         if not request.user.is_authenticated:
             return self.get_response(request)
 
-        fxa_account = (
-            request.user.socialaccount_set.filter(provider='fxa').first()
-        )
+        fxa_account = request.user.socialaccount_set.filter(provider='fxa').first()
 
         if not fxa_account:
             return self.get_response(request)
@@ -59,9 +55,7 @@ class RedirectRootIfLoggedIn:
         # To prevent showing a flash of the landing page when a user is logged
         # in, use a server-side redirect to send them to the dashboard,
         # rather than handling that on the client-side:
-        if (request.path == '/' and
-            settings.SESSION_COOKIE_NAME in request.COOKIES
-           ):
+        if request.path == '/' and settings.SESSION_COOKIE_NAME in request.COOKIES:
             return redirect('accounts/profile/')
 
         response = self.get_response(request)
@@ -75,9 +69,7 @@ class AddDetectedCountryToResponseHeaders:
     def __call__(self, request):
         response = self.get_response(request)
         if 'X-Client-Region' in request.headers:
-            response['X-Detected-Client-Region'] = (
-                request.headers['X-Client-Region']
-            )
+            response['X-Detected-Client-Region'] = request.headers['X-Client-Region']
         return response
 
 
@@ -99,13 +91,18 @@ class ResponseMetrics:
 
         view_name = _get_metric_view_name(request)
 
-        metrics.timing('response', value=delta * 1000.0, tags=[
-            f'status:{response.status_code}',
-            f'view:{view_name}',
-            f'method:{request.method}',
-        ])
+        metrics.timing(
+            'response',
+            value=delta * 1000.0,
+            tags=[
+                f'status:{response.status_code}',
+                f'view:{view_name}',
+                f'method:{request.method}',
+            ],
+        )
 
         return response
+
 
 class StoreFirstVisit:
     def __init__(self, get_response):
@@ -114,6 +111,6 @@ class StoreFirstVisit:
     def __call__(self, request):
         response = self.get_response(request)
         first_visit = request.COOKIES.get("first_visit")
-        if (first_visit is None and not request.user.is_anonymous):
+        if first_visit is None and not request.user.is_anonymous:
             response.set_cookie("first_visit", datetime.now(timezone.utc))
         return response

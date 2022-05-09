@@ -11,8 +11,11 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError, DjangoHelpFormatter
 
 
-class RawDescriptionDjangoHelpFormatter(DjangoHelpFormatter, RawDescriptionHelpFormatter):
+class RawDescriptionDjangoHelpFormatter(
+    DjangoHelpFormatter, RawDescriptionHelpFormatter
+):
     """DjangoHelpFormatter, but don't reflow the epilog."""
+
     pass
 
 

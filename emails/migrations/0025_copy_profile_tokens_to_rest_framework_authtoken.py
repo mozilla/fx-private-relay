@@ -17,6 +17,4 @@ class Migration(migrations.Migration):
         ('authtoken', '0003_tokenproxy'),
     ]
 
-    operations = [
-        migrations.RunPython(copy_profile_tokens_to_rest_framework_authtoken)
-    ]
+    operations = [migrations.RunPython(copy_profile_tokens_to_rest_framework_authtoken)]

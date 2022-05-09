@@ -15,15 +15,15 @@ class UpdateExtraDataAndEmailTest(TestCase):
         user = baker.make(User)
         ea = baker.make(EmailAddress, user=user)
         sa = baker.make(
-            SocialAccount, user=user, provider='fxa',
-            extra_data=json.loads('{"test": "test"}')
+            SocialAccount,
+            user=user,
+            provider='fxa',
+            extra_data=json.loads('{"test": "test"}'),
         )
         new_extra_data = json.loads('{"test": "updated"}')
         new_email = 'newemail@example.com'
 
-        response = _update_all_data(
-            sa, new_extra_data, new_email
-        )
+        response = _update_all_data(sa, new_extra_data, new_email)
 
         assert response.status_code == 202
 
@@ -34,24 +34,22 @@ class UpdateExtraDataAndEmailTest(TestCase):
         assert ea.email == new_email
 
     def test_update_all_data_conflict(self):
-        extra_data=json.loads('{"test": "test"}')
+        extra_data = json.loads('{"test": "test"}')
 
         user = baker.make(User, email='user@example.com')
         baker.make(EmailAddress, user=user, email='user@example.com')
-        baker.make(SocialAccount, user=user, provider='fxa',
-                   extra_data=extra_data)
+        baker.make(SocialAccount, user=user, provider='fxa', extra_data=extra_data)
 
         user2 = baker.make(User, email='user2@example.com')
         ea2 = baker.make(EmailAddress, user=user2, email='user2@example.com')
-        sa2 = baker.make(SocialAccount, user=user2, provider='fxa',
-                         extra_data=extra_data)
+        sa2 = baker.make(
+            SocialAccount, user=user2, provider='fxa', extra_data=extra_data
+        )
 
         new_extra_data = json.loads('{"test": "updated"}')
         new_email = 'user@example.com'
 
-        response = _update_all_data(
-            sa2, new_extra_data, new_email
-        )
+        response = _update_all_data(sa2, new_extra_data, new_email)
 
         assert response.status_code == 409
 

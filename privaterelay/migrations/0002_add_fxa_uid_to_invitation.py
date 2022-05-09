@@ -14,7 +14,15 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='MonitorSubscriber',
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    'id',
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name='ID',
+                    ),
+                ),
                 ('primary_email', models.CharField(max_length=255)),
                 ('waitlists_joined', fields.jsonb.JSONField()),
             ],

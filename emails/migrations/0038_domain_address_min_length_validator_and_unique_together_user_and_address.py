@@ -14,7 +14,10 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='domainaddress',
             name='address',
-            field=models.CharField(max_length=64, validators=[django.core.validators.MinLengthValidator(limit_value=1)]),
+            field=models.CharField(
+                max_length=64,
+                validators=[django.core.validators.MinLengthValidator(limit_value=1)],
+            ),
         ),
         migrations.AlterUniqueTogether(
             name='domainaddress',

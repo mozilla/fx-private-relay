@@ -1,16 +1,18 @@
 from django.contrib import admin
 
 from .models import (
-    DeletedAddress, DomainAddress, Profile, RegisteredSubdomain,
-    RelayAddress, Reply
+    DeletedAddress,
+    DomainAddress,
+    Profile,
+    RegisteredSubdomain,
+    RelayAddress,
+    Reply,
 )
 
 
 class ReplyAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
-    list_display = (
-        'relay_address', 'domain_address', 'created_at'
-    )
+    list_display = ('relay_address', 'domain_address', 'created_at')
 
 
 admin.site.register(DeletedAddress)

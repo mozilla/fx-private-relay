@@ -14,6 +14,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='relayaddress',
             name='domain',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')], default=emails.models.default_domain_numerical),
+            field=models.PositiveSmallIntegerField(
+                choices=[(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')],
+                default=emails.models.default_domain_numerical,
+            ),
         ),
     ]
