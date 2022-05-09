@@ -4,7 +4,7 @@ python_version = "3.9"
 show_error_codes = true
 warn_return_any = true
 warn_unused_configs = true
-# TODO: Try re-enabling with Django 3.2
+# TODO: Try re-enabling with django-stubs>1.10.1
 # warn_unused_ignores = true
 
 [tool.django-stubs]
