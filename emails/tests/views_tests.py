@@ -22,6 +22,7 @@ from emails.models import (
     DomainAddress,
     Profile,
     RelayAddress,
+    Reply,
 )
 from emails.views import (
     _get_address,
@@ -29,6 +30,7 @@ from emails.views import (
     _sns_message,
     _sns_notification,
     validate_sns_header,
+    InReplyToNotFound,
 )
 
 from .models_tests import make_premium_test_user, upgrade_test_user_to_premium
@@ -350,6 +352,63 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 200
         assert response.content == b"noreply address is not supported."
+
+    @patch("emails.views.remove_message_from_s3")
+    @patch("emails.views._get_keys_from_headers")
+    def test_no_header_reply_email_in_s3_deleted(
+        self, mocked_get_keys, mocked_message_removed
+    ):
+        """If replies@... email has no "In-Reply-To" header, delete email, return 400."""
+        mocked_get_keys.side_effect = InReplyToNotFound()
+
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        mocked_get_keys.assert_called_once()
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 400
+
+    @patch("emails.views.remove_message_from_s3")
+    def test_no_header_reply_email_not_in_s3_deleted_ignored(
+        self, mocked_message_removed
+    ):
+        """If replies@... email has no "In-Reply-To" header, return 400"""
+        sns_msg = EMAIL_SNS_BODIES["replies"]
+        email_data = json.loads(sns_msg["Message"])
+        header_names = [
+            entry["name"].lower() for entry in email_data["mail"]["headers"]
+        ]
+        assert "in-reply-to" not in header_names
+
+        response = _sns_notification(sns_msg)
+        mocked_message_removed.assert_called_once_with(None, None)
+        assert response.status_code == 400
+
+    @patch("emails.views.remove_message_from_s3")
+    @patch("emails.views._get_reply_record_from_lookup_key")
+    def test_no_reply_record_reply_email_in_s3_deleted(
+        self, mocked_get_record, mocked_message_removed
+    ):
+        """If no DB match for In-Reply-To header, delete email, return 404."""
+        mocked_get_record.side_effect = Reply.DoesNotExist()
+
+        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        mocked_get_record.assert_called_once()
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 404
+
+    @patch("emails.views.remove_message_from_s3")
+    @patch("emails.views._get_keys_from_headers")
+    @patch("emails.views._get_reply_record_from_lookup_key")
+    def test_no_reply_record_reply_email_not_in_s3_deleted_ignored(
+        self, mocked_get_record, mocked_get_keys, mocked_message_removed
+    ):
+        """If no DB match for In-Reply-To header, return 404."""
+        mocked_get_keys.return_value = ("lookup", "encryption")
+        mocked_get_record.side_effect = Reply.DoesNotExist()
+
+        response = _sns_notification(EMAIL_SNS_BODIES["replies"])
+        mocked_get_record.assert_called_once()
+        mocked_message_removed.assert_called_once_with(None, None)
+        assert response.status_code == 404
 
 
 class SNSNotificationInvalidMessageTest(TestCase):
