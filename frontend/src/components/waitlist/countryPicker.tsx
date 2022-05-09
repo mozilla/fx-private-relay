@@ -54,9 +54,21 @@ async function importTerritories(locale: string): Promise<LocaleDisplayNames> {
     );
     return territories.main[locale].localeDisplayNames.territories;
   } catch (_e) {
-    const territoriesEn = await import(
-      "cldr-localenames-modern/main/en/territories.json"
-    );
-    return territoriesEn.main.en.localeDisplayNames.territories;
+    try {
+      // cldr-localenames-modern doesn't include suffixed locale codes for
+      // locales in their main territory (i.e. it only has `es`, not `es-ES`, or
+      // `nl` but not `nl-NL`, or `sv` but not `sv-SE`), so try loading a
+      // truncated version if the full version was not found:
+      const truncatedLocale = locale.split("-")[0];
+      const territories: Territories = await import(
+        `cldr-localenames-modern/main/${truncatedLocale}/territories.json`
+      );
+      return territories.main[truncatedLocale].localeDisplayNames.territories;
+    } catch (_e) {
+      const territoriesEn = await import(
+        "cldr-localenames-modern/main/en/territories.json"
+      );
+      return territoriesEn.main.en.localeDisplayNames.territories;
+    }
   }
 }
