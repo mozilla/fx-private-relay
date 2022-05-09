@@ -43,5 +43,7 @@ module = [
     "twilio.rest",
     "twilio.twiml.messaging_response",
     "waffle",
+    "waffle.models",
+    "waffle.testutils",
 ]
 ignore_missing_imports = true
