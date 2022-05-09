@@ -192,7 +192,7 @@ const Profile: NextPage = () => {
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
-        <span>{l10n.getString("profile-label-domain")}</span>
+        <span>{l10n.getString("profile-label-subdomain")}</span>
         <span className={styles["profile-registered-domain-value"]}>
           <SubdomainIndicator
             subdomain={profile.subdomain}
