@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0036_profile_add_index_on_last_account_flagged'),
+        ("emails", "0036_profile_add_index_on_last_account_flagged"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reply',
-            name='created_at',
+            model_name="reply",
+            name="created_at",
             field=models.DateField(auto_now_add=True, db_index=True),
         ),
     ]

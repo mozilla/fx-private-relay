@@ -4,8 +4,8 @@ from django.db import migrations
 
 
 def copy_profile_tokens_to_rest_framework_authtoken(apps, schema_editor):
-    Profile = apps.get_model('emails', 'Profile')
-    Token = apps.get_model('authtoken', 'Token')
+    Profile = apps.get_model("emails", "Profile")
+    Token = apps.get_model("authtoken", "Token")
     for profile in Profile.objects.all():
         Token.objects.create(user=profile.user, key=profile.api_token)
 
@@ -13,10 +13,8 @@ def copy_profile_tokens_to_rest_framework_authtoken(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0024_increase_subdomain_length'),
-        ('authtoken', '0003_tokenproxy'),
+        ("emails", "0024_increase_subdomain_length"),
+        ("authtoken", "0003_tokenproxy"),
     ]
 
-    operations = [
-        migrations.RunPython(copy_profile_tokens_to_rest_framework_authtoken)
-    ]
+    operations = [migrations.RunPython(copy_profile_tokens_to_rest_framework_authtoken)]

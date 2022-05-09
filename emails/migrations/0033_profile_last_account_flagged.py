@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0032_abusemetrics'),
+        ("emails", "0032_abusemetrics"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='last_account_flagged',
+            model_name="profile",
+            name="last_account_flagged",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

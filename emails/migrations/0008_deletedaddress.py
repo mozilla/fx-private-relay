@@ -6,15 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0007_auto_20200310_2203'),
+        ("emails", "0007_auto_20200310_2203"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='DeletedAddress',
+            name="DeletedAddress",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('address_hash', models.CharField(max_length=64)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("address_hash", models.CharField(max_length=64)),
             ],
         ),
     ]

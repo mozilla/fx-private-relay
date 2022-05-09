@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0039_profile_auto_block_spam'),
+        ("emails", "0039_profile_auto_block_spam"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='domainaddress',
-            name='block_list_emails',
+            model_name="domainaddress",
+            name="block_list_emails",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='relayaddress',
-            name='block_list_emails',
+            model_name="relayaddress",
+            name="block_list_emails",
             field=models.BooleanField(default=False),
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0016_domainaddress_first_emailed_at_nullable'),
+        ("emails", "0016_domainaddress_first_emailed_at_nullable"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='domainaddress',
-            name='address',
+            model_name="domainaddress",
+            name="address",
             field=models.CharField(max_length=64),
         ),
     ]

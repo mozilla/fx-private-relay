@@ -7,8 +7,9 @@ from django.conf import settings
 
 ROOT_DIR = os.path.abspath(os.curdir)
 
+
 class PrivateRelayConfig(AppConfig):
-    name = 'privaterelay'
+    name = "privaterelay"
 
     settings.GULP_DEVELOP_COMMAND = ROOT_DIR + "/node_modules/.bin/gulp"
 
@@ -20,9 +21,8 @@ class PrivateRelayConfig(AppConfig):
         import privaterelay.signals
 
         resp = requests.get(
-            '%s/jwks' %
-            settings.SOCIALACCOUNT_PROVIDERS['fxa']['OAUTH_ENDPOINT']
+            "%s/jwks" % settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]
         )
         if resp.status_code == 200:
             resp_json = resp.json()
-            self.fxa_verifying_keys = resp_json['keys']
+            self.fxa_verifying_keys = resp_json["keys"]

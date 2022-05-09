@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0040_add_block_list_emails_fields'),
+        ("emails", "0040_add_block_list_emails_fields"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='relayaddress',
-            name='used_on',
+            model_name="relayaddress",
+            name="used_on",
             field=models.TextField(blank=True, default=None, null=True),
         ),
     ]
