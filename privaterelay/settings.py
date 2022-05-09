@@ -46,52 +46,52 @@ TMP_DIR = os.path.join(BASE_DIR, "tmp")
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # defaulting to blank to be production-broken by default
-SECRET_KEY = config('SECRET_KEY', None, cast=str)
+SECRET_KEY = config("SECRET_KEY", None, cast=str)
 
-ON_HEROKU = config('ON_HEROKU', False, cast=bool)
-DEBUG = config('DEBUG', False, cast=bool)
+ON_HEROKU = config("ON_HEROKU", False, cast=bool)
+DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
-    INTERNAL_IPS = config('DJANGO_INTERNAL_IPS', default=[])
+    INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default=[])
 USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_HOST = config('DJANGO_SECURE_SSL_HOST', None)
-SECURE_SSL_REDIRECT = config('DJANGO_SECURE_SSL_REDIRECT', False)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_HOST = config("DJANGO_SECURE_SSL_HOST", None)
+SECURE_SSL_REDIRECT = config("DJANGO_SECURE_SSL_REDIRECT", False)
 SECURE_REDIRECT_EXEMPT = [
-    r'^__version__',
-    r'^__heartbeat__',
-    r'^__lbheartbeat__',
+    r"^__version__",
+    r"^__heartbeat__",
+    r"^__lbheartbeat__",
 ]
-SECURE_HSTS_SECONDS = config('DJANGO_SECURE_HSTS_SECONDS', None)
-SECURE_BROWSER_XSS_FILTER = config('DJANGO_SECURE_BROWSER_XSS_FILTER', True)
-SESSION_COOKIE_SECURE = config('DJANGO_SESSION_COOKIE_SECURE', False, cast=bool)
-BASKET_ORIGIN = config('BASKET_ORIGIN', 'https://basket.mozilla.org')
+SECURE_HSTS_SECONDS = config("DJANGO_SECURE_HSTS_SECONDS", None)
+SECURE_BROWSER_XSS_FILTER = config("DJANGO_SECURE_BROWSER_XSS_FILTER", True)
+SESSION_COOKIE_SECURE = config("DJANGO_SESSION_COOKIE_SECURE", False, cast=bool)
+BASKET_ORIGIN = config("BASKET_ORIGIN", "https://basket.mozilla.org")
 # maps fxa profile hosts to respective avatar hosts for CSP
 AVATAR_IMG_SRC_MAP = {
-    'https://profile.stage.mozaws.net/v1': [
-        'mozillausercontent.com',
-        'https://profile.stage.mozaws.net',
+    "https://profile.stage.mozaws.net/v1": [
+        "mozillausercontent.com",
+        "https://profile.stage.mozaws.net",
     ],
-    'https://profile.accounts.firefox.com/v1': [
-        'firefoxusercontent.com',
-        'https://profile.accounts.firefox.com',
+    "https://profile.accounts.firefox.com/v1": [
+        "firefoxusercontent.com",
+        "https://profile.accounts.firefox.com",
     ],
 }
 AVATAR_IMG_SRC = AVATAR_IMG_SRC_MAP[
-    config('FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1')
+    config("FXA_PROFILE_ENDPOINT", "https://profile.accounts.firefox.com/v1")
 ]
 CSP_CONNECT_SRC = (
     "'self'",
-    'https://www.google-analytics.com/',
-    'https://accounts.firefox.com',
-    'https://location.services.mozilla.com',
+    "https://www.google-analytics.com/",
+    "https://accounts.firefox.com",
+    "https://location.services.mozilla.com",
     BASKET_ORIGIN,
 )
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = (
     "'self'",
-    'https://www.google-analytics.com/',
+    "https://www.google-analytics.com/",
 )
 if USE_SILK:
     CSP_SCRIPT_SRC += ("'unsafe-inline'",)
@@ -113,110 +113,110 @@ else:
         for name in files:
             file_name = os.path.join(root, name)
             hasher = sha512()
-            with open(str(file_name), 'rb') as f:
+            with open(str(file_name), "rb") as f:
                 while True:
                     data = f.read()
                     if not data:
                         break
                     hasher.update(data)
-            hash = base64.b64encode(hasher.digest()).decode('utf-8')
+            hash = base64.b64encode(hasher.digest()).decode("utf-8")
             csp_style_values.append("'sha512-%s'" % hash)
 
 CSP_STYLE_SRC = tuple(csp_style_values)
 
 CSP_IMG_SRC = ["'self'"] + AVATAR_IMG_SRC
-REFERRER_POLICY = 'strict-origin-when-cross-origin'
+REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 ALLOWED_HOSTS = []
-DJANGO_ALLOWED_HOST = config('DJANGO_ALLOWED_HOST', None)
+DJANGO_ALLOWED_HOST = config("DJANGO_ALLOWED_HOST", None)
 if DJANGO_ALLOWED_HOST:
-    ALLOWED_HOSTS += DJANGO_ALLOWED_HOST.split(',')
-DJANGO_ALLOWED_SUBNET = config('DJANGO_ALLOWED_SUBNET', None)
+    ALLOWED_HOSTS += DJANGO_ALLOWED_HOST.split(",")
+DJANGO_ALLOWED_SUBNET = config("DJANGO_ALLOWED_SUBNET", None)
 if DJANGO_ALLOWED_SUBNET:
     ALLOWED_HOSTS += [str(ip) for ip in ipaddress.IPv4Network(DJANGO_ALLOWED_SUBNET)]
 
 
 # Get our backing resource configs to check if we should install the app
-ADMIN_ENABLED = config('ADMIN_ENABLED', False, cast=bool)
+ADMIN_ENABLED = config("ADMIN_ENABLED", False, cast=bool)
 
 
-AWS_REGION = config('AWS_REGION', None)
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID', None)
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY', None)
-AWS_SNS_TOPIC = set(config('AWS_SNS_TOPIC', '', cast=Csv()))
-AWS_SNS_KEY_CACHE = config('AWS_SNS_KEY_CACHE', 'default')
-AWS_SES_CONFIGSET = config('AWS_SES_CONFIGSET', None)
-AWS_SQS_EMAIL_QUEUE_URL = config('AWS_SQS_EMAIL_QUEUE_URL', None)
-AWS_SQS_EMAIL_DLQ_URL = config('AWS_SQS_EMAIL_DLQ_URL', None)
+AWS_REGION = config("AWS_REGION", None)
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID", None)
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY", None)
+AWS_SNS_TOPIC = set(config("AWS_SNS_TOPIC", "", cast=Csv()))
+AWS_SNS_KEY_CACHE = config("AWS_SNS_KEY_CACHE", "default")
+AWS_SES_CONFIGSET = config("AWS_SES_CONFIGSET", None)
+AWS_SQS_EMAIL_QUEUE_URL = config("AWS_SQS_EMAIL_QUEUE_URL", None)
+AWS_SQS_EMAIL_DLQ_URL = config("AWS_SQS_EMAIL_DLQ_URL", None)
 
 # Dead-Letter Queue (DLQ) for SNS push subscription
-AWS_SQS_QUEUE_URL = config('AWS_SQS_QUEUE_URL', None)
+AWS_SQS_QUEUE_URL = config("AWS_SQS_QUEUE_URL", None)
 
-RELAY_FROM_ADDRESS = config('RELAY_FROM_ADDRESS', None)
-SITE_ORIGIN = config('SITE_ORIGIN', None)
-GOOGLE_ANALYTICS_ID = config('GOOGLE_ANALYTICS_ID', None)
-INCLUDE_VPN_BANNER = config('INCLUDE_VPN_BANNER', False, cast=bool)
-RECRUITMENT_BANNER_LINK = config('RECRUITMENT_BANNER_LINK', None)
-RECRUITMENT_BANNER_TEXT = config('RECRUITMENT_BANNER_TEXT', None)
-RECRUITMENT_EMAIL_BANNER_TEXT = config('RECRUITMENT_EMAIL_BANNER_TEXT', None)
-RECRUITMENT_EMAIL_BANNER_LINK = config('RECRUITMENT_EMAIL_BANNER_LINK', None)
-SERVE_REACT = config('SERVE_REACT', False, cast=bool)
+RELAY_FROM_ADDRESS = config("RELAY_FROM_ADDRESS", None)
+SITE_ORIGIN = config("SITE_ORIGIN", None)
+GOOGLE_ANALYTICS_ID = config("GOOGLE_ANALYTICS_ID", None)
+INCLUDE_VPN_BANNER = config("INCLUDE_VPN_BANNER", False, cast=bool)
+RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
+RECRUITMENT_BANNER_TEXT = config("RECRUITMENT_BANNER_TEXT", None)
+RECRUITMENT_EMAIL_BANNER_TEXT = config("RECRUITMENT_EMAIL_BANNER_TEXT", None)
+RECRUITMENT_EMAIL_BANNER_LINK = config("RECRUITMENT_EMAIL_BANNER_LINK", None)
+SERVE_REACT = config("SERVE_REACT", False, cast=bool)
 
-TWILIO_ACCOUNT_SID = config('TWILIO_ACCOUNT_SID', None)
-TWILIO_AUTH_TOKEN = config('TWILIO_AUTH_TOKEN', None)
+TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
+TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
 
-STATSD_ENABLED = config('DJANGO_STATSD_ENABLED', False, cast=bool)
-STATSD_HOST = config('DJANGO_STATSD_HOST', '127.0.0.1')
-STATSD_PORT = config('DJANGO_STATSD_PORT', '8125')
-STATSD_PREFIX = config('DJANGO_STATSD_PREFIX', 'fx-private-relay')
+STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
+STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
+STATSD_PORT = config("DJANGO_STATSD_PORT", "8125")
+STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "fx-private-relay")
 
-SERVE_ADDON = config('SERVE_ADDON', None)
+SERVE_ADDON = config("SERVE_ADDON", None)
 
 # Application definition
 INSTALLED_APPS = [
-    'whitenoise.runserver_nostatic',
-    'django_gulp',
-    'django.contrib.staticfiles',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.sites',
-    'django_filters',
-    'django_ftl.apps.DjangoFtlConfig',
-    'dockerflow.django',
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.fxa',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'corsheaders',
-    'waffle',
-    'privaterelay.apps.PrivateRelayConfig',
+    "whitenoise.runserver_nostatic",
+    "django_gulp",
+    "django.contrib.staticfiles",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.sites",
+    "django_filters",
+    "django_ftl.apps.DjangoFtlConfig",
+    "dockerflow.django",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.fxa",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders",
+    "waffle",
+    "privaterelay.apps.PrivateRelayConfig",
 ]
 
 if DEBUG:
     INSTALLED_APPS += [
-        'debug_toolbar',
-        'drf_yasg',
+        "debug_toolbar",
+        "drf_yasg",
     ]
 if USE_SILK:
     INSTALLED_APPS.append("silk")
 
 if ADMIN_ENABLED:
     INSTALLED_APPS += [
-        'django.contrib.admin',
+        "django.contrib.admin",
     ]
 
 if AWS_SES_CONFIGSET and AWS_SNS_TOPIC:
     INSTALLED_APPS += [
-        'emails.apps.EmailsConfig',
+        "emails.apps.EmailsConfig",
     ]
 
 if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
     INSTALLED_APPS += [
-        'phones.apps.PhonesConfig',
+        "phones.apps.PhonesConfig",
     ]
 
 
@@ -224,7 +224,7 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
 def _get_initial_middleware():
     if STATSD_ENABLED:
         return [
-            'privaterelay.middleware.ResponseMetrics',
+            "privaterelay.middleware.ResponseMetrics",
         ]
     return []
 
@@ -232,60 +232,60 @@ def _get_initial_middleware():
 MIDDLEWARE = _get_initial_middleware()
 
 if USE_SILK:
-    MIDDLEWARE.append('silk.middleware.SilkyMiddleware')
+    MIDDLEWARE.append("silk.middleware.SilkyMiddleware")
 if DEBUG:
-    MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+    MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
 
 MIDDLEWARE += [
-    'django.middleware.security.SecurityMiddleware',
-    'csp.middleware.CSPMiddleware',
-    'privaterelay.middleware.RedirectRootIfLoggedIn',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "csp.middleware.CSPMiddleware",
+    "privaterelay.middleware.RedirectRootIfLoggedIn",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django_ftl.middleware.activate_from_request_language_code",
-    'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
-    'dockerflow.django.middleware.DockerflowMiddleware',
-    'waffle.middleware.WaffleMiddleware',
-    'privaterelay.middleware.FxAToRequest',
-    'privaterelay.middleware.AddDetectedCountryToResponseHeaders',
-    'privaterelay.middleware.StoreFirstVisit',
+    "django_referrer_policy.middleware.ReferrerPolicyMiddleware",
+    "dockerflow.django.middleware.DockerflowMiddleware",
+    "waffle.middleware.WaffleMiddleware",
+    "privaterelay.middleware.FxAToRequest",
+    "privaterelay.middleware.AddDetectedCountryToResponseHeaders",
+    "privaterelay.middleware.StoreFirstVisit",
 ]
 
-ROOT_URLCONF = 'privaterelay.urls'
+ROOT_URLCONF = "privaterelay.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'privaterelay', 'templates'),
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [
+            os.path.join(BASE_DIR, "privaterelay", "templates"),
         ],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'emails.context_processors.relay_from_domain',
-                'privaterelay.context_processors.django_settings',
-                'privaterelay.context_processors.common',
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+                "emails.context_processors.relay_from_domain",
+                "privaterelay.context_processors.django_settings",
+                "privaterelay.context_processors.common",
             ],
         },
     },
 ]
 
-RELAY_FIREFOX_DOMAIN = config('RELAY_FIREFOX_DOMAIN', 'relay.firefox.com', cast=str)
-MOZMAIL_DOMAIN = config('MOZMAIL_DOMAIN', 'mozmail.com', cast=str)
-MAX_NUM_FREE_ALIASES = config('MAX_NUM_FREE_ALIASES', 5, cast=int)
-PREMIUM_PROD_ID = config('PREMIUM_PROD_ID', '', cast=str)
-PREMIUM_PRICE_ID_OVERRIDE = config('PREMIUM_PRICE_ID_OVERRIDE', '', cast=str)
+RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str)
+MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
+MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
+PREMIUM_PROD_ID = config("PREMIUM_PROD_ID", "", cast=str)
+PREMIUM_PRICE_ID_OVERRIDE = config("PREMIUM_PRICE_ID_OVERRIDE", "", cast=str)
 PREMIUM_PLAN_ID_MATRIX = {
     "chf": {
         "de": {
@@ -412,34 +412,34 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     },
 }
 
-SUBSCRIPTIONS_WITH_UNLIMITED = config('SUBSCRIPTIONS_WITH_UNLIMITED', default='')
+SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
 PREMIUM_RELEASE_DATE = config(
-    'PREMIUM_RELEASE_DATE', '2021-10-27 17:00:00+00:00', cast=str
+    "PREMIUM_RELEASE_DATE", "2021-10-27 17:00:00+00:00", cast=str
 )
 PREMIUM_RELEASE_DATE = datetime.fromisoformat(PREMIUM_RELEASE_DATE)
 
-DOMAIN_REGISTRATION_MODAL = config('DOMAIN_REGISTRATION_MODAL', False, cast=bool)
-MAX_ONBOARDING_AVAILABLE = config('MAX_ONBOARDING_AVAILABLE', 0, cast=int)
+DOMAIN_REGISTRATION_MODAL = config("DOMAIN_REGISTRATION_MODAL", False, cast=bool)
+MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 
-MAX_ADDRESS_CREATION_PER_DAY = config('MAX_ADDRESS_CREATION_PER_DAY', 100, cast=int)
-MAX_REPLIES_PER_DAY = config('MAX_REPLIES_PER_DAY', 100, cast=int)
-PREMIUM_FEATURE_PAUSED_DAYS = config('ACCOUNT_PREMIUM_FEATURE_PAUSED_DAYS', 1, cast=int)
+MAX_ADDRESS_CREATION_PER_DAY = config("MAX_ADDRESS_CREATION_PER_DAY", 100, cast=int)
+MAX_REPLIES_PER_DAY = config("MAX_REPLIES_PER_DAY", 100, cast=int)
+PREMIUM_FEATURE_PAUSED_DAYS = config("ACCOUNT_PREMIUM_FEATURE_PAUSED_DAYS", 1, cast=int)
 
-SOFT_BOUNCE_ALLOWED_DAYS = config('SOFT_BOUNCE_ALLOWED_DAYS', 1, cast=int)
-HARD_BOUNCE_ALLOWED_DAYS = config('HARD_BOUNCE_ALLOWED_DAYS', 30, cast=int)
+SOFT_BOUNCE_ALLOWED_DAYS = config("SOFT_BOUNCE_ALLOWED_DAYS", 1, cast=int)
+HARD_BOUNCE_ALLOWED_DAYS = config("HARD_BOUNCE_ALLOWED_DAYS", 30, cast=int)
 
-WSGI_APPLICATION = 'privaterelay.wsgi.application'
+WSGI_APPLICATION = "privaterelay.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(
-        default="sqlite:///%s" % os.path.join(BASE_DIR, 'db.sqlite3')
+    "default": dj_database_url.config(
+        default="sqlite:///%s" % os.path.join(BASE_DIR, "db.sqlite3")
     )
 }
 
-REDIS_URL = config('REDIS_URL', '', cast=str)
+REDIS_URL = config("REDIS_URL", "", cast=str)
 if REDIS_URL:
     CACHES = {
         "default": {
@@ -450,8 +450,8 @@ if REDIS_URL:
             },
         }
     }
-    SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-    SESSION_CACHE_ALIAS = 'default'
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+    SESSION_CACHE_ALIAS = "default"
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -459,16 +459,16 @@ if REDIS_URL:
 if ADMIN_ENABLED:
     AUTH_PASSWORD_VALIDATORS = [
         {
-            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
         },
         {
-            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
         },
         {
-            'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
         },
         {
-            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+            "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
         },
     ]
 
@@ -476,17 +476,17 @@ if ADMIN_ENABLED:
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = "en"
 
 # Mozilla l10n directories use lang-locale language codes,
 # so we need to add those to LANGUAGES so Django's LocaleMiddleware
 # can find them.
 LANGUAGES = settings.LANGUAGES + [
-    ('zh-tw', 'Chinese'),
-    ('zh-cn', 'Chinese'),
+    ("zh-tw", "Chinese"),
+    ("zh-cn", "Chinese"),
 ]
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -494,23 +494,23 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/out'),
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "frontend/out"),
+    os.path.join(BASE_DIR, "static"),
 ]
 if SERVE_REACT:
     # Static files (the front-end in /frontend/)
     # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
-    STATIC_URL = '/'
+    STATIC_URL = "/"
     if settings.DEBUG:
         # In production, we run collectstatic to index all static files.
         # However, when running locally, we want to automatically pick up
         # all files spewed out by `npm run watch` in /frontend/out,
         # and we're fine with the performance impact of that.
-        WHITENOISE_ROOT = os.path.join(BASE_DIR, 'frontend/out')
+        WHITENOISE_ROOT = os.path.join(BASE_DIR, "frontend/out")
 else:
-    STATIC_URL = '/static/'
+    STATIC_URL = "/static/"
 
 # Relay does not support user-uploaded files
 MEDIA_ROOT = None
@@ -522,99 +522,99 @@ WHITENOISE_INDEX_FILE = True
 # for stage/prod statics, we run "gulp build" in docker.
 # so, squelch django-gulp in prod so it doesn't run gulp during collectstatic:
 if not ON_HEROKU:
-    GULP_PRODUCTION_COMMAND = ''
+    GULP_PRODUCTION_COMMAND = ""
 
 SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 )
 
 SOCIALACCOUNT_PROVIDERS = {
-    'fxa': {
+    "fxa": {
         # Note: to request "profile" scope, must be a trusted Mozilla client
-        'SCOPE': ['profile'],
-        'AUTH_PARAMS': {'access_type': 'offline'},
-        'OAUTH_ENDPOINT': config(
-            'FXA_OAUTH_ENDPOINT', 'https://oauth.accounts.firefox.com/v1'
+        "SCOPE": ["profile"],
+        "AUTH_PARAMS": {"access_type": "offline"},
+        "OAUTH_ENDPOINT": config(
+            "FXA_OAUTH_ENDPOINT", "https://oauth.accounts.firefox.com/v1"
         ),
-        'PROFILE_ENDPOINT': config(
-            'FXA_PROFILE_ENDPOINT', 'https://profile.accounts.firefox.com/v1'
+        "PROFILE_ENDPOINT": config(
+            "FXA_PROFILE_ENDPOINT", "https://profile.accounts.firefox.com/v1"
         ),
     }
 }
 
-SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_VERIFICATION = "none"
 ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_PRESERVE_USERNAME_CASING = False
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_STORE_TOKENS = True
 
-FXA_BASE_ORIGIN = config('FXA_BASE_ORIGIN', 'https://accounts.firefox.com')
-FXA_SETTINGS_URL = config('FXA_SETTINGS_URL', f'{FXA_BASE_ORIGIN}/settings')
+FXA_BASE_ORIGIN = config("FXA_BASE_ORIGIN", "https://accounts.firefox.com")
+FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
-    'FXA_SUBSCRIPTIONS_URL', f'{FXA_BASE_ORIGIN}/subscriptions'
+    "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"
 )
-FXA_SUPPORT_URL = config('FXA_SUPPORT_URL', f'{FXA_BASE_ORIGIN}/support/')
+FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 
 LOGGING = {
-    'version': 1,
-    'formatters': {
-        'json': {
-            '()': 'dockerflow.logging.JsonLogFormatter',
-            'logger_name': 'fx-private-relay',
+    "version": 1,
+    "formatters": {
+        "json": {
+            "()": "dockerflow.logging.JsonLogFormatter",
+            "logger_name": "fx-private-relay",
         }
     },
-    'handlers': {
-        'console_out': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'stream': sys.stdout,
-            'formatter': 'json',
+    "handlers": {
+        "console_out": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "stream": sys.stdout,
+            "formatter": "json",
         },
-        'console_err': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'json',
+        "console_err": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "json",
         },
     },
-    'loggers': {
-        'request.summary': {
-            'handlers': ['console_out'],
-            'level': 'DEBUG',
+    "loggers": {
+        "request.summary": {
+            "handlers": ["console_out"],
+            "level": "DEBUG",
         },
-        'events': {
-            'handlers': ['console_err'],
-            'level': 'ERROR',
+        "events": {
+            "handlers": ["console_err"],
+            "level": "ERROR",
         },
-        'eventsinfo': {
-            'handlers': ['console_out'],
-            'level': 'INFO',
+        "eventsinfo": {
+            "handlers": ["console_out"],
+            "level": "INFO",
         },
-        'abusemetrics': {'handlers': ['console_out'], 'level': 'INFO'},
-        'studymetrics': {'handlers': ['console_out'], 'level': 'INFO'},
+        "abusemetrics": {"handlers": ["console_out"], "level": "INFO"},
+        "studymetrics": {"handlers": ["console_out"], "level": "INFO"},
     },
 }
 
 if DEBUG:
     DRF_RENDERERS = (
-        'rest_framework.renderers.BrowsableAPIRenderer',
-        'rest_framework.renderers.JSONRenderer',
+        "rest_framework.renderers.BrowsableAPIRenderer",
+        "rest_framework.renderers.JSONRenderer",
     )
 else:
-    DRF_RENDERERS = ('rest_framework.renderers.JSONRenderer',)
+    DRF_RENDERERS = ("rest_framework.renderers.JSONRenderer",)
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'api.authentication.FxaTokenAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "api.authentication.FxaTokenAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
-    'DEFAULT_RENDERER_CLASSES': DRF_RENDERERS,
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
+    "DEFAULT_RENDERER_CLASSES": DRF_RENDERERS,
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
 # Turn on logging out on GET in development.
@@ -634,12 +634,12 @@ if DEBUG:
     CORS_ALLOW_CREDENTIALS = True
     SESSION_COOKIE_SAMESITE = None
     CORS_ALLOWED_ORIGINS += [
-        'http://localhost:3000',
-        'http://0.0.0.0:3000',
+        "http://localhost:3000",
+        "http://0.0.0.0:3000",
     ]
     CSRF_TRUSTED_ORIGINS += [
-        'http://localhost:3000',
-        'http://0.0.0.0:3000',
+        "http://localhost:3000",
+        "http://0.0.0.0:3000",
     ]
 
 SENTRY_RELEASE = config("SENTRY_RELEASE", "")
@@ -662,7 +662,7 @@ else:
     sentry_release = None
 
 sentry_sdk.init(
-    dsn=config('SENTRY_DSN', None),
+    dsn=config("SENTRY_DSN", None),
     integrations=[DjangoIntegration()],
     debug=DEBUG,
     with_locals=DEBUG,
@@ -677,11 +677,11 @@ ignore_logger("django.security.DisallowedHost")
 markus.configure(
     backends=[
         {
-            'class': 'markus.backends.datadog.DatadogMetrics',
-            'options': {
-                'statsd_host': STATSD_HOST,
-                'statsd_port': STATSD_PORT,
-                'statsd_prefix': STATSD_PREFIX,
+            "class": "markus.backends.datadog.DatadogMetrics",
+            "options": {
+                "statsd_host": STATSD_HOST,
+                "statsd_port": STATSD_PORT,
+                "statsd_prefix": STATSD_PREFIX,
             },
         }
     ]

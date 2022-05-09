@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0009_auto_20200405_1739'),
+        ("emails", "0009_auto_20200405_1739"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='deletedaddress',
-            name='num_blocked',
+            model_name="deletedaddress",
+            name="num_blocked",
             field=models.PositiveSmallIntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='deletedaddress',
-            name='num_forwarded',
+            model_name="deletedaddress",
+            name="num_forwarded",
             field=models.PositiveSmallIntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='deletedaddress',
-            name='num_spam',
+            model_name="deletedaddress",
+            name="num_spam",
             field=models.PositiveSmallIntegerField(default=0),
         ),
     ]

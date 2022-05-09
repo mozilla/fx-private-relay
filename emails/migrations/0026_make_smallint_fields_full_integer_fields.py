@@ -6,53 +6,53 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0025_copy_profile_tokens_to_rest_framework_authtoken'),
+        ("emails", "0025_copy_profile_tokens_to_rest_framework_authtoken"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='deletedaddress',
-            name='num_blocked',
+            model_name="deletedaddress",
+            name="num_blocked",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='deletedaddress',
-            name='num_forwarded',
+            model_name="deletedaddress",
+            name="num_forwarded",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='deletedaddress',
-            name='num_spam',
+            model_name="deletedaddress",
+            name="num_spam",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='domainaddress',
-            name='num_blocked',
+            model_name="domainaddress",
+            name="num_blocked",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='domainaddress',
-            name='num_forwarded',
+            model_name="domainaddress",
+            name="num_forwarded",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='domainaddress',
-            name='num_spam',
+            model_name="domainaddress",
+            name="num_spam",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='relayaddress',
-            name='num_blocked',
+            model_name="relayaddress",
+            name="num_blocked",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='relayaddress',
-            name='num_forwarded',
+            model_name="relayaddress",
+            name="num_forwarded",
             field=models.PositiveIntegerField(default=0),
         ),
         migrations.AlterField(
-            model_name='relayaddress',
-            name='num_spam',
+            model_name="relayaddress",
+            name="num_spam",
             field=models.PositiveIntegerField(default=0),
         ),
     ]

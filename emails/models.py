@@ -21,29 +21,29 @@ from django.utils.translation.trans_real import (
 
 from rest_framework.authtoken.models import Token
 
-emails_config = apps.get_app_config('emails')
-logger = logging.getLogger('events')
-abuse_logger = logging.getLogger('abusemetrics')
+emails_config = apps.get_app_config("emails")
+logger = logging.getLogger("events")
+abuse_logger = logging.getLogger("abusemetrics")
 
-BounceStatus = namedtuple('BounceStatus', 'paused type')
+BounceStatus = namedtuple("BounceStatus", "paused type")
 
-NOT_PREMIUM_USER_ERR_MSG = 'You must be a premium subscriber to {}.'
-TRY_DIFFERENT_VALUE_ERR_MSG = '{} could not be created, try using a different value.'
-ACCOUNT_PAUSED_ERR_MSG = 'Your account is on pause.'
+NOT_PREMIUM_USER_ERR_MSG = "You must be a premium subscriber to {}."
+TRY_DIFFERENT_VALUE_ERR_MSG = "{} could not be created, try using a different value."
+ACCOUNT_PAUSED_ERR_MSG = "Your account is on pause."
 
 
 def get_domains_from_settings():
     # HACK: detect if code is running in django tests
-    if 'testserver' in settings.ALLOWED_HOSTS:
-        return {'RELAY_FIREFOX_DOMAIN': 'default.com', 'MOZMAIL_DOMAIN': 'test.com'}
+    if "testserver" in settings.ALLOWED_HOSTS:
+        return {"RELAY_FIREFOX_DOMAIN": "default.com", "MOZMAIL_DOMAIN": "test.com"}
     return {
-        'RELAY_FIREFOX_DOMAIN': settings.RELAY_FIREFOX_DOMAIN,
-        'MOZMAIL_DOMAIN': settings.MOZMAIL_DOMAIN,
+        "RELAY_FIREFOX_DOMAIN": settings.RELAY_FIREFOX_DOMAIN,
+        "MOZMAIL_DOMAIN": settings.MOZMAIL_DOMAIN,
     }
 
 
-DOMAIN_CHOICES = [(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')]
-PREMIUM_DOMAINS = ['mozilla.com', 'getpocket.com', 'mozillafoundation.org']
+DOMAIN_CHOICES = [(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")]
+PREMIUM_DOMAINS = ["mozilla.com", "getpocket.com", "mozillafoundation.org"]
 
 
 def valid_available_subdomain(subdomain, *args, **kwargs):
@@ -51,7 +51,7 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     #   can't start or end with a hyphen
     #   must be 1-63 alphanumeric characters and/or hyphens
     subdomain = subdomain.lower()
-    valid_subdomain_pattern = re.compile('^(?!-)[a-z0-9-]{1,63}(?<!-)$')
+    valid_subdomain_pattern = re.compile("^(?!-)[a-z0-9-]{1,63}(?<!-)$")
     valid = valid_subdomain_pattern.match(subdomain) is not None
     #   can't have "bad" words in them
     bad_word = has_bad_words(subdomain)
@@ -65,7 +65,7 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
         > 0
     )
     if not valid or bad_word or blocked_word or taken:
-        raise CannotMakeSubdomainException('error-subdomain-not-available')
+        raise CannotMakeSubdomainException("error-subdomain-not-available")
     return True
 
 
@@ -75,9 +75,9 @@ def default_server_storage():
 
 def default_domain_numerical():
     domains = get_domains_from_settings()
-    domain = domains['RELAY_FIREFOX_DOMAIN']
+    domain = domains["RELAY_FIREFOX_DOMAIN"]
     if datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE:
-        domain = domains['MOZMAIL_DOMAIN']
+        domain = domains["MOZMAIL_DOMAIN"]
     return get_domain_numerical(domain)
 
 
@@ -106,7 +106,7 @@ class Profile(models.Model):
     auto_block_spam = models.BooleanField(default=False)
 
     def __str__(self):
-        return '%s Profile' % self.user
+        return "%s Profile" % self.user
 
     def save(self, *args, **kwargs):
         # always lower-case the subdomain before saving it
@@ -119,20 +119,20 @@ class Profile(models.Model):
         # appropriate server-stored Relay address data.
         if not self.server_storage:
             relay_addresses = RelayAddress.objects.filter(user=self.user)
-            relay_addresses.update(description='', generated_for='')
+            relay_addresses.update(description="", generated_for="")
         return ret
 
     @property
     def language(self):
-        if self.fxa.extra_data.get('locale'):
+        if self.fxa.extra_data.get("locale"):
             for accept_lang, _ in parse_accept_lang_header(
-                self.fxa.extra_data.get('locale')
+                self.fxa.extra_data.get("locale")
             ):
                 try:
                     return get_supported_language_variant(accept_lang)
                 except LookupError:
                     continue
-        return 'en'
+        return "en"
 
     # This method returns whether the locale associated with the user's Firefox account
     # includes a country code from a Premium country. This is less accurate than using
@@ -141,12 +141,12 @@ class Profile(models.Model):
     # sending an email, this method can be useful.
     @property
     def fxa_locale_in_premium_country(self):
-        if self.fxa.extra_data.get('locale'):
-            accept_langs = parse_accept_lang_header(self.fxa.extra_data.get('locale'))
+        if self.fxa.extra_data.get("locale"):
+            accept_langs = parse_accept_lang_header(self.fxa.extra_data.get("locale"))
             if (
                 len(accept_langs) >= 1
-                and len(accept_langs[0][0].split('-')) >= 2
-                and accept_langs[0][0].split('-')[1]
+                and len(accept_langs[0][0].split("-")) >= 2
+                and accept_langs[0][0].split("-")[1]
                 in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
@@ -156,8 +156,8 @@ class Profile(models.Model):
             # `fr-fr`, it will still match country code `fr`.)
             if (
                 len(accept_langs) >= 1
-                and len(accept_langs[0][0].split('-')) == 1
-                and accept_langs[0][0].split('-')[0]
+                and len(accept_langs[0][0].split("-")) == 1
+                and accept_langs[0][0].split("-")[0]
                 in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
@@ -165,7 +165,7 @@ class Profile(models.Model):
 
     @property
     def avatar(self):
-        return self.fxa.extra_data.get('avatar')
+        return self.fxa.extra_data.get("avatar")
 
     @cached_property
     def relay_addresses(self):
@@ -187,7 +187,7 @@ class Profile(models.Model):
                 days=settings.HARD_BOUNCE_ALLOWED_DAYS
             )
             if self.last_hard_bounce > last_hard_bounce_allowed:
-                return BounceStatus(True, 'hard')
+                return BounceStatus(True, "hard")
             self.last_hard_bounce = None
             self.save()
         if self.last_soft_bounce:
@@ -195,10 +195,10 @@ class Profile(models.Model):
                 days=settings.SOFT_BOUNCE_ALLOWED_DAYS
             )
             if self.last_soft_bounce > last_soft_bounce_allowed:
-                return BounceStatus(True, 'soft')
+                return BounceStatus(True, "soft")
             self.last_soft_bounce = None
             self.save()
-        return BounceStatus(False, '')
+        return BounceStatus(False, "")
 
     @property
     def bounce_status(self):
@@ -211,7 +211,7 @@ class Profile(models.Model):
         if not bounce_pause:
             return datetime.now(timezone.utc)
 
-        if bounce_type == 'soft':
+        if bounce_type == "soft":
             return self.last_soft_bounce + timedelta(
                 days=settings.SOFT_BOUNCE_ALLOWED_DAYS
             )
@@ -237,7 +237,7 @@ class Profile(models.Model):
         # any profile instances that were queried with prefetch_related, which
         # we use in at least the profile view to minimize queries
         for sa in self.user.socialaccount_set.all():
-            if sa.provider == 'fxa':
+            if sa.provider == "fxa":
                 return sa
         return None
 
@@ -245,11 +245,11 @@ class Profile(models.Model):
     def display_name(self):
         # if display name is not set on FxA the
         # displayName key will not exist on the extra_data
-        return self.fxa.extra_data.get('displayName')
+        return self.fxa.extra_data.get("displayName")
 
     @property
     def custom_domain(self):
-        return f'@{self.subdomain}.{settings.MOZMAIL_DOMAIN}'
+        return f"@{self.subdomain}.{settings.MOZMAIL_DOMAIN}"
 
     @property
     def has_premium(self):
@@ -258,10 +258,10 @@ class Profile(models.Model):
         if not self.fxa:
             return False
         for premium_domain in PREMIUM_DOMAINS:
-            if self.user.email.endswith(f'@{premium_domain}'):
+            if self.user.email.endswith(f"@{premium_domain}"):
                 return True
-        user_subscriptions = self.fxa.extra_data.get('subscriptions', [])
-        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(','):
+        user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
+        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","):
             if sub in user_subscriptions:
                 return True
         return False
@@ -291,9 +291,9 @@ class Profile(models.Model):
         # subdomain must be all lowercase
         subdomain = subdomain.lower()
         if not self.has_premium:
-            raise CannotMakeSubdomainException('error-premium-set-subdomain')
+            raise CannotMakeSubdomainException("error-premium-set-subdomain")
         if self.subdomain is not None:
-            raise CannotMakeSubdomainException('error-premium-cannot-change-subdomain')
+            raise CannotMakeSubdomainException("error-premium-cannot-change-subdomain")
         self.subdomain = subdomain
         self.full_clean()
         self.save()
@@ -338,13 +338,13 @@ class Profile(models.Model):
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
             data = {
-                'uid': self.fxa.uid,
-                'flagged': self.last_account_flagged.timestamp(),
-                'replies': abuse_metric.num_replies_per_day,
-                'addresses': abuse_metric.num_address_created_per_day,
+                "uid": self.fxa.uid,
+                "flagged": self.last_account_flagged.timestamp(),
+                "replies": abuse_metric.num_replies_per_day,
+                "addresses": abuse_metric.num_address_created_per_day,
             }
             # log for further secops review
-            abuse_logger.info('Abuse flagged', extra=data)
+            abuse_logger.info("Abuse flagged", extra=data)
         return self.last_account_flagged
 
     @property
@@ -375,16 +375,16 @@ def copy_auth_token(sender, instance=None, created=False, **kwargs):
 
 def address_hash(address, subdomain=None, domain=None):
     if not domain:
-        domain = get_domains_from_settings()['MOZMAIL_DOMAIN']
+        domain = get_domains_from_settings()["MOZMAIL_DOMAIN"]
     if subdomain:
-        return sha256(f'{address}@{subdomain}.{domain}'.encode('utf-8')).hexdigest()
+        return sha256(f"{address}@{subdomain}.{domain}".encode("utf-8")).hexdigest()
     if domain == settings.RELAY_FIREFOX_DOMAIN:
-        return sha256(f'{address}'.encode('utf-8')).hexdigest()
-    return sha256(f'{address}@{domain}'.encode('utf-8')).hexdigest()
+        return sha256(f"{address}".encode("utf-8")).hexdigest()
+    return sha256(f"{address}@{domain}".encode("utf-8")).hexdigest()
 
 
 def address_default():
-    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=9))
+    return "".join(random.choices(string.ascii_lowercase + string.digits, k=9))
 
 
 def has_bad_words(value):
@@ -415,7 +415,7 @@ def get_domain_numerical(domain_address):
 
 
 def hash_subdomain(subdomain, domain=settings.MOZMAIL_DOMAIN):
-    return sha256(f'{subdomain}.{domain}'.encode('utf-8')).hexdigest()
+    return sha256(f"{subdomain}.{domain}".encode("utf-8")).hexdigest()
 
 
 class RegisteredSubdomain(models.Model):
@@ -509,7 +509,7 @@ class RelayAddress(models.Model):
 
     @property
     def full_address(self):
-        return '%s@%s' % (self.address, self.domain_value)
+        return "%s@%s" % (self.address, self.domain_value)
 
 
 def check_user_can_make_another_address(user):
@@ -517,7 +517,7 @@ def check_user_can_make_another_address(user):
     if user_profile.is_flagged:
         raise CannotMakeAddressException(ACCOUNT_PAUSED_ERR_MSG)
     if user_profile.at_max_free_aliases and not user_profile.has_premium:
-        hit_limit = f'make more than {settings.MAX_NUM_FREE_ALIASES} aliases'
+        hit_limit = f"make more than {settings.MAX_NUM_FREE_ALIASES} aliases"
         raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG.format(hit_limit))
 
 
@@ -549,12 +549,12 @@ class DeletedAddress(models.Model):
 def check_user_can_make_domain_address(user_profile):
     if not user_profile.has_premium:
         raise CannotMakeAddressException(
-            NOT_PREMIUM_USER_ERR_MSG.format('create subdomain aliases')
+            NOT_PREMIUM_USER_ERR_MSG.format("create subdomain aliases")
         )
 
     if not user_profile.subdomain:
         raise CannotMakeAddressException(
-            'You must select a subdomain before creating email address with subdomain.'
+            "You must select a subdomain before creating email address with subdomain."
         )
 
     if user_profile.is_flagged:
@@ -579,7 +579,7 @@ class DomainAddress(models.Model):
     block_list_emails = models.BooleanField(default=False)
 
     class Meta:
-        unique_together = ['user', 'address']
+        unique_together = ["user", "address"]
 
     def __str__(self):
         return self.address
@@ -610,7 +610,7 @@ class DomainAddress(models.Model):
             address_contains_badword = has_bad_words(address)
         if address_contains_badword:
             raise CannotMakeAddressException(
-                TRY_DIFFERENT_VALUE_ERR_MSG.format('Email address with subdomain')
+                TRY_DIFFERENT_VALUE_ERR_MSG.format("Email address with subdomain")
             )
 
         domain_address = DomainAddress.objects.create(
@@ -651,7 +651,7 @@ class DomainAddress(models.Model):
 
     @property
     def full_address(self):
-        return '%s@%s.%s' % (
+        return "%s@%s.%s" % (
             self.address,
             self.user_profile.subdomain,
             self.domain_value,
@@ -690,4 +690,4 @@ class AbuseMetrics(models.Model):
     num_replies_per_day = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
-        unique_together = ['user', 'first_recorded']
+        unique_together = ["user", "first_recorded"]

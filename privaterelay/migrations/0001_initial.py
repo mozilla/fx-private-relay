@@ -11,22 +11,22 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Invitations',
+            name="Invitations",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.AutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
-                ('email', models.EmailField(db_index=True, max_length=254)),
-                ('date_added', models.DateTimeField(auto_now_add=True)),
-                ('active', models.BooleanField(default=False)),
-                ('date_sent', models.DateTimeField(blank=True, null=True)),
-                ('date_redeemed', models.DateTimeField(blank=True, null=True)),
+                ("email", models.EmailField(db_index=True, max_length=254)),
+                ("date_added", models.DateTimeField(auto_now_add=True)),
+                ("active", models.BooleanField(default=False)),
+                ("date_sent", models.DateTimeField(blank=True, null=True)),
+                ("date_redeemed", models.DateTimeField(blank=True, null=True)),
             ],
         ),
     ]

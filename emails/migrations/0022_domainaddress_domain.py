@@ -6,15 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0021_auto_20210920_2129'),
+        ("emails", "0021_auto_20210920_2129"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='domainaddress',
-            name='domain',
+            model_name="domainaddress",
+            name="domain",
             field=models.PositiveSmallIntegerField(
-                choices=[(1, 'RELAY_FIREFOX_DOMAIN'), (2, 'MOZMAIL_DOMAIN')], default=2
+                choices=[(1, "RELAY_FIREFOX_DOMAIN"), (2, "MOZMAIL_DOMAIN")], default=2
             ),
         ),
     ]

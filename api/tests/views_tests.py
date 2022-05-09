@@ -17,6 +17,6 @@ def test_swagger_unknown_format(client, subpath):
 
 
 def test_runtime_data(client):
-    path = '/api/v1/runtime_data'
+    path = "/api/v1/runtime_data"
     response = client.get(path)
     assert response.status_code == 200

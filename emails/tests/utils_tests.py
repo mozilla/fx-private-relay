@@ -18,46 +18,46 @@ from .models_tests import make_premium_test_user
 class FormattingToolsTest(TestCase):
     def setUp(self):
         _, self.relay_from = parseaddr(settings.RELAY_FROM_ADDRESS)
-        domain = get_domains_from_settings().get('RELAY_FIREFOX_DOMAIN')
-        _, self.premium_from = parseaddr(f'replies@{domain}')
+        domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
+        _, self.premium_from = parseaddr(f"replies@{domain}")
 
     def test_generate_relay_From_with_umlaut(self):
         original_from_address = '"foö bär" <foo@bar.com>'
         formatted_from_address = generate_relay_From(original_from_address)
 
         expected_encoded_display_name = (
-            '=?utf-8?b?IiJmb8O2IGLDpHIiIDxmb29AYmFyLmNvbT4gW3ZpYSBSZWxheV0i?='
+            "=?utf-8?b?IiJmb8O2IGLDpHIiIDxmb29AYmFyLmNvbT4gW3ZpYSBSZWxheV0i?="
         )
-        expected_formatted_from = '%s %s' % (
+        expected_formatted_from = "%s %s" % (
             expected_encoded_display_name,
-            '<%s>' % self.relay_from,
+            "<%s>" % self.relay_from,
         )
         assert formatted_from_address == expected_formatted_from
 
     def test_generate_relay_From_with_realistic_address(self):
-        original_from_address = 'something real <somethingreal@protonmail.com>'
+        original_from_address = "something real <somethingreal@protonmail.com>"
         formatted_from_address = generate_relay_From(original_from_address)
 
         expected_encoded_display_name = (
-            '=?utf-8?q?=22something_real_=3Csomethingreal=40protonmail=2Ecom'
-            '=3E_=5Bvia_Relay=5D=22?='
+            "=?utf-8?q?=22something_real_=3Csomethingreal=40protonmail=2Ecom"
+            "=3E_=5Bvia_Relay=5D=22?="
         )
-        expected_formatted_from = '%s %s' % (
+        expected_formatted_from = "%s %s" % (
             expected_encoded_display_name,
-            '<%s>' % self.relay_from,
+            "<%s>" % self.relay_from,
         )
         assert formatted_from_address == expected_formatted_from
 
     def test_generate_relay_From_with_rfc_2822_invalid_address(self):
-        original_from_address = 'l%sng <long@long.com>' % ('o' * 999)
+        original_from_address = "l%sng <long@long.com>" % ("o" * 999)
         formatted_from_address = generate_relay_From(original_from_address)
 
         expected_encoded_display_name = (
-            '=?utf-8?q?=22l%s_=2E=2E=2E_=5Bvia_Relay=5D=22?=' % ('o' * 899)
+            "=?utf-8?q?=22l%s_=2E=2E=2E_=5Bvia_Relay=5D=22?=" % ("o" * 899)
         )
-        expected_formatted_from = '%s %s' % (
+        expected_formatted_from = "%s %s" % (
             expected_encoded_display_name,
-            '<%s>' % self.relay_from,
+            "<%s>" % self.relay_from,
         )
         assert formatted_from_address == expected_formatted_from
 
@@ -66,11 +66,11 @@ class FormattingToolsTest(TestCase):
         formatted_from_address = generate_relay_From(original_from_address)
 
         expected_encoded_display_name = (
-            '=?utf-8?b?IiJUZXJ5ICBjdCIgPGluZm9AYS4uLnQub3JnPiBbdmlhIFJlbGF5XSI' '=?='
+            "=?utf-8?b?IiJUZXJ5ICBjdCIgPGluZm9AYS4uLnQub3JnPiBbdmlhIFJlbGF5XSI" "=?="
         )
-        expected_formatted_from = '%s %s' % (
+        expected_formatted_from = "%s %s" % (
             expected_encoded_display_name,
-            '<%s>' % self.relay_from,
+            "<%s>" % self.relay_from,
         )
         assert formatted_from_address == expected_formatted_from
 
@@ -83,37 +83,37 @@ class FormattingToolsTest(TestCase):
         )
 
         expected_encoded_display_name = (
-            '=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?='
+            "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
         )
-        expected_formatted_from = '%s <%s>' % (
+        expected_formatted_from = "%s <%s>" % (
             expected_encoded_display_name,
             self.premium_from,
         )
         assert formatted_from_address == expected_formatted_from
 
-    @override_settings(ON_HEROKU=True, SITE_ORIGIN='https://test.com')
+    @override_settings(ON_HEROKU=True, SITE_ORIGIN="https://test.com")
     def test_get_email_domain_from_settings_on_heroku(self):
         email_domain = get_email_domain_from_settings()
-        assert 'mail.test.com' == email_domain
+        assert "mail.test.com" == email_domain
 
-    @override_settings(ON_HEROKU=False, SITE_ORIGIN='https://test.com')
+    @override_settings(ON_HEROKU=False, SITE_ORIGIN="https://test.com")
     def test_get_email_domain_from_settings_not_on_heroku(self):
         email_domain = get_email_domain_from_settings()
-        assert 'test.com' == email_domain
+        assert "test.com" == email_domain
 
-    @override_settings(RELAY_FIREFOX_DOMAIN='firefox.com', MOZMAIL_DOMAIN='mozmail.com')
+    @override_settings(RELAY_FIREFOX_DOMAIN="firefox.com", MOZMAIL_DOMAIN="mozmail.com")
     def test_get_domains_from_settings(self):
         domains = get_domains_from_settings()
         assert domains == {
-            'RELAY_FIREFOX_DOMAIN': 'default.com',
-            'MOZMAIL_DOMAIN': 'test.com',
+            "RELAY_FIREFOX_DOMAIN": "default.com",
+            "MOZMAIL_DOMAIN": "test.com",
         }
 
 
-@override_settings(SITE_ORIGIN='https://test.com')
-@override_sample('foxfood-tracker-removal-sample', active=True)
-@patch('emails.utils.GENERAL_TRACKERS', ['open.tracker.com'])
-@patch('emails.utils.STRICT_TRACKERS', ['strict.tracker.com'])
+@override_settings(SITE_ORIGIN="https://test.com")
+@override_sample("foxfood-tracker-removal-sample", active=True)
+@patch("emails.utils.GENERAL_TRACKERS", ["open.tracker.com"])
+@patch("emails.utils.STRICT_TRACKERS", ["strict.tracker.com"])
 class RemoveTrackers(TestCase):
     def setUp(self):
         self.expected_content = (
@@ -127,9 +127,9 @@ class RemoveTrackers(TestCase):
             + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
         )
         changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details['tracker_removed']
-        general_count = study_details['general']['count']
-        strict_count = study_details['strict']['count']
+        general_removed = study_details["tracker_removed"]
+        general_count = study_details["general"]["count"]
+        strict_count = study_details["strict"]["count"]
 
         assert changed_content == self.expected_content
         assert general_removed == 2
@@ -143,9 +143,9 @@ class RemoveTrackers(TestCase):
             + '<img src="https://bar.open.tracker.com/foo/bar.jpg">An image</img>'
         )
         changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details['tracker_removed']
-        general_count = study_details['general']['count']
-        strict_count = study_details['strict']['count']
+        general_removed = study_details["tracker_removed"]
+        general_count = study_details["general"]["count"]
+        strict_count = study_details["strict"]["count"]
 
         assert changed_content == self.expected_content
         assert general_removed == 2
@@ -155,13 +155,13 @@ class RemoveTrackers(TestCase):
 
     def test_complex_single_quote_general_tracker_replaced_with_relay_content(self):
         content = (
-            '<a href=\'https://foo.open.tracker.com/foo/bar.html\'>A link</a>\n'
-            + '<img src=\'https://bar.open.tracker.com/foo/bar.jpg\'>An image</img>'
+            "<a href='https://foo.open.tracker.com/foo/bar.html'>A link</a>\n"
+            + "<img src='https://bar.open.tracker.com/foo/bar.jpg'>An image</img>"
         )
         changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details['tracker_removed']
-        general_count = study_details['general']['count']
-        strict_count = study_details['strict']['count']
+        general_removed = study_details["tracker_removed"]
+        general_count = study_details["general"]["count"]
+        strict_count = study_details["strict"]["count"]
 
         assert changed_content == self.expected_content.replace('"', "'")
         assert general_removed == 2
@@ -175,9 +175,9 @@ class RemoveTrackers(TestCase):
             + '<img src="https://baropen.tracker.com/foo/bar.jpg">An image</img>'
         )
         changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details['tracker_removed']
-        general_count = study_details['general']['count']
-        strict_count = study_details['strict']['count']
+        general_removed = study_details["tracker_removed"]
+        general_count = study_details["general"]["count"]
+        strict_count = study_details["strict"]["count"]
 
         assert changed_content == content
         assert general_removed == 0
@@ -193,9 +193,9 @@ class RemoveTrackers(TestCase):
             + '<img src="https://strict.tracker.com/foo/bar.jpg">An image</img>'
         )
         changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details['tracker_removed']
-        general_count = study_details['general']['count']
-        strict_count = study_details['strict']['count']
+        general_removed = study_details["tracker_removed"]
+        general_count = study_details["general"]["count"]
+        strict_count = study_details["strict"]["count"]
 
         assert changed_content == content
         assert general_removed == 0
@@ -203,16 +203,16 @@ class RemoveTrackers(TestCase):
         assert strict_count == 2
         assert control == False
 
-    @override_sample('foxfood-tracker-removal-sample', active=False)
+    @override_sample("foxfood-tracker-removal-sample", active=False)
     def test_simple_general_strict_tracker_found_no_tracker_removed(self):
         content = (
             '<a href="https://foo.open.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://strict.tracker.com/foo/bar.jpg">An image</img>'
         )
         changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details['tracker_removed']
-        general_count = study_details['general']['count']
-        strict_count = study_details['strict']['count']
+        general_removed = study_details["tracker_removed"]
+        general_count = study_details["general"]["count"]
+        strict_count = study_details["strict"]["count"]
 
         assert changed_content == content
         assert general_removed == 0

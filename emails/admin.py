@@ -11,8 +11,8 @@ from .models import (
 
 
 class ReplyAdmin(admin.ModelAdmin):
-    readonly_fields = ('created_at',)
-    list_display = ('relay_address', 'domain_address', 'created_at')
+    readonly_fields = ("created_at",)
+    list_display = ("relay_address", "domain_address", "created_at")
 
 
 admin.site.register(DeletedAddress)

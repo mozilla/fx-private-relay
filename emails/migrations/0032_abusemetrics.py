@@ -9,37 +9,37 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('emails', '0031_profile_onboarding_state'),
+        ("emails", "0031_profile_onboarding_state"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AbuseMetrics',
+            name="AbuseMetrics",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.AutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
                 (
-                    'first_recorded',
+                    "first_recorded",
                     models.DateTimeField(auto_now_add=True, db_index=True),
                 ),
                 (
-                    'last_recorded',
+                    "last_recorded",
                     models.DateTimeField(auto_now_add=True, db_index=True),
                 ),
                 (
-                    'num_address_created_per_day',
+                    "num_address_created_per_day",
                     models.PositiveSmallIntegerField(default=0),
                 ),
-                ('num_replies_per_day', models.PositiveSmallIntegerField(default=0)),
+                ("num_replies_per_day", models.PositiveSmallIntegerField(default=0)),
                 (
-                    'user',
+                    "user",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to=settings.AUTH_USER_MODEL,
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ),
             ],
             options={
-                'unique_together': {('user', 'first_recorded')},
+                "unique_together": {("user", "first_recorded")},
             },
         ),
     ]

@@ -21,10 +21,10 @@ def check_premium_for_block_list_emails(sender, instance, **kwargs):
         try:
             obj = sender.objects.get(pk=instance.pk)
             if obj.block_list_emails != instance.block_list_emails:
-                raise SuspiciousOperation('Must be premium to set block_list_emails')
+                raise SuspiciousOperation("Must be premium to set block_list_emails")
         except sender.DoesNotExist:
             if instance.block_list_emails:
-                raise SuspiciousOperation('Must be premium to set block_list_emails')
+                raise SuspiciousOperation("Must be premium to set block_list_emails")
 
 
 pre_save.connect(check_premium_for_block_list_emails, sender=RelayAddress)

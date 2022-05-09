@@ -7,20 +7,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0037_reply_add_index_on_created_at'),
+        ("emails", "0037_reply_add_index_on_created_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='domainaddress',
-            name='address',
+            model_name="domainaddress",
+            name="address",
             field=models.CharField(
                 max_length=64,
                 validators=[django.core.validators.MinLengthValidator(limit_value=1)],
             ),
         ),
         migrations.AlterUniqueTogether(
-            name='domainaddress',
-            unique_together={('user', 'address')},
+            name="domainaddress",
+            unique_together={("user", "address")},
         ),
     ]

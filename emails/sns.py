@@ -14,9 +14,9 @@ from django.core.exceptions import SuspiciousOperation
 from django.utils.encoding import smart_bytes
 
 
-logger = logging.getLogger('events')
+logger = logging.getLogger("events")
 
-NOTIFICATION_HASH_FORMAT = u'''Message
+NOTIFICATION_HASH_FORMAT = """Message
 {Message}
 MessageId
 {MessageId}
@@ -28,9 +28,9 @@ TopicArn
 {TopicArn}
 Type
 {Type}
-'''
+"""
 
-NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT = u'''Message
+NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT = """Message
 {Message}
 MessageId
 {MessageId}
@@ -40,9 +40,9 @@ TopicArn
 {TopicArn}
 Type
 {Type}
-'''
+"""
 
-SUBSCRIPTION_HASH_FORMAT = u'''Message
+SUBSCRIPTION_HASH_FORMAT = """Message
 {Message}
 MessageId
 {MessageId}
@@ -56,31 +56,31 @@ TopicArn
 {TopicArn}
 Type
 {Type}
-'''
+"""
 
 SUPPORTED_SNS_TYPES = [
-    'SubscriptionConfirmation',
-    'Notification',
+    "SubscriptionConfirmation",
+    "Notification",
 ]
 
 
 def verify_from_sns(json_body):
-    pemfile = _grab_keyfile(json_body['SigningCertURL'])
+    pemfile = _grab_keyfile(json_body["SigningCertURL"])
     cert = crypto.load_certificate(crypto.FILETYPE_PEM, pemfile)
-    signature = base64.decodebytes(json_body['Signature'].encode('utf-8'))
+    signature = base64.decodebytes(json_body["Signature"].encode("utf-8"))
 
     hash_format = _get_hash_format(json_body)
 
     crypto.verify(
-        cert, signature, hash_format.format(**json_body).encode('utf-8'), 'sha1'
+        cert, signature, hash_format.format(**json_body).encode("utf-8"), "sha1"
     )
     return json_body
 
 
 def _get_hash_format(json_body):
-    message_type = json_body['Type']
+    message_type = json_body["Type"]
     if message_type == "Notification":
-        if 'Subject' in json_body.keys():
+        if "Subject" in json_body.keys():
             return NOTIFICATION_HASH_FORMAT
         return NOTIFICATION_WITHOUT_SUBJECT_HASH_FORMAT
 
@@ -88,13 +88,13 @@ def _get_hash_format(json_body):
 
 
 def _grab_keyfile(cert_url):
-    cert_url_origin = f'https://sns.{settings.AWS_REGION}.amazonaws.com/'
+    cert_url_origin = f"https://sns.{settings.AWS_REGION}.amazonaws.com/"
     if not (cert_url.startswith(cert_url_origin)):
         raise SuspiciousOperation(
             f'SNS SigningCertURL "{cert_url}" did not start with "{cert_url_origin}"'
         )
 
-    key_cache = caches[getattr(settings, 'AWS_SNS_KEY_CACHE', 'default')]
+    key_cache = caches[getattr(settings, "AWS_SNS_KEY_CACHE", "default")]
 
     pemfile = key_cache.get(cert_url)
     if not pemfile:
@@ -106,8 +106,8 @@ def _grab_keyfile(cert_url):
 
         # A proper certificate file will contain 1 certificate
         if len(certificates) != 1:
-            logger.error('Invalid Certificate File: URL %s', cert_url)
-            raise ValueError('Invalid Certificate File')
+            logger.error("Invalid Certificate File: URL %s", cert_url)
+            raise ValueError("Invalid Certificate File")
 
         key_cache.set(cert_url, pemfile)
     return pemfile

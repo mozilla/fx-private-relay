@@ -33,10 +33,10 @@ from .exceptions import ConflictError
 
 schema_view = get_schema_view(
     openapi.Info(
-        title='Relay API',
-        default_version='v1',
-        description='API endpints for Relay back-end',
-        contact=openapi.Contact(email='lcrouch+relayapi@mozilla.com'),
+        title="Relay API",
+        default_version="v1",
+        description="API endpints for Relay back-end",
+        contact=openapi.Contact(email="lcrouch+relayapi@mozilla.com"),
     ),
     public=settings.DEBUG,
     permission_classes=[permissions.AllowAny],
@@ -49,26 +49,26 @@ class SaveToRequestUser:
 
 
 class RelayAddressFilter(filters.FilterSet):
-    used_on = filters.CharFilter(field_name='used_on', lookup_expr='icontains')
+    used_on = filters.CharFilter(field_name="used_on", lookup_expr="icontains")
 
     class Meta:
         model = RelayAddress
         fields = [
-            'enabled',
-            'description',
-            'generated_for',
-            'block_list_emails',
-            'used_on',
+            "enabled",
+            "description",
+            "generated_for",
+            "block_list_emails",
+            "used_on",
             # read-only
-            'id',
-            'address',
-            'domain',
-            'created_at',
-            'last_modified_at',
-            'last_used_at',
-            'num_forwarded',
-            'num_blocked',
-            'num_spam',
+            "id",
+            "address",
+            "domain",
+            "created_at",
+            "last_modified_at",
+            "last_used_at",
+            "num_forwarded",
+            "num_blocked",
+            "num_spam",
         ]
 
 
@@ -95,17 +95,17 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             raise exceptions.PermissionDenied(e.message)
         except IntegrityError as e:
             domain_address = DomainAddress.objects.filter(
-                user=self.request.user, address=serializer.validated_data.get('address')
+                user=self.request.user, address=serializer.validated_data.get("address")
             ).first()
             raise ConflictError(
-                {'id': domain_address.id, 'full_address': domain_address.full_address}
+                {"id": domain_address.id, "full_address": domain_address.full_address}
             )
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
-    http_method_names = ['get', 'post', 'head', 'put', 'patch']
+    http_method_names = ["get", "post", "head", "put", "patch"]
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
@@ -114,7 +114,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
-    http_method_names = ['get', 'head']
+    http_method_names = ["get", "head"]
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)

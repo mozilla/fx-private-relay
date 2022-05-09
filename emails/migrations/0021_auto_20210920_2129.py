@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0020_reply_created_at'),
+        ("emails", "0020_reply_created_at"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reply',
-            name='lookup',
+            model_name="reply",
+            name="lookup",
             field=models.CharField(db_index=True, max_length=255),
         ),
     ]

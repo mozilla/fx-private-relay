@@ -16,25 +16,25 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='RelayAddress',
+            name="RelayAddress",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.AutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
                 (
-                    'address',
+                    "address",
                     models.CharField(
                         default=emails.models.address_default, max_length=64
                     ),
                 ),
                 (
-                    'user',
+                    "user",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         to=settings.AUTH_USER_MODEL,
@@ -43,23 +43,23 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Messages',
+            name="Messages",
             fields=[
                 (
-                    'id',
+                    "id",
                     models.AutoField(
                         auto_created=True,
                         primary_key=True,
                         serialize=False,
-                        verbose_name='ID',
+                        verbose_name="ID",
                     ),
                 ),
-                ('message', models.TextField()),
+                ("message", models.TextField()),
                 (
-                    'relay_address',
+                    "relay_address",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to='emails.RelayAddress',
+                        to="emails.RelayAddress",
                     ),
                 ),
             ],

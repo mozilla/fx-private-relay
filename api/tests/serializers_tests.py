@@ -14,11 +14,11 @@ class PremiumValidatorsTest(APITestCase):
         free_alias = baker.make(RelayAddress, user=free_user)
         assert free_alias.block_list_emails == False
 
-        url = reverse('relayaddress-detail', args=[free_alias.id])
-        data = {'block_list_emails': True}
+        url = reverse("relayaddress-detail", args=[free_alias.id])
+        data = {"block_list_emails": True}
         free_token = Token.objects.get(user=free_user)
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + free_token.key)
-        response = self.client.patch(url, data, format='json')
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + free_token.key)
+        response = self.client.patch(url, data, format="json")
 
         assert response.status_code == 403
         assert free_alias.block_list_emails == False
@@ -28,11 +28,11 @@ class PremiumValidatorsTest(APITestCase):
         premium_alias = baker.make(RelayAddress, user=premium_user)
         assert premium_alias.block_list_emails == False
 
-        url = reverse('relayaddress-detail', args=[premium_alias.id])
-        data = {'block_list_emails': True}
+        url = reverse("relayaddress-detail", args=[premium_alias.id])
+        data = {"block_list_emails": True}
         free_token = Token.objects.get(user=premium_user)
-        self.client.credentials(HTTP_AUTHORIZATION='Token ' + free_token.key)
-        response = self.client.patch(url, data, format='json')
+        self.client.credentials(HTTP_AUTHORIZATION="Token " + free_token.key)
+        response = self.client.patch(url, data, format="json")
 
         assert response.status_code == 200
         premium_alias.refresh_from_db()
