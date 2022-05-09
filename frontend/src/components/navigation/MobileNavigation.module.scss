@@ -5,10 +5,11 @@
   display: none;
   width: 100%;
   position: absolute;
-  top: 75px;
+  top: 77px;
   left: 0;
   background: $color-white;
   flex-direction: column;
+  box-shadow: $box-shadow-lg;
 
   &.is-active {
     display: flex;
