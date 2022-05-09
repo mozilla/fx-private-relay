@@ -25,7 +25,8 @@ const PremiumWaitlist: NextPage = () => {
   const [locale, setLocale] = useState<string>(
     supportedLocales.find(
       (supportedLocale) =>
-        supportedLocale.toLowerCase() === currentLocale.toLowerCase()
+        supportedLocale.toLowerCase() ===
+        currentLocale.split("-")[0].toLowerCase()
     ) ?? "en"
   );
   const usersData = useUsers();
