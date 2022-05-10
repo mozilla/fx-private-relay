@@ -482,6 +482,7 @@ class RelayAddress(models.Model):
             address_hash=address_hash(self.address, domain=self.domain_value),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
+            num_replied=self.num_replied,
             num_spam=self.num_spam,
         )
         deleted_address.save()
@@ -547,6 +548,7 @@ class DeletedAddress(models.Model):
     address_hash = models.CharField(max_length=64, db_index=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -642,6 +644,7 @@ class DomainAddress(models.Model):
             ),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
+            num_replied=self.num_replied,
             num_spam=self.num_spam,
         )
         deleted_address.save()
