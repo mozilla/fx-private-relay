@@ -41,28 +41,31 @@ export function useFxaFlowTracker(
       nonInteraction: true,
     });
 
-    // Note: there's no `.catch`; if we can't contact the metrics endpoint,
-    // we accept not being able to measure this.
     fetch(
       `${fxaOrigin}/metrics-flow?form_type=other&entrypoint=${encodeURIComponent(
         args.entrypoint
       )}&utm_source=${encodeURIComponent(document.location.host)}`
-    ).then(async (response) => {
-      if (!response.ok) {
-        return;
-      }
-      const data = await response.json();
-      if (
-        typeof data.flowId !== "string" ||
-        typeof data.flowBeginTime !== "string"
-      ) {
-        return;
-      }
-      setFlowData({
-        flowBeginTime: data.flowBeginTime,
-        flowId: data.flowId,
+    )
+      .then(async (response) => {
+        if (!response.ok) {
+          return;
+        }
+        const data = await response.json();
+        if (
+          typeof data.flowId !== "string" ||
+          typeof data.flowBeginTime !== "string"
+        ) {
+          return;
+        }
+        setFlowData({
+          flowBeginTime: data.flowBeginTime,
+          flowId: data.flowId,
+        });
+      })
+      .catch(() => {
+        // Do nothing; if we can't contact the metrics endpoint,
+        // we accept not being able to measure this.
       });
-    });
 
     // We don't want to trigger sending an event when `args` change;
     // only when the element does or does not come into view do we
