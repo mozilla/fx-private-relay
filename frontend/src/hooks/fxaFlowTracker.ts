@@ -74,10 +74,11 @@ export function useFxaFlowTracker(
 }
 
 export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
+  const loginUrl = getRuntimeConfig().fxaLoginUrl;
   // document is undefined when prerendering the website,
   // so just use the production URL there:
   const urlObject = new URL(
-    getRuntimeConfig().fxaLoginUrl,
+    loginUrl,
     typeof document !== "undefined"
       ? document.location.origin
       : "https://relay.firefox.com"
@@ -89,5 +90,11 @@ export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
     urlObject.searchParams.append("flowBeginTime", flowData.flowBeginTime);
   }
 
-  return urlObject.href;
+  const fullUrl = urlObject.href;
+  // If the configured fxaLoginUrl was a relative URL,
+  // the URL we return should be relative as well, rather than potentially
+  // including the `https://relay.firefox.com` we set as the base URL so that
+  // the `URL()` constructor could parse it:
+  const newLoginUrl = fullUrl.substring(fullUrl.indexOf(loginUrl));
+  return newLoginUrl;
 }
