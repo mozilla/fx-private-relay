@@ -60,6 +60,17 @@ def make_premium_test_user():
     return premium_user
 
 
+def make_storageless_test_user():
+    storageless_user = baker.make(User)
+    storageless_user_profile = Profile.objects.get(user=storageless_user)
+    storageless_user_profile.server_storage = False
+    storageless_user_profile.subdomain = "mydomain"
+    storageless_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
+    storageless_user_profile.save()
+    upgrade_test_user_to_premium(storageless_user)
+    return storageless_user
+
+
 def upgrade_test_user_to_premium(user):
     random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
     baker.make(
@@ -139,6 +150,7 @@ class RelayAddressTest(TestCase):
         self.user_profile = self.user.profile_set.first()
         self.premium_user = make_premium_test_user()
         self.premium_user_profile = self.premium_user.profile_set.first()
+        self.storageless_user = make_storageless_test_user()
 
     def test_create_assigns_to_user(self):
         relay_address = RelayAddress.objects.create(user=self.user_profile.user)
@@ -236,6 +248,17 @@ class RelayAddressTest(TestCase):
         relay_address.save()
         relay_address.refresh_from_db()
         assert relay_address.block_list_emails == True
+
+    def test_storageless_user_cant_set_label(self):
+        relay_address = RelayAddress.objects.create(user=self.storageless_user)
+        assert relay_address.description == ""
+        assert relay_address.generated_for == ""
+        relay_address.description = "Arbitrary description"
+        relay_address.generated_for = "https://example.com"
+        relay_address.save()
+        relay_address.refresh_from_db()
+        assert relay_address.description == ""
+        assert relay_address.generated_for == ""
 
 
 class ProfileTest(TestCase):
@@ -780,6 +803,7 @@ class DomainAddressTest(TestCase):
     def setUp(self):
         self.subdomain = "test"
         self.user = make_premium_test_user()
+        self.storageless_user = make_storageless_test_user()
         # get rather than create profile since profile is auto-generated
         # when user is created
         self.user_profile = Profile.objects.get(user=self.user)
@@ -916,3 +940,11 @@ class DomainAddressTest(TestCase):
         domain_address.save()
         domain_address.refresh_from_db()
         assert domain_address.block_list_emails == True
+
+    def test_storageless_user_cant_set_labels(self):
+        domain_address = DomainAddress.objects.create(user=self.storageless_user)
+        assert domain_address.description == ""
+        domain_address.description = "Arbitrary description"
+        domain_address.save()
+        domain_address.refresh_from_db()
+        assert domain_address.description == ""
