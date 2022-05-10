@@ -19,7 +19,7 @@ commands:
 executors:
   python:
     docker:
-      - image: cimg/python:3.9.10
+      - image: cimg/python:3.9.12
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -235,7 +235,7 @@ jobs:
 
   upload_coverage:
     docker:
-      - image: cimg/python:3.7.9-node
+      - image: cimg/python:3.9.12-node
     steps:
       - attach_workspace:
           at: /tmp/workspace
