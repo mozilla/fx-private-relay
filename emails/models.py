@@ -282,6 +282,14 @@ class Profile(models.Model):
             + sum(da.num_blocked for da in self.domain_addresses)
             + self.num_email_blocked_in_deleted_address
         )
+    
+    @property
+    def emails_replied(self):
+        return (
+            self.relay_addresses.aggregate(models.Sum('num_replied')) +
+            self.domain_addresses.aggregate(models.Sum('num_replied')) +
+            self.num_email_replied_in_deleted_address
+        )
 
     @property
     def joined_before_premium_release(self):
