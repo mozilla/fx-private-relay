@@ -71,6 +71,7 @@ export const AliasList = (props: Props) => {
         typeof updatedFields.description === "string"
       ) {
         storeLocalLabel(alias, updatedFields.description);
+        delete updatedFields.description;
       }
       return props.onUpdate(alias, updatedFields);
     };
