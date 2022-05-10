@@ -493,14 +493,17 @@ class RelayAddress(models.Model):
         return super(RelayAddress, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
+        profile = self.user.profile_set.first()
         if self._state.adding:
             check_user_can_make_another_address(self.user)
             while True:
                 if valid_address(self.address, self.domain):
                     break
                 self.address = address_default()
-            profile = self.user.profile_set.first()
             profile.update_abuse_metric(address_created=True)
+        if (not profile.server_storage):
+            self.description = ""
+            self.generated_for = ""
         return super().save(*args, **kwargs)
 
     @property
@@ -585,11 +588,13 @@ class DomainAddress(models.Model):
         return self.address
 
     def save(self, *args, **kwargs):
+        user_profile = self.user.profile_set.first()
         if self._state.adding:
-            user_profile = self.user.profile_set.first()
             check_user_can_make_domain_address(user_profile)
             user_profile.update_abuse_metric(address_created=True)
         # TODO: validate user is premium to set block_list_emails
+        if (not user_profile.server_storage):
+            self.description = ""
         return super().save(*args, **kwargs)
 
     @property
