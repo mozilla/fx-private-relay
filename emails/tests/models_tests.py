@@ -144,16 +144,6 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=self.user_profile.user)
         assert relay_address.user == self.user_profile.user
 
-    @override_settings(MAX_ADDRESS_CREATION_PER_DAY=1000)
-    def test_create_makes_different_addresses(self):
-        for i in range(1000):
-            RelayAddress.objects.create(user=self.premium_user_profile.user)
-        # check that the address is unique (deeper assertion that the generated aliases are unique)
-        relay_addresses = RelayAddress.objects.filter(
-            user=self.premium_user
-        ).values_list("address", flat=True)
-        assert len(set(relay_addresses)) == 1000
-
     @override_settings(MAX_NUM_FREE_ALIASES=5, MAX_ADDRESS_CREATION_PER_DAY=10)
     def test_create_has_limit(self):
         try:
