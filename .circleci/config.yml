@@ -321,6 +321,50 @@ jobs:
           steps:
             - store_test_results:
                 path: job-results
+
+  python_test_postgres:
+    docker:
+      - image: cimg/python:3.9.12
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+      - image: cimg/postgres:11.13
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 6edef2d746f2274cab951a452d5fc13d
+          POSTGRES_DB: circle
+        auth:
+          username: $DOCKER_USER
+          password: $DOCKER_PASS
+    steps:
+      - checkout_with_submodules
+      - python/install-packages:
+          pkg-manager: pip
+      - run:
+          name: Install dockerize
+          command: |
+            wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
+            sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz &&
+            rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+          environment:
+            DOCKERIZE_VERSION: v0.6.1
+      - run:
+          name: Wait for the database
+          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+      - run:
+          name: Set test defaults
+          command: cp .env-dist .env
+      - run:
+          name: Create test-report directory
+          command: mkdir test-report
+      - run:
+          name: Run tests
+          command: pytest --junit-xml=test-report/report.xml .
+          environment:
+            DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
+      - store_test_results:
+          path: test-report
+
 workflows:
   version: 2
   build-test-deploy:
@@ -341,6 +385,11 @@ workflows:
           name: black style check
           command: black --check .
           allow_fail: true
+          filters:
+            tags:
+              only: /.*/
+
+      - python_test_postgres:
           filters:
             tags:
               only: /.*/
