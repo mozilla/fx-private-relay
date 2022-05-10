@@ -51,6 +51,7 @@
   box-shadow: $box-shadow-sm;
   background-color: $color-white;
   width: $content-sm;
+  max-width: calc(100% - $spacing-xl);
 
   .header {
     display: flex;
