@@ -5,11 +5,15 @@ import { useTabList, useTabPanel, useTab } from "react-aria";
 import { useTabListState, TabListState, Item } from "react-stately";
 import { useInView } from "react-intersection-observer";
 import styles from "./Tips.module.scss";
-import arrowDownIcon from "../../../../static/images/arrowhead.svg";
-import { InfoIcon } from "../Icons";
-import { ProfileData } from "../../hooks/api/profile";
-import { DismissalData, useLocalDismissal } from "../../hooks/localDismissal";
-import { getRuntimeConfig } from "../../config";
+import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
+import { InfoIcon } from "../../Icons";
+import { ProfileData } from "../../../hooks/api/profile";
+import {
+  DismissalData,
+  useLocalDismissal,
+} from "../../../hooks/localDismissal";
+import { getRuntimeConfig } from "../../../config";
+import { CustomAliasTip } from "./CustomAliasTip";
 
 export type Props = {
   profile: ProfileData;
@@ -156,42 +160,6 @@ export const Tips = (props: Props) => {
     >
       {elementToShow}
     </aside>
-  );
-};
-
-type GenericTipProps = {
-  title: string;
-  content: ReactNode;
-};
-// This component will probably be used for future tips that are yet to be added:
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const GenericTip = (props: GenericTipProps) => {
-  return (
-    <div className={styles["generic-tip"]}>
-      <h3>{props.title}</h3>
-      {props.content}
-    </div>
-  );
-};
-
-type CustomAliasTipProps = {
-  subdomain: string;
-};
-/**
- * The tip on using custom aliases also shows the user's domain on top,
- * so it can't use {@see GenericTip}.
- */
-const CustomAliasTip = (props: CustomAliasTipProps) => {
-  const { l10n } = useLocalization();
-
-  return (
-    <div className={styles["custom-alias-tip"]}>
-      <samp>
-        @{props.subdomain}.{getRuntimeConfig().mozmailDomain}
-      </samp>
-      <h3>{l10n.getString("tips-custom-alias-heading-2")}</h3>
-      <p>{l10n.getString("tips-custom-alias-content-2")}</p>
-    </div>
   );
 };
 

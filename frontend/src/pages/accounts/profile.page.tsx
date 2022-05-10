@@ -28,7 +28,7 @@ import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding"
 import { Onboarding } from "../../components/dashboard/Onboarding";
 import { getRuntimeConfig } from "../../config";
 import { SubdomainIndicator } from "../../components/dashboard/subdomain/SubdomainIndicator";
-import { Tips } from "../../components/dashboard/Tips";
+import { Tips } from "../../components/dashboard/tips/Tips";
 import { clearCookie, getCookie } from "../../functions/cookies";
 import { toast } from "react-toastify";
 import { getLocale } from "../../functions/getLocale";
