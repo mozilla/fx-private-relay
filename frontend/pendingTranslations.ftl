@@ -49,3 +49,10 @@ waitlist-subscribe-success = You’re on the list! Once { -brand-name-firefox-re
 waitlist-subscribe-error-connection = There was an error adding you to the waitlist. Please check your connection, then try again.
 waitlist-subscribe-error-unknown = There was an error adding you to the waitlist. Please try again.
 
+whatsnew-feature-premium-expansion-sweden-heading = { -brand-name-relay-premium } available in Sweden
+whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium } available in Finland
+# A preview of the full content of `whatsnew-feature-premium-sweden-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more protection…
+whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!

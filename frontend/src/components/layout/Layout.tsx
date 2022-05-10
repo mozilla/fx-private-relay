@@ -24,6 +24,7 @@ import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
+import { useRuntimeData } from "../../hooks/api/runtimeData";
 
 export type Props = {
   children: ReactNode;
@@ -36,6 +37,7 @@ export type Props = {
 export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
+  const runtimeData = useRuntimeData();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
 
@@ -83,7 +85,7 @@ export const Layout = (props: Props) => {
 
   const whatsNew =
     isLoggedIn && profiles.data ? (
-      <WhatsNewMenu profile={profiles.data[0]} />
+      <WhatsNewMenu profile={profiles.data[0]} runtimeData={runtimeData.data} />
     ) : null;
 
   return (
