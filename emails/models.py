@@ -119,7 +119,7 @@ class Profile(models.Model):
         # appropriate server-stored Relay address data.
         if not self.server_storage:
             relay_addresses = RelayAddress.objects.filter(user=self.user)
-            relay_addresses.update(description="", generated_for="")
+            relay_addresses.update(description="", generated_for="", used_on="")
         return ret
 
     @property
@@ -504,6 +504,7 @@ class RelayAddress(models.Model):
         if (not profile.server_storage):
             self.description = ""
             self.generated_for = ""
+            self.used_on = ""
         return super().save(*args, **kwargs)
 
     @property
