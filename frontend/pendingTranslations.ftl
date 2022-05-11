@@ -55,6 +55,7 @@ menu-toggle-close = Close menu
 
 
 nav-dashboard = Dashboard
-nav-settings = settings
+nav-settings = Settings
 nav-support = Help and Support 
 nav-sign-out = Sign Out 
+nav-avatar = User avatar

@@ -10,27 +10,36 @@ import { UpgradeButton } from "./UpgradeButton";
 import { WhatsNewMenu } from "../layout/whatsnew/WhatsNewMenu";
 import {
   Cogwheel,
+  ContactIcon,
   DashboardIcon,
   FaqIcon,
   HomeIcon,
-  Logout,
-  MenuIcon,
+  NewTabIcon,
   SignOutIcon,
   SupportIcon,
 } from "../Icons";
-import { UserMenu } from "./UserMenu";
-import { AppPicker } from "./AppPicker";
-import { MenuToggle } from "./MenuToggle";
+import { useUsers } from "../../hooks/api/user";
+import { useRuntimeData } from "../../hooks/api/runtimeData";
 
 /** Switch between the different pages of the Relay website. */
 export const MobileNavigation = ({ ...props }) => {
   const { l10n } = useLocalization();
-  const router = useRouter();
+  const usersData = useUsers();
+  const runtimeData = useRuntimeData();
   const isLoggedIn = useIsLoggedIn();
   const profiles = useProfiles();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
   const { theme } = props;
+
+  if (
+    !Array.isArray(usersData.data) ||
+    usersData.data.length !== 1 ||
+    !runtimeData.data
+  ) {
+    // Still fetching the user's account data...
+    return null;
+  }
 
   return (
     <nav
@@ -39,7 +48,43 @@ export const MobileNavigation = ({ ...props }) => {
         props.active ? styles["is-active"] : ""
       }`}
     >
-      <ul>
+      <ul className={`${styles["menu-item-list"]}`}>
+        {isLoggedIn && (
+          <li className={`${styles["menu-item"]}`}>
+            <img
+              //src={profiles.data?.[0].avatar}
+              src="https://avatars.githubusercontent.com/u/3924990?v=4"
+              alt={l10n.getString("nav-avatar")}
+              className={styles["user-avatar"]}
+              width={42}
+              height={42}
+            />
+            <span>
+              <b className={styles["user-email"]}>{usersData.data[0].email}</b>
+              <a
+                href={`${runtimeData.data.FXA_ORIGIN}/settings/`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles["settings-link"]}
+              >
+                {l10n.getString("nav-profile-manage-fxa")}
+                <NewTabIcon />
+              </a>
+            </span>
+          </li>
+        )}
+
+        {isLoggedIn && hasPremium && (
+          <li className={`${styles["menu-item"]}`}>
+            <Link href={homePath}>
+              <a className={`${styles.link}`}>
+                {ContactIcon({ alt: "contact icon" })}
+                {l10n.getString("nav-contact")}
+              </a>
+            </Link>
+          </li>
+        )}
+
         {!isLoggedIn && (
           <li className={`${styles["menu-item"]}`}>
             <Link href={homePath}>
