@@ -5,8 +5,8 @@ from django.db import migrations
 
 
 def populate_api_tokens(apps, schema_editor):
-    User = apps.get_model('auth', 'User')
-    Profile = apps.get_model('emails', 'Profile')
+    User = apps.get_model("auth", "User")
+    Profile = apps.get_model("emails", "Profile")
     for user in User.objects.all():
         profiles = Profile.objects.filter(user=user)
         if not profiles:
@@ -16,7 +16,7 @@ def populate_api_tokens(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0003_profile'),
+        ("emails", "0003_profile"),
     ]
 
     operations = [

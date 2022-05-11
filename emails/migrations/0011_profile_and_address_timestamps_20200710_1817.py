@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0010_auto_20200508_1335'),
+        ("emails", "0010_auto_20200508_1335"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='address_last_deleted',
+            model_name="profile",
+            name="address_last_deleted",
             field=models.DateTimeField(blank=True, db_index=True, null=True),
         ),
         migrations.AddField(
-            model_name='relayaddress',
-            name='last_modified_at',
+            model_name="relayaddress",
+            name="last_modified_at",
             field=models.DateTimeField(auto_now=True, db_index=True),
         ),
         migrations.AlterField(
-            model_name='relayaddress',
-            name='created_at',
+            model_name="relayaddress",
+            name="created_at",
             field=models.DateTimeField(auto_now_add=True, db_index=True),
         ),
     ]

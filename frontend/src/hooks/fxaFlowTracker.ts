@@ -41,28 +41,31 @@ export function useFxaFlowTracker(
       nonInteraction: true,
     });
 
-    // Note: there's no `.catch`; if we can't contact the metrics endpoint,
-    // we accept not being able to measure this.
     fetch(
       `${fxaOrigin}/metrics-flow?form_type=other&entrypoint=${encodeURIComponent(
         args.entrypoint
       )}&utm_source=${encodeURIComponent(document.location.host)}`
-    ).then(async (response) => {
-      if (!response.ok) {
-        return;
-      }
-      const data = await response.json();
-      if (
-        typeof data.flowId !== "string" ||
-        typeof data.flowBeginTime !== "string"
-      ) {
-        return;
-      }
-      setFlowData({
-        flowBeginTime: data.flowBeginTime,
-        flowId: data.flowId,
+    )
+      .then(async (response) => {
+        if (!response.ok) {
+          return;
+        }
+        const data = await response.json();
+        if (
+          typeof data.flowId !== "string" ||
+          typeof data.flowBeginTime !== "string"
+        ) {
+          return;
+        }
+        setFlowData({
+          flowBeginTime: data.flowBeginTime,
+          flowId: data.flowId,
+        });
+      })
+      .catch(() => {
+        // Do nothing; if we can't contact the metrics endpoint,
+        // we accept not being able to measure this.
       });
-    });
 
     // We don't want to trigger sending an event when `args` change;
     // only when the element does or does not come into view do we
@@ -74,10 +77,11 @@ export function useFxaFlowTracker(
 }
 
 export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
+  const loginUrl = getRuntimeConfig().fxaLoginUrl;
   // document is undefined when prerendering the website,
   // so just use the production URL there:
   const urlObject = new URL(
-    getRuntimeConfig().fxaLoginUrl,
+    loginUrl,
     typeof document !== "undefined"
       ? document.location.origin
       : "https://relay.firefox.com"
@@ -89,5 +93,11 @@ export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
     urlObject.searchParams.append("flowBeginTime", flowData.flowBeginTime);
   }
 
-  return urlObject.href;
+  const fullUrl = urlObject.href;
+  // If the configured fxaLoginUrl was a relative URL,
+  // the URL we return should be relative as well, rather than potentially
+  // including the `https://relay.firefox.com` we set as the base URL so that
+  // the `URL()` constructor could parse it:
+  const newLoginUrl = fullUrl.substring(fullUrl.indexOf(loginUrl));
+  return newLoginUrl;
 }

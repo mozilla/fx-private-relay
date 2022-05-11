@@ -7,14 +7,16 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0019_merge_20210825_1737'),
+        ("emails", "0019_merge_20210825_1737"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='reply',
-            name='created_at',
-            field=models.DateField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="reply",
+            name="created_at",
+            field=models.DateField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
     ]

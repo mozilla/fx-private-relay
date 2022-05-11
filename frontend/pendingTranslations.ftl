@@ -25,15 +25,7 @@ landing-use-cases-signups-hero-content2 = Before you complete that next signup, 
 banner-download-install-chrome-extension-copy-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using masks even easier.
 multi-part-onboarding-premium-chrome-extension-get-description-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using email masks even easier.
 
-# This copy (and the term "critical email") is not final yet:
-tips-critical-emails-heading = Critical email forwarding
-# This copy (and the term "critical email") is not final yet:
-tips-critical-emails-content = Relay allows you to receive only critical emails sent to an mask. You’ll receive emails like receipts but not spam or marketing emails.
-
-# This copy is not final yet:
-tips-addon-signin-heading = Sign in with your masks
-# This copy is not final yet:
-tips-addon-signin-content = To sign in with a previously-used alias, open the context menu (right-click or control-click) where the site asks for your email. You’ll be able to select the alias and auto-fill the email field.
+tips-toast-button-expand-label = Learn more
 
 waitlist-heading = Join the { -brand-name-relay-premium } Waitlist
 waitlist-lead = Get notified when { -brand-name-firefox-relay-premium } is available for your region.
@@ -49,9 +41,16 @@ waitlist-subscribe-success = You’re on the list! Once { -brand-name-firefox-re
 waitlist-subscribe-error-connection = There was an error adding you to the waitlist. Please check your connection, then try again.
 waitlist-subscribe-error-unknown = There was an error adding you to the waitlist. Please try again.
 
-
 ## Notifications component
 
 toast-button-close-label = Close notification
 success-signed-out-message = You have signed out.
 success-signed-in-message = Successfully signed in as { $username }.
+
+whatsnew-feature-premium-expansion-sweden-heading = { -brand-name-relay-premium } available in Sweden
+whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium } available in Finland
+# A preview of the full content of `whatsnew-feature-premium-sweden-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more protection…
+whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!

@@ -1,0 +1,23 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.custom-alias-tip {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+
+  @include text-body-sm;
+
+  samp {
+    @include text-body-sm;
+    font-family: $font-stack-base;
+    color: $color-blue-50;
+    font-weight: 700;
+  }
+
+  h3 {
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    color: $color-purple-90;
+  }
+}

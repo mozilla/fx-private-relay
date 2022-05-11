@@ -1,0 +1,175 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  position: relative;
+  padding-bottom: calc($spacing-md * 2 + 2rem);
+  flex: 1 0 0;
+
+  .expand-button,
+  .card {
+    position: fixed;
+    right: $spacing-md;
+    bottom: $spacing-md;
+  }
+
+  // .expand-button and .card stay fixed in the bottom right-hand corner,
+  // until the user has scrolled down enough to move .wrapper in view (which is
+  // located just above the footer), as which point they start scrolling up
+  // again so as not to overlap the footer.
+  &.is-in-view {
+    .expand-button,
+    .card {
+      position: absolute;
+    }
+  }
+}
+
+.expand-button {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  border-style: none;
+  padding: $spacing-md;
+  box-shadow: $box-shadow-sm;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $color-violet-05;
+  }
+
+  .icon {
+    color: $color-pink-30;
+  }
+}
+
+.card {
+  border-radius: $border-radius-md;
+  padding: $spacing-md;
+  box-shadow: $box-shadow-sm;
+  background-color: $color-white;
+  width: $content-sm;
+  max-width: calc(100% - $spacing-xl);
+
+  .header {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    padding: 0 0 $spacing-lg;
+
+    .icon {
+      color: $color-pink-30;
+    }
+
+    h2 {
+      @include text-body-sm;
+      font-weight: 400;
+      flex: 1 0 auto;
+    }
+
+    .close-button {
+      background-color: transparent;
+      border-style: none;
+      border-radius: $border-radius-sm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+
+      &:hover {
+        color: $color-blue-50;
+      }
+    }
+  }
+
+  .summary {
+    display: flex;
+    gap: $spacing-md;
+    justify-content: space-between;
+    padding-bottom: $spacing-xs;
+
+    b {
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+    }
+
+    button {
+      @include text-body-sm;
+      background-color: transparent;
+      border-style: none;
+      border-radius: $border-radius-sm;
+      color: $color-blue-50;
+      flex-shrink: 0;
+      cursor: pointer;
+
+      &:hover {
+        color: $color-blue-70;
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .tip-carousel {
+    padding: $spacing-md;
+
+    .tip {
+      min-height: 15 * 16px;
+    }
+
+    .tip-switcher {
+      display: flex;
+      gap: $spacing-xs;
+      justify-content: center;
+
+      .panel-dot {
+        color: $color-light-gray-50;
+        // Increase the tap target for these dots:
+        padding: $spacing-sm $spacing-xs;
+        cursor: pointer;
+        // Avoid layout shifts when adding a bottom border on focus:
+        border: 2px solid transparent;
+
+        &.is-selected {
+          color: $color-pink-30;
+        }
+
+        &:hover {
+          color: $color-pink-40;
+        }
+
+        // .focus-wrapper exists just to add an outlined border to the dot
+        // when it is focused.
+        .focus-wrapper {
+          border: 3px solid transparent;
+          border-radius: 100%;
+          padding: 3px;
+        }
+        &:focus {
+          outline: none;
+          .focus-wrapper {
+            border-color: $color-blue-50;
+          }
+        }
+      }
+    }
+  }
+
+  .footer {
+    border-top: 1px solid $color-light-gray-20;
+    padding-top: $spacing-md;
+
+    ul {
+      list-style-type: none;
+      display: flex;
+      justify-content: space-between;
+
+      a {
+        color: $color-blue-50;
+        font-weight: 500;
+      }
+    }
+  }
+}

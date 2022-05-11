@@ -20,9 +20,6 @@ export type RuntimeConfig = {
   featureFlags: Record<
     | "generateCustomAliasMenu"
     | "generateCustomAliasSubdomain"
-    | "generateCustomAliasTip"
-    | "criticalEmailsTip"
-    | "addonSigninTip"
     | "interviewRecruitment"
     | "csatSurvey",
     boolean

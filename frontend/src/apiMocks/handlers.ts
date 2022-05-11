@@ -20,6 +20,7 @@ export function getHandlers(
     if (typeof authHeader !== "string") {
       return defaultMockId;
     }
+
     const token = authHeader.split(" ")[1];
     return mockIds.find((mockId) => mockId === token) ?? defaultMockId;
   };
@@ -56,31 +57,64 @@ export function getHandlers(
   addGetHandler("/accounts/logout", (_req, res, ctx) => {
     return res();
   });
+
   addGetHandler("/api/v1/runtime_data", (_req, res, ctx) => {
     return res(ctx.status(200), ctx.json(runtimeData));
   });
+
   addGetHandler("/api/v1/users/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     return res(ctx.status(200), ctx.json([users[mockId]]));
   });
+
   addGetHandler("/accounts/profile/subdomain", (req, res, ctx) => {
+    if (req.url.searchParams.get("subdomain") === "not-available") {
+      return res(
+        ctx.status(400),
+        ctx.json({
+          message: "error-subdomain-not-available",
+          subdomain: "not-available",
+        })
+      );
+    }
+
     return res(ctx.status(200), ctx.json({ available: true }));
   });
+
+  addPostHandler("/accounts/profile/subdomain", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    const body = req.body as string;
+    const data = new URLSearchParams(body);
+    profiles[mockId] = {
+      ...profiles[mockId],
+      subdomain: data.get("subdomain"),
+    };
+    return res(ctx.status(200));
+  });
+
   addGetHandler("/api/v1/profiles/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     return res(ctx.status(200), ctx.json([profiles[mockId]]));
   });
+
   addPatchHandler("/api/v1/profiles/:id/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     const body = req.body as Partial<ProfileData>;
     profiles[mockId] = {
       ...profiles[mockId],
@@ -88,18 +122,22 @@ export function getHandlers(
     };
     return res(ctx.status(200));
   });
+
   addGetHandler("/api/v1/relayaddresses/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     return res(ctx.status(200), ctx.json(relayaddresses[mockId]));
   });
+
   addPostHandler("/api/v1/relayaddresses/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     const body = req.body as Partial<RandomAliasData>;
     const ownAddresses = relayaddresses[mockId];
     const id = (ownAddresses[ownAddresses.length - 1]?.id ?? -1) + 1;
@@ -123,11 +161,13 @@ export function getHandlers(
     });
     return res(ctx.status(200));
   });
+
   addPatchHandler("/api/v1/relayaddresses/:id/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     const ownAddresses = relayaddresses[mockId];
     const index = ownAddresses.findIndex(
       (address) => address.id === Number.parseInt(req.params.id as string, 10)
@@ -142,11 +182,13 @@ export function getHandlers(
     };
     return res(ctx.status(200));
   });
+
   addDeleteHandler("/api/v1/relayaddresses/:id/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     const ownAddresses = relayaddresses[mockId];
     const index = ownAddresses.findIndex(
       (address) => address.id === Number.parseInt(req.params.id as string, 10)
@@ -154,21 +196,26 @@ export function getHandlers(
     if (index === -1) {
       return res(ctx.status(404));
     }
+
     ownAddresses.splice(index, 1);
     return res(ctx.status(200));
   });
+
   addGetHandler("/api/v1/domainaddresses/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     return res(ctx.status(200), ctx.json(domainaddresses[mockId]));
   });
+
   addPostHandler("/api/v1/domainaddresses/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     const body = req.body as Partial<CustomAliasData>;
     const ownAddresses = domainaddresses[mockId];
     const id = (ownAddresses[ownAddresses.length - 1]?.id ?? -1) + 1;
@@ -191,11 +238,13 @@ export function getHandlers(
     });
     return res(ctx.status(200));
   });
+
   addPatchHandler("/api/v1/domainaddresses/:id/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     const ownAddresses = domainaddresses[mockId];
     const index = ownAddresses.findIndex(
       (address) => address.id === Number.parseInt(req.params.id as string, 10)
@@ -203,6 +252,7 @@ export function getHandlers(
     if (index === -1) {
       return res(ctx.status(404));
     }
+
     const body = req.body as Partial<CustomAliasData>;
     ownAddresses[index] = {
       ...ownAddresses[index],
@@ -210,11 +260,13 @@ export function getHandlers(
     };
     return res(ctx.status(200));
   });
+
   addDeleteHandler("/api/v1/domainaddresses/:id/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
+
     const ownAddresses = domainaddresses[mockId];
     const index = ownAddresses.findIndex(
       (address) => address.id === Number.parseInt(req.params.id as string, 10)
@@ -222,6 +274,7 @@ export function getHandlers(
     if (index === -1) {
       return res(ctx.status(404));
     }
+
     ownAddresses.splice(index, 1);
     return res(ctx.status(200));
   });

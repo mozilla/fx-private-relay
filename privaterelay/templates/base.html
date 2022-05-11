@@ -16,7 +16,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="{% ftlmsg 'meta-description-2' %}" />
-    <title>{% ftlmsg 'meta-title' %}</title>
+    <title>{% block head_title %}{% ftlmsg 'meta-title' %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <link rel="icon" type="image/svg+xml" href="{% static 'images/logos/relay-logo-dark.svg' %}">
     <link rel="shortcut icon" href="{%  static 'images/favicon.ico' %}">

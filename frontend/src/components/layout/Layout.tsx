@@ -27,6 +27,7 @@ import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
 import { CloseIcon } from "../Icons";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
+import { useRuntimeData } from "../../hooks/api/runtimeData";
 
 export type Props = {
   children: ReactNode;
@@ -39,6 +40,7 @@ export type Props = {
 export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
+  const runtimeData = useRuntimeData();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
   const usersData = useUsers().data?.[0];
@@ -91,7 +93,7 @@ export const Layout = (props: Props) => {
 
   const whatsNew =
     isLoggedIn && profiles.data ? (
-      <WhatsNewMenu profile={profiles.data[0]} />
+      <WhatsNewMenu profile={profiles.data[0]} runtimeData={runtimeData.data} />
     ) : null;
 
   const closeToastButton = (closeToast: () => void): ReactElement => {
