@@ -253,12 +253,15 @@ class RelayAddressTest(TestCase):
         relay_address = RelayAddress.objects.create(user=self.storageless_user)
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
+        assert relay_address.used_on == ""
         relay_address.description = "Arbitrary description"
         relay_address.generated_for = "https://example.com"
+        relay_address.used_on = "https://example.com"
         relay_address.save()
         relay_address.refresh_from_db()
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
+        assert relay_address.used_on == ""
 
 
 class ProfileTest(TestCase):
@@ -631,26 +634,31 @@ class ProfileTest(TestCase):
     def test_save_server_storage_true_doesnt_delete_data(self):
         test_desc = "test description"
         test_generated_for = "secret.com"
+        test_used_on = "secret.com"
         relay_address = baker.make(
             RelayAddress,
             user=self.profile.user,
             description=test_desc,
             generated_for=test_generated_for,
+            used_on=test_used_on,
         )
         self.profile.server_storage = True
         self.profile.save()
 
         assert relay_address.description == test_desc
         assert relay_address.generated_for == test_generated_for
+        assert relay_address.used_on == test_used_on
 
     def test_save_server_storage_false_deletes_data(self):
         test_desc = "test description"
         test_generated_for = "secret.com"
+        test_used_on = "secret.com"
         relay_address = baker.make(
             RelayAddress,
             user=self.profile.user,
             description=test_desc,
             generated_for=test_generated_for,
+            used_on=test_used_on,
         )
         self.profile.server_storage = False
         self.profile.save()
@@ -658,6 +666,7 @@ class ProfileTest(TestCase):
         relay_address.refresh_from_db()
         assert relay_address.description == ""
         assert relay_address.generated_for == ""
+        assert relay_address.used_on == ""
 
     def test_save_server_storage_false_deletes_ALL_data(self):
         test_desc = "test description"
