@@ -40,13 +40,13 @@ export const Tips = (props: Props) => {
   const customAliasDismissal = useLocalDismissal(
     `tips_customAlias_${props.profile.id}`
   );
-  if (typeof props.profile.subdomain === "string") {
-    tips.push({
-      title: l10n.getString("tips-custom-alias-heading"),
-      content: <CustomAliasTip subdomain={props.profile.subdomain} />,
-      dismissal: customAliasDismissal,
-    });
-  }
+  tips.push({
+    title: l10n.getString("tips-custom-alias-heading"),
+    content: (
+      <CustomAliasTip subdomain={props.profile.subdomain ?? undefined} />
+    ),
+    dismissal: customAliasDismissal,
+  });
 
   if (tips.length === 0) {
     return null;
@@ -154,6 +154,7 @@ export const Tips = (props: Props) => {
   return (
     <aside
       ref={wrapperRef}
+      aria-label={l10n.getString("tips-header-title")}
       className={`${styles.wrapper} ${
         wrapperIsInView ? styles["is-in-view"] : styles["is-out-of-view"]
       }`}
