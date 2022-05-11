@@ -64,6 +64,21 @@ def test_check_health_too_old(test_settings, caplog):
     ]
 
 
+def test_check_health_empty_json(test_settings, caplog):
+    """check health fails when the JSON is empty."""
+    path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
+    path.touch()
+    with pytest.raises(CommandError) as excinfo:
+        call_command("check_health")
+    assert str(excinfo.value) == (
+        "Healthcheck failed:"
+        " JSONDecodeError('Expecting value: line 1 column 1 (char 0)')"
+    )
+    assert caplog.record_tuples == [
+        ("eventsinfo.check_health", logging.ERROR, "Healthcheck failed")
+    ]
+
+
 def test_check_health_failed_no_logs(test_settings, caplog):
     """check health failure do not log at verbosity=0."""
     path = test_settings.PROCESS_EMAIL_HEALTHCHECK_PATH
