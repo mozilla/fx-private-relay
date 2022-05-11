@@ -4,7 +4,6 @@
   appearance: none;
   font-size: 18px;
   line-height: 1;
-  padding: $spacing-sm $spacing-md;
   color: $color-purple-10;
   font-weight: 600;
   border-radius: $border-radius-md;
@@ -12,6 +11,7 @@
 
   @media screen and #{$mq-md} {
     background-color: $color-purple-20;
+    padding: $spacing-sm $spacing-md;
     color: $color-blue-90;
   }
 }

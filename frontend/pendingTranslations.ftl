@@ -52,3 +52,9 @@ waitlist-subscribe-error-unknown = There was an error adding you to the waitlist
 profile-upgrade-button = Upgrade 
 menu-toggle-open = Open menu
 menu-toggle-close = Close menu
+
+
+nav-dashboard = Dashboard
+nav-settings = settings
+nav-support = Help and Support 
+nav-sign-out = Sign Out 
