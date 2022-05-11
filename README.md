@@ -22,8 +22,7 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
     * On OSX: `brew install postgresql libpq`
     * On Fedora: `sudo dnf install libpq-devel python3-devel`
 * [SES](https://aws.amazon.com/ses/) if you want to send real emails
-* [Node 14.X](https://nodejs.org/en/download/) – Needed to compile the front-end
-  * [NPM](https://www.npmjs.com/)
+* [Volta](https://volta.sh/) – Sets up the right versions of Node and npm, needed to compile the front-end
 
 ### Install and Run the Site Locally
 

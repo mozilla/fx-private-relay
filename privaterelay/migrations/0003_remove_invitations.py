@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('privaterelay', '0002_add_fxa_uid_to_invitation'),
+        ("privaterelay", "0002_add_fxa_uid_to_invitation"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Invitations',
+            name="Invitations",
         ),
     ]

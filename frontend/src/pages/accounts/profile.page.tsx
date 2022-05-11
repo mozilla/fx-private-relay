@@ -19,7 +19,6 @@ import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
 import { LinkButton } from "../../components/Button";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import {
-  getPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
@@ -34,6 +33,7 @@ import { clearCookie, getCookie } from "../../functions/cookies";
 import { toast } from "react-toastify";
 import { getLocale } from "../../functions/getLocale";
 import { InfoTooltip } from "../../components/InfoTooltip";
+import { AddonData } from "../../components/dashboard/AddonData";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -91,6 +91,20 @@ const Profile: NextPage = () => {
     }
   };
 
+  const allAliases = getAllAliases(
+    aliasData.randomAliasData.data,
+    aliasData.customAliasData.data
+  );
+
+  const totalBlockedEmails = allAliases.reduce(
+    (count, alias) => count + alias.num_blocked,
+    0
+  );
+  const totalForwardedEmails = allAliases.reduce(
+    (count, alias) => count + alias.num_forwarded,
+    0
+  );
+
   if (
     profile.has_premium &&
     profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
@@ -102,13 +116,22 @@ const Profile: NextPage = () => {
     };
 
     return (
-      <Layout>
-        <PremiumOnboarding
+      <>
+        <AddonData
+          aliases={allAliases}
           profile={profile}
-          onNextStep={onNextStep}
-          onPickSubdomain={setCustomSubdomain}
+          runtimeData={runtimeData.data}
+          totalBlockedEmails={totalBlockedEmails}
+          totalForwardedEmails={totalForwardedEmails}
         />
-      </Layout>
+        <Layout>
+          <PremiumOnboarding
+            profile={profile}
+            onNextStep={onNextStep}
+            onPickSubdomain={setCustomSubdomain}
+          />
+        </Layout>
+      </>
     );
   }
 
@@ -166,24 +189,10 @@ const Profile: NextPage = () => {
     }
   };
 
-  const allAliases = getAllAliases(
-    aliasData.randomAliasData.data,
-    aliasData.customAliasData.data
-  );
-
-  const totalBlockedEmails = allAliases.reduce(
-    (count, alias) => count + alias.num_blocked,
-    0
-  );
-  const totalForwardedEmails = allAliases.reduce(
-    (count, alias) => count + alias.num_forwarded,
-    0
-  );
-
   const subdomainMessage =
     typeof profile.subdomain === "string" ? (
       <>
-        <span>{l10n.getString("profile-label-domain")}</span>
+        <span>{l10n.getString("profile-label-subdomain")}</span>
         <span className={styles["profile-registered-domain-value"]}>
           <SubdomainIndicator
             subdomain={profile.subdomain}
@@ -314,27 +323,13 @@ const Profile: NextPage = () => {
 
   return (
     <>
-      <firefox-private-relay-addon-data
-        // #profile-main is used by the add-on to look up the API token.
-        // TODO: Make it look for this custom element instead.
-        id="profile-main"
-        data-api-token={profile.api_token}
-        data-has-premium={profile.has_premium}
-        data-fxa-subscriptions-url={`${runtimeData.data.FXA_ORIGIN}/subscriptions`}
-        data-premium-prod-id={runtimeData.data.PREMIUM_PRODUCT_ID}
-        data-premium-price-id={
-          isPremiumAvailableInCountry(runtimeData.data)
-            ? getPlan(runtimeData.data).id
-            : undefined
-        }
-        data-aliases-used-val={allAliases.length}
-        data-emails-forwarded-val={totalForwardedEmails}
-        data-emails-blocked-val={totalBlockedEmails}
-        data-premium-subdomain-set={
-          typeof profile.subdomain === "string" ? profile.subdomain : "None"
-        }
-        data-premium-enabled="True"
-      ></firefox-private-relay-addon-data>
+      <AddonData
+        aliases={allAliases}
+        profile={profile}
+        runtimeData={runtimeData.data}
+        totalBlockedEmails={totalBlockedEmails}
+        totalForwardedEmails={totalForwardedEmails}
+      />
       <Layout>
         <main className={styles["profile-wrapper"]}>
           {stats}

@@ -7,25 +7,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('privaterelay', '0001_initial'),
+        ("privaterelay", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='MonitorSubscriber',
+            name="MonitorSubscriber",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('primary_email', models.CharField(max_length=255)),
-                ('waitlists_joined', fields.jsonb.JSONField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("primary_email", models.CharField(max_length=255)),
+                ("waitlists_joined", fields.jsonb.JSONField()),
             ],
             options={
-                'db_table': 'subscribers',
-                'managed': False,
+                "db_table": "subscribers",
+                "managed": False,
             },
         ),
         migrations.AddField(
-            model_name='invitations',
-            name='fxa_uid',
+            model_name="invitations",
+            name="fxa_uid",
             field=models.CharField(blank=True, max_length=255),
         ),
     ]

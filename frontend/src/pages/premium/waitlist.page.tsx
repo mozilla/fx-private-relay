@@ -6,9 +6,9 @@ import { Button } from "../../components/Button";
 import { FormEventHandler, useEffect, useState } from "react";
 import { getLocale } from "../../functions/getLocale";
 import { toast } from "react-toastify";
-import { CountryPicker } from "../../components/waitlist/countryPicker";
+import { CountryPicker } from "../../components/waitlist/CountryPicker";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
-import { LocalePicker } from "../../components/waitlist/localePicker";
+import { LocalePicker } from "../../components/waitlist/LocalePicker";
 import { useUsers } from "../../hooks/api/user";
 
 /** These are the languages that marketing can send emails in: */
@@ -25,7 +25,8 @@ const PremiumWaitlist: NextPage = () => {
   const [locale, setLocale] = useState<string>(
     supportedLocales.find(
       (supportedLocale) =>
-        supportedLocale.toLowerCase() === currentLocale.toLowerCase()
+        supportedLocale.toLowerCase() ===
+        currentLocale.split("-")[0].toLowerCase()
     ) ?? "en"
   );
   const usersData = useUsers();

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0008_deletedaddress'),
+        ("emails", "0008_deletedaddress"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='deletedaddress',
-            name='address_hash',
+            model_name="deletedaddress",
+            name="address_hash",
             field=models.CharField(db_index=True, max_length=64),
         ),
     ]

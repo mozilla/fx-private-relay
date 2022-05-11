@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0030_check_and_fix_any_duplicate_subdomains'),
+        ("emails", "0030_check_and_fix_any_duplicate_subdomains"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='onboarding_state',
+            model_name="profile",
+            name="onboarding_state",
             field=models.PositiveIntegerField(default=0),
         ),
     ]

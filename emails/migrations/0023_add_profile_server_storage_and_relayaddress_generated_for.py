@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0022_domainaddress_domain'),
+        ("emails", "0022_domainaddress_domain"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='server_storage',
+            model_name="profile",
+            name="server_storage",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='relayaddress',
-            name='generated_for',
+            model_name="relayaddress",
+            name="generated_for",
             field=models.CharField(blank=True, max_length=255),
         ),
     ]

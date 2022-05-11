@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('phones', '0001_initial'),
+        ("phones", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='session',
-            name='initiating_real_number',
-            field=models.CharField(default='', max_length=20),
+            model_name="session",
+            name="initiating_real_number",
+            field=models.CharField(default="", max_length=20),
             preserve_default=False,
         ),
     ]

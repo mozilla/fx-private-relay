@@ -24,60 +24,58 @@ from . import views
 
 urlpatterns = [
     # Dockerflow endpoint
-    path('__version__', views.version),
-    path('__heartbeat__', views.heartbeat),
-    path('__lbheartbeat__', views.lbheartbeat),
-
+    path("__version__", views.version),
+    path("__heartbeat__", views.heartbeat),
+    path("__lbheartbeat__", views.lbheartbeat),
     # FXA endpoints
-    path('fxa-rp-events', views.fxa_rp_events),
-    path('metrics-event', views.metrics_event),
-
+    path("fxa-rp-events", views.fxa_rp_events),
+    path("metrics-event", views.metrics_event),
     path(
-        'accounts/profile/subdomain',
-        views.profile_subdomain,
-        name='profile_subdomain'
+        "accounts/profile/subdomain", views.profile_subdomain, name="profile_subdomain"
     ),
-    path(
-        'accounts/profile/refresh',
-        views.profile_refresh,
-        name='profile_refresh'
-    ),
-    path('accounts/', include('allauth.urls')),
-    path('api/', include('api.urls')),
-    path('faq', views.faq, name='faq'),
+    path("accounts/profile/refresh", views.profile_refresh, name="profile_refresh"),
+    path("accounts/", include("allauth.urls")),
+    path("api/", include("api.urls")),
+    path("faq", views.faq, name="faq"),
 ]
 
 if not settings.SERVE_REACT:
     urlpatterns += [
-        path('accounts/profile/', views.profile, name='profile'),
-        path('accounts/settings/', views.settings_view, name='settings'),
+        path("accounts/profile/", views.profile, name="profile"),
+        path("accounts/settings/", views.settings_view, name="settings"),
         # This redirects users back to the homepage after updating settings
-        path('accounts/profile/settings_update', views.settings_update_view, name='settings-update'),
-        path('premium', views.premium_promo, name='premium-promo'),
-        path('', views.home, name='home'),
+        path(
+            "accounts/profile/settings_update",
+            views.settings_update_view,
+            name="settings-update",
+        ),
+        path("premium", views.premium_promo, name="premium-promo"),
+        path("", views.home, name="home"),
     ]
 
 if settings.DEBUG:
     import debug_toolbar
+
     urlpatterns += [
-        path('__debug__/', include(debug_toolbar.urls)),
-        path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+        path("__debug__/", include(debug_toolbar.urls)),
+        path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     ]
 if settings.USE_SILK:
     import silk
-    urlpatterns.append(path('silk/', include('silk.urls', namespace='silk')))
+
+    urlpatterns.append(path("silk/", include("silk.urls", namespace="silk")))
 
 if settings.ADMIN_ENABLED:
     urlpatterns += [
-        path('admin/', admin.site.urls),
+        path("admin/", admin.site.urls),
     ]
 
 if settings.AWS_SES_CONFIGSET and settings.AWS_SNS_TOPIC:
     urlpatterns += [
-        path('emails/', include('emails.urls')),
+        path("emails/", include("emails.urls")),
     ]
 
 if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
     urlpatterns += [
-        path('phones/', include('phones.urls')),
+        path("phones/", include("phones.urls")),
     ]

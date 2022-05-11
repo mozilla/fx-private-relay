@@ -2,22 +2,23 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import { type Props as CountryPickerProps } from "../../components/waitlist/countryPicker";
-import { type Props as LocalePickerProps } from "../../components/waitlist/localePicker";
+import { type Props as CountryPickerProps } from "../../components/waitlist/CountryPicker";
+import { type Props as LocalePickerProps } from "../../components/waitlist/LocalePicker";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
 import { setMockUserData } from "../../../__mocks__/hooks/api/user";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
+import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
 
 import PremiumWaitlist from "./waitlist.page";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("../../config.ts", () => mockConfigModule);
-jest.mock("../../hooks/gaViewPing.ts");
-jest.mock("../../components/waitlist/countryPicker.tsx", () => ({
+jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
+jest.mock("../../components/waitlist/CountryPicker.tsx", () => ({
   // We're mocking out the country picker because it dynamically imports the
   // list of available countries, which would mean the test would have to mock
   // out that import's Promise and wait for that to resolve, distracting from
@@ -26,7 +27,7 @@ jest.mock("../../components/waitlist/countryPicker.tsx", () => ({
   // an empty <select>.
   CountryPicker: (props: CountryPickerProps) => <select {...props} />,
 }));
-jest.mock("../../components/waitlist/localePicker.tsx", () => ({
+jest.mock("../../components/waitlist/LocalePicker.tsx", () => ({
   // We're mocking out the locale picker because it dynamically imports the
   // list of available countries, which would mean the test would have to mock
   // out that import's Promise and wait for that to resolve, distracting from
