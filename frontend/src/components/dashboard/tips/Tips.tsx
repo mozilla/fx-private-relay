@@ -41,7 +41,7 @@ export const Tips = (props: Props) => {
     `tips_customAlias_${props.profile.id}`
   );
   tips.push({
-    title: l10n.getString("tips-custom-alias-heading"),
+    title: l10n.getString("tips-custom-alias-heading-2"),
     content: (
       <CustomAliasTip subdomain={props.profile.subdomain ?? undefined} />
     ),
