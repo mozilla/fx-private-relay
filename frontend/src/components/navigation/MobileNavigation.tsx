@@ -52,8 +52,7 @@ export const MobileNavigation = ({ ...props }) => {
         {isLoggedIn && (
           <li className={`${styles["menu-item"]}`}>
             <img
-              //src={profiles.data?.[0].avatar}
-              src="https://avatars.githubusercontent.com/u/3924990?v=4"
+              src={profiles.data?.[0].avatar}
               alt={l10n.getString("nav-avatar")}
               className={styles["user-avatar"]}
               width={42}
