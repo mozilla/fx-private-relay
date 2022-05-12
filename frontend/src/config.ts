@@ -18,6 +18,7 @@ export type RuntimeConfig = {
   googleAnalyticsId: `UA-${number}-${number}`;
   maxOnboardingAvailable: number;
   featureFlags: Record<
+    | "tips"
     | "generateCustomAliasMenu"
     | "generateCustomAliasSubdomain"
     | "interviewRecruitment"

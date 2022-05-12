@@ -48,7 +48,7 @@ export const Tips = (props: Props) => {
     dismissal: customAliasDismissal,
   });
 
-  if (tips.length === 0) {
+  if (tips.length === 0 || getRuntimeConfig().featureFlags.tips !== true) {
     return null;
   }
 
