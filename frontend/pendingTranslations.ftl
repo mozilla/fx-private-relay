@@ -49,10 +49,11 @@ waitlist-subscribe-success = You’re on the list! Once { -brand-name-firefox-re
 waitlist-subscribe-error-connection = There was an error adding you to the waitlist. Please check your connection, then try again.
 waitlist-subscribe-error-unknown = There was an error adding you to the waitlist. Please try again.
 
-profile-upgrade-button = Upgrade 
+menu-upgrade-button = Upgrade 
 menu-toggle-open = Open menu
 menu-toggle-close = Close menu
 
+# Mobile menu icons 
 
 nav-dashboard = Dashboard
 nav-settings = Settings

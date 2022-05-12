@@ -1,13 +1,9 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useLocalization } from "@fluent/react";
 import styles from "./MobileNavigation.module.scss";
 import { useIsLoggedIn } from "../../hooks/session";
 import { SignUpButton } from "./SignUpButton";
-import { SignInButton } from "./SignInButton";
 import { useProfiles } from "../../hooks/api/profile";
-import { UpgradeButton } from "./UpgradeButton";
-import { WhatsNewMenu } from "../layout/whatsnew/WhatsNewMenu";
 import {
   Cogwheel,
   ContactIcon,
@@ -20,17 +16,24 @@ import {
 } from "../Icons";
 import { useUsers } from "../../hooks/api/user";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
+import { getRuntimeConfig } from "../../config";
 
-/** Switch between the different pages of the Relay website. */
+export type MenuItem = {
+  url: string;
+  alt: string;
+  condition?: boolean;
+  icon: any;
+  l10n: string;
+};
+
 export const MobileNavigation = ({ ...props }) => {
   const { l10n } = useLocalization();
   const usersData = useUsers();
   const runtimeData = useRuntimeData();
   const isLoggedIn = useIsLoggedIn();
   const profiles = useProfiles();
-  const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
-  const { theme } = props;
+  const { supportUrl } = getRuntimeConfig();
 
   if (
     !Array.isArray(usersData.data) ||
@@ -41,6 +44,19 @@ export const MobileNavigation = ({ ...props }) => {
     return null;
   }
 
+  const renderMenuItem = (item: MenuItem) => {
+    return item.condition || item.condition === undefined ? (
+      <li className={`${styles["menu-item"]}`}>
+        <Link href={item.url}>
+          <a className={`${styles.link}`}>
+            {item.icon({ alt: item.alt, width: 20, height: 20 })}
+            {l10n.getString(item.l10n)}
+          </a>
+        </Link>
+      </li>
+    ) : null;
+  };
+
   return (
     <nav
       aria-label={l10n.getString("nav-menu")}
@@ -48,6 +64,7 @@ export const MobileNavigation = ({ ...props }) => {
         props.active ? styles["is-active"] : ""
       }`}
     >
+      {/* Below we have conditional rendering of menu items  */}
       <ul className={`${styles["menu-item-list"]}`}>
         {isLoggedIn && (
           <li className={`${styles["menu-item"]}`}>
@@ -73,82 +90,67 @@ export const MobileNavigation = ({ ...props }) => {
           </li>
         )}
 
-        {isLoggedIn && hasPremium && (
-          <li className={`${styles["menu-item"]}`}>
-            <Link href={homePath}>
-              <a className={`${styles.link}`}>
-                {ContactIcon({ alt: "contact icon" })}
-                {l10n.getString("nav-contact")}
-              </a>
-            </Link>
-          </li>
-        )}
+        {renderMenuItem({
+          url: "/home",
+          condition: isLoggedIn && hasPremium,
+          alt: "contact icon",
+          icon: ContactIcon,
+          l10n: "nav-contact",
+        })}
 
-        {!isLoggedIn && (
-          <li className={`${styles["menu-item"]}`}>
-            <Link href={homePath}>
-              <a className={`${styles.link}`}>
-                {HomeIcon({ alt: "home icon" })}
-                {l10n.getString("nav-home")}
-              </a>
-            </Link>
-          </li>
-        )}
-        {isLoggedIn && (
-          <li className={`${styles["menu-item"]}`}>
-            <Link href={homePath}>
-              <a className={`${styles.link}`}>
-                {DashboardIcon({ alt: "dashboard icon" })}
-                {l10n.getString("nav-dashboard")}
-              </a>
-            </Link>
-          </li>
-        )}
-        <li className={`${styles["menu-item"]}`}>
-          <Link href="/faq">
-            <a className={`${styles.link}`}>
-              {FaqIcon({ alt: "home icon" })}
-              {l10n.getString("nav-faq")}
-            </a>
-          </Link>
-        </li>
+        {renderMenuItem({
+          url: "/",
+          alt: "home icon",
+          condition: !isLoggedIn,
+          icon: HomeIcon,
+          l10n: "nav-home",
+        })}
+
+        {renderMenuItem({
+          url: "/accounts/profile",
+          alt: "dashboard icon",
+          condition: isLoggedIn,
+          icon: DashboardIcon,
+          l10n: "nav-dashboard",
+        })}
+
+        {renderMenuItem({
+          url: "/faq",
+          alt: "FAQ icon",
+          icon: FaqIcon,
+          l10n: "nav-faq",
+        })}
+
         {!isLoggedIn && (
           <li className={`${styles["menu-item"]}`}>
             <SignUpButton className={`${styles["sign-up-button"]}`} />
           </li>
         )}
-        {isLoggedIn && (
-          <>
-            <li className={`${styles["menu-item"]}`}>
-              <Link href="/faq">
-                <a className={`${styles.link}`}>
-                  {Cogwheel()}
-                  {l10n.getString("nav-settings")}
-                </a>
-              </Link>
-            </li>
-            <li className={`${styles["menu-item"]}`}>
-              <Link href="/faq">
-                <a className={`${styles.link}`}>
-                  {SupportIcon({ alt: "Support icon" })}
-                  {l10n.getString("nav-support")}
-                </a>
-              </Link>
-            </li>
-            <li className={`${styles["menu-item"]}`}>
-              <Link href="/faq">
-                <a className={`${styles.link}`}>
-                  {SignOutIcon({ alt: "Sign out icon" })}
-                  {l10n.getString("nav-sign-out")}
-                </a>
-              </Link>
-            </li>
-          </>
-        )}
+
+        {renderMenuItem({
+          url: "/accounts/settings",
+          alt: "Settings",
+          condition: isLoggedIn,
+          icon: Cogwheel,
+          l10n: "nav-settings",
+        })}
+
+        {renderMenuItem({
+          url: supportUrl,
+          alt: "Support",
+          condition: isLoggedIn,
+          icon: SupportIcon,
+          l10n: "nav-support",
+        })}
+
+        {renderMenuItem({
+          url: "/faq",
+          alt: "Sign out",
+          condition: isLoggedIn,
+          icon: SignOutIcon,
+          l10n: "nav-sign-out",
+        })}
       </ul>
     </nav>
   );
 };
-function CogIcon(arg0: { alt: string }): import("react").ReactNode {
-  throw new Error("Function not implemented.");
-}

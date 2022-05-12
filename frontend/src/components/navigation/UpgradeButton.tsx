@@ -24,7 +24,7 @@ export const UpgradeButton = ({ ...props }): JSX.Element => {
       }
       className={`btn ${styles["upgrade-button"]}`}
     >
-      {l10n.getString("profile-upgrade-button")}
+      {l10n.getString("menu-upgrade-button")}
     </a>
   );
 };
