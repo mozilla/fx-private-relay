@@ -5,7 +5,7 @@ const runtimeConfigs = {
     // so relative URLs can be used:
     backendOrigin: "",
     frontendOrigin: "",
-    upgradeUrl: "https://relay.firefox.com/premium",
+    upgradeUrl: "/premium",
     fxaLoginUrl: "/accounts/fxa/login/?process=login",
     fxaLogoutUrl: "/accounts/logout/",
     emailSizeLimitNumber: 10,
