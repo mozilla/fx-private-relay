@@ -37,7 +37,7 @@
     "logoWrapper appPickerWrapper userMenuWrapper"
     "navWrapper navWrapper navWrapper";
   width: 100%;
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
+  box-shadow: $box-shadow-sm;
 
   @media screen and #{$mq-md} {
     grid-template-areas: "logoWrapper navWrapper appPickerWrapper userMenuWrapper";
@@ -65,14 +65,10 @@
   }
 
   .nav-wrapper {
-    grid-area: unset;
     display: flex;
-    align-items: center;
-    padding: 0;
 
     @media screen and #{$mq-md} {
       grid-area: navWrapper;
-      padding: $spacing-sm 0;
     }
   }
 
@@ -127,7 +123,7 @@
 
 .footer {
   background-color: black;
-  color: white;
+  color: $color-white;
   font-weight: 700;
   display: flex;
   align-items: flex-start;
