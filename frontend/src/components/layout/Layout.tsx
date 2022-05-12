@@ -23,7 +23,6 @@ import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
-import { MobileNavigation } from "../navigation/MobileNavigation";
 
 export type Props = {
   children: ReactNode;

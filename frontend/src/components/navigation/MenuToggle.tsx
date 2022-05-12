@@ -1,22 +1,23 @@
-import { useState } from "react";
 import { useLocalization } from "@fluent/react";
-import styles from "./MenuToggle.module.scss";
 import { CloseIcon, MenuIcon } from "../Icons";
 
 export const MenuToggle = ({ ...props }): JSX.Element => {
   const { l10n } = useLocalization();
+  const { toggle } = props || false;
 
   const ToggleMenuOpen = () =>
     MenuIcon({
       alt: l10n.getString("menu-toggle-open"),
-      className: `${styles["mobile-menu-toggle"]}`,
     });
 
+  // We are setting the viewBox here to make sure this icon aligns with its counterpart.
+  // The viewBox attribute defines the position and dimension, in user space, of an SVG viewport.
+  // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox
   const CloseMenu = () =>
     CloseIcon({
       alt: l10n.getString("menu-toggle-close"),
-      className: `${styles["mobile-menu-close"]}`,
+      viewBox: "3 3 16 16",
     });
 
-  return !props.toggle ? <ToggleMenuOpen /> : <CloseMenu />;
+  return !toggle ? <ToggleMenuOpen /> : <CloseMenu />;
 };
