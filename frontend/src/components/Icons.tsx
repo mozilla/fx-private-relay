@@ -82,10 +82,11 @@ export const NewTabIcon = (
   );
 };
 
+/** Icon to indicate there is a menu */
 export const MenuIcon = ({
   alt,
   ...props
-}: SVGProps<SVGSVGElement> & { alt?: string }) => {
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
   return (
     <svg
       width={20}
@@ -111,8 +112,8 @@ export const MenuIcon = ({
 
 export const Cogwheel = () => (
   <svg
-    width="16"
-    height="16"
+    width={16}
+    height={16}
     viewBox="0 0 16 16"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -129,7 +130,7 @@ export const Cogwheel = () => (
 export const FaqIcon = ({
   alt,
   ...props
-}: SVGProps<SVGSVGElement> & { alt?: string }) => (
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
   <svg
     width={20}
     height={20}
@@ -151,7 +152,7 @@ export const FaqIcon = ({
 export const DashboardIcon = ({
   alt,
   ...props
-}: SVGProps<SVGSVGElement> & { alt?: string }) => (
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
   <svg
     width={20}
     height={20}
@@ -165,6 +166,7 @@ export const DashboardIcon = ({
     }}
     {...props}
   >
+    <title>{alt}</title>
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -176,11 +178,11 @@ export const DashboardIcon = ({
 export const HomeIcon = ({
   alt,
   ...props
-}: SVGProps<SVGSVGElement> & { alt?: string }) => (
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
   <svg
-    width="20"
-    height="17"
-    viewBox="0 0 20 17"
+    width={20}
+    height={20}
+    viewBox="0 0 20 20"
     role="img"
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
@@ -190,20 +192,18 @@ export const HomeIcon = ({
     }}
     {...props}
   >
-    <path
-      d="M10 2.69L15 7.19V15H13V9H7V15H5V7.19L10 2.69ZM10 0L0 9H3V17H9V11H11V17H17V9H20L10 0Z"
-      fill="#AB71FF"
-    />
+    <title>{alt}</title>
+    <path d="M10 2.69L15 7.19V15H13V9H7V15H5V7.19L10 2.69ZM10 0L0 9H3V17H9V11H11V17H17V9H20L10 0Z" />
   </svg>
 );
 
 export const SupportIcon = ({
   alt,
   ...props
-}: SVGProps<SVGSVGElement> & { alt?: string }) => (
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
   <svg
-    width="20"
-    height="20"
+    width={20}
+    height={20}
     viewBox="3 3 20 20"
     role="img"
     aria-label={alt}
@@ -214,6 +214,7 @@ export const SupportIcon = ({
     }}
     {...props}
   >
+    <title>{alt}</title>
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -221,14 +222,15 @@ export const SupportIcon = ({
     />
   </svg>
 );
+
 export const SignOutIcon = ({
   alt,
   ...props
-}: SVGProps<SVGSVGElement> & { alt?: string }) => (
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
   <svg
-    width="16"
-    height="17"
-    viewBox="0 0 16 17"
+    width={20}
+    height={20}
+    viewBox="0 0 20 20"
     role="img"
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
@@ -238,6 +240,7 @@ export const SignOutIcon = ({
     }}
     {...props}
   >
+    <title>{alt}</title>
     <path d="M12.2649 2.33395C11.8376 2.03969 11.2504 2.14437 10.958 2.56833C10.6632 2.99573 10.7678 3.58336 11.1919 3.87589L11.1928 3.8765C12.7786 4.98288 13.7194 6.79017 13.7194 8.70868C13.7194 11.9728 11.0641 14.6281 7.8 14.6281C4.53668 14.6281 1.88062 11.9914 1.88062 8.7265C1.88062 6.80799 2.82137 5.00069 4.40717 3.89432L4.40806 3.8937C4.83222 3.60118 4.93679 3.01355 4.64204 2.58615C4.34954 2.16203 3.762 2.05743 3.33461 2.35208C1.25087 3.79338 0 6.19052 0 8.7265C0 13.0348 3.49175 16.5265 7.8 16.5265C12.1083 16.5265 15.6 13.0348 15.6 8.7265C15.6 6.19091 14.3494 3.79337 12.2649 2.33395ZM7.80005 8.22361C8.3132 8.22361 8.74037 7.79645 8.74037 7.2833V0.940312C8.74037 0.427161 8.3132 0 7.80005 0C7.2869 0 6.85974 0.427161 6.85974 0.940312V7.26548C6.85974 7.79847 7.28891 8.22361 7.80005 8.22361Z" />
   </svg>
 );
@@ -245,11 +248,11 @@ export const SignOutIcon = ({
 export const ContactIcon = ({
   alt,
   ...props
-}: SVGProps<SVGSVGElement> & { alt?: string }) => (
+}: SVGProps<SVGSVGElement> & { alt: string }) => (
   <svg
-    width="16"
-    height="15"
-    viewBox="0 0 16 15"
+    width={20}
+    height={20}
+    viewBox="0 0 20 20"
     role="img"
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
@@ -259,6 +262,7 @@ export const ContactIcon = ({
     }}
     {...props}
   >
+    <title>{alt}</title>
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -266,6 +270,7 @@ export const ContactIcon = ({
     />
   </svg>
 );
+
 export const Logout = () => (
   <svg xmlns="http://www.w3.org/2000/svg">
     <path
