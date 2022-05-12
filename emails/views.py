@@ -601,11 +601,13 @@ def _handle_reply(from_address, message_json, to_address):
     try:
         (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
     except InReplyToNotFound:
+        incr_if_enabled("reply_email_header_error", 1, tags=["detail:no-header"])
         return HttpResponse("No In-Reply-To header", status=400)
 
     try:
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
     except Reply.DoesNotExist:
+        incr_if_enabled("reply_email_header_error", 1, tags=["detail:no-reply-record"])
         return HttpResponse("Unknown or stale In-Reply-To header", status=404)
 
     address = reply_record.address

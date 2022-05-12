@@ -13,6 +13,7 @@ from django.test import override_settings, Client, SimpleTestCase, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
+from markus.testing import MetricsMock
 from model_bakery import baker
 import pytest
 
@@ -353,6 +354,7 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"noreply address is not supported."
 
+    @override_settings(STATSD_ENABLED=True)
     @patch("emails.views.remove_message_from_s3")
     @patch("emails.views._get_keys_from_headers")
     def test_no_header_reply_email_in_s3_deleted(
@@ -361,11 +363,16 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         """If replies@... email has no "In-Reply-To" header, delete email, return 400."""
         mocked_get_keys.side_effect = InReplyToNotFound()
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        mm.assert_incr_once(
+            "fx.private.relay.reply_email_header_error", tags=["detail:no-header"]
+        )
         mocked_get_keys.assert_called_once()
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 400
 
+    @override_settings(STATSD_ENABLED=True)
     @patch("emails.views.remove_message_from_s3")
     def test_no_header_reply_email_not_in_s3_deleted_ignored(
         self, mocked_message_removed
@@ -378,10 +385,15 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         ]
         assert "in-reply-to" not in header_names
 
-        response = _sns_notification(sns_msg)
+        with MetricsMock() as mm:
+            response = _sns_notification(sns_msg)
+        mm.assert_incr_once(
+            "fx.private.relay.reply_email_header_error", tags=["detail:no-header"]
+        )
         mocked_message_removed.assert_called_once_with(None, None)
         assert response.status_code == 400
 
+    @override_settings(STATSD_ENABLED=True)
     @patch("emails.views.remove_message_from_s3")
     @patch("emails.views._get_reply_record_from_lookup_key")
     def test_no_reply_record_reply_email_in_s3_deleted(
@@ -390,11 +402,16 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         """If no DB match for In-Reply-To header, delete email, return 404."""
         mocked_get_record.side_effect = Reply.DoesNotExist()
 
-        response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
+        mm.assert_incr_once(
+            "fx.private.relay.reply_email_header_error", tags=["detail:no-reply-record"]
+        )
         mocked_get_record.assert_called_once()
         mocked_message_removed.assert_called_once_with(self.bucket, self.key)
         assert response.status_code == 404
 
+    @override_settings(STATSD_ENABLED=True)
     @patch("emails.views.remove_message_from_s3")
     @patch("emails.views._get_keys_from_headers")
     @patch("emails.views._get_reply_record_from_lookup_key")
@@ -405,7 +422,11 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         mocked_get_keys.return_value = ("lookup", "encryption")
         mocked_get_record.side_effect = Reply.DoesNotExist()
 
-        response = _sns_notification(EMAIL_SNS_BODIES["replies"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["replies"])
+        mm.assert_incr_once(
+            "fx.private.relay.reply_email_header_error", tags=["detail:no-reply-record"]
+        )
         mocked_get_record.assert_called_once()
         mocked_message_removed.assert_called_once_with(None, None)
         assert response.status_code == 404
