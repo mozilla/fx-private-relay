@@ -2,17 +2,37 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .mobile-menu {
-  display: none;
   width: 100%;
   position: absolute;
-  top: 75px;
   left: 0;
+  top: $navHeight;
   background: $color-white;
   flex-direction: column;
   box-shadow: $box-shadow-lg;
 
+  &:not(is-active) {
+    animation: slide-out 0.25s cubic-bezier(0.52, 0.52, 0.58, 1);
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
   &.is-active {
-    display: flex;
+    animation: slide-in 0.5s cubic-bezier(0.52, 0.52, 0.58, 1);
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes slide-in {
+    0% {
+      transform: translateY(-100%);
+    }
+    100% {
+      transform: translateY(0);
+    }
+  }
+  @keyframes slide-out {
+    100% {
+      transform: translateY(-100%);
+    }
   }
 }
 

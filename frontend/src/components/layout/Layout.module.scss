@@ -66,6 +66,7 @@
 
   .nav-wrapper {
     display: flex;
+    height: $navHeight;
 
     @media screen and #{$mq-md} {
       grid-area: navWrapper;

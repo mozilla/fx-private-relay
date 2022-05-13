@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -23,6 +23,7 @@ import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
+import { MobileNavigation } from "../navigation/MobileNavigation";
 
 export type Props = {
   children: ReactNode;
@@ -39,6 +40,7 @@ export const Layout = (props: Props) => {
   const router = useRouter();
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
   const usersData = useUsers().data?.[0];
+  const [mobileMenuState, setMobileMenuState] = useState(false);
 
   useEffect(() => {
     makeToast(l10n, usersData);
@@ -63,7 +65,9 @@ export const Layout = (props: Props) => {
       : l10n.getString("logo-premium-alt");
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
-
+  const handleToggle = () => {
+    setMobileMenuState(!mobileMenuState);
+  };
   const csatSurvey =
     getRuntimeConfig().featureFlags.csatSurvey &&
     !getRuntimeConfig().featureFlags.interviewRecruitment &&
@@ -138,9 +142,16 @@ export const Layout = (props: Props) => {
             </Link>
           </div>
           <div className={styles["nav-wrapper"]}>
-            <Navigation theme={isDark ? "free" : "premium"} />
+            <Navigation
+              theme={isDark ? "free" : "premium"}
+              toggle={handleToggle}
+            />
           </div>
         </header>
+
+        {/* separated from header to make use of z-index */}
+        <MobileNavigation active={mobileMenuState} />
+
         <ToastContainer
           position={toast.POSITION.TOP_CENTER}
           theme="colored"

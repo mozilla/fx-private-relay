@@ -8,36 +8,28 @@ import { SignInButton } from "./SignInButton";
 import { useProfiles } from "../../hooks/api/profile";
 import { UpgradeButton } from "./UpgradeButton";
 import { WhatsNewMenu } from "../layout/whatsnew/WhatsNewMenu";
-import { MenuIcon } from "../Icons";
 import { UserMenu } from "./UserMenu";
 import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
-import { MobileNavigation } from "./MobileNavigation";
-import { useState } from "react";
 
 /** Switch between the different pages of the Relay website. */
 export const Navigation = ({ ...props }) => {
-  const [mobileMenuState, setMobileMenuState] = useState(false);
   const { l10n } = useLocalization();
   const router = useRouter();
   const isLoggedIn = useIsLoggedIn();
   const profiles = useProfiles();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
-  const { theme } = props;
+  const { theme, mobileMenuState, toggle } = props;
 
-  const handleToggle = () => {
-    setMobileMenuState(!mobileMenuState);
-  };
-
-  const Toggle = () => (
+  const ToggleButton = () => (
     <a
       href="#"
       className={styles["menu-toggle"]}
       role="menuitem"
       aria-controls="mobile-menu-toggle"
       aria-expanded={mobileMenuState}
-      onClick={handleToggle}
+      onClick={() => toggle()}
     >
       <MenuToggle toggle={mobileMenuState} />
     </a>
@@ -54,6 +46,7 @@ export const Navigation = ({ ...props }) => {
           {l10n.getString("nav-home")}
         </a>
       </Link>
+
       <Link href="/faq">
         <a
           className={`${styles.link} ${styles["faq-link"]} ${
@@ -84,13 +77,11 @@ export const Navigation = ({ ...props }) => {
       {/* if user is logged in and doesn't have premium, show upgrade button */}
       {isLoggedIn && !hasPremium && <UpgradeButton />}
 
-      <Toggle />
+      <ToggleButton />
 
       <AppPicker theme={theme} />
 
       <UserMenu />
-
-      <MobileNavigation active={mobileMenuState} />
     </nav>
   );
 };

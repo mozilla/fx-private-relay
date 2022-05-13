@@ -60,3 +60,4 @@ nav-settings = Settings
 nav-support = Help and Support 
 nav-sign-out = Sign Out 
 nav-avatar = User avatar
+nav-contact = Contact Us
