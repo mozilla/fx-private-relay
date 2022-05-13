@@ -30,7 +30,7 @@
   // overlap the AppPicker drawer).
   // Thus, upping the z-index stack the header, and menus
   // expanding from it, on top again:
-  z-index: 2;
+  z-index: 10;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:

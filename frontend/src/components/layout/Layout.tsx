@@ -122,35 +122,37 @@ export const Layout = (props: Props) => {
         <InterviewRecruitment profile={profiles.data?.[0]} />
         {csatSurvey}
         {npsSurvey}
-        <header className={`${styles.header} ${darkClass}`}>
-          <div className={styles["logo-wrapper"]}>
-            <Link href={homePath}>
-              <a className={styles.logo}>
-                <img
-                  src={logo.src}
-                  alt=""
-                  className={styles.logomark}
-                  width={42}
-                />
-                <img
-                  src={logoType.src}
-                  alt={logoAlt}
-                  className={styles.logotype}
-                  height={20}
-                />
-              </a>
-            </Link>
+        <header>
+          <div className={`${styles.header} ${darkClass}`}>
+            <div className={styles["logo-wrapper"]}>
+              <Link href={homePath}>
+                <a className={styles.logo}>
+                  <img
+                    src={logo.src}
+                    alt=""
+                    className={styles.logomark}
+                    width={42}
+                  />
+                  <img
+                    src={logoType.src}
+                    alt={logoAlt}
+                    className={styles.logotype}
+                    height={20}
+                  />
+                </a>
+              </Link>
+            </div>
+            <div className={styles["nav-wrapper"]}>
+              <Navigation
+                theme={isDark ? "free" : "premium"}
+                toggle={handleToggle}
+              />
+            </div>
           </div>
-          <div className={styles["nav-wrapper"]}>
-            <Navigation
-              theme={isDark ? "free" : "premium"}
-              toggle={handleToggle}
-            />
-          </div>
-        </header>
 
-        {/* separated from header to make use of z-index */}
-        <MobileNavigation active={mobileMenuState} />
+          {/* separated from header to make use of z-index */}
+          <MobileNavigation active={mobileMenuState} />
+        </header>
 
         <ToastContainer
           position={toast.POSITION.TOP_CENTER}

@@ -5,6 +5,9 @@
   width: 100%;
   position: absolute;
   left: 0;
+  // setting the z-index low to allow mobile
+  // menu to slide behind main navigation header
+  z-index: 2;
   top: $navHeight;
   background: $color-white;
   flex-direction: column;
@@ -16,7 +19,7 @@
     animation-fill-mode: forwards;
   }
   &.is-active {
-    animation: slide-in 0.5s cubic-bezier(0.52, 0.52, 0.58, 1);
+    animation: slide-in 0.5s cubic-bezier(0.52, 0.52, 0.58, 1.15);
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
   }
