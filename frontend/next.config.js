@@ -8,7 +8,7 @@ const runtimeConfigs = {
     upgradeUrl: "/premium",
     fxaLoginUrl: "/accounts/fxa/login/?process=login",
     fxaLogoutUrl: "/accounts/logout/",
-    supportUrl: "https://support.mozilla.org/products/relay/?utm_source=",
+    supportUrl: "https://support.mozilla.org/products/relay/",
     emailSizeLimitNumber: 10,
     emailSizeLimitUnit: "MB",
     maxFreeAliases: 5,

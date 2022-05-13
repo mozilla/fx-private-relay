@@ -139,7 +139,7 @@ export const MobileNavigation = ({ ...props }) => {
         })}
 
         {renderMenuItem({
-          url: supportUrl,
+          url: `${supportUrl}?utm_source=${getRuntimeConfig().frontendOrigin}`,
           condition: isLoggedIn,
           icon: SupportIcon,
           l10n: "nav-support",
