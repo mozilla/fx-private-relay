@@ -1,0 +1,11 @@
+@import "../../styles/tokens.scss";
+
+.toggle {
+  [class*="is-dark"] & {
+    fill: $color-white;
+  }
+
+  [class*="is-light"] & {
+    fill: $color-grey-40;
+  }
+}

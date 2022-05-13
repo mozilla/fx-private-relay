@@ -37,7 +37,7 @@
     "logoWrapper appPickerWrapper userMenuWrapper"
     "navWrapper navWrapper navWrapper";
   width: 100%;
-  box-shadow: $box-shadow-sm;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
 
   @media screen and #{$mq-md} {
     grid-template-areas: "logoWrapper navWrapper appPickerWrapper userMenuWrapper";

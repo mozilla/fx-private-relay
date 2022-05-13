@@ -30,6 +30,7 @@
   font-family: $font-stack-firefox;
   border: 2px solid transparent;
   min-width: $spacing-2xl + $spacing-lg;
+  color: inherit;
 
   &.is-active {
     padding-top: $spacing-xs;

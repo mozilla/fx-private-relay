@@ -10,5 +10,6 @@
 
   @media screen and #{$mq-md} {
     display: inline;
+    color: inherit;
   }
 }

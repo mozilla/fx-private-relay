@@ -20,7 +20,7 @@ export const Navigation = ({ ...props }) => {
   const profiles = useProfiles();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
-  const { theme, mobileMenuState, toggle } = props;
+  const { theme, mobileMenuState, handleToggle } = props;
 
   const ToggleButton = () => (
     <a
@@ -29,9 +29,9 @@ export const Navigation = ({ ...props }) => {
       role="menuitem"
       aria-controls="mobile-menu-toggle"
       aria-expanded={mobileMenuState}
-      onClick={() => toggle()}
+      onClick={() => handleToggle()}
     >
-      <MenuToggle toggle={mobileMenuState} />
+      <MenuToggle toggleState={mobileMenuState} />
     </a>
   );
 

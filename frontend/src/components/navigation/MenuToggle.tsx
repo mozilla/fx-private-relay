@@ -1,9 +1,10 @@
 import { useLocalization } from "@fluent/react";
 import { CloseIcon, MenuIcon } from "../Icons";
+import styles from "./MenuToggle.module.scss";
 
 export const MenuToggle = ({ ...props }): JSX.Element => {
   const { l10n } = useLocalization();
-  const { toggle } = props || false;
+  const { toggleState } = props;
 
   const ToggleMenuOpen = () =>
     MenuIcon({
@@ -19,5 +20,10 @@ export const MenuToggle = ({ ...props }): JSX.Element => {
       viewBox: "3 3 16 16",
     });
 
-  return !toggle ? <ToggleMenuOpen /> : <CloseMenu />;
+  console.log(toggleState);
+  return (
+    <div className={styles["toggle"]}>
+      {!toggleState ? <ToggleMenuOpen /> : <CloseMenu />}
+    </div>
+  );
 };

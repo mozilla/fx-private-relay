@@ -88,6 +88,14 @@ export const Layout = (props: Props) => {
       </div>
     ) : null;
 
+  // navigation component gets passed down function to
+  // handle toggling state along with the current state of the toggle
+  const navigationProps = {
+    mobileMenuState,
+    handleToggle,
+    theme: isDark ? "free" : "premium",
+  };
+
   return (
     <>
       <Head>
@@ -143,10 +151,7 @@ export const Layout = (props: Props) => {
               </Link>
             </div>
             <div className={styles["nav-wrapper"]}>
-              <Navigation
-                theme={isDark ? "free" : "premium"}
-                toggle={handleToggle}
-              />
+              <Navigation {...navigationProps} />
             </div>
           </div>
 
