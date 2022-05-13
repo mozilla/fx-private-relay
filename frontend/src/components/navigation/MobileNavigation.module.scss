@@ -111,11 +111,6 @@
     @include text-body-sm;
     gap: $spacing-sm;
 
-    svg {
-      width: 12px;
-      height: 18px;
-    }
-
     path {
       fill: $color-purple-40;
     }
