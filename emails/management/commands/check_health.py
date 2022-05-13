@@ -84,7 +84,11 @@ class Command(CommandFromDjangoSettings):
         * The timestamp doesn't include timezone data
         """
         context = {"success": False, "healthcheck_path": healthcheck_file.name}
-        data = json.load(healthcheck_file)
+        try:
+            data = json.load(healthcheck_file)
+        except json.JSONDecodeError as e:
+            context["error"] = repr(e)
+            return context
 
         context["data"] = data
         raw_timestamp = data["timestamp"]

@@ -29,6 +29,10 @@ import ForwardSomeHero from "./images/forward-some-hero.svg";
 import ForwardSomeIcon from "./images/forward-some-icon.svg";
 import aliasToMaskHero from "./images/alias-to-mask-hero.svg";
 import aliasToMaskIcon from "./images/alias-to-mask-icon.svg";
+import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
+import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
+import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
+import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -39,6 +43,7 @@ import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import { useAddonData } from "../../../hooks/addon";
 import { isUsingFirefox } from "../../../functions/userAgent";
 import { getLocale } from "../../../functions/getLocale";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
 
 export type WhatsNewEntry = {
   title: string;
@@ -61,6 +66,7 @@ export type WhatsNewEntry = {
 
 export type Props = {
   profile: ProfileData;
+  runtimeData?: RuntimeData;
 };
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
@@ -208,6 +214,64 @@ export const WhatsNewMenu = (props: Props) => {
     ].includes(getLocale(l10n).toLowerCase())
   ) {
     entries.push(aliasToMask);
+  }
+
+  const premiumInSweden: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-premium-expansion-sweden-heading"),
+    snippet: l10n.getString("whatsnew-feature-premium-expansion-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-premium-expansion-description"
+        )}
+        heading={l10n.getString(
+          "whatsnew-feature-premium-expansion-sweden-heading"
+        )}
+        image={PremiumSwedenHero.src}
+      />
+    ),
+    hero: PremiumSwedenHero.src,
+    icon: PremiumSwedenIcon.src,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_premium-expansion-sweden_${props.profile.id}`
+    ),
+    announcementDate: {
+      year: 2022,
+      month: 5,
+      day: 17,
+    },
+  };
+  if (props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "se") {
+    entries.push(premiumInSweden);
+  }
+
+  const premiumInFinland: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-premium-expansion-finland-heading"),
+    snippet: l10n.getString("whatsnew-feature-premium-expansion-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-premium-expansion-description"
+        )}
+        heading={l10n.getString(
+          "whatsnew-feature-premium-expansion-finland-heading"
+        )}
+        image={PremiumFinlandHero.src}
+      />
+    ),
+    hero: PremiumFinlandHero.src,
+    icon: PremiumFinlandIcon.src,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_premium-expansion-finland_${props.profile.id}`
+    ),
+    announcementDate: {
+      year: 2022,
+      month: 5,
+      day: 17,
+    },
+  };
+  if (props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "fi") {
+    entries.push(premiumInFinland);
   }
 
   entries.sort(entriesDescByDateSorter);

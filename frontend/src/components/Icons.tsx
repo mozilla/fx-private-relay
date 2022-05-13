@@ -14,6 +14,7 @@ export const InfoIcon = ({
     <svg
       role="img"
       aria-label={alt}
+      aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 28 28"
       width={28}
@@ -39,6 +40,7 @@ export const CloseIcon = ({
     <svg
       role="img"
       aria-label={alt}
+      aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 20"
       width={20}
@@ -65,6 +67,7 @@ export const NewTabIcon = (
     <svg
       role="img"
       aria-label={props.alt ?? l10n.getString("common-link-newtab-alt")}
+      aria-hidden={props.alt === ""}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 16 16"
       width={16}
