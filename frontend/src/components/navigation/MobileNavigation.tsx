@@ -23,7 +23,7 @@ import { useRef } from "react";
 export type MenuItem = {
   url: string;
   condition?: boolean;
-  icon: any;
+  icon: CallableFunction;
   l10n: string;
 };
 
