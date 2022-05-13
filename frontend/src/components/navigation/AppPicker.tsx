@@ -39,7 +39,7 @@ import PocketLogo from "../../../../static/images/logos/bento/pocket.png";
 import VpnLogo from "../../../../static/images/logos/bento/vpn.svg";
 import FxDesktopLogo from "../../../../static/images/logos/fx-logo.svg";
 import FxMobileLogo from "../../../../static/images/logos/bento/fx-mobile.png";
-import { Props as LayoutProps } from "./Layout";
+import { Props as LayoutProps } from "../layout/Layout";
 import { getRuntimeConfig } from "../../config";
 
 const getProducts = (referringSiteUrl: string) => ({
