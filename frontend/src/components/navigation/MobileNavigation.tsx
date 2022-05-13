@@ -124,7 +124,6 @@ export const MobileNavigation = ({ ...props }) => {
 
         {renderMenuItem({
           url: "/accounts/settings",
-          alt: "Settings",
           condition: isLoggedIn,
           icon: Cogwheel,
           l10n: "nav-settings",
@@ -141,7 +140,6 @@ export const MobileNavigation = ({ ...props }) => {
 
         {renderMenuItem({
           url: supportUrl,
-          alt: "Support",
           condition: isLoggedIn,
           icon: SupportIcon,
           l10n: "nav-support",
