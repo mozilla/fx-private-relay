@@ -14,12 +14,12 @@
   box-shadow: $box-shadow-lg;
 
   &:not(is-active) {
-    animation: slide-out 0.25s cubic-bezier(0.52, 0.52, 0.58, 1);
+    animation: slide-out 0.55s cubic-bezier(0.52, -0.14, 0.31, 1.2);
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
   }
   &.is-active {
-    animation: slide-in 0.5s cubic-bezier(0.52, 0.52, 0.58, 1.15);
+    animation: slide-in 0.75s cubic-bezier(0.52, -0.14, 0.31, 1.2);
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
   }
@@ -49,7 +49,7 @@
   display: flex;
 
   @include text-display-xxs;
-  padding: $spacing-md;
+  padding: $spacing-lg $spacing-md;
   font-family: $font-stack-firefox;
   border-bottom: 2px solid #ececec;
 
@@ -87,7 +87,7 @@
       rgba(0, 0, 0, 0)
     ),
     linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
-  gap: $spacing-sm;
+  gap: $spacing-md;
 
   .user-avatar {
     border-radius: 50%;
@@ -109,11 +109,11 @@
     color: $color-grey-40;
 
     @include text-body-sm;
-    gap: 8px;
+    gap: $spacing-sm;
 
     svg {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 18px;
     }
 
     path {
