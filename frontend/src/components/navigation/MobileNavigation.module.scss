@@ -30,63 +30,13 @@
   font-family: $font-stack-firefox;
   border-bottom: 2px solid #ececec;
 
-  &:first-child {
-    display: flex;
-    border-bottom: none;
-    background-image: linear-gradient(
-        to bottom,
-        #f9f9fb calc(100% - 2px),
-        rgba(0, 0, 0, 0)
-      ),
-      linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
-    gap: $spacing-sm;
-
-    .user-avatar {
-      border-radius: 50%;
-    }
-
-    span {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .user-email {
-      color: $color-blue-90;
-      font-weight: 500;
-    }
-    .settings-link {
-      flex-direction: row;
-      display: flex;
-      align-items: center;
-      color: $color-grey-40;
-
-      @include text-body-sm;
-      gap: 8px;
-
-      svg {
-        width: 10px;
-        height: 10px;
-      }
-
-      path {
-        fill: $color-purple-40;
-      }
-    }
-  }
-
   .link {
     display: flex;
     flex-direction: row;
     gap: $spacing-md;
     font-weight: 500;
     color: $color-grey-40;
-
-    // forces all icons to be the same size
-    // helps all text align as well
-    // svg {
-    //   width: 20px;
-    //   height: 20px;
-    // }
+    cursor: pointer;
 
     path {
       fill: $color-purple-40;
@@ -102,5 +52,49 @@
     background-color: $color-blue-50;
     border-radius: $border-radius-sm;
     margin: $spacing-sm auto;
+  }
+}
+
+.user-info {
+  display: flex;
+  border-bottom: none;
+  background-image: linear-gradient(
+      to bottom,
+      #f9f9fb calc(100% - 2px),
+      rgba(0, 0, 0, 0)
+    ),
+    linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
+  gap: $spacing-sm;
+
+  .user-avatar {
+    border-radius: 50%;
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-email {
+    color: $color-blue-90;
+    font-weight: 500;
+  }
+  .settings-link {
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+    color: $color-grey-40;
+
+    @include text-body-sm;
+    gap: 8px;
+
+    svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    path {
+      fill: $color-purple-40;
+    }
   }
 }

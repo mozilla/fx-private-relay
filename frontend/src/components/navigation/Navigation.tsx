@@ -30,6 +30,19 @@ export const Navigation = ({ ...props }) => {
     setMobileMenuState(!mobileMenuState);
   };
 
+  const Toggle = () => (
+    <a
+      href="#"
+      className={styles["menu-toggle"]}
+      role="menuitem"
+      aria-controls="mobile-menu-toggle"
+      aria-expanded={mobileMenuState}
+      onClick={handleToggle}
+    >
+      <MenuToggle toggle={mobileMenuState} />
+    </a>
+  );
+
   return (
     <nav aria-label={l10n.getString("nav-menu")} className={styles["site-nav"]}>
       <Link href={homePath}>
@@ -71,16 +84,7 @@ export const Navigation = ({ ...props }) => {
       {/* if user is logged in and doesn't have premium, show upgrade button */}
       {isLoggedIn && !hasPremium && <UpgradeButton />}
 
-      <a
-        href="#"
-        className={styles["menu-toggle"]}
-        role="menuitem"
-        aria-controls="mobile-menu-toggle"
-        aria-expanded={mobileMenuState}
-        onClick={handleToggle}
-      >
-        <MenuToggle toggle={mobileMenuState} />
-      </a>
+      <Toggle />
 
       <AppPicker theme={theme} />
 
