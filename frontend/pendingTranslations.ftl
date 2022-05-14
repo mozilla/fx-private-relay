@@ -60,3 +60,7 @@ whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium
 # length as the English version.
 whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more protection…
 whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!
+
+fx-desktop-2 = Firefox for Desktop
+fx-mobile-2 = Firefox for Mobile
+fx-containers = Firefox Containers

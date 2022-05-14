@@ -37,6 +37,7 @@ import FirefoxLogo from "../../../../static/images/logos/bento/fx.png";
 import MonitorLogo from "../../../../static/images/logos/bento/monitor.png";
 import PocketLogo from "../../../../static/images/logos/bento/pocket.png";
 import VpnLogo from "../../../../static/images/logos/bento/vpn.svg";
+import ContainersLogo from "../../../../static/images/logos/bento/containers.png";
 import FxDesktopLogo from "../../../../static/images/logos/fx-logo.svg";
 import FxMobileLogo from "../../../../static/images/logos/bento/fx-mobile.png";
 import { Props as LayoutProps } from "../layout/Layout";
@@ -54,6 +55,11 @@ const getProducts = (referringSiteUrl: string) => ({
     id: "pocket",
     url: "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447",
     gaLabel: "pocket",
+  },
+  fxContainers: {
+    id: "containers",
+    url: "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447",
+    gaLabel: "containers",
   },
   fxDesktop: {
     id: "fxDesktop",
@@ -97,6 +103,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
     pocket: useRef<HTMLAnchorElement>(null),
     fxDesktop: useRef<HTMLAnchorElement>(null),
     fxMobile: useRef<HTMLAnchorElement>(null),
+    fxContainers: useRef<HTMLAnchorElement>(null),
     vpn: useRef<HTMLAnchorElement>(null),
   };
   const mozillaLinkRef = useRef<HTMLAnchorElement>(null);
@@ -128,6 +135,18 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       onAction={onSelect}
       theme={props.theme}
     >
+      <Item key={products.vpn.id} textValue={l10n.getString("fx-vpn")}>
+        <a
+          ref={linkRefs.vpn}
+          href={products.vpn.url}
+          className={`${styles["menu-link"]} ${styles["vpn-link"]}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src={VpnLogo.src} alt="" width={16} height={16} />
+          {l10n.getString("fx-vpn")}
+        </a>
+      </Item>
       <Item key={products.monitor.id} textValue={l10n.getString("fx-monitor")}>
         <a
           ref={linkRefs.monitor}
@@ -138,6 +157,21 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         >
           <img src={MonitorLogo.src} alt="" width={16} height={16} />
           {l10n.getString("fx-monitor")}
+        </a>
+      </Item>
+      <Item
+        key={products.fxContainers.id}
+        textValue={l10n.getString("fx-containers")}
+      >
+        <a
+          ref={linkRefs.fxContainers}
+          href={products.fxContainers.url}
+          className={`${styles["menu-link"]} ${styles["containers-link"]}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src={ContainersLogo.src} alt="" width={16} height={16} />
+          {l10n.getString("fx-containers")}
         </a>
       </Item>
       <Item key={products.pocket.id} textValue={l10n.getString("fx-pocket")}>
@@ -154,7 +188,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       </Item>
       <Item
         key={products.fxDesktop.id}
-        textValue={l10n.getString("fx-desktop")}
+        textValue={l10n.getString("fx-desktop-2")}
       >
         <a
           ref={linkRefs.fxDesktop}
@@ -164,10 +198,13 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           rel="noopener noreferrer"
         >
           <img src={FxDesktopLogo.src} alt="" width={16} height={16} />
-          {l10n.getString("fx-desktop")}
+          {l10n.getString("fx-desktop-2")}
         </a>
       </Item>
-      <Item key={products.fxMobile.id} textValue={l10n.getString("fx-mobile")}>
+      <Item
+        key={products.fxMobile.id}
+        textValue={l10n.getString("fx-mobile-2")}
+      >
         <a
           ref={linkRefs.fxMobile}
           href={products.fxMobile.url}
@@ -176,21 +213,10 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           rel="noopener noreferrer"
         >
           <img src={FxMobileLogo.src} alt="" width={16} height={16} />
-          {l10n.getString("fx-mobile")}
+          {l10n.getString("fx-mobile-2")}
         </a>
       </Item>
-      <Item key={products.vpn.id} textValue={l10n.getString("fx-vpn")}>
-        <a
-          ref={linkRefs.vpn}
-          href={products.vpn.url}
-          className={`${styles["menu-link"]} ${styles["vpn-link"]}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src={VpnLogo.src} alt="" width={16} height={16} />
-          {l10n.getString("fx-vpn")}
-        </a>
-      </Item>
+
       <Item key="mozilla" textValue={l10n.getString("made-by-mozilla")}>
         <a
           ref={mozillaLinkRef}
@@ -311,7 +337,7 @@ const AppPickerPopup = (props: AppPickerPopupProps) => {
           className={styles.popup}
         >
           <div className={styles["app-picker-heading"]}>
-            <img src={FirefoxLogo.src} alt="" width={40} height={40} />
+            <img src={FirefoxLogo.src} alt="" width={32} height={32} />
             <h2>{l10n.getString("fx-makes-tech")}</h2>
           </div>
           <ul>
