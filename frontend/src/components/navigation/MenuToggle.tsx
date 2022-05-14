@@ -20,7 +20,6 @@ export const MenuToggle = ({ ...props }): JSX.Element => {
       viewBox: "3 3 16 16",
     });
 
-  console.log(toggleState);
   return (
     <div className={styles["toggle"]}>
       {!toggleState ? <ToggleMenuOpen /> : <CloseMenu />}
