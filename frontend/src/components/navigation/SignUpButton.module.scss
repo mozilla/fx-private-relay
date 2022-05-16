@@ -5,7 +5,7 @@
   color: $color-white;
 
   &.mobile-btn {
-    display: block !important;
+    display: block;
   }
 
   @media screen and #{$mq-md} {
