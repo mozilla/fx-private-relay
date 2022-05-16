@@ -1,18 +1,22 @@
 from email.utils import parseaddr
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from unittest.mock import patch
+from model_bakery import baker
 from waffle.testutils import override_sample
+from waffle.models import Flag
 
 from emails.models import get_domains_from_settings
 from emails.utils import (
+    NEW_FROM_ADDRESS_FLAG_NAME,
     generate_relay_From,
     get_email_domain_from_settings,
     remove_trackers,
 )
 
-from .models_tests import make_premium_test_user
+from .models_tests import make_free_test_user, make_premium_test_user
 
 
 class FormattingToolsTest(TestCase):
@@ -88,6 +92,63 @@ class FormattingToolsTest(TestCase):
         expected_formatted_from = "%s <%s>" % (
             expected_encoded_display_name,
             self.premium_from,
+        )
+        assert formatted_from_address == expected_formatted_from
+
+    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com",
+                       NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com")
+    def test_generate_relay_From_with_new_from_user(self):
+        free_user = make_free_test_user()
+        new_from_flag = Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
+        new_from_flag.users.add(free_user)
+        original_from_address = '"foo bar" <foo@bar.com>'
+        formatted_from_address = generate_relay_From(
+            original_from_address, free_user.profile_set.first()
+        )
+        expected_encoded_display_name = (
+            "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
+        )
+        expected_formatted_from = "%s <%s>" % (
+            expected_encoded_display_name,
+            "new_from@relaytests.com",
+        )
+        assert formatted_from_address == expected_formatted_from
+        # WTF? TestCase tearDown doesn't clear out this waffle flag?
+        new_from_flag.users.remove(free_user)
+
+    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com",
+                       NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com")
+    def test_generate_relay_From_with_non_flagged_user(self):
+        free_user = make_free_test_user()
+        Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
+        original_from_address = '"foo bar" <foo@bar.com>'
+        formatted_from_address = generate_relay_From(
+            original_from_address, free_user.profile_set.first()
+        )
+        expected_encoded_display_name = (
+            "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
+        )
+        expected_formatted_from = "%s <%s>" % (
+            expected_encoded_display_name,
+            "noreply@relaytests.com",
+        )
+        assert formatted_from_address == expected_formatted_from
+
+    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com",
+                       NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com")
+    def test_generate_relay_From_with_no_user_profile_somehow(self):
+        free_user = baker.make(User)
+        Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
+        original_from_address = '"foo bar" <foo@bar.com>'
+        formatted_from_address = generate_relay_From(
+            original_from_address, free_user.profile_set.first()
+        )
+        expected_encoded_display_name = (
+            "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
+        )
+        expected_formatted_from = "%s <%s>" % (
+            expected_encoded_display_name,
+            "noreply@relaytests.com",
         )
         assert formatted_from_address == expected_formatted_from
 
