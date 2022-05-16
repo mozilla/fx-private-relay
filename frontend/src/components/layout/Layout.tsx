@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import React, { ReactElement, ReactNode, useEffect } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -24,6 +24,9 @@ import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
+import { CloseIcon } from "../Icons";
+import { makeToast } from "../../functions/makeToast";
+import { useUsers } from "../../hooks/api/user";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 
 export type Props = {
@@ -40,6 +43,11 @@ export const Layout = (props: Props) => {
   const runtimeData = useRuntimeData();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
+  const usersData = useUsers().data?.[0];
+
+  useEffect(() => {
+    makeToast(l10n, usersData);
+  }, [l10n, usersData]);
 
   const isDark =
     typeof props.theme !== "undefined"
@@ -87,6 +95,20 @@ export const Layout = (props: Props) => {
     isLoggedIn && profiles.data ? (
       <WhatsNewMenu profile={profiles.data[0]} runtimeData={runtimeData.data} />
     ) : null;
+
+  const closeToastButton = (closeToast: () => void): ReactElement => {
+    return (
+      <div className={styles["close-toast-button-container"]}>
+        <button className="Toastify__close-button Toastify__close-button--colored">
+          {CloseIcon({
+            alt: l10n.getString("toast-button-close-label"),
+            onClick: closeToast,
+            id: styles["close-toast-button-icon"],
+          })}
+        </button>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -153,11 +175,16 @@ export const Layout = (props: Props) => {
           </nav>
         </header>
         <ToastContainer
+          icon={false}
           position={toast.POSITION.TOP_CENTER}
           theme="colored"
           transition={Slide}
+          hideProgressBar={true}
           autoClose={5000}
           toastClassName={`Toastify__toast ${styles.toast}`}
+          closeButton={(closeToastObject) =>
+            closeToastButton(closeToastObject.closeToast)
+          }
         />
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>

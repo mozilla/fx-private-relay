@@ -34,6 +34,7 @@ import { useProfiles } from "../../hooks/api/profile";
 import { getRuntimeConfig } from "../../config";
 import { getCsrfToken } from "../../functions/cookies";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
+import { setCookie } from "../../functions/cookies";
 
 /**
  * Display the user's avatar, which can open a menu allowing the user to log out or go to their settings page.
@@ -85,6 +86,7 @@ export const UserMenu = () => {
         action: "Click",
         label: "Website Sign Out",
       });
+      setCookie("user-sign-out", "true", { maxAgeInSeconds: 60 * 60 });
       logoutFormRef.current?.submit();
     }
   };

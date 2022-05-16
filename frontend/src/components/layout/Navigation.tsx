@@ -4,6 +4,7 @@ import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./Navigation.module.scss";
 import { useIsLoggedIn } from "../../hooks/session";
+import { setCookie } from "../../functions/cookies";
 import { getLoginUrl, useFxaFlowTracker } from "../../hooks/fxaFlowTracker";
 
 /** Switch between the different pages of the Relay website. */
@@ -27,13 +28,14 @@ export const Navigation = () => {
     <a
       href={signUpUrl}
       ref={signUpFxaFlowTracker.ref}
-      onClick={() =>
+      onClick={() => {
         gaEvent({
           category: "Sign In",
           action: "Engage",
           label: "nav-profile-sign-up",
-        })
-      }
+        });
+        setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
+      }}
       className={styles.link}
     >
       {l10n.getString("nav-profile-sign-up")}
@@ -53,13 +55,14 @@ export const Navigation = () => {
     <a
       href={signInUrl}
       ref={signInFxaFlowTracker.ref}
-      onClick={() =>
+      onClick={() => {
         gaEvent({
           category: "Sign In",
           action: "Engage",
           label: "nav-profile-sign-in",
-        })
-      }
+        });
+        setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
+      }}
       className={`${styles.link} ${styles["sign-in-button"]}`}
     >
       {l10n.getString("nav-profile-sign-in")}

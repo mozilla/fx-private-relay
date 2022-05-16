@@ -1,4 +1,5 @@
 @import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
   display: flex;
@@ -7,17 +8,131 @@
 
   // See https://fkhadra.github.io/react-toastify/how-to-style#override-css-variables
   --toastify-toast-width: 95%;
-  --toastify-color-success: #{$color-green-60};
-  --toastify-text-color-success: #{$color-white};
-  --toastify-color-error: #{$color-red-50};
+  --toastify-color-light: #{$color-white};
+  --toastify-color-dark: #{$color-grey-50};
+  --toastify-color-info: #{$color-blue-50};
+  --toastify-color-success: #{$color-green-50};
+  --toastify-color-warning: #{$color-yellow-50};
+  --toastify-color-error: #{$color-red-60};
+
+  --toastify-text-color-info: #{$color-white};
+  --toastify-text-color-success: #{$color-grey-50};
+  --toastify-text-color-warning: #{$color-grey-50};
   --toastify-text-color-error: #{$color-white};
+
+  --toastify-toast-min-height: $layout-md;
+  --toastify-toast-max-height: $layout-md;
 }
 
+// Allows us to dynamically set the background color based on Toast container state
+$toastify-toast-close-button: var(--toast-close-button);
+
 .toast {
-  border-radius: $border-radius-md;
+  @include text-body-sm;
   text-align: center;
-  font-weight: 700;
+  font-weight: 400;
+  min-height: $layout-md;
+  border-radius: $border-radius-sm;
   font-family: $font-stack-base;
+  padding: 0;
+  max-width: $content-xl;
+  margin: 0 auto;
+
+  @media screen and (max-width: $screen-sm) {
+    width: calc(100% - $spacing-xl);
+    margin-top: $spacing-md;
+  }
+
+  &:global {
+    &[class*="toast--error"],
+    &[class*="toast--info"] {
+      [id*="close-toast-button-icon"] {
+        color: #{$color-white};
+      }
+    }
+
+    & > [class*="toast-body"] {
+      padding: $spacing-md;
+    }
+
+    &[class*="toast--success"],
+    &[class*="toast--warning"] {
+      [id*="close-toast-button-icon"] {
+        color: #{$color-grey-50};
+      }
+    }
+
+    &[class*="toast--error"] {
+      --toast-close-button: #{$color-red-60};
+
+      &:hover {
+        --toastify-color-error: #{$color-red-70};
+      }
+
+      &:active,
+      &:focus {
+        --toastify-color-error: #{$color-red-80};
+        --toast-close-button: #{$color-red-80};
+      }
+    }
+
+    &[class*="toast--info"] {
+      --toast-close-button: #{$color-blue-50};
+
+      &:hover {
+        --toast-close-button: #{$color-blue-60};
+      }
+
+      &:active,
+      &:focus {
+        --toastify-color-info: #{$color-blue-70};
+        --toast-close-button: #{$color-blue-70};
+      }
+    }
+
+    &[class*="toast--success"] {
+      --toast-close-button: #{$color-green-50};
+
+      &:hover {
+        --toast-close-button: #{$color-green-60};
+      }
+
+      &:active,
+      &:focus {
+        --toastify-color-success: #{$color-green-70};
+        --toast-close-button: #{$color-green-70};
+      }
+    }
+
+    &[class*="toast--warning"] {
+      --toast-close-button: #{$color-yellow-50};
+
+      &:hover {
+        --toast-close-button: #{$color-yellow-60};
+      }
+
+      &:active,
+      &:focus {
+        --toastify-color-warning: #{$color-yellow-70};
+        --toast-close-button: #{$color-yellow-70};
+      }
+    }
+  }
+}
+
+.close-toast-button-container {
+  padding: $spacing-md;
+  border-radius: 0 $border-radius-sm $border-radius-sm 0;
+  background-color: $toastify-toast-close-button;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#close-toast-button-icon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
 }
 
 .header {

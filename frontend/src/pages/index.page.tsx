@@ -32,6 +32,7 @@ import { Plans } from "../components/landing/Plans";
 import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { getRuntimeConfig } from "../config";
+import { setCookie } from "../functions/cookies";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -53,6 +54,7 @@ const Home: NextPage = () => {
       action: "Engage",
       label: "home-hero-cta",
     });
+    setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
   };
 
   const plansSection = isPremiumAvailableInCountry(runtimeData.data) ? (
