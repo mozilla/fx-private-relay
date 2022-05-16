@@ -17,6 +17,7 @@ import jwcrypto.jwk
 import markus
 import logging
 from waffle import sample_is_active
+from waffle.models import Flag
 
 from django.apps import apps
 from django.conf import settings
@@ -27,6 +28,8 @@ from urllib.parse import urlparse
 
 from .models import DomainAddress, RelayAddress, Reply, get_domains_from_settings
 
+
+NEW_FROM_ADDRESS_FLAG_NAME = "new_from_address"
 
 logger = logging.getLogger("events")
 study_logger = logging.getLogger("studymetrics")
@@ -218,12 +221,17 @@ def get_post_data_from_request(request):
 
 
 def generate_relay_From(original_from_address, user_profile=None):
+    _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
+    try:
+        new_from_flag = Flag.objects.get(name=NEW_FROM_ADDRESS_FLAG_NAME)
+        if user_profile and new_from_flag.is_active_for_user(user_profile.user):
+            _, relay_from_address = parseaddr(settings.NEW_RELAY_FROM_ADDRESS)
+    except Flag.DoesNotExist:
+        pass
     if user_profile and user_profile.has_premium:
-        relay_display_name, relay_from_address = parseaddr(
+        _, relay_from_address = parseaddr(
             "replies@%s" % get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
         )
-    else:
-        relay_display_name, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
     # RFC 2822 (https://tools.ietf.org/html/rfc2822#section-2.1.1)
     # says email header lines must not be more than 998 chars long.
     # Encoding display names to longer than 998 chars will add wrap

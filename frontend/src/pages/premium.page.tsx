@@ -244,7 +244,7 @@ const PremiumPromo: NextPage = () => {
                         "landing-use-cases-social-networks"
                       )}
                       body={l10n.getString(
-                        "landing-use-cases-social-networks-body"
+                        "landing-use-cases-social-networks-body-2"
                       )}
                     />
                   ),
@@ -329,7 +329,7 @@ const PremiumPromo: NextPage = () => {
                   content: (
                     <CarouselContentTextOnly
                       heading={l10n.getString("landing-use-cases-gaming")}
-                      body={l10n.getString("landing-use-cases-gaming-body")}
+                      body={l10n.getString("landing-use-cases-gaming-body-2")}
                     />
                   ),
                   illustration: GamingIllustration,

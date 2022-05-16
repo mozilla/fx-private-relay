@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactElement, ReactNode, useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -24,6 +24,7 @@ import { InterviewRecruitment } from "./InterviewRecruitment";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
 import { MobileNavigation } from "../navigation/MobileNavigation";
+import { CloseIcon } from "../Icons";
 
 export type Props = {
   children: ReactNode;
@@ -96,6 +97,20 @@ export const Layout = (props: Props) => {
     theme: isDark ? "free" : "premium",
   };
 
+  const closeToastButton = (closeToast: () => void): ReactElement => {
+    return (
+      <div className={styles["close-toast-button-container"]}>
+        <button className="Toastify__close-button Toastify__close-button--colored">
+          {CloseIcon({
+            alt: l10n.getString("toast-button-close-label"),
+            onClick: closeToast,
+            id: styles["close-toast-button-icon"],
+          })}
+        </button>
+      </div>
+    );
+  };
+
   return (
     <>
       <Head>
@@ -160,11 +175,16 @@ export const Layout = (props: Props) => {
         </header>
 
         <ToastContainer
+          icon={false}
           position={toast.POSITION.TOP_CENTER}
           theme="colored"
           transition={Slide}
+          hideProgressBar={true}
           autoClose={5000}
           toastClassName={`Toastify__toast ${styles.toast}`}
+          closeButton={(closeToastObject) =>
+            closeToastButton(closeToastObject.closeToast)
+          }
         />
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>

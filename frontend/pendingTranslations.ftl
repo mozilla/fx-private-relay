@@ -53,6 +53,12 @@ waitlist-subscribe-success = You’re on the list! Once { -brand-name-firefox-re
 waitlist-subscribe-error-connection = There was an error adding you to the waitlist. Please check your connection, then try again.
 waitlist-subscribe-error-unknown = There was an error adding you to the waitlist. Please try again.
 
+## Notifications component
+
+toast-button-close-label = Close notification
+success-signed-out-message = You have signed out.
+success-signed-in-message = Successfully signed in as { $username }.
+
 whatsnew-feature-premium-expansion-sweden-heading = { -brand-name-relay-premium } available in Sweden
 whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium } available in Finland
 # A preview of the full content of `whatsnew-feature-premium-sweden-description`.
