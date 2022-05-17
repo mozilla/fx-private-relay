@@ -95,8 +95,10 @@ class FormattingToolsTest(TestCase):
         )
         assert formatted_from_address == expected_formatted_from
 
-    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com",
-                       NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com")
+    @override_settings(
+        RELAY_FROM_ADDRESS="noreply@relaytests.com",
+        NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com",
+    )
     def test_generate_relay_From_with_new_from_user(self):
         free_user = make_free_test_user()
         new_from_flag = Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
@@ -116,8 +118,10 @@ class FormattingToolsTest(TestCase):
         # WTF? TestCase tearDown doesn't clear out this waffle flag?
         new_from_flag.users.remove(free_user)
 
-    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com",
-                       NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com")
+    @override_settings(
+        RELAY_FROM_ADDRESS="noreply@relaytests.com",
+        NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com",
+    )
     def test_generate_relay_From_with_non_flagged_user(self):
         free_user = make_free_test_user()
         Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
@@ -134,8 +138,10 @@ class FormattingToolsTest(TestCase):
         )
         assert formatted_from_address == expected_formatted_from
 
-    @override_settings(RELAY_FROM_ADDRESS="noreply@relaytests.com",
-                       NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com")
+    @override_settings(
+        RELAY_FROM_ADDRESS="noreply@relaytests.com",
+        NEW_RELAY_FROM_ADDRESS="new_from@relaytests.com",
+    )
     def test_generate_relay_From_with_no_user_profile_somehow(self):
         free_user = baker.make(User)
         Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)

@@ -501,7 +501,7 @@ class RelayAddress(models.Model):
                     break
                 self.address = address_default()
             profile.update_abuse_metric(address_created=True)
-        if (not profile.server_storage):
+        if not profile.server_storage:
             self.description = ""
             self.generated_for = ""
             self.used_on = ""
@@ -594,7 +594,7 @@ class DomainAddress(models.Model):
             check_user_can_make_domain_address(user_profile)
             user_profile.update_abuse_metric(address_created=True)
         # TODO: validate user is premium to set block_list_emails
-        if (not user_profile.server_storage):
+        if not user_profile.server_storage:
             self.description = ""
         return super().save(*args, **kwargs)
 

@@ -12,7 +12,7 @@ from django.urls import reverse
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 
-from .views import _get_oauth2_session, update_social_token
+from .views import _get_oauth2_session, update_social_token, NoSocialToken
 
 metrics = markus.get_metrics("fx-private-relay")
 
@@ -39,7 +39,7 @@ class FxAToRequest:
                     FirefoxAccountsOAuth2Adapter.access_token_url
                 )
                 update_social_token(social_token, new_token)
-            except CustomOAuth2Error:
+            except (CustomOAuth2Error, NoSocialToken):
                 logout(request)
                 return redirect(reverse("home"))
 
