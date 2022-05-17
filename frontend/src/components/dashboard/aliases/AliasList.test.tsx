@@ -3,21 +3,24 @@ import userEvent from "@testing-library/user-event";
 import { mockConfigModule } from "../../../../__mocks__/configMock";
 import { getMockRandomAlias } from "../../../../__mocks__/hooks/api/aliases";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
-import * as LocalLabelsMock from "../../../../__mocks__/hooks/localLabels";
+import {
+  getReturnValueWhenDisabled as getLocalLabelsWhenDisabled,
+  getReturnValueWhenEnabled as getLocalLabelsWhenEnabled,
+  setMockLocalLabels,
+  setMockLocalLabelsOnce,
+} from "../../../../__mocks__/hooks/localLabels";
 import { mockFluentReact } from "../../../../__mocks__/modules/fluent__react";
 import { AliasList } from "./AliasList";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("../../../config.ts", () => mockConfigModule);
-LocalLabelsMock.setMockLocalLabels();
+setMockLocalLabels();
 
 describe("<AliasList>", () => {
   it("sends a request to the back-end to update the label if server-side label storage is enabled", async () => {
     const updateCallback = jest.fn();
     const storeLocalLabelCallback = jest.fn();
-    LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWhenDisabled(storeLocalLabelCallback)
-    );
+    setMockLocalLabelsOnce(getLocalLabelsWhenDisabled(storeLocalLabelCallback));
     render(
       <AliasList
         aliases={[getMockRandomAlias()]}
@@ -42,8 +45,8 @@ describe("<AliasList>", () => {
   it("does not send a request to the back-end to update the label if server-side label storage is not enabled", async () => {
     const updateCallback = jest.fn();
     const storeLocalLabelCallback = jest.fn();
-    LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWhenEnabled([], storeLocalLabelCallback)
+    setMockLocalLabelsOnce(
+      getLocalLabelsWhenEnabled([], storeLocalLabelCallback)
     );
     render(
       <AliasList
@@ -70,9 +73,7 @@ describe("<AliasList>", () => {
   });
 
   it("does not provide the option to edit the label if server-side storage is disabled, and local storage is not available (i.e. the user does not have the add-on)", async () => {
-    LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWhenDisabled()
-    );
+    setMockLocalLabelsOnce(getLocalLabelsWhenDisabled());
     render(
       <AliasList
         aliases={[getMockRandomAlias()]}
