@@ -598,12 +598,22 @@ def _reply_allowed(from_address, to_address, reply_record):
 
 def _handle_reply(from_address, message_json, to_address):
     mail = message_json["mail"]
-    (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
-    reply_record = _get_reply_record_from_lookup_key(lookup_key)
+    try:
+        (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
+    except InReplyToNotFound:
+        incr_if_enabled("reply_email_header_error", 1, tags=["detail:no-header"])
+        return HttpResponse("No In-Reply-To header", status=400)
+
+    try:
+        reply_record = _get_reply_record_from_lookup_key(lookup_key)
+    except Reply.DoesNotExist:
+        incr_if_enabled("reply_email_header_error", 1, tags=["detail:no-reply-record"])
+        return HttpResponse("Unknown or stale In-Reply-To header", status=404)
+
     address = reply_record.address
 
     if not _reply_allowed(from_address, to_address, reply_record):
-        return HttpResponse("Rely replies require a premium account", status=403)
+        return HttpResponse("Relay replies require a premium account", status=403)
 
     outbound_from_address = address.full_address
     decrypted_metadata = json.loads(
