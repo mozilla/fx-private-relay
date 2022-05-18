@@ -34,12 +34,14 @@ import { toast } from "react-toastify";
 import { getLocale } from "../../functions/getLocale";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { AddonData } from "../../components/dashboard/AddonData";
+import { useAddonData } from "../../hooks/addon";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const userData = useUsers();
   const aliasData = useAliases();
+  const addonData = useAddonData();
   const { l10n } = useLocalization();
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
@@ -89,6 +91,7 @@ const Profile: NextPage = () => {
         { type: "error" }
       );
     }
+    addonData.sendEvent("subdomainClaimed", { subdomain: customSubdomain });
   };
 
   const allAliases = getAllAliases(
@@ -145,6 +148,7 @@ const Profile: NextPage = () => {
           "Immediately caught to land in the same code path as failed requests."
         );
       }
+      addonData.sendEvent("aliasListUpdate");
     } catch (error) {
       toast(l10n.getString("error-mask-create-failed"), { type: "error" });
     }
@@ -179,6 +183,7 @@ const Profile: NextPage = () => {
           "Immediately caught to land in the same code path as failed requests."
         );
       }
+      addonData.sendEvent("aliasListUpdate");
     } catch (error: unknown) {
       toast(
         l10n.getString("error-mask-delete-failed", {

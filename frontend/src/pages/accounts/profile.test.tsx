@@ -30,6 +30,7 @@ import {
   setMockMinViewportWidthOnce,
 } from "../../../__mocks__/hooks/mediaQuery";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
+import { setMockAddonData } from "../../../__mocks__/hooks/addon";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Profile from "./profile.page";
@@ -51,6 +52,7 @@ setMockProfileData();
 setMockUserData();
 setMockRuntimeData();
 setMockMinViewportWidth();
+setMockAddonData();
 
 describe("The dashboard", () => {
   describe("under axe accessibility testing", () => {
@@ -740,6 +742,46 @@ describe("The dashboard", () => {
 
     expect(addonDataElements).toHaveLength(1);
     expect(addonDataElements[0]).toBeInTheDocument();
+  });
+
+  it("notifies the add-on when the user creates a new alias", async () => {
+    const addonNotifier = jest.fn();
+    setMockAddonData({ sendEvent: addonNotifier });
+    setMockAliasesDataOnce({ random: [], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    render(<Profile />);
+
+    const generateAliasButton = screen.getByRole("button", {
+      name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
+    });
+    await userEvent.click(generateAliasButton);
+
+    expect(addonNotifier).toHaveBeenCalledWith("aliasListUpdate");
+  });
+
+  it("notifies the add-on when the user deletes an alias", async () => {
+    const addonNotifier = jest.fn();
+    setMockAddonData({ sendEvent: addonNotifier });
+    setMockAliasesDataOnce({ random: [{ id: 42 }], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    render(<Profile />);
+
+    const aliasDeleteButton = screen.getByRole("button", {
+      name: "l10n string: [profile-label-delete], with vars: {}",
+    });
+    await userEvent.click(aliasDeleteButton);
+
+    const confirmationCheckbox = screen.getByLabelText(
+      "l10n string: [modal-delete-confirmation-2], with vars: {}"
+    );
+    await userEvent.click(confirmationCheckbox);
+
+    const confirmationButton = screen.getAllByRole("button", {
+      name: "l10n string: [profile-label-delete], with vars: {}",
+    });
+    await userEvent.click(confirmationButton[1]);
+
+    expect(addonNotifier).toHaveBeenCalledWith("aliasListUpdate");
   });
 
   describe("with the `generateCustomAlias` feature flag enabled", () => {

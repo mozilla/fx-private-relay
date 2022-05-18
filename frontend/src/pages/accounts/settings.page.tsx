@@ -16,6 +16,7 @@ import { getRuntimeConfig } from "../../config";
 import { useLocalLabels } from "../../hooks/localLabels";
 import { AliasData, useAliases } from "../../hooks/api/aliases";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
+import { useAddonData } from "../../hooks/addon";
 
 const Settings: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -23,6 +24,7 @@ const Settings: NextPage = () => {
   const { l10n } = useLocalization();
   const [localLabels] = useLocalLabels();
   const aliasData = useAliases();
+  const addonData = useAddonData();
   const [labelCollectionEnabled, setLabelCollectionEnabled] = useState(
     profileData.data?.[0].server_storage
   );
@@ -92,6 +94,12 @@ const Settings: NextPage = () => {
       }
 
       toast(l10n.getString("success-settings-update"), { type: "success" });
+
+      if (profileData.data?.[0].server_storage !== labelCollectionEnabled) {
+        // If the user has changed their preference w.r.t. server storage of address labels,
+        // notify the add-on about it:
+        addonData.sendEvent("serverStorageChange");
+      }
     } catch (e) {
       toast(l10n.getString("error-settings-update"), { type: "error" });
     }

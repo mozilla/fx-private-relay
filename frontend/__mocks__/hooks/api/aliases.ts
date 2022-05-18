@@ -111,9 +111,15 @@ function getReturnValue(
       mutate: jest.fn(),
       data: customAliasData,
     },
-    create: callbacks?.creater || jest.fn(),
-    update: callbacks?.updater || jest.fn(),
-    delete: callbacks?.deleter || jest.fn(),
+    create:
+      callbacks?.creater ||
+      jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
+    update:
+      callbacks?.updater ||
+      jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
+    delete:
+      callbacks?.deleter ||
+      jest.fn(() => Promise.resolve({ ok: true } as unknown as Response)),
   };
 }
 
