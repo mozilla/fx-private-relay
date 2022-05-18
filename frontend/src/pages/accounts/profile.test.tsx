@@ -36,6 +36,7 @@ import { setMockAddonData } from "../../../__mocks__/hooks/addon";
 import Profile from "./profile.page";
 import { AliasUpdateFn } from "../../hooks/api/aliases";
 import { ProfileUpdateFn } from "../../hooks/api/profile";
+import { RuntimeConfig } from "../../config";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
@@ -782,6 +783,55 @@ describe("The dashboard", () => {
     await userEvent.click(confirmationButton[1]);
 
     expect(addonNotifier).toHaveBeenCalledWith("aliasListUpdate");
+  });
+
+  describe("with the `tips` feature flag enabled", () => {
+    let mockedConfig: RuntimeConfig;
+
+    beforeEach(() => {
+      mockedConfig = mockConfigModule.getRuntimeConfig();
+      // getRuntimeConfig() is called frequently, so mock its return value,
+      // then restore the original mock at the end of every test (in `afterEach`):
+      mockConfigModule.getRuntimeConfig.mockReturnValue({
+        ...mockedConfig,
+        maxFreeAliases: 1,
+        featureFlags: {
+          ...mockedConfig.featureFlags,
+          tips: true,
+        },
+      });
+    });
+    afterEach(() => {
+      mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+    });
+
+    it("displays a tip about how to use custom aliases to Premium users", () => {
+      setMockProfileDataOnce({ has_premium: true });
+
+      render(<Profile />);
+
+      const tipsHeader = screen.getByRole("heading", {
+        name: "l10n string: [tips-header-title], with vars: {}",
+      });
+      const customMaskTip = screen.getByText(
+        "l10n string: [tips-custom-alias-heading-2], with vars: {}"
+      );
+
+      expect(tipsHeader).toBeInTheDocument();
+      expect(customMaskTip).toBeInTheDocument();
+    });
+
+    it("does not display a tip about how to use custom aliases to non-Premium users", () => {
+      setMockProfileDataOnce({ has_premium: false });
+
+      render(<Profile />);
+
+      const customMaskTip = screen.queryByText(
+        "l10n string: [tips-custom-alias-heading-2], with vars: {}"
+      );
+
+      expect(customMaskTip).not.toBeInTheDocument();
+    });
   });
 
   describe("with the `generateCustomAlias` feature flag enabled", () => {
