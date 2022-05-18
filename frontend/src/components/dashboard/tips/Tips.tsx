@@ -40,13 +40,15 @@ export const Tips = (props: Props) => {
   const customAliasDismissal = useLocalDismissal(
     `tips_customAlias_${props.profile.id}`
   );
-  tips.push({
-    title: l10n.getString("tips-custom-alias-heading-2"),
-    content: (
-      <CustomAliasTip subdomain={props.profile.subdomain ?? undefined} />
-    ),
-    dismissal: customAliasDismissal,
-  });
+  if (props.profile.has_premium) {
+    tips.push({
+      title: l10n.getString("tips-custom-alias-heading-2"),
+      content: (
+        <CustomAliasTip subdomain={props.profile.subdomain ?? undefined} />
+      ),
+      dismissal: customAliasDismissal,
+    });
+  }
 
   if (tips.length === 0 || getRuntimeConfig().featureFlags.tips !== true) {
     return null;
