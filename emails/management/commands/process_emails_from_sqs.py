@@ -12,7 +12,6 @@ https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.h
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
 import json
-import io
 import logging
 import shlex
 import time
@@ -23,10 +22,10 @@ from codetiming import Timer
 from markus.utils import generate_tag
 import OpenSSL
 
-from django.conf import settings
 from django.core.management.base import CommandError
 
-from emails.views import _sns_inbound_logic, validate_sns_header, verify_from_sns
+from emails.sns import verify_from_sns
+from emails.views import _sns_inbound_logic, validate_sns_header
 from emails.utils import incr_if_enabled, gauge_if_enabled
 from emails.management.command_from_django_settings import (
     CommandFromDjangoSettings,
