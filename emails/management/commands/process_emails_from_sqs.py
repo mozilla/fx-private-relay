@@ -11,6 +11,7 @@ https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sqs.h
 
 from datetime import datetime, timezone
 from urllib.parse import urlsplit
+import gc
 import json
 import logging
 import shlex
@@ -197,6 +198,8 @@ class Command(CommandFromDjangoSettings):
                 )
 
                 self.cycles += 1
+                gc.collect()  # Force garbage collection of boto3 SQS client resources
+
             except KeyboardInterrupt:
                 self.halt_requested = True
                 exit_on = "interrupt"
