@@ -30,7 +30,7 @@ export type AddonData = Partial<{
    */
   localLabels: LocalLabel[];
 }> & {
-  sendEvent: (type: string, data: object) => void;
+  sendEvent: (type: string, data?: object) => void;
 };
 
 const defaultAddonData: AddonData = {
@@ -93,7 +93,7 @@ const attributeParsers: Record<
  */
 const parseAddonData = (addonElement: HTMLElement): AddonData => {
   let addonData: AddonData = {
-    sendEvent: (type, data) => {
+    sendEvent: (type, data = {}) => {
       addonElement.dispatchEvent(
         new CustomEvent("website", { detail: { ...data, type: type } })
       );
