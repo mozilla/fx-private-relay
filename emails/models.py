@@ -581,6 +581,7 @@ class DomainAddress(models.Model):
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     block_list_emails = models.BooleanField(default=False)
+    used_on = models.TextField(default=None, blank=True, null=True)
 
     class Meta:
         unique_together = ["user", "address"]

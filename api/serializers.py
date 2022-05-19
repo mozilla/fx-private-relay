@@ -61,6 +61,7 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
             "enabled",
             "description",
             "block_list_emails",
+            "used_on",
             # read-only
             "id",
             "address",
