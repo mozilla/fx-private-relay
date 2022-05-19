@@ -289,7 +289,7 @@ export function getHandlers(
         ctx.status(200),
         ctx.json({
           flowId: "mock-flow-id",
-          flowBeginTime: new Date(Date.now()).toISOString(),
+          flowBeginTime: Date.now(),
         })
       );
     })

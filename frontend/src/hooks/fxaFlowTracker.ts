@@ -11,7 +11,7 @@ export type FxaFlowTrackerArgs = Omit<
 
 export type FlowData = {
   flowId: string;
-  flowBeginTime: string;
+  flowBeginTime: number;
 };
 
 /**
@@ -53,7 +53,7 @@ export function useFxaFlowTracker(
         const data = await response.json();
         if (
           typeof data.flowId !== "string" ||
-          typeof data.flowBeginTime !== "string"
+          typeof data.flowBeginTime !== "number"
         ) {
           return;
         }
@@ -90,7 +90,10 @@ export function getLoginUrl(entrypoint: string, flowData?: FlowData): string {
   urlObject.searchParams.append("entrypoint", entrypoint);
   if (flowData) {
     urlObject.searchParams.append("flowId", flowData.flowId);
-    urlObject.searchParams.append("flowBeginTime", flowData.flowBeginTime);
+    urlObject.searchParams.append(
+      "flowBeginTime",
+      flowData.flowBeginTime.toString()
+    );
   }
 
   const fullUrl = urlObject.href;
