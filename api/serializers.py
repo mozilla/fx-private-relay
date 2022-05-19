@@ -20,9 +20,11 @@ class PremiumValidatorsMixin:
 
 
 class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
+    type = serializers.CharField(default="random")
     class Meta:
         model = RelayAddress
         fields = [
+            "type",
             "enabled",
             "description",
             "generated_for",
@@ -42,6 +44,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
         ]
         read_only_fields = [
             "id",
+            "type",
             "address",
             "domain",
             "full_address",
@@ -55,9 +58,11 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
 
 
 class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
+    type = serializers.CharField(default="custom")
     class Meta:
         model = DomainAddress
         fields = [
+            "type",
             "enabled",
             "description",
             "block_list_emails",
@@ -76,6 +81,7 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
         ]
         read_only_fields = [
             "id",
+            "type",
             "domain",
             "full_address",
             "created_at",
