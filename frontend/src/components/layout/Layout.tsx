@@ -41,7 +41,7 @@ export const Layout = (props: Props) => {
   const router = useRouter();
   const hasPremium: boolean = profiles.data?.[0].has_premium || false;
   const usersData = useUsers().data?.[0];
-  const [mobileMenuState, setMobileMenuState] = useState(false);
+  const [mobileMenuState, setMobileMenuState] = useState<boolean>();
 
   useEffect(() => {
     makeToast(l10n, usersData);
@@ -67,8 +67,11 @@ export const Layout = (props: Props) => {
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const handleToggle = () => {
-    setMobileMenuState(!mobileMenuState);
+    setMobileMenuState(
+      typeof mobileMenuState !== "boolean" ? true : !mobileMenuState
+    );
   };
+  console.log(typeof mobileMenuState);
   const csatSurvey =
     getRuntimeConfig().featureFlags.csatSurvey &&
     !getRuntimeConfig().featureFlags.interviewRecruitment &&

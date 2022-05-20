@@ -7,16 +7,17 @@
   left: 0;
   // z-index of 1 (so it overlaps the hero image)
   z-index: 1;
-  top: $navHeight;
+  transform: translateY(-100%);
   background: $color-white;
   flex-direction: column;
   box-shadow: $box-shadow-lg;
 
-  &:not(is-active) {
-    animation: slide-out 0.55s cubic-bezier(0.52, -0.14, 0.31, 1.2);
+  &.not-active {
+    animation: slide-out 0.5s cubic-bezier(0.52, -0.14, 0.31, 1.2);
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
   }
+
   &.is-active {
     animation: slide-in 0.75s cubic-bezier(0.52, -0.14, 0.31, 1.2);
     animation-iteration-count: 1;
@@ -24,14 +25,14 @@
   }
 
   @keyframes slide-in {
-    0% {
-      transform: translateY(-100%);
-    }
     100% {
-      transform: translateY(0);
+      transform: translateY($navHeight);
     }
   }
   @keyframes slide-out {
+    0% {
+      transform: translateY($navHeight);
+    }
     100% {
       transform: translateY(-100%);
     }

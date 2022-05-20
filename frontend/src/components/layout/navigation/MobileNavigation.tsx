@@ -60,12 +60,19 @@ export const MobileNavigation = ({ ...props }) => {
     logoutFormRef.current?.submit();
   };
 
+  // We make sure toggle state is not undefined
+  // or we get a flash of the mobile menu on page load.
+  const toggleMenuStateClass =
+    typeof props.active !== "boolean"
+      ? ""
+      : props.active
+      ? styles["is-active"]
+      : styles["not-active"];
+
   return (
     <nav
       aria-label={l10n.getString("nav-menu")}
-      className={`${styles["mobile-menu"]} ${
-        props.active ? styles["is-active"] : ""
-      }`}
+      className={`${styles["mobile-menu"]} ${toggleMenuStateClass}`}
     >
       {/* Below we have conditional rendering of menu items  */}
       <ul className={`${styles["menu-item-list"]}`}>
