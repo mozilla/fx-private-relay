@@ -536,9 +536,9 @@ def _check_email_from_list(headers):
 
 def _record_receipt_verdicts(receipt, state):
     verdict_tags = []
-    for key, value in receipt.items():
+    for key in sorted(receipt.keys()):
         if key.endswith("Verdict"):
-            value = value["status"]
+            value = receipt[key]["status"]
             verdict_tags.append(f"{key}:{value}")
             incr_if_enabled(f"relay.emails.verdicts.{key}", 1, [f"state:{state}"])
     incr_if_enabled(f"relay.emails.state.{state}", 1, verdict_tags)

@@ -932,7 +932,7 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
 
     def expected_records(self, state, receipt_overrides=None):
         """Return the expected metrics emitted by calling _record_receipt_verdicts."""
-        verdicts = ["spam", "virus", "spf", "dkim", "dmarc"]
+        verdicts = ["dkim", "dmarc", "spam", "spf", "virus"]
 
         # Five counters for each verdict type
         verdict_metrics = [
