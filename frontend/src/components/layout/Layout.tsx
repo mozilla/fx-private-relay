@@ -15,7 +15,7 @@ import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
 import favicon from "../../../public/favicon.svg";
 import socialMediaImage from "../../../../static/images/share-relay.jpg";
 import { useProfiles } from "../../hooks/api/profile";
-import { Navigation } from "../navigation/Navigation";
+import { Navigation } from "./navigation/Navigation";
 import { useIsLoggedIn } from "../../hooks/session";
 import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
@@ -23,7 +23,7 @@ import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
-import { MobileNavigation } from "../navigation/MobileNavigation";
+import { MobileNavigation } from "./navigation/MobileNavigation";
 import { CloseIcon } from "../Icons";
 
 export type Props = {

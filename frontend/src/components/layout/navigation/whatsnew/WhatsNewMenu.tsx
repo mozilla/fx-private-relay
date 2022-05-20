@@ -37,13 +37,13 @@ import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
   useLocalDismissal,
-} from "../../../hooks/localDismissal";
-import { ProfileData } from "../../../hooks/api/profile";
+} from "../../../../hooks/localDismissal";
+import { ProfileData } from "../../../../hooks/api/profile";
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
-import { useAddonData } from "../../../hooks/addon";
-import { isUsingFirefox } from "../../../functions/userAgent";
-import { getLocale } from "../../../functions/getLocale";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { useAddonData } from "../../../../hooks/addon";
+import { isUsingFirefox } from "../../../../functions/userAgent";
+import { getLocale } from "../../../../functions/getLocale";
+import { RuntimeData } from "../../../../hooks/api/runtimeData";
 
 export type WhatsNewEntry = {
   title: string;

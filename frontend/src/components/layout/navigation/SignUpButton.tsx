@@ -1,9 +1,9 @@
 import { useLocalization } from "@fluent/react";
-import { getRuntimeConfig } from "../../config";
+import { getRuntimeConfig } from "../../../config";
 import { event as gaEvent } from "react-ga";
 import styles from "./SignUpButton.module.scss";
-import { useGaViewPing } from "../../hooks/gaViewPing";
-import { setCookie } from "../../functions/cookies";
+import { useGaViewPing } from "../../../hooks/gaViewPing";
+import { setCookie } from "../../../functions/cookies";
 
 export const SignUpButton = ({ ...props }): JSX.Element => {
   const { l10n } = useLocalization();

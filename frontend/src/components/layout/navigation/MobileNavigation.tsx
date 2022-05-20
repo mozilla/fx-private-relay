@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { useLocalization } from "@fluent/react";
 import styles from "./MobileNavigation.module.scss";
-import { useIsLoggedIn } from "../../hooks/session";
+import { useIsLoggedIn } from "../../../hooks/session";
 import { SignUpButton } from "./SignUpButton";
-import { useProfiles } from "../../hooks/api/profile";
+import { useProfiles } from "../../../hooks/api/profile";
 import {
   Cogwheel,
   ContactIcon,
@@ -13,11 +13,11 @@ import {
   NewTabIcon,
   SignOutIcon,
   SupportIcon,
-} from "../Icons";
-import { useUsers } from "../../hooks/api/user";
-import { useRuntimeData } from "../../hooks/api/runtimeData";
-import { getRuntimeConfig } from "../../config";
-import { getCsrfToken } from "../../functions/cookies";
+} from "../../Icons";
+import { useUsers } from "../../../hooks/api/user";
+import { useRuntimeData } from "../../../hooks/api/runtimeData";
+import { getRuntimeConfig } from "../../../config";
+import { getCsrfToken } from "../../../functions/cookies";
 import { useRef } from "react";
 
 export type MenuItem = {

@@ -24,17 +24,17 @@ import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { event as gaEvent } from "react-ga";
 import styles from "./UserMenu.module.scss";
-import SettingsImage from "../../../../static/images/settings.svg";
-import ContactImage from "../../../../static/images/icon-message.svg";
-import HelpImage from "../../../../static/images/help.svg";
-import SignoutImage from "../../../../static/images/glocal-sign-out.svg";
-import { NewTabIcon } from "../Icons";
-import { useUsers } from "../../hooks/api/user";
-import { useProfiles } from "../../hooks/api/profile";
-import { getRuntimeConfig } from "../../config";
-import { getCsrfToken } from "../../functions/cookies";
-import { useRuntimeData } from "../../hooks/api/runtimeData";
-import { setCookie } from "../../functions/cookies";
+import SettingsImage from "../../../../../static/images/settings.svg";
+import ContactImage from "../../../../../static/images/icon-message.svg";
+import HelpImage from "../../../../../static/images/help.svg";
+import SignoutImage from "../../../../../static/images/glocal-sign-out.svg";
+import { NewTabIcon } from "../../Icons";
+import { useUsers } from "../../../hooks/api/user";
+import { useProfiles } from "../../../hooks/api/profile";
+import { getRuntimeConfig } from "../../../config";
+import { getCsrfToken } from "../../../functions/cookies";
+import { useRuntimeData } from "../../../hooks/api/runtimeData";
+import { setCookie } from "../../../functions/cookies";
 
 /**
  * Display the user's avatar, which can open a menu allowing the user to log out or go to their settings page.

@@ -1,5 +1,5 @@
 import { useLocalization } from "@fluent/react";
-import { CloseIcon, MenuIcon } from "../Icons";
+import { CloseIcon, MenuIcon } from "../../Icons";
 import styles from "./MenuToggle.module.scss";
 
 export const MenuToggle = ({ ...props }): JSX.Element => {

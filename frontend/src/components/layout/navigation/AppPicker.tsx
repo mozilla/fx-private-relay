@@ -31,17 +31,17 @@ import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./AppPicker.module.scss";
-import BentoIconGrey from "../../../../static/images/bento.svg";
-import BentoIconWhite from "../../../../static/images/bento-white.svg";
-import FirefoxLogo from "../../../../static/images/logos/bento/fx.png";
-import MonitorLogo from "../../../../static/images/logos/bento/monitor.png";
-import PocketLogo from "../../../../static/images/logos/bento/pocket.png";
-import VpnLogo from "../../../../static/images/logos/bento/vpn.svg";
-import ContainersLogo from "../../../../static/images/logos/bento/containers.png";
-import FxDesktopLogo from "../../../../static/images/logos/fx-logo.svg";
-import FxMobileLogo from "../../../../static/images/logos/bento/fx-mobile.png";
-import { Props as LayoutProps } from "../layout/Layout";
-import { getRuntimeConfig } from "../../config";
+import BentoIconGrey from "../../../../../static/images/bento.svg";
+import BentoIconWhite from "../../../../../static/images/bento-white.svg";
+import FirefoxLogo from "../../../../../static/images/logos/bento/fx.png";
+import MonitorLogo from "../../../../../static/images/logos/bento/monitor.png";
+import PocketLogo from "../../../../../static/images/logos/bento/pocket.png";
+import VpnLogo from "../../../../../static/images/logos/bento/vpn.svg";
+import ContainersLogo from "../../../../../static/images/logos/bento/containers.png";
+import FxDesktopLogo from "../../../../../static/images/logos/fx-logo.svg";
+import FxMobileLogo from "../../../../../static/images/logos/bento/fx-mobile.png";
+import { Props as LayoutProps } from "../../layout/Layout";
+import { getRuntimeConfig } from "../../../config";
 
 const getProducts = (referringSiteUrl: string) => ({
   monitor: {

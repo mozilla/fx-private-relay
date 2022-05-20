@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { mockGetLocaleModule } from "../../../../__mocks__/functions/getLocale";
-import { mockFluentReact } from "../../../../__mocks__/modules/fluent__react";
+import { mockGetLocaleModule } from "../../../../../__mocks__/functions/getLocale";
+import { mockFluentReact } from "../../../../../__mocks__/modules/fluent__react";
 
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import { WhatsNewEntry } from "./WhatsNewMenu";
@@ -171,7 +171,7 @@ describe("The 'What's new' dashboard", () => {
       />
     );
 
-    expect(screen.queryByText(allEntries[1].content)).not.toBeInTheDocument();
+    expect(screen.queryByText(allEntries[1]?.content)).not.toBeInTheDocument();
 
     const menuItems = screen.getAllByRole("menuitem");
     userEvent.click(menuItems[1]);

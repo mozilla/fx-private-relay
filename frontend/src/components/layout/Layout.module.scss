@@ -145,7 +145,8 @@ $toastify-toast-close-button: var(--toast-close-button);
   // overlap the AppPicker drawer).
   // Thus, upping the z-index stack the header, and menus
   // expanding from it, on top again:
-  z-index: 10;
+  //  z-index of 3 to overlap mobile menu
+  z-index: 3;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:

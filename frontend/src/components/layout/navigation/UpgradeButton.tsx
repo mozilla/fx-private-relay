@@ -1,8 +1,8 @@
 import { useLocalization } from "@fluent/react";
-import { getRuntimeConfig } from "../../config";
+import { getRuntimeConfig } from "../../../config";
 import { event as gaEvent } from "react-ga";
 import styles from "./UpgradeButton.module.scss";
-import { useGaViewPing } from "../../hooks/gaViewPing";
+import { useGaViewPing } from "../../../hooks/gaViewPing";
 
 export const UpgradeButton = (): JSX.Element => {
   const { l10n } = useLocalization();
