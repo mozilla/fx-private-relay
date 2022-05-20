@@ -5,8 +5,8 @@
   width: 100%;
   position: absolute;
   left: 0;
-  // z-index of 2 (so it overlaps the hero image)
-  z-index: 2;
+  // z-index of 1 (so it overlaps the hero image)
+  z-index: 1;
   top: $navHeight;
   background: $color-white;
   flex-direction: column;

@@ -145,34 +145,31 @@ export const Layout = (props: Props) => {
         <InterviewRecruitment profile={profiles.data?.[0]} />
         {csatSurvey}
         {npsSurvey}
-        <header>
-          <div className={`${styles.header} ${darkClass}`}>
-            <div className={styles["logo-wrapper"]}>
-              <Link href={homePath}>
-                <a className={styles.logo}>
-                  <img
-                    src={logo.src}
-                    alt=""
-                    className={styles.logomark}
-                    width={42}
-                  />
-                  <img
-                    src={logoType.src}
-                    alt={logoAlt}
-                    className={styles.logotype}
-                    height={20}
-                  />
-                </a>
-              </Link>
-            </div>
-            <div className={styles["nav-wrapper"]}>
-              <Navigation {...navigationProps} />
-            </div>
+        <header className={`${styles.header} ${darkClass}`}>
+          <div className={styles["logo-wrapper"]}>
+            <Link href={homePath}>
+              <a className={styles.logo}>
+                <img
+                  src={logo.src}
+                  alt=""
+                  className={styles.logomark}
+                  width={42}
+                />
+                <img
+                  src={logoType.src}
+                  alt={logoAlt}
+                  className={styles.logotype}
+                  height={20}
+                />
+              </a>
+            </Link>
           </div>
-
-          {/* separated from header to make use of z-index */}
-          <MobileNavigation active={mobileMenuState} />
+          <div className={styles["nav-wrapper"]}>
+            <Navigation {...navigationProps} />
+          </div>
         </header>
+
+        <MobileNavigation active={mobileMenuState} />
 
         <ToastContainer
           icon={false}

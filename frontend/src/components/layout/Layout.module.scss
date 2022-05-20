@@ -137,6 +137,7 @@ $toastify-toast-close-button: var(--toast-close-button);
 
 .header {
   position: sticky;
+  left: 0;
   top: 0;
   // The sticky position causes a new stacking context,
   // which is stacked below elements lower in the document
@@ -145,8 +146,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   // overlap the AppPicker drawer).
   // Thus, upping the z-index stack the header, and menus
   // expanding from it, on top again:
-  //  z-index of 3 to overlap mobile menu
-  z-index: 3;
+  z-index: 2;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:
