@@ -596,6 +596,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"Email relayed"
 
+    @override_settings(STATSD_ENABLED=True)
     @patch("emails.views.ses_relay_email")
     @patch("emails.views._get_text_html_attachments")
     @patch("emails.views.remove_message_from_s3")
@@ -605,14 +606,19 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_get_text_html,
         mocked_relay_email,
     ):
-        """A message with a failing DMARC and a "reject" policy is relayed."""
+        """A message with a failing DMARC and a "reject" policy is rejected."""
         mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
-        mocked_relay_email.return_value = HttpResponse("Email relayed", status=200)
+        mocked_relay_email.side_effect = Exception("Not called")
 
-        response = _sns_notification(EMAIL_SNS_BODIES["dmarc_failed"])
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["dmarc_failed"])
         mocked_message_removed.called_once_with(self.bucket, self.key)
-        assert response.status_code == 200
-        assert response.content == b"Email relayed"
+        assert response.status_code == 400
+        assert response.content == b"DMARC failure, policy is reject"
+        mm.assert_incr_once(
+            "fx.private.relay.email_suppressed_for_dmarc_failure",
+            tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
+        )
 
 
 class SnsMessageTest(TestCase):

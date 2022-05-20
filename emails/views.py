@@ -389,6 +389,17 @@ def _sns_message(message_json):
         incr_if_enabled("email_auto_suppressed_for_spam", 1)
         return HttpResponse("Address rejects spam.")
 
+    if _get_verdict(receipt, "dmarc") == "FAIL":
+        policy = receipt.get("dmarcPolicy", "none")
+        # TODO: determine action on dmarcPolicy "quarantine"
+        if policy == "reject":
+            incr_if_enabled(
+                "email_suppressed_for_dmarc_failure",
+                1,
+                tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
+            )
+            return HttpResponse("DMARC failure, policy is reject", status=400)
+
     # if this user is over bounce limits, early return
     bounce_paused, bounce_type = user_profile.check_bounce_pause()
     if bounce_paused:
