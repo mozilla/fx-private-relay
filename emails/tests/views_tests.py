@@ -952,12 +952,16 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
             for verdict in verdicts
         }
         state_tags = [f"{verdict}Verdict:{status[verdict]}" for verdict in verdicts]
+        if "dmarcPolicy" in receipt_overrides:
+            state_tags.append(f"dmarcPolicy:{receipt_overrides['dmarcPolicy']}")
+            state_tags.sort()
         state_metric = MetricsRecord(
             stat_type="incr",
             key=f"fx.private.relay.relay.emails.state.{state}",
             value=1,
             tags=state_tags,
         )
+
         return verdict_metrics + [state_metric]
 
     def test_s3_stored_email(self):
@@ -973,5 +977,9 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
         receipt = body["receipt"]
         with MetricsMock() as mm:
             _record_receipt_verdicts(receipt, "a_state")
-        overrides = {"spfVerdict": "FAIL", "dmarcVerdict": "FAIL"}
+        overrides = {
+            "spfVerdict": "FAIL",
+            "dmarcVerdict": "FAIL",
+            "dmarcPolicy": "reject",
+        }
         assert mm.get_records() == self.expected_records("a_state", overrides)

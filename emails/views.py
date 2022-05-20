@@ -541,6 +541,9 @@ def _record_receipt_verdicts(receipt, state):
             value = receipt[key]["status"]
             verdict_tags.append(f"{key}:{value}")
             incr_if_enabled(f"relay.emails.verdicts.{key}", 1, [f"state:{state}"])
+        elif key == "dmarcPolicy":
+            value = receipt[key]
+            verdict_tags.append(f"{key}:{value}")
     incr_if_enabled(f"relay.emails.state.{state}", 1, verdict_tags)
 
 
