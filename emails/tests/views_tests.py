@@ -74,6 +74,11 @@ for email_file in glob.glob(
         INVALID_SNS_BODIES[file_type] = sns_body
 
 
+# Set mocked_function.side_effect = FAIL_TEST_IF_CALLED to safely disable a function
+# for test and assert it was never called.
+FAIL_TEST_IF_CALLED = Exception("This function should not have been called.")
+
+
 class SNSNotificationTest(TestCase):
     def setUp(self):
         # FIXME: this should make an object so that the test passes
@@ -608,7 +613,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
     ):
         """A message with a failing DMARC and a "reject" policy is rejected."""
         mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
-        mocked_relay_email.side_effect = Exception("Not called")
+        mocked_relay_email.side_effect = FAIL_TEST_IF_CALLED
 
         with MetricsMock() as mm:
             response = _sns_notification(EMAIL_SNS_BODIES["dmarc_failed"])
@@ -888,7 +893,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.status_code == 200
 
     def test_no_topic_arn_header(self):
-        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
         ret = self.client.post(
             self.url,
             data=self.valid_message,
@@ -899,7 +904,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.content == b"Received SNS request without Topic ARN."
 
     def test_wrong_topic_arn_header(self):
-        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
         ret = self.client.post(
             self.url,
             data=self.valid_message,
@@ -910,7 +915,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.content == b"Received SNS message for wrong topic."
 
     def test_no_message_type_header(self):
-        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
         ret = self.client.post(
             self.url,
             data=self.valid_message,
@@ -921,7 +926,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.content == b"Received SNS request without Message Type."
 
     def test_unsupported_message_type_header(self):
-        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
         ret = self.client.post(
             self.url,
             data=self.valid_message,
