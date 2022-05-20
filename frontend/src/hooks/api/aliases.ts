@@ -20,7 +20,7 @@ export type CommonAliasData = {
   num_forwarded: number;
   num_blocked: number;
   num_spam: number;
-  used_on: string | "";
+  used_on: string | "" | null;
 };
 
 export type RandomAliasData = CommonAliasData & {
