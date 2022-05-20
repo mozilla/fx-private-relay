@@ -596,6 +596,24 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"Email relayed"
 
+    @patch("emails.views.ses_relay_email")
+    @patch("emails.views._get_text_html_attachments")
+    @patch("emails.views.remove_message_from_s3")
+    def test_dmarc_failure_s3_deleted(
+        self,
+        mocked_message_removed,
+        mocked_get_text_html,
+        mocked_relay_email,
+    ):
+        """A message with a failing DMARC and a "reject" policy is relayed."""
+        mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
+        mocked_relay_email.return_value = HttpResponse("Email relayed", status=200)
+
+        response = _sns_notification(EMAIL_SNS_BODIES["dmarc_failed"])
+        mocked_message_removed.called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"Email relayed"
+
 
 class SnsMessageTest(TestCase):
     def setUp(self) -> None:
@@ -912,7 +930,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
 class RecordReceiptVerdictsTests(SimpleTestCase):
     """Test the metrics emitter _record_receipt_verdicts."""
 
-    def expected_records(self, state):
+    def expected_records(self, state, receipt_overrides=None):
         """Return the expected metrics emitted by calling _record_receipt_verdicts."""
         verdicts = ["spam", "virus", "spf", "dkim", "dmarc"]
 
@@ -928,7 +946,12 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
         ]
 
         # One counter for this email processing state, with tags
-        state_tags = [f"{verdict}Verdict:PASS" for verdict in verdicts]
+        receipt_overrides = receipt_overrides or {}
+        status = {
+            verdict: receipt_overrides.get(f"{verdict}Verdict", "PASS")
+            for verdict in verdicts
+        }
+        state_tags = [f"{verdict}Verdict:{status[verdict]}" for verdict in verdicts]
         state_metric = MetricsRecord(
             stat_type="incr",
             key=f"fx.private.relay.relay.emails.state.{state}",
@@ -944,3 +967,11 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
         with MetricsMock() as mm:
             _record_receipt_verdicts(receipt, "a_state")
         assert mm.get_records() == self.expected_records("a_state")
+
+    def test_dmarc_failed_email(self):
+        body = json.loads(EMAIL_SNS_BODIES["dmarc_failed"]["Message"])
+        receipt = body["receipt"]
+        with MetricsMock() as mm:
+            _record_receipt_verdicts(receipt, "a_state")
+        overrides = {"spfVerdict": "FAIL", "dmarcVerdict": "FAIL"}
+        assert mm.get_records() == self.expected_records("a_state", overrides)
