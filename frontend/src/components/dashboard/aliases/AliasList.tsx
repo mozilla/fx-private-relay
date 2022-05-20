@@ -68,7 +68,8 @@ export const AliasList = (props: Props) => {
     const onUpdate = (updatedFields: Partial<AliasData>) => {
       if (
         localLabels !== null &&
-        typeof updatedFields.description === "string"
+        typeof updatedFields.description === "string" &&
+        props.profile.server_storage === false
       ) {
         storeLocalLabel(alias, updatedFields.description);
         delete updatedFields.description;
