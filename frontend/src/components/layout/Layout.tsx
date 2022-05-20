@@ -71,7 +71,6 @@ export const Layout = (props: Props) => {
       typeof mobileMenuState !== "boolean" ? true : !mobileMenuState
     );
   };
-  console.log(typeof mobileMenuState);
   const csatSurvey =
     getRuntimeConfig().featureFlags.csatSurvey &&
     !getRuntimeConfig().featureFlags.interviewRecruitment &&
