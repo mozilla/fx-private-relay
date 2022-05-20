@@ -13,6 +13,7 @@ from django.test import override_settings, Client, SimpleTestCase, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
+from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
 import pytest
@@ -28,6 +29,7 @@ from emails.models import (
 from emails.views import (
     _get_address,
     _get_attachment,
+    _record_receipt_verdicts,
     _sns_message,
     _sns_notification,
     validate_sns_header,
@@ -904,3 +906,41 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS message for unsupported Type."
+
+
+@override_settings(STATSD_ENABLED=True)
+class RecordReceiptVerdictsTests(SimpleTestCase):
+    """Test the metrics emitter _record_receipt_verdicts."""
+
+    def expected_records(self, state):
+        """Return the expected metrics emitted by calling _record_receipt_verdicts."""
+        verdicts = ["spam", "virus", "spf", "dkim", "dmarc"]
+
+        # Five counters for each verdict type
+        verdict_metrics = [
+            MetricsRecord(
+                stat_type="incr",
+                key=f"fx.private.relay.relay.emails.verdicts.{verdict}Verdict",
+                value=1,
+                tags=[f"state:{state}"],
+            )
+            for verdict in verdicts
+        ]
+
+        # One counter for this email processing state, with tags
+        state_tags = [f"{verdict}Verdict:PASS" for verdict in verdicts]
+        state_metric = MetricsRecord(
+            stat_type="incr",
+            key=f"fx.private.relay.relay.emails.state.{state}",
+            value=1,
+            tags=state_tags,
+        )
+        return verdict_metrics + [state_metric]
+
+    def test_s3_stored_email(self):
+        """The s3_stored fixture passes all checks."""
+        body = json.loads(EMAIL_SNS_BODIES["s3_stored"]["Message"])
+        receipt = body["receipt"]
+        with MetricsMock() as mm:
+            _record_receipt_verdicts(receipt, "a_state")
+        assert mm.get_records() == self.expected_records("a_state")
