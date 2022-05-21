@@ -303,6 +303,9 @@ jobs:
             - run:
                 name: Create job-results directory
                 command: mkdir job-results
+      - run:
+          name: Set test defaults
+          command: cp .env-dist .env
       - unless:
           condition: << parameters.allow_fail >>
           steps:
