@@ -1,5 +1,6 @@
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
+mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
 python_version = "3.9"
 show_error_codes = true
 warn_return_any = true
@@ -22,7 +23,6 @@ module = [
     "botocore.exceptions",
     "codetiming",
     "debug_toolbar",
-    "decouple",
     "dj_database_url",
     "django_filters",
     "django_ftl.bundles",
