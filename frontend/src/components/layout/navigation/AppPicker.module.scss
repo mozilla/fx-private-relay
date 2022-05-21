@@ -79,15 +79,15 @@
   ul {
     display: flex;
     flex-wrap: wrap;
-    grid-gap: $spacing-md;
     gap: $spacing-md;
     padding: $spacing-lg;
+    list-style-type: none;
   }
 
   .menu-item-wrapper {
     width: 72px;
 
-    &:last-child {
+    &[data-key="mozilla"] {
       width: 100%;
       margin-top: $spacing-lg;
     }
@@ -110,19 +110,21 @@
         width: fit-content;
         box-sizing: content-box;
         border-radius: $border-radius-md;
-
-        &:hover {
-          background-color: $color-light-gray-20;
-        }
       }
 
       &:hover {
         color: $color-violet-90;
+
+        img {
+          background-color: $color-light-gray-20;
+        }
       }
 
       &.mozilla-link {
         color: $color-blue-50;
         justify-content: center;
+        width: 100%;
+        margin-top: $spacing-lg;
       }
     }
 

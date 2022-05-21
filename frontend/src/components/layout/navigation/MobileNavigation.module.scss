@@ -5,7 +5,8 @@
   width: 100%;
   position: absolute;
   left: 0;
-  // z-index of 1 (so it overlaps the hero image)
+  // z-index of 1 (so it overlaps content)
+  // allows menu to slide under main navigation header
   z-index: 1;
   transform: translateY(-100%);
   background: $color-white;
@@ -24,14 +25,23 @@
     animation-fill-mode: forwards;
   }
 
+  @media (prefers-reduced-motion) {
+    &.not-active {
+      animation: none;
+    }
+    &.is-active {
+      animation: none;
+    }
+  }
+
   @keyframes slide-in {
     100% {
-      transform: translateY($navHeight);
+      transform: translateY(75px);
     }
   }
   @keyframes slide-out {
     0% {
-      transform: translateY($navHeight);
+      transform: translateY(75px);
     }
     100% {
       transform: translateY(-100%);
@@ -51,7 +61,7 @@
   @include text-display-xxs;
   padding: $spacing-lg $spacing-md;
   font-family: $font-stack-firefox;
-  border-bottom: 2px solid #ececec;
+  border-bottom: 2px solid $color-light-gray-20;
 
   .link {
     display: flex;
@@ -61,8 +71,8 @@
     color: $color-grey-40;
     cursor: pointer;
 
-    path {
-      fill: $color-purple-40;
+    svg {
+      color: $color-purple-40;
     }
   }
 
@@ -111,8 +121,8 @@
     @include text-body-sm;
     gap: $spacing-sm;
 
-    path {
-      fill: $color-purple-40;
+    svg {
+      color: $color-purple-40;
     }
   }
 }

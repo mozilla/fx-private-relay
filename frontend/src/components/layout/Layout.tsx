@@ -39,9 +39,9 @@ export const Layout = (props: Props) => {
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
-  const hasPremium: boolean = profiles.data?.[0].has_premium || false;
+  const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const usersData = useUsers().data?.[0];
-  const [mobileMenuState, setMobileMenuState] = useState<boolean>();
+  const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>();
 
   useEffect(() => {
     makeToast(l10n, usersData);
@@ -66,11 +66,15 @@ export const Layout = (props: Props) => {
       : l10n.getString("logo-premium-alt");
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
+
+  // state is undefined by default to avoid flashes of mobile menu
+  // we set explicit value once user interacts with toggle
   const handleToggle = () => {
-    setMobileMenuState(
-      typeof mobileMenuState !== "boolean" ? true : !mobileMenuState
+    setMobileMenuExpanded(
+      typeof mobileMenuExpanded !== "boolean" ? true : !mobileMenuExpanded
     );
   };
+
   const csatSurvey =
     getRuntimeConfig().featureFlags.csatSurvey &&
     !getRuntimeConfig().featureFlags.interviewRecruitment &&
@@ -90,14 +94,6 @@ export const Layout = (props: Props) => {
         lost after a page refresh.
       </div>
     ) : null;
-
-  // navigation component gets passed down function to
-  // handle toggling state along with the current state of the toggle
-  const navigationProps = {
-    mobileMenuState,
-    handleToggle,
-    theme: isDark ? "free" : "premium",
-  };
 
   const closeToastButton = (closeToast: () => void): ReactElement => {
     return (
@@ -167,11 +163,15 @@ export const Layout = (props: Props) => {
             </Link>
           </div>
           <div className={styles["nav-wrapper"]}>
-            <Navigation {...navigationProps} />
+            <Navigation
+              mobileMenuState={mobileMenuExpanded}
+              theme={isDark ? "free" : "premium"}
+              handleToggle={handleToggle}
+            />
           </div>
         </header>
 
-        <MobileNavigation active={mobileMenuState} />
+        <MobileNavigation active={mobileMenuExpanded} />
 
         <ToastContainer
           icon={false}

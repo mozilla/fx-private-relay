@@ -162,7 +162,7 @@ export const UserMenu = () => {
       <Item key={itemKeys.help} textValue={l10n.getString("nav-profile-help")}>
         <a
           ref={helpLinkRef}
-          href={`https://support.mozilla.org/products/relay/?utm_source=${
+          href={`${getRuntimeConfig().supportUrl}?utm_source=${
             getRuntimeConfig().frontendOrigin
           }`}
           title={l10n.getString("nav-profile-help-tooltip")}

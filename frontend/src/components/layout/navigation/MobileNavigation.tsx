@@ -22,12 +22,16 @@ import { useRef } from "react";
 
 export type MenuItem = {
   url: string;
-  condition?: boolean;
+  isVisible?: boolean;
   icon: CallableFunction;
   l10n: string;
 };
 
-export const MobileNavigation = ({ ...props }) => {
+export type Props = {
+  active: boolean;
+};
+
+export const MobileNavigation = (props: Props) => {
   const { l10n } = useLocalization();
   const usersData = useUsers();
   const runtimeData = useRuntimeData();
@@ -38,9 +42,9 @@ export const MobileNavigation = ({ ...props }) => {
   const logoutFormRef = useRef<HTMLFormElement>(null);
 
   const renderMenuItem = (item: MenuItem) => {
-    const { condition = true } = item;
+    const { isVisible = true } = item;
 
-    return condition ? (
+    return isVisible ? (
       <li className={`${styles["menu-item"]}`}>
         <Link href={item.url}>
           <a className={`${styles.link}`}>
@@ -104,14 +108,14 @@ export const MobileNavigation = ({ ...props }) => {
 
         {renderMenuItem({
           url: "/",
-          condition: !isLoggedIn,
+          isVisible: !isLoggedIn,
           icon: HomeIcon,
           l10n: "nav-home",
         })}
 
         {renderMenuItem({
           url: "/accounts/profile",
-          condition: isLoggedIn,
+          isVisible: isLoggedIn,
           icon: DashboardIcon,
           l10n: "nav-dashboard",
         })}
@@ -131,7 +135,7 @@ export const MobileNavigation = ({ ...props }) => {
 
         {renderMenuItem({
           url: "/accounts/settings",
-          condition: isLoggedIn,
+          isVisible: isLoggedIn,
           icon: Cogwheel,
           l10n: "nav-settings",
         })}
@@ -140,14 +144,14 @@ export const MobileNavigation = ({ ...props }) => {
           url: `${runtimeData?.data?.FXA_ORIGIN}/support/?utm_source=${
             getRuntimeConfig().frontendOrigin
           }`,
-          condition: isLoggedIn && hasPremium,
+          isVisible: isLoggedIn && hasPremium,
           icon: ContactIcon,
           l10n: "nav-contact",
         })}
 
         {renderMenuItem({
           url: `${supportUrl}?utm_source=${getRuntimeConfig().frontendOrigin}`,
-          condition: isLoggedIn,
+          isVisible: isLoggedIn,
           icon: SupportIcon,
           l10n: "nav-support",
         })}

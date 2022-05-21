@@ -12,14 +12,19 @@ import { UserMenu } from "./UserMenu";
 import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
 
+export type Props = {
+  theme: "free" | "premium";
+  mobileMenuState: boolean | undefined;
+  handleToggle: CallableFunction;
+};
 /** Switch between the different pages of the Relay website. */
-export const Navigation = ({ ...props }) => {
+export const Navigation = (props: Props) => {
   const { l10n } = useLocalization();
   const router = useRouter();
   const isLoggedIn = useIsLoggedIn();
   const profiles = useProfiles();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
-  const hasPremium: boolean = profiles.data?.[0].has_premium || false;
+  const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const { theme, mobileMenuState, handleToggle } = props;
 
   const ToggleButton = () => (
