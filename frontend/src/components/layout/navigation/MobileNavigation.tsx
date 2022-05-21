@@ -28,7 +28,7 @@ export type MenuItem = {
 };
 
 export type Props = {
-  active: boolean;
+  mobileMenuExpanded: boolean | undefined;
 };
 
 export const MobileNavigation = (props: Props) => {
@@ -67,9 +67,9 @@ export const MobileNavigation = (props: Props) => {
   // We make sure toggle state is not undefined
   // or we get a flash of the mobile menu on page load.
   const toggleMenuStateClass =
-    typeof props.active !== "boolean"
+    typeof props.mobileMenuExpanded !== "boolean"
       ? ""
-      : props.active
+      : props.mobileMenuExpanded
       ? styles["is-active"]
       : styles["not-active"];
 

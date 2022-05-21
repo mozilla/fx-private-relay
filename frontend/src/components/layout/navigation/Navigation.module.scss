@@ -28,7 +28,6 @@
   display: inline;
   text-align: center;
   font-family: $font-stack-firefox;
-  border: 2px solid transparent;
   min-width: $spacing-2xl + $spacing-lg;
   color: inherit;
 
@@ -43,7 +42,7 @@
     content: "";
     background: $firefoxGradient;
     position: relative;
-    bottom: -1 * ($spacing-lg - 1);
+    bottom: -1 * ($spacing-lg);
   }
 }
 

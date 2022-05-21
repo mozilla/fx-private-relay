@@ -67,12 +67,8 @@ export const Layout = (props: Props) => {
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
-  // state is undefined by default to avoid flashes of mobile menu
-  // we set explicit value once user interacts with toggle
   const handleToggle = () => {
-    setMobileMenuExpanded(
-      typeof mobileMenuExpanded !== "boolean" ? true : !mobileMenuExpanded
-    );
+    setMobileMenuExpanded(!mobileMenuExpanded);
   };
 
   const csatSurvey =
@@ -164,14 +160,14 @@ export const Layout = (props: Props) => {
           </div>
           <div className={styles["nav-wrapper"]}>
             <Navigation
-              mobileMenuState={mobileMenuExpanded}
+              mobileMenuExpanded={mobileMenuExpanded}
               theme={isDark ? "free" : "premium"}
               handleToggle={handleToggle}
             />
           </div>
         </header>
 
-        <MobileNavigation active={mobileMenuExpanded} />
+        <MobileNavigation mobileMenuExpanded={mobileMenuExpanded} />
 
         <ToastContainer
           icon={false}

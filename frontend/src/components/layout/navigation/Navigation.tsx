@@ -14,7 +14,7 @@ import { MenuToggle } from "./MenuToggle";
 
 export type Props = {
   theme: "free" | "premium";
-  mobileMenuState: boolean | undefined;
+  mobileMenuExpanded: boolean | undefined;
   handleToggle: CallableFunction;
 };
 /** Switch between the different pages of the Relay website. */
@@ -25,7 +25,7 @@ export const Navigation = (props: Props) => {
   const profiles = useProfiles();
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
-  const { theme, mobileMenuState, handleToggle } = props;
+  const { theme, mobileMenuExpanded, handleToggle } = props;
 
   const ToggleButton = () => (
     <a
@@ -33,11 +33,11 @@ export const Navigation = (props: Props) => {
       className={styles["menu-toggle"]}
       role="menuitem"
       aria-controls="mobile-menu-toggle"
-      aria-expanded={mobileMenuState}
+      aria-expanded={mobileMenuExpanded}
       onClick={() => handleToggle()}
     >
       {/* passing toggle state to show correct icon */}
-      <MenuToggle toggleState={mobileMenuState} />
+      <MenuToggle toggleState={mobileMenuExpanded} />
     </a>
   );
 

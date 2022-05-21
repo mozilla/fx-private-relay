@@ -14,13 +14,13 @@
   box-shadow: $box-shadow-lg;
 
   &.not-active {
-    animation: slide-out 0.5s cubic-bezier(0.52, -0.14, 0.31, 1.2);
+    animation: slide-out 300ms cubic-bezier(0.52, -0.14, 0.31, 1.2);
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
   }
 
   &.is-active {
-    animation: slide-in 0.75s cubic-bezier(0.52, -0.14, 0.31, 1.2);
+    animation: slide-in 450ms cubic-bezier(0.52, -0.14, 0.31, 1.2);
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
   }
