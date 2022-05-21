@@ -10,8 +10,7 @@ menu-toggle-close = Close menu
 nav-dashboard = Dashboard
 nav-settings = Settings
 nav-support = Help and Support 
-nav-sign-out = Sign Out 
-nav-avatar = User avatar
+nav-sign-out = Sign Out
 nav-contact = Contact Us
    
 landing-use-cases-shopping = Shopping

@@ -80,7 +80,7 @@ export const MobileNavigation = ({ ...props }) => {
           <li className={`${styles["menu-item"]} ${styles["user-info"]}`}>
             <img
               src={profiles?.data?.[0].avatar}
-              alt={l10n.getString("nav-avatar")}
+              alt=""
               className={styles["user-avatar"]}
               width={42}
               height={42}

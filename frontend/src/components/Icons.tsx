@@ -46,7 +46,7 @@ export const CloseIcon = ({
       width={20}
       height={20}
       style={{
-        fill: "inherit",
+        fill: "currentcolor",
         ...props.style,
       }}
       {...props}
@@ -99,7 +99,7 @@ export const MenuIcon = ({
       aria-label={alt}
       xmlns="http://www.w3.org/2000/svg"
       style={{
-        fill: "inherit",
+        fill: "currentcolor",
         ...props.style,
       }}
       {...props}
