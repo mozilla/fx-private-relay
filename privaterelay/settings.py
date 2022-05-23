@@ -519,6 +519,23 @@ MEDIA_URL = None
 
 WHITENOISE_INDEX_FILE = True
 
+
+# See
+# https://whitenoise.evans.io/en/stable/django.html#WHITENOISE_ADD_HEADERS_FUNCTION
+# Intended to ensure that the homepage does not get cached in our CDN,
+# so that the `RedirectRootIfLoggedIn` middleware can kick in for logged-in
+# users.
+def set_index_cache_control_headers(headers, path, url):
+    if DEBUG:
+        home_path = os.path.join(BASE_DIR, "frontend/out", "index.html")
+    else:
+        home_path = os.path.join(STATIC_ROOT, "index.html")
+    if path == home_path:
+        headers["Cache-Control"] = "no-cache, public"
+
+
+WHITENOISE_ADD_HEADERS_FUNCTION = set_index_cache_control_headers
+
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.
 # so, squelch django-gulp in prod so it doesn't run gulp during collectstatic:
