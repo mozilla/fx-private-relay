@@ -81,9 +81,33 @@ class RelayAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return RelayAddress.objects.filter(user=self.request.user)
 
 
+class DomainAddressFilter(filters.FilterSet):
+    used_on = filters.CharFilter(field_name="used_on", lookup_expr="icontains")
+
+    class Meta:
+        model = DomainAddress
+        fields = [
+            "enabled",
+            "description",
+            "block_list_emails",
+            "used_on",
+            # read-only
+            "id",
+            "address",
+            "domain",
+            "created_at",
+            "last_modified_at",
+            "last_used_at",
+            "num_forwarded",
+            "num_blocked",
+            "num_spam",
+        ]
+
+
 class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = DomainAddressSerializer
     permission_classes = [permissions.IsAuthenticated, IsOwner]
+    filterset_class = DomainAddressFilter
 
     def get_queryset(self):
         return DomainAddress.objects.filter(user=self.request.user)

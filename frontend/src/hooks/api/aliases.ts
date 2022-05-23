@@ -20,13 +20,13 @@ export type CommonAliasData = {
   num_forwarded: number;
   num_blocked: number;
   num_spam: number;
+  used_on: string | "" | null;
 };
 
 export type RandomAliasData = CommonAliasData & {
   type: "random";
   generated_for: string | "";
   domain: Domain_RelayFirefoxCom;
-  used_on: string | "";
 };
 export type CustomAliasData = CommonAliasData & {
   type: "custom";
