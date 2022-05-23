@@ -1,4 +1,4 @@
-boto3==1.13.9
+boto3==1.23.6
 codetiming==1.3.0
 cryptography==36.0.2
 Django==3.2.13
@@ -22,7 +22,7 @@ jwcrypto==1.0
 markus[datadog]==4.0.0
 pem==21.2.0
 psycopg2==2.9.3
-PyJWT==1.7.1
+PyJWT==2.4.0
 python-decouple==3.6
 pyOpenSSL==22.0.0
 requests==2.25.1
