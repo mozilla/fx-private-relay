@@ -153,7 +153,7 @@ describe("<AliasGenerationButton>", () => {
       );
     });
 
-    it("displays a drop-down menu to generate either a random or a custom alias for a Premium user over the free-user alias limit, with a subdomain set", () => {
+    it("displays a drop-down menu to generate either a random or a custom alias for a Premium user over the free-user alias limit, with a subdomain set", async () => {
       const mockedConfig = mockConfigModule.getRuntimeConfig();
       // getRuntimeConfig() is called frequently, so mock its return value,
       // then restore the original mock at the end of this test:
@@ -184,7 +184,7 @@ describe("<AliasGenerationButton>", () => {
       );
 
       const dropDownButton = screen.getByRole("button");
-      userEvent.click(dropDownButton);
+      await userEvent.click(dropDownButton);
       const menu = screen.getByRole("menu");
       const menuItems = screen.getAllByRole("menuitem");
 

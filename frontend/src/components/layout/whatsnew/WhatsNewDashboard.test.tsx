@@ -55,7 +55,7 @@ describe("The 'What's new' dashboard", () => {
     expect(menuItems).toHaveLength(2);
   });
 
-  it("allows viewing all entries", () => {
+  it("allows viewing all entries", async () => {
     const allEntries: WhatsNewEntry[] = [
       getMockEntry(1),
       getMockEntry(2),
@@ -79,12 +79,12 @@ describe("The 'What's new' dashboard", () => {
       "l10n string: [whatsnew-tab-archive-label], with vars: {}"
     );
 
-    userEvent.click(tabs[1]);
+    await userEvent.click(tabs[1]);
 
     expect(screen.getAllByRole("menuitem")).toHaveLength(3);
   });
 
-  it("dismisses an entry when it is viewed", () => {
+  it("dismisses an entry when it is viewed", async () => {
     const allEntries: WhatsNewEntry[] = [
       getMockEntry(1),
       getMockEntry(2),
@@ -101,12 +101,12 @@ describe("The 'What's new' dashboard", () => {
     );
 
     const menuItems = screen.getAllByRole("menuitem");
-    userEvent.click(menuItems[1]);
+    await userEvent.click(menuItems[1]);
 
     expect(allEntries[1].dismissal.dismiss).toHaveBeenCalledTimes(1);
   });
 
-  it("dismisses all new entries when clicking 'Clear all'", () => {
+  it("dismisses all new entries when clicking 'Clear all'", async () => {
     const allEntries: WhatsNewEntry[] = [
       getMockEntry(1),
       getMockEntry(2),
@@ -125,13 +125,13 @@ describe("The 'What's new' dashboard", () => {
     const clearAllButton = screen.getByRole("button", {
       name: "l10n string: [whatsnew-footer-clear-all-label], with vars: {}",
     });
-    userEvent.click(clearAllButton);
+    await userEvent.click(clearAllButton);
 
     expect(allEntries[0].dismissal.dismiss).toHaveBeenCalledTimes(1);
     expect(allEntries[1].dismissal.dismiss).toHaveBeenCalledTimes(1);
   });
 
-  it("shows an entry's content when clicking it", () => {
+  it("shows an entry's content when clicking it", async () => {
     const allEntries: WhatsNewEntry[] = [
       getMockEntry(1),
       getMockEntry(2),
@@ -150,12 +150,12 @@ describe("The 'What's new' dashboard", () => {
     expect(screen.queryByText(allEntries[1].content)).not.toBeInTheDocument();
 
     const menuItems = screen.getAllByRole("menuitem");
-    userEvent.click(menuItems[1]);
+    await userEvent.click(menuItems[1]);
 
     expect(screen.getByText(allEntries[1].content)).toBeInTheDocument();
   });
 
-  it("can go back to overview of all new features after clicking one of them", () => {
+  it("can go back to overview of all new features after clicking one of them", async () => {
     const allEntries: WhatsNewEntry[] = [
       getMockEntry(1),
       getMockEntry(2),
@@ -174,14 +174,14 @@ describe("The 'What's new' dashboard", () => {
     expect(screen.queryByText(allEntries[1].content)).not.toBeInTheDocument();
 
     const menuItems = screen.getAllByRole("menuitem");
-    userEvent.click(menuItems[1]);
+    await userEvent.click(menuItems[1]);
 
     expect(screen.queryByRole("menuitem")).not.toBeInTheDocument();
 
     const goBackButton = screen.getByRole("button", {
       name: "l10n string: [whatsnew-footer-back-label], with vars: {}",
     });
-    userEvent.click(goBackButton);
+    await userEvent.click(goBackButton);
 
     expect(screen.getAllByRole("menuitem")).toHaveLength(2);
   });

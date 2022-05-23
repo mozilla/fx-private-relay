@@ -30,8 +30,8 @@ describe("<AliasList>", () => {
     );
 
     const labelField = screen.getByRole("textbox");
-    userEvent.type(labelField, "Some label");
-    userEvent.tab();
+    await userEvent.type(labelField, "Some label");
+    await userEvent.tab();
 
     expect(updateCallback).toHaveBeenCalledWith(expect.anything(), {
       description: "Some label",
@@ -57,8 +57,8 @@ describe("<AliasList>", () => {
     );
 
     const labelField = screen.getByRole("textbox");
-    userEvent.type(labelField, "Some label");
-    userEvent.tab();
+    await userEvent.type(labelField, "Some label");
+    await userEvent.tab();
 
     // The second argument is the list of updated fields;
     // this should be empty, because we don't want to store the label server-side.
