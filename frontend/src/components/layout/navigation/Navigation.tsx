@@ -5,7 +5,7 @@ import styles from "./Navigation.module.scss";
 import { useIsLoggedIn } from "../../../hooks/session";
 import { SignUpButton } from "./SignUpButton";
 import { SignInButton } from "./SignInButton";
-import { useProfiles } from "../../../hooks/api/profile";
+import { ProfileData } from "../../../hooks/api/profile";
 import { UpgradeButton } from "./UpgradeButton";
 import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
 import { UserMenu } from "./UserMenu";
@@ -14,18 +14,25 @@ import { MenuToggle } from "./MenuToggle";
 
 export type Props = {
   theme: "free" | "premium";
+  hasPremium: boolean;
   mobileMenuExpanded: boolean | undefined;
   handleToggle: CallableFunction;
+  profile: ProfileData | undefined;
+  isLoggedIn: boolean;
 };
 /** Switch between the different pages of the Relay website. */
 export const Navigation = (props: Props) => {
   const { l10n } = useLocalization();
   const router = useRouter();
-  const isLoggedIn = useIsLoggedIn();
-  const profiles = useProfiles();
+  const {
+    theme,
+    mobileMenuExpanded,
+    handleToggle,
+    profile,
+    hasPremium,
+    isLoggedIn,
+  } = props;
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
-  const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
-  const { theme, mobileMenuExpanded, handleToggle } = props;
 
   const ToggleButton = () => (
     <a
@@ -76,9 +83,7 @@ export const Navigation = (props: Props) => {
       )}
 
       {/* if user is logged in and we have their profile data, show whatsnew menu */}
-      {isLoggedIn && profiles.data && (
-        <WhatsNewMenu profile={profiles.data[0]} />
-      )}
+      {isLoggedIn && profile && <WhatsNewMenu profile={profile} />}
 
       {/* if user is logged in and doesn't have premium, show upgrade button */}
       {isLoggedIn && !hasPremium && <UpgradeButton />}

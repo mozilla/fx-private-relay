@@ -163,14 +163,17 @@ export const Layout = (props: Props) => {
               mobileMenuExpanded={mobileMenuExpanded}
               theme={isDark ? "free" : "premium"}
               handleToggle={handleToggle}
+              hasPremium={hasPremium}
+              isLoggedIn={isLoggedIn}
+              profile={profiles.data?.[0]}
             />
           </div>
         </header>
 
         <MobileNavigation
           mobileMenuExpanded={mobileMenuExpanded}
-          hasPremium
-          isLoggedIn
+          hasPremium={hasPremium}
+          isLoggedIn={isLoggedIn}
           userEmail={usersData?.email}
           userAvatar={profiles.data?.[0].avatar}
         />
