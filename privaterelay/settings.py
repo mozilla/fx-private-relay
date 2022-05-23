@@ -526,7 +526,11 @@ WHITENOISE_INDEX_FILE = True
 # so that the `RedirectRootIfLoggedIn` middleware can kick in for logged-in
 # users.
 def set_index_cache_control_headers(headers, path, url):
-    if path == os.path.abspath("./frontend/out/index.html"):
+    if DEBUG:
+        home_path = os.path.join(BASE_DIR, "frontend/out", "index.html")
+    else:
+        home_path = os.path.join(STATIC_ROOT, "index.html")
+    if path == home_path:
         headers["Cache-Control"] = "no-cache, public"
 
 
