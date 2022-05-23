@@ -3,7 +3,7 @@ import { useLocalization } from "@fluent/react";
 import styles from "./MobileNavigation.module.scss";
 import { useIsLoggedIn } from "../../../hooks/session";
 import { SignUpButton } from "./SignUpButton";
-import { useProfiles } from "../../../hooks/api/profile";
+import { ProfilesData, useProfiles } from "../../../hooks/api/profile";
 import {
   Cogwheel,
   ContactIcon,
@@ -14,7 +14,7 @@ import {
   SignOutIcon,
   SupportIcon,
 } from "../../Icons";
-import { useUsers } from "../../../hooks/api/user";
+import { UserData, useUsers } from "../../../hooks/api/user";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
@@ -29,15 +29,17 @@ export type MenuItem = {
 
 export type Props = {
   mobileMenuExpanded: boolean | undefined;
+  hasPremium: boolean;
+  isLoggedIn: boolean;
+  userEmail: string | undefined;
+  userAvatar: string | undefined;
 };
 
 export const MobileNavigation = (props: Props) => {
+  const { mobileMenuExpanded, hasPremium, isLoggedIn, userEmail, userAvatar } =
+    props;
   const { l10n } = useLocalization();
-  const usersData = useUsers();
   const runtimeData = useRuntimeData();
-  const isLoggedIn = useIsLoggedIn();
-  const profiles = useProfiles();
-  const hasPremium: boolean = profiles.data?.[0].has_premium || false;
   const { supportUrl } = getRuntimeConfig();
   const logoutFormRef = useRef<HTMLFormElement>(null);
 
@@ -67,9 +69,9 @@ export const MobileNavigation = (props: Props) => {
   // We make sure toggle state is not undefined
   // or we get a flash of the mobile menu on page load.
   const toggleMenuStateClass =
-    typeof props.mobileMenuExpanded !== "boolean"
+    typeof mobileMenuExpanded !== "boolean"
       ? ""
-      : props.mobileMenuExpanded
+      : mobileMenuExpanded
       ? styles["is-active"]
       : styles["not-active"];
 
@@ -83,16 +85,14 @@ export const MobileNavigation = (props: Props) => {
         {isLoggedIn && (
           <li className={`${styles["menu-item"]} ${styles["user-info"]}`}>
             <img
-              src={profiles?.data?.[0].avatar}
+              src={userAvatar ?? ""}
               alt=""
               className={styles["user-avatar"]}
               width={42}
               height={42}
             />
             <span>
-              <b className={styles["user-email"]}>
-                {usersData.data ? usersData.data[0].email : ""}
-              </b>
+              <b className={styles["user-email"]}>{userEmail ?? ""}</b>
               <a
                 href={`${runtimeData?.data?.FXA_ORIGIN}/settings/`}
                 target="_blank"

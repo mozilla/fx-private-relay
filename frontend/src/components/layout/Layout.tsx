@@ -167,7 +167,13 @@ export const Layout = (props: Props) => {
           </div>
         </header>
 
-        <MobileNavigation mobileMenuExpanded={mobileMenuExpanded} />
+        <MobileNavigation
+          mobileMenuExpanded={mobileMenuExpanded}
+          hasPremium
+          isLoggedIn
+          userEmail={usersData?.email}
+          userAvatar={profiles.data?.[0].avatar}
+        />
 
         <ToastContainer
           icon={false}

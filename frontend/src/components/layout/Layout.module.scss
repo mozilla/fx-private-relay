@@ -170,6 +170,8 @@ $toastify-toast-close-button: var(--toast-close-button);
       gap: $spacing-sm;
       padding: $spacing-md;
 
+      // aligns the logo with the main content @ 1152px,
+      // snaps logo in to place essentially
       @media screen and (min-width: $content-xl) {
         padding: $spacing-md $spacing-xl;
       }
