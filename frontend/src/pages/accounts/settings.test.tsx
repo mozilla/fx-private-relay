@@ -60,11 +60,11 @@ describe("The settings screen", () => {
     expect(bannerHeading).not.toBeInTheDocument();
   });
 
-  it("shows a warning about turning off server-side label storage when the user toggles it off", () => {
+  it("shows a warning about turning off server-side label storage when the user toggles it off", async () => {
     setMockProfileData({ server_storage: true });
     render(<Settings />);
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByLabelText(
         "l10n string: [setting-label-collection-description-2], with vars: {}"
       )
