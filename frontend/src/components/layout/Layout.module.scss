@@ -27,6 +27,11 @@
 // Allows us to dynamically set the background color based on Toast container state
 $toastify-toast-close-button: var(--toast-close-button);
 
+// Targets the toast container and sets max-width to prevent it from obstructing nav items on larger screens.
+.toast-container {
+  max-width: $content-xl;
+}
+
 .toast {
   @include text-body-sm;
   text-align: center;
