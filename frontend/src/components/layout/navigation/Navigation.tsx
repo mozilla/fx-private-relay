@@ -38,9 +38,6 @@ export const Navigation = (props: Props) => {
     <a
       href="#"
       className={styles["menu-toggle"]}
-      role="menuitem"
-      aria-controls="mobile-menu-toggle"
-      aria-expanded={mobileMenuExpanded}
       onClick={() => handleToggle()}
     >
       {/* passing toggle state to show correct icon */}
