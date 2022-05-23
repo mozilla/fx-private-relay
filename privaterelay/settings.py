@@ -527,7 +527,6 @@ WHITENOISE_INDEX_FILE = True
 # users.
 def set_index_cache_control_headers(headers, path, url):
     if path == os.path.abspath("./frontend/out/index.html"):
-        print("SETTING HEADER")
         headers["Cache-Control"] = "no-cache, public"
 
 
