@@ -77,19 +77,16 @@
   }
 
   ul {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: $spacing-md;
     padding: $spacing-lg;
     list-style-type: none;
   }
 
   .menu-item-wrapper {
-    width: 72px;
-
     &[data-key="mozilla"] {
-      width: 100%;
-      margin-top: $spacing-lg;
+      grid-column: 1 / 4;
     }
 
     .menu-link {
