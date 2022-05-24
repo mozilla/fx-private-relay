@@ -13,6 +13,7 @@ from django.test import override_settings, Client, SimpleTestCase, TestCase
 
 from allauth.socialaccount.models import SocialAccount
 from botocore.exceptions import ClientError
+from markus.main import MetricsRecord
 from markus.testing import MetricsMock
 from model_bakery import baker
 import pytest
@@ -28,6 +29,7 @@ from emails.models import (
 from emails.views import (
     _get_address,
     _get_attachment,
+    _record_receipt_verdicts,
     _sns_message,
     _sns_notification,
     validate_sns_header,
@@ -70,6 +72,11 @@ for email_file in glob.glob(
     with open(email_file, "r") as f:
         sns_body = json.load(f)
         INVALID_SNS_BODIES[file_type] = sns_body
+
+
+# Set mocked_function.side_effect = FAIL_TEST_IF_CALLED to safely disable a function
+# for test and assert it was never called.
+FAIL_TEST_IF_CALLED = Exception("This function should not have been called.")
 
 
 class SNSNotificationTest(TestCase):
@@ -594,6 +601,30 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"Email relayed"
 
+    @override_settings(STATSD_ENABLED=True)
+    @patch("emails.views.ses_relay_email")
+    @patch("emails.views._get_text_html_attachments")
+    @patch("emails.views.remove_message_from_s3")
+    def test_dmarc_failure_s3_deleted(
+        self,
+        mocked_message_removed,
+        mocked_get_text_html,
+        mocked_relay_email,
+    ):
+        """A message with a failing DMARC and a "reject" policy is rejected."""
+        mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
+        mocked_relay_email.side_effect = FAIL_TEST_IF_CALLED
+
+        with MetricsMock() as mm:
+            response = _sns_notification(EMAIL_SNS_BODIES["dmarc_failed"])
+        mocked_message_removed.called_once_with(self.bucket, self.key)
+        assert response.status_code == 400
+        assert response.content == b"DMARC failure, policy is reject"
+        mm.assert_incr_once(
+            "fx.private.relay.email_suppressed_for_dmarc_failure",
+            tags=["dmarcPolicy:reject", "dmarcVerdict:FAIL"],
+        )
+
 
 class SnsMessageTest(TestCase):
     def setUp(self) -> None:
@@ -862,7 +893,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.status_code == 200
 
     def test_no_topic_arn_header(self):
-        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
         ret = self.client.post(
             self.url,
             data=self.valid_message,
@@ -873,7 +904,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.content == b"Received SNS request without Topic ARN."
 
     def test_wrong_topic_arn_header(self):
-        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
         ret = self.client.post(
             self.url,
             data=self.valid_message,
@@ -884,7 +915,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.content == b"Received SNS message for wrong topic."
 
     def test_no_message_type_header(self):
-        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
         ret = self.client.post(
             self.url,
             data=self.valid_message,
@@ -895,7 +926,7 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         assert ret.content == b"Received SNS request without Message Type."
 
     def test_unsupported_message_type_header(self):
-        self.mock_verify_from_sns.side_effect = Exception("Should not be called.")
+        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
         ret = self.client.post(
             self.url,
             data=self.valid_message,
@@ -904,3 +935,62 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS message for unsupported Type."
+
+
+@override_settings(STATSD_ENABLED=True)
+class RecordReceiptVerdictsTests(SimpleTestCase):
+    """Test the metrics emitter _record_receipt_verdicts."""
+
+    def expected_records(self, state, receipt_overrides=None):
+        """Return the expected metrics emitted by calling _record_receipt_verdicts."""
+        verdicts = ["dkim", "dmarc", "spam", "spf", "virus"]
+
+        # Five counters for each verdict type
+        verdict_metrics = [
+            MetricsRecord(
+                stat_type="incr",
+                key=f"fx.private.relay.relay.emails.verdicts.{verdict}Verdict",
+                value=1,
+                tags=[f"state:{state}"],
+            )
+            for verdict in verdicts
+        ]
+
+        # One counter for this email processing state, with tags
+        receipt_overrides = receipt_overrides or {}
+        status = {
+            verdict: receipt_overrides.get(f"{verdict}Verdict", "PASS")
+            for verdict in verdicts
+        }
+        state_tags = [f"{verdict}Verdict:{status[verdict]}" for verdict in verdicts]
+        if "dmarcPolicy" in receipt_overrides:
+            state_tags.append(f"dmarcPolicy:{receipt_overrides['dmarcPolicy']}")
+            state_tags.sort()
+        state_metric = MetricsRecord(
+            stat_type="incr",
+            key=f"fx.private.relay.relay.emails.state.{state}",
+            value=1,
+            tags=state_tags,
+        )
+
+        return verdict_metrics + [state_metric]
+
+    def test_s3_stored_email(self):
+        """The s3_stored fixture passes all checks."""
+        body = json.loads(EMAIL_SNS_BODIES["s3_stored"]["Message"])
+        receipt = body["receipt"]
+        with MetricsMock() as mm:
+            _record_receipt_verdicts(receipt, "a_state")
+        assert mm.get_records() == self.expected_records("a_state")
+
+    def test_dmarc_failed_email(self):
+        body = json.loads(EMAIL_SNS_BODIES["dmarc_failed"]["Message"])
+        receipt = body["receipt"]
+        with MetricsMock() as mm:
+            _record_receipt_verdicts(receipt, "a_state")
+        overrides = {
+            "spfVerdict": "FAIL",
+            "dmarcVerdict": "FAIL",
+            "dmarcPolicy": "reject",
+        }
+        assert mm.get_records() == self.expected_records("a_state", overrides)
