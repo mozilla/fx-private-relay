@@ -65,7 +65,7 @@ export function getHandlers(
   addGetHandler("/api/v1/users/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
-      return res(ctx.status(400));
+      return res(ctx.status(403));
     }
 
     return res(ctx.status(200), ctx.json([users[mockId]]));
@@ -103,7 +103,7 @@ export function getHandlers(
   addGetHandler("/api/v1/profiles/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
-      return res(ctx.status(400));
+      return res(ctx.status(403));
     }
 
     return res(ctx.status(200), ctx.json([profiles[mockId]]));
