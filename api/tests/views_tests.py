@@ -16,6 +16,7 @@ def test_swagger_unknown_format(client, subpath):
     assert response.status_code == 404
 
 
+@pytest.mark.django_db
 def test_runtime_data(client):
     path = "/api/v1/runtime_data"
     response = client.get(path)

@@ -6,6 +6,8 @@ from django_filters import rest_framework as filters
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import decorators, permissions, response, viewsets, exceptions
+from waffle import get_waffle_flag_model
+from waffle.models import Switch, Sample
 
 from emails.models import (
     CannotMakeAddressException,
@@ -18,6 +20,7 @@ from privaterelay.settings import (
     FXA_BASE_ORIGIN,
     GOOGLE_ANALYTICS_ID,
     PREMIUM_PROD_ID,
+    PHONE_PROD_ID,
 )
 from privaterelay.utils import get_premium_countries_info_from_request
 
@@ -155,12 +158,22 @@ def premium_countries(request):
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])
 def runtime_data(request):
+    flags = get_waffle_flag_model().get_all()
+    flag_values = [(f.name, f.is_active(request)) for f in flags]
+    switches = Switch.get_all()
+    switch_values = [(s.name, s.is_active()) for s in switches]
+    samples = Sample.get_all()
+    sample_values = [(s.name, s.is_active()) for s in samples]
     return response.Response(
         {
             "FXA_ORIGIN": FXA_BASE_ORIGIN,
             "GOOGLE_ANALYTICS_ID": GOOGLE_ANALYTICS_ID,
             "PREMIUM_PRODUCT_ID": PREMIUM_PROD_ID,
+            "PHONE_PRODUCT_ID": PHONE_PROD_ID,
             "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
             "BASKET_ORIGIN": BASKET_ORIGIN,
+            "WAFFLE_FLAGS": flag_values,
+            "WAFFLE_SWITCHES": switch_values,
+            "WAFFLE_SAMPLES": sample_values,
         }
     )

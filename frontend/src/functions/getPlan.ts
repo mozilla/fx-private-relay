@@ -26,6 +26,13 @@ export const getPremiumSubscribeLink = (
   return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PREMIUM_PRODUCT_ID}?plan=${plan.id}`;
 };
 
+export const getPhoneSubscribeLink = (runtimeData: RuntimeData | undefined) => {
+  if (runtimeData === undefined) {
+    return undefined;
+  }
+  return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PHONE_PRODUCT_ID}`;
+};
+
 /**
  * This type ensures that {@link getPlan} and {@link getPremiumSubscribeLink} are not called
  * unless we can count on a plan being available for them to return
