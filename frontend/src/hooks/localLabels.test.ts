@@ -23,6 +23,7 @@ describe("useLocalLabels", () => {
         {
           id: 0,
           type: "random",
+          mask_type: "random",
           description: "Some description",
           generated_for: "https://example.com",
         },
@@ -36,6 +37,7 @@ describe("useLocalLabels", () => {
       {
         id: 0,
         type: "random",
+        mask_type: "random",
         description: "Some description",
         generated_for: "https://example.com",
       },
@@ -58,6 +60,7 @@ describe("useLocalLabels", () => {
         {
           id: 0,
           type: "random",
+          mask_type: "random",
           description: "Some description",
           generated_for: "https://example.com",
         },
@@ -69,6 +72,7 @@ describe("useLocalLabels", () => {
         {
           id: 0,
           type: "random",
+          mask_type: "random",
           description: "Some description",
           generated_for: "https://example.com",
         },
@@ -86,6 +90,7 @@ describe("useLocalLabels", () => {
       {
         id: 0,
         type: "random",
+        mask_type: "random",
         description: "Some new description",
         generated_for: "https://example.com",
       },

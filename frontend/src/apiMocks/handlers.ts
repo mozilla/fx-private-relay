@@ -156,7 +156,7 @@ export function getHandlers(
       num_blocked: 0,
       num_forwarded: 0,
       num_spam: 0,
-      type: "random",
+      mask_type: "random",
       used_on: "",
     });
     return res(ctx.status(200));
@@ -235,7 +235,7 @@ export function getHandlers(
       num_forwarded: 0,
       num_spam: 0,
       used_on: "",
-      type: "custom",
+      mask_type: "custom",
     });
     return res(ctx.status(200));
   });

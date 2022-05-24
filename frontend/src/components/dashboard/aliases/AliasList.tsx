@@ -19,7 +19,7 @@ export type Props = {
   user: UserData;
   runtimeData?: RuntimeData;
   onCreate: (
-    options: { type: "random" } | { type: "custom"; address: string }
+    options: { mask_type: "random" } | { mask_type: "custom"; address: string }
   ) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   onDelete: (alias: AliasData) => void;
@@ -58,7 +58,8 @@ export const AliasList = (props: Props) => {
     ) {
       const type = isRandomAlias(alias) ? "random" : "custom";
       const localLabel = localLabels.find(
-        (localLabel) => localLabel.id === alias.id && localLabel.type === type
+        (localLabel) =>
+          localLabel.id === alias.id && localLabel.mask_type === type
       );
       if (localLabel !== undefined) {
         aliasWithLocalLabel.description = localLabel.description;
