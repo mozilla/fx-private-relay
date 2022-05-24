@@ -7,7 +7,7 @@ import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import { WhatsNewEntry } from "./WhatsNewMenu";
 
 jest.mock("@fluent/react", () => mockFluentReact);
-jest.mock("../../../functions/getLocale.ts", () => mockGetLocaleModule);
+jest.mock("../../../../functions/getLocale.ts", () => mockGetLocaleModule);
 
 function getMockEntry(
   id: number,
