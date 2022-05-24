@@ -8,14 +8,14 @@ export const UpgradeButton = (): JSX.Element => {
   const { l10n } = useLocalization();
   const upgradeButtonRef = useGaViewPing({
     category: "Upgrade",
-    label: "navbar-upgrade-bottom",
+    label: "navbar-upgrade-button",
   });
 
   return (
     <Link href="/premium">
       <a
         ref={upgradeButtonRef}
-        onClick={() => trackPurchaseStart({ label: "navbar-upgrade-bottom" })}
+        onClick={() => trackPurchaseStart({ label: "navbar-upgrade-button" })}
         className={styles["upgrade-button"]}
       >
         {l10n.getString("menu-upgrade-button")}
