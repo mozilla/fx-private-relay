@@ -338,7 +338,6 @@ export const WhatsNewMenu = (props: Props) => {
         {...buttonProps}
         {...triggerProps}
         ref={triggerRef}
-        aria-label={l10n.getString("whatsnew-trigger-label")}
         className={`${styles.trigger} ${
           triggerState.isOpen ? styles["is-open"] : ""
         } ${props.style}`}
