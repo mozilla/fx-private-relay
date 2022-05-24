@@ -87,8 +87,8 @@ describe("<AliasList>", () => {
     );
 
     const labelField = screen.getByRole("textbox");
-    userEvent.type(labelField, "Some label");
-    userEvent.tab();
+    await userEvent.type(labelField, "Some label");
+    await userEvent.tab();
 
     expect(updateCallback).toHaveBeenCalledWith(expect.anything(), {
       description: "Some label",
