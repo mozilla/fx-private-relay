@@ -12,7 +12,7 @@ export const InfoIcon = ({
 }: SVGProps<SVGSVGElement> & { alt: string }) => {
   return (
     <svg
-      role="img"
+      role="presentation"
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 28 28"
@@ -37,7 +37,7 @@ export const CloseIcon = ({
 }: SVGProps<SVGSVGElement> & { alt: string }) => {
   return (
     <svg
-      role="img"
+      role="presentation"
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 20"
@@ -93,7 +93,7 @@ export const MenuIcon = ({
       width={20}
       height={20}
       viewBox="0 0 20 20"
-      role="img"
+      role="presentation"
       xmlns="http://www.w3.org/2000/svg"
       style={{
         fill: "currentcolor",
@@ -140,7 +140,7 @@ export const FaqIcon = ({
     width={20}
     height={20}
     viewBox="0 0 20 20"
-    role="img"
+    role="presentation"
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -161,7 +161,7 @@ export const DashboardIcon = ({
     width={20}
     height={20}
     viewBox="3 3 20 20"
-    role="img"
+    role="presentation"
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -186,7 +186,7 @@ export const HomeIcon = ({
     width={20}
     height={20}
     viewBox="0 0 20 20"
-    role="img"
+    role="presentation"
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -207,7 +207,7 @@ export const SupportIcon = ({
     width={20}
     height={20}
     viewBox="3 3 20 20"
-    role="img"
+    role="presentation"
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -232,7 +232,7 @@ export const SignOutIcon = ({
     width={20}
     height={20}
     viewBox="0 0 20 20"
-    role="img"
+    role="presentation"
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -253,7 +253,7 @@ export const ContactIcon = ({
     width={20}
     height={20}
     viewBox="0 0 20 20"
-    role="img"
+    role="presentation"
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
