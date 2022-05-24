@@ -1,6 +1,6 @@
-import useSWR, { Fetcher, SWRResponse } from "swr";
+import useSWR, { SWRConfig, SWRResponse } from "swr";
 import { DateString } from "../../functions/parseDate";
-import { apiFetch, authenticatedFetch } from "./api";
+import { apiFetch, authenticatedFetch, FetchError } from "./api";
 
 export type ProfileData = {
   id: number;
@@ -34,7 +34,27 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
 } {
   const profiles = useSWR("/profiles/", profileFetcher, {
     revalidateOnFocus: false,
-  }) as SWRResponse<ProfilesData, Error>;
+    onErrorRetry: (
+      error: unknown | FetchError,
+      key,
+      config: Parameters<typeof SWRConfig.default.onErrorRetry>[2],
+      revalidate,
+      revalidateOpts
+    ) => {
+      if (error instanceof FetchError && error.response.status === 403) {
+        // When the user is not logged in, this API returns a 403.
+        // If so, do not retry.
+        return;
+      }
+      SWRConfig.default.onErrorRetry(
+        error,
+        key,
+        config,
+        revalidate,
+        revalidateOpts
+      );
+    },
+  }) as SWRResponse<ProfilesData, FetchError>;
 
   /**
    * Update a user's profile. Note that setting a subdomain currently requires
@@ -89,7 +109,7 @@ const profileFetcher = async (
 
   const response = await apiFetch(url, requestInit);
   if (!response.ok) {
-    throw new Error(`${response.status}: ${response.statusText}`);
+    throw new FetchError(response);
   }
   const data: ProfilesData = await response.json();
   return data;
