@@ -46,7 +46,7 @@ export const Navigation = (props: Props) => {
         <a
           className={`${styles.link} ${styles["home-link"]} 
           ${styles["hidden-mobile"]} 
-          ${router.pathname === homePath ? styles["is-active"] : null}`}
+          ${router.pathname === homePath ? styles["is-active"] : ""}`}
         >
           {l10n.getString("nav-home")}
         </a>
@@ -56,7 +56,7 @@ export const Navigation = (props: Props) => {
         <a
           className={`${styles.link} ${styles["faq-link"]} 
           ${styles["hidden-mobile"]} 
-          ${router.pathname === "/faq" ? styles["is-active"] : null}`}
+          ${router.pathname === "/faq" ? styles["is-active"] : ""}`}
         >
           {l10n.getString("nav-faq")}
         </a>
