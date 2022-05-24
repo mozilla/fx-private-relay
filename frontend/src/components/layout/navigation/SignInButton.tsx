@@ -5,7 +5,11 @@ import styles from "./SignInButton.module.scss";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { setCookie } from "../../../functions/cookies";
 
-export const SignInButton = ({ ...props }): JSX.Element => {
+export type Props = {
+  className?: string;
+};
+
+export const SignInButton = (props: Props): JSX.Element => {
   const { l10n } = useLocalization();
   const signInButtonRef = useGaViewPing({
     category: "Sign In",

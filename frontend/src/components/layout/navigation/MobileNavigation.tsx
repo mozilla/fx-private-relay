@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { useLocalization } from "@fluent/react";
 import styles from "./MobileNavigation.module.scss";
-import { useIsLoggedIn } from "../../../hooks/session";
 import { SignUpButton } from "./SignUpButton";
-import { ProfilesData, useProfiles } from "../../../hooks/api/profile";
 import {
   Cogwheel,
   ContactIcon,
@@ -14,16 +12,14 @@ import {
   SignOutIcon,
   SupportIcon,
 } from "../../Icons";
-import { UserData, useUsers } from "../../../hooks/api/user";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
-import { useRef } from "react";
 
 export type MenuItem = {
   url: string;
   isVisible?: boolean;
-  icon: CallableFunction;
+  icon: JSX.Element;
   l10n: string;
 };
 
@@ -41,7 +37,6 @@ export const MobileNavigation = (props: Props) => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
   const { supportUrl } = getRuntimeConfig();
-  const logoutFormRef = useRef<HTMLFormElement>(null);
 
   const renderMenuItem = (item: MenuItem) => {
     const { isVisible = true } = item;
@@ -50,20 +45,12 @@ export const MobileNavigation = (props: Props) => {
       <li className={`${styles["menu-item"]}`}>
         <Link href={item.url}>
           <a className={`${styles.link}`}>
-            {item.icon({
-              alt: l10n.getString(item.l10n),
-              width: 20,
-              height: 20,
-            })}
+            {item.icon}
             {l10n.getString(item.l10n)}
           </a>
         </Link>
       </li>
     ) : null;
-  };
-
-  const handleSignOut = () => {
-    logoutFormRef.current?.submit();
   };
 
   // We make sure toggle state is not undefined
@@ -109,21 +96,31 @@ export const MobileNavigation = (props: Props) => {
         {renderMenuItem({
           url: "/",
           isVisible: !isLoggedIn,
-          icon: HomeIcon,
+          icon: (
+            <HomeIcon width={20} height={20} alt={l10n.getString("nav-home")} />
+          ),
           l10n: "nav-home",
         })}
 
         {renderMenuItem({
           url: "/accounts/profile",
           isVisible: isLoggedIn,
-          icon: DashboardIcon,
+          icon: (
+            <DashboardIcon
+              width={20}
+              height={20}
+              alt={l10n.getString("nav-dashboard")}
+            />
+          ),
           l10n: "nav-dashboard",
         })}
 
         {/* omitting condition as this should always be visible */}
         {renderMenuItem({
           url: "/faq",
-          icon: FaqIcon,
+          icon: (
+            <FaqIcon width={20} height={20} alt={l10n.getString("nav-faq")} />
+          ),
           l10n: "nav-faq",
         })}
 
@@ -136,7 +133,13 @@ export const MobileNavigation = (props: Props) => {
         {renderMenuItem({
           url: "/accounts/settings",
           isVisible: isLoggedIn,
-          icon: Cogwheel,
+          icon: (
+            <Cogwheel
+              width={20}
+              height={20}
+              alt={l10n.getString("nav-settings")}
+            />
+          ),
           l10n: "nav-settings",
         })}
 
@@ -145,37 +148,45 @@ export const MobileNavigation = (props: Props) => {
             getRuntimeConfig().frontendOrigin
           }`,
           isVisible: isLoggedIn && hasPremium,
-          icon: ContactIcon,
+          icon: (
+            <ContactIcon
+              width={20}
+              height={20}
+              alt={l10n.getString("nav-contact")}
+            />
+          ),
           l10n: "nav-contact",
         })}
 
         {renderMenuItem({
           url: `${supportUrl}?utm_source=${getRuntimeConfig().frontendOrigin}`,
           isVisible: isLoggedIn,
-          icon: SupportIcon,
+          icon: (
+            <SupportIcon
+              width={20}
+              height={20}
+              alt={l10n.getString("nav-support")}
+            />
+          ),
           l10n: "nav-support",
         })}
 
         {isLoggedIn && (
           <li className={`${styles["menu-item"]}`}>
-            <form
-              method="POST"
-              action={getRuntimeConfig().fxaLogoutUrl}
-              ref={logoutFormRef}
-            >
-              <a className={`${styles.link}`} onClick={handleSignOut}>
-                <input
-                  type="hidden"
-                  name="csrfmiddlewaretoken"
-                  value={getCsrfToken()}
-                />
+            <form method="POST" action={getRuntimeConfig().fxaLogoutUrl}>
+              <input
+                type="hidden"
+                name="csrfmiddlewaretoken"
+                value={getCsrfToken()}
+              />
+              <button className={`${styles.link}`} type="submit">
                 {SignOutIcon({
                   alt: l10n.getString("nav-sign-out"),
                   width: 20,
                   height: 20,
                 })}
                 {l10n.getString("nav-sign-out")}
-              </a>
+              </button>
             </form>
           </li>
         )}

@@ -65,6 +65,9 @@
 
   .link {
     display: flex;
+    border: none;
+    background-color: transparent;
+    padding: 0;
     flex-direction: row;
     gap: $spacing-md;
     font-weight: 500;

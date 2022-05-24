@@ -1,8 +1,10 @@
 @import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .upgrade-button {
   appearance: none;
-  font-size: 18px;
+
+  @include text-body-lg;
   line-height: 1;
   color: $color-purple-10;
   font-weight: 600;

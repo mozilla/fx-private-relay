@@ -5,20 +5,23 @@
   align-items: center;
   justify-content: flex-end;
   width: 100%;
-  padding: $spacing-sm $spacing-md;
+  padding: 0 $spacing-md;
   gap: $spacing-lg;
 
   @media screen and (min-width: $content-xl) {
-    padding: $spacing-sm $spacing-xl;
+    padding: 0 $spacing-xl;
   }
 }
 
 .link {
-  display: inline;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
   font-family: $font-stack-firefox;
   min-width: $spacing-2xl + $spacing-lg;
   color: inherit;
+  height: 100%;
 
   &.is-active {
     padding-top: $spacing-xs;
@@ -30,13 +33,18 @@
     display: block;
     content: "";
     background: $firefoxGradient;
-    position: relative;
-    bottom: -1 * ($spacing-lg);
+    position: absolute;
+    bottom: 0;
   }
 }
 
 .menu-toggle {
   display: flex;
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: currentColor;
 
   @media screen and #{$mq-md} {
     display: none;
