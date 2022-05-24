@@ -36,10 +36,13 @@ import { getCsrfToken } from "../../../functions/cookies";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { setCookie } from "../../../functions/cookies";
 
+export type Props = {
+  style: string;
+};
 /**
  * Display the user's avatar, which can open a menu allowing the user to log out or go to their settings page.
  */
-export const UserMenu = () => {
+export const UserMenu = (props: Props) => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const usersData = useUsers();
@@ -115,6 +118,7 @@ export const UserMenu = () => {
 
   return (
     <UserMenuTrigger
+      style={props.style}
       label={
         <img
           src={profileData.data?.[0].avatar}
@@ -207,10 +211,15 @@ const MenuItemIcon = (props: MenuItemIconProps) => (
 
 type UserMenuTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   label: ReactNode;
+  style: string;
   children: TreeProps<Record<string, never>>["children"];
   onAction: AriaMenuItemProps["onAction"];
 };
-const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
+const UserMenuTrigger = ({
+  label,
+  style,
+  ...otherProps
+}: UserMenuTriggerProps) => {
   const { l10n } = useLocalization();
   const userMenuTriggerState = useMenuTriggerState(otherProps);
 
@@ -227,7 +236,7 @@ const UserMenuTrigger = ({ label, ...otherProps }: UserMenuTriggerProps) => {
   ).buttonProps;
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${style}`}>
       <button
         {...triggerButtonProps}
         ref={triggerButtonRef}

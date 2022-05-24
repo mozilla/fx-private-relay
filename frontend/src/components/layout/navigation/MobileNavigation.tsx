@@ -115,7 +115,9 @@ export const MobileNavigation = (props: Props) => {
         })}
 
         {!isLoggedIn && (
-          <li className={`${styles["menu-item"]}`}>
+          <li
+            className={`${styles["menu-item"]} ${styles["sign-up-menu-item"]}`}
+          >
             <SignUpButton className={`${styles["sign-up-button"]}`} />
           </li>
         )}

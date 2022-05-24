@@ -86,7 +86,7 @@ export const Navigation = (props: Props) => {
 
       <AppPicker theme={theme} style={styles["hidden-mobile"]} />
 
-      <UserMenu />
+      <UserMenu style={styles["hidden-mobile"]} />
     </nav>
   );
 };

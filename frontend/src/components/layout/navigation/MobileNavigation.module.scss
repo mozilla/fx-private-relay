@@ -62,6 +62,10 @@
   font-family: $font-stack-firefox;
   border-bottom: 2px solid $color-light-gray-20;
 
+  &.sign-up-menu-item {
+    padding: $spacing-md;
+  }
+
   .link {
     display: flex;
     border: none;

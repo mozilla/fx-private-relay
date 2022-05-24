@@ -21,10 +21,10 @@
   font-family: $font-stack-firefox;
   min-width: $spacing-2xl + $spacing-lg;
   color: inherit;
-  height: 100%;
 
   &.is-active {
     padding-top: $spacing-xs;
+    height: 100%;
   }
 
   &.is-active::after {
