@@ -9,6 +9,7 @@ import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { setMockAliasesData } from "../../../__mocks__/hooks/api/aliases";
 import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
+import { setMockAddonData } from "../../../__mocks__/hooks/addon";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Settings from "./settings.page";
@@ -21,6 +22,7 @@ jest.mock("../../config.ts", () => mockConfigModule);
 setMockAliasesData();
 setMockProfileData();
 setMockRuntimeData();
+setMockAddonData();
 
 describe("The settings screen", () => {
   describe("under axe accessibility testing", () => {
@@ -58,11 +60,11 @@ describe("The settings screen", () => {
     expect(bannerHeading).not.toBeInTheDocument();
   });
 
-  it("shows a warning about turning off server-side label storage when the user toggles it off", () => {
+  it("shows a warning about turning off server-side label storage when the user toggles it off", async () => {
     setMockProfileData({ server_storage: true });
     render(<Settings />);
 
-    userEvent.click(
+    await userEvent.click(
       screen.getByLabelText(
         "l10n string: [setting-label-collection-description-2], with vars: {}"
       )
@@ -80,5 +82,47 @@ describe("The settings screen", () => {
     const bannerHeading = screen.queryByRole("alert");
 
     expect(bannerHeading).not.toBeInTheDocument();
+  });
+
+  it("notifies the add-on when the user toggles server-side label storage off", async () => {
+    const addonNotifier = jest.fn();
+    setMockAddonData({ sendEvent: addonNotifier });
+    setMockProfileData({ server_storage: true });
+    render(<Settings />);
+
+    await userEvent.click(
+      screen.getByLabelText(
+        "l10n string: [setting-label-collection-description-2], with vars: {}"
+      )
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "l10n string: [settings-button-save-label], with vars: {}",
+      })
+    );
+
+    expect(addonNotifier).toHaveBeenCalledWith("serverStorageChange");
+  });
+
+  it("notifies the add-on when the user toggles server-side label storage on", async () => {
+    const addonNotifier = jest.fn();
+    setMockAddonData({ sendEvent: addonNotifier });
+    setMockProfileData({ server_storage: false });
+    render(<Settings />);
+
+    await userEvent.click(
+      screen.getByLabelText(
+        "l10n string: [setting-label-collection-description-2], with vars: {}"
+      )
+    );
+
+    await userEvent.click(
+      screen.getByRole("button", {
+        name: "l10n string: [settings-button-save-label], with vars: {}",
+      })
+    );
+
+    expect(addonNotifier).toHaveBeenCalledWith("serverStorageChange");
   });
 });

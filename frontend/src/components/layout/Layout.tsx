@@ -185,6 +185,7 @@ export const Layout = (props: Props) => {
           transition={Slide}
           hideProgressBar={true}
           autoClose={5000}
+          className={styles["toast-container"]}
           toastClassName={`Toastify__toast ${styles.toast}`}
           closeButton={(closeToastObject) =>
             closeToastButton(closeToastObject.closeToast)

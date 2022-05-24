@@ -119,7 +119,7 @@ class Profile(models.Model):
         # appropriate server-stored Relay address data.
         if not self.server_storage:
             relay_addresses = RelayAddress.objects.filter(user=self.user)
-            relay_addresses.update(description="", generated_for="")
+            relay_addresses.update(description="", generated_for="", used_on="")
         return ret
 
     @property
@@ -493,14 +493,18 @@ class RelayAddress(models.Model):
         return super(RelayAddress, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
+        profile = self.user.profile_set.first()
         if self._state.adding:
             check_user_can_make_another_address(self.user)
             while True:
                 if valid_address(self.address, self.domain):
                     break
                 self.address = address_default()
-            profile = self.user.profile_set.first()
             profile.update_abuse_metric(address_created=True)
+        if not profile.server_storage:
+            self.description = ""
+            self.generated_for = ""
+            self.used_on = ""
         return super().save(*args, **kwargs)
 
     @property
@@ -577,6 +581,7 @@ class DomainAddress(models.Model):
     num_blocked = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     block_list_emails = models.BooleanField(default=False)
+    used_on = models.TextField(default=None, blank=True, null=True)
 
     class Meta:
         unique_together = ["user", "address"]
@@ -585,11 +590,13 @@ class DomainAddress(models.Model):
         return self.address
 
     def save(self, *args, **kwargs):
+        user_profile = self.user.profile_set.first()
         if self._state.adding:
-            user_profile = self.user.profile_set.first()
             check_user_can_make_domain_address(user_profile)
             user_profile.update_abuse_metric(address_created=True)
         # TODO: validate user is premium to set block_list_emails
+        if not user_profile.server_storage:
+            self.description = ""
         return super().save(*args, **kwargs)
 
     @property

@@ -234,6 +234,7 @@ export function getHandlers(
       num_blocked: 0,
       num_forwarded: 0,
       num_spam: 0,
+      used_on: "",
       type: "custom",
     });
     return res(ctx.status(200));
@@ -289,7 +290,7 @@ export function getHandlers(
         ctx.status(200),
         ctx.json({
           flowId: "mock-flow-id",
-          flowBeginTime: new Date(Date.now()).toISOString(),
+          flowBeginTime: Date.now(),
         })
       );
     })

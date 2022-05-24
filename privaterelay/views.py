@@ -302,7 +302,12 @@ def _get_event_keys_from_jwt(authentic_jwt):
 
 
 def _handle_fxa_profile_change(social_account, authentic_jwt=None, event_key=None):
-    client = _get_oauth2_session(social_account)
+    try:
+        client = _get_oauth2_session(social_account)
+    except NoSocialToken as e:
+        sentry_sdk.capture_exception(e)
+        return HttpResponse("202 Accepted", status=202)
+
     # TODO: more graceful handling of profile fetch failures
     try:
         resp = client.get(FirefoxAccountsOAuth2Adapter.profile_url)
@@ -372,11 +377,27 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
     )
 
 
+class NoSocialToken(Exception):
+    """The SocialAccount has no SocialToken"""
+
+    def __init__(self, uid, *args, **kwargs):
+        self.uid = uid
+        super().__init__(*args, **kwargs)
+
+    def __str__(self):
+        return f'NoSocialToken: The SocialAccount "{self.uid}" has no token.'
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}("{self.uid}")'
+
+
 # use "raw" requests_oauthlib to automatically refresh the access token
 # https://github.com/pennersr/django-allauth/issues/420#issuecomment-301805706
 def _get_oauth2_session(social_account):
     refresh_token_url = FirefoxAccountsOAuth2Adapter.access_token_url
     social_token = social_account.socialtoken_set.first()
+    if social_token is None:
+        raise NoSocialToken(uid=social_account.uid)
 
     def _token_updater(new_token):
         update_social_token(social_token, new_token)

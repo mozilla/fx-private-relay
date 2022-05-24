@@ -187,6 +187,7 @@ export const domainaddresses: Record<
       num_forwarded: 0,
       num_spam: 0,
       type: "custom",
+      used_on: "",
     },
   ],
 };

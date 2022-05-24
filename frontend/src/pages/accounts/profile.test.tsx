@@ -30,11 +30,13 @@ import {
   setMockMinViewportWidthOnce,
 } from "../../../__mocks__/hooks/mediaQuery";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
+import { setMockAddonData } from "../../../__mocks__/hooks/addon";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Profile from "./profile.page";
 import { AliasUpdateFn } from "../../hooks/api/aliases";
 import { ProfileUpdateFn } from "../../hooks/api/profile";
+import { RuntimeConfig } from "../../config";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
@@ -51,6 +53,7 @@ setMockProfileData();
 setMockUserData();
 setMockRuntimeData();
 setMockMinViewportWidth();
+setMockAddonData();
 
 describe("The dashboard", () => {
   describe("under axe accessibility testing", () => {
@@ -472,7 +475,7 @@ describe("The dashboard", () => {
     expect(subdomainSearchField).not.toBeInTheDocument();
   });
 
-  it("allows skipping the Premium onboarding", () => {
+  it("allows skipping the Premium onboarding", async () => {
     const updateFn: ProfileUpdateFn = jest.fn();
     setMockProfileDataOnce(
       { id: 42, has_premium: true, onboarding_state: 0 },
@@ -483,12 +486,12 @@ describe("The dashboard", () => {
     const skipButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-skip], with vars: {}",
     });
-    userEvent.click(skipButton);
+    await userEvent.click(skipButton);
 
     expect(updateFn).toHaveBeenCalledWith(42, { onboarding_state: 3 });
   });
 
-  it("allows disabling an alias", () => {
+  it("allows disabling an alias", async () => {
     const updateFn: AliasUpdateFn = jest.fn();
     setMockAliasesDataOnce(
       { random: [{ enabled: true, id: 42 }], custom: [] },
@@ -499,7 +502,7 @@ describe("The dashboard", () => {
     const aliasToggleButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-disable-forwarding-button-2], with vars: {}",
     });
-    userEvent.click(aliasToggleButton);
+    await userEvent.click(aliasToggleButton);
 
     expect(updateFn).toHaveBeenCalledWith(
       expect.objectContaining({ id: 42, type: "random" }),
@@ -606,7 +609,7 @@ describe("The dashboard", () => {
     expect(categoryFilterButton).toBeInTheDocument();
   });
 
-  it("has a category filter for the list of aliases that can be closed and applied, which is available to users with premium", () => {
+  it("has a category filter for the list of aliases that can be closed and applied, which is available to users with premium", async () => {
     setMockProfileDataOnce({ has_premium: true });
     setMockAliasesDataOnce({
       random: [
@@ -622,18 +625,18 @@ describe("The dashboard", () => {
     const categoryFilterButton = screen.getByRole("button", {
       name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
     });
-    userEvent.click(categoryFilterButton);
+    await userEvent.click(categoryFilterButton);
 
     const categoryFilterCheckboxCustomMask = screen.getByLabelText(
       "l10n string: [profile-filter-category-option-custom-masks], with vars: {}"
     );
-    userEvent.click(categoryFilterCheckboxCustomMask);
+    await userEvent.click(categoryFilterCheckboxCustomMask);
 
     // Apply category filter selection
     const categoryFilterApplyButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-apply], with vars: {}",
     });
-    userEvent.click(categoryFilterApplyButton);
+    await userEvent.click(categoryFilterApplyButton);
 
     const randomAlias1 = screen.queryByText(/address1/);
     const randomAlias2 = screen.queryByText(/address2/);
@@ -644,7 +647,7 @@ describe("The dashboard", () => {
     expect(customAlias).toBeInTheDocument();
   });
 
-  it("has a category filter for the list of aliases that can be closed and cancelled, which is available to users with premium", () => {
+  it("has a category filter for the list of aliases that can be closed and cancelled, which is available to users with premium", async () => {
     setMockProfileDataOnce({ has_premium: true });
     setMockAliasesDataOnce({
       random: [
@@ -660,15 +663,15 @@ describe("The dashboard", () => {
     const categoryFilterButton = screen.getByRole("button", {
       name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
     });
-    userEvent.click(categoryFilterButton);
+    await userEvent.click(categoryFilterButton);
 
     const categoryFilterCheckboxRandomMask = screen.getByLabelText(
       "l10n string: [profile-filter-category-option-random-masks], with vars: {}"
     );
-    userEvent.click(categoryFilterCheckboxRandomMask);
+    await userEvent.click(categoryFilterCheckboxRandomMask);
 
     // Close and discard changes
-    userEvent.click(categoryFilterButton);
+    await userEvent.click(categoryFilterButton);
 
     const randomAlias1 = screen.queryByText(/address1/);
     const randomAlias2 = screen.queryByText(/address2/);
@@ -679,7 +682,7 @@ describe("The dashboard", () => {
     expect(customAlias).toBeInTheDocument();
   });
 
-  it("has a category filter for the list of aliases that can be closed and cleared, which is available to users with premium", () => {
+  it("has a category filter for the list of aliases that can be closed and cleared, which is available to users with premium", async () => {
     setMockProfileDataOnce({ has_premium: true });
     setMockAliasesDataOnce({
       random: [
@@ -695,27 +698,27 @@ describe("The dashboard", () => {
     const categoryFilterButton = screen.getByRole("button", {
       name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
     });
-    userEvent.click(categoryFilterButton);
+    await userEvent.click(categoryFilterButton);
 
     const categoryFilterCheckboxCustomMask = screen.getByLabelText(
       "l10n string: [profile-filter-category-option-custom-masks], with vars: {}"
     );
-    userEvent.click(categoryFilterCheckboxCustomMask);
+    await userEvent.click(categoryFilterCheckboxCustomMask);
 
     // Apply category filter selection
     const categoryFilterApplyButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-reset], with vars: {}",
     });
-    userEvent.click(categoryFilterApplyButton);
+    await userEvent.click(categoryFilterApplyButton);
 
     // Reopen and clear category filter selection
-    userEvent.click(categoryFilterButton);
-    userEvent.click(categoryFilterCheckboxCustomMask);
+    await userEvent.click(categoryFilterButton);
+    await userEvent.click(categoryFilterCheckboxCustomMask);
 
     const categoryFilterResetButton = screen.getByRole("button", {
       name: "l10n string: [profile-label-reset], with vars: {}",
     });
-    userEvent.click(categoryFilterResetButton);
+    await userEvent.click(categoryFilterResetButton);
 
     const randomAlias1 = screen.queryByText(/address1/);
     const randomAlias2 = screen.queryByText(/address2/);
@@ -740,6 +743,95 @@ describe("The dashboard", () => {
 
     expect(addonDataElements).toHaveLength(1);
     expect(addonDataElements[0]).toBeInTheDocument();
+  });
+
+  it("notifies the add-on when the user creates a new alias", async () => {
+    const addonNotifier = jest.fn();
+    setMockAddonData({ sendEvent: addonNotifier });
+    setMockAliasesDataOnce({ random: [], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    render(<Profile />);
+
+    const generateAliasButton = screen.getByRole("button", {
+      name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
+    });
+    await userEvent.click(generateAliasButton);
+
+    expect(addonNotifier).toHaveBeenCalledWith("aliasListUpdate");
+  });
+
+  it("notifies the add-on when the user deletes an alias", async () => {
+    const addonNotifier = jest.fn();
+    setMockAddonData({ sendEvent: addonNotifier });
+    setMockAliasesDataOnce({ random: [{ id: 42 }], custom: [] });
+    setMockProfileDataOnce({ has_premium: false });
+    render(<Profile />);
+
+    const aliasDeleteButton = screen.getByRole("button", {
+      name: "l10n string: [profile-label-delete], with vars: {}",
+    });
+    await userEvent.click(aliasDeleteButton);
+
+    const confirmationCheckbox = screen.getByLabelText(
+      "l10n string: [modal-delete-confirmation-2], with vars: {}"
+    );
+    await userEvent.click(confirmationCheckbox);
+
+    const confirmationButton = screen.getAllByRole("button", {
+      name: "l10n string: [profile-label-delete], with vars: {}",
+    });
+    await userEvent.click(confirmationButton[1]);
+
+    expect(addonNotifier).toHaveBeenCalledWith("aliasListUpdate");
+  });
+
+  describe("with the `tips` feature flag enabled", () => {
+    let mockedConfig: RuntimeConfig;
+
+    beforeEach(() => {
+      mockedConfig = mockConfigModule.getRuntimeConfig();
+      // getRuntimeConfig() is called frequently, so mock its return value,
+      // then restore the original mock at the end of every test (in `afterEach`):
+      mockConfigModule.getRuntimeConfig.mockReturnValue({
+        ...mockedConfig,
+        maxFreeAliases: 1,
+        featureFlags: {
+          ...mockedConfig.featureFlags,
+          tips: true,
+        },
+      });
+    });
+    afterEach(() => {
+      mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
+    });
+
+    it("displays a tip about how to use custom aliases to Premium users", () => {
+      setMockProfileDataOnce({ has_premium: true });
+
+      render(<Profile />);
+
+      const tipsHeader = screen.getByRole("heading", {
+        name: "l10n string: [tips-header-title], with vars: {}",
+      });
+      const customMaskTip = screen.getByText(
+        "l10n string: [tips-custom-alias-heading-2], with vars: {}"
+      );
+
+      expect(tipsHeader).toBeInTheDocument();
+      expect(customMaskTip).toBeInTheDocument();
+    });
+
+    it("does not display a tip about how to use custom aliases to non-Premium users", () => {
+      setMockProfileDataOnce({ has_premium: false });
+
+      render(<Profile />);
+
+      const customMaskTip = screen.queryByText(
+        "l10n string: [tips-custom-alias-heading-2], with vars: {}"
+      );
+
+      expect(customMaskTip).not.toBeInTheDocument();
+    });
   });
 
   describe("with the `generateCustomAlias` feature flag enabled", () => {
@@ -771,7 +863,7 @@ describe("The dashboard", () => {
       mockConfigModule.getRuntimeConfig.mockReturnValue(mockedConfig);
     });
 
-    it("shows a dropdown to generate random and custom aliases if the user has Premium and has a custom domain set", () => {
+    it("shows a dropdown to generate random and custom aliases if the user has Premium and has a custom domain set", async () => {
       setMockAliasesDataOnce({
         random: [{ enabled: true, id: 42 }],
         custom: [],
@@ -796,7 +888,7 @@ describe("The dashboard", () => {
       const generateAliasDropdown = screen.getByRole("button", {
         name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });
-      userEvent.click(generateAliasDropdown);
+      await userEvent.click(generateAliasDropdown);
       const generateAliasMenu = screen.getByRole("menu", {
         name: "l10n string: [profile-label-generate-new-alias-2], with vars: {}",
       });

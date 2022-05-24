@@ -73,13 +73,13 @@ describe("The waitlist", () => {
     const emailInput = screen.getByLabelText(
       "l10n string: [waitlist-control-email-label], with vars: {}"
     );
-    userEvent.clear(emailInput);
-    userEvent.type(emailInput, "some_email@example.com");
+    await userEvent.clear(emailInput);
+    await userEvent.type(emailInput, "some_email@example.com");
 
     const submitButton = screen.getByRole("button", {
       name: "l10n string: [waitlist-submit-label], with vars: {}",
     });
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(
@@ -98,13 +98,13 @@ describe("The waitlist", () => {
     const emailInput = screen.getByLabelText(
       "l10n string: [waitlist-control-email-label], with vars: {}"
     );
-    userEvent.clear(emailInput);
-    userEvent.type(emailInput, "arbitrary_email@example.com");
+    await userEvent.clear(emailInput);
+    await userEvent.type(emailInput, "arbitrary_email@example.com");
 
     const submitButton = screen.getByRole("button", {
       name: "l10n string: [waitlist-submit-label], with vars: {}",
     });
-    userEvent.click(submitButton);
+    await userEvent.click(submitButton);
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(global.fetch).toHaveBeenCalledWith(

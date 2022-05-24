@@ -7,7 +7,15 @@ from allauth.socialaccount.models import SocialAccount
 from allauth.account.models import EmailAddress
 from model_bakery import baker
 
-from ..views import _update_all_data
+from ..views import _update_all_data, NoSocialToken
+
+
+def test_no_social_token():
+    exception = NoSocialToken("account_id")
+    assert repr(exception) == 'NoSocialToken("account_id")'
+    assert (
+        str(exception) == 'NoSocialToken: The SocialAccount "account_id" has no token.'
+    )
 
 
 class UpdateExtraDataAndEmailTest(TestCase):

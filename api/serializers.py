@@ -20,9 +20,12 @@ class PremiumValidatorsMixin:
 
 
 class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
+    mask_type = serializers.CharField(default="random", read_only=True, required=False)
+
     class Meta:
         model = RelayAddress
         fields = [
+            "mask_type",
             "enabled",
             "description",
             "generated_for",
@@ -42,6 +45,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
         ]
         read_only_fields = [
             "id",
+            "mask_type",
             "address",
             "domain",
             "full_address",
@@ -55,12 +59,16 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
 
 
 class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
+    mask_type = serializers.CharField(default="custom", read_only=True, required=False)
+
     class Meta:
         model = DomainAddress
         fields = [
+            "mask_type",
             "enabled",
             "description",
             "block_list_emails",
+            "used_on",
             # read-only
             "id",
             "address",
@@ -75,6 +83,7 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
         ]
         read_only_fields = [
             "id",
+            "mask_type",
             "domain",
             "full_address",
             "created_at",

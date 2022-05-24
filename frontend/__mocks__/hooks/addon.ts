@@ -14,7 +14,6 @@ function getReturnValue(
   return {
     sendEvent: jest.fn(),
     present: false,
-    isLoggedIn: false,
     localLabels: [],
     ...addonData,
   };
