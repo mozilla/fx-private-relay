@@ -7,7 +7,7 @@ import { trackPurchaseStart } from "../../../functions/trackPurchase";
 export const UpgradeButton = (): JSX.Element => {
   const { l10n } = useLocalization();
   const upgradeButtonRef = useGaViewPing({
-    category: "Upgrade",
+    category: "Purchase Button",
     label: "navbar-upgrade-button",
   });
 
