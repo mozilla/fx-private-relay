@@ -37,7 +37,6 @@ import FirefoxLogo from "../../../../../static/images/logos/bento/fx.png";
 import MonitorLogo from "../../../../../static/images/logos/bento/monitor.png";
 import PocketLogo from "../../../../../static/images/logos/bento/pocket.png";
 import VpnLogo from "../../../../../static/images/logos/bento/vpn.svg";
-import ContainersLogo from "../../../../../static/images/logos/bento/containers.png";
 import FxDesktopLogo from "../../../../../static/images/logos/fx-logo.svg";
 import FxMobileLogo from "../../../../../static/images/logos/bento/fx-mobile.png";
 import { Props as LayoutProps } from "../../layout/Layout";
@@ -55,11 +54,6 @@ const getProducts = (referringSiteUrl: string) => ({
     id: "pocket",
     url: "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447",
     gaLabel: "pocket",
-  },
-  fxContainers: {
-    id: "containers",
-    url: "https://app.adjust.com/hr2n0yz?engagement_type=fallback_click&fallback=https%3A%2F%2Fgetpocket.com%2Ffirefox_learnmore%3Fsrc%3Dff_bento&fallback_lp=https%3A%2F%2Fapps.apple.com%2Fapp%2Fpocket-save-read-grow%2Fid309601447",
-    gaLabel: "containers",
   },
   fxDesktop: {
     id: "fxDesktop",
@@ -103,7 +97,6 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
     pocket: useRef<HTMLAnchorElement>(null),
     fxDesktop: useRef<HTMLAnchorElement>(null),
     fxMobile: useRef<HTMLAnchorElement>(null),
-    fxContainers: useRef<HTMLAnchorElement>(null),
     vpn: useRef<HTMLAnchorElement>(null),
   };
   const mozillaLinkRef = useRef<HTMLAnchorElement>(null);
@@ -157,21 +150,6 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
         >
           <img src={MonitorLogo.src} alt="" width={16} height={16} />
           {l10n.getString("fx-monitor")}
-        </a>
-      </Item>
-      <Item
-        key={products.fxContainers.id}
-        textValue={l10n.getString("fx-containers")}
-      >
-        <a
-          ref={linkRefs.fxContainers}
-          href={products.fxContainers.url}
-          className={`${styles["menu-link"]} ${styles["containers-link"]}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src={ContainersLogo.src} alt="" width={16} height={16} />
-          {l10n.getString("fx-containers")}
         </a>
       </Item>
       <Item key={products.pocket.id} textValue={l10n.getString("fx-pocket")}>

@@ -35,8 +35,8 @@
   padding-bottom: $spacing-lg;
   min-width: $content-xs;
   list-style-type: none;
-  box-shadow: $box-shadow-md;
-  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-sm;
   background-color: $color-light-gray-10;
 
   &::before {
@@ -60,11 +60,11 @@
     gap: $spacing-sm;
     background-image: linear-gradient(
         to bottom,
-        #f9f9fb calc(100% - 2px),
+        #f9f9fb calc(100% - 3px),
         rgba(0, 0, 0, 0)
       ),
       linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
-    border-radius: $border-radius-lg $border-radius-lg 0 0;
+    border-radius: $border-radius-sm $border-radius-sm 0 0;
 
     img {
       height: $layout-sm;
