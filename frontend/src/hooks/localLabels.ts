@@ -3,7 +3,9 @@ import { useAddonData } from "./addon";
 import { AliasData, isRandomAlias } from "./api/aliases";
 
 export type LocalLabel = {
+  /** `type` is to allow for a transition period while people migrate to a new add-on version that uses `mask_type` */
   type: "random" | "custom";
+  mask_type: "random" | "custom";
   id: number;
   description: string;
   generated_for?: string;
@@ -34,11 +36,15 @@ export function useLocalLabels(): LocalLabelHook | NotEnabled {
   }
 
   const updateLabel: SetLocalLabel = (alias, newLabel) => {
-    const type = isRandomAlias(alias) ? "random" : "custom";
+    const maskType = isRandomAlias(alias) ? "random" : "custom";
 
     // Replace existing labels for this alias:
     const oldLocalLabel = localLabels.find(
-      (localLabel) => localLabel.id === alias.id && localLabel.type === type
+      (localLabel) =>
+        localLabel.id === alias.id &&
+        (localLabel.mask_type === maskType ||
+          (typeof localLabel.mask_type === "undefined" &&
+            localLabel.type === maskType))
     );
     const newLocalLabels = localLabels.filter(
       (localLabel) => localLabel !== oldLocalLabel
@@ -46,12 +52,14 @@ export function useLocalLabels(): LocalLabelHook | NotEnabled {
 
     newLocalLabels.push({
       id: alias.id,
-      type: type,
+      type: maskType,
+      mask_type: maskType,
       description: newLabel,
       generated_for: oldLocalLabel?.generated_for,
     });
     addonData.sendEvent("labelUpdate", {
-      type: type,
+      type: maskType,
+      mask_type: maskType,
       alias: alias,
       newLabel: newLabel,
     });

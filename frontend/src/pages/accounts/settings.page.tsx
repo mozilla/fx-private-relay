@@ -83,7 +83,10 @@ const Settings: NextPage = () => {
         const uploadLocalLabel = (alias: AliasData) => {
           const localLabel = localLabels?.find(
             (localLabel) =>
-              localLabel.type === alias.type && localLabel.id === alias.id
+              (localLabel.mask_type === alias.mask_type ||
+                (typeof localLabel.mask_type === "undefined" &&
+                  localLabel.type === alias.mask_type)) &&
+              localLabel.id === alias.id
           );
           if (typeof localLabel !== "undefined") {
             aliasData.update(alias, { description: localLabel.description });

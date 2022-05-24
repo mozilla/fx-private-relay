@@ -139,7 +139,7 @@ const Profile: NextPage = () => {
   }
 
   const createAlias = async (
-    options: { type: "random" } | { type: "custom"; address: string }
+    options: { mask_type: "random" } | { mask_type: "custom"; address: string }
   ) => {
     try {
       const response = await aliasData.create(options);
@@ -202,7 +202,7 @@ const Profile: NextPage = () => {
           <SubdomainIndicator
             subdomain={profile.subdomain}
             onCreateAlias={(address: string) =>
-              createAlias({ type: "custom", address: address })
+              createAlias({ mask_type: "custom", address: address })
             }
           />
         </span>
@@ -342,7 +342,7 @@ const Profile: NextPage = () => {
           <section className={styles["main-wrapper"]}>
             <Onboarding
               aliases={allAliases}
-              onCreate={() => createAlias({ type: "random" })}
+              onCreate={() => createAlias({ mask_type: "random" })}
             />
             <AliasList
               aliases={allAliases}

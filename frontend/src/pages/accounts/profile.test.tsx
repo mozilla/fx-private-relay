@@ -505,7 +505,7 @@ describe("The dashboard", () => {
     await userEvent.click(aliasToggleButton);
 
     expect(updateFn).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 42, type: "random" }),
+      expect.objectContaining({ id: 42, mask_type: "random" }),
       { enabled: false }
     );
   });
