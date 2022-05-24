@@ -34,7 +34,13 @@ export const Navigation = (props: Props) => {
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
   const ToggleButton = () => (
-    <button className={styles["menu-toggle"]} onClick={() => handleToggle()}>
+    <button
+      className={styles["menu-toggle"]}
+      aria-expanded={mobileMenuExpanded}
+      aria-label={l10n.getString("menu-toggle")}
+      aria-controls="mobile-menu"
+      onClick={() => handleToggle()}
+    >
       {/* passing toggle state to show correct icon */}
       <MenuToggle toggleState={mobileMenuExpanded} />
     </button>

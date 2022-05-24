@@ -68,7 +68,7 @@ export const MobileNavigation = (props: Props) => {
       className={`${styles["mobile-menu"]} ${toggleMenuStateClass}`}
     >
       {/* Below we have conditional rendering of menu items  */}
-      <ul className={`${styles["menu-item-list"]}`}>
+      <ul id="mobile-menu" className={`${styles["menu-item-list"]}`}>
         {isLoggedIn && (
           <li className={`${styles["menu-item"]} ${styles["user-info"]}`}>
             <img
