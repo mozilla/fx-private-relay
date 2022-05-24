@@ -1,15 +1,9 @@
 @import "../../../styles/tokens.scss";
 
 .sign-up-button {
-  display: none;
   color: $color-white;
 
   &.mobile-btn {
     display: block;
-  }
-
-  @media screen and #{$mq-md} {
-    display: inline;
-    color: inherit;
   }
 }

@@ -49,9 +49,9 @@ export const Navigation = (props: Props) => {
     <nav aria-label={l10n.getString("nav-menu")} className={styles["site-nav"]}>
       <Link href={homePath}>
         <a
-          className={`${styles.link} ${styles["home-link"]} ${
-            router.pathname === homePath ? styles["is-active"] : null
-          }`}
+          className={`${styles.link} ${styles["home-link"]} 
+          ${styles["hidden-mobile"]} 
+          ${router.pathname === homePath ? styles["is-active"] : null}`}
         >
           {l10n.getString("nav-home")}
         </a>
@@ -59,9 +59,9 @@ export const Navigation = (props: Props) => {
 
       <Link href="/faq">
         <a
-          className={`${styles.link} ${styles["faq-link"]} ${
-            router.pathname === "/faq" ? styles["is-active"] : null
-          }`}
+          className={`${styles.link} ${styles["faq-link"]} 
+          ${styles["hidden-mobile"]} 
+          ${router.pathname === "/faq" ? styles["is-active"] : null}`}
         >
           {l10n.getString("nav-faq")}
         </a>
@@ -70,7 +70,7 @@ export const Navigation = (props: Props) => {
       {/* if user is not logged in, show sign in and sign up buttons */}
       {!isLoggedIn && (
         <SignUpButton
-          className={`${styles["sign-up-button"]} ${styles.link}`}
+          className={`${styles["sign-up-button"]} ${styles.link} ${styles["hidden-mobile"]}`}
         />
       )}
       {!isLoggedIn && (
@@ -80,14 +80,16 @@ export const Navigation = (props: Props) => {
       )}
 
       {/* if user is logged in and we have their profile data, show whatsnew menu */}
-      {isLoggedIn && profile && <WhatsNewMenu profile={profile} />}
+      {isLoggedIn && profile && (
+        <WhatsNewMenu profile={profile} style={styles["hidden-mobile"]} />
+      )}
 
       {/* if user is logged in and doesn't have premium, show upgrade button */}
       {isLoggedIn && !hasPremium && <UpgradeButton />}
 
       <ToggleButton />
 
-      <AppPicker theme={theme} />
+      <AppPicker theme={theme} style={styles["hidden-mobile"]} />
 
       <UserMenu />
     </nav>

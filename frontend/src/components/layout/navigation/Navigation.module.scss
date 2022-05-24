@@ -8,19 +8,8 @@
   padding: $spacing-sm $spacing-md;
   gap: $spacing-lg;
 
-  .home-link,
-  .faq-link {
-    display: none;
-  }
-
   @media screen and (min-width: $content-xl) {
     padding: $spacing-sm $spacing-xl;
-  }
-  @media screen and #{$mq-md} {
-    .home-link,
-    .faq-link {
-      display: inline;
-    }
   }
 }
 
@@ -50,6 +39,12 @@
   display: flex;
 
   @media screen and #{$mq-md} {
+    display: none;
+  }
+}
+
+.hidden-mobile {
+  @media screen and (max-width: $screen-md) {
     display: none;
   }
 }

@@ -66,6 +66,7 @@ export type WhatsNewEntry = {
 
 export type Props = {
   profile: ProfileData;
+  style: string;
   runtimeData?: RuntimeData;
 };
 export const WhatsNewMenu = (props: Props) => {
@@ -333,7 +334,7 @@ export const WhatsNewMenu = (props: Props) => {
         ref={triggerRef}
         className={`${styles.trigger} ${
           triggerState.isOpen ? styles["is-open"] : ""
-        }`}
+        } ${props.style}`}
       >
         {l10n.getString("whatsnew-trigger-label")}
         {pill}

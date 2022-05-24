@@ -78,10 +78,15 @@ const getProducts = (referringSiteUrl: string) => ({
   },
 });
 
+export type Props = {
+  theme?: LayoutProps["theme"];
+  style: string;
+};
+
 /**
  * Menu that can be opened to see other relevant products Mozilla has available for people.
  */
-export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
+export const AppPicker = (props: Props) => {
   const { l10n } = useLocalization();
 
   const products = getProducts(
@@ -127,6 +132,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       label={l10n.getString("bento-button-title")}
       onAction={onSelect}
       theme={props.theme}
+      style={props.style}
     >
       <Item key={products.vpn.id} textValue={l10n.getString("fx-vpn")}>
         <a
@@ -214,6 +220,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
 
 type AppPickerTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   label: string;
+  style: string;
   children: TreeProps<Record<string, never>>["children"];
   onAction: AriaMenuItemProps["onAction"];
   theme?: LayoutProps["theme"];
@@ -221,6 +228,7 @@ type AppPickerTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
 const AppPickerTrigger = ({
   label,
   theme,
+  style,
   ...otherProps
 }: AppPickerTriggerProps) => {
   const { l10n } = useLocalization();
@@ -252,7 +260,7 @@ const AppPickerTrigger = ({
   }, [appPickerTriggerState.isOpen]);
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${style}`}>
       <button
         {...triggerButtonProps}
         ref={triggerButtonRef}
