@@ -12,7 +12,7 @@ export const InfoIcon = ({
 }: SVGProps<SVGSVGElement> & { alt: string }) => {
   return (
     <svg
-      role="presentation"
+      role="img"
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 28 28"
@@ -37,7 +37,7 @@ export const CloseIcon = ({
 }: SVGProps<SVGSVGElement> & { alt: string }) => {
   return (
     <svg
-      role="presentation"
+      role="img"
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 20"
