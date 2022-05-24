@@ -102,6 +102,8 @@ class SNSNotificationTest(TestCase):
         mock_ses_relay_email.return_value = HttpResponse(
             "Successfully relayed emails", status=200
         )
+        # Demo FAIL_TEST_IF_CALLED
+        mock_ses_relay_email.side_effect = FAIL_TEST_IF_CALLED
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
         mock_ses_relay_email.assert_called_once()
