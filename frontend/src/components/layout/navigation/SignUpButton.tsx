@@ -1,24 +1,28 @@
 import { useLocalization } from "@fluent/react";
-import { getRuntimeConfig } from "../../../config";
 import { event as gaEvent } from "react-ga";
 import styles from "./SignUpButton.module.scss";
-import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { setCookie } from "../../../functions/cookies";
+import { getLoginUrl, useFxaFlowTracker } from "../../../hooks/fxaFlowTracker";
 
 export type Props = {
   className: string;
 };
 export const SignUpButton = (props: Props): JSX.Element => {
   const { l10n } = useLocalization();
-  const signUpButtonRef = useGaViewPing({
+  const signUpFxaFlowTracker = useFxaFlowTracker({
     category: "Sign In",
     label: "nav-profile-sign-up",
+    entrypoint: "relay-sign-up-header",
   });
+  const signUpUrl = getLoginUrl(
+    "relay-sign-up-header",
+    signUpFxaFlowTracker.flowData
+  );
 
   return (
     <a
-      href={getRuntimeConfig().fxaLoginUrl}
-      ref={signUpButtonRef}
+      href={signUpUrl}
+      ref={signUpFxaFlowTracker.ref}
       onClick={() => {
         gaEvent({
           category: "Sign In",
