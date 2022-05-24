@@ -87,7 +87,7 @@ export const MobileNavigation = (props: Props) => {
                 className={styles["settings-link"]}
               >
                 {l10n.getString("nav-profile-manage-fxa")}
-                <NewTabIcon width={12} height={18} viewBox="0 0 16 18" />
+                <NewTabIcon width={12} height={18} viewBox="0 0 16 18" alt="" />
               </a>
             </span>
           </li>
@@ -96,31 +96,21 @@ export const MobileNavigation = (props: Props) => {
         {renderMenuItem({
           url: "/",
           isVisible: !isLoggedIn,
-          icon: (
-            <HomeIcon width={20} height={20} alt={l10n.getString("nav-home")} />
-          ),
+          icon: <HomeIcon width={20} height={20} alt="" />,
           l10n: "nav-home",
         })}
 
         {renderMenuItem({
           url: "/accounts/profile",
           isVisible: isLoggedIn,
-          icon: (
-            <DashboardIcon
-              width={20}
-              height={20}
-              alt={l10n.getString("nav-dashboard")}
-            />
-          ),
+          icon: <DashboardIcon width={20} height={20} alt="" />,
           l10n: "nav-dashboard",
         })}
 
         {/* omitting condition as this should always be visible */}
         {renderMenuItem({
           url: "/faq",
-          icon: (
-            <FaqIcon width={20} height={20} alt={l10n.getString("nav-faq")} />
-          ),
+          icon: <FaqIcon width={20} height={20} alt="" />,
           l10n: "nav-faq",
         })}
 
@@ -133,13 +123,7 @@ export const MobileNavigation = (props: Props) => {
         {renderMenuItem({
           url: "/accounts/settings",
           isVisible: isLoggedIn,
-          icon: (
-            <Cogwheel
-              width={20}
-              height={20}
-              alt={l10n.getString("nav-settings")}
-            />
-          ),
+          icon: <Cogwheel width={20} height={20} alt="" />,
           l10n: "nav-settings",
         })}
 
@@ -148,26 +132,14 @@ export const MobileNavigation = (props: Props) => {
             getRuntimeConfig().frontendOrigin
           }`,
           isVisible: isLoggedIn && hasPremium,
-          icon: (
-            <ContactIcon
-              width={20}
-              height={20}
-              alt={l10n.getString("nav-contact")}
-            />
-          ),
+          icon: <ContactIcon width={20} height={20} alt="" />,
           l10n: "nav-contact",
         })}
 
         {renderMenuItem({
           url: `${supportUrl}?utm_source=${getRuntimeConfig().frontendOrigin}`,
           isVisible: isLoggedIn,
-          icon: (
-            <SupportIcon
-              width={20}
-              height={20}
-              alt={l10n.getString("nav-support")}
-            />
-          ),
+          icon: <SupportIcon width={20} height={20} alt="" />,
           l10n: "nav-support",
         })}
 
@@ -180,11 +152,7 @@ export const MobileNavigation = (props: Props) => {
                 value={getCsrfToken()}
               />
               <button className={`${styles.link}`} type="submit">
-                {SignOutIcon({
-                  alt: l10n.getString("nav-sign-out"),
-                  width: 20,
-                  height: 20,
-                })}
+                <SignOutIcon width={20} height={20} alt="" />
                 {l10n.getString("nav-sign-out")}
               </button>
             </form>
