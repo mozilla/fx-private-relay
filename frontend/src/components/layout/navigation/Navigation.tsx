@@ -2,7 +2,6 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useLocalization } from "@fluent/react";
 import styles from "./Navigation.module.scss";
-import { useIsLoggedIn } from "../../../hooks/session";
 import { SignUpButton } from "./SignUpButton";
 import { SignInButton } from "./SignInButton";
 import { ProfileData } from "../../../hooks/api/profile";
