@@ -7,7 +7,6 @@ from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from django.conf import settings
 from django.contrib.auth import logout
 from django.shortcuts import redirect
-from django.urls import reverse
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
@@ -41,7 +40,7 @@ class FxAToRequest:
                 update_social_token(social_token, new_token)
             except (CustomOAuth2Error, NoSocialToken):
                 logout(request)
-                return redirect(reverse("home"))
+                return redirect("/")
 
         request.fxa_account = fxa_account
         return self.get_response(request)
