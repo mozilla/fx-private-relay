@@ -16,7 +16,7 @@ export const UpgradeButton = (): JSX.Element => {
       <a
         ref={upgradeButtonRef}
         onClick={() => trackPurchaseStart({ label: "navbar-upgrade-button" })}
-        className={styles["upgrade-button"]}
+        id={styles["upgrade-button"]}
       >
         {l10n.getString("menu-upgrade-button")}
       </a>

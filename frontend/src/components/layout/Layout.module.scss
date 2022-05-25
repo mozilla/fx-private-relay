@@ -213,7 +213,8 @@ $toastify-toast-close-button: var(--toast-close-button);
     padding: 0 $spacing-md;
   }
 
-  a:hover {
+  a:hover,
+  button:hover {
     color: $color-blue-50;
   }
 
@@ -223,10 +224,12 @@ $toastify-toast-close-button: var(--toast-close-button);
     box-shadow: 0 0 3px 0 rgba($color-dark-gray-90, 0.5);
     color: $color-white;
 
-    a:hover {
+    a:hover,
+    button:hover {
       color: $color-light-gray-30;
     }
   }
+
   &.is-light {
     background-color: $color-white;
     color: $color-grey-40;

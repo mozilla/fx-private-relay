@@ -17,9 +17,15 @@
   padding: 0;
   border-radius: $border-radius-sm;
 
-  &:hover {
-    filter: invert(1);
-    background-color: $color-black;
+  svg {
+    color: $color-white;
+
+    &.premium {
+      color: $color-grey-40;
+    }
+    &:hover {
+      color: $color-purple-20;
+    }
   }
 }
 

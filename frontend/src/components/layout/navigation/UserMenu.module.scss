@@ -96,16 +96,23 @@
       border-style: none;
       background-color: transparent;
       width: 100%;
+      gap: $spacing-md;
       cursor: pointer;
 
-      img {
-        margin-right: $spacing-md;
-        width: 16px;
+      svg {
+        color: $color-purple-40;
       }
 
       &:hover {
+        text-decoration: underline;
         background-color: $color-light-gray-20;
         color: $color-violet-90;
+      }
+    }
+
+    .settings-link {
+      svg {
+        color: $color-purple-40;
       }
     }
 

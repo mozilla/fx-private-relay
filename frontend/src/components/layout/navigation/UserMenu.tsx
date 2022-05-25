@@ -28,7 +28,13 @@ import SettingsImage from "../../../../../static/images/settings.svg";
 import ContactImage from "../../../../../static/images/icon-message.svg";
 import HelpImage from "../../../../../static/images/help.svg";
 import SignoutImage from "../../../../../static/images/glocal-sign-out.svg";
-import { NewTabIcon } from "../../Icons";
+import {
+  Cogwheel,
+  ContactIcon,
+  NewTabIcon,
+  SignOutIcon,
+  SupportIcon,
+} from "../../Icons";
 import { useUsers } from "../../../hooks/api/user";
 import { useProfiles } from "../../../hooks/api/profile";
 import { getRuntimeConfig } from "../../../config";
@@ -110,7 +116,7 @@ export const UserMenu = (props: Props) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <MenuItemIcon src={ContactImage.src} />
+          <ContactIcon width={20} height={20} alt="" />
           {l10n.getString("nav-profile-contact")}
         </a>
       </Item>
@@ -143,7 +149,7 @@ export const UserMenu = (props: Props) => {
             className={styles["settings-link"]}
           >
             {l10n.getString("nav-profile-manage-fxa")}
-            <NewTabIcon />
+            <NewTabIcon alt="" />
           </a>
         </span>
       </Item>
@@ -157,7 +163,7 @@ export const UserMenu = (props: Props) => {
             title={l10n.getString("nav-profile-settings-tooltip")}
             className={styles["menu-link"]}
           >
-            <MenuItemIcon src={SettingsImage.src} />
+            <Cogwheel width={20} height={20} alt="" />
             {l10n.getString("nav-profile-settings")}
           </a>
         </Link>
@@ -174,7 +180,7 @@ export const UserMenu = (props: Props) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <MenuItemIcon src={HelpImage.src} />
+          <SupportIcon width={20} height={20} alt="" />
           {l10n.getString("nav-profile-help")}
         </a>
       </Item>
@@ -193,7 +199,7 @@ export const UserMenu = (props: Props) => {
             value={getCsrfToken()}
           />
           <button type="submit" className={styles["menu-button"]}>
-            <MenuItemIcon src={SignoutImage.src} />
+            <SignOutIcon width={20} height={20} alt="" />
             {l10n.getString("nav-profile-sign-out")}
           </button>
         </form>

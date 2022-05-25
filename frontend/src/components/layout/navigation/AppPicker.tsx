@@ -41,6 +41,7 @@ import FxDesktopLogo from "../../../../../static/images/logos/fx-logo.svg";
 import FxMobileLogo from "../../../../../static/images/logos/bento/fx-mobile.png";
 import { Props as LayoutProps } from "../../layout/Layout";
 import { getRuntimeConfig } from "../../../config";
+import { BentoIcon } from "../../Icons";
 
 const getProducts = (referringSiteUrl: string) => ({
   monitor: {
@@ -267,9 +268,9 @@ const AppPickerTrigger = ({
         title={l10n.getString("bento-button-title")}
         className={styles.trigger}
       >
-        <img
-          src={theme === "premium" ? BentoIconGrey.src : BentoIconWhite.src}
+        <BentoIcon
           alt={label}
+          className={`${theme === "premium" ? styles.premium : ""}`}
         />
       </button>
       {appPickerTriggerState.isOpen && (
