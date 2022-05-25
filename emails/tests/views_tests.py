@@ -33,6 +33,7 @@ from emails.views import (
     _sns_message,
     _sns_notification,
     validate_sns_header,
+    wrapped_email_test,
     InReplyToNotFound,
 )
 
@@ -994,3 +995,58 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
             "dmarcPolicy": "reject",
         }
         assert mm.get_records() == self.expected_records("a_state", overrides)
+
+
+def test_wrapped_email_test_from_profile(db, rf):
+    user = baker.make(User)
+    baker.make(
+        SocialAccount,
+        user=user,
+        provider="fxa",
+        extra_data={"locale": "de,en-US;q=0.9,en;q=0.8"},
+    )
+    request = rf.get("/emails/wrapped_email_test")
+    request.user = user
+    response = wrapped_email_test(request)
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert "<dt>language</dt>\n    <dd>de</dd>" in html
+    assert "<dt>has_premium</dt>\n    <dd>No</dd>" in html
+    assert "<dt>in_premium_country</dt>\n    <dd>Yes</dd>" in html
+    assert "<dt>has_attachment</dt>\n    <dd>Yes</dd>" in html
+    assert "<dt>has_email_tracker_study_link</dt>\n    <dd>No</dd>" in html
+
+
+@pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
+@pytest.mark.parametrize("has_premium", ("Yes", "No"))
+@pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
+@pytest.mark.parametrize("has_attachment", ("Yes", "No"))
+@pytest.mark.parametrize("has_email_tracker_study_link", ("Yes", "No"))
+def test_wrapped_email_test(
+    rf,
+    language,
+    has_premium,
+    in_premium_country,
+    has_attachment,
+    has_email_tracker_study_link,
+):
+    data = {
+        "language": language,
+        "has_premium": has_premium,
+        "in_premium_country": in_premium_country,
+        "has_attachment": has_attachment,
+        "has_email_tracker_study_link": has_email_tracker_study_link,
+    }
+    request = rf.get("/emails/wrapped_email_test", data=data)
+    response = wrapped_email_test(request)
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert f"<dt>language</dt>\n    <dd>{language}</dd>" in html
+    assert f"<dt>has_premium</dt>\n    <dd>{has_premium}</dd>" in html
+    assert f"<dt>in_premium_country</dt>\n    <dd>{in_premium_country}</dd>" in html
+    assert f"<dt>has_attachment</dt>\n    <dd>{has_attachment}</dd>" in html
+    assert f"<dt>has_attachment</dt>\n    <dd>{has_attachment}</dd>" in html
+    assert (
+        "<dt>has_email_tracker_study_link</dt>\n"
+        f"    <dd>{has_email_tracker_study_link}</dd>"
+    ) in html
