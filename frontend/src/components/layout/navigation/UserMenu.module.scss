@@ -21,8 +21,8 @@
 
 .popup {
   position: absolute;
-  transform: translateX(-100%);
-  margin-top: $spacing-xl;
+  right: 0;
+  margin-top: $spacing-md;
   padding: 0;
   padding-bottom: $spacing-lg;
   min-width: $content-xs;
