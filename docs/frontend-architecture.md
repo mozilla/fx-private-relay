@@ -136,20 +136,24 @@ the user's dashboard, rendered by the `<AddonData>` component. The add-on
 looks for that element via its ID (`#profile-main`) and reads its attributes.
 
 Thus, if you want to share data with the add-on, you can add it as an attribute
-there. Then in the add-on, you can expand `get_profile_data.js` to read it and
-copy it over to the extension storage.
+there. Then in the add-on, you can expand
+[`get_profile_data.js`](https://github.com/mozilla/fx-private-relay-add-on/blob/main/src/js/relay.firefox.com/get_profile_data.js)
+to read it and copy it over to the extension storage.
 
 ### 2. The add-on shares data with the website
 
 The add-on mainly tells the website whether it is installed, and, in case the
 user has disabled server-side storage of mask labels, the labels it has stored
 locally. It does so by changing attributes on the
-`<firefox-private-relay-addon>` element, rendered in `_app.page.tsx`. React
-components looking to access that data can do so using the `useAddonData` hook.
+`<firefox-private-relay-addon>` element, rendered in
+[`_app.page.tsx`](../frontend/src/pages/_app.page.tsx).
+React components looking to access that data can do so using the `useAddonData`
+hook.
 
 If you have more data to share with the website, you can add it in the add-on
 in `inject_addon_data.js`. To then make it available in the website, add the
-data you're injecting to the `AddonData` type in `/frontend/src/hooks/addon.ts`.
+data you're injecting to the `AddonData` type in
+[`/frontend/src/hooks/addon.ts`](../frontend/src/hooks/addon.ts).
 Additionally, since attributes are always strings, you'll want to define how to
 convert that to the proper data structure (e.g. via `JSON.parse`) by adding a
 property to the `attributeParsers` object in that same file. The property name
@@ -166,7 +170,8 @@ label and has server-side storage disabled.
 To do so, React components can again use the `useAddonData` hook, whose return
 value also includes a `sendEvent` function. This then fires a `website` event on
 the `<firefox-private-relay-addon>` element, which is listened to by the add-on
-in `get_profile_data.js`.
+in
+[`get_profile_data.js`](https://github.com/mozilla/fx-private-relay-add-on/blob/main/src/js/relay.firefox.com/get_profile_data.js).
 
 ### 4. The add-on sends a notification to the website
 
