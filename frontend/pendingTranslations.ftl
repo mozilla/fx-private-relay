@@ -13,9 +13,6 @@ nav-support = Help and Support
 nav-sign-out = Sign Out
 nav-contact = Contact Us
 
-nav-menu-mobile = Mobile Menu
-menu-toggle = Menu Button
-
 landing-use-cases-shopping = Shopping
 landing-use-cases-shopping-hero-heading = Shopping with email masks
 landing-use-cases-shopping-hero-content1 = Want to buy something online and don’t know or fully trust the shop?

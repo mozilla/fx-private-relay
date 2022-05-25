@@ -37,8 +37,6 @@ export const Navigation = (props: Props) => {
     <button
       className={styles["menu-toggle"]}
       aria-expanded={mobileMenuExpanded}
-      aria-label={l10n.getString("menu-toggle")}
-      aria-controls="mobile-menu"
       onClick={() => handleToggle()}
     >
       {/* passing toggle state to show correct icon */}
@@ -47,7 +45,7 @@ export const Navigation = (props: Props) => {
   );
 
   return (
-    <nav aria-label={l10n.getString("nav-menu")} className={styles["site-nav"]}>
+    <nav className={styles["site-nav"]}>
       <Link href={homePath}>
         <a
           className={`${styles.link} ${styles["home-link"]} 

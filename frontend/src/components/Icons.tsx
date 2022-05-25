@@ -40,6 +40,7 @@ export const CloseIcon = ({
     <svg
       role="img"
       aria-hidden={alt === ""}
+      aria-label={alt}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 20 20"
       width={20}
@@ -68,7 +69,6 @@ export const BentoIcon = (
       role="img"
       aria-label={props.alt}
       aria-hidden={props.alt === ""}
-      fill="none"
       xmlns="http://www.w3.org/2000/svg"
       style={{
         fill: "currentcolor",
@@ -124,7 +124,9 @@ export const MenuIcon = ({
       width={20}
       height={20}
       viewBox="0 0 20 20"
-      role="presentation"
+      role="img"
+      aria-hidden={alt === ""}
+      aria-label={alt}
       xmlns="http://www.w3.org/2000/svg"
       style={{
         fill: "currentcolor",
@@ -132,7 +134,7 @@ export const MenuIcon = ({
       }}
       {...props}
     >
-      {alt && <title>{alt}</title>}
+      <title>{alt}</title>
       <path d="M1.33333 2.66667H14.6667C15.0203 2.66667 15.3594 2.52619 15.6095 2.27614C15.8595 2.02609 16 1.68696 16 1.33333C16 0.979711 15.8595 0.640573 15.6095 0.390524C15.3594 0.140476 15.0203 0 14.6667 0H1.33333C0.979711 0 0.640573 0.140476 0.390524 0.390524C0.140476 0.640573 0 0.979711 0 1.33333C0 1.68696 0.140476 2.02609 0.390524 2.27614C0.640573 2.52619 0.979711 2.66667 1.33333 2.66667ZM14.6667 6.66667H1.33333C0.979711 6.66667 0.640573 6.80714 0.390524 7.05719C0.140476 7.30724 0 7.64638 0 8C0 8.35362 0.140476 8.69276 0.390524 8.94281C0.640573 9.19286 0.979711 9.33333 1.33333 9.33333H14.6667C15.0203 9.33333 15.3594 9.19286 15.6095 8.94281C15.8595 8.69276 16 8.35362 16 8C16 7.64638 15.8595 7.30724 15.6095 7.05719C15.3594 6.80714 15.0203 6.66667 14.6667 6.66667ZM14.6667 13.3333H1.33333C0.979711 13.3333 0.640573 13.4738 0.390524 13.7239C0.140476 13.9739 0 14.313 0 14.6667C0 15.0203 0.140476 15.3594 0.390524 15.6095C0.640573 15.8595 0.979711 16 1.33333 16H14.6667C15.0203 16 15.3594 15.8595 15.6095 15.6095C15.8595 15.3594 16 15.0203 16 14.6667C16 14.313 15.8595 13.9739 15.6095 13.7239C15.3594 13.4738 15.0203 13.3333 14.6667 13.3333Z" />
     </svg>
   );
@@ -146,7 +148,6 @@ export const Cogwheel = ({
     width={16}
     height={16}
     viewBox="0 0 16 16"
-    fill="none"
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -154,7 +155,7 @@ export const Cogwheel = ({
     }}
     {...props}
   >
-    {alt && <title>{alt}</title>}
+    <title>{alt}</title>
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -171,7 +172,9 @@ export const FaqIcon = ({
     width={20}
     height={20}
     viewBox="0 0 20 20"
-    role="presentation"
+    role="img"
+    aria-hidden={alt === ""}
+    aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -179,7 +182,7 @@ export const FaqIcon = ({
     }}
     {...props}
   >
-    {alt && <title>{alt}</title>}
+    <title>{alt}</title>
     <path d="M2 4H0V18C0 19.1 0.9 20 2 20H16V18H2V4ZM18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM18 14H6V2H18V14ZM11.51 8.16C11.92 7.43 12.69 7 13.14 6.36C13.62 5.68 13.35 4.42 12 4.42C11.12 4.42 10.68 5.09 10.5 5.65L9.13 5.08C9.51 3.96 10.52 3 11.99 3C13.22 3 14.07 3.56 14.5 4.26C14.87 4.86 15.08 5.99 14.51 6.83C13.88 7.76 13.28 8.04 12.95 8.64C12.82 8.88 12.77 9.04 12.77 9.82H11.25C11.26 9.41 11.19 8.74 11.51 8.16ZM10.95 11.95C10.95 11.36 11.42 10.91 12 10.91C12.59 10.91 13.04 11.36 13.04 11.95C13.04 12.53 12.6 13 12 13C11.42 13 10.95 12.53 10.95 11.95Z" />
   </svg>
 );
@@ -192,7 +195,9 @@ export const DashboardIcon = ({
     width={20}
     height={20}
     viewBox="3 3 20 20"
-    role="presentation"
+    role="img"
+    aria-hidden={alt === ""}
+    aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -200,7 +205,7 @@ export const DashboardIcon = ({
     }}
     {...props}
   >
-    {alt && <title>{alt}</title>}
+    <title>{alt}</title>
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -217,7 +222,9 @@ export const HomeIcon = ({
     width={20}
     height={20}
     viewBox="0 0 20 20"
-    role="presentation"
+    role="img"
+    aria-hidden={alt === ""}
+    aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -225,7 +232,7 @@ export const HomeIcon = ({
     }}
     {...props}
   >
-    {alt && <title>{alt}</title>}
+    <title>{alt}</title>
     <path d="M10 2.69L15 7.19V15H13V9H7V15H5V7.19L10 2.69ZM10 0L0 9H3V17H9V11H11V17H17V9H20L10 0Z" />
   </svg>
 );
@@ -238,7 +245,9 @@ export const SupportIcon = ({
     width={20}
     height={20}
     viewBox="3 3 20 20"
-    role="presentation"
+    role="img"
+    aria-hidden={alt === ""}
+    aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -263,7 +272,9 @@ export const SignOutIcon = ({
     width={20}
     height={20}
     viewBox="0 0 20 20"
-    role="presentation"
+    role="img"
+    aria-hidden={alt === ""}
+    aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -271,7 +282,7 @@ export const SignOutIcon = ({
     }}
     {...props}
   >
-    {alt && <title>{alt}</title>}
+    <title>{alt}</title>
     <path d="M12.2649 2.33395C11.8376 2.03969 11.2504 2.14437 10.958 2.56833C10.6632 2.99573 10.7678 3.58336 11.1919 3.87589L11.1928 3.8765C12.7786 4.98288 13.7194 6.79017 13.7194 8.70868C13.7194 11.9728 11.0641 14.6281 7.8 14.6281C4.53668 14.6281 1.88062 11.9914 1.88062 8.7265C1.88062 6.80799 2.82137 5.00069 4.40717 3.89432L4.40806 3.8937C4.83222 3.60118 4.93679 3.01355 4.64204 2.58615C4.34954 2.16203 3.762 2.05743 3.33461 2.35208C1.25087 3.79338 0 6.19052 0 8.7265C0 13.0348 3.49175 16.5265 7.8 16.5265C12.1083 16.5265 15.6 13.0348 15.6 8.7265C15.6 6.19091 14.3494 3.79337 12.2649 2.33395ZM7.80005 8.22361C8.3132 8.22361 8.74037 7.79645 8.74037 7.2833V0.940312C8.74037 0.427161 8.3132 0 7.80005 0C7.2869 0 6.85974 0.427161 6.85974 0.940312V7.26548C6.85974 7.79847 7.28891 8.22361 7.80005 8.22361Z" />
   </svg>
 );
@@ -284,7 +295,9 @@ export const ContactIcon = ({
     width={20}
     height={20}
     viewBox="0 0 20 20"
-    role="presentation"
+    role="img"
+    aria-hidden={alt === ""}
+    aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
     style={{
       fill: "currentcolor",
@@ -292,7 +305,7 @@ export const ContactIcon = ({
     }}
     {...props}
   >
-    {alt && <title>{alt}</title>}
+    <title>{alt}</title>
     <path
       fillRule="evenodd"
       clipRule="evenodd"
