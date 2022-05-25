@@ -764,6 +764,9 @@ class ProfileTest(TestCase):
         )
         assert self.profile.fxa_locale_in_premium_country is False
 
+    def test_locale_in_premium_country_returns_False_if_no_fxa_account(self):
+        assert self.profile.fxa_locale_in_premium_country is False
+
     @override_settings(
         PREMIUM_RELEASE_DATE=datetime.fromisoformat("2021-10-27 17:00:00+00:00")
     )
