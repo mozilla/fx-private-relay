@@ -10,8 +10,10 @@ import os
 import re
 import shlex
 from tempfile import SpooledTemporaryFile
+from textwrap import dedent
 
 from botocore.exceptions import ClientError
+from decouple import strtobool
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
 from waffle import sample_is_active
@@ -26,6 +28,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
@@ -71,7 +74,9 @@ class InReplyToNotFound(Exception):
 
 def wrap_html_email(
     original_html,
-    recipient_profile,
+    language,
+    has_premium,
+    in_premium_country,
     email_to,
     display_email,
     has_attachment,
@@ -80,7 +85,9 @@ def wrap_html_email(
     """Add Relay banners, surveys, etc. to an HTML email"""
     email_context = {
         "original_html": original_html,
-        "recipient_profile": recipient_profile,
+        "language": language,
+        "has_premium": has_premium,
+        "in_premium_country": in_premium_country,
         "email_to": email_to,
         "display_email": display_email,
         "has_attachment": has_attachment,
@@ -94,14 +101,85 @@ def wrap_html_email(
 
 
 def wrapped_email_test(request):
-    html_content = "<p><strong>strong</strong></p><hr><p>plain</p>"
-    user_profile = Profile.objects.order_by("?").first()
+    """
+    Demonstrate rendering of forwarded HTML emails.
+
+    Settings like language can be given in the querystring, otherwise settings
+    come from a randomly chosen profile.
+    """
+
+    if all(
+        key in request.GET
+        for key in ("language", "has_premium", "in_premium_country", "has_attachment")
+    ):
+        user_profile = None
+    else:
+        user_profile = Profile.objects.order_by("?").first()
+
+    if "language" in request.GET:
+        language = request.GET["language"]
+    else:
+        assert user_profile is not None
+        language = user_profile.language
+
+    if "has_premium" in request.GET:
+        has_premium = strtobool(request.GET["has_premium"])
+    else:
+        assert user_profile is not None
+        has_premium = user_profile.has_premium
+
+    if "in_premium_country" in request.GET:
+        in_premium_country = strtobool(request.GET["in_premium_country"])
+    else:
+        assert user_profile is not None
+        in_premium_country = user_profile.fxa_locale_in_premium_country
+
+    if "has_attachment" in request.GET:
+        has_attachment = strtobool(request.GET["has_attachment"])
+    else:
+        has_attachment = True
+
+    if "has_email_tracker_study_link" in request.GET:
+        has_email_tracker_study_link = strtobool(
+            request.GET["has_email_tracker_study_link"]
+        )
+    else:
+        has_email_tracker_study_link = False
+    if has_email_tracker_study_link:
+        email_tracker_study_link = "https://example.com/fake_survey_link"
+    else:
+        email_tracker_study_link = ""
+
+    html_content = dedent(
+        f"""\
+    <p>
+      <strong>Email rendering Test</strong>
+    </p>
+    <p>Settings:</p>
+    <dl>
+      <dt>language</dt>
+        <dd>{escape(language)}</dd>
+      <dt>has_premium</dt>
+        <dd>{"Yes" if has_premium else "No"}</dd>
+      <dt>in_premium_country</dt>
+        <dd>{"Yes" if in_premium_country else "No"}</dd>
+      <dt>has_attachment</dt>
+        <dd>{"Yes" if has_attachment else "No"}</dd>
+      <dt>has_email_tracker_study_link</dt>
+        <dd>{"Yes" if has_email_tracker_study_link else "No"}</dd>
+    </dl>
+    """
+    )
+
     wrapped_email = wrap_html_email(
         original_html=html_content,
-        recipient_profile=user_profile,
+        language=language,
+        has_premium=has_premium,
+        in_premium_country=in_premium_country,
+        email_tracker_study_link=email_tracker_study_link,
         display_email="test@relay.firefox.com",
         email_to="unused",
-        has_attachment=True,
+        has_attachment=has_attachment,
     )
     return HttpResponse(wrapped_email)
 
@@ -504,7 +582,9 @@ def _sns_message(message_json):
 
         wrapped_html = wrap_html_email(
             original_html=html_content,
-            recipient_profile=user_profile,
+            language=user_profile.language,
+            has_premium=user_profile.has_premium,
+            in_premium_country=user_profile.fxa_locale_in_premium_country,
             email_to=to_address,
             email_tracker_study_link=email_tracker_study_link,
             display_email=display_email,
