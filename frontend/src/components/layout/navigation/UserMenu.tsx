@@ -24,10 +24,6 @@ import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { event as gaEvent } from "react-ga";
 import styles from "./UserMenu.module.scss";
-import SettingsImage from "../../../../../static/images/settings.svg";
-import ContactImage from "../../../../../static/images/icon-message.svg";
-import HelpImage from "../../../../../static/images/help.svg";
-import SignoutImage from "../../../../../static/images/glocal-sign-out.svg";
 import {
   Cogwheel,
   ContactIcon,

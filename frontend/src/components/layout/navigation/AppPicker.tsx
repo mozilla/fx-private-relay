@@ -31,8 +31,6 @@ import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./AppPicker.module.scss";
-import BentoIconGrey from "../../../../../static/images/bento.svg";
-import BentoIconWhite from "../../../../../static/images/bento-white.svg";
 import FirefoxLogo from "../../../../../static/images/logos/bento/fx.png";
 import MonitorLogo from "../../../../../static/images/logos/bento/monitor.png";
 import PocketLogo from "../../../../../static/images/logos/bento/pocket.png";
