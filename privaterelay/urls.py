@@ -36,12 +36,6 @@ urlpatterns = [
     path("accounts/profile/refresh", views.profile_refresh, name="profile_refresh"),
     path("accounts/", include("allauth.urls")),
     path("api/", include("api.urls")),
-    # This route is still referred to in wrapped_email.html, so leave it in
-    # (even though the FAQ is no longer rendered by Django):
-    path("faq", views.faq, name="faq"),
-    # This route is still referred to in middleware.py, so leave it in
-    # (even though the homepage is no longer rendered by Django):
-    path("", views.home, name="home"),
 ]
 
 if settings.DEBUG:

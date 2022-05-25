@@ -48,20 +48,6 @@ logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
 
 
-def home(request):
-    if request.user and not request.user.is_anonymous:
-        return redirect(reverse("profile"))
-
-    return render(request, "home.html")
-
-
-def faq(request):
-    context = {}
-    if request.user and not request.user.is_anonymous:
-        context.update({"user_profile": request.user.profile_set.first()})
-    return render(request, "faq.html", context)
-
-
 @lru_cache(maxsize=None)
 def _get_fxa(request):
     return request.user.socialaccount_set.filter(provider="fxa").first()
