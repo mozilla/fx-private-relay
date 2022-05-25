@@ -124,7 +124,7 @@ class Profile(models.Model):
 
     @property
     def language(self):
-        if self.fxa.extra_data.get("locale"):
+        if self.fxa and self.fxa.extra_data.get("locale"):
             for accept_lang, _ in parse_accept_lang_header(
                 self.fxa.extra_data.get("locale")
             ):
