@@ -1,6 +1,6 @@
 @import "../../../../styles/tokens.scss";
 
-.trigger {
+button.trigger {
   flex-shrink: 0;
   align-items: center;
   gap: $spacing-sm;
@@ -15,6 +15,10 @@
   &.is-open {
     background-color: $color-light-gray-20;
     color: $color-dark-gray-20;
+
+    &:hover {
+      color: $color-blue-50;
+    }
   }
 
   .pill {
