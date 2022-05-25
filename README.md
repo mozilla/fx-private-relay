@@ -91,11 +91,15 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
     ```
 
 ### Working with translations
+The following docs will get you started with development, include creating new
+strings to translate.  See [Translation and Localization](docs/translations.md)
+for general information on Relay localization.
+
 #### Getting the latest translations
 We use a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 for translated message files. The `--recurse-submodules` step of installation
 should bring the message files into your working directory already, but you may
-want also want to udpate the translations after install. The easiest way to do
+want also want to update the translations after install. The easiest way to do
 that is:
 
 * `git submodule update --remote`
@@ -116,7 +120,7 @@ You can then open a pull request from the `message-updates-yyyymmdd` branch to
 [the l10n repo](https://github.com/mozilla-l10n/fx-private-relay-l10n) `main` branch.
 
 If you're not yet ready to submit some strings for translation, you can
-tentatively add them to frontend/pendingTranslations.ftl. Strings in that file
+tentatively add them to `frontend/pendingTranslations.ftl`. Strings in that file
 will show up until strings with the same ID are added to the l10n repository.
 
 #### Commit translations for release
@@ -131,6 +135,9 @@ You can then commit and push to set the app repository to the updated version
 of the translations submodule:
 
 * `git push`
+
+An automated process updates the submodule daily, bringing in any new changes
+and translations from the Localization Team.
 
 ### Recommended: Enable Firefox Accounts authentication
 To enable Firefox Accounts authentication on your local server, you can use the
