@@ -69,21 +69,41 @@ class InReplyToNotFound(Exception):
         self.message = message
 
 
-def wrapped_email_test(request):
-    html_content = "<p><strong>strong</strong></p><hr><p>plain</p>"
-    display_email = "test@relay.firefox.com"
-    attachments = ["fdsa"]
-    user_profile = Profile.objects.order_by("?").first()
-    test_email_context = {
-        "original_html": html_content,
-        "recipient_profile": user_profile,
+def wrap_html_email(
+    original_html,
+    recipient_profile,
+    email_to,
+    display_email,
+    has_attachment,
+    email_tracker_study_link=None,
+):
+    """Add Relay banners, surveys, etc. to an HTML email"""
+    email_context = {
+        "original_html": original_html,
+        "recipient_profile": recipient_profile,
+        "email_to": email_to,
         "display_email": display_email,
+        "has_attachment": has_attachment,
+        "email_tracker_study_link": email_tracker_study_link,
+
         "SITE_ORIGIN": settings.SITE_ORIGIN,
-        "has_attachment": bool(attachments),
         "survey_text": settings.RECRUITMENT_EMAIL_BANNER_TEXT,
         "survey_link": settings.RECRUITMENT_EMAIL_BANNER_LINK,
     }
-    return render(request, "emails/wrapped_email.html", test_email_context)
+    return render_to_string("emails/wrapped_email.html", email_context)
+
+
+def wrapped_email_test(request):
+    html_content = "<p><strong>strong</strong></p><hr><p>plain</p>"
+    user_profile = Profile.objects.order_by("?").first()
+    wrapped_email = wrap_html_email(
+        original_html=html_content,
+        recipient_profile=user_profile,
+        display_email="test@relay.firefox.com",
+        email_to="unused",
+        has_attachment=True,
+    )
+    return HttpResponse(wrapped_email)
 
 
 @csrf_exempt
@@ -482,19 +502,13 @@ def _sns_message(message_json):
                 + f"control={control}"
             )
 
-        wrapped_html = render_to_string(
-            "emails/wrapped_email.html",
-            {
-                "original_html": html_content,
-                "recipient_profile": user_profile,
-                "email_to": to_address,
-                "email_tracker_study_link": email_tracker_study_link,
-                "display_email": display_email,
-                "SITE_ORIGIN": settings.SITE_ORIGIN,
-                "has_attachment": bool(attachments),
-                "survey_text": settings.RECRUITMENT_EMAIL_BANNER_TEXT,
-                "survey_link": settings.RECRUITMENT_EMAIL_BANNER_LINK,
-            },
+        wrapped_html = wrap_html_email(
+            original_html=html_content,
+            recipient_profile=user_profile,
+            email_to=to_address,
+            email_tracker_study_link=email_tracker_study_link,
+            display_email=display_email,
+            has_attachment=bool(attachments),
         )
         message_body["Html"] = {"Charset": "UTF-8", "Data": wrapped_html}
 
