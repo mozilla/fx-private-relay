@@ -204,13 +204,6 @@ export const UserMenu = (props: Props) => {
   );
 };
 
-type MenuItemIconProps = {
-  src: string;
-};
-const MenuItemIcon = (props: MenuItemIconProps) => (
-  <img src={props.src} alt="" width={28} />
-);
-
 type UserMenuTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   label: ReactNode;
   style: string;
