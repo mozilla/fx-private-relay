@@ -77,7 +77,6 @@ def wrap_html_email(
     language,
     has_premium,
     in_premium_country,
-    email_to,
     display_email,
     has_attachment,
     email_tracker_study_link=None,
@@ -88,11 +87,9 @@ def wrap_html_email(
         "language": language,
         "has_premium": has_premium,
         "in_premium_country": in_premium_country,
-        "email_to": email_to,
         "display_email": display_email,
         "has_attachment": has_attachment,
         "email_tracker_study_link": email_tracker_study_link,
-
         "SITE_ORIGIN": settings.SITE_ORIGIN,
         "survey_text": settings.RECRUITMENT_EMAIL_BANNER_TEXT,
         "survey_link": settings.RECRUITMENT_EMAIL_BANNER_LINK,
@@ -178,7 +175,6 @@ def wrapped_email_test(request):
         in_premium_country=in_premium_country,
         email_tracker_study_link=email_tracker_study_link,
         display_email="test@relay.firefox.com",
-        email_to="unused",
         has_attachment=has_attachment,
     )
     return HttpResponse(wrapped_email)
@@ -585,7 +581,6 @@ def _sns_message(message_json):
             language=user_profile.language,
             has_premium=user_profile.has_premium,
             in_premium_country=user_profile.fxa_locale_in_premium_country,
-            email_to=to_address,
             email_tracker_study_link=email_tracker_study_link,
             display_email=display_email,
             has_attachment=bool(attachments),
