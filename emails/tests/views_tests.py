@@ -480,7 +480,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.bucket = "test-bucket"
         self.key = "/emails/objectkey123"
         self.user = baker.make(User, email="sender@test.com", make_m2m=True)
-        self.profile: Optional[Profile] = self.user.profile_set.first()  # type: ignore[attr-defined]
+        self.profile = self.user.profile_set.first()
         assert self.profile is not None
         self.address = baker.make(
             RelayAddress, user=self.user, address="sender", domain=2
@@ -633,7 +633,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 class SnsMessageTest(TestCase):
     def setUp(self) -> None:
         self.user = baker.make(User)
-        self.profile: Optional[Profile] = self.user.profile_set.first()  # type: ignore[attr-defined]
+        self.profile = self.user.profile_set.first()
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa"
         )

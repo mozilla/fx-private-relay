@@ -43,7 +43,7 @@ responses==0.21.0
 black==22.6.0
 
 # type hinting
-mypy==0.942
-django-stubs==1.10.1
-djangorestframework-stubs==1.5.0
+mypy==0.950
+django-stubs==1.11.0
+djangorestframework-stubs==1.6.0
 types-requests==2.27.20

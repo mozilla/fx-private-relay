@@ -5,8 +5,7 @@ python_version = "3.9"
 show_error_codes = true
 warn_return_any = true
 warn_unused_configs = true
-# TODO: Try re-enabling with django-stubs>1.10.1
-# warn_unused_ignores = true
+warn_unused_ignores = true
 
 [tool.django-stubs]
 django_settings_module = "privaterelay.settings"
@@ -33,8 +32,10 @@ module = [
     "jwcrypto.jwe",
     "jwcrypto.jwk",
     "jwt",
+    "markus",
     "markus.main",
     "markus.testing",
+    "markus.utils",
     "oauthlib.oauth2.rfc6749.errors",
     "phonenumbers",
     "requests_oauthlib",
