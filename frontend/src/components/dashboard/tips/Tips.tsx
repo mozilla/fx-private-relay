@@ -1,9 +1,17 @@
-import { useRef, Key, ReactNode, useState } from "react";
+import {
+  useRef,
+  Key,
+  ReactNode,
+  useState,
+  useCallback,
+  RefObject,
+} from "react";
 import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { useTabList, useTabPanel, useTab } from "react-aria";
 import { useTabListState, TabListState, Item } from "react-stately";
 import { useInView } from "react-intersection-observer";
+import { event as gaEvent } from "react-ga";
 import styles from "./Tips.module.scss";
 import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
 import { InfoIcon } from "../../Icons";
@@ -14,12 +22,15 @@ import {
 } from "../../../hooks/localDismissal";
 import { getRuntimeConfig } from "../../../config";
 import { CustomAliasTip } from "./CustomAliasTip";
+import { useGaViewPing } from "../../../hooks/gaViewPing";
 
 export type Props = {
   profile: ProfileData;
 };
 
 export type TipEntry = {
+  /** This ID is used to identify the tip in analytics. */
+  id: string;
   title: string;
   content: ReactNode;
   dismissal: DismissalData;
@@ -40,14 +51,16 @@ export const Tips = (props: Props) => {
   const customAliasDismissal = useLocalDismissal(
     `tips_customAlias_${props.profile.id}`
   );
+  const customMaskTip = {
+    id: "custom-subdomain",
+    title: l10n.getString("tips-custom-alias-heading-2"),
+    content: (
+      <CustomAliasTip subdomain={props.profile.subdomain ?? undefined} />
+    ),
+    dismissal: customAliasDismissal,
+  };
   if (props.profile.has_premium) {
-    tips.push({
-      title: l10n.getString("tips-custom-alias-heading-2"),
-      content: (
-        <CustomAliasTip subdomain={props.profile.subdomain ?? undefined} />
-      ),
-      dismissal: customAliasDismissal,
-    });
+    tips.push(customMaskTip);
   }
 
   if (tips.length === 0 || getRuntimeConfig().featureFlags.tips !== true) {
@@ -59,6 +72,11 @@ export const Tips = (props: Props) => {
       tipEntry.dismissal.dismiss();
     });
     setIsExpanded(false);
+    gaEvent({
+      category: "Tips",
+      action: "Collapse",
+      label: "tips-header",
+    });
   };
 
   let elementToShow = (
@@ -78,9 +96,9 @@ export const Tips = (props: Props) => {
         </button>
       </header>
       <div className={styles["tip-carousel"]}>
-        <TipsCarousel defaultSelectedKey={"tip_0"}>
-          {tips.map((tip, index) => (
-            <Item key={`tip_${index}`}>{tip.content}</Item>
+        <TipsCarousel defaultSelectedKey={tips[0].id}>
+          {tips.map((tip) => (
+            <Item key={tip.id}>{tip.content}</Item>
           ))}
         </TipsCarousel>
       </div>
@@ -116,7 +134,14 @@ export const Tips = (props: Props) => {
       // just show a small button that allows pulling up the panel again:
       <button
         className={styles["expand-button"]}
-        onClick={() => setIsExpanded(true)}
+        onClick={() => {
+          setIsExpanded(true);
+          gaEvent({
+            category: "Tips",
+            action: "Expand (from minimised)",
+            label: tips[0].id,
+          });
+        }}
       >
         <span className={styles.icon}>
           <InfoIcon alt="" width={20} height={20} />
@@ -145,7 +170,16 @@ export const Tips = (props: Props) => {
         </header>
         <div className={styles.summary}>
           <b>{tips[0].title}</b>
-          <button onClick={() => setIsExpanded(true)}>
+          <button
+            onClick={() => {
+              setIsExpanded(true);
+              gaEvent({
+                category: "Tips",
+                action: "Expand (from teaser)",
+                label: tips[0].id,
+              });
+            }}
+          >
             {l10n.getString("tips-toast-button-expand-label")}
           </button>
         </div>
@@ -257,11 +291,34 @@ const TipPanel = ({
 }: { tabListState: TabListState<object> } & Parameters<
   typeof useTabPanel
 >[0]) => {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const { tabPanelProps } = useTabPanel(props, tabListState, panelRef);
+  const panelRef = useRef<HTMLDivElement>();
+  const inViewRef = useGaViewPing({
+    category: "Tips",
+    label: tabListState.selectedItem.key.toString(),
+  });
+  // Used to set both `panelRef` and `useGaViewPing`'s callback ref on the
+  // same element. See
+  // https://github.com/thebuilder/react-intersection-observer/blob/d61319a06084d660c1b390c2ccdcd2e4bdaa002e/README.md#how-can-i-assign-multiple-refs-to-a-component
+  const setRefs = useCallback(
+    (element: HTMLDivElement) => {
+      panelRef.current = element;
+      inViewRef(element);
+    },
+    [inViewRef]
+  );
+
+  const { tabPanelProps } = useTabPanel(
+    props,
+    tabListState,
+    // useTabPanel's type definition expects a RefObject,
+    // but because we're using a MutableRefObject (due to useGaViewPing, by
+    // virtue of its use of useInView, not accepting an existing Ref), we need
+    // to explicitly tell it that that, too, is a Ref:
+    panelRef as RefObject<HTMLDivElement>
+  );
 
   return (
-    <div {...tabPanelProps} ref={panelRef} className={styles.tip}>
+    <div {...tabPanelProps} ref={setRefs} className={styles.tip}>
       {tabListState.selectedItem.props.children}
     </div>
   );
