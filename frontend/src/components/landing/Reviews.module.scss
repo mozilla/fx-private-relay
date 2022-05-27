@@ -6,6 +6,9 @@
   justify-items: center;
 
   .reviews {
+    display: flex;
+    gap: $spacing-xl;
+    flex-direction: row;
     width: $content-max;
     max-width: 100%;
     margin: 0 auto;
@@ -25,7 +28,8 @@
   background-color: $color-purple-30;
 
   .logo {
-    width: $layout-md + $layout-xs;
+    width: $layout-xl;
+    padding: $spacing-sm;
   }
 
   .logo-title {
@@ -37,5 +41,44 @@
     @include text-title-xs;
     font-weight: 600;
     text-transform: uppercase;
+  }
+}
+
+.rating-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-xs;
+
+  .stars {
+    display: flex;
+    flex-direction: row;
+
+    .star {
+      color: $color-yellow-50;
+    }
+
+    .empty-star {
+      color: $color-white;
+      stroke: $color-grey-20;
+      stroke-width: 2px;
+    }
+  }
+
+  .rating {
+    .title {
+      @include text-title-2xl; // 72
+      font-family: $font-stack-firefox;
+      font-weight: 600;
+    }
+
+    .text {
+      @include text-body-sm;
+      color: $color-grey-40;
+      font-family: $font-stack-base;
+      font-weight: 500;
+    }
   }
 }
