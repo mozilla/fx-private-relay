@@ -65,7 +65,7 @@ export function getHandlers(
   addGetHandler("/api/v1/users/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
-      return res(ctx.status(400));
+      return res(ctx.status(403));
     }
 
     return res(ctx.status(200), ctx.json([users[mockId]]));
@@ -103,7 +103,7 @@ export function getHandlers(
   addGetHandler("/api/v1/profiles/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
-      return res(ctx.status(400));
+      return res(ctx.status(403));
     }
 
     return res(ctx.status(200), ctx.json([profiles[mockId]]));
@@ -156,7 +156,7 @@ export function getHandlers(
       num_blocked: 0,
       num_forwarded: 0,
       num_spam: 0,
-      type: "random",
+      mask_type: "random",
       used_on: "",
     });
     return res(ctx.status(200));
@@ -227,7 +227,7 @@ export function getHandlers(
       description: "",
       domain: 2,
       enabled: true,
-      block_list_emails: false,
+      block_list_emails: body.block_list_emails ?? false,
       id: id,
       last_modified_at: new Date(Date.now()).toISOString(),
       last_used_at: new Date(Date.now()).toISOString(),
@@ -235,7 +235,7 @@ export function getHandlers(
       num_forwarded: 0,
       num_spam: 0,
       used_on: "",
-      type: "custom",
+      mask_type: "custom",
     });
     return res(ctx.status(200));
   });

@@ -16,7 +16,7 @@ describe("<AliasList>", () => {
     const updateCallback = jest.fn();
     const storeLocalLabelCallback = jest.fn();
     LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWhenDisabled(storeLocalLabelCallback)
+      LocalLabelsMock.getReturnValueWithoutAddon(storeLocalLabelCallback)
     );
     render(
       <AliasList
@@ -43,7 +43,7 @@ describe("<AliasList>", () => {
     const updateCallback = jest.fn();
     const storeLocalLabelCallback = jest.fn();
     LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWhenEnabled([], storeLocalLabelCallback)
+      LocalLabelsMock.getReturnValueWithAddon([], storeLocalLabelCallback)
     );
     render(
       <AliasList
@@ -69,9 +69,36 @@ describe("<AliasList>", () => {
     );
   });
 
+  it("sends a request to the back-end to update the label if server-side label storage is enabled, even if the add-on is present", async () => {
+    const updateCallback = jest.fn();
+    const storeLocalLabelCallback = jest.fn();
+    LocalLabelsMock.setMockLocalLabelsOnce(
+      LocalLabelsMock.getReturnValueWithAddon([], storeLocalLabelCallback)
+    );
+    render(
+      <AliasList
+        aliases={[getMockRandomAlias()]}
+        onUpdate={updateCallback}
+        onCreate={jest.fn()}
+        onDelete={jest.fn()}
+        profile={getMockProfileData({ server_storage: true })}
+        user={{ email: "arbitrary@example.com" }}
+      />
+    );
+
+    const labelField = screen.getByRole("textbox");
+    await userEvent.type(labelField, "Some label");
+    await userEvent.tab();
+
+    expect(updateCallback).toHaveBeenCalledWith(expect.anything(), {
+      description: "Some label",
+    });
+    expect(storeLocalLabelCallback).not.toHaveBeenCalled();
+  });
+
   it("does not provide the option to edit the label if server-side storage is disabled, and local storage is not available (i.e. the user does not have the add-on)", async () => {
     LocalLabelsMock.setMockLocalLabelsOnce(
-      LocalLabelsMock.getReturnValueWhenDisabled()
+      LocalLabelsMock.getReturnValueWithoutAddon()
     );
     render(
       <AliasList

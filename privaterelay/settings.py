@@ -642,7 +642,10 @@ REST_FRAMEWORK = {
 # an auth token:
 ACCOUNT_LOGOUT_ON_GET = DEBUG
 
-CORS_ALLOWED_ORIGINS = []
+CORS_ALLOWED_ORIGINS = [
+    "https://vault.bitwarden.com",
+]
+CORS_URLS_REGEX = r"^/api/"
 CSRF_TRUSTED_ORIGINS = []
 if DEBUG:
     # In local development, the React UI can be served up from a different server

@@ -23,6 +23,9 @@ export const InfoTooltip = (props: Props) => {
     <span className={styles.wrapper}>
       <button
         ref={triggerRef}
+        // Set to type="button" to prevent wrapping forms from being submitted
+        // when the info icon is clicked:
+        type="button"
         {...tooltipTrigger.triggerProps}
         className={styles.trigger}
       >

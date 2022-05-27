@@ -57,7 +57,7 @@ export const apiFetch = async (
 const fetcher: Fetcher = async (route: string, init?: RequestInit) => {
   const response = await apiFetch(route, init);
   if (!response.ok) {
-    throw new Error(`${response.status}: ${response.statusText}`);
+    throw new FetchError(response);
   }
   const data: unknown = await response.json();
   return data;
@@ -66,16 +66,25 @@ const fetcher: Fetcher = async (route: string, init?: RequestInit) => {
 /**
  * Make calls to our API using [SWR](https://swr.vercel.app). Generally wrapped in endpoint-specific hooks, e.g. {@link useProfiles}.
  */
-export function useApiV1<Data = unknown, Error = unknown>(
+export function useApiV1<Data = unknown>(
   route: string,
   swrOptions: Partial<PublicConfiguration> = {}
-): SWRResponse<Data, Error> {
+): SWRResponse<Data, FetchError> {
   // TODO: Also use the sessionId cookie in the key,
   //       to ensure no data is cached from different users?
   //       (This is currently enforced by doing a full page refresh when logging out.)
   const result = useSWR(route, fetcher, {
     revalidateOnFocus: false,
     ...swrOptions,
-  }) as SWRResponse<Data, Error>;
+  }) as SWRResponse<Data, FetchError>;
   return result;
+}
+
+export class FetchError extends Error {
+  readonly response: Response;
+
+  constructor(response: Response) {
+    super();
+    this.response = response;
+  }
 }

@@ -24,7 +24,10 @@ import { AddressPickerModal } from "../aliases/AddressPickerModal";
 
 export type Props = {
   subdomain: string | null;
-  onCreateAlias: (address: string) => void;
+  onCreateAlias: (
+    address: string,
+    settings: { blockPromotionals: boolean }
+  ) => void;
 };
 
 /**
@@ -53,7 +56,10 @@ export const SubdomainIndicator = (props: Props) => {
 
 type ExplainerTriggerProps = {
   subdomain: string;
-  onCreateAlias: (address: string) => void;
+  onCreateAlias: (
+    address: string,
+    settings: { blockPromotionals: boolean }
+  ) => void;
 };
 const ExplainerTrigger = (props: ExplainerTriggerProps) => {
   const { l10n } = useLocalization();
@@ -90,8 +96,11 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
     isOpen: explainerState.isOpen,
   }).overlayProps;
 
-  const onPick = (address: string) => {
-    props.onCreateAlias(address);
+  const onPick = (
+    address: string,
+    settings: { blockPromotionals: boolean }
+  ) => {
+    props.onCreateAlias(address, settings);
     addressPickerState.close();
   };
 

@@ -43,7 +43,9 @@ export type Props = {
   profile: ProfileData;
   runtimeData?: RuntimeData;
   onCreate: (
-    options: { type: "random" } | { type: "custom"; address: string }
+    options:
+      | { mask_type: "random" }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
   ) => void;
 };
 
@@ -107,7 +109,7 @@ export const AliasGenerationButton = (props: Props) => {
 
   return (
     <Button
-      onClick={() => props.onCreate({ type: "random" })}
+      onClick={() => props.onCreate({ mask_type: "random" })}
       title={l10n.getString("profile-label-generate-new-alias-2")}
     >
       <img src={plusIcon.src} alt="" width={16} height={16} />
@@ -119,7 +121,9 @@ export const AliasGenerationButton = (props: Props) => {
 type AliasTypeMenuProps = {
   subdomain: string;
   onCreate: (
-    options: { type: "random" } | { type: "custom"; address: string }
+    options:
+      | { mask_type: "random" }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
   ) => void;
 };
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
@@ -128,7 +132,7 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
 
   const onAction = (key: Key) => {
     if (key === "random") {
-      props.onCreate({ type: "random" });
+      props.onCreate({ mask_type: "random" });
       return;
     }
     if (key === "custom") {
@@ -136,8 +140,15 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     }
   };
 
-  const onPick = (address: string) => {
-    props.onCreate({ type: "custom", address: address });
+  const onPick = (
+    address: string,
+    settings: { blockPromotionals: boolean }
+  ) => {
+    props.onCreate({
+      mask_type: "custom",
+      address: address,
+      blockPromotionals: settings.blockPromotionals,
+    });
     modalState.close();
   };
 

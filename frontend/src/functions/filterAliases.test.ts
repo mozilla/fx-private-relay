@@ -28,11 +28,11 @@ const getMockedAliasMatching = (
     num_blocked: 0,
     num_forwarded: 0,
     num_spam: 0,
-    type: "custom",
+    mask_type: "custom",
   } as CustomAliasData | RandomAliasData;
   if (filters.domainType === "random") {
     (alias as RandomAliasData).generated_for = "";
-    (alias as RandomAliasData).type = "random";
+    (alias as RandomAliasData).mask_type = "random";
   }
   return alias;
 };

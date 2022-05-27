@@ -2,6 +2,8 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 $stopLabelHeight: 2rem;
+$iconHeight: 50px;
+$trackLineHeight: 4px;
 
 .group {
   // A CSS variable to enable different values depending on the screen size:
@@ -24,7 +26,7 @@ $stopLabelHeight: 2rem;
     padding: 0 $spacing-lg;
   }
   @media screen and #{$mq-lg} {
-    gap: 10%;
+    gap: $layout-2xl;
   }
 
   .control {
@@ -41,8 +43,6 @@ $stopLabelHeight: 2rem;
     }
 
     .track {
-      $iconHeight: 50px;
-      $trackLineHeight: 4px;
       // To absolutely position the track in the middle of the control, it needs
       // to be offset from the top by:
       // 1. the height of the icon on top of it ($iconHeight), plus
@@ -59,6 +59,8 @@ $stopLabelHeight: 2rem;
       // The thumb, its labels, and the track are absolutely positioned and thus
       // don't take up space by default. Hence, we need to add bottom padding
       // for them so no other content overlaps them:
+      // Note: when modifying this value, make sure to also modify it
+      // in the .isFree section down below:
       padding-bottom: calc(
         var(--thumbDiameter) + #{$trackLineHeight} + #{$stopLabelHeight}
       );
@@ -81,6 +83,7 @@ $stopLabelHeight: 2rem;
         display: flex;
         align-items: center;
         justify-content: center;
+        padding: $spacing-sm;
 
         &:hover {
           background-color: $color-purple-10;
@@ -101,6 +104,10 @@ $stopLabelHeight: 2rem;
           // and the height of the thumb:
           margin-top: calc(-1 * #{$iconHeight} - var(--thumbDiameter));
           padding-bottom: $spacing-sm;
+          // The image should not take up space within the track stop,
+          // so that the lock icon from .trackStopPromotional can be properly
+          // centered:
+          position: absolute;
         }
 
         p {
@@ -116,7 +123,7 @@ $stopLabelHeight: 2rem;
           height: $stopLabelHeight;
         }
 
-        &.is-active {
+        &.is-selected {
           img {
             filter: grayscale(0%);
           }
@@ -154,12 +161,14 @@ $stopLabelHeight: 2rem;
           width: var(--thumbDiameter);
           height: var(--thumbDiameter);
           border-radius: 50%;
-          background-color: $color-purple-20;
-          border: 4px solid $color-purple-50;
+          background-color: $color-violet-20;
+          border: 4px solid $color-violet-50;
           box-shadow: $box-shadow-sm;
 
           &.is-focused {
-            background-color: $color-purple-30;
+            // The alpha value makes sure the lock icon is still visible for
+            // free users when the thumb is placed on the "Promotionals" level:
+            background-color: rgba($color-purple-30, 0.5);
             border-color: $color-purple-60;
           }
           &.is-dragging {
@@ -209,13 +218,30 @@ $stopLabelHeight: 2rem;
       left: calc(50% - #{$arrowEdgeLength});
     }
 
-    a {
-      display: inline-block;
-      color: $color-blue-50;
-      padding-top: $spacing-sm;
+    .value-description-content {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-xs;
 
-      &:hover {
-        text-decoration: underline;
+      a {
+        display: inline-block;
+        color: $color-blue-50;
+        font-weight: 500;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      .locked-message {
+        display: flex;
+        align-items: center;
+        gap: $spacing-xs;
+        font-weight: 600;
+
+        .lock-icon {
+          color: $color-light-gray-70;
+        }
       }
     }
 
@@ -232,10 +258,118 @@ $stopLabelHeight: 2rem;
       // The content changes depending on the selected blocking mode,
       // so if the height would be based on the content, switching blocking modes
       // would cause a lot of jumping around:
-      min-height: 130px;
+      min-height: 150px;
 
       img {
         display: inline-block;
+      }
+    }
+  }
+
+  &.is-free {
+    .control .track {
+      // This is like the regular .track's bottom padding, but with
+      // $stopLabelHeight multiplied by 1.5, because there's a "(Premium only)"
+      // line in a smaller font below the "Promotionals" label for free users:
+      padding-bottom: calc(
+        var(--thumbDiameter) + #{$trackLineHeight} + #{$stopLabelHeight * 1.5}
+      );
+
+      .track-stop-promotional {
+        color: $color-light-gray-70;
+        border-style: none;
+
+        &:hover {
+          // The standard background colour, because this can't be selected
+          // by a free user:
+          background-color: $color-light-gray-20;
+        }
+
+        p {
+          color: $color-light-gray-70;
+          text-align: center;
+
+          .premium-only-marker {
+            @include text-body-xs;
+            color: $color-purple-50;
+          }
+        }
+
+        &.is-selected {
+          p,
+          .lock-icon {
+            color: $color-purple-50;
+          }
+        }
+      }
+    }
+  }
+}
+
+.upgrade-tooltip-underlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .upgrade-tooltip {
+    background-color: $color-white;
+    box-shadow: $box-shadow-sm;
+    display: flex;
+    padding: $spacing-xl;
+    gap: $spacing-lg;
+    width: $content-md;
+    max-width: calc(100% - $spacing-xl);
+    border-radius: $border-radius-sm;
+
+    .close-button {
+      position: absolute;
+      top: $spacing-sm;
+      right: $spacing-sm;
+      padding: 0;
+      background-color: transparent;
+      border-style: none;
+      border-radius: $border-radius-sm;
+    }
+
+    .promotionals-blocking-icon {
+      display: none;
+
+      @media screen and #{$mq-md} {
+        display: inline-block;
+      }
+    }
+
+    .upgrade-message {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $spacing-xs;
+
+      b {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+
+        svg {
+          color: $color-light-gray-70;
+        }
+      }
+
+      a {
+        color: $color-blue-50;
+        // Add some padding to the focus outline, without affecting the CTA's
+        // position:
+        margin: -1 * $spacing-xs;
+        padding: $spacing-xs;
+
+        &:hover {
+          text-decoration: underline;
+        }
       }
     }
   }

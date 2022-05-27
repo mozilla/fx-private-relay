@@ -39,7 +39,7 @@ export function getMockRandomAlias(
   alias?: Partial<RandomAliasData>
 ): RandomAliasData {
   return {
-    type: "random",
+    mask_type: "random",
     address: "arbitrary_address",
     full_address: `${alias?.address ?? "arbitrary_address"}@mozmail.com`,
     created_at: "2021-11-03T13:37:42.000000Z",
@@ -62,8 +62,9 @@ export function getMockCustomAlias(
   alias?: Partial<CustomAliasData>
 ): CustomAliasData {
   return {
-    type: "custom",
+    mask_type: "custom",
     address: "arbitrary_address",
+    used_on: null,
     full_address: `${alias?.address ?? "arbitrary_address"}@custom.mozmail.com`,
     created_at: "2021-11-03T13:37:42.000000Z",
     last_modified_at: "2021-11-03T13:37:42.000000Z",

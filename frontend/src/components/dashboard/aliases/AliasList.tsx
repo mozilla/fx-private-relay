@@ -19,7 +19,9 @@ export type Props = {
   user: UserData;
   runtimeData?: RuntimeData;
   onCreate: (
-    options: { type: "random" } | { type: "custom"; address: string }
+    options:
+      | { mask_type: "random" }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
   ) => void;
   onUpdate: (alias: AliasData, updatedFields: Partial<AliasData>) => void;
   onDelete: (alias: AliasData) => void;
@@ -58,7 +60,8 @@ export const AliasList = (props: Props) => {
     ) {
       const type = isRandomAlias(alias) ? "random" : "custom";
       const localLabel = localLabels.find(
-        (localLabel) => localLabel.id === alias.id && localLabel.type === type
+        (localLabel) =>
+          localLabel.id === alias.id && localLabel.mask_type === type
       );
       if (localLabel !== undefined) {
         aliasWithLocalLabel.description = localLabel.description;
@@ -68,7 +71,8 @@ export const AliasList = (props: Props) => {
     const onUpdate = (updatedFields: Partial<AliasData>) => {
       if (
         localLabels !== null &&
-        typeof updatedFields.description === "string"
+        typeof updatedFields.description === "string" &&
+        props.profile.server_storage === false
       ) {
         storeLocalLabel(alias, updatedFields.description);
         delete updatedFields.description;
@@ -93,6 +97,7 @@ export const AliasList = (props: Props) => {
           onDelete={() => props.onDelete(alias)}
           defaultOpen={!isExistingAlias}
           showLabelEditor={props.profile.server_storage || localLabels !== null}
+          runtimeData={props.runtimeData}
         />
       </li>
     );
