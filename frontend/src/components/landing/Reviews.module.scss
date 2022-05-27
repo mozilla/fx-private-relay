@@ -1,0 +1,41 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  display: grid;
+  justify-items: center;
+
+  .reviews {
+    width: $content-max;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: $spacing-lg;
+  }
+}
+
+.logo-container {
+  display: flex;
+  font-family: $font-stack-base;
+  color: $color-white;
+  width: $layout-2xl;
+  flex-direction: column;
+  align-items: center;
+  border-radius: $border-radius-lg;
+  padding: $spacing-md 0;
+  background-color: $color-purple-30;
+
+  .logo {
+    width: $layout-md + $layout-xs;
+  }
+
+  .logo-title {
+    @include text-body-md;
+    font-weight: 400;
+  }
+
+  .logo-text {
+    @include text-title-xs;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+}

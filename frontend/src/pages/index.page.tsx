@@ -33,6 +33,7 @@ import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { getRuntimeConfig } from "../config";
 import { setCookie } from "../functions/cookies";
+import { Reviews } from "../components/landing/Reviews";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -275,6 +276,8 @@ const Home: NextPage = () => {
             />
           </div>
         </section>
+        <div className={styles["page-break"]} />
+        <Reviews />
         {plansSection}
         <section id="faq" className={styles["faq-wrapper"]}>
           <div className={styles.faq}>
