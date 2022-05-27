@@ -1,12 +1,20 @@
 import { useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
-import { FormEventHandler, useEffect, useReducer, useState } from "react";
+import {
+  FormEventHandler,
+  MouseEventHandler,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { toast } from "react-toastify";
 import styles from "./settings.module.scss";
 import { Layout } from "../../components/layout/Layout";
 import { Banner } from "../../components/Banner";
 import { useProfiles } from "../../hooks/api/profile";
 import messageIcon from "../../../../static/images/icon-message-purple.svg";
+import copyIcon from "../../../../static/images/copy-to-clipboard.svg";
 import helpIcon from "../../../../static/images/help-purple.svg";
 import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
@@ -28,6 +36,8 @@ const Settings: NextPage = () => {
   const [labelCollectionEnabled, setLabelCollectionEnabled] = useState(
     profileData.data?.[0].server_storage
   );
+  const [justCopiedApiKey, setJustCopiedApiKey] = useState(false);
+  const apiKeyElementRef = useRef<HTMLInputElement>(null);
 
   const [
     labelCollectionDisabledWarningToggles,
@@ -125,6 +135,13 @@ const Settings: NextPage = () => {
     </li>
   ) : null;
 
+  const copyApiKeyToClipboard: MouseEventHandler<HTMLButtonElement> = () => {
+    navigator.clipboard.writeText(profile.api_token);
+    apiKeyElementRef.current?.select();
+    setJustCopiedApiKey(true);
+    setTimeout(() => setJustCopiedApiKey(false), 1000);
+  };
+
   return (
     <>
       <Layout>
@@ -155,6 +172,48 @@ const Settings: NextPage = () => {
                       </label>
                     </div>
                     {labelCollectionWarning}
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <h2 className={styles["field-heading"]}>
+                    <label htmlFor="api-key">
+                      {l10n.getString("setting-label-api-key")}
+                    </label>
+                  </h2>
+                  <div
+                    className={`${styles["copy-api-key-content"]} ${styles["field-content"]}`}
+                  >
+                    <input
+                      id="api-key"
+                      ref={apiKeyElementRef}
+                      className={styles["copy-api-key-display"]}
+                      value={profile.api_token}
+                      size={profile.api_token.length}
+                    />
+                    <span className={styles["copy-controls"]}>
+                      <span className={styles["copy-button-wrapper"]}>
+                        <button
+                          type="button"
+                          className={styles["copy-button"]}
+                          title={l10n.getString("settings-button-copy")}
+                          onClick={copyApiKeyToClipboard}
+                        >
+                          <img
+                            src={copyIcon.src}
+                            alt={l10n.getString("settings-button-copy")}
+                            className={styles["copy-icon"]}
+                          />
+                        </button>
+                        <span
+                          aria-hidden={!justCopiedApiKey}
+                          className={`${styles["copied-confirmation"]} ${
+                            justCopiedApiKey ? styles["is-shown"] : ""
+                          }`}
+                        >
+                          {l10n.getString("setting-api-key-copied")}
+                        </span>
+                      </span>
+                    </span>
                   </div>
                 </div>
                 <div className={styles.controls}>
