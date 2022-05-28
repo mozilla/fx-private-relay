@@ -8,7 +8,6 @@ from twilio.twiml.messaging_response import MessagingResponse
 
 from django.core.exceptions import MultipleObjectsReturned
 from django.http import HttpResponse, HttpResponseNotFound
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import Session

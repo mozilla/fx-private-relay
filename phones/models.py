@@ -1,4 +1,13 @@
+from django.contrib.auth.models import User
 from django.db import models
+
+
+class RealPhone(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    number = models.CharField(max_length=15, unique=True)
+    verification_code = models.CharField(max_length=8)
+    verified = models.BooleanField(default=False)
+    verified_date = models.DateTimeField()
 
 
 class Session(models.Model):

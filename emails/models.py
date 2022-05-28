@@ -270,6 +270,18 @@ class Profile(models.Model):
                 return True
         return False
 
+
+    @property
+    def has_phone(self):
+        if not self.fxa:
+            return False
+        user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
+        for sub in settings.SUBSCRIPTIONS_WITH_PHONE.split(","):
+            if sub in user_subscriptions:
+                return True
+        return False
+
+
     @property
     def emails_forwarded(self):
         return (
