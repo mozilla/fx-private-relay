@@ -62,14 +62,24 @@ class RedirectRootIfLoggedIn:
         return response
 
 
-class AddDetectedCountryToResponseHeaders:
+class AddDetectedCountryToRequestAndResponseHeaders:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        region_key = "X-Client-Region"
+        region_dict = None
+        if region_key in request.headers:
+            region_dict = request.headers
+        if region_key in request.GET:
+            region_dict = request.GET
+        if not region_dict:
+            return self.get_response(request)
+
+        country = region_dict.get(region_key)
+        request.country = country
         response = self.get_response(request)
-        if "X-Client-Region" in request.headers:
-            response["X-Detected-Client-Region"] = request.headers["X-Client-Region"]
+        response.country = country
         return response
 
 

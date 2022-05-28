@@ -171,6 +171,7 @@ SERVE_REACT = config("SERVE_REACT", False, cast=bool)
 
 TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
+TWILIO_MAIN_NUMBER = config("TWILIO_MAIN_NUMBER", None)
 
 STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
 STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
@@ -261,7 +262,7 @@ MIDDLEWARE += [
     "dockerflow.django.middleware.DockerflowMiddleware",
     "waffle.middleware.WaffleMiddleware",
     "privaterelay.middleware.FxAToRequest",
-    "privaterelay.middleware.AddDetectedCountryToResponseHeaders",
+    "privaterelay.middleware.AddDetectedCountryToRequestAndResponseHeaders",
     "privaterelay.middleware.StoreFirstVisit",
 ]
 
@@ -421,6 +422,7 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
 }
 
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
+SUBSCRIPTIONS_WITH_PHONE = config("SUBSCRIPTIONS_WITH_PHONE", default="")
 PREMIUM_RELEASE_DATE = config(
     "PREMIUM_RELEASE_DATE", "2021-10-27 17:00:00+00:00", cast=str
 )
