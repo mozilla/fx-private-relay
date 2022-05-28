@@ -1,6 +1,13 @@
+import math
+import random
+
+import phonenumbers
+
+from django.apps import apps
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 from django_filters import rest_framework as filters
 from drf_yasg.views import get_schema_view
@@ -8,6 +15,7 @@ from drf_yasg import openapi
 from rest_framework import decorators, permissions, response, viewsets, exceptions
 from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
+from rest_framework.views import APIView
 
 from emails.models import (
     CannotMakeAddressException,
@@ -24,7 +32,7 @@ from privaterelay.settings import (
 )
 from privaterelay.utils import get_premium_countries_info_from_request
 
-from .permissions import IsOwner
+from .permissions import IsOwner, HasPhone
 from .serializers import (
     DomainAddressSerializer,
     ProfileSerializer,
@@ -145,6 +153,96 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
+
+
+class VerifyPhone(APIView):
+    permission_classes = [permissions.IsAuthenticated, HasPhone]
+    def get(self, request):
+        number_details = _get_valid_number_details_or_error_Response(request)
+        if type(number_details) == response.Response:
+            return number_details
+        return response.Response(status=200, data={
+            "e164_number": number_details.phone_number,
+            "number_country": number_details.country_code,
+            "number_carrier": number_details.carrier
+        })
+
+    @csrf_exempt
+    def post(self, request):
+        number_details = _get_valid_number_details_or_error_Response(request)
+        if type(number_details) == response.Response:
+            return number_details
+        verification_code = (
+            str(math.floor(random.random()*999999)).zfill(6)
+        )
+        phones_config = apps.get_app_config("phones")
+        phones_config.twilio_client.messages.create(
+            body=f"Your Firefox Relay verification code is {verification_code}",
+            from_=settings.TWILIO_MAIN_NUMBER,
+            to=number_details.phone_number
+        )
+        return response.Response(status=200, data={
+            "message": f"Sent verification code to {number_details.phone_number}"
+        })
+
+
+def _get_valid_number_details_or_error_Response(request):
+    number = None
+    if "number" in request.GET:
+        number = request.GET.get("number", None)
+    if "number" in request.POST:
+        number = request.POST.get("number", None)
+    if not number:
+        return response.Response(status=400, data={
+            "message": "number is required",
+        })
+
+    parsed_number = _parse_number(number, request)
+    if not parsed_number:
+        country_detected = None
+        if hasattr(request, "country"):
+            country_detected = request.country
+        return response.Response(status=400, data={
+            "message": f"number must be in E.164 format, or in local national format of the country detected: {country_detected}"
+        })
+
+    e164_number = f"+{parsed_number.country_code}{parsed_number.national_number}"
+    number_details = _get_number_details(e164_number)
+    if not number_details:
+        return response.Response(status=400, data={
+            "message": f"Could not get number details for {e164_number}"
+        })
+    if number_details.country_code != "US":
+        return response.Response(status=400, data={
+            "message": f"Relay Phone is currently only available in the US. Your phone number country code is: {number_details.country_code}"
+        })
+
+    return number_details
+
+
+def _parse_number(number, request):
+    try:
+        # First try to parse assuming number is E.164 with country prefix
+        return phonenumbers.parse(number)
+    except phonenumbers.phonenumberutil.NumberParseException as e:
+        if e.error_type == e.INVALID_COUNTRY_CODE:
+            try:
+                # Try to parse, assuming number is local national format
+                # in the detected request country
+                return phonenumbers.parse(number, request.country)
+            except Exception:
+                return None
+    return None
+
+
+def _get_number_details(e164_number):
+    try:
+        phones_config = apps.get_app_config("phones")
+        return phones_config.twilio_client.lookups.v1.phone_numbers(e164_number).fetch(type=["carrier"])
+    except Exception:
+        return None
+
+
 
 
 # Deprecated; prefer runtime_data instead.
