@@ -115,4 +115,67 @@ describe("<AliasList>", () => {
 
     expect(labelField).not.toBeInTheDocument();
   });
+
+  it("allows filtering aliases by their labels if server-side storage is enables", async () => {
+    const mockAlias = {
+      ...getMockRandomAlias(),
+      description: "some server-side description",
+    };
+    render(
+      <AliasList
+        aliases={[mockAlias]}
+        onUpdate={jest.fn()}
+        onCreate={jest.fn()}
+        onDelete={jest.fn()}
+        profile={getMockProfileData({ server_storage: true })}
+        user={{ email: "arbitrary@example.com" }}
+      />
+    );
+
+    const stringFilterField = screen.getByRole("searchbox");
+    await userEvent.type(stringFilterField, "some server-side description");
+
+    const aliasElementMatchingFilter = screen.getByText(mockAlias.full_address);
+    expect(aliasElementMatchingFilter).toBeInTheDocument();
+
+    await userEvent.type(stringFilterField, "arbitrary other description");
+
+    const aliasElementNotMatchingFilter = screen.queryByText(
+      mockAlias.full_address
+    );
+    expect(aliasElementNotMatchingFilter).not.toBeInTheDocument();
+  });
+
+  it("also allows filtering aliases by their labels if server-side storage is disabled", async () => {
+    const mockAlias = { ...getMockRandomAlias(), description: "" };
+    LocalLabelsMock.setMockLocalLabels(
+      LocalLabelsMock.getReturnValueWithAddon(
+        [{ ...mockAlias, description: "some local description" }],
+        jest.fn()
+      )
+    );
+    render(
+      <AliasList
+        aliases={[mockAlias]}
+        onUpdate={jest.fn()}
+        onCreate={jest.fn()}
+        onDelete={jest.fn()}
+        profile={getMockProfileData({ server_storage: false })}
+        user={{ email: "arbitrary@example.com" }}
+      />
+    );
+
+    const stringFilterField = screen.getByRole("searchbox");
+    await userEvent.type(stringFilterField, "some local description");
+
+    const aliasElementMatchingFilter = screen.getByText(mockAlias.full_address);
+    expect(aliasElementMatchingFilter).toBeInTheDocument();
+
+    await userEvent.type(stringFilterField, "arbitrary other description");
+
+    const aliasElementNotMatchingFilter = screen.queryByText(
+      mockAlias.full_address
+    );
+    expect(aliasElementNotMatchingFilter).not.toBeInTheDocument();
+  });
 });
