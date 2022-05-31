@@ -38,5 +38,6 @@ to find issues with supported languages and to measure the popularity of
 unsupported languages. There are no logs for missing translations in the
 website front-end or the add-on.
 
-See "Working with translations" in the project README.md for instructions on
-working with translations, such as adding new strings.
+See "Working with translations" in the project
+[README.md](../README.md#working-with-translations) for instructions on working
+with translations, such as adding new strings.
