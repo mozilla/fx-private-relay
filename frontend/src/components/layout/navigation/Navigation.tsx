@@ -10,6 +10,8 @@ import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
 import { UserMenu } from "./UserMenu";
 import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
+import { useRuntimeData } from "../../../hooks/api/runtimeData";
+import { isPremiumAvailableInCountry } from "../../../functions/getPlan";
 
 export type Props = {
   theme: "free" | "premium";
@@ -22,6 +24,7 @@ export type Props = {
 /** Switch between the different pages of the Relay website. */
 export const Navigation = (props: Props) => {
   const { l10n } = useLocalization();
+  const runtimeData = useRuntimeData();
   const router = useRouter();
   const {
     theme,
@@ -32,6 +35,7 @@ export const Navigation = (props: Props) => {
     isLoggedIn,
   } = props;
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
+  const isPremiumPage = router.pathname === "/premium" || theme === "premium";
 
   const ToggleButton = () => (
     <button
@@ -83,8 +87,15 @@ export const Navigation = (props: Props) => {
         <WhatsNewMenu profile={profile} style={styles["hidden-mobile"]} />
       )}
 
-      {/* if user is logged in and doesn't have premium, show upgrade button */}
-      {isLoggedIn && !hasPremium && <UpgradeButton />}
+      {/* Only show the upgrade button if the following conditions are met: 
+        - if user is logged in
+        - user does not have premium
+        - user is NOT on the premium page /premium
+        - premium is available in this country */}
+      {isLoggedIn &&
+        !hasPremium &&
+        !isPremiumPage &&
+        isPremiumAvailableInCountry(runtimeData.data) && <UpgradeButton />}
 
       <ToggleButton />
 
