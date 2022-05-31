@@ -165,8 +165,6 @@ export const AliasList = (props: Props) => {
             {aliases.length}/{props.aliases.length}
           </span>
         </div>
-
-        {categoryFilter}
         <button
           onClick={() => setStringFilterVisible(!stringFilterVisible)}
           title={l10n.getString("banner-register-subdomain-button-search")}
@@ -179,6 +177,7 @@ export const AliasList = (props: Props) => {
             height={20}
           />
         </button>
+        {categoryFilter}
         <div className={styles["new-alias-button"]}>
           <AliasGenerationButton
             aliases={props.aliases}
