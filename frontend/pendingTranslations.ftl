@@ -25,6 +25,8 @@ landing-use-cases-signups-hero-content2 = Before you complete that next signup, 
 banner-download-install-chrome-extension-copy-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using masks even easier.
 multi-part-onboarding-premium-chrome-extension-get-description-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using email masks even easier.
 
+setting-api-key-copied = Copied!
+
 profile-promo-email-blocking-option-promotionals-premiumonly-marker = ({ -brand-name-premium } only)
 profile-promo-email-blocking-description-promotionals-locked-label = Available to { -brand-name-relay-premium } subscribers
 profile-promo-email-blocking-description-promotionals-locked-cta = Upgrade now
