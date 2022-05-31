@@ -35,7 +35,7 @@ export const Navigation = (props: Props) => {
     isLoggedIn,
   } = props;
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
-  const isPremiumPage = router.pathname === "/premium" || theme === "premium";
+  const isPremiumPage = router.pathname === "/premium";
 
   const ToggleButton = () => (
     <button
