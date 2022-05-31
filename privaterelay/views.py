@@ -4,7 +4,7 @@ from hashlib import sha256
 import json
 import logging
 import os
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
 
@@ -129,6 +129,7 @@ def _get_fxa(request):
 
 
 @api_view()
+@schema(None)
 @require_http_methods(["GET"])
 def profile_refresh(request):
     if not request.user or request.user.is_anonymous:
@@ -145,6 +146,7 @@ def profile_refresh(request):
 
 
 @api_view(["POST", "GET"])
+@schema(None)
 @require_http_methods(["POST", "GET"])
 def profile_subdomain(request):
     if not request.user or request.user.is_anonymous:
