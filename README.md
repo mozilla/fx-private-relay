@@ -104,6 +104,10 @@ that is:
 
 * `git submodule update --remote`
 
+To update the submodule automatically when running `git pull` or other commands:
+
+* `git config --global submodule.recurse true`
+
 #### Add/update messages for translation
 The `privaterelay/locales` directory is a git repository like any other, so to
 make changes to the messages:
