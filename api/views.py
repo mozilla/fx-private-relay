@@ -31,7 +31,7 @@ from privaterelay.settings import (
 )
 from privaterelay.utils import get_premium_countries_info_from_request
 
-from .permissions import IsOwner, HasPhone
+from .permissions import IsOwner, HasPhoneService
 from .serializers import (
     DomainAddressSerializer,
     ProfileSerializer,
@@ -156,18 +156,45 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
+    """
+    Get, create, and update real phone number records for the authenticated user.
+
+    The authenticated user must have a subscription that grants one of the
+    `SUBSCRIPTIONS_WITH_PHONE` capabilities.
+
+    Client must be authenticated, and these endpoints only return data that is
+    "owned" by the authenticated user.
+
+    """
     serializer_class = RealPhoneSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    permission_classes = [permissions.IsAuthenticated, HasPhoneService, IsOwner]
     http_method_names = ["get", "head", "post", "patch"]
 
     def get_queryset(self):
         return RealPhone.objects.filter(user=self.request.user)
 
 
-    # validate number in create() because we try to automatically detect and
-    # prepend the country code if the client gave us a local national
-    # number.
     def create(self, request):
+        """
+        Add real phone number to the authenticated user.
+
+        The "flow" to verify a real phone number is:
+        1. POST (Will text a verification code to the number)
+        2. PATCH the verification code to the realphone endpoint
+
+        The authenticated user must have a subscription that grants one of the
+        `SUBSCRIPTIONS_WITH_PHONE` capabilities.
+
+        The `number` field should be in [E.164][e164] format which includes a country
+        code. If the number is not in E.164 format, this endpoint will try to
+        create an E.164 number by prepending the country code of the client
+        making the request (i.e., from the `X-Client-Region` HTTP header).
+
+        If the number is a valid (currently, US-based) number, this endpoint
+        will text a verification code to the number.
+
+        [e164]: https://en.wikipedia.org/wiki/E.164
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         valid_number, error = validate_number(request)
@@ -179,7 +206,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.validated_data)
-        response_data = serializer.validated_data
+        response_data = serializer.data
         response_data["message"] = ("Sent verification code to "
             f"{valid_number.phone_number} "
             f"(country: {valid_number.country_code} "
@@ -188,10 +215,13 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             response_data, status=201, headers=headers
         )
 
-    # check vaerification_code during partial_update because we need to compare
+    # check verification_code during partial_update because we need to compare
     # the value sent in the request against the value already on the instance
     # TODO: can this logic be pushed "up" into the Model
     def partial_update(self, request, *args, **kwargs):
+        """
+        Update the authenticated user's real phone number.
+        """
         instance = self.get_object()
         if ("verification_code" not in request.data or
             not request.data["verification_code"] == instance.verification_code):

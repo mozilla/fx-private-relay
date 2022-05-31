@@ -147,6 +147,7 @@ class RealPhoneSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "number",
+            "verification_code",
             "verification_sent_date",
             "verified",
             "verified_date",
@@ -154,6 +155,7 @@ class RealPhoneSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "verification_sent_date",
+            "verified",
             "verified_date",
         ]
         extra_kwargs = {
