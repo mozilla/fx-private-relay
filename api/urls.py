@@ -23,11 +23,11 @@ api_router.register(r"domainaddresses", views.DomainAddressViewSet, "domainaddre
 api_router.register(r"relayaddresses", views.RelayAddressViewSet, "relayaddress")
 api_router.register(r"profiles", views.ProfileViewSet, "profiles")
 api_router.register(r"users", views.UserViewSet, "user")
+api_router.register(r"realphone", views.RealPhoneViewSet, "real_phone")
 
 urlpatterns = [
     path("v1/premium_countries", views.premium_countries, name="premium_countries"),
     path("v1/runtime_data", views.runtime_data, name="runtime_data"),
-    path("v1/phone/verify", views.VerifyPhone.as_view(), name="verify_phone"),
     path(
         "v1/swagger<swagger_format:format>",
         views.schema_view.without_ui(cache_timeout=0),
