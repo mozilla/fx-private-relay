@@ -1,21 +1,19 @@
-import math
-import random
-
 import phonenumbers
 
 from django.apps import apps
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
 
 from django_filters import rest_framework as filters
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework import decorators, permissions, response, viewsets, exceptions
 from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework.views import APIView
+from rest_framework import (
+    decorators, permissions, response, viewsets, exceptions
+)
 
 from emails.models import (
     CannotMakeAddressException,
@@ -23,6 +21,7 @@ from emails.models import (
     Profile,
     RelayAddress,
 )
+from phones.models import RealPhone
 from privaterelay.settings import (
     BASKET_ORIGIN,
     FXA_BASE_ORIGIN,
@@ -36,6 +35,7 @@ from .permissions import IsOwner, HasPhone
 from .serializers import (
     DomainAddressSerializer,
     ProfileSerializer,
+    RealPhoneSerializer,
     RelayAddressSerializer,
     UserSerializer,
 )
@@ -155,69 +155,87 @@ class UserViewSet(viewsets.ModelViewSet):
         return User.objects.filter(id=self.request.user.id)
 
 
-class VerifyPhone(APIView):
-    permission_classes = [permissions.IsAuthenticated, HasPhone]
-    def get(self, request):
-        number_details = _get_valid_number_details_or_error_Response(request)
-        if type(number_details) == response.Response:
-            return number_details
-        return response.Response(status=200, data={
-            "e164_number": number_details.phone_number,
-            "number_country": number_details.country_code,
-            "number_carrier": number_details.carrier
-        })
+class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
+    serializer_class = RealPhoneSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    http_method_names = ["get", "head", "post", "patch"]
 
-    @csrf_exempt
-    def post(self, request):
-        number_details = _get_valid_number_details_or_error_Response(request)
-        if type(number_details) == response.Response:
-            return number_details
-        verification_code = (
-            str(math.floor(random.random()*999999)).zfill(6)
+    def get_queryset(self):
+        return RealPhone.objects.filter(user=self.request.user)
+
+
+    # validate number in create() because we try to automatically detect and
+    # prepend the country code if the client gave us a local national
+    # number.
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        valid_number, error = validate_number(request)
+        if valid_number == None:
+            return response.Response(
+                status=error["status"], data=error["data"]
+            )
+        serializer.validated_data["number"] = valid_number.phone_number
+
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.validated_data)
+        response_data = serializer.validated_data
+        response_data["message"] = ("Sent verification code to "
+            f"{valid_number.phone_number} "
+            f"(country: {valid_number.country_code} "
+            f"carrier: {valid_number.carrier})")
+        return response.Response(
+            response_data, status=201, headers=headers
         )
-        phones_config = apps.get_app_config("phones")
-        phones_config.twilio_client.messages.create(
-            body=f"Your Firefox Relay verification code is {verification_code}",
-            from_=settings.TWILIO_MAIN_NUMBER,
-            to=number_details.phone_number
-        )
-        return response.Response(status=200, data={
-            "message": f"Sent verification code to {number_details.phone_number}"
-        })
+
+    # check vaerification_code during partial_update because we need to compare
+    # the value sent in the request against the value already on the instance
+    # TODO: can this logic be pushed "up" into the Model
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if ("verification_code" not in request.data or
+            not request.data["verification_code"] == instance.verification_code):
+            raise exceptions.ValidationError("Incorrect verification_code")
+        return super().partial_update(request, *args, **kwargs)
 
 
-def _get_valid_number_details_or_error_Response(request):
-    number = None
-    if "number" in request.GET:
-        number = request.GET.get("number", None)
-    if "number" in request.POST:
-        number = request.POST.get("number", None)
-    if not number:
-        return response.Response(status=400, data={
-            "message": "number is required",
-        })
 
-    parsed_number = _parse_number(number, request)
+def validate_number(request):
+    parsed_number = _parse_number(request.data["number"], request)
     if not parsed_number:
-        country_detected = None
+        country = None
         if hasattr(request, "country"):
-            country_detected = request.country
-        return response.Response(status=400, data={
-            "message": f"number must be in E.164 format, or in local national format of the country detected: {country_detected}"
-        })
+            country = request.country
+        error_message = f"number must be in E.164 format, or in local national format of the country detected: {country}"
+        error = {
+            "status": 400,
+            "data": {
+                "message": error_message
+            }
+        }
+        return None, error
 
     e164_number = f"+{parsed_number.country_code}{parsed_number.national_number}"
     number_details = _get_number_details(e164_number)
     if not number_details:
-        return response.Response(status=400, data={
-            "message": f"Could not get number details for {e164_number}"
-        })
-    if number_details.country_code != "US":
-        return response.Response(status=400, data={
-            "message": f"Relay Phone is currently only available in the US. Your phone number country code is: {number_details.country_code}"
-        })
+        error = {
+            "status": 400,
+            "data": {
+                "message": f"Could not get number details for {e164_number}"
+            }
+        }
+        return None, error
 
-    return number_details
+    if number_details.country_code != "US":
+        error = {
+            "status": 400,
+            "data": {
+                "message": f"Relay Phone is currently only available in the US. Your phone number country code is: {number_details.country_code}"
+            }
+        }
+        return None, error
+
+    return number_details, None
 
 
 def _parse_number(number, request):
@@ -225,7 +243,8 @@ def _parse_number(number, request):
         # First try to parse assuming number is E.164 with country prefix
         return phonenumbers.parse(number)
     except phonenumbers.phonenumberutil.NumberParseException as e:
-        if e.error_type == e.INVALID_COUNTRY_CODE:
+        if (e.error_type == e.INVALID_COUNTRY_CODE and
+            hasattr(request, "country")):
             try:
                 # Try to parse, assuming number is local national format
                 # in the detected request country
@@ -238,11 +257,11 @@ def _parse_number(number, request):
 def _get_number_details(e164_number):
     try:
         phones_config = apps.get_app_config("phones")
-        return phones_config.twilio_client.lookups.v1.phone_numbers(e164_number).fetch(type=["carrier"])
+        return (phones_config.twilio_client
+                .lookups.v1.phone_numbers(e164_number)
+                .fetch(type=["carrier"]))
     except Exception:
         return None
-
-
 
 
 # Deprecated; prefer runtime_data instead.
