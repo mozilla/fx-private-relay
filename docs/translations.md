@@ -14,9 +14,10 @@ commit, bringing in any new translations or other changes from the localization
 team.
 
 The translation bundles use the [Fluent format](https://projectfluent.org/).
-They are also included in the Docker image, and read by the email processing
-apps at runtime. They are also embedded in the JavaScript during the build
-process, so that the website text is translated.
+They are included in the Docker image that is deployed to the stage and
+production environments, and read by the email processing apps at runtime. They
+are also embedded in the JavaScript during the build process, so that the
+website text is translated.
 
 The user's desired language is stored with their Firefox Account, which uses
 the `Accept-Language` header provided by the browser. If there is a matching
