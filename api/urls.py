@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import include, path, register_converter
 
 from rest_framework import routers
@@ -23,7 +24,9 @@ api_router.register(r"domainaddresses", views.DomainAddressViewSet, "domainaddre
 api_router.register(r"relayaddresses", views.RelayAddressViewSet, "relayaddress")
 api_router.register(r"profiles", views.ProfileViewSet, "profiles")
 api_router.register(r"users", views.UserViewSet, "user")
-api_router.register(r"realphone", views.RealPhoneViewSet, "real_phone")
+if "phones.apps.PhonesConfig" in settings.INSTALLED_APPS:
+    api_router.register(r"realphone", views.RealPhoneViewSet, "real_phone")
+
 
 urlpatterns = [
     path("v1/premium_countries", views.premium_countries, name="premium_countries"),
