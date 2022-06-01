@@ -200,6 +200,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "waffle",
     "privaterelay.apps.PrivateRelayConfig",
+    "api.apps.ApiConfig",
 ]
 
 if DEBUG:
