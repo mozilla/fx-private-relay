@@ -1,9 +1,11 @@
+from datetime import datetime, timedelta
 import phonenumbers
 
 from django.apps import apps
 from django.conf import settings
-from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.db import IntegrityError
+from django.forms import model_to_dict
 
 from django_filters import rest_framework as filters
 from drf_yasg.views import get_schema_view
@@ -12,7 +14,7 @@ from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework.views import APIView
 from rest_framework import (
-    decorators, permissions, response, viewsets, exceptions
+    decorators, permissions, response, throttling, viewsets, exceptions
 )
 
 from emails.models import (
@@ -21,7 +23,7 @@ from emails.models import (
     Profile,
     RelayAddress,
 )
-from phones.models import RealPhone
+from phones.models import MAX_MINUTES_TO_VERIFY_REAL_PHONE, RealPhone
 from privaterelay.settings import (
     BASKET_ORIGIN,
     FXA_BASE_ORIGIN,
@@ -155,6 +157,10 @@ class UserViewSet(viewsets.ModelViewSet):
         return User.objects.filter(id=self.request.user.id)
 
 
+class RealPhoneRateThrottle(throttling.UserRateThrottle):
+    rate = '10/minute'
+
+
 class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     """
     Get, create, and update real phone number records for the authenticated user.
@@ -166,9 +172,11 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     "owned" by the authenticated user.
 
     """
+    http_method_names = ["get", "post", "patch"]
+    permission_classes = [permissions.IsAuthenticated, HasPhoneService]
     serializer_class = RealPhoneSerializer
-    permission_classes = [permissions.IsAuthenticated, HasPhoneService, IsOwner]
-    http_method_names = ["get", "head", "post", "patch"]
+    # TODO: this doesn't seem to e working?
+    throttle_classes = [RealPhoneRateThrottle]
 
     def get_queryset(self):
         return RealPhone.objects.filter(user=self.request.user)
@@ -179,8 +187,9 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         Add real phone number to the authenticated user.
 
         The "flow" to verify a real phone number is:
-        1. POST (Will text a verification code to the number)
-        2. PATCH the verification code to the realphone endpoint
+        1. POST a number (Will text a verification code to the number)
+        2a. PATCH the verification code to the realphone/{id} endpoint
+        2b. POST the number and verification code together
 
         The authenticated user must have a subscription that grants one of the
         `SUBSCRIPTIONS_WITH_PHONE` capabilities.
@@ -204,6 +213,34 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             )
         serializer.validated_data["number"] = valid_number.phone_number
 
+        # To make the POST API more flexible, if the request includes a
+        # verification_code value, look for any un-expired record that
+        # matches both the phone number and verification code and mark it
+        # verified.
+        verification_code = serializer.validated_data.get("verification_code")
+        if verification_code:
+            valid_record = RealPhone.objects.filter(
+                user=request.user,
+                number=serializer.validated_data["number"],
+                verification_code=verification_code,
+                verification_sent_date__gt=(
+                    datetime.now() -
+                    timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE)
+                )
+            ).first()
+            if not valid_record:
+                raise exceptions.ValidationError("Could not find that verification_code for user and number. It may have expired.")
+
+            headers = self.get_success_headers(serializer.validated_data)
+            verified_valid_record = valid_record.mark_verified()
+            response_data = model_to_dict(verified_valid_record, fields=[
+                "id", "number", "verification_sent_date", "verified",
+                "verified_date"
+            ])
+            return response.Response(
+                response_data, status=201, headers=headers
+            )
+
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.validated_data)
         response_data = serializer.data
@@ -215,9 +252,10 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             response_data, status=201, headers=headers
         )
 
-    # check verification_code during partial_update because we need to compare
+    # check verification_code during partial_update to compare
     # the value sent in the request against the value already on the instance
-    # TODO: can this logic be pushed "up" into the Model
+    # TODO: this logic might be able to move "up" into the model, but it will
+    # need some more serious refactoring of the RealPhone.save() method
     def partial_update(self, request, *args, **kwargs):
         """
         Update the authenticated user's real phone number.
@@ -225,7 +263,9 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         instance = self.get_object()
         if ("verification_code" not in request.data or
             not request.data["verification_code"] == instance.verification_code):
-            raise exceptions.ValidationError("Incorrect verification_code")
+            raise exceptions.ValidationError("Invalid verification_code for ID. It may have expired.")
+
+        instance.mark_verified()
         return super().partial_update(request, *args, **kwargs)
 
 
