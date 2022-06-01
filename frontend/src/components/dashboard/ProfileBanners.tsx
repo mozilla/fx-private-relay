@@ -93,7 +93,11 @@ export const ProfileBanners = (props: Props) => {
     props.aliases.length > 0
   ) {
     banners.push(
-      <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
+      <LoyalistPremiumBanner
+        key="premium-banner"
+        runtimeData={props.runtimeData}
+      />
+      // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
     );
   }
 
@@ -214,6 +218,33 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
       }}
     >
       <p>{l10n.getString("banner-upgrade-copy-2")}</p>
+    </Banner>
+  );
+};
+
+const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      key="premium-banner"
+      type="promo"
+      title="Get protection and support the internet"
+      illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
+      ctaLargeButton={{
+        target: getPremiumSubscribeLink(props.runtimeData),
+        content: "Get more protection",
+        onClick: () => trackPurchaseStart(),
+        gaViewPing: {
+          category: "Purchase Button",
+          label: "profile-banner-loyalist-promo",
+        },
+      }}
+    >
+      <p>
+        Protect your privacy while joining the fight for a better internet, all
+        for $0.99
+      </p>
     </Banner>
   );
 };

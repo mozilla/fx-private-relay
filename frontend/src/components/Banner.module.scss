@@ -41,6 +41,11 @@
 .highlight-wrapper {
   display: flex;
   background-color: $color-white;
+  flex-wrap: wrap;
+
+  .title-text {
+    flex: 1 0 50%;
+  }
 
   .banner:not(.promo) & {
     padding: $spacing-xs $spacing-lg $spacing-md;
@@ -96,6 +101,35 @@
     &:focus {
       outline: none;
       text-decoration: underline;
+    }
+  }
+}
+
+// For Loyalist upsell
+.cta-large-button {
+  margin: $spacing-xl 0 $spacing-md $spacing-md;
+  align-self: center;
+
+  @media screen and #{$mq-md} {
+    align-self: center;
+    margin: 0 0 0 auto;
+    padding-left: $spacing-md;
+  }
+
+  a {
+    padding: $spacing-md $spacing-lg;
+    font-weight: 700;
+    background: $color-blue-50;
+    color: $color-white;
+    border-radius: $border-radius-sm;
+
+    &:hover {
+      color: $color-blue-40;
+    }
+
+    &:focus {
+      border-radius: 1px;
+      box-shadow: 0px 0px 0px $spacing-xs #0060df40; // $color-blue-40 40% opacity
     }
   }
 }
