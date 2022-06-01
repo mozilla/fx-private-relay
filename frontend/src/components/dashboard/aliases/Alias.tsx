@@ -21,6 +21,7 @@ import { AliasDeletionButton } from "./AliasDeletionButton";
 import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
 
 export type Props = {
   alias: AliasData;
@@ -30,6 +31,7 @@ export type Props = {
   onDelete: () => void;
   defaultOpen?: boolean;
   showLabelEditor?: boolean;
+  runtimeData?: RuntimeData;
 };
 
 /**
@@ -38,16 +40,6 @@ export type Props = {
 export const Alias = (props: Props) => {
   const { l10n } = useLocalization();
   const [justCopied, setJustCopied] = useState(false);
-  const toggleButtonState = useToggleState({
-    defaultSelected: props.alias.enabled,
-    onChange: (isEnabled) => props.onUpdate({ enabled: isEnabled }),
-  });
-  const toggleButtonRef = useRef<HTMLButtonElement>(null);
-  const { buttonProps } = useToggleButton(
-    {},
-    toggleButtonState,
-    toggleButtonRef
-  );
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const expandButtonState = useToggleState({
@@ -107,42 +99,27 @@ export const Alias = (props: Props) => {
     compactDisplay: "short",
   });
 
-  // We have the <BlockLevelSlider> for Premium users, so don't show the toggle
-  // for them:
-  const toggleButton = props.profile.has_premium ? (
-    // An empty span can take the cell in the grid layout that otherwise
-    // would have been taken by the <button>:
-    <span />
-  ) : (
-    <button
-      {...buttonProps}
-      ref={toggleButtonRef}
-      className={styles["toggle-button"]}
-      aria-label={l10n.getString(
-        toggleButtonState.isSelected
-          ? "profile-label-disable-forwarding-button-2"
-          : "profile-label-enable-forwarding-button-2"
-      )}
-    ></button>
-  );
-
   const setBlockLevel = (blockLevel: BlockLevel) => {
     if (blockLevel === "none") {
-      return props.onUpdate({ enabled: true, block_list_emails: false });
+      // The back-end rejects requests trying to set this property for free users:
+      const blockPromotionals = props.profile.has_premium ? false : undefined;
+      return props.onUpdate({
+        enabled: true,
+        block_list_emails: blockPromotionals,
+      });
     }
     if (blockLevel === "promotional") {
       return props.onUpdate({ enabled: true, block_list_emails: true });
     }
     if (blockLevel === "all") {
-      return props.onUpdate({ enabled: false, block_list_emails: true });
+      // The back-end rejects requests trying to set this property for free users:
+      const blockPromotionals = props.profile.has_premium ? true : undefined;
+      return props.onUpdate({
+        enabled: false,
+        block_list_emails: blockPromotionals,
+      });
     }
   };
-
-  const blockLevelSlider = props.profile.has_premium ? (
-    <div className={styles.row}>
-      <BlockLevelSlider alias={props.alias} onChange={setBlockLevel} />
-    </div>
-  ) : null;
 
   return (
     <div
@@ -161,7 +138,6 @@ export const Alias = (props: Props) => {
     >
       <div className={styles["main-data"]}>
         <div className={styles.controls}>
-          {toggleButton}
           {labelEditor}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
@@ -228,7 +204,17 @@ export const Alias = (props: Props) => {
         </div>
       </div>
       <div className={styles["secondary-data"]}>
-        {blockLevelSlider}
+        <div className={styles.row}>
+          <BlockLevelSlider
+            alias={props.alias}
+            onChange={setBlockLevel}
+            hasPremium={props.profile.has_premium}
+            premiumAvailableInCountry={
+              props.runtimeData?.PREMIUM_PLANS.premium_available_in_country ??
+              false
+            }
+          />
+        </div>
         <div className={styles.row}>
           <dl>
             <div className={`${styles["forward-target"]} ${styles.metadata}`}>

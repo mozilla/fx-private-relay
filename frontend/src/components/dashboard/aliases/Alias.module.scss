@@ -32,76 +32,9 @@ $toggleTransitionDuration: 200ms;
 
 .controls {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 1fr;
   row-gap: $spacing-xs;
   align-items: center;
-
-  // The label field might not be present,
-  // but if it is (i.e. the copy button/email
-  // address is the third element),
-  // the copy button should be in the same column,
-  // one row below.
-  *:nth-child(3) {
-    grid-column: 2;
-  }
-}
-
-.toggle-button {
-  cursor: pointer;
-  height: 1.15rem;
-  width: 2rem;
-  position: relative;
-  overflow: hidden;
-  border: none;
-  border-radius: $border-radius-md;
-  margin-right: $spacing-sm;
-  outline: none;
-  background-color: $color-blue-50;
-
-  &:hover,
-  &:focus {
-    background-color: $color-blue-70;
-    box-shadow: $buttonFocusOutline;
-  }
-
-  &:active {
-    background-color: $color-blue-80;
-  }
-
-  // The knob:
-  &::after {
-    content: "";
-    height: 0.75rem;
-    width: 0.75rem;
-    position: absolute;
-    border-radius: 50%;
-    background-color: $color-white;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    right: 4px;
-    transition: left $toggleTransitionDuration ease,
-      right $toggleTransitionDuration ease,
-      background-color $toggleTransitionDuration ease;
-  }
-
-  .is-disabled & {
-    background-color: $color-light-gray-30;
-
-    &:hover,
-    &:focus {
-      background-color: $color-light-gray-40;
-    }
-
-    &:active {
-      background-color: $color-light-gray-50;
-    }
-
-    &::after {
-      left: 4px;
-      right: 18px;
-    }
-  }
 }
 
 .copy-controls {
@@ -162,16 +95,14 @@ $toggleTransitionDuration: 200ms;
     background-color: $color-violet-30;
     color: $color-white;
     border-radius: $border-radius-md;
-    padding: $spacing-xs;
+    padding: 0 $spacing-xs;
     // By allowing this to overlap other elements,
     // we don't need to reserve empty space for it.
     // Otherwise, this empty space would push the
     // .expand-toggle out of the card on small screens:
     position: absolute;
-    left: 50%;
+    left: $spacing-xs;
     top: 0;
-    // right: 0;
-    transform: translateX(-50%) translateY(-100%);
 
     &.is-shown {
       pointer-events: auto;

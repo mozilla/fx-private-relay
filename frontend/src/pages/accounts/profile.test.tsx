@@ -499,10 +499,11 @@ describe("The dashboard", () => {
     );
     render(<Profile />);
 
-    const aliasToggleButton = screen.getByRole("button", {
-      name: "l10n string: [profile-label-disable-forwarding-button-2], with vars: {}",
+    const blockLevelSlider = screen.getByRole("slider", {
+      name: "l10n string: [profile-promo-email-blocking-title], with vars: {}",
     });
-    await userEvent.click(aliasToggleButton);
+    await userEvent.click(blockLevelSlider);
+    await userEvent.keyboard("[ArrowRight][ArrowRight]");
 
     expect(updateFn).toHaveBeenCalledWith(
       expect.objectContaining({ id: 42, mask_type: "random" }),

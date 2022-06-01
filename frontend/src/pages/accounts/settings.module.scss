@@ -50,36 +50,46 @@
   padding-bottom: $spacing-xl;
 }
 
+$field-gap: $spacing-lg;
+
 .settings-form {
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
   padding: $spacing-md;
   background-color: white;
+  display: flex;
+  flex-direction: column;
+  gap: $field-gap;
 }
 
 .field {
   border-bottom: 1px solid $color-light-gray-20;
-  padding-bottom: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  // padding-bottom is used to have the same gap between the form field and the
+  // bottom border, as the form field has to the bottom border of the form field
+  // preceding it (via `.settings-form`'s `gap`).
+  padding-bottom: $field-gap;
 }
 
 .field-heading {
   @include text-title-3xs;
   color: $color-dark-gray-50;
   font-weight: 400;
-  padding-bottom: $spacing-md;
   flex-basis: 0;
+  min-width: $layout-xl;
 }
 
 .field-content {
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
-  padding-bottom: $spacing-md;
 
   .field-control {
     display: flex;
     align-items: flex-start;
-    gap: $spacing-md;
+    gap: $spacing-sm;
 
     input {
       margin-top: $spacing-xs;
@@ -102,8 +112,82 @@
 }
 
 .controls {
-  padding-top: $spacing-md;
   text-align: center;
+}
+
+.copy-api-key-content {
+  display: flex;
+  flex-direction: row;
+  gap: $spacing-md;
+  align-items: center;
+}
+
+.copy-api-key-display {
+  padding: $spacing-sm $spacing-md;
+  background-color: $color-grey-05;
+  border: 0;
+  outline: 1px solid $color-grey-20;
+  border-radius: $border-radius-md;
+  white-space: nowrap;
+  overflow: hidden;
+  font-family: monospace;
+}
+
+.copy-button-wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: $spacing-xs;
+  position: relative;
+
+  .copy-button {
+    display: block;
+    appearance: none;
+    border: 0;
+    background-color: transparent;
+    text-align: center;
+    cursor: pointer;
+
+    img {
+      opacity: 0.5;
+      width: $layout-xs;
+    }
+
+    &:hover {
+      img {
+        opacity: 1;
+      }
+    }
+  }
+
+  .copied-confirmation {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 2s;
+    background-color: $color-violet-30;
+    color: $color-white;
+    border-radius: $border-radius-md;
+    padding: 0 $spacing-xs;
+    // On small screens, there's not enough room for the "Copied!"
+    // notification to the right of the copy button, so it's absolutely
+    // positioned to overlap the copy button.
+    position: absolute;
+    right: 0;
+    // Position this in the middle of its container
+    top: 50%;
+    transform: translateY(-50%);
+
+    &.is-shown {
+      pointer-events: auto;
+      opacity: 1;
+      // Don't fade in when appearing:
+      transition: opacity 0s;
+    }
+
+    @media screen and #{$mq-sm} {
+      position: static;
+      transform: none;
+    }
+  }
 }
 
 @media screen and #{$mq-md} {
@@ -125,7 +209,7 @@
   }
 
   .field {
-    display: flex;
+    flex-direction: row;
     gap: $spacing-2xl;
   }
 
@@ -134,7 +218,6 @@
   }
 
   .controls {
-    padding-top: $spacing-lg;
     text-align: end;
   }
 }
