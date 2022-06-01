@@ -139,3 +139,78 @@ export const StarIcon = ({
     </svg>
   );
 };
+
+export const ChevronLeftIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 22 22"
+      width={24}
+      height={24}
+      style={{
+        fill: "currentcolor",
+        ...props.style,
+      }}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path d="M16.6201 2.99C16.1301 2.5 15.3401 2.5 14.8501 2.99L6.54006 11.3C6.15006 11.69 6.15006 12.32 6.54006 12.71L14.8501 21.02C15.3401 21.51 16.1301 21.51 16.6201 21.02C17.1101 20.53 17.1101 19.74 16.6201 19.25L9.38006 12L16.6301 4.75C17.1101 4.27 17.1101 3.47 16.6201 2.99Z" />
+    </svg>
+  );
+};
+
+export const ChevronRightIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 22 22"
+      width={24}
+      height={24}
+      style={{
+        fill: "currentcolor",
+        ...props.style,
+      }}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path d="M7.37994 2.99C7.86994 2.5 8.65994 2.5 9.14994 2.99L17.4599 11.3C17.8499 11.69 17.8499 12.32 17.4599 12.71L9.14994 21.02C8.65994 21.51 7.86994 21.51 7.37994 21.02C6.88994 20.53 6.88994 19.74 7.37994 19.25L14.6199 12L7.36994 4.75C6.88994 4.27 6.88994 3.47 7.37994 2.99Z" />
+    </svg>
+  );
+};
+
+export const QuotationIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 22 22"
+      width={24}
+      height={24}
+      style={{
+        fill: "currentcolor",
+        ...props.style,
+      }}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path d="M10.4 0.399995C3.7 7.6 0.8 12.8 0.8 18.2C0.8 24.5 4.1 29.1 9.2 29.1C13.5 29.1 17 25.5 17 21.3C17 17 13.6 13.4 9.4 13.4C10.2 10.2 12.2 7 15.2 4L10.4 0.399995ZM34.4 0.399995C27.7 7.6 24.8 12.8 24.8 18.2C24.8 24.5 28.1 29.1 33.2 29.1C37.5 29.1 41 25.5 41 21.3C41 17 37.6 13.4 33.4 13.4C34.2 10.2 36.2 7 39.2 4L34.4 0.399995Z" />
+    </svg>
+  );
+};

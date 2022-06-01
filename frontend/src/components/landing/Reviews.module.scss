@@ -7,13 +7,19 @@
 
   .reviews {
     display: flex;
-    gap: $spacing-xl;
+    gap: $layout-xl;
     flex-direction: row;
     width: $content-max;
     max-width: 100%;
     margin: 0 auto;
     padding: $spacing-lg;
   }
+}
+
+.left-container {
+  display: flex;
+  flex-direction: row;
+  gap: $spacing-xl;
 }
 
 .logo-container {
@@ -52,21 +58,6 @@
   text-align: center;
   gap: $spacing-xs;
 
-  .stars {
-    display: flex;
-    flex-direction: row;
-
-    .star {
-      color: $color-yellow-50;
-    }
-
-    .empty-star {
-      color: $color-white;
-      stroke: $color-grey-20;
-      stroke-width: 2px;
-    }
-  }
-
   .rating {
     .title {
       @include text-title-2xl; // 72
@@ -79,6 +70,42 @@
       color: $color-grey-40;
       font-family: $font-stack-base;
       font-weight: 500;
+    }
+  }
+}
+
+.stars {
+  display: flex;
+  flex-direction: row;
+}
+
+.star {
+  color: $color-yellow-50;
+}
+
+.empty-star {
+  color: $color-white;
+  stroke: $color-grey-20;
+  stroke-width: 2px;
+}
+
+.review-container {
+  .quotation-icon {
+    display: flex;
+    flex-direction: row;
+
+    svg {
+      color: $color-purple-60;
+      height: $layout-md;
+    }
+  }
+
+  .details {
+    display: flex;
+    flex-direction: row;
+
+    .star {
+      color: $color-yellow-40;
     }
   }
 }
