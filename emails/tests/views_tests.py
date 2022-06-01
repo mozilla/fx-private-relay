@@ -4,6 +4,7 @@ import glob
 import io
 import json
 import os
+import re
 from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User
@@ -1010,12 +1011,12 @@ def test_wrapped_email_test_from_profile(rf):
     request.user = user
     response = wrapped_email_test(request)
     assert response.status_code == 200
-    html = response.content.decode()
-    assert "<dt>language</dt>\n    <dd>de</dd>" in html
-    assert "<dt>has_premium</dt>\n    <dd>No</dd>" in html
-    assert "<dt>in_premium_country</dt>\n    <dd>Yes</dd>" in html
-    assert "<dt>has_attachment</dt>\n    <dd>Yes</dd>" in html
-    assert "<dt>has_email_tracker_study_link</dt>\n    <dd>No</dd>" in html
+    no_space_html = re.sub(r"\s+", "", response.content.decode())
+    assert "<dt>language</dt><dd>de</dd>" in no_space_html
+    assert "<dt>has_premium</dt><dd>No</dd>" in no_space_html
+    assert "<dt>in_premium_country</dt><dd>Yes</dd>" in no_space_html
+    assert "<dt>has_attachment</dt><dd>Yes</dd>" in no_space_html
+    assert "<dt>has_email_tracker_study_link</dt><dd>No</dd>" in no_space_html
 
 
 @pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
@@ -1041,13 +1042,15 @@ def test_wrapped_email_test(
     request = rf.get("/emails/wrapped_email_test", data=data)
     response = wrapped_email_test(request)
     assert response.status_code == 200
-    html = response.content.decode()
-    assert f"<dt>language</dt>\n    <dd>{language}</dd>" in html
-    assert f"<dt>has_premium</dt>\n    <dd>{has_premium}</dd>" in html
-    assert f"<dt>in_premium_country</dt>\n    <dd>{in_premium_country}</dd>" in html
-    assert f"<dt>has_attachment</dt>\n    <dd>{has_attachment}</dd>" in html
-    assert f"<dt>has_attachment</dt>\n    <dd>{has_attachment}</dd>" in html
+    no_space_html = re.sub(r"\s+", "", response.content.decode())
+    assert f"<dt>language</dt><dd>{language}</dd>" in no_space_html
+    assert f"<dt>has_premium</dt><dd>{has_premium}</dd>" in no_space_html
     assert (
-        "<dt>has_email_tracker_study_link</dt>\n"
-        f"    <dd>{has_email_tracker_study_link}</dd>"
-    ) in html
+        f"<dt>in_premium_country</dt><dd>{in_premium_country}</dd>"
+    ) in no_space_html
+    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
+    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
+    assert (
+        "<dt>has_email_tracker_study_link</dt>"
+        f"<dd>{has_email_tracker_study_link}</dd>"
+    ) in no_space_html
