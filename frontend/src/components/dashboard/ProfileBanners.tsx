@@ -195,32 +195,32 @@ const NoChromeExtensionBanner = () => {
   );
 };
 
-type NoPremiumBannerProps = {
-  runtimeData: RuntimeDataWithPremiumAvailable;
-};
-const NoPremiumBanner = (props: NoPremiumBannerProps) => {
-  const { l10n } = useLocalization();
+// type NoPremiumBannerProps = {
+//   runtimeData: RuntimeDataWithPremiumAvailable;
+// };
+// const NoPremiumBanner = (props: NoPremiumBannerProps) => {
+//   const { l10n } = useLocalization();
 
-  return (
-    <Banner
-      key="premium-banner"
-      type="promo"
-      title={l10n.getString("banner-upgrade-headline")}
-      illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
-      cta={{
-        target: getPremiumSubscribeLink(props.runtimeData),
-        content: l10n.getString("banner-upgrade-cta"),
-        onClick: () => trackPurchaseStart(),
-        gaViewPing: {
-          category: "Purchase Button",
-          label: "profile-banner-promo",
-        },
-      }}
-    >
-      <p>{l10n.getString("banner-upgrade-copy-2")}</p>
-    </Banner>
-  );
-};
+//   return (
+//     <Banner
+//       key="premium-banner"
+//       type="promo"
+//       title={l10n.getString("banner-upgrade-headline")}
+//       illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
+//       cta={{
+//         target: getPremiumSubscribeLink(props.runtimeData),
+//         content: l10n.getString("banner-upgrade-cta"),
+//         onClick: () => trackPurchaseStart(),
+//         gaViewPing: {
+//           category: "Purchase Button",
+//           label: "profile-banner-promo",
+//         },
+//       }}
+//     >
+//       <p>{l10n.getString("banner-upgrade-copy-2")}</p>
+//     </Banner>
+//   );
+// };
 
 const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
   const { l10n } = useLocalization();
