@@ -163,7 +163,7 @@ class RealPhoneRateThrottle(throttling.UserRateThrottle):
 
 class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     """
-    Get, create, and update real phone number records for the authenticated user.
+    Get real phone number records for the authenticated user.
 
     The authenticated user must have a subscription that grants one of the
     `SUBSCRIPTIONS_WITH_PHONE` capabilities.
