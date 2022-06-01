@@ -4,6 +4,7 @@ import glob
 import io
 import json
 import os
+import re
 from unittest.mock import patch, Mock
 
 from django.contrib.auth.models import User
@@ -33,6 +34,7 @@ from emails.views import (
     _sns_message,
     _sns_notification,
     validate_sns_header,
+    wrapped_email_test,
     InReplyToNotFound,
 )
 
@@ -994,3 +996,61 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
             "dmarcPolicy": "reject",
         }
         assert mm.get_records() == self.expected_records("a_state", overrides)
+
+
+@pytest.mark.django_db
+def test_wrapped_email_test_from_profile(rf):
+    user = baker.make(User)
+    baker.make(
+        SocialAccount,
+        user=user,
+        provider="fxa",
+        extra_data={"locale": "de,en-US;q=0.9,en;q=0.8"},
+    )
+    request = rf.get("/emails/wrapped_email_test")
+    request.user = user
+    response = wrapped_email_test(request)
+    assert response.status_code == 200
+    no_space_html = re.sub(r"\s+", "", response.content.decode())
+    assert "<dt>language</dt><dd>de</dd>" in no_space_html
+    assert "<dt>has_premium</dt><dd>No</dd>" in no_space_html
+    assert "<dt>in_premium_country</dt><dd>Yes</dd>" in no_space_html
+    assert "<dt>has_attachment</dt><dd>Yes</dd>" in no_space_html
+    assert "<dt>has_email_tracker_study_link</dt><dd>No</dd>" in no_space_html
+
+
+@pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
+@pytest.mark.parametrize("has_premium", ("Yes", "No"))
+@pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
+@pytest.mark.parametrize("has_attachment", ("Yes", "No"))
+@pytest.mark.parametrize("has_email_tracker_study_link", ("Yes", "No"))
+def test_wrapped_email_test(
+    rf,
+    language,
+    has_premium,
+    in_premium_country,
+    has_attachment,
+    has_email_tracker_study_link,
+):
+    data = {
+        "language": language,
+        "has_premium": has_premium,
+        "in_premium_country": in_premium_country,
+        "has_attachment": has_attachment,
+        "has_email_tracker_study_link": has_email_tracker_study_link,
+    }
+    request = rf.get("/emails/wrapped_email_test", data=data)
+    response = wrapped_email_test(request)
+    assert response.status_code == 200
+    no_space_html = re.sub(r"\s+", "", response.content.decode())
+    assert f"<dt>language</dt><dd>{language}</dd>" in no_space_html
+    assert f"<dt>has_premium</dt><dd>{has_premium}</dd>" in no_space_html
+    assert (
+        f"<dt>in_premium_country</dt><dd>{in_premium_country}</dd>"
+    ) in no_space_html
+    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
+    assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
+    assert (
+        "<dt>has_email_tracker_study_link</dt>"
+        f"<dd>{has_email_tracker_study_link}</dd>"
+    ) in no_space_html
