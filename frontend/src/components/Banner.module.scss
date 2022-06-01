@@ -1,5 +1,6 @@
 @import "../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 
 .banner {
   border-radius: $border-radius-md;
@@ -124,12 +125,15 @@
     border-radius: $border-radius-sm;
 
     &:hover {
-      color: $color-blue-40;
+      background-color: $color-blue-60;
+      color: $color-white;
     }
 
     &:focus {
-      border-radius: 1px;
-      box-shadow: 0px 0px 0px $spacing-xs #0060df40; // $color-blue-40 40% opacity
+      border-color: $button-border-color-focus;
+      box-shadow: $field-focus-ring;
+      color: $color-white;
+      outline: none;
     }
   }
 }
