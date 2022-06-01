@@ -103,14 +103,37 @@ export const BlockLevelSlider = (props: Props) => {
         <label {...labelProps} className={styles["slider-label"]}>
           {sliderSettings.label}
         </label>
-        <div {...trackProps} ref={trackRef} className={styles.track}>
-          <div className={styles["track-line"]} />
-          <div
-            className={getTrackStopClassNames(props.alias, sliderState, "none")}
-          >
-            <img src={UmbrellaClosedMobile.src} alt="" />
-            <p aria-hidden="true">{getLabelForBlockLevel("none", l10n)}</p>
+        <div className={styles["track-wrapper"]}>
+          <div {...trackProps} ref={trackRef} className={styles.track}>
+            <div className={styles["track-line"]} />
+            <div
+              className={getTrackStopClassNames(
+                props.alias,
+                sliderState,
+                "none"
+              )}
+            >
+              <img src={UmbrellaClosedMobile.src} alt="" />
+              <p aria-hidden="true">{getLabelForBlockLevel("none", l10n)}</p>
+            </div>
+            <div
+              className={getTrackStopClassNames(
+                props.alias,
+                sliderState,
+                "all"
+              )}
+            >
+              <img src={UmbrellaOpenMobile.src} alt="" />
+              <p aria-hidden="true">{getLabelForBlockLevel("all", l10n)}</p>
+            </div>
+            <Thumb sliderState={sliderState} trackRef={trackRef} />
           </div>
+          {/*
+            <PromotionalTrackStop> is located outside of div.track,
+            because for free users it has a tooltip that is not part of the
+            track. If it were located inside it, clicking it would be
+            interpreted as a click on the slider track.
+            */}
           <PromotionalTrackStop
             alias={props.alias}
             sliderState={sliderState}
@@ -124,13 +147,6 @@ export const BlockLevelSlider = (props: Props) => {
               {premiumOnlyMarker}
             </p>
           </PromotionalTrackStop>
-          <div
-            className={getTrackStopClassNames(props.alias, sliderState, "all")}
-          >
-            <img src={UmbrellaOpenMobile.src} alt="" />
-            <p aria-hidden="true">{getLabelForBlockLevel("all", l10n)}</p>
-          </div>
-          <Thumb sliderState={sliderState} trackRef={trackRef} />
         </div>
       </div>
       <VisuallyHidden>
