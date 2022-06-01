@@ -3,7 +3,6 @@ import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "../../../../static/images/logos/fx-logo.svg";
 import AddonIllustration from "../../../../static/images/banner-addon.svg";
-import RelayLogo from "../../../../static/images/placeholder-logo.svg";
 import {
   getPlan,
   getPremiumSubscribeLink,
@@ -24,8 +23,6 @@ import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
-import { runtimeData } from "../../apiMocks/mockData";
-import { Plans } from "../landing/Plans";
 
 export type Props = {
   profile: ProfileData;
