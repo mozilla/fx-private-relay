@@ -997,7 +997,8 @@ class RecordReceiptVerdictsTests(SimpleTestCase):
         assert mm.get_records() == self.expected_records("a_state", overrides)
 
 
-def test_wrapped_email_test_from_profile(db, rf):
+@pytest.mark.django_db
+def test_wrapped_email_test_from_profile(rf):
     user = baker.make(User)
     baker.make(
         SocialAccount,
