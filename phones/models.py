@@ -5,6 +5,7 @@ import random
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.exceptions import BadRequest
 from django.db.migrations.recorder import MigrationRecorder
 from django.db import models
 from django.db.models.signals import post_save
@@ -45,6 +46,15 @@ class RealPhone(models.Model):
         ]
 
     def save(self, *args, **kwargs):
+        # We are not ready to support multiple real phone numbers per user,
+        # so raise an exception if this save() would create a second
+        # RealPhone record for the user
+        other_number_record = RealPhone.objects.filter(
+            user=self.user, verified=True
+        ).exclude(number=self.number)
+        if other_number_record:
+            raise BadRequest("RealPhone.save(): Another real number already exists for this user.")
+
         # delete any expired unverified RealPhone records for this number
         expired_verification_records = RealPhone.objects.filter(
             number=self.number,
@@ -60,6 +70,12 @@ class RealPhone(models.Model):
         return super().save(*args, **kwargs)
 
         # See realphone_post_save:
+
+    def mark_verified(self):
+        self.verified=True
+        self.verified_date = datetime.now()
+        self.save(force_update=True)
+        return self
 
 
 @receiver(post_save)
