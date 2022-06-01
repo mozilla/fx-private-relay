@@ -5,6 +5,7 @@ import FirefoxLogo from "../../../../static/images/logos/fx-logo.svg";
 import AddonIllustration from "../../../../static/images/banner-addon.svg";
 import RelayLogo from "../../../../static/images/placeholder-logo.svg";
 import {
+  getPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
   RuntimeDataWithPremiumAvailable,
@@ -16,13 +17,15 @@ import {
 } from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
+import { runtimeData } from "../../apiMocks/mockData";
+import { Plans } from "../landing/Plans";
 
 export type Props = {
   profile: ProfileData;
@@ -195,9 +198,10 @@ const NoChromeExtensionBanner = () => {
   );
 };
 
-// type NoPremiumBannerProps = {
-//   runtimeData: RuntimeDataWithPremiumAvailable;
-// };
+type NoPremiumBannerProps = {
+  runtimeData: RuntimeDataWithPremiumAvailable;
+};
+
 // const NoPremiumBanner = (props: NoPremiumBannerProps) => {
 //   const { l10n } = useLocalization();
 
@@ -229,11 +233,11 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
     <Banner
       key="premium-banner"
       type="promo"
-      title="Get protection and support the internet"
+      title={l10n.getString("banner-upgrade-loyalist-headline")}
       illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
       ctaLargeButton={{
         target: getPremiumSubscribeLink(props.runtimeData),
-        content: "Get more protection",
+        content: l10n.getString("banner-upgrade-loyalist-cta"),
         onClick: () => trackPurchaseStart(),
         gaViewPing: {
           category: "Purchase Button",
@@ -242,8 +246,9 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
       }}
     >
       <p>
-        Protect your privacy while joining the fight for a better internet, all
-        for $0.99
+        {l10n.getString("banner-upgrade-loyalist-copy", {
+          monthly_price: getPlan(props.runtimeData).price,
+        })}
       </p>
     </Banner>
   );
