@@ -199,8 +199,13 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         create an E.164 number by prepending the country code of the client
         making the request (i.e., from the `X-Client-Region` HTTP header).
 
-        If the number is a valid (currently, US-based) number, this endpoint
-        will text a verification code to the number.
+        If the `POST` does NOT include a `verification_code` and the number is
+        a valid (currently, US-based) number, this endpoint will text a
+        verification code to the number.
+
+        If the `POST` DOES include a `verification_code`, and the code matches
+        a code already sent to the number, this endpoint will set `verified` to
+        `True` for this number.
 
         [e164]: https://en.wikipedia.org/wiki/E.164
         """
@@ -259,6 +264,20 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         """
         Update the authenticated user's real phone number.
+
+        The authenticated user must have a subscription that grants one of the
+        `SUBSCRIPTIONS_WITH_PHONE` capabilities.
+
+        The `{id}` should match a previously-`POST`ed resource.
+
+        The `number` field should be in [E.164][e164] format which includes a country
+        code.
+
+        The `verification_code` should be the code that was texted to the
+        number during the `POST`. If it matches, this endpoint will set
+        `verified` to `True` for this number.
+
+        [e164]: https://en.wikipedia.org/wiki/E.164
         """
         instance = self.get_object()
         if ("verification_code" not in request.data or
