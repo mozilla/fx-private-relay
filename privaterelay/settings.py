@@ -24,6 +24,9 @@ from sentry_sdk.integrations.logging import ignore_logger
 from hashlib import sha512
 import base64
 
+from django.db.models import ForeignKey
+from django.db.models.manager import BaseManager
+from django.db.models.query import QuerySet
 from django.conf import settings
 
 import dj_database_url
@@ -737,3 +740,8 @@ PROCESS_EMAIL_HEALTHCHECK_MAX_AGE = config(
 
 # Django 3.2 switches default to BigAutoField
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+# Patching for django-types
+for cls in (QuerySet, BaseManager, ForeignKey):
+    cls.__clas_getitem__ = classmethod(  # type: ignore [attr-defined]
+        lambda cls, *args, **kwargs: cls)
