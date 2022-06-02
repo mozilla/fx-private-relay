@@ -43,7 +43,9 @@ export type Props = {
   profile: ProfileData;
   runtimeData?: RuntimeData;
   onCreate: (
-    options: { mask_type: "random" } | { mask_type: "custom"; address: string }
+    options:
+      | { mask_type: "random" }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
   ) => void;
 };
 
@@ -119,7 +121,9 @@ export const AliasGenerationButton = (props: Props) => {
 type AliasTypeMenuProps = {
   subdomain: string;
   onCreate: (
-    options: { mask_type: "random" } | { mask_type: "custom"; address: string }
+    options:
+      | { mask_type: "random" }
+      | { mask_type: "custom"; address: string; blockPromotionals: boolean }
   ) => void;
 };
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
@@ -136,8 +140,15 @@ const AliasTypeMenu = (props: AliasTypeMenuProps) => {
     }
   };
 
-  const onPick = (address: string) => {
-    props.onCreate({ mask_type: "custom", address: address });
+  const onPick = (
+    address: string,
+    settings: { blockPromotionals: boolean }
+  ) => {
+    props.onCreate({
+      mask_type: "custom",
+      address: address,
+      blockPromotionals: settings.blockPromotionals,
+    });
     modalState.close();
   };
 

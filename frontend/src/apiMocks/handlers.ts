@@ -227,7 +227,7 @@ export function getHandlers(
       description: "",
       domain: 2,
       enabled: true,
-      block_list_emails: false,
+      block_list_emails: body.block_list_emails ?? false,
       id: id,
       last_modified_at: new Date(Date.now()).toISOString(),
       last_used_at: new Date(Date.now()).toISOString(),

@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from "react";
+import Link from "next/link";
 import { useLocalization } from "@fluent/react";
 import {
   OverlayContainer,
@@ -20,11 +21,12 @@ import styles from "./AddressPickerModal.module.scss";
 import { InfoIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
+import { InfoTooltip } from "../../InfoTooltip";
 
 export type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onPick: (address: string) => void;
+  onPick: (address: string, settings: { blockPromotionals: boolean }) => void;
   subdomain: string;
 };
 
@@ -35,6 +37,7 @@ export type Props = {
 export const AddressPickerModal = (props: Props) => {
   const { l10n } = useLocalization();
   const [address, setAddress] = useState("");
+  const [promotionalsBlocking, setPromotionalsBlocking] = useState(false);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(
     { onPress: () => props.onClose() },
@@ -44,7 +47,7 @@ export const AddressPickerModal = (props: Props) => {
   const onSubmit: FormEventHandler = (event) => {
     event.preventDefault();
 
-    props.onPick(address);
+    props.onPick(address, { blockPromotionals: promotionalsBlocking });
   };
 
   return (
@@ -86,6 +89,43 @@ export const AddressPickerModal = (props: Props) => {
               <span className={styles.suffix}>
                 @<b>{props.subdomain}</b>.{getRuntimeConfig().mozmailDomain}
               </span>
+            </div>
+            <div className={styles["promotionals-blocking-control"]}>
+              <input
+                type="checkbox"
+                id="promotionalsBlocking"
+                onChange={(event) =>
+                  setPromotionalsBlocking(event.target.checked)
+                }
+              />
+              <label htmlFor="promotionalsBlocking">
+                {l10n.getString(
+                  "popover-custom-alias-explainer-promotional-block-checkbox"
+                )}
+              </label>
+              <InfoTooltip
+                alt={l10n.getString(
+                  "popover-custom-alias-explainer-promotional-block-tooltip-trigger"
+                )}
+              >
+                <h3>
+                  {l10n.getString(
+                    "popover-custom-alias-explainer-promotional-block-checkbox"
+                  )}
+                </h3>
+                <p className={styles["promotionals-blocking-description"]}>
+                  {l10n.getString(
+                    "popover-custom-alias-explainer-promotional-block-tooltip-2"
+                  )}
+                  <Link href="/faq#faq-promotional-email-blocking">
+                    <a>
+                      {l10n.getString(
+                        "banner-label-data-notification-body-cta"
+                      )}
+                    </a>
+                  </Link>
+                </p>
+              </InfoTooltip>
             </div>
             <div className={styles.buttons}>
               <button

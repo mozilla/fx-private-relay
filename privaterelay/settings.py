@@ -694,6 +694,10 @@ ignore_logger("request.summary")
 # Security scanner attempts, no action required
 # Can be re-enabled when hostname allow list implemented at the load balancer
 ignore_logger("django.security.DisallowedHost")
+# Fluent errors, mostly when a translation is unavailable for the locale.
+# It is more effective to process these from logs using BigQuery than to track
+# as events in Sentry.
+ignore_logger("django_ftl.message_errors")
 
 markus.configure(
     backends=[
