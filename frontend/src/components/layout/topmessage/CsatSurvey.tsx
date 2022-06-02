@@ -1,13 +1,16 @@
 import { event as gaEvent } from "react-ga";
 import styles from "./CsatSurvey.module.scss";
-import { useFirstSeen } from "../../hooks/firstSeen";
-import { DismissOptions, useLocalDismissal } from "../../hooks/localDismissal";
+import { useFirstSeen } from "../../../hooks/firstSeen";
+import {
+  DismissOptions,
+  useLocalDismissal,
+} from "../../../hooks/localDismissal";
 import { useLocalization } from "@fluent/react";
-import { ProfileData } from "../../hooks/api/profile";
-import { CloseIcon } from "../Icons";
-import { parseDate } from "../../functions/parseDate";
+import { ProfileData } from "../../../hooks/api/profile";
+import { CloseIcon } from "../../Icons";
+import { parseDate } from "../../../functions/parseDate";
 import { useState } from "react";
-import { getLocale } from "../../functions/getLocale";
+import { getLocale } from "../../../functions/getLocale";
 
 type SurveyLinks = {
   "Very Dissatisfied": string;
