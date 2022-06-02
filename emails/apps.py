@@ -1,4 +1,4 @@
-import json
+from __future__ import annotations
 import logging
 import os
 import requests
@@ -34,7 +34,7 @@ def get_trackers(category="Email"):
 
 class EmailsConfig(AppConfig):
     name: Final = "emails"
-    ses_client: SESClient
+    _ses_client: SESClient
     s3_client: S3Client
     badwords: list[str]
     blocklist: list[str]
@@ -42,7 +42,7 @@ class EmailsConfig(AppConfig):
     def __init__(self, app_name: str, app_module: Optional[ModuleType]):
         super(EmailsConfig, self).__init__(app_name, app_module)
         try:
-            self.ses_client = boto3.client("ses", region_name=settings.AWS_REGION)
+            self._ses_client = boto3.client("ses", region_name=settings.AWS_REGION)
             s3_config = Config(
                 region_name=settings.AWS_REGION,
                 retries={
@@ -68,6 +68,15 @@ class EmailsConfig(AppConfig):
         # )
         # with open("emails/tracker_lists/level-two-tracker.json", "w+") as f:
         #     json.dump(level_two_trackers, f, indent=4)
+
+    @property
+    def ses_client(self) -> SESClient:
+        """
+        The SES client initiazed at application startup.
+
+        This property allows tests to mock the SES client.
+        """
+        return self._ses_client
 
     def _load_terms(self, filename):
         terms = []
