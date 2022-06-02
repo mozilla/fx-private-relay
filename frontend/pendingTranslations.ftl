@@ -2,6 +2,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+# Mobile menu icons 
+
+menu-upgrade-button = Upgrade 
+menu-toggle-open = Open menu
+menu-toggle-close = Close menu
+nav-dashboard = Dashboard
+nav-settings = Settings
+nav-support = Help and Support 
+nav-sign-out = Sign Out
+nav-contact = Contact Us
+
 landing-use-cases-shopping = Shopping
 landing-use-cases-shopping-hero-heading = Shopping with email masks
 landing-use-cases-shopping-hero-content1 = Want to buy something online and don’t know or fully trust the shop?
@@ -64,3 +75,7 @@ whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium
 # length as the English version.
 whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more protection…
 whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!
+
+fx-desktop-2 = { -brand-name-firefox } for Desktop
+fx-mobile-2 = { -brand-name-firefox } for Mobile
+fx-containers = { -brand-name-firefox } Containers

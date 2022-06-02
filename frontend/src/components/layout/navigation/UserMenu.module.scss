@@ -1,8 +1,7 @@
-@import "../../styles/tokens.scss";
+@import "../../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
-  display: flex;
   align-items: center;
   position: relative;
 }
@@ -22,8 +21,8 @@
 
 .popup {
   position: absolute;
-  transform: translateX(-100%);
-  margin-top: $spacing-xl;
+  right: 0;
+  margin-top: $spacing-md;
   padding: 0;
   padding-bottom: $spacing-lg;
   min-width: $content-xs;
@@ -97,16 +96,23 @@
       border-style: none;
       background-color: transparent;
       width: 100%;
+      gap: $spacing-md;
       cursor: pointer;
 
-      img {
-        margin-right: $spacing-md;
-        width: 16px;
+      svg {
+        color: $color-purple-40;
       }
 
       &:hover {
+        text-decoration: underline;
         background-color: $color-light-gray-20;
         color: $color-violet-90;
+      }
+    }
+
+    .settings-link {
+      svg {
+        color: $color-purple-40;
       }
     }
 

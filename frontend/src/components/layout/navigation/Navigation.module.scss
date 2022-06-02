@@ -1,0 +1,58 @@
+@import "../../../styles/tokens.scss";
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 0 $spacing-md;
+  gap: $spacing-lg;
+
+  @media screen and (min-width: $content-xl) {
+    padding: 0 $spacing-xl;
+  }
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  font-family: $font-stack-firefox;
+  min-width: $spacing-2xl + $spacing-lg;
+  color: inherit;
+
+  &.is-active {
+    padding-top: $spacing-xs;
+    height: 100%;
+  }
+
+  &.is-active::after {
+    width: 100%;
+    height: 4px;
+    display: block;
+    content: "";
+    background: $firefoxGradient;
+    position: absolute;
+    bottom: 0;
+  }
+}
+
+.menu-toggle {
+  display: flex;
+  appearance: none;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: currentColor;
+
+  @media screen and #{$mq-md} {
+    display: none;
+  }
+}
+
+.hidden-mobile {
+  @media screen and (max-width: $screen-md) {
+    display: none;
+  }
+}

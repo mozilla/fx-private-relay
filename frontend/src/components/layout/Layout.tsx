@@ -1,4 +1,4 @@
-import React, { ReactElement, ReactNode, useEffect } from "react";
+import { ReactElement, ReactNode, useEffect, useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -15,19 +15,16 @@ import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
 import favicon from "../../../public/favicon.svg";
 import socialMediaImage from "../../../../static/images/share-relay.jpg";
 import { useProfiles } from "../../hooks/api/profile";
-import { UserMenu } from "./UserMenu";
-import { Navigation } from "./Navigation";
-import { AppPicker } from "./AppPicker";
+import { Navigation } from "./navigation/Navigation";
 import { useIsLoggedIn } from "../../hooks/session";
 import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
 import { CsatSurvey } from "./CsatSurvey";
 import { InterviewRecruitment } from "./InterviewRecruitment";
-import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
-import { CloseIcon } from "../Icons";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
-import { useRuntimeData } from "../../hooks/api/runtimeData";
+import { MobileNavigation } from "./navigation/MobileNavigation";
+import { CloseIcon } from "../Icons";
 
 export type Props = {
   children: ReactNode;
@@ -40,10 +37,11 @@ export type Props = {
 export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
-  const runtimeData = useRuntimeData();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
+  const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const usersData = useUsers().data?.[0];
+  const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>();
 
   useEffect(() => {
     makeToast(l10n, usersData);
@@ -61,15 +59,17 @@ export const Layout = (props: Props) => {
   // set to "free", like the FAQ), and if the theme is explicitly
   // set to Premium (i.e. on the `/premium` promo page).
   const logoType =
-    props.theme === "premium" || profiles.data?.[0].has_premium
-      ? premiumLogo
-      : regularLogo;
+    props.theme === "premium" || hasPremium ? premiumLogo : regularLogo;
   const logoAlt =
-    props.theme === "premium" || profiles.data?.[0].has_premium
+    props.theme === "premium" || hasPremium
       ? l10n.getString("logo-alt")
       : l10n.getString("logo-premium-alt");
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
+
+  const handleToggle = () => {
+    setMobileMenuExpanded(!mobileMenuExpanded);
+  };
 
   const csatSurvey =
     getRuntimeConfig().featureFlags.csatSurvey &&
@@ -89,11 +89,6 @@ export const Layout = (props: Props) => {
         This is a site to demo the Relay UI; data is fake, and changes will be
         lost after a page refresh.
       </div>
-    ) : null;
-
-  const whatsNew =
-    isLoggedIn && profiles.data ? (
-      <WhatsNewMenu profile={profiles.data[0]} runtimeData={runtimeData.data} />
     ) : null;
 
   const closeToastButton = (closeToast: () => void): ReactElement => {
@@ -164,16 +159,25 @@ export const Layout = (props: Props) => {
             </Link>
           </div>
           <div className={styles["nav-wrapper"]}>
-            <Navigation />
-            {whatsNew}
+            <Navigation
+              mobileMenuExpanded={mobileMenuExpanded}
+              theme={isDark ? "free" : "premium"}
+              handleToggle={handleToggle}
+              hasPremium={hasPremium}
+              isLoggedIn={isLoggedIn}
+              profile={profiles.data?.[0]}
+            />
           </div>
-          <div className={styles["app-picker-wrapper"]}>
-            <AppPicker theme={isDark ? "free" : "premium"} />
-          </div>
-          <nav className={styles["user-menu-wrapper"]}>
-            <UserMenu />
-          </nav>
         </header>
+
+        <MobileNavigation
+          mobileMenuExpanded={mobileMenuExpanded}
+          hasPremium={hasPremium}
+          isLoggedIn={isLoggedIn}
+          userEmail={usersData?.email}
+          userAvatar={profiles.data?.[0].avatar}
+        />
+
         <ToastContainer
           icon={false}
           position={toast.POSITION.TOP_CENTER}

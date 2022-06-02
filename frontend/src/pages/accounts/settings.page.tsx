@@ -232,7 +232,7 @@ const Settings: NextPage = () => {
               {contactUsLink}
               <li>
                 <a
-                  href={`https://support.mozilla.org/products/relay/?utm_source=${
+                  href={`${getRuntimeConfig().supportUrl}?utm_source=${
                     getRuntimeConfig().frontendOrigin
                   }`}
                   target="_blank"

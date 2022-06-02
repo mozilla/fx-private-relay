@@ -17,6 +17,7 @@ import PremiumWaitlist from "./waitlist.page";
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("../../config.ts", () => mockConfigModule);
+jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
 jest.mock("../../components/waitlist/CountryPicker.tsx", () => ({
   // We're mocking out the country picker because it dynamically imports the

@@ -1,0 +1,139 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  align-items: center;
+  position: relative;
+}
+
+.trigger {
+  display: flex;
+  cursor: pointer;
+  background-color: transparent;
+  border-style: none;
+  // Diameter of the Bento image:
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: $border-radius-sm;
+
+  svg {
+    color: $color-white;
+
+    &.premium {
+      color: $color-grey-40;
+    }
+    &:hover {
+      color: $color-purple-20;
+    }
+  }
+}
+
+.popup {
+  position: absolute;
+  right: 0;
+  // Design request to push popup down 4px
+  margin-top: ($spacing-lg - $spacing-xs);
+  padding: 0;
+  padding-bottom: $spacing-lg;
+  min-width: $content-xs;
+  list-style-type: none;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-sm;
+  background-color: $color-light-gray-10;
+
+  &::before {
+    content: "";
+    height: 12px;
+    width: 12px;
+    position: absolute;
+    top: -6px;
+    right: $spacing-sm;
+    transform: rotate(45deg);
+    background-color: $color-light-gray-10;
+  }
+
+  .app-picker-heading {
+    color: $color-black;
+    padding: $spacing-lg;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: $spacing-sm;
+    background-image: linear-gradient(
+        to bottom,
+        #f9f9fb calc(100% - 3px),
+        rgba(0, 0, 0, 0)
+      ),
+      linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
+    border-radius: $border-radius-sm $border-radius-sm 0 0;
+
+    img {
+      height: $layout-sm;
+    }
+
+    h2 {
+      @include text-body-md;
+      font-family: $font-stack-base;
+    }
+  }
+
+  ul {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: $spacing-md;
+    padding: $spacing-lg;
+    list-style-type: none;
+  }
+
+  .menu-item-wrapper {
+    &[data-key="mozilla"] {
+      grid-column: 1 / 4;
+    }
+
+    .menu-link {
+      display: flex;
+      flex-direction: column;
+      color: $color-black;
+      align-items: center;
+      text-align: center;
+
+      @include text-body-sm;
+      font-weight: 400;
+      font-family: $font-stack-base;
+
+      img {
+        height: $layout-sm;
+        padding: $spacing-lg;
+        width: -moz-fit-content;
+        width: fit-content;
+        box-sizing: content-box;
+        border-radius: $border-radius-md;
+      }
+
+      &:hover {
+        color: $color-violet-90;
+
+        img {
+          background-color: $color-light-gray-20;
+        }
+      }
+
+      &.mozilla-link {
+        color: $color-blue-50;
+        justify-content: center;
+        width: 100%;
+        margin-top: $spacing-lg;
+      }
+    }
+
+    &:focus {
+      outline: none;
+
+      .menu-link {
+        text-decoration: underline;
+      }
+    }
+  }
+}

@@ -1,0 +1,150 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.mobile-menu {
+  width: 100%;
+  position: relative;
+  // z-index of 1 (so it overlaps content)
+  // allows menu to slide under main navigation header
+  z-index: 1;
+  flex-direction: column;
+}
+
+#mobile-menu {
+  transform: translateY(-100%);
+  background-color: $color-white;
+  box-shadow: $box-shadow-lg;
+  position: absolute;
+  left: 0;
+  width: 100%;
+
+  &.not-active {
+    animation: slide-out 300ms cubic-bezier(0.52, -0.14, 0.31, 1.2);
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+
+  &.is-active {
+    animation: slide-in 450ms cubic-bezier(0.52, -0.14, 0.31, 1.2);
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+
+  @media (prefers-reduced-motion) {
+    &.not-active {
+      animation: none;
+    }
+    &.is-active {
+      animation: none;
+    }
+  }
+
+  @keyframes slide-in {
+    100% {
+      transform: translateY(0);
+    }
+  }
+  @keyframes slide-out {
+    0% {
+      transform: translateY(0);
+    }
+    100% {
+      transform: translateY(-100%);
+    }
+  }
+}
+
+.menu-item-list {
+  @media screen and #{$mq-md} {
+    display: none;
+  }
+}
+
+.menu-item {
+  display: flex;
+
+  @include text-display-xxs;
+  font-family: $font-stack-firefox;
+  border-bottom: 2px solid $color-light-gray-20;
+
+  &.sign-up-menu-item {
+    padding: $spacing-md;
+  }
+
+  .link {
+    display: flex;
+    border: none;
+    background-color: transparent;
+    padding: $spacing-lg $spacing-md;
+    width: 100%;
+    flex-direction: row;
+    gap: $spacing-md;
+    font-weight: 500;
+    color: $color-grey-40;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    svg {
+      color: $color-purple-40;
+    }
+  }
+
+  .sign-up-button {
+    display: block;
+    font-weight: 400;
+    text-align: center;
+    width: 100%;
+    padding: $spacing-md;
+    background-color: $color-blue-50;
+    border-radius: $border-radius-sm;
+    margin: $spacing-sm auto;
+  }
+}
+
+.user-info {
+  display: flex;
+  border-bottom: none;
+  padding: $spacing-lg $spacing-md;
+  background-image: linear-gradient(
+      to bottom,
+      #f9f9fb calc(100% - 3px),
+      rgba(0, 0, 0, 0)
+    ),
+    linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
+  gap: $spacing-md;
+
+  .user-avatar {
+    border-radius: 50%;
+  }
+
+  span {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .user-email {
+    color: $color-blue-90;
+    font-weight: 500;
+  }
+
+  .settings-link {
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+    color: $color-grey-40;
+
+    @include text-body-sm;
+    gap: $spacing-sm;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    svg {
+      color: $color-purple-40;
+    }
+  }
+}
