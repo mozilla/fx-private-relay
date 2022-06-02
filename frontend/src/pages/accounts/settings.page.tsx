@@ -189,6 +189,7 @@ const Settings: NextPage = () => {
                       className={styles["copy-api-key-display"]}
                       value={profile.api_token}
                       size={profile.api_token.length}
+                      readOnly={true}
                     />
                     <span className={styles["copy-controls"]}>
                       <span className={styles["copy-button-wrapper"]}>
