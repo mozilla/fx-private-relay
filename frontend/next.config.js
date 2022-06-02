@@ -19,7 +19,7 @@ const runtimeConfigs = {
       tips: true,
       generateCustomAliasMenu: true,
       generateCustomAliasSubdomain: false,
-      interviewRecruitment: false,
+      interviewRecruitment: true,
       csatSurvey: true,
     },
   },

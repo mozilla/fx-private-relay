@@ -8,6 +8,7 @@ import { useLocalDismissal } from "../../../hooks/localDismissal";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { getLocale } from "../../../functions/getLocale";
+import { useRouter } from "next/router";
 
 export type Props = {
   profile?: ProfileData;
@@ -17,13 +18,14 @@ export type Props = {
  * Ask people whether they're be interested in discussing their experience in using Relay.
  */
 export const InterviewRecruitment = (props: Props) => {
+  const router = useRouter();
   const recruitmentLink =
-    "https://survey.alchemer.com/s3/6678255/Firefox-Relay-Research-Study";
+    "https://survey.alchemer-ca.com/s3/50148495/Mozilla-User-Research-2022-05";
   const recruitmentLabel =
-    "Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50  gift card.";
+    "We want to learn more about your experience with Firefox Relay. Research participants receive a $100 Amazon giftcard. Learn more.";
 
   const { l10n } = useLocalization();
-  const dismissal = useLocalDismissal("interview-recruitment");
+  const dismissal = useLocalDismissal("interview-recruitment-2022-05");
   const runtimeData = useRuntimeData();
   const linkRef = useGaViewPing({
     category: "Recruitment",
@@ -34,12 +36,16 @@ export const InterviewRecruitment = (props: Props) => {
   if (
     // ...interview recruitment is enabled in the first place,
     getRuntimeConfig().featureFlags.interviewRecruitment !== true ||
+    // ...the user is currently looking at the dashboard,
+    router.pathname !== "/accounts/profile" ||
     // ...the user hasn't closed the recruitment banner before,
     dismissal.isDismissed ||
     // ...the user is logged in,
     !props.profile ||
-    // ...the user is located in the US, and
-    runtimeData.data?.PREMIUM_PLANS.country_code !== "us" ||
+    // ...the user is located in the Canada, Germany, France, the UK, or the US, and
+    !["ca", "de", "fr", "gb", "us"].includes(
+      runtimeData.data?.PREMIUM_PLANS.country_code ?? "not the user's country"
+    ) ||
     // ...the user speaks English.
     getLocale(l10n).split("-")[0] !== "en"
   ) {
