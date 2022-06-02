@@ -1,6 +1,11 @@
 import { useLocalization } from "@fluent/react";
 import FxBrowserLogo from "../../../../static/scss/libs/protocol/img/logos/firefox/browser/logo.svg";
-import { QuotationIcon, StarIcon } from "../Icons";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  QuotationIcon,
+  StarIcon,
+} from "../Icons";
 import styles from "./Reviews.module.scss";
 
 /**
@@ -46,13 +51,18 @@ export const Reviews = () => {
 
         <div className={styles["right-container"]}>
           <div className={styles["review-container"]}>
+            <button className={styles.chevron}>
+              <ChevronLeftIcon alt="" />
+            </button>
+
             <div className="review">
-              <span className={styles["quotation-icon"]}>
+              <div className={styles["quotation-icon"]}>
                 <QuotationIcon alt="" />
                 <QuotationIcon alt="" />
-              </span>
+              </div>
+
               <div className={styles.details}>
-                {renderStarRating(4)}
+                <div className={styles.stars}>{renderStarRating(5)}</div>
                 <span className={styles.name}>Firefox user</span>
                 <span className={styles.date}>6 months ago</span>
                 <span className={styles.source}>
@@ -64,6 +74,10 @@ export const Reviews = () => {
                 me from signing up for a dodgy or pricey alternative.
               </div>
             </div>
+
+            <button className={styles.chevron}>
+              <ChevronRightIcon alt="" />
+            </button>
           </div>
         </div>
       </div>

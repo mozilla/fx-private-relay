@@ -200,9 +200,9 @@ export const QuotationIcon = ({
       aria-label={alt}
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 22 22"
-      width={24}
-      height={24}
+      viewBox="0 4 20 20"
+      width={20}
+      height={20}
       style={{
         fill: "currentcolor",
         ...props.style,
