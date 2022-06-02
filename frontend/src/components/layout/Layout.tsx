@@ -17,10 +17,8 @@ import socialMediaImage from "../../../../static/images/share-relay.jpg";
 import { useProfiles } from "../../hooks/api/profile";
 import { Navigation } from "./navigation/Navigation";
 import { useIsLoggedIn } from "../../hooks/session";
-import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
-import { CsatSurvey } from "./CsatSurvey";
-import { InterviewRecruitment } from "./InterviewRecruitment";
+import { TopMessage } from "./topmessage/TopMessage";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
 import { MobileNavigation } from "./navigation/MobileNavigation";
@@ -70,18 +68,6 @@ export const Layout = (props: Props) => {
   const handleToggle = () => {
     setMobileMenuExpanded(!mobileMenuExpanded);
   };
-
-  const csatSurvey =
-    getRuntimeConfig().featureFlags.csatSurvey &&
-    !getRuntimeConfig().featureFlags.interviewRecruitment &&
-    profiles.data?.[0] ? (
-      <CsatSurvey profile={profiles.data[0]} />
-    ) : null;
-  const npsSurvey =
-    !getRuntimeConfig().featureFlags.csatSurvey &&
-    !getRuntimeConfig().featureFlags.interviewRecruitment ? (
-      <NpsSurvey />
-    ) : null;
 
   const apiMockWarning =
     process.env.NEXT_PUBLIC_MOCK_API === "true" ? (
@@ -136,9 +122,7 @@ export const Layout = (props: Props) => {
       </Head>
       <div className={styles.wrapper}>
         {apiMockWarning}
-        <InterviewRecruitment profile={profiles.data?.[0]} />
-        {csatSurvey}
-        {npsSurvey}
+        <TopMessage profile={profiles.data?.[0]} />
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles["logo-wrapper"]}>
             <Link href={homePath}>
