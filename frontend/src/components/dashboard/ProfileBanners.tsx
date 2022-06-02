@@ -2,9 +2,10 @@ import { Localized, useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "../../../../static/images/logos/fx-logo.svg";
-import AddonIllustration from "../../../../static/images/banner-addon.svg";
 import RelayLogo from "../../../../static/images/placeholder-logo.svg";
+import AddonIllustration from "../../../../static/images/banner-addon.svg";
 import {
+  getPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
   RuntimeDataWithPremiumAvailable,
@@ -16,7 +17,7 @@ import {
 } from "../../functions/userAgent";
 import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
-import { RuntimeData } from "../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
@@ -93,7 +94,11 @@ export const ProfileBanners = (props: Props) => {
     props.aliases.length > 0
   ) {
     banners.push(
-      <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
+      <LoyalistPremiumBanner
+        key="premium-banner"
+        runtimeData={props.runtimeData}
+      />
+      // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
     );
   }
 
@@ -194,6 +199,9 @@ const NoChromeExtensionBanner = () => {
 type NoPremiumBannerProps = {
   runtimeData: RuntimeDataWithPremiumAvailable;
 };
+
+// Unused but left in for when we no longer want to use <LoyalistPremiumBanner>
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const NoPremiumBanner = (props: NoPremiumBannerProps) => {
   const { l10n } = useLocalization();
 
@@ -214,6 +222,34 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
       }}
     >
       <p>{l10n.getString("banner-upgrade-copy-2")}</p>
+    </Banner>
+  );
+};
+
+const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      key="premium-banner"
+      type="promo"
+      title={l10n.getString("banner-upgrade-loyalist-headline")}
+      illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
+      ctaLargeButton={{
+        target: getPremiumSubscribeLink(props.runtimeData),
+        content: l10n.getString("banner-upgrade-loyalist-cta"),
+        onClick: () => trackPurchaseStart(),
+        gaViewPing: {
+          category: "Purchase Button",
+          label: "profile-banner-loyalist-promo",
+        },
+      }}
+    >
+      <p>
+        {l10n.getString("banner-upgrade-loyalist-copy", {
+          monthly_price: getPlan(props.runtimeData).price,
+        })}
+      </p>
     </Banner>
   );
 };

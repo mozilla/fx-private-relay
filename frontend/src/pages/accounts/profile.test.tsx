@@ -332,7 +332,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const premiumBanner = screen.getByRole("link", {
-      name: "l10n string: [banner-upgrade-cta], with vars: {}",
+      name: "l10n string: [banner-upgrade-loyalist-cta], with vars: {}",
     });
 
     expect(premiumBanner).toBeInTheDocument();
