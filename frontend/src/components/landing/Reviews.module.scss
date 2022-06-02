@@ -99,12 +99,14 @@
   border: none;
   background-color: transparent;
   color: $color-grey-30;
+  width: $layout-sm;
+  cursor: pointer;
 }
 
 .quotation-icon {
   display: flex;
   position: absolute;
-  margin-top: calc($spacing-sm * -1);
+  left: calc($spacing-2xl * 1.5);
 
   svg {
     color: $color-purple-60;
@@ -112,11 +114,20 @@
   }
 }
 
-.review-container {
+.reviews-container {
   display: flex;
   flex-direction: row;
   gap: $spacing-2xl;
   height: $layout-2xl;
+  position: relative;
+
+  .review {
+    width: 100%;
+
+    .text {
+      width: $content-md;
+    }
+  }
 
   .details {
     display: flex;
@@ -145,6 +156,7 @@
 
     .star {
       color: $color-yellow-40;
+      margin: 0 $spacing-xs 0 ($spacing-sm * -1);
     }
   }
 }
