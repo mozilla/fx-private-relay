@@ -11,6 +11,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
+from typing import Union
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -790,7 +791,7 @@ def _handle_reply(from_address, message_json, to_address):
         return HttpResponse("SES client error", status=400)
 
 
-def _get_domain_address(local_portion, domain_portion):
+def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddress:
     [address_subdomain, address_domain] = domain_portion.split(".", 1)
     if address_domain != get_domains_from_settings()["MOZMAIL_DOMAIN"]:
         incr_if_enabled("email_for_not_supported_domain", 1)
@@ -821,7 +822,9 @@ def _get_domain_address(local_portion, domain_portion):
         raise e
 
 
-def _get_address(to_address, local_portion, domain_portion):
+def _get_address(
+    to_address: str, local_portion: str, domain_portion: str
+) -> Union[DomainAddress, RelayAddress]:
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
     email_domains = get_domains_from_settings().values()

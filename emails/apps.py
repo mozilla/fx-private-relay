@@ -1,13 +1,18 @@
+from __future__ import annotations
 import json
 import logging
 import os
 import requests
+from typing import Final, TYPE_CHECKING
 
 import boto3
 from botocore.config import Config
 
 from django.apps import AppConfig
 from django.conf import settings
+
+if TYPE_CHECKING:  # pragma: nocover
+    from botocore.client import BaseClient
 
 
 logger = logging.getLogger("events")
@@ -29,12 +34,16 @@ def get_trackers(category="Email"):
 
 
 class EmailsConfig(AppConfig):
-    name = "emails"
+    name: Final = "emails"
+    _ses_client: BaseClient
+    s3_client: BaseClient
+    badwords: list[str]
+    blocklist: list[str]
 
     def __init__(self, app_name, app_module):
         super(EmailsConfig, self).__init__(app_name, app_module)
         try:
-            self.ses_client = boto3.client("ses", region_name=settings.AWS_REGION)
+            self._ses_client = boto3.client("ses", region_name=settings.AWS_REGION)
             s3_config = Config(
                 region_name=settings.AWS_REGION,
                 retries={
@@ -60,6 +69,15 @@ class EmailsConfig(AppConfig):
         # )
         # with open("emails/tracker_lists/level-two-tracker.json", "w+") as f:
         #     json.dump(level_two_trackers, f, indent=4)
+
+    @property
+    def ses_client(self) -> BaseClient:
+        """
+        The SES client initiazed at application startup.
+
+        This property allows tests to mock the SES client.
+        """
+        return self._ses_client
 
     def _load_terms(self, filename):
         terms = []
