@@ -48,7 +48,7 @@ TMP_DIR = os.path.join(BASE_DIR, "tmp")
 # defaulting to blank to be production-broken by default
 SECRET_KEY = config("SECRET_KEY", None, cast=str)
 
-ON_HEROKU = config("ON_HEROKU", False, cast=bool)
+RELAY_CHANNEL = config("RELAY_CHANNEL", "prod", cast=str)
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
     INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default=[])
@@ -100,7 +100,7 @@ csp_style_values = ["'self'"]
 # Next.js dynamically inserts the relevant styles when switching pages,
 # by injecting them as inline styles. We need to explicitly allow those styles
 # in our Content Security Policy.
-if DEBUG:
+if RELAY_CHANNEL == "local":
     # When running locally, styles might get refreshed while the server is
     # running, so their hashes would get oudated. Hence, we just allow all of
     # them.
@@ -539,7 +539,7 @@ WHITENOISE_ADD_HEADERS_FUNCTION = set_index_cache_control_headers
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.
 # so, squelch django-gulp in prod so it doesn't run gulp during collectstatic:
-if not ON_HEROKU:
+if not RELAY_CHANNEL == "dev":
     GULP_PRODUCTION_COMMAND = ""
 
 SITE_ID = 1
@@ -645,9 +645,12 @@ ACCOUNT_LOGOUT_ON_GET = DEBUG
 CORS_ALLOWED_ORIGINS = [
     "https://vault.bitwarden.com",
 ]
+if RELAY_CHANNEL in ["local", "dev", "stage"]:
+    CORS_ALLOWED_ORIGINS += "https://vault.qa.bitwarden.pw/"
+
 CORS_URLS_REGEX = r"^/api/"
 CSRF_TRUSTED_ORIGINS = []
-if DEBUG:
+if RELAY_CHANNEL == "local":
     # In local development, the React UI can be served up from a different server
     # that needs to be allowed to make requests.
     # In production, the frontend is served by Django, is therefore on the same
