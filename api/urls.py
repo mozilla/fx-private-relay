@@ -26,6 +26,7 @@ api_router.register(r"profiles", views.ProfileViewSet, "profiles")
 api_router.register(r"users", views.UserViewSet, "user")
 if "phones.apps.PhonesConfig" in settings.INSTALLED_APPS:
     api_router.register(r"realphone", views.RealPhoneViewSet, "real_phone")
+    api_router.register(r"relaynumber", views.RelayNumberViewSet, "relay_number")
 
 
 urlpatterns = [
