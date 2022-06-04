@@ -23,7 +23,7 @@ from emails.models import (
     Profile,
     RelayAddress,
 )
-from phones.models import MAX_MINUTES_TO_VERIFY_REAL_PHONE, RealPhone
+from phones.models import MAX_MINUTES_TO_VERIFY_REAL_PHONE, RealPhone, RelayNumber, available_numbers
 from privaterelay.settings import (
     BASKET_ORIGIN,
     FXA_BASE_ORIGIN,
@@ -39,6 +39,7 @@ from .serializers import (
     ProfileSerializer,
     RealPhoneSerializer,
     RelayAddressSerializer,
+    RelayNumberSerializer,
     UserSerializer,
 )
 from .exceptions import ConflictError
@@ -287,6 +288,21 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         instance.mark_verified()
         return super().partial_update(request, *args, **kwargs)
 
+
+class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
+    http_method_names = ["get", "post"]
+    permission_classes = [permissions.IsAuthenticated, HasPhoneService]
+    serializer_class = RelayNumberSerializer
+    # TODO: this doesn't seem to e working?
+    throttle_classes = [RealPhoneRateThrottle]
+
+    def get_queryset(self):
+        return RelayNumber.objects.filter(user=self.request.user)
+
+    @decorators.action(detail=False)
+    def suggestions(self, request):
+        numbers = available_numbers(request.user)
+        return response.Response(numbers)
 
 
 def validate_number(request):
