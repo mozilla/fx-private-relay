@@ -3,7 +3,7 @@ from rest_framework import serializers, exceptions
 from emails.models import Profile, DomainAddress, RelayAddress
 from django.contrib.auth.models import User
 
-from phones.models import RealPhone
+from phones.models import RealPhone, RelayNumber
 
 
 class PremiumValidatorsMixin:
@@ -160,3 +160,15 @@ class RealPhoneSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "verification_code": {"write_only": True},
         }
+
+
+class RelayNumberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RelayNumber
+        fields = [
+            "number",
+            "location",
+        ]
+        read_only_fields = [
+            "location",
+        ]
