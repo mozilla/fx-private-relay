@@ -23,7 +23,12 @@ from emails.models import (
     Profile,
     RelayAddress,
 )
-from phones.models import MAX_MINUTES_TO_VERIFY_REAL_PHONE, RealPhone, RelayNumber, available_numbers
+from phones.models import (
+    MAX_MINUTES_TO_VERIFY_REAL_PHONE,
+    RealPhone, RelayNumber,
+    suggested_numbers, location_numbers, area_code_numbers
+)
+
 from privaterelay.settings import (
     BASKET_ORIGIN,
     FXA_BASE_ORIGIN,
@@ -301,8 +306,43 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
     @decorators.action(detail=False)
     def suggestions(self, request):
-        numbers = available_numbers(request.user)
+        """
+        Returns suggested relay numbers for the authenticated user.
+
+        Based on the user's real number, returns available relay numbers:
+          * `same_prefix_options`: Numbers that match as much of the user's real number as possible.
+          * `other_areas_options`: Numbers that exactly match the user's real number, in a different area code.
+          * `same_area_options`: Other numbers in the same area code as the user.
+        """
+        numbers = suggested_numbers(request.user)
         return response.Response(numbers)
+
+    @decorators.action(detail=False)
+    def search(self, request):
+        """
+        Search for available numbers.
+
+        This endpoints uses the underlying [AvailablePhoneNumbers][apn] API.
+
+        Accepted query params:
+          * ?location=
+            * Will be passed to `AvailablePhoneNumbers` `in_locality` param
+          * ?area_code=
+            * Will be passed to `AvailablePhoneNumbers` `area_code` param
+
+        [apn]: https://www.twilio.com/docs/phone-numbers/api/availablephonenumberlocal-resource#read-multiple-availablephonenumberlocal-resources
+        """
+        location = request.query_params.get("location")
+        if location is not None:
+            numbers = location_numbers(location)
+            return response.Response(numbers)
+
+        area_code = request.query_params.get("area_code")
+        if area_code is not None:
+            numbers = area_code_numbers(area_code)
+            return response.Response(numbers)
+
+        return response.Response({}, 404)
 
 
 def validate_number(request):
