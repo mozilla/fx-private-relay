@@ -285,11 +285,15 @@ class Profile(models.Model):
     
     @property
     def emails_replied(self):
-        return (
-            self.relay_addresses.aggregate(models.Sum('num_replied')) +
-            self.domain_addresses.aggregate(models.Sum('num_replied')) +
-            self.num_email_replied_in_deleted_address
-        )
+        # Once Django is on version 4.0 and above, we can set the default=0
+        # and return a int instead of None
+        # https://docs.djangoproject.com/en/4.0/ref/models/querysets/#default
+        totals = [self.relay_addresses.aggregate(models.Sum('num_replied'))]
+        totals.append(self.domain_addresses.aggregate(models.Sum('num_replied')))
+        total_num_replied = 0
+        for num in totals:
+            total_num_replied += num.get('num_replied__sum') if num.get('num_replied__sum') else 0
+        return total_num_replied + self.num_email_replied_in_deleted_address
 
     @property
     def joined_before_premium_release(self):
