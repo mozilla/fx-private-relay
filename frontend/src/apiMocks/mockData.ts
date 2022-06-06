@@ -25,7 +25,7 @@ export const runtimeData: RuntimeData = {
     premium_countries: ["nl"],
     premium_available_in_country: true,
   },
-  WAFFLE_FLAGS: [],
+  WAFFLE_FLAGS: [["new_from_address", true]],
 };
 
 export const users: Record<typeof mockIds[number], UserData> = {
