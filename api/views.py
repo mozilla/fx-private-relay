@@ -304,6 +304,14 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def get_queryset(self):
         return RelayNumber.objects.filter(user=self.request.user)
 
+    def create(self, request, *args, **kwargs):
+        """
+        Provision a phone number with Twilio and assign to the authenticated user.
+
+        ⚠️ **THIS WILL BUY A PHONE NUMBER** ⚠️
+        """
+        return super().create(request, *args, **kwargs)
+
     @decorators.action(detail=False)
     def suggestions(self, request):
         """

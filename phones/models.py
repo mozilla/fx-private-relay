@@ -99,6 +99,17 @@ class RelayNumber(models.Model):
     number = models.CharField(max_length=15)
     location = models.CharField(max_length=255)
 
+    def save(self, *args, **kwargs):
+        # Before saving into DB provision the number in Twilio
+        phones_config = apps.get_app_config("phones")
+        incoming_number = (phones_config.twilio_client
+            .incoming_phone_numbers.create(
+                phone_number=self.number,
+                sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID
+            )
+        )
+        return super().save(*args, **kwargs)
+
 
 def suggested_numbers(user):
     existing_number = RelayNumber.objects.filter(user=user)
