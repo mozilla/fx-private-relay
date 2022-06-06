@@ -4,6 +4,7 @@ from unittest.mock import patch, Mock
 import glob
 import io
 import json
+import logging
 import os
 import re
 
@@ -27,6 +28,7 @@ from emails.models import (
     RelayAddress,
     Reply,
 )
+from emails.ses import ComplaintNotification
 from emails.views import (
     _get_address,
     _get_attachment,
@@ -451,25 +453,6 @@ class SNSNotificationInvalidMessageTest(TestCase):
     def test_subscription_confirmation(self):
         """A subscription confirmation returns a 400 error"""
         json_body = INVALID_SNS_BODIES["subscription_confirmation"]
-        response = _sns_notification(json_body)
-        assert response.status_code == 400
-
-    def test_notification_type_complaint(self):
-        """A notificationType of complaint returns a 400 error"""
-        # Manual json_body because no instances captured, from
-        # https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
-        complaint = {
-            "notificationType": "Complaint",
-            "complaint": {
-                "userAgent": "ExampleCorp Feedback Loop (V0.01)",
-                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
-                "complaintFeedbackType": "abuse",
-                "arrivalDate": "2009-12-03T04:24:21.000-05:00",
-                "timestamp": "2012-05-25T14:59:38.623Z",
-                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
-            },
-        }
-        json_body = {"Message": json.dumps(complaint)}
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
@@ -1069,3 +1052,52 @@ def test_wrapped_email_test(
     assert (
         f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html
+
+
+def test_sns_notifications_complaint(caplog) -> None:
+    """_sns_notifications can handle an SNS complaint."""
+    complaint = {
+        "notificationType": "Complaint",
+        "complaint": {
+            "feedbackId": "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000",
+            "complaintSubType": None,
+            "complainedRecipients": [
+                {"emailAddress": "complaint@simulator.amazonses.com"}
+            ],
+            "timestamp": "2022-05-26T21:59:29.000Z",
+            "userAgent": "Amazon SES Mailbox Simulator",
+            "complaintFeedbackType": "abuse",
+            "arrivalDate": "2022-05-26T21:59:29.288Z",
+        },
+        "mail": {
+            "timestamp": "2022-05-26T21:59:28.484Z",
+            "source": "sender@relay.example.com",
+            "sourceArn": "arn:aws:ses:us-east-1:111122223333:identity/relay.example.com",
+            "sourceIp": "130.211.19.131",
+            "callerIdentity": "test-relay",
+            "sendingAccountId": "111122223333",
+            "messageId": "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000",
+            "destination": ["complaint@simulator.amazonses.com"],
+        },
+    }
+    sns_wrapper = {
+        "Type": "Notification",
+        "Message": json.dumps(complaint),
+    }
+    response = _sns_notification(sns_wrapper)
+    assert response.status_code == 200
+    assert caplog.record_tuples == [("eventsinfo", logging.INFO, "Complaint received.")]
+    record = caplog.records[0]
+    assert record.complaint_type == "abuse"
+    assert record.sender == "sender@relay.example.com"
+    assert record.recipients == "complaint@simulator.amazonses.com"
+    assert (
+        record.message_id
+        == "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000"
+    )
+    assert record.complaint_subtype == None
+    assert (
+        record.feedback_id
+        == "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000"
+    )
+    assert record.user_agent == "Amazon SES Mailbox Simulator"

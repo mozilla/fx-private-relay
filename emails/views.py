@@ -11,7 +11,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
-from typing import Union
+from typing import Any, Union
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -42,6 +42,7 @@ from .models import (
     RelayAddress,
     Reply,
 )
+from .ses import ComplaintNotification
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
@@ -390,7 +391,8 @@ def _sns_notification(json_body):
 
     event_type = message_json.get("eventType")
     notification_type = message_json.get("notificationType")
-    if notification_type not in ["Received", "Bounce"] and event_type != "Bounce":
+    known_types = {"Received", "Bounce", "Complaint"}
+    if notification_type not in known_types and event_type != "Bounce":
         logger.error(
             "SNS notification for unsupported type",
             extra={
@@ -445,6 +447,8 @@ def _sns_message(message_json):
     event_type = message_json.get("eventType")
     if notification_type == "Bounce" or event_type == "Bounce":
         return _handle_bounce(message_json)
+    if notification_type == "Complaint":
+        return _handle_complaint(message_json)
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
@@ -893,6 +897,24 @@ def _handle_bounce(message_json):
             # TODO: handle sub-types: 'MessageTooLarge', 'AttachmentRejected',
             # 'ContentRejected'
         profile.save()
+    return HttpResponse("OK", status=200)
+
+
+def _handle_complaint(message_json: dict[str, Any]) -> HttpResponse:
+    data = ComplaintNotification.from_dict(message_json)
+    complaint_type = data.complaint.complaintFeedbackType
+    extra = {
+        "complaint_type": complaint_type.value if complaint_type else None,
+        "sender": data.mail.source,
+        "recipients": ",".join(
+            [cr.emailAddress for cr in data.complaint.complainedRecipients]
+        ),
+        "message_id": data.mail.messageId,
+        "complaint_subtype": data.complaint.complaintSubType,
+        "feedback_id": data.complaint.feedbackId,
+        "user_agent": data.complaint.userAgent,
+    }
+    info_logger.info("Complaint received.", extra=extra)
     return HttpResponse("OK", status=200)
 
 

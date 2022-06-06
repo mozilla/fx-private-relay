@@ -302,8 +302,9 @@ def _get_bucket_and_key_from_s3_json(message_json):
     else:
         notification_type = message_json.get("notificationType")
         event_type = message_json.get("eventType")
-        is_bounce_notification = notification_type == "Bounce" or event_type == "Bounce"
-        if not is_bounce_notification:
+        known_types = {"Bounce", "Complaint"}
+        is_bounce_event = event_type == "Bounce"
+        if not (notification_type in known_types or is_bounce_event):
             # TODO: sns inbound notification does not have 'receipt'
             # we need to look into this more
             logger.error(
