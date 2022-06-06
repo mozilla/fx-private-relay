@@ -8,6 +8,7 @@ menu-upgrade-button = Upgrade
 menu-toggle-open = Open menu
 menu-toggle-close = Close menu
 nav-dashboard = Dashboard
+nav-phone = Phone Number
 nav-settings = Settings
 nav-support = Help and Support 
 nav-sign-out = Sign Out
@@ -79,3 +80,8 @@ whatsnew-feature-premium-expansion-description = Upgrade now and get even more p
 fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
 fx-containers = { -brand-name-firefox } Containers
+
+## Phone Page
+
+phone-headline = Introducing phone number masking
+
