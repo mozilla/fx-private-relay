@@ -67,3 +67,12 @@ whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium
 # length as the English version.
 whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more protection…
 whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!
+
+landing-review-user-one-review = I really appreciate the { -brand-name-mozilla } team for being so creative and simplifying the anonymizing of my e-mail address. This is a great extension, I highly recommend it to the privacy-aware!
+landing-review-user-two-review = Simple tool to get rid of or avoid spamming your email ID.
+landing-review-user-three-review = Love this extension! Very simple but powerful and the integration with the browser is wonderful.
+
+landing-review-user-four-review-list-1 = Gives peace of mind when surfing internet.
+landing-review-user-four-review-list-2 = Protects ones identity from trackers through generation of aliases where one does not want to share the real email  address for various reasons.
+landing-review-user-four-review-list-3 = Email inbox data is safe in the hands of { -brand-name-firefox-relay }.
+landing-review-user-four-review-list-4 = { -brand-name-firefox-relay } works wonders, try it!!!

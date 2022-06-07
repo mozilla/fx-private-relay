@@ -1,5 +1,5 @@
 import { useLocalization } from "@fluent/react";
-import { MouseEventHandler, useState } from "react";
+import { createRef, useEffect, useState } from "react";
 import FxBrowserLogo from "../../../../static/scss/libs/protocol/img/logos/firefox/browser/logo.svg";
 import {
   ChevronLeftIcon,
@@ -9,48 +9,68 @@ import {
 } from "../Icons";
 import styles from "./Reviews.module.scss";
 
+// We want to ensure only these values can be used for a rating.
 export type Rating = 1 | 2 | 3 | 4 | 5;
-
+export type Review = string | string[];
+export type Direction = "left" | "right";
 export type UserReview = {
   name: string;
   rating: Rating;
-  text: string;
+  text: Review;
 };
 
-const userReviews: UserReview[] = [
-  {
-    name: "Firefox user 17361666",
-    rating: 5,
-    text: "I really appreciate the Mozilla team for being so creative and simplifying the anonymizing of my e-mail address. This is a great extension, I highly recommend it to the privacy-aware!",
-  },
-  {
-    name: "Firefox user 17064608",
-    rating: 5,
-    text: "Simple tool to get rid of or avoid spamming your email ID.",
-  },
-  {
-    name: "Firefox user 16464118",
-    rating: 5,
-    text: "Love this extension! Very simple but powerful and the integration with the browser is wonderful.",
-  },
-];
-/**
- * Reviews that help user decide if they want to use relay.
- */
+// Reviews that help user decide if they want to use relay.
 export const Reviews = () => {
   const [currentReview, setCurrentReview] = useState(0);
+  const [scrollAnimationDirection, setScrollAnimationDirection] = useState("");
   const { l10n } = useLocalization();
+  const reviewElementRef = createRef<HTMLDivElement>();
 
-  const previousReview = (): MouseEventHandler<HTMLButtonElement> => {
-    if (currentReview > 0) {
-      setCurrentReview(currentReview - 1);
-    }
-  };
+  const userReviews: UserReview[] = [
+    {
+      name: "Jon",
+      rating: 5,
+      text: l10n.getString("landing-review-user-one-review"),
+    },
+    {
+      name: "Firefox user 17064608",
+      rating: 5,
+      text: l10n.getString("landing-review-user-two-review"),
+    },
+    {
+      name: "Firefox user 16464118",
+      rating: 5,
+      text: l10n.getString("landing-review-user-three-review"),
+    },
+    {
+      name: "Firefox user 17361666",
+      rating: 5,
+      text: [
+        l10n.getString("landing-review-user-four-review-list-1"),
+        l10n.getString("landing-review-user-four-review-list-2"),
+        l10n.getString("landing-review-user-four-review-list-3"),
+        l10n.getString("landing-review-user-four-review-list-4"),
+      ],
+    },
+  ];
 
-  const nextReview = (): MouseEventHandler<HTMLButtonElement> => {
-    if (currentReview < userReviews.length - 1) {
-      setCurrentReview(currentReview + 1);
+  const { name, text, rating } = userReviews[currentReview];
+
+  useEffect(() => {}, [currentReview]);
+  const scrollReview = (
+    count: number,
+    reviews: UserReview[],
+    direction: Direction
+  ): void => {
+    const animationClass = "scroll-" + direction;
+
+    if (direction === "right") {
+      setCurrentReview(count < reviews.length - 1 ? count + 1 : 0);
+    } else if (direction === "left") {
+      setCurrentReview(count > 0 ? count - 1 : reviews.length - 1);
     }
+
+    setScrollAnimationDirection(animationClass);
   };
 
   // We create an array with a length of 5
@@ -65,6 +85,18 @@ export const Reviews = () => {
         <StarIcon className={styles["empty-star"]} alt="" />
       )
     );
+
+  const renderReview = (text: Review) => {
+    if (!Array.isArray(text)) return text;
+
+    return (
+      <ul>
+        {text.map((item) => (
+          <li>{item}</li>
+        ))}
+      </ul>
+    );
+  };
 
   return (
     <section id="reviews" className={styles.wrapper}>
@@ -90,7 +122,10 @@ export const Reviews = () => {
 
         <div className={styles["right-container"]}>
           <div className={styles["reviews-container"]}>
-            <button className={styles.chevron} onClick={previousReview}>
+            <button
+              className={styles.chevron}
+              onClick={() => scrollReview(currentReview, userReviews, "left")}
+            >
               <ChevronLeftIcon alt="" />
             </button>
             <div className={styles["quotation-icon"]}>
@@ -99,25 +134,29 @@ export const Reviews = () => {
             </div>
 
             <div className={styles["review-container"]}>
-              <div className={styles.review}>
+              <div
+                ref={reviewElementRef}
+                key={currentReview}
+                className={`${styles.review} ${styles[scrollAnimationDirection]}`}
+              >
                 <div className={styles.details}>
-                  <div className={styles.stars}>
-                    {renderStarRating(userReviews[currentReview].rating)}
-                  </div>
-                  <span className={styles.name}>
-                    {userReviews[currentReview].name}
-                  </span>
-                  <span className={styles.date}>6 months ago</span>
+                  <div className={styles.stars}>{renderStarRating(rating)}</div>
+                  <span className={styles.name}>{name}</span>
                   <span className={styles.source}>
-                    Source: addons.mozzila.org
+                    Source: addons.mozilla.org
                   </span>
                 </div>
                 <div className={styles.text}>
-                  {userReviews[currentReview].text}
+                  {/* if text is an array, we consider it a bulleted list */}
+                  {renderReview(text)}
                 </div>
               </div>
             </div>
-            <button className={styles.chevron} onClick={nextReview}>
+
+            <button
+              className={styles.chevron}
+              onClick={() => scrollReview(currentReview, userReviews, "right")}
+            >
               <ChevronRightIcon alt="" />
             </button>
           </div>
