@@ -41,6 +41,8 @@ export const Alias = (props: Props) => {
   const { l10n } = useLocalization();
   const [justCopied, setJustCopied] = useState(false);
 
+  const hasPremium = props.profile.has_premium;
+
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const expandButtonState = useToggleState({
     defaultSelected: props.defaultOpen === true,
@@ -187,14 +189,19 @@ export const Alias = (props: Props) => {
               {l10n.getString("profile-label-forwarded")}
             </span>
           </ForwardedTooltip>
-          <RepliesTooltip>
-            <span className={styles.number}>
-              {numberFormatter.format(props.alias.num_replied)}
-            </span>
-            <span className={styles.label}>
-              {l10n.getString("profile-label-replies")}
-            </span>
-          </RepliesTooltip>
+
+          {/* If user is not premium, hide the replies count */}
+          {hasPremium && (
+            <RepliesTooltip>
+              <span className={styles.number}>
+                {numberFormatter.format(props.alias.num_forwarded)}{" "}
+                {/* Need to replace this with num_replied data */}
+              </span>
+              <span className={styles.label}>
+                {l10n.getString("profile-label-replies")}
+              </span>
+            </RepliesTooltip>
+          )}
         </div>
         <div className={styles["expand-toggle"]}>
           <button {...expandButtonProps} ref={expandButtonRef}>
@@ -244,6 +251,7 @@ export const Alias = (props: Props) => {
 type TooltipProps = {
   children: ReactNode;
 };
+
 const ForwardedTooltip = (props: TooltipProps) => {
   const { l10n } = useLocalization();
   const triggerState = useTooltipTriggerState({ delay: 0 });
@@ -288,7 +296,6 @@ const BlockedTooltip = (props: TooltipProps) => {
   const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
 
   const { tooltipProps } = useTooltip({}, triggerState);
-
   return (
     <span className={styles["stat-wrapper"]}>
       <span
