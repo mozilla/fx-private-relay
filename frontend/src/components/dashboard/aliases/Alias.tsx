@@ -187,6 +187,14 @@ export const Alias = (props: Props) => {
               {l10n.getString("profile-label-forwarded")}
             </span>
           </ForwardedTooltip>
+          <RepliesTooltip>
+            <span className={styles.number}>
+              {numberFormatter.format(props.alias.num_replied)}
+            </span>
+            <span className={styles.label}>
+              {l10n.getString("profile-label-replies")}
+            </span>
+          </RepliesTooltip>
         </div>
         <div className={styles["expand-toggle"]}>
           <button {...expandButtonProps} ref={expandButtonRef}>
@@ -272,6 +280,7 @@ const ForwardedTooltip = (props: TooltipProps) => {
     </span>
   );
 };
+
 const BlockedTooltip = (props: TooltipProps) => {
   const { l10n } = useLocalization();
   const triggerState = useTooltipTriggerState({ delay: 0 });
@@ -295,6 +304,35 @@ const BlockedTooltip = (props: TooltipProps) => {
           className={styles.tooltip}
         >
           {l10n.getString("profile-blocked-copy-2")}
+        </span>
+      )}
+    </span>
+  );
+};
+
+const RepliesTooltip = (props: TooltipProps) => {
+  const { l10n } = useLocalization();
+  const triggerState = useTooltipTriggerState({ delay: 0 });
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
+
+  const { tooltipProps } = useTooltip({}, triggerState);
+
+  return (
+    <span className={styles["stat-wrapper"]}>
+      <span
+        ref={triggerRef}
+        {...tooltipTrigger.triggerProps}
+        className={`${styles.stat} ${styles["blocked-stat"]}`}
+      >
+        {props.children}
+      </span>
+      {triggerState.isOpen && (
+        <span
+          {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
+          className={styles.tooltip}
+        >
+          {l10n.getString("profile-replies-tooltip")}
         </span>
       )}
     </span>

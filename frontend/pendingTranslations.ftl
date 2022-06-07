@@ -79,3 +79,7 @@ whatsnew-feature-premium-expansion-description = Upgrade now and get even more p
 fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
 fx-containers = { -brand-name-firefox } Containers
+
+
+profile-label-replies = Replies
+profile-replies-tooltip = Replies tooltip copy here [PENDING]

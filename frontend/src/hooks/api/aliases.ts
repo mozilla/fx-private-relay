@@ -18,6 +18,7 @@ export type CommonAliasData = {
   last_used_at: DateTimeString | null;
   num_forwarded: number;
   num_blocked: number;
+  num_replied: number;
   num_spam: number;
   used_on: string | "" | null;
 };
