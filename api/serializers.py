@@ -41,6 +41,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_replied",
             "num_spam",
         ]
         read_only_fields = [
@@ -54,6 +55,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_replied",
             "num_spam",
         ]
 
@@ -79,6 +81,7 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_replied",
             "num_spam",
         ]
         read_only_fields = [
@@ -91,6 +94,7 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_replied",
             "num_spam",
         ]
 
