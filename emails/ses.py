@@ -166,6 +166,9 @@ class MailBody:
     sendingAccountId: str
     messageId: str
     destination: list[str]
+    headersTruncated: Optional[bool]
+    headers: Optional[list[MailHeader]]
+    commonHeaders: Optional[CommonHeaders]
 
     @classmethod
     def from_dict(cls, raw_body: dict[str, Any]) -> MailBody:
@@ -179,6 +182,19 @@ class MailBody:
         for item in raw_body["destination"]:
             assert isinstance(item, str)
 
+        if "headersTruncated" in raw_body:
+            assert isinstance(raw_body["headersTruncated"], bool)
+            assert isinstance(raw_body["headers"], list)
+            assert isinstance(raw_body["commonHeaders"], dict)
+
+            headersTruncated = raw_body["headersTruncated"]
+            headers = [MailHeader.from_dict(item) for item in raw_body["headers"]]
+            commonHeaders = CommonHeaders.from_dict(raw_body["commonHeaders"])
+        else:
+            headersTruncated = None
+            headers = None
+            commonHeaders = None
+
         return MailBody(
             timestamp=raw_body["timestamp"],
             source=raw_body["source"],
@@ -188,6 +204,91 @@ class MailBody:
             sendingAccountId=raw_body["sendingAccountId"],
             messageId=raw_body["messageId"],
             destination=raw_body["destination"],
+            headersTruncated=headersTruncated,
+            headers=headers,
+            commonHeaders=commonHeaders,
+        )
+
+
+@dataclass
+class MailHeader:
+    """A name / value pair for a email's original header"""
+
+    name: str
+    value: str
+
+    @classmethod
+    def from_dict(cls, raw_body: dict[str, Any]) -> MailHeader:
+        assert isinstance(raw_body["name"], str)
+        assert isinstance(raw_body["value"], str)
+        return cls(name=raw_body["name"], value=raw_body["value"])
+
+
+@dataclass
+class CommonHeaders:
+    """
+    Headers provided in the incoming / original email.
+
+    Docs at:
+    https://docs.aws.amazon.com/ses/latest/dg/receiving-email-notifications-contents.html#receiving-email-notifications-contents-mail-object-commonHeaders
+    """
+
+    messageId: Optional[str]
+    date: Optional[str]
+    to: Optional[list[str]]
+    cc: Optional[list[str]]
+    bcc: Optional[list[str]]
+    from_: Optional[list[str]]  # API's "from" is a reserved Python keyword
+    sender: Optional[str]
+    returnPath: Optional[str]
+    replyTo: Optional[list[str]]
+    subject: Optional[str]
+
+    @classmethod
+    def from_dict(cls, raw_body: dict[str, Any]) -> CommonHeaders:
+        messageId = raw_body.get("messageId")
+        date = raw_body.get("date")
+        to = raw_body.get("to")
+        cc = raw_body.get("cc")
+        bcc = raw_body.get("bcc")
+        from_ = raw_body.get("from")
+        sender = raw_body.get("sender")
+        returnPath = raw_body.get("returnPath")
+        replyTo = raw_body.get("replyTo")
+        subject = raw_body.get("subject")
+
+        assert messageId is None or isinstance(messageId, str)
+        assert date is None or isinstance(date, str)
+        assert to is None or (
+            isinstance(to, list) and all(isinstance(item, str) for item in to)
+        )
+        assert cc is None or (
+            isinstance(cc, list) and all(isinstance(item, str) for item in cc)
+        )
+        assert bcc is None or (
+            isinstance(bcc, list) and all(isinstance(item, str) for item in bcc)
+        )
+        assert from_ is None or (
+            isinstance(from_, list) and all(isinstance(item, str) for item in from_)
+        )
+        assert sender is None or isinstance(sender, str)
+        assert returnPath is None or isinstance(returnPath, str)
+        assert replyTo is None or (
+            isinstance(replyTo, list) and all(isinstance(item, str) for item in replyTo)
+        )
+        assert subject is None or isinstance(subject, str)
+
+        return cls(
+            messageId=messageId,
+            date=date,
+            to=to,
+            cc=cc,
+            bcc=bcc,
+            from_=from_,
+            sender=sender,
+            returnPath=returnPath,
+            replyTo=replyTo,
+            subject=subject,
         )
 
 
