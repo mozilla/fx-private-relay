@@ -100,12 +100,22 @@ class RelayNumber(models.Model):
     location = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
+        # TODO: check to make sure this user
+        # doesn't already have a RelayNumber
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")
-        incoming_number = (phones_config.twilio_client
+        client = phones_config.twilio_client
+        # Since this will charge the Twilio account, first see if this
+        # is running with TEST creds to avoid charges.
+        if settings.TWILIO_TEST_ACCOUNT_SID:
+            client = phones_config.twilio_test_client
+        # TODO: change sms_url to
+        # sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID
+        # so we have a single sms callback url for all numbers
+        incoming_number = (client
             .incoming_phone_numbers.create(
                 phone_number=self.number,
-                sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID
+                sms_url=settings.TWILIO_SMS_URL
             )
         )
         return super().save(*args, **kwargs)

@@ -309,6 +309,20 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         Provision a phone number with Twilio and assign to the authenticated user.
 
         ⚠️ **THIS WILL BUY A PHONE NUMBER** ⚠️
+        If you have real account credentials in your `TWILIO_*` env vars, this
+        will really provision a Twilio number to your account. You can use
+        [Test Credentials][test-creds] to call this endpoint without making a
+        real phone number purchase. If you do, you need to pass one of the
+        [test phone numbers][test-numbers].
+
+        The `number` should be in [E.164][e164] format.
+
+        Every call or text to the relay number will be sent as a webhook to the
+        URL configured for your `TWILIO_SMS_APPLICATION_SID`.
+
+        [test-creds]: https://www.twilio.com/docs/iam/test-credentials
+        [test-numbers]: https://www.twilio.com/docs/iam/test-credentials#test-incoming-phone-numbers-parameters-PhoneNumber
+        [e164]: https://en.wikipedia.org/wiki/E.164
         """
         return super().create(request, *args, **kwargs)
 
@@ -446,4 +460,32 @@ def runtime_data(request):
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
         }
+    )
+
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.AllowAny])
+def inbound_sms(request):
+    # TODO: valid request coming from Twilio:
+    # https://www.twilio.com/docs/usage/security#validating-requests
+    inbound_body = request.data.get("Body", None)
+    inbound_from = request.data.get("From", None)
+    inbound_to = request.data.get("To", None)
+    if inbound_body is None or inbound_from is None or inbound_to is None:
+        return response.Response(
+            status=400,
+            data={"message": "Message missing from, to, or body."}
+        )
+
+    relay_number = RelayNumber.objects.get(number=inbound_to)
+    # FIXME: this somehow got multiple objects returned?
+    real_phone = RealPhone.objects.get(user=relay_number.user)
+    phones_config = apps.get_app_config("phones")
+    phones_config.twilio_client.messages.create(
+        from_=relay_number.number,
+        body=f"[Relay 📲 {inbound_from}] {inbound_body}",
+        to=real_phone.number
+    )
+    return response.Response(
+        status=201,
+        data={"message": "Relayed message to user."}
     )

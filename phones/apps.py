@@ -19,5 +19,9 @@ class PhonesConfig(AppConfig):
                 settings.TWILIO_ACCOUNT_SID,
                 settings.TWILIO_AUTH_TOKEN
             )
+            self.twilio_test_client = Client(
+                settings.TWILIO_TEST_ACCOUNT_SID,
+                settings.TWILIO_TEST_AUTH_TOKEN
+            )
         except Exception:
             logger.exception("exception during Twilio connect")
