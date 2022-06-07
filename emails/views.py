@@ -42,7 +42,7 @@ from .models import (
     RelayAddress,
     Reply,
 )
-from .ses import ComplaintNotification
+from .ses import ComplaintNotification, DeliveryNotification
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
@@ -391,7 +391,7 @@ def _sns_notification(json_body):
 
     event_type = message_json.get("eventType")
     notification_type = message_json.get("notificationType")
-    known_types = {"Received", "Bounce", "Complaint"}
+    known_types = {"Received", "Bounce", "Complaint", "Delivery"}
     if notification_type not in known_types and event_type != "Bounce":
         logger.error(
             "SNS notification for unsupported type",
@@ -449,6 +449,8 @@ def _sns_message(message_json):
         return _handle_bounce(message_json)
     if notification_type == "Complaint":
         return _handle_complaint(message_json)
+    if notification_type == "Delivery":
+        return _handle_delivery(message_json)
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
@@ -920,6 +922,18 @@ def _handle_complaint(message_json: dict[str, Any]) -> HttpResponse:
         "reply_to": reply_to,
     }
     info_logger.info("Complaint received.", extra=extra)
+    return HttpResponse("OK", status=200)
+
+
+def _handle_delivery(message_json: dict[str, Any]) -> HttpResponse:
+    data = DeliveryNotification.from_dict(message_json)
+    extra = {
+        "recipients": ",".join(data.delivery.recipients),
+        "reporting_mta": data.delivery.reportingMTA,
+        "smtp_response": data.delivery.smtpResponse,
+        "processing_time_s": round(data.delivery.processingTimeMillis / 1000.0, 3),
+    }
+    info_logger.info("Delivery report received.", extra=extra)
     return HttpResponse("OK", status=200)
 
 

@@ -13,6 +13,7 @@ from emails.ses import (
     ComplaintFeedbackType,
     ComplaintNotification,
     ComplaintSubType,
+    DeliveryNotification,
     SendRawEmailResponse,
     SimulatorScenario,
     send_simulator_email,
@@ -334,3 +335,59 @@ def test_common_headers_with_all_options_parses() -> None:
     assert parsed.sender == "the-sender"
     assert parsed.returnPath == "return@example.com"
     assert parsed.replyTo == ["replies@example.com"]
+
+
+def test_delivery_notification_parses() -> None:
+    """
+    A delivery notification can be parsed.
+
+    This example is from the AWS docs:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-examples.html#notification-examples-delivery
+    """
+    delivery_notification = {
+        "notificationType": "Delivery",
+        "mail": {
+            "timestamp": "2016-01-27T14:59:38.237Z",
+            "messageId": "0000014644fe5ef6-9a483358-9170-4cb4-a269-f5dcdf415321-000000",
+            "source": "john@example.com",
+            "sourceArn": "arn:aws:ses:us-east-1:888888888888:identity/example.com",
+            "sourceIp": "127.0.3.0",
+            "sendingAccountId": "123456789012",
+            "callerIdentity": "IAM_user_or_role_name",
+            "destination": ["jane@example.com"],
+            "headersTruncated": False,
+            "headers": [
+                {"name": "From", "value": '"John Doe" <john@example.com>'},
+                {"name": "To", "value": '"Jane Doe" <jane@example.com>'},
+                {"name": "Message-ID", "value": "custom-message-ID"},
+                {"name": "Subject", "value": "Hello"},
+                {"name": "Content-Type", "value": 'text/plain; charset="UTF-8"'},
+                {"name": "Content-Transfer-Encoding", "value": "base64"},
+                {"name": "Date", "value": "Wed, 27 Jan 2016 14:58:45 +0000"},
+            ],
+            "commonHeaders": {
+                "from": ["John Doe <john@example.com>"],
+                "date": "Wed, 27 Jan 2016 14:58:45 +0000",
+                "to": ["Jane Doe <jane@example.com>"],
+                "messageId": "custom-message-ID",
+                "subject": "Hello",
+            },
+        },
+        "delivery": {
+            "timestamp": "2016-01-27T14:59:38.237Z",
+            "recipients": ["jane@example.com"],
+            "processingTimeMillis": 546,
+            "reportingMTA": "a8-70.smtp-out.amazonses.com",
+            "smtpResponse": "250 ok:  Message 64111812 accepted",
+            "remoteMtaIp": "127.0.2.0",
+        },
+    }
+    note = DeliveryNotification.from_dict(delivery_notification)
+    assert note.mail.commonHeaders is not None
+    assert note.mail.commonHeaders.subject == "Hello"
+    assert note.delivery.timestamp == "2016-01-27T14:59:38.237Z"
+    assert note.delivery.recipients == ["jane@example.com"]
+    assert note.delivery.processingTimeMillis == 546
+    assert note.delivery.reportingMTA == "a8-70.smtp-out.amazonses.com"
+    assert note.delivery.smtpResponse == "250 ok:  Message 64111812 accepted"
+    assert note.delivery.remoteMtaIp == "127.0.2.0"

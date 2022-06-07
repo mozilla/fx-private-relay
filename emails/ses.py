@@ -38,6 +38,28 @@ class ComplaintNotification:
 
 
 @dataclass
+class DeliveryNotification:
+    """
+    A Delivery Notification delivered via SNS.
+
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+    """
+
+    notificationType: Literal["Delivery"]
+    delivery: DeliveryBody
+    mail: MailBody
+
+    @classmethod
+    def from_dict(cls, raw_delivery: dict[str, Any]) -> DeliveryNotification:
+        assert raw_delivery["notificationType"] == "Delivery"
+        return cls(
+            notificationType=raw_delivery["notificationType"],
+            delivery=DeliveryBody.from_dict(raw_delivery["delivery"]),
+            mail=MailBody.from_dict(raw_delivery["mail"]),
+        )
+
+
+@dataclass
 class ComplaintBody:
     """
     The "complaint" element of a Complaint Notification.
@@ -147,6 +169,41 @@ class ComplainedRecipients:
     def from_dict(cls, raw_body: dict[str, Any]) -> ComplainedRecipients:
         assert isinstance(raw_body["emailAddress"], str)
         return ComplainedRecipients(emailAddress=raw_body["emailAddress"])
+
+
+@dataclass
+class DeliveryBody:
+    """
+    The "delivery" element of a Delivery Notification.
+
+    See:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#delivery-object
+    """
+
+    timestamp: str
+    processingTimeMillis: int
+    recipients: list[str]
+    smtpResponse: str
+    reportingMTA: str
+    remoteMtaIp: str
+
+    @classmethod
+    def from_dict(cls, raw_body: dict[str, Any]) -> DeliveryBody:
+        assert isinstance(raw_body["timestamp"], str)
+        assert isinstance(raw_body["processingTimeMillis"], int)
+        assert isinstance(raw_body["recipients"], list)
+        assert all(isinstance(item, str) for item in raw_body["recipients"])
+        assert isinstance(raw_body["smtpResponse"], str)
+        assert isinstance(raw_body["reportingMTA"], str)
+        assert isinstance(raw_body["remoteMtaIp"], str)
+        return cls(
+            timestamp=raw_body["timestamp"],
+            processingTimeMillis=raw_body["processingTimeMillis"],
+            recipients=raw_body["recipients"],
+            smtpResponse=raw_body["smtpResponse"],
+            reportingMTA=raw_body["reportingMTA"],
+            remoteMtaIp=raw_body["remoteMtaIp"],
+        )
 
 
 @dataclass
