@@ -1,4 +1,10 @@
-import { ReactElement, ReactNode, useEffect, useState } from "react";
+import {
+  MouseEventHandler,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -77,15 +83,19 @@ export const Layout = (props: Props) => {
       </div>
     ) : null;
 
-  const closeToastButton = (closeToast: () => void): ReactElement => {
+  const CloseToastButton = (props: {
+    closeToast: MouseEventHandler<HTMLButtonElement>;
+  }): ReactElement => {
     return (
       <div className={styles["close-toast-button-container"]}>
-        <button className="Toastify__close-button Toastify__close-button--colored">
-          {CloseIcon({
-            alt: l10n.getString("toast-button-close-label"),
-            onClick: closeToast,
-            id: styles["close-toast-button-icon"],
-          })}
+        <button
+          onClick={props.closeToast}
+          className="Toastify__close-button Toastify__close-button--colored"
+        >
+          <CloseIcon
+            alt={l10n.getString("toast-button-close-label")}
+            id={styles["close-toast-button-icon"]}
+          />
         </button>
       </div>
     );
@@ -171,9 +181,7 @@ export const Layout = (props: Props) => {
           autoClose={5000}
           className={styles["toast-container"]}
           toastClassName={`Toastify__toast ${styles.toast}`}
-          closeButton={(closeToastObject) =>
-            closeToastButton(closeToastObject.closeToast)
-          }
+          closeButton={CloseToastButton}
         />
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>
