@@ -1,5 +1,5 @@
 import { useLocalization } from "@fluent/react";
-import { createRef, useEffect, useState } from "react";
+import { createRef, TouchEventHandler, useEffect, useState } from "react";
 import FxBrowserLogo from "../../../../static/scss/libs/protocol/img/logos/firefox/browser/logo.svg";
 import {
   ChevronLeftIcon,
@@ -23,8 +23,30 @@ export type UserReview = {
 export const Reviews = () => {
   const [currentReview, setCurrentReview] = useState(0);
   const [scrollAnimationDirection, setScrollAnimationDirection] = useState("");
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
   const { l10n } = useLocalization();
   const reviewElementRef = createRef<HTMLDivElement>();
+
+  function handleTouchStart(e: any) {
+    setTouchStart(e.targetTouches[0].clientX);
+  }
+
+  function handleTouchMove(e: any) {
+    setTouchEnd(e.targetTouches[0].clientX);
+  }
+
+  function handleTouchEnd() {
+    // user swiped left
+    if (touchStart - touchEnd > 150) {
+      scrollReview(currentReview, userReviews, "left");
+    }
+
+    // user swiped right
+    if (touchStart - touchEnd < -150) {
+      scrollReview(currentReview, userReviews, "right");
+    }
+  }
 
   const userReviews: UserReview[] = [
     {
@@ -123,7 +145,7 @@ export const Reviews = () => {
         <div className={styles["right-container"]}>
           <div className={styles["reviews-container"]}>
             <button
-              className={styles.chevron}
+              className={`${styles.chevron} ${styles["hidden-mobile"]}`}
               onClick={() => scrollReview(currentReview, userReviews, "left")}
             >
               <ChevronLeftIcon alt="" />
@@ -133,7 +155,12 @@ export const Reviews = () => {
               <QuotationIcon alt="" />
             </div>
 
-            <div className={styles["review-container"]}>
+            <div
+              className={styles["review-container"]}
+              onTouchStart={(e) => handleTouchStart(e)}
+              onTouchMove={(e) => handleTouchMove(e)}
+              onTouchEnd={() => handleTouchEnd()}
+            >
               <div
                 ref={reviewElementRef}
                 key={currentReview}
@@ -146,15 +173,30 @@ export const Reviews = () => {
                     Source: addons.mozilla.org
                   </span>
                 </div>
-                <div className={styles.text}>
+                <p className={styles.text}>
                   {/* if text is an array, we consider it a bulleted list */}
                   {renderReview(text)}
-                </div>
+                </p>
               </div>
             </div>
 
             <button
-              className={styles.chevron}
+              className={`${styles.chevron} ${styles["hidden-mobile"]}`}
+              onClick={() => scrollReview(currentReview, userReviews, "right")}
+            >
+              <ChevronRightIcon alt="" />
+            </button>
+          </div>
+
+          <div className={styles["mobile-controls"]}>
+            <button
+              className={`${styles.chevron} ${styles["show-mobile"]}`}
+              onClick={() => scrollReview(currentReview, userReviews, "left")}
+            >
+              <ChevronLeftIcon alt="" />
+            </button>
+            <button
+              className={`${styles.chevron} ${styles["show-mobile"]}`}
               onClick={() => scrollReview(currentReview, userReviews, "right")}
             >
               <ChevronRightIcon alt="" />

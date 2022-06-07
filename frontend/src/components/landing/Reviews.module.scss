@@ -7,15 +7,17 @@
 
   .reviews {
     display: flex;
-    gap: $layout-xl;
     flex-direction: column;
     max-width: $content-max;
+    gap: $layout-md;
     width: 100%;
     margin: 0 auto;
     align-items: center;
-    padding: $spacing-2xl $spacing-lg;
+    padding: $spacing-md $spacing-lg 0 $spacing-lg;
+    justify-content: center;
 
     @media screen and #{$mq-xl} {
+      gap: $layout-xl;
       flex-direction: row;
     }
   }
@@ -27,6 +29,11 @@
   gap: $spacing-xl;
 }
 
+.right-container {
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
 .logo-container {
   display: flex;
   font-family: $font-stack-base;
@@ -106,7 +113,10 @@
 .quotation-icon {
   display: flex;
   position: absolute;
-  left: calc($spacing-2xl * 1.5);
+
+  @media screen and #{$mq-md} {
+    left: calc($spacing-2xl * 1.5);
+  }
 
   svg {
     color: $color-purple-60;
@@ -116,33 +126,57 @@
 
 .reviews-container {
   display: flex;
+  overflow-x: hidden;
   flex-direction: row;
   gap: $spacing-2xl;
-  overflow-x: hidden;
-  height: 210px;
   position: relative;
 
+  @media screen and #{$mq-md} {
+    height: 245px;
+  }
+  @media screen and #{$mq-xl} {
+    height: 220px;
+  }
+
   .review {
-    width: 100%;
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative; // allows us to animate
+    width: 100%; // allows us to animate
 
     .text {
-      width: $content-md;
+      width: 100%;
+
+      @media screen and #{$mq-xs} {
+        width: $content-xs;
+      }
+      @media screen and #{$mq-md} {
+        width: $content-sm;
+      }
+      @media screen and #{$mq-xl} {
+        width: $content-md;
+      }
 
       ul {
-        padding-left: 12px;
+        padding-left: calc($spacing-sm + $spacing-xs);
       }
     }
   }
 
   .details {
     display: flex;
-    flex-direction: row;
-    align-items: flex-end;
+    flex-direction: column;
+    align-items: flex-start;
     font-weight: 400;
     gap: $spacing-md;
     padding: $spacing-2xl 0 $spacing-md 0;
     font-family: $font-stack-base;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+      align-items: flex-end;
+    }
 
     .name {
       @include text-title-3xs;
@@ -162,18 +196,20 @@
   }
 }
 
+// scroll animation
 .scroll-left {
-  animation: scrollLeft 500ms cubic-bezier(0.55, -0.4, 0.45, 1.75);
+  animation: scrollLeft 500ms cubic-bezier(0.55, -0.4, 0.45, 1.2);
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
 }
 
 .scroll-right {
-  animation: scrollRight 500ms cubic-bezier(0.55, -0.4, 0.45, 1.75);
+  animation: scrollRight 500ms cubic-bezier(0.55, -0.4, 0.45, 1.2);
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
 }
 
+// scroll animation keyframes
 @keyframes scrollLeft {
   0% {
     left: 0;
@@ -206,5 +242,42 @@
   100% {
     left: 0;
     opacity: 1;
+  }
+}
+
+// mobile
+.hidden-mobile {
+  display: none;
+
+  @media screen and #{$mq-md} {
+    display: inline-block;
+  }
+}
+
+// show only on mobile
+.show-mobile {
+  display: inline-block;
+
+  @media screen and #{$mq-md} {
+    display: none;
+  }
+}
+
+// mobile only controls for review scrolling
+.mobile-controls {
+  display: flex;
+  gap: 8px;
+
+  button {
+    width: 50%;
+    padding: 16px 0;
+
+    &:hover {
+      background-color: $color-grey-10;
+    }
+
+    svg {
+      margin: 0 auto;
+    }
   }
 }
