@@ -282,17 +282,19 @@ class Profile(models.Model):
             + sum(da.num_blocked for da in self.domain_addresses)
             + self.num_email_blocked_in_deleted_address
         )
-    
+
     @property
     def emails_replied(self):
         # Once Django is on version 4.0 and above, we can set the default=0
         # and return a int instead of None
         # https://docs.djangoproject.com/en/4.0/ref/models/querysets/#default
-        totals = [self.relay_addresses.aggregate(models.Sum('num_replied'))]
-        totals.append(self.domain_addresses.aggregate(models.Sum('num_replied')))
+        totals = [self.relay_addresses.aggregate(models.Sum("num_replied"))]
+        totals.append(self.domain_addresses.aggregate(models.Sum("num_replied")))
         total_num_replied = 0
         for num in totals:
-            total_num_replied += num.get('num_replied__sum') if num.get('num_replied__sum') else 0
+            total_num_replied += (
+                num.get("num_replied__sum") if num.get("num_replied__sum") else 0
+            )
         return total_num_replied + self.num_email_replied_in_deleted_address
 
     @property
@@ -712,9 +714,7 @@ class Reply(models.Model):
         address = self.relay_address or self.domain_address
         address.num_replied += 1
         address.last_used_at = datetime.now(timezone.utc)
-        address.save(
-            update_fields=['num_replied', 'last_used_at']
-        )
+        address.save(update_fields=["num_replied", "last_used_at"])
         return address.num_replied
 
 

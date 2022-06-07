@@ -109,7 +109,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "next_email_try",
             "bounce_status",
             "api_token",
-            'emails_replied',
+            "emails_replied",
         ]
         read_only_fields = [
             "id",
@@ -119,7 +119,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "next_email_try",
             "bounce_status",
             "api_token",
-            'emails_replied',
+            "emails_replied",
         ]
 
 
