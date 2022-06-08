@@ -155,6 +155,7 @@ export function getHandlers(
       last_used_at: new Date(Date.now()).toISOString(),
       num_blocked: 0,
       num_forwarded: 0,
+      num_replied: 0,
       num_spam: 0,
       mask_type: "random",
       used_on: "",
