@@ -903,6 +903,10 @@ def _handle_bounce(message_json):
 def _handle_complaint(message_json: dict[str, Any]) -> HttpResponse:
     data = ComplaintNotification.from_dict(message_json)
     complaint_type = data.complaint.complaintFeedbackType
+    if data.mail.commonHeaders and data.mail.commonHeaders.replyTo:
+        reply_to = ",".join(data.mail.commonHeaders.replyTo)
+    else:
+        reply_to = None
     extra = {
         "complaint_type": complaint_type.value if complaint_type else None,
         "sender": data.mail.source,
@@ -913,6 +917,7 @@ def _handle_complaint(message_json: dict[str, Any]) -> HttpResponse:
         "complaint_subtype": data.complaint.complaintSubType,
         "feedback_id": data.complaint.feedbackId,
         "user_agent": data.complaint.userAgent,
+        "reply_to": reply_to,
     }
     info_logger.info("Complaint received.", extra=extra)
     return HttpResponse("OK", status=200)

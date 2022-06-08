@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from email.message import EmailMessage
+from typing import Any
 from unittest.mock import patch, Mock
 import glob
 import io
@@ -1054,9 +1055,9 @@ def test_wrapped_email_test(
     ) in no_space_html
 
 
-def test_sns_notifications_complaint(caplog) -> None:
-    """_sns_notifications can handle an SNS complaint."""
-    complaint = {
+def _base_complaint() -> dict[str, Any]:
+    """Return a Complaint object"""
+    return {
         "notificationType": "Complaint",
         "complaint": {
             "feedbackId": "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000",
@@ -1080,6 +1081,11 @@ def test_sns_notifications_complaint(caplog) -> None:
             "destination": ["complaint@simulator.amazonses.com"],
         },
     }
+
+
+def test_sns_notifications_complaint(caplog) -> None:
+    """_sns_notifications can handle an SNS complaint."""
+    complaint = _base_complaint()
     sns_wrapper = {
         "Type": "Notification",
         "Message": json.dumps(complaint),
@@ -1101,3 +1107,38 @@ def test_sns_notifications_complaint(caplog) -> None:
         == "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000"
     )
     assert record.user_agent == "Amazon SES Mailbox Simulator"
+    assert record.reply_to is None
+
+
+def test_sns_notifications_complaint_with_headers(caplog):
+    """_sns_notifications can handle an SNS complaint with headers."""
+    complaint = _base_complaint()
+    complaint["mail"]["headersTruncated"] = False
+    complaint["mail"]["headers"] = [
+        {"name": "From", "value": "sender@relay.example.com"},
+        {"name": "To", "value": "complaint@simulator.amazonses.com"},
+        {
+            "name": "Message-ID",
+            "value": "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000",
+        },
+        {"name": "Subject", "value": "Hello"},
+        {"name": "Content-Type", "value": 'text/plain; charset="UTF-8"'},
+        {"name": "Content-Transfer-Encoding", "value": "base64"},
+        {"name": "Date", "value": "Thu, 26 May 2022 21:59:28 +0000"},
+    ]
+    complaint["mail"]["commonHeaders"] = {
+        "from": ["sender@relay.example.com"],
+        "date": "Thu, 26 May 2022 21:59:28 +0000",
+        "to": ["complaint@simulator.amazonses.com"],
+        "subject": "Test message",
+        "replyTo": ["replies@relay.example.com"],
+    }
+    sns_wrapper = {
+        "Type": "Notification",
+        "Message": json.dumps(complaint),
+    }
+    response = _sns_notification(sns_wrapper)
+    assert response.status_code == 200
+    assert caplog.record_tuples == [("eventsinfo", logging.INFO, "Complaint received.")]
+    record = caplog.records[0]
+    assert record.reply_to == "replies@relay.example.com"
