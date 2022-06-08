@@ -1,7 +1,7 @@
 import { useLocalization } from "@fluent/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useButton } from "react-aria";
-import FxBrowserLogo from "../../../../static/scss/libs/protocol/img/logos/firefox/browser/logo.svg";
+import FxBrowserLogo from "./images/fx-logo.svg";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
