@@ -1,5 +1,6 @@
 import { useLocalization } from "@fluent/react";
-import { createRef, TouchEventHandler, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useButton } from "react-aria";
 import FxBrowserLogo from "../../../../static/scss/libs/protocol/img/logos/firefox/browser/logo.svg";
 import {
   ChevronLeftIcon,
@@ -11,7 +12,9 @@ import styles from "./Reviews.module.scss";
 
 // We want to ensure only these values can be used for a rating.
 export type Rating = 1 | 2 | 3 | 4 | 5;
+// We expect a normal string or a list of strings to use as a bulleted list.
 export type Review = string | string[];
+// Allowed directions for scrolling reviews
 export type Direction = "left" | "right";
 export type UserReview = {
   name: string;
@@ -26,16 +29,32 @@ export const Reviews = () => {
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const { l10n } = useLocalization();
-  const reviewElementRef = createRef<HTMLDivElement>();
 
+  const slideLeftButtonRef = useRef<HTMLButtonElement>(null);
+
+  const slideLeftButton = useButton(
+    { onPress: () => scrollReview(currentReview, userReviews, "left") },
+    slideLeftButtonRef
+  );
+
+  const slideRightButtonRef = useRef<HTMLButtonElement>(null);
+
+  const slideRightButton = useButton(
+    { onPress: () => scrollReview(currentReview, userReviews, "right") },
+    slideRightButtonRef
+  );
+
+  // Get initial user position on touch
   function handleTouchStart(e: any) {
     setTouchStart(e.targetTouches[0].clientX);
   }
 
+  // Get end position when user ends touch
   function handleTouchMove(e: any) {
     setTouchEnd(e.targetTouches[0].clientX);
   }
 
+  // Figure out if user swiped left or right
   function handleTouchEnd() {
     // user swiped left
     if (touchStart - touchEnd > 150) {
@@ -55,17 +74,17 @@ export const Reviews = () => {
       text: l10n.getString("landing-review-user-one-review"),
     },
     {
-      name: "Firefox user 17064608",
+      name: `${l10n.getString("landing-review-anonymous-user")} 17064608`,
       rating: 5,
       text: l10n.getString("landing-review-user-two-review"),
     },
     {
-      name: "Firefox user 16464118",
+      name: `${l10n.getString("landing-review-anonymous-user")} 16464118`,
       rating: 5,
       text: l10n.getString("landing-review-user-three-review"),
     },
     {
-      name: "Firefox user 17361666",
+      name: `${l10n.getString("landing-review-anonymous-user")} 17361666`,
       rating: 5,
       text: [
         l10n.getString("landing-review-user-four-review-list-1"),
@@ -78,7 +97,6 @@ export const Reviews = () => {
 
   const { name, text, rating } = userReviews[currentReview];
 
-  useEffect(() => {}, [currentReview]);
   const scrollReview = (
     count: number,
     reviews: UserReview[],
@@ -108,8 +126,9 @@ export const Reviews = () => {
       )
     );
 
+  // Render a bulleted list if review is an array of strings.
   const renderReview = (text: Review) => {
-    if (!Array.isArray(text)) return text;
+    if (!Array.isArray(text)) return <p>{text}</p>;
 
     return (
       <ul>
@@ -145,15 +164,12 @@ export const Reviews = () => {
         <div className={styles["right-container"]}>
           <div className={styles["reviews-container"]}>
             <button
+              {...slideLeftButton.buttonProps}
+              ref={slideLeftButtonRef}
               className={`${styles.chevron} ${styles["hidden-mobile"]}`}
-              onClick={() => scrollReview(currentReview, userReviews, "left")}
             >
               <ChevronLeftIcon alt="" />
             </button>
-            <div className={styles["quotation-icon"]}>
-              <QuotationIcon alt="" />
-              <QuotationIcon alt="" />
-            </div>
 
             <div
               className={styles["review-container"]}
@@ -162,10 +178,13 @@ export const Reviews = () => {
               onTouchEnd={() => handleTouchEnd()}
             >
               <div
-                ref={reviewElementRef}
                 key={currentReview}
                 className={`${styles.review} ${styles[scrollAnimationDirection]}`}
               >
+                <div className={styles["quotation-icon"]}>
+                  <QuotationIcon alt="" />
+                  <QuotationIcon alt="" />
+                </div>
                 <div className={styles.details}>
                   <div className={styles.stars}>{renderStarRating(rating)}</div>
                   <span className={styles.name}>{name}</span>
@@ -173,31 +192,37 @@ export const Reviews = () => {
                     Source: addons.mozilla.org
                   </span>
                 </div>
-                <p className={styles.text}>
+                <div className={styles.text}>
                   {/* if text is an array, we consider it a bulleted list */}
                   {renderReview(text)}
-                </p>
+                </div>
               </div>
             </div>
 
             <button
+              {...slideRightButton.buttonProps}
+              ref={slideRightButtonRef}
               className={`${styles.chevron} ${styles["hidden-mobile"]}`}
-              onClick={() => scrollReview(currentReview, userReviews, "right")}
             >
               <ChevronRightIcon alt="" />
             </button>
           </div>
 
-          <div className={styles["mobile-controls"]}>
+          {/* these controls will only show on mobile  */}
+          <div
+            className={`${styles["mobile-controls"]} ${styles["show-mobile"]}`}
+          >
             <button
-              className={`${styles.chevron} ${styles["show-mobile"]}`}
-              onClick={() => scrollReview(currentReview, userReviews, "left")}
+              {...slideLeftButton.buttonProps}
+              ref={slideLeftButtonRef}
+              className={`${styles.chevron}`}
             >
               <ChevronLeftIcon alt="" />
             </button>
             <button
-              className={`${styles.chevron} ${styles["show-mobile"]}`}
-              onClick={() => scrollReview(currentReview, userReviews, "right")}
+              {...slideRightButton.buttonProps}
+              ref={slideRightButtonRef}
+              className={`${styles.chevron}`}
             >
               <ChevronRightIcon alt="" />
             </button>

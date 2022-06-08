@@ -9,15 +9,15 @@
     display: flex;
     flex-direction: column;
     max-width: $content-max;
-    gap: $layout-md;
+    gap: $spacing-lg;
     width: 100%;
     margin: 0 auto;
     align-items: center;
     padding: $spacing-md $spacing-lg 0 $spacing-lg;
     justify-content: center;
 
-    @media screen and #{$mq-xl} {
-      gap: $layout-xl;
+    @media screen and #{$mq-lg} {
+      gap: $layout-md;
       flex-direction: row;
     }
   }
@@ -32,7 +32,7 @@
 .right-container {
   display: flex;
   flex-direction: column;
-  gap: 48px;
+  gap: $spacing-2xl;
 }
 .logo-container {
   display: flex;
@@ -72,7 +72,7 @@
 
   .rating {
     .title {
-      @include text-title-2xl; // 72
+      @include text-title-2xl;
       font-family: $font-stack-firefox;
       font-weight: 600;
     }
@@ -104,6 +104,7 @@
 .chevron {
   appearance: none;
   border: none;
+  padding: 0;
   background-color: $color-white;
   color: $color-grey-30;
   width: $layout-sm;
@@ -115,7 +116,7 @@
   position: absolute;
 
   @media screen and #{$mq-md} {
-    left: calc($spacing-2xl * 1.5);
+    left: 0;
   }
 
   svg {
@@ -128,35 +129,46 @@
   display: flex;
   overflow-x: hidden;
   flex-direction: row;
-  gap: $spacing-2xl;
+  gap: $spacing-lg;
+  // magic number: set to avoid shifting - no character limit on reviews yet.
+  min-height: calc($layout-2xl * 2);
   position: relative;
 
-  @media screen and #{$mq-md} {
-    height: 245px;
-  }
   @media screen and #{$mq-xl} {
-    height: 220px;
+    // magic number: set to avoid shifting - no character limit on reviews yet.
+    min-height: 210px;
+  }
+
+  .review-container {
+    display: flex;
+    align-items: center;
+
+    @media screen and #{$mq-xl} {
+      align-items: flex-start;
+    }
   }
 
   .review {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    position: relative; // allows us to animate
-    width: 100%; // allows us to animate
+    position: relative; // allows us to animate - scroll
+    width: 100%; // allows us to animate - scroll
+    padding: 0 $spacing-sm;
+
+    // queries set to these static widths to prevent shifting
+    @media screen and #{$mq-sm} {
+      width: $content-xs;
+    }
+    @media screen and #{$mq-md} {
+      width: $content-sm;
+    }
+    @media screen and #{$mq-xl} {
+      width: $content-md;
+    }
 
     .text {
       width: 100%;
-
-      @media screen and #{$mq-xs} {
-        width: $content-xs;
-      }
-      @media screen and #{$mq-md} {
-        width: $content-sm;
-      }
-      @media screen and #{$mq-xl} {
-        width: $content-md;
-      }
 
       ul {
         padding-left: calc($spacing-sm + $spacing-xs);
@@ -173,7 +185,7 @@
     padding: $spacing-2xl 0 $spacing-md 0;
     font-family: $font-stack-base;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{$mq-xl} {
       flex-direction: row;
       align-items: flex-end;
     }
@@ -245,24 +257,6 @@
   }
 }
 
-// mobile
-.hidden-mobile {
-  display: none;
-
-  @media screen and #{$mq-md} {
-    display: inline-block;
-  }
-}
-
-// show only on mobile
-.show-mobile {
-  display: inline-block;
-
-  @media screen and #{$mq-md} {
-    display: none;
-  }
-}
-
 // mobile only controls for review scrolling
 .mobile-controls {
   display: flex;
@@ -279,5 +273,22 @@
     svg {
       margin: 0 auto;
     }
+  }
+}
+
+.hidden-mobile {
+  display: none;
+
+  @media screen and #{$mq-md} {
+    display: inline-block;
+  }
+}
+
+// show only on mobile
+.show-mobile {
+  display: inline-block;
+
+  @media screen and #{$mq-md} {
+    display: none;
   }
 }
