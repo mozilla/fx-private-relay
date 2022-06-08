@@ -183,38 +183,47 @@ const Settings: NextPage = () => {
                   <div
                     className={`${styles["copy-api-key-content"]} ${styles["field-content"]}`}
                   >
-                    <input
-                      id="api-key"
-                      ref={apiKeyElementRef}
-                      className={styles["copy-api-key-display"]}
-                      value={profile.api_token}
-                      size={profile.api_token.length}
-                      readOnly={true}
-                    />
-                    <span className={styles["copy-controls"]}>
-                      <span className={styles["copy-button-wrapper"]}>
-                        <button
-                          type="button"
-                          className={styles["copy-button"]}
-                          title={l10n.getString("settings-button-copy")}
-                          onClick={copyApiKeyToClipboard}
-                        >
-                          <img
-                            src={copyIcon.src}
-                            alt={l10n.getString("settings-button-copy")}
-                            className={styles["copy-icon"]}
-                          />
-                        </button>
-                        <span
-                          aria-hidden={!justCopiedApiKey}
-                          className={`${styles["copied-confirmation"]} ${
-                            justCopiedApiKey ? styles["is-shown"] : ""
-                          }`}
-                        >
-                          {l10n.getString("setting-api-key-copied")}
+                    <div className={styles["settings-api-key-wrapper"]}>
+                      <input
+                        id="api-key"
+                        ref={apiKeyElementRef}
+                        className={styles["copy-api-key-display"]}
+                        value={profile.api_token}
+                        size={profile.api_token.length}
+                        readOnly={true}
+                      />
+                      <span className={styles["copy-controls"]}>
+                        <span className={styles["copy-button-wrapper"]}>
+                          <button
+                            type="button"
+                            className={styles["copy-button"]}
+                            title={l10n.getString("settings-button-copy")}
+                            onClick={copyApiKeyToClipboard}
+                          >
+                            <img
+                              src={copyIcon.src}
+                              alt={l10n.getString("settings-button-copy")}
+                              className={styles["copy-icon"]}
+                            />
+                          </button>
+                          <span
+                            aria-hidden={!justCopiedApiKey}
+                            className={`${styles["copied-confirmation"]} ${
+                              justCopiedApiKey ? styles["is-shown"] : ""
+                            }`}
+                          >
+                            {l10n.getString("setting-api-key-copied")}
+                          </span>
                         </span>
                       </span>
-                    </span>
+                    </div>
+                    <aside className={styles["settings-api-key-description"]}>
+                      {l10n.getString("settings-api-key-description")}
+                      <b>
+                        {" "}
+                        {l10n.getString("settings-api-key-description-bolded")}
+                      </b>
+                    </aside>
                   </div>
                 </div>
                 <div className={styles.controls}>
