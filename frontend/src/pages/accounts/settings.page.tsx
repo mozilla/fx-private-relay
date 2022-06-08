@@ -217,7 +217,7 @@ const Settings: NextPage = () => {
                         </span>
                       </span>
                     </div>
-                    <aside className={styles["settings-api-key-description"]}>
+                    <aside className={styles["settings-api-key-copy"]}>
                       {l10n.getString("settings-api-key-description")}
                       <b>
                         {" "}
