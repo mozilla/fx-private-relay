@@ -1,4 +1,10 @@
-import React, { ReactElement, ReactNode, useEffect } from "react";
+import {
+  MouseEventHandler,
+  ReactElement,
+  ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -15,19 +21,14 @@ import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
 import favicon from "../../../public/favicon.svg";
 import socialMediaImage from "../../../../static/images/share-relay.jpg";
 import { useProfiles } from "../../hooks/api/profile";
-import { UserMenu } from "./UserMenu";
-import { Navigation } from "./Navigation";
-import { AppPicker } from "./AppPicker";
+import { Navigation } from "./navigation/Navigation";
 import { useIsLoggedIn } from "../../hooks/session";
-import { NpsSurvey } from "./NpsSurvey";
 import { getRuntimeConfig } from "../../config";
-import { CsatSurvey } from "./CsatSurvey";
-import { InterviewRecruitment } from "./InterviewRecruitment";
-import { WhatsNewMenu } from "./whatsnew/WhatsNewMenu";
-import { CloseIcon } from "../Icons";
+import { TopMessage } from "./topmessage/TopMessage";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
-import { useRuntimeData } from "../../hooks/api/runtimeData";
+import { MobileNavigation } from "./navigation/MobileNavigation";
+import { CloseIcon } from "../Icons";
 
 export type Props = {
   children: ReactNode;
@@ -40,10 +41,11 @@ export type Props = {
 export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
-  const runtimeData = useRuntimeData();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
+  const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const usersData = useUsers().data?.[0];
+  const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>();
 
   useEffect(() => {
     makeToast(l10n, usersData);
@@ -61,27 +63,17 @@ export const Layout = (props: Props) => {
   // set to "free", like the FAQ), and if the theme is explicitly
   // set to Premium (i.e. on the `/premium` promo page).
   const logoType =
-    props.theme === "premium" || profiles.data?.[0].has_premium
-      ? premiumLogo
-      : regularLogo;
+    props.theme === "premium" || hasPremium ? premiumLogo : regularLogo;
   const logoAlt =
-    props.theme === "premium" || profiles.data?.[0].has_premium
+    props.theme === "premium" || hasPremium
       ? l10n.getString("logo-alt")
       : l10n.getString("logo-premium-alt");
 
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
 
-  const csatSurvey =
-    getRuntimeConfig().featureFlags.csatSurvey &&
-    !getRuntimeConfig().featureFlags.interviewRecruitment &&
-    profiles.data?.[0] ? (
-      <CsatSurvey profile={profiles.data[0]} />
-    ) : null;
-  const npsSurvey =
-    !getRuntimeConfig().featureFlags.csatSurvey &&
-    !getRuntimeConfig().featureFlags.interviewRecruitment ? (
-      <NpsSurvey />
-    ) : null;
+  const handleToggle = () => {
+    setMobileMenuExpanded(!mobileMenuExpanded);
+  };
 
   const apiMockWarning =
     process.env.NEXT_PUBLIC_MOCK_API === "true" ? (
@@ -91,20 +83,19 @@ export const Layout = (props: Props) => {
       </div>
     ) : null;
 
-  const whatsNew =
-    isLoggedIn && profiles.data ? (
-      <WhatsNewMenu profile={profiles.data[0]} runtimeData={runtimeData.data} />
-    ) : null;
-
-  const closeToastButton = (closeToast: () => void): ReactElement => {
+  const CloseToastButton = (props: {
+    closeToast: MouseEventHandler<HTMLButtonElement>;
+  }): ReactElement => {
     return (
       <div className={styles["close-toast-button-container"]}>
-        <button className="Toastify__close-button Toastify__close-button--colored">
-          {CloseIcon({
-            alt: l10n.getString("toast-button-close-label"),
-            onClick: closeToast,
-            id: styles["close-toast-button-icon"],
-          })}
+        <button
+          onClick={props.closeToast}
+          className="Toastify__close-button Toastify__close-button--colored"
+        >
+          <CloseIcon
+            alt={l10n.getString("toast-button-close-label")}
+            id={styles["close-toast-button-icon"]}
+          />
         </button>
       </div>
     );
@@ -141,9 +132,7 @@ export const Layout = (props: Props) => {
       </Head>
       <div className={styles.wrapper}>
         {apiMockWarning}
-        <InterviewRecruitment profile={profiles.data?.[0]} />
-        {csatSurvey}
-        {npsSurvey}
+        <TopMessage profile={profiles.data?.[0]} />
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles["logo-wrapper"]}>
             <Link href={homePath}>
@@ -164,16 +153,25 @@ export const Layout = (props: Props) => {
             </Link>
           </div>
           <div className={styles["nav-wrapper"]}>
-            <Navigation />
-            {whatsNew}
+            <Navigation
+              mobileMenuExpanded={mobileMenuExpanded}
+              theme={isDark ? "free" : "premium"}
+              handleToggle={handleToggle}
+              hasPremium={hasPremium}
+              isLoggedIn={isLoggedIn}
+              profile={profiles.data?.[0]}
+            />
           </div>
-          <div className={styles["app-picker-wrapper"]}>
-            <AppPicker theme={isDark ? "free" : "premium"} />
-          </div>
-          <nav className={styles["user-menu-wrapper"]}>
-            <UserMenu />
-          </nav>
         </header>
+
+        <MobileNavigation
+          mobileMenuExpanded={mobileMenuExpanded}
+          hasPremium={hasPremium}
+          isLoggedIn={isLoggedIn}
+          userEmail={usersData?.email}
+          userAvatar={profiles.data?.[0].avatar}
+        />
+
         <ToastContainer
           icon={false}
           position={toast.POSITION.TOP_CENTER}
@@ -183,9 +181,7 @@ export const Layout = (props: Props) => {
           autoClose={5000}
           className={styles["toast-container"]}
           toastClassName={`Toastify__toast ${styles.toast}`}
-          closeButton={(closeToastObject) =>
-            closeToastButton(closeToastObject.closeToast)
-          }
+          closeButton={CloseToastButton}
         />
         <div className={styles.content}>{props.children}</div>
         <footer className={styles.footer}>

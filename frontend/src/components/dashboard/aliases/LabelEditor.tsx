@@ -29,7 +29,8 @@ export const LabelEditor = (props: Props) => {
 
   useEffect(() => {
     setLabelJustUpdated(true);
-    setTimeout(() => setLabelJustUpdated(false), 1000);
+    const updateTimeout = setTimeout(() => setLabelJustUpdated(false), 1000);
+    return () => clearTimeout(updateTimeout);
   }, [props.label]);
 
   const onSubmit: FormEventHandler = (event) => {

@@ -1,11 +1,11 @@
 import { event as gaEvent } from "react-ga";
 import styles from "./NpsSurvey.module.scss";
-import { useFirstSeen } from "../../hooks/firstSeen";
-import { useLocalDismissal } from "../../hooks/localDismissal";
-import { useIsLoggedIn } from "../../hooks/session";
+import { useFirstSeen } from "../../../hooks/firstSeen";
+import { useLocalDismissal } from "../../../hooks/localDismissal";
+import { useIsLoggedIn } from "../../../hooks/session";
 import { useLocalization } from "@fluent/react";
-import { useProfiles } from "../../hooks/api/profile";
-import { CloseIcon } from "../Icons";
+import { useProfiles } from "../../../hooks/api/profile";
+import { CloseIcon } from "../../Icons";
 
 /**
  * Quickly survey the user for input to our Net Promotor Score.

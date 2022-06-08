@@ -2,7 +2,7 @@ import { useLocalization } from "@fluent/react";
 import { Key, ReactNode, useRef, useState } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Item, TabListState, useTabListState } from "react-stately";
-import { CloseIcon } from "../../Icons";
+import { CloseIcon } from "../../../Icons";
 import styles from "./WhatsNewDashboard.module.scss";
 import { WhatsNewList } from "./WhatsNewList";
 import { WhatsNewEntry } from "./WhatsNewMenu";

@@ -37,13 +37,13 @@ import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
   useLocalDismissal,
-} from "../../../hooks/localDismissal";
-import { ProfileData } from "../../../hooks/api/profile";
+} from "../../../../hooks/localDismissal";
+import { ProfileData } from "../../../../hooks/api/profile";
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
-import { useAddonData } from "../../../hooks/addon";
-import { isUsingFirefox } from "../../../functions/userAgent";
-import { getLocale } from "../../../functions/getLocale";
-import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { useAddonData } from "../../../../hooks/addon";
+import { isUsingFirefox } from "../../../../functions/userAgent";
+import { getLocale } from "../../../../functions/getLocale";
+import { RuntimeData } from "../../../../hooks/api/runtimeData";
 
 export type WhatsNewEntry = {
   title: string;
@@ -66,6 +66,7 @@ export type WhatsNewEntry = {
 
 export type Props = {
   profile: ProfileData;
+  style: string;
   runtimeData?: RuntimeData;
 };
 export const WhatsNewMenu = (props: Props) => {
@@ -339,7 +340,7 @@ export const WhatsNewMenu = (props: Props) => {
         ref={triggerRef}
         className={`${styles.trigger} ${
           triggerState.isOpen ? styles["is-open"] : ""
-        }`}
+        } ${props.style}`}
       >
         {l10n.getString("whatsnew-trigger-label")}
         {pill}

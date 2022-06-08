@@ -5,6 +5,17 @@
 reviews-add-ons = Add-ons
 brand-name-firefox-browser = Firefox Browser
 
+# Mobile menu icons 
+
+menu-upgrade-button = Upgrade 
+menu-toggle-open = Open menu
+menu-toggle-close = Close menu
+nav-dashboard = Dashboard
+nav-settings = Settings
+nav-support = Help and Support 
+nav-sign-out = Sign Out
+nav-contact = Contact Us
+
 landing-use-cases-shopping = Shopping
 landing-use-cases-shopping-hero-heading = Shopping with email masks
 landing-use-cases-shopping-hero-content1 = Want to buy something online and don’t know or fully trust the shop?
@@ -67,7 +78,7 @@ whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium
 # length as the English version.
 whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more protection…
 whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!
-
+ 
 landing-review-user-one-review = I really appreciate the { -brand-name-mozilla } team for being so creative and simplifying the anonymizing of my e-mail address. This is a great extension, I highly recommend it to the privacy-aware!
 landing-review-user-two-review = Simple tool to get rid of or avoid spamming your email ID.
 landing-review-user-three-review = Love this extension! Very simple but powerful and the integration with the browser is wonderful.
@@ -76,3 +87,7 @@ landing-review-user-four-review-list-1 = Gives peace of mind when surfing intern
 landing-review-user-four-review-list-2 = Protects ones identity from trackers through generation of aliases where one does not want to share the real email  address for various reasons.
 landing-review-user-four-review-list-3 = Email inbox data is safe in the hands of { -brand-name-firefox-relay }.
 landing-review-user-four-review-list-4 = { -brand-name-firefox-relay } works wonders, try it!!!
+ 
+fx-desktop-2 = { -brand-name-firefox } for Desktop
+fx-mobile-2 = { -brand-name-firefox } for Mobile
+fx-containers = { -brand-name-firefox } Containers

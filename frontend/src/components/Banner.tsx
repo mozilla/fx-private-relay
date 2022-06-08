@@ -18,6 +18,12 @@ export type BannerProps = {
     onClick?: () => void;
     gaViewPing?: Parameters<typeof useGaViewPing>[0];
   };
+  ctaLargeButton?: {
+    target: string;
+    content: string;
+    onClick?: () => void;
+    gaViewPing?: Parameters<typeof useGaViewPing>[0];
+  };
   /**
    * See {@link useLocalDismissal}; determines whether and for how long the user can dismiss this banner.
    */
@@ -70,6 +76,20 @@ export const Banner = (props: BannerProps) => {
     </div>
   ) : null;
 
+  const ctaLargeButton = props.ctaLargeButton ? (
+    <div className={styles["cta-large-button"]}>
+      <OutboundLink
+        to={props.ctaLargeButton.target}
+        eventLabel={props.ctaLargeButton.content}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={props.ctaLargeButton.onClick}
+      >
+        <span ref={ctaRef}>{props.ctaLargeButton.content}</span>
+      </OutboundLink>
+    </div>
+  ) : null;
+
   const dismissButton =
     typeof props.dismissal !== "undefined" ? (
       <button
@@ -93,11 +113,12 @@ export const Banner = (props: BannerProps) => {
     >
       <div className={`${styles["highlight-wrapper"]}`}>
         {illustration}
-        <div>
+        <div className={`${styles["title-text"]}`}>
           {title}
           {props.children}
           {cta}
         </div>
+        {ctaLargeButton}
       </div>
       {dismissButton}
     </div>

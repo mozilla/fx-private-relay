@@ -1,0 +1,23 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+#upgrade-button {
+  appearance: none;
+
+  @include text-body-lg;
+  line-height: 1;
+  color: $color-purple-10;
+  font-weight: 600;
+  border-radius: $border-radius-md;
+  font-family: $font-stack-firefox;
+
+  @media screen and #{$mq-md} {
+    background-color: $color-purple-20;
+    padding: $spacing-sm $spacing-md;
+    color: $color-blue-90;
+  }
+
+  &:hover {
+    color: $color-blue-50;
+  }
+}

@@ -47,8 +47,15 @@ TMP_DIR = os.path.join(BASE_DIR, "tmp")
 
 # defaulting to blank to be production-broken by default
 SECRET_KEY = config("SECRET_KEY", None, cast=str)
+SITE_ORIGIN = config("SITE_ORIGIN", None)
 
-ON_HEROKU = config("ON_HEROKU", False, cast=bool)
+ORIGIN_CHANNEL_MAP = {
+    "http://127.0.0.1:8000": "local",
+    "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
+    "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
+    "https://relay.firefox.com": "prod"
+}
+RELAY_CHANNEL = ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN, "prod")
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
     INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default=[])
@@ -100,7 +107,7 @@ csp_style_values = ["'self'"]
 # Next.js dynamically inserts the relevant styles when switching pages,
 # by injecting them as inline styles. We need to explicitly allow those styles
 # in our Content Security Policy.
-if DEBUG:
+if RELAY_CHANNEL == "local":
     # When running locally, styles might get refreshed while the server is
     # running, so their hashes would get oudated. Hence, we just allow all of
     # them.
@@ -154,7 +161,6 @@ AWS_SQS_QUEUE_URL = config("AWS_SQS_QUEUE_URL", None)
 
 RELAY_FROM_ADDRESS = config("RELAY_FROM_ADDRESS", None)
 NEW_RELAY_FROM_ADDRESS = config("NEW_RELAY_FROM_ADDRESS")
-SITE_ORIGIN = config("SITE_ORIGIN", None)
 GOOGLE_ANALYTICS_ID = config("GOOGLE_ANALYTICS_ID", None)
 INCLUDE_VPN_BANNER = config("INCLUDE_VPN_BANNER", False, cast=bool)
 RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
@@ -539,7 +545,7 @@ WHITENOISE_ADD_HEADERS_FUNCTION = set_index_cache_control_headers
 # for dev statics, we use django-gulp during runserver.
 # for stage/prod statics, we run "gulp build" in docker.
 # so, squelch django-gulp in prod so it doesn't run gulp during collectstatic:
-if not ON_HEROKU:
+if not RELAY_CHANNEL == "dev":
     GULP_PRODUCTION_COMMAND = ""
 
 SITE_ID = 1
@@ -645,9 +651,12 @@ ACCOUNT_LOGOUT_ON_GET = DEBUG
 CORS_ALLOWED_ORIGINS = [
     "https://vault.bitwarden.com",
 ]
+if RELAY_CHANNEL in ["local", "dev", "stage"]:
+    CORS_ALLOWED_ORIGINS += ["https://vault.qa.bitwarden.pw"]
+
 CORS_URLS_REGEX = r"^/api/"
 CSRF_TRUSTED_ORIGINS = []
-if DEBUG:
+if RELAY_CHANNEL == "local":
     # In local development, the React UI can be served up from a different server
     # that needs to be allowed to make requests.
     # In production, the frontend is served by Django, is therefore on the same

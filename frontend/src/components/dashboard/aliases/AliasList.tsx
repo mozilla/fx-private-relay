@@ -44,30 +44,32 @@ export const AliasList = (props: Props) => {
     return null;
   }
 
-  const aliases = sortAliases(
-    filterAliases(props.aliases, {
-      ...categoryFilters,
-      string: stringFilterInput,
-    })
-  );
-
-  const aliasCards = aliases.map((alias) => {
+  const aliasesWithLocalLabels = props.aliases.map((alias) => {
     const aliasWithLocalLabel = { ...alias };
     if (
       alias.description.length === 0 &&
       props.profile.server_storage === false &&
       localLabels !== null
     ) {
-      const type = isRandomAlias(alias) ? "random" : "custom";
       const localLabel = localLabels.find(
         (localLabel) =>
-          localLabel.id === alias.id && localLabel.mask_type === type
+          localLabel.id === alias.id && localLabel.mask_type === alias.mask_type
       );
       if (localLabel !== undefined) {
         aliasWithLocalLabel.description = localLabel.description;
       }
     }
+    return aliasWithLocalLabel;
+  });
 
+  const aliases = sortAliases(
+    filterAliases(aliasesWithLocalLabels, {
+      ...categoryFilters,
+      string: stringFilterInput,
+    })
+  );
+
+  const aliasCards = aliases.map((alias) => {
     const onUpdate = (updatedFields: Partial<AliasData>) => {
       if (
         localLabels !== null &&
@@ -90,7 +92,7 @@ export const AliasList = (props: Props) => {
         key={alias.address + isRandomAlias(alias)}
       >
         <Alias
-          alias={aliasWithLocalLabel}
+          alias={alias}
           user={props.user}
           profile={props.profile}
           onUpdate={onUpdate}
@@ -165,8 +167,6 @@ export const AliasList = (props: Props) => {
             {aliases.length}/{props.aliases.length}
           </span>
         </div>
-
-        {categoryFilter}
         <button
           onClick={() => setStringFilterVisible(!stringFilterVisible)}
           title={l10n.getString("banner-register-subdomain-button-search")}
@@ -179,6 +179,7 @@ export const AliasList = (props: Props) => {
             height={20}
           />
         </button>
+        {categoryFilter}
         <div className={styles["new-alias-button"]}>
           <AliasGenerationButton
             aliases={props.aliases}
