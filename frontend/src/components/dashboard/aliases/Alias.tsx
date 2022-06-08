@@ -251,7 +251,6 @@ export const Alias = (props: Props) => {
 type TooltipProps = {
   children: ReactNode;
 };
-
 const ForwardedTooltip = (props: TooltipProps) => {
   const { l10n } = useLocalization();
   const triggerState = useTooltipTriggerState({ delay: 0 });
