@@ -13,6 +13,9 @@ export type ProfileData = {
   next_email_try: DateString;
   bounce_status: [false, ""] | [true, "soft"] | [true, "hard"];
   api_token: string;
+  emails_blocked: number;
+  emails_forwarded: number;
+  emails_replied: number;
 };
 
 export type ProfilesData = [ProfileData];
