@@ -82,4 +82,4 @@ fx-containers = { -brand-name-firefox } Containers
 
 
 profile-label-replies = Replies
-profile-replies-tooltip = Replies tooltip copy here [PENDING]
+profile-replies-tooltip = You can reply to emails received through this mask, and Firefox Relay will continue to protect your true email address.
