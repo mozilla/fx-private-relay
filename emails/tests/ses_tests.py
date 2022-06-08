@@ -10,14 +10,19 @@ import pytest
 from emails.ses import (
     BotoResponseMetadata,
     CommonHeaders,
+    ComplaintEvent,
     ComplaintFeedbackType,
     ComplaintNotification,
     ComplaintSubType,
+    DeliveryEvent,
     DeliveryNotification,
     SendRawEmailResponse,
     SesChannelType,
+    SesEventType,
     SesNotificationType,
     SimulatorScenario,
+    get_ses_message,
+    get_ses_message_type,
     send_simulator_email,
 )
 
@@ -110,6 +115,27 @@ def test_send_simulator_email_with_tag(mock_ses_client) -> None:
     )
 
 
+def test_get_ses_message_type() -> None:
+    message_type = get_ses_message_type({"eventType": "Rendering Failure"})
+    assert message_type == SesEventType.RENDERING_FAILURE
+
+
+def test_get_ses_message_type_empty_is_exception() -> None:
+    with pytest.raises(ValueError) as excinfo:
+        get_ses_message_type({})
+    assert str(excinfo.value) == ("Expected notificationType or eventType to be set.")
+
+
+def test_get_ses_message_type_both_is_exception() -> None:
+    with pytest.raises(ValueError) as excinfo:
+        get_ses_message_type(
+            {"notificationType": "Complaint", "eventType": "Complaint"}
+        )
+    assert str(excinfo.value) == (
+        "notificationType and eventType are set, only one should be."
+    )
+
+
 def test_complaint_notification_with_feedback_parses() -> None:
     """
     A complaint with a feedback report can be parsed.
@@ -164,7 +190,8 @@ def test_complaint_notification_with_feedback_parses() -> None:
             },
         },
     }
-    note = ComplaintNotification.from_dict(complaint_notification)
+    note = get_ses_message(complaint_notification)
+    assert isinstance(note, ComplaintNotification)
     assert note.channelType == SesChannelType.NOTIFICATION
     assert note.messageType.is_type("Complaint")
     assert note.messageType == SesNotificationType.COMPLAINT
@@ -234,7 +261,8 @@ def test_complaint_notification_without_feedback_parses() -> None:
         },
     }
 
-    note = ComplaintNotification.from_dict(complaint_notification)
+    note = get_ses_message(complaint_notification)
+    assert isinstance(note, ComplaintNotification)
     assert note.complaint.complaintSubType is None
     assert note.complaint.complaintFeedbackType is None
     assert note.mail.headersTruncated is False
@@ -273,7 +301,8 @@ def test_complaint_notification_on_suppression_list_parses() -> None:
             "destination": ["suppressionlist+blocked@simulator.amazonses.com"],
         },
     }
-    note = ComplaintNotification.from_dict(complaint_notification)
+    note = get_ses_message(complaint_notification)
+    assert isinstance(note, ComplaintNotification)
     assert note.complaint.complaintSubType == ComplaintSubType.SUPPRESSED
     assert note.complaint.complaintFeedbackType is None
     assert note.mail.headersTruncated is None
@@ -311,12 +340,79 @@ def test_complaint_notification_without_headers_parses() -> None:
             "destination": ["complaint@simulator.amazonses.com"],
         },
     }
-    note = ComplaintNotification.from_dict(complaint_notification)
+    note = get_ses_message(complaint_notification)
+    assert isinstance(note, ComplaintNotification)
     assert note.complaint.complaintSubType is None
     assert note.complaint.complaintFeedbackType == ComplaintFeedbackType.ABUSE
     assert note.mail.headersTruncated is None
     assert note.mail.headers is None
     assert note.mail.commonHeaders is None
+
+
+def test_complaint_event() -> None:
+    """
+    A Complaint event is parsed.
+
+    This example is from the AWS documentation:
+    https://docs.aws.amazon.com/ses/latest/dg/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-complaint
+    """
+    raw_complaint = {
+        "eventType": "Complaint",
+        "complaint": {
+            "complainedRecipients": [{"emailAddress": "recipient@example.com"}],
+            "timestamp": "2017-08-05T00:41:02.669Z",
+            "feedbackId": "01000157c44f053b-61b59c11-9236-11e6-8f96-7be8aexample-000000",
+            "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36",
+            "complaintFeedbackType": "abuse",
+            "arrivalDate": "2017-08-05T00:41:02.669Z",
+        },
+        "mail": {
+            "timestamp": "2017-08-05T00:40:01.123Z",
+            "source": "Sender Name <sender@example.com>",
+            "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+            "sendingAccountId": "123456789012",
+            "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+            "destination": ["recipient@example.com"],
+            "headersTruncated": False,
+            "headers": [
+                {"name": "From", "value": "Sender Name <sender@example.com>"},
+                {"name": "To", "value": "recipient@example.com"},
+                {"name": "Subject", "value": "Message sent from Amazon SES"},
+                {"name": "MIME-Version", "value": "1.0"},
+                {
+                    "name": "Content-Type",
+                    "value": 'multipart/alternative; boundary="----=_Part_7298998_679725522.1516840859643"',
+                },
+            ],
+            "commonHeaders": {
+                "from": ["Sender Name <sender@example.com>"],
+                "to": ["recipient@example.com"],
+                "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+                "subject": "Message sent from Amazon SES",
+            },
+            "tags": {
+                "ses:configuration-set": ["ConfigSet"],
+                "ses:source-ip": ["192.0.2.0"],
+                "ses:from-domain": ["example.com"],
+                "ses:caller-identity": ["ses_user"],
+            },
+        },
+    }
+    event = get_ses_message(raw_complaint)
+    assert isinstance(event, ComplaintEvent)
+    assert event.channelType == SesChannelType.EVENT
+    assert event.messageType.is_type("Complaint")
+    assert event.messageType == SesEventType.COMPLAINT
+    assert event.notificationType is None
+    assert event.eventType == SesEventType.COMPLAINT
+
+    assert event.complaint.complaintSubType is None
+    assert event.complaint.complaintFeedbackType == ComplaintFeedbackType.ABUSE
+    assert event.mail.headersTruncated is False
+    assert event.mail.headers is not None
+    assert len(event.mail.headers) == 5
+    assert event.mail.commonHeaders is not None
+    assert len(event.mail.tags) == 4
 
 
 def test_common_headers_with_all_options_parses() -> None:
@@ -350,7 +446,7 @@ def test_delivery_notification_parses() -> None:
     A delivery notification can be parsed.
 
     This example is from the AWS docs:
-    https://docs.aws.amazon.com/ses/latest/dg/notification-examples.html#notification-examples-delivery
+    https://docs.aws.amazon.com/ses/latest/dg/event-publishing-retrieving-sns-examples.html#event-publishing-retrieving-sns-complaint
     """
     delivery_notification = {
         "notificationType": "Delivery",
@@ -390,7 +486,8 @@ def test_delivery_notification_parses() -> None:
             "remoteMtaIp": "127.0.2.0",
         },
     }
-    note = DeliveryNotification.from_dict(delivery_notification)
+    note = get_ses_message(delivery_notification)
+    assert isinstance(note, DeliveryNotification)
     assert note.mail.commonHeaders is not None
     assert note.mail.commonHeaders.subject == "Hello"
     assert note.delivery.timestamp == "2016-01-27T14:59:38.237Z"
@@ -399,3 +496,64 @@ def test_delivery_notification_parses() -> None:
     assert note.delivery.reportingMTA == "a8-70.smtp-out.amazonses.com"
     assert note.delivery.smtpResponse == "250 ok:  Message 64111812 accepted"
     assert note.delivery.remoteMtaIp == "127.0.2.0"
+
+
+def test_delivery_event_parses() -> None:
+    """
+    A delivery event can be parsed.
+
+    This example is from the AWS docs:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-examples.html#notification-examples-delivery
+    """
+    delivery_event = {
+        "eventType": "Delivery",
+        "mail": {
+            "timestamp": "2016-10-19T23:20:52.240Z",
+            "source": "sender@example.com",
+            "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+            "sendingAccountId": "123456789012",
+            "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+            "destination": ["recipient@example.com"],
+            "headersTruncated": False,
+            "headers": [
+                {"name": "From", "value": "sender@example.com"},
+                {"name": "To", "value": "recipient@example.com"},
+                {"name": "Subject", "value": "Message sent from Amazon SES"},
+                {"name": "MIME-Version", "value": "1.0"},
+                {"name": "Content-Type", "value": "text/html; charset=UTF-8"},
+                {"name": "Content-Transfer-Encoding", "value": "7bit"},
+            ],
+            "commonHeaders": {
+                "from": ["sender@example.com"],
+                "to": ["recipient@example.com"],
+                "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+                "subject": "Message sent from Amazon SES",
+            },
+            "tags": {
+                "ses:configuration-set": ["ConfigSet"],
+                "ses:source-ip": ["192.0.2.0"],
+                "ses:from-domain": ["example.com"],
+                "ses:caller-identity": ["ses_user"],
+                "ses:outgoing-ip": ["192.0.2.0"],
+                "myCustomTag1": ["myCustomTagValue1"],
+                "myCustomTag2": ["myCustomTagValue2"],
+            },
+        },
+        "delivery": {
+            "timestamp": "2016-10-19T23:21:04.133Z",
+            "processingTimeMillis": 11893,
+            "recipients": ["recipient@example.com"],
+            "smtpResponse": "250 2.6.0 Message received",
+            "reportingMTA": "mta.example.com",
+        },
+    }
+
+    event = get_ses_message(delivery_event)
+    assert isinstance(event, DeliveryEvent)
+    assert event.mail.commonHeaders is not None
+    assert event.mail.commonHeaders.subject == "Message sent from Amazon SES"
+    assert event.delivery.timestamp == "2016-10-19T23:21:04.133Z"
+    assert event.delivery.recipients == ["recipient@example.com"]
+    assert event.delivery.processingTimeMillis == 11893
+    assert event.delivery.reportingMTA == "mta.example.com"
+    assert event.delivery.smtpResponse == "250 2.6.0 Message received"

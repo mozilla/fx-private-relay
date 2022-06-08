@@ -1,11 +1,18 @@
-"""Interface to AWS Simple Email Service (SES)"""
+"""
+Interface to AWS Simple Email Service (SES)
+
+Main functions:
+
+* get_ses_message(raw_data) - Convert SNS payload into an SES event or notification.
+* send_raw_email(from_address, to_address, raw_message) - Send an email
+* send_simulator_email(scenario, from_address, label) - Send an email to SES simulator
+"""
 from __future__ import annotations
 
-from abc import ABC
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from email.message import EmailMessage
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal, Type, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Type, TypeVar, Optional, Union
 from uuid import UUID
 
 from django.apps import apps
@@ -46,7 +53,7 @@ class SesNotificationType(SesMessageType):
     BOUNCE = "Bounce"
     COMPLAINT = "Complaint"
     DELIVERY = "Delivery"
-    RECEIVED = "Recieved"
+    RECEIVED = "Received"
 
 
 class SesEventType(SesMessageType):
@@ -69,8 +76,29 @@ class SesEventType(SesMessageType):
     SUBSCRIPTION = "Subscription"
 
 
-class SesMessage(ABC):
-    """Abstract base class for SES notifications and events."""
+# LoadFromDict or subclass
+_T = TypeVar("_T", bound="LoadFromDict")
+
+
+class LoadFromDict:
+    """Base class that loads data from a dict"""
+
+    @classmethod
+    def validate_dict(cls: Type[_T], raw_data: dict[str, Any]) -> dict[str, Any]:
+        """Return validated and converted data."""
+        raise NotImplementedError(  # pragma: no cover
+            f"validate_dict is not implemented for {cls.__name__}"
+        )
+
+    @classmethod
+    def from_dict(cls: Type[_T], raw_data: dict[str, Any]) -> _T:
+        """Create a class instance from raw data, using validate_dict."""
+        validated_data = cls.validate_dict(raw_data)
+        return cls(**validated_data)
+
+
+class SesMessage(LoadFromDict):
+    """Base class for SES notifications and events."""
 
     channelType: SesChannelType
     messageType: SesMessageType
@@ -97,19 +125,13 @@ class ComplaintMessage(SesMessage):
     """Base class for ComplaintEvent and ComplaintNotification."""
 
     complaint: ComplaintBody
-    mail: MailBody
+    mail: MailBaseBody
 
     @classmethod
-    def from_dict(cls, raw_complaint: dict[str, Any]) -> ComplaintMessage:
-        if raw_complaint.get("eventType") == "Complaint":
-            real_cls: Type[ComplaintMessage] = ComplaintEvent
-        else:
-            assert raw_complaint.get("notificationType") == "Complaint"
-            real_cls = ComplaintNotification
-        return real_cls(
-            complaint=ComplaintBody.from_dict(raw_complaint["complaint"]),
-            mail=MailBody.from_dict(raw_complaint["mail"]),
-        )
+    def validate_dict(cls, raw_complaint: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "complaint": ComplaintBody.from_dict(raw_complaint["complaint"]),
+        }
 
 
 @dataclass
@@ -122,6 +144,14 @@ class ComplaintEvent(ComplaintMessage, SesEvent):
     """
 
     messageType = eventType = SesEventType.COMPLAINT
+    mail: MailEventBody
+
+    @classmethod
+    def validate_dict(cls, raw_complaint: dict[str, Any]) -> dict[str, Any]:
+        assert raw_complaint["eventType"] == "Complaint"
+        data = super().validate_dict(raw_complaint)
+        data["mail"] = MailEventBody.from_dict(raw_complaint["mail"])
+        return data
 
 
 @dataclass
@@ -134,25 +164,20 @@ class ComplaintNotification(ComplaintMessage, SesNotification):
 
     messageType = notificationType = SesNotificationType.COMPLAINT
 
+    @classmethod
+    def validate_dict(cls, raw_complaint: dict[str, Any]) -> dict[str, Any]:
+        assert raw_complaint["notificationType"] == "Complaint"
+        data = super().validate_dict(raw_complaint)
+        data["mail"] = MailNotificationBody.from_dict(raw_complaint["mail"])
+        return data
+
 
 @dataclass
-class DeliveryMessage:
+class DeliveryMessage(SesMessage):
     """Base class for DeliveryEvent and DeliveryNotification."""
 
-    delivery: DeliveryBody
-    mail: MailBody
-
-    @classmethod
-    def from_dict(cls, raw_delivery: dict[str, Any]) -> DeliveryMessage:
-        if raw_delivery.get("eventType") == "Delivery":
-            real_cls: Type[DeliveryMessage] = DeliveryEvent
-        else:
-            assert raw_delivery.get("notificationType") == "Delivery"
-            real_cls = DeliveryNotification
-        return real_cls(
-            delivery=DeliveryBody.from_dict(raw_delivery["delivery"]),
-            mail=MailBody.from_dict(raw_delivery["mail"]),
-        )
+    delivery: DeliveryBaseBody
+    mail: MailBaseBody
 
 
 @dataclass
@@ -164,6 +189,16 @@ class DeliveryEvent(DeliveryMessage, SesEvent):
     """
 
     messageType = eventType = SesEventType.DELIVERY
+    delivery: DeliveryEventBody
+    mail: MailEventBody
+
+    @classmethod
+    def validate_dict(cls, raw_delivery: dict[str, Any]) -> dict[str, Any]:
+        assert raw_delivery["eventType"] == "Delivery"
+        return {
+            "delivery": DeliveryEventBody.from_dict(raw_delivery["delivery"]),
+            "mail": MailEventBody.from_dict(raw_delivery["mail"]),
+        }
 
 
 @dataclass
@@ -175,10 +210,52 @@ class DeliveryNotification(DeliveryMessage, SesNotification):
     """
 
     messageType = notificationType = SesNotificationType.DELIVERY
+    delivery: DeliveryNotificationBody
+    mail: MailNotificationBody
+
+    @classmethod
+    def validate_dict(cls, raw_delivery: dict[str, Any]) -> dict[str, Any]:
+        assert raw_delivery["notificationType"] == "Delivery"
+        return {
+            "delivery": DeliveryNotificationBody.from_dict(raw_delivery["delivery"]),
+            "mail": MailNotificationBody.from_dict(raw_delivery["mail"]),
+        }
+
+
+def get_ses_message_type(raw_data: dict[str, Any]) -> SesMessageType:
+    """Determine the SES message type from the raw data"""
+    notificationType = raw_data.get("notificationType")
+    eventType = raw_data.get("eventType")
+    if notificationType is None and eventType is None:
+        raise ValueError("Expected notificationType or eventType to be set.")
+    if notificationType and eventType:
+        raise ValueError("notificationType and eventType are set, only one should be.")
+
+    if notificationType:
+        return SesNotificationType(notificationType)
+    else:
+        return SesEventType(eventType)
+
+
+MESSAGE_TYPE_TO_CLASS: dict[SesMessageType, Type[SesMessage]] = {
+    SesNotificationType.COMPLAINT: ComplaintNotification,
+    SesNotificationType.DELIVERY: DeliveryNotification,
+    SesEventType.COMPLAINT: ComplaintEvent,
+    SesEventType.DELIVERY: DeliveryEvent,
+}
+
+
+def get_ses_message(raw_data: dict[str, Any]) -> SesMessage:
+    message_type = get_ses_message_type(raw_data)
+    message_class = MESSAGE_TYPE_TO_CLASS.get(message_type)
+    if message_class:
+        return message_class.from_dict(raw_data)
+    else:
+        raise NotImplementedError(f"No message class implements {message_type}")
 
 
 @dataclass
-class ComplaintBody:
+class ComplaintBody(LoadFromDict):
     """
     The "complaint" element of a Complaint Notification.
 
@@ -194,7 +271,7 @@ class ComplaintBody:
     arrivalDate: Optional[str]
 
     @classmethod
-    def from_dict(cls, raw_body: dict[str, Any]) -> ComplaintBody:
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
         assert isinstance(raw_body["feedbackId"], str)
 
         raw_subtype = raw_body.get("complaintSubType")
@@ -225,15 +302,15 @@ class ComplaintBody:
         else:
             arrivalDate = None
 
-        return cls(
-            feedbackId=raw_body["feedbackId"],
-            complaintSubType=complaintSubType,
-            complainedRecipients=recipients,
-            timestamp=raw_body["timestamp"],
-            userAgent=userAgent,
-            complaintFeedbackType=feedbackType,
-            arrivalDate=arrivalDate,
-        )
+        return {
+            "feedbackId": raw_body["feedbackId"],
+            "complaintSubType": complaintSubType,
+            "complainedRecipients": recipients,
+            "timestamp": raw_body["timestamp"],
+            "userAgent": userAgent,
+            "complaintFeedbackType": feedbackType,
+            "arrivalDate": arrivalDate,
+        }
 
 
 class ComplaintFeedbackType(Enum):
@@ -273,7 +350,7 @@ class ComplaintSubType(Enum):
 
 
 @dataclass
-class ComplainedRecipients:
+class ComplainedRecipients(LoadFromDict):
     """
     The details of the complaining recipients.
 
@@ -284,18 +361,18 @@ class ComplainedRecipients:
     emailAddress: str
 
     @classmethod
-    def from_dict(cls, raw_body: dict[str, Any]) -> ComplainedRecipients:
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
         assert isinstance(raw_body["emailAddress"], str)
-        return ComplainedRecipients(emailAddress=raw_body["emailAddress"])
+        return {"emailAddress": raw_body["emailAddress"]}
 
 
 @dataclass
-class DeliveryBody:
+class DeliveryBaseBody(LoadFromDict):
     """
-    The "delivery" element of a Delivery Notification.
+    The shared elements of a delivery body in notifications and events.
 
-    See:
-    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#delivery-object
+    Notifications add remoteMtaIp
+    Events are identical
     """
 
     timestamp: str
@@ -303,56 +380,79 @@ class DeliveryBody:
     recipients: list[str]
     smtpResponse: str
     reportingMTA: str
-    remoteMtaIp: str
 
     @classmethod
-    def from_dict(cls, raw_body: dict[str, Any]) -> DeliveryBody:
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
         assert isinstance(raw_body["timestamp"], str)
         assert isinstance(raw_body["processingTimeMillis"], int)
         assert isinstance(raw_body["recipients"], list)
         assert all(isinstance(item, str) for item in raw_body["recipients"])
         assert isinstance(raw_body["smtpResponse"], str)
         assert isinstance(raw_body["reportingMTA"], str)
-        assert isinstance(raw_body["remoteMtaIp"], str)
-        return cls(
-            timestamp=raw_body["timestamp"],
-            processingTimeMillis=raw_body["processingTimeMillis"],
-            recipients=raw_body["recipients"],
-            smtpResponse=raw_body["smtpResponse"],
-            reportingMTA=raw_body["reportingMTA"],
-            remoteMtaIp=raw_body["remoteMtaIp"],
-        )
+        return {
+            "timestamp": raw_body["timestamp"],
+            "processingTimeMillis": raw_body["processingTimeMillis"],
+            "recipients": raw_body["recipients"],
+            "smtpResponse": raw_body["smtpResponse"],
+            "reportingMTA": raw_body["reportingMTA"],
+        }
 
 
 @dataclass
-class MailBody:
+class DeliveryEventBody(DeliveryBaseBody):
     """
-    The details of the original email in bounce, compaint, and delivery notifications.
+    The "delivery" element of a Delivery Event.
 
     See:
-    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#mail-object
+    https://docs.aws.amazon.com/ses/latest/dg/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-delivery-object
+    """
+
+
+@dataclass
+class DeliveryNotificationBody(DeliveryBaseBody):
+    """
+    The "delivery" element of a Delivery Notification.
+
+    See:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#delivery-object
+    """
+
+    remoteMtaIp: str
+
+    @classmethod
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
+        data = super().validate_dict(raw_body)
+        assert isinstance(raw_body["remoteMtaIp"], str)
+        data["remoteMtaIp"] = raw_body["remoteMtaIp"]
+        return data
+
+
+@dataclass
+class MailBaseBody(LoadFromDict):
+    """
+    The shared details of the original email in bounce, compaint, and delivery
+    notifications and events.
+
+    Events add tags
+    Notifications add sourceIp and callerIdentity
     """
 
     timestamp: str
+    messageId: str
     source: str
     sourceArn: str
-    sourceIp: str
-    callerIdentity: str
     sendingAccountId: str
-    messageId: str
     destination: list[str]
     headersTruncated: Optional[bool]
     headers: Optional[list[MailHeader]]
     commonHeaders: Optional[CommonHeaders]
 
     @classmethod
-    def from_dict(cls, raw_body: dict[str, Any]) -> MailBody:
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
         assert isinstance(raw_body["timestamp"], str)
+        assert isinstance(raw_body["messageId"], str)
         assert isinstance(raw_body["source"], str)
         assert isinstance(raw_body["sourceArn"], str)
-        assert isinstance(raw_body["sourceIp"], str)
-        assert isinstance(raw_body["callerIdentity"], str)
-        assert isinstance(raw_body["messageId"], str)
         assert isinstance(raw_body["destination"], list)
         for item in raw_body["destination"]:
             assert isinstance(item, str)
@@ -370,37 +470,81 @@ class MailBody:
             headers = None
             commonHeaders = None
 
-        return MailBody(
-            timestamp=raw_body["timestamp"],
-            source=raw_body["source"],
-            sourceArn=raw_body["sourceArn"],
-            sourceIp=raw_body["sourceIp"],
-            callerIdentity=raw_body["callerIdentity"],
-            sendingAccountId=raw_body["sendingAccountId"],
-            messageId=raw_body["messageId"],
-            destination=raw_body["destination"],
-            headersTruncated=headersTruncated,
-            headers=headers,
-            commonHeaders=commonHeaders,
-        )
+        return {
+            "timestamp": raw_body["timestamp"],
+            "messageId": raw_body["messageId"],
+            "source": raw_body["source"],
+            "sourceArn": raw_body["sourceArn"],
+            "sendingAccountId": raw_body["sendingAccountId"],
+            "destination": raw_body["destination"],
+            "headersTruncated": headersTruncated,
+            "headers": headers,
+            "commonHeaders": commonHeaders,
+        }
 
 
 @dataclass
-class MailHeader:
+class MailEventBody(MailBaseBody):
+    """
+    The details of the original email in bounce, compaint, and delivery events.
+
+    See:
+    https://docs.aws.amazon.com/ses/latest/dg/event-publishing-retrieving-sns-contents.html#event-publishing-retrieving-sns-contents-mail-object
+    """
+
+    tags: dict[str, list[str]]
+
+    @classmethod
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
+        data = super().validate_dict(raw_body)
+        tags = raw_body["tags"]
+        assert isinstance(tags, dict)
+        for key, valuelist in tags.items():
+            assert isinstance(key, str)
+            assert isinstance(valuelist, list)
+            for item in valuelist:
+                assert isinstance(item, str)
+        data["tags"] = tags
+        return data
+
+
+@dataclass
+class MailNotificationBody(MailBaseBody):
+    """
+
+    See:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#mail-object
+    """
+
+    sourceIp: str
+    callerIdentity: str
+
+    @classmethod
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
+        data = super().validate_dict(raw_body)
+        assert isinstance(raw_body["sourceIp"], str)
+        assert isinstance(raw_body["callerIdentity"], str)
+        data["sourceIp"] = raw_body["sourceIp"]
+        data["callerIdentity"] = raw_body["callerIdentity"]
+        return data
+
+
+@dataclass
+class MailHeader(LoadFromDict):
     """A name / value pair for a email's original header"""
 
     name: str
     value: str
 
     @classmethod
-    def from_dict(cls, raw_body: dict[str, Any]) -> MailHeader:
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
         assert isinstance(raw_body["name"], str)
         assert isinstance(raw_body["value"], str)
-        return cls(name=raw_body["name"], value=raw_body["value"])
+        return {"name": raw_body["name"], "value": raw_body["value"]}
 
 
 @dataclass
-class CommonHeaders:
+class CommonHeaders(LoadFromDict):
     """
     Headers provided in the incoming / original email.
 
@@ -420,7 +564,7 @@ class CommonHeaders:
     subject: Optional[str]
 
     @classmethod
-    def from_dict(cls, raw_body: dict[str, Any]) -> CommonHeaders:
+    def validate_dict(cls, raw_body: dict[str, Any]) -> dict[str, Any]:
         messageId = raw_body.get("messageId")
         date = raw_body.get("date")
         to = raw_body.get("to")
@@ -453,40 +597,40 @@ class CommonHeaders:
         )
         assert subject is None or isinstance(subject, str)
 
-        return cls(
-            messageId=messageId,
-            date=date,
-            to=to,
-            cc=cc,
-            bcc=bcc,
-            from_=from_,
-            sender=sender,
-            returnPath=returnPath,
-            replyTo=replyTo,
-            subject=subject,
-        )
+        return {
+            "messageId": messageId,
+            "date": date,
+            "to": to,
+            "cc": cc,
+            "bcc": bcc,
+            "from_": from_,
+            "sender": sender,
+            "returnPath": returnPath,
+            "replyTo": replyTo,
+            "subject": subject,
+        }
 
 
 @dataclass
-class SendRawEmailResponse:
+class SendRawEmailResponse(LoadFromDict):
     """A response from send_raw_email"""
 
     MessageId: str
     ResponseMetadata: BotoResponseMetadata
 
     @classmethod
-    def from_dict(cls, raw_response: dict[str, Any]) -> SendRawEmailResponse:
+    def validate_dict(cls, raw_response: dict[str, Any]) -> dict[str, Any]:
         assert isinstance(raw_response["MessageId"], str)
-        return cls(
-            MessageId=raw_response["MessageId"],
-            ResponseMetadata=BotoResponseMetadata.from_dict(
+        return {
+            "MessageId": raw_response["MessageId"],
+            "ResponseMetadata": BotoResponseMetadata.from_dict(
                 raw_response["ResponseMetadata"]
             ),
-        )
+        }
 
 
 @dataclass
-class BotoResponseMetadata:
+class BotoResponseMetadata(LoadFromDict):
     """
     Response data from a boto3 API call.
 
@@ -499,7 +643,7 @@ class BotoResponseMetadata:
     RetryAttempts: int
 
     @classmethod
-    def from_dict(cls, raw_metadata: dict[str, Any]) -> BotoResponseMetadata:
+    def validate_dict(cls, raw_metadata: dict[str, Any]) -> dict[str, Any]:
         assert isinstance(raw_metadata["RequestId"], str)
         assert isinstance(raw_metadata["HTTPStatusCode"], int)
         assert isinstance(raw_metadata["HTTPHeaders"], dict)
@@ -507,12 +651,12 @@ class BotoResponseMetadata:
             assert isinstance(key, str)
             assert isinstance(value, str)
         assert isinstance(raw_metadata["RetryAttempts"], int)
-        return cls(
-            RequestId=UUID(raw_metadata["RequestId"]),
-            HTTPStatusCode=raw_metadata["HTTPStatusCode"],
-            HTTPHeaders=raw_metadata["HTTPHeaders"],
-            RetryAttempts=raw_metadata["RetryAttempts"],
-        )
+        return {
+            "RequestId": UUID(raw_metadata["RequestId"]),
+            "HTTPStatusCode": raw_metadata["HTTPStatusCode"],
+            "HTTPHeaders": raw_metadata["HTTPHeaders"],
+            "RetryAttempts": raw_metadata["RetryAttempts"],
+        }
 
 
 def ses_client() -> BaseClient:

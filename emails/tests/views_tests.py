@@ -1055,10 +1055,64 @@ def test_wrapped_email_test(
     ) in no_space_html
 
 
-def _base_complaint(type_field="notificationType") -> dict[str, Any]:
+def _create_ses_mail_body(channel="notification", with_headers=False) -> dict[str, Any]:
+    data: dict[str, Any] = {
+        "timestamp": "2022-05-26T21:59:28.484Z",
+        "source": "sender@relay.example.com",
+        "sourceArn": "arn:aws:ses:us-east-1:111122223333:identity/relay.example.com",
+        "sendingAccountId": "111122223333",
+        "messageId": "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000",
+        "destination": ["complaint@simulator.amazonses.com"],
+    }
+    if channel == "notification":
+        data.update(
+            {
+                "sourceIp": "130.211.19.131",
+                "callerIdentity": "test-relay",
+            }
+        )
+    else:
+        assert channel == "event"
+        data["tags"] = {
+            "ses:configuration-set": ["ConfigSet"],
+            "ses:source-ip": ["130.211.19.131"],
+            "ses:from-domain": ["relay.example.com"],
+            "ses:caller-identity": ["test-relay"],
+        }
+
+    if with_headers:
+        data.update(
+            {
+                "headersTruncated": False,
+                "headers": [
+                    {"name": "From", "value": "sender@relay.example.com"},
+                    {"name": "To", "value": "complaint@simulator.amazonses.com"},
+                    {
+                        "name": "Message-ID",
+                        "value": "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000",
+                    },
+                    {"name": "Subject", "value": "Hello"},
+                    {"name": "Content-Type", "value": 'text/plain; charset="UTF-8"'},
+                    {"name": "Content-Transfer-Encoding", "value": "base64"},
+                    {"name": "Date", "value": "Thu, 26 May 2022 21:59:28 +0000"},
+                ],
+                "commonHeaders": {
+                    "from": ["sender@relay.example.com"],
+                    "date": "Thu, 26 May 2022 21:59:28 +0000",
+                    "to": ["complaint@simulator.amazonses.com"],
+                    "subject": "Test message",
+                    "replyTo": ["replies@relay.example.com"],
+                },
+            }
+        )
+
+    return data
+
+
+def _create_ses_complaint(channel="notification", with_headers=False) -> dict[str, Any]:
     """Return a Complaint object"""
     return {
-        type_field: "Complaint",
+        f"{channel}Type": "Complaint",
         "complaint": {
             "feedbackId": "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000",
             "complaintSubType": None,
@@ -1070,30 +1124,23 @@ def _base_complaint(type_field="notificationType") -> dict[str, Any]:
             "complaintFeedbackType": "abuse",
             "arrivalDate": "2022-05-26T21:59:29.288Z",
         },
-        "mail": {
-            "timestamp": "2022-05-26T21:59:28.484Z",
-            "source": "sender@relay.example.com",
-            "sourceArn": "arn:aws:ses:us-east-1:111122223333:identity/relay.example.com",
-            "sourceIp": "130.211.19.131",
-            "callerIdentity": "test-relay",
-            "sendingAccountId": "111122223333",
-            "messageId": "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000",
-            "destination": ["complaint@simulator.amazonses.com"],
-        },
+        "mail": _create_ses_mail_body(channel, with_headers),
     }
 
 
-@pytest.mark.parametrize("type_field", ("eventType", "notificationType"))
-def test_sns_notifications_complaint(caplog, type_field) -> None:
+@pytest.mark.parametrize("channel", ("event", "notification"))
+@pytest.mark.parametrize("with_headers", (True, False))
+def test_sns_notifications_complaint(caplog, channel, with_headers) -> None:
     """_sns_notifications can handle an SNS complaint."""
-    complaint = _base_complaint(type_field)
+    complaint = _create_ses_complaint(channel, with_headers)
     sns_wrapper = {
         "Type": "Notification",
         "Message": json.dumps(complaint),
     }
     response = _sns_notification(sns_wrapper)
     assert response.status_code == 200
-    assert caplog.record_tuples == [("eventsinfo", logging.INFO, "Complaint received.")]
+    expected_msg = f"Complaint {channel} received."
+    assert caplog.record_tuples == [("eventsinfo", logging.INFO, expected_msg)]
     record = caplog.records[0]
     assert record.complaint_type == "abuse"
     assert record.sender == "sender@relay.example.com"
@@ -1108,48 +1155,16 @@ def test_sns_notifications_complaint(caplog, type_field) -> None:
         == "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000"
     )
     assert record.user_agent == "Amazon SES Mailbox Simulator"
-    assert record.reply_to is None
+
+    if with_headers:
+        assert record.reply_to == "replies@relay.example.com"
+    else:
+        assert record.reply_to is None
 
 
-def test_sns_notifications_complaint_with_headers(caplog):
-    """_sns_notifications can handle an SNS complaint with headers."""
-    complaint = _base_complaint()
-    complaint["mail"]["headersTruncated"] = False
-    complaint["mail"]["headers"] = [
-        {"name": "From", "value": "sender@relay.example.com"},
-        {"name": "To", "value": "complaint@simulator.amazonses.com"},
-        {
-            "name": "Message-ID",
-            "value": "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000",
-        },
-        {"name": "Subject", "value": "Hello"},
-        {"name": "Content-Type", "value": 'text/plain; charset="UTF-8"'},
-        {"name": "Content-Transfer-Encoding", "value": "base64"},
-        {"name": "Date", "value": "Thu, 26 May 2022 21:59:28 +0000"},
-    ]
-    complaint["mail"]["commonHeaders"] = {
-        "from": ["sender@relay.example.com"],
-        "date": "Thu, 26 May 2022 21:59:28 +0000",
-        "to": ["complaint@simulator.amazonses.com"],
-        "subject": "Test message",
-        "replyTo": ["replies@relay.example.com"],
-    }
-    sns_wrapper = {
-        "Type": "Notification",
-        "Message": json.dumps(complaint),
-    }
-    response = _sns_notification(sns_wrapper)
-    assert response.status_code == 200
-    assert caplog.record_tuples == [("eventsinfo", logging.INFO, "Complaint received.")]
-    record = caplog.records[0]
-    assert record.reply_to == "replies@relay.example.com"
-
-
-@pytest.mark.parametrize("type_field", ("eventType", "notificationType"))
-def test_sns_notifications_delivery_report(caplog, type_field) -> None:
-    """_sns_notifications can handle an SNS delivery report."""
-    delivery = {
-        type_field: "Delivery",
+def _create_ses_delivery(channel="notification", with_headers=False) -> dict[str, Any]:
+    return {
+        f"{channel}Type": "Delivery",
         "delivery": {
             "timestamp": "2022-05-26T21:59:29.009Z",
             "processingTimeMillis": 525,
@@ -1158,26 +1173,22 @@ def test_sns_notifications_delivery_report(caplog, type_field) -> None:
             "remoteMtaIp": "34.232.130.241",
             "reportingMTA": "a48-112.smtp-out.amazonses.com",
         },
-        "mail": {
-            "timestamp": "2022-05-26T21:59:28.484Z",
-            "source": "sender@relay.example.com",
-            "sourceArn": "arn:aws:ses:us-east-1:111122223333:identity/relay.example.com",
-            "sourceIp": "130.211.19.131",
-            "callerIdentity": "test-relay",
-            "sendingAccountId": "111122223333",
-            "messageId": "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000",
-            "destination": ["complaint@simulator.amazonses.com"],
-        },
+        "mail": _create_ses_mail_body(channel, with_headers),
     }
+
+
+@pytest.mark.parametrize("channel", ("event", "notification"))
+def test_sns_notifications_delivery_report(caplog, channel) -> None:
+    """_sns_notifications can handle an SNS delivery report."""
+    delivery = _create_ses_delivery(channel)
     sns_wrapper = {
         "Type": "Notification",
         "Message": json.dumps(delivery),
     }
     response = _sns_notification(sns_wrapper)
     assert response.status_code == 200
-    assert caplog.record_tuples == [
-        ("eventsinfo", logging.INFO, "Delivery report received.")
-    ]
+    expected_msg = f"Delivery report {channel} received."
+    assert caplog.record_tuples == [("eventsinfo", logging.INFO, expected_msg)]
     record = caplog.records[0]
     assert record.recipients == "complaint@simulator.amazonses.com"
     assert record.reporting_mta == "a48-112.smtp-out.amazonses.com"

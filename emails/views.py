@@ -42,7 +42,7 @@ from .models import (
     RelayAddress,
     Reply,
 )
-from .ses import ComplaintMessage, DeliveryMessage
+from .ses import get_ses_message, ComplaintMessage, DeliveryMessage
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
@@ -447,14 +447,30 @@ def _get_relay_recipient_from_message_json(message_json):
 
 def _sns_message(message_json):
     incr_if_enabled("sns_inbound_Notification_Received", 1)
+    message = None
+    try:
+        message = get_ses_message(message_json)
+    except NotImplementedError:
+        pass  # Bounce, Received, etc.
+    except Exception:
+        info_logger.exception(
+            "SES message processing error", extra={"payload": message_json}
+        )
+        return HttpResponse("OK", status=200)
+
+    if message:
+        if message.messageType.is_type("Complaint"):
+            assert isinstance(message, ComplaintMessage)
+            return _handle_complaint(message)
+        else:
+            assert message.messageType.is_type("Delivery")
+            assert isinstance(message, DeliveryMessage)
+            return _handle_delivery(message)
+
     notification_type = message_json.get("notificationType")
     event_type = message_json.get("eventType")
     if notification_type == "Bounce" or event_type == "Bounce":
         return _handle_bounce(message_json)
-    if notification_type == "Complaint" or event_type == "Complaint":
-        return _handle_complaint(message_json)
-    if notification_type == "Delivery" or event_type == "Delivery":
-        return _handle_delivery(message_json)
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
@@ -906,8 +922,7 @@ def _handle_bounce(message_json):
     return HttpResponse("OK", status=200)
 
 
-def _handle_complaint(message_json: dict[str, Any]) -> HttpResponse:
-    data = ComplaintMessage.from_dict(message_json)
+def _handle_complaint(data: ComplaintMessage) -> HttpResponse:
     complaint_type = data.complaint.complaintFeedbackType
     if data.mail.commonHeaders and data.mail.commonHeaders.replyTo:
         reply_to = ",".join(data.mail.commonHeaders.replyTo)
@@ -925,19 +940,18 @@ def _handle_complaint(message_json: dict[str, Any]) -> HttpResponse:
         "user_agent": data.complaint.userAgent,
         "reply_to": reply_to,
     }
-    info_logger.info("Complaint received.", extra=extra)
+    info_logger.info(f"Complaint {data.channelType.value} received.", extra=extra)
     return HttpResponse("OK", status=200)
 
 
-def _handle_delivery(message_json: dict[str, Any]) -> HttpResponse:
-    data = DeliveryMessage.from_dict(message_json)
+def _handle_delivery(data: DeliveryMessage) -> HttpResponse:
     extra = {
         "recipients": ",".join(data.delivery.recipients),
         "reporting_mta": data.delivery.reportingMTA,
         "smtp_response": data.delivery.smtpResponse,
         "processing_time_s": round(data.delivery.processingTimeMillis / 1000.0, 3),
     }
-    info_logger.info("Delivery report received.", extra=extra)
+    info_logger.info(f"Delivery report {data.channelType.value} received.", extra=extra)
     return HttpResponse("OK", status=200)
 
 
