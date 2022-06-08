@@ -91,4 +91,3 @@ landing-review-user-four-review-list-4 = { -brand-name-firefox-relay } works won
  
 fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
-fx-containers = { -brand-name-firefox } Containers
