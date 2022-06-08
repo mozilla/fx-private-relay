@@ -257,6 +257,13 @@
   }
 }
 
+@media (prefers-reduced-motion) {
+  .scroll-right,
+  .scroll-left {
+    animation: none;
+  }
+}
+
 // mobile only controls for review scrolling
 .mobile-controls {
   display: flex;

@@ -77,6 +77,7 @@ whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more prote
 whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!
 
 landing-reviews-add-ons = Add-ons
+landing-reviews-logo-title = { -brand-name-firefox }
 landing-reviews-details-source = Source
 landing-reviews-rating = out of 5 (328 reviews)
 landing-reviews-show-next-button = show next review

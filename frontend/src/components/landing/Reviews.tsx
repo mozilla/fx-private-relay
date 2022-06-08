@@ -33,14 +33,14 @@ export const Reviews = () => {
   const slideLeftButtonRef = useRef<HTMLButtonElement>(null);
 
   const slideLeftButton = useButton(
-    { onPress: () => scrollReview(currentReview, userReviews, "left") },
+    { onPress: () => scrollReview(currentReview, userReviews, "right") },
     slideLeftButtonRef
   );
 
   const slideRightButtonRef = useRef<HTMLButtonElement>(null);
 
   const slideRightButton = useButton(
-    { onPress: () => scrollReview(currentReview, userReviews, "right") },
+    { onPress: () => scrollReview(currentReview, userReviews, "left") },
     slideRightButtonRef
   );
 
@@ -146,7 +146,7 @@ export const Reviews = () => {
           <div className={styles["logo-container"]}>
             <img className={styles["logo"]} src={FxBrowserLogo.src} alt="" />
             <p className={styles["logo-title"]}>
-              {l10n.getString("-brand-name-firefox")}
+              {l10n.getString("landing-reviews-logo-title")}
             </p>
             <p className={styles["logo-text"]}>
               {l10n.getString("landing-reviews-add-ons")}
