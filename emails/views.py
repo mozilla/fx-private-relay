@@ -42,7 +42,7 @@ from .models import (
     RelayAddress,
     Reply,
 )
-from .ses import ComplaintNotification, DeliveryNotification
+from .ses import ComplaintMessage, DeliveryMessage
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
@@ -391,8 +391,12 @@ def _sns_notification(json_body):
 
     event_type = message_json.get("eventType")
     notification_type = message_json.get("notificationType")
-    known_types = {"Received", "Bounce", "Complaint", "Delivery"}
-    if notification_type not in known_types and event_type != "Bounce":
+    known_notification_types = {"Received", "Bounce", "Complaint", "Delivery"}
+    known_event_types = {"Bounce", "Complaint", "Delivery"}
+    if (
+        notification_type not in known_notification_types
+        and event_type not in known_event_types
+    ):
         logger.error(
             "SNS notification for unsupported type",
             extra={
@@ -447,9 +451,9 @@ def _sns_message(message_json):
     event_type = message_json.get("eventType")
     if notification_type == "Bounce" or event_type == "Bounce":
         return _handle_bounce(message_json)
-    if notification_type == "Complaint":
+    if notification_type == "Complaint" or event_type == "Complaint":
         return _handle_complaint(message_json)
-    if notification_type == "Delivery":
+    if notification_type == "Delivery" or event_type == "Delivery":
         return _handle_delivery(message_json)
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
@@ -903,7 +907,7 @@ def _handle_bounce(message_json):
 
 
 def _handle_complaint(message_json: dict[str, Any]) -> HttpResponse:
-    data = ComplaintNotification.from_dict(message_json)
+    data = ComplaintMessage.from_dict(message_json)
     complaint_type = data.complaint.complaintFeedbackType
     if data.mail.commonHeaders and data.mail.commonHeaders.replyTo:
         reply_to = ",".join(data.mail.commonHeaders.replyTo)
@@ -926,7 +930,7 @@ def _handle_complaint(message_json: dict[str, Any]) -> HttpResponse:
 
 
 def _handle_delivery(message_json: dict[str, Any]) -> HttpResponse:
-    data = DeliveryNotification.from_dict(message_json)
+    data = DeliveryMessage.from_dict(message_json)
     extra = {
         "recipients": ",".join(data.delivery.recipients),
         "reporting_mta": data.delivery.reportingMTA,

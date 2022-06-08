@@ -15,6 +15,8 @@ from emails.ses import (
     ComplaintSubType,
     DeliveryNotification,
     SendRawEmailResponse,
+    SesChannelType,
+    SesNotificationType,
     SimulatorScenario,
     send_simulator_email,
 )
@@ -163,6 +165,12 @@ def test_complaint_notification_with_feedback_parses() -> None:
         },
     }
     note = ComplaintNotification.from_dict(complaint_notification)
+    assert note.channelType == SesChannelType.NOTIFICATION
+    assert note.messageType.is_type("Complaint")
+    assert note.messageType == SesNotificationType.COMPLAINT
+    assert note.notificationType == SesNotificationType.COMPLAINT
+    assert note.eventType is None
+
     assert note.complaint.complaintSubType is None
     assert note.complaint.complaintFeedbackType == ComplaintFeedbackType.ABUSE
     assert note.mail.headersTruncated is False

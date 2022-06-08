@@ -1055,10 +1055,10 @@ def test_wrapped_email_test(
     ) in no_space_html
 
 
-def _base_complaint() -> dict[str, Any]:
+def _base_complaint(type_field="notificationType") -> dict[str, Any]:
     """Return a Complaint object"""
     return {
-        "notificationType": "Complaint",
+        type_field: "Complaint",
         "complaint": {
             "feedbackId": "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000",
             "complaintSubType": None,
@@ -1083,9 +1083,10 @@ def _base_complaint() -> dict[str, Any]:
     }
 
 
-def test_sns_notifications_complaint(caplog) -> None:
+@pytest.mark.parametrize("type_field", ("eventType", "notificationType"))
+def test_sns_notifications_complaint(caplog, type_field) -> None:
     """_sns_notifications can handle an SNS complaint."""
-    complaint = _base_complaint()
+    complaint = _base_complaint(type_field)
     sns_wrapper = {
         "Type": "Notification",
         "Message": json.dumps(complaint),
@@ -1144,10 +1145,11 @@ def test_sns_notifications_complaint_with_headers(caplog):
     assert record.reply_to == "replies@relay.example.com"
 
 
-def test_sns_notifications_delivery_report(caplog) -> None:
+@pytest.mark.parametrize("type_field", ("eventType", "notificationType"))
+def test_sns_notifications_delivery_report(caplog, type_field) -> None:
     """_sns_notifications can handle an SNS delivery report."""
     delivery = {
-        "notificationType": "Delivery",
+        type_field: "Delivery",
         "delivery": {
             "timestamp": "2022-05-26T21:59:29.009Z",
             "processingTimeMillis": 525,

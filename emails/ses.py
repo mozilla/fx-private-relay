@@ -1,10 +1,11 @@
 """Interface to AWS Simple Email Service (SES)"""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from abc import ABC
+from dataclasses import dataclass, field
 from email.message import EmailMessage
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal, Optional, Union
+from typing import TYPE_CHECKING, Any, Literal, Type, Optional, Union
 from uuid import UUID
 
 from django.apps import apps
@@ -15,48 +16,165 @@ from botocore.client import BaseClient
 from .apps import EmailsConfig
 
 
+class SesChannelType(Enum):
+    """
+    Which channel generated a message?
+
+    https://docs.aws.amazon.com/ses/latest/dg/monitor-sending-activity-using-notifications.html
+    """
+
+    EVENT = "event"  # Via Event Publishing
+    NOTIFICATION = "notification"  # Via Notification
+
+
+class SesMessageType(Enum):
+    """Base class for SesNotificationType and SesEventTypes"""
+
+    def is_type(self, name: str):
+        return self.value == name
+
+
+class SesNotificationType(SesMessageType):
+    """
+    What kind of SES Notification?
+
+    See:
+    https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+    https://docs.aws.amazon.com/ses/latest/dg/receiving-email-notifications-contents.html
+    """
+
+    BOUNCE = "Bounce"
+    COMPLAINT = "Complaint"
+    DELIVERY = "Delivery"
+    RECEIVED = "Recieved"
+
+
+class SesEventType(SesMessageType):
+    """
+    What kind of SES Event?
+
+    From:
+    https://docs.aws.amazon.com/ses/latest/dg/event-publishing-retrieving-sns-contents.html
+    """
+
+    BOUNCE = "Bounce"
+    COMPLAINT = "Complaint"
+    DELIVERY = "Delivery"
+    SEND = "Send"
+    REJECT = "Reject"
+    OPEN = "Open"
+    CLICK = "Click"
+    RENDERING_FAILURE = "Rendering Failure"
+    DELIVERY_DELAY = "DeliveryDelay"
+    SUBSCRIPTION = "Subscription"
+
+
+class SesMessage(ABC):
+    """Abstract base class for SES notifications and events."""
+
+    channelType: SesChannelType
+    messageType: SesMessageType
+    notificationType: Optional[SesNotificationType]
+    eventType: Optional[SesEventType]
+
+
+class SesEvent(SesMessage):
+    """Abstract base class for SES events."""
+
+    channelType = SesChannelType.EVENT
+    notificationType = None
+
+
+class SesNotification(SesMessage):
+    """Abstract base class for SES notifications."""
+
+    channelType = SesChannelType.NOTIFICATION
+    eventType = None
+
+
 @dataclass
-class ComplaintNotification:
-    """
-    A Complaint Notification delivered via SNS.
+class ComplaintMessage(SesMessage):
+    """Base class for ComplaintEvent and ComplaintNotification."""
 
-    See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
-    """
-
-    notificationType: Literal["Complaint"]
     complaint: ComplaintBody
     mail: MailBody
 
     @classmethod
-    def from_dict(cls, raw_complaint: dict[str, Any]) -> ComplaintNotification:
-        assert raw_complaint["notificationType"] == "Complaint"
-        return cls(
-            notificationType=raw_complaint["notificationType"],
+    def from_dict(cls, raw_complaint: dict[str, Any]) -> ComplaintMessage:
+        if raw_complaint.get("eventType") == "Complaint":
+            real_cls: Type[ComplaintMessage] = ComplaintEvent
+        else:
+            assert raw_complaint.get("notificationType") == "Complaint"
+            real_cls = ComplaintNotification
+        return real_cls(
             complaint=ComplaintBody.from_dict(raw_complaint["complaint"]),
             mail=MailBody.from_dict(raw_complaint["mail"]),
         )
 
 
 @dataclass
-class DeliveryNotification:
+class ComplaintEvent(ComplaintMessage, SesEvent):
+    """
+    A Complaint Event delivered via SNS.
+
+    See
+    https://docs.aws.amazon.com/ses/latest/dg/event-publishing-retrieving-sns-contents.html
+    """
+
+    messageType = eventType = SesEventType.COMPLAINT
+
+
+@dataclass
+class ComplaintNotification(ComplaintMessage, SesNotification):
+    """
+    A Complaint Notification delivered via SNS.
+
+    See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+    """
+
+    messageType = notificationType = SesNotificationType.COMPLAINT
+
+
+@dataclass
+class DeliveryMessage:
+    """Base class for DeliveryEvent and DeliveryNotification."""
+
+    delivery: DeliveryBody
+    mail: MailBody
+
+    @classmethod
+    def from_dict(cls, raw_delivery: dict[str, Any]) -> DeliveryMessage:
+        if raw_delivery.get("eventType") == "Delivery":
+            real_cls: Type[DeliveryMessage] = DeliveryEvent
+        else:
+            assert raw_delivery.get("notificationType") == "Delivery"
+            real_cls = DeliveryNotification
+        return real_cls(
+            delivery=DeliveryBody.from_dict(raw_delivery["delivery"]),
+            mail=MailBody.from_dict(raw_delivery["mail"]),
+        )
+
+
+@dataclass
+class DeliveryEvent(DeliveryMessage, SesEvent):
+    """
+    A Delivery Event delivered via SNS.
+
+    https://docs.aws.amazon.com/ses/latest/dg/event-publishing-retrieving-sns-contents.html
+    """
+
+    messageType = eventType = SesEventType.DELIVERY
+
+
+@dataclass
+class DeliveryNotification(DeliveryMessage, SesNotification):
     """
     A Delivery Notification delivered via SNS.
 
     https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
     """
 
-    notificationType: Literal["Delivery"]
-    delivery: DeliveryBody
-    mail: MailBody
-
-    @classmethod
-    def from_dict(cls, raw_delivery: dict[str, Any]) -> DeliveryNotification:
-        assert raw_delivery["notificationType"] == "Delivery"
-        return cls(
-            notificationType=raw_delivery["notificationType"],
-            delivery=DeliveryBody.from_dict(raw_delivery["delivery"]),
-            mail=MailBody.from_dict(raw_delivery["mail"]),
-        )
+    messageType = notificationType = SesNotificationType.DELIVERY
 
 
 @dataclass
