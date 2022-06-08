@@ -1,25 +1,20 @@
 @import "../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
-.wrapper {
-  display: grid;
-  justify-items: center;
+.reviews {
+  display: flex;
+  flex-direction: column;
+  max-width: $content-max;
+  gap: $spacing-lg;
+  width: 100%;
+  margin: 0 auto;
+  align-items: center;
+  padding: $spacing-md $spacing-lg 0 $spacing-lg;
+  justify-content: center;
 
-  .reviews {
-    display: flex;
-    flex-direction: column;
-    max-width: $content-max;
-    gap: $spacing-lg;
-    width: 100%;
-    margin: 0 auto;
-    align-items: center;
-    padding: $spacing-md $spacing-lg 0 $spacing-lg;
-    justify-content: center;
-
-    @media screen and #{$mq-lg} {
-      gap: $layout-md;
-      flex-direction: row;
-    }
+  @media screen and #{$mq-lg} {
+    gap: $layout-md;
+    flex-direction: row;
   }
 }
 
@@ -105,7 +100,7 @@
   appearance: none;
   border: none;
   padding: 0;
-  background-color: $color-white;
+  background-color: $color-light-gray-10;
   color: $color-grey-30;
   width: $layout-sm;
   cursor: pointer;
@@ -171,7 +166,7 @@
       width: 100%;
 
       ul {
-        padding-left: calc($spacing-sm + $spacing-xs);
+        padding-left: $spacing-md;
       }
     }
   }
@@ -264,14 +259,15 @@
   }
 }
 
-// mobile only controls for review scrolling
+// mobile only controls for review scrollingW
 .mobile-controls {
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  gap: $spacing-sm;
 
   button {
-    width: 50%;
-    padding: 16px 0;
+    width: 48%;
+    padding: $spacing-md 0;
 
     &:hover {
       background-color: $color-grey-10;
@@ -293,7 +289,7 @@
 
 // show only on mobile
 .show-mobile {
-  display: inline-block;
+  display: flex;
 
   @media screen and #{$mq-md} {
     display: none;

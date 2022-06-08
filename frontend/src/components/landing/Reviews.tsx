@@ -25,7 +25,8 @@ export type UserReview = {
 // Reviews that help user decide if they want to use relay.
 export const Reviews = () => {
   const [currentReview, setCurrentReview] = useState(0);
-  const [scrollAnimationDirection, setScrollAnimationDirection] = useState("");
+  const [scrollAnimationDirection, setScrollAnimationDirection] =
+    useState<Direction>("left");
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
   const { l10n } = useLocalization();
@@ -74,17 +75,23 @@ export const Reviews = () => {
       text: l10n.getString("landing-review-user-one-review"),
     },
     {
-      name: `${l10n.getString("landing-review-anonymous-user")} 17064608`,
+      name: `${l10n.getString("landing-review-anonymous-user", {
+        user_id: "17064608",
+      })}`,
       rating: 5,
       text: l10n.getString("landing-review-user-two-review"),
     },
     {
-      name: `${l10n.getString("landing-review-anonymous-user")} 16464118`,
+      name: `${l10n.getString("landing-review-anonymous-user", {
+        user_id: "16464118",
+      })}`,
       rating: 5,
       text: l10n.getString("landing-review-user-three-review"),
     },
     {
-      name: `${l10n.getString("landing-review-anonymous-user")} 17361666`,
+      name: `${l10n.getString("landing-review-anonymous-user", {
+        user_id: "17361666",
+      })}`,
       rating: 5,
       text: [
         l10n.getString("landing-review-user-four-review-list-1"),
@@ -95,6 +102,7 @@ export const Reviews = () => {
     },
   ];
 
+  const reviewCount = 328;
   const { name, text, rating } = userReviews[currentReview];
 
   const scrollReview = (
@@ -102,15 +110,13 @@ export const Reviews = () => {
     reviews: UserReview[],
     direction: Direction
   ): void => {
-    const animationClass = "scroll-" + direction;
-
     if (direction === "right") {
       setCurrentReview(count < reviews.length - 1 ? count + 1 : 0);
     } else if (direction === "left") {
       setCurrentReview(count > 0 ? count - 1 : reviews.length - 1);
     }
 
-    setScrollAnimationDirection(animationClass);
+    setScrollAnimationDirection(direction);
   };
 
   // We create an array with a length of 5
@@ -157,7 +163,9 @@ export const Reviews = () => {
             <div className={styles.rating}>
               <p className={styles.title}>4.2</p>
               <p className={styles.text}>
-                {l10n.getString("landing-reviews-rating")}
+                {l10n.getString("landing-reviews-rating", {
+                  review_count: reviewCount,
+                })}
               </p>
             </div>
           </div>
@@ -168,9 +176,7 @@ export const Reviews = () => {
             <button
               {...slideLeftButton.buttonProps}
               ref={slideLeftButtonRef}
-              aria-label={l10n.getString(
-                "landing-reviews-show-previous-button"
-              )}
+              aria-label={l10n.getString("landing-reviews-show-next-button")}
               className={`${styles.chevron} ${styles["hidden-mobile"]}`}
             >
               <ChevronLeftIcon alt="" />
@@ -184,7 +190,9 @@ export const Reviews = () => {
             >
               <div
                 key={currentReview}
-                className={`${styles.review} ${styles[scrollAnimationDirection]}`}
+                className={`${styles.review} ${
+                  styles[`scroll-${scrollAnimationDirection}`]
+                }`}
               >
                 <div className={styles["quotation-icon"]}>
                   <QuotationIcon alt="" />
@@ -194,8 +202,7 @@ export const Reviews = () => {
                   <div className={styles.stars}>{renderStarRating(rating)}</div>
                   <span className={styles.name}>{name}</span>
                   <span className={styles.source}>
-                    {l10n.getString("landing-reviews-details-source")}:
-                    addons.mozilla.org
+                    {l10n.getString("landing-reviews-details-source")}
                   </span>
                 </div>
                 <div className={styles.text}>
@@ -208,7 +215,9 @@ export const Reviews = () => {
             <button
               {...slideRightButton.buttonProps}
               ref={slideRightButtonRef}
-              aria-label={l10n.getString("landing-reviews-show-next-button")}
+              aria-label={l10n.getString(
+                "landing-reviews-show-previous-button"
+              )}
               className={`${styles.chevron} ${styles["hidden-mobile"]}`}
             >
               <ChevronRightIcon alt="" />
@@ -222,9 +231,7 @@ export const Reviews = () => {
             <button
               {...slideLeftButton.buttonProps}
               ref={slideLeftButtonRef}
-              aria-label={l10n.getString(
-                "landing-reviews-show-previous-button"
-              )}
+              aria-label={l10n.getString("landing-reviews-show-next-button")}
               className={`${styles.chevron}`}
             >
               <ChevronLeftIcon alt="" />
@@ -232,7 +239,9 @@ export const Reviews = () => {
             <button
               {...slideRightButton.buttonProps}
               ref={slideRightButtonRef}
-              aria-label={l10n.getString("landing-reviews-show-next-button")}
+              aria-label={l10n.getString(
+                "landing-reviews-show-previous-button"
+              )}
               className={`${styles.chevron}`}
             >
               <ChevronRightIcon alt="" />
