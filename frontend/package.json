@@ -25,12 +25,12 @@
     "cldr-localenames-modern": "^41.0.0",
     "intl-pluralrules": "^1.3.1",
     "react": "17.0.2",
-    "react-aria": "^3.15.0",
+    "react-aria": "^3.16.0",
     "react-dom": "17.0.2",
     "react-ga": "^3.3.0",
     "react-intersection-observer": "^9.0.0",
     "react-stately": "^3.13.0",
-    "react-toastify": "^8.2.0",
+    "react-toastify": "^9.0.3",
     "swr": "^1.3.0"
   },
   "devDependencies": {
@@ -50,7 +50,7 @@
     "eslint": "^8.16.0",
     "eslint-config-next": "^12.1.6",
     "eslint-plugin-jest-dom": "^4.0.2",
-    "eslint-plugin-testing-library": "^5.3.1",
+    "eslint-plugin-testing-library": "^5.5.1",
     "husky": "^8.0.1",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.5.1",
@@ -63,11 +63,11 @@
     "prettier": "2.6.2",
     "react-test-renderer": "^17.0.2",
     "sass": "^1.52.1",
-    "stylelint": "^14.8.2",
+    "stylelint": "^14.8.5",
     "stylelint-config-prettier-scss": "^0.0.1",
     "stylelint-config-recommended-scss": "^6.0.0",
     "stylelint-scss": "^4.2.0",
-    "typescript": "^4.6.4"
+    "typescript": "^4.7.3"
   },
   "volta": {
     "node": "14.18.1",

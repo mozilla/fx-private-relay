@@ -1,0 +1,13 @@
+@import "../../../styles/tokens.scss";
+
+.sign-in-button {
+  // We're using CSS's `currentColor` here because the colour
+  // is different in the light (Premium) and dark (regular) themes:
+  border: 2px solid currentColor;
+  border-radius: $border-radius-sm;
+  padding: $spacing-xs $spacing-md;
+
+  &:focus {
+    color: $color-blue-30;
+  }
+}

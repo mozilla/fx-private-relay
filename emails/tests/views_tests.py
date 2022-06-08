@@ -669,7 +669,7 @@ class SnsMessageTest(TestCase):
         assert response.status_code == 200
 
 
-@override_settings(SITE_ORIGIN="https://test.com", ON_HEROKU=False)
+@override_settings(SITE_ORIGIN="https://test.com", RELAY_CHANNEL="test")
 class GetAddressTest(TestCase):
     def setUp(self):
         self.service_domain = "test.com"

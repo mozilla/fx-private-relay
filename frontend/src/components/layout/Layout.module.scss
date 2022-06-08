@@ -142,6 +142,7 @@ $toastify-toast-close-button: var(--toast-close-button);
 
 .header {
   position: sticky;
+  left: 0;
   top: 0;
   // The sticky position causes a new stacking context,
   // which is stacked below elements lower in the document
@@ -172,7 +173,13 @@ $toastify-toast-close-button: var(--toast-close-button);
       display: inline-flex;
       align-items: center;
       gap: $spacing-sm;
-      padding: $spacing-md $spacing-xl;
+      padding: $spacing-md;
+
+      // aligns the logo with the main content @ 1152px,
+      // snaps logo in to place essentially
+      @media screen and (min-width: $content-xl) {
+        padding: $spacing-md $spacing-xl;
+      }
 
       .logotype {
         height: 20px;
@@ -181,17 +188,22 @@ $toastify-toast-close-button: var(--toast-close-button);
   }
 
   .nav-wrapper {
-    grid-area: navWrapper;
     display: flex;
-    align-items: center;
-    padding: $spacing-sm 0;
+
+    @media screen and #{$mq-md} {
+      grid-area: navWrapper;
+    }
   }
 
   .app-picker-wrapper {
     grid-area: appPickerWrapper;
-    display: flex;
+    display: none;
     align-items: center;
     padding: 0 $spacing-sm;
+
+    @media screen and #{$mq-md} {
+      display: flex;
+    }
   }
 
   .user-menu-wrapper {
@@ -201,7 +213,8 @@ $toastify-toast-close-button: var(--toast-close-button);
     padding: 0 $spacing-md;
   }
 
-  a:hover {
+  a:hover,
+  button:hover {
     color: $color-blue-50;
   }
 
@@ -211,10 +224,12 @@ $toastify-toast-close-button: var(--toast-close-button);
     box-shadow: 0 0 3px 0 rgba($color-dark-gray-90, 0.5);
     color: $color-white;
 
-    a:hover {
+    a:hover,
+    button:hover {
       color: $color-light-gray-30;
     }
   }
+
   &.is-light {
     background-color: $color-white;
     color: $color-grey-40;
@@ -236,7 +251,7 @@ $toastify-toast-close-button: var(--toast-close-button);
 
 .footer {
   background-color: black;
-  color: white;
+  color: $color-white;
   font-weight: 700;
   display: flex;
   align-items: flex-start;
@@ -286,4 +301,8 @@ $toastify-toast-close-button: var(--toast-close-button);
   background-color: $color-yellow-10;
   padding: $spacing-md $spacing-lg;
   text-align: center;
+  position: relative;
+  // We set the index to '2' to overlap mobile menu
+  // Mimicking the behavior of the header
+  z-index: 2;
 }

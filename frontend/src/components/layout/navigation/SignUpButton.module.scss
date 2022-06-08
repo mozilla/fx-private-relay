@@ -1,0 +1,9 @@
+@import "../../../styles/tokens.scss";
+
+.sign-up-button {
+  color: $color-white;
+
+  &.mobile-btn {
+    display: block;
+  }
+}

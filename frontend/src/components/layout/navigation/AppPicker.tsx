@@ -31,16 +31,15 @@ import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./AppPicker.module.scss";
-import BentoIconGrey from "../../../../static/images/bento.svg";
-import BentoIconWhite from "../../../../static/images/bento-white.svg";
-import FirefoxLogo from "../../../../static/images/logos/bento/fx.png";
-import MonitorLogo from "../../../../static/images/logos/bento/monitor.png";
-import PocketLogo from "../../../../static/images/logos/bento/pocket.png";
-import VpnLogo from "../../../../static/images/logos/bento/vpn.svg";
-import FxDesktopLogo from "../../../../static/images/logos/fx-logo.svg";
-import FxMobileLogo from "../../../../static/images/logos/bento/fx-mobile.png";
-import { Props as LayoutProps } from "./Layout";
-import { getRuntimeConfig } from "../../config";
+import FirefoxLogo from "../../../../../static/images/logos/bento/fx.png";
+import MonitorLogo from "../../../../../static/images/logos/bento/monitor.png";
+import PocketLogo from "../../../../../static/images/logos/bento/pocket.png";
+import VpnLogo from "../../../../../static/images/logos/bento/vpn.svg";
+import FxDesktopLogo from "../../../../../static/images/logos/fx-logo.svg";
+import FxMobileLogo from "../../../../../static/images/logos/bento/fx-mobile.png";
+import { Props as LayoutProps } from "../../layout/Layout";
+import { getRuntimeConfig } from "../../../config";
+import { BentoIcon } from "../../Icons";
 
 const getProducts = (referringSiteUrl: string) => ({
   monitor: {
@@ -78,10 +77,15 @@ const getProducts = (referringSiteUrl: string) => ({
   },
 });
 
+export type Props = {
+  theme?: LayoutProps["theme"];
+  style: string;
+};
+
 /**
  * Menu that can be opened to see other relevant products Mozilla has available for people.
  */
-export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
+export const AppPicker = (props: Props) => {
   const { l10n } = useLocalization();
 
   const products = getProducts(
@@ -127,7 +131,20 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       label={l10n.getString("bento-button-title")}
       onAction={onSelect}
       theme={props.theme}
+      style={props.style}
     >
+      <Item key={products.vpn.id} textValue={l10n.getString("fx-vpn")}>
+        <a
+          ref={linkRefs.vpn}
+          href={products.vpn.url}
+          className={`${styles["menu-link"]} ${styles["vpn-link"]}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <img src={VpnLogo.src} alt="" width={16} height={16} />
+          {l10n.getString("fx-vpn")}
+        </a>
+      </Item>
       <Item key={products.monitor.id} textValue={l10n.getString("fx-monitor")}>
         <a
           ref={linkRefs.monitor}
@@ -154,7 +171,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
       </Item>
       <Item
         key={products.fxDesktop.id}
-        textValue={l10n.getString("fx-desktop")}
+        textValue={l10n.getString("fx-desktop-2")}
       >
         <a
           ref={linkRefs.fxDesktop}
@@ -164,10 +181,13 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           rel="noopener noreferrer"
         >
           <img src={FxDesktopLogo.src} alt="" width={16} height={16} />
-          {l10n.getString("fx-desktop")}
+          {l10n.getString("fx-desktop-2")}
         </a>
       </Item>
-      <Item key={products.fxMobile.id} textValue={l10n.getString("fx-mobile")}>
+      <Item
+        key={products.fxMobile.id}
+        textValue={l10n.getString("fx-mobile-2")}
+      >
         <a
           ref={linkRefs.fxMobile}
           href={products.fxMobile.url}
@@ -176,21 +196,10 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
           rel="noopener noreferrer"
         >
           <img src={FxMobileLogo.src} alt="" width={16} height={16} />
-          {l10n.getString("fx-mobile")}
+          {l10n.getString("fx-mobile-2")}
         </a>
       </Item>
-      <Item key={products.vpn.id} textValue={l10n.getString("fx-vpn")}>
-        <a
-          ref={linkRefs.vpn}
-          href={products.vpn.url}
-          className={`${styles["menu-link"]} ${styles["vpn-link"]}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src={VpnLogo.src} alt="" width={16} height={16} />
-          {l10n.getString("fx-vpn")}
-        </a>
-      </Item>
+
       <Item key="mozilla" textValue={l10n.getString("made-by-mozilla")}>
         <a
           ref={mozillaLinkRef}
@@ -210,6 +219,7 @@ export const AppPicker = (props: { theme?: LayoutProps["theme"] } = {}) => {
 
 type AppPickerTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
   label: string;
+  style: string;
   children: TreeProps<Record<string, never>>["children"];
   onAction: AriaMenuItemProps["onAction"];
   theme?: LayoutProps["theme"];
@@ -217,6 +227,7 @@ type AppPickerTriggerProps = Parameters<typeof useMenuTriggerState>[0] & {
 const AppPickerTrigger = ({
   label,
   theme,
+  style,
   ...otherProps
 }: AppPickerTriggerProps) => {
   const { l10n } = useLocalization();
@@ -248,16 +259,16 @@ const AppPickerTrigger = ({
   }, [appPickerTriggerState.isOpen]);
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${style}`}>
       <button
         {...triggerButtonProps}
         ref={triggerButtonRef}
         title={l10n.getString("bento-button-title")}
         className={styles.trigger}
       >
-        <img
-          src={theme === "premium" ? BentoIconGrey.src : BentoIconWhite.src}
+        <BentoIcon
           alt={label}
+          className={`${theme === "premium" ? styles.premium : ""}`}
         />
       </button>
       {appPickerTriggerState.isOpen && (
@@ -311,7 +322,7 @@ const AppPickerPopup = (props: AppPickerPopupProps) => {
           className={styles.popup}
         >
           <div className={styles["app-picker-heading"]}>
-            <img src={FirefoxLogo.src} alt="" width={40} height={40} />
+            <img src={FirefoxLogo.src} alt="" width={32} height={32} />
             <h2>{l10n.getString("fx-makes-tech")}</h2>
           </div>
           <ul>
