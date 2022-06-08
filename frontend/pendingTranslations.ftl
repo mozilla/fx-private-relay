@@ -1,10 +1,7 @@
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
-   
-reviews-add-ons = Add-ons
-brand-name-firefox-browser = Firefox Browser
-
+  
 # Mobile menu icons 
 
 menu-upgrade-button = Upgrade 
@@ -79,6 +76,11 @@ whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium
 whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more protection…
 whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!
 
+landing-reviews-add-ons = Add-ons
+landing-reviews-details-source = Source
+landing-reviews-rating = out of 5 (328 reviews)
+landing-reviews-show-next-button = show next review
+landing-reviews-show-previous-button = show next review
 landing-review-anonymous-user = { -brand-name-firefox } user
 landing-review-user-one-review = I really appreciate the { -brand-name-mozilla } team for being so creative and simplifying the anonymizing of my e-mail address. This is a great extension, I highly recommend it to the privacy-aware!
 landing-review-user-two-review = Simple tool to get rid of or avoid spamming your email ID.

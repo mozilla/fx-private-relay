@@ -120,9 +120,9 @@ export const Reviews = () => {
   const renderStarRating = (rating: Rating) =>
     [...Array(5)].map((star, index) =>
       index < rating ? (
-        <StarIcon className={styles.star} alt="" />
+        <StarIcon className={styles.star} key={index} alt="" />
       ) : (
-        <StarIcon className={styles["empty-star"]} alt="" />
+        <StarIcon className={styles["empty-star"]} key={index} alt="" />
       )
     );
 
@@ -132,8 +132,8 @@ export const Reviews = () => {
 
     return (
       <ul>
-        {text.map((item) => (
-          <li>{item}</li>
+        {text.map((item, index) => (
+          <li key={index}>{item}</li>
         ))}
       </ul>
     );
@@ -146,17 +146,19 @@ export const Reviews = () => {
           <div className={styles["logo-container"]}>
             <img className={styles["logo"]} src={FxBrowserLogo.src} alt="" />
             <p className={styles["logo-title"]}>
-              {l10n.getString("brand-name-firefox-browser")}
+              {l10n.getString("-brand-name-firefox")}
             </p>
             <p className={styles["logo-text"]}>
-              {l10n.getString("reviews-add-ons")}
+              {l10n.getString("landing-reviews-add-ons")}
             </p>
           </div>
           <div className={styles["rating-container"]}>
             <div className={styles.stars}>{renderStarRating(4)}</div>
             <div className={styles.rating}>
               <p className={styles.title}>4.2</p>
-              <p className={styles.text}>out of 5 (328 reviews)</p>
+              <p className={styles.text}>
+                {l10n.getString("landing-reviews-rating")}
+              </p>
             </div>
           </div>
         </div>
@@ -166,6 +168,9 @@ export const Reviews = () => {
             <button
               {...slideLeftButton.buttonProps}
               ref={slideLeftButtonRef}
+              aria-label={l10n.getString(
+                "landing-reviews-show-previous-button"
+              )}
               className={`${styles.chevron} ${styles["hidden-mobile"]}`}
             >
               <ChevronLeftIcon alt="" />
@@ -189,7 +194,8 @@ export const Reviews = () => {
                   <div className={styles.stars}>{renderStarRating(rating)}</div>
                   <span className={styles.name}>{name}</span>
                   <span className={styles.source}>
-                    Source: addons.mozilla.org
+                    {l10n.getString("landing-reviews-details-source")}:
+                    addons.mozilla.org
                   </span>
                 </div>
                 <div className={styles.text}>
@@ -202,6 +208,7 @@ export const Reviews = () => {
             <button
               {...slideRightButton.buttonProps}
               ref={slideRightButtonRef}
+              aria-label={l10n.getString("landing-reviews-show-next-button")}
               className={`${styles.chevron} ${styles["hidden-mobile"]}`}
             >
               <ChevronRightIcon alt="" />
@@ -215,6 +222,9 @@ export const Reviews = () => {
             <button
               {...slideLeftButton.buttonProps}
               ref={slideLeftButtonRef}
+              aria-label={l10n.getString(
+                "landing-reviews-show-previous-button"
+              )}
               className={`${styles.chevron}`}
             >
               <ChevronLeftIcon alt="" />
@@ -222,6 +232,7 @@ export const Reviews = () => {
             <button
               {...slideRightButton.buttonProps}
               ref={slideRightButtonRef}
+              aria-label={l10n.getString("landing-reviews-show-next-button")}
               className={`${styles.chevron}`}
             >
               <ChevronRightIcon alt="" />
