@@ -218,12 +218,15 @@ $toggleTransitionDuration: 200ms;
   display: flex;
   flex-direction: column;
   gap: $spacing-md;
+  // Make sure hidden elements are unfocusable:
+  visibility: hidden;
 
   .is-expanded & {
     // An arbitrary high value that allows it to expand to its full height:
     max-height: 100vh;
     border-color: $color-light-gray-30;
     padding: $spacing-sm 0;
+    visibility: visible;
   }
 
   .row {
