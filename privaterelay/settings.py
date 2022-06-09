@@ -51,7 +51,7 @@ TMP_DIR = os.path.join(BASE_DIR, "tmp")
 SECRET_KEY = config("SECRET_KEY", None, cast=str)
 SITE_ORIGIN = config("SITE_ORIGIN", None)
 
-ORIGIN_CHANNEL_MAP = {
+ORIGIN_CHANNEL_MAP: dict[Optional[str], str] = {
     "http://127.0.0.1:8000": "local",
     "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
     "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
