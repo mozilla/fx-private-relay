@@ -79,3 +79,7 @@ whatsnew-feature-premium-expansion-description = Upgrade now and get even more p
 fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
 fx-containers = { -brand-name-firefox } Containers
+
+
+profile-label-replies = Replies
+profile-replies-tooltip = You can reply to emails received through this mask, and Firefox Relay will continue to protect your true email address.

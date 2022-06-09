@@ -41,6 +41,8 @@ export const Alias = (props: Props) => {
   const { l10n } = useLocalization();
   const [justCopied, setJustCopied] = useState(false);
 
+  const hasPremium = props.profile.has_premium;
+
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const expandButtonState = useToggleState({
     defaultSelected: props.defaultOpen === true,
@@ -187,6 +189,18 @@ export const Alias = (props: Props) => {
               {l10n.getString("profile-label-forwarded")}
             </span>
           </ForwardedTooltip>
+
+          {/* If user is not premium, hide the replies count */}
+          {hasPremium && (
+            <RepliesTooltip>
+              <span className={styles.number}>
+                {numberFormatter.format(props.alias.num_replied)}
+              </span>
+              <span className={styles.label}>
+                {l10n.getString("profile-label-replies")}
+              </span>
+            </RepliesTooltip>
+          )}
         </div>
         <div className={styles["expand-toggle"]}>
           <button {...expandButtonProps} ref={expandButtonRef}>
@@ -272,7 +286,36 @@ const ForwardedTooltip = (props: TooltipProps) => {
     </span>
   );
 };
+
 const BlockedTooltip = (props: TooltipProps) => {
+  const { l10n } = useLocalization();
+  const triggerState = useTooltipTriggerState({ delay: 0 });
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
+
+  const { tooltipProps } = useTooltip({}, triggerState);
+  return (
+    <span className={styles["stat-wrapper"]}>
+      <span
+        ref={triggerRef}
+        {...tooltipTrigger.triggerProps}
+        className={`${styles.stat} ${styles["blocked-stat"]}`}
+      >
+        {props.children}
+      </span>
+      {triggerState.isOpen && (
+        <span
+          {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
+          className={styles.tooltip}
+        >
+          {l10n.getString("profile-blocked-copy-2")}
+        </span>
+      )}
+    </span>
+  );
+};
+
+const RepliesTooltip = (props: TooltipProps) => {
   const { l10n } = useLocalization();
   const triggerState = useTooltipTriggerState({ delay: 0 });
   const triggerRef = useRef<HTMLSpanElement>(null);
@@ -294,7 +337,7 @@ const BlockedTooltip = (props: TooltipProps) => {
           {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
           className={styles.tooltip}
         >
-          {l10n.getString("profile-blocked-copy-2")}
+          {l10n.getString("profile-replies-tooltip")}
         </span>
       )}
     </span>
