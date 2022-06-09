@@ -217,12 +217,13 @@ const Settings: NextPage = () => {
                         </span>
                       </span>
                     </div>
-                    <aside className={styles["settings-api-key-copy"]}>
+                    <div className={styles["settings-api-key-copy"]}>
                       {l10n.getString("settings-api-key-description")}
                       <b>
+                        {" "}
                         {l10n.getString("settings-api-key-description-bolded")}
                       </b>
-                    </aside>
+                    </div>
                   </div>
                 </div>
                 <div className={styles.controls}>
