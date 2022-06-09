@@ -79,8 +79,11 @@ whatsnew-feature-premium-expansion-description = Upgrade now and get even more p
 ## Landing Reviews Section
 
 landing-reviews-add-ons = Add-ons
+landing-reviews-logo-title = { -brand-name-firefox-browser }
 # Do not localize addons.mozilla.org
 landing-reviews-details-source = Source: addons.mozilla.org
+# This string is displayed in a smaller font under a big number representing the average review score (e.g. "4.2").
+# Review count will stand for the total number of reviews at a given time (e.g. "328 reviews").
 landing-reviews-rating = out of 5 ({ $review_count } reviews)
 landing-reviews-show-next-button = show next review
 landing-reviews-show-previous-button = show previous review

@@ -152,7 +152,7 @@ export const Reviews = () => {
           <div className={styles["logo-container"]}>
             <img className={styles["logo"]} src={FxBrowserLogo.src} alt="" />
             <p className={styles["logo-title"]}>
-              {l10n.getString("-brand-name-firefox-browser")}
+              {l10n.getString("landing-reviews-logo-title")}
             </p>
             <p className={styles["logo-text"]}>
               {l10n.getString("landing-reviews-add-ons")}
