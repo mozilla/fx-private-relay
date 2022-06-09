@@ -195,7 +195,6 @@ export const Alias = (props: Props) => {
             <RepliesTooltip>
               <span className={styles.number}>
                 {numberFormatter.format(props.alias.num_replied)}
-                {/* Need to replace this with num_replied data */}
               </span>
               <span className={styles.label}>
                 {l10n.getString("profile-label-replies")}
