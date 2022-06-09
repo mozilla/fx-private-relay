@@ -220,7 +220,6 @@ const Settings: NextPage = () => {
                     <aside className={styles["settings-api-key-copy"]}>
                       {l10n.getString("settings-api-key-description")}
                       <b>
-                        {" "}
                         {l10n.getString("settings-api-key-description-bolded")}
                       </b>
                     </aside>
