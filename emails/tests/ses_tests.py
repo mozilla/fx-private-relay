@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Iterator
 from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
+import logging
 
 import pytest
 
@@ -557,3 +558,53 @@ def test_delivery_event_parses() -> None:
     assert event.delivery.processingTimeMillis == 11893
     assert event.delivery.reportingMTA == "mta.example.com"
     assert event.delivery.smtpResponse == "250 2.6.0 Message received"
+
+
+def test_extra_data_logs_warning(caplog) -> None:
+    """If there is extra data in an SES message, a warning is logged."""
+    delivery_event = {
+        "eventType": "Delivery",
+        "mail": {
+            "timestamp": "2016-10-19T23:20:52.240Z",
+            "source": "sender@example.com",
+            "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+            "sendingAccountId": "123456789012",
+            "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+            "destination": ["recipient@example.com"],
+            "extra_mail": "I am extra",
+            "tags": {
+                "ses:configuration-set": ["ConfigSet"],
+                "ses:source-ip": ["192.0.2.0"],
+                "ses:from-domain": ["example.com"],
+                "ses:caller-identity": ["ses_user"],
+                "ses:outgoing-ip": ["192.0.2.0"],
+                "myCustomTag1": ["myCustomTagValue1"],
+                "myCustomTag2": ["myCustomTagValue2"],
+            },
+        },
+        "delivery": {
+            "timestamp": "2016-10-19T23:21:04.133Z",
+            "processingTimeMillis": 11893,
+            "recipients": ["recipient@example.com"],
+            "smtpResponse": "250 2.6.0 Message received",
+            "reportingMTA": "mta.example.com",
+            "extra_delivery": "I am extra",
+        },
+        "extra": {"foo": "bar"},
+    }
+
+    # Processing is successful
+    event = get_ses_message(delivery_event)
+    assert isinstance(event, DeliveryEvent)
+    assert event.mail.commonHeaders is None
+    assert event.delivery.smtpResponse == "250 2.6.0 Message received"
+
+    # Extra data is logged as warnings, one for each class
+    expected = ("eventsinfo", logging.WARNING, "Unexpected SES data not loaded.")
+    assert caplog.record_tuples == [expected] * 3
+    keys = {record.class_name: record.keys for record in caplog.records}
+    assert keys == {
+        "DeliveryEvent": ["extra"],
+        "DeliveryEventBody": ["extra_delivery"],
+        "MailEventBody": ["extra_mail"],
+    }

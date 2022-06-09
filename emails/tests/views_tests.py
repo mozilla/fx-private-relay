@@ -1163,18 +1163,20 @@ def test_sns_notifications_complaint(caplog, channel, with_headers) -> None:
 
 
 def _create_ses_delivery(channel="notification", with_headers=False) -> dict[str, Any]:
-    return {
+    data: dict[str, Any] = {
         f"{channel}Type": "Delivery",
         "delivery": {
             "timestamp": "2022-05-26T21:59:29.009Z",
             "processingTimeMillis": 525,
             "recipients": ["complaint@simulator.amazonses.com"],
             "smtpResponse": "250 2.6.0 Message received",
-            "remoteMtaIp": "34.232.130.241",
             "reportingMTA": "a48-112.smtp-out.amazonses.com",
         },
         "mail": _create_ses_mail_body(channel, with_headers),
     }
+    if channel == "notification":
+        data["delivery"]["remoteMtaIp"] = "34.232.130.241"
+    return data
 
 
 @pytest.mark.parametrize("channel", ("event", "notification"))

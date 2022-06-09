@@ -9,7 +9,9 @@ Main functions:
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+import logging
+import shlex
+from dataclasses import dataclass, fields
 from email.message import EmailMessage
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal, Type, TypeVar, Optional, Union
@@ -21,6 +23,9 @@ from django.conf import settings
 from botocore.client import BaseClient
 
 from .apps import EmailsConfig
+
+
+logger = logging.getLogger("eventsinfo")
 
 
 class SesChannelType(Enum):
@@ -83,6 +88,8 @@ _T = TypeVar("_T", bound="LoadFromDict")
 class LoadFromDict:
     """Base class that loads data from a dict"""
 
+    _expected_extra: set[str] = set()  # Extra keys in dict that are not processed
+
     @classmethod
     def validate_dict(cls: Type[_T], raw_data: dict[str, Any]) -> dict[str, Any]:
         """Return validated and converted data."""
@@ -94,12 +101,27 @@ class LoadFromDict:
     def from_dict(cls: Type[_T], raw_data: dict[str, Any]) -> _T:
         """Create a class instance from raw data, using validate_dict."""
         validated_data = cls.validate_dict(raw_data)
+
+        # Look for unhandled data, which may signal an API change
+        data_keys = set(raw_data.keys())
+        class_keys = set(field.name for field in fields(cls))
+        extra_keys = data_keys - class_keys - cls._expected_extra
+        if extra_keys:
+            logger.warning(
+                "Unexpected SES data not loaded.",
+                extra={
+                    "keys": [shlex.quote(key) for key in extra_keys],
+                    "class_name": cls.__name__,
+                },
+            )
+
         return cls(**validated_data)
 
 
 class SesMessage(LoadFromDict):
     """Base class for SES notifications and events."""
 
+    _expected_extra = {"notificationType", "eventType"}
     channelType: SesChannelType
     messageType: SesMessageType
     notificationType: Optional[SesNotificationType]
@@ -163,6 +185,7 @@ class ComplaintNotification(ComplaintMessage, SesNotification):
     """
 
     messageType = notificationType = SesNotificationType.COMPLAINT
+    mail: MailNotificationBody
 
     @classmethod
     def validate_dict(cls, raw_complaint: dict[str, Any]) -> dict[str, Any]:
@@ -552,6 +575,7 @@ class CommonHeaders(LoadFromDict):
     https://docs.aws.amazon.com/ses/latest/dg/receiving-email-notifications-contents.html#receiving-email-notifications-contents-mail-object-commonHeaders
     """
 
+    _expected_extra = {"from"}  # Stored on class as from_
     messageId: Optional[str]
     date: Optional[str]
     to: Optional[list[str]]
