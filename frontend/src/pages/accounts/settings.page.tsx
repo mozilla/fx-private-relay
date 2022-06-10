@@ -97,7 +97,10 @@ const Settings: NextPage = () => {
     try {
       await profileData.update(profile.id, {
         server_storage: labelCollectionEnabled,
-        remove_email_tracker_default: trackerRemovalEnabled,
+        remove_email_tracker_default:
+          typeof profile.remove_email_tracker_default === "boolean"
+            ? trackerRemovalEnabled
+            : undefined,
       });
 
       // After having enabled new server-side data storage, upload the locally stored labels:
@@ -154,6 +157,37 @@ const Settings: NextPage = () => {
     setJustCopiedApiKey(true);
     setTimeout(() => setJustCopiedApiKey(false), 1000);
   };
+
+  // To allow us to add this UI before the back-end is updated, we only show it
+  // when the profiles API actually returns a property `remove_email_tracker_default`.
+  // Once it does, the commit that introduced this comment can be reverted.
+  const trackerRemovalSetting =
+    typeof profile.remove_email_tracker_default === "boolean" ? (
+      <div className={styles.field}>
+        <h2 className={styles["field-heading"]}>
+          <span className={styles["field-heading-icon-wrapper"]}>
+            <HideIcon alt="" />
+            {l10n.getString("setting-tracker-removal-heading")}
+          </span>
+        </h2>
+        <div className={styles["field-content"]}>
+          <div className={styles["field-control"]}>
+            <input
+              type="checkbox"
+              name="tracker-removal"
+              id="tracker-removal"
+              defaultChecked={profile.remove_email_tracker_default}
+              onChange={(e) => setTrackerRemovalEnabled(e.target.checked)}
+            />
+            <label htmlFor="tracker-removal">
+              {l10n.getString("setting-tracker-removal-description")}
+            </label>
+          </div>
+          <p>{l10n.getString("setting-tracker-removal-note")}</p>
+          {trackerRemovalWarning}
+        </div>
+      </div>
+    ) : null;
 
   return (
     <>
@@ -230,32 +264,7 @@ const Settings: NextPage = () => {
                     </span>
                   </div>
                 </div>
-                <div className={styles.field}>
-                  <h2 className={styles["field-heading"]}>
-                    <span className={styles["field-heading-icon-wrapper"]}>
-                      <HideIcon alt="" />
-                      {l10n.getString("setting-tracker-removal-heading")}
-                    </span>
-                  </h2>
-                  <div className={styles["field-content"]}>
-                    <div className={styles["field-control"]}>
-                      <input
-                        type="checkbox"
-                        name="tracker-removal"
-                        id="tracker-removal"
-                        defaultChecked={profile.remove_email_tracker_default}
-                        onChange={(e) =>
-                          setTrackerRemovalEnabled(e.target.checked)
-                        }
-                      />
-                      <label htmlFor="tracker-removal">
-                        {l10n.getString("setting-tracker-removal-description")}
-                      </label>
-                    </div>
-                    <p>{l10n.getString("setting-tracker-removal-note")}</p>
-                    {trackerRemovalWarning}
-                  </div>
-                </div>
+                {trackerRemovalSetting}
                 <div className={styles.controls}>
                   <Button type="submit">
                     {l10n.getString("settings-button-save-label")}
