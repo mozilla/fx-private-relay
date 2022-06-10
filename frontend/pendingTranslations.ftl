@@ -2,14 +2,14 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Mobile menu icons 
+# Mobile menu icons
 
-menu-upgrade-button = Upgrade 
+menu-upgrade-button = Upgrade
 menu-toggle-open = Open menu
 menu-toggle-close = Close menu
 nav-dashboard = Dashboard
 nav-settings = Settings
-nav-support = Help and Support 
+nav-support = Help and Support
 nav-sign-out = Sign Out
 nav-contact = Contact Us
 
@@ -36,6 +36,10 @@ landing-use-cases-signups-hero-content2 = Before you complete that next signup, 
 banner-download-install-chrome-extension-copy-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using masks even easier.
 multi-part-onboarding-premium-chrome-extension-get-description-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using email masks even easier.
 
+setting-tracker-removal-heading = Remove Email Trackers
+setting-tracker-removal-description = Remove email trackers in all forwarded emails.
+setting-tracker-removal-note = { -brand-name-firefox-relay } can now remove common trackers from emails forwarded through your masks.
+setting-tracker-removal-warning = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images.
 setting-api-key-copied = Copied!
 
 profile-promo-email-blocking-option-promotionals-premiumonly-marker = ({ -brand-name-premium } only)
