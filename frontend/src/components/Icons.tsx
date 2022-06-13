@@ -31,6 +31,58 @@ export const InfoIcon = ({
   );
 };
 
+/** Filled info button that inherits the text color of its container */
+export const InfoFilledIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      style={{
+        fill: "currentcolor",
+        ...props.style,
+      }}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z" />
+    </svg>
+  );
+};
+
+/** Triangular info button that inherits the text color of its container */
+export const InfoTriangleIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 15"
+      width={18}
+      height={15}
+      style={{
+        fill: "currentcolor",
+        ...props.style,
+      }}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path d="M0.75 14.75H17.25L9 0.5L0.75 14.75ZM9.75 12.5H8.25V11H9.75V12.5ZM9.75 9.5H8.25V6.5H9.75V9.5Z" />
+    </svg>
+  );
+};
+
 /** Close button that inherits the text color of its container */
 export const CloseIcon = ({
   alt,
