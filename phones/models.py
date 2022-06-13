@@ -10,6 +10,7 @@ from django.db.migrations.recorder import MigrationRecorder
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
+from django.urls import reverse
 
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
@@ -119,6 +120,25 @@ class RelayNumber(models.Model):
             )
         )
         return super().save(*args, **kwargs)
+
+
+@receiver(post_save, sender=RelayNumber)
+def relaynumber_post_save(sender, instance, created, **kwargs):
+    # don't do anything if running migrations
+    if type(instance) == MigrationRecorder.Migration:
+        return
+
+    if created:
+        real_phone = RealPhone.objects.get(user=instance.user)
+        # only send welcome vCard when creating new record
+        phones_config = apps.get_app_config("phones")
+        media_url = settings.SITE_ORIGIN + reverse("vCard", kwargs={"number": instance.number})
+        phones_config.twilio_client.messages.create(
+            body="Welcome to Relay Phoanz! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
+            from_=settings.TWILIO_MAIN_NUMBER,
+            to=real_phone.number,
+            media_url=[media_url],
+        )
 
 
 def suggested_numbers(user):
