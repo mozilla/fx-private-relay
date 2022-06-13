@@ -149,7 +149,7 @@ export const BlockLevelSlider = (props: Props) => {
             <Thumb sliderState={sliderState} trackRef={trackRef} />
           </div>
           {/*
-            <PromotionalTrackStop> is located outside of div.track,
+            <PromotionalTrackStopGhost> is located outside of div.track,
             because for free users it has a tooltip that is not part of the
             track. If it were located inside it, clicking it would be
             interpreted as a click on the slider track.
@@ -158,7 +158,6 @@ export const BlockLevelSlider = (props: Props) => {
             <PromotionalTrackStopGhost
               alias={props.alias}
               sliderState={sliderState}
-              hasPremium={props.hasPremium}
               premiumAvailableInCountry={props.premiumAvailableInCountry}
             >
               <img src={UmbrellaSemiMobile.src} alt="" />
@@ -314,11 +313,15 @@ const PromotionalTrackStopGhost = (props: PromotionalTrackStopGhostProps) => {
         {...triggerProps}
         ref={triggerRef}
         type="button"
-        className={`${styles["track-stop"]} ${
-          styles["track-stop-promotional"]
-        } ${overlayTriggerState.isOpen ? styles["is-selected"] : ""}`}
+        className={styles["promotional-ghost-track-stop"]}
       >
-        {props.children}
+        <span
+          className={`${styles["track-stop"]} ${
+            styles["track-stop-promotional"]
+          } ${overlayTriggerState.isOpen ? styles["is-selected"] : ""}`}
+        >
+          {props.children}
+        </span>
       </button>
       {overlayTriggerState.isOpen && (
         <OverlayContainer>
@@ -356,7 +359,7 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
     targetRef: props.triggerRef,
     overlayRef: overlayRef,
     placement: "bottom left",
-    offset: 60,
+    offset: 10,
   }).overlayProps;
 
   const closeButtonRef = useRef<HTMLButtonElement>(null);
