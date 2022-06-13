@@ -9,6 +9,7 @@ import {
   StarIcon,
 } from "../Icons";
 import styles from "./Reviews.module.scss";
+import { getLocale } from "../../functions/getLocale";
 
 // We want to ensure only these values can be used for a rating.
 export type Rating = 1 | 2 | 3 | 4 | 5;
@@ -161,7 +162,9 @@ export const Reviews = () => {
           <div className={styles["rating-container"]}>
             <div className={styles.stars}>{renderStarRating(4)}</div>
             <div className={styles.rating}>
-              <p className={styles.title}>4.2</p>
+              <p className={styles.title}>
+                {new Intl.NumberFormat(getLocale(l10n)).format(4.2)}
+              </p>
               <p className={styles.text}>
                 {l10n.getString("landing-reviews-rating", {
                   review_count: reviewCount,
