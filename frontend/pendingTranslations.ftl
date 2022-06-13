@@ -141,6 +141,29 @@ profile-trackers-removed-tooltip-part2 = Important: Sometimes removing trackers 
 profile-indicator-tracker-removal-alt = Tracker removal
 profile-indicator-tracker-removal-tooltip = Currently removing email trackers
 
+trackerreport-title = { -brand-name-relay } Tracker Removal Report
+trackerreport-meta-from-heading = From
+trackerreport-meta-receivedat-heading = Received by
+trackerreport-meta-count-heading = Total trackers
+trackerreport-trackers-heading = Trackers detected
+trackerreport-trackers-value =
+    { $count ->
+        [one] 1 tracker
+        *[other] { $count } trackers
+    }
+trackerreport-confidentiality-notice = Tracker information and from address shown in these reports are not saved by { -brand-name-firefox-relay } and only contained within report URLs. We do not save your emails.
+trackerreport-removal-explainer-heading = How tracker removal works
+# Note, at the time of writing, it's not actually possbile to enable tracker removal for individual masks.
+trackerreport-removal-explainer-content = { -brand-name-firefox-relay } can now remove common trackers from emails forwarded through your email masks. You’ll still receive your emails, but the trackers in your forwarded emails will be removed, so you can get your emails without being tracked. To enable tracker removal on all your masks at once, enable tracker removal in settings rather than individually for each mask.
+trackerreport-trackers-explainer-heading = About email trackers
+trackerreport-trackers-explainer-content-part1 = Email tracking is a common surveillance and advertising tool that has taken over many inboxes. These trackers can be used to understand more about your online behavior, your interests, and your email activity.
+trackerreport-trackers-explainer-content-part2 = A company or organization will embed a tracker in emails sent to you, usually hidden within an image or a link. When the email is opened, code within the tracker sends data back to the company.
+trackerreport-breakage-warning = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images, which will not load if they contain a tracker.
+trackerreport-faq-heading = Top questions about email trackers
+trackerreport-faq-cta = See more FAQs about { -brand-name-firefox-relay }
+trackerreport-loading = Loading your tracker removal report…
+trackerreport-load-error = There was an error generating your tracker removal report. Please refresh the page to try again.
+
 faq-question-disable-trackerremoval-question = Can I stop removing email trackers?
 faq-question-disable-trackerremoval-answer = Yes. If you’re having trouble with emails looking broken or would like to stop removing trackers, you can disable the feature in settings.
 faq-question-bulk-trackerremoval-question = Can I remove trackers only on some of my email masks?
