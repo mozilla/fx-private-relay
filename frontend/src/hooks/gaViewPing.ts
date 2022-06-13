@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { event as gaEvent, EventArgs } from "react-ga";
 import { IntersectionOptions, useInView } from "react-intersection-observer";
 
@@ -15,22 +14,24 @@ export function useGaViewPing(
   args: GaViewPingArgs | null,
   options?: IntersectionOptions
 ) {
-  const [ref, inView] = useInView({ threshold: 1, ...options });
+  const { ref } = useInView({
+    threshold: 1,
+    ...options,
+    onChange: (inView, entry) => {
+      if (args === null || !inView) {
+        return;
+      }
+      gaEvent({
+        ...args,
+        action: "View",
+        nonInteraction: true,
+      });
 
-  useEffect(() => {
-    if (args === null || !inView) {
-      return;
-    }
-    gaEvent({
-      ...args,
-      action: "View",
-      nonInteraction: true,
-    });
-    // We don't want to trigger sending an event when `args` change;
-    // only when the element does or does not come into view do we
-    // send an event, with whatever the args are at that time:
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView]);
+      if (typeof options?.onChange === "function") {
+        options.onChange(inView, entry);
+      }
+    },
+  });
 
   return ref;
 }

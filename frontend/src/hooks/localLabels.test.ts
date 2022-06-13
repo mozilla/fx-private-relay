@@ -22,7 +22,6 @@ describe("useLocalLabels", () => {
       localLabels: [
         {
           id: 0,
-          type: "random",
           mask_type: "random",
           description: "Some description",
           generated_for: "https://example.com",
@@ -36,7 +35,6 @@ describe("useLocalLabels", () => {
     expect(labels).toStrictEqual([
       {
         id: 0,
-        type: "random",
         mask_type: "random",
         description: "Some description",
         generated_for: "https://example.com",
@@ -59,7 +57,6 @@ describe("useLocalLabels", () => {
       localLabels: [
         {
           id: 0,
-          type: "random",
           mask_type: "random",
           description: "Some description",
           generated_for: "https://example.com",
@@ -71,7 +68,6 @@ describe("useLocalLabels", () => {
       localLabels: [
         {
           id: 0,
-          type: "random",
           mask_type: "random",
           description: "Some description",
           generated_for: "https://example.com",
@@ -89,7 +85,6 @@ describe("useLocalLabels", () => {
     expect(newLabels).toStrictEqual([
       {
         id: 0,
-        type: "random",
         mask_type: "random",
         description: "Some new description",
         generated_for: "https://example.com",

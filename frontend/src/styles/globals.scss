@@ -33,6 +33,7 @@ body,
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: $layout-xl;
 
   @media (prefers-reduced-motion) {
     & {
