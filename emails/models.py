@@ -92,6 +92,7 @@ class Profile(models.Model):
     last_account_flagged = models.DateTimeField(blank=True, null=True, db_index=True)
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
+    num_email_replied_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
     subdomain = models.CharField(
         blank=True,
@@ -283,6 +284,20 @@ class Profile(models.Model):
         )
 
     @property
+    def emails_replied(self):
+        # Once Django is on version 4.0 and above, we can set the default=0
+        # and return a int instead of None
+        # https://docs.djangoproject.com/en/4.0/ref/models/querysets/#default
+        totals = [self.relay_addresses.aggregate(models.Sum("num_replied"))]
+        totals.append(self.domain_addresses.aggregate(models.Sum("num_replied")))
+        total_num_replied = 0
+        for num in totals:
+            total_num_replied += (
+                num.get("num_replied__sum") if num.get("num_replied__sum") else 0
+            )
+        return total_num_replied + self.num_email_replied_in_deleted_address
+
+    @property
     def joined_before_premium_release(self):
         date_created = self.user.date_joined
         return date_created < settings.PREMIUM_RELEASE_DATE
@@ -466,6 +481,7 @@ class RelayAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
     block_list_emails = models.BooleanField(default=False)
@@ -480,6 +496,7 @@ class RelayAddress(models.Model):
             address_hash=address_hash(self.address, domain=self.domain_value),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
+            num_replied=self.num_replied,
             num_spam=self.num_spam,
         )
         deleted_address.save()
@@ -488,6 +505,7 @@ class RelayAddress(models.Model):
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
+        profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
@@ -544,6 +562,7 @@ class DeletedAddress(models.Model):
     address_hash = models.CharField(max_length=64, db_index=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
 
     def __str__(self):
@@ -579,6 +598,7 @@ class DomainAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     block_list_emails = models.BooleanField(default=False)
     used_on = models.TextField(default=None, blank=True, null=True)
@@ -638,6 +658,7 @@ class DomainAddress(models.Model):
             ),
             num_forwarded=self.num_forwarded,
             num_blocked=self.num_blocked,
+            num_replied=self.num_replied,
             num_spam=self.num_spam,
         )
         deleted_address.save()
@@ -648,6 +669,7 @@ class DomainAddress(models.Model):
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
+        profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()
         return super(DomainAddress, self).delete(*args, **kwargs)
@@ -687,6 +709,13 @@ class Reply(models.Model):
     @property
     def owner_has_premium(self):
         return self.profile.has_premium
+
+    def increment_num_replied(self):
+        address = self.relay_address or self.domain_address
+        address.num_replied += 1
+        address.last_used_at = datetime.now(timezone.utc)
+        address.save(update_fields=["num_replied", "last_used_at"])
+        return address.num_replied
 
 
 class AbuseMetrics(models.Model):

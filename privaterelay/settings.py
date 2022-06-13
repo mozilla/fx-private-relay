@@ -53,7 +53,7 @@ ORIGIN_CHANNEL_MAP = {
     "http://127.0.0.1:8000": "local",
     "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
     "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
-    "https://relay.firefox.com": "prod"
+    "https://relay.firefox.com": "prod",
 }
 RELAY_CHANNEL = ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN, "prod")
 DEBUG = config("DEBUG", False, cast=bool)

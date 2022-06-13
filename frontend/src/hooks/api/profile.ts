@@ -10,9 +10,13 @@ export type ProfileData = {
   onboarding_state: number;
   avatar: string;
   date_subscribed: null | DateString;
+  remove_email_tracker_default: boolean;
   next_email_try: DateString;
   bounce_status: [false, ""] | [true, "soft"] | [true, "hard"];
   api_token: string;
+  emails_blocked: number;
+  emails_forwarded: number;
+  emails_replied: number;
 };
 
 export type ProfilesData = [ProfileData];
