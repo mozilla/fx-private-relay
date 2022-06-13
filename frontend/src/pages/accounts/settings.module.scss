@@ -111,7 +111,9 @@ $field-gap: $spacing-lg;
     }
 
     label {
-      display: inline-block;
+      display: inline-flex;
+      flex-direction: column;
+      gap: $spacing-sm;
     }
   }
 

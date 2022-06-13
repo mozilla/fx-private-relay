@@ -180,10 +180,10 @@ const Settings: NextPage = () => {
               onChange={(e) => setTrackerRemovalEnabled(e.target.checked)}
             />
             <label htmlFor="tracker-removal">
-              {l10n.getString("setting-tracker-removal-description")}
+              <p>{l10n.getString("setting-tracker-removal-description")}</p>
+              <p>{l10n.getString("setting-tracker-removal-note")}</p>
             </label>
           </div>
-          <p>{l10n.getString("setting-tracker-removal-note")}</p>
           {trackerRemovalWarning}
         </div>
       </div>
