@@ -116,6 +116,26 @@ export const BlockLevelSlider = (props: Props) => {
               <img src={UmbrellaClosedMobile.src} alt="" />
               <p aria-hidden="true">{getLabelForBlockLevel("none", l10n)}</p>
             </div>
+            {/*
+              Only show the "Promotionals" track stop to Premium users.
+              Free users will instead see a button that looks like it,
+              but actually informs them of its only being available to Premium
+              users (i.e. <PromotionalTrackStopGhost>)
+             */}
+            {props.hasPremium ? (
+              <div
+                className={getTrackStopClassNames(
+                  props.alias,
+                  sliderState,
+                  "promotional"
+                )}
+              >
+                <img src={UmbrellaSemiMobile.src} alt="" />
+                <p aria-hidden="true">
+                  {getLabelForBlockLevel("promotional", l10n)}
+                </p>
+              </div>
+            ) : null}
             <div
               className={getTrackStopClassNames(
                 props.alias,
@@ -134,19 +154,21 @@ export const BlockLevelSlider = (props: Props) => {
             track. If it were located inside it, clicking it would be
             interpreted as a click on the slider track.
             */}
-          <PromotionalTrackStop
-            alias={props.alias}
-            sliderState={sliderState}
-            hasPremium={props.hasPremium}
-            premiumAvailableInCountry={props.premiumAvailableInCountry}
-          >
-            <img src={UmbrellaSemiMobile.src} alt="" />
-            {lockIcon}
-            <p>
-              {getLabelForBlockLevel("promotional", l10n)}
-              {premiumOnlyMarker}
-            </p>
-          </PromotionalTrackStop>
+          {!props.hasPremium ? (
+            <PromotionalTrackStopGhost
+              alias={props.alias}
+              sliderState={sliderState}
+              hasPremium={props.hasPremium}
+              premiumAvailableInCountry={props.premiumAvailableInCountry}
+            >
+              <img src={UmbrellaSemiMobile.src} alt="" />
+              {lockIcon}
+              <p>
+                {getLabelForBlockLevel("promotional", l10n)}
+                {premiumOnlyMarker}
+              </p>
+            </PromotionalTrackStopGhost>
+          ) : null}
         </div>
       </div>
       <VisuallyHidden>
@@ -258,18 +280,18 @@ const BlockLevelIllustration = (props: { level: BlockLevel }) => {
   return <img src={UmbrellaOpen.src} height={UmbrellaOpen.height} alt="" />;
 };
 
-type PromotionalTrackStopProps = {
+type PromotionalTrackStopGhostProps = {
   alias: AliasData;
   sliderState: SliderState;
-  hasPremium: boolean;
   premiumAvailableInCountry: boolean;
   children: ReactNode;
 };
 /**
- * This is a regular track stop for Premium users, but turns into a tooltip
- * trigger for non-Premium users.
+ * Pretends to be the regular track stop to enable promotional email blocking,
+ * but is actually a button that triggers a tooltip displaying that promotional
+ * email blocking is only available to Premium users.
  */
-const PromotionalTrackStop = (props: PromotionalTrackStopProps) => {
+const PromotionalTrackStopGhost = (props: PromotionalTrackStopGhostProps) => {
   const overlayTriggerState = useOverlayTriggerState({});
   const triggerRef = useRef<HTMLButtonElement>(null);
 
@@ -285,44 +307,30 @@ const PromotionalTrackStop = (props: PromotionalTrackStopProps) => {
     triggerRef
   );
 
-  if (!props.hasPremium) {
-    return (
-      <span className={styles.wrapper}>
-        <button
-          {...buttonProps}
-          {...triggerProps}
-          ref={triggerRef}
-          type="button"
-          className={`${styles["track-stop"]} ${
-            styles["track-stop-promotional"]
-          } ${overlayTriggerState.isOpen ? styles["is-selected"] : ""}`}
-        >
-          {props.children}
-        </button>
-        {overlayTriggerState.isOpen && (
-          <OverlayContainer>
-            <PromotionalTooltip
-              onClose={overlayTriggerState.close}
-              triggerRef={triggerRef}
-              overlayProps={overlayProps}
-              premiumAvailableInCountry={props.premiumAvailableInCountry}
-            />
-          </OverlayContainer>
-        )}
-      </span>
-    );
-  }
-
   return (
-    <div
-      className={getTrackStopClassNames(
-        props.alias,
-        props.sliderState,
-        "promotional"
+    <span className={styles.wrapper}>
+      <button
+        {...buttonProps}
+        {...triggerProps}
+        ref={triggerRef}
+        type="button"
+        className={`${styles["track-stop"]} ${
+          styles["track-stop-promotional"]
+        } ${overlayTriggerState.isOpen ? styles["is-selected"] : ""}`}
+      >
+        {props.children}
+      </button>
+      {overlayTriggerState.isOpen && (
+        <OverlayContainer>
+          <PromotionalTooltip
+            onClose={overlayTriggerState.close}
+            triggerRef={triggerRef}
+            overlayProps={overlayProps}
+            premiumAvailableInCountry={props.premiumAvailableInCountry}
+          />
+        </OverlayContainer>
       )}
-    >
-      {props.children}
-    </div>
+    </span>
   );
 };
 
