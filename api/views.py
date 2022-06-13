@@ -39,6 +39,7 @@ from privaterelay.settings import (
 from privaterelay.utils import get_premium_countries_info_from_request
 
 from .permissions import IsOwner, HasPhoneService
+from .renderers import vCardRenderer
 from .serializers import (
     DomainAddressSerializer,
     ProfileSerializer,
@@ -217,7 +218,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        valid_number, error = validate_number(request)
+        valid_number, error = _validate_number(request)
         if valid_number == None:
             return response.Response(
                 status=error["status"], data=error["data"]
@@ -298,7 +299,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
     serializer_class = RelayNumberSerializer
-    # TODO: this doesn't seem to e working?
+    # TODO: this doesn't seem to be working?
     throttle_classes = [RealPhoneRateThrottle]
 
     def get_queryset(self):
@@ -367,7 +368,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return response.Response({}, 404)
 
 
-def validate_number(request):
+def _validate_number(request):
     parsed_number = _parse_number(request.data["number"], request)
     if not parsed_number:
         country = None
@@ -429,6 +430,25 @@ def _get_number_details(e164_number):
                 .fetch(type=["carrier"]))
     except Exception:
         return None
+
+
+@decorators.api_view()
+@decorators.permission_classes([permissions.AllowAny])
+@decorators.renderer_classes([vCardRenderer])
+def vCard(request, number=None):
+    """
+    Get a Relay vCard. `number` should be passed in url path.
+
+    We use this to return a vCard for a number. To prevent account
+    enumeration attacks, we simply return a vCard for the phone number that
+    is passed.
+    """
+    if number is None:
+        return response.Response(status=404)
+
+    resp = response.Response({"number": number})
+    resp["Content-Disposition"] = f"attachment; filename={number}"
+    return resp
 
 
 # Deprecated; prefer runtime_data instead.
