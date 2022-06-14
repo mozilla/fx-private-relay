@@ -138,7 +138,7 @@ $trackLineHeight: 4px;
           margin-top: calc(-1 * #{$iconHeight} - var(--thumbDiameter));
           padding-bottom: $spacing-sm;
           // The image should not take up space within the track stop,
-          // so that the lock icon from .trackStopPromotional can be properly
+          // so that the lock icon from .track-stop-promotional can be properly
           // centered:
           position: absolute;
         }
@@ -288,30 +288,60 @@ $trackLineHeight: 4px;
         var(--thumbDiameter) + #{$trackLineHeight} + #{$stopLabelHeight * 1.5}
       );
     }
-    .track-stop-promotional {
-      color: $color-light-gray-70;
+    .promotional-ghost-track-stop {
+      position: absolute;
+      top: 0;
+      left: 33%;
+      width: 33%;
+      // This is like the regular .track's bottom padding, but with
+      // $stopLabelHeight multiplied by 1.5, because there's a "(Premium only)"
+      // line in a smaller font below the "Promotionals" label for free users:
+      height: calc(
+        var(--thumbDiameter) + #{$trackLineHeight} + #{$stopLabelHeight * 1.5}
+      );
+      background-color: transparent;
       border-style: none;
+      cursor: pointer;
 
-      &:hover {
-        // The standard background colour, because this can't be selected
-        // by a free user:
-        background-color: $color-light-gray-20;
-      }
-
-      p {
+      .track-stop-promotional {
         color: $color-light-gray-70;
-        text-align: center;
+        border-style: none;
 
-        .premium-only-marker {
-          @include text-body-xs;
-          color: $color-purple-50;
+        &:hover {
+          // The standard background colour, because this can't be selected
+          // by a free user:
+          background-color: $color-light-gray-20;
+        }
+
+        p {
+          color: $color-light-gray-70;
+          text-align: center;
+
+          .premium-only-marker {
+            @include text-body-xs;
+            color: $color-purple-50;
+          }
+        }
+
+        &.is-selected {
+          p,
+          .lock-icon {
+            color: $color-purple-50;
+          }
         }
       }
 
-      &.is-selected {
-        p,
-        .lock-icon {
-          color: $color-purple-50;
+      &:hover {
+        p {
+          color: $color-purple-30;
+        }
+      }
+
+      &:focus {
+        outline: none;
+
+        .track-stop {
+          outline: 2px solid $color-blue-50;
         }
       }
     }

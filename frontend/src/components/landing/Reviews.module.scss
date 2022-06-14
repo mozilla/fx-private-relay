@@ -1,0 +1,297 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.reviews {
+  display: flex;
+  flex-direction: column;
+  max-width: $content-max;
+  gap: $spacing-lg;
+  width: 100%;
+  margin: 0 auto;
+  align-items: center;
+  padding: $spacing-md $spacing-lg 0 $spacing-lg;
+  justify-content: center;
+
+  @media screen and #{$mq-lg} {
+    gap: $layout-md;
+    flex-direction: row;
+  }
+}
+
+.left-container {
+  display: flex;
+  flex-direction: row;
+  gap: $spacing-xl;
+}
+
+.right-container {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2xl;
+}
+.logo-container {
+  display: flex;
+  font-family: $font-stack-base;
+  color: $color-white;
+  width: $layout-2xl;
+  flex-direction: column;
+  align-items: center;
+  border-radius: $border-radius-lg;
+  padding: $spacing-md 0;
+  background-color: $color-purple-30;
+
+  .logo {
+    width: $layout-xl;
+    padding: $spacing-sm;
+  }
+
+  .logo-title {
+    @include text-body-md;
+    font-weight: 400;
+  }
+
+  .logo-text {
+    @include text-title-xs;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+}
+
+.rating-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-xs;
+
+  .rating {
+    .title {
+      @include text-title-2xl;
+      font-family: $font-stack-firefox;
+      font-weight: 600;
+    }
+
+    .text {
+      @include text-body-sm;
+      color: $color-grey-40;
+      font-family: $font-stack-base;
+      font-weight: 500;
+    }
+  }
+}
+
+.stars {
+  display: flex;
+  flex-direction: row;
+}
+
+.star {
+  color: $color-yellow-50;
+}
+
+.empty-star {
+  color: $color-white;
+  stroke: $color-grey-20;
+  stroke-width: 2px;
+}
+
+.chevron {
+  appearance: none;
+  border: none;
+  padding: 0;
+  background-color: $color-light-gray-10;
+  color: $color-grey-30;
+  width: $layout-sm;
+  cursor: pointer;
+}
+
+.quotation-icon {
+  display: flex;
+  position: absolute;
+
+  @media screen and #{$mq-md} {
+    left: 0;
+  }
+
+  svg {
+    color: $color-purple-60;
+    height: $layout-sm;
+  }
+}
+
+.reviews-container {
+  display: flex;
+  overflow-x: hidden;
+  flex-direction: row;
+  gap: $spacing-lg;
+  // magic number: set to avoid shifting - no character limit on reviews yet.
+  min-height: calc($layout-2xl * 2);
+  position: relative;
+
+  @media screen and #{$mq-xl} {
+    // magic number: set to avoid shifting - no character limit on reviews yet.
+    min-height: 210px;
+  }
+
+  .review-container {
+    display: flex;
+    align-items: center;
+
+    @media screen and #{$mq-xl} {
+      align-items: flex-start;
+    }
+  }
+
+  .review {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative; // allows us to animate - scroll
+    width: 100%; // allows us to animate - scroll
+    padding: 0 $spacing-sm;
+
+    // queries set to these static widths to prevent shifting
+    @media screen and #{$mq-sm} {
+      width: $content-xs;
+    }
+    @media screen and #{$mq-md} {
+      width: $content-sm;
+    }
+    @media screen and #{$mq-xl} {
+      width: $content-md;
+    }
+
+    .text {
+      width: 100%;
+
+      ul {
+        padding-left: $spacing-md;
+      }
+    }
+  }
+
+  .details {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-weight: 400;
+    gap: $spacing-md;
+    padding: $spacing-2xl 0 $spacing-md 0;
+    font-family: $font-stack-base;
+
+    @media screen and #{$mq-xl} {
+      flex-direction: row;
+      align-items: flex-end;
+    }
+
+    .name {
+      @include text-title-3xs;
+      font-family: $font-stack-firefox;
+      font-weight: 600;
+    }
+
+    .source {
+      @include text-body-sm;
+      color: $color-grey-30;
+    }
+
+    .star {
+      color: $color-yellow-40;
+      margin: 0 $spacing-xs 0 ($spacing-sm * -1);
+    }
+  }
+}
+
+// scroll animation
+.scroll-left {
+  animation: scrollLeft 500ms cubic-bezier(0.55, -0.4, 0.45, 1.2);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+.scroll-right {
+  animation: scrollRight 500ms cubic-bezier(0.55, -0.4, 0.45, 1.2);
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+}
+
+// scroll animation keyframes
+@keyframes scrollLeft {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  10% {
+    left: -250%;
+  }
+  20% {
+    left: 150%;
+    opacity: 0;
+  }
+  100% {
+    left: 0;
+    opacity: 1;
+  }
+}
+@keyframes scrollRight {
+  0% {
+    left: 0;
+    opacity: 0;
+  }
+  10% {
+    left: 250%;
+  }
+  20% {
+    left: -150%;
+    opacity: 0;
+  }
+  100% {
+    left: 0;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion) {
+  .scroll-right,
+  .scroll-left {
+    animation: none;
+  }
+}
+
+// mobile only controls for review scrollingW
+.mobile-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-sm;
+
+  button {
+    width: 50%;
+    padding: $spacing-md 0;
+
+    &:hover {
+      background-color: $color-grey-10;
+    }
+
+    svg {
+      margin: 0 auto;
+    }
+  }
+}
+
+.hidden-mobile {
+  display: none;
+
+  @media screen and #{$mq-md} {
+    display: inline-block;
+  }
+}
+
+// show only on mobile
+.show-mobile {
+  display: flex;
+
+  @media screen and #{$mq-md} {
+    display: none;
+  }
+}

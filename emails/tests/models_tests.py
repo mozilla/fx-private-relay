@@ -797,6 +797,29 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=user)
         assert profile.server_storage
 
+    def test_emails_replied_preimum_user_aggregates_sum_of_replies_from_all_addresses(
+        self,
+    ):
+        subdomain = "test"
+        user = make_premium_test_user()
+        user_profile = Profile.objects.get(user=user)
+        user_profile.subdomain = subdomain
+        user_profile.num_email_replied_in_deleted_address = 1
+        user_profile.save()
+        baker.make(RelayAddress, user=user, num_replied=3)
+        baker.make(DomainAddress, user=user, num_replied=5)
+
+        assert user_profile.emails_replied == 9
+
+    def test_emails_replied_user_aggregates_sum_of_replies_from_relay_addresses(self):
+        baker.make(RelayAddress, user=self.profile.user, num_replied=3)
+        baker.make(RelayAddress, user=self.profile.user, num_replied=5)
+
+        assert self.profile.emails_replied == 8
+
+    def test_emails_replied_new_user_aggregates_sum_of_replies_to_zero(self):
+        assert self.profile.emails_replied == 0
+
 
 class DomainAddressTest(TestCase):
     def setUp(self):

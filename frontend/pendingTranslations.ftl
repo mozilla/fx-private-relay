@@ -2,15 +2,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Mobile menu icons 
-
-menu-upgrade-button = Upgrade 
+menu-upgrade-button = Upgrade
 menu-toggle-open = Open menu
 menu-toggle-close = Close menu
 nav-dashboard = Dashboard
 nav-phone = Phone Number
 nav-settings = Settings
-nav-support = Help and Support 
+nav-support = Help and Support
 nav-sign-out = Sign Out
 nav-contact = Contact Us
 
@@ -37,6 +35,10 @@ landing-use-cases-signups-hero-content2 = Before you complete that next signup, 
 banner-download-install-chrome-extension-copy-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using masks even easier.
 multi-part-onboarding-premium-chrome-extension-get-description-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using email masks even easier.
 
+setting-tracker-removal-heading = Remove Email Trackers
+setting-tracker-removal-description = Remove email trackers in all forwarded emails.
+setting-tracker-removal-note = { -brand-name-firefox-relay } can now remove common trackers from emails forwarded through your masks.
+setting-tracker-removal-warning = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images.
 setting-api-key-copied = Copied!
 
 profile-promo-email-blocking-option-promotionals-premiumonly-marker = ({ -brand-name-premium } only)
@@ -77,6 +79,26 @@ whatsnew-feature-premium-expansion-finland-heading = { -brand-name-relay-premium
 whatsnew-feature-premium-expansion-snippet = Upgrade now and get even more protection…
 whatsnew-feature-premium-expansion-description = Upgrade now and get even more protection — create unlimited email masks, get a custom email subdomain, and more!
 
+## Landing Reviews Section
+
+landing-reviews-add-ons = Add-ons
+landing-reviews-logo-title = { -brand-name-firefox-browser }
+# Do not localize addons.mozilla.org
+landing-reviews-details-source = Source: addons.mozilla.org
+# This string is displayed in a smaller font under a big number representing the average review score (e.g. "4.2").
+# Review count will stand for the total number of reviews at a given time (e.g. "328 reviews").
+landing-reviews-rating = out of 5 ({ $review_count } reviews)
+landing-reviews-show-next-button = show next review
+landing-reviews-show-previous-button = show previous review
+landing-review-anonymous-user = { -brand-name-firefox } user { $user_id }
+landing-review-user-one-review = I really appreciate the { -brand-name-mozilla } team for being so creative and simplifying the anonymizing of my email address. This is a great extension, I highly recommend it to the privacy-aware!
+landing-review-user-two-review = Simple tool to get rid of or avoid spamming your email ID.
+landing-review-user-three-review = Love this extension! Very simple but powerful and the integration with the browser is wonderful.
+landing-review-user-four-review-list-1 = Gives peace of mind when surfing the internet.
+landing-review-user-four-review-list-2 = Protects ones identity from trackers through generation of aliases where one does not want to share the real email address for various reasons.
+landing-review-user-four-review-list-3 = Email inbox data is safe in the hands of { -brand-name-firefox-relay }.
+landing-review-user-four-review-list-4 = { -brand-name-firefox-relay } works wonders, try it!!!
+ 
 fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
 fx-containers = { -brand-name-firefox } Containers
@@ -85,3 +107,6 @@ fx-containers = { -brand-name-firefox } Containers
 
 phone-headline = Introducing phone number masking
 
+## Replies
+profile-label-replies = Replies
+profile-replies-tooltip = You can reply to emails received through this mask, and Firefox Relay will continue to protect your true email address.

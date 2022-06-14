@@ -18,7 +18,7 @@ import copyIcon from "../../../../static/images/copy-to-clipboard.svg";
 import helpIcon from "../../../../static/images/help-purple.svg";
 import performanceIcon from "../../../../static/images/performance-purple.svg";
 import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
-import { NewTabIcon } from "../../components/Icons";
+import { HideIcon, NewTabIcon } from "../../components/Icons";
 import { Button } from "../../components/Button";
 import { getRuntimeConfig } from "../../config";
 import { useLocalLabels } from "../../hooks/localLabels";
@@ -35,6 +35,9 @@ const Settings: NextPage = () => {
   const addonData = useAddonData();
   const [labelCollectionEnabled, setLabelCollectionEnabled] = useState(
     profileData.data?.[0].server_storage
+  );
+  const [trackerRemovalEnabled, setTrackerRemovalEnabled] = useState(
+    profileData.data?.[0].remove_email_tracker_default
   );
   const [justCopiedApiKey, setJustCopiedApiKey] = useState(false);
   const apiKeyElementRef = useRef<HTMLInputElement>(null);
@@ -77,12 +80,27 @@ const Settings: NextPage = () => {
       </aside>
     ) : null;
 
+  // This warning should only be shown when the user currently does not have
+  // tracker removal enabled, regardless of whether they've toggled it on or off
+  // without saving their settings yet:
+  const trackerRemovalWarning =
+    profile.remove_email_tracker_default === false ? (
+      <aside role="alert" className={styles["field-warning"]}>
+        <img src={infoTriangleIcon.src} alt="" width={20} />
+        <p>{l10n.getString("setting-tracker-removal-warning")}</p>
+      </aside>
+    ) : null;
+
   const saveSettings: FormEventHandler = async (event) => {
     event.preventDefault();
 
     try {
       await profileData.update(profile.id, {
         server_storage: labelCollectionEnabled,
+        remove_email_tracker_default:
+          typeof profile.remove_email_tracker_default === "boolean"
+            ? trackerRemovalEnabled
+            : undefined,
       });
 
       // After having enabled new server-side data storage, upload the locally stored labels:
@@ -93,9 +111,7 @@ const Settings: NextPage = () => {
         const uploadLocalLabel = (alias: AliasData) => {
           const localLabel = localLabels?.find(
             (localLabel) =>
-              (localLabel.mask_type === alias.mask_type ||
-                (typeof localLabel.mask_type === "undefined" &&
-                  localLabel.type === alias.mask_type)) &&
+              localLabel.mask_type === alias.mask_type &&
               localLabel.id === alias.id
           );
           if (typeof localLabel !== "undefined") {
@@ -141,6 +157,37 @@ const Settings: NextPage = () => {
     setJustCopiedApiKey(true);
     setTimeout(() => setJustCopiedApiKey(false), 1000);
   };
+
+  // To allow us to add this UI before the back-end is updated, we only show it
+  // when the profiles API actually returns a property `remove_email_tracker_default`.
+  // Once it does, the commit that introduced this comment can be reverted.
+  const trackerRemovalSetting =
+    typeof profile.remove_email_tracker_default === "boolean" ? (
+      <div className={styles.field}>
+        <h2 className={styles["field-heading"]}>
+          <span className={styles["field-heading-icon-wrapper"]}>
+            <HideIcon alt="" />
+            {l10n.getString("setting-tracker-removal-heading")}
+          </span>
+        </h2>
+        <div className={styles["field-content"]}>
+          <div className={styles["field-control"]}>
+            <input
+              type="checkbox"
+              name="tracker-removal"
+              id="tracker-removal"
+              defaultChecked={profile.remove_email_tracker_default}
+              onChange={(e) => setTrackerRemovalEnabled(e.target.checked)}
+            />
+            <label htmlFor="tracker-removal">
+              <p>{l10n.getString("setting-tracker-removal-description")}</p>
+              <p>{l10n.getString("setting-tracker-removal-note")}</p>
+            </label>
+          </div>
+          {trackerRemovalWarning}
+        </div>
+      </div>
+    ) : null;
 
   return (
     <>
@@ -217,6 +264,7 @@ const Settings: NextPage = () => {
                     </span>
                   </div>
                 </div>
+                {trackerRemovalSetting}
                 <div className={styles.controls}>
                   <Button type="submit">
                     {l10n.getString("settings-button-save-label")}

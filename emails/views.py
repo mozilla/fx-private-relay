@@ -756,9 +756,7 @@ def _handle_reply(from_address, message_json, to_address):
             mail,
             address,
         )
-        address.num_forwarded += 1
-        address.last_used_at = datetime.now(timezone.utc)
-        address.save(update_fields=["num_forwarded", "last_used_at"])
+        reply_record.increment_num_replied()
         profile = address.user.profile_set.first()
         profile.update_abuse_metric(replied=True)
         return response

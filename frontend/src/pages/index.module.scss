@@ -125,12 +125,14 @@
   padding: $spacing-lg;
 }
 
-.plans-wrapper {
+// Creates a page break effect
+.page-break {
   background: linear-gradient(
     180deg,
     $color-light-gray-20 0%,
-    $color-light-gray-10 3%
+    $color-light-gray-10 45%
   );
+  height: $layout-md;
 }
 
 .plans {
