@@ -18,6 +18,11 @@
   border-radius: $border-radius-sm;
 
   svg {
+    // The `fill` shouldn't be necessary; `color` should apply the correct colour
+    // due to the Bento icon's setting its fill to `currentcolor` in its style
+    // attribute. However, for some reason that attribute appears to get removed
+    // in the built website. See
+    // https://github.com/mozilla/fx-private-relay/pull/2036#discussion_r893270078
     fill: $color-white;
     color: $color-white;
 
