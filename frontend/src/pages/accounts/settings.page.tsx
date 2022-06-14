@@ -37,7 +37,7 @@ const Settings: NextPage = () => {
     profileData.data?.[0].server_storage
   );
   const [trackerRemovalEnabled, setTrackerRemovalEnabled] = useState(
-    profileData.data?.[0].remove_email_tracker_default
+    profileData.data?.[0].remove_level_one_email_trackers
   );
   const [justCopiedApiKey, setJustCopiedApiKey] = useState(false);
   const apiKeyElementRef = useRef<HTMLInputElement>(null);
@@ -86,8 +86,8 @@ const Settings: NextPage = () => {
     try {
       await profileData.update(profile.id, {
         server_storage: labelCollectionEnabled,
-        remove_email_tracker_default:
-          typeof profile.remove_email_tracker_default === "boolean"
+        remove_level_one_email_trackers:
+          typeof profile.remove_level_one_email_trackers === "boolean"
             ? trackerRemovalEnabled
             : undefined,
       });
@@ -148,10 +148,10 @@ const Settings: NextPage = () => {
   };
 
   // To allow us to add this UI before the back-end is updated, we only show it
-  // when the profiles API actually returns a property `remove_email_tracker_default`.
+  // when the profiles API actually returns a property `remove_level_one_email_trackers`.
   // Once it does, the commit that introduced this comment can be reverted.
   const trackerRemovalSetting =
-    typeof profile.remove_email_tracker_default === "boolean" ? (
+    typeof profile.remove_level_one_email_trackers === "boolean" ? (
       <div className={styles.field}>
         <h2 className={styles["field-heading"]}>
           <span className={styles["field-heading-icon-wrapper"]}>
@@ -165,7 +165,7 @@ const Settings: NextPage = () => {
               type="checkbox"
               name="tracker-removal"
               id="tracker-removal"
-              defaultChecked={profile.remove_email_tracker_default}
+              defaultChecked={profile.remove_level_one_email_trackers}
               onChange={(e) => setTrackerRemovalEnabled(e.target.checked)}
             />
             <label htmlFor="tracker-removal">
