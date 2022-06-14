@@ -116,6 +116,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "emails_blocked",
             "emails_forwarded",
             "emails_replied",
+            'remove_level_one_email_trackers',
         ]
         read_only_fields = [
             "id",
