@@ -3,6 +3,7 @@ import { useApiV1 } from "./api";
 
 type CountryCode = string;
 type LanguageCode = string;
+type WaffleFlag = [string, boolean];
 export type PremiumPlans = {
   country_code: CountryCode;
   premium_countries: CountryCode[];
@@ -16,8 +17,10 @@ export type RuntimeData = {
   FXA_ORIGIN: string;
   GOOGLE_ANALYTICS_ID: `UA-${number}-${number}`;
   PREMIUM_PRODUCT_ID: `prod_${string}`;
+  PHONE_PRODUCT_ID: `prod_${string}`;
   PREMIUM_PLANS: PremiumPlans;
   BASKET_ORIGIN: string;
+  WAFFLE_FLAGS: WaffleFlag[];
 };
 
 /**

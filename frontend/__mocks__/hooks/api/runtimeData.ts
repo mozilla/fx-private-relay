@@ -17,6 +17,7 @@ export function getMockRuntimeDataWithPremium(): RuntimeData {
     BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
     PREMIUM_PRODUCT_ID: "prod_123456789",
+    PHONE_PRODUCT_ID: "prod_123456789",
     PREMIUM_PLANS: {
       country_code: "nl",
       plan_country_lang_mapping: {
@@ -30,6 +31,7 @@ export function getMockRuntimeDataWithPremium(): RuntimeData {
       premium_countries: ["nl"],
       premium_available_in_country: true,
     },
+    WAFFLE_FLAGS: [],
   };
 }
 export function getMockRuntimeDataWithoutPremium(): RuntimeData {
@@ -38,6 +40,7 @@ export function getMockRuntimeDataWithoutPremium(): RuntimeData {
     BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
     PREMIUM_PRODUCT_ID: "prod_123456789",
+    PHONE_PRODUCT_ID: "prod_123456789",
     PREMIUM_PLANS: {
       country_code: "be",
       plan_country_lang_mapping: {
@@ -51,6 +54,7 @@ export function getMockRuntimeDataWithoutPremium(): RuntimeData {
       premium_countries: ["nl"],
       premium_available_in_country: false,
     },
+    WAFFLE_FLAGS: [],
   };
 }
 

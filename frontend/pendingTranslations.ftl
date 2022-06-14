@@ -6,6 +6,7 @@ menu-upgrade-button = Upgrade
 menu-toggle-open = Open menu
 menu-toggle-close = Close menu
 nav-dashboard = Dashboard
+nav-phone = Phone Number
 nav-settings = Settings
 nav-support = Help and Support
 nav-sign-out = Sign Out
@@ -100,6 +101,12 @@ landing-review-user-four-review-list-4 = { -brand-name-firefox-relay } works won
  
 fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
+fx-containers = { -brand-name-firefox } Containers
 
+## Phone Page
+
+phone-headline = Introducing phone number masking
+
+## Replies
 profile-label-replies = Replies
 profile-replies-tooltip = You can reply to emails received through this mask, and Firefox Relay will continue to protect your true email address.
