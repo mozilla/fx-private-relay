@@ -99,15 +99,6 @@ const Profile: NextPage = () => {
     aliasData.customAliasData.data
   );
 
-  const totalBlockedEmails = allAliases.reduce(
-    (count, alias) => count + alias.num_blocked,
-    0
-  );
-  const totalForwardedEmails = allAliases.reduce(
-    (count, alias) => count + alias.num_forwarded,
-    0
-  );
-
   if (
     profile.has_premium &&
     profile.onboarding_state < getRuntimeConfig().maxOnboardingAvailable
@@ -124,8 +115,8 @@ const Profile: NextPage = () => {
           aliases={allAliases}
           profile={profile}
           runtimeData={runtimeData.data}
-          totalBlockedEmails={totalBlockedEmails}
-          totalForwardedEmails={totalForwardedEmails}
+          totalBlockedEmails={profile.emails_blocked}
+          totalForwardedEmails={profile.emails_forwarded}
         />
         <Layout>
           <PremiumOnboarding
@@ -269,7 +260,7 @@ const Profile: NextPage = () => {
               {l10n.getString("profile-stat-label-blocked")}
             </dt>
             <dd className={styles.value}>
-              {numberFormatter.format(totalBlockedEmails)}
+              {numberFormatter.format(profile.emails_blocked)}
             </dd>
           </div>
           <div className={styles.stat}>
@@ -277,7 +268,7 @@ const Profile: NextPage = () => {
               {l10n.getString("profile-stat-label-forwarded")}
             </dt>
             <dd className={styles.value}>
-              {numberFormatter.format(totalForwardedEmails)}
+              {numberFormatter.format(profile.emails_forwarded)}
             </dd>
           </div>
         </dl>
@@ -341,8 +332,8 @@ const Profile: NextPage = () => {
         aliases={allAliases}
         profile={profile}
         runtimeData={runtimeData.data}
-        totalBlockedEmails={totalBlockedEmails}
-        totalForwardedEmails={totalForwardedEmails}
+        totalBlockedEmails={profile.emails_blocked}
+        totalForwardedEmails={profile.emails_forwarded}
       />
       <Layout>
         <main className={styles["profile-wrapper"]}>
