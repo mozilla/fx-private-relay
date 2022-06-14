@@ -10,12 +10,19 @@ export const mockFluentReact = {
       },
     };
   },
-  Localized: (props: { children: ReactNode; vars?: Record<string, string> }) =>
+  Localized: (props: {
+    children: ReactNode;
+    id: string;
+    vars?: Record<string, string>;
+  }) =>
     isValidElement(props.children) ? (
       cloneElement(
         props.children,
         {},
-        <>[Localized with vars: {JSON.stringify(props.vars ?? {})}]</>
+        <>
+          [&lt;Localized&gt; with id [{props.id}] and vars:{" "}
+          {JSON.stringify(props.vars ?? {})}]
+        </>
       )
     ) : (
       <>Invalid Localized element (more than a single child element)</>

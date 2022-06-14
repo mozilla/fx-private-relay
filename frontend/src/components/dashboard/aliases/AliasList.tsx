@@ -169,12 +169,12 @@ export const AliasList = (props: Props) => {
         </div>
         <button
           onClick={() => setStringFilterVisible(!stringFilterVisible)}
-          title={l10n.getString("banner-register-subdomain-button-search")}
+          title={l10n.getString("profile-filter-search-placeholder-2")}
           className={styles["string-filter-toggle"]}
         >
           <img
             src={searchIcon.src}
-            alt={l10n.getString("banner-register-subdomain-button-search")}
+            alt={l10n.getString("profile-filter-search-placeholder-2")}
             width={20}
             height={20}
           />
