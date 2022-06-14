@@ -45,6 +45,16 @@ jest.mock("react-intersection-observer", () => mockReactIntersectionObsever);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../functions/renderDate.ts");
 jest.mock("../../functions/getLocale.ts", () => mockGetLocaleModule);
+jest.mock("../../hooks/api/api.ts", () => ({
+  // `authenticatedFetch` is currently only used to check whether a subdomain
+  // is available, so we're just mocking that:
+  authenticatedFetch: jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      json: () => Promise.resolve({ available: true }),
+    })
+  ),
+}));
 jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
 
@@ -215,6 +225,30 @@ describe("The dashboard", () => {
     );
 
     expect(domainSearchField).not.toBeInTheDocument();
+  });
+
+  it("shows that capital letters in searched-for subdomains will be lowercased", async () => {
+    setMockProfileDataOnce({ has_premium: true, subdomain: null });
+    render(<Profile />);
+
+    const domainSearchField = screen.getByLabelText(
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+    );
+
+    await userEvent.type(domainSearchField, "SpoNGeBoB");
+
+    const preview = screen.getByText("spongebob");
+    expect(preview).toBeInTheDocument();
+
+    const searchButton = screen.getByRole("button", {
+      name: "l10n string: [banner-register-subdomain-button-search], with vars: {}",
+    });
+    await userEvent.click(searchButton);
+
+    const subdomainDialog = screen.getByRole("dialog", {
+      name: '[<Localized> with id [modal-domain-register-available-2] and vars: {"subdomain":"spongebob","domain":"mozmail.com"}]',
+    });
+    expect(subdomainDialog).toBeInTheDocument();
   });
 
   it("shows a banner to download Firefox if using a different browser that does not support Chrome extensions", () => {
@@ -492,6 +526,35 @@ describe("The dashboard", () => {
     );
 
     expect(subdomainSearchField).toBeInTheDocument();
+  });
+
+  it("shows that searched-for subdomains will be lowercased in the second step of Premium onboarding", async () => {
+    setMockProfileDataOnce({
+      has_premium: true,
+      onboarding_state: 1,
+      subdomain: null,
+    });
+
+    render(<Profile />);
+
+    const subdomainSearchField = screen.getByLabelText(
+      "l10n string: [banner-choose-subdomain-input-placeholder-3], with vars: {}"
+    );
+
+    await userEvent.type(subdomainSearchField, "sPoNGeBob");
+
+    const preview = screen.getByText("spongebob");
+    expect(preview).toBeInTheDocument();
+
+    const searchButton = screen.getByRole("button", {
+      name: "l10n string: [banner-register-subdomain-button-search], with vars: {}",
+    });
+    await userEvent.click(searchButton);
+
+    const subdomainDialog = screen.getByRole("dialog", {
+      name: '[<Localized> with id [modal-domain-register-available-2] and vars: {"subdomain":"spongebob","domain":"mozmail.com"}]',
+    });
+    expect(subdomainDialog).toBeInTheDocument();
   });
 
   it("does not allow picking a subdomain in the second step of Premium onboarding if the user already has a subdomain", () => {

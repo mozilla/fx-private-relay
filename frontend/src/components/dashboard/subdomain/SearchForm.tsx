@@ -31,12 +31,12 @@ export const SubdomainSearchForm = (props: Props) => {
       return;
     }
 
-    props.onPick(subdomainInput);
+    props.onPick(subdomainInput.toLowerCase());
   };
 
   const onInput: ChangeEventHandler<HTMLInputElement> = async (event) => {
     setSubdomainInput(event.target.value);
-    props.onType(event.target.value);
+    props.onType(event.target.value.toLowerCase());
   };
 
   return (
