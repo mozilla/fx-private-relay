@@ -1,5 +1,5 @@
 import { useLocalization } from "@fluent/react";
-import { useRef, useState } from "react";
+import { TouchEventHandler, useRef, useState } from "react";
 import { useButton } from "react-aria";
 import FxBrowserLogo from "./images/fx-logo.svg";
 import {
@@ -47,17 +47,17 @@ export const Reviews = () => {
   );
 
   // Get initial user position on touch
-  function handleTouchStart(e: any) {
+  const handleTouchStart: TouchEventHandler<HTMLDivElement> = (e) => {
     setTouchStart(e.targetTouches[0].clientX);
-  }
+  };
 
   // Get end position when user ends touch
-  function handleTouchMove(e: any) {
+  const handleTouchMove: TouchEventHandler<HTMLDivElement> = (e) => {
     setTouchEnd(e.targetTouches[0].clientX);
-  }
+  };
 
   // Figure out if user swiped left or right
-  function handleTouchEnd() {
+  const handleTouchEnd: TouchEventHandler<HTMLDivElement> = () => {
     // user swiped left
     if (touchStart - touchEnd > 150) {
       scrollReview(currentReview, userReviews, "left");
@@ -67,7 +67,7 @@ export const Reviews = () => {
     if (touchStart - touchEnd < -150) {
       scrollReview(currentReview, userReviews, "right");
     }
-  }
+  };
 
   const userReviews: UserReview[] = [
     {
@@ -187,9 +187,9 @@ export const Reviews = () => {
 
             <div
               className={styles["review-container"]}
-              onTouchStart={(e) => handleTouchStart(e)}
-              onTouchMove={(e) => handleTouchMove(e)}
-              onTouchEnd={() => handleTouchEnd()}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
             >
               <div
                 key={currentReview}
