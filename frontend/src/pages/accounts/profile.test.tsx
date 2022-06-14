@@ -107,7 +107,7 @@ describe("The dashboard", () => {
   });
 
   it("shows a count of total emails forwarded for Premium users", () => {
-    setMockProfileDataOnce({ has_premium: true });
+    setMockProfileDataOnce({ has_premium: true, emails_forwarded: 42 });
     setMockAliasesDataOnce({
       random: [
         getMockRandomAlias({ address: "address1", num_forwarded: 7 }),
@@ -127,7 +127,7 @@ describe("The dashboard", () => {
   });
 
   it("shows a count of total emails blocked for Premium users", () => {
-    setMockProfileDataOnce({ has_premium: true });
+    setMockProfileDataOnce({ has_premium: true, emails_blocked: 50 });
     setMockAliasesDataOnce({
       random: [
         getMockRandomAlias({ address: "address1", num_blocked: 13 }),
@@ -144,6 +144,41 @@ describe("The dashboard", () => {
     // https://github.com/testing-library/dom-testing-library/issues/1083
     // eslint-disable-next-line testing-library/no-node-access
     expect(countOf50.parentElement?.textContent).toMatch("50");
+  });
+
+  it("uses the count of total emails blocked/forwarded from the back-end, even when that count includes deleted masks and therefore does not agree with the individual mask counts", () => {
+    setMockProfileDataOnce({
+      has_premium: true,
+      emails_forwarded: 50,
+      emails_blocked: 72,
+    });
+    setMockAliasesDataOnce({
+      random: [
+        getMockRandomAlias({
+          address: "address1",
+          num_forwarded: 7,
+          num_blocked: 13,
+        }),
+        getMockRandomAlias({
+          address: "address2",
+          num_forwarded: 35,
+          num_blocked: 37,
+        }),
+      ],
+      custom: [],
+    });
+    render(<Profile />);
+
+    const countOf50 = screen.getByText(/profile-stat-label-forwarded/);
+    const countOf72 = screen.getByText(/profile-stat-label-blocked/);
+
+    // Unfortunately we can't select by role=definition to directly query for
+    // the parent item, so we'll have to make do with this crutch. See:
+    // https://github.com/testing-library/dom-testing-library/issues/1083
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(countOf50.parentElement?.textContent).toMatch("50");
+    // eslint-disable-next-line testing-library/no-node-access
+    expect(countOf72.parentElement?.textContent).toMatch("72");
   });
 
   it("shows the domain search form for Premium users that do not have a domain yet", () => {
