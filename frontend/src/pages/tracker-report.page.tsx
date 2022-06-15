@@ -14,15 +14,15 @@ import Link from "next/link";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 
 // Paste this in your browser console to get a report URL:
-// { let url = new URL("http://localhost:3000/tracker-report"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: ["ads.facebook.com", "ads.googletagmanager.com"] }); url.href }
+// { let url = new URL("http://localhost:3000/tracker-report"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 } }); url.href }
 // This generates the following URL:
-// http://localhost:3000/tracker-report#{%22sender%22:%22email@example.com%22,%22received_at%22:1656340190039,%22trackers%22:[%22ads.facebook.com%22,%22ads.googletagmanager.com%22]}
+// http://localhost:3000/tracker-report#{%22sender%22:%22email@example.com%22,%22received_at%22:1655288077484,%22trackers%22:{%22ads.facebook.com%22:1,%22ads.googletagmanager.com%22:2}}
 // For more info, see /docs/frontend-architecture.md#work-on-the-tracker-removal-report
 
 type ReportData = {
   sender: string;
   received_at: number;
-  trackers: string[];
+  trackers: Record<string, number>;
 };
 
 const TrackerReport: NextPage = () => {
@@ -54,6 +54,41 @@ const TrackerReport: NextPage = () => {
       </div>
     );
   }
+
+  const trackers = Object.entries(reportData.trackers).sort(
+    ([_trackerA, countA], [_trackerB, countB]) => countB - countA
+  );
+  const trackerListing =
+    trackers.length === 0 ? (
+      <p>{l10n.getString("trackerreport-trackers-none")}</p>
+    ) : (
+      <table>
+        <thead>
+          <tr>
+            <td aria-hidden={true}>
+              {/* Empty header for the icon column, hidden from screen readers */}
+            </td>
+            <th>{l10n.getString("trackerreport-trackers-tracker-heading")}</th>
+            <th>{l10n.getString("trackerreport-trackers-count-heading")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trackers.map(([tracker, count]) => (
+            <tr key={tracker}>
+              <td aria-hidden={true} className={styles.icon}>
+                <HideIcon alt="" />
+              </td>
+              <td className={styles["tracker-domain"]}>{tracker}</td>
+              <td aria-label={count.toString()} className={styles.count}>
+                {l10n.getString("trackerreport-tracker-count", {
+                  count: count,
+                })}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
 
   return (
     <>
@@ -91,21 +126,16 @@ const TrackerReport: NextPage = () => {
                 <dt>{l10n.getString("trackerreport-meta-count-heading")}</dt>
                 <dd>
                   {l10n.getString("trackerreport-trackers-value", {
-                    count: reportData.trackers.length,
+                    count: Object.values(reportData.trackers).reduce(
+                      (acc, count) => acc + count
+                    ),
                   })}
                 </dd>
               </div>
             </dl>
             <div className={styles.trackers}>
               <h2>{l10n.getString("trackerreport-trackers-heading")}</h2>
-              <ul>
-                {reportData.trackers.map((tracker) => (
-                  <li key={tracker}>
-                    <HideIcon alt="" />
-                    {tracker}
-                  </li>
-                ))}
-              </ul>
+              {trackerListing}
             </div>
             <div className={styles["confidentiality-notice"]}>
               <InfoFilledIcon alt="" />
@@ -216,8 +246,11 @@ function containsReportData(parsed: any): parsed is ReportData {
     parsed !== null &&
     typeof parsed.sender === "string" &&
     Number.isInteger(parsed.received_at) &&
-    Array.isArray(parsed.trackers) &&
-    parsed.trackers.every((tracker: unknown) => typeof tracker === "string")
+    typeof parsed.trackers === "object" &&
+    Object.entries(parsed.trackers).every(
+      ([tracker, count]: [unknown, unknown]) =>
+        typeof tracker === "string" && Number.isInteger(count)
+    )
   );
 }
 

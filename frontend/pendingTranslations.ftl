@@ -146,7 +146,20 @@ trackerreport-meta-from-heading = From
 trackerreport-meta-receivedat-heading = Received by
 trackerreport-meta-count-heading = Total trackers
 trackerreport-trackers-heading = Trackers detected
+# This is a table heading, entries in this column are e.g. ads.facebook.com, ads.googletagmanager.com
+trackerreport-trackers-tracker-heading = Tracker domain
+trackerreport-trackers-count-heading = Number of trackers
+trackerreport-trackers-none = No trackers detected in this email.
+# Variables:
+#   $count (number) - Total number of trackers found in an email
 trackerreport-trackers-value =
+    { $count ->
+        [one] 1 tracker
+        *[other] { $count } trackers
+    }
+# Variables:
+#   $count (number) - Total number of trackers in an email served from $tracker
+trackerreport-tracker-count =
     { $count ->
         [one] 1 tracker
         *[other] { $count } trackers
