@@ -29,6 +29,8 @@ import ForwardSomeHero from "./images/forward-some-hero.svg";
 import ForwardSomeIcon from "./images/forward-some-icon.svg";
 import aliasToMaskHero from "./images/alias-to-mask-hero.svg";
 import aliasToMaskIcon from "./images/alias-to-mask-icon.svg";
+import TrackerRemovalHero from "./images/tracker-removal-hero.svg";
+import TrackerRemovalIcon from "./images/tracker-removal-icon.svg";
 import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
@@ -279,6 +281,34 @@ export const WhatsNewMenu = (props: Props) => {
     !props.profile.has_premium
   ) {
     entries.push(premiumInFinland);
+  }
+
+  const trackerRemoval: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-tracker-removal-heading"),
+    snippet: l10n.getString("whatsnew-feature-tracker-removal-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-tracker-removal-description"
+        )}
+        heading={l10n.getString("whatsnew-feature-tracker-removal-heading")}
+        image={TrackerRemovalHero.src}
+      />
+    ),
+    hero: TrackerRemovalHero.src,
+    icon: TrackerRemovalIcon.src,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_tracker-removal_${props.profile.id}`
+    ),
+    announcementDate: {
+      year: 2022,
+      month: 6,
+      day: 23,
+    },
+  };
+  // Only show its announcement if tracker removal is live:
+  if (typeof props.profile.remove_level_one_email_trackers === "boolean") {
+    entries.push(trackerRemoval);
   }
 
   entries.sort(entriesDescByDateSorter);

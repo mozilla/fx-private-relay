@@ -98,7 +98,7 @@ landing-review-user-four-review-list-1 = Gives peace of mind when surfing the in
 landing-review-user-four-review-list-2 = Protects ones identity from trackers through generation of aliases where one does not want to share the real email address for various reasons.
 landing-review-user-four-review-list-3 = Email inbox data is safe in the hands of { -brand-name-firefox-relay }.
 landing-review-user-four-review-list-4 = { -brand-name-firefox-relay } works wonders, try it!!!
- 
+
 fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
 fx-containers = { -brand-name-firefox } Containers
@@ -109,10 +109,17 @@ phone-headline = Introducing phone number masking
 
 ## Replies
 profile-label-replies = Replies
-profile-replies-tooltip = You can reply to emails received through this mask, and Firefox Relay will continue to protect your true email address.
-
 # Loyalist Upsell Banner:
 banner-upgrade-loyalist-headline-2 = Protect your privacy, save the internet
 # Variables:
 #   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
 banner-upgrade-loyalist-copy-2 = Protect your privacy while joining our mission to build a better internet, all for { $monthly_price }
+
+profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.
+
+whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
+# A preview of the full content of `whatsnew-feature-tracker-removal-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-tracker-removal-snippet = Now { -brand-name-relay } can remove common email trackers from emails forwarded…
+whatsnew-feature-tracker-removal-description = Now { -brand-name-relay } can remove common email trackers from emails forwarded to you, helping you stay invisible to advertisers.
