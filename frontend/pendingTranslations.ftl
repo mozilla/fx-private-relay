@@ -136,7 +136,6 @@ trackerreport-tracker-count =
     }
 trackerreport-confidentiality-notice = Tracker information and from address shown in these reports are not saved by { -brand-name-firefox-relay } and only contained within report URLs. We do not save your emails.
 trackerreport-removal-explainer-heading = How tracker removal works
-# Note, at the time of writing, it's not actually possbile to enable tracker removal for individual masks.
 trackerreport-removal-explainer-content = { -brand-name-firefox-relay } can now remove common trackers from emails forwarded through your email masks. You’ll still receive your emails, but the trackers in your forwarded emails will be removed, so you can get your emails without being tracked. To enable tracker removal on all your masks at once, enable tracker removal in settings rather than individually for each mask.
 trackerreport-trackers-explainer-heading = About email trackers
 trackerreport-trackers-explainer-content-part1 = Email tracking is a common surveillance and advertising tool that has taken over many inboxes. These trackers can be used to understand more about your online behavior, your interests, and your email activity.
@@ -153,3 +152,10 @@ faq-question-bulk-trackerremoval-question = Can I remove trackers only on some o
 faq-question-bulk-trackerremoval-answer = You can only turn tracker removal on at an account level—it either removes trackers from all of your emails, or none of them.
 faq-question-trackerremoval-breakage-question = Why do my emails look broken?
 faq-question-trackerremoval-breakage-answer = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
+
+whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
+# A preview of the full content of `whatsnew-feature-tracker-removal-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-tracker-removal-snippet = Now { -brand-name-relay } can remove common email trackers from emails forwarded…
+whatsnew-feature-tracker-removal-description = Now { -brand-name-relay } can remove common email trackers from emails forwarded to you, helping you stay invisible to advertisers.
