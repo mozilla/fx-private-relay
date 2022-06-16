@@ -317,6 +317,38 @@ const Faq: NextPage = () => {
                   {l10n.getString("faq-question-detect-promotional-answer")}
                 </p>
               </QAndA>
+              <QAndA
+                id="faq-disable-trackerremoval"
+                question={l10n.getString(
+                  "faq-question-disable-trackerremoval-question"
+                )}
+              >
+                <p>
+                  {l10n.getString("faq-question-disable-trackerremoval-answer")}
+                </p>
+              </QAndA>
+              <QAndA
+                id="faq-bulk-trackerremoval"
+                question={l10n.getString(
+                  "faq-question-bulk-trackerremoval-question"
+                )}
+              >
+                <p>
+                  {l10n.getString("faq-question-bulk-trackerremoval-answer")}
+                </p>
+              </QAndA>
+              <QAndA
+                id="faq-trackerremoval-breakage"
+                question={l10n.getString(
+                  "faq-question-trackerremoval-breakage-question"
+                )}
+              >
+                <p>
+                  {l10n.getString(
+                    "faq-question-trackerremoval-breakage-answer"
+                  )}
+                </p>
+              </QAndA>
             </div>
           </div>
         </div>
