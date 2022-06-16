@@ -140,3 +140,10 @@ profile-trackers-removed-tooltip-part2 = Important: Sometimes removing trackers 
 # This is a button that, when clicked, will open a tooltip with profile-indicator-tracker-removal-tooltip ("Currently removing email trackers").
 profile-indicator-tracker-removal-alt = Tracker removal
 profile-indicator-tracker-removal-tooltip = Currently removing email trackers
+
+faq-question-disable-trackerremoval-question = Can I stop removing email trackers?
+faq-question-disable-trackerremoval-answer = Yes. If you’re having trouble with emails looking broken or would like to stop removing trackers, you can disable the feature in settings.
+faq-question-bulk-trackerremoval-question = Can I remove trackers only on some of my email masks?
+faq-question-bulk-trackerremoval-answer = You can only turn tracker removal on at an account level—it either removes trackers from all of your emails, or none of them.
+faq-question-trackerremoval-breakage-question = Why do my emails look broken?
+faq-question-trackerremoval-breakage-answer = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
