@@ -543,7 +543,15 @@ def check_user_can_make_another_address(user):
         raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG.format(hit_limit))
 
 
+def valid_address_pattern(address):
+    #   can't start or end with a hyphen
+    #   must be 1-63 lowercase alphanumeric characters and/or hyphens
+    valid_address_pattern = re.compile("^(?!-)[a-z0-9-]{1,63}(?<!-)$")
+    return valid_address_pattern.match(address) is not None
+
+
 def valid_address(address, domain):
+    address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
     address_is_blocklisted = is_blocklisted(address)
     address_already_deleted = DeletedAddress.objects.filter(
@@ -553,6 +561,7 @@ def valid_address(address, domain):
         address_already_deleted > 0
         or address_contains_badword
         or address_is_blocklisted
+        or not address_pattern_valid
     ):
         return False
     return True
@@ -613,6 +622,12 @@ class DomainAddress(models.Model):
         user_profile = self.user.profile_set.first()
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
+            pattern_valid = valid_address_pattern(self.address)
+            address_contains_badword = has_bad_words(self.address)
+            if not pattern_valid or address_contains_badword:
+                raise CannotMakeAddressException(
+                    TRY_DIFFERENT_VALUE_ERR_MSG.format(f"Domain address {self.address}")
+                )
             user_profile.update_abuse_metric(address_created=True)
         # TODO: validate user is premium to set block_list_emails
         if not user_profile.server_storage:
@@ -634,11 +649,6 @@ class DomainAddress(models.Model):
             # DomainAlias will be a feature
             address = address_default()
             # Only check for bad words if randomly generated
-            address_contains_badword = has_bad_words(address)
-        if address_contains_badword:
-            raise CannotMakeAddressException(
-                TRY_DIFFERENT_VALUE_ERR_MSG.format("Email address with subdomain")
-            )
 
         domain_address = DomainAddress.objects.create(
             user=user_profile.user,
