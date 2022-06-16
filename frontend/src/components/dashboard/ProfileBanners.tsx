@@ -233,7 +233,7 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
     <Banner
       key="premium-banner"
       type="promo"
-      title={l10n.getString("banner-upgrade-loyalist-headline")}
+      title={l10n.getString("banner-upgrade-loyalist-headline-2")}
       illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
       ctaLargeButton={{
         target: getPremiumSubscribeLink(props.runtimeData),
@@ -246,7 +246,7 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
       }}
     >
       <p>
-        {l10n.getString("banner-upgrade-loyalist-copy", {
+        {l10n.getString("banner-upgrade-loyalist-copy-2", {
           monthly_price: getPlan(props.runtimeData).price,
         })}
       </p>
