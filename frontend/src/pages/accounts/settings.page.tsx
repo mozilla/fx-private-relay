@@ -80,17 +80,6 @@ const Settings: NextPage = () => {
       </aside>
     ) : null;
 
-  // This warning should only be shown when the user currently does not have
-  // tracker removal enabled, regardless of whether they've toggled it on or off
-  // without saving their settings yet:
-  const trackerRemovalWarning =
-    profile.remove_level_one_email_trackers === false ? (
-      <aside role="alert" className={styles["field-warning"]}>
-        <img src={infoTriangleIcon.src} alt="" width={20} />
-        <p>{l10n.getString("setting-tracker-removal-warning")}</p>
-      </aside>
-    ) : null;
-
   const saveSettings: FormEventHandler = async (event) => {
     event.preventDefault();
 
@@ -184,7 +173,10 @@ const Settings: NextPage = () => {
               <p>{l10n.getString("setting-tracker-removal-note")}</p>
             </label>
           </div>
-          {trackerRemovalWarning}
+          <aside role="alert" className={styles["field-warning"]}>
+            <img src={infoTriangleIcon.src} alt="" width={20} />
+            <p>{l10n.getString("setting-tracker-removal-warning")}</p>
+          </aside>
         </div>
       </div>
     ) : null;
