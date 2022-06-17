@@ -22,6 +22,7 @@ export type CommonAliasData = {
   num_blocked: number;
   num_spam: number;
   num_replied: number;
+  num_level_one_trackers_blocked: number;
   used_on: string | "" | null;
 };
 
