@@ -74,10 +74,10 @@ const Settings: NextPage = () => {
   // i.e. not when it is off on page load.
   const labelCollectionWarning =
     labelCollectionDisabledWarningToggles > 1 && !labelCollectionEnabled ? (
-      <aside role="alert" className={styles["field-warning"]}>
+      <div role="alert" className={styles["field-warning"]}>
         <img src={infoTriangleIcon.src} alt="" width={20} />
         <p>{l10n.getString("setting-label-collection-off-warning-2")}</p>
-      </aside>
+      </div>
     ) : null;
 
   const saveSettings: FormEventHandler = async (event) => {
@@ -173,10 +173,10 @@ const Settings: NextPage = () => {
               <p>{l10n.getString("setting-tracker-removal-note")}</p>
             </label>
           </div>
-          <aside role="alert" className={styles["field-warning"]}>
+          <div className={styles["field-warning"]}>
             <img src={infoTriangleIcon.src} alt="" width={20} />
             <p>{l10n.getString("setting-tracker-removal-warning")}</p>
-          </aside>
+          </div>
         </div>
       </div>
     ) : null;

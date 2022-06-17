@@ -1,6 +1,7 @@
 import {
   ProfileData,
   ProfileUpdateFn,
+  SetSubdomainFn,
   useProfiles,
 } from "../../../src/hooks/api/profile";
 
@@ -19,6 +20,7 @@ export function getMockProfileData(profileData?: MockData): ProfileData {
     has_premium: false,
     id: 0,
     server_storage: true,
+    remove_level_one_email_trackers: false,
     subdomain: null,
     onboarding_state: 3,
     avatar: "",
@@ -26,12 +28,17 @@ export function getMockProfileData(profileData?: MockData): ProfileData {
     bounce_status: [false, ""],
     next_email_try: "2022-04-02T13:37:00Z",
     api_token: "",
+    emails_blocked: 0,
+    emails_forwarded: 0,
+    emails_replied: 0,
+    num_level_one_trackers_blocked_in_deleted_address: 0,
     ...profileData,
   };
 }
 
 type Callbacks = {
   updater?: ProfileUpdateFn;
+  setSubdomain: SetSubdomainFn;
 };
 function getReturnValue(
   profileData?: MockData,
@@ -42,6 +49,7 @@ function getReturnValue(
     mutate: jest.fn(),
     update: callbacks?.updater ?? jest.fn(),
     data: [getMockProfileData(profileData)],
+    setSubdomain: callbacks?.setSubdomain ?? jest.fn(),
   };
 }
 
