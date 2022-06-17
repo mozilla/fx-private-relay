@@ -128,3 +128,6 @@ whatsnew-feature-tracker-removal-description = Now { -brand-name-relay } can rem
 profile-label-trackers-removed = Trackers removed
 profile-trackers-removed-tooltip-part1 = With tracker removal enabled, common email trackers will be removed from your forwarded emails.
 profile-trackers-removed-tooltip-part2 = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images.
+# This is a button that, when clicked, will open a tooltip with profile-indicator-tracker-removal-tooltip ("Currently removing email trackers").
+profile-indicator-tracker-removal-alt = Tracker removal
+profile-indicator-tracker-removal-tooltip = Currently removing email trackers
