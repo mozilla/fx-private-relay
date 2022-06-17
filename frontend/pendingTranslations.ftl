@@ -110,3 +110,9 @@ phone-headline = Introducing phone number masking
 ## Replies
 profile-label-replies = Replies
 profile-replies-tooltip = You can reply to emails received through this mask, and Firefox Relay will continue to protect your true email address.
+
+# Loyalist Upsell Banner:
+banner-upgrade-loyalist-headline-2 = Protect your privacy, save the internet
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
+banner-upgrade-loyalist-copy-2 = Protect your privacy while joining our mission to build a better internet, all for { $monthly_price }
