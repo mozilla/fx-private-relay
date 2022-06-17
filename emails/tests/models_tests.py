@@ -108,6 +108,11 @@ class MiscEmailModelsTest(TestCase):
     def test_is_blocklisted_with_blocked_word(self):
         assert is_blocklisted("mozilla")
 
+    def test_is_blocklisted_with_custom_blocked_word(self):
+        # custom blocked word
+        # see MPP-2077 for more details
+        assert is_blocklisted("customdomain")
+
     def test_is_blocklisted_without_blocked_words(self):
         assert not is_blocklisted("non-blocked-word")
 
