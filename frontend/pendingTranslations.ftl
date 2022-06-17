@@ -109,13 +109,13 @@ phone-headline = Introducing phone number masking
 
 ## Replies
 profile-label-replies = Replies
+profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.
+
 # Loyalist Upsell Banner:
 banner-upgrade-loyalist-headline-2 = Protect your privacy, save the internet
 # Variables:
 #   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
 banner-upgrade-loyalist-copy-2 = Protect your privacy while joining our mission to build a better internet, all for { $monthly_price }
-
-profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.
 
 whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
 # A preview of the full content of `whatsnew-feature-tracker-removal-description`.
@@ -123,3 +123,8 @@ whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
 # length as the English version.
 whatsnew-feature-tracker-removal-snippet = Now { -brand-name-relay } can remove common email trackers from emails forwarded…
 whatsnew-feature-tracker-removal-description = Now { -brand-name-relay } can remove common email trackers from emails forwarded to you, helping you stay invisible to advertisers.
+
+# This is displayed in small under a number in a large font indicating the number of trackers that have been removed from all emails sent to a particular mask
+profile-label-trackers-removed = Trackers removed
+profile-trackers-removed-tooltip-part1 = With tracker removal enabled, common email trackers will be removed from your forwarded emails.
+profile-trackers-removed-tooltip-part2 = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images.
