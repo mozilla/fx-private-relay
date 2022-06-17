@@ -1,7 +1,9 @@
 import { Localized, useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
-import { useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { event as gaEvent } from "react-ga";
+import { FocusScope, useButton, useMenuTrigger, useOverlay } from "react-aria";
+import { useMenuTriggerState } from "react-stately";
 import styles from "./profile.module.scss";
 import BottomBannerIllustration from "../../../../static/images/woman-couch-left.svg";
 import checkIcon from "../../../../static/images/icon-check.svg";
@@ -35,6 +37,7 @@ import { getLocale } from "../../functions/getLocale";
 import { InfoTooltip } from "../../components/InfoTooltip";
 import { AddonData } from "../../components/dashboard/AddonData";
 import { useAddonData } from "../../hooks/addon";
+import { CloseIcon } from "../../components/Icons";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -271,6 +274,34 @@ const Profile: NextPage = () => {
               {numberFormatter.format(profile.emails_forwarded)}
             </dd>
           </div>
+          {/*
+            Only show tracker blocking stats if the back-end provides them:
+          */}
+          {typeof profile.num_level_one_trackers_blocked_in_deleted_address ===
+            "number" && (
+            <div className={styles.stat}>
+              <dt className={styles.label}>
+                {l10n.getString("profile-stat-label-trackers-removed")}
+              </dt>
+              <dd className={styles.value}>
+                {numberFormatter.format(
+                  profile.num_level_one_trackers_blocked_in_deleted_address
+                )}
+                <StatExplainer>
+                  <p>
+                    {l10n.getString(
+                      "profile-stat-label-trackers-learn-more-part1"
+                    )}
+                  </p>
+                  <p>
+                    {l10n.getString(
+                      "profile-stat-label-trackers-learn-more-part2"
+                    )}
+                  </p>
+                </StatExplainer>
+              </dd>
+            </div>
+          )}
         </dl>
       </div>
     </section>
@@ -366,6 +397,83 @@ const Profile: NextPage = () => {
         <Tips profile={profile} />
       </Layout>
     </>
+  );
+};
+
+const StatExplainer = (props: { children: React.ReactNode }) => {
+  const { l10n } = useLocalization();
+  const explainerState = useMenuTriggerState({});
+  const openButtonRef = useRef<HTMLButtonElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const { menuTriggerProps } = useMenuTrigger(
+    {},
+    explainerState,
+    openButtonRef
+  );
+
+  const openButtonProps = useButton(
+    menuTriggerProps,
+    openButtonRef
+  ).buttonProps;
+  const closeButtonProps = useButton(
+    { onPress: explainerState.close },
+    closeButtonRef
+  ).buttonProps;
+
+  return (
+    <div
+      className={`${styles["learn-more-wrapper"]} ${
+        explainerState.isOpen ? styles["is-open"] : styles["is-closed"]
+      }`}
+    >
+      <button
+        {...openButtonProps}
+        ref={openButtonRef}
+        className={styles["open-button"]}
+      >
+        {l10n.getString("profile-stat-learn-more")}
+      </button>
+      {explainerState.isOpen && (
+        <StatExplainerTooltip
+          overlayProps={{
+            isOpen: explainerState.isOpen,
+            isDismissable: true,
+            onClose: explainerState.close,
+          }}
+        >
+          <button
+            ref={closeButtonRef}
+            {...closeButtonProps}
+            className={styles["close-button"]}
+          >
+            <CloseIcon alt={l10n.getString("profile-stat-learn-more-close")} />
+          </button>
+          {props.children}
+        </StatExplainerTooltip>
+      )}
+    </div>
+  );
+};
+
+type StatExplainerTooltipProps = {
+  children: ReactNode;
+  overlayProps: Parameters<typeof useOverlay>[0];
+};
+const StatExplainerTooltip = (props: StatExplainerTooltipProps) => {
+  const { l10n } = useLocalization();
+  const overlayRef = useRef<HTMLDivElement>(null);
+  const { overlayProps } = useOverlay(props.overlayProps, overlayRef);
+
+  return (
+    <FocusScope restoreFocus>
+      <div
+        {...overlayProps}
+        ref={overlayRef}
+        className={styles["learn-more-tooltip"]}
+      >
+        {props.children}
+      </div>
+    </FocusScope>
   );
 };
 
