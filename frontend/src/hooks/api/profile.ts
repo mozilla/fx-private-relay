@@ -17,6 +17,7 @@ export type ProfileData = {
   emails_blocked: number;
   emails_forwarded: number;
   emails_replied: number;
+  num_level_one_trackers_blocked_in_deleted_address: number;
 };
 
 export type ProfilesData = [ProfileData];
