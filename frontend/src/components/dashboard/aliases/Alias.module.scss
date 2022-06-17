@@ -32,10 +32,57 @@ $toggleTransitionDuration: 200ms;
 }
 
 .controls {
-  display: grid;
-  grid-template-columns: 1fr;
-  row-gap: $spacing-xs;
+  display: flex;
+  gap: $spacing-xs;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+$trackerRemovalIndicatorWidth: 20px;
+.tracker-removal-indicator-wrapper {
+  position: relative;
+  width: $trackerRemovalIndicatorWidth;
+
+  button {
+    border-style: none;
+    background-color: transparent;
+    color: $color-grey-30;
+    display: flex;
+    align-items: center;
+  }
+
+  $arrowWidth: 6px;
+  .tracker-removal-indicator-tooltip {
+    position: absolute;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
+    background-color: $color-white;
+    border-radius: $border-radius-md;
+    width: $content-xs;
+    top: calc(-50% - $spacing-md / 2);
+    left: $trackerRemovalIndicatorWidth + $spacing-sm + $arrowWidth;
+    // Overlap <LabelEditor>, which is relatively positioned:
+    z-index: 1;
+
+    &::before {
+      content: "";
+      height: $arrowWidth * 2;
+      width: $arrowWidth * 2;
+      position: absolute;
+      top: calc(50% - $arrowWidth);
+      left: $arrowWidth * -1;
+      transform: rotate(45deg);
+      background-color: $color-white;
+    }
+  }
+}
+
+.label-editor-wrapper {
+  flex: 1 0 auto;
+  // Grows to push the mask address to the next line when present,
+  // but not so much to push itself down below the
+  // `.tracker-removal-indicator-wrapper` if present:
+  width: calc(100% - $trackerRemovalIndicatorWidth - $spacing-xs);
 }
 
 .copy-controls {
@@ -117,6 +164,7 @@ $toggleTransitionDuration: 200ms;
 .block-level-label-wrapper {
   display: none;
   align-items: center;
+  flex: 1 0 auto;
 
   @media screen and #{$mq-md} {
     display: flex;
@@ -128,6 +176,8 @@ $toggleTransitionDuration: 200ms;
     border-radius: $border-radius-sm;
     padding: $spacing-sm;
     font-weight: 600;
+    flex: 1 0 auto;
+    text-align: center;
 
     &.block-level-all-label {
       color: $color-light-gray-70;
