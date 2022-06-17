@@ -56,6 +56,8 @@ export function getMockRandomAlias(
     num_blocked: 0,
     num_forwarded: 0,
     num_spam: 0,
+    num_replied: 0,
+    num_level_one_trackers_blocked: 0,
     ...alias,
   };
 }
@@ -79,6 +81,8 @@ export function getMockCustomAlias(
     num_blocked: 0,
     num_forwarded: 0,
     num_spam: 0,
+    num_replied: 0,
+    num_level_one_trackers_blocked: 0,
     ...alias,
   };
 }

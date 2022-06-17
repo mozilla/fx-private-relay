@@ -159,3 +159,8 @@ whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
 # length as the English version.
 whatsnew-feature-tracker-removal-snippet = Now { -brand-name-relay } can remove common email trackers from emails forwarded…
 whatsnew-feature-tracker-removal-description = Now { -brand-name-relay } can remove common email trackers from emails forwarded to you, helping you stay invisible to advertisers.
+
+# This is displayed in small under a number in a large font indicating the number of trackers that have been removed from all emails sent to a particular mask
+profile-label-trackers-removed = Trackers removed
+profile-trackers-removed-tooltip-part1 = With tracker removal enabled, common email trackers will be removed from your forwarded emails.
+profile-trackers-removed-tooltip-part2 = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images.

@@ -12,7 +12,11 @@ import copyIcon from "../../../../../static/images/copy-to-clipboard.svg";
 import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
 import IllustrationHoliday from "../../../../public/illustrations/holiday.svg";
 import IllustrationLibrary from "../../../../public/illustrations/library.svg";
-import { AliasData, getFullAddress } from "../../../hooks/api/aliases";
+import {
+  AliasData,
+  getFullAddress,
+  isBlockingLevelOneTrackers,
+} from "../../../hooks/api/aliases";
 import { LabelEditor } from "./LabelEditor";
 import { UserData } from "../../../hooks/api/user";
 import { ProfileData } from "../../../hooks/api/profile";
@@ -40,8 +44,6 @@ export type Props = {
 export const Alias = (props: Props) => {
   const { l10n } = useLocalization();
   const [justCopied, setJustCopied] = useState(false);
-
-  const hasPremium = props.profile.has_premium;
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const expandButtonState = useToggleState({
@@ -96,11 +98,6 @@ export const Alias = (props: Props) => {
     backgroundImage = IllustrationLibrary.src;
   }
 
-  const numberFormatter = new Intl.NumberFormat(getLocale(l10n), {
-    notation: "compact",
-    compactDisplay: "short",
-  });
-
   const setBlockLevel = (blockLevel: BlockLevel) => {
     if (blockLevel === "none") {
       // The back-end rejects requests trying to set this property for free users:
@@ -123,15 +120,23 @@ export const Alias = (props: Props) => {
     }
   };
 
+  const classNames = [
+    styles["alias-card"],
+    props.alias.enabled ? styles["is-enabled"] : styles["is-disabled"],
+    expandButtonState.isSelected
+      ? styles["is-expanded"]
+      : styles["is-collapsed"],
+    props.alias.block_list_emails
+      ? styles["is-blocking-promotionals"]
+      : styles["is-not-blocking-promotionals"],
+    isBlockingLevelOneTrackers(props.alias, props.profile)
+      ? styles["is-removing-trackers"]
+      : styles["is-not-removing-trackers"],
+  ].join(" ");
+
   return (
     <div
-      className={`${styles["alias-card"]} ${
-        props.alias.enabled ? styles["is-enabled"] : styles["is-disabled"]
-      } ${
-        expandButtonState.isSelected
-          ? styles["is-expanded"]
-          : styles["is-collapsed"]
-      }`}
+      className={classNames}
       style={{
         backgroundImage: backgroundImage
           ? `url(${backgroundImage}), none`
@@ -172,36 +177,8 @@ export const Alias = (props: Props) => {
         <div className={styles["block-level-label-wrapper"]}>
           <BlockLevelLabel alias={props.alias} />
         </div>
-        <div className={styles["alias-stats"]}>
-          <BlockedTooltip>
-            <span className={styles.number}>
-              {numberFormatter.format(props.alias.num_blocked)}
-            </span>
-            <span className={styles.label}>
-              {l10n.getString("profile-label-blocked")}
-            </span>
-          </BlockedTooltip>
-          <ForwardedTooltip>
-            <span className={styles.number}>
-              {numberFormatter.format(props.alias.num_forwarded)}
-            </span>
-            <span className={styles.label}>
-              {l10n.getString("profile-label-forwarded")}
-            </span>
-          </ForwardedTooltip>
-
-          {/* If user is not premium, hide the replies count */}
-          {hasPremium && (
-            <RepliesTooltip>
-              <span className={styles.number}>
-                {numberFormatter.format(props.alias.num_replied)}
-              </span>
-              <span className={styles.label}>
-                {l10n.getString("profile-label-replies")}
-              </span>
-            </RepliesTooltip>
-          )}
-        </div>
+        {/* This <Stats> will be hidden on small screens: */}
+        <Stats alias={props.alias} profile={props.profile} />
         <div className={styles["expand-toggle"]}>
           <button {...expandButtonProps} ref={expandButtonRef}>
             <img
@@ -218,6 +195,8 @@ export const Alias = (props: Props) => {
         </div>
       </div>
       <div className={styles["secondary-data"]}>
+        {/* This <Stats> will be hidden on large screens: */}
+        <Stats alias={props.alias} profile={props.profile} />
         <div className={styles.row}>
           <BlockLevelSlider
             alias={props.alias}
@@ -247,6 +226,66 @@ export const Alias = (props: Props) => {
   );
 };
 
+type StatsProps = {
+  alias: AliasData;
+  profile: ProfileData;
+};
+const Stats = (props: StatsProps) => {
+  const { l10n } = useLocalization();
+  const numberFormatter = new Intl.NumberFormat(getLocale(l10n), {
+    notation: "compact",
+    compactDisplay: "short",
+  });
+
+  return (
+    <div className={styles["alias-stats"]}>
+      <BlockedTooltip>
+        <span className={styles.number}>
+          {numberFormatter.format(props.alias.num_blocked)}
+        </span>
+        <span className={styles.label}>
+          {l10n.getString("profile-label-blocked")}
+        </span>
+      </BlockedTooltip>
+      <ForwardedTooltip>
+        <span className={styles.number}>
+          {numberFormatter.format(props.alias.num_forwarded)}
+        </span>
+        <span className={styles.label}>
+          {l10n.getString("profile-label-forwarded")}
+        </span>
+      </ForwardedTooltip>
+
+      {/* If user is not premium, hide the replies count */}
+      {props.profile.has_premium && (
+        <RepliesTooltip>
+          <span className={styles.number}>
+            {numberFormatter.format(props.alias.num_replied)}
+          </span>
+          <span className={styles.label}>
+            {l10n.getString("profile-label-replies")}
+          </span>
+        </RepliesTooltip>
+      )}
+
+      {/*
+        If the back-end does not yet support providing tracker blocking stats,
+        hide the blocked trackers count:
+       */}
+      {typeof props.alias.num_level_one_trackers_blocked === "number" && (
+        <TrackersRemovedTooltip>
+          <span className={styles.number}>
+            {numberFormatter.format(props.alias.num_level_one_trackers_blocked)}
+          </span>
+          <span className={styles.label}>
+            {l10n.getString("profile-label-trackers-removed")}
+          </span>
+        </TrackersRemovedTooltip>
+      )}
+    </div>
+  );
+};
+
 type TooltipProps = {
   children: ReactNode;
 };
@@ -259,7 +298,7 @@ const ForwardedTooltip = (props: TooltipProps) => {
   const { tooltipProps } = useTooltip({}, triggerState);
 
   return (
-    <span className={styles["stat-wrapper"]}>
+    <div className={styles["stat-wrapper"]}>
       <span
         ref={triggerRef}
         {...tooltipTrigger.triggerProps}
@@ -268,22 +307,25 @@ const ForwardedTooltip = (props: TooltipProps) => {
         {props.children}
       </span>
       {triggerState.isOpen && (
-        <span
+        <div
           {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
           className={styles.tooltip}
         >
-          <span>{l10n.getString("profile-forwarded-copy-2")}</span>
-          <br />
-          <strong>{l10n.getString("profile-forwarded-note")}</strong>&nbsp;
-          <span>
-            {l10n.getString("profile-forwarded-note-copy", {
-              size: getRuntimeConfig().emailSizeLimitNumber,
-              unit: getRuntimeConfig().emailSizeLimitUnit,
-            })}
-          </span>
-        </span>
+          <p>
+            <span>{l10n.getString("profile-forwarded-copy-2")}</span>
+          </p>
+          <p>
+            <strong>{l10n.getString("profile-forwarded-note")}</strong>&nbsp;
+            <span>
+              {l10n.getString("profile-forwarded-note-copy", {
+                size: getRuntimeConfig().emailSizeLimitNumber,
+                unit: getRuntimeConfig().emailSizeLimitUnit,
+              })}
+            </span>
+          </p>
+        </div>
       )}
-    </span>
+    </div>
   );
 };
 
@@ -295,7 +337,7 @@ const BlockedTooltip = (props: TooltipProps) => {
 
   const { tooltipProps } = useTooltip({}, triggerState);
   return (
-    <span className={styles["stat-wrapper"]}>
+    <div className={styles["stat-wrapper"]}>
       <span
         ref={triggerRef}
         {...tooltipTrigger.triggerProps}
@@ -304,14 +346,43 @@ const BlockedTooltip = (props: TooltipProps) => {
         {props.children}
       </span>
       {triggerState.isOpen && (
-        <span
+        <div
           {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
           className={styles.tooltip}
         >
           {l10n.getString("profile-blocked-copy-2")}
-        </span>
+        </div>
       )}
-    </span>
+    </div>
+  );
+};
+
+const TrackersRemovedTooltip = (props: TooltipProps) => {
+  const { l10n } = useLocalization();
+  const triggerState = useTooltipTriggerState({ delay: 0 });
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
+
+  const { tooltipProps } = useTooltip({}, triggerState);
+  return (
+    <div className={styles["stat-wrapper"]}>
+      <span
+        ref={triggerRef}
+        {...tooltipTrigger.triggerProps}
+        className={`${styles.stat} ${styles["trackers-removed-stat"]}`}
+      >
+        {props.children}
+      </span>
+      {triggerState.isOpen && (
+        <div
+          {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
+          className={styles.tooltip}
+        >
+          <p>{l10n.getString("profile-trackers-removed-tooltip-part1")}</p>
+          <p>{l10n.getString("profile-trackers-removed-tooltip-part2")}</p>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -324,23 +395,23 @@ const RepliesTooltip = (props: TooltipProps) => {
   const { tooltipProps } = useTooltip({}, triggerState);
 
   return (
-    <span className={styles["stat-wrapper"]}>
+    <div className={styles["stat-wrapper"]}>
       <span
         ref={triggerRef}
         {...tooltipTrigger.triggerProps}
-        className={`${styles.stat} ${styles["blocked-stat"]}`}
+        className={`${styles.stat} ${styles["replies-stat"]}`}
       >
         {props.children}
       </span>
       {triggerState.isOpen && (
-        <span
+        <div
           {...mergeProps(tooltipTrigger.tooltipProps, tooltipProps)}
           className={styles.tooltip}
         >
           {l10n.getString("profile-replies-tooltip")}
-        </span>
+        </div>
       )}
-    </span>
+    </div>
   );
 };
 
