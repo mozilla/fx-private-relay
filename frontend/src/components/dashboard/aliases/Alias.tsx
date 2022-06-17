@@ -26,6 +26,7 @@ import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { HideIcon } from "../../Icons";
 
 export type Props = {
   alias: AliasData;
@@ -66,10 +67,12 @@ export const Alias = (props: Props) => {
   };
 
   const labelEditor = props.showLabelEditor ? (
-    <LabelEditor
-      label={props.alias.description}
-      onSubmit={(newLabel) => props.onUpdate({ description: newLabel })}
-    />
+    <div className={styles["label-editor-wrapper"]}>
+      <LabelEditor
+        label={props.alias.description}
+        onSubmit={(newLabel) => props.onUpdate({ description: newLabel })}
+      />
+    </div>
   ) : null;
 
   let backgroundImage = undefined;
@@ -145,6 +148,10 @@ export const Alias = (props: Props) => {
     >
       <div className={styles["main-data"]}>
         <div className={styles.controls}>
+          <TrackerRemovalIndicator
+            alias={props.alias}
+            profile={props.profile}
+          />
           {labelEditor}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
@@ -441,4 +448,42 @@ const BlockLevelLabel = (props: BlockLevelLabelProps) => {
   }
 
   return null;
+};
+
+type TrackerRemovalIndicatorProps = {
+  alias: AliasData;
+  profile: ProfileData;
+};
+const TrackerRemovalIndicator = (props: TrackerRemovalIndicatorProps) => {
+  const { l10n } = useLocalization();
+  const tooltipState = useTooltipTriggerState({ delay: 0 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const { triggerProps, tooltipProps: triggerTooltipProps } = useTooltipTrigger(
+    {},
+    tooltipState,
+    triggerRef
+  );
+  const { tooltipProps } = useTooltip(triggerTooltipProps, tooltipState);
+
+  if (!isBlockingLevelOneTrackers(props.alias, props.profile)) {
+    return null;
+  }
+
+  return (
+    <span className={styles["tracker-removal-indicator-wrapper"]}>
+      <button ref={triggerRef} {...triggerProps}>
+        <HideIcon
+          alt={l10n.getString("profile-indicator-tracker-removal-alt")}
+        />
+      </button>
+      {tooltipState.isOpen && (
+        <span
+          className={styles["tracker-removal-indicator-tooltip"]}
+          {...mergeProps(triggerTooltipProps, tooltipProps)}
+        >
+          {l10n.getString("profile-indicator-tracker-removal-tooltip")}
+        </span>
+      )}
+    </span>
+  );
 };
