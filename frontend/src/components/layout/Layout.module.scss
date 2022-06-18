@@ -2,6 +2,8 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
+  // Mobile menu is fixed so this padding offsets that spacing
+  padding-top: 75px;
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -22,6 +24,11 @@
 
   --toastify-toast-min-height: $layout-md;
   --toastify-toast-max-height: $layout-md;
+
+  @media screen and #{$mq-md} {
+    // We set padding to zero as we set position for menu to sticky for non-mobile users.
+    padding-top: 0;
+  }
 }
 
 // Allows us to dynamically set the background color based on Toast container state
@@ -141,7 +148,7 @@ $toastify-toast-close-button: var(--toast-close-button);
 }
 
 .header {
-  position: sticky;
+  position: fixed;
   left: 0;
   top: 0;
   // The sticky position causes a new stacking context,
@@ -161,6 +168,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
 
   @media screen and #{$mq-md} {
+    position: sticky;
     grid-template-areas: "logoWrapper navWrapper appPickerWrapper userMenuWrapper";
   }
 
