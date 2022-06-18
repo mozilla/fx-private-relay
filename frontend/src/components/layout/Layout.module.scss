@@ -2,7 +2,7 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
-  // Mobile menu is fixed so this padding offsets that spacing
+  // Mobile menu is fixed. This padding offsets the height of the menu and pushes content down (so its not hidden).
   padding-top: 75px;
   display: flex;
   flex-direction: column;
