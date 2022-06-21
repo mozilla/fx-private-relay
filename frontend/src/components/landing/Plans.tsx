@@ -11,6 +11,7 @@ import {
 } from "../../functions/getPlan";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../config";
+import { ReactChild, ReactFragment, ReactPortal } from "react";
 
 export type Props = {
   premiumCountriesData: RuntimeDataWithPremiumAvailable;
@@ -30,64 +31,75 @@ export const Plans = (props: Props) => {
     label: "newlanding-plans-button",
   });
 
+  const freePlanCard = (
+    <a
+      href={getRuntimeConfig().fxaLoginUrl}
+      className={`${styles.plan} ${styles["free-plan"]}`}
+      onClick={() =>
+        gaEvent({
+          category: "Sign In",
+          action: "Engage",
+          label: "landing-pricing-free-cta",
+        })
+      }
+    >
+      <img
+        src={RelayWordmark.src}
+        alt="Firefox Relay"
+        className={styles["word-mark"]}
+      />
+      <b className={styles.price}>
+        {l10n.getString("landing-pricing-free-price")}
+      </b>
+      <ul className={styles.features}>
+        <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
+        <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
+      </ul>
+      <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
+        {l10n.getString("landing-pricing-free-cta")}
+      </div>
+    </a>
+  );
+
+  const premiumPlanCard = (
+    <a
+      href={getPremiumSubscribeLink(props.premiumCountriesData)}
+      onClick={() => trackPurchaseStart()}
+      className={`${styles.plan} ${styles["premium-plan"]}`}
+    >
+      <img
+        src={RelayPremiumWordmark.src}
+        alt="Firefox Relay Premium"
+        className={styles["word-mark"]}
+      />
+      <b className={styles.price}>
+        {l10n.getString("landing-pricing-premium-price", {
+          monthly_price: getPlan(props.premiumCountriesData).price,
+        })}
+      </b>
+      <ul className={styles.features}>
+        <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
+      </ul>
+      <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
+        {l10n.getString("nav-profile-sign-up")}
+      </div>
+    </a>
+  );
+
   return (
     <div className={styles.comparison}>
-      <a
-        href={getRuntimeConfig().fxaLoginUrl}
-        className={`${styles.plan} ${styles["free-plan"]}`}
-        onClick={() =>
-          gaEvent({
-            category: "Sign In",
-            action: "Engage",
-            label: "landing-pricing-free-cta",
-          })
-        }
-      >
-        <img
-          src={RelayWordmark.src}
-          alt="Firefox Relay"
-          className={styles["word-mark"]}
-        />
-        <b className={styles.price}>
-          {l10n.getString("landing-pricing-free-price")}
-        </b>
-        <ul className={styles.features}>
-          <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
-          <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
-        </ul>
-        <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
-          {l10n.getString("landing-pricing-free-cta")}
-        </div>
-      </a>
+      {/* Free Plan */}
+      {freePlanCard}
+
+      {/* Premium Plan */}
       <span className={styles.callout}>
         {l10n.getString("landing-pricing-premium-price-highlight")}
       </span>
-      <a
-        href={getPremiumSubscribeLink(props.premiumCountriesData)}
-        onClick={() => trackPurchaseStart()}
-        className={`${styles.plan} ${styles["premium-plan"]}`}
-      >
-        <img
-          src={RelayPremiumWordmark.src}
-          alt="Firefox Relay Premium"
-          className={styles["word-mark"]}
-        />
-        <b className={styles.price}>
-          {l10n.getString("landing-pricing-premium-price", {
-            monthly_price: getPlan(props.premiumCountriesData).price,
-          })}
-        </b>
-        <ul className={styles.features}>
-          <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
-          <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
-          <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
-          <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
-          <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
-        </ul>
-        <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
-          {l10n.getString("nav-profile-sign-up")}
-        </div>
-      </a>
+      {premiumPlanCard}
     </div>
   );
 };
