@@ -35,6 +35,7 @@ from ..models import (
     TRY_DIFFERENT_VALUE_ERR_MSG,
     valid_available_subdomain,
     valid_address,
+    valid_address_pattern,
 )
 
 
@@ -147,6 +148,20 @@ class MiscEmailModelsTest(TestCase):
     def test_get_domain_numerical(self):
         assert get_domain_numerical("default.com") == 1
         assert get_domain_numerical("test.com") == 2
+
+    def test_valid_address_pattern_is_valid(self):
+        assert valid_address_pattern("foo")
+        assert valid_address_pattern("foo-bar")
+        assert valid_address_pattern("f00bar")
+        assert valid_address_pattern("123foo")
+        assert valid_address_pattern("123")
+
+    def test_valid_address_pattern_is_not_valid(self):
+        assert not valid_address_pattern("-")
+        assert not valid_address_pattern("-foo")
+        assert not valid_address_pattern("foo-")
+        assert not valid_address_pattern("foo bar")
+        assert not valid_address_pattern("Foo")
 
 
 class RelayAddressTest(TestCase):
@@ -812,7 +827,7 @@ class ProfileTest(TestCase):
         user_profile.num_email_replied_in_deleted_address = 1
         user_profile.save()
         baker.make(RelayAddress, user=user, num_replied=3)
-        baker.make(DomainAddress, user=user, num_replied=5)
+        baker.make(DomainAddress, user=user, address="lower-case", num_replied=5)
 
         assert user_profile.emails_replied == 9
 
@@ -943,13 +958,13 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(self.user_profile)
         except CannotMakeAddressException as e:
             assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format(
-                "Email address with subdomain"
+                "Domain address angry0123"
             )
             return
         self.fail("Should have raise CannotMakeAddressException")
 
     def test_delete_adds_deleted_address_object(self):
-        domain_address = baker.make(DomainAddress, user=self.user)
+        domain_address = baker.make(DomainAddress, address="lower-case", user=self.user)
         domain_address_hash = sha256(
             domain_address.full_address.encode("utf-8")
         ).hexdigest()
@@ -961,7 +976,9 @@ class DomainAddressTest(TestCase):
         assert deleted_address_qs.first().address_hash == domain_address_hash
 
     def test_premium_user_can_set_block_list_emails(self):
-        domain_address = DomainAddress.objects.create(user=self.user)
+        domain_address = DomainAddress.objects.create(
+            user=self.user, address="lower-case"
+        )
         assert domain_address.block_list_emails == False
         domain_address.block_list_emails = True
         domain_address.save()
@@ -969,7 +986,9 @@ class DomainAddressTest(TestCase):
         assert domain_address.block_list_emails == True
 
     def test_storageless_user_cant_set_labels(self):
-        domain_address = DomainAddress.objects.create(user=self.storageless_user)
+        domain_address = DomainAddress.objects.create(
+            user=self.storageless_user, address="lower-case"
+        )
         assert domain_address.description == ""
         domain_address.description = "Arbitrary description"
         domain_address.save()
