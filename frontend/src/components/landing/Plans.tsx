@@ -7,11 +7,11 @@ import { useGaViewPing } from "../../hooks/gaViewPing";
 import {
   getPlan,
   getPremiumSubscribeLink,
+  isPremiumAvailableInCountry,
   RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../config";
-import { ReactChild, ReactFragment, ReactPortal } from "react";
 
 export type Props = {
   premiumCountriesData: RuntimeDataWithPremiumAvailable;
@@ -61,7 +61,9 @@ export const Plans = (props: Props) => {
     </a>
   );
 
-  const premiumPlanCard = (
+  const premiumPlanCard = isPremiumAvailableInCountry(
+    props.premiumCountriesData
+  ) ? (
     <a
       href={getPremiumSubscribeLink(props.premiumCountriesData)}
       onClick={() => trackPurchaseStart()}
@@ -88,6 +90,33 @@ export const Plans = (props: Props) => {
         {l10n.getString("nav-profile-sign-up")}
       </div>
     </a>
+  ) : (
+    <a
+      href={getPremiumSubscribeLink(props.premiumCountriesData)}
+      onClick={() => trackPurchaseStart()}
+      className={`${styles.plan} ${styles["premium-plan"]}`}
+    >
+      <img
+        src={RelayPremiumWordmark.src}
+        alt="Firefox Relay Premium"
+        className={styles["word-mark"]}
+      />
+      <b className={styles.price}>
+        {l10n.getString("landing-pricing-premium-price", {
+          monthly_price: getPlan(props.premiumCountriesData).price,
+        })}
+      </b>
+      <ul className={styles.features}>
+        <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
+      </ul>
+      <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
+        Join the Waitlist
+      </div>
+    </a>
   );
 
   return (
@@ -99,6 +128,7 @@ export const Plans = (props: Props) => {
       <span className={styles.callout}>
         {l10n.getString("landing-pricing-premium-price-highlight")}
       </span>
+
       {premiumPlanCard}
     </div>
   );
