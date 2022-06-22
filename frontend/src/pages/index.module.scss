@@ -145,6 +145,10 @@
   flex-direction: column-reverse;
   align-items: center;
 
+  &.non-premium-country {
+    display: inline;
+  }
+
   .callout {
     text-align: center;
     max-width: $content-md;

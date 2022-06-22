@@ -77,8 +77,8 @@ const Home: NextPage = () => {
   ) : (
     /* Show waitlist prompt if user is a non-premium country */
     <section id="pricing" className={styles["plans-wrapper"]}>
-      <div className={styles.plans}>
-        <div className={styles["plan-comparison"]}>
+      <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
+        <div>
           <Plans />
         </div>
       </div>

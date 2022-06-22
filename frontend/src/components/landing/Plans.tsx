@@ -31,7 +31,9 @@ export const Plans = (props: Props) => {
     label: "newlanding-plans-button",
   });
 
-  const freePlanCard = (
+  const freePlanCard = isPremiumAvailableInCountry(
+    props.premiumCountriesData
+  ) ? (
     <a
       href={getRuntimeConfig().fxaLoginUrl}
       className={`${styles.plan} ${styles["free-plan"]}`}
@@ -59,8 +61,36 @@ export const Plans = (props: Props) => {
         {l10n.getString("landing-pricing-free-cta")}
       </div>
     </a>
+  ) : (
+    /** If premium is not available, encourage users to sign up for a free account **/
+    <a
+      href={getRuntimeConfig().fxaLoginUrl}
+      className={`${styles.plan} ${styles["non-premium-country"]}`}
+      onClick={() =>
+        gaEvent({
+          category: "Sign In",
+          action: "Engage",
+          label: "landing-pricing-free-cta",
+        })
+      }
+    >
+      <img
+        src={RelayWordmark.src}
+        alt="Firefox Relay"
+        className={styles["word-mark"]}
+      />
+      <b className={styles.price}>
+        {l10n.getString("landing-pricing-free-price")}
+      </b>
+      <ul className={styles.features}>
+        <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
+        <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
+      </ul>
+      <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
+        {l10n.getString("landing-pricing-free-cta")}
+      </div>
+    </a>
   );
-
   const topPremiumDetail = isPremiumAvailableInCountry(
     props.premiumCountriesData
   ) ? (
@@ -69,7 +99,6 @@ export const Plans = (props: Props) => {
     </span>
   ) : null;
 
-  /* TODO: Remove '!' */
   const premiumPlanCard = isPremiumAvailableInCountry(
     props.premiumCountriesData
   ) ? (
@@ -104,7 +133,7 @@ export const Plans = (props: Props) => {
     <a
       href="/premium/waitlist"
       onClick={() => trackPurchaseStart()}
-      className={`${styles.plan} ${styles["premium-plan"]}`}
+      className={`${styles.plan} ${styles["non-premium-country"]}`}
     >
       <img
         src={RelayPremiumWordmark.src}
@@ -125,10 +154,15 @@ export const Plans = (props: Props) => {
   );
 
   return (
-    <div className={styles.comparison}>
+    <div
+      className={
+        isPremiumAvailableInCountry(props.premiumCountriesData)
+          ? styles["comparison"]
+          : styles["comparison-waitlist"]
+      }
+    >
       {/* Free Plan */}
       {freePlanCard}
-
       {/* Premium Plan */}
       {topPremiumDetail}
       {premiumPlanCard}

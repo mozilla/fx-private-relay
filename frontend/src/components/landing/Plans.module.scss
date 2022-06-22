@@ -20,6 +20,14 @@
   }
 }
 
+.comparison-waitlist {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: $spacing-md;
+  flex-direction: row;
+}
+
 .callout {
   grid-area: callout;
 
@@ -30,6 +38,7 @@
 }
 
 .plan {
+  justify-content: center;
   background-color: $color-white;
   display: flex;
   padding: $spacing-xl $spacing-2xl;
@@ -40,6 +49,10 @@
   align-items: center;
   gap: $spacing-md;
   cursor: pointer;
+
+  &.non-premium-country {
+    width: $content-sm;
+  }
 
   &.free-plan {
     grid-area: free-plan;
