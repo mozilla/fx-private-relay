@@ -61,7 +61,8 @@ export const Plans = (props: Props) => {
     </a>
   );
 
-  const premiumPlanCard = isPremiumAvailableInCountry(
+  /* TODO: Remove '!' */
+  const premiumPlanCard = !isPremiumAvailableInCountry(
     props.premiumCountriesData
   ) ? (
     <a
@@ -91,6 +92,7 @@ export const Plans = (props: Props) => {
       </div>
     </a>
   ) : (
+    /** If premium is not available, show waitlist panel **/
     <a
       href={getPremiumSubscribeLink(props.premiumCountriesData)}
       onClick={() => trackPurchaseStart()}
@@ -101,11 +103,6 @@ export const Plans = (props: Props) => {
         alt="Firefox Relay Premium"
         className={styles["word-mark"]}
       />
-      <b className={styles.price}>
-        {l10n.getString("landing-pricing-premium-price", {
-          monthly_price: getPlan(props.premiumCountriesData).price,
-        })}
-      </b>
       <ul className={styles.features}>
         <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
         <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
@@ -114,7 +111,7 @@ export const Plans = (props: Props) => {
         <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
       </ul>
       <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
-        Join the Waitlist
+        {l10n.getString("waitlist-submit-label")}
       </div>
     </a>
   );
