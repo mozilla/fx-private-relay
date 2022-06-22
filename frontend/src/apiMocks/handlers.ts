@@ -285,6 +285,9 @@ export function getHandlers(
     ownAddresses.splice(index, 1);
     return res(ctx.status(200));
   });
+
+  // TODO: Add Handlers for RealPhone
+
   handlers.push(
     rest.post("https://basket-mock.com/news/subscribe/", (_req, res, ctx) => {
       return res(ctx.status(200), ctx.json({ status: "ok" }));
