@@ -732,6 +732,9 @@ class ProfileTest(TestCase):
         baker.make(SocialAccount, user=self.profile.user, provider="fxa")
         assert self.profile.language == "en"
 
+    def test_language_with_no_fxa_locale_returns_default_en(self):
+        assert self.profile.language == "en"
+
     def test_language_with_fxa_locale_de_returns_de(self):
         baker.make(
             SocialAccount,
@@ -779,6 +782,9 @@ class ProfileTest(TestCase):
             provider="fxa",
             extra_data={"locale": "xx;q=0.8"},
         )
+        assert self.profile.fxa_locale_in_premium_country is False
+
+    def test_locale_in_premium_country_returns_False_if_no_fxa_account(self):
         assert self.profile.fxa_locale_in_premium_country is False
 
     @override_settings(

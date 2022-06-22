@@ -126,7 +126,7 @@ class Profile(models.Model):
 
     @property
     def language(self):
-        if self.fxa.extra_data.get("locale"):
+        if self.fxa and self.fxa.extra_data.get("locale"):
             for accept_lang, _ in parse_accept_lang_header(
                 self.fxa.extra_data.get("locale")
             ):
@@ -143,7 +143,7 @@ class Profile(models.Model):
     # sending an email, this method can be useful.
     @property
     def fxa_locale_in_premium_country(self):
-        if self.fxa.extra_data.get("locale"):
+        if self.fxa and self.fxa.extra_data.get("locale"):
             accept_langs = parse_accept_lang_header(self.fxa.extra_data.get("locale"))
             if (
                 len(accept_langs) >= 1
