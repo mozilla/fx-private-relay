@@ -103,7 +103,9 @@ class Profile(models.Model):
         validators=[valid_available_subdomain],
     )
     server_storage = models.BooleanField(default=default_server_storage)
-    remove_level_one_email_trackers = models.BooleanField(default=False)
+    # TODO: Data migration to set null to false
+    # TODO: Schema migration to remove null=True
+    remove_level_one_email_trackers = models.BooleanField(null=True, default=False)
     onboarding_state = models.PositiveIntegerField(default=0)
     auto_block_spam = models.BooleanField(default=False)
 
