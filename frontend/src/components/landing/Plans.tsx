@@ -31,6 +31,62 @@ export const Plans = (props: Props) => {
     label: "newlanding-plans-button",
   });
 
+  const unavailablePremiumPanel = (
+    /** If premium is not available, show waitlist panel **/
+    <a
+      href="/premium/waitlist"
+      onClick={() => trackPurchaseStart()}
+      className={`${styles.plan} ${styles["wide-plan"]}`}
+    >
+      <img
+        src={RelayPremiumWordmark.src}
+        alt="Firefox Relay Premium"
+        className={styles["word-mark"]}
+      />
+      <ul className={styles.features}>
+        <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
+        <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
+      </ul>
+      <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
+        {l10n.getString("waitlist-submit-label")}
+      </div>
+    </a>
+  );
+
+  const unavailablePremiumEncourageFreeRelay = (
+    /** If premium is not available, highlight the Free Relay experience **/
+    <a
+      href={getRuntimeConfig().fxaLoginUrl}
+      className={`${styles.plan} ${styles["wide-plan"]} ${styles["waitlist-cta"]}`}
+      onClick={() =>
+        gaEvent({
+          category: "Sign In",
+          action: "Engage",
+          label: "landing-pricing-free-cta",
+        })
+      }
+    >
+      <img
+        src={RelayWordmark.src}
+        alt="Firefox Relay"
+        className={styles["word-mark"]}
+      />
+      <b className={styles.price}>
+        {l10n.getString("landing-pricing-free-price")}
+      </b>
+      <ul className={styles.features}>
+        <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
+        <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
+      </ul>
+      <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
+        {l10n.getString("landing-pricing-free-cta")}
+      </div>
+    </a>
+  );
+
   const freePlanCard = isPremiumAvailableInCountry(
     props.premiumCountriesData
   ) ? (
@@ -62,34 +118,7 @@ export const Plans = (props: Props) => {
       </div>
     </a>
   ) : (
-    /** If premium is not available, encourage users to sign up for a free account **/
-    <a
-      href={getRuntimeConfig().fxaLoginUrl}
-      className={`${styles.plan} ${styles["non-premium-country"]}`}
-      onClick={() =>
-        gaEvent({
-          category: "Sign In",
-          action: "Engage",
-          label: "landing-pricing-free-cta",
-        })
-      }
-    >
-      <img
-        src={RelayWordmark.src}
-        alt="Firefox Relay"
-        className={styles["word-mark"]}
-      />
-      <b className={styles.price}>
-        {l10n.getString("landing-pricing-free-price")}
-      </b>
-      <ul className={styles.features}>
-        <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
-        <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
-      </ul>
-      <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
-        {l10n.getString("landing-pricing-free-cta")}
-      </div>
-    </a>
+    unavailablePremiumPanel
   );
   const topPremiumDetail = isPremiumAvailableInCountry(
     props.premiumCountriesData
@@ -129,28 +158,7 @@ export const Plans = (props: Props) => {
       </div>
     </a>
   ) : (
-    /** If premium is not available, show waitlist panel **/
-    <a
-      href="/premium/waitlist"
-      onClick={() => trackPurchaseStart()}
-      className={`${styles.plan} ${styles["non-premium-country"]}`}
-    >
-      <img
-        src={RelayPremiumWordmark.src}
-        alt="Firefox Relay Premium"
-        className={styles["word-mark"]}
-      />
-      <ul className={styles.features}>
-        <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
-      </ul>
-      <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
-        {l10n.getString("waitlist-submit-label")}
-      </div>
-    </a>
+    unavailablePremiumEncourageFreeRelay
   );
 
   return (

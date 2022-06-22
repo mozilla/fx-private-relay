@@ -50,8 +50,13 @@
   gap: $spacing-md;
   cursor: pointer;
 
-  &.non-premium-country {
+  /* Wider plan panels for non-premium countries */
+  &.wide-plan {
     width: $content-sm;
+  }
+
+  &.waitlist-cta {
+    border-color: $color-purple-40;
   }
 
   &.free-plan {
