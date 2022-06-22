@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0045_deletedaddress_num_replied'),
+        ("emails", "0045_deletedaddress_num_replied"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='remove_level_one_email_trackers',
+            model_name="profile",
+            name="remove_level_one_email_trackers",
             field=models.BooleanField(default=False),
         ),
     ]
