@@ -1,4 +1,6 @@
 import {
+  ChangeEventHandler,
+  FocusEventHandler,
   FormEventHandler,
   ReactElement,
   ReactNode,
@@ -6,7 +8,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
-import { useLocalization } from "@fluent/react";
+import { ReactLocalization, useLocalization } from "@fluent/react";
 import {
   OverlayContainer,
   FocusScope,
@@ -43,11 +45,34 @@ export const AddressPickerModal = (props: Props) => {
     { onPress: () => props.onClose() },
     cancelButtonRef
   );
+  /**
+   * We need a Ref to the address picker field so that we can call the browser's
+   * native validation APIs.
+   * See:
+   * - https://beta.reactjs.org/learn/manipulating-the-dom-with-refs
+   * - https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/setCustomValidity
+   */
+  const addressFieldRef = useRef<HTMLInputElement>(null);
+
+  const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    setAddress(event.target.value);
+  };
+  const onFocus: FocusEventHandler<HTMLInputElement> = () => {
+    addressFieldRef.current?.setCustomValidity("");
+  };
+  const onBlur: FocusEventHandler<HTMLInputElement> = () => {
+    addressFieldRef.current?.setCustomValidity(
+      getAddressValidationMessage(address, l10n) ?? ""
+    );
+    addressFieldRef.current?.reportValidity();
+  };
 
   const onSubmit: FormEventHandler = (event) => {
     event.preventDefault();
 
-    props.onPick(address, { blockPromotionals: promotionalsBlocking });
+    props.onPick(address.toLowerCase(), {
+      blockPromotionals: promotionalsBlocking,
+    });
   };
 
   return (
@@ -80,7 +105,10 @@ export const AddressPickerModal = (props: Props) => {
                   id="address"
                   type="text"
                   value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  onChange={onChange}
+                  onFocus={onFocus}
+                  onBlur={onBlur}
+                  ref={addressFieldRef}
                   placeholder={l10n.getString(
                     "modal-custom-alias-picker-form-prefix-placeholder"
                   )}
@@ -180,3 +208,37 @@ const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
     </div>
   );
 };
+
+export function getAddressValidationMessage(
+  address: string,
+  l10n: ReactLocalization
+): null | string {
+  if (address.length === 0) {
+    return null;
+  }
+  if (address.includes(" ")) {
+    return l10n.getString(
+      "modal-custom-alias-picker-form-prefix-spaces-warning"
+    );
+  }
+  // Regular expression:
+  //
+  //   ^[a-z0-9]  Starts with a lowercase letter or number;
+  //
+  //   (...)?     followed by zero or one of:
+  //
+  //              [a-z0-9-]{0,61}  zero up to 61 lowercase letters, numbers, or hyphens, and
+  //              [a-z0-9]         a lowercase letter or number (but not a hyphen),
+  //
+  //   $          and nothing following that.
+  //
+  // All that combines to 1-63 lowercase characters, numbers, or hyphens,
+  // but not starting or ending with a hyphen, aligned with the backend's
+  // validation (`valid_address_pattern` in emails/models.py).
+  if (!/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(address)) {
+    return l10n.getString(
+      "modal-custom-alias-picker-form-prefix-invalid-warning"
+    );
+  }
+  return null;
+}

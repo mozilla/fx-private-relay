@@ -103,6 +103,9 @@ fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
 fx-containers = { -brand-name-firefox } Containers
 
+modal-custom-alias-picker-form-prefix-spaces-warning = Spaces are not allowed in email masks.
+modal-custom-alias-picker-form-prefix-invalid-warning = Email masks can only contain lowercase letters, numbers, and hyphens, and may not start or end with a hyphen.
+
 ## Phone Page
 
 phone-headline = Introducing phone number masking
