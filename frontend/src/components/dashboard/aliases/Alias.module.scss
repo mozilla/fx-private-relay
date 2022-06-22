@@ -238,6 +238,12 @@ $trackerRemovalIndicatorWidth: 20px;
       // Prevent other .stat-wrapper elements from overlapping this tooltip:
       z-index: 2;
 
+      @media screen and #{$mq-lg} {
+        // The wrapper doesn't span the full width on large screens,
+        // so limiting the tooltip to its wrapper's size makes it too thin:
+        max-width: unset;
+      }
+
       &::before {
         content: "";
         height: 2 * $arrowWidth;
