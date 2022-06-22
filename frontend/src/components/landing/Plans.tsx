@@ -14,7 +14,7 @@ import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../config";
 
 export type Props = {
-  premiumCountriesData: RuntimeDataWithPremiumAvailable;
+  premiumCountriesData?: RuntimeDataWithPremiumAvailable;
 };
 
 /**
@@ -61,8 +61,16 @@ export const Plans = (props: Props) => {
     </a>
   );
 
+  const topPremiumDetail = isPremiumAvailableInCountry(
+    props.premiumCountriesData
+  ) ? (
+    <span className={styles.callout}>
+      {l10n.getString("landing-pricing-premium-price-highlight")}
+    </span>
+  ) : null;
+
   /* TODO: Remove '!' */
-  const premiumPlanCard = !isPremiumAvailableInCountry(
+  const premiumPlanCard = isPremiumAvailableInCountry(
     props.premiumCountriesData
   ) ? (
     <a
@@ -94,7 +102,7 @@ export const Plans = (props: Props) => {
   ) : (
     /** If premium is not available, show waitlist panel **/
     <a
-      href={getPremiumSubscribeLink(props.premiumCountriesData)}
+      href="/premium/waitlist"
       onClick={() => trackPurchaseStart()}
       className={`${styles.plan} ${styles["premium-plan"]}`}
     >
@@ -122,10 +130,7 @@ export const Plans = (props: Props) => {
       {freePlanCard}
 
       {/* Premium Plan */}
-      <span className={styles.callout}>
-        {l10n.getString("landing-pricing-premium-price-highlight")}
-      </span>
-
+      {topPremiumDetail}
       {premiumPlanCard}
     </div>
   );
