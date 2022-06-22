@@ -2,7 +2,7 @@ import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./Plans.module.scss";
 import RelayWordmark from "../../../../static/images/logos/logo-firefox-relay.svg";
-import RelayPremiumWordmark from "../../../../static/images/logos/logo-firefox-premium-relay.svg";
+import RelayPremiumWordmark from "../../../../static/images/logos/logo-firefox-relay.svg";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import {
   getPlan,
@@ -50,8 +50,8 @@ export const Plans = (props: Props) => {
     </ul>
   );
 
+  /** If premium is not available, show waitlist panel **/
   const unavailablePremiumPanel = (
-    /** If premium is not available, show waitlist panel **/
     <a
       href="/premium/waitlist"
       onClick={() => trackPurchaseStart()}
@@ -69,8 +69,8 @@ export const Plans = (props: Props) => {
     </a>
   );
 
+  /** If premium is not available, highlight the Free Relay experience **/
   const unavailablePremiumEncourageFreeRelay = (
-    /** If premium is not available, highlight the Free Relay experience **/
     <a
       href={getRuntimeConfig().fxaLoginUrl}
       className={`${styles.plan} ${styles["wide-plan"]} ${styles["waitlist-cta"]}`}
@@ -87,6 +87,11 @@ export const Plans = (props: Props) => {
         alt="Firefox Relay"
         className={styles["word-mark"]}
       />
+      <div className={styles["ribbon"]}>
+        <span className={styles["ribbon-text"]}>
+          {l10n.getString("landing-pricing-free-ribbon")}
+        </span>
+      </div>
       <b className={styles.price}>
         {l10n.getString("landing-pricing-free-price")}
       </b>

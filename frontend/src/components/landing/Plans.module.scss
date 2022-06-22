@@ -23,10 +23,17 @@
 .comparison-waitlist {
   display: flex;
   justify-content: center;
-  align-items: stretch;
-  gap: $spacing-md;
-  flex-direction: row;
+  align-items: center;
+  gap: $spacing-2xl;
+  flex-direction: column;
   padding: $spacing-xl 0;
+  margin: 0 auto;
+
+  @media screen and #{$mq-lg} {
+    flex-direction: row;
+    align-items: stretch;
+    gap: $spacing-md;
+  }
 }
 
 .callout {
@@ -53,7 +60,33 @@
 
   /* Wider plan panels for non-premium countries */
   &.wide-plan {
-    width: $content-sm;
+    @media screen and #{$mq-lg} {
+      width: calc($content-sm + $spacing-lg);
+    }
+  }
+
+  .ribbon {
+    position: absolute;
+    margin-left: 200px;
+    margin-top: -300px;
+    width: 180px;
+    height: 35px;
+    background-image: url("../../../../static/images/newlanding/ribbon-plan.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    @media screen and #{$mq-lg} {
+      margin-left: calc($content-sm - $spacing-2xl);
+      margin-top: -(calc($content-xs - $spacing-sm));
+    }
+  }
+
+  .ribbon-text {
+    @include text-body-sm;
+    position: absolute;
+    color: white;
+    font-weight: 700;
+    margin: 8px 0 0 30px;
   }
 
   &.waitlist-cta {
