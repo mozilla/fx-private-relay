@@ -31,6 +31,25 @@ export const Plans = (props: Props) => {
     label: "newlanding-plans-button",
   });
 
+  /** List of premium features **/
+  const premiumFeatures = (
+    <ul className={styles.features}>
+      <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
+      <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
+      <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
+      <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
+      <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
+    </ul>
+  );
+
+  /** List of free features **/
+  const freeFeatures = (
+    <ul className={styles.features}>
+      <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
+      <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
+    </ul>
+  );
+
   const unavailablePremiumPanel = (
     /** If premium is not available, show waitlist panel **/
     <a
@@ -43,13 +62,7 @@ export const Plans = (props: Props) => {
         alt="Firefox Relay Premium"
         className={styles["word-mark"]}
       />
-      <ul className={styles.features}>
-        <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
-      </ul>
+      {premiumFeatures}
       <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
         {l10n.getString("waitlist-submit-label")}
       </div>
@@ -77,10 +90,7 @@ export const Plans = (props: Props) => {
       <b className={styles.price}>
         {l10n.getString("landing-pricing-free-price")}
       </b>
-      <ul className={styles.features}>
-        <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
-        <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
-      </ul>
+      {freeFeatures}
       <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
         {l10n.getString("landing-pricing-free-cta")}
       </div>
@@ -109,10 +119,7 @@ export const Plans = (props: Props) => {
       <b className={styles.price}>
         {l10n.getString("landing-pricing-free-price")}
       </b>
-      <ul className={styles.features}>
-        <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
-        <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
-      </ul>
+      {freeFeatures}
       <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
         {l10n.getString("landing-pricing-free-cta")}
       </div>
@@ -146,13 +153,7 @@ export const Plans = (props: Props) => {
           monthly_price: getPlan(props.premiumCountriesData).price,
         })}
       </b>
-      <ul className={styles.features}>
-        <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
-        <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
-      </ul>
+      {premiumFeatures}
       <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
         {l10n.getString("nav-profile-sign-up")}
       </div>

@@ -26,6 +26,7 @@
   align-items: stretch;
   gap: $spacing-md;
   flex-direction: row;
+  padding: $spacing-xl 0;
 }
 
 .callout {
@@ -34,7 +35,7 @@
   @include text-body-sm;
   color: $color-blue-50;
   font-weight: 700;
-  padding: $spacing-xs 0;
+  padding: $spacing-md 0;
 }
 
 .plan {
