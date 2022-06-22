@@ -17,6 +17,7 @@ from typing import Optional
 
 
 from decouple import config, Choices, Csv
+import django_stubs_ext
 import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -24,9 +25,6 @@ from sentry_sdk.integrations.logging import ignore_logger
 from hashlib import sha512
 import base64
 
-from django.db.models import ForeignKey
-from django.db.models.manager import BaseManager
-from django.db.models.query import QuerySet
 from django.conf import settings
 
 import dj_database_url
@@ -99,12 +97,12 @@ CSP_CONNECT_SRC = (
     BASKET_ORIGIN,
 )
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC: tuple[str, ...] = (
+CSP_SCRIPT_SRC = [
     "'self'",
     "https://www.google-analytics.com/",
-)
+]
 if USE_SILK:
-    CSP_SCRIPT_SRC += ("'unsafe-inline'",)
+    CSP_SCRIPT_SRC.append("'unsafe-inline'")
 
 csp_style_values = ["'self'"]
 # Next.js dynamically inserts the relevant styles when switching pages,
@@ -422,10 +420,9 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
 }
 
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
-_RAW_PREMIUM_RELEASE_DATE = config(
-    "PREMIUM_RELEASE_DATE", "2021-10-27 17:00:00+00:00", cast=str
+PREMIUM_RELEASE_DATE = config(
+    "PREMIUM_RELEASE_DATE", "2021-10-27 17:00:00+00:00", cast=datetime.fromisoformat
 )
-PREMIUM_RELEASE_DATE = datetime.fromisoformat(_RAW_PREMIUM_RELEASE_DATE)
 
 DOMAIN_REGISTRATION_MODAL = config("DOMAIN_REGISTRATION_MODAL", False, cast=bool)
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
@@ -614,12 +611,12 @@ LOGGING = {
 }
 
 if DEBUG:
-    DRF_RENDERERS: tuple[str, ...] = (
+    DRF_RENDERERS = [
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework.renderers.JSONRenderer",
-    )
+    ]
 else:
-    DRF_RENDERERS = ("rest_framework.renderers.JSONRenderer",)
+    DRF_RENDERERS = ["rest_framework.renderers.JSONRenderer"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -668,8 +665,9 @@ CIRCLE_SHA1 = config("CIRCLE_SHA1", "")
 CIRCLE_TAG = config("CIRCLE_TAG", "")
 CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
 
+sentry_release: Optional[str] = None
 if SENTRY_RELEASE:
-    sentry_release: Optional[str] = SENTRY_RELEASE
+    sentry_release = SENTRY_RELEASE
 elif CIRCLE_TAG and CIRCLE_TAG != "unknown":
     sentry_release = CIRCLE_TAG
 elif (
@@ -679,8 +677,6 @@ elif (
     and CIRCLE_BRANCH != "unknown"
 ):
     sentry_release = f"{CIRCLE_BRANCH}:{CIRCLE_SHA1}"
-else:
-    sentry_release = None
 
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
@@ -742,6 +738,4 @@ PROCESS_EMAIL_HEALTHCHECK_MAX_AGE = config(
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Patching for django-types
-for cls in (QuerySet, BaseManager, ForeignKey):
-    cls.__clas_getitem__ = classmethod(  # type: ignore [attr-defined]
-        lambda cls, *args, **kwargs: cls)
+django_stubs_ext.monkeypatch()

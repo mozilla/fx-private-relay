@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
 from email.message import EmailMessage
-from typing import Optional
 from unittest.mock import patch, Mock
 import glob
 import io
@@ -634,10 +633,10 @@ class SnsMessageTest(TestCase):
     def setUp(self) -> None:
         self.user = baker.make(User)
         self.profile = self.user.profile_set.first()
+        assert self.profile is not None
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa"
         )
-        assert self.profile is not None
         # test.com is the second domain listed and has the numerical value 2
         self.address = baker.make(
             RelayAddress, user=self.user, address="sender", domain=2
