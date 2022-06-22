@@ -3,7 +3,7 @@
 
 .entry {
   button {
-    @include text-title-2xs;
+    @include text-body-xl;
     background-color: transparent;
     border-style: none;
     display: flex;
@@ -11,14 +11,17 @@
     gap: $spacing-md;
     justify-content: space-between;
     cursor: pointer;
-    padding: $spacing-xl $spacing-sm;
+    padding: $spacing-lg $spacing-md;
     width: 100%;
-    border-top: 1px solid $color-light-gray-30;
+    border-bottom: 1px solid $color-light-gray-30;
     text-align: start;
 
     &:focus {
-      border-top-right-radius: $border-radius-md;
-      border-top-left-radius: $border-radius-md;
+      outline: none;
+      border-radius: $border-radius-md;
+      border-color: $color-light-gray-10;
+      background-color: $color-light-gray-10;
+      color: $color-blue-50;
     }
   }
 
@@ -27,7 +30,7 @@
   }
 
   dd {
-    padding: 0 $spacing-sm $spacing-lg;
+    padding: $spacing-lg $spacing-md;
     display: flex;
     flex-direction: column;
     gap: $spacing-md;
