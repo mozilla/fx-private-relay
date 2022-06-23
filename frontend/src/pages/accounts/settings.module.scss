@@ -134,6 +134,7 @@ $field-gap: $spacing-lg;
 
 .copy-api-key-content {
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   gap: $spacing-md;
   align-items: center;
@@ -148,6 +149,23 @@ $field-gap: $spacing-lg;
   white-space: nowrap;
   overflow: hidden;
   font-family: monospace;
+  max-width: 200px;
+  text-overflow: ellipsis;
+
+  @media screen and #{$mq-md} {
+    max-width: 350px;
+  }
+}
+
+.settings-api-key-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.settings-api-key-copy {
+  width: 100%;
 }
 
 .copy-button-wrapper {
