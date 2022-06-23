@@ -74,7 +74,7 @@ export const Plans = (props: Props) => {
   /** If premium is not available, highlight the Free Relay experience **/
   const unavailablePremiumEncourageFreeRelay = (
     <a
-      href="/premium/waitlist"
+      href={getRuntimeConfig().fxaLoginUrl}
       className={`${styles.plan} ${styles["wide-plan"]} ${styles["waitlist-cta"]}`}
       onClick={() =>
         gaEvent({
