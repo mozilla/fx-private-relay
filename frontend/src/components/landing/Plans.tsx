@@ -54,7 +54,6 @@ export const Plans = (props: Props) => {
   const unavailablePremiumPanel = (
     <a
       href="/premium/waitlist"
-      onClick={() => trackPurchaseStart()}
       className={`${styles.plan} ${styles["wide-plan"]}`}
     >
       <img
@@ -75,7 +74,7 @@ export const Plans = (props: Props) => {
   /** If premium is not available, highlight the Free Relay experience **/
   const unavailablePremiumEncourageFreeRelay = (
     <a
-      href={getRuntimeConfig().fxaLoginUrl}
+      href="/premium/waitlist"
       className={`${styles.plan} ${styles["wide-plan"]} ${styles["waitlist-cta"]}`}
       onClick={() =>
         gaEvent({
