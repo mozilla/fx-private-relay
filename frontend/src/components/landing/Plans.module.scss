@@ -20,22 +20,6 @@
   }
 }
 
-.comparison-waitlist {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: $spacing-2xl;
-  flex-direction: column;
-  padding: $spacing-xl 0;
-  margin: 0 auto;
-
-  @media screen and #{$mq-lg} {
-    flex-direction: row;
-    align-items: stretch;
-    gap: $spacing-md;
-  }
-}
-
 .callout {
   grid-area: callout;
 
@@ -46,10 +30,10 @@
 }
 
 .plan {
-  justify-content: center;
+  justify-content: space-between;
   background-color: $color-white;
   display: flex;
-  padding: $spacing-xl $spacing-2xl;
+  padding: $spacing-xl;
   border: 2px solid $color-light-gray-20;
   border-radius: $border-radius-md;
   width: $content-xs;
@@ -67,26 +51,26 @@
 
   .ribbon {
     position: absolute;
-    margin-left: 200px;
-    margin-top: -300px;
+    margin-left: 250px;
+    margin-top: -40px;
     width: 180px;
-    height: 35px;
+    height: 30px;
     background-image: url("../../../../static/images/newlanding/ribbon-plan.svg");
     background-size: contain;
     background-repeat: no-repeat;
 
     @media screen and #{$mq-lg} {
-      margin-left: calc($content-sm - $spacing-2xl);
-      margin-top: -(calc($content-xs - $spacing-sm));
+      margin-left: 400px;
+      margin-top: -10px;
     }
   }
 
   .ribbon-text {
-    @include text-body-sm;
+    @include text-body-xs;
     position: absolute;
     color: white;
     font-weight: 700;
-    margin: 8px 0 0 30px;
+    margin: 6px 0 0 26px;
   }
 
   &.waitlist-cta {
@@ -109,6 +93,13 @@
 
   .word-mark {
     margin: 0 auto;
+  }
+
+  .plan-description {
+    @include text-body-sm;
+    background: $color-light-gray-10;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $border-radius-sm;
   }
 
   .price {
@@ -154,5 +145,25 @@
       border-color: $color-blue-50;
       color: $color-white;
     }
+  }
+}
+
+.comparison-waitlist {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-2xl;
+  flex-direction: column;
+  padding: $spacing-xl 0;
+  margin: 0 auto;
+
+  @media screen and #{$mq-lg} {
+    flex-direction: row;
+    align-items: stretch;
+    gap: $spacing-md;
+  }
+
+  ul {
+    flex: none;
   }
 }

@@ -63,6 +63,9 @@ export const Plans = (props: Props) => {
         className={styles["word-mark"]}
       />
       {premiumFeatures}
+      <div className={styles["plan-description"]}>
+        {l10n.getString("landing-pricing-waitlist-description")}
+      </div>
       <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
         {l10n.getString("waitlist-submit-label")}
       </div>
@@ -96,6 +99,9 @@ export const Plans = (props: Props) => {
         {l10n.getString("landing-pricing-free-price")}
       </b>
       {freeFeatures}
+      <div className={styles["plan-description"]}>
+        {l10n.getString("landing-pricing-free-description")}
+      </div>
       <div ref={freeFauxButtonRef} className={styles["faux-button"]}>
         {l10n.getString("landing-pricing-free-cta")}
       </div>
