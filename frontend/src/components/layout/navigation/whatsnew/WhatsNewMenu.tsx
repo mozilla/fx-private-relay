@@ -310,10 +310,7 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   // Only show its announcement if tracker removal is live:
-  if (
-    typeof props.profile.remove_level_one_email_trackers === "boolean" &&
-    flagIsActive(runtimeData.data, "tracker_removal")
-  ) {
+  if (flagIsActive(runtimeData.data, "tracker_removal")) {
     entries.push(trackerRemoval);
   }
 
