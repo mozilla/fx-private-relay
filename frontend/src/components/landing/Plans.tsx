@@ -12,6 +12,7 @@ import {
 } from "../../functions/getPlan";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../config";
+import Link from "next/link";
 
 export type Props = {
   premiumCountriesData?: RuntimeDataWithPremiumAvailable;
@@ -52,23 +53,22 @@ export const Plans = (props: Props) => {
 
   /** If premium is not available, show waitlist panel **/
   const unavailablePremiumPanel = (
-    <a
-      href="/premium/waitlist"
-      className={`${styles.plan} ${styles["wide-plan"]}`}
-    >
-      <img
-        src={RelayPremiumWordmark.src}
-        alt="Firefox Relay Premium"
-        className={styles["word-mark"]}
-      />
-      {premiumFeatures}
-      <div className={styles["plan-description"]}>
-        {l10n.getString("landing-pricing-waitlist-description")}
-      </div>
-      <div ref={premiumFauxButtonRef} className={styles["faux-button"]}>
-        {l10n.getString("waitlist-submit-label")}
-      </div>
-    </a>
+    <Link href="/premium/waitlist">
+      <a className={`${styles.plan} ${styles["wide-plan"]}`}>
+        <img
+          src={RelayPremiumWordmark.src}
+          alt="Firefox Relay Premium"
+          className={styles["word-mark"]}
+        />
+        {premiumFeatures}
+        <div className={styles["plan-description"]}>
+          {l10n.getString("landing-pricing-waitlist-description")}
+        </div>
+        <div className={styles["faux-button"]}>
+          {l10n.getString("waitlist-submit-label")}
+        </div>
+      </a>
+    </Link>
   );
 
   /** If premium is not available, highlight the Free Relay experience **/
