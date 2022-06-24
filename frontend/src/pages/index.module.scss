@@ -142,7 +142,7 @@
   padding: $spacing-2xl;
   display: flex;
   gap: $spacing-2xl;
-  flex-direction: row;
+  flex-direction: column-reverse;
   align-items: center;
 
   &.non-premium-country {
