@@ -33,6 +33,7 @@
   justify-content: space-between;
   background-color: $color-white;
   display: flex;
+  position: relative;
   padding: $spacing-xl;
   border: 2px solid $color-light-gray-20;
   border-radius: $border-radius-md;
@@ -50,18 +51,19 @@
   }
 
   .ribbon {
+    top: -10px;
+    right: -10px;
     position: absolute;
-    margin-left: 250px;
-    margin-top: -40px;
-    width: 180px;
+    width: 126px;
     height: 30px;
     background-image: url("../../../../static/images/newlanding/ribbon-plan.svg");
     background-size: contain;
     background-repeat: no-repeat;
 
     @media screen and #{$mq-lg} {
-      margin-left: 400px;
-      margin-top: -10px;
+      // margin-left: 400px;
+      // margin-top: -10px;
+      top: 20px;
     }
   }
 
@@ -156,6 +158,7 @@
   flex-direction: column;
   padding: $spacing-xl 0;
   margin: 0 auto;
+  position: relative;
 
   @media screen and #{$mq-lg} {
     flex-direction: row;
