@@ -53,6 +53,7 @@
   .ribbon {
     top: -10px;
     right: -10px;
+    padding-left: $spacing-sm; /* The ribbon text indent */
     position: absolute;
     width: 126px;
     height: 30px;
@@ -72,7 +73,10 @@
     position: absolute;
     color: white;
     font-weight: 700;
-    margin: 6px 0 0 26px;
+    display: block;
+    width: 100%;
+    text-align: center;
+    line-height: 30px; /* Height of the ribbon */
   }
 
   &.waitlist-cta {
