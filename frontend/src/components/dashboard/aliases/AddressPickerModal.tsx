@@ -70,6 +70,12 @@ export const AddressPickerModal = (props: Props) => {
   const onSubmit: FormEventHandler = (event) => {
     event.preventDefault();
 
+    const validationMessage = getAddressValidationMessage(address, l10n);
+    if (validationMessage) {
+      addressFieldRef.current?.setCustomValidity(validationMessage);
+      addressFieldRef.current?.reportValidity();
+      return;
+    }
     props.onPick(address.toLowerCase(), {
       blockPromotionals: promotionalsBlocking,
     });
