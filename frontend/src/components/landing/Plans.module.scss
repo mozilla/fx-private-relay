@@ -55,8 +55,8 @@
     right: -10px;
     padding-left: $spacing-sm; /* The ribbon text indent */
     position: absolute;
-    width: 126px;
-    height: 30px;
+    width: 126px; /* Width of the ribbon  */
+    height: 30px; /* Height of the ribbon  */
     background-image: url("../../../../static/images/newlanding/ribbon-plan.svg");
     background-size: contain;
     background-repeat: no-repeat;
