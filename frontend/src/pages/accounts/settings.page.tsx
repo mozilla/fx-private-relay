@@ -28,7 +28,7 @@ import { useLocalLabels } from "../../hooks/localLabels";
 import { AliasData, useAliases } from "../../hooks/api/aliases";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { useAddonData } from "../../hooks/addon";
-import { flagIsActive } from "../../functions/waffle";
+import { isFlagActive } from "../../functions/waffle";
 
 const Settings: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -156,7 +156,7 @@ const Settings: NextPage = () => {
   // Once it does, the commit that introduced this comment can be reverted.
   const trackerRemovalSetting =
     typeof profile.remove_level_one_email_trackers === "boolean" &&
-    flagIsActive(runtimeData.data, "tracker_removal") ? (
+    isFlagActive(runtimeData.data, "tracker_removal") ? (
       <div className={styles.field}>
         <h2 className={styles["field-heading"]}>
           <span className={styles["field-heading-icon-wrapper"]}>

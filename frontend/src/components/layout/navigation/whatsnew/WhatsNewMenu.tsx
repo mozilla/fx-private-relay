@@ -46,7 +46,7 @@ import { useAddonData } from "../../../../hooks/addon";
 import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData, useRuntimeData } from "../../../../hooks/api/runtimeData";
-import { flagIsActive } from "../../../../functions/waffle";
+import { isFlagActive } from "../../../../functions/waffle";
 
 export type WhatsNewEntry = {
   title: string;
@@ -310,7 +310,7 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   // Only show its announcement if tracker removal is live:
-  if (flagIsActive(runtimeData.data, "tracker_removal")) {
+  if (isFlagActive(runtimeData.data, "tracker_removal")) {
     entries.push(trackerRemoval);
   }
 
