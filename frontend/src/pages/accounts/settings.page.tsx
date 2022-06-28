@@ -188,7 +188,7 @@ const Settings: NextPage = () => {
 
   return (
     <>
-      <Layout>
+      <Layout runtimeData={runtimeData.data}>
         <div className={styles["settings-page"]}>
           <main className={styles.main}>
             {currentSettingWarning}

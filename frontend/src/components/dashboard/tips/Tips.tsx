@@ -62,7 +62,7 @@ export const Tips = (props: Props) => {
     tips.push(customMaskTip);
   }
 
-  if (tips.length === 0 || getRuntimeConfig().featureFlags.tips !== true) {
+  if (tips.length === 0) {
     return null;
   }
 
