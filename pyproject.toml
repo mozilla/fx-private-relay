@@ -1,6 +1,7 @@
 [tool.mypy]
 plugins = ["mypy_django_plugin.main"]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
+exclude = "env"
 python_version = "3.9"
 show_error_codes = true
 warn_return_any = true
