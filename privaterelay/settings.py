@@ -10,10 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+from __future__ import annotations
 import ipaddress
 import os, sys
 from datetime import datetime
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 
 from decouple import config, Choices, Csv
@@ -28,6 +29,9 @@ import base64
 from django.conf import settings
 
 import dj_database_url
+
+if TYPE_CHECKING:
+    import wsgiref.headers
 
 try:
     # Silk is a live profiling and inspection tool for the Django framework
@@ -227,7 +231,7 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
 
 
 # statsd middleware has to be first to catch errors in everything else
-def _get_initial_middleware():
+def _get_initial_middleware() -> list[str]:
     if STATSD_ENABLED:
         return [
             "privaterelay.middleware.ResponseMetrics",
@@ -525,7 +529,9 @@ WHITENOISE_INDEX_FILE = True
 # Intended to ensure that the homepage does not get cached in our CDN,
 # so that the `RedirectRootIfLoggedIn` middleware can kick in for logged-in
 # users.
-def set_index_cache_control_headers(headers, path, url):
+def set_index_cache_control_headers(
+    headers: wsgiref.headers.Headers, path: str, url: str
+) -> None:
     if DEBUG:
         home_path = os.path.join(BASE_DIR, "frontend/out", "index.html")
     else:
