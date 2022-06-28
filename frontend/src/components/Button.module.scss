@@ -65,6 +65,7 @@
     }
 
     &:hover:not(:disabled) {
+      background-color: transparent;
       color: $color-blue-60;
     }
   }
