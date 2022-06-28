@@ -13,9 +13,11 @@ django_settings_module = "privaterelay.settings"
 
 [[tool.mypy.overrides]]
 module = [
+    "allauth.account",
     "allauth.account.models",
     "allauth.account.signals",
     "allauth.socialaccount.models",
+    "allauth.socialaccount.providers.fxa",
     "allauth.socialaccount.providers.fxa.views",
     "boto3",
     "botocore.config",
