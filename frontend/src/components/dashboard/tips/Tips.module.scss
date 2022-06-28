@@ -52,6 +52,7 @@
   background-color: $color-white;
   width: $content-sm;
   max-width: calc(100% - $spacing-xl);
+  z-index: 1;
 
   .header {
     display: flex;
