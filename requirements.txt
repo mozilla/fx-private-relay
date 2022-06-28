@@ -11,7 +11,7 @@ django-filter==21.1
 django-redis==5.2.0
 django-ftl==0.13
 django-referrer-policy==1.0
-djangorestframework==3.12.4
+djangorestframework==3.13.1
 django-waffle==2.5.0
 dockerflow==2022.1.0
 drf-yasg==1.20.0
@@ -25,7 +25,7 @@ PyJWT==2.4.0
 python-decouple==3.6
 pyOpenSSL==22.0.0
 requests==2.25.1
-sentry-sdk==1.5.12
+sentry-sdk==1.6.0
 whitenoise==5.3.0
 
 # phones app
