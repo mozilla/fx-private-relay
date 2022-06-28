@@ -51,7 +51,6 @@ module = [
     "phonenumbers",
     "silk",
     "twilio.rest",
-    "twilio.twiml",
     "twilio.twiml.messaging_response",
 ]
 ignore_missing_imports = true
