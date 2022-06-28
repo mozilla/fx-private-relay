@@ -5,6 +5,7 @@
   width: 100%;
   position: sticky;
   top: 76px; // threshold for mobile menu - height of header
+  height: 0; // prevents element from pushing main elements down
   // z-index of 1 (so it overlaps content)
   // allows menu to slide under main navigation header
   z-index: 1;
