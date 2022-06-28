@@ -2,11 +2,9 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 
 .wrapper {
-  // Mobile menu is fixed. This padding offsets the height of the menu and pushes content down (so its not hidden).
-  padding-top: 75px;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: auto;
 
   // See https://fkhadra.github.io/react-toastify/how-to-style#override-css-variables
   --toastify-toast-width: 95%;
@@ -148,7 +146,7 @@ $toastify-toast-close-button: var(--toast-close-button);
 }
 
 .header {
-  position: fixed;
+  position: sticky;
   left: 0;
   top: 0;
   // The sticky position causes a new stacking context,
@@ -168,7 +166,6 @@ $toastify-toast-close-button: var(--toast-close-button);
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
 
   @media screen and #{$mq-md} {
-    position: sticky;
     grid-template-areas: "logoWrapper navWrapper appPickerWrapper userMenuWrapper";
   }
 
