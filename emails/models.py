@@ -69,15 +69,14 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     return True
 
 
+# This historical function is referenced in migration 0029_profile_add_deleted_metric_and_changeserver_storage_default
 def default_server_storage():
-    return datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE
+    return True
 
 
 def default_domain_numerical():
     domains = get_domains_from_settings()
-    domain = domains["RELAY_FIREFOX_DOMAIN"]
-    if datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE:
-        domain = domains["MOZMAIL_DOMAIN"]
+    domain = domains["MOZMAIL_DOMAIN"]
     return get_domain_numerical(domain)
 
 
@@ -102,7 +101,7 @@ class Profile(models.Model):
         db_index=True,
         validators=[valid_available_subdomain],
     )
-    server_storage = models.BooleanField(default=default_server_storage)
+    server_storage = models.BooleanField(default=True)
     # TODO: Data migration to set null to false
     # TODO: Schema migration to remove null=True
     remove_level_one_email_trackers = models.BooleanField(null=True, default=False)
@@ -303,7 +302,7 @@ class Profile(models.Model):
     @property
     def joined_before_premium_release(self):
         date_created = self.user.date_joined
-        return date_created < settings.PREMIUM_RELEASE_DATE
+        return date_created < datetime.fromisoformat("2021-10-22 17:00:00+00:00")
 
     def add_subdomain(self, subdomain):
         # subdomain must be all lowercase
