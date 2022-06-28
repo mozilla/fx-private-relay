@@ -117,6 +117,11 @@ phone-onboarding-step1-button-label = Upgrade to get phone number masking
 phone-onboarding-step1-button-price = $4.99 / month
 phone-onboarding-step1-button-cta = Upgrade Now
 
+phone-onboarding-step2-headline = Verify your true phone number
+phone-onboarding-step2-body = Provide the phone number where you’ll receive your SMS and calls (in the future). We’ll send a 6-digit code to this number to verify it.
+phone-onboarding-step2-input-placeholder = Enter your phone number
+phone-onboarding-step2-button-cta = Send code
+
 ## Replies
 profile-label-replies = Replies
 profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.

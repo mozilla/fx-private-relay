@@ -4,6 +4,7 @@ import { event as gaEvent } from "react-ga";
 import styles from "./PhoneOnboarding.module.scss";
 import { useLocalization } from "@fluent/react";
 import WomanPhone from "./images/woman-phone.svg";
+import PhoneVerify from "./images/phone-verify.svg";
 import { VisuallyHidden } from "react-aria";
 import { Button, LinkButton } from "../../Button";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
@@ -39,7 +40,7 @@ export const PhoneOnboarding = (props: Props) => {
   //   let button = null;
 
   //   if (props.profile.onboarding_state === 0) {
-  step = <StepOne />;
+  step = <StepTwo />;
   // button = (
   //     // <Button ref={getStartedButtonRef} onClick={getStarted}>
 
@@ -148,31 +149,32 @@ const StepOne = () => {
         </div>
       </div>
     </div>
+  );
+};
 
-    // <div className={`${styles.step} ${styles["step-welcome"]}`}>
-    //   <div>
-    //     <h2>
-    //       {l10n.getString("multi-part-onboarding-premium-welcome-headline")}
-    //     </h2>
-    //     <p className={styles.lead}>
-    //       {l10n.getString("multi-part-onboarding-premium-welcome-subheadline")}
-    //     </p>
-    //   </div>
-    //   <div className={styles.description}>
-    //     <img src={WomanOnCouch.src} alt="" width={350} />
-    //     <p>
-    //       <span className={styles["description-caption"]}>
-    //         {l10n.getString("onboarding-premium-title-detail")}
-    //       </span>
-    //       <br />
-    //       <strong>
-    //         {l10n.getString(
-    //           "multi-part-onboarding-premium-generate-unlimited-title-2"
-    //         )}
-    //       </strong>
-    //       <br />
-    //     </p>
-    //   </div>
-    // </div>
+const StepTwo = () => {
+  const { l10n } = useLocalization();
+
+  return (
+    <div className={`${styles.step}`}>
+      <div className={styles.lead}>
+        <img src={PhoneVerify.src} alt="" width={400} />
+        <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
+        <p>{l10n.getString("phone-onboarding-step2-body")}</p>
+      </div>
+      <form className={styles.form}>
+        <input
+          className={`${styles["c-verify-phone-input"]}`}
+          placeholder={l10n.getString(
+            "phone-onboarding-step2-input-placeholder"
+          )}
+          type="tel"
+          required={true}
+        />
+        <Button className={styles.button} type="submit">
+          {l10n.getString("phone-onboarding-step2-button-cta")}
+        </Button>
+      </form>
+    </div>
   );
 };

@@ -10,7 +10,7 @@
 
 .step,
 .controls {
-  max-width: $content-lg;
+  max-width: $content-md;
   margin: 0 auto;
   padding: $spacing-lg;
 }
@@ -21,6 +21,10 @@
   flex-direction: column;
   justify-content: space-evenly;
   gap: $spacing-xl;
+
+  .button {
+    width: 100%;
+  }
 
   h2 {
     @include text-title-xs;
@@ -94,5 +98,40 @@
       display: block;
       font-weight: 700;
     }
+  }
+}
+
+.form {
+  max-width: $content-xs;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+// https://github.com/jackocnr/intl-tel-input
+.c-verify-phone-input {
+  @include form-input;
+  position: relative;
+  margin-bottom: 0;
+  padding-left: $layout-md;
+  background: $spacing-sm center transparent no-repeat;
+  background-image: url("./images/flag-usa.svg");
+  background-size: 1.5rem auto;
+  // https://stackoverflow.com/questions/37653706/before-with-input-in-firefox
+  // Input doesn't support before/after
+  &::after {
+    // content: "1";
+    content: "asdf";
+    display: inline-block;
+
+    // background-color: red;
+    // display: block;
+    // left: 0;
+    // top: 0;
+    // width: 20px;
+    // height: 20px;
+    // position: absolute;
+    // z-index: 1;
   }
 }
