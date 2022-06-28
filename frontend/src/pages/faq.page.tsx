@@ -5,13 +5,13 @@ import styles from "./faq.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { getRuntimeConfig } from "../config";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import { flagIsActive } from "../functions/waffle";
+import { isFlagActive } from "../functions/waffle";
 
 const Faq: NextPage = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
 
-  const trackerBlockingFaqs = flagIsActive(
+  const trackerBlockingFaqs = isFlagActive(
     runtimeData.data,
     "tracker_removal"
   ) ? (

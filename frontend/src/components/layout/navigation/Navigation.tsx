@@ -12,7 +12,7 @@ import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { isPremiumAvailableInCountry } from "../../../functions/getPlan";
-import { flagIsActive } from "../../../functions/waffle";
+import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
   theme: "free" | "premium";
@@ -38,7 +38,7 @@ export const Navigation = (props: Props) => {
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const isPremiumPage = router.pathname === "/premium";
 
-  const phoneLink = flagIsActive(runtimeData.data, "phones") ? (
+  const phoneLink = isFlagActive(runtimeData.data, "phones") ? (
     <Link href="/phone">
       <a
         className={`$styles.link} ${

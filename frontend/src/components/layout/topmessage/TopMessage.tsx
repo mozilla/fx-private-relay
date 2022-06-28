@@ -3,7 +3,7 @@ import { InterviewRecruitment } from "./InterviewRecruitment";
 import { CsatSurvey } from "./CsatSurvey";
 import { NpsSurvey } from "./NpsSurvey";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
-import { flagIsActive } from "../../../functions/waffle";
+import { isFlagActive } from "../../../functions/waffle";
 import { runtimeData } from "../../../apiMocks/mockData";
 
 export type Props = {
@@ -12,7 +12,7 @@ export type Props = {
 };
 
 export const TopMessage = (props: Props) => {
-  if (flagIsActive(runtimeData, "interview_recruitment")) {
+  if (isFlagActive(runtimeData, "interview_recruitment")) {
     return <InterviewRecruitment profile={props.profile} />;
   }
 
