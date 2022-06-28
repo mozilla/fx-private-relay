@@ -38,8 +38,7 @@ class FxaTokenAuthentication(BaseAuthentication):
             fxa_resp_data = {"status_code": fxa_resp.status_code, "json": None}
             try:
                 fxa_resp_data["json"] = fxa_resp.json()
-            except json.JSONDecodeError:
-                # TODO: change to requests.exceptions.JSONDecodeError with requests 2.27.0
+            except requests.exceptions.JSONDecodeError:
                 logger.error(
                     "JSONDecodeError from FXA introspect response.",
                     extra={"fxa_response": shlex.quote(fxa_resp.text)},
