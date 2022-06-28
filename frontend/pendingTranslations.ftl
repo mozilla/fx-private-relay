@@ -106,9 +106,16 @@ fx-containers = { -brand-name-firefox } Containers
 modal-custom-alias-picker-form-prefix-spaces-warning = Spaces are not allowed in email masks.
 modal-custom-alias-picker-form-prefix-invalid-warning = Email masks can only contain lowercase letters, numbers, and hyphens, and may not start or end with a hyphen.
 
-## Phone Page
+## Phone Onboarding
+phone-onboarding-step1-headline = Introducing phone number masking
+phone-onboarding-step1-body = With phone number masking, you can create a phone number mask that helps you  protect your true phone number. Share it, and receive messages privately.
+phone-onboarding-step1-list-item-1 = Share a masked phone number that forwards messages to your true number.
+phone-onboarding-step1-list-item-2 = Need to confirm a dinner reservation? Share your phone number mask instead.
+phone-onboarding-step1-list-item-3 = With phone number masking, you can receive texts. Replying is not yet available.
 
-phone-headline = Introducing phone number masking
+phone-onboarding-step1-button-label = Upgrade to get phone number masking
+phone-onboarding-step1-button-price = $4.99 / month
+phone-onboarding-step1-button-cta = Upgrade Now
 
 ## Replies
 profile-label-replies = Replies
@@ -183,3 +190,4 @@ faq-question-bulk-trackerremoval-question = Can I remove trackers only on some o
 faq-question-bulk-trackerremoval-answer = You can only turn tracker removal on at an account level—it either removes trackers from all of your emails, or none of them.
 faq-question-trackerremoval-breakage-question = Why do my emails look broken?
 faq-question-trackerremoval-breakage-answer = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
+

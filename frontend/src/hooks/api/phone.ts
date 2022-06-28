@@ -19,8 +19,9 @@ export type RealPhoneUpdateFn = (
 ) => Promise<Response>;
 
 export type PhoneNumberRequestVerificationFn = (
-  id: RealPhoneData["id"],
-  data: Partial<RealPhoneData>
+  // id: RealPhoneData["id"],
+  // data: Partial<RealPhoneData>
+  phoneNumber: string
 ) => Promise<Response>;
 
 export type PhoneNumberSubmitVerificationFn = (
@@ -80,17 +81,17 @@ export function useRealPhones(): {
    * Request a one-time password to validate a real phone number.
    */
   const requestPhoneVerification: PhoneNumberRequestVerificationFn = async (
-    id,
-    data
+    phoneNumber
   ) => {
     // TODO: Validate number as E.164
     // https://blog.kevinchisholm.com/javascript/javascript-e164-phone-number-validation/
-    const body: Partial<RealPhoneData> = {
-      number: data.number,
-    };
+
     const response = await apiFetch("/realphone/", {
       method: "POST",
-      body: JSON.stringify(body),
+      body: JSON.stringify({ number: phoneNumber }),
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
     });
     realphone.mutate();
     return response;

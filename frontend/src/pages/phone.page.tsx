@@ -5,45 +5,37 @@ import styles from "./faq.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
 import { LinkButton } from "../components/Button";
-import { useRuntimeData } from "../hooks/api/runtimeData";
-import { getPhoneSubscribeLink } from "../functions/getPlan";
+import { useProfiles } from "../hooks/api/profile";
+import { useUsers } from "../hooks/api/user";
+import { PhoneOnboarding } from "../components/dashboard/phones/PhoneOnboarding";
 
 const Phone: NextPage = () => {
   const { l10n } = useLocalization();
-  const runtimeData = useRuntimeData();
+  // const runtimeData = useRuntimeData();
 
-  const purchase = () => {
-    gaEvent({
-      category: "Purchase Button",
-      action: "Engage",
-      label: "phone-cta",
+  const profileData = useProfiles();
+  const profile = profileData.data?.[0];
+
+  const userData = useUsers();
+  const user = userData.data?.[0];
+  if (!profile || !user) {
+    // TODO: Show a loading spinner?
+    return null;
+  }
+
+  const onNextStep = (step: number) => {
+    profileData.update(profile.id, {
+      onboarding_state: step,
     });
   };
 
   return (
-    <Layout theme="free">
-      <main>
-        <div className={styles["faq-page"]}>
-          <div className={styles["faqs-wrapper"]}>
-            <h1 className={styles.headline}>
-              {l10n.getString("phone-headline")}
-            </h1>
-            <div className={styles.faqs}>
-              {/* TODO: show disabled UI if phones are not available */}
-              <LinkButton
-                ref={useGaViewPing({
-                  category: "Purchase Button",
-                  label: "premium-promo-cta",
-                })}
-                href={getPhoneSubscribeLink(runtimeData.data)}
-                onClick={() => purchase()}
-              >
-                {l10n.getString("premium-promo-hero-cta")}
-              </LinkButton>
-            </div>
-          </div>
-        </div>
-      </main>
+    <Layout>
+      <PhoneOnboarding
+        profile={profile}
+        onNextStep={onNextStep}
+        // onPickSubdomain={setCustomSubdomain}
+      />
     </Layout>
   );
 };

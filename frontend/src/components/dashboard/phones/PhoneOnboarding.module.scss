@@ -1,0 +1,98 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.onboarding {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.step,
+.controls {
+  max-width: $content-lg;
+  margin: 0 auto;
+  padding: $spacing-lg;
+}
+
+.step {
+  flex-grow: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: $spacing-xl;
+
+  h2 {
+    @include text-title-xs;
+    font-family: $font-stack-firefox;
+    text-align: center;
+  }
+
+  .lead {
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+
+    p {
+      @include text-body-md;
+    }
+
+    img {
+      margin: 0 auto;
+    }
+  }
+
+  .description {
+    @include text-body-md;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-2xl;
+    padding: $spacing-md;
+    margin-top: $spacing-lg;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  .action {
+    flex-grow: 2;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    text-align: center;
+    gap: $spacing-md;
+    background-color: $color-white;
+    padding: $spacing-lg $spacing-2xl;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+
+    h3 {
+      @include text-body-md;
+      font-family: $font-stack-firefox;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    span {
+      @include text-title-2xs;
+      padding-top: $spacing-sm;
+      display: block;
+      font-weight: 700;
+    }
+  }
+}
