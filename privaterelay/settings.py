@@ -14,8 +14,6 @@ import ipaddress
 import os, sys
 from datetime import datetime
 
-# This needs to be before markus, which imports pytest
-IN_PYTEST = "pytest" in sys.modules
 
 from decouple import config, Choices, Csv
 import markus
@@ -59,6 +57,7 @@ RELAY_CHANNEL = ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN, "prod")
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
     INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default=[])
+IN_PYTEST = "pytest" in sys.modules
 USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
