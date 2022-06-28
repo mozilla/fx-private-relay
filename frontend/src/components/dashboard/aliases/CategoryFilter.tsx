@@ -230,9 +230,9 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
               {l10n.getString("profile-filter-category-option-disabled-masks")}
             </label>
             <div className={styles.buttons}>
-              <button type="reset">
+              <Button type="reset" variant="secondary">
                 {l10n.getString("profile-label-reset")}
-              </button>
+              </Button>
               <Button type="submit">
                 {l10n.getString("profile-label-apply")}
               </Button>

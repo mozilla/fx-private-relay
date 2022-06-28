@@ -50,4 +50,22 @@
       opacity: 1;
     }
   }
+
+  &.is-secondary {
+    background-color: transparent;
+    border: none;
+    color: $color-blue-50;
+
+    &:disabled {
+      opacity: 0.4;
+    }
+
+    &:active {
+      color: $color-blue-70;
+    }
+
+    &:hover:not(:disabled) {
+      color: $color-blue-60;
+    }
+  }
 }
