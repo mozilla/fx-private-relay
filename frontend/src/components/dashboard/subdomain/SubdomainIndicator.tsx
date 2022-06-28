@@ -38,19 +38,11 @@ export const SubdomainIndicator = (props: Props) => {
     return null;
   }
 
-  if (getRuntimeConfig().featureFlags.generateCustomAliasSubdomain === true) {
-    return (
-      <ExplainerTrigger
-        subdomain={props.subdomain}
-        onCreateAlias={props.onCreateAlias}
-      />
-    );
-  }
-
   return (
-    <>
-      @{props.subdomain}.{getRuntimeConfig().mozmailDomain}
-    </>
+    <ExplainerTrigger
+      subdomain={props.subdomain}
+      onCreateAlias={props.onCreateAlias}
+    />
   );
 };
 

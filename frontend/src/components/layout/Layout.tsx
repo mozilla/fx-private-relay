@@ -25,10 +25,12 @@ import { useUsers } from "../../hooks/api/user";
 import { MobileNavigation } from "./navigation/MobileNavigation";
 import { CloseIcon } from "../Icons";
 import { PageMetadata } from "./PageMetadata";
+import { RuntimeData } from "../../hooks/api/runtimeData";
 
 export type Props = {
   children: ReactNode;
   theme?: "free" | "premium";
+  runtimeData?: RuntimeData;
 };
 
 /**
@@ -101,7 +103,10 @@ export const Layout = (props: Props) => {
       <PageMetadata />
       <div className={styles.wrapper}>
         {apiMockWarning}
-        <TopMessage profile={profiles.data?.[0]} />
+        <TopMessage
+          profile={profiles.data?.[0]}
+          runtimeData={props.runtimeData}
+        />
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles["logo-wrapper"]}>
             <Link href={homePath}>

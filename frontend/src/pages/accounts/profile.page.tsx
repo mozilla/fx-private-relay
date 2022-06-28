@@ -134,7 +134,7 @@ const Profile: NextPage = () => {
           totalBlockedEmails={profile.emails_blocked}
           totalForwardedEmails={profile.emails_forwarded}
         />
-        <Layout>
+        <Layout runtimeData={runtimeData.data}>
           <PremiumOnboarding
             profile={profile}
             onNextStep={onNextStep}
@@ -379,7 +379,7 @@ const Profile: NextPage = () => {
         totalBlockedEmails={profile.emails_blocked}
         totalForwardedEmails={profile.emails_forwarded}
       />
-      <Layout>
+      <Layout runtimeData={runtimeData.data}>
         <main className={styles["profile-wrapper"]}>
           {stats}
           {topBanners}

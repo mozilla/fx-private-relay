@@ -21,7 +21,7 @@ const Phone: NextPage = () => {
   };
 
   return (
-    <Layout theme="free">
+    <Layout theme="free" runtimeData={runtimeData.data}>
       <main>
         <div className={styles["faq-page"]}>
           <div className={styles["faqs-wrapper"]}>

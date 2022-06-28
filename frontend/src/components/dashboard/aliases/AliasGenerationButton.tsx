@@ -94,7 +94,6 @@ export const AliasGenerationButton = (props: Props) => {
   }
 
   if (
-    getRuntimeConfig().featureFlags.generateCustomAliasMenu === true &&
     props.profile.has_premium &&
     typeof props.profile.subdomain === "string"
   ) {

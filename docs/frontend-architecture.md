@@ -67,15 +67,6 @@ environment variables to the outside world. You can extend this endpoint in
 using the `useRuntimeData` hook; you can find this in
 `/frontend/src/hooks/api/runtimeData.ts`.
 
-## Add a feature flag
-
-In `/frontend/src/config.ts`, there's a Record type definition for the `featureFlags` property.
-Add it to its key (e.g. `Record<"flag1" | "flag2", boolean>` lists two possible flags),
-then set its value in `next.config.js`.
-
-When the feature is rolled out to everyone, the flag can be removed by removing it from
-the mentioned `Record`. TypeScript will then point out everywhere it is used.
-
 ## Add/modify mock data
 
 When you create a pull request, the frontend is deployed to Netlify using the code

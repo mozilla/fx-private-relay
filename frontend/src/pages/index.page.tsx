@@ -84,7 +84,7 @@ const Home: NextPage = () => {
   );
 
   return (
-    <Layout>
+    <Layout runtimeData={runtimeData.data}>
       <main>
         <section id="hero" className={styles.hero}>
           <div className={styles.lead}>

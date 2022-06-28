@@ -113,7 +113,7 @@ const PremiumPromo: NextPage = () => {
   };
 
   return (
-    <Layout theme="premium">
+    <Layout theme="premium" runtimeData={runtimeData.data}>
       <main>
         <section id="hero" className={styles.hero}>
           <div className={styles.lead}>
