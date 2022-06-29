@@ -24,6 +24,7 @@
     "frontend"
   ],
   "scripts": {
+    "heroku-prebuild": "printf '{\"commit\":\"%s\"}\n' \"$SOURCE_VERSION\" > version.json",
     "heroku-postbuild": "cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
   },
   "homepage": "https://github.com/mozilla/fx-private-relay#readme"
