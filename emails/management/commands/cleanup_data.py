@@ -4,8 +4,10 @@ from emails.models import DomainAddress, Profile, RelayAddress
 
 
 class Command(BaseCommand):
-    help = "Deletes description, generated_for, and used_on data of all "
-    " addresses that belong to a Profile with server_storage set to False."
+    help = (
+        "Deletes description, generated_for, and used_on data of all addresses that"
+        " belong to a Profile with server_storage set to False."
+    )
 
     def add_arguments(self, parser):
         parser.add_argument(
