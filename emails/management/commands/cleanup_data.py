@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if not kwargs["delete"]:
-            print("Dry run. Use --delete to delete data.")
+            self.stdout.write("Dry run. Use --delete to delete data.")
 
         profiles_without_server_storage = Profile.objects.filter(server_storage=False)
         num_profiles = len(profiles_without_server_storage)
@@ -48,6 +48,10 @@ class Command(BaseCommand):
                 DomainAddress.objects.bulk_update(
                     domain_addresses, ["description", "used_on"]
                 )
-        print(f"Total Profiles without server storage: {num_profiles}")
-        print(f"Total Relay Addresses in profiles without server storage: {total_relay_addresses}")
-        print(f"Total Domain Addresses in profiles without server storage: {total_domain_addresses}")
+        self.stdout.write(f"Total Profiles without server storage: {num_profiles}")
+        self.stdout.write(
+            f"Total Relay Addresses in profiles without server storage: {total_relay_addresses}"
+        )
+        self.stdout.write(
+            f"Total Domain Addresses in profiles without server storage: {total_domain_addresses}"
+        )
