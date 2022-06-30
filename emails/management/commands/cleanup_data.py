@@ -1,6 +1,7 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING
 import json
+import logging
 
 from django.db.models import Q
 from django.core.management.base import BaseCommand
@@ -14,6 +15,7 @@ if TYPE_CHECKING:
     from django.db.models import QuerySet
 
 
+logger = logging.getLogger("eventsinfo.process_emails_from_sqs")
 _CountDict = dict[str, dict[str, int]]
 
 
@@ -27,9 +29,10 @@ class Command(BaseCommand):
         parser.add_argument("--clear", action="store_true", help="Clear data")
         parser.add_argument("--json", action="store_true", help="Output as JSON")
 
-    def handle(self, *args, **kwargs) -> str:
+    def handle(self, *args, **kwargs) -> Optional[str]:
         to_clear = kwargs["clear"]
         as_json = kwargs["json"]
+        verbosity = kwargs["verbosity"]
         if not to_clear and not as_json:
             self.stdout.write("Dry run. Use --clear to clear server-stored data.")
 
@@ -46,14 +49,25 @@ class Command(BaseCommand):
                     description="", used_on=""
                 )
             timers["clear_s"] = round(clear_timer.last, 3)
-
-        if as_json:
-            output = {"cleared": to_clear}
-            output.update(counts)
-            output["timers"] = timers
-            return json.dumps(output, indent=2)
+            count = (
+                counts["relay_addresses"]["cleared"]
+                + counts["domain_addresses"]["cleared"]
+            )
+            log_message = f"cleanup_data complete, cleaned {count} record{'' if count==1 else 's'}."
         else:
-            return self.get_report(to_clear, counts)
+            log_message = "cleanup_data complete."
+
+        data = {"cleared": to_clear}
+        data.update(counts)
+        data["timers"] = timers
+        logger.info(log_message, extra=data)
+
+        if verbosity >= 1:
+            if as_json:
+                return json.dumps(data, indent=2)
+            else:
+                return self.get_report(to_clear, counts)
+        return None
 
     def get_data(
         self,
