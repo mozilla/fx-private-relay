@@ -429,6 +429,9 @@ class ProfileTest(TestCase):
     def test_has_premium_default_False(self):
         assert self.profile.has_premium is False
 
+    def test_has_phone_default_False(self):
+        assert self.profile.has_phone is False
+
     def test_has_premium_with_unlimited_subsription_returns_True(self):
         premium_user = baker.make(User)
         random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
@@ -440,6 +443,18 @@ class ProfileTest(TestCase):
         )
         premium_profile = baker.make(Profile, user=premium_user)
         assert premium_profile.has_premium is True
+
+    def test_has_phone_with_unlimited_subsription_returns_True(self):
+        premium_user = baker.make(User)
+        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_PHONE.split(","))
+        baker.make(
+            SocialAccount,
+            user=premium_user,
+            provider="fxa",
+            extra_data={"subscriptions": [random_sub]},
+        )
+        premium_profile = baker.make(Profile, user=premium_user)
+        assert premium_profile.has_phone is True
 
     def test_add_subdomain_to_new_unlimited_profile(self):
         subdomain = "newpremium"
