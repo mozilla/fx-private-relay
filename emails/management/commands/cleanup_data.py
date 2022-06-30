@@ -10,7 +10,7 @@ from codetiming import Timer
 
 from emails.models import DomainAddress, Profile, RelayAddress
 
-if TYPE_CHECKING:
+if TYPE_CHECKING: # pragma: no cover
     from argparse import ArgumentParser
     from django.db.models import QuerySet
 
@@ -27,13 +27,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser: ArgumentParser) -> None:
         parser.add_argument("--clear", action="store_true", help="Clear data")
-        parser.add_argument("--json", action="store_true", help="Output as JSON")
 
-    def handle(self, *args, **kwargs) -> Optional[str]:
+    def handle(self, *args, **kwargs) -> str:
         to_clear = kwargs["clear"]
-        as_json = kwargs["json"]
-        verbosity = kwargs["verbosity"]
-        if not to_clear and not as_json:
+        if not to_clear:
             self.stdout.write("Dry run. Use --clear to clear server-stored data.")
 
         with Timer(logger=None) as query_timer:
@@ -55,19 +52,16 @@ class Command(BaseCommand):
             )
             log_message = f"cleanup_data complete, cleaned {count} record{'' if count==1 else 's'}."
         else:
-            log_message = "cleanup_data complete."
+            log_message = "cleanup_data complete (dry run)."
 
-        data = {"cleared": to_clear}
-        data.update(counts)
-        data["timers"] = timers
+        data = {
+            "cleared": to_clear,
+            "counts": counts,
+            "timers": timers
+        }
         logger.info(log_message, extra=data)
 
-        if verbosity >= 1:
-            if as_json:
-                return json.dumps(data, indent=2)
-            else:
-                return self.get_report(to_clear, counts)
-        return None
+        return self.get_report(to_clear, counts)
 
     def get_data(
         self,
@@ -79,13 +73,14 @@ class Command(BaseCommand):
         domain_addresses = DomainAddress.objects.filter(
             user__profile__server_storage=False
         )
-        blank_relay_data = Q(description="", generated_for="", used_on="")
-        blank_domain_data = Q(description="", used_on="")
+        blank_used_on = Q(used_on="") | Q(used_on__isnull=True)
+        blank_relay_data = blank_used_on & Q(description="") & Q(generated_for="")
+        blank_domain_data = blank_used_on & Q(description="")
 
         empty_relay_addresses = relay_addresses.filter(blank_relay_data)
-        empty_domain_addresses = relay_addresses.filter(blank_domain_data)
-        non_empty_relay_addresses = relay_addresses.filter(~blank_relay_data)
-        non_empty_domain_addresses = domain_addresses.filter(~blank_domain_data)
+        empty_domain_addresses = domain_addresses.filter(blank_domain_data)
+        non_empty_relay_addresses = relay_addresses.exclude(blank_relay_data)
+        non_empty_domain_addresses = domain_addresses.exclude(blank_domain_data)
 
         counts = {
             "profiles": {
