@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import math
 import random
 
@@ -20,8 +20,8 @@ def verification_code_default():
     return str(math.floor(random.random()*999999)).zfill(6)
 
 
-def verification_sent_date_detaul():
-    return datetime.now()
+def verification_sent_date_default():
+    return datetime.now(timezone.utc)
 
 
 class RealPhone(models.Model):
@@ -32,7 +32,7 @@ class RealPhone(models.Model):
     )
     verification_sent_date = models.DateTimeField(
         blank=True, null=True, db_index=True,
-        default=verification_sent_date_detaul
+        default=verification_sent_date_default
     )
     verified = models.BooleanField(default=False)
     verified_date = models.DateTimeField(blank=True, null=True)

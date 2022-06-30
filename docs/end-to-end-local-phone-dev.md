@@ -50,6 +50,7 @@ number for Relay and set it to your `TWILIO_MAIN_NUMBER` env var.
 1. Go to the ["Buy a number"][buy-number] page in your Twilio account.
 2. Buy a number that has Voice, SMS, and MMS capabilities.
 3. In your `.env` set `TWILIO_MAIN_NUMBER='<your-number-in-es164-format>'`
+   (e.g., +12223334444)
 
 [buy-number]: https://console.twilio.com/us1/develop/phone-numbers/manage/search?frameUrl=%2Fconsole%2Fphone-numbers%2Fsearch
 
@@ -60,16 +61,25 @@ correctly. The first message in the Relay phone flow is the verification code:
 
 1. Sign in at http://127.0.0.1:8000/.
 2. Go to [the staging "Relay fonez" purchase page][buy-fonez] and buy a phone
-   subscription for the user.
+   subscription for the user. (Use a [Stripe testing card][stripe-test-cards] like
+   `4242424242424242`)
 3. Use the `POST /api/v1/realphone/` API endpoint to trigger a verification
    text message.
    * Go to http://127.0.0.1:8000/api/v1/docs/
    * Scroll down to `POST /realphone/`
    * Click "Try it out"
-   * Enter your real number e.g., `{"number": "+12223334444"}`
+   * Enter your real number e.g., `{"number": "+12223334444"}` (Remove the
+     placeholder `verification_code` property.)
    * Click "Execute"
+       * You should receive a text message to your real number with a verification
+   code.
+4. Use the `POST /api/v1/realphone/` API endpoint again to verify your real
+   number. This time, submit your real number AND the verification code
+   together:
+   * `{"number": "+12223334444", "verification_code": 123456}`
 
 [buy-fonez]: https://accounts.stage.mozaws.net/subscriptions/products/prod_LgQiSgNi4xL7dq
+[stripe-test-cards]: https://stripe.com/docs/testing#cards
 
 
 ### Receive messages
@@ -81,7 +91,7 @@ make this easier.
 
 1. Follow the instructions on the [ngrok download page][ngrok-download].
 2. Put this tunnel config in the `tunnels` section of your
-   `~/.ngrok2/ngrok.yml` file:
+   [`~/.ngrok2/ngrok.yml`][ngrok-config] file:
    ```
    relay:
         proto: http
@@ -94,6 +104,7 @@ make this easier.
 5. Hit https://your-subdomain.ngrok.io/api/v1/docs/ to check that it's working.
 
 [ngrok-download]: https://ngrok.com/download
+[ngrok-config]: https://ngrok.com/docs/ngrok-agent/config
 
 
 #### Set up a Relay SMS application in Twilio
@@ -115,4 +126,28 @@ local app URL to its call and text webhooks, and set its app ID to your
 4. Click the newly-created app
 5. Copy the `SID` value into your `.env` `TWILIO_SMS_APPLICATION_SID`
 
+Now, when your Relay app buys mask phone numbers, they will automatically be
+configured with the proper webhook URLs for receiving SMS.
+
 [twiml-apps]: https://www.twilio.com/console/sms/runtime/twiml-apps
+
+
+#### Set up a local Relay number to receive and forward messages
+With `ngrok` and Twilio set up, you're now ready to set up a local Relay
+number to receive and forward messages to your real phone.
+
+Until the UI flow is done, you'll need to use API endpoints to do this:
+
+1. Go to http://127.0.0.1:8000/api/v1/docs/
+2. Scroll down to the `GET /relaynumber/suggestions` endpoint.
+3. Click "Try it out"
+4. Click "Execute"
+5. Scroll thru the `same_prefix_options`, `other_areas_options`, and
+   `same_area_options` numbers and find a number you like.
+6. Scroll up to the `POST /relaynumber/` endpoint.
+7. Click "Try it out"
+8. Enter the number you want. E.g., `{"number": "+12223334444"}`
+9. Click "Execute"
+10. Send a text message to your mask number.
+   * You should see the Twilio webhook request in your local ngrok and you
+     should receive the text message to your real phone!

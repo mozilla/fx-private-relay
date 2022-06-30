@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='realphone',
             name='verification_sent_date',
-            field=models.DateTimeField(blank=True, db_index=True, default=phones.models.verification_sent_date_detaul, null=True),
+            field=models.DateTimeField(blank=True, db_index=True, default=phones.models.verification_sent_date_default, null=True),
         ),
         migrations.AddConstraint(
             model_name='realphone',

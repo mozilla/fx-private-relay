@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import phonenumbers
 
 from django.apps import apps
@@ -236,7 +236,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
                 number=serializer.validated_data["number"],
                 verification_code=verification_code,
                 verification_sent_date__gt=(
-                    datetime.now() -
+                    datetime.now(timezone.utc) -
                     timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE)
                 )
             ).first()
@@ -497,8 +497,7 @@ def inbound_sms(request):
         )
 
     relay_number = RelayNumber.objects.get(number=inbound_to)
-    # FIXME: this somehow got multiple objects returned?
-    real_phone = RealPhone.objects.get(user=relay_number.user)
+    real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
     phones_config = apps.get_app_config("phones")
     phones_config.twilio_client.messages.create(
         from_=relay_number.number,
