@@ -16,7 +16,7 @@ from .models import Session
 account_sid = config("TWILIO_ACCOUNT_SID", None)
 auth_token = config("TWILIO_AUTH_TOKEN", None)
 client = Client(account_sid, auth_token)
-service = client.proxy.services(config("TWILIO_SERVICE_ID"))
+service = client.proxy.services(config("TWILIO_SERVICE_ID", None))
 
 
 PROMPT_MESSAGE = "For how many minutes do you need a relay number?"
