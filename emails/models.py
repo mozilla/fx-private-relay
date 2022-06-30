@@ -271,22 +271,6 @@ class Profile(models.Model):
 
     @property
     def has_phone(self):
-        # FIXME: as we don't have all the tiers defined we are over-defining
-        # this to mark the user as a premium user as well
-        if not self.fxa:
-            return False
-        for premium_domain in PREMIUM_DOMAINS:
-            if self.user.email.endswith(f"@{premium_domain}"):
-                return True
-        user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_PHONE.split(","):
-            if sub in user_subscriptions:
-                return True
-        return False
-
-
-    @property
-    def has_phone(self):
         if not self.fxa:
             return False
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
