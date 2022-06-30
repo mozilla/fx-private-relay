@@ -270,6 +270,7 @@ class Profile(models.Model):
                 return True
         return False
 
+
     @property
     def has_phone(self):
         if not self.fxa:
@@ -733,10 +734,6 @@ class Reply(models.Model):
     @property
     def owner_has_premium(self):
         return self.profile.has_premium
-
-    @property
-    def owner_has_phone(self):
-        return self.profile.has_phone
 
     def increment_num_replied(self):
         address = self.relay_address or self.domain_address
