@@ -5,6 +5,8 @@ import json
 from django.db.models import Q
 from django.core.management.base import BaseCommand
 
+from codetiming import Timer
+
 from emails.models import DomainAddress, Profile, RelayAddress
 
 if TYPE_CHECKING:
@@ -31,19 +33,24 @@ class Command(BaseCommand):
         if not to_clear and not as_json:
             self.stdout.write("Dry run. Use --clear to clear server-stored data.")
 
-        counts, relay_addresses, domain_addresses = self.get_data()
+        with Timer(logger=None) as query_timer:
+            counts, relay_addresses, domain_addresses = self.get_data()
+        timers = {"query_s": round(query_timer.last, 3)}
 
         if to_clear:
-            counts["relay_addresses"]["cleared"] = relay_addresses.update(
-                description="", generated_for="", used_on=""
-            )
-            counts["domain_addresses"]["cleared"] = domain_addresses.update(
-                description="", used_on=""
-            )
+            with Timer(logger=None) as clear_timer:
+                counts["relay_addresses"]["cleared"] = relay_addresses.update(
+                    description="", generated_for="", used_on=""
+                )
+                counts["domain_addresses"]["cleared"] = domain_addresses.update(
+                    description="", used_on=""
+                )
+            timers["clear_s"] = round(clear_timer.last, 3)
 
         if as_json:
             output = {"cleared": to_clear}
             output.update(counts)
+            output["timers"] = timers
             return json.dumps(output, indent=2)
         else:
             return self.get_report(to_clear, counts)
