@@ -39,6 +39,8 @@ module = [
     "markus.utils",
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
+    "twilio.rest",
+    "twilio.twiml.messaging_response",
     "waffle",
     "waffle.models",
     "waffle.testutils",
@@ -48,9 +50,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 # Optional modules or in-progress features
 module = [
-    "phonenumbers",
     "silk",
-    "twilio.rest",
-    "twilio.twiml.messaging_response",
 ]
 ignore_missing_imports = true
