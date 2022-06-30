@@ -109,6 +109,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "server_storage",
             "subdomain",
             "has_premium",
+            "has_phone",
             "onboarding_state",
             "date_subscribed",
             "avatar",
@@ -123,6 +124,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "has_premium",
+            "has_phone",
             "date_subscribed",
             "avatar",
             "next_email_try",

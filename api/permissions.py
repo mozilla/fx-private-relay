@@ -13,6 +13,11 @@ class HasPremium(permissions.BasePermission):
         profile = Profile.objects.get(request.user)
         return profile.has_premium()
 
+class HasPhone(permissions.BasePermission):
+    def has_permission(self, request, view):
+        profile = Profile.objects.get(request.user)
+        return profile.has_phone()
+
 
 class HasPhoneService(permissions.BasePermission):
     def has_permission(self, request, view):
