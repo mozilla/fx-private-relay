@@ -1,5 +1,6 @@
 import logging
 
+from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 
 from django.apps import AppConfig
@@ -22,6 +23,9 @@ class PhonesConfig(AppConfig):
             self.twilio_test_client = Client(
                 settings.TWILIO_TEST_ACCOUNT_SID,
                 settings.TWILIO_TEST_AUTH_TOKEN
+            )
+            self.twilio_validator = RequestValidator(
+                settings.TWILIO_AUTH_TOKEN
             )
         except Exception:
             logger.exception("exception during Twilio connect")

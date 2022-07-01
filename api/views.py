@@ -12,7 +12,6 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
-from rest_framework.views import APIView
 from rest_framework import (
     decorators, permissions, response, throttling, viewsets, exceptions
 )
@@ -218,6 +217,10 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # We call an additional _validate_number function with the request
+        # to try to parse the number as a local national number in the
+        # request.country attribute
         valid_number, error = _validate_number(request)
         if valid_number == None:
             return response.Response(
@@ -485,8 +488,7 @@ def runtime_data(request):
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def inbound_sms(request):
-    # TODO: valid request coming from Twilio:
-    # https://www.twilio.com/docs/usage/security#validating-requests
+    _validate_twilio_request(request)
     inbound_body = request.data.get("Body", None)
     inbound_from = request.data.get("From", None)
     inbound_to = request.data.get("To", None)
@@ -508,3 +510,17 @@ def inbound_sms(request):
         status=201,
         data={"message": "Relayed message to user."}
     )
+
+def _validate_twilio_request(request):
+    url = request._request.build_absolute_uri()
+    sorted_params = {}
+    for param_key in sorted(request.data):
+        sorted_params[param_key] = request.data.get(param_key)
+    request_signature = request._request.headers['X-Twilio-Signature']
+    phones_config = apps.get_app_config("phones")
+    if not phones_config.twilio_validator.validate(
+        url, sorted_params, request_signature
+    ):
+        raise exceptions.ValidationError(
+            "Invalid request: invalid signature"
+        )

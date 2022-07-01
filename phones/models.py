@@ -61,7 +61,7 @@ class RealPhone(models.Model):
             number=self.number,
             verified=False,
             verification_sent_date__lt=(
-                datetime.now() -
+                datetime.now(timezone.utc) -
                 timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE)
             )
         )
@@ -74,7 +74,7 @@ class RealPhone(models.Model):
 
     def mark_verified(self):
         self.verified=True
-        self.verified_date = datetime.now()
+        self.verified_date = datetime.now(timezone.utc)
         self.save(force_update=True)
         return self
 
@@ -106,17 +106,16 @@ class RelayNumber(models.Model):
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")
         client = phones_config.twilio_client
+
         # Since this will charge the Twilio account, first see if this
         # is running with TEST creds to avoid charges.
         if settings.TWILIO_TEST_ACCOUNT_SID:
             client = phones_config.twilio_test_client
-        # TODO: change sms_url to
-        # sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID
-        # so we have a single sms callback url for all numbers
+
         incoming_number = (client
             .incoming_phone_numbers.create(
                 phone_number=self.number,
-                sms_url=settings.TWILIO_SMS_URL
+                sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID
             )
         )
         return super().save(*args, **kwargs)

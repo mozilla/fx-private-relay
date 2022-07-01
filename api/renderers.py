@@ -15,7 +15,6 @@ class vCardRenderer(renderers.BaseRenderer):
         vCard.add("FN").value = "Firefox Relay"
         # TODO: fix static urls
         photo_url = settings.SITE_ORIGIN + static("placeholder-logo.svg")
-        import ipdb; ipdb.set_trace()
         vCard.add("PHOTO").value = photo_url
         vCard.add("LOGO").value = photo_url
         vCard.add("EMAIL").value = "support@relay.firefox.com"
