@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import math
 import random
+import string
 
 from django.apps import apps
 from django.contrib.auth.models import User
@@ -95,10 +96,22 @@ def realphone_post_save(sender, instance, created, **kwargs):
         )
 
 
+def vcard_lookup_key_default():
+    return ''.join(
+        random.choice(string.ascii_letters + string.digits)
+        for i in range(6)
+    )
+
+
 class RelayNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     number = models.CharField(max_length=15)
     location = models.CharField(max_length=255)
+    vcard_lookup_key = models.CharField(
+        max_length=6,
+        default=vcard_lookup_key_default,
+        unique=True
+    )
 
     def save(self, *args, **kwargs):
         # TODO: check to make sure this user
@@ -131,7 +144,9 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
         real_phone = RealPhone.objects.get(user=instance.user)
         # only send welcome vCard when creating new record
         phones_config = apps.get_app_config("phones")
-        media_url = settings.SITE_ORIGIN + reverse("vCard", kwargs={"number": instance.number})
+        media_url = settings.SITE_ORIGIN + reverse(
+            "vCard", kwargs={"lookup_key": instance.vcard_lookup_key}
+        )
         phones_config.twilio_client.messages.create(
             body="Welcome to Relay Phoanz! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
             from_=settings.TWILIO_MAIN_NUMBER,

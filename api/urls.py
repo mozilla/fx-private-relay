@@ -33,7 +33,7 @@ urlpatterns = [
     path("v1/premium_countries", views.premium_countries, name="premium_countries"),
     path("v1/runtime_data", views.runtime_data, name="runtime_data"),
     path("v1/inbound_sms", views.inbound_sms, name="inbound_sms"),
-    path("v1/vCard/<number>", views.vCard, name="vCard"),
+    path("v1/vCard/<lookup_key>", views.vCard, name="vCard"),
     path(
         "v1/swagger<swagger_format:format>",
         views.schema_view.without_ui(cache_timeout=0),

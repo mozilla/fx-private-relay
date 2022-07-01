@@ -438,16 +438,18 @@ def _get_number_details(e164_number):
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([vCardRenderer])
-def vCard(request, number=None):
+def vCard(request, lookup_key):
     """
-    Get a Relay vCard. `number` should be passed in url path.
+    Get a Relay vCard. `lookup_key` should be passed in url path.
 
-    We use this to return a vCard for a number. To prevent account
-    enumeration attacks, we simply return a vCard for the phone number that
-    is passed.
+    We use this to return a vCard for a number. When we create a RelayNumber,
+    we create a secret lookup_key and text it to the user.
     """
-    if number is None:
+    if lookup_key is None:
         return response.Response(status=404)
+
+    relay_number = RelayNumber.objects.get(vcard_lookup_key=lookup_key)
+    number = relay_number.number
 
     resp = response.Response({"number": number})
     resp["Content-Disposition"] = f"attachment; filename={number}"
