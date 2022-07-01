@@ -173,6 +173,8 @@ jobs:
             docker run \
               --entrypoint "/bin/bash" \
               --volumes-from workspace-test-results \
+              -e TWILIO_ACCOUNT_SID=$TWILIO_ACCOUNT_SID \
+              -e TWILIO_AUTH_TOKEN=$TWILIO_AUTH_TOKEN \
               fx-private-relay \
               -c \
                 'mkdir --parents /tmp/workspace/test-results/pytest && \
