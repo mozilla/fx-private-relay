@@ -25,6 +25,23 @@ def verification_sent_date_default():
     return datetime.now(timezone.utc)
 
 
+def get_expired_unverified_realphone_records(number):
+    return RealPhone.objects.filter(
+        number=number,
+        verified=False,
+        verification_sent_date__lt=(
+            datetime.now(timezone.utc) -
+            timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE)
+        )
+    )
+
+
+def get_existing_realphone_record(user, number):
+    return RealPhone.objects.filter(
+        user=user, verified=True
+    ).exclude(number=number)
+
+
 class RealPhone(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     number = models.CharField(max_length=15)
@@ -51,20 +68,18 @@ class RealPhone(models.Model):
         # We are not ready to support multiple real phone numbers per user,
         # so raise an exception if this save() would create a second
         # RealPhone record for the user
-        other_number_record = RealPhone.objects.filter(
-            user=self.user, verified=True
-        ).exclude(number=self.number)
+        other_number_record = (
+            get_existing_realphone_record(self.user, self.number)
+        )
         if other_number_record:
             raise BadRequest("RealPhone.save(): Another real number already exists for this user.")
 
         # delete any expired unverified RealPhone records for this number
-        expired_verification_records = RealPhone.objects.filter(
-            number=self.number,
-            verified=False,
-            verification_sent_date__lt=(
-                datetime.now(timezone.utc) -
-                timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-            )
+        # note: it doesn't matter which user is trying to create a new
+        # RealPhone record - any expired unverified record for the number
+        # should be deleted
+        expired_verification_records = (
+            get_expired_unverified_realphone_records(self.number)
         )
         expired_verification_records.delete()
 
@@ -83,7 +98,9 @@ class RealPhone(models.Model):
 @receiver(post_save, sender=RealPhone)
 def realphone_post_save(sender, instance, created, **kwargs):
     # don't do anything if running migrations
-    if type(instance) == MigrationRecorder.Migration:
+    # TODO: figure out how to mock out twilio for tests
+    if (type(instance) == MigrationRecorder.Migration or
+        'testserver' in settings.ALLOWED_HOSTS):
         return
 
     if created:

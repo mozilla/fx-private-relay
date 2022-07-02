@@ -6,7 +6,7 @@ omit =
     *tests/*,
     *wsgi.py,
     manage.py,
-    *phones/*,
+    node_modules/*,
 
 [run]
 relative_files = True
