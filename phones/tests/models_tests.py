@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 import random
+from unittest.mock import Mock, patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -8,9 +9,36 @@ from django.test.testcases import TestCase
 
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
+import pytest
 
 from emails.models import Profile
-from ..models import MAX_MINUTES_TO_VERIFY_REAL_PHONE, RealPhone, get_expired_unverified_realphone_records
+from ..models import (
+    MAX_MINUTES_TO_VERIFY_REAL_PHONE,
+    RealPhone,
+    get_expired_unverified_realphone_records
+)
+
+
+MOCK_BASE = "phones.models"
+
+def fake_phones_config():
+    """
+    Return a mock version of phones app config with a fake twilio client.
+    """
+    phones_config = Mock(
+        spec_set=("twilio_client", "twilio_test_client", "twilio_validator")
+    )
+    return phones_config
+
+
+@pytest.fixture(autouse=True)
+def mocked_apps():
+    """
+    Mock django apps to return a phones app config with a mock twilio client
+    """
+    with patch(f"{MOCK_BASE}.apps") as mock_apps:
+        mock_apps.get_app_config = fake_phones_config()
+        yield mock_apps
 
 
 def make_phone_test_user():

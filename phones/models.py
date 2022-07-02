@@ -98,9 +98,7 @@ class RealPhone(models.Model):
 @receiver(post_save, sender=RealPhone)
 def realphone_post_save(sender, instance, created, **kwargs):
     # don't do anything if running migrations
-    # TODO: figure out how to mock out twilio for tests
-    if (type(instance) == MigrationRecorder.Migration or
-        'testserver' in settings.ALLOWED_HOSTS):
+    if type(instance) == MigrationRecorder.Migration:
         return
 
     if created:
