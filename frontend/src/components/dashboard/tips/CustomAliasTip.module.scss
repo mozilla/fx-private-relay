@@ -20,4 +20,14 @@
     font-family: $font-stack-firefox;
     color: $color-purple-90;
   }
+
+  video {
+    border-radius: $border-radius-sm;
+  }
+
+  @media (prefers-reduced-motion) {
+    video {
+      display: none;
+    }
+  }
 }
