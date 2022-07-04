@@ -2,6 +2,7 @@ import { useLocalization } from "@fluent/react";
 import { Key, ReactNode, useRef, useState } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Item, TabListState, useTabListState } from "react-stately";
+import { event as gaEvent } from "react-ga";
 import { CloseIcon } from "../../../Icons";
 import styles from "./WhatsNewDashboard.module.scss";
 import { WhatsNewList } from "./WhatsNewList";
@@ -16,14 +17,53 @@ export type Props = {
 export const WhatsNewDashboard = (props: Props) => {
   const { l10n } = useLocalization();
   const [expandedEntry, setExpandedEntry] = useState<WhatsNewEntry>();
+  // `onClearAll` is undefined when there are no entries,
+  // which signals to <Tabs> that the "Clear all" button should not be shown.
   const onClearAll =
-    props.new.length > 0
-      ? () => props.new.forEach((entry) => entry.dismissal.dismiss())
-      : undefined;
+    props.new.length === 0
+      ? undefined
+      : () => {
+          props.new.forEach((entry) => entry.dismissal.dismiss());
+
+          gaEvent({
+            category: "News",
+            action: "Clear all",
+            label: "news-dashboard",
+            value: props.new.length,
+          });
+        };
 
   const selectEntry = (entry: WhatsNewEntry) => {
     setExpandedEntry(entry);
     entry.dismissal.dismiss();
+    gaEvent({
+      category: "News",
+      action: "Open entry",
+      label: entry.title,
+    });
+  };
+
+  const onSelectionChange = (key: Key) => {
+    // If the user was currently viewing a single news entry, close it:
+    setExpandedEntry(undefined);
+
+    gaEvent({
+      category: "News",
+      action:
+        key === "new" ? "Switch to 'News' tab" : "Switch to 'History' tab",
+      label: "news-dashboard",
+    });
+  };
+
+  const onCollapseEntry = () => {
+    if (typeof expandedEntry !== "undefined") {
+      gaEvent({
+        category: "News",
+        action: "Close entry",
+        label: expandedEntry.title,
+      });
+    }
+    setExpandedEntry(undefined);
   };
 
   return (
@@ -33,8 +73,8 @@ export const WhatsNewDashboard = (props: Props) => {
         aria-label={l10n.getString("whatsnew-trigger-label")}
         defaultSelectedKey="new"
         expandedEntry={expandedEntry}
-        onSelectionChange={() => setExpandedEntry(undefined)}
-        onCollapseEntry={() => setExpandedEntry(undefined)}
+        onSelectionChange={onSelectionChange}
+        onCollapseEntry={onCollapseEntry}
         onClearAll={onClearAll}
       >
         <Item key="new" title={l10n.getString("whatsnew-tab-new-label")}>

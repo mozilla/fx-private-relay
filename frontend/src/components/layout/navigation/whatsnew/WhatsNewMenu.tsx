@@ -20,6 +20,7 @@ import {
   VisuallyHidden,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
+import { event as gaEvent } from "react-ga";
 import styles from "./WhatsNewMenu.module.scss";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
 import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
@@ -75,7 +76,15 @@ export type Props = {
 
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
-  const triggerState = useOverlayTriggerState({});
+  const triggerState = useOverlayTriggerState({
+    onOpenChange(isOpen) {
+      gaEvent({
+        category: "News",
+        action: isOpen ? "Open" : "Close",
+        label: "header-nav",
+      });
+    },
+  });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const addonData = useAddonData();
