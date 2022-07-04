@@ -41,7 +41,7 @@ export const Navigation = (props: Props) => {
   const phoneLink = isFlagActive(runtimeData.data, "phones") ? (
     <Link href="/phone">
       <a
-        className={`$styles.link} ${
+        className={`${styles.link} ${
           router.pathname === "/phone" ? styles["is-active"] : null
         }`}
       >
