@@ -15,7 +15,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from django.db.models import QuerySet
 
 
-logger = logging.getLogger("eventsinfo.process_emails_from_sqs")
+logger = logging.getLogger("eventsinfo.cleanup_data")
 _CountDict = dict[str, dict[str, int]]
 
 
