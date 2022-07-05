@@ -1,4 +1,4 @@
-import { Localized, useLocalization } from "@fluent/react";
+import { useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import {
   FormEventHandler,
