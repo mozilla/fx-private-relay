@@ -393,7 +393,7 @@ def count_all_trackers(html_content):
     incr_if_enabled("tracker.strict_count", strict_detail["count"])
     study_logger.info(
         "email_tracker_summary",
-        extra={"general": general_detail, "strict": strict_detail},
+        extra={"level_one": general_detail, "level_two": strict_detail},
     )
 
 
@@ -407,8 +407,8 @@ def remove_trackers(html_content, level="general"):
     changed_content = html_content
     control = True  # tracker is NOT removed
 
-    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
-    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
+    level_one_detail = count_tracker(html_content, GENERAL_TRACKERS)
+    level_two_detail = count_tracker(html_content, STRICT_TRACKERS)
 
     if sample_is_active("foxfood-tracker-removal-sample"):
         control = False  # tracker is removed
@@ -420,12 +420,12 @@ def remove_trackers(html_content, level="general"):
             tracker_removed += matched
 
     incr_if_enabled(f"tracker_foxfooding.{level}_removed_count", tracker_removed)
-    incr_if_enabled("tracker_foxfooding.general_count", general_detail["count"])
-    incr_if_enabled("tracker_foxfooding.strict_count", strict_detail["count"])
+    incr_if_enabled("tracker_foxfooding.general_count", level_one_detail["count"])
+    incr_if_enabled("tracker_foxfooding.strict_count", level_two_detail["count"])
     study_details = {
         "tracker_removed": tracker_removed,
-        "general": general_detail,
-        "strict": strict_detail,
+        "level_one": level_one_detail,
+        "level_two": level_two_detail,
     }
     logger_details = {"level": level, "is_control": control}
     logger_details.update(study_details)
