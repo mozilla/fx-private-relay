@@ -1,155 +1,285 @@
 from __future__ import annotations
-from typing import Optional, TYPE_CHECKING
-import json
+from argparse import RawDescriptionHelpFormatter
+from shutil import get_terminal_size
+from typing import Any, Optional, TYPE_CHECKING
+
+import textwrap
 import logging
 
-from django.db.models import Q
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, DjangoHelpFormatter
 
 from codetiming import Timer
 
-from emails.models import DomainAddress, Profile, RelayAddress
+from emails.cleaners import ServerStorageCleaner
+
 
 if TYPE_CHECKING:  # pragma: no cover
     from argparse import ArgumentParser
-    from django.db.models import QuerySet
+    from privaterelay.cleaners import DataIssueTask
 
 
 logger = logging.getLogger("eventsinfo.cleanup_data")
-_CountDict = dict[str, dict[str, int]]
+
+
+class RawDescriptionDjangoHelpFormatter(
+    DjangoHelpFormatter, RawDescriptionHelpFormatter
+):
+    """DjangoHelpFormatter, but don't reflow the epilog."""
 
 
 class Command(BaseCommand):
-    help = (
-        "Clears description, generated_for, and used_on data of all addresses that"
-        " belong to a Profile with server_storage set to False."
-    )
+    help = "Detects and optionally clean data issues."
+    task_list: list[type[DataIssueTask]] = [ServerStorageCleaner]
+    tasks: dict[str, DataIssueTask]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        tasks = {Task.slug: Task() for Task in self.task_list}
+        self.tasks = {slug: tasks[slug] for slug in sorted(tasks.keys())}
+
+    def create_parser(self, prog_name, subcommand, **kwargs):
+        """Add DataIssueTask information to default parser."""
+
+        epilog_lines = ["Data issue detectors / cleaners:"]
+        for slug, task in self.tasks.items():
+            raw = f"{slug} - {task.title}"
+            epilog_lines.extend(
+                textwrap.wrap(
+                    raw,
+                    width=get_terminal_size().columns,
+                    initial_indent="  ",
+                    subsequent_indent="      ",
+                )
+            )
+        epilog = "\n".join(epilog_lines)
+
+        parser = super().create_parser(prog_name, subcommand, epilog=epilog, **kwargs)
+        assert parser.formatter_class == DjangoHelpFormatter
+        parser.formatter_class = RawDescriptionDjangoHelpFormatter
+        return parser
 
     def add_arguments(self, parser: ArgumentParser) -> None:
-        parser.add_argument("--clear", action="store_true", help="Clear data")
+        parser.add_argument(
+            "--clean", action="store_true", help="Clean detected data issues."
+        )
+        for slug, task in self.tasks.items():
+            parser.add_argument(
+                f"--{slug}",
+                action="store_true",
+                help=f"Only run {slug} {'cleaner' if task.can_clean else 'detector'}",
+            )
 
     def handle(self, *args, **kwargs) -> str:
         """Run the cleanup_data command."""
-        to_clear = kwargs["clear"]
-        if not to_clear:
-            self.stdout.write("Dry run. Use --clear to clear server-stored data.")
 
-        with Timer(logger=None) as query_timer:
-            counts, relay_addresses, domain_addresses = self.get_data()
-        timers = {"query_s": round(query_timer.last, 3)}
+        # Parse command line options
+        to_clean = kwargs["clean"]
+        verbosity = kwargs["verbosity"]
 
-        if to_clear:
-            with Timer(logger=None) as clear_timer:
-                counts["relay_addresses"]["cleared"] = relay_addresses.update(
-                    description="", generated_for="", used_on=""
-                )
-                counts["domain_addresses"]["cleared"] = domain_addresses.update(
-                    description="", used_on=""
-                )
-            timers["clear_s"] = round(clear_timer.last, 3)
-            count = (
-                counts["relay_addresses"]["cleared"]
-                + counts["domain_addresses"]["cleared"]
-            )
-            log_message = f"cleanup_data complete, cleaned {count} record{'' if count==1 else 's'}."
+        # Determine if we're running some tasks or the full set
+        run_some: list[str] = []
+        for name, val in kwargs.items():
+            slug = name.replace("-", "_")
+            if slug in self.tasks:
+                run_some.append(slug)
+        if run_some:
+            tasks = {slug: self.tasks[slug] for slug in sorted(run_some)}
         else:
-            log_message = "cleanup_data complete (dry run)."
+            tasks = self.tasks
 
-        data = {"cleared": to_clear, "counts": counts, "timers": timers}
-        logger.info(log_message, extra=data)
+        # Find data issues and clean them if requested
+        issue_count, issue_timers = self.find_issues(tasks)
+        if to_clean:
+            clean_count, clean_timers = self.clean_issues(tasks)
+            log_message = f"cleanup_data complete, cleaned {clean_count} of {issue_count} issue{'' if issue_count==1 else 's'}."
+        else:
+            clean_timers = None
+            log_message = f"cleanup_data complete, found {issue_count} issue{'' if issue_count==1 else 's'} (dry run)."
 
-        return self.get_report(to_clear, counts)
+        # Log results and create a report, based on requested verbosity
+        full_data, log_data = self.prepare_data(
+            to_clean, verbosity, tasks, issue_timers, clean_timers=clean_timers
+        )
+        logger.info(log_message, extra=log_data)
+        report = self.get_report(log_message, full_data)
+        return report
 
-    def get_data(
+    def find_issues(
+        self, tasks: dict[str, DataIssueTask]
+    ) -> tuple[int, dict[str, float]]:
+        """Run each task and accumulate the total detected issues."""
+        total = 0
+        timers: dict[str, float] = {}
+        for slug, task in tasks.items():
+            with Timer(logger=None) as issue_timer:
+                total += task.issues()
+            timers[slug] = round(issue_timer.last, 3)
+        return total, timers
+
+    def clean_issues(
+        self, tasks: dict[str, DataIssueTask]
+    ) -> tuple[int, dict[str, float]]:
+        """Clean detected issues, if the task supports cleaning."""
+        total = 0
+        timers: dict[str, float] = {}
+        for slug, task in tasks.items():
+            with Timer(logger=None) as clean_timer:
+                total += task.clean()
+            timers[slug] = round(clean_timer.last, 3)
+        return total, timers
+
+    def prepare_data(
         self,
-    ) -> tuple[_CountDict, QuerySet[RelayAddress], QuerySet[DomainAddress]]:
-        """
-        Analyze usage of the server_storage flag and server-stored data.
+        to_clean: bool,
+        verbosity: int,
+        tasks: dict[str, DataIssueTask],
+        issue_timers: dict[str, float],
+        clean_timers: Optional[dict[str, float]],
+    ) -> tuple[dict, dict]:
+        """Gather full data and log data from tasks and timers."""
 
-        Returns:
-        * counts: two-level dict of row counts for Profile, RelayAddress, and DomainAddress
-        * non_empty_relay_addresses: RelayAddresses with data to clear
-        * non_empty_domain_addresses: DomainAddress with data to clear
-        """
-        profiles_without_server_storage = Profile.objects.filter(server_storage=False)
-        relay_addresses = RelayAddress.objects.filter(
-            user__profile__server_storage=False
-        )
-        domain_addresses = DomainAddress.objects.filter(
-            user__profile__server_storage=False
-        )
-        blank_used_on = Q(used_on="") | Q(used_on__isnull=True)
-        blank_relay_data = blank_used_on & Q(description="") & Q(generated_for="")
-        blank_domain_data = blank_used_on & Q(description="")
+        timers = {"query_s": sum(issue_timers.values())}
+        if clean_timers:
+            timers["clean_s"] = sum(clean_timers.values())
 
-        empty_relay_addresses = relay_addresses.filter(blank_relay_data)
-        empty_domain_addresses = domain_addresses.filter(blank_domain_data)
-        non_empty_relay_addresses = relay_addresses.exclude(blank_relay_data)
-        non_empty_domain_addresses = domain_addresses.exclude(blank_domain_data)
+        log_details = {}
+        full_details = {}
+        for slug, task in tasks.items():
+            timers = {"query_s": issue_timers[slug]}
+            if clean_timers:
+                timers["clean_s"] = clean_timers[slug]
 
-        counts = {
-            "profiles": {
-                "total": Profile.objects.count(),
-                "no_server_storage": profiles_without_server_storage.count(),
-            },
-            "relay_addresses": {
-                "total": RelayAddress.objects.count(),
-                "no_server_storage": relay_addresses.count(),
-                "no_server_storage_or_data": empty_relay_addresses.count(),
-                "no_server_storage_but_data": non_empty_relay_addresses.count(),
-            },
-            "domain_addresses": {
-                "total": DomainAddress.objects.count(),
-                "no_server_storage": domain_addresses.count(),
-                "no_server_storage_or_data": empty_domain_addresses.count(),
-                "no_server_storage_but_data": non_empty_domain_addresses.count(),
-            },
+            full_details[slug] = {
+                "title": task.title,
+                "check_description": task.check_description,
+                "can_clean": task.can_clean,
+                "counts": task.counts,
+                "markdown_report": task.markdown_report(),
+                "timers": timers,
+            }
+
+            if verbosity > 1:
+                log_details[slug] = {"counts": task.counts, "timers": timers}
+            elif verbosity > 0:
+                log_details[slug] = {"counts": {"summary": task.counts["summary"]}}
+
+        full_data = {
+            "verbosity": verbosity,
+            "cleaned": to_clean,
+            "timers": timers,
+            "tasks": full_details,
         }
-        return counts, non_empty_relay_addresses, non_empty_domain_addresses
 
-    def get_report(self, to_clear: bool, counts: _CountDict) -> str:
+        log_data = {
+            "cleaned": to_clean,
+            "timers": timers,
+        }
+        if log_details:
+            log_data["tasks"] = log_details
+
+        return full_data, log_data
+
+    def get_report(self, log_message: str, data: dict) -> str:
         """Generate a human-readable report."""
 
-        def with_percent_str(part: int, whole: int) -> str:
-            """Return value followed by percent of whole, like '5 (30.0%)'"""
-            assert whole != 0
-            return f"{part} ({part / whole:.1%})"
+        verbosity: int = data["verbosity"]
+        cleaned: bool = data["cleaned"]
+        timers: dict[str, float] = data["timers"]
+        tasks: dict[str, dict[str, Any]] = data["tasks"]
 
-        def model_lines(name: str, counts: dict[str, int]) -> list[str]:
-            """Get the report lines for a model (Profile, Relay Addresses, etc.)"""
-            total = counts["total"]
-            lines = [f"{name}:", f"  Total: {total}"]
-            if total == 0:
-                return lines
+        # Collect task details
+        details: list[str] = []
+        sum_all_rows: list[tuple[str, ...]] = []
+        totals: list[float] = [0, 0, 0.0, 0.0]
+        for slug, task in tasks.items():
+            # Gather data and types
+            summary: dict[str, int] = task["counts"]["summary"]
+            ok = summary["ok"]
+            needs_cleaning = summary["needs_cleaning"]
+            num_cleaned = summary.get("cleaned", 0)
 
-            no_server_storage = counts["no_server_storage"]
-            lines.append(
-                f"  Without Server Storage: {with_percent_str(no_server_storage, total)}"
+            task_timers: dict[str, float] = task["timers"]
+            query_timer = task_timers["query_s"]
+            clean_timer = task_timers.get("clean_s", 0.0)
+
+            # Collect summary data
+            sum_all_rows.append(
+                (
+                    slug,
+                    str(needs_cleaning),
+                    str(num_cleaned),
+                    format(query_timer, "0.3f"),
+                    format(clean_timer, "0.3f"),
+                )
             )
-            if no_server_storage == 0:
-                return lines
+            totals[0] += needs_cleaning
+            totals[1] += num_cleaned
+            totals[2] += query_timer
+            totals[3] += clean_timer
 
-            no_data = counts.get("no_server_storage_or_data")
-            has_data = counts.get("no_server_storage_but_data")
-            if no_data is None or has_data is None:
-                return lines
-            lines.extend(
-                [
-                    f"    No Data : {with_percent_str(no_data, no_server_storage)}",
-                    f"    Has Data: {with_percent_str(has_data, no_server_storage)}",
-                ]
-            )
+            # Details are ommited on low verbosity
+            if verbosity <= 1:
+                continue
 
-            cleared = counts.get("cleared")
-            if cleared is None:
-                return lines
-            lines.append(f"      Cleared: {with_percent_str(cleared, has_data)}")
-            return lines
+            # Collect detail section data
+            detail = [f"## {slug}"]
+            detail.extend(textwrap.wrap(task["check_description"], width=80))
+            detail.append("")
+            detail.append(f"Detected {needs_cleaning} issues in {query_timer} seconds.")
+            if cleaned:
+                if task["can_clean"]:
+                    detail.append(f"Cleaned {cleaned} issues in {clean_timer} seconds.")
+                else:
+                    detail.append("Unable to automatically fix issues.")
+            detail.append("")
+            detail.append(task["markdown_report"])
+            details.append("\n".join(detail))
 
-        lines: list[str] = (
-            model_lines("Profiles", counts["profiles"])
-            + model_lines("Relay Addresses", counts["relay_addresses"])
-            + model_lines("Domain Addresses", counts["domain_addresses"])
+        report = ["", "# Summary"]
+        if not cleaned:
+            report.append("Detected issues only. Use --clean to fix issues.")
+        report.append("")
+
+        # Pick summary table columns
+        if cleaned:
+            columns = ["task", "issues", "fixed", "query (s)", "fix (s)"]
+            sum_rows: list[tuple[str, ...]] = sum_all_rows[:]
+            sum_rows.append(("_Total_", str(totals[0]), str(totals[1]), format(totals[2], "0.3f"), format(totals[3], "0.3f")))
+        else:
+            columns = ["task", "issues", "query (s)"]
+            sum_rows = [(row[0], row[1], row[3]) for row in sum_all_rows]
+            sum_rows.append(("_Total_", str(totals[0]), format(totals[2], "0.3f")))
+
+        # Determine summary table widths
+        widths = [len(col) for col in columns]
+        for row in sum_rows:
+            for column, value in enumerate(row):
+                widths[column] = max(widths[column], len(value))
+
+        # Output summary table with aligned columns
+        header = (
+            "|"
+            + "|".join(f"{col:^{widths[colnum]}}" for colnum, col in enumerate(columns))
+            + "|"
         )
+        sep = (
+            "|"
+            + "|".join(f"{'-' * (widths[colnum] - 1)}:" for colnum, _ in enumerate(columns))
+            + "|"
+        )
+        report.extend([header, sep])
+        for row in sum_rows:
+            row_report = (
+                "|"
+                + "|".join(f"{col:>{widths[colnum]}}" for colnum, col in enumerate(row))
+                + "|"
+            )
+            report.append(row_report)
 
-        return "\n".join(lines)
+        # Output details
+        if verbosity > 1:
+            report.extend(["", "# Details"])
+            for detail_block in details:
+                report.extend([detail_block, ""])
+
+        return "\n".join(report)
