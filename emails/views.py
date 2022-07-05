@@ -78,7 +78,8 @@ def wrap_html_email(
     in_premium_country,
     display_email,
     has_attachment,
-    email_tracker_study_link=None,
+    num_level_one_email_trackers_removed=None,
+    tracker_report_link=0,
 ):
     """Add Relay banners, surveys, etc. to an HTML email"""
     email_context = {
@@ -88,7 +89,8 @@ def wrap_html_email(
         "in_premium_country": in_premium_country,
         "display_email": display_email,
         "has_attachment": has_attachment,
-        "email_tracker_study_link": email_tracker_study_link,
+        "tracker_report_link": tracker_report_link,
+        "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
         "survey_text": settings.RECRUITMENT_EMAIL_BANNER_TEXT,
         "survey_link": settings.RECRUITMENT_EMAIL_BANNER_LINK,
@@ -580,10 +582,10 @@ def _sns_message(message_json):
             language=user_profile.language,
             has_premium=user_profile.has_premium,
             in_premium_country=user_profile.fxa_locale_in_premium_country,
-            tracker_report_link=tracker_report_link,
-            num_level_one_email_trackers_removed=removed_count,
             display_email=display_email,
             has_attachment=bool(attachments),
+            tracker_report_link=tracker_report_link,
+            num_level_one_email_trackers_removed=removed_count,
         )
         message_body["Html"] = {"Charset": "UTF-8", "Data": wrapped_html}
 
