@@ -1,4 +1,4 @@
-import { Localized, useLocalization } from "@fluent/react";
+import { useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import {
   FormEventHandler,
@@ -264,12 +264,9 @@ const Settings: NextPage = () => {
                     </div>
                     <div className={styles["settings-api-key-copy"]}>
                       {l10n.getString("settings-api-key-description")}{" "}
-                      <Localized
-                        id="settings-api-key-description-bolded"
-                        elems={{ b: <b /> }}
-                      >
-                        <span className={styles["settings-api-key-copy"]} />
-                      </Localized>
+                      <b>
+                        {l10n.getString("settings-api-key-description-bolded")}
+                      </b>
                     </div>
                   </div>
                 </div>
