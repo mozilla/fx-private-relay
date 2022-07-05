@@ -10,7 +10,7 @@ from codetiming import Timer
 
 from emails.models import DomainAddress, Profile, RelayAddress
 
-if TYPE_CHECKING: # pragma: no cover
+if TYPE_CHECKING:  # pragma: no cover
     from argparse import ArgumentParser
     from django.db.models import QuerySet
 
@@ -29,6 +29,7 @@ class Command(BaseCommand):
         parser.add_argument("--clear", action="store_true", help="Clear data")
 
     def handle(self, *args, **kwargs) -> str:
+        """Run the cleanup_data command."""
         to_clear = kwargs["clear"]
         if not to_clear:
             self.stdout.write("Dry run. Use --clear to clear server-stored data.")
@@ -54,11 +55,7 @@ class Command(BaseCommand):
         else:
             log_message = "cleanup_data complete (dry run)."
 
-        data = {
-            "cleared": to_clear,
-            "counts": counts,
-            "timers": timers
-        }
+        data = {"cleared": to_clear, "counts": counts, "timers": timers}
         logger.info(log_message, extra=data)
 
         return self.get_report(to_clear, counts)
@@ -66,6 +63,14 @@ class Command(BaseCommand):
     def get_data(
         self,
     ) -> tuple[_CountDict, QuerySet[RelayAddress], QuerySet[DomainAddress]]:
+        """
+        Analyze usage of the server_storage flag and server-stored data.
+
+        Returns:
+        * counts: two-level dict of row counts for Profile, RelayAddress, and DomainAddress
+        * non_empty_relay_addresses: RelayAddresses with data to clear
+        * non_empty_domain_addresses: DomainAddress with data to clear
+        """
         profiles_without_server_storage = Profile.objects.filter(server_storage=False)
         relay_addresses = RelayAddress.objects.filter(
             user__profile__server_storage=False
