@@ -84,9 +84,8 @@ class RealPhone(models.Model):
         expired_verification_records.delete()
 
         # call super save to save into the DB
+        # See also: realphone_post_save receiver below
         return super().save(*args, **kwargs)
-
-        # See realphone_post_save:
 
     def mark_verified(self):
         self.verified=True
@@ -129,6 +128,7 @@ class RelayNumber(models.Model):
     )
 
     def save(self, *args, **kwargs):
+        # TODO: check this user has a RealPhone
         # TODO: check to make sure this user
         # doesn't already have a RelayNumber
         # Before saving into DB provision the number in Twilio
@@ -171,56 +171,43 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
 
 
 def suggested_numbers(user):
-    existing_number = RelayNumber.objects.filter(user=user)
-    if existing_number:
-        raise BadRequest("available_numbers: Another RelayNumber already exists for this user.")
-
     real_phone = RealPhone.objects.filter(user=user, verified=True).first()
     if real_phone is None:
         raise BadRequest("available_numbers: This user hasn't verified a RealPhone yet.")
 
+    existing_number = RelayNumber.objects.filter(user=user)
+    if existing_number:
+        raise BadRequest("available_numbers: Another RelayNumber already exists for this user.")
+
     real_num = real_phone.number
     phones_config = apps.get_app_config("phones")
+    avail_nums = phones_config.twilio_client.available_phone_numbers('US')
 
+    # TODO: can we make multiple pattern searches in a single Twilio API request
     same_prefix_options = []
-    # first look for a number with same area code and 3-number prefix
+    # look for numbers with same area code and 3-number prefix
     contains = '%s****' % real_num[:8] if real_num else ''
-    twilio_nums = phones_config.twilio_client.available_phone_numbers('US').local.list(
-        contains=contains,
-        limit=10
-    )
+    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
-    # first look for a number with same area code and 2-number prefix
+    # look for numbers with same area code and 2-number prefix
     contains = '%s*%s' % (real_num[:7], real_num[10:]) if real_num else ''
-    twilio_nums = phones_config.twilio_client.available_phone_numbers('US').local.list(
-        contains=contains,
-        limit=10
-    )
+    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
-    # first look for a number with same area code and 1-number prefix
+    # look for numbers with same area code and 1-number prefix
     contains = '%s******' % real_num[:6] if real_num else ''
-    twilio_nums = phones_config.twilio_client.available_phone_numbers('US').local.list(
-        contains=contains,
-        limit=10
-    )
+    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_prefix_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
-    # look for same number in another area code
+    # look for same number in other area codes
     contains = '***%s' % real_num[5:] if real_num else ''
-    twilio_nums = phones_config.twilio_client.available_phone_numbers('US').local.list(
-        contains=contains,
-        limit=10
-    )
+    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     other_areas_options = convert_twilio_numbers_to_dict(twilio_nums)
 
-    # fall back to any number in the area code
+    # look for any numbers in the area code
     contains = '%s*******' % real_num[:5] if real_num else ''
-    twilio_nums = phones_config.twilio_client.available_phone_numbers('US').local.list(
-        contains=contains,
-        limit=10
-    )
+    twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_area_options = convert_twilio_numbers_to_dict(twilio_nums)
 
     return {
@@ -233,19 +220,15 @@ def suggested_numbers(user):
 
 def location_numbers(location):
     phones_config = apps.get_app_config("phones")
-    twilio_nums = phones_config.twilio_client.available_phone_numbers('US').local.list(
-        in_locality=location,
-        limit=10
-    )
+    avail_nums = phones_config.twilio_client.available_phone_numbers('US')
+    twilio_nums = avail_nums.local.list(in_locality=location, limit=10)
     return convert_twilio_numbers_to_dict(twilio_nums)
 
 
 def area_code_numbers(area_code):
     phones_config = apps.get_app_config("phones")
-    twilio_nums = phones_config.twilio_client.available_phone_numbers('US').local.list(
-        area_code=area_code,
-        limit=10
-    )
+    avail_nums = phones_config.twilio_client.available_phone_numbers('US')
+    twilio_nums = avail_nums.local.list(area_code=area_code, limit=10)
     return convert_twilio_numbers_to_dict(twilio_nums)
 
 
