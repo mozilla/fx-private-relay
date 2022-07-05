@@ -558,29 +558,30 @@ def _sns_message(message_json):
     display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
 
     message_body = {}
-    email_tracker_study_link = ""
+    tracker_report_link = ""
+    removed_count = 0
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
-        foxfood_flag = Flag.objects.filter(name="foxfood").first()
-        if foxfood_flag and foxfood_flag.is_active_for_user(address.user):
-            html_content, control, study_details = remove_trackers(html_content)
-            removed_count = study_details["tracker_removed"]
-            general_count = study_details["general"]["count"]
-            strict_count = study_details["strict"]["count"]
-            email_tracker_study_link = (
-                "https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?"
-                + f"general-found={general_count}&"
-                + f"general-removed={removed_count}&"
-                + f"strict-found={strict_count}&"
-                + f"control={control}"
-            )
+        tracker_removal_flag = Flag.objects.filter(name="tracker-removal").first()
+        tracker_removal_flag_active = tracker_removal_flag and tracker_removal_flag.is_active_for_user(address.user)
+        if tracker_removal_flag_active and user_profile.remove_level_one_email_trackers:
+            html_content, _, tracker_details = remove_trackers(html_content)
+            removed_count = tracker_details["tracker_removed"]
+            datetime_now = int(datetime.now(timezone.utc).timestamp())
+            tracker_report_details = {
+                "sender": from_address,
+                "received_at": datetime_now,
+                "trackers": tracker_details["level_one"]["trackers"]
+            }
+            tracker_report_link = f"{settings.SITE_ORIGIN}/tracker-report/#{tracker_report_details}"
 
         wrapped_html = wrap_html_email(
             original_html=html_content,
             language=user_profile.language,
             has_premium=user_profile.has_premium,
             in_premium_country=user_profile.fxa_locale_in_premium_country,
-            email_tracker_study_link=email_tracker_study_link,
+            tracker_report_link=tracker_report_link,
+            num_level_one_email_trackers_removed=removed_count,
             display_email=display_email,
             has_attachment=bool(attachments),
         )
