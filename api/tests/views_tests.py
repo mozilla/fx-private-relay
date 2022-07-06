@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch, call
 
+from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 
 from django.contrib.auth.models import User
@@ -25,6 +26,17 @@ def mocked_twilio_client():
         "phones.apps.PhonesConfig.twilio_client", spec_set=Client
     ) as mock_twilio_client:
         yield mock_twilio_client
+
+
+@pytest.fixture(autouse=True)
+def mocked_twilio_validator():
+    """
+    Mock PhonesConfig with a mock twilio validator
+    """
+    with patch(
+        "phones.apps.PhonesConfig.twilio_validator", spec_set=RequestValidator
+    ) as mock_twilio_validator:
+        yield mock_twilio_validator
 
 
 @pytest.mark.parametrize("format", ("yaml", "json"))
@@ -364,3 +376,67 @@ def test_vcard_valid_lookup_key(phone_user):
     assert response.status_code == 200
     assert response.data['number'] == relay_number
     assert response.headers['Content-Disposition'] == 'attachment; filename=+19998887777'
+
+
+@pytest.mark.django_db
+def test_inbound_sms_no_twilio_signature():
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    response = client.post(path)
+
+    assert response.status_code == 400
+    assert "Missing X-Twilio-Signature" in response.data[0].title()
+
+
+@pytest.mark.django_db
+def test_inbound_sms_invalid_twilio_signature(mocked_twilio_validator):
+    mocked_twilio_validator.validate = Mock(return_value=False)
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="invalid")
+
+    assert response.status_code == 400
+    assert "Invalid Signature" in response.data[0].title()
+
+
+@pytest.mark.django_db
+def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    assert "Missing From, To, Or Body." in response.data[0].title()
+
+
+@pytest.mark.django_db
+def test_inbound_sms_valid_twilio_signature_good_data(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    RealPhone.objects.create(
+        user=phone_user, number=real_phone_number, verified=True
+    )
+    RelayNumber.objects.create(user=phone_user, number=relay_number)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": "+15556660000",
+        "To": relay_number,
+        "Body": "test body"
+    }
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 201
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs['to'] == real_phone_number
+    assert call_kwargs['from_'] == relay_number
+    assert "[Relay" in call_kwargs['body']

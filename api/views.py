@@ -62,6 +62,12 @@ schema_view = get_schema_view(
 )
 
 
+def twilio_validator():
+    phones_config = apps.get_app_config("phones")
+    validator = phones_config.twilio_validator
+    return validator
+
+
 class SaveToRequestUser:
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -498,9 +504,8 @@ def inbound_sms(request):
     inbound_from = request.data.get("From", None)
     inbound_to = request.data.get("To", None)
     if inbound_body is None or inbound_from is None or inbound_to is None:
-        return response.Response(
-            status=400,
-            data={"message": "Message missing from, to, or body."}
+        raise exceptions.ValidationError(
+            "Message missing From, To, Or Body."
         )
 
     relay_number = RelayNumber.objects.get(number=inbound_to)
@@ -517,13 +522,18 @@ def inbound_sms(request):
     )
 
 def _validate_twilio_request(request):
+    if 'X-Twilio-Signature' not in request._request.headers:
+        raise exceptions.ValidationError(
+            "Invalid request: missing X-Twilio-Signature header."
+        )
+
     url = request._request.build_absolute_uri()
     sorted_params = {}
     for param_key in sorted(request.data):
         sorted_params[param_key] = request.data.get(param_key)
     request_signature = request._request.headers['X-Twilio-Signature']
-    phones_config = apps.get_app_config("phones")
-    if not phones_config.twilio_validator.validate(
+    validator = twilio_validator()
+    if not validator.validate(
         url, sorted_params, request_signature
     ):
         raise exceptions.ValidationError(
