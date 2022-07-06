@@ -308,8 +308,6 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     http_method_names = ["get", "post"]
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
     serializer_class = RelayNumberSerializer
-    # TODO: this doesn't seem to be working?
-    throttle_classes = [RealPhoneRateThrottle]
 
     def get_queryset(self):
         return RelayNumber.objects.filter(user=self.request.user)
