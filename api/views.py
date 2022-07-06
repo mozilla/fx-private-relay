@@ -1,3 +1,4 @@
+from django.http.response import Http404
 import phonenumbers
 
 from django.apps import apps
@@ -217,21 +218,12 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # We call an additional _validate_number function with the request
-        # to try to parse the number as a local national number in the
-        # request.country attribute
-        valid_number, error = _validate_number(request)
-        if valid_number == None:
-            return response.Response(
-                status=error["status"], data=error["data"]
-            )
-        serializer.validated_data["number"] = valid_number.phone_number
-
-        # To make the POST API more flexible, if the request includes a
-        # verification_code value, look for any un-expired record that
-        # matches both the phone number and verification code and mark it
-        # verified.
-        verification_code = serializer.validated_data.get("verification_code")
+        # First, check if the request includes a valid verification_code
+        # value, look for any un-expired record that matches both the phone
+        # number and verification code and mark it verified.
+        verification_code = serializer.validated_data.get(
+            "verification_code"
+        )
         if verification_code:
             valid_record = get_valid_realphone_verification_record(
                 request.user,
@@ -250,6 +242,17 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             return response.Response(
                 response_data, status=201, headers=headers
             )
+
+        # We call an additional _validate_number function with the request
+        # to try to parse the number as a local national number in the
+        # request.country attribute
+        valid_number, error = _validate_number(request)
+        if valid_number == None:
+            return response.Response(
+                status=error["status"], data=error["data"]
+            )
+        serializer.validated_data["number"] = valid_number.phone_number
+
 
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.validated_data)
@@ -445,7 +448,10 @@ def vCard(request, lookup_key):
     if lookup_key is None:
         return response.Response(status=404)
 
-    relay_number = RelayNumber.objects.get(vcard_lookup_key=lookup_key)
+    try:
+        relay_number = RelayNumber.objects.get(vcard_lookup_key=lookup_key)
+    except RelayNumber.DoesNotExist:
+        raise exceptions.NotFound()
     number = relay_number.number
 
     resp = response.Response({"number": number})

@@ -19,5 +19,5 @@ class vCardRenderer(renderers.BaseRenderer):
         vCard.add("LOGO").value = photo_url
         vCard.add("EMAIL").value = "support@relay.firefox.com"
         vCard.add("tel")
-        vCard.tel.value = data["number"]
+        vCard.tel.value = data.get("number", "")
         return vCard.serialize().encode()
