@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta, timezone
 import phonenumbers
 
 from django.apps import apps
@@ -23,9 +22,9 @@ from emails.models import (
     RelayAddress,
 )
 from phones.models import (
-    MAX_MINUTES_TO_VERIFY_REAL_PHONE,
     RealPhone, RelayNumber,
-    suggested_numbers, location_numbers, area_code_numbers
+    get_valid_realphone_verification_record,
+    suggested_numbers, location_numbers, area_code_numbers, twilio_client
 )
 
 from privaterelay.settings import (
@@ -234,15 +233,11 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         # verified.
         verification_code = serializer.validated_data.get("verification_code")
         if verification_code:
-            valid_record = RealPhone.objects.filter(
-                user=request.user,
-                number=serializer.validated_data["number"],
-                verification_code=verification_code,
-                verification_sent_date__gt=(
-                    datetime.now(timezone.utc) -
-                    timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE)
-                )
-            ).first()
+            valid_record = get_valid_realphone_verification_record(
+                request.user,
+                serializer.validated_data["number"],
+                verification_code
+            )
             if not valid_record:
                 raise exceptions.ValidationError("Could not find that verification_code for user and number. It may have expired.")
 
@@ -290,6 +285,8 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         [e164]: https://en.wikipedia.org/wiki/E.164
         """
         instance = self.get_object()
+        # TODO: check verification_sent_date is not "expired"?
+        # Note: the RealPhone.save() logic should prevent expired verifications
         if ("verification_code" not in request.data or
             not request.data["verification_code"] == instance.verification_code):
             raise exceptions.ValidationError("Invalid verification_code for ID. It may have expired.")
@@ -427,8 +424,8 @@ def _parse_number(number, request):
 
 def _get_number_details(e164_number):
     try:
-        phones_config = apps.get_app_config("phones")
-        return (phones_config.twilio_client
+        client = twilio_client()
+        return (client
                 .lookups.v1.phone_numbers(e164_number)
                 .fetch(type=["carrier"]))
     except Exception:
@@ -502,8 +499,8 @@ def inbound_sms(request):
 
     relay_number = RelayNumber.objects.get(number=inbound_to)
     real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
-    phones_config = apps.get_app_config("phones")
-    phones_config.twilio_client.messages.create(
+    client = twilio_client()
+    client.messages.create(
         from_=relay_number.number,
         body=f"[Relay 📲 {inbound_from}] {inbound_body}",
         to=real_phone.number

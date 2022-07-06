@@ -17,6 +17,12 @@ from django.urls import reverse
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
 
 
+def twilio_client():
+    phones_config = apps.get_app_config("phones")
+    client = phones_config.twilio_client
+    return client
+
+
 def verification_code_default():
     return str(math.floor(random.random()*999999)).zfill(6)
 
@@ -40,6 +46,18 @@ def get_existing_realphone_record(user, number):
     return RealPhone.objects.filter(
         user=user, verified=True
     ).exclude(number=number)
+
+
+def get_valid_realphone_verification_record(user, number, verification_code):
+    return RealPhone.objects.filter(
+        user=user,
+        number=number,
+        verification_code=verification_code,
+        verification_sent_date__gt=(
+            datetime.now(timezone.utc) -
+            timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE)
+        )
+    ).first()
 
 
 class RealPhone(models.Model):
@@ -102,8 +120,8 @@ def realphone_post_save(sender, instance, created, **kwargs):
 
     if created:
         # only send verification_code when creating new record
-        phones_config = apps.get_app_config("phones")
-        phones_config.twilio_client.messages.create(
+        client = twilio_client()
+        client.messages.create(
             body=f"Your Firefox Relay verification code is {instance.verification_code}",
             from_=settings.TWILIO_MAIN_NUMBER,
             to=instance.number
@@ -133,7 +151,7 @@ class RelayNumber(models.Model):
         # doesn't already have a RelayNumber
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")
-        client = phones_config.twilio_client
+        client = twilio_client()
 
         # Since this will charge the Twilio account, first see if this
         # is running with TEST creds to avoid charges.
@@ -158,11 +176,11 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
     if created:
         real_phone = RealPhone.objects.get(user=instance.user)
         # only send welcome vCard when creating new record
-        phones_config = apps.get_app_config("phones")
         media_url = settings.SITE_ORIGIN + reverse(
             "vCard", kwargs={"lookup_key": instance.vcard_lookup_key}
         )
-        phones_config.twilio_client.messages.create(
+        client = twilio_client()
+        client.messages.create(
             body="Welcome to Relay Phoanz! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
             from_=settings.TWILIO_MAIN_NUMBER,
             to=real_phone.number,
@@ -180,8 +198,8 @@ def suggested_numbers(user):
         raise BadRequest("available_numbers: Another RelayNumber already exists for this user.")
 
     real_num = real_phone.number
-    phones_config = apps.get_app_config("phones")
-    avail_nums = phones_config.twilio_client.available_phone_numbers('US')
+    client = twilio_client()
+    avail_nums = client.available_phone_numbers('US')
 
     # TODO: can we make multiple pattern searches in a single Twilio API request
     same_prefix_options = []
@@ -219,15 +237,15 @@ def suggested_numbers(user):
 
 
 def location_numbers(location):
-    phones_config = apps.get_app_config("phones")
-    avail_nums = phones_config.twilio_client.available_phone_numbers('US')
+    client = twilio_client()
+    avail_nums = client.available_phone_numbers('US')
     twilio_nums = avail_nums.local.list(in_locality=location, limit=10)
     return convert_twilio_numbers_to_dict(twilio_nums)
 
 
 def area_code_numbers(area_code):
-    phones_config = apps.get_app_config("phones")
-    avail_nums = phones_config.twilio_client.available_phone_numbers('US')
+    client = twilio_client()
+    avail_nums = client.available_phone_numbers('US')
     twilio_nums = avail_nums.local.list(area_code=area_code, limit=10)
     return convert_twilio_numbers_to_dict(twilio_nums)
 

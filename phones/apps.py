@@ -16,16 +16,28 @@ class PhonesConfig(AppConfig):
     def __init__(self, app_name, app_module):
         super(PhonesConfig, self).__init__(app_name, app_module)
         try:
-            self.twilio_client = Client(
+            self._twilio_client = Client(
                 settings.TWILIO_ACCOUNT_SID,
                 settings.TWILIO_AUTH_TOKEN
             )
-            self.twilio_test_client = Client(
+            self._twilio_test_client = Client(
                 settings.TWILIO_TEST_ACCOUNT_SID,
                 settings.TWILIO_TEST_AUTH_TOKEN
             )
-            self.twilio_validator = RequestValidator(
+            self._twilio_validator = RequestValidator(
                 settings.TWILIO_AUTH_TOKEN
             )
         except Exception:
             logger.exception("exception during Twilio connect")
+
+    @property
+    def twilio_client(self):
+        return self._twilio_client
+
+    @property
+    def twilio_test_client(self):
+        return self._twilio_test_client
+
+    @property
+    def twilio_validator(self):
+        return self._twilio_validator

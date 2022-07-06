@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 import pytest
 import random
-from twilio.request_validator import RequestValidator
 from twilio.rest import Client
 from unittest.mock import Mock, patch, call
 
@@ -17,28 +16,23 @@ from ..models import (
     MAX_MINUTES_TO_VERIFY_REAL_PHONE,
     RealPhone,
     RelayNumber,
+    area_code_numbers,
     get_expired_unverified_realphone_records,
+    get_valid_realphone_verification_record,
+    location_numbers,
     suggested_numbers
 )
 
 
-MOCK_BASE = "phones.models"
-
-
 @pytest.fixture(autouse=True)
-def mocked_apps():
+def mocked_twilio_client():
     """
-    Mock django apps to return a phones app config with a mock twilio client
+    Mock PhonesConfig with a mock twilio client
     """
-    phones_config = Mock(
-        spec_set=("twilio_client", "twilio_test_client", "twilio_validator")
-    )
-    phones_config.twilio_client = Mock(spec_set=Client)
-    phones_config.twilio_test_client = Mock(spec_set=Client)
-    phones_config.twilio_validator = Mock(spec_set=RequestValidator)
-    with patch(f"{MOCK_BASE}.apps") as mock_apps:
-        mock_apps.get_app_config = Mock(return_value=phones_config)
-        yield mock_apps
+    with patch(
+        "phones.apps.PhonesConfig.twilio_client", spec_set=Client
+    ) as mock_twilio_client:
+        yield mock_twilio_client
 
 
 def make_phone_test_user():
@@ -73,14 +67,46 @@ def phone_user():
 
 
 @pytest.mark.django_db
+def test_get_valid_realphone_verification_record_returns_object(phone_user):
+    number = "+12223334444"
+    real_phone = RealPhone.objects.create(
+        user=phone_user,
+        number=number,
+        verification_sent_date=datetime.now(timezone.utc)
+    )
+    record = get_valid_realphone_verification_record(
+        phone_user, number, real_phone.verification_code
+    )
+    assert record.user == phone_user
+    assert record.number == number
+
+
+@pytest.mark.django_db
+def test_get_valid_realphone_verification_record_returns_none(phone_user):
+    number = "+12223334444"
+    real_phone = RealPhone.objects.create(
+        user=phone_user,
+        number=number,
+        verification_sent_date=(
+            datetime.now(timezone.utc) -
+            timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE+1)
+        )
+    )
+    record = get_valid_realphone_verification_record(
+        phone_user, number, real_phone.verification_code
+    )
+    assert record == None
+
+
+@pytest.mark.django_db
 def test_create_realphone_creates_twilio_message(
-    phone_user, mocked_apps
+    phone_user, mocked_twilio_client
 ):
     number = "+12223334444"
     RealPhone.objects.create(
         user=phone_user, verified=True, number=number
     )
-    mock_twilio_client = mocked_apps.get_app_config().twilio_client
+    mock_twilio_client = mocked_twilio_client
     mock_twilio_client.messages.create.assert_called_once()
     call_kwargs = mock_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs['to'] == number
@@ -89,12 +115,12 @@ def test_create_realphone_creates_twilio_message(
 
 @pytest.mark.django_db
 def test_create_second_realphone_for_user_raises_exception(
-    phone_user, mocked_apps
+    phone_user, mocked_twilio_client
 ):
     RealPhone.objects.create(
         user=phone_user, verified=True, number="+12223334444"
     )
-    mock_twilio_client = mocked_apps.get_app_config().twilio_client
+    mock_twilio_client = mocked_twilio_client
     mock_twilio_client.messages.create.assert_called_once()
     try:
         RealPhone.objects.create(
@@ -109,7 +135,7 @@ def test_create_second_realphone_for_user_raises_exception(
 
 @pytest.mark.django_db
 def test_create_realphone_deletes_expired_unverified_records(
-    phone_user, mocked_apps
+    phone_user, mocked_twilio_client
 ):
     # create an expired unverified record
     number = "+12223334444"
@@ -126,7 +152,7 @@ def test_create_realphone_deletes_expired_unverified_records(
         get_expired_unverified_realphone_records(number)
     )
     assert len(expired_verification_records) >= 1
-    mock_twilio_client = mocked_apps.get_app_config().twilio_client
+    mock_twilio_client = mocked_twilio_client
     mock_twilio_client.messages.create.assert_called_once()
 
     # now try to create the new record
@@ -154,9 +180,9 @@ def test_mark_realphone_verified_sets_verified_and_date(phone_user):
 
 @pytest.mark.django_db
 def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
-    phone_user, mocked_apps
+    phone_user, mocked_twilio_client
 ):
-    mock_twilio_client = mocked_apps.get_app_config().twilio_client
+    mock_twilio_client = mocked_twilio_client
     mock_messages_create = mock_twilio_client.messages.create
     mock_number_create = mock_twilio_client.incoming_phone_numbers.create
 
@@ -184,12 +210,12 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
 
 @pytest.mark.django_db
 def test_suggested_numbers_bad_request_for_user_without_real_phone(
-    phone_user, mocked_apps
+    phone_user, mocked_twilio_client
 ):
     try:
         suggested_numbers(phone_user)
     except BadRequest:
-        mock_twilio_client = mocked_apps.get_app_config().twilio_client
+        mock_twilio_client = mocked_twilio_client
         mock_twilio_client.available_phone_numbers.assert_not_called()
         return
     pytest.fail("Should have raised BadRequest exception")
@@ -197,7 +223,7 @@ def test_suggested_numbers_bad_request_for_user_without_real_phone(
 
 @pytest.mark.django_db
 def test_suggested_numbers_bad_request_for_user_who_already_has_number(
-    phone_user, mocked_apps
+    phone_user, mocked_twilio_client
 ):
     real_phone = "+12223334444"
     RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
@@ -206,21 +232,21 @@ def test_suggested_numbers_bad_request_for_user_who_already_has_number(
     try:
         suggested_numbers(phone_user)
     except BadRequest:
-        mock_twilio_client = mocked_apps.get_app_config().twilio_client
+        mock_twilio_client = mocked_twilio_client
         mock_twilio_client.available_phone_numbers.assert_not_called()
         return
     pytest.fail("Should have raised BadRequest exception")
 
 
 @pytest.mark.django_db
-def test_suggested_numbers(phone_user, mocked_apps):
+def test_suggested_numbers(phone_user, mocked_twilio_client):
     real_phone = "+12223334444"
     RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
-    mock_twilio_client = mocked_apps.get_app_config().twilio_client
+    mock_twilio_client = mocked_twilio_client
     mock_list = Mock(return_value=[Mock() for i in range(5)])
-    mock_twilio_client.available_phone_numbers=Mock(return_value = (
-        Mock(local=Mock(list=mock_list))
-    ))
+    mock_twilio_client.available_phone_numbers = Mock(
+        return_value = Mock(local=Mock(list=mock_list))
+    )
 
     suggested_numbers(phone_user)
     available_numbers_calls = (
@@ -233,4 +259,42 @@ def test_suggested_numbers(phone_user, mocked_apps):
         call(contains='+12223******', limit=10),
         call(contains='***3334444', limit=10),
         call(contains='+1222*******', limit=10)
+    ]
+
+
+@pytest.mark.django_db
+def test_location_numbers(mocked_twilio_client):
+    mock_twilio_client = mocked_twilio_client
+    mock_list = Mock(return_value=[Mock() for i in range(5)])
+    mock_twilio_client.available_phone_numbers=Mock(return_value = (
+        Mock(local=Mock(list=mock_list))
+    ))
+
+    location_numbers("Miami, FL")
+
+    available_numbers_calls = (
+        mock_twilio_client.available_phone_numbers.call_args_list
+    )
+    assert available_numbers_calls == [call("US")]
+    assert mock_list.call_args_list == [
+        call(in_locality='Miami, FL', limit=10)
+    ]
+
+
+@pytest.mark.django_db
+def test_area_code_numbers(mocked_twilio_client):
+    mock_twilio_client = mocked_twilio_client
+    mock_list = Mock(return_value=[Mock() for i in range(5)])
+    mock_twilio_client.available_phone_numbers=Mock(return_value = (
+        Mock(local=Mock(list=mock_list))
+    ))
+
+    area_code_numbers("918")
+
+    available_numbers_calls = (
+        mock_twilio_client.available_phone_numbers.call_args_list
+    )
+    assert available_numbers_calls == [call("US")]
+    assert mock_list.call_args_list == [
+        call(area_code='918', limit=10)
     ]
