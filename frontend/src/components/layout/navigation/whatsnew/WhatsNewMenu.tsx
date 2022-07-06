@@ -45,7 +45,7 @@ import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import { useAddonData } from "../../../../hooks/addon";
 import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
-import { RuntimeData, useRuntimeData } from "../../../../hooks/api/runtimeData";
+import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
 
 export type WhatsNewEntry = {
@@ -72,14 +72,12 @@ export type Props = {
   style: string;
   runtimeData?: RuntimeData;
 };
-
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
   const triggerState = useOverlayTriggerState({});
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const addonData = useAddonData();
-  const runtimeData = useRuntimeData();
 
   const entries: WhatsNewEntry[] = [
     {
@@ -310,7 +308,7 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   // Only show its announcement if tracker removal is live:
-  if (isFlagActive(runtimeData.data, "tracker_removal")) {
+  if (isFlagActive(props.runtimeData, "tracker_removal")) {
     entries.push(trackerRemoval);
   }
 

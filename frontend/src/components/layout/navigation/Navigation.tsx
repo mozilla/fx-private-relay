@@ -99,7 +99,11 @@ export const Navigation = (props: Props) => {
 
       {/* if user is logged in and we have their profile data, show whatsnew menu */}
       {isLoggedIn && profile && (
-        <WhatsNewMenu profile={profile} style={styles["hidden-mobile"]} />
+        <WhatsNewMenu
+          runtimeData={runtimeData.data}
+          profile={profile}
+          style={styles["hidden-mobile"]}
+        />
       )}
 
       {/* Only show the upgrade button if the following conditions are met: 
