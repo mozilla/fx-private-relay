@@ -77,7 +77,14 @@ const PremiumPromo: NextPage = () => {
         </div>
       </div>
     </section>
-  ) : null;
+  ) : (
+    /* Show waitlist prompt if user is a non-premium country */
+    <section id="pricing" className={styles["plans-wrapper"]}>
+      <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
+        <Plans />
+      </div>
+    </section>
+  );
 
   const cta = isPremiumAvailableInCountry(runtimeData.data) ? (
     <LinkButton
