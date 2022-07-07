@@ -102,7 +102,7 @@ export const Navigation = (props: Props) => {
         <WhatsNewMenu
           runtimeData={runtimeData.data}
           profile={profile}
-          style={styles["hidden-mobile"]}
+          style={styles["hidden-mobile-news"]}
         />
       )}
 

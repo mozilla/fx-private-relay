@@ -56,3 +56,11 @@
     display: none;
   }
 }
+
+.hidden-mobile-news {
+  display: none;
+
+  @media screen and (min-width: $screen-md) {
+    display: flex;
+  }
+}
