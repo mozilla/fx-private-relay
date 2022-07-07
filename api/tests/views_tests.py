@@ -85,6 +85,43 @@ def test_realphone_get_responds_200(phone_user):
 
 
 @pytest.mark.django_db
+def test_realphone_post_invalid_e164_number_no_request_country(phone_user):
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    number = "2223334444"
+    path = "/api/v1/realphone/"
+    data = {"number": number}
+
+    response = client.post(path, data, format='json')
+    assert response.status_code == 400
+    assert "Number Must Be In E.164 Format" in response.data[0].title()
+
+
+@pytest.mark.django_db
+def test_realphone_post_valid_e164_number_in_unsupported_country(
+    phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    number = "+31612345678"
+    path = "/api/v1/realphone/"
+    data = {"number": number}
+
+    mock_fetch = Mock(return_value=Mock(
+        country_code="nl", phone_number=number, carrier="telfort"
+    ))
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
+
+    response = client.post(
+        path, data, format='json', HTTP_X_CLIENT_REGION='nl'
+    )
+    assert response.status_code == 400
+    assert "Available In The Us" in response.data[0].title()
+
+
+@pytest.mark.django_db
 def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
     client = APIClient()
     client.force_authenticate(phone_user)
@@ -155,7 +192,7 @@ def test_realphone_post_invalid_verification_code(
     client.force_authenticate(phone_user)
     path = "/api/v1/realphone/"
     data = {
-        "number": number, "verification_code": "not-the-code"
+        "number": number, "verification_code": "invalid"
     }
 
     mock_fetch = Mock(return_value=Mock(
@@ -167,6 +204,7 @@ def test_realphone_post_invalid_verification_code(
 
     response = client.post(path, data, format='json')
     assert response.status_code == 400
+    assert "Could Not Find" in response.data[0].title()
     real_phone.refresh_from_db()
     assert real_phone.verified == False
     assert real_phone.verified_date == None
@@ -215,7 +253,7 @@ def test_realphone_patch_invalid_verification_code(
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
     data = {
-        "number": number, "verification_code": "not-the-code"
+        "number": number, "verification_code": "invalid"
     }
 
     mock_fetch = Mock(return_value=Mock(

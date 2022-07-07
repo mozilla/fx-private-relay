@@ -252,11 +252,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         # We call an additional _validate_number function with the request
         # to try to parse the number as a local national number in the
         # request.country attribute
-        valid_number, error = _validate_number(request)
-        if valid_number == None:
-            return response.Response(
-                status=error["status"], data=error["data"]
-            )
+        valid_number = _validate_number(request)
         serializer.validated_data["number"] = valid_number.phone_number
 
 
@@ -382,35 +378,21 @@ def _validate_number(request):
         if hasattr(request, "country"):
             country = request.country
         error_message = f"number must be in E.164 format, or in local national format of the country detected: {country}"
-        error = {
-            "status": 400,
-            "data": {
-                "message": error_message
-            }
-        }
-        return None, error
+        raise exceptions.ValidationError(error_message)
 
     e164_number = f"+{parsed_number.country_code}{parsed_number.national_number}"
     number_details = _get_number_details(e164_number)
     if not number_details:
-        error = {
-            "status": 400,
-            "data": {
-                "message": f"Could not get number details for {e164_number}"
-            }
-        }
-        return None, error
+        raise exceptions.ValidationError(f"Could not get number details for {e164_number}")
 
     if number_details.country_code != "US":
-        error = {
-            "status": 400,
-            "data": {
-                "message": f"Relay Phone is currently only available in the US. Your phone number country code is: {number_details.country_code}"
-            }
-        }
-        return None, error
+        raise exceptions.ValidationError(
+            "Relay Phone is currently only available in the US. "
+            "Your phone number country code is: "
+            f"{number_details.country_code}"
+        )
 
-    return number_details, None
+    return number_details
 
 
 def _parse_number(number, request):
