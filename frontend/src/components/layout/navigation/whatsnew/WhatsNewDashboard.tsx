@@ -11,7 +11,7 @@ import { WhatsNewEntry } from "./WhatsNewMenu";
 export type Props = {
   new: WhatsNewEntry[];
   archive: WhatsNewEntry[];
-  onClose: () => void;
+  onClose?: () => void;
 };
 
 export const WhatsNewDashboard = (props: Props) => {

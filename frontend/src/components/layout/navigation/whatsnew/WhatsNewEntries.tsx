@@ -1,27 +1,15 @@
-import {
-  forwardRef,
-  HTMLAttributes,
-  ReactNode,
-  RefObject,
-  useRef,
-} from "react";
 import { useLocalization } from "@fluent/react";
+import { ReactNode } from "react";
+import { getLocale } from "../../../../functions/getLocale";
+// import { isUsingFirefox } from "../../../../functions/userAgent";
+import { isFlagActive } from "../../../../functions/waffle";
+import { ProfileData, useProfiles } from "../../../../hooks/api/profile";
+import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import {
-  DismissButton,
-  FocusScope,
-  mergeProps,
-  OverlayContainer,
-  useButton,
-  useDialog,
-  useModal,
-  useOverlay,
-  useOverlayPosition,
-  useOverlayTrigger,
-  VisuallyHidden,
-} from "react-aria";
-import { useOverlayTriggerState } from "react-stately";
-import { event as gaEvent } from "react-ga";
-import styles from "./WhatsNewMenu.module.scss";
+  DismissalData,
+  useLocalDismissal,
+} from "../../../../hooks/localDismissal";
+import { WhatsNewContent } from "./WhatsNewContent";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
 import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
 import SignBackInHero from "./images/sign-back-in-hero.svg";
@@ -36,20 +24,10 @@ import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
-import { WhatsNewContent } from "./WhatsNewContent";
-import {
-  DismissalData,
-  useLocalDismissal,
-} from "../../../../hooks/localDismissal";
-import { ProfileData } from "../../../../hooks/api/profile";
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
-import { useAddonData } from "../../../../hooks/addon";
-import { isUsingFirefox } from "../../../../functions/userAgent";
-import { getLocale } from "../../../../functions/getLocale";
-import { RuntimeData } from "../../../../hooks/api/runtimeData";
-import { isFlagActive } from "../../../../functions/waffle";
+import styles from "./WhatsNewMenu.module.scss";
 
-export type WhatsNewEntry = {
+type WhatsNewEntry = {
   title: string;
   snippet: string;
   content: ReactNode;
@@ -69,24 +47,13 @@ export type WhatsNewEntry = {
 };
 
 export type Props = {
-  profile: ProfileData | undefined;
   style?: string;
   runtimeData?: RuntimeData;
 };
-export const WhatsNewMenu = (props: Props) => {
+
+export const WhatsNewEntries = (props: Props) => {
   const { l10n } = useLocalization();
-  const triggerState = useOverlayTriggerState({
-    onOpenChange(isOpen) {
-      gaEvent({
-        category: "News",
-        action: isOpen ? "Open" : "Close",
-        label: "header-nav",
-      });
-    },
-  });
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const addonData = useAddonData();
+  const profile = useProfiles();
 
   const entries: WhatsNewEntry[] = [
     {
@@ -118,9 +85,7 @@ export const WhatsNewMenu = (props: Props) => {
       ),
       hero: SizeLimitHero.src,
       icon: SizeLimitIcon.src,
-      dismissal: useLocalDismissal(
-        `whatsnew-feature_size-limit_${props.profile.id}`
-      ),
+      dismissal: useLocalDismissal(`whatsnew-feature_size-limit_${profile}`),
       announcementDate: {
         year: 2022,
         month: 3,
@@ -143,7 +108,7 @@ export const WhatsNewMenu = (props: Props) => {
     hero: ForwardSomeHero.src,
     icon: ForwardSomeIcon.src,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_sign-back-in_${props.profile.id}`
+      `whatsnew-feature_sign-back-in_${profile.data?.[0].id}`
     ),
     announcementDate: {
       year: 2022,
@@ -151,7 +116,7 @@ export const WhatsNewMenu = (props: Props) => {
       day: 1,
     },
   };
-  if (props.profile.has_premium) {
+  if (profile.data?.[0].has_premium) {
     entries.push(forwardSomeEntry);
   }
 
@@ -170,7 +135,7 @@ export const WhatsNewMenu = (props: Props) => {
     hero: SignBackInHero.src,
     icon: SignBackInIcon.src,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_sign-back-in_${props.profile.id}`
+      `whatsnew-feature_sign-back-in_${profile.data?.[0].id}`
     ),
     announcementDate: {
       year: 2022,
@@ -178,9 +143,10 @@ export const WhatsNewMenu = (props: Props) => {
       day: 1,
     },
   };
-  if (addonData.present && isUsingFirefox()) {
-    entries.push(signBackInEntry);
-  }
+  // if (addonData.present && isUsingFirefox()) {
+  //   entries.push(signBackInEntry);
+  // }
+  entries.push(signBackInEntry);
 
   const aliasToMask: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-alias-to-mask-heading"),
@@ -197,7 +163,7 @@ export const WhatsNewMenu = (props: Props) => {
     hero: aliasToMaskHero.src,
     icon: aliasToMaskIcon.src,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_alias-to-mask_${props.profile.id}`
+      `whatsnew-feature_alias-to-mask_${profile.data?.[0].id}`
     ),
     announcementDate: {
       year: 2022,
@@ -246,7 +212,7 @@ export const WhatsNewMenu = (props: Props) => {
     hero: PremiumSwedenHero.src,
     icon: PremiumSwedenIcon.src,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_premium-expansion-sweden_${props.profile.id}`
+      `whatsnew-feature_premium-expansion-sweden_${profile.data?.[0].id}`
     ),
     announcementDate: {
       year: 2022,
@@ -256,7 +222,7 @@ export const WhatsNewMenu = (props: Props) => {
   };
   if (
     props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "se" &&
-    !props.profile.has_premium
+    !profile.data?.[0].has_premium
   ) {
     entries.push(premiumInSweden);
   }
@@ -278,7 +244,7 @@ export const WhatsNewMenu = (props: Props) => {
     hero: PremiumFinlandHero.src,
     icon: PremiumFinlandIcon.src,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_premium-expansion-finland_${props.profile.id}`
+      `whatsnew-feature_premium-expansion-finland_${profile.data?.[0].id}`
     ),
     announcementDate: {
       year: 2022,
@@ -288,7 +254,7 @@ export const WhatsNewMenu = (props: Props) => {
   };
   if (
     props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "fi" &&
-    !props.profile.has_premium
+    !profile.data?.[0].has_premium
   ) {
     entries.push(premiumInFinland);
   }
@@ -308,7 +274,7 @@ export const WhatsNewMenu = (props: Props) => {
     hero: TrackerRemovalHero.src,
     icon: TrackerRemovalIcon.src,
     dismissal: useLocalDismissal(
-      `whatsnew-feature_tracker-removal_${props.profile.id}`
+      `whatsnew-feature_tracker-removal_${profile.data?.[0].id}`
     ),
     announcementDate: {
       year: 2022,
@@ -320,6 +286,22 @@ export const WhatsNewMenu = (props: Props) => {
   if (isFlagActive(props.runtimeData, "tracker_removal")) {
     entries.push(trackerRemoval);
   }
+
+  const entriesDescByDateSorter: Parameters<Array<WhatsNewEntry>["sort"]>[0] = (
+    entryA,
+    entryB
+  ) => {
+    const dateANr =
+      entryA.announcementDate.year +
+      entryA.announcementDate.month / 100 +
+      entryA.announcementDate.day / 10000;
+    const dateBNr =
+      entryB.announcementDate.year +
+      entryB.announcementDate.month / 100 +
+      entryB.announcementDate.day / 10000;
+
+    return dateBNr - dateANr;
+  };
 
   entries.sort(entriesDescByDateSorter);
 
@@ -337,29 +319,6 @@ export const WhatsNewMenu = (props: Props) => {
     return !entry.dismissal.isDismissed && !isExpired;
   });
 
-  const { triggerProps, overlayProps } = useOverlayTrigger(
-    { type: "dialog" },
-    triggerState,
-    triggerRef
-  );
-
-  const positionProps = useOverlayPosition({
-    targetRef: triggerRef,
-    overlayRef: overlayRef,
-    placement: "bottom end",
-    offset: 10,
-    isOpen: triggerState.isOpen,
-  }).overlayProps;
-
-  const { buttonProps } = useButton(
-    { onPress: () => triggerState.open() },
-    triggerRef
-  );
-
-  if (entries.length === 0) {
-    return null;
-  }
-
   const pill =
     newEntries.length > 0 ? (
       <i
@@ -374,94 +333,7 @@ export const WhatsNewMenu = (props: Props) => {
 
   return (
     <>
-      <button
-        {...buttonProps}
-        {...triggerProps}
-        ref={triggerRef}
-        className={`${styles.trigger} ${
-          triggerState.isOpen ? styles["is-open"] : ""
-        } ${props.style}`}
-      >
-        {l10n.getString("whatsnew-trigger-label")}
-        {pill}
-      </button>
-      {triggerState.isOpen && (
-        <OverlayContainer>
-          <WhatsNewPopover
-            {...overlayProps}
-            {...positionProps}
-            ref={overlayRef}
-            title={l10n.getString("whatsnew-trigger-label")}
-            isOpen={triggerState.isOpen}
-            onClose={() => triggerState.close()}
-          >
-            <WhatsNewDashboard
-              new={newEntries}
-              archive={entries}
-              onClose={() => triggerState.close()}
-            />
-          </WhatsNewPopover>
-        </OverlayContainer>
-      )}
+      <WhatsNewDashboard new={newEntries} archive={entries} />
     </>
   );
-};
-
-type PopoverProps = {
-  title: string;
-  children: ReactNode;
-  isOpen: boolean;
-  onClose: () => void;
-} & HTMLAttributes<HTMLDivElement>;
-const WhatsNewPopover = forwardRef<HTMLDivElement, PopoverProps>(
-  ({ title, children, isOpen, onClose, ...otherProps }, ref) => {
-    const { overlayProps } = useOverlay(
-      {
-        onClose: onClose,
-        isOpen: isOpen,
-        isDismissable: true,
-      },
-      ref as RefObject<HTMLDivElement>
-    );
-
-    const { modalProps } = useModal();
-
-    const { dialogProps, titleProps } = useDialog(
-      {},
-      ref as RefObject<HTMLDivElement>
-    );
-
-    return (
-      <FocusScope restoreFocus contain autoFocus>
-        <div
-          {...mergeProps(overlayProps, dialogProps, otherProps, modalProps)}
-          ref={ref}
-          className={styles["popover-wrapper"]}
-        >
-          <VisuallyHidden>
-            <h2 {...titleProps}>{title}</h2>
-          </VisuallyHidden>
-          {children}
-          <DismissButton onDismiss={onClose} />
-        </div>
-      </FocusScope>
-    );
-  }
-);
-WhatsNewPopover.displayName = "WhatsNewPopover";
-
-const entriesDescByDateSorter: Parameters<Array<WhatsNewEntry>["sort"]>[0] = (
-  entryA,
-  entryB
-) => {
-  const dateANr =
-    entryA.announcementDate.year +
-    entryA.announcementDate.month / 100 +
-    entryA.announcementDate.day / 10000;
-  const dateBNr =
-    entryB.announcementDate.year +
-    entryB.announcementDate.month / 100 +
-    entryB.announcementDate.day / 10000;
-
-  return dateBNr - dateANr;
 };

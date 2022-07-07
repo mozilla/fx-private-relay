@@ -7,6 +7,7 @@ import {
   ContactIcon,
   DashboardIcon,
   FaqIcon,
+  NewsIcon,
   HomeIcon,
   NewTabIcon,
   SignOutIcon,
@@ -15,6 +16,8 @@ import {
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
+import { ProfileData } from "../../../hooks/api/profile";
+import { WhatsNewEntries } from "./whatsnew/WhatsNewEntries";
 
 export type MenuItem = {
   url: string;
@@ -26,14 +29,22 @@ export type MenuItem = {
 export type Props = {
   mobileMenuExpanded: boolean | undefined;
   hasPremium: boolean;
+  profile: ProfileData | undefined;
   isLoggedIn: boolean;
   userEmail: string | undefined;
   userAvatar: string | undefined;
 };
 
 export const MobileNavigation = (props: Props) => {
-  const { mobileMenuExpanded, hasPremium, isLoggedIn, userEmail, userAvatar } =
-    props;
+  const {
+    mobileMenuExpanded,
+    hasPremium,
+    profile,
+    isLoggedIn,
+    userEmail,
+    userAvatar,
+  } = props;
+
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
   const { supportUrl } = getRuntimeConfig();
@@ -116,6 +127,16 @@ export const MobileNavigation = (props: Props) => {
           icon: <FaqIcon width={20} height={20} alt="" />,
           l10n: "nav-faq",
         })}
+
+        {renderMenuItem({
+          url: "#",
+          icon: <NewsIcon width={20} height={20} alt="" />,
+          l10n: "whatsnew-trigger-label",
+        })}
+
+        <li>
+          <WhatsNewEntries />
+        </li>
 
         {!isLoggedIn && (
           <li
