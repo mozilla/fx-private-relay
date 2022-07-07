@@ -2,14 +2,14 @@ import { NextPage } from "next";
 import { Localized, useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./premium.module.scss";
-import PerkIllustrationUnlimited from "../../../static/images/premium-promo/illustration-unlimited.svg";
-import PerkIllustrationCustomDomain from "../../../static/images/premium-promo/illustration-custom-domain.svg";
-import PerkIllustrationDashboard from "../../../static/images/premium-promo/illustration-dashboard.svg";
-import ShoppingIllustration from "../../../static/images/use-case-shopping.svg";
-import SocialNetworksIllustration from "../../../static/images/use-case-social-networks.svg";
-import GamingIllustration from "../../../static/images/use-case-gaming.svg";
-import OfflineIllustration from "../../../static/images/use-case-offline.svg";
-import AccessContentIllustration from "../../../static/images/use-case-access-content.svg";
+import PerkIllustrationUnlimited from "../../public/images/perk-unlimited.svg";
+import PerkIllustrationCustomDomain from "../../public/images/perk-custom-domain.svg";
+import PerkIllustrationDashboard from "../../public/images/perk-dashboard.svg";
+import ShoppingIllustration from "../../public/images/use-case-shopping.svg";
+import SocialNetworksIllustration from "../../public/images/use-case-social-networks.svg";
+import GamingIllustration from "../../public/images/use-case-gaming.svg";
+import OfflineIllustration from "../../public/images/use-case-offline.svg";
+import AccessContentIllustration from "../../public/images/use-case-access-content.svg";
 import SignupsHero from "../components/landing/carousel/images/signups-hero.svg";
 import OnTheGoConnect from "../components/landing/carousel/images/onthego-illustration-connect.svg";
 import OnTheGoPhone from "../components/landing/carousel/images/onthego-illustration-phone.svg";
@@ -77,7 +77,14 @@ const PremiumPromo: NextPage = () => {
         </div>
       </div>
     </section>
-  ) : null;
+  ) : (
+    /* Show waitlist prompt if user is a non-premium country */
+    <section id="pricing" className={styles["plans-wrapper"]}>
+      <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
+        <Plans />
+      </div>
+    </section>
+  );
 
   const cta = isPremiumAvailableInCountry(runtimeData.data) ? (
     <LinkButton
@@ -113,7 +120,7 @@ const PremiumPromo: NextPage = () => {
   };
 
   return (
-    <Layout theme="premium">
+    <Layout theme="premium" runtimeData={runtimeData.data}>
       <main>
         <section id="hero" className={styles.hero}>
           <div className={styles.lead}>

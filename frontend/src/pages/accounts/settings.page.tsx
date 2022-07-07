@@ -13,18 +13,22 @@ import styles from "./settings.module.scss";
 import { Layout } from "../../components/layout/Layout";
 import { Banner } from "../../components/Banner";
 import { useProfiles } from "../../hooks/api/profile";
-import messageIcon from "../../../../static/images/icon-message-purple.svg";
-import copyIcon from "../../../../static/images/copy-to-clipboard.svg";
-import helpIcon from "../../../../static/images/help-purple.svg";
-import performanceIcon from "../../../../static/images/performance-purple.svg";
-import infoTriangleIcon from "../../../../static/images/icon-orange-info-triangle.svg";
-import { HideIcon, NewTabIcon } from "../../components/Icons";
+import {
+  InfoTriangleIcon,
+  HideIcon,
+  NewTabIcon,
+  PerformanceIcon,
+  CopyIcon,
+  SupportIcon,
+  ContactIcon,
+} from "../../components/Icons";
 import { Button } from "../../components/Button";
 import { getRuntimeConfig } from "../../config";
 import { useLocalLabels } from "../../hooks/localLabels";
 import { AliasData, useAliases } from "../../hooks/api/aliases";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { useAddonData } from "../../hooks/addon";
+import { isFlagActive } from "../../functions/waffle";
 
 const Settings: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -37,7 +41,7 @@ const Settings: NextPage = () => {
     profileData.data?.[0].server_storage
   );
   const [trackerRemovalEnabled, setTrackerRemovalEnabled] = useState(
-    profileData.data?.[0].remove_email_tracker_default
+    profileData.data?.[0].remove_level_one_email_trackers
   );
   const [justCopiedApiKey, setJustCopiedApiKey] = useState(false);
   const apiKeyElementRef = useRef<HTMLInputElement>(null);
@@ -74,21 +78,10 @@ const Settings: NextPage = () => {
   // i.e. not when it is off on page load.
   const labelCollectionWarning =
     labelCollectionDisabledWarningToggles > 1 && !labelCollectionEnabled ? (
-      <aside role="alert" className={styles["field-warning"]}>
-        <img src={infoTriangleIcon.src} alt="" width={20} />
+      <div role="alert" className={styles["field-warning"]}>
+        <InfoTriangleIcon alt="" />
         <p>{l10n.getString("setting-label-collection-off-warning-2")}</p>
-      </aside>
-    ) : null;
-
-  // This warning should only be shown when the user currently does not have
-  // tracker removal enabled, regardless of whether they've toggled it on or off
-  // without saving their settings yet:
-  const trackerRemovalWarning =
-    profile.remove_email_tracker_default === false ? (
-      <aside role="alert" className={styles["field-warning"]}>
-        <img src={infoTriangleIcon.src} alt="" width={20} />
-        <p>{l10n.getString("setting-tracker-removal-warning")}</p>
-      </aside>
+      </div>
     ) : null;
 
   const saveSettings: FormEventHandler = async (event) => {
@@ -97,8 +90,8 @@ const Settings: NextPage = () => {
     try {
       await profileData.update(profile.id, {
         server_storage: labelCollectionEnabled,
-        remove_email_tracker_default:
-          typeof profile.remove_email_tracker_default === "boolean"
+        remove_level_one_email_trackers:
+          typeof profile.remove_level_one_email_trackers === "boolean"
             ? trackerRemovalEnabled
             : undefined,
       });
@@ -144,7 +137,7 @@ const Settings: NextPage = () => {
         rel="noopener noreferrer"
         title={l10n.getString("nav-profile-contact-tooltip")}
       >
-        <img src={messageIcon.src} alt="" />
+        <ContactIcon className={styles["menu-icon"]} alt="" />
         {l10n.getString("settings-meta-contact-label")}
         <NewTabIcon />
       </a>
@@ -159,10 +152,11 @@ const Settings: NextPage = () => {
   };
 
   // To allow us to add this UI before the back-end is updated, we only show it
-  // when the profiles API actually returns a property `remove_email_tracker_default`.
+  // when the profiles API actually returns a property `remove_level_one_email_trackers`.
   // Once it does, the commit that introduced this comment can be reverted.
   const trackerRemovalSetting =
-    typeof profile.remove_email_tracker_default === "boolean" ? (
+    typeof profile.remove_level_one_email_trackers === "boolean" &&
+    isFlagActive(runtimeData.data, "tracker_removal") ? (
       <div className={styles.field}>
         <h2 className={styles["field-heading"]}>
           <span className={styles["field-heading-icon-wrapper"]}>
@@ -176,7 +170,7 @@ const Settings: NextPage = () => {
               type="checkbox"
               name="tracker-removal"
               id="tracker-removal"
-              defaultChecked={profile.remove_email_tracker_default}
+              defaultChecked={profile.remove_level_one_email_trackers}
               onChange={(e) => setTrackerRemovalEnabled(e.target.checked)}
             />
             <label htmlFor="tracker-removal">
@@ -184,14 +178,17 @@ const Settings: NextPage = () => {
               <p>{l10n.getString("setting-tracker-removal-note")}</p>
             </label>
           </div>
-          {trackerRemovalWarning}
+          <div className={styles["field-warning"]}>
+            <InfoTriangleIcon alt="" />
+            <p>{l10n.getString("setting-tracker-removal-warning")}</p>
+          </div>
         </div>
       </div>
     ) : null;
 
   return (
     <>
-      <Layout>
+      <Layout runtimeData={runtimeData.data}>
         <div className={styles["settings-page"]}>
           <main className={styles.main}>
             {currentSettingWarning}
@@ -230,38 +227,47 @@ const Settings: NextPage = () => {
                   <div
                     className={`${styles["copy-api-key-content"]} ${styles["field-content"]}`}
                   >
-                    <input
-                      id="api-key"
-                      ref={apiKeyElementRef}
-                      className={styles["copy-api-key-display"]}
-                      value={profile.api_token}
-                      size={profile.api_token.length}
-                      readOnly={true}
-                    />
-                    <span className={styles["copy-controls"]}>
-                      <span className={styles["copy-button-wrapper"]}>
-                        <button
-                          type="button"
-                          className={styles["copy-button"]}
-                          title={l10n.getString("settings-button-copy")}
-                          onClick={copyApiKeyToClipboard}
-                        >
-                          <img
-                            src={copyIcon.src}
-                            alt={l10n.getString("settings-button-copy")}
-                            className={styles["copy-icon"]}
-                          />
-                        </button>
-                        <span
-                          aria-hidden={!justCopiedApiKey}
-                          className={`${styles["copied-confirmation"]} ${
-                            justCopiedApiKey ? styles["is-shown"] : ""
-                          }`}
-                        >
-                          {l10n.getString("setting-api-key-copied")}
+                    <div className={styles["settings-api-key-wrapper"]}>
+                      <input
+                        id="api-key"
+                        ref={apiKeyElementRef}
+                        className={styles["copy-api-key-display"]}
+                        value={profile.api_token}
+                        size={profile.api_token.length}
+                        readOnly={true}
+                      />
+                      <span className={styles["copy-controls"]}>
+                        <span className={styles["copy-button-wrapper"]}>
+                          <button
+                            type="button"
+                            className={styles["copy-button"]}
+                            title={l10n.getString("settings-button-copy")}
+                            onClick={copyApiKeyToClipboard}
+                          >
+                            <CopyIcon
+                              alt={l10n.getString("settings-button-copy")}
+                              className={styles["copy-icon"]}
+                              width={24}
+                              height={24}
+                            />
+                          </button>
+                          <span
+                            aria-hidden={!justCopiedApiKey}
+                            className={`${styles["copied-confirmation"]} ${
+                              justCopiedApiKey ? styles["is-shown"] : ""
+                            }`}
+                          >
+                            {l10n.getString("setting-api-key-copied")}
+                          </span>
                         </span>
                       </span>
-                    </span>
+                    </div>
+                    <div className={styles["settings-api-key-copy"]}>
+                      {l10n.getString("settings-api-key-description")}{" "}
+                      <b>
+                        {l10n.getString("settings-api-key-description-bolded")}
+                      </b>
+                    </div>
                   </div>
                 </div>
                 {trackerRemovalSetting}
@@ -288,7 +294,7 @@ const Settings: NextPage = () => {
                   rel="noopener noreferrer"
                   title={l10n.getString("settings-meta-help-tooltip")}
                 >
-                  <img src={helpIcon.src} alt="" />
+                  <SupportIcon className={styles["menu-icon"]} alt="" />
                   {l10n.getString("settings-meta-help-label")}
                   <NewTabIcon />
                 </a>
@@ -300,7 +306,7 @@ const Settings: NextPage = () => {
                   rel="noopener noreferrer"
                   title={l10n.getString("settings-meta-status-tooltip")}
                 >
-                  <img src={performanceIcon.src} alt="" />
+                  <PerformanceIcon className={styles["menu-icon"]} alt="" />
                   {l10n.getString("settings-meta-status-label")}
                   <NewTabIcon />
                 </a>

@@ -11,7 +11,7 @@ import { UserData } from "../../../hooks/api/user";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
-import searchIcon from "../../../../../static/images/icon-search-blue.svg";
+import { SearchIcon } from "../../Icons";
 
 export type Props = {
   aliases: AliasData[];
@@ -172,8 +172,7 @@ export const AliasList = (props: Props) => {
           title={l10n.getString("profile-filter-search-placeholder-2")}
           className={styles["string-filter-toggle"]}
         >
-          <img
-            src={searchIcon.src}
+          <SearchIcon
             alt={l10n.getString("profile-filter-search-placeholder-2")}
             width={20}
             height={20}

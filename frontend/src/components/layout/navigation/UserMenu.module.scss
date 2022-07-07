@@ -91,12 +91,12 @@
     .menu-button {
       display: flex;
       align-items: center;
+      gap: $spacing-md;
       padding: $spacing-md $spacing-lg;
       color: $color-violet-90;
       border-style: none;
       background-color: transparent;
       width: 100%;
-      gap: $spacing-md;
       cursor: pointer;
 
       svg {

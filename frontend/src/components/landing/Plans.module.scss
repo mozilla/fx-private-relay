@@ -26,13 +26,15 @@
   @include text-body-sm;
   color: $color-blue-50;
   font-weight: 700;
-  padding: $spacing-xs 0;
+  padding: $spacing-md 0;
 }
 
 .plan {
+  justify-content: space-between;
   background-color: $color-white;
   display: flex;
-  padding: $spacing-xl $spacing-2xl;
+  position: relative;
+  padding: $spacing-xl;
   border: 2px solid $color-light-gray-20;
   border-radius: $border-radius-md;
   width: $content-xs;
@@ -40,6 +42,44 @@
   align-items: center;
   gap: $spacing-md;
   cursor: pointer;
+
+  /* Wider plan panels for non-premium countries */
+  &.wide-plan {
+    @media screen and #{$mq-lg} {
+      width: calc($content-sm + $spacing-lg);
+    }
+  }
+
+  .ribbon {
+    top: -10px;
+    right: -10px;
+    padding-left: $spacing-sm; /* The ribbon text indent */
+    position: absolute;
+    width: 126px; /* Width of the ribbon  */
+    height: 30px; /* Height of the ribbon  */
+    background-image: url("../../../../static/images/newlanding/ribbon-plan.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    @media screen and #{$mq-lg} {
+      top: 20px;
+    }
+  }
+
+  .ribbon-text {
+    @include text-body-xs;
+    position: absolute;
+    color: white;
+    font-weight: 700;
+    display: block;
+    width: 100%;
+    text-align: center;
+    line-height: 30px; /* Height of the ribbon */
+  }
+
+  &.waitlist-cta {
+    border-color: $color-purple-40;
+  }
 
   &.free-plan {
     grid-area: free-plan;
@@ -59,6 +99,13 @@
     margin: 0 auto;
   }
 
+  .plan-description {
+    @include text-body-sm;
+    background: $color-light-gray-10;
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $border-radius-sm;
+  }
+
   .price {
     @include text-body-lg;
     color: $color-blue-50;
@@ -67,7 +114,7 @@
   }
 
   ul {
-    list-style-image: url("../../../../static/images/icon-blue-check.svg");
+    list-style-image: url("./images/icon-blue-check.svg");
     margin: 0 auto;
     flex: 1 0 auto;
 
@@ -102,5 +149,26 @@
       border-color: $color-blue-50;
       color: $color-white;
     }
+  }
+}
+
+.comparison-waitlist {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: $spacing-2xl;
+  flex-direction: column;
+  padding: $spacing-xl 0;
+  margin: 0 auto;
+  position: relative;
+
+  @media screen and #{$mq-lg} {
+    flex-direction: row;
+    align-items: stretch;
+    gap: $spacing-md;
+  }
+
+  ul {
+    flex: none;
   }
 }

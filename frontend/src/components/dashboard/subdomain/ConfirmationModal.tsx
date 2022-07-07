@@ -10,8 +10,8 @@ import {
 } from "react-aria";
 import { OverlayProps } from "@react-aria/overlays";
 import styles from "./ConfirmationModal.module.scss";
-import checkIcon from "../../../../../static/images/icon-green-check.svg";
-import partyIllustration from "../../../../../static/images/dashboard-onboarding/success-party.svg";
+import { CheckCircleIcon } from "../../Icons";
+import partyIllustration from "./images/success-party.svg";
 import { SubdomainConfirmationForm } from "./ConfirmationForm";
 import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
@@ -137,7 +137,7 @@ const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
         >
           <div className={styles.hero}>
             <span className={styles.headline}>
-              <img src={checkIcon.src} alt="" />
+              <CheckCircleIcon alt="" />
               {props.headline}
             </span>
             <h3 {...titleProps}>{props.title}</h3>

@@ -148,7 +148,8 @@ export function getHandlers(
       description: "",
       domain: 1,
       enabled: true,
-      block_list_emails: false,
+      block_list_emails: body.block_list_emails ?? false,
+      block_level_one_trackers: body.block_level_one_trackers ?? false,
       generated_for: "",
       id: id,
       last_modified_at: new Date(Date.now()).toISOString(),
@@ -157,6 +158,7 @@ export function getHandlers(
       num_replied: 0,
       num_forwarded: 0,
       num_spam: 0,
+      num_level_one_trackers_blocked: 0,
       mask_type: "random",
       used_on: "",
     });
@@ -229,6 +231,7 @@ export function getHandlers(
       domain: 2,
       enabled: true,
       block_list_emails: body.block_list_emails ?? false,
+      block_level_one_trackers: body.block_level_one_trackers ?? false,
       id: id,
       last_modified_at: new Date(Date.now()).toISOString(),
       last_used_at: new Date(Date.now()).toISOString(),
@@ -236,6 +239,7 @@ export function getHandlers(
       num_replied: 0,
       num_forwarded: 0,
       num_spam: 0,
+      num_level_one_trackers_blocked: 0,
       used_on: "",
       mask_type: "custom",
     });

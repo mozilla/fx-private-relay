@@ -27,7 +27,6 @@ from django.db import transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.template.loader import render_to_string
-from django.urls import reverse
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
@@ -592,7 +591,7 @@ def _sns_message(message_json):
         attachment_msg = (
             "Firefox Relay supports email forwarding (including attachments) "
             "of email up to 150KB in size. To learn more visit {site}{faq}\n"
-        ).format(site=settings.SITE_ORIGIN, faq=reverse("faq"))
+        ).format(site=settings.SITE_ORIGIN, faq="/faq/")
         relay_header_text = (
             "This email was sent to your alias "
             "{alias}. To stop receiving emails sent to this alias, "

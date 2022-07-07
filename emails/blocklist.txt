@@ -9,6 +9,7 @@ spam
 superuser
 company
 foundation
+customdomain
 
 # Source: https://github.com/michaldudek/subdomain-blacklist/blob/6fa207bf1dd7a04181676835e29d7ae353e2aad0/blacklist.txt
 #

@@ -20,6 +20,7 @@ import {
   VisuallyHidden,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
+import { event as gaEvent } from "react-ga";
 import styles from "./WhatsNewMenu.module.scss";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
 import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
@@ -29,6 +30,8 @@ import ForwardSomeHero from "./images/forward-some-hero.svg";
 import ForwardSomeIcon from "./images/forward-some-icon.svg";
 import aliasToMaskHero from "./images/alias-to-mask-hero.svg";
 import aliasToMaskIcon from "./images/alias-to-mask-icon.svg";
+import TrackerRemovalHero from "./images/tracker-removal-hero.svg";
+import TrackerRemovalIcon from "./images/tracker-removal-icon.svg";
 import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
@@ -44,6 +47,7 @@ import { useAddonData } from "../../../../hooks/addon";
 import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
+import { isFlagActive } from "../../../../functions/waffle";
 
 export type WhatsNewEntry = {
   title: string;
@@ -71,7 +75,15 @@ export type Props = {
 };
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
-  const triggerState = useOverlayTriggerState({});
+  const triggerState = useOverlayTriggerState({
+    onOpenChange(isOpen) {
+      gaEvent({
+        category: "News",
+        action: isOpen ? "Open" : "Close",
+        label: "header-nav",
+      });
+    },
+  });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const addonData = useAddonData();
@@ -279,6 +291,34 @@ export const WhatsNewMenu = (props: Props) => {
     !props.profile.has_premium
   ) {
     entries.push(premiumInFinland);
+  }
+
+  const trackerRemoval: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-tracker-removal-heading"),
+    snippet: l10n.getString("whatsnew-feature-tracker-removal-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-tracker-removal-description"
+        )}
+        heading={l10n.getString("whatsnew-feature-tracker-removal-heading")}
+        image={TrackerRemovalHero.src}
+      />
+    ),
+    hero: TrackerRemovalHero.src,
+    icon: TrackerRemovalIcon.src,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_tracker-removal_${props.profile.id}`
+    ),
+    announcementDate: {
+      year: 2022,
+      month: 6,
+      day: 23,
+    },
+  };
+  // Only show its announcement if tracker removal is live:
+  if (isFlagActive(props.runtimeData, "tracker_removal")) {
+    entries.push(trackerRemoval);
   }
 
   entries.sort(entriesDescByDateSorter);

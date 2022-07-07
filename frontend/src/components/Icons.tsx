@@ -4,6 +4,7 @@
 
 import { useLocalization } from "@fluent/react";
 import { SVGProps } from "react";
+import styles from "./Icons.module.scss";
 
 /** Info button that inherits the text color of its container */
 export const InfoIcon = ({
@@ -19,14 +20,57 @@ export const InfoIcon = ({
       viewBox="0 0 28 28"
       width={28}
       height={28}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M12.666 7.33342H15.3327V10.0001H12.666V7.33342ZM12.666 12.6667H15.3327V20.6667H12.666V12.6667ZM13.9993 0.666748C6.63935 0.666748 0.666016 6.64008 0.666016 14.0001C0.666016 21.3601 6.63935 27.3334 13.9993 27.3334C21.3594 27.3334 27.3327 21.3601 27.3327 14.0001C27.3327 6.64008 21.3594 0.666748 13.9993 0.666748ZM13.9993 24.6667C8.11935 24.6667 3.33268 19.8801 3.33268 14.0001C3.33268 8.12008 8.11935 3.33341 13.9993 3.33341C19.8793 3.33341 24.666 8.12008 24.666 14.0001C24.666 19.8801 19.8793 24.6667 13.9993 24.6667Z"></path>
+    </svg>
+  );
+};
+
+/** Filled info button that inherits the text color of its container */
+export const InfoFilledIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z" />
+    </svg>
+  );
+};
+
+/** Triangular info button that inherits the text color of its container */
+export const InfoTriangleIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 15"
+      width={18}
+      height={15}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M0.75 14.75H17.25L9 0.5L0.75 14.75ZM9.75 12.5H8.25V11H9.75V12.5ZM9.75 9.5H8.25V6.5H9.75V9.5Z" />
     </svg>
   );
 };
@@ -45,11 +89,8 @@ export const CloseIcon = ({
       viewBox="0 0 20 20"
       width={20}
       height={20}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"></path>
@@ -70,11 +111,8 @@ export const BentoIcon = (
       aria-label={props.alt}
       aria-hidden={props.alt === ""}
       xmlns="http://www.w3.org/2000/svg"
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{props.alt}</title>
       <path
@@ -101,11 +139,8 @@ export const NewTabIcon = (
       viewBox="0 0 16 16"
       width={16}
       height={16}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{props.alt ?? l10n.getString("common-link-newtab-alt")}</title>
       <path d="M5 1H4a3 3 0 00-3 3v8a3 3 0 003 3h8a3 3 0 003-3v-1a1 1 0 00-2 0v1a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1h1a1 1 0 100-2z" />
@@ -128,11 +163,8 @@ export const MenuIcon = ({
       aria-hidden={alt === ""}
       aria-label={alt}
       xmlns="http://www.w3.org/2000/svg"
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M1.33333 2.66667H14.6667C15.0203 2.66667 15.3594 2.52619 15.6095 2.27614C15.8595 2.02609 16 1.68696 16 1.33333C16 0.979711 15.8595 0.640573 15.6095 0.390524C15.3594 0.140476 15.0203 0 14.6667 0H1.33333C0.979711 0 0.640573 0.140476 0.390524 0.390524C0.140476 0.640573 0 0.979711 0 1.33333C0 1.68696 0.140476 2.02609 0.390524 2.27614C0.640573 2.52619 0.979711 2.66667 1.33333 2.66667ZM14.6667 6.66667H1.33333C0.979711 6.66667 0.640573 6.80714 0.390524 7.05719C0.140476 7.30724 0 7.64638 0 8C0 8.35362 0.140476 8.69276 0.390524 8.94281C0.640573 9.19286 0.979711 9.33333 1.33333 9.33333H14.6667C15.0203 9.33333 15.3594 9.19286 15.6095 8.94281C15.8595 8.69276 16 8.35362 16 8C16 7.64638 15.8595 7.30724 15.6095 7.05719C15.3594 6.80714 15.0203 6.66667 14.6667 6.66667ZM14.6667 13.3333H1.33333C0.979711 13.3333 0.640573 13.4738 0.390524 13.7239C0.140476 13.9739 0 14.313 0 14.6667C0 15.0203 0.140476 15.3594 0.390524 15.6095C0.640573 15.8595 0.979711 16 1.33333 16H14.6667C15.0203 16 15.3594 15.8595 15.6095 15.6095C15.8595 15.3594 16 15.0203 16 14.6667C16 14.313 15.8595 13.9739 15.6095 13.7239C15.3594 13.4738 15.0203 13.3333 14.6667 13.3333Z" />
@@ -157,14 +189,221 @@ export const LockIcon = ({
       width={width}
       height={height}
       aria-hidden={alt === ""}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M12.031 6.84h-.573V4.57a4.566 4.566 0 00-1.342-3.232 4.59 4.59 0 00-6.482 0A4.565 4.565 0 002.292 4.57V6.84h-.573c-.456 0-.893.18-1.216.502A1.712 1.712 0 000 8.554v5.732c0 .454.181.89.503 1.212.323.321.76.502 1.216.502H12.03a1.712 1.712 0 001.719-1.714V8.554c0-.455-.181-.89-.503-1.212a1.721 1.721 0 00-1.216-.502zM4.583 4.57c0-.606.242-1.187.672-1.616a2.295 2.295 0 013.24 0c.43.429.672 1.01.672 1.616V6.84H4.583V4.57z" />
+    </svg>
+  );
+};
+
+/** Icon to indicate the ability to copy something to your clipboard, that inherits the text color of its container */
+export const CopyIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width={16}
+      height={16}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M14.707 8.293l-3-3A1 1 0 0011 5h-1V4a1 1 0 00-.293-.707l-3-3A1 1 0 006 0H3a2 2 0 00-2 2v7a2 2 0 002 2h3v3a2 2 0 002 2h5a2 2 0 002-2V9a1 1 0 00-.293-.707zM12.586 9H11V7.414zm-5-5H6V2.414zM6 7v2H3V2h2v2.5a.5.5 0 00.5.5H8a2 2 0 00-2 2zm2 7V7h2v2.5a.5.5 0 00.5.5H13v4z" />
+    </svg>
+  );
+};
+
+/** Icon of an arrow pointing down, that inherits the text color of its container */
+export const ArrowDownIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width={16}
+      height={16}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M8 12a1 1 0 01-.707-.293l-5-5a1 1 0 011.414-1.414L8 9.586l4.293-4.293a1 1 0 011.414 1.414l-5 5A1 1 0 018 12z" />
+    </svg>
+  );
+};
+
+/** Icon of plus sign, that inherits the text color of its container */
+export const PlusIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
+      width={16}
+      height={16}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M14 7H9V2a1 1 0 00-2 0v5H2a1 1 0 100 2h5v5a1 1 0 002 0V9h5a1 1 0 000-2z" />
+    </svg>
+  );
+};
+
+/** Icon for searches, that inherits the text color of its container */
+export const SearchIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      {...props}
+    >
+      <title>{alt}</title>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 16C3.58172 16 0 12.4183 0 8C0 3.58172 3.58172 0 8 0C12.4183 0 16 3.58172 16 8C16 9.84872 15.3729 11.551 14.3199 12.9057L19.7071 18.2929C20.0976 18.6834 20.0976 19.3166 19.7071 19.7071C19.3166 20.0976 18.6834 20.0976 18.2929 19.7071L12.9056 14.3199C11.551 15.3729 9.84871 16 8 16ZM8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14Z"
+        fill="currentColor"
+      />
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M8 15C11.866 15 15 11.866 15 8C15 4.13401 11.866 1 8 1C4.13401 1 1 4.13401 1 8C1 11.866 4.13401 15 8 15Z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.23077"
+      />
+      <path
+        d="M13 13L19 19"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.23077"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+
+/** Icon for the filter button, that inherits the text color of its container */
+export const FilterIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width={24}
+      height={24}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M10 18H14V16H10V18ZM3 6V8H21V6H3ZM6 13H18V11H6V13Z" />
+    </svg>
+  );
+};
+
+/** Check circle icon that inherits the text color of its container */
+export const CheckCircleIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width={24}
+      height={24}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path
+        d="M12 0C5.376 0 0 5.376 0 12C0 18.624 5.376 24 12 24C18.624 24 24 18.624 24 12C24 5.376 18.624 0 12 0ZM9.6 18L3.6 12L5.292 10.308L9.6 14.604L18.708 5.496L20.4 7.2L9.6 18Z"
+        fill="#3AD4B3"
+      />
+    </svg>
+  );
+};
+
+/** Check badge icon that inherits the text color of its container */
+export const CheckBadgeIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 18"
+      width={18}
+      height={18}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M17.25 9L15.42 6.9075L15.675 4.14L12.9675 3.525L11.55 1.125L9 2.22L6.45 1.125L5.0325 3.5175L2.325 4.125L2.58 6.9L0.75 9L2.58 11.0925L2.325 13.8675L5.0325 14.4825L6.45 16.875L9 15.7725L11.55 16.8675L12.9675 14.475L15.675 13.86L15.42 11.0925L17.25 9ZM7.5675 12.54L4.7175 9.6825L5.8275 8.5725L7.5675 10.32L11.955 5.9175L13.065 7.0275L7.5675 12.54Z" />
+    </svg>
+  );
+};
+
+/** Icon for links to the status page, that inherits the text color of its container */
+export const PerformanceIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 18 18"
+      width={18}
+      height={18}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M3.8168 3.81705C5.19159 2.44226 7.05559 1.66894 8.99984 1.66676C10.2376 1.66487 11.4556 1.97678 12.5401 2.57332C13.6246 3.16987 14.5401 4.03159 15.2013 5.07797C15.8624 6.12435 16.2475 7.32124 16.3205 8.55682C16.3936 9.7924 16.1523 11.0263 15.6191 12.1433C15.5674 12.2521 15.4949 12.3496 15.4056 12.4303C15.3162 12.5111 15.2119 12.5734 15.0984 12.6138C14.985 12.6542 14.8648 12.6718 14.7445 12.6657C14.6243 12.6597 14.5064 12.6299 14.3976 12.5783C14.2889 12.5267 14.1913 12.4541 14.1106 12.3648C14.0299 12.2754 13.9676 12.1711 13.9272 12.0577C13.8868 11.9442 13.8691 11.824 13.8752 11.7037C13.8813 11.5835 13.911 11.4656 13.9627 11.3568C14.3188 10.6114 14.5023 9.79532 14.4998 8.9692C14.4972 8.14308 14.3086 7.32815 13.948 6.58492C13.5873 5.84169 13.0638 5.18926 12.4164 4.67607C11.769 4.16289 11.0143 3.80213 10.2084 3.6206C9.40248 3.43906 8.56601 3.44141 7.76112 3.62747C6.95622 3.81353 6.20357 4.17852 5.55907 4.69533C4.91457 5.21214 4.39478 5.86751 4.03828 6.61275C3.68178 7.35799 3.49775 8.17397 3.49984 9.00009C3.49857 9.81526 3.68026 10.6203 4.03151 11.3559C4.09375 11.4654 4.13279 11.5864 4.14619 11.7116C4.15959 11.8368 4.14705 11.9634 4.10938 12.0835C4.0717 12.2036 4.00968 12.3147 3.92719 12.4098C3.84469 12.5049 3.7435 12.582 3.6299 12.6363C3.51631 12.6905 3.39275 12.7208 3.26694 12.7253C3.14112 12.7297 3.01574 12.7081 2.89862 12.662C2.78149 12.6158 2.67513 12.546 2.58616 12.457C2.49719 12.3679 2.42753 12.2614 2.38151 12.1443C1.91041 11.1631 1.66605 10.0885 1.6665 9.00009C1.66869 7.05584 2.44201 5.19185 3.8168 3.81705ZM12.1095 7.17745C12.2281 7.15115 12.3523 7.17301 12.4548 7.23823C12.5567 7.30398 12.6285 7.40749 12.6542 7.52606C12.68 7.64462 12.6577 7.76857 12.5923 7.87073L10.3345 11.4191C10.6242 11.7177 10.8009 12.1078 10.8344 12.5224C10.8678 12.9371 10.7559 13.3504 10.5178 13.6916C10.386 13.8867 10.2179 14.0547 10.0228 14.1866C9.76509 14.3609 9.46721 14.4667 9.15725 14.4941C8.84729 14.5216 8.53545 14.4696 8.25111 14.3432C7.96676 14.2168 7.71927 14.0202 7.53192 13.7717C7.34458 13.5233 7.22356 13.2312 7.18026 12.9231C7.13696 12.6149 7.1728 12.3008 7.28441 12.0104C7.39601 11.7199 7.57972 11.4626 7.81821 11.2628C8.05671 11.0629 8.34216 10.927 8.64766 10.868C8.95317 10.8089 9.26869 10.8285 9.56451 10.9251L11.8223 7.37848C11.8876 7.27605 11.9909 7.20375 12.1095 7.17745Z"
+      />
     </svg>
   );
 };
@@ -174,15 +413,15 @@ export const Cogwheel = ({
   ...props
 }: SVGProps<SVGSVGElement> & { alt?: string }) => (
   <svg
+    role="img"
+    aria-label={alt}
+    aria-hidden={alt === ""}
     width={16}
     height={16}
     viewBox="0 0 16 16"
     xmlns="http://www.w3.org/2000/svg"
-    style={{
-      fill: "currentcolor",
-      ...props.style,
-    }}
     {...props}
+    className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
   >
     <title>{alt}</title>
     <path
@@ -205,11 +444,8 @@ export const FaqIcon = ({
     aria-hidden={alt === ""}
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
-    style={{
-      fill: "currentcolor",
-      ...props.style,
-    }}
     {...props}
+    className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
   >
     <title>{alt}</title>
     <path d="M2 4H0V18C0 19.1 0.9 20 2 20H16V18H2V4ZM18 0H6C4.9 0 4 0.9 4 2V14C4 15.1 4.9 16 6 16H18C19.1 16 20 15.1 20 14V2C20 0.9 19.1 0 18 0ZM18 14H6V2H18V14ZM11.51 8.16C11.92 7.43 12.69 7 13.14 6.36C13.62 5.68 13.35 4.42 12 4.42C11.12 4.42 10.68 5.09 10.5 5.65L9.13 5.08C9.51 3.96 10.52 3 11.99 3C13.22 3 14.07 3.56 14.5 4.26C14.87 4.86 15.08 5.99 14.51 6.83C13.88 7.76 13.28 8.04 12.95 8.64C12.82 8.88 12.77 9.04 12.77 9.82H11.25C11.26 9.41 11.19 8.74 11.51 8.16ZM10.95 11.95C10.95 11.36 11.42 10.91 12 10.91C12.59 10.91 13.04 11.36 13.04 11.95C13.04 12.53 12.6 13 12 13C11.42 13 10.95 12.53 10.95 11.95Z" />
@@ -228,11 +464,8 @@ export const DashboardIcon = ({
     aria-hidden={alt === ""}
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
-    style={{
-      fill: "currentcolor",
-      ...props.style,
-    }}
     {...props}
+    className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
   >
     <title>{alt}</title>
     <path
@@ -255,11 +488,8 @@ export const HomeIcon = ({
     aria-hidden={alt === ""}
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
-    style={{
-      fill: "currentcolor",
-      ...props.style,
-    }}
     {...props}
+    className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
   >
     <title>{alt}</title>
     <path d="M10 2.69L15 7.19V15H13V9H7V15H5V7.19L10 2.69ZM10 0L0 9H3V17H9V11H11V17H17V9H20L10 0Z" />
@@ -278,11 +508,8 @@ export const SupportIcon = ({
     aria-hidden={alt === ""}
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
-    style={{
-      fill: "currentcolor",
-      ...props.style,
-    }}
     {...props}
+    className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
   >
     <title>{alt}</title>
     <path
@@ -293,6 +520,7 @@ export const SupportIcon = ({
   </svg>
 );
 
+/** Icon to indicate signing out, that inherits the text color of its container */
 export const SignOutIcon = ({
   alt,
   ...props
@@ -305,11 +533,8 @@ export const SignOutIcon = ({
     aria-hidden={alt === ""}
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
-    style={{
-      fill: "currentcolor",
-      ...props.style,
-    }}
     {...props}
+    className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
   >
     <title>{alt}</title>
     <path d="M12.2649 2.33395C11.8376 2.03969 11.2504 2.14437 10.958 2.56833C10.6632 2.99573 10.7678 3.58336 11.1919 3.87589L11.1928 3.8765C12.7786 4.98288 13.7194 6.79017 13.7194 8.70868C13.7194 11.9728 11.0641 14.6281 7.8 14.6281C4.53668 14.6281 1.88062 11.9914 1.88062 8.7265C1.88062 6.80799 2.82137 5.00069 4.40717 3.89432L4.40806 3.8937C4.83222 3.60118 4.93679 3.01355 4.64204 2.58615C4.34954 2.16203 3.762 2.05743 3.33461 2.35208C1.25087 3.79338 0 6.19052 0 8.7265C0 13.0348 3.49175 16.5265 7.8 16.5265C12.1083 16.5265 15.6 13.0348 15.6 8.7265C15.6 6.19091 14.3494 3.79337 12.2649 2.33395ZM7.80005 8.22361C8.3132 8.22361 8.74037 7.79645 8.74037 7.2833V0.940312C8.74037 0.427161 8.3132 0 7.80005 0C7.2869 0 6.85974 0.427161 6.85974 0.940312V7.26548C6.85974 7.79847 7.28891 8.22361 7.80005 8.22361Z" />
@@ -328,11 +553,8 @@ export const ContactIcon = ({
     aria-hidden={alt === ""}
     aria-label={alt}
     xmlns="http://www.w3.org/2000/svg"
-    style={{
-      fill: "currentcolor",
-      ...props.style,
-    }}
     {...props}
+    className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
   >
     <title>{alt}</title>
     <path
@@ -357,11 +579,8 @@ export const HideIcon = ({
       viewBox="0 0 20 18"
       width={20}
       height={18}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="m 3.28,0.21975 c -0.293,-0.293 -0.768,-0.293 -1.061,0 -0.293,0.293 -0.293,0.768 0,1.061 l 2.308,2.308 C 2.533,4.81775 0.911,6.68975 0,8.99375 v 1.012 c 1.656,4.189 5.634,6.994 10,6.994 2.182,0 4.259,-0.711 6.005,-1.934 l 2.715,2.715 c 0.146,0.146 0.338,0.22 0.53,0.22 0.192,0 0.384,-0.073 0.53,-0.22 0.293,-0.293 0.293,-0.768 0,-1.061 z m 5.547,7.668 2.785,2.785 c -0.364,0.499 -0.949,0.827 -1.612,0.827 -1.103,0 -2,-0.897 -2,-2 0,-0.664 0.328,-1.248 0.827,-1.612 z m 1.173,7.612 c -3.629,0 -7.011,-2.316 -8.5,-5.791 v -0.419 c 0.854,-1.995 2.341,-3.589 4.133,-4.597 l 2.132,2.132 c -0.769,0.641 -1.265,1.597 -1.265,2.675 0,1.93 1.57,3.5 3.5,3.5 1.078,0 2.034,-0.496 2.674,-1.265 l 2.25,2.25 c -1.458,0.962 -3.16,1.515 -4.924,1.515 z" />
@@ -396,11 +615,8 @@ export const StarIcon = ({
       viewBox="0 0 22 22"
       width={24}
       height={24}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M19.8451 10.064C19.7827 9.87742 19.6714 9.71099 19.5228 9.58207C19.3741 9.45314 19.1936 9.36644 19.0001 9.331L14.9111 8.6L12.9851 4.735C12.8939 4.55195 12.7534 4.39796 12.5795 4.29033C12.4056 4.18269 12.2051 4.12567 12.0006 4.12567C11.7961 4.12567 11.5956 4.18269 11.4217 4.29033C11.2478 4.39796 11.1074 4.55195 11.0161 4.735L9.08912 8.6L5.00812 9.329C4.81293 9.3631 4.63057 9.44929 4.48031 9.57846C4.33006 9.70763 4.21749 9.875 4.15449 10.0629C4.09149 10.2507 4.08041 10.4521 4.12241 10.6458C4.16442 10.8394 4.25795 11.0181 4.39312 11.163L7.32012 14.31L6.71112 18.67C6.68304 18.8703 6.71074 19.0745 6.79117 19.2601C6.8716 19.4457 7.00165 19.6055 7.16702 19.722C7.33239 19.8385 7.52668 19.9071 7.72853 19.9204C7.93037 19.9336 8.13196 19.8909 8.31112 19.797L12.0001 17.873L15.6901 19.8C15.8693 19.8939 16.0709 19.9366 16.2727 19.9234C16.4746 19.9101 16.6688 19.8415 16.8342 19.725C16.9996 19.6085 17.1296 19.4487 17.2101 19.2631C17.2905 19.0775 17.3182 18.8733 17.2901 18.673L16.6801 14.31L19.6061 11.164C19.7413 11.0192 19.8349 10.8405 19.877 10.6469C19.9191 10.4533 19.908 10.2519 19.8451 10.064V10.064Z" />
@@ -421,11 +637,8 @@ export const ChevronLeftIcon = ({
       viewBox="0 0 22 22"
       width={24}
       height={24}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M16.6201 2.99C16.1301 2.5 15.3401 2.5 14.8501 2.99L6.54006 11.3C6.15006 11.69 6.15006 12.32 6.54006 12.71L14.8501 21.02C15.3401 21.51 16.1301 21.51 16.6201 21.02C17.1101 20.53 17.1101 19.74 16.6201 19.25L9.38006 12L16.6301 4.75C17.1101 4.27 17.1101 3.47 16.6201 2.99Z" />
@@ -446,11 +659,8 @@ export const ChevronRightIcon = ({
       viewBox="0 0 22 22"
       width={24}
       height={24}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M7.37994 2.99C7.86994 2.5 8.65994 2.5 9.14994 2.99L17.4599 11.3C17.8499 11.69 17.8499 12.32 17.4599 12.71L9.14994 21.02C8.65994 21.51 7.86994 21.51 7.37994 21.02C6.88994 20.53 6.88994 19.74 7.37994 19.25L14.6199 12L7.36994 4.75C6.88994 4.27 6.88994 3.47 7.37994 2.99Z" />
@@ -471,11 +681,8 @@ export const QuotationIcon = ({
       viewBox="0 4 20 20"
       width={20}
       height={20}
-      style={{
-        fill: "currentcolor",
-        ...props.style,
-      }}
       {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
     >
       <title>{alt}</title>
       <path d="M10.4 0.399995C3.7 7.6 0.8 12.8 0.8 18.2C0.8 24.5 4.1 29.1 9.2 29.1C13.5 29.1 17 25.5 17 21.3C17 17 13.6 13.4 9.4 13.4C10.2 10.2 12.2 7 15.2 4L10.4 0.399995ZM34.4 0.399995C27.7 7.6 24.8 12.8 24.8 18.2C24.8 24.5 28.1 29.1 33.2 29.1C37.5 29.1 41 25.5 41 21.3C41 17 37.6 13.4 33.4 13.4C34.2 10.2 36.2 7 39.2 4L34.4 0.399995Z" />

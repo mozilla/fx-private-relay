@@ -10,14 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
+from __future__ import annotations
 import ipaddress
 import os, sys
 from datetime import datetime
+from typing import Optional, TYPE_CHECKING
 
-# This needs to be before markus, which imports pytest
-IN_PYTEST = "pytest" in sys.modules
 
 from decouple import config, Choices, Csv
+import django_stubs_ext
 import markus
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -28,6 +29,9 @@ import base64
 from django.conf import settings
 
 import dj_database_url
+
+if TYPE_CHECKING:
+    import wsgiref.headers
 
 try:
     # Silk is a live profiling and inspection tool for the Django framework
@@ -49,7 +53,7 @@ TMP_DIR = os.path.join(BASE_DIR, "tmp")
 SECRET_KEY = config("SECRET_KEY", None, cast=str)
 SITE_ORIGIN = config("SITE_ORIGIN", None)
 
-ORIGIN_CHANNEL_MAP = {
+ORIGIN_CHANNEL_MAP: dict[Optional[str], str] = {
     "http://127.0.0.1:8000": "local",
     "https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net": "dev",
     "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
@@ -58,7 +62,8 @@ ORIGIN_CHANNEL_MAP = {
 RELAY_CHANNEL = ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN, "prod")
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
-    INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default=[])
+    INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default="", cast=Csv())
+IN_PYTEST = "pytest" in sys.modules
 USE_SILK = DEBUG and HAS_SILK and not IN_PYTEST
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
@@ -96,12 +101,12 @@ CSP_CONNECT_SRC = (
     BASKET_ORIGIN,
 )
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = (
+CSP_SCRIPT_SRC = [
     "'self'",
     "https://www.google-analytics.com/",
-)
+]
 if USE_SILK:
-    CSP_SCRIPT_SRC += ("'unsafe-inline'",)
+    CSP_SCRIPT_SRC.append("'unsafe-inline'")
 
 csp_style_values = ["'self'"]
 # Next.js dynamically inserts the relevant styles when switching pages,
@@ -167,7 +172,6 @@ RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
 RECRUITMENT_BANNER_TEXT = config("RECRUITMENT_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_TEXT = config("RECRUITMENT_EMAIL_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_LINK = config("RECRUITMENT_EMAIL_BANNER_LINK", None)
-SERVE_REACT = config("SERVE_REACT", False, cast=bool)
 
 TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
@@ -182,7 +186,6 @@ SERVE_ADDON = config("SERVE_ADDON", None)
 # Application definition
 INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
-    "django_gulp",
     "django.contrib.staticfiles",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -228,7 +231,7 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
 
 
 # statsd middleware has to be first to catch errors in everything else
-def _get_initial_middleware():
+def _get_initial_middleware() -> list[str]:
     if STATSD_ENABLED:
         return [
             "privaterelay.middleware.ResponseMetrics",
@@ -421,12 +424,7 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
 }
 
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
-PREMIUM_RELEASE_DATE = config(
-    "PREMIUM_RELEASE_DATE", "2021-10-27 17:00:00+00:00", cast=str
-)
-PREMIUM_RELEASE_DATE = datetime.fromisoformat(PREMIUM_RELEASE_DATE)
 
-DOMAIN_REGISTRATION_MODAL = config("DOMAIN_REGISTRATION_MODAL", False, cast=bool)
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 
 MAX_ADDRESS_CREATION_PER_DAY = config("MAX_ADDRESS_CREATION_PER_DAY", 100, cast=int)
@@ -505,20 +503,16 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "frontend/out"),
-    os.path.join(BASE_DIR, "static"),
 ]
-if SERVE_REACT:
-    # Static files (the front-end in /frontend/)
-    # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
-    STATIC_URL = "/"
-    if settings.DEBUG:
-        # In production, we run collectstatic to index all static files.
-        # However, when running locally, we want to automatically pick up
-        # all files spewed out by `npm run watch` in /frontend/out,
-        # and we're fine with the performance impact of that.
-        WHITENOISE_ROOT = os.path.join(BASE_DIR, "frontend/out")
-else:
-    STATIC_URL = "/static/"
+# Static files (the front-end in /frontend/)
+# https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
+STATIC_URL = "/"
+if settings.DEBUG:
+    # In production, we run collectstatic to index all static files.
+    # However, when running locally, we want to automatically pick up
+    # all files spewed out by `npm run watch` in /frontend/out,
+    # and we're fine with the performance impact of that.
+    WHITENOISE_ROOT = os.path.join(BASE_DIR, "frontend/out")
 
 # Relay does not support user-uploaded files
 MEDIA_ROOT = None
@@ -526,13 +520,14 @@ MEDIA_URL = None
 
 WHITENOISE_INDEX_FILE = True
 
-
 # See
 # https://whitenoise.evans.io/en/stable/django.html#WHITENOISE_ADD_HEADERS_FUNCTION
 # Intended to ensure that the homepage does not get cached in our CDN,
 # so that the `RedirectRootIfLoggedIn` middleware can kick in for logged-in
 # users.
-def set_index_cache_control_headers(headers, path, url):
+def set_index_cache_control_headers(
+    headers: wsgiref.headers.Headers, path: str, url: str
+) -> None:
     if DEBUG:
         home_path = os.path.join(BASE_DIR, "frontend/out", "index.html")
     else:
@@ -542,12 +537,6 @@ def set_index_cache_control_headers(headers, path, url):
 
 
 WHITENOISE_ADD_HEADERS_FUNCTION = set_index_cache_control_headers
-
-# for dev statics, we use django-gulp during runserver.
-# for stage/prod statics, we run "gulp build" in docker.
-# so, squelch django-gulp in prod so it doesn't run gulp during collectstatic:
-if not RELAY_CHANNEL == "dev":
-    GULP_PRODUCTION_COMMAND = ""
 
 SITE_ID = 1
 
@@ -624,12 +613,12 @@ LOGGING = {
 }
 
 if DEBUG:
-    DRF_RENDERERS = (
+    DRF_RENDERERS = [
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework.renderers.JSONRenderer",
-    )
+    ]
 else:
-    DRF_RENDERERS = ("rest_framework.renderers.JSONRenderer",)
+    DRF_RENDERERS = ["rest_framework.renderers.JSONRenderer"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
@@ -678,6 +667,7 @@ CIRCLE_SHA1 = config("CIRCLE_SHA1", "")
 CIRCLE_TAG = config("CIRCLE_TAG", "")
 CIRCLE_BRANCH = config("CIRCLE_BRANCH", "")
 
+sentry_release: Optional[str] = None
 if SENTRY_RELEASE:
     sentry_release = SENTRY_RELEASE
 elif CIRCLE_TAG and CIRCLE_TAG != "unknown":
@@ -689,8 +679,6 @@ elif (
     and CIRCLE_BRANCH != "unknown"
 ):
     sentry_release = f"{CIRCLE_BRANCH}:{CIRCLE_SHA1}"
-else:
-    sentry_release = None
 
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
@@ -750,3 +738,6 @@ PROCESS_EMAIL_HEALTHCHECK_MAX_AGE = config(
 
 # Django 3.2 switches default to BigAutoField
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+# Patching for django-types
+django_stubs_ext.monkeypatch()

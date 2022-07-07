@@ -3,7 +3,7 @@ import { useLocalization } from "@fluent/react";
 import { useOverlayTriggerState } from "react-stately";
 import { useState } from "react";
 import styles from "./SubdomainPicker.module.scss";
-import illustration from "../../../../static/images/dashboard-onboarding/man-laptop-email.svg";
+import illustration from "./images/man-laptop-email.svg";
 import { ProfileData } from "../../hooks/api/profile";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";

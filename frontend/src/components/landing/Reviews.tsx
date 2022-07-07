@@ -103,7 +103,7 @@ export const Reviews = () => {
     },
   ];
 
-  const reviewCount = 328;
+  const reviewCount = 1055;
   const { name, text, rating } = userReviews[currentReview];
 
   const scrollReview = (

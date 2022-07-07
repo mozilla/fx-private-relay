@@ -5,14 +5,14 @@
 .header {
   background-color: $color-light-gray-05;
   width: 100%;
-  padding: $spacing-lg 0;
+  padding: $spacing-md 0;
 
   .header-wrapper {
     display: flex;
     flex-direction: column;
     gap: $spacing-md;
 
-    @media screen and #{$mq-md} {
+    @media screen and #{$mq-lg} {
       flex-direction: row;
       align-items: center;
     }
@@ -21,7 +21,7 @@
       flex: 1 0 auto;
       display: flex;
       flex-direction: column;
-      gap: $spacing-md;
+      gap: $spacing-sm;
 
       .greeting {
         @include text-body-xl;
@@ -48,31 +48,136 @@
     }
 
     .account-stats {
-      display: flex;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: $spacing-md;
       text-align: center;
       justify-content: space-evenly;
 
+      @media screen and #{$mq-md} {
+        display: flex;
+      }
+
       .stat {
+        flex: 1 0 auto;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: space-between;
-        padding: 0 $spacing-md;
-        border-right: 1px solid $color-light-gray-20;
+        gap: $spacing-xs;
+        padding: $spacing-md;
+        background-color: $color-white;
+        border: 1px solid $color-light-gray-20;
+        border-radius: $border-radius-md;
+        position: relative;
 
-        &:last-child {
-          border-right: 0 none transparent;
+        @media screen and #{$mq-lg} {
+          // On small screens, stats have a border and all that, but since
+          // Protocol doesn't have max-width media queries, we need to unset
+          // all those for larger screens:
+          border-style: none;
+          border-right-style: solid;
+          border-radius: 0;
+          background-color: transparent;
+          padding-block: 0;
+
+          &:last-child {
+            border-right-style: none;
+          }
         }
 
         .label {
+          @include text-body-sm;
           color: $color-dark-gray-10;
         }
 
         .value {
-          @include text-title-sm;
+          @include text-title-xs;
           font-family: $font-stack-firefox;
           font-weight: 700;
           padding: $spacing-xs 0;
+          flex: 1 0 auto;
+          display: flex;
+          flex-direction: column;
+
+          .learn-more-wrapper {
+            @include text-body-sm;
+            font-weight: 400;
+
+            .open-button {
+              background-color: transparent;
+              border-style: none;
+              border-radius: $border-radius-lg;
+              color: $color-blue-50;
+              padding-inline: $spacing-md;
+              font-family: $font-stack-base;
+              font-weight: 500;
+              cursor: pointer;
+
+              &:hover {
+                background-color: $color-grey-10;
+              }
+            }
+
+            &.is-open .open-button {
+              background-color: $color-grey-10;
+            }
+
+            .close-button {
+              align-self: end;
+              background-color: transparent;
+              border-style: none;
+              border-radius: $border-radius-sm;
+              float: right;
+              padding: 0;
+              cursor: pointer;
+
+              &:hover {
+                color: $color-blue-50;
+              }
+            }
+
+            .learn-more-tooltip {
+              padding: $spacing-md;
+              background-color: $color-white;
+              width: $content-sm;
+              // On small screens, the tooltip should span the full width,
+              // minus the padding around `.stat` elements (i.e. the value of
+              // `gap` for `.account-stats`):
+              max-width: calc(100vw - $spacing-md * 2);
+              box-shadow: $box-shadow-sm;
+              border-radius: $border-radius-sm;
+              text-align: start;
+
+              p + p {
+                // Not using `gap` on the parent becase we don't want space
+                // between the close button and the first paragraph:
+                margin-top: $spacing-md;
+              }
+            }
+          }
+        }
+
+        // odd `.stat` elements are on the left-hand side on small screens,
+        // so we align the tooltip to its left border:
+        &:nth-child(odd) .learn-more-tooltip {
+          left: 0;
+        }
+
+        // even `.stat` elements are on the left-hand side on small screens,
+        // so we align the tooltip to its right border:
+        &:nth-child(even) .learn-more-tooltip {
+          right: 0;
+        }
+
+        @media screen and #{$mq-md} {
+          // On medium-sized screens, the `.stat` items are in a row,
+          // so only the first element should have the tooltip aligned to its
+          // left-hand side:
+          &:not(:first-child):nth-child(odd) .learn-more-tooltip {
+            left: unset;
+            right: 0;
+          }
         }
       }
     }

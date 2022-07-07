@@ -41,10 +41,7 @@
         align-items: center;
         justify-content: center;
         padding: $spacing-sm 0;
-
-        img {
-          margin-right: $spacing-sm;
-        }
+        gap: $spacing-sm;
       }
 
       .modal-title {

@@ -35,6 +35,7 @@ from ..models import (
     TRY_DIFFERENT_VALUE_ERR_MSG,
     valid_available_subdomain,
     valid_address,
+    valid_address_pattern,
 )
 
 
@@ -108,6 +109,11 @@ class MiscEmailModelsTest(TestCase):
     def test_is_blocklisted_with_blocked_word(self):
         assert is_blocklisted("mozilla")
 
+    def test_is_blocklisted_with_custom_blocked_word(self):
+        # custom blocked word
+        # see MPP-2077 for more details
+        assert is_blocklisted("customdomain")
+
     def test_is_blocklisted_without_blocked_words(self):
         assert not is_blocklisted("non-blocked-word")
 
@@ -142,6 +148,20 @@ class MiscEmailModelsTest(TestCase):
     def test_get_domain_numerical(self):
         assert get_domain_numerical("default.com") == 1
         assert get_domain_numerical("test.com") == 2
+
+    def test_valid_address_pattern_is_valid(self):
+        assert valid_address_pattern("foo")
+        assert valid_address_pattern("foo-bar")
+        assert valid_address_pattern("f00bar")
+        assert valid_address_pattern("123foo")
+        assert valid_address_pattern("123")
+
+    def test_valid_address_pattern_is_not_valid(self):
+        assert not valid_address_pattern("-")
+        assert not valid_address_pattern("-foo")
+        assert not valid_address_pattern("foo-")
+        assert not valid_address_pattern("foo bar")
+        assert not valid_address_pattern("Foo")
 
 
 class RelayAddressTest(TestCase):
@@ -712,6 +732,9 @@ class ProfileTest(TestCase):
         baker.make(SocialAccount, user=self.profile.user, provider="fxa")
         assert self.profile.language == "en"
 
+    def test_language_with_no_fxa_locale_returns_default_en(self):
+        assert self.profile.language == "en"
+
     def test_language_with_fxa_locale_de_returns_de(self):
         baker.make(
             SocialAccount,
@@ -761,9 +784,9 @@ class ProfileTest(TestCase):
         )
         assert self.profile.fxa_locale_in_premium_country is False
 
-    @override_settings(
-        PREMIUM_RELEASE_DATE=datetime.fromisoformat("2021-10-27 17:00:00+00:00")
-    )
+    def test_locale_in_premium_country_returns_False_if_no_fxa_account(self):
+        assert self.profile.fxa_locale_in_premium_country is False
+
     def test_user_joined_before_premium_release_returns_True(self):
         user = baker.make(
             User, date_joined=datetime.fromisoformat("2021-10-18 17:00:00+00:00")
@@ -771,9 +794,6 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=user)
         assert profile.joined_before_premium_release
 
-    @override_settings(
-        PREMIUM_RELEASE_DATE=datetime.fromisoformat("2021-10-27 17:00:00+00:00")
-    )
     def test_user_joined_before_premium_release_returns_False(self):
         user = baker.make(
             User, date_joined=datetime.fromisoformat("2021-10-28 17:00:00+00:00")
@@ -781,17 +801,6 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=user)
         assert profile.joined_before_premium_release is False
 
-    @override_settings(
-        PREMIUM_RELEASE_DATE=datetime.now(timezone.utc) + timedelta(days=1)
-    )
-    def test_user_created_before_premium_release_server_storage_False(self):
-        user = baker.make(User)
-        profile = Profile.objects.get(user=user)
-        assert not profile.server_storage
-
-    @override_settings(
-        PREMIUM_RELEASE_DATE=datetime.now(timezone.utc) - timedelta(days=1)
-    )
     def test_user_created_after_premium_release_server_storage_True(self):
         user = baker.make(User)
         profile = Profile.objects.get(user=user)
@@ -807,7 +816,7 @@ class ProfileTest(TestCase):
         user_profile.num_email_replied_in_deleted_address = 1
         user_profile.save()
         baker.make(RelayAddress, user=user, num_replied=3)
-        baker.make(DomainAddress, user=user, num_replied=5)
+        baker.make(DomainAddress, user=user, address="lower-case", num_replied=5)
 
         assert user_profile.emails_replied == 9
 
@@ -938,13 +947,13 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(self.user_profile)
         except CannotMakeAddressException as e:
             assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format(
-                "Email address with subdomain"
+                "Domain address angry0123"
             )
             return
         self.fail("Should have raise CannotMakeAddressException")
 
     def test_delete_adds_deleted_address_object(self):
-        domain_address = baker.make(DomainAddress, user=self.user)
+        domain_address = baker.make(DomainAddress, address="lower-case", user=self.user)
         domain_address_hash = sha256(
             domain_address.full_address.encode("utf-8")
         ).hexdigest()
@@ -956,7 +965,9 @@ class DomainAddressTest(TestCase):
         assert deleted_address_qs.first().address_hash == domain_address_hash
 
     def test_premium_user_can_set_block_list_emails(self):
-        domain_address = DomainAddress.objects.create(user=self.user)
+        domain_address = DomainAddress.objects.create(
+            user=self.user, address="lower-case"
+        )
         assert domain_address.block_list_emails == False
         domain_address.block_list_emails = True
         domain_address.save()
@@ -964,7 +975,9 @@ class DomainAddressTest(TestCase):
         assert domain_address.block_list_emails == True
 
     def test_storageless_user_cant_set_labels(self):
-        domain_address = DomainAddress.objects.create(user=self.storageless_user)
+        domain_address = DomainAddress.objects.create(
+            user=self.storageless_user, address="lower-case"
+        )
         assert domain_address.description == ""
         domain_address.description = "Arbitrary description"
         domain_address.save()

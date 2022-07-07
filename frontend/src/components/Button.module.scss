@@ -6,6 +6,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: $spacing-xs;
   cursor: pointer;
   background-color: $color-blue-50;
   padding: $spacing-sm $spacing-md;
@@ -34,10 +35,6 @@
     background-color: $color-light-gray-80;
   }
 
-  img {
-    margin: 0 $spacing-xs;
-  }
-
   &.is-destructive {
     background-color: $color-red-60;
 
@@ -48,6 +45,25 @@
     &:hover:not(:disabled) {
       background-color: $color-red-70;
       opacity: 1;
+    }
+  }
+
+  &.is-secondary {
+    background-color: transparent;
+    border: none;
+    color: $color-blue-50;
+
+    &:disabled {
+      opacity: 0.4;
+    }
+
+    &:active {
+      color: $color-blue-70;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: transparent;
+      color: $color-blue-60;
     }
   }
 }
