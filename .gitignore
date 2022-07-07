@@ -13,3 +13,6 @@ static/scss/libs
 staticfiles
 coverage/
 junit.xml
+/test-results/
+/playwright-report/
+/playwright/.cache/

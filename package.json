@@ -9,6 +9,7 @@
   "dependencies": {
     "@mozilla-protocol/core": "^14.0.3",
     "del": "^6.0.0",
+    "dotenv": "^16.0.1",
     "eslint": "^7.8.1",
     "gulp": "^4.0.2",
     "gulp-if": "^3.0.0",
@@ -18,6 +19,7 @@
     "sass": "1.32.13"
   },
   "devDependencies": {
+    "@playwright/test": "^1.22.2",
     "stylelint": "^13.13.1",
     "stylelint-config-recommended": "^5.0.0",
     "stylelint-scss": "^3.19.0"
@@ -35,11 +37,11 @@
     "url": "git+https://github.com/mozilla/fx-private-relay.git"
   },
   "scripts": {
+    "test:e2e": "npx playwright test",
     "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "eslint .",
     "lint:css": "stylelint static/scss/",
     "lint:fix-css": "stylelint --fix static/scss/",
-    "test": "echo \"Error: no test specified\" && exit 1",
     "heroku-postbuild": "cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
   },
   "volta": {
