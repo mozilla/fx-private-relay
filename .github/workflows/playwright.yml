@@ -9,7 +9,7 @@ jobs:
     name: 'Relay Application e2e Tests'
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright:v1.23.0-foca
+    container: mcr.microsoft.com/playwright:v1.23.0-focal
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
