@@ -232,6 +232,7 @@ $trackLineHeight: 4px;
     }
 
     .value-description-content {
+      width: $content-xs;
       display: flex;
       flex-direction: column;
       gap: $spacing-xs;
