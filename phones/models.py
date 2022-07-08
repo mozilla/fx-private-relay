@@ -67,7 +67,7 @@ class RealPhone(models.Model):
         max_length=8, default=verification_code_default
     )
     verification_sent_date = models.DateTimeField(
-        blank=True, null=True, db_index=True,
+        blank=True, null=True,
         default=verification_sent_date_default
     )
     verified = models.BooleanField(default=False)
