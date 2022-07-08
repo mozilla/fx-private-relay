@@ -49,12 +49,15 @@ export function getMockRandomAlias(
     domain: 1,
     enabled: true,
     block_list_emails: false,
+    block_level_one_trackers: false,
     generated_for: "",
     used_on: "",
     id: 0,
     num_blocked: 0,
     num_forwarded: 0,
     num_spam: 0,
+    num_replied: 0,
+    num_level_one_trackers_blocked: 0,
     ...alias,
   };
 }
@@ -73,10 +76,13 @@ export function getMockCustomAlias(
     domain: 2,
     enabled: true,
     block_list_emails: false,
+    block_level_one_trackers: false,
     id: 0,
     num_blocked: 0,
     num_forwarded: 0,
     num_spam: 0,
+    num_replied: 0,
+    num_level_one_trackers_blocked: 0,
     ...alias,
   };
 }

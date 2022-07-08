@@ -12,7 +12,7 @@ import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { isPremiumAvailableInCountry } from "../../../functions/getPlan";
-import { flagIsActive } from "../../../functions/waffle";
+import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
   theme: "free" | "premium";
@@ -38,10 +38,10 @@ export const Navigation = (props: Props) => {
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const isPremiumPage = router.pathname === "/premium";
 
-  const phoneLink = flagIsActive(runtimeData.data, "phones") ? (
+  const phoneLink = isFlagActive(runtimeData.data, "phones") ? (
     <Link href="/phone">
       <a
-        className={`$styles.link} ${
+        className={`${styles.link} ${
           router.pathname === "/phone" ? styles["is-active"] : null
         }`}
       >
@@ -99,7 +99,11 @@ export const Navigation = (props: Props) => {
 
       {/* if user is logged in and we have their profile data, show whatsnew menu */}
       {isLoggedIn && profile && (
-        <WhatsNewMenu profile={profile} style={styles["hidden-mobile"]} />
+        <WhatsNewMenu
+          runtimeData={runtimeData.data}
+          profile={profile}
+          style={styles["hidden-mobile"]}
+        />
       )}
 
       {/* Only show the upgrade button if the following conditions are met: 

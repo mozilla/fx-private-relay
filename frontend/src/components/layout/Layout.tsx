@@ -5,34 +5,32 @@ import {
   useEffect,
   useState,
 } from "react";
-import Head from "next/head";
 import Link from "next/link";
-import { useRouter } from "next/router";
 import { useLocalization } from "@fluent/react";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./Layout.module.scss";
-import logoTypeLight from "../../../../static/images/fx-private-relay-logotype-light.svg";
-import logoTypeDark from "../../../../static/images/fx-private-relay-logotype-dark.svg";
-import logoTypePremiumLight from "../../../../static/images/fx-private-relay-premium-logotype-light.svg";
-import logoTypePremiumDark from "../../../../static/images/fx-private-relay-premium-logotype-dark.svg";
-import logo from "../../../../static/images/placeholder-logo.svg";
-import mozillaLogo from "../../../../static/images/logos/moz-logo-bw-rgb.svg";
-import favicon from "../../../public/favicon.svg";
-import socialMediaImage from "../../../../static/images/share-relay.jpg";
+import logoTypeLight from "./images/fx-private-relay-logotype-light.svg";
+import logoTypeDark from "./images/fx-private-relay-logotype-dark.svg";
+import logoTypePremiumLight from "./images/fx-private-relay-premium-logotype-light.svg";
+import logoTypePremiumDark from "./images/fx-private-relay-premium-logotype-dark.svg";
+import logo from "./images/relay-logo.svg";
+import mozillaLogo from "./images/moz-logo-bw-rgb.svg";
 import { useProfiles } from "../../hooks/api/profile";
 import { Navigation } from "./navigation/Navigation";
 import { useIsLoggedIn } from "../../hooks/session";
-import { getRuntimeConfig } from "../../config";
 import { TopMessage } from "./topmessage/TopMessage";
 import { makeToast } from "../../functions/makeToast";
 import { useUsers } from "../../hooks/api/user";
 import { MobileNavigation } from "./navigation/MobileNavigation";
 import { CloseIcon } from "../Icons";
+import { PageMetadata } from "./PageMetadata";
+import { RuntimeData } from "../../hooks/api/runtimeData";
 
 export type Props = {
   children: ReactNode;
   theme?: "free" | "premium";
+  runtimeData?: RuntimeData;
 };
 
 /**
@@ -42,7 +40,6 @@ export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
-  const router = useRouter();
   const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const usersData = useUsers().data?.[0];
   const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>();
@@ -103,36 +100,13 @@ export const Layout = (props: Props) => {
 
   return (
     <>
-      <Head>
-        <link rel="icon" type="image/svg+xml" href={favicon.src}></link>
-        <title>{l10n.getString("meta-title")}</title>
-        <meta
-          name="description"
-          content={l10n.getString("meta-description-2")}
-        />
-        <meta
-          property="og:url"
-          content={getRuntimeConfig().frontendOrigin + router.asPath}
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content={l10n.getString("meta-title")} />
-        <meta
-          property="og:description"
-          content={l10n.getString("meta-description-2")}
-        />
-        <meta property="og:image" content={socialMediaImage.src} />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@firefox" />
-        <meta name="twitter:title" content={l10n.getString("meta-title")} />
-        <meta
-          name="twitter:description"
-          content={l10n.getString("meta-description-2")}
-        />
-        <meta name="twitter:image" content={socialMediaImage.src} />
-      </Head>
+      <PageMetadata />
       <div className={styles.wrapper}>
         {apiMockWarning}
-        <TopMessage profile={profiles.data?.[0]} />
+        <TopMessage
+          profile={profiles.data?.[0]}
+          runtimeData={props.runtimeData}
+        />
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles["logo-wrapper"]}>
             <Link href={homePath}>

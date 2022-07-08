@@ -2,6 +2,7 @@ import { useLocalization } from "@fluent/react";
 import { Key, ReactNode, useRef } from "react";
 import { useMenu, useMenuItem } from "react-aria";
 import { Item, TreeProps, TreeState, useTreeState } from "react-stately";
+import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import EmptyStateHero from "./images/empty-hero.png";
 import styles from "./WhatsNewList.module.scss";
 import { WhatsNewEntry } from "./WhatsNewMenu";
@@ -44,11 +45,7 @@ export const WhatsNewList = (props: Props) => {
       {props.entries.map((entry) => {
         return (
           <Item key={encodeURI(entry.title)} textValue={entry.title}>
-            <img src={entry.icon} alt="" />
-            <div className={styles.text}>
-              <h3>{entry.title}</h3>
-              <p>{entry.snippet}</p>
-            </div>
+            <ItemWrapper entry={entry} />
           </Item>
         );
       })}
@@ -109,5 +106,25 @@ const WhatsNewListMenuItem = (props: WhatsNewListMenuItemProps) => {
     <li {...menuItemProps} ref={menuItemRef}>
       <div className={styles.item}>{props.item.rendered}</div>
     </li>
+  );
+};
+
+type ItemWrapperProps = {
+  entry: WhatsNewEntry;
+};
+const ItemWrapper = (props: ItemWrapperProps) => {
+  const wrapperRef = useGaViewPing({
+    category: "News",
+    label: props.entry.title + " (snippet)",
+  });
+
+  return (
+    <div ref={wrapperRef} className={styles.item}>
+      <img src={props.entry.icon} alt="" />
+      <div className={styles.text}>
+        <h3>{props.entry.title}</h3>
+        <p>{props.entry.snippet}</p>
+      </div>
+    </div>
   );
 };

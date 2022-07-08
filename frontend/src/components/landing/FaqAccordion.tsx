@@ -2,7 +2,7 @@ import { ReactNode, useRef } from "react";
 import { useToggleButton } from "react-aria";
 import { useToggleState } from "react-stately";
 import styles from "./FaqAccordion.module.scss";
-import PlusIcon from "../../../../static/images/icon-plus-sign.svg";
+import { PlusIcon } from "../Icons";
 
 export type Entry = {
   q: string;
@@ -38,7 +38,7 @@ const QAndA = (props: { entry: Entry }) => {
       <dt>
         <button {...buttonProps} ref={buttonRef}>
           <span>{props.entry.q}</span>
-          <img src={PlusIcon.src} alt="" className={styles["plus-icon"]} />
+          <PlusIcon alt="" className={styles["plus-icon"]} />
         </button>
       </dt>
       <dd>{props.entry.a}</dd>

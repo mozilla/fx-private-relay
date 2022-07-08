@@ -38,7 +38,7 @@
 
       &::before {
         content: counter(step-counter);
-        background-image: url("../../../../static/images/dashboard-onboarding/shield.svg");
+        background-image: url("./images/shield.svg");
         background-position: center;
         background-repeat: no-repeat;
         line-height: 45px;

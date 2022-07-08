@@ -69,6 +69,10 @@
       align-items: center;
       gap: $spacing-xs;
       padding-bottom: $spacing-xs;
+
+      svg {
+        color: $color-blue-50;
+      }
     }
 
     samp {

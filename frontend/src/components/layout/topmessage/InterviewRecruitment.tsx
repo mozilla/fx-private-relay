@@ -1,7 +1,6 @@
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./InterviewRecruitment.module.scss";
-import { getRuntimeConfig } from "../../../config";
 import { ProfileData } from "../../../hooks/api/profile";
 import { CloseIcon } from "../../Icons";
 import { useLocalDismissal } from "../../../hooks/localDismissal";
@@ -34,8 +33,6 @@ export const InterviewRecruitment = (props: Props) => {
 
   // Only show if...
   if (
-    // ...interview recruitment is enabled in the first place,
-    getRuntimeConfig().featureFlags.interviewRecruitment !== true ||
     // ...the user is currently looking at the dashboard,
     router.pathname !== "/accounts/profile" ||
     // ...the user hasn't closed the recruitment banner before,

@@ -84,7 +84,7 @@ const PremiumWaitlist: NextPage = () => {
   };
 
   return (
-    <Layout theme="premium">
+    <Layout theme="premium" runtimeData={runtimeData.data}>
       <main className={styles.wrapper}>
         <form onSubmit={onSubmit} className={styles.form}>
           <h2 className={styles.heading}>

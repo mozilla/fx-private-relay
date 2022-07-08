@@ -69,15 +69,14 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     return True
 
 
+# This historical function is referenced in migration 0029_profile_add_deleted_metric_and_changeserver_storage_default
 def default_server_storage():
-    return datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE
+    return True
 
 
 def default_domain_numerical():
     domains = get_domains_from_settings()
-    domain = domains["RELAY_FIREFOX_DOMAIN"]
-    if datetime.now(timezone.utc) > settings.PREMIUM_RELEASE_DATE:
-        domain = domains["MOZMAIL_DOMAIN"]
+    domain = domains["MOZMAIL_DOMAIN"]
     return get_domain_numerical(domain)
 
 
@@ -102,7 +101,10 @@ class Profile(models.Model):
         db_index=True,
         validators=[valid_available_subdomain],
     )
-    server_storage = models.BooleanField(default=default_server_storage)
+    server_storage = models.BooleanField(default=True)
+    # TODO: Data migration to set null to false
+    # TODO: Schema migration to remove null=True
+    remove_level_one_email_trackers = models.BooleanField(null=True, default=False)
     onboarding_state = models.PositiveIntegerField(default=0)
     auto_block_spam = models.BooleanField(default=False)
 
@@ -125,7 +127,7 @@ class Profile(models.Model):
 
     @property
     def language(self):
-        if self.fxa.extra_data.get("locale"):
+        if self.fxa and self.fxa.extra_data.get("locale"):
             for accept_lang, _ in parse_accept_lang_header(
                 self.fxa.extra_data.get("locale")
             ):
@@ -142,7 +144,7 @@ class Profile(models.Model):
     # sending an email, this method can be useful.
     @property
     def fxa_locale_in_premium_country(self):
-        if self.fxa.extra_data.get("locale"):
+        if self.fxa and self.fxa.extra_data.get("locale"):
             accept_langs = parse_accept_lang_header(self.fxa.extra_data.get("locale"))
             if (
                 len(accept_langs) >= 1
@@ -300,7 +302,7 @@ class Profile(models.Model):
     @property
     def joined_before_premium_release(self):
         date_created = self.user.date_joined
-        return date_created < settings.PREMIUM_RELEASE_DATE
+        return date_created < datetime.fromisoformat("2021-10-22 17:00:00+00:00")
 
     def add_subdomain(self, subdomain):
         # subdomain must be all lowercase
@@ -543,7 +545,15 @@ def check_user_can_make_another_address(user):
         raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG.format(hit_limit))
 
 
+def valid_address_pattern(address):
+    #   can't start or end with a hyphen
+    #   must be 1-63 lowercase alphanumeric characters and/or hyphens
+    valid_address_pattern = re.compile("^(?!-)[a-z0-9-]{1,63}(?<!-)$")
+    return valid_address_pattern.match(address) is not None
+
+
 def valid_address(address, domain):
+    address_pattern_valid = valid_address_pattern(address)
     address_contains_badword = has_bad_words(address)
     address_is_blocklisted = is_blocklisted(address)
     address_already_deleted = DeletedAddress.objects.filter(
@@ -553,6 +563,7 @@ def valid_address(address, domain):
         address_already_deleted > 0
         or address_contains_badword
         or address_is_blocklisted
+        or not address_pattern_valid
     ):
         return False
     return True
@@ -613,6 +624,12 @@ class DomainAddress(models.Model):
         user_profile = self.user.profile_set.first()
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
+            pattern_valid = valid_address_pattern(self.address)
+            address_contains_badword = has_bad_words(self.address)
+            if not pattern_valid or address_contains_badword:
+                raise CannotMakeAddressException(
+                    TRY_DIFFERENT_VALUE_ERR_MSG.format(f"Domain address {self.address}")
+                )
             user_profile.update_abuse_metric(address_created=True)
         # TODO: validate user is premium to set block_list_emails
         if not user_profile.server_storage:
@@ -634,11 +651,6 @@ class DomainAddress(models.Model):
             # DomainAlias will be a feature
             address = address_default()
             # Only check for bad words if randomly generated
-            address_contains_badword = has_bad_words(address)
-        if address_contains_badword:
-            raise CannotMakeAddressException(
-                TRY_DIFFERENT_VALUE_ERR_MSG.format("Email address with subdomain")
-            )
 
         domain_address = DomainAddress.objects.create(
             user=user_profile.user,

@@ -17,8 +17,10 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
-from . import views
+from allauth.account import views as allauth_views
+from allauth.socialaccount.providers.fxa import views as fxa_views
 
+from . import views
 
 urlpatterns = [
     # Dockerflow endpoint
@@ -28,28 +30,17 @@ urlpatterns = [
     # FXA endpoints
     path("fxa-rp-events", views.fxa_rp_events),
     path("metrics-event", views.metrics_event),
+    path("accounts/fxa/login/", fxa_views.oauth2_login, name="fxa_login"),
+    path(
+        "accounts/fxa/login/callback/", fxa_views.oauth2_callback, name="fxa_callback"
+    ),
+    path("accounts/logout/", allauth_views.logout, name="account_logout"),
     path(
         "accounts/profile/subdomain", views.profile_subdomain, name="profile_subdomain"
     ),
     path("accounts/profile/refresh", views.profile_refresh, name="profile_refresh"),
-    path("accounts/", include("allauth.urls")),
     path("api/", include("api.urls")),
-    path("faq", views.faq, name="faq"),
 ]
-
-if not settings.SERVE_REACT:
-    urlpatterns += [
-        path("accounts/profile/", views.profile, name="profile"),
-        path("accounts/settings/", views.settings_view, name="settings"),
-        # This redirects users back to the homepage after updating settings
-        path(
-            "accounts/profile/settings_update",
-            views.settings_update_view,
-            name="settings-update",
-        ),
-        path("premium", views.premium_promo, name="premium-promo"),
-        path("", views.home, name="home"),
-    ]
 
 if settings.DEBUG:
     import debug_toolbar

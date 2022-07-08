@@ -1,0 +1,9 @@
+// This class can be used for elements in monochrome icons whose `fill` attribute determines their colour:
+.colorify-fill {
+  fill: currentcolor;
+}
+
+// This class can be used for elements in monochrome icons whose `stroke` attribute determines their colour:
+.colorify-stroke {
+  stroke: currentcolor;
+}

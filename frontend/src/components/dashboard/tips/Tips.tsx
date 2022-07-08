@@ -13,8 +13,7 @@ import { useTabListState, TabListState, Item } from "react-stately";
 import { useInView } from "react-intersection-observer";
 import { event as gaEvent } from "react-ga";
 import styles from "./Tips.module.scss";
-import arrowDownIcon from "../../../../../static/images/arrowhead.svg";
-import { InfoIcon } from "../../Icons";
+import { ArrowDownIcon, InfoIcon } from "../../Icons";
 import { ProfileData } from "../../../hooks/api/profile";
 import {
   DismissalData,
@@ -63,7 +62,7 @@ export const Tips = (props: Props) => {
     tips.push(customMaskTip);
   }
 
-  if (tips.length === 0 || getRuntimeConfig().featureFlags.tips !== true) {
+  if (tips.length === 0) {
     return null;
   }
 
@@ -87,8 +86,7 @@ export const Tips = (props: Props) => {
         </span>
         <h2>{l10n.getString("tips-header-title")}</h2>
         <button onClick={() => minimise()} className={styles["close-button"]}>
-          <img
-            src={arrowDownIcon.src}
+          <ArrowDownIcon
             alt={l10n.getString("tips-header-button-close-label")}
             width={20}
             height={20}
@@ -160,8 +158,7 @@ export const Tips = (props: Props) => {
             className={styles["close-button"]}
             aria-label={l10n.getString("tips-header-button-close-label")}
           >
-            <img
-              src={arrowDownIcon.src}
+            <ArrowDownIcon
               alt={l10n.getString("tips-header-button-close-label")}
               width={20}
               height={20}

@@ -4,12 +4,45 @@ import { Localized, useLocalization } from "@fluent/react";
 import styles from "./faq.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { getRuntimeConfig } from "../config";
+import { useRuntimeData } from "../hooks/api/runtimeData";
+import { isFlagActive } from "../functions/waffle";
 
 const Faq: NextPage = () => {
   const { l10n } = useLocalization();
+  const runtimeData = useRuntimeData();
+
+  const trackerBlockingFaqs = isFlagActive(
+    runtimeData.data,
+    "tracker_removal"
+  ) ? (
+    <>
+      <QAndA
+        id="faq-disable-trackerremoval"
+        question={l10n.getString(
+          "faq-question-disable-trackerremoval-question"
+        )}
+      >
+        <p>{l10n.getString("faq-question-disable-trackerremoval-answer")}</p>
+      </QAndA>
+      <QAndA
+        id="faq-bulk-trackerremoval"
+        question={l10n.getString("faq-question-bulk-trackerremoval-question")}
+      >
+        <p>{l10n.getString("faq-question-bulk-trackerremoval-answer")}</p>
+      </QAndA>
+      <QAndA
+        id="faq-trackerremoval-breakage"
+        question={l10n.getString(
+          "faq-question-trackerremoval-breakage-question"
+        )}
+      >
+        <p>{l10n.getString("faq-question-trackerremoval-breakage-answer")}</p>
+      </QAndA>
+    </>
+  ) : null;
 
   return (
-    <Layout theme="free">
+    <Layout theme="free" runtimeData={runtimeData.data}>
       <main>
         <div className={styles["faq-page"]}>
           <div className={styles["faqs-wrapper"]}>
@@ -317,6 +350,7 @@ const Faq: NextPage = () => {
                   {l10n.getString("faq-question-detect-promotional-answer")}
                 </p>
               </QAndA>
+              {trackerBlockingFaqs}
             </div>
           </div>
         </div>

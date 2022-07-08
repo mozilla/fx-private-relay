@@ -4,15 +4,15 @@ import Link from "next/link";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./index.module.scss";
-import Testimonials from "../../../static/images/newlanding/a/hero-brands.svg";
-import HowItWorks1 from "../../../static/images/how-it-works/how-it-works-1.svg";
-import HowItWorks2 from "../../../static/images/how-it-works/how-it-works-2.svg";
-import HowItWorks3 from "../../../static/images/how-it-works/how-it-works-3.svg";
-import ShoppingIllustration from "../../../static/images/use-case-shopping.svg";
-import SocialNetworksIllustration from "../../../static/images/use-case-social-networks.svg";
-import OfflineIllustration from "../../../static/images/use-case-offline.svg";
-import AccessContentIllustration from "../../../static/images/use-case-access-content.svg";
-import GamingIllustration from "../../../static/images/use-case-gaming.svg";
+import Testimonials from "../../public/images/hero-brands.svg";
+import HowItWorks1 from "../../public/images/how-it-works-1.svg";
+import HowItWorks2 from "../../public/images/how-it-works-2.svg";
+import HowItWorks3 from "../../public/images/how-it-works-3.svg";
+import ShoppingIllustration from "../../public/images/use-case-shopping.svg";
+import SocialNetworksIllustration from "../../public/images/use-case-social-networks.svg";
+import OfflineIllustration from "../../public/images/use-case-offline.svg";
+import AccessContentIllustration from "../../public/images/use-case-access-content.svg";
+import GamingIllustration from "../../public/images/use-case-gaming.svg";
 import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
 import SignupsHero from "../components/landing/carousel/images/signups-hero.svg";
 import OnTheGoConnect from "../components/landing/carousel/images/onthego-illustration-connect.svg";
@@ -74,10 +74,17 @@ const Home: NextPage = () => {
         </div>
       </div>
     </section>
-  ) : null;
+  ) : (
+    /* Show waitlist prompt if user is a non-premium country */
+    <section id="pricing" className={styles["plans-wrapper"]}>
+      <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
+        <Plans />
+      </div>
+    </section>
+  );
 
   return (
-    <Layout>
+    <Layout runtimeData={runtimeData.data}>
       <main>
         <section id="hero" className={styles.hero}>
           <div className={styles.lead}>

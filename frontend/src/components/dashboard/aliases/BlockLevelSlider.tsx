@@ -24,11 +24,11 @@ import {
 import { event as gaEvent } from "react-ga";
 import styles from "./BlockLevelSlider.module.scss";
 import UmbrellaClosed from "./images/umbrella-closed.svg";
-import UmbrellaClosedMobile from "../../../../../static/images/umbrella-closed-mobile.svg";
+import UmbrellaClosedMobile from "./images/umbrella-closed-mobile.svg";
 import UmbrellaSemi from "./images/umbrella-semi.svg";
-import UmbrellaSemiMobile from "../../../../../static/images/umbrella-semi-mobile.svg";
+import UmbrellaSemiMobile from "./images/umbrella-semi-mobile.svg";
 import UmbrellaOpen from "./images/umbrella-open.svg";
-import UmbrellaOpenMobile from "../../../../../static/images/umbrella-open-mobile.svg";
+import UmbrellaOpenMobile from "./images/umbrella-open-mobile.svg";
 import { AliasData } from "../../../hooks/api/aliases";
 import { CloseIcon, LockIcon } from "../../Icons";
 

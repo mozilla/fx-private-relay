@@ -1,5 +1,5 @@
-@import "../../styles/tokens.scss";
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../styles/tokens.scss";
 
 .settings-page {
   display: flex;
@@ -33,9 +33,11 @@
         text-decoration: underline;
       }
 
-      img {
+      img,
+      svg.menu-icon {
         // The size of text-body-lg, i.e. the same size as the containing <a>'s font:
         width: remify(type-scale("body-lg-size"));
+        color: $color-violet-40;
       }
     }
   }
@@ -125,6 +127,11 @@ $field-gap: $spacing-lg;
     width: 100%;
     padding: $spacing-md $spacing-lg;
     border-radius: $border-radius-sm;
+
+    svg {
+      color: $color-yellow-50;
+      flex: 1 0 1;
+    }
   }
 }
 
@@ -134,6 +141,7 @@ $field-gap: $spacing-lg;
 
 .copy-api-key-content {
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   gap: $spacing-md;
   align-items: center;
@@ -148,6 +156,23 @@ $field-gap: $spacing-lg;
   white-space: nowrap;
   overflow: hidden;
   font-family: monospace;
+  max-width: 200px;
+  text-overflow: ellipsis;
+
+  @media screen and #{$mq-md} {
+    max-width: 350px;
+  }
+}
+
+.settings-api-key-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.settings-api-key-copy {
+  width: 100%;
 }
 
 .copy-button-wrapper {
@@ -162,17 +187,15 @@ $field-gap: $spacing-lg;
     border: 0;
     background-color: transparent;
     text-align: center;
+    color: $color-grey-20;
     cursor: pointer;
 
-    img {
-      opacity: 0.5;
+    svg {
       width: $layout-xs;
     }
 
     &:hover {
-      img {
-        opacity: 1;
-      }
+      color: $color-grey-30;
     }
   }
 

@@ -1,5 +1,6 @@
 import { SWRResponse } from "swr";
 import { apiFetch, useApiV1 } from "./api";
+import { ProfileData } from "./profile";
 
 type DateTimeString = string;
 type Domain_RelayFirefoxCom = 1;
@@ -8,6 +9,7 @@ export type CommonAliasData = {
   mask_type: "random" | "custom";
   enabled: boolean;
   block_list_emails: boolean;
+  block_level_one_trackers: boolean;
   description: string | "";
   id: number;
   address: string;
@@ -20,6 +22,7 @@ export type CommonAliasData = {
   num_blocked: number;
   num_spam: number;
   num_replied: number;
+  num_level_one_trackers_blocked: number;
   used_on: string | "" | null;
 };
 
@@ -151,4 +154,31 @@ export function getAllAliases(
 
 export function getFullAddress(alias: AliasData) {
   return alias.full_address;
+}
+
+/**
+ * This is a temporary function to prepare for mask-specific tracker blocking.
+ *
+ * There are plans to allow enabling/disabling tracker blocking per mask.
+ * However, at the time of writing, it is only possible to disable it for all
+ * masks at the same time. And since we still have mask-specific indicators
+ * to show that it is currently blocking trackers, this function makes us
+ * forwards-compatible with when mask-specific tracker blocking is added.
+ *
+ * Once it has been added, this function can be removed, and all call sites of
+ * the function can simply look directly at the relevant `alias` property
+ * (`block_level_one_trackers`, at the time of writing).
+ */
+export function isBlockingLevelOneTrackers(
+  alias: AliasData,
+  profile: ProfileData
+): boolean {
+  if (typeof alias.block_level_one_trackers === "boolean") {
+    return alias.block_level_one_trackers;
+  }
+
+  return (
+    typeof profile.remove_level_one_email_trackers === "boolean" &&
+    profile.remove_level_one_email_trackers
+  );
 }

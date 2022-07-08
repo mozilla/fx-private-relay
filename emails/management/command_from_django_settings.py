@@ -20,7 +20,7 @@ class RawDescriptionDjangoHelpFormatter(
 
 
 SettingToLocal = namedtuple(
-    "Setting", ["setting_key", "local_name", "help_str", "validator"]
+    "SettingToLocal", ["setting_key", "local_name", "help_str", "validator"]
 )
 
 

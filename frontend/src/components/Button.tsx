@@ -8,9 +8,13 @@ import styles from "./Button.module.scss";
 
 export type Props = {
   children: ReactNode;
-  variant?: "normal" | "destructive";
+  variant?: "destructive" | "secondary";
 };
 
+const variants = {
+  destructive: styles["is-destructive"],
+  secondary: styles["is-secondary"],
+};
 /**
  * Standard consistent styles for primary buttons.
  *
@@ -27,7 +31,7 @@ export const Button = forwardRef<
       {...props}
       ref={ref}
       className={`${styles.button} ${props.className} ${
-        props.variant === "destructive" ? styles["is-destructive"] : ""
+        props.variant !== undefined ? variants[props.variant] : ""
       }`}
     />
   );

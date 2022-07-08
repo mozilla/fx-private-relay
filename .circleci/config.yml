@@ -19,7 +19,7 @@ commands:
 executors:
   python:
     docker:
-      - image: cimg/python:3.9.12
+      - image: cimg/python:3.9.13
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -235,7 +235,7 @@ jobs:
 
   upload_coverage:
     docker:
-      - image: cimg/python:3.9.12-node
+      - image: cimg/python:3.9.13-node
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -303,6 +303,9 @@ jobs:
             - run:
                 name: Create job-results directory
                 command: mkdir job-results
+      - run:
+          name: Set test defaults
+          command: cp .env-dist .env
       - unless:
           condition: << parameters.allow_fail >>
           steps:
@@ -324,7 +327,7 @@ jobs:
 
   python_test_postgres:
     docker:
-      - image: cimg/python:3.9.12
+      - image: cimg/python:3.9.13
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -384,6 +387,24 @@ workflows:
       - python_job:
           name: black style check
           command: black --check .
+          allow_fail: true
+          filters:
+            tags:
+              only: /.*/
+
+      - python_job:
+          name: mypy type check
+          command: mypy --no-incremental --junit-xml job-results/mypy.xml .
+          has_results: true
+          allow_fail: true
+          filters:
+            tags:
+              only: /.*/
+
+      - python_job:
+          name: mypy strict type check
+          command: mypy --strict --no-incremental --junit-xml job-results/mypy.xml .
+          has_results: true
           allow_fail: true
           filters:
             tags:

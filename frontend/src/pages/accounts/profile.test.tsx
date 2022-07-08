@@ -438,11 +438,11 @@ describe("The dashboard", () => {
 
     render(<Profile />);
 
-    const searchFilter = screen.getByLabelText(
+    const searchFilter = screen.getAllByLabelText(
       "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
     );
 
-    expect(searchFilter).toBeInTheDocument();
+    expect(searchFilter[0]).toBeInTheDocument();
   });
 
   it("also shows a search field to filter aliases if the user does not have Premium", () => {
@@ -450,11 +450,11 @@ describe("The dashboard", () => {
 
     render(<Profile />);
 
-    const searchFilter = screen.getByLabelText(
+    const searchFilter = screen.getAllByLabelText(
       "l10n string: [profile-filter-search-placeholder-2], with vars: {}"
     );
 
-    expect(searchFilter).toBeInTheDocument();
+    expect(searchFilter[0]).toBeInTheDocument();
   });
 
   it("shows the Premium onboarding when the user has Premium and hasn't completed the onboarding yet", () => {
