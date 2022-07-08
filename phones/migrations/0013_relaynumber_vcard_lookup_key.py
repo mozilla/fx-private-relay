@@ -7,13 +7,17 @@ import phones.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('phones', '0012_relaynumber'),
+        ("phones", "0012_relaynumber"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='relaynumber',
-            name='vcard_lookup_key',
-            field=models.CharField(default=phones.models.vcard_lookup_key_default, max_length=6, unique=True),
+            model_name="relaynumber",
+            name="vcard_lookup_key",
+            field=models.CharField(
+                default=phones.models.vcard_lookup_key_default,
+                max_length=6,
+                unique=True,
+            ),
         ),
     ]

@@ -7,18 +7,20 @@ import phones.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('phones', '0009_realphone_verification_sent_date'),
+        ("phones", "0009_realphone_verification_sent_date"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='realphone',
-            name='number',
+            model_name="realphone",
+            name="number",
             field=models.CharField(max_length=15),
         ),
         migrations.AlterField(
-            model_name='realphone',
-            name='verification_code',
-            field=models.CharField(default=phones.models.verification_code_default, max_length=8),
+            model_name="realphone",
+            name="verification_code",
+            field=models.CharField(
+                default=phones.models.verification_code_default, max_length=8
+            ),
         ),
     ]

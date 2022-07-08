@@ -7,17 +7,26 @@ import phones.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('phones', '0010_auto_20220529_1600'),
+        ("phones", "0010_auto_20220529_1600"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='realphone',
-            name='verification_sent_date',
-            field=models.DateTimeField(blank=True, db_index=True, default=phones.models.verification_sent_date_default, null=True),
+            model_name="realphone",
+            name="verification_sent_date",
+            field=models.DateTimeField(
+                blank=True,
+                db_index=True,
+                default=phones.models.verification_sent_date_default,
+                null=True,
+            ),
         ),
         migrations.AddConstraint(
-            model_name='realphone',
-            constraint=models.UniqueConstraint(condition=models.Q(('verified', True)), fields=('number', 'verified'), name='unique_verified_number'),
+            model_name="realphone",
+            constraint=models.UniqueConstraint(
+                condition=models.Q(("verified", True)),
+                fields=("number", "verified"),
+                name="unique_verified_number",
+            ),
         ),
     ]

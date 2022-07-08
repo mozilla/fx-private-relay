@@ -9,19 +9,33 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('phones', '0005_session_expiration'),
+        ("phones", "0005_session_expiration"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='RealPhone',
+            name="RealPhone",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('number', models.CharField(max_length=15, unique=True)),
-                ('verification_code', models.CharField(max_length=8)),
-                ('verified', models.BooleanField(default=False)),
-                ('verified_date', models.DateTimeField()),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("number", models.CharField(max_length=15, unique=True)),
+                ("verification_code", models.CharField(max_length=8)),
+                ("verified", models.BooleanField(default=False)),
+                ("verified_date", models.DateTimeField()),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
