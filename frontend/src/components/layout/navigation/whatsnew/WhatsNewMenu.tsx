@@ -22,33 +22,13 @@ import {
 import { useOverlayTriggerState } from "react-stately";
 import { event as gaEvent } from "react-ga";
 import styles from "./WhatsNewMenu.module.scss";
-import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
-import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
-import SignBackInHero from "./images/sign-back-in-hero.svg";
-import SignBackInIcon from "./images/sign-back-in-icon.svg";
-import ForwardSomeHero from "./images/forward-some-hero.svg";
-import ForwardSomeIcon from "./images/forward-some-icon.svg";
-import aliasToMaskHero from "./images/alias-to-mask-hero.svg";
-import aliasToMaskIcon from "./images/alias-to-mask-icon.svg";
-import TrackerRemovalHero from "./images/tracker-removal-hero.svg";
-import TrackerRemovalIcon from "./images/tracker-removal-icon.svg";
-import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
-import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
-import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
-import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
-import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
   useLocalDismissal,
 } from "../../../../hooks/localDismissal";
 import { ProfileData } from "../../../../hooks/api/profile";
-import { WhatsNewDashboard } from "./WhatsNewDashboard";
-import { useAddonData } from "../../../../hooks/addon";
-import { isUsingFirefox } from "../../../../functions/userAgent";
-import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
-import { isFlagActive } from "../../../../functions/waffle";
-import { WhatsNewEntries } from "./WhatsNewEntries";
+import { getPillNum, WhatsNewEntries } from "./WhatsNewEntries";
 
 export type WhatsNewEntry = {
   title: string;
@@ -117,8 +97,10 @@ export const WhatsNewMenu = (props: Props) => {
           triggerState.isOpen ? styles["is-open"] : ""
         } ${props.style}`}
       >
-        {l10n.getString("whatsnew-trigger-label")}
-        {/* {pill} */}
+        <>
+          {l10n.getString("whatsnew-trigger-label")}
+          {getPillNum}
+        </>
       </button>
       {triggerState.isOpen && (
         <OverlayContainer>
@@ -130,11 +112,6 @@ export const WhatsNewMenu = (props: Props) => {
             isOpen={triggerState.isOpen}
             onClose={() => triggerState.close()}
           >
-            {/* <WhatsNewDashboard
-              new={newEntries}
-              archive={entries}
-              onClose={() => triggerState.close()}
-            /> */}
             <WhatsNewEntries />
           </WhatsNewPopover>
         </OverlayContainer>

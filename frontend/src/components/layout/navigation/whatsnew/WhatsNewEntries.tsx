@@ -1,5 +1,5 @@
 import { useLocalization } from "@fluent/react";
-import { ReactNode } from "react";
+import { ReactFragment, ReactNode } from "react";
 import { getLocale } from "../../../../functions/getLocale";
 // import { isUsingFirefox } from "../../../../functions/userAgent";
 import { isFlagActive } from "../../../../functions/waffle";
@@ -26,8 +26,10 @@ import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import styles from "./WhatsNewMenu.module.scss";
+import { useAddonData } from "../../../../hooks/addon";
+import { isUsingFirefox } from "../../../../functions/userAgent";
 
-type WhatsNewEntry = {
+export type WhatsNewEntry = {
   title: string;
   snippet: string;
   content: ReactNode;
@@ -54,6 +56,7 @@ export type Props = {
 export const WhatsNewEntries = (props: Props) => {
   const { l10n } = useLocalization();
   const profile = useProfiles();
+  const addonData = useAddonData();
 
   const entries: WhatsNewEntry[] = [
     {
@@ -143,9 +146,9 @@ export const WhatsNewEntries = (props: Props) => {
       day: 1,
     },
   };
-  // if (addonData.present && isUsingFirefox()) {
-  //   entries.push(signBackInEntry);
-  // }
+  if (addonData.present && isUsingFirefox()) {
+    entries.push(signBackInEntry);
+  }
   entries.push(signBackInEntry);
 
   const aliasToMask: WhatsNewEntry = {
@@ -319,6 +322,10 @@ export const WhatsNewEntries = (props: Props) => {
     return !entry.dismissal.isDismissed && !isExpired;
   });
 
+  if (entries.length === 0) {
+    return null;
+  }
+
   const pill =
     newEntries.length > 0 ? (
       <i
@@ -331,9 +338,15 @@ export const WhatsNewEntries = (props: Props) => {
       </i>
     ) : null;
 
+  getPillNum(pill);
+
   return (
     <>
       <WhatsNewDashboard new={newEntries} archive={entries} />
     </>
   );
+};
+
+export const getPillNum = (pillnumval: JSX.Element | null) => {
+  return { pillnumval };
 };
