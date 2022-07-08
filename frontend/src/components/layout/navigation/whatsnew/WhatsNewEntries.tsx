@@ -28,6 +28,8 @@ import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import styles from "./WhatsNewMenu.module.scss";
 import { useAddonData } from "../../../../hooks/addon";
 import { isUsingFirefox } from "../../../../functions/userAgent";
+import { useOverlayTriggerState } from "react-stately";
+import { event as gaEvent } from "react-ga";
 
 export type WhatsNewEntry = {
   title: string;
@@ -51,10 +53,20 @@ export type WhatsNewEntry = {
 export type Props = {
   style?: string;
   runtimeData?: RuntimeData;
+  onClose?: () => void;
 };
 
 export const WhatsNewEntries = (props: Props) => {
   const { l10n } = useLocalization();
+  // const triggerState = useOverlayTriggerState({
+  //   onOpenChange(isOpen) {
+  //     gaEvent({
+  //       category: "News",
+  //       action: isOpen ? "Open" : "Close",
+  //       label: "header-nav",
+  //     });
+  //   },
+  // });
   const profile = useProfiles();
   const addonData = useAddonData();
 
@@ -342,7 +354,13 @@ export const WhatsNewEntries = (props: Props) => {
 
   return (
     <>
-      <WhatsNewDashboard new={newEntries} archive={entries} />
+      {props.onClose && (
+        <WhatsNewDashboard
+          new={newEntries}
+          archive={entries}
+          onClose={props.onClose}
+        />
+      )}
     </>
   );
 };

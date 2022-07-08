@@ -6,12 +6,13 @@ import { event as gaEvent } from "react-ga";
 import { CloseIcon } from "../../../Icons";
 import styles from "./WhatsNewDashboard.module.scss";
 import { WhatsNewList } from "./WhatsNewList";
-import { WhatsNewEntry } from "./WhatsNewMenu";
+// import { WhatsNewEntry } from "./WhatsNewMenu";
+import { WhatsNewEntry } from "./WhatsNewEntries";
 
 export type Props = {
   new: WhatsNewEntry[];
   archive: WhatsNewEntry[];
-  onClose?: () => void;
+  onClose: () => void;
 };
 
 export const WhatsNewDashboard = (props: Props) => {
@@ -100,7 +101,7 @@ export const WhatsNewDashboard = (props: Props) => {
 };
 
 type TabProps = Parameters<typeof useTabListState>[0] & {
-  onClose: () => void;
+  onClose?: () => void;
   onCollapseEntry: () => void;
   expandedEntry?: WhatsNewEntry;
   /** Should be undefined if there are no entries to clear; the "Clear all" link will then not show up. */
@@ -149,7 +150,7 @@ const Tabs = (props: TabProps) => {
           </div>
         </div>
         <button
-          onClick={() => props.onClose()}
+          onClick={() => props.onClose}
           className={styles["close-button"]}
           title={l10n.getString("whatsnew-close-label")}
         >

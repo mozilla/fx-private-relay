@@ -112,7 +112,7 @@ export const WhatsNewMenu = (props: Props) => {
             isOpen={triggerState.isOpen}
             onClose={() => triggerState.close()}
           >
-            <WhatsNewEntries />
+            <WhatsNewEntries onClose={() => triggerState.close()} />
           </WhatsNewPopover>
         </OverlayContainer>
       )}
@@ -162,19 +162,3 @@ const WhatsNewPopover = forwardRef<HTMLDivElement, PopoverProps>(
   }
 );
 WhatsNewPopover.displayName = "WhatsNewPopover";
-
-const entriesDescByDateSorter: Parameters<Array<WhatsNewEntry>["sort"]>[0] = (
-  entryA,
-  entryB
-) => {
-  const dateANr =
-    entryA.announcementDate.year +
-    entryA.announcementDate.month / 100 +
-    entryA.announcementDate.day / 10000;
-  const dateBNr =
-    entryB.announcementDate.year +
-    entryB.announcementDate.month / 100 +
-    entryB.announcementDate.day / 10000;
-
-  return dateBNr - dateANr;
-};
