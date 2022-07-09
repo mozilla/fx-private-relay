@@ -138,14 +138,6 @@ export const Layout = (props: Props) => {
           </div>
         </header>
 
-        <MobileNavigation
-          mobileMenuExpanded={mobileMenuExpanded}
-          hasPremium={hasPremium}
-          isLoggedIn={isLoggedIn}
-          userEmail={usersData?.email}
-          userAvatar={profiles.data?.[0].avatar}
-        />
-
         <ToastContainer
           icon={false}
           position={toast.POSITION.TOP_CENTER}
@@ -157,59 +149,69 @@ export const Layout = (props: Props) => {
           toastClassName={`Toastify__toast ${styles.toast}`}
           closeButton={CloseToastButton}
         />
-        <div className={styles.content}>{props.children}</div>
-        <footer className={styles.footer}>
-          <a
-            href="https://www.mozilla.org"
-            className={styles["mozilla-logo"]}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img
-              src={mozillaLogo.src}
-              alt={l10n.getString("logo-mozilla-alt")}
-              width={120}
-            />
-          </a>
-          <ul className={styles.meta}>
-            <li>
-              <a
-                href="https://www.mozilla.org/privacy/firefox-relay/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {l10n.getString("nav-footer-privacy")}
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.mozilla.org/about/legal/terms/firefox-relay/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {l10n.getString("nav-footer-relay-terms")}
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://www.mozilla.org/about/legal/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {l10n.getString("nav-footer-legal")}
-              </a>
-            </li>
-            <li>
-              <a
-                href="https://github.com/mozilla/fx-private-relay"
-                rel="noopener noreferrer"
-                target="_blank"
-              >
-                GitHub
-              </a>
-            </li>
-          </ul>
-        </footer>
+
+        <div className={styles["non-header-wrapper"]}>
+          <MobileNavigation
+            mobileMenuExpanded={mobileMenuExpanded}
+            hasPremium={hasPremium}
+            isLoggedIn={isLoggedIn}
+            userEmail={usersData?.email}
+            userAvatar={profiles.data?.[0].avatar}
+          />
+          <div className={styles.content}>{props.children}</div>
+          <footer className={styles.footer}>
+            <a
+              href="https://www.mozilla.org"
+              className={styles["mozilla-logo"]}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src={mozillaLogo.src}
+                alt={l10n.getString("logo-mozilla-alt")}
+                width={120}
+              />
+            </a>
+            <ul className={styles.meta}>
+              <li>
+                <a
+                  href="https://www.mozilla.org/privacy/firefox-relay/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {l10n.getString("nav-footer-privacy")}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.mozilla.org/about/legal/terms/firefox-relay/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {l10n.getString("nav-footer-relay-terms")}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://www.mozilla.org/about/legal/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {l10n.getString("nav-footer-legal")}
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://github.com/mozilla/fx-private-relay"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
+                  GitHub
+                </a>
+              </li>
+            </ul>
+          </footer>
+        </div>
       </div>
     </>
   );
