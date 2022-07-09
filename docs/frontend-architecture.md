@@ -30,7 +30,11 @@ We use [SWR](https://swr.vercel.app/). See `src/hooks/api` for examples.
 
 ## Add a new string
 
-Add it to `pendingTranslations.ftl`, then submit a PR to the l10n repo.
+Add it to `pendingTranslations.ftl`, then submit a PR to the l10n repo. Updates
+to that repository (both yours, as well as updated translations from Pontoon)
+are automatically pushed to this repository (see the "Update submodules" commits
+in the commit history) by
+[a scheduled daily job](https://github.com/mozilla-l10n/fx-private-relay-l10n/actions/workflows/update-upstream-relay-repo.yml).
 
 ## Add styling
 
