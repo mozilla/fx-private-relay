@@ -7,6 +7,7 @@ from typing import Any, Optional
 Counts = dict[str, dict[str, int]]
 CleanupData = dict[str, Any]
 
+
 class DataIssueTask:
     """Base class for data issue / cleaner tasks."""
 
@@ -59,7 +60,6 @@ class DataIssueTask:
         """Clean the detected items, and update counts["summary"]"""
         summary = self.counts["summary"]
         if not self._cleaned:
-            cleaned = self._clean()
             summary["cleaned"] = self._clean()
             self._cleaned = True
         return summary["cleaned"]

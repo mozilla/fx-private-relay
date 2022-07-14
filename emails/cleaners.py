@@ -9,12 +9,13 @@ from privaterelay.cleaners import CleanerTask, CleanupData, Counts
 
 from .models import DomainAddress, Profile, RelayAddress
 
+
 class ServerStorageCleaner(CleanerTask):
     slug = "server-storage"
     title = "Ensure no data is stored when server_storage=False"
     check_description = (
-        "When Profile.server_storage is False, the fields description, generated_for,"
-        " and user_on should be empty on regular and domain addresses."
+        "When Profile.server_storage is False, the addresses (both regular and domain)"
+        " should have empty data (the fields description, generated_for and user_on)."
     )
 
     def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
@@ -54,17 +55,17 @@ class ServerStorageCleaner(CleanerTask):
                 + non_empty_domain_addresses_count,
             },
             "profiles": {
-                "total": Profile.objects.count(),
+                "all": Profile.objects.count(),
                 "no_server_storage": profiles_without_server_storage.count(),
             },
             "relay_addresses": {
-                "total": RelayAddress.objects.count(),
+                "all": RelayAddress.objects.count(),
                 "no_server_storage": relay_addresses.count(),
                 "no_server_storage_or_data": empty_relay_addresses_count,
                 "no_server_storage_but_data": non_empty_relay_addresses_count,
             },
             "domain_addresses": {
-                "total": DomainAddress.objects.count(),
+                "all": DomainAddress.objects.count(),
                 "no_server_storage": domain_addresses.count(),
                 "no_server_storage_or_data": empty_domain_addresses_count,
                 "no_server_storage_but_data": non_empty_domain_addresses_count,
@@ -76,7 +77,7 @@ class ServerStorageCleaner(CleanerTask):
         }
         return counts, cleanup_data
 
-    def clean(self) -> int:
+    def _clean(self) -> int:
         """Clean addresses with unwanted server-stored data."""
         counts = self.counts
         cleanup_data = self.cleanup_data
@@ -100,8 +101,8 @@ class ServerStorageCleaner(CleanerTask):
 
         def model_lines(name: str, counts: dict[str, int]) -> list[str]:
             """Get the report lines for a model (Profile, Relay Addr., Domain Addrs.)"""
-            total = counts["total"]
-            lines = [f"{name}:", f"  Total: {total}"]
+            total = counts["all"]
+            lines = [f"{name}:", f"  All: {total}"]
             if total == 0:
                 return lines
 
@@ -123,10 +124,10 @@ class ServerStorageCleaner(CleanerTask):
                 ]
             )
 
-            cleared = counts.get("cleared")
-            if cleared is None:
+            cleaned = counts.get("cleaned")
+            if cleaned is None:
                 return lines
-            lines.append(f"      Cleared: {with_percent_str(cleared, has_data)}")
+            lines.append(f"      Cleaned: {with_percent_str(cleaned, has_data)}")
             return lines
 
         lines: list[str] = (
