@@ -1,4 +1,4 @@
-from django.http.response import Http404
+from django.core.exceptions import ObjectDoesNotExist
 import phonenumbers
 
 from django.apps import apps
@@ -23,7 +23,7 @@ from emails.models import (
     RelayAddress,
 )
 from phones.models import (
-    RealPhone, RelayNumber,
+    RealPhone, RelayNumber, get_pending_unverified_realphone_records,
     get_valid_realphone_verification_record,
     suggested_numbers, location_numbers, area_code_numbers, twilio_client
 )
@@ -224,7 +224,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # First, check if the request includes a valid verification_code
+        # Check if the request includes a valid verification_code
         # value, look for any un-expired record that matches both the phone
         # number and verification code and mark it verified.
         verification_code = serializer.validated_data.get(
@@ -247,6 +247,16 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             ])
             return response.Response(
                 response_data, status=201, headers=headers
+            )
+
+        # to prevent abusive sending of verification messages,
+        # check if there is an un-expired verification code for the user
+        pending_unverified_records = get_pending_unverified_realphone_records(
+            serializer.validated_data["number"]
+        )
+        if pending_unverified_records:
+            raise ConflictError(
+                "An unverified record already exists for this number.",
             )
 
         # We call an additional _validate_number function with the request
@@ -290,6 +300,8 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         [e164]: https://en.wikipedia.org/wiki/E.164
         """
         instance = self.get_object()
+        if request.data["number"] != instance.number:
+            raise exceptions.ValidationError("Invalid number for ID.")
         # TODO: check verification_sent_date is not "expired"?
         # Note: the RealPhone.save() logic should prevent expired verifications
         if ("verification_code" not in request.data or
@@ -372,7 +384,9 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
 
 def _validate_number(request):
-    parsed_number = _parse_number(request.data["number"], request)
+    parsed_number = _parse_number(
+        request.data["number"], getattr(request, "country", None)
+    )
     if not parsed_number:
         country = None
         if hasattr(request, "country"):
@@ -395,17 +409,17 @@ def _validate_number(request):
     return number_details
 
 
-def _parse_number(number, request):
+def _parse_number(number, country=None):
     try:
         # First try to parse assuming number is E.164 with country prefix
         return phonenumbers.parse(number)
     except phonenumbers.phonenumberutil.NumberParseException as e:
         if (e.error_type == e.INVALID_COUNTRY_CODE and
-            hasattr(request, "country")):
+            country is not None):
             try:
                 # Try to parse, assuming number is local national format
                 # in the detected request country
-                return phonenumbers.parse(number, request.country)
+                return phonenumbers.parse(number, country)
             except Exception:
                 return None
     return None
@@ -441,7 +455,7 @@ def vCard(request, lookup_key):
     number = relay_number.number
 
     resp = response.Response({"number": number})
-    resp["Content-Disposition"] = f"attachment; filename={number}"
+    resp["Content-Disposition"] = f"attachment; filename={number}.vcf"
     return resp
 
 
@@ -488,8 +502,11 @@ def inbound_sms(request):
             "Message missing From, To, Or Body."
         )
 
-    relay_number = RelayNumber.objects.get(number=inbound_to)
-    real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
+    try:
+        relay_number = RelayNumber.objects.get(number=inbound_to)
+        real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
+    except ObjectDoesNotExist:
+        raise exceptions.ValidationError("Could not find relay number.")
     client = twilio_client()
     client.messages.create(
         from_=relay_number.number,

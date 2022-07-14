@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import math
 import random
+import secrets
 import string
 
 from django.apps import apps
@@ -41,11 +42,20 @@ def get_expired_unverified_realphone_records(number):
         )
     )
 
+def get_pending_unverified_realphone_records(number):
+    return RealPhone.objects.filter(
+        number=number,
+        verified=False,
+        verification_sent_date__gt=(
+            datetime.now(timezone.utc) -
+            timedelta(0, 60*MAX_MINUTES_TO_VERIFY_REAL_PHONE)
+        )
+    )
 
-def get_existing_realphone_record(user, number):
+def get_verified_realphone_records(user):
     return RealPhone.objects.filter(
         user=user, verified=True
-    ).exclude(number=number)
+    )
 
 
 def get_valid_realphone_verification_record(user, number, verification_code):
@@ -83,15 +93,6 @@ class RealPhone(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        # We are not ready to support multiple real phone numbers per user,
-        # so raise an exception if this save() would create a second
-        # RealPhone record for the user
-        other_number_record = (
-            get_existing_realphone_record(self.user, self.number)
-        )
-        if other_number_record:
-            raise BadRequest("RealPhone.save(): Another real number already exists for this user.")
-
         # delete any expired unverified RealPhone records for this number
         # note: it doesn't matter which user is trying to create a new
         # RealPhone record - any expired unverified record for the number
@@ -100,6 +101,22 @@ class RealPhone(models.Model):
             get_expired_unverified_realphone_records(self.number)
         )
         expired_verification_records.delete()
+
+        # We are not ready to support multiple real phone numbers per user,
+        # so raise an exception if this save() would create a second
+        # RealPhone record for the user
+        user_verified_number_records = (
+            get_verified_realphone_records(self.user)
+        )
+        for verified_number in user_verified_number_records:
+            if (verified_number.number == self.number and
+                verified_number.verification_code == self.verification_code
+               ):
+                # User is verifying the same number twice
+                return super().save(*args, **kwargs)
+            else:
+                raise BadRequest("User already has a verified number.")
+
 
         # call super save to save into the DB
         # See also: realphone_post_save receiver below
@@ -130,14 +147,14 @@ def realphone_post_save(sender, instance, created, **kwargs):
 
 def vcard_lookup_key_default():
     return ''.join(
-        random.choice(string.ascii_letters + string.digits)
+        secrets.choice(string.ascii_letters + string.digits)
         for i in range(6)
     )
 
 
 class RelayNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    number = models.CharField(max_length=15)
+    number = models.CharField(max_length=15, db_index=True)
     location = models.CharField(max_length=255)
     vcard_lookup_key = models.CharField(
         max_length=6,

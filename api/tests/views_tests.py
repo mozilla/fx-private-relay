@@ -13,7 +13,7 @@ from phones.tests.models_tests import make_phone_test_user
 
 
 @pytest.fixture()
-def phone_user():
+def phone_user(db):
     yield make_phone_test_user()
 
 
@@ -75,7 +75,6 @@ def test_phone_endspoints_require_auth_and_phone_service(endpoint):
     assert response.status_code == 403
 
 
-@pytest.mark.django_db
 def test_realphone_get_responds_200(phone_user):
     client = APIClient()
     client.force_authenticate(phone_user)
@@ -84,7 +83,6 @@ def test_realphone_get_responds_200(phone_user):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
 def test_realphone_post_invalid_e164_number_no_request_country(phone_user):
     client = APIClient()
     client.force_authenticate(phone_user)
@@ -97,7 +95,6 @@ def test_realphone_post_invalid_e164_number_no_request_country(phone_user):
     assert "Number Must Be In E.164 Format" in response.data[0].title()
 
 
-@pytest.mark.django_db
 def test_realphone_post_valid_e164_number_in_unsupported_country(
     phone_user, mocked_twilio_client
 ):
@@ -121,7 +118,6 @@ def test_realphone_post_valid_e164_number_in_unsupported_country(
     assert "Available In The Us" in response.data[0].title()
 
 
-@pytest.mark.django_db
 def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
     client = APIClient()
     client.force_authenticate(phone_user)
@@ -151,7 +147,45 @@ def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
     assert "verification code" in call_kwargs['body']
 
 
-@pytest.mark.django_db
+def test_realphone_post_valid_es164_number_already_sent_code(
+    phone_user, mocked_twilio_client
+):
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    number = "+12223334444"
+    path = "/api/v1/realphone/"
+    data = {"number": number}
+
+    mock_fetch = Mock(return_value=Mock(
+        country_code="US", phone_number=number, carrier="verizon"
+    ))
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
+
+    # the first POST should work fine
+    response = client.post(path, data, format='json')
+    assert response.status_code == 201
+    assert response.data['number'] == number
+    assert response.data['verified'] == False
+    assert response.data['verification_sent_date'] != ''
+    assert "Sent verification" in response.data['message']
+
+    mocked_twilio_client.lookups.v1.phone_numbers.assert_called_once_with(number)
+    mock_fetch.assert_called_once()
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs['to'] == number
+    assert "verification code" in call_kwargs['body']
+
+    mocked_twilio_client.reset_mock()
+    # the second POST should not send a new verification code
+    response = client.post(path, data, format='json')
+    assert response.status_code == 409
+    mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
+    mock_fetch.assert_not_called()
+    mocked_twilio_client.messages.create.assert_not_called()
+
 def test_realphone_post_valid_verification_code(
     phone_user,
     mocked_twilio_client
@@ -181,7 +215,6 @@ def test_realphone_post_valid_verification_code(
     mock_fetch.assert_not_called()
 
 
-@pytest.mark.django_db
 def test_realphone_post_invalid_verification_code(
     phone_user,
     mocked_twilio_client
@@ -212,13 +245,14 @@ def test_realphone_post_invalid_verification_code(
     mock_fetch.assert_not_called()
 
 
-@pytest.mark.django_db
 def test_realphone_patch_verification_code(
     phone_user,
     mocked_twilio_client
 ):
     number = "+12223334444"
-    real_phone = RealPhone.objects.create(user=phone_user, number=number)
+    real_phone = RealPhone.objects.create(
+        user=phone_user, number=number, verified=False
+    )
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
@@ -242,7 +276,71 @@ def test_realphone_patch_verification_code(
     mock_fetch.assert_not_called()
 
 
-@pytest.mark.django_db
+def test_realphone_patch_verification_code_twice(
+    phone_user,
+    mocked_twilio_client
+):
+    number = "+12223334444"
+    real_phone = RealPhone.objects.create(
+        user=phone_user, number=number, verified=False
+    )
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = f"/api/v1/realphone/{real_phone.id}/"
+    data = {
+        "number": number, "verification_code": real_phone.verification_code
+    }
+
+    mock_fetch = Mock(return_value=Mock(
+        country_code="US", phone_number=number, carrier="verizon"
+    ))
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
+
+    response = client.patch(path, data, format='json')
+    assert response.status_code == 200
+    assert response.data['number'] == number
+    assert response.data['verified'] == True
+    assert response.data['verified_date'] != ''
+
+    mock_fetch.assert_not_called()
+
+    response = client.patch(path, data, format='json')
+    assert response.status_code == 200
+    assert response.data['number'] == number
+    assert response.data['verified'] == True
+    assert response.data['verified_date'] != ''
+
+
+def test_realphone_patch_invalid_number(
+    phone_user,
+    mocked_twilio_client
+):
+    number = "+12223334444"
+    real_phone = RealPhone.objects.create(user=phone_user, number=number)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = f"/api/v1/realphone/{real_phone.id}/"
+    data = {
+        "number": "+98887776666", "verification_code": "invalid"
+    }
+
+    mock_fetch = Mock(return_value=Mock(
+        country_code="US", phone_number=number, carrier="verizon"
+    ))
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
+
+    response = client.patch(path, data, format='json')
+    assert response.status_code == 400
+    real_phone.refresh_from_db()
+    assert real_phone.verified == False
+    assert real_phone.verified_date == None
+
+    mock_fetch.assert_not_called()
+
 def test_realphone_patch_invalid_verification_code(
     phone_user,
     mocked_twilio_client
@@ -272,7 +370,6 @@ def test_realphone_patch_invalid_verification_code(
     mock_fetch.assert_not_called()
 
 
-@pytest.mark.django_db
 def test_relaynumber_suggestions_bad_request_for_user_without_real_phone(
     phone_user
 ):
@@ -289,7 +386,6 @@ def test_relaynumber_suggestions_bad_request_for_user_without_real_phone(
     assert response.status_code == 400
 
 
-@pytest.mark.django_db
 def test_relaynumber_suggestions_bad_request_for_user_already_with_number(
     phone_user
 ):
@@ -302,7 +398,6 @@ def test_relaynumber_suggestions_bad_request_for_user_already_with_number(
     assert response.status_code == 400
 
 
-@pytest.mark.django_db
 def test_relaynumber_suggestions(phone_user):
     real_phone = "+12223334444"
     RealPhone.objects.create(
@@ -322,7 +417,6 @@ def test_relaynumber_suggestions(phone_user):
     assert "same_area_options" in data_keys
 
 
-@pytest.mark.django_db
 def test_relaynumber_search_requires_param(phone_user):
     client = APIClient()
     client.force_authenticate(phone_user)
@@ -333,7 +427,6 @@ def test_relaynumber_search_requires_param(phone_user):
     assert response.status_code == 404
 
 
-@pytest.mark.django_db
 def test_relaynumber_search_by_location(phone_user, mocked_twilio_client):
     mock_list = Mock(return_value=[])
     mocked_twilio_client.available_phone_numbers=Mock(return_value = (
@@ -356,7 +449,6 @@ def test_relaynumber_search_by_location(phone_user, mocked_twilio_client):
     ]
 
 
-@pytest.mark.django_db
 def test_relaynumber_search_by_area_code(phone_user, mocked_twilio_client):
     mock_list = Mock(return_value=[])
     mocked_twilio_client.available_phone_numbers=Mock(return_value = (
@@ -398,7 +490,6 @@ def test_vcard_wrong_lookup_key():
     assert response.status_code == 404
 
 
-@pytest.mark.django_db
 def test_vcard_valid_lookup_key(phone_user):
     real_phone = "+12223334444"
     RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
@@ -413,7 +504,7 @@ def test_vcard_valid_lookup_key(phone_user):
 
     assert response.status_code == 200
     assert response.data['number'] == relay_number
-    assert response.headers['Content-Disposition'] == 'attachment; filename=+19998887777'
+    assert response.headers['Content-Disposition'] == 'attachment; filename=+19998887777.vcf'
 
 
 @pytest.mark.django_db
@@ -450,7 +541,6 @@ def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
     assert "Missing From, To, Or Body." in response.data[0].title()
 
 
-@pytest.mark.django_db
 def test_inbound_sms_valid_twilio_signature_good_data(
     phone_user, mocked_twilio_client, mocked_twilio_validator
 ):

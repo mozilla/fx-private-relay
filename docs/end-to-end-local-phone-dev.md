@@ -76,7 +76,7 @@ correctly. The first message in the Relay phone flow is the verification code:
 4. Use the `POST /api/v1/realphone/` API endpoint again to verify your real
    number. This time, submit your real number AND the verification code
    together:
-   * `{"number": "+12223334444", "verification_code": 123456}`
+   * `{"number": "+12223334444", "verification_code": "123456"}`
 
 [buy-fonez]: https://accounts.stage.mozaws.net/subscriptions/products/prod_LgQiSgNi4xL7dq
 [stripe-test-cards]: https://stripe.com/docs/testing#cards
@@ -100,6 +100,7 @@ make this easier.
    ```
    Note: You will need ngrok premium to get a static subdomain.
 3. Add `your-subdomain.ngrok.io` to your `.env` `DJANGO_ALLOWED_HOST`
+4. Set your `.env` `SITE_ORIGIN` to `your-subdomain.ngrok.io`
 4. Run `ngrok start relay`
 5. Hit https://your-subdomain.ngrok.io/api/v1/docs/ to check that it's working.
 
@@ -120,7 +121,7 @@ local app URL to its call and text webhooks, and set its app ID to your
    * Friendly name: "your-host Relay"
    * Voice request URL: https://your-host.ngrok.io/api/v1/inbound_call HTTP
      POST
-   * Messaging requst URL: https://your-host.ngrok.io/api/v1/inbound_sms HTTP
+   * Messaging request URL: https://your-host.ngrok.io/api/v1/inbound_sms HTTP
      POST
 3. Click "Save"
 4. Click the newly-created app

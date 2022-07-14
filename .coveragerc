@@ -6,6 +6,7 @@ omit =
     *tests/*,
     *wsgi.py,
     manage.py,
+    env/*,
     node_modules/*,
 
 [run]

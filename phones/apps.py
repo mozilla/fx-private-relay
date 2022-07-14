@@ -20,15 +20,21 @@ class PhonesConfig(AppConfig):
                 settings.TWILIO_ACCOUNT_SID,
                 settings.TWILIO_AUTH_TOKEN
             )
-            self._twilio_test_client = Client(
-                settings.TWILIO_TEST_ACCOUNT_SID,
-                settings.TWILIO_TEST_AUTH_TOKEN
-            )
             self._twilio_validator = RequestValidator(
                 settings.TWILIO_AUTH_TOKEN
             )
         except Exception:
-            logger.exception("exception during Twilio connect")
+            logger.exception(
+                "exception creating Twilio client and/or validator"
+            )
+        if settings.TWILIO_TEST_ACCOUNT_SID:
+            try:
+                self._twilio_test_client = Client(
+                    settings.TWILIO_TEST_ACCOUNT_SID,
+                    settings.TWILIO_TEST_AUTH_TOKEN
+                )
+            except Exception:
+                logger.exception("exception creating Twilio test client")
 
     @property
     def twilio_client(self):
