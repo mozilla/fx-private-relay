@@ -7,7 +7,7 @@ import string
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.conf import settings
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, ValidationError
 from django.db.migrations.recorder import MigrationRecorder
 from django.db import models
 from django.db.models.signals import post_save
@@ -163,9 +163,12 @@ class RelayNumber(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        # TODO: check this user has a RealPhone
-        # TODO: check to make sure this user
-        # doesn't already have a RelayNumber
+        if not get_verified_realphone_records(self.user):
+            raise ValidationError("User does not have a verified real phone.")
+        existing_number = RelayNumber.objects.filter(user=self.user)
+        if existing_number:
+            raise ValidationError("User already has a relay number.")
+
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")
         client = twilio_client()
