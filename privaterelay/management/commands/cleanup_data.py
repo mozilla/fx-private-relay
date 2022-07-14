@@ -79,8 +79,8 @@ class Command(BaseCommand):
         # Determine if we're running some tasks or the full set
         run_some: list[str] = []
         for name, val in kwargs.items():
-            slug = name.replace("-", "_")
-            if slug in self.tasks:
+            slug = name.replace("_", "-")
+            if slug in self.tasks and val:
                 run_some.append(slug)
         if run_some:
             tasks = {slug: self.tasks[slug] for slug in sorted(run_some)}
@@ -227,10 +227,8 @@ class Command(BaseCommand):
             detail.append("")
             detail.append(f"Detected {needs_cleaning} issues in {query_timer} seconds.")
             if cleaned:
-                if task["can_clean"]:
-                    detail.append(f"Cleaned {cleaned} issues in {clean_timer} seconds.")
-                else:
-                    detail.append("Unable to automatically fix issues.")
+                assert task["can_clean"]
+                detail.append(f"Cleaned {num_cleaned} issues in {clean_timer} seconds.")
             detail.append("")
             detail.append(task["markdown_report"])
             details.append("\n".join(detail))
@@ -244,7 +242,15 @@ class Command(BaseCommand):
         if cleaned:
             columns = ["task", "issues", "fixed", "query (s)", "fix (s)"]
             sum_rows: list[tuple[str, ...]] = sum_all_rows[:]
-            sum_rows.append(("_Total_", str(totals[0]), str(totals[1]), format(totals[2], "0.3f"), format(totals[3], "0.3f")))
+            sum_rows.append(
+                (
+                    "_Total_",
+                    str(totals[0]),
+                    str(totals[1]),
+                    format(totals[2], "0.3f"),
+                    format(totals[3], "0.3f"),
+                )
+            )
         else:
             columns = ["task", "issues", "query (s)"]
             sum_rows = [(row[0], row[1], row[3]) for row in sum_all_rows]
@@ -264,7 +270,9 @@ class Command(BaseCommand):
         )
         sep = (
             "|"
-            + "|".join(f"{'-' * (widths[colnum] - 1)}:" for colnum, _ in enumerate(columns))
+            + "|".join(
+                f"{'-' * (widths[colnum] - 1)}:" for colnum, _ in enumerate(columns)
+            )
             + "|"
         )
         report.extend([header, sep])
