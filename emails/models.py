@@ -269,7 +269,6 @@ class Profile(models.Model):
                 return True
         return False
 
-
     @property
     def has_phone(self):
         if not self.fxa:
@@ -279,7 +278,6 @@ class Profile(models.Model):
             if sub in user_subscriptions:
                 return True
         return False
-
 
     @property
     def emails_forwarded(self):

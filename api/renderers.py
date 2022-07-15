@@ -6,8 +6,8 @@ from rest_framework import renderers
 
 
 class vCardRenderer(renderers.BaseRenderer):
-    media_type = 'text/x-vcard'
-    format = 'vcf'
+    media_type = "text/x-vcard"
+    format = "vcf"
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         vCard = vobject.vCard()

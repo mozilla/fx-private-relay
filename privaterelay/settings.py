@@ -637,9 +637,9 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
-PHONE_RATE_LIMIT = '5/minute'
+PHONE_RATE_LIMIT = "5/minute"
 if IN_PYTEST:
-    PHONE_RATE_LIMIT = '1000/minute'
+    PHONE_RATE_LIMIT = "1000/minute"
 
 # Turn on logging out on GET in development.
 # This allows `/mock/logout/` in the front-end to clear the

@@ -13,7 +13,12 @@ from drf_yasg import openapi
 from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework import (
-    decorators, permissions, response, throttling, viewsets, exceptions
+    decorators,
+    permissions,
+    response,
+    throttling,
+    viewsets,
+    exceptions,
 )
 
 from emails.models import (
@@ -23,9 +28,14 @@ from emails.models import (
     RelayAddress,
 )
 from phones.models import (
-    RealPhone, RelayNumber, get_pending_unverified_realphone_records,
+    RealPhone,
+    RelayNumber,
+    get_pending_unverified_realphone_records,
     get_valid_realphone_verification_record,
-    suggested_numbers, location_numbers, area_code_numbers, twilio_client
+    suggested_numbers,
+    location_numbers,
+    area_code_numbers,
+    twilio_client,
 )
 
 from privaterelay.settings import (
@@ -184,6 +194,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     "owned" by the authenticated user.
 
     """
+
     http_method_names = ["get", "post", "patch"]
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
     serializer_class = RealPhoneSerializer
@@ -192,7 +203,6 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return RealPhone.objects.filter(user=self.request.user)
-
 
     def create(self, request):
         """
@@ -227,27 +237,29 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         # Check if the request includes a valid verification_code
         # value, look for any un-expired record that matches both the phone
         # number and verification code and mark it verified.
-        verification_code = serializer.validated_data.get(
-            "verification_code"
-        )
+        verification_code = serializer.validated_data.get("verification_code")
         if verification_code:
             valid_record = get_valid_realphone_verification_record(
-                request.user,
-                serializer.validated_data["number"],
-                verification_code
+                request.user, serializer.validated_data["number"], verification_code
             )
             if not valid_record:
-                raise exceptions.ValidationError("Could not find that verification_code for user and number. It may have expired.")
+                raise exceptions.ValidationError(
+                    "Could not find that verification_code for user and number. It may have expired."
+                )
 
             headers = self.get_success_headers(serializer.validated_data)
             verified_valid_record = valid_record.mark_verified()
-            response_data = model_to_dict(verified_valid_record, fields=[
-                "id", "number", "verification_sent_date", "verified",
-                "verified_date"
-            ])
-            return response.Response(
-                response_data, status=201, headers=headers
+            response_data = model_to_dict(
+                verified_valid_record,
+                fields=[
+                    "id",
+                    "number",
+                    "verification_sent_date",
+                    "verified",
+                    "verified_date",
+                ],
             )
+            return response.Response(response_data, status=201, headers=headers)
 
         # to prevent abusive sending of verification messages,
         # check if there is an un-expired verification code for the user
@@ -265,17 +277,16 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         valid_number = _validate_number(request)
         serializer.validated_data["number"] = valid_number.phone_number
 
-
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.validated_data)
         response_data = serializer.data
-        response_data["message"] = ("Sent verification code to "
+        response_data["message"] = (
+            "Sent verification code to "
             f"{valid_number.phone_number} "
             f"(country: {valid_number.country_code} "
-            f"carrier: {valid_number.carrier})")
-        return response.Response(
-            response_data, status=201, headers=headers
+            f"carrier: {valid_number.carrier})"
         )
+        return response.Response(response_data, status=201, headers=headers)
 
     # check verification_code during partial_update to compare
     # the value sent in the request against the value already on the instance
@@ -304,9 +315,13 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             raise exceptions.ValidationError("Invalid number for ID.")
         # TODO: check verification_sent_date is not "expired"?
         # Note: the RealPhone.save() logic should prevent expired verifications
-        if ("verification_code" not in request.data or
-            not request.data["verification_code"] == instance.verification_code):
-            raise exceptions.ValidationError("Invalid verification_code for ID. It may have expired.")
+        if (
+            "verification_code" not in request.data
+            or not request.data["verification_code"] == instance.verification_code
+        ):
+            raise exceptions.ValidationError(
+                "Invalid verification_code for ID. It may have expired."
+            )
 
         instance.mark_verified()
         return super().partial_update(request, *args, **kwargs)
@@ -397,7 +412,9 @@ def _validate_number(request):
     e164_number = f"+{parsed_number.country_code}{parsed_number.national_number}"
     number_details = _get_number_details(e164_number)
     if not number_details:
-        raise exceptions.ValidationError(f"Could not get number details for {e164_number}")
+        raise exceptions.ValidationError(
+            f"Could not get number details for {e164_number}"
+        )
 
     if number_details.country_code != "US":
         raise exceptions.ValidationError(
@@ -414,8 +431,7 @@ def _parse_number(number, country=None):
         # First try to parse assuming number is E.164 with country prefix
         return phonenumbers.parse(number)
     except phonenumbers.phonenumberutil.NumberParseException as e:
-        if (e.error_type == e.INVALID_COUNTRY_CODE and
-            country is not None):
+        if e.error_type == e.INVALID_COUNTRY_CODE and country is not None:
             try:
                 # Try to parse, assuming number is local national format
                 # in the detected request country
@@ -428,9 +444,7 @@ def _parse_number(number, country=None):
 def _get_number_details(e164_number):
     try:
         client = twilio_client()
-        return (client
-                .lookups.v1.phone_numbers(e164_number)
-                .fetch(type=["carrier"]))
+        return client.lookups.v1.phone_numbers(e164_number).fetch(type=["carrier"])
     except Exception:
         return None
 
@@ -490,6 +504,7 @@ def runtime_data(request):
         }
     )
 
+
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def inbound_sms(request):
@@ -498,9 +513,7 @@ def inbound_sms(request):
     inbound_from = request.data.get("From", None)
     inbound_to = request.data.get("To", None)
     if inbound_body is None or inbound_from is None or inbound_to is None:
-        raise exceptions.ValidationError(
-            "Message missing From, To, Or Body."
-        )
+        raise exceptions.ValidationError("Message missing From, To, Or Body.")
 
     try:
         relay_number = RelayNumber.objects.get(number=inbound_to)
@@ -511,15 +524,13 @@ def inbound_sms(request):
     client.messages.create(
         from_=relay_number.number,
         body=f"[Relay 📲 {inbound_from}] {inbound_body}",
-        to=real_phone.number
+        to=real_phone.number,
     )
-    return response.Response(
-        status=201,
-        data={"message": "Relayed message to user."}
-    )
+    return response.Response(status=201, data={"message": "Relayed message to user."})
+
 
 def _validate_twilio_request(request):
-    if 'X-Twilio-Signature' not in request._request.headers:
+    if "X-Twilio-Signature" not in request._request.headers:
         raise exceptions.ValidationError(
             "Invalid request: missing X-Twilio-Signature header."
         )
@@ -528,11 +539,7 @@ def _validate_twilio_request(request):
     sorted_params = {}
     for param_key in sorted(request.data):
         sorted_params[param_key] = request.data.get(param_key)
-    request_signature = request._request.headers['X-Twilio-Signature']
+    request_signature = request._request.headers["X-Twilio-Signature"]
     validator = twilio_validator()
-    if not validator.validate(
-        url, sorted_params, request_signature
-    ):
-        raise exceptions.ValidationError(
-            "Invalid request: invalid signature"
-        )
+    if not validator.validate(url, sorted_params, request_signature):
+        raise exceptions.ValidationError("Invalid request: invalid signature")
