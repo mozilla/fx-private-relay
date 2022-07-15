@@ -170,7 +170,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 class RealPhoneRateThrottle(throttling.UserRateThrottle):
-    rate = '10/minute'
+    rate = settings.PHONE_RATE_LIMIT
 
 
 class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
