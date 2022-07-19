@@ -9,8 +9,8 @@ from django.contrib.auth.models import User
 from model_bakery import baker
 import pytest
 
-from emails.cleaners import ServerStorageCleaner
-from emails.models import DomainAddress, RelayAddress
+from emails.cleaners import ServerStorageCleaner, ProfileMismatchDetector
+from emails.models import DomainAddress, Profile, RelayAddress
 
 from .models_tests import make_premium_test_user, make_storageless_test_user
 
@@ -273,3 +273,81 @@ Domain Addresses:
     # Second call to clean() returns same results
     # This is a test of DataIssueTask(), but is easier with a implemented subclass
     assert cleaner.clean() == 5
+
+
+def setup_profile_mismatch_test_data(add_problems=False):
+    """Setup users and profiles for testing."""
+    baker.make(User, email="superuser@example.com", is_superuser=True)
+    baker.make(User, email="old_su@example.com", is_superuser=True, is_active=False)
+    baker.make(User, email="old_user@example.com", is_active=False)
+    baker.make(User, email="regular1@example.com")
+
+    if not add_problems:
+        return
+
+    r2 = baker.make(User, email="regular2@example.com")
+    p2 = r2.profile_set.first()
+    r3 = baker.make(User, email="regular3@example.com")
+    # Assign user #2's profile to user #3, leaving r2 with none and r3 with 3
+    Profile.objects.filter(id=p2.id).update(user_id=r3.id)
+
+
+@pytest.mark.django_db
+def test_profile_mismatch_no_data() -> None:
+    """ProfileMismatchDetector works on an empty database."""
+    task = ProfileMismatchDetector()
+    assert task.issues() == 0
+    assert task.counts == {
+        "summary": {"ok": 0, "needs_cleaning": 0},
+        "users": {"all": 0, "one_profile": 0, "no_profiles": 0, "many_profiles": 0},
+    }
+    assert task.clean() == 0
+    report = task.markdown_report()
+    expected = """\
+Users:
+  All: 0"""
+    assert report == expected
+
+
+@pytest.mark.django_db
+def test_profile_mismatch_with_users() -> None:
+    """ProfileMismatchDetector works when data is consistant."""
+    setup_profile_mismatch_test_data()
+
+    task = ProfileMismatchDetector()
+    assert task.issues() == 0
+    assert task.counts == {
+        "summary": {"ok": 4, "needs_cleaning": 0},
+        "users": {"all": 4, "one_profile": 4, "no_profiles": 0, "many_profiles": 0},
+    }
+    assert task.clean() == 0
+    report = task.markdown_report()
+    expected = """\
+Users:
+  All: 4
+    ✓ One Profile: 4 (100.0%)
+    No Profile   : 0 (0.0%)
+    Many Profiles: 0 (0.0%)"""
+    assert report == expected
+
+
+@pytest.mark.django_db
+def test_profile_mismatch_with_problems() -> None:
+    """ProfileMismatchDetector detects users with profile issues."""
+    setup_profile_mismatch_test_data(add_problems=True)
+
+    task = ProfileMismatchDetector()
+    assert task.issues() == 2
+    assert task.counts == {
+        "summary": {"ok": 4, "needs_cleaning": 2},
+        "users": {"all": 6, "one_profile": 4, "no_profiles": 1, "many_profiles": 1},
+    }
+    assert task.clean() == 0
+    report = task.markdown_report()
+    expected = """\
+Users:
+  All: 6
+    ✓ One Profile: 4 (66.7%)
+    No Profile   : 1 (16.7%)
+    Many Profiles: 1 (16.7%)"""
+    assert report == expected

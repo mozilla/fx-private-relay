@@ -1,7 +1,7 @@
 """Tests for privaterelay/cleaners.py (shared functionality)"""
 import pytest
 
-from privaterelay.cleaners import DataIssueTask, DetectorTask
+from privaterelay.cleaners import DataIssueTask
 
 
 def test_data_issue_task_not_implemented():

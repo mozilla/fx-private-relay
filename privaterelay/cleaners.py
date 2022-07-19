@@ -68,6 +68,12 @@ class DataIssueTask:
         """Return Markdown-formatted report of issues found and (maybe) fixed."""
         raise NotImplementedError("markdown_report() not implemented")
 
+    @staticmethod
+    def _as_percent(part: int, whole: int) -> str:
+        """Return value followed by percent of whole, like '5 ( 30.0%)'"""
+        assert whole != 0
+        return f"{part} ({part / whole:.1%})"
+
 
 class CleanerTask(DataIssueTask):
     """Base class for tasks that can clean up detected issues."""
