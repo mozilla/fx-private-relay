@@ -100,11 +100,21 @@ $trackerRemovalIndicatorWidth: 20px;
     display: flex;
     align-items: center;
     background-color: transparent;
-    border: 0px none transparent;
+    border: 2px solid transparent;
+    border-radius: $border-radius-md;
     cursor: pointer;
     padding: 0 $spacing-sm;
     width: 100%;
     flex-basis: 0;
+
+    &:focus {
+      // For some reason (presumably related to `.copy-button-wrapper`'s
+      // relative positioning), Protocol's default outline isn't visible by
+      // default. Thus, we add a focus style using a border, and then remove the
+      // remnants of the outline that are made visible when there's a border.
+      border-color: $color-blue-50;
+      outline: none;
+    }
 
     .address {
       font-family: $font-stack-firefox;
