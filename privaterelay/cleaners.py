@@ -72,7 +72,7 @@ class DataIssueTask:
     def _as_percent(part: int, whole: int) -> str:
         """Return value followed by percent of whole, like '5 ( 30.0%)'"""
         assert whole != 0
-        return f"{part} ({part / whole:.1%})"
+        return f"{part} ({part / whole:6.1%})"
 
 
 class CleanerTask(DataIssueTask):
