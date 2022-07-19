@@ -170,6 +170,17 @@ We don't actually do this. Instead, the add-on simply calls
 `browser.tabs.reload` on any open website tab if it needs to reflect updated
 data.
 
+## Show/hide content to/from users with the add-on installed
+
+Apply the class `is-visible-with-addon` to hide an element unless the user is
+visiting with the add-on. Conversely, add `is-hidden-with-addon` to _show_ it
+unless the user is visiting with the add-on. Note that these are plain CSS
+classes, i.e. not CSS modules (in other words, use them as plain strings, rather
+than via `styles["is-visible-with-addon"]`).
+
+They are defined in `/frontend/src/styles/globals.scss` for the website, and in
+`relay-website.css` in the add-on.
+
 ## Work on the tracker removal report
 
 Forwarded emails with blocked trackers contain a link to a report listing the
