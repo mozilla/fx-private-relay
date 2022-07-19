@@ -170,17 +170,17 @@ def test_server_storage_cleaner_some_server_storage() -> None:
     expected = """\
 Profiles:
   All: 2
-  Without Server Storage: 1 (50.0%)
+  Without Server Storage: 1 ( 50.0%)
 Relay Addresses:
   All: 3
-  Without Server Storage: 2 (66.7%)
+  Without Server Storage: 2 ( 66.7%)
     No Data : 2 (100.0%)
-    Has Data: 0 (0.0%)
+    Has Data: 0 (  0.0%)
 Domain Addresses:
   All: 3
-  Without Server Storage: 2 (66.7%)
+  Without Server Storage: 2 ( 66.7%)
     No Data : 2 (100.0%)
-    Has Data: 0 (0.0%)"""
+    Has Data: 0 (  0.0%)"""
     assert report == expected
 
 
@@ -210,17 +210,17 @@ def test_server_storage_cleaner_some_data_to_clear() -> None:
     expected = """\
 Profiles:
   All: 2
-  Without Server Storage: 1 (50.0%)
+  Without Server Storage: 1 ( 50.0%)
 Relay Addresses:
   All: 6
-  Without Server Storage: 5 (83.3%)
-    No Data : 2 (40.0%)
-    Has Data: 3 (60.0%)
+  Without Server Storage: 5 ( 83.3%)
+    No Data : 2 ( 40.0%)
+    Has Data: 3 ( 60.0%)
 Domain Addresses:
   All: 5
-  Without Server Storage: 4 (80.0%)
-    No Data : 2 (50.0%)
-    Has Data: 2 (50.0%)"""
+  Without Server Storage: 4 ( 80.0%)
+    No Data : 2 ( 50.0%)
+    Has Data: 2 ( 50.0%)"""
     assert report == expected
 
     # Clean the data and repeat
@@ -232,18 +232,18 @@ Domain Addresses:
     expected = """\
 Profiles:
   All: 2
-  Without Server Storage: 1 (50.0%)
+  Without Server Storage: 1 ( 50.0%)
 Relay Addresses:
   All: 6
-  Without Server Storage: 5 (83.3%)
-    No Data : 2 (40.0%)
-    Has Data: 3 (60.0%)
+  Without Server Storage: 5 ( 83.3%)
+    No Data : 2 ( 40.0%)
+    Has Data: 3 ( 60.0%)
       Cleaned: 3 (100.0%)
 Domain Addresses:
   All: 5
-  Without Server Storage: 4 (80.0%)
-    No Data : 2 (50.0%)
-    Has Data: 2 (50.0%)
+  Without Server Storage: 4 ( 80.0%)
+    No Data : 2 ( 50.0%)
+    Has Data: 2 ( 50.0%)
       Cleaned: 2 (100.0%)"""
     assert report == expected
 
@@ -326,8 +326,8 @@ def test_profile_mismatch_with_users() -> None:
 Users:
   All: 4
     ✓ One Profile: 4 (100.0%)
-    No Profile   : 0 (0.0%)
-    Many Profiles: 0 (0.0%)"""
+    No Profile   : 0 (  0.0%)
+    Many Profiles: 0 (  0.0%)"""
     assert report == expected
 
 
@@ -347,7 +347,7 @@ def test_profile_mismatch_with_problems() -> None:
     expected = """\
 Users:
   All: 6
-    ✓ One Profile: 4 (66.7%)
-    No Profile   : 1 (16.7%)
-    Many Profiles: 1 (16.7%)"""
+    ✓ One Profile: 4 ( 66.7%)
+    No Profile   : 1 ( 16.7%)
+    Many Profiles: 1 ( 16.7%)"""
     assert report == expected
