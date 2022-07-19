@@ -79,14 +79,19 @@ h6 {
   isolation: isolate;
 }
 
-.is-visible-with-addon {
-  // This class hides an element anything in the regular website;
-  // however, the add-on injects a stylesheet that reveals elements with this class.
-  display: none;
-  visibility: collapse;
-}
+// Styles in the `add-on-overrides` layer (which the add-on injects)
+// should override those in the `add-on-overridable` layer.
+@layer add-on-overridable, add-on-overrides;
+@layer add-on-overridable {
+  .is-visible-with-addon {
+    // This class hides an element anything in the regular website;
+    // however, the add-on injects a stylesheet that reveals elements with this class.
+    display: none;
+    visibility: collapse;
+  }
 
-.is-hidden-with-addon {
-  // This class doesn't do anything in the regular website;
-  // however, the add-on injects a stylesheet that hides elements with this class.
+  .is-hidden-with-addon {
+    // This class doesn't do anything in the regular website;
+    // however, the add-on injects a stylesheet that hides elements with this class.
+  }
 }
