@@ -12,9 +12,9 @@ import { event as gaEvent } from "react-ga";
 import {
   FocusScope,
   useButton,
-  useMenuTrigger,
   useOverlay,
   useOverlayPosition,
+  useOverlayTrigger,
 } from "react-aria";
 import { useMenuTriggerState } from "react-stately";
 import { toast } from "react-toastify";
@@ -419,14 +419,14 @@ const StatExplainer = (props: { children: React.ReactNode }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const openButtonRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const { menuTriggerProps } = useMenuTrigger(
-    {},
+  const { triggerProps } = useOverlayTrigger(
+    { type: "dialog" },
     explainerState,
     openButtonRef
   );
 
   const openButtonProps = useButton(
-    menuTriggerProps,
+    { onPress: () => explainerState.open() },
     openButtonRef
   ).buttonProps;
   const closeButtonProps = useButton(
@@ -451,6 +451,7 @@ const StatExplainer = (props: { children: React.ReactNode }) => {
     >
       <button
         {...openButtonProps}
+        {...triggerProps}
         ref={openButtonRef}
         className={styles["open-button"]}
       >
