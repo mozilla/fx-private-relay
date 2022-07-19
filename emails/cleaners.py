@@ -9,6 +9,7 @@ from django.db.models import Count, Q, QuerySet
 from privaterelay.cleaners import CleanerTask, CleanupData, Counts, DetectorTask
 
 from .models import DomainAddress, Profile, RelayAddress
+from .signals import create_user_profile
 
 
 class ServerStorageCleaner(CleanerTask):
@@ -103,7 +104,8 @@ class ServerStorageCleaner(CleanerTask):
 
             no_server_storage = counts["no_server_storage"]
             lines.append(
-                f"  Without Server Storage: {self._as_percent(no_server_storage, total)}"
+                "    Without Server Storage: "
+                f"{self._as_percent(no_server_storage, total)}"
             )
             if no_server_storage == 0:
                 return lines
@@ -114,15 +116,17 @@ class ServerStorageCleaner(CleanerTask):
                 return lines
             lines.extend(
                 [
-                    f"    No Data : {self._as_percent(no_data, no_server_storage)}",
-                    f"    Has Data: {self._as_percent(has_data, no_server_storage)}",
+                    "      No Data : "
+                    f"{self._as_percent(no_data, no_server_storage)}",
+                    "      Has Data: "
+                    f"{self._as_percent(has_data, no_server_storage)}",
                 ]
             )
 
             cleaned = counts.get("cleaned")
             if cleaned is None:
                 return lines
-            lines.append(f"      Cleaned: {self._as_percent(cleaned, has_data)}")
+            lines.append(f"        Cleaned: {self._as_percent(cleaned, has_data)}")
             return lines
 
         lines: list[str] = (
@@ -134,10 +138,86 @@ class ServerStorageCleaner(CleanerTask):
         return "\n".join(lines)
 
 
-class ProfileMismatchDetector(DetectorTask):
-    slug = "profile-mismatch"
-    title = "Detect mismatches between users and profiles."
-    check_description = "Detect regular users with no profiles or multiple profiles."
+class MissingProfileCleaner(CleanerTask):
+    slug = "missing-profile"
+    title = "Ensures users have a profile"
+    check_description = "All users should have one profile."
+
+    def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
+        """
+        Find users without profiles.
+
+        Returns:
+        * counts: two-level dict of summary and user counts
+        * cleanup_data: empty dict
+        """
+
+        # Construct user -> profile counts
+        users_with_profile_counts = User.objects.annotate(num_profiles=Count("profile"))
+        ok_users = users_with_profile_counts.filter(num_profiles__gte=1)
+        no_profile_users = users_with_profile_counts.filter(num_profiles=0)
+
+        # Get counts once
+        ok_user_count = ok_users.count()
+        no_profile_user_count = no_profile_users.count()
+
+        # Return counts and (empty) cleanup data
+        counts: Counts = {
+            "summary": {
+                "ok": ok_user_count,
+                "needs_cleaning": no_profile_user_count,
+            },
+            "users": {
+                "all": User.objects.count(),
+                "no_profile": no_profile_user_count,
+                "has_profile": ok_user_count,
+            },
+        }
+        cleanup_data: CleanupData = {"users": no_profile_users}
+        return counts, cleanup_data
+
+    def _clean(self) -> int:
+        """Assign users to groups and create profiles."""
+        counts = self.counts
+        counts["users"]["cleaned"] = 0
+        for user in self.cleanup_data["users"]:
+            create_user_profile(sender=User, instance=user, created=True)
+            counts["users"]["cleaned"] += 1
+        return counts["users"]["cleaned"]
+
+    def markdown_report(self) -> str:
+        """Report on user with / without profiles."""
+
+        # Report on users
+        user_counts = self.counts["users"]
+        all_users = user_counts["all"]
+        has_profile = user_counts["has_profile"]
+        no_profile = user_counts["no_profile"]
+        cleaned = user_counts.get("cleaned")
+        lines = [
+            "Users:",
+            f"  All: {all_users}",
+        ]
+        if all_users > 0:
+            # Breakdown users by profile count
+            lines.extend(
+                [
+                    f"    Has Profile: {self._as_percent(has_profile, all_users)}",
+                    f"    No Profile : {self._as_percent(no_profile, all_users)}",
+                ]
+            )
+        if no_profile and cleaned is not None:
+            lines.append(
+                f"      Now has Profile: {self._as_percent(cleaned, no_profile)}"
+            )
+
+        return "\n".join(lines)
+
+
+class ManyProfileDetector(DetectorTask):
+    slug = "many-profiles"
+    title = "Detects users with multiple profiles."
+    check_description = "Users should not have multiple profiles."
 
     def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
         """
@@ -150,25 +230,22 @@ class ProfileMismatchDetector(DetectorTask):
 
         # Construct user -> profile counts
         users_with_profile_counts = User.objects.annotate(num_profiles=Count("profile"))
-        ok_users = users_with_profile_counts.filter(num_profiles=1)
-        no_profile_users = users_with_profile_counts.filter(num_profiles=0)
+        ok_users = users_with_profile_counts.filter(num_profiles__lte=1)
         many_profile_users = users_with_profile_counts.filter(num_profiles__gt=1)
 
         # Get counts once
         ok_user_count = ok_users.count()
-        no_profile_user_count = no_profile_users.count()
         many_profiles_user_count = many_profile_users.count()
 
         # Return counts and (empty) cleanup data
         counts: Counts = {
             "summary": {
                 "ok": ok_user_count,
-                "needs_cleaning": no_profile_user_count + many_profiles_user_count,
+                "needs_cleaning": many_profiles_user_count,
             },
             "users": {
                 "all": User.objects.count(),
-                "no_profiles": no_profile_user_count,
-                "one_profile": ok_user_count,
+                "one_or_no_profile": ok_user_count,
                 "many_profiles": many_profiles_user_count,
             },
         }
@@ -189,11 +266,9 @@ class ProfileMismatchDetector(DetectorTask):
             # Breakdown users by profile count
             lines.extend(
                 [
-                    "    ✓ One Profile: "
-                    f'{self._as_percent(user_counts["one_profile"], all_users)}',
-                    "    No Profile   : "
-                    f'{self._as_percent(user_counts["no_profiles"], all_users)}',
-                    "    Many Profiles: "
+                    "    One or no Profile: "
+                    f'{self._as_percent(user_counts["one_or_no_profile"], all_users)}',
+                    "    Many Profiles    : "
                     f'{self._as_percent(user_counts["many_profiles"], all_users)}',
                 ]
             )

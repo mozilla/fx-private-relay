@@ -10,7 +10,11 @@ from django.core.management.base import BaseCommand, DjangoHelpFormatter
 
 from codetiming import Timer
 
-from emails.cleaners import ServerStorageCleaner, ProfileMismatchDetector
+from emails.cleaners import (
+    ServerStorageCleaner,
+    MissingProfileCleaner,
+    ManyProfileDetector,
+)
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -31,7 +35,8 @@ class Command(BaseCommand):
     help = "Detects and optionally clean data issues."
     task_list: list[type[DataIssueTask]] = [
         ServerStorageCleaner,
-        ProfileMismatchDetector,
+        MissingProfileCleaner,
+        ManyProfileDetector,
     ]
     tasks: dict[str, DataIssueTask]
 

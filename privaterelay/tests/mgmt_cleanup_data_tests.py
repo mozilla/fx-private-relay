@@ -14,7 +14,7 @@ from emails.tests.cleaners_tests import setup_profile_mismatch_test_data
 
 COMMAND_NAME = "cleanup_data"
 MOCK_BASE = f"private_relay.management.commands.{COMMAND_NAME}"
-CLEANERS = {"server-storage", "profile-mismatch"}
+CLEANERS = {"server-storage", "missing-profile", "many-profiles"}
 KNOWN_CLEANER = "server-storage"
 
 
@@ -115,7 +115,7 @@ def test_issues_found_by_detector() -> None:
     setup_profile_mismatch_test_data(add_problems=True)
     out = StringIO()
     call_command(
-        COMMAND_NAME, f"--profile-mismatch", "--clean", "--verbosity=2", stdout=out
+        COMMAND_NAME, f"--many-profiles", "--clean", "--verbosity=2", stdout=out
     )
     output = out.getvalue()
     assert "# Summary\n" in output
