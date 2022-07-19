@@ -63,8 +63,3 @@ if settings.AWS_SES_CONFIGSET and settings.AWS_SNS_TOPIC:
     urlpatterns += [
         path("emails/", include("emails.urls")),
     ]
-
-if settings.TWILIO_ACCOUNT_SID and settings.TWILIO_AUTH_TOKEN:
-    urlpatterns += [
-        path("phones/", include("phones.urls")),
-    ]

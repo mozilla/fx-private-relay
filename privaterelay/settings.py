@@ -175,6 +175,10 @@ RECRUITMENT_EMAIL_BANNER_LINK = config("RECRUITMENT_EMAIL_BANNER_LINK", None)
 
 TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
+TWILIO_MAIN_NUMBER = config("TWILIO_MAIN_NUMBER", None)
+TWILIO_SMS_APPLICATION_SID = config("TWILIO_SMS_APPLICATION_SID", None)
+TWILIO_TEST_ACCOUNT_SID = config("TWILIO_TEST_ACCOUNT_SID", None)
+TWILIO_TEST_AUTH_TOKEN = config("TWILIO_TEST_AUTH_TOKEN", None)
 
 STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
 STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
@@ -204,6 +208,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "waffle",
     "privaterelay.apps.PrivateRelayConfig",
+    "api.apps.ApiConfig",
 ]
 
 if DEBUG:
@@ -264,7 +269,7 @@ MIDDLEWARE += [
     "dockerflow.django.middleware.DockerflowMiddleware",
     "waffle.middleware.WaffleMiddleware",
     "privaterelay.middleware.FxAToRequest",
-    "privaterelay.middleware.AddDetectedCountryToResponseHeaders",
+    "privaterelay.middleware.AddDetectedCountryToRequestAndResponseHeaders",
     "privaterelay.middleware.StoreFirstVisit",
 ]
 
@@ -424,6 +429,7 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
 }
 
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
+SUBSCRIPTIONS_WITH_PHONE = config("SUBSCRIPTIONS_WITH_PHONE", default="")
 
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 
@@ -630,6 +636,10 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": DRF_RENDERERS,
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
+
+PHONE_RATE_LIMIT = "5/minute"
+if IN_PYTEST:
+    PHONE_RATE_LIMIT = "1000/minute"
 
 # Turn on logging out on GET in development.
 # This allows `/mock/logout/` in the front-end to clear the

@@ -1,10 +1,7 @@
 from django.contrib import admin
 
-from .models import Session
+from .models import RealPhone, RelayNumber
 
 
-class SessionAdmin(admin.ModelAdmin):
-    pass
-
-
-admin.site.register(Session, SessionAdmin)
+admin.site.register(RealPhone, admin.ModelAdmin)
+admin.site.register(RelayNumber, admin.ModelAdmin)

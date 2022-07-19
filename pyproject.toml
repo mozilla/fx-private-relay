@@ -12,6 +12,7 @@ warn_unused_ignores = true
 django_settings_module = "privaterelay.settings"
 
 [[tool.mypy.overrides]]
+ignore_missing_imports = true
 module = [
     "allauth.account",
     "allauth.account.models",
@@ -41,11 +42,12 @@ module = [
     "requests_oauthlib",
     "twilio.rest",
     "twilio.twiml.messaging_response",
+    "twilio.request_validator",
+    "vobject",
     "waffle",
     "waffle.models",
     "waffle.testutils",
 ]
-ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 # Optional modules or in-progress features
