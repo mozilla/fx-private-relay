@@ -10,10 +10,12 @@ from django.core.management import call_command
 
 import pytest
 
+from emails.tests.cleaners_tests import setup_profile_mismatch_test_data
+
 COMMAND_NAME = "cleanup_data"
 MOCK_BASE = f"private_relay.management.commands.{COMMAND_NAME}"
-CLEANERS = {"server-storage"}
-KNOWN_CLEANER = next(iter(CLEANERS))  # First cleaner
+CLEANERS = {"server-storage", "profile-mismatch"}
+KNOWN_CLEANER = "server-storage"
 
 
 @pytest.mark.django_db
@@ -29,6 +31,7 @@ def test_dry_run(caplog) -> None:
     assert not log.cleaned
     assert log.timers.keys() == {"query_s"}
     assert log.tasks.keys() == CLEANERS
+    assert KNOWN_CLEANER in CLEANERS
     assert log.tasks[KNOWN_CLEANER]["counts"].keys() == {"summary"}
 
 
@@ -104,3 +107,17 @@ def test_selected_cleaner(caplog) -> None:
     assert log.cleaned
     assert log.timers.keys() == {"query_s", "clean_s"}
     assert log.tasks.keys() == {KNOWN_CLEANER}
+
+
+@pytest.mark.django_db
+def test_issues_found_by_detector() -> None:
+    """When a detector finds an issue, a warning is included in detailed report."""
+    setup_profile_mismatch_test_data(add_problems=True)
+    out = StringIO()
+    call_command(
+        COMMAND_NAME, f"--profile-mismatch", "--clean", "--verbosity=2", stdout=out
+    )
+    output = out.getvalue()
+    assert "# Summary\n" in output
+    assert "# Details\n" in output
+    assert "Unable to automatically clean detected items.\n" in output

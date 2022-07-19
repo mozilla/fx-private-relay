@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand, DjangoHelpFormatter
 
 from codetiming import Timer
 
-from emails.cleaners import ServerStorageCleaner
+from emails.cleaners import ServerStorageCleaner, ProfileMismatchDetector
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -29,7 +29,10 @@ class RawDescriptionDjangoHelpFormatter(
 
 class Command(BaseCommand):
     help = "Detects and optionally clean data issues."
-    task_list: list[type[DataIssueTask]] = [ServerStorageCleaner]
+    task_list: list[type[DataIssueTask]] = [
+        ServerStorageCleaner,
+        ProfileMismatchDetector,
+    ]
     tasks: dict[str, DataIssueTask]
 
     def __init__(self, *args, **kwargs):
@@ -227,8 +230,12 @@ class Command(BaseCommand):
             detail.append("")
             detail.append(f"Detected {needs_cleaning} issues in {query_timer} seconds.")
             if cleaned:
-                assert task["can_clean"]
-                detail.append(f"Cleaned {num_cleaned} issues in {clean_timer} seconds.")
+                if task["can_clean"]:
+                    detail.append(
+                        f"Cleaned {num_cleaned} issues in {clean_timer} seconds."
+                    )
+                elif needs_cleaning:
+                    detail.append(f"Unable to automatically clean detected items.")
             detail.append("")
             detail.append(task["markdown_report"])
             details.append("\n".join(detail))

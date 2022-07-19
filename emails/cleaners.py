@@ -3,9 +3,10 @@
 from __future__ import annotations
 from typing import Optional, TypedDict, Union
 
-from django.db.models import Q, QuerySet
+from django.contrib.auth.models import User
+from django.db.models import Count, Q, QuerySet
 
-from privaterelay.cleaners import CleanerTask, CleanupData, Counts
+from privaterelay.cleaners import CleanerTask, CleanupData, Counts, DetectorTask
 
 from .models import DomainAddress, Profile, RelayAddress
 
@@ -24,8 +25,7 @@ class ServerStorageCleaner(CleanerTask):
 
         Returns:
         * counts: two-level dict of row counts for Profile, RelayAddress, and DomainAddress
-        * non_empty_relay_addresses: RelayAddresses with data to clear
-        * non_empty_domain_addresses: DomainAddress with data to clear
+        * cleanup_data: two-element dict of RelayAddresses and DomainAddress queries to clear
         """
         profiles_without_server_storage = Profile.objects.filter(server_storage=False)
         relay_addresses = RelayAddress.objects.filter(
@@ -94,11 +94,6 @@ class ServerStorageCleaner(CleanerTask):
     def markdown_report(self) -> str:
         """Report on server-stored data found and optionally cleaned."""
 
-        def with_percent_str(part: int, whole: int) -> str:
-            """Return value followed by percent of whole, like '5 (30.0%)'"""
-            assert whole != 0
-            return f"{part} ({part / whole:.1%})"
-
         def model_lines(name: str, counts: dict[str, int]) -> list[str]:
             """Get the report lines for a model (Profile, Relay Addr., Domain Addrs.)"""
             total = counts["all"]
@@ -108,7 +103,7 @@ class ServerStorageCleaner(CleanerTask):
 
             no_server_storage = counts["no_server_storage"]
             lines.append(
-                f"  Without Server Storage: {with_percent_str(no_server_storage, total)}"
+                f"  Without Server Storage: {self._as_percent(no_server_storage, total)}"
             )
             if no_server_storage == 0:
                 return lines
@@ -119,15 +114,15 @@ class ServerStorageCleaner(CleanerTask):
                 return lines
             lines.extend(
                 [
-                    f"    No Data : {with_percent_str(no_data, no_server_storage)}",
-                    f"    Has Data: {with_percent_str(has_data, no_server_storage)}",
+                    f"    No Data : {self._as_percent(no_data, no_server_storage)}",
+                    f"    Has Data: {self._as_percent(has_data, no_server_storage)}",
                 ]
             )
 
             cleaned = counts.get("cleaned")
             if cleaned is None:
                 return lines
-            lines.append(f"      Cleaned: {with_percent_str(cleaned, has_data)}")
+            lines.append(f"      Cleaned: {self._as_percent(cleaned, has_data)}")
             return lines
 
         lines: list[str] = (
@@ -135,5 +130,72 @@ class ServerStorageCleaner(CleanerTask):
             + model_lines("Relay Addresses", self.counts["relay_addresses"])
             + model_lines("Domain Addresses", self.counts["domain_addresses"])
         )
+
+        return "\n".join(lines)
+
+
+class ProfileMismatchDetector(DetectorTask):
+    slug = "profile-mismatch"
+    title = "Detect mismatches between users and profiles."
+    check_description = "Detect regular users with no profiles or multiple profiles."
+
+    def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
+        """
+        Analyze users and related profiles.
+
+        Returns:
+        * counts: two-level dict of summary and user counts
+        * cleanup_data: empty dict
+        """
+
+        # Construct user -> profile counts
+        users_with_profile_counts = User.objects.annotate(num_profiles=Count("profile"))
+        ok_users = users_with_profile_counts.filter(num_profiles=1)
+        no_profile_users = users_with_profile_counts.filter(num_profiles=0)
+        many_profile_users = users_with_profile_counts.filter(num_profiles__gt=1)
+
+        # Get counts once
+        ok_user_count = ok_users.count()
+        no_profile_user_count = no_profile_users.count()
+        many_profiles_user_count = many_profile_users.count()
+
+        # Return counts and (empty) cleanup data
+        counts: Counts = {
+            "summary": {
+                "ok": ok_user_count,
+                "needs_cleaning": no_profile_user_count + many_profiles_user_count,
+            },
+            "users": {
+                "all": User.objects.count(),
+                "no_profiles": no_profile_user_count,
+                "one_profile": ok_user_count,
+                "many_profiles": many_profiles_user_count,
+            },
+        }
+        cleanup_data: CleanupData = {}
+        return counts, cleanup_data
+
+    def markdown_report(self) -> str:
+        """Report on user <-> profile matches."""
+
+        # Report on users
+        user_counts = self.counts["users"]
+        all_users = user_counts["all"]
+        lines = [
+            "Users:",
+            f"  All: {all_users}",
+        ]
+        if all_users > 0:
+            # Breakdown users by profile count
+            lines.extend(
+                [
+                    "    ✓ One Profile: "
+                    f'{self._as_percent(user_counts["one_profile"], all_users)}',
+                    "    No Profile   : "
+                    f'{self._as_percent(user_counts["no_profiles"], all_users)}',
+                    "    Many Profiles: "
+                    f'{self._as_percent(user_counts["many_profiles"], all_users)}',
+                ]
+            )
 
         return "\n".join(lines)
