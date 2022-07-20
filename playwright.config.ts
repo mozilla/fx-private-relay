@@ -11,12 +11,18 @@ require('dotenv').config();
  * See https://playwright.dev/docs/test-configuration.
  */
 const config: PlaywrightTestConfig = {
-  testDir: './tests',
+
+  /* Add location of specs. */
+  testDir: 'tests/specs',
+
   /* Maximum time one test can run for. */
-  timeout: 180000,
+  timeout: process.env.CI ? 60000 : undefined,
+
+  /* Global setup */
+  globalSetup: require.resolve('./tests/global-setup.ts'),
 
   /* Max time in milliseconds the whole test suite can to prevent CI breaking. */
-  globalTimeout: process.env.CI ? 60 * 1000 : undefined,
+  globalTimeout: process.env.CI ? 360000 : undefined,
 
   // adding missing snapshots for later comparison
   updateSnapshots: 'missing',
@@ -35,7 +41,7 @@ const config: PlaywrightTestConfig = {
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     [process.env.CI ? 'line' : 'html']
@@ -47,7 +53,7 @@ const config: PlaywrightTestConfig = {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.URL || 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net',
+    baseURL: process.env.TEST_BASE_URL || 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net',
 
     /* automatically take screenshot only on failures */
     screenshot: 'only-on-failure',
@@ -67,7 +73,6 @@ const config: PlaywrightTestConfig = {
         ...devices['Desktop Chrome'],
       },
     },
-
     // {
     //   name: 'firefox',
     //   use: {

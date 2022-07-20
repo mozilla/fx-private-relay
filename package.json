@@ -7,7 +7,7 @@
     "url": "https://github.com/mozilla/fx-private-relay/issues"
   },
   "devDependencies": {
-    "@playwright/test": "^1.22.2",
+    "@playwright/test": "^1.23.2",
     "dotenv": "^16.0.1"
   },
   "engines": {
@@ -29,6 +29,9 @@
   ],
   "scripts": {
     "test:e2e": "npx playwright test",
+    "test:local": "TEST_BASE_URL=http://localhost:3000 npx playwright test",
+    "test:stage": "TEST_BASE_URL=https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net npx playwright test",
+    "test:prod": "TEST_BASE_URL=https://relay.firefox.com npx playwright test",
     "heroku-prebuild": "printf '{\"commit\":\"%s\", \"commit_link\":\"https://github.com/mozilla/fx-private-relay/commit/%s\"}\n' \"$SOURCE_VERSION\" \"$SOURCE_VERSION\" > version.json",
     "heroku-postbuild": "cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
   },

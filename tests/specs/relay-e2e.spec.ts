@@ -1,57 +1,36 @@
 import test, { expect }  from '../fixtures/basePages'
-import { chooseAvailableFreeEmail, deleteEmailAddressMessages, generateRandomEmail, waitForRestmail } from '../utils/emailHelper';
+import {
+  delay, 
+  deleteEmailAddressMessages, 
+  generateRandomEmail, 
+  waitForRestmail } from '../utils/helpers';
 
 test.describe('Relay e2e function email forwarding', () => {
-    let currentTestEmail: string;
+    // use stored authenticated state
+    test.use({ storageState: 'state.json' })
 
-    test.beforeEach(async ({ landingPage, authPage, dashboardPage, page }) => {
-        // go to relay sign in page
-        await landingPage.open()
-        await landingPage.goToSignIn()
-
-        // choose user
-        currentTestEmail = await chooseAvailableFreeEmail()
-        await page.pause()
-        await authPage.login(currentTestEmail, process.env.TEST_ACCOUNT_PASSWORD)
-
-        // clear data
-        await dashboardPage.deleteMask(true)
-    });
-      
-    test.afterEach(async ({ dashboardPage, request }) => {
-        let masksAvailable: number;
-        try {
-          masksAvailable = await dashboardPage.maskCard.count()
-          await dashboardPage.deleteMask(true, masksAvailable)
-        } catch(err){
-          console.log(err)
-        }
-        await deleteEmailAddressMessages(request, currentTestEmail)
-    })
-
-    test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
-        dashboardPage, 
-        page, 
-        context,
-        request 
-      }) => {
-        await page.pause()
+    test.beforeEach(async ({ dashboardPage, page, context, request }) => {
+        // reset data
+        await dashboardPage.open()
+        await dashboardPage.deleteMask()  
+        
+        // create mask and use generated mask email to test email forwarding feature
         await dashboardPage.generateMask(1)
         const generatedMaskEmail = await dashboardPage.maskCardGeneratedEmail.textContent()
     
         const monitorTab = await context.newPage()
-        await monitorTab.goto('https://monitor.firefox.com')
+        await monitorTab.goto("https://monitor.firefox.com/")
     
         const checkForBreachesEmailInput = monitorTab.locator('#scan-email').first();
         const newsLetterCheckBox = '.create-fxa-checkbox-checkmark';
         const CheckForBreachesButton = monitorTab.locator('#scan-user-email [data-entrypoint="fx-monitor-check-for-breaches-blue-btn"]').first();
     
-        await checkForBreachesEmailInput.fill(generatedMaskEmail)
+        await checkForBreachesEmailInput.fill(generatedMaskEmail as string)
         await monitorTab.check(newsLetterCheckBox)    
         await Promise.all([
           monitorTab.waitForNavigation(),
           CheckForBreachesButton.click()
-      ]);
+        ]);
     
         const passwordInputField = monitorTab.locator('#password');
         const passwordConfirmInputField = monitorTab.locator('#vpassword');
@@ -59,21 +38,24 @@ test.describe('Relay e2e function email forwarding', () => {
         const createAccountButton = monitorTab.locator('#submit-btn');
         const testFirefoxProductsOption = '#test-pilot';
     
-        await passwordInputField.fill(process.env.TEST_ACCOUNT_PASSWORD);
-        await passwordConfirmInputField.fill(process.env.TEST_ACCOUNT_PASSWORD);
+        await passwordInputField.fill(process.env.TEST_ACCOUNT_PASSWORD as string);
+        await passwordConfirmInputField.fill(process.env.TEST_ACCOUNT_PASSWORD as string);
         await ageInputField.fill('31');
         await monitorTab.check(testFirefoxProductsOption);
         await createAccountButton.click()
     
         // wait for email to be forward to restmail
-        await waitForRestmail(request, currentTestEmail)
-    
-        // const origTab = context.pages()[0]
-        await page.reload({ waitUntil: 'networkidle' })
-     
-        // expect(await dashboardPage.maskCardForwardedAmount.textContent()).toContain('1')
+        await waitForRestmail(request, process.env.TEST_ACCOUNT2_FREE as string)    
+    });
+
+    test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
+        dashboardPage,
+        context
+      }) => {            
+        const pages = context.pages()
+        
         await expect.poll(async () => {
-          await page.reload({ waitUntil: 'networkidle' })
+          await pages[0].reload({ waitUntil: 'networkidle' })
           return await dashboardPage.maskCardForwardedAmount.textContent()
         }, {
           // wait at 2 sec in between
@@ -85,11 +67,12 @@ test.describe('Relay e2e function email forwarding', () => {
         await dashboardPage.userMenuButton.click()        
         await dashboardPage.signOutButton.click()        
         expect(await dashboardPage.signOutToastAlert.textContent()).toContain('You have signed out.')     
-    })    
+    })
 })
 
 test.skip('Relay e2e auth flows', () => {
   let testEmail: string;
+  let verificationCode: string;
 
   test.beforeEach(async ({ landingPage }) => {    
       await landingPage.open()      
@@ -99,7 +82,7 @@ test.skip('Relay e2e auth flows', () => {
       if (testEmail) await deleteEmailAddressMessages(request, testEmail)
   })
 
-  test.fixme('Verify user can sign up for an account C1818784, C1811801, C1553064', async ({ 
+  test('Verify user can sign up for an account C1818784, C1811801, C1553064', async ({ 
       dashboardPage, 
       landingPage,
       authPage,
@@ -109,12 +92,33 @@ test.skip('Relay e2e auth flows', () => {
       // sign up with a randomly generated email
       testEmail = await generateRandomEmail()
       await landingPage.goToSignUp()
-      await authPage.signUp(testEmail, process.env.TEST_ACCOUNT_PASSWORD)
+      await authPage.signUp(testEmail, process.env.TEST_ACCOUNT_PASSWORD as string)
 
       // get verificaton from restmail and enter
-      const code = await waitForRestmail(request, testEmail)
-      console.log('Verification Code: ', code)
-      await authPage.enterVerificationCode(code)
+      const waitForRestmail = async (attempts = 5) => {
+        if (attempts === 0) {
+          throw new Error('Unable to retrieve restmail data');
+        }
+
+        const response = await request.get(
+          `http://restmail.net/mail/${testEmail}`,
+          {
+            failOnStatusCode: false
+          }
+        );
+
+        const resJson = JSON.parse(await response.text());
+        if (resJson.length) {
+          const rawCode = resJson[0].subject
+          verificationCode = rawCode.split(':')[1].trim()
+          return;
+        }
+
+        await delay(1000);
+        await waitForRestmail(attempts - 1);
+      };
+      await waitForRestmail();
+      await authPage.enterVerificationCode(verificationCode)
 
       // verify successful login
       expect(await dashboardPage.signOutToastAlert.textContent()).toContain('Successfully')

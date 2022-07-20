@@ -1,4 +1,5 @@
 import test, { expect }  from '../fixtures/basePages'
+import { defaultScreenshotOpts } from '../utils/helpers';
 
 test.describe('Firefox Relay - Landing Page', () => {
   test.beforeEach(async ({ landingPage }) => {
@@ -8,10 +9,7 @@ test.describe('Firefox Relay - Landing Page', () => {
   test('Verify that the header is displayed correctly for a user that is NOT logged in, C1812637', async ({ landingPage }) => {    
     await expect(landingPage.header).toHaveScreenshot(
       'landingHeader.png',
-      {
-        animations: 'disabled',
-        maxDiffPixelRatio: 0.02,
-      }
+      defaultScreenshotOpts
     );
   });  
 });
@@ -20,12 +18,7 @@ test.describe('Firefox Relay - Landing Page', () => {
 test.describe('Check header buttons and their redirects,  C1812638',  () => {
   test.beforeEach(async ({ landingPage }) => {
     await landingPage.open()
-  });
-    
-  test.skip(
-    ({ browserName }) => browserName !== 'chromium' && browserName !== 'webkit',
-    'Chromium and webkit only!'
-  );
+  });  
 
   test('Verify home FAQ button redirect', async ({ landingPage, page }) => {
     await landingPage.goToFAQ() 
@@ -48,22 +41,16 @@ test.describe('Check header buttons and their redirects,  C1812638',  () => {
     expect(page.url()).toContain('accounts.stage.mozaws.net')      
   })
 
-  test('Verify  sign up button authentication flow', async ({ landingPage, page }) => {    
-    await landingPage.open()
+  test('Verify  sign up button authentication flow', async ({ landingPage, page }) => {        
     await landingPage.goToSignUp()
     expect(page.url()).toContain('accounts.stage.mozaws.net')
   })
 
-  test('Verify firefox apps and service', async ({ landingPage }) => {
-    
-    landingPage.open()
+  test('Verify firefox apps and service', async ({ landingPage }) => {        
     await landingPage.openFirefoxAppsServices()
     await expect(landingPage.firefoxAppsServicesExpanded).toHaveScreenshot(
       'firefoxAppsServicesExpanded.png',
-      {
-        animations: 'disabled',
-        maxDiffPixelRatio: 0.02,        
-      }
+      defaultScreenshotOpts
     );
   })   
 });
