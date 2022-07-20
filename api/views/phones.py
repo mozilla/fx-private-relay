@@ -29,7 +29,7 @@ from phones.models import (
 
 from ..exceptions import ConflictError
 from ..permissions import HasPhoneService
-from ..renderers import vCardRenderer
+from ..renderers import TwilioCallForwardXMLRenderer, vCardRenderer
 from ..serializers.phones import RealPhoneSerializer, RelayNumberSerializer
 
 
@@ -355,6 +355,28 @@ def inbound_sms(request):
         to=real_phone.number,
     )
     return response.Response(status=201, data={"message": "Relayed message to user."})
+
+
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.AllowAny])
+@decorators.renderer_classes([TwilioCallForwardXMLRenderer])
+def inbound_call(request):
+    _validate_twilio_request(request)
+    inbound_from = request.data.get("Caller", None)
+    inbound_to = request.data.get("Called", None)
+    if inbound_from is None or inbound_to is None:
+        raise exceptions.ValidationError("Call data missing Caller or Called.")
+
+    try:
+        relay_number = RelayNumber.objects.get(number=inbound_to)
+        real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
+    except ObjectDoesNotExist:
+        raise exceptions.ValidationError("Could not find relay number.")
+
+    return response.Response(
+        status=201,
+        data={"inbound_from": inbound_from, "real_number": real_phone.number},
+    )
 
 
 def _validate_twilio_request(request):

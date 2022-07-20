@@ -50,12 +50,19 @@ urlpatterns = [
 ]
 
 if settings.PHONES_ENABLED:
-    from .views.phones import RealPhoneViewSet, RelayNumberViewSet, inbound_sms, vCard
+    from .views.phones import (
+        RealPhoneViewSet,
+        RelayNumberViewSet,
+        inbound_call,
+        inbound_sms,
+        vCard,
+    )
 
     api_router.register(r"realphone", RealPhoneViewSet, "real_phone")
     api_router.register(r"relaynumber", RelayNumberViewSet, "relay_number")
     urlpatterns += [
         path("v1/inbound_sms", inbound_sms, name="inbound_sms"),
+        path("v1/inbound_call", inbound_call, name="inbound_call"),
         path("v1/vCard/<lookup_key>", vCard, name="vCard"),
     ]
 
