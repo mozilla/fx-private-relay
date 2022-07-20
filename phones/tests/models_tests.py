@@ -12,15 +12,22 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
 
 from emails.models import Profile
-from ..models import (
-    MAX_MINUTES_TO_VERIFY_REAL_PHONE,
-    RealPhone,
-    RelayNumber,
-    area_code_numbers,
-    get_expired_unverified_realphone_records,
-    get_valid_realphone_verification_record,
-    location_numbers,
-    suggested_numbers,
+
+if settings.PHONES_ENABLED:
+    from ..models import (
+        MAX_MINUTES_TO_VERIFY_REAL_PHONE,
+        RealPhone,
+        RelayNumber,
+        area_code_numbers,
+        get_expired_unverified_realphone_records,
+        get_valid_realphone_verification_record,
+        location_numbers,
+        suggested_numbers,
+    )
+
+
+pytestmark = pytest.mark.skipif(
+    not settings.PHONES_ENABLED, reason="PHONES_ENABLED is False"
 )
 
 
