@@ -488,6 +488,26 @@ def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
     assert "Missing From, To, Or Body." in response.data[0].title()
 
 
+def test_inbound_sms_valid_twilio_signature_unknown_number(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    unknown_number = "+1234567890"
+    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
+    RelayNumber.objects.create(user=phone_user, number=relay_number)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": "+15556660000", "To": unknown_number, "Body": "test body"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    assert "Could Not Find Relay Number." in response.data[0].title()
+
+
 def test_inbound_sms_valid_twilio_signature_good_data(
     phone_user, mocked_twilio_client, mocked_twilio_validator
 ):
@@ -543,6 +563,27 @@ def test_inbound_call_valid_twilio_signature_bad_data(mocked_twilio_validator):
 
     assert response.status_code == 400
     assert "Missing Caller Or Called." in response.data[0].title()
+
+
+def test_inbound_call_valid_twilio_signature_unknown_number(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    unknown_number = "+1234567890"
+    caller_number = "+15556660000"
+    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
+    RelayNumber.objects.create(user=phone_user, number=relay_number)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    data = {"Caller": caller_number, "Called": unknown_number}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    assert "Could Not Find Relay Number." in response.data[0].title()
 
 
 def test_inbound_call_valid_twilio_signature_good_data(
