@@ -1031,7 +1031,7 @@ def test_wrapped_email_test_from_profile(rf):
 @pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
 @pytest.mark.parametrize("has_attachment", ("Yes", "No"))
 @pytest.mark.parametrize("has_tracker_report_link", ("Yes", "No"))
-@pytest.mark.parametrize("has_num_level_one_email_trackers_removed", ("Yes", "No"))
+@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("1", "0"))
 def test_wrapped_email_test(
     rf,
     language,
@@ -1039,7 +1039,7 @@ def test_wrapped_email_test(
     in_premium_country,
     has_attachment,
     has_tracker_report_link,
-    has_num_level_one_email_trackers_removed,
+    num_level_one_email_trackers_removed,
 ):
     data = {
         "language": language,
@@ -1047,7 +1047,7 @@ def test_wrapped_email_test(
         "in_premium_country": in_premium_country,
         "has_attachment": has_attachment,
         "has_tracker_report_link": has_tracker_report_link,
-        "has_num_level_one_email_trackers_removed": has_num_level_one_email_trackers_removed,
+        "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
     }
     request = rf.get("/emails/wrapped_email_test", data=data)
     response = wrapped_email_test(request)
@@ -1063,7 +1063,9 @@ def test_wrapped_email_test(
     assert (
         "<dt>has_tracker_report_link</dt>" f"<dd>{has_tracker_report_link}</dd>"
     ) in no_space_html
+    has_num_level_one_email_trackers_removed = (
+        "Yes" if int(num_level_one_email_trackers_removed) else "No"
+    )
     assert (
-        "<dt>has_num_level_one_email_trackers_removed</dt>"
-        f"<dd>{has_num_level_one_email_trackers_removed}</dd>"
+        f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html

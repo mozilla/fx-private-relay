@@ -142,18 +142,17 @@ def wrapped_email_test(request):
     else:
         has_tracker_report_link = False
     if has_tracker_report_link:
-        tracker_report_link = "https://example.com/fake_tracker_report_link"
+        tracker_report_link = (
+            '/tracker-report/#{"sender": "sender@example.com", "received_at": 1658434657,'
+            + '"trackers": {"fake-tracker.example.com": 2}}'
+        )
     else:
         tracker_report_link = ""
 
-    if "has_num_level_one_email_trackers_removed" in request.GET:
-        has_num_level_one_email_trackers_removed = strtobool(
-            request.GET["has_num_level_one_email_trackers_removed"]
+    if "num_level_one_email_trackers_removed" in request.GET:
+        num_level_one_email_trackers_removed = int(
+            request.GET["num_level_one_email_trackers_removed"]
         )
-    else:
-        has_num_level_one_email_trackers_removed = False
-    if has_num_level_one_email_trackers_removed:
-        num_level_one_email_trackers_removed = 1
     else:
         num_level_one_email_trackers_removed = 0
 
@@ -174,8 +173,8 @@ def wrapped_email_test(request):
         <dd>{"Yes" if has_attachment else "No"}</dd>
       <dt>has_tracker_report_link</dt>
         <dd>{"Yes" if has_tracker_report_link else "No"}</dd>
-        <dt>has_num_level_one_email_trackers_removed</dt>
-        <dd>{"Yes" if has_num_level_one_email_trackers_removed else "No"}</dd>
+      <dt>has_num_level_one_email_trackers_removed</dt>
+        <dd>{"Yes" if num_level_one_email_trackers_removed else "No"}</dd>
     </dl>
     """
     )
