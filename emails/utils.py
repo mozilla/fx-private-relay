@@ -419,10 +419,9 @@ def remove_trackers(html_content, level="general"):
 
     tracker_details = {
         "tracker_removed": tracker_removed,
-        "level_one": level_one_detail,
-        "level_two": level_two_detail,
+        "level_one": level_one_detail
     }
-    logger_details = {"level": level}
+    logger_details = {"level": level, "level_two": level_two_detail}
     logger_details.update(tracker_details)
     info_logger.info(
         "email_tracker_summary",

@@ -195,12 +195,10 @@ class RemoveTrackers(TestCase):
         changed_content, tracker_details = remove_trackers(content)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
-        strict_count = tracker_details["level_two"]["count"]
 
         assert changed_content == self.expected_content
         assert general_removed == 2
         assert general_count == 2
-        assert strict_count == 0
 
     def test_complex_general_tracker_replaced_with_relay_content(self):
         content = (
@@ -210,12 +208,10 @@ class RemoveTrackers(TestCase):
         changed_content, tracker_details = remove_trackers(content)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
-        strict_count = tracker_details["level_two"]["count"]
 
         assert changed_content == self.expected_content
         assert general_removed == 2
         assert general_count == 2
-        assert strict_count == 0
 
     def test_complex_single_quote_general_tracker_replaced_with_relay_content(self):
         content = (
@@ -225,12 +221,10 @@ class RemoveTrackers(TestCase):
         changed_content, tracker_details = remove_trackers(content)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
-        strict_count = tracker_details["level_two"]["count"]
 
         assert changed_content == self.expected_content.replace('"', "'")
         assert general_removed == 2
         assert general_count == 2
-        assert strict_count == 0
 
     def test_no_tracker_replaced_with_relay_content(self):
         content = (
@@ -240,14 +234,12 @@ class RemoveTrackers(TestCase):
         changed_content, tracker_details = remove_trackers(content)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
-        strict_count = tracker_details["level_two"]["count"]
 
         assert changed_content == content
         assert general_removed == 0
         assert (
             general_count == 2
         )  # this is because the count uses search and not regex pattern
-        assert strict_count == 0
 
     def test_simple_strict_tracker_found(self):
         content = (
@@ -257,9 +249,7 @@ class RemoveTrackers(TestCase):
         changed_content, tracker_details = remove_trackers(content)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
-        strict_count = tracker_details["level_two"]["count"]
 
         assert changed_content == content
         assert general_removed == 0
         assert general_count == 0
-        assert strict_count == 2
