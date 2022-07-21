@@ -137,16 +137,27 @@ def wrapped_email_test(request):
     else:
         has_attachment = True
 
-    if "has_email_tracker_study_link" in request.GET:
-        has_email_tracker_study_link = strtobool(
-            request.GET["has_email_tracker_study_link"]
+    if "has_tracker_report_link" in request.GET:
+        has_tracker_report_link = strtobool(
+            request.GET["has_tracker_report_link"]
         )
     else:
-        has_email_tracker_study_link = False
-    if has_email_tracker_study_link:
-        email_tracker_study_link = "https://example.com/fake_survey_link"
+        has_tracker_report_link = False
+    if has_tracker_report_link:
+        tracker_report_link = "https://example.com/fake_tracker_report_link"
     else:
-        email_tracker_study_link = ""
+        tracker_report_link = ""
+
+    if "has_num_level_one_email_trackers_removed" in request.GET:
+        has_num_level_one_email_trackers_removed = strtobool(
+            request.GET["has_num_level_one_email_trackers_removed"]
+        )
+    else:
+        has_num_level_one_email_trackers_removed = False
+    if has_num_level_one_email_trackers_removed:
+        num_level_one_email_trackers_removed = 1
+    else:
+        num_level_one_email_trackers_removed = 0
 
     html_content = dedent(
         f"""\
@@ -163,8 +174,10 @@ def wrapped_email_test(request):
         <dd>{"Yes" if in_premium_country else "No"}</dd>
       <dt>has_attachment</dt>
         <dd>{"Yes" if has_attachment else "No"}</dd>
-      <dt>has_email_tracker_study_link</dt>
-        <dd>{"Yes" if has_email_tracker_study_link else "No"}</dd>
+      <dt>has_tracker_report_link</dt>
+        <dd>{"Yes" if has_tracker_report_link else "No"}</dd>
+        <dt>has_num_level_one_email_trackers_removed</dt>
+        <dd>{"Yes" if has_num_level_one_email_trackers_removed else "No"}</dd>
     </dl>
     """
     )
@@ -174,9 +187,10 @@ def wrapped_email_test(request):
         language=language,
         has_premium=has_premium,
         in_premium_country=in_premium_country,
-        email_tracker_study_link=email_tracker_study_link,
+        tracker_report_link=tracker_report_link,
         display_email="test@relay.firefox.com",
         has_attachment=has_attachment,
+        num_level_one_email_trackers_removed=num_level_one_email_trackers_removed,
     )
     return HttpResponse(wrapped_email)
 
