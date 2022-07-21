@@ -233,7 +233,7 @@ export function getAddressValidationMessage(
   //
   //   (...)?     followed by zero or one of:
   //
-  //              [a-z0-9-]{0,61}  zero up to 61 lowercase letters, numbers, or hyphens, and
+  //              [a-z0-9-.]{0,61} zero up to 61 lowercase letters, numbers, hyphens, or periods, and
   //              [a-z0-9]         a lowercase letter or number (but not a hyphen),
   //
   //   $          and nothing following that.
@@ -241,9 +241,9 @@ export function getAddressValidationMessage(
   // All that combines to 1-63 lowercase characters, numbers, or hyphens,
   // but not starting or ending with a hyphen, aligned with the backend's
   // validation (`valid_address_pattern` in emails/models.py).
-  if (!/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?$/.test(address)) {
+  if (!/^[a-z0-9]([a-z0-9-.]{0,61}[a-z0-9])?$/.test(address)) {
     return l10n.getString(
-      "modal-custom-alias-picker-form-prefix-invalid-warning"
+      "modal-custom-alias-picker-form-prefix-invalid-warning-2"
     );
   }
   return null;

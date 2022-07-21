@@ -105,6 +105,7 @@ fx-containers = { -brand-name-firefox } Containers
 
 modal-custom-alias-picker-form-prefix-spaces-warning = Spaces are not allowed in email masks.
 modal-custom-alias-picker-form-prefix-invalid-warning = Email masks can only contain lowercase letters, numbers, and hyphens, and may not start or end with a hyphen.
+modal-custom-alias-picker-form-prefix-invalid-warning-2 = Email masks can only contain lowercase letters, numbers, periods, and hyphens, and may not start or end with a period or hyphen.
 
 ## Phone Page
 

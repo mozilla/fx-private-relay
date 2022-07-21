@@ -152,6 +152,7 @@ class MiscEmailModelsTest(TestCase):
     def test_valid_address_pattern_is_valid(self):
         assert valid_address_pattern("foo")
         assert valid_address_pattern("foo-bar")
+        assert valid_address_pattern("foo.bar")
         assert valid_address_pattern("f00bar")
         assert valid_address_pattern("123foo")
         assert valid_address_pattern("123")
@@ -160,6 +161,8 @@ class MiscEmailModelsTest(TestCase):
         assert not valid_address_pattern("-")
         assert not valid_address_pattern("-foo")
         assert not valid_address_pattern("foo-")
+        assert not valid_address_pattern(".foo")
+        assert not valid_address_pattern("foo.")
         assert not valid_address_pattern("foo bar")
         assert not valid_address_pattern("Foo")
 
