@@ -238,8 +238,8 @@ class RemoveTrackers(TestCase):
         assert changed_content == content
         assert general_removed == 0
         assert (
-            general_count == 2
-        )  # this is because the count uses search and not regex pattern
+            general_count == general_removed
+        )  # count uses the same regex pattern as removing trackers
 
     def test_simple_strict_tracker_found(self):
         content = (
