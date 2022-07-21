@@ -63,7 +63,7 @@ const getProducts = (referringSiteUrl: string) => ({
   },
   fxMobile: {
     id: "fxMobile",
-    url: `https://www.mozilla.org/firefox/new/?utm_source=${encodeURIComponent(
+    url: `https://www.mozilla.org/firefox/browsers/mobile/?utm_source=${encodeURIComponent(
       referringSiteUrl
     )}&utm_medium=referral&utm_campaign=bento&utm_content=desktop`,
     gaLabel: "fx-mobile",
