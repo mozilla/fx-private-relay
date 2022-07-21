@@ -558,7 +558,7 @@ def check_user_can_make_another_address(user):
 def valid_address_pattern(address):
     #   can't start or end with a hyphen
     #   must be 1-63 lowercase alphanumeric characters and/or hyphens
-    valid_address_pattern = re.compile("^(?!-)[a-z0-9-]{1,63}(?<!-)$")
+    valid_address_pattern = re.compile("^(?![-.])[a-z0-9-.]{1,63}(?<![-.])$")
     return valid_address_pattern.match(address) is not None
 
 

@@ -4,7 +4,7 @@ describe("getAddressValidationMessage", () => {
   it("returns `null` for valid addresses", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const mockL10n = { getString: jest.fn() } as any;
-    expect(getAddressValidationMessage("valid-address", mockL10n)).toBeNull();
+    expect(getAddressValidationMessage("a.valid-address", mockL10n)).toBeNull();
   });
 
   it("returns `null` for valid single-character addresses", () => {
@@ -39,7 +39,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("π", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
     );
   });
 
@@ -49,7 +49,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("Invalid-address", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
     );
   });
 
@@ -59,7 +59,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("-invalid-address", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
     );
   });
 
@@ -69,7 +69,27 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("invalid-address-", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+    );
+  });
+
+  it("returns a generic validation message when starting with a period", () => {
+    const mockL10n = {
+      getString: jest.fn((id: string) => `String ID: ${id}`),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    expect(getAddressValidationMessage(".invalid.address", mockL10n)).toBe(
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
+    );
+  });
+
+  it("returns a generic validation message when ending in a period", () => {
+    const mockL10n = {
+      getString: jest.fn((id: string) => `String ID: ${id}`),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any;
+    expect(getAddressValidationMessage("invalid.address.", mockL10n)).toBe(
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
     );
   });
 
@@ -79,7 +99,7 @@ describe("getAddressValidationMessage", () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
     expect(getAddressValidationMessage("-", mockL10n)).toBe(
-      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning"
+      "String ID: modal-custom-alias-picker-form-prefix-invalid-warning-2"
     );
   });
 });
