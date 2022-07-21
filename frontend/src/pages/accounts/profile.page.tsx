@@ -290,16 +290,13 @@ const Profile: NextPage = () => {
           {/*
             Only show tracker blocking stats if the back-end provides them:
           */}
-          {typeof profile.num_level_one_trackers_blocked_in_deleted_address ===
-            "number" && (
+          {typeof profile.level_one_trackers_blocked === "number" && (
             <div className={styles.stat}>
               <dt className={styles.label}>
                 {l10n.getString("profile-stat-label-trackers-removed")}
               </dt>
               <dd className={styles.value}>
-                {numberFormatter.format(
-                  profile.num_level_one_trackers_blocked_in_deleted_address
-                )}
+                {numberFormatter.format(profile.level_one_trackers_blocked)}
                 <StatExplainer>
                   <p>
                     {l10n.getString(

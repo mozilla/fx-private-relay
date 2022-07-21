@@ -31,7 +31,7 @@ export function getMockProfileData(profileData?: MockData): ProfileData {
     emails_blocked: 0,
     emails_forwarded: 0,
     emails_replied: 0,
-    num_level_one_trackers_blocked_in_deleted_address: 0,
+    level_one_trackers_blocked: 0,
     ...profileData,
   };
 }
