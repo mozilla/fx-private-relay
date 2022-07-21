@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("emails", "0047_alter_profile_remove_level_one_email_trackers"),
+        ("emails", "0048_alter_profile_server_storage"),
     ]
 
     operations = [
