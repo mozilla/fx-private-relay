@@ -51,6 +51,7 @@ import { InfoTooltip } from "../../components/InfoTooltip";
 import { AddonData } from "../../components/dashboard/AddonData";
 import { useAddonData } from "../../hooks/addon";
 import { CloseIcon } from "../../components/Icons";
+import { isFlagActive } from "../../functions/waffle";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -290,28 +291,29 @@ const Profile: NextPage = () => {
           {/*
             Only show tracker blocking stats if the back-end provides them:
           */}
-          {typeof profile.level_one_trackers_blocked === "number" && (
-            <div className={styles.stat}>
-              <dt className={styles.label}>
-                {l10n.getString("profile-stat-label-trackers-removed")}
-              </dt>
-              <dd className={styles.value}>
-                {numberFormatter.format(profile.level_one_trackers_blocked)}
-                <StatExplainer>
-                  <p>
-                    {l10n.getString(
-                      "profile-stat-label-trackers-learn-more-part1"
-                    )}
-                  </p>
-                  <p>
-                    {l10n.getString(
-                      "profile-stat-label-trackers-learn-more-part2"
-                    )}
-                  </p>
-                </StatExplainer>
-              </dd>
-            </div>
-          )}
+          {isFlagActive(runtimeData.data, "tracker_removal") &&
+            typeof profile.level_one_trackers_blocked === "number" && (
+              <div className={styles.stat}>
+                <dt className={styles.label}>
+                  {l10n.getString("profile-stat-label-trackers-removed")}
+                </dt>
+                <dd className={styles.value}>
+                  {numberFormatter.format(profile.level_one_trackers_blocked)}
+                  <StatExplainer>
+                    <p>
+                      {l10n.getString(
+                        "profile-stat-label-trackers-learn-more-part1"
+                      )}
+                    </p>
+                    <p>
+                      {l10n.getString(
+                        "profile-stat-label-trackers-learn-more-part2"
+                      )}
+                    </p>
+                  </StatExplainer>
+                </dd>
+              </div>
+            )}
         </dl>
       </div>
     </section>

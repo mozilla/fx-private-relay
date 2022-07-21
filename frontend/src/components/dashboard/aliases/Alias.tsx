@@ -26,6 +26,8 @@ import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { HideIcon } from "../../Icons";
+import { isFlagActive } from "../../../functions/waffle";
+import { runtimeData } from "../../../apiMocks/mockData";
 
 export type Props = {
   alias: AliasData;
@@ -232,6 +234,7 @@ export const Alias = (props: Props) => {
 type StatsProps = {
   alias: AliasData;
   profile: ProfileData;
+  runtimeData?: RuntimeData;
 };
 const Stats = (props: StatsProps) => {
   const { l10n } = useLocalization();
@@ -275,16 +278,19 @@ const Stats = (props: StatsProps) => {
         If the back-end does not yet support providing tracker blocking stats,
         hide the blocked trackers count:
        */}
-      {typeof props.alias.num_level_one_trackers_blocked === "number" && (
-        <TrackersRemovedTooltip>
-          <span className={styles.number}>
-            {numberFormatter.format(props.alias.num_level_one_trackers_blocked)}
-          </span>
-          <span className={styles.label}>
-            {l10n.getString("profile-label-trackers-removed")}
-          </span>
-        </TrackersRemovedTooltip>
-      )}
+      {isFlagActive(runtimeData, "tracker_removal") &&
+        typeof props.alias.num_level_one_trackers_blocked === "number" && (
+          <TrackersRemovedTooltip>
+            <span className={styles.number}>
+              {numberFormatter.format(
+                props.alias.num_level_one_trackers_blocked
+              )}
+            </span>
+            <span className={styles.label}>
+              {l10n.getString("profile-label-trackers-removed")}
+            </span>
+          </TrackersRemovedTooltip>
+        )}
     </div>
   );
 };
