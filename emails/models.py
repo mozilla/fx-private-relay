@@ -92,7 +92,7 @@ class Profile(models.Model):
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
     num_level_one_trackers_blocked_in_deleted_address = models.PositiveIntegerField(
-        default=0
+        default=0, null=True
     )
     num_email_replied_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
@@ -504,7 +504,7 @@ class RelayAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
-    num_level_one_trackers_blocked = models.PositiveIntegerField(default=0)
+    num_level_one_trackers_blocked = models.PositiveIntegerField(default=0, null=True)
     num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
@@ -634,7 +634,7 @@ class DomainAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
-    num_level_one_trackers_blocked = models.PositiveIntegerField(default=0)
+    num_level_one_trackers_blocked = models.PositiveIntegerField(default=0, null=True)
     num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     block_list_emails = models.BooleanField(default=False)
