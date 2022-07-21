@@ -138,9 +138,7 @@ def wrapped_email_test(request):
         has_attachment = True
 
     if "has_tracker_report_link" in request.GET:
-        has_tracker_report_link = strtobool(
-            request.GET["has_tracker_report_link"]
-        )
+        has_tracker_report_link = strtobool(request.GET["has_tracker_report_link"])
     else:
         has_tracker_report_link = False
     if has_tracker_report_link:

@@ -1021,7 +1021,9 @@ def test_wrapped_email_test_from_profile(rf):
     assert "<dt>in_premium_country</dt><dd>Yes</dd>" in no_space_html
     assert "<dt>has_attachment</dt><dd>Yes</dd>" in no_space_html
     assert "<dt>has_tracker_report_link</dt><dd>No</dd>" in no_space_html
-    assert "<dt>has_num_level_one_email_trackers_removed</dt><dd>No</dd>" in no_space_html
+    assert (
+        "<dt>has_num_level_one_email_trackers_removed</dt><dd>No</dd>" in no_space_html
+    )
 
 
 @pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
@@ -1059,8 +1061,7 @@ def test_wrapped_email_test(
     assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
     assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
     assert (
-        "<dt>has_tracker_report_link</dt>"
-        f"<dd>{has_tracker_report_link}</dd>"
+        "<dt>has_tracker_report_link</dt>" f"<dd>{has_tracker_report_link}</dd>"
     ) in no_space_html
     assert (
         "<dt>has_num_level_one_email_trackers_removed</dt>"
