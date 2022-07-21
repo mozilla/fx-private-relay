@@ -42,6 +42,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_level_one_trackers_blocked",
             "num_replied",
             "num_spam",
         ]
@@ -82,6 +83,7 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_level_one_trackers_blocked",
             "num_replied",
             "num_spam",
         ]
@@ -118,6 +120,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "emails_blocked",
             "emails_forwarded",
             "emails_replied",
+            "level_one_trackers_blocked",
             "remove_level_one_email_trackers",
         ]
         read_only_fields = [
