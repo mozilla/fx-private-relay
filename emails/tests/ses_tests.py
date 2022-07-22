@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 from typing import Any, Iterator
-from unittest.mock import ANY, Mock, patch
+from unittest.mock import Mock, patch
 from uuid import uuid4
 import logging
 
 import pytest
 
 from emails.ses import (
-    BotoResponseMetadata,
     CommonHeaders,
     ComplaintEvent,
     ComplaintFeedbackType,
@@ -17,7 +16,6 @@ from emails.ses import (
     ComplaintSubType,
     DeliveryEvent,
     DeliveryNotification,
-    SendRawEmailResponse,
     SesChannelType,
     SesEventType,
     SesNotificationType,

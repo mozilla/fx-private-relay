@@ -14,7 +14,7 @@ import shlex
 from dataclasses import dataclass, fields
 from email.message import EmailMessage
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Literal, Type, TypeVar, Optional, Union
+from typing import Any, Type, TypeVar, Optional
 from uuid import UUID
 
 from django.apps import apps

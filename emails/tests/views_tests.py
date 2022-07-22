@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from typing import Any
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 import glob
 import io
 import json
@@ -29,7 +29,6 @@ from emails.models import (
     RelayAddress,
     Reply,
 )
-from emails.ses import ComplaintNotification
 from emails.views import (
     _get_address,
     _get_attachment,
