@@ -42,7 +42,12 @@ from .models import (
     RelayAddress,
     Reply,
 )
-from .ses import get_ses_message, ComplaintMessage, DeliveryMessage
+from .ses import (
+    get_ses_message,
+    is_supported_ses_message,
+    ComplaintMessage,
+    DeliveryMessage,
+)
 from .utils import (
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
@@ -389,14 +394,9 @@ def _sns_notification(json_body):
         )
         return HttpResponse("Received SNS notification with non-JSON body", status=400)
 
-    event_type = message_json.get("eventType")
-    notification_type = message_json.get("notificationType")
-    known_notification_types = {"Received", "Bounce", "Complaint", "Delivery"}
-    known_event_types = {"Bounce", "Complaint", "Delivery"}
-    if (
-        notification_type not in known_notification_types
-        and event_type not in known_event_types
-    ):
+    if not is_supported_ses_message(message_json):
+        event_type = message_json.get("eventType")
+        notification_type = message_json.get("notificationType")
         logger.error(
             "SNS notification for unsupported type",
             extra={

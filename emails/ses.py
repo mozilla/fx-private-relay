@@ -14,7 +14,7 @@ import shlex
 from dataclasses import dataclass, fields
 from email.message import EmailMessage
 from enum import Enum
-from typing import Any, Type, TypeVar, Optional
+from typing import Any, Type, TypeVar, Optional, Union
 from uuid import UUID
 
 from django.apps import apps
@@ -260,12 +260,26 @@ def get_ses_message_type(raw_data: dict[str, Any]) -> SesMessageType:
         return SesEventType(eventType)
 
 
-MESSAGE_TYPE_TO_CLASS: dict[SesMessageType, Type[SesMessage]] = {
+# Entries with None have legacy handlers in emails/views.py
+# TODO: Write SesMessage implementations for legacy handlers
+MESSAGE_TYPE_TO_CLASS: dict[SesMessageType, Union[None, Type[SesMessage]]] = {
+    SesNotificationType.BOUNCE: None,
     SesNotificationType.COMPLAINT: ComplaintNotification,
     SesNotificationType.DELIVERY: DeliveryNotification,
+    SesNotificationType.RECEIVED: None,
+    SesEventType.BOUNCE: None,
     SesEventType.COMPLAINT: ComplaintEvent,
     SesEventType.DELIVERY: DeliveryEvent,
 }
+
+
+def is_supported_ses_message(raw_data: dict[str, Any]) -> bool:
+    """Return True if raw_data represents a supported SES message."""
+    try:
+        message_type = get_ses_message_type(raw_data)
+    except ValueError:
+        return False
+    return message_type in MESSAGE_TYPE_TO_CLASS
 
 
 def get_ses_message(raw_data: dict[str, Any]) -> SesMessage:
