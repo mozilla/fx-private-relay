@@ -1166,7 +1166,7 @@ def test_sns_notifications_complaint(caplog, channel, with_headers) -> None:
         assert record.reply_to is None
 
 
-def _create_ses_delivery(channel="notification", with_headers=False) -> dict[str, Any]:
+def _create_ses_delivery(channel="notification") -> dict[str, Any]:
     data: dict[str, Any] = {
         f"{channel}Type": "Delivery",
         "delivery": {
@@ -1176,7 +1176,7 @@ def _create_ses_delivery(channel="notification", with_headers=False) -> dict[str
             "smtpResponse": "250 2.6.0 Message received",
             "reportingMTA": "a48-112.smtp-out.amazonses.com",
         },
-        "mail": _create_ses_mail_body(channel, with_headers),
+        "mail": _create_ses_mail_body(channel, with_headers=True),
     }
     if channel == "notification":
         data["delivery"]["remoteMtaIp"] = "34.232.130.241"
