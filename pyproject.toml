@@ -41,17 +41,15 @@ module = [
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
     "twilio.rest",
-    "twilio.twiml.messaging_response",
     "twilio.request_validator",
     "vobject",
     "waffle",
     "waffle.models",
-    "waffle.testutils",
 ]
 
 [[tool.mypy.overrides]]
 # Optional modules or in-progress features
+ignore_missing_imports = true
 module = [
     "silk",
 ]
-ignore_missing_imports = true
