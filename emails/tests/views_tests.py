@@ -1088,7 +1088,10 @@ def _create_ses_mail_body(channel="notification", with_headers=False) -> dict[st
                     {"name": "To", "value": "complaint@simulator.amazonses.com"},
                     {
                         "name": "Message-ID",
-                        "value": "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000",
+                        "value": (
+                            "010001810261bbe4-"
+                            "48c395ab-8280-4e9f-83c7-3424d43d77f1-000000"
+                        ),
                     },
                     {"name": "Subject", "value": "Hello"},
                     {"name": "Content-Type", "value": 'text/plain; charset="UTF-8"'},
@@ -1113,7 +1116,9 @@ def _create_ses_complaint(channel="notification", with_headers=False) -> dict[st
     return {
         f"{channel}Type": "Complaint",
         "complaint": {
-            "feedbackId": "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000",
+            "feedbackId": (
+                "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000"
+            ),
             "complaintSubType": None,
             "complainedRecipients": [
                 {"emailAddress": "complaint@simulator.amazonses.com"}
@@ -1148,7 +1153,7 @@ def test_sns_notifications_complaint(caplog, channel, with_headers) -> None:
         record.message_id
         == "010001810261bbe4-48c395ab-8280-4e9f-83c7-3424d43d77f1-000000"
     )
-    assert record.complaint_subtype == None
+    assert record.complaint_subtype is None
     assert (
         record.feedback_id
         == "010001810261be75-1a423a20-9d2f-4dcd-83a3-3193deec7c05-000000"

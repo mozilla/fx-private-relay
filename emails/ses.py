@@ -296,7 +296,8 @@ class ComplaintBody(LoadFromDict):
     """
     The "complaint" element of a Complaint Notification.
 
-    See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+    See https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html,
+    "complaint object".
     """
 
     feedbackId: str

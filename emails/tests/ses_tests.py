@@ -150,7 +150,9 @@ def test_complaint_notification_with_feedback_parses() -> None:
             "complaintFeedbackType": "abuse",
             "arrivalDate": "2016-01-27T14:59:38.237Z",
             "timestamp": "2016-01-27T14:59:38.237Z",
-            "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+            "feedbackId": (
+                "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000"
+            ),
         },
         "mail": {
             "timestamp": "2016-01-27T14:59:38.237Z",
@@ -170,7 +172,11 @@ def test_complaint_notification_with_feedback_parses() -> None:
                 {"name": "From", "value": '"John Doe" <john@example.com>'},
                 {
                     "name": "To",
-                    "value": '"Jane Doe" <jane@example.com>, "Mary Doe" <mary@example.com>, "Richard Doe" <richard@example.com>',
+                    "value": (
+                        '"Jane Doe" <jane@example.com>, '
+                        '"Mary Doe" <mary@example.com>, '
+                        '"Richard Doe" <richard@example.com>'
+                    ),
                 },
                 {"name": "Message-ID", "value": "custom-message-ID"},
                 {"name": "Subject", "value": "Hello"},
@@ -182,7 +188,9 @@ def test_complaint_notification_with_feedback_parses() -> None:
                 "from": ["John Doe <john@example.com>"],
                 "date": "Wed, 27 Jan 2016 14:05:45 +0000",
                 "to": [
-                    "Jane Doe <jane@example.com>, Mary Doe <mary@example.com>, Richard Doe <richard@example.com>"
+                    "Jane Doe <jane@example.com>, "
+                    "Mary Doe <mary@example.com>, "
+                    "Richard Doe <richard@example.com>"
                 ],
                 "messageId": "custom-message-ID",
                 "subject": "Hello",
@@ -220,7 +228,9 @@ def test_complaint_notification_without_feedback_parses() -> None:
         "complaint": {
             "complainedRecipients": [{"emailAddress": "richard@example.com"}],
             "timestamp": "2016-01-27T14:59:38.237Z",
-            "feedbackId": "0000013786031775-fea503bc-7497-49e1-881b-a0379bb037d3-000000",
+            "feedbackId": (
+                "0000013786031775-fea503bc-7497-49e1-881b-a0379bb037d3-000000"
+            ),
         },
         "mail": {
             "timestamp": "2016-01-27T14:59:38.237Z",
@@ -240,7 +250,11 @@ def test_complaint_notification_without_feedback_parses() -> None:
                 {"name": "From", "value": '"John Doe" <john@example.com>'},
                 {
                     "name": "To",
-                    "value": '"Jane Doe" <jane@example.com>, "Mary Doe" <mary@example.com>, "Richard Doe" <richard@example.com>',
+                    "value": (
+                        '"Jane Doe" <jane@example.com>, '
+                        '"Mary Doe" <mary@example.com>, '
+                        '"Richard Doe" <richard@example.com>'
+                    ),
                 },
                 {"name": "Message-ID", "value": "custom-message-ID"},
                 {"name": "Subject", "value": "Hello"},
@@ -252,7 +266,9 @@ def test_complaint_notification_without_feedback_parses() -> None:
                 "from": ["John Doe <john@example.com>"],
                 "date": "Wed, 27 Jan 2016 14:05:45 +0000",
                 "to": [
-                    "Jane Doe <jane@example.com>, Mary Doe <mary@example.com>, Richard Doe <richard@example.com>"
+                    "Jane Doe <jane@example.com>, "
+                    "Mary Doe <mary@example.com>, "
+                    "Richard Doe <richard@example.com>"
                 ],
                 "messageId": "custom-message-ID",
                 "subject": "Hello",
@@ -282,7 +298,9 @@ def test_complaint_notification_on_suppression_list_parses() -> None:
     complaint_notification = {
         "notificationType": "Complaint",
         "complaint": {
-            "feedbackId": "010001810261be75-4db7c1c4-7394-4f44-bbbd-9fcfe72f530d-000000",
+            "feedbackId": (
+                "010001810261be75-4db7c1c4-7394-4f44-bbbd-9fcfe72f530d-000000"
+            ),
             "complaintSubType": "OnAccountSuppressionList",
             "complainedRecipients": [
                 {"emailAddress": "suppressionlist+blocked@simulator.amazonses.com"}
@@ -292,7 +310,9 @@ def test_complaint_notification_on_suppression_list_parses() -> None:
         "mail": {
             "timestamp": "2022-05-26T21:59:28.484Z",
             "source": "sender@relay.example.com",
-            "sourceArn": "arn:aws:ses:us-east-1:111122223333:identity/relay.example.com",
+            "sourceArn": (
+                "arn:aws:ses:us-east-1:111122223333:identity/relay.example.com"
+            ),
             "sourceIp": "130.211.19.131",
             "callerIdentity": "test-relay",
             "sendingAccountId": "111122223333",
@@ -318,7 +338,9 @@ def test_complaint_notification_without_headers_parses() -> None:
     complaint_notification = {
         "notificationType": "Complaint",
         "complaint": {
-            "feedbackId": "010001813aaafe95-3c5caa5c-1a3f-4c6c-8a13-367d66349b64-000000",
+            "feedbackId": (
+                "010001813aaafe95-3c5caa5c-1a3f-4c6c-8a13-367d66349b64-000000"
+            ),
             "complaintSubType": None,
             "complainedRecipients": [
                 {"emailAddress": "complaint@simulator.amazonses.com"}
@@ -360,15 +382,24 @@ def test_complaint_event() -> None:
         "complaint": {
             "complainedRecipients": [{"emailAddress": "recipient@example.com"}],
             "timestamp": "2017-08-05T00:41:02.669Z",
-            "feedbackId": "01000157c44f053b-61b59c11-9236-11e6-8f96-7be8aexample-000000",
-            "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36",
+            "feedbackId": (
+                "01000157c44f053b-61b59c11-9236-11e6-8f96-7be8aexample-000000"
+            ),
+            "userAgent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/60.0.3112.90 "
+                "Safari/537.36"
+            ),
             "complaintFeedbackType": "abuse",
             "arrivalDate": "2017-08-05T00:41:02.669Z",
         },
         "mail": {
             "timestamp": "2017-08-05T00:40:01.123Z",
             "source": "Sender Name <sender@example.com>",
-            "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+            "sourceArn": (
+                "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com"
+            ),
             "sendingAccountId": "123456789012",
             "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
             "destination": ["recipient@example.com"],
@@ -380,13 +411,18 @@ def test_complaint_event() -> None:
                 {"name": "MIME-Version", "value": "1.0"},
                 {
                     "name": "Content-Type",
-                    "value": 'multipart/alternative; boundary="----=_Part_7298998_679725522.1516840859643"',
+                    "value": (
+                        "multipart/alternative; "
+                        'boundary="----=_Part_7298998_679725522.1516840859643"'
+                    ),
                 },
             ],
             "commonHeaders": {
                 "from": ["Sender Name <sender@example.com>"],
                 "to": ["recipient@example.com"],
-                "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+                "messageId": (
+                    "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000"
+                ),
                 "subject": "Message sent from Amazon SES",
             },
             "tags": {
@@ -509,7 +545,9 @@ def test_delivery_event_parses() -> None:
         "mail": {
             "timestamp": "2016-10-19T23:20:52.240Z",
             "source": "sender@example.com",
-            "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+            "sourceArn": (
+                "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com"
+            ),
             "sendingAccountId": "123456789012",
             "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
             "destination": ["recipient@example.com"],
@@ -525,7 +563,9 @@ def test_delivery_event_parses() -> None:
             "commonHeaders": {
                 "from": ["sender@example.com"],
                 "to": ["recipient@example.com"],
-                "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+                "messageId": (
+                    "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000"
+                ),
                 "subject": "Message sent from Amazon SES",
             },
             "tags": {
@@ -565,7 +605,9 @@ def test_extra_data_logs_warning(caplog) -> None:
         "mail": {
             "timestamp": "2016-10-19T23:20:52.240Z",
             "source": "sender@example.com",
-            "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+            "sourceArn": (
+                "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com"
+            ),
             "sendingAccountId": "123456789012",
             "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
             "destination": ["recipient@example.com"],
