@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from unittest.mock import patch
 from model_bakery import baker
-from waffle.testutils import override_flag
 from waffle.models import Flag
 
 from emails.models import get_domains_from_settings
