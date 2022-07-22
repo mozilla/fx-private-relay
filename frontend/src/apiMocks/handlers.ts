@@ -3,11 +3,11 @@ import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
 import { ProfileData } from "../hooks/api/profile";
 import {
   mockIds,
-  domainaddresses,
-  profiles,
-  relayaddresses,
-  runtimeData,
-  users,
+  mockedDomainaddresses,
+  mockedProfiles,
+  mockedRelayaddresses,
+  mockedRuntimeData,
+  mockedUsers,
 } from "./mockData";
 
 export function getHandlers(
@@ -59,7 +59,7 @@ export function getHandlers(
   });
 
   addGetHandler("/api/v1/runtime_data", (_req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(runtimeData));
+    return res(ctx.status(200), ctx.json(mockedRuntimeData));
   });
 
   addGetHandler("/api/v1/users/", (req, res, ctx) => {
@@ -68,7 +68,7 @@ export function getHandlers(
       return res(ctx.status(403));
     }
 
-    return res(ctx.status(200), ctx.json([users[mockId]]));
+    return res(ctx.status(200), ctx.json([mockedUsers[mockId]]));
   });
 
   addGetHandler("/accounts/profile/subdomain", (req, res, ctx) => {
@@ -93,8 +93,8 @@ export function getHandlers(
 
     const body = req.body as string;
     const data = new URLSearchParams(body);
-    profiles[mockId] = {
-      ...profiles[mockId],
+    mockedProfiles[mockId] = {
+      ...mockedProfiles[mockId],
       subdomain: data.get("subdomain"),
     };
     return res(ctx.status(200));
@@ -106,7 +106,7 @@ export function getHandlers(
       return res(ctx.status(403));
     }
 
-    return res(ctx.status(200), ctx.json([profiles[mockId]]));
+    return res(ctx.status(200), ctx.json([mockedProfiles[mockId]]));
   });
 
   addPatchHandler("/api/v1/profiles/:id/", (req, res, ctx) => {
@@ -116,8 +116,8 @@ export function getHandlers(
     }
 
     const body = req.body as Partial<ProfileData>;
-    profiles[mockId] = {
-      ...profiles[mockId],
+    mockedProfiles[mockId] = {
+      ...mockedProfiles[mockId],
       ...body,
     };
     return res(ctx.status(200));
@@ -129,7 +129,7 @@ export function getHandlers(
       return res(ctx.status(400));
     }
 
-    return res(ctx.status(200), ctx.json(relayaddresses[mockId]));
+    return res(ctx.status(200), ctx.json(mockedRelayaddresses[mockId]));
   });
 
   addPostHandler("/api/v1/relayaddresses/", (req, res, ctx) => {
@@ -139,7 +139,7 @@ export function getHandlers(
     }
 
     const body = req.body as Partial<RandomAliasData>;
-    const ownAddresses = relayaddresses[mockId];
+    const ownAddresses = mockedRelayaddresses[mockId];
     const id = (ownAddresses[ownAddresses.length - 1]?.id ?? -1) + 1;
     ownAddresses.push({
       address: body.address ?? `random_${id}`,
@@ -171,7 +171,7 @@ export function getHandlers(
       return res(ctx.status(400));
     }
 
-    const ownAddresses = relayaddresses[mockId];
+    const ownAddresses = mockedRelayaddresses[mockId];
     const index = ownAddresses.findIndex(
       (address) => address.id === Number.parseInt(req.params.id as string, 10)
     );
@@ -192,7 +192,7 @@ export function getHandlers(
       return res(ctx.status(400));
     }
 
-    const ownAddresses = relayaddresses[mockId];
+    const ownAddresses = mockedRelayaddresses[mockId];
     const index = ownAddresses.findIndex(
       (address) => address.id === Number.parseInt(req.params.id as string, 10)
     );
@@ -210,7 +210,7 @@ export function getHandlers(
       return res(ctx.status(400));
     }
 
-    return res(ctx.status(200), ctx.json(domainaddresses[mockId]));
+    return res(ctx.status(200), ctx.json(mockedDomainaddresses[mockId]));
   });
 
   addPostHandler("/api/v1/domainaddresses/", (req, res, ctx) => {
@@ -220,7 +220,7 @@ export function getHandlers(
     }
 
     const body = req.body as Partial<CustomAliasData>;
-    const ownAddresses = domainaddresses[mockId];
+    const ownAddresses = mockedDomainaddresses[mockId];
     const id = (ownAddresses[ownAddresses.length - 1]?.id ?? -1) + 1;
     ownAddresses.push({
       address: body.address ?? `custom_alias_${id}`,
@@ -252,7 +252,7 @@ export function getHandlers(
       return res(ctx.status(400));
     }
 
-    const ownAddresses = domainaddresses[mockId];
+    const ownAddresses = mockedDomainaddresses[mockId];
     const index = ownAddresses.findIndex(
       (address) => address.id === Number.parseInt(req.params.id as string, 10)
     );
@@ -274,7 +274,7 @@ export function getHandlers(
       return res(ctx.status(400));
     }
 
-    const ownAddresses = domainaddresses[mockId];
+    const ownAddresses = mockedDomainaddresses[mockId];
     const index = ownAddresses.findIndex(
       (address) => address.id === Number.parseInt(req.params.id as string, 10)
     );
