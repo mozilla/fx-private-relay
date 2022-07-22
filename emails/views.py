@@ -583,7 +583,9 @@ def _sns_message(message_json):
         if tracker_removal_flag_active and user_profile.remove_level_one_email_trackers:
             html_content, tracker_details = remove_trackers(html_content)
             removed_count = tracker_details["tracker_removed"]
-            datetime_now = int(datetime.now(timezone.utc).timestamp())
+            datetime_now = int(
+                datetime.now(timezone.utc).timestamp() * 1000
+            )  # frontend is expecting in milli seconds
             tracker_report_details = {
                 "sender": from_address,
                 "received_at": datetime_now,
