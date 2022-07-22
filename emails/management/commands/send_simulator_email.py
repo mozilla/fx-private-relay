@@ -82,7 +82,6 @@ class Command(BaseCommand):
                     "SES send_raw_email responded",
                     extra={"response": asdict(response)},
                 )
-        return
 
     def get_from_address(
         self, from_email: str
