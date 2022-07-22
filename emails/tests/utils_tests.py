@@ -178,7 +178,7 @@ class FormattingToolsTest(TestCase):
 
 
 @override_settings(SITE_ORIGIN="https://test.com")
-@patch("emails.utils.GENERAL_TRACKERS", ["open.tracker.com"])
+@patch("emails.utils.GENERAL_TRACKERS", ["trckr.com", "open.tracker.com"])
 @patch("emails.utils.STRICT_TRACKERS", ["strict.tracker.com"])
 class RemoveTrackers(TestCase):
     def setUp(self):
@@ -240,6 +240,30 @@ class RemoveTrackers(TestCase):
         assert (
             general_count == general_removed
         )  # count uses the same regex pattern as removing trackers
+
+    def test_general_tracker_embedded_in_another_tracker_replaced_only_once_with_relay_content(
+        self,
+    ):
+        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>A link</a>"
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
+
+        assert changed_content == "<a href='https://test.com/faq'>A link</a>"
+        assert general_removed == 1
+        assert general_count == 1
+
+    def test_general_tracker_also_in_text_tracker_replaced_only_once_with_relay_content(
+        self,
+    ):
+        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>trckr.com</a>"
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
+
+        assert changed_content == "<a href='https://test.com/faq'>trckr.com</a>"
+        assert general_removed == 1
+        assert general_count == 1
 
     def test_simple_strict_tracker_found(self):
         content = (

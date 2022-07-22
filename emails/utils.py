@@ -375,7 +375,7 @@ def set_user_group(user):
 
 
 def convert_domains_to_regex_patterns(domain_pattern):
-    return "([\"'])(\\S*://(\\S*\.)*" + re.escape(domain_pattern) + "\\S*)\\1"
+    return r"""(["'])(\S*://(\S*\.)*""" + re.escape(domain_pattern) + r"\S*)\1"
 
 
 def count_tracker(html_content, trackers):
@@ -384,7 +384,7 @@ def count_tracker(html_content, trackers):
     # html_content needs to be str for count()
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
-        count  = len(re.findall(pattern, html_content))
+        html_content, count = re.subn(pattern, "", html_content)
         if count:
             tracker_total += count
             details[tracker] = count
@@ -411,10 +411,10 @@ def remove_trackers(html_content, level="general"):
     for tracker in trackers:
         pattern = convert_domains_to_regex_patterns(tracker)
         changed_content, matched = re.subn(
-            pattern, f"\g<1>{settings.SITE_ORIGIN}/faq\g<1>", changed_content
+            pattern, rf"\g<1>{settings.SITE_ORIGIN}/faq\g<1>", changed_content
         )
         tracker_removed += matched
-    
+
     level_one_detail = count_tracker(html_content, GENERAL_TRACKERS)
     level_two_detail = count_tracker(html_content, STRICT_TRACKERS)
 
