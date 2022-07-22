@@ -91,6 +91,9 @@ class Profile(models.Model):
     last_account_flagged = models.DateTimeField(blank=True, null=True, db_index=True)
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
+    num_level_one_trackers_blocked_in_deleted_address = models.PositiveIntegerField(
+        default=0, null=True
+    )
     num_email_replied_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
     subdomain = models.CharField(
@@ -310,6 +313,14 @@ class Profile(models.Model):
         return total_num_replied + self.num_email_replied_in_deleted_address
 
     @property
+    def level_one_trackers_blocked(self):
+        return (
+            sum(ra.num_level_one_trackers_blocked for ra in self.relay_addresses)
+            + sum(da.num_level_one_trackers_blocked for da in self.domain_addresses)
+            + self.num_level_one_trackers_blocked_in_deleted_address
+        )
+
+    @property
     def joined_before_premium_release(self):
         date_created = self.user.date_joined
         return date_created < datetime.fromisoformat("2021-10-22 17:00:00+00:00")
@@ -493,6 +504,7 @@ class RelayAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_level_one_trackers_blocked = models.PositiveIntegerField(default=0, null=True)
     num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
@@ -517,6 +529,9 @@ class RelayAddress(models.Model):
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
+        profile.num_level_one_trackers_blocked_in_deleted_address += (
+            self.num_level_one_trackers_blocked
+        )
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()
@@ -619,6 +634,7 @@ class DomainAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_level_one_trackers_blocked = models.PositiveIntegerField(default=0, null=True)
     num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     block_list_emails = models.BooleanField(default=False)
@@ -691,6 +707,9 @@ class DomainAddress(models.Model):
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
+        profile.num_level_one_trackers_blocked_in_deleted_address += (
+            self.num_level_one_trackers_blocked
+        )
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()

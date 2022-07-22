@@ -1020,28 +1020,34 @@ def test_wrapped_email_test_from_profile(rf):
     assert "<dt>has_premium</dt><dd>No</dd>" in no_space_html
     assert "<dt>in_premium_country</dt><dd>Yes</dd>" in no_space_html
     assert "<dt>has_attachment</dt><dd>Yes</dd>" in no_space_html
-    assert "<dt>has_email_tracker_study_link</dt><dd>No</dd>" in no_space_html
+    assert "<dt>has_tracker_report_link</dt><dd>No</dd>" in no_space_html
+    assert (
+        "<dt>has_num_level_one_email_trackers_removed</dt><dd>No</dd>" in no_space_html
+    )
 
 
 @pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
 @pytest.mark.parametrize("has_premium", ("Yes", "No"))
 @pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
 @pytest.mark.parametrize("has_attachment", ("Yes", "No"))
-@pytest.mark.parametrize("has_email_tracker_study_link", ("Yes", "No"))
+@pytest.mark.parametrize("has_tracker_report_link", ("Yes", "No"))
+@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("1", "0"))
 def test_wrapped_email_test(
     rf,
     language,
     has_premium,
     in_premium_country,
     has_attachment,
-    has_email_tracker_study_link,
+    has_tracker_report_link,
+    num_level_one_email_trackers_removed,
 ):
     data = {
         "language": language,
         "has_premium": has_premium,
         "in_premium_country": in_premium_country,
         "has_attachment": has_attachment,
-        "has_email_tracker_study_link": has_email_tracker_study_link,
+        "has_tracker_report_link": has_tracker_report_link,
+        "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
     }
     request = rf.get("/emails/wrapped_email_test", data=data)
     response = wrapped_email_test(request)
@@ -1055,6 +1061,11 @@ def test_wrapped_email_test(
     assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
     assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
     assert (
-        "<dt>has_email_tracker_study_link</dt>"
-        f"<dd>{has_email_tracker_study_link}</dd>"
+        "<dt>has_tracker_report_link</dt>" f"<dd>{has_tracker_report_link}</dd>"
+    ) in no_space_html
+    has_num_level_one_email_trackers_removed = (
+        "Yes" if int(num_level_one_email_trackers_removed) else "No"
+    )
+    assert (
+        f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html

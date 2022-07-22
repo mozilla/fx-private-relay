@@ -78,7 +78,8 @@ def wrap_html_email(
     in_premium_country,
     display_email,
     has_attachment,
-    email_tracker_study_link=None,
+    num_level_one_email_trackers_removed=None,
+    tracker_report_link=0,
 ):
     """Add Relay banners, surveys, etc. to an HTML email"""
     email_context = {
@@ -88,7 +89,8 @@ def wrap_html_email(
         "in_premium_country": in_premium_country,
         "display_email": display_email,
         "has_attachment": has_attachment,
-        "email_tracker_study_link": email_tracker_study_link,
+        "tracker_report_link": tracker_report_link,
+        "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
         "survey_text": settings.RECRUITMENT_EMAIL_BANNER_TEXT,
         "survey_link": settings.RECRUITMENT_EMAIL_BANNER_LINK,
@@ -135,16 +137,24 @@ def wrapped_email_test(request):
     else:
         has_attachment = True
 
-    if "has_email_tracker_study_link" in request.GET:
-        has_email_tracker_study_link = strtobool(
-            request.GET["has_email_tracker_study_link"]
+    if "has_tracker_report_link" in request.GET:
+        has_tracker_report_link = strtobool(request.GET["has_tracker_report_link"])
+    else:
+        has_tracker_report_link = False
+    if has_tracker_report_link:
+        tracker_report_link = (
+            '/tracker-report/#{"sender": "sender@example.com", "received_at": 1658434657,'
+            + '"trackers": {"fake-tracker.example.com": 2}}'
         )
     else:
-        has_email_tracker_study_link = False
-    if has_email_tracker_study_link:
-        email_tracker_study_link = "https://example.com/fake_survey_link"
+        tracker_report_link = ""
+
+    if "num_level_one_email_trackers_removed" in request.GET:
+        num_level_one_email_trackers_removed = int(
+            request.GET["num_level_one_email_trackers_removed"]
+        )
     else:
-        email_tracker_study_link = ""
+        num_level_one_email_trackers_removed = 0
 
     html_content = dedent(
         f"""\
@@ -161,8 +171,10 @@ def wrapped_email_test(request):
         <dd>{"Yes" if in_premium_country else "No"}</dd>
       <dt>has_attachment</dt>
         <dd>{"Yes" if has_attachment else "No"}</dd>
-      <dt>has_email_tracker_study_link</dt>
-        <dd>{"Yes" if has_email_tracker_study_link else "No"}</dd>
+      <dt>has_tracker_report_link</dt>
+        <dd>{"Yes" if has_tracker_report_link else "No"}</dd>
+      <dt>has_num_level_one_email_trackers_removed</dt>
+        <dd>{"Yes" if num_level_one_email_trackers_removed else "No"}</dd>
     </dl>
     """
     )
@@ -172,9 +184,10 @@ def wrapped_email_test(request):
         language=language,
         has_premium=has_premium,
         in_premium_country=in_premium_country,
-        email_tracker_study_link=email_tracker_study_link,
+        tracker_report_link=tracker_report_link,
         display_email="test@relay.firefox.com",
         has_attachment=has_attachment,
+        num_level_one_email_trackers_removed=num_level_one_email_trackers_removed,
     )
     return HttpResponse(wrapped_email)
 
@@ -558,31 +571,42 @@ def _sns_message(message_json):
     display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
 
     message_body = {}
-    email_tracker_study_link = ""
+    tracker_report_link = ""
+    removed_count = 0
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
-        foxfood_flag = Flag.objects.filter(name="foxfood").first()
-        if foxfood_flag and foxfood_flag.is_active_for_user(address.user):
-            html_content, control, study_details = remove_trackers(html_content)
-            removed_count = study_details["tracker_removed"]
-            general_count = study_details["general"]["count"]
-            strict_count = study_details["strict"]["count"]
-            email_tracker_study_link = (
-                "https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?"
-                + f"general-found={general_count}&"
-                + f"general-removed={removed_count}&"
-                + f"strict-found={strict_count}&"
-                + f"control={control}"
+        tracker_removal_flag = Flag.objects.filter(name="tracker_removal").first()
+        tracker_removal_flag_active = (
+            tracker_removal_flag
+            and tracker_removal_flag.is_active_for_user(address.user)
+        )
+        if tracker_removal_flag_active and user_profile.remove_level_one_email_trackers:
+            html_content, tracker_details = remove_trackers(html_content)
+            removed_count = tracker_details["tracker_removed"]
+            datetime_now = int(
+                datetime.now(timezone.utc).timestamp() * 1000
+            )  # frontend is expecting in milli seconds
+            tracker_report_details = {
+                "sender": from_address,
+                "received_at": datetime_now,
+                "trackers": tracker_details["level_one"]["trackers"],
+            }
+            tracker_report_link = (
+                f"{settings.SITE_ORIGIN}/tracker-report/#"
+                + json.dumps(tracker_report_details)
             )
+            address.num_level_one_trackers_blocked += removed_count
+            address.save()
 
         wrapped_html = wrap_html_email(
             original_html=html_content,
             language=user_profile.language,
             has_premium=user_profile.has_premium,
             in_premium_country=user_profile.fxa_locale_in_premium_country,
-            email_tracker_study_link=email_tracker_study_link,
             display_email=display_email,
             has_attachment=bool(attachments),
+            tracker_report_link=tracker_report_link,
+            num_level_one_email_trackers_removed=removed_count,
         )
         message_body["Html"] = {"Charset": "UTF-8", "Data": wrapped_html}
 
