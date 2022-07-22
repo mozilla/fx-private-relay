@@ -52,14 +52,15 @@ class EmailsConfig(AppConfig):
         self.badwords = self._load_terms("badwords.txt")
         self.blocklist = self._load_terms("blocklist.txt")
 
-        level_one_trackers = get_trackers()
-        with open("emails/tracker_lists/level-one-tracker.json", "w+") as f:
-            json.dump(level_one_trackers, f)
-        level_two_trackers = get_trackers("EmailStrict") or get_trackers(
-            "EmailAggressive"
-        )
-        with open("emails/tracker_lists/level-two-tracker.json", "w+") as f:
-            json.dump(level_two_trackers, f)
+        # TODO: fix the relative path issue on CircleCI to use the commented code
+        # level_one_trackers = get_trackers()
+        # with open("emails/tracker_lists/level-one-tracker.json", "w+") as f:
+        #     json.dump(level_one_trackers, f)
+        # level_two_trackers = get_trackers("EmailStrict") or get_trackers(
+        #     "EmailAggressive"
+        # )
+        # with open("emails/tracker_lists/level-two-tracker.json", "w+") as f:
+        #     json.dump(level_two_trackers, f)
 
     def _load_terms(self, filename):
         terms = []
