@@ -27,7 +27,6 @@ import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { HideIcon } from "../../Icons";
 import { isFlagActive } from "../../../functions/waffle";
-import { runtimeData } from "../../../apiMocks/mockData";
 
 export type Props = {
   alias: AliasData;
@@ -184,7 +183,11 @@ export const Alias = (props: Props) => {
           <BlockLevelLabel alias={props.alias} />
         </div>
         {/* This <Stats> will be hidden on small screens: */}
-        <Stats alias={props.alias} profile={props.profile} />
+        <Stats
+          alias={props.alias}
+          profile={props.profile}
+          runtimeData={props.runtimeData}
+        />
         <div className={styles["expand-toggle"]}>
           <button {...expandButtonProps} ref={expandButtonRef}>
             <ArrowDownIcon
@@ -201,7 +204,11 @@ export const Alias = (props: Props) => {
       </div>
       <div className={styles["secondary-data"]}>
         {/* This <Stats> will be hidden on large screens: */}
-        <Stats alias={props.alias} profile={props.profile} />
+        <Stats
+          alias={props.alias}
+          profile={props.profile}
+          runtimeData={props.runtimeData}
+        />
         <div className={styles.row}>
           <BlockLevelSlider
             alias={props.alias}
@@ -278,7 +285,7 @@ const Stats = (props: StatsProps) => {
         If the back-end does not yet support providing tracker blocking stats,
         hide the blocked trackers count:
        */}
-      {isFlagActive(runtimeData, "tracker_removal") &&
+      {isFlagActive(props.runtimeData, "tracker_removal") &&
         typeof props.alias.num_level_one_trackers_blocked === "number" && (
           <TrackersRemovedTooltip>
             <span className={styles.number}>
