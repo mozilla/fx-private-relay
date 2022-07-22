@@ -452,7 +452,7 @@ def _sns_message(message_json):
         message = get_ses_message(message_json)
     except NotImplementedError:
         pass  # Bounce, Received, etc.
-    except Exception:
+    except ValueError:
         info_logger.exception(
             "SES message processing error", extra={"payload": message_json}
         )
