@@ -36,9 +36,9 @@ info_logger = logging.getLogger("eventsinfo")
 study_logger = logging.getLogger("studymetrics")
 metrics = markus.get_metrics("fx-private-relay")
 
-with open("emails/tracker_lists/general-tracker.json", "r") as f:
+with open("emails/tracker_lists/level-one-tracker.json", "r") as f:
     GENERAL_TRACKERS = json.load(f)
-with open("emails/tracker_lists/strict-tracker.json", "r") as f:
+with open("emails/tracker_lists/level-two-tracker.json", "r") as f:
     STRICT_TRACKERS = json.load(f)
 
 

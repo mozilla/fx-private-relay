@@ -1,5 +1,7 @@
+import json
 import logging
 import os
+import requests
 
 import boto3
 from botocore.config import Config
@@ -9,6 +11,22 @@ from django.conf import settings
 
 
 logger = logging.getLogger("events")
+
+
+def get_trackers(category="Email"):
+    # email tracker lists from shavar-prod-list as per agreed use under license:
+    resp = requests.get(
+        "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/master/disconnect-blacklist.json"
+    )
+    json_resp = resp.json()
+    formatted_trackers = json_resp["categories"][category]
+    trackers = []
+    for entity in formatted_trackers:
+        for _, resources in entity.items():
+            for _, domains in resources.items():
+                trackers.extend(domains)
+    # when storing use a tuple so it's not mutable
+    return trackers
 
 
 class EmailsConfig(AppConfig):
@@ -33,6 +51,15 @@ class EmailsConfig(AppConfig):
         # https://www.cs.cmu.edu/~biglou/resources/bad-words.txt
         self.badwords = self._load_terms("badwords.txt")
         self.blocklist = self._load_terms("blocklist.txt")
+
+        level_one_trackers = get_trackers()
+        with open("emails/tracker_lists/level-one-tracker.json", "w+") as f:
+            json.dump(level_one_trackers, f)
+        level_two_trackers = get_trackers("EmailStrict") or get_trackers(
+            "EmailAggressive"
+        )
+        with open("emails/tracker_lists/level-two-tracker.json", "w+") as f:
+            json.dump(level_two_trackers, f)
 
     def _load_terms(self, filename):
         terms = []
