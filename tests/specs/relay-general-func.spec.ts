@@ -1,12 +1,15 @@
+import { Page } from '@playwright/test';
 import test, { expect }  from '../fixtures/basePages'
 import { defaultScreenshotOpts } from '../utils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
 test.describe('Free - General Functionalities, Desktop', () => {
-    test.beforeEach(async ({ dashboardPage }) => {     
+
+    test.beforeEach(async ({ dashboardPage, page }) => {
       await dashboardPage.open()
-      await dashboardPage.deleteMask()
+      await checkForSignInButton(page)
+      await dashboardPage.deleteMask()   
     });    
   
     test('Verify that the Header is displayed correctly for a Free user that is logged in, C1812639', async ({ dashboardPage }) => {
@@ -29,13 +32,11 @@ test.describe('Free - General Functionalities, Desktop', () => {
       );
       await dashboardPage.userMenuButton.click()
   
-  
       await dashboardPage.relayExtensionBanner.scrollIntoViewIfNeeded()
       await expect(dashboardPage.relayExtensionBanner).toHaveScreenshot(
         'relayExtensionBanner.png',
         defaultScreenshotOpts
       );
-  
   
       await dashboardPage.bottomUgradeBanner.scrollIntoViewIfNeeded()
       await expect(dashboardPage.bottomUgradeBanner).toHaveScreenshot(
@@ -81,7 +82,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
     })
 })
 
-test.describe('Free - General Functionalities, Desktop - Mask Status', () => {
+test.describe.skip('Free - General Functionalities, Desktop - Mask Status', () => {  
   test.beforeEach(async ({ dashboardPage }) => {    
     await dashboardPage.open()
     await dashboardPage.deleteMask()
@@ -94,3 +95,16 @@ test.describe('Free - General Functionalities, Desktop - Mask Status', () => {
     );
   });
 })
+
+
+
+const checkForSignInButton = async (page: Page) => {
+  try {    
+    const maybeSignInButton = 'button:has-text("Sign In")'
+    await page.waitForSelector(maybeSignInButton, { timeout: 2000 })
+    await page.locator(maybeSignInButton).click()
+    await page.waitForNavigation() 
+  } catch (error) {
+    console.log('Proceeded to logged in page')
+  }
+}

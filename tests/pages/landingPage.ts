@@ -24,7 +24,7 @@ export class LandingPage {
         this.signInButton = page.locator('a:has-text("Sign In")')
         this.firefoxAppsServices = page.locator('#react-aria-1')
         this.firefoxAppsServicesExpanded = page.locator('#react-aria-2')
-        this.firefoxLogo = page.locator('header img').first()
+        this.firefoxLogo = page.locator('//a[starts-with(@class, "Layout_logo")]')
     }
  
     async open(){

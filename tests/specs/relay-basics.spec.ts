@@ -22,18 +22,19 @@ test.describe('Check header buttons and their redirects,  C1812638',  () => {
 
   test('Verify home FAQ button redirect', async ({ landingPage, page }) => {
     await landingPage.goToFAQ() 
-    expect(page.url()).toContain('https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/faq/')
+    expect(page.url()).toContain(`${process.env.TEST_BASE_URL}/faq/`)
   })
 
-  test('Verify home button redirect', async ({ landingPage, page }) => {      
+  test('Verify home button redirect', async ({ landingPage, page }) => {
+    await landingPage.goToFAQ()   
     await landingPage.goHome()
-    expect(page.url()).toContain('https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/')
+    expect(page.url()).toContain(process.env.TEST_BASE_URL)
   }) 
   
-  test('Verify home firefox logo redirect', async ({ landingPage, page }) => {      
+  test('Verify home firefox logo redirect', async ({ landingPage, page }) => {  
     await landingPage.goToFAQ()
     await landingPage.clickFirefoxLogo()
-    expect(page.url()).toContain('https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net/')
+    expect(page.url()).toEqual(`${process.env.TEST_BASE_URL}/`)
   }) 
 
   test('Verify sign in button authentication flow', async ({ landingPage, page }) => {      
@@ -46,7 +47,7 @@ test.describe('Check header buttons and their redirects,  C1812638',  () => {
     expect(page.url()).toContain('accounts.stage.mozaws.net')
   })
 
-  test('Verify firefox apps and service', async ({ landingPage }) => {        
+  test('Verify firefox apps and service', async ({ landingPage }) => {    
     await landingPage.openFirefoxAppsServices()
     await expect(landingPage.firefoxAppsServicesExpanded).toHaveScreenshot(
       'firefoxAppsServicesExpanded.png',

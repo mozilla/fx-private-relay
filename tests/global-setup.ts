@@ -14,7 +14,7 @@ async function globalSetup() {
 
     const authPage = new AuthPage(page);
     await authPage.login(
-      process.env.TEST_ACCOUNT3_FREE as string,
+      process.env.TEST_ACCOUNT_FREE as string,
       process.env.TEST_ACCOUNT_PASSWORD as string
     );
 

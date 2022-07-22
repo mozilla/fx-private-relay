@@ -45,7 +45,7 @@ test.describe('Relay e2e function email forwarding', () => {
         await createAccountButton.click()
     
         // wait for email to be forward to restmail
-        await waitForRestmail(request, process.env.TEST_ACCOUNT2_FREE as string)    
+        await waitForRestmail(request, process.env.TEST_ACCOUNT_FREE as string)    
     });
 
     test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
@@ -70,7 +70,7 @@ test.describe('Relay e2e function email forwarding', () => {
     })
 })
 
-test.skip('Relay e2e auth flows', () => {
+test.describe('Relay e2e auth flows', () => {
   let testEmail: string;
   let verificationCode: string;
 

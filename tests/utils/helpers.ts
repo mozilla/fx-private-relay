@@ -44,17 +44,6 @@ export const generateRandomEmail = async () => {
   return `${Date.now()}_tstact@restmail.net`;
 };
 
-export const chooseAvailableFreeEmail = async (): Promise<string> => {
- const availableEmails = [
-   process.env.TEST_ACCOUNT1_FREE,
-   process.env.TEST_ACCOUNT2_FREE,
-   process.env.TEST_ACCOUNT3_FREE,
-   process.env.TEST_ACCOUNT4_FREE
- ]
-
- return availableEmails[Math.floor(Math.random() * availableEmails.length)] as string
-}
-
 interface DefaultScreenshotOpts {
   animations?: "disabled" | "allow" | undefined
   maxDiffPixelRatio?: number | undefined;
@@ -65,70 +54,53 @@ export const defaultScreenshotOpts: Partial<DefaultScreenshotOpts> = {
   maxDiffPixelRatio: 0.04
 };
 
-// const getAuthPW = () => {
-//   return uint8ToHex(new Uint8Array(authPW))
-// }
+const generateRandomNumber = (numberLength = 7) => {
+  let word = '';
+  let possibleWordLetters =
+    '1234567890';
 
-// const authPW = crypto.subtle.deriveBits(
-//   {
-//     name: 'HKDF',
-//     salt: new Uint8Array(0),
-//     // The builtin ts type definition for HKDF was wrong
-//     // at the time this was written, hence the ignore
-//     // @ts-ignore
-//     info: encoder().encode(`${NAMESPACE}authPW`),
-//     hash: 'SHA-256',
-//   },
-//   quickStretchedKey,
-//   256
-// );
+  for (let i = 0; i < numberLength; i++) {
+    word += possibleWordLetters.charAt(
+      Math.floor(Math.random() * possibleWordLetters.length)
+    );
+  }
 
-// const passkey = crypto.subtle.importKey(
-//   'raw',
-//   encoder().encode(process.env.TESTACCOUNT_PASSWORD),
-//   'PBKDF2',
-//   false,
-//   ['deriveBits']
-// );
+  return word;
+};
 
-// const quickStretchedRaw = crypto.subtle.deriveBits(
-//   {
-//     name: 'PBKDF2',
-//     salt: encoder().encode(`${NAMESPACE}quickStretch:${email}`),
-//     iterations: 1000,
-//     hash: 'SHA-256',
-//   },
-//   passkey,
-//   256
-// );
+const generateRandomWord = (wordLength = 9) => {
+  let word = '';
+  let possibleWordLetters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-// const quickStretchedKey = crypto.subtle.importKey(
-//   'raw',
-//   quickStretchedRaw,
-//   'HKDF',
-//   false,
-//   ['deriveBits']
-// );
+  for (let i = 0; i < wordLength; i++) {
+    word += possibleWordLetters.charAt(
+      Math.floor(Math.random() * possibleWordLetters.length)
+    );
+  }
 
-// function uint8ToHex(uint8Array = []) {
-//   return uint8Array.reduce(
-//     (str, byte) => str + ('00' + byte.toString(16)).slice(-2),
-//     ''
-//   );
-// }
+  return word;
+};
 
-// const login = (req, email, attempts = 10) => {
-//   if (attempts === 0) {
-//     throw new Error('Unable to retrieve restmail data');
-// }
-
-// const response = req.get(
-//     'https://api.accounts.firefox.com/v1/account/create',
-//     {
-//     failOnStatusCode: false
-//     }
-// );
-// }
+export const generateMaskResponseObject =  {
+    mask_type: "random",
+    enabled: true,
+    description: "lfjldksjfkldsjflksjlkj",
+    generated_for: "",
+    block_list_emails: false,
+    used_on: null,
+    id: generateRandomNumber(),
+    address: "sdlfkjdskjfs",
+    domain: 2,
+    full_address: `sdlfkjdskjfs@${process.env.TEST_BASE_URL}`,
+    created_at: "2022-07-19T15:22:52.803508Z",
+    last_modified_at: "2022-07-19T15:22:52.803523Z",
+    last_used_at: null,
+    num_forwarded: 0,
+    num_blocked: 0,
+    num_replied: 0,
+    num_spam: 0  
+}
 
 export const delay = (timeInMilliSeconds: number)  =>
   new Promise(function (resolve) {
