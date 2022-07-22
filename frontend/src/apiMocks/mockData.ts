@@ -51,7 +51,7 @@ export const profiles: Record<typeof mockIds[number], ProfileData> = {
     emails_blocked: 0,
     emails_forwarded: 0,
     emails_replied: 0,
-    num_level_one_trackers_blocked_in_deleted_address: 0,
+    level_one_trackers_blocked: 0,
   },
   onboarding: {
     api_token: "onboarding",
@@ -68,7 +68,7 @@ export const profiles: Record<typeof mockIds[number], ProfileData> = {
     emails_blocked: 0,
     emails_forwarded: 0,
     emails_replied: 0,
-    num_level_one_trackers_blocked_in_deleted_address: 0,
+    level_one_trackers_blocked: 0,
   },
   some: {
     api_token: "some",
@@ -85,7 +85,7 @@ export const profiles: Record<typeof mockIds[number], ProfileData> = {
     emails_blocked: 424284,
     emails_forwarded: 1337,
     emails_replied: 40,
-    num_level_one_trackers_blocked_in_deleted_address: 72,
+    level_one_trackers_blocked: 72,
   },
   full: {
     api_token: "full",
@@ -102,7 +102,7 @@ export const profiles: Record<typeof mockIds[number], ProfileData> = {
     emails_blocked: 848526,
     emails_forwarded: 1337,
     emails_replied: 9631,
-    num_level_one_trackers_blocked_in_deleted_address: 1409,
+    level_one_trackers_blocked: 1409,
   },
 };
 export const relayaddresses: Record<typeof mockIds[number], RandomAliasData[]> =
