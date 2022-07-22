@@ -4,7 +4,6 @@ import { CsatSurvey } from "./CsatSurvey";
 import { NpsSurvey } from "./NpsSurvey";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../functions/waffle";
-import { runtimeData } from "../../../apiMocks/mockData";
 
 export type Props = {
   profile?: ProfileData;
@@ -12,7 +11,7 @@ export type Props = {
 };
 
 export const TopMessage = (props: Props) => {
-  if (isFlagActive(runtimeData, "interview_recruitment")) {
+  if (isFlagActive(props.runtimeData, "interview_recruitment")) {
     return <InterviewRecruitment profile={props.profile} />;
   }
 
