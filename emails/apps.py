@@ -25,7 +25,6 @@ def get_trackers(category="Email"):
         for _, resources in entity.items():
             for _, domains in resources.items():
                 trackers.extend(domains)
-    # when storing use a tuple so it's not mutable
     return trackers
 
 
