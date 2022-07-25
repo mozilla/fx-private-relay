@@ -84,6 +84,14 @@
     color: $color-grey-40;
     cursor: pointer;
 
+    @media screen and (max-height: 700px) {
+      // Because the menu is not scrollable (it stays in the same position while
+      // the content behind it scrolls), this makes it take up less space on
+      // screens without a tall viewport, to increase the odds of every item
+      // being visible:
+      padding: $spacing-md;
+    }
+
     &:hover {
       text-decoration: underline;
     }
@@ -116,6 +124,14 @@
     ),
     linear-gradient(90deg, #f73940 1.25%, #a83db5 96.87%);
   gap: $spacing-md;
+
+  @media screen and (max-height: 700px) {
+    // Because the menu is not scrollable (it stays in the same position while
+    // the content behind it scrolls), this makes it take up less space on
+    // screens without a tall viewport, to increase the odds of every item
+    // being visible:
+    padding: $spacing-md;
+  }
 
   .user-avatar {
     border-radius: 50%;
