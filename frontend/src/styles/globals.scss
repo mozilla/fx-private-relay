@@ -29,6 +29,13 @@ body,
 #overlayProvider {
   height: 100%;
   font-family: $font-stack-base;
+  // In <Layout> all content is wrapped in a `.non-header-wrapper` that has its
+  // own `overflow` applied, to allow the header and mobile menu to remain fixed
+  // in place. However, in Blink- and WebKit-based browsers, this resulted in
+  // empty space at the bottom of the page, below the footer.
+  // Since the user can scroll in `.non-header-wrapper`, everything outside that
+  // that still overflows these elements can safely be hidden:
+  overflow: hidden;
 }
 
 html {
