@@ -12,7 +12,7 @@ function useMediaQueryImp(mediaQuery: string): boolean {
   const [matches, setMatches] = useState(mediaQueryList.matches);
   useEffect(() => {
     const changeListener: Parameters<MediaQueryList["addEventListener"]>[1] = (
-      changedList
+      _changedList
     ) => {
       setMatches(mediaQueryList.matches);
     };

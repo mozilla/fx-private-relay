@@ -54,7 +54,7 @@ export function getHandlers(
     handlers.push(rest.delete(`http://127.0.0.1:8000${path}`, resolver));
   };
 
-  addGetHandler("/accounts/logout", (_req, res, ctx) => {
+  addGetHandler("/accounts/logout", (_req, res, _ctx) => {
     return res();
   });
 
