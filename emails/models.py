@@ -315,9 +315,11 @@ class Profile(models.Model):
     @property
     def level_one_trackers_blocked(self):
         return (
-            sum(ra.num_level_one_trackers_blocked for ra in self.relay_addresses)
-            + sum(da.num_level_one_trackers_blocked for da in self.domain_addresses)
-            + self.num_level_one_trackers_blocked_in_deleted_address
+            sum(ra.num_level_one_trackers_blocked or 0 for ra in self.relay_addresses)
+            + sum(
+                da.num_level_one_trackers_blocked or 0 for da in self.domain_addresses
+            )
+            + (self.num_level_one_trackers_blocked_in_deleted_address or 0)
         )
 
     @property
@@ -529,9 +531,9 @@ class RelayAddress(models.Model):
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
-        profile.num_level_one_trackers_blocked_in_deleted_address += (
-            self.num_level_one_trackers_blocked
-        )
+        profile.num_level_one_trackers_blocked_in_deleted_address = (
+            profile.num_level_one_trackers_blocked_in_deleted_address or 0
+        ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()
@@ -707,9 +709,9 @@ class DomainAddress(models.Model):
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
-        profile.num_level_one_trackers_blocked_in_deleted_address += (
-            self.num_level_one_trackers_blocked
-        )
+        profile.num_level_one_trackers_blocked_in_deleted_address = (
+            profile.num_level_one_trackers_blocked_in_deleted_address or 0
+        ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()

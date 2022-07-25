@@ -595,7 +595,9 @@ def _sns_message(message_json):
                 f"{settings.SITE_ORIGIN}/tracker-report/#"
                 + json.dumps(tracker_report_details)
             )
-            address.num_level_one_trackers_blocked += removed_count
+            address.num_level_one_trackers_blocked = (
+                address.num_level_one_trackers_blocked or 0
+            ) + removed_count
             address.save()
 
         wrapped_html = wrap_html_email(
