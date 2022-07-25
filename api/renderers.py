@@ -20,3 +20,21 @@ class vCardRenderer(renderers.BaseRenderer):
         vCard.add("tel")
         vCard.tel.value = data.get("number", "")
         return vCard.serialize().encode()
+
+
+class TwilioCallForwardXMLRenderer(renderers.BaseRenderer):
+    """
+    Twilio POSTS its request with x-www-form-urlencoded but it wants responses
+    in TwiML XML.
+    """
+
+    media_type = "text/xml"
+    format = "xml"
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        xml_header = '<?xml version="1.0" encoding="UTF-8"?>'
+        if renderer_context["response"].status_code != 201:
+            error = data[0]
+            title = error.title()
+            return f"{xml_header}<Error><code>{error.code}</code><title>{title}</title></Error>"
+        return f'{xml_header}<Response><Dial callerId="{data["inbound_from"]}"><Number>{data["real_number"]}</Number></Dial></Response>'

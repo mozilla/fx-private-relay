@@ -488,6 +488,26 @@ def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
     assert "Missing From, To, Or Body." in response.data[0].title()
 
 
+def test_inbound_sms_valid_twilio_signature_unknown_number(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    unknown_number = "+1234567890"
+    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
+    RelayNumber.objects.create(user=phone_user, number=relay_number)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": "+15556660000", "To": unknown_number, "Body": "test body"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    assert "Could Not Find Relay Number." in response.data[0].title()
+
+
 def test_inbound_sms_valid_twilio_signature_good_data(
     phone_user, mocked_twilio_client, mocked_twilio_validator
 ):
@@ -509,3 +529,80 @@ def test_inbound_sms_valid_twilio_signature_good_data(
     assert call_kwargs["to"] == real_phone_number
     assert call_kwargs["from_"] == relay_number
     assert "[Relay" in call_kwargs["body"]
+
+
+@pytest.mark.django_db
+def test_inbound_call_no_twilio_signature():
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    response = client.post(path)
+
+    assert response.status_code == 400
+    assert "Missing X-Twilio-Signature" in response.data[0].title()
+
+
+@pytest.mark.django_db
+def test_inbound_call_invalid_twilio_signature(mocked_twilio_validator):
+    mocked_twilio_validator.validate = Mock(return_value=False)
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="invalid")
+
+    assert response.status_code == 400
+    assert "Invalid Signature" in response.data[0].title()
+
+
+@pytest.mark.django_db
+def test_inbound_call_valid_twilio_signature_bad_data(mocked_twilio_validator):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    assert "Missing Caller Or Called." in response.data[0].title()
+
+
+def test_inbound_call_valid_twilio_signature_unknown_number(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    unknown_number = "+1234567890"
+    caller_number = "+15556660000"
+    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
+    RelayNumber.objects.create(user=phone_user, number=relay_number)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    data = {"Caller": caller_number, "Called": unknown_number}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    assert "Could Not Find Relay Number." in response.data[0].title()
+
+
+def test_inbound_call_valid_twilio_signature_good_data(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    caller_number = "+15556660000"
+    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
+    RelayNumber.objects.create(user=phone_user, number=relay_number)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    data = {"Caller": caller_number, "Called": relay_number}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 201
+    decoded_content = response.content.decode()
+    assert f'callerId="{caller_number}"' in decoded_content
+    assert f"<Number>{real_phone_number}</Number>" in decoded_content
