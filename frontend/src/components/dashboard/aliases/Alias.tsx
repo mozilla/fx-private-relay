@@ -8,7 +8,7 @@ import {
   useTooltipTrigger,
 } from "react-aria";
 import styles from "./Alias.module.scss";
-import { ArrowDownIcon, CopyIcon } from "../../Icons";
+import { ArrowDownIcon, CopyIcon, HideIcon } from "../../Icons";
 import IllustrationHoliday from "../../../../public/illustrations/holiday.svg";
 import IllustrationLibrary from "../../../../public/illustrations/library.svg";
 import {
@@ -25,7 +25,6 @@ import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
-import { HideIcon } from "../../Icons";
 import { isFlagActive } from "../../../functions/waffle";
 import { runtimeData } from "../../../apiMocks/mockData";
 
