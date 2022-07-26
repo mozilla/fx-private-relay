@@ -41,6 +41,8 @@ def test_clean(caplog) -> None:
     out = StringIO()
     call_command(COMMAND_NAME, "--clean", stdout=out)
     output = out.getvalue()
+    assert "# Summary\n" in output
+    assert "# Details\n" not in output
     log = caplog.records[0]
     assert log.message == "cleanup_data complete, cleaned 0 of 0 issues."
     assert log.cleaned
@@ -115,7 +117,7 @@ def test_issues_found_by_detector() -> None:
     setup_profile_mismatch_test_data(add_problems=True)
     out = StringIO()
     call_command(
-        COMMAND_NAME, f"--many-profiles", "--clean", "--verbosity=2", stdout=out
+        COMMAND_NAME, "--many-profiles", "--clean", "--verbosity=2", stdout=out
     )
     output = out.getvalue()
     assert "# Summary\n" in output

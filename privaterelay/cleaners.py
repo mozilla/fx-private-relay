@@ -52,7 +52,8 @@ class DataIssueTask:
         """
         Clean the detected items.
 
-        Returns the number of cleaned items. Implementors can add detailed counts to self._counts as needed.
+        Returns the number of cleaned items. Implementors can add detailed
+        counts to self._counts as needed.
         """
         raise NotImplementedError("_clean() not implemented")
 

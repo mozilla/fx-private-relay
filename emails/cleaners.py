@@ -1,10 +1,9 @@
 """Tasks that detect data issues and (if possible) clean them."""
 
 from __future__ import annotations
-from typing import Optional, TypedDict, Union
 
 from django.contrib.auth.models import User
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, Q
 
 from privaterelay.cleaners import CleanerTask, CleanupData, Counts, DetectorTask
 
@@ -25,8 +24,10 @@ class ServerStorageCleaner(CleanerTask):
         Analyze usage of the server_storage flag and server-stored data.
 
         Returns:
-        * counts: two-level dict of row counts for Profile, RelayAddress, and DomainAddress
-        * cleanup_data: two-element dict of RelayAddresses and DomainAddress queries to clear
+        * counts: two-level dict of row counts for Profile, RelayAddress, and
+          DomainAddress
+        * cleanup_data: two-element dict of RelayAddresses and DomainAddress
+          queries to clear
         """
         profiles_without_server_storage = Profile.objects.filter(server_storage=False)
         relay_addresses = RelayAddress.objects.filter(

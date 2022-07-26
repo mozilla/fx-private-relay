@@ -1,9 +1,6 @@
 """Tests for emails/cleaners.py"""
 from __future__ import annotations
 
-from io import StringIO
-from typing import Optional
-
 from django.contrib.auth.models import User
 
 from model_bakery import baker
@@ -140,11 +137,15 @@ def test_server_storage_cleaner_all_server_storage() -> None:
     report = cleaner.markdown_report()
     expected = """\
 Profiles:
-  All: 0
+  All: 1
+    Without Server Storage: 0 (  0.0%)
 Relay Addresses:
-  All: 0
+  All: 1
+    Without Server Storage: 0 (  0.0%)
 Domain Addresses:
-  All: 0"""
+  All: 1
+    Without Server Storage: 0 (  0.0%)"""
+    assert report == expected
 
 
 @pytest.mark.django_db

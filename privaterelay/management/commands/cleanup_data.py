@@ -99,10 +99,16 @@ class Command(BaseCommand):
         issue_count, issue_timers = self.find_issues(tasks)
         if to_clean:
             clean_count, clean_timers = self.clean_issues(tasks)
-            log_message = f"cleanup_data complete, cleaned {clean_count} of {issue_count} issue{'' if issue_count==1 else 's'}."
+            log_message = (
+                f"cleanup_data complete, cleaned {clean_count} of"
+                f" {issue_count} issue{'' if issue_count==1 else 's'}."
+            )
         else:
             clean_timers = None
-            log_message = f"cleanup_data complete, found {issue_count} issue{'' if issue_count==1 else 's'} (dry run)."
+            log_message = (
+                f"cleanup_data complete, found {issue_count}"
+                f" issue{'' if issue_count==1 else 's'} (dry run)."
+            )
 
         # Log results and create a report, based on requested verbosity
         full_data, log_data = self.prepare_data(
@@ -192,7 +198,6 @@ class Command(BaseCommand):
 
         verbosity: int = data["verbosity"]
         cleaned: bool = data["cleaned"]
-        timers: dict[str, float] = data["timers"]
         tasks: dict[str, dict[str, Any]] = data["tasks"]
 
         # Collect task details
@@ -202,7 +207,6 @@ class Command(BaseCommand):
         for slug, task in tasks.items():
             # Gather data and types
             summary: dict[str, int] = task["counts"]["summary"]
-            ok = summary["ok"]
             needs_cleaning = summary["needs_cleaning"]
             num_cleaned = summary.get("cleaned", 0)
 
@@ -240,7 +244,7 @@ class Command(BaseCommand):
                         f"Cleaned {num_cleaned} issues in {clean_timer} seconds."
                     )
                 elif needs_cleaning:
-                    detail.append(f"Unable to automatically clean detected items.")
+                    detail.append("Unable to automatically clean detected items.")
             detail.append("")
             detail.append(task["markdown_report"])
             details.append("\n".join(detail))
