@@ -7,7 +7,6 @@ export class AuthPage {
     readonly passwordConfirmInputField: Locator
     readonly continueButton: Locator
     readonly ageInputField: Locator
-    readonly testFirefoxProductsOption: string
     readonly verifyCodeInputField: Locator
 
     constructor(page: Page){
@@ -16,7 +15,6 @@ export class AuthPage {
         this.passwordInputField = page.locator('#password');        
         this.passwordConfirmInputField = page.locator('#vpassword');
         this.ageInputField = page.locator('#age');
-        this.testFirefoxProductsOption = '#test-pilot';
         this.continueButton = page.locator('#submit-btn');
         this.verifyCodeInputField = page.locator('//*[@id="main-content"]/section/form/div[1]/input')
     }
@@ -31,11 +29,6 @@ export class AuthPage {
     async enterVerificationCode(code: string){
         await this.verifyCodeInputField.fill(code)
         await this.continue()
-    }
-
-    async enterRandomAge() {
-        const randomAge = Math.floor(Math.random() * (40 - 30 + 1)) + 30;
-        await this.ageInputField.type(randomAge.toString());
     }
 
     async enterEmail(email: string) {
@@ -57,8 +50,7 @@ export class AuthPage {
         await this.enterEmail(email)
         await this.passwordInputField.fill(password);
         await this.passwordConfirmInputField.fill(password);
-        await this.enterRandomAge()
-        await this.page.check(this.testFirefoxProductsOption);
+        await this.ageInputField.type("31");
         await this.continue();
     }
 }

@@ -33,13 +33,13 @@ npx playwright install
 ```
 create/update a .env file with the following:
 
-TEST_BASE_URL={/* base will be stage url */}
-TEST_ACCOUNT_FREE=
-TEST_ACCOUNT_PASSWORD=
+E2E_TEST_BASE_URL={/* base will be stage url */}
+E2E_TEST_ACCOUNT_FREE=
+E2E_TEST_ACCOUNT_PASSWORD=
 ```
 
 ### 6. Run Tests
 
 ```
-npx playwright test || npm run test:e2e
+npm run test:e2e
 ```

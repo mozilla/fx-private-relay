@@ -92,22 +92,18 @@ export class DashboardPage {
         }
            
         // generate a new mask and confirm
-        await this.generateNewMaskButton.click({ force: true })
-        await this.page.waitForSelector(this.maskCard, { timeout: 3000 })       
-
-        // wait for 1 sec and run flow again with the next masks
-        await this.page.waitForTimeout(1000)
+        await this.generateNewMaskButton.click()
+        await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
+        
+        // re-run until there are no more masks to generate
         await this.generateMask(numberOfMasks - 1)
     }    
 
     async upgrade(){        
-        await Promise.all([   
-            this.page.waitForLoadState('networkidle'),    
-            this.upgradeButton.click({ force: true })
-        ]);        
+        await this.upgradeButton.click()
     }
 
-    async deleteMask(clearAll = true, numberOfMasks = 1){       
+    async maybeDeleteMasks(clearAll = true, numberOfMasks = 1){       
         let isExpanded = false
 
         // check number of masks available
@@ -121,26 +117,24 @@ export class DashboardPage {
                 await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
                 numberOfMasks = await this.page.locator(this.maskCard).count()
             } catch (error) {
-                console.log('There are no masks to delete')
+                console.error('There are no masks to delete')
             }
             
             try {
                 isExpanded = await this.maskCardExpanded.isVisible()                            
             } catch (error) {
-                console.log('There are no expanded')
+                console.error('There are no expanded')
             }
         }
-        
-        console.log(`Number of Masks to delete: `, numberOfMasks)
         
         // locate mask expand button only if mask is not already expanded
         if(!isExpanded){
             try {
                 const anchorLocator = `(//div[starts-with(@class, "Alias_expand-toggle")])[${numberOfMasks}]/button`
                 await this.page.waitForSelector(anchorLocator, { timeout: 3000 })
-                await this.page.locator(anchorLocator).click({ force: true })
+                await this.page.locator(anchorLocator).click()
             } catch(err){
-                console.log('No current masks')
+                console.error('No current masks')
                 return
             }
         }
@@ -148,11 +142,11 @@ export class DashboardPage {
         // delete flow
         const currentMaskCardDeleteButton = this.page.locator(`(//button[starts-with(@class, "AliasDeletionButton_deletion")])[${numberOfMasks}]`)
         await currentMaskCardDeleteButton.click()
-        await this.maskCardDeleteConfirmationCheckbox.click({ force: true })
-        await this.maskCardFinalDeleteButton.click({ force: true })
+        await this.maskCardDeleteConfirmationCheckbox.click()
+        await this.maskCardFinalDeleteButton.click()
 
         // wait for 500 ms and run flow again with the next masks
         await this.page.waitForTimeout(500)
-        await this.deleteMask(true, numberOfMasks - 1)
+        await this.maybeDeleteMasks(true, numberOfMasks - 1)
     }
 }

@@ -13,13 +13,13 @@ require('dotenv').config();
 const config: PlaywrightTestConfig = {
 
   /* Add location of specs. */
-  testDir: 'tests/specs',
+  testDir: 'e2e-tests/specs',
 
   /* Maximum time one test can run for. */
   timeout: process.env.CI ? 60000 : undefined,
 
   /* Global setup */
-  globalSetup: require.resolve('./tests/global-setup.ts'),
+  globalSetup: require.resolve('./e2e-tests/global-setup.ts'),
 
   /* Max time in milliseconds the whole test suite can to prevent CI breaking. */
   globalTimeout: process.env.CI ? 360000 : undefined,
@@ -44,7 +44,7 @@ const config: PlaywrightTestConfig = {
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    [process.env.CI ? 'line' : 'html']
+    [process.env.CI ? 'github' : 'html']
     // ['allure-playwright']
     // ['json', {  outputFile: 'test-results.json' }],
   ],
@@ -73,19 +73,19 @@ const config: PlaywrightTestConfig = {
         ...devices['Desktop Chrome'],
       },
     },
-    // {
-    //   name: 'firefox',
-    //   use: {
-    //     ...devices['Desktop Firefox'],
-    //   },
-    // },
+    {
+      name: 'firefox',
+      use: {
+        ...devices['Desktop Firefox'],
+      },
+    },
 
-    // {
-    //   name: 'webkit',
-    //   use: {
-    //     ...devices['Desktop Safari'],
-    //   },
-    // },
+    {
+      name: 'webkit',
+      use: {
+        ...devices['Desktop Safari'],
+      },
+    },
 
     /* Test against mobile viewports. */
     // {

@@ -1,6 +1,5 @@
-import { Page } from '@playwright/test';
 import test, { expect }  from '../fixtures/basePages'
-import { defaultScreenshotOpts } from '../utils/helpers';
+import { checkForSignInButton, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
@@ -9,7 +8,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
     test.beforeEach(async ({ dashboardPage, page }) => {
       await dashboardPage.open()
       await checkForSignInButton(page)
-      await dashboardPage.deleteMask()   
+      await dashboardPage.maybeDeleteMasks()
     });    
   
     test('Verify that the Header is displayed correctly for a Free user that is logged in, C1812639', async ({ dashboardPage }) => {
@@ -19,7 +18,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
       );
     })
   
-    test.fixme('Verify that the "Upgrade" button redirects correctly,  C1812640, 1808503', async ({ dashboardPage, page }) => {
+    test('Verify that the "Upgrade" button redirects correctly,  C1812640, 1808503', async ({ dashboardPage, page }) => {
       await dashboardPage.upgrade()
       expect(page.url()).toContain('/premium/')
     })
@@ -55,7 +54,8 @@ test.describe('Free - General Functionalities, Desktop', () => {
     test('Check that when generating a new mask, its card is automatically opened, C1686210, C1553075', async ({ dashboardPage }) => {
         await dashboardPage.generateMask(1)
         await expect(dashboardPage.maskCardExpanded).toBeVisible()
-        expect(await dashboardPage.maskCardHeader.textContent()).toContain('@mozmail.fxprivaterelay.nonprod.cloudops.mozgcp.net')
+        const emailDomain = process.env.E2E_TEST_ENV ? "@mozmail.fxprivaterelay.nonprod.cloudops.mozgcp.net" : "@mozmail.com"
+        expect(await dashboardPage.maskCardHeader.textContent()).toContain(emailDomain)
     })  
   
     test('Verify that opened mask cards are displayed correctly to a Free user, C1553070', async ({ dashboardPage, page }) => {
@@ -82,10 +82,10 @@ test.describe('Free - General Functionalities, Desktop', () => {
     })
 })
 
-test.describe.skip('Free - General Functionalities, Desktop - Mask Status', () => {  
+test.describe.only('Free - General Functionalities, Desktop - Mask Status', () => {  
   test.beforeEach(async ({ dashboardPage }) => {    
     await dashboardPage.open()
-    await dashboardPage.deleteMask()
+    await dashboardPage.maybeDeleteMasks()
   });
 
   test('Verify that the Header is displayed correctly for a Free user that is logged in, C1812639', async ({ dashboardPage }) => {
@@ -95,16 +95,3 @@ test.describe.skip('Free - General Functionalities, Desktop - Mask Status', () =
     );
   });
 })
-
-
-
-const checkForSignInButton = async (page: Page) => {
-  try {    
-    const maybeSignInButton = 'button:has-text("Sign In")'
-    await page.waitForSelector(maybeSignInButton, { timeout: 2000 })
-    await page.locator(maybeSignInButton).click()
-    await page.waitForNavigation() 
-  } catch (error) {
-    console.log('Proceeded to logged in page')
-  }
-}

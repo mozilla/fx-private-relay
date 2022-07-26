@@ -1,18 +1,17 @@
 import test, { expect }  from '../fixtures/basePages'
 import {
-  delay, 
   deleteEmailAddressMessages, 
   generateRandomEmail, 
-  waitForRestmail } from '../utils/helpers';
+  waitForRestmail } from '../e2eTestUtils/helpers';
 
 test.describe('Relay e2e function email forwarding', () => {
     // use stored authenticated state
     test.use({ storageState: 'state.json' })
 
-    test.beforeEach(async ({ dashboardPage, page, context, request }) => {
+    test.beforeEach(async ({ dashboardPage, context, request }) => {
         // reset data
         await dashboardPage.open()
-        await dashboardPage.deleteMask()  
+        await dashboardPage.maybeDeleteMasks()
         
         // create mask and use generated mask email to test email forwarding feature
         await dashboardPage.generateMask(1)
@@ -45,7 +44,7 @@ test.describe('Relay e2e function email forwarding', () => {
         await createAccountButton.click()
     
         // wait for email to be forward to restmail
-        await waitForRestmail(request, process.env.TEST_ACCOUNT4_FREE as string)    
+        await waitForRestmail(request, process.env.E2E_TEST_ACCOUNT_FREE as string)    
     });
 
     test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
@@ -86,7 +85,8 @@ test.describe('Relay e2e auth flows', () => {
       dashboardPage, 
       landingPage,
       authPage,
-      request
+      request,
+      page
     }) => {
 
       // sign up with a randomly generated email
@@ -107,14 +107,14 @@ test.describe('Relay e2e auth flows', () => {
           }
         );
 
-        const resJson = JSON.parse(await response.text());
+        const resJson = await response.json();
         if (resJson.length) {
           const rawCode = resJson[0].subject
           verificationCode = rawCode.split(':')[1].trim()
           return;
         }
 
-        await delay(1000);
+        await page.waitForTimeout(1000);
         await waitForRestmail(attempts - 1);
       };
       await waitForRestmail();

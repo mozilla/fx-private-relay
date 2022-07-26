@@ -28,7 +28,7 @@ export class LandingPage {
     }
  
     async open(){
-        await this.page.goto('/')
+        await this.page.goto(process.env.E2E_TEST_BASE_URL as string)
     }
 
     async goHome(){
