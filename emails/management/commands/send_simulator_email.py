@@ -86,6 +86,15 @@ class Command(BaseCommand):
     def get_from_address(
         self, from_email: str
     ) -> Union[None, DomainAddress, RelayAddress]:
+        """
+        Get the DomainAddress or RelayAddress for an email.
+
+        TODO: Make a generic function to do this, that can:
+        * Get but not create a DomainAddress
+        * Wraps exceptions for easier exception handling
+        * Doesn't emit metrics like _get_address
+        """
+
         local_portion, domain_portion = from_email.split("@")
         try:
             return _get_address(from_email, local_portion, domain_portion)
