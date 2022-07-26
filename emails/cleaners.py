@@ -30,20 +30,22 @@ class ServerStorageCleaner(CleanerTask):
           queries to clear
         """
         profiles_without_server_storage = Profile.objects.filter(server_storage=False)
-        relay_addresses = RelayAddress.objects.filter(
+        no_store_relay_addresses = RelayAddress.objects.filter(
             user__profile__server_storage=False
         )
-        domain_addresses = DomainAddress.objects.filter(
+        no_store_domain_addresses = DomainAddress.objects.filter(
             user__profile__server_storage=False
         )
         blank_used_on = Q(used_on="") | Q(used_on__isnull=True)
         blank_relay_data = blank_used_on & Q(description="") & Q(generated_for="")
         blank_domain_data = blank_used_on & Q(description="")
 
-        empty_relay_addresses = relay_addresses.filter(blank_relay_data)
-        empty_domain_addresses = domain_addresses.filter(blank_domain_data)
-        non_empty_relay_addresses = relay_addresses.exclude(blank_relay_data)
-        non_empty_domain_addresses = domain_addresses.exclude(blank_domain_data)
+        empty_relay_addresses = no_store_relay_addresses.filter(blank_relay_data)
+        empty_domain_addresses = no_store_domain_addresses.filter(blank_domain_data)
+        non_empty_relay_addresses = no_store_relay_addresses.exclude(blank_relay_data)
+        non_empty_domain_addresses = no_store_domain_addresses.exclude(
+            blank_domain_data
+        )
 
         empty_relay_addresses_count = empty_relay_addresses.count()
         empty_domain_addresses_count = empty_domain_addresses.count()
@@ -62,13 +64,13 @@ class ServerStorageCleaner(CleanerTask):
             },
             "relay_addresses": {
                 "all": RelayAddress.objects.count(),
-                "no_server_storage": relay_addresses.count(),
+                "no_server_storage": no_store_relay_addresses.count(),
                 "no_server_storage_or_data": empty_relay_addresses_count,
                 "no_server_storage_but_data": non_empty_relay_addresses_count,
             },
             "domain_addresses": {
                 "all": DomainAddress.objects.count(),
-                "no_server_storage": domain_addresses.count(),
+                "no_server_storage": no_store_domain_addresses.count(),
                 "no_server_storage_or_data": empty_domain_addresses_count,
                 "no_server_storage_but_data": non_empty_domain_addresses_count,
             },
