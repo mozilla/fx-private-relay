@@ -15,12 +15,12 @@ from dataclasses import dataclass, fields
 from email.message import EmailMessage
 from enum import Enum
 from typing import Any, Type, TypeVar, Optional, Union
-from uuid import UUID
 
 from django.apps import apps
 from django.conf import settings
 
-from botocore.client import BaseClient
+from mypy_boto3_ses.client import SESClient
+from mypy_boto3_ses.type_defs import SendRawEmailResponseTypeDef
 
 from .apps import EmailsConfig
 
@@ -650,61 +650,11 @@ class CommonHeaders(LoadFromDict):
         }
 
 
-@dataclass
-class SendRawEmailResponse(LoadFromDict):
-    """A response from send_raw_email"""
-
-    MessageId: str
-    ResponseMetadata: BotoResponseMetadata
-
-    @classmethod
-    def validate_dict(cls, raw_response: dict[str, Any]) -> dict[str, Any]:
-        assert isinstance(raw_response["MessageId"], str)
-        return {
-            "MessageId": raw_response["MessageId"],
-            "ResponseMetadata": BotoResponseMetadata.from_dict(
-                raw_response["ResponseMetadata"]
-            ),
-        }
-
-
-@dataclass
-class BotoResponseMetadata(LoadFromDict):
-    """
-    Response data from a boto3 API call.
-
-    This is not documented, but comes from inspecting multiple responses.
-    """
-
-    RequestId: UUID
-    HTTPStatusCode: int
-    HTTPHeaders: dict[str, str]
-    RetryAttempts: int
-
-    @classmethod
-    def validate_dict(cls, raw_metadata: dict[str, Any]) -> dict[str, Any]:
-        assert isinstance(raw_metadata["RequestId"], str)
-        assert isinstance(raw_metadata["HTTPStatusCode"], int)
-        assert isinstance(raw_metadata["HTTPHeaders"], dict)
-        for key, value in raw_metadata["HTTPHeaders"].items():
-            assert isinstance(key, str)
-            assert isinstance(value, str)
-        assert isinstance(raw_metadata["RetryAttempts"], int)
-        return {
-            "RequestId": UUID(raw_metadata["RequestId"]),
-            "HTTPStatusCode": raw_metadata["HTTPStatusCode"],
-            "HTTPHeaders": raw_metadata["HTTPHeaders"],
-            "RetryAttempts": raw_metadata["RetryAttempts"],
-        }
-
-
-def ses_client() -> BaseClient:
+def ses_client() -> SESClient:
     """An SES client, configured during Django setup."""
     emails_config = apps.get_app_config("emails")
     assert isinstance(emails_config, EmailsConfig)
     client = emails_config.ses_client
-    assert client is not None
-    assert hasattr(client, "send_raw_email")
     return client
 
 
@@ -712,7 +662,7 @@ def send_raw_email(
     from_address: str,
     to_addresses: list[str],
     raw_message: str,
-) -> SendRawEmailResponse:
+) -> SendRawEmailResponseTypeDef:
     """
     Send an email using send_raw_email()
 
@@ -721,7 +671,7 @@ def send_raw_email(
     from_address - The sender email address
     to_addresses - A list of To:, CC: and BCC: recipient email addresses
 
-    Return is an SesSendRawEmailResponse
+    Return is an SesSendRawEmailResponseTypeDef
 
     Can raise:
     * SES.Client.exceptions.MessageRejected
@@ -731,13 +681,13 @@ def send_raw_email(
     * SES.Client.exceptions.AccountSendingPausedException
     """
     client = ses_client()
-    raw_response = client.send_raw_email(
+    assert settings.AWS_SES_CONFIGSET
+    return client.send_raw_email(
         Source=from_address,
         Destinations=to_addresses,
         RawMessage={"Data": raw_message},
         ConfigurationSetName=settings.AWS_SES_CONFIGSET,
     )
-    return SendRawEmailResponse.from_dict(raw_response)
 
 
 class SimulatorScenario(Enum):
@@ -772,7 +722,7 @@ def get_simulator_email_address(
 
 def send_simulator_email(
     scenario: SimulatorScenario, from_address: str, label: Optional[str] = None
-) -> SendRawEmailResponse:
+) -> SendRawEmailResponseTypeDef:
     """Send an email to the SES mailbox simulator."""
     to_address = get_simulator_email_address(scenario, label)
     msg = EmailMessage()

@@ -9,7 +9,7 @@ from model_bakery import baker
 import pytest
 
 from emails.models import RelayAddress
-from emails.ses import SendRawEmailResponse, SimulatorScenario
+from emails.ses import SimulatorScenario
 from emails.tests.ses_tests import _ok_response_from_send_raw_email
 
 
@@ -20,7 +20,7 @@ MOCK_BASE: Final = f"emails.management.commands.{COMMAND_NAME}"
 @pytest.fixture()
 def mock_send_simulator_email() -> Iterator[Mock]:
     """Mock the SES client to successfully call send_raw_email()"""
-    response = SendRawEmailResponse.from_dict(_ok_response_from_send_raw_email())
+    response = _ok_response_from_send_raw_email()
     with patch(f"{MOCK_BASE}.send_simulator_email", return_value=response) as mock_send:
         yield mock_send
 

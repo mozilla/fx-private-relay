@@ -6,7 +6,6 @@ https://docs.aws.amazon.com/ses/latest/dg/send-an-email-from-console.html
 """
 from __future__ import annotations
 import logging
-from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, Optional, Union, cast
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -80,7 +79,7 @@ class Command(BaseCommand):
             if verbosity >= 2:
                 logger.info(
                     "SES send_raw_email responded",
-                    extra={"response": asdict(response)},
+                    extra={"response": response},
                 )
 
     def get_from_address(

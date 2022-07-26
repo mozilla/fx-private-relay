@@ -7,6 +7,7 @@ from uuid import uuid4
 import logging
 
 import pytest
+from mypy_boto3_ses.type_defs import SendRawEmailResponseTypeDef
 
 from emails.ses import (
     CommonHeaders,
@@ -26,7 +27,7 @@ from emails.ses import (
 )
 
 
-def _ok_response_from_send_raw_email() -> dict[str, Any]:
+def _ok_response_from_send_raw_email() -> SendRawEmailResponseTypeDef:
     """
     Create a successful response to send_raw_email().
 
@@ -41,6 +42,7 @@ def _ok_response_from_send_raw_email() -> dict[str, Any]:
         "MessageId": message_id,
         "ResponseMetadata": {
             "RequestId": request_id,
+            "HostId": "aws.ses.example.com",
             "HTTPStatusCode": 200,
             "HTTPHeaders": {
                 "date": now.strftime("%a, %d %b %Y %H:%M:%S GMT"),
@@ -68,7 +70,7 @@ def mock_ses_client(settings) -> Iterator[Mock]:
 @pytest.mark.parametrize("scenario", list(SimulatorScenario))
 def test_send_simulator_email(mock_ses_client, scenario) -> None:
     response = send_simulator_email(scenario, "test@relay.example.com")
-    assert response.ResponseMetadata.HTTPStatusCode == 200
+    assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
     dest_email = f"{scenario.value}@simulator.amazonses.com"
     mock_ses_client.send_raw_email.assert_called_once_with(
         Source="test@relay.example.com",
@@ -93,7 +95,7 @@ def test_send_simulator_email_with_tag(mock_ses_client) -> None:
     response = send_simulator_email(
         SimulatorScenario.SUCCESS, "test@relay.example.com", "a-tag"
     )
-    assert response.ResponseMetadata.HTTPStatusCode == 200
+    assert response["ResponseMetadata"]["HTTPStatusCode"] == 200
     dest_email = "success+a-tag@simulator.amazonses.com"
     mock_ses_client.send_raw_email.assert_called_once_with(
         Source="test@relay.example.com",
