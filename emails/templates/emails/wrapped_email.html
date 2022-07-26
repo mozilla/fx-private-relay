@@ -70,7 +70,9 @@
                     {{ premium_header_banner|safe }}
                   {% endif %}
                   {% if tracker_report_link %}
-                    <br>{{ num_level_one_email_trackers_removed }} email trackers removed{% if num_level_one_email_trackers_removed %} - <a href="{{ tracker_report_link }}" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">Learn more</a>.{% endif %}
+                    <br>
+                    <img width="18" height="18" src="{{ SITE_ORIGIN }}/static/images/email-images/hide-blue.png" style="display: inline-block; width: 18px;" alt="" />
+                    <span style="color: #0060DF">{% ftlmsg 'forwarded-email-trackers-blocked-count' nr_blocked_trackers=num_level_one_email_trackers_removed %}</span>{% if num_level_one_email_trackers_removed %} ⸱ <a href="{{ tracker_report_link }}" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #0060DF; text-decoration: underline; font-weight: bolder; font-size: 13px;">{% ftlmsg 'forwarded-email-trackers-blocked-report' %}</a>{% endif %}
                   {% endif %}
                 </p>
               </td>
