@@ -16,19 +16,20 @@ from emails.models import DomainAddress, Profile, RelayAddress
 from .models_tests import make_premium_test_user, make_storageless_test_user
 
 
-def setup_server_storage_test_data(add_user_no_storage=False, add_address_data=False):
+def setup_server_storage_test_data(
+    add_user_without_storage=False, add_server_data_for_user_without_storage=False
+):
     """Setup users and addresses for testing."""
 
     # Create a user with server storage and addresses
-    user_storage = make_premium_test_user()
-    profile_storage = user_storage.profile_set.first()
-    assert profile_storage
-    assert profile_storage.server_storage
-    profile_storage.subdomain = "with-server-storage"
-    profile_storage.save()
+    user_with_server_storage = make_premium_test_user()
+    profile = user_with_server_storage.profile_set.get()
+    assert profile.server_storage
+    profile.subdomain = "with-server-storage"
+    profile.save()
     baker.make(
         RelayAddress,
-        user=user_storage,
+        user=user_with_server_storage,
         address="address1",
         description="My relay address",
         generated_for="example.com",
@@ -36,39 +37,38 @@ def setup_server_storage_test_data(add_user_no_storage=False, add_address_data=F
     )
     baker.make(
         DomainAddress,
-        user=user_storage,
+        user=user_with_server_storage,
         address="address2",
         description="My domain address",
         used_on="example.com,sub.example.org",
     )
 
-    if not add_user_no_storage:
+    if not add_user_without_storage:
         return
 
     # Create a user without server storage and addresses without data
-    user_no_storage: User = make_storageless_test_user()
-    profile_no_storage = user_no_storage.profile_set.first()
-    assert profile_no_storage
-    assert not profile_no_storage.server_storage
-    assert profile_no_storage.subdomain
-    baker.make(RelayAddress, user=user_no_storage, address="address3", used_on=None)
-    baker.make(DomainAddress, user=user_no_storage, address="address4", used_on=None)
-    baker.make(RelayAddress, user=user_no_storage, address="address5", used_on="")
-    baker.make(DomainAddress, user=user_no_storage, address="address6", used_on="")
+    user_without_storage: User = make_storageless_test_user()
+    profile_without_server_storage = user_without_storage.profile_set.get()
+    assert not profile_without_server_storage.server_storage
+    assert profile_without_server_storage.subdomain
+    baker.make(
+        RelayAddress, user=user_without_storage, address="address3", used_on=None
+    )
+    baker.make(
+        DomainAddress, user=user_without_storage, address="address4", used_on=None
+    )
+    baker.make(RelayAddress, user=user_without_storage, address="address5", used_on="")
+    baker.make(DomainAddress, user=user_without_storage, address="address6", used_on="")
 
-    if not add_address_data:
+    if not add_server_data_for_user_without_storage:
         return
 
     # Add addresses with server-side data to the user that doesn't want it.
-    profile_no_storage = user_no_storage.profile_set.first()
-    assert profile_no_storage
-    assert not profile_no_storage.server_storage
-    assert profile_no_storage.subdomain
-    ra7 = baker.make(RelayAddress, user=user_no_storage, address="address7")
-    ra8 = baker.make(RelayAddress, user=user_no_storage, address="address8")
-    ra9 = baker.make(RelayAddress, user=user_no_storage, address="address9")
-    da10 = baker.make(DomainAddress, user=user_no_storage, address="address10")
-    da11 = baker.make(DomainAddress, user=user_no_storage, address="address11")
+    ra7 = baker.make(RelayAddress, user=user_without_storage, address="address7")
+    ra8 = baker.make(RelayAddress, user=user_without_storage, address="address8")
+    ra9 = baker.make(RelayAddress, user=user_without_storage, address="address9")
+    da10 = baker.make(DomainAddress, user=user_without_storage, address="address10")
+    da11 = baker.make(DomainAddress, user=user_without_storage, address="address11")
 
     # Use querysets to avoid save() methods
     RelayAddress.objects.filter(id=ra7.id).update(used_on="example.com")
@@ -152,7 +152,7 @@ Domain Addresses:
 def test_server_storage_cleaner_some_server_storage() -> None:
     """ServerStorageCleaner detects that when some users have server storage."""
     """The command detects when some users have server storage."""
-    setup_server_storage_test_data(add_user_no_storage=True)
+    setup_server_storage_test_data(add_user_without_storage=True)
     cleaner = ServerStorageCleaner()
     assert cleaner.issues() == 0
     assert cleaner.counts == {
@@ -192,7 +192,9 @@ Domain Addresses:
 @pytest.mark.django_db
 def test_server_storage_cleaner_some_data_to_clear() -> None:
     """The command detects when some users need data cleared."""
-    setup_server_storage_test_data(add_user_no_storage=True, add_address_data=True)
+    setup_server_storage_test_data(
+        add_user_without_storage=True, add_server_data_for_user_without_storage=True
+    )
     cleaner = ServerStorageCleaner()
     assert cleaner.issues() == 5
     assert cleaner.counts == {
