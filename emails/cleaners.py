@@ -16,7 +16,7 @@ class ServerStorageCleaner(CleanerTask):
     title = "Ensure no data is stored when server_storage=False"
     check_description = (
         "When Profile.server_storage is False, the addresses (both regular and domain)"
-        " should have empty data (the fields description, generated_for and user_on)."
+        " should have empty data (the fields description, generated_for and used_on)."
     )
 
     def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:

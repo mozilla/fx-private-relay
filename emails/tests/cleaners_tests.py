@@ -150,8 +150,7 @@ Domain Addresses:
 
 @pytest.mark.django_db
 def test_server_storage_cleaner_some_server_storage() -> None:
-    """ServerStorageCleaner detects that when some users have server storage."""
-    """The command detects when some users have server storage."""
+    """ServerStorageCleaner detects that some users have server storage."""
     setup_server_storage_test_data(add_user_without_storage=True)
     cleaner = ServerStorageCleaner()
     assert cleaner.issues() == 0
@@ -191,7 +190,7 @@ Domain Addresses:
 
 @pytest.mark.django_db
 def test_server_storage_cleaner_some_data_to_clear() -> None:
-    """The command detects when some users need data cleared."""
+    """ServerStorageCleaner detects and clears data."""
     setup_server_storage_test_data(
         add_user_without_storage=True, add_server_data_for_user_without_storage=True
     )
