@@ -1,4 +1,5 @@
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
+import { RealPhoneData } from "../hooks/api/phone";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { UserData } from "../hooks/api/user";
@@ -28,6 +29,7 @@ export const mockedRuntimeData: RuntimeData = {
   WAFFLE_FLAGS: [
     ["new_from_address", true],
     ["tracker_removal", true],
+    ["phones", true],
   ],
 };
 
@@ -234,6 +236,31 @@ export const mockedDomainaddresses: Record<
       num_level_one_trackers_blocked: 1337,
       mask_type: "custom",
       used_on: "",
+    },
+  ],
+};
+
+export const mockedRealphones: Record<typeof mockIds[number], RealPhoneData> = {
+  empty: [],
+  onboarding: [],
+  some: [
+    {
+      id: 0,
+      number: "+14155552671",
+      verification_code: "123456",
+      verification_sent_date: "2022-07-27T10:17:29.775Z",
+      verified: true,
+      verified_date: "2022-07-27T10:18:01.801Z",
+    },
+  ],
+  full: [
+    {
+      id: 0,
+      number: "+14155552671",
+      verification_code: "123456",
+      verification_sent_date: "2022-07-27T10:17:29.775Z",
+      verified: true,
+      verified_date: "2022-07-27T10:18:01.801Z",
     },
   ],
 };
