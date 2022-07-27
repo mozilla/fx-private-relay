@@ -200,7 +200,7 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
         )
 
 
-def suggested_numbers(user):
+def suggested_numbers(user, memorable_num=None):
     real_phone = RealPhone.objects.filter(user=user, verified=True).first()
     if real_phone is None:
         raise BadRequest(
@@ -216,6 +216,17 @@ def suggested_numbers(user):
     real_num = real_phone.number
     client = twilio_client()
     avail_nums = client.available_phone_numbers("US")
+
+    memorable_options = []
+    if memorable_num is not None:
+        real_area = real_num[:5]
+        ends_with_memorable = memorable_num.rjust(7, '*')
+        contains = f'{real_area}{ends_with_memorable}'
+        twilio_nums = avail_nums.local.list(contains=contains, limit=10)
+        memorable_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
+        contains = memorable_num.rjust(10, '*')
+        twilio_nums = avail_nums.local.list(contains=contains, limit=10)
+        memorable_options.extend(convert_twilio_numbers_to_dict(twilio_nums))
 
     # TODO: can we make multiple pattern searches in a single Twilio API request
     same_prefix_options = []
@@ -246,6 +257,7 @@ def suggested_numbers(user):
 
     return {
         "real_num": real_num,
+        "memorable_options": memorable_options,
         "same_prefix_options": same_prefix_options,
         "other_areas_options": other_areas_options,
         "same_area_options": same_area_options,

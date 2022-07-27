@@ -227,7 +227,8 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
           * `other_areas_options`: Numbers that exactly match the user's real number, in a different area code.
           * `same_area_options`: Other numbers in the same area code as the user.
         """
-        numbers = suggested_numbers(request.user)
+        memorable_num = request.query_params.get("memorable_num", None)
+        numbers = suggested_numbers(request.user, memorable_num)
         return response.Response(numbers)
 
     @decorators.action(detail=False)
