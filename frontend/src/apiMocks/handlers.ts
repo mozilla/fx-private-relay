@@ -1,5 +1,6 @@
 import { rest, RestHandler, RestRequest } from "msw";
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
+import { UnverifiedPhone, VerifiedPhone } from "../hooks/api/phone";
 import { ProfileData } from "../hooks/api/profile";
 import {
   mockIds,
@@ -8,6 +9,7 @@ import {
   mockedRelayaddresses,
   mockedRuntimeData,
   mockedUsers,
+  mockedRealphones,
 } from "./mockData";
 
 export function getHandlers(
@@ -285,6 +287,94 @@ export function getHandlers(
     ownAddresses.splice(index, 1);
     return res(ctx.status(200));
   });
+
+  addGetHandler("/api/v1/realphone/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    return res(ctx.status(200), ctx.json(mockedRealphones[mockId]));
+  });
+  addPostHandler("/api/v1/realphone/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    type NewNumber = Pick<UnverifiedPhone, "number">;
+    type Verification = Pick<VerifiedPhone, "number" | "verification_code">;
+    const body = req.body as NewNumber | Verification;
+
+    const isVerification = (
+      request: NewNumber | Verification
+    ): request is Verification => {
+      return typeof (request as Verification).verification_code === "string";
+    };
+
+    if (isVerification(body)) {
+      mockedRealphones[mockId] = mockedRealphones[mockId].map((realPhone) => {
+        if (realPhone.number !== body.number) {
+          return realPhone;
+        }
+
+        return {
+          ...realPhone,
+          verified: true,
+          verified_date: new Date().toISOString(),
+        } as VerifiedPhone;
+      });
+    } else {
+      // Pretend the verification was sent 4:40m ago,
+      // so expiry can easily be tested:
+      const sentDate = Date.now() - 5 * 60 * 1000 + 20 * 1000;
+      const newUnverifiedPhone: UnverifiedPhone = {
+        id: mockedRealphones[mockId].length,
+        number: body.number,
+        verification_code: "123456",
+        verification_sent_date: new Date(sentDate).toISOString(),
+        verified: false,
+        verified_date: null,
+      };
+      mockedRealphones[mockId].push(newUnverifiedPhone);
+    }
+    return res(ctx.status(200));
+  });
+  addGetHandler("/api/v1/realphone/:id/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+    const relevantRealPhone = mockedRealphones[mockId].find(
+      (realPhone) =>
+        realPhone.id === Number.parseInt(req.params.id as string, 10)
+    );
+    return res(ctx.status(200), ctx.json(relevantRealPhone));
+  });
+  addPatchHandler("/api/v1/realphone/:id/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+    type Verification = Pick<VerifiedPhone, "number" | "verification_code">;
+    const body = req.body as Verification;
+    mockedRealphones[mockId] = mockedRealphones[mockId].map((realPhone) => {
+      if (
+        realPhone.number !== body.number ||
+        realPhone.id !== Number.parseInt(req.params.id as string, 10)
+      ) {
+        return realPhone;
+      }
+
+      return {
+        ...realPhone,
+        verified: true,
+        verified_date: new Date().toISOString(),
+      } as VerifiedPhone;
+    });
+    return res(ctx.status(200));
+  });
+
   handlers.push(
     rest.post("https://basket-mock.com/news/subscribe/", (_req, res, ctx) => {
       return res(ctx.status(200), ctx.json({ status: "ok" }));

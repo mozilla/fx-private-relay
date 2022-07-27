@@ -71,7 +71,8 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
   requestPhoneVerification: PhoneNumberRequestVerificationFn;
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
 } {
-  const realphone: SWRResponse<RealPhoneData, unknown> = useApiV1("/realphone");
+  const realphone: SWRResponse<RealPhoneData, unknown> =
+    useApiV1("/realphone/");
 
   /**
    * Submit the one-time password given from the requestPhoneVerification function * to confirm/register a real phone number
