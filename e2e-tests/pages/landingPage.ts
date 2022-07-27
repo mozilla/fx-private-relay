@@ -45,11 +45,8 @@ export class LandingPage {
         ]);
     }
 
-    async goToSignUp(){        
-        await Promise.all([
-            this.page.waitForNavigation(),
-            this.signUpButton.click()
-        ]);
+    async goToSignUp(){
+        await this.signUpButton.click()
     }
 
     async selectPricingPlanSignUp(){
@@ -59,11 +56,8 @@ export class LandingPage {
         ]);
     }
 
-    async goToSignIn(){        
-        await Promise.all([
-            this.page.waitForNavigation(),
-            this.signInButton.click()
-        ]);
+    async goToSignIn(){
+        await this.signInButton.click()
     }
 
     async openFirefoxAppsServices(){

@@ -37,8 +37,8 @@ test.describe('Relay e2e function email forwarding', () => {
         const createAccountButton = monitorTab.locator('#submit-btn');
         const testFirefoxProductsOption = '#test-pilot';
     
-        await passwordInputField.fill(process.env.TEST_ACCOUNT_PASSWORD as string);
-        await passwordConfirmInputField.fill(process.env.TEST_ACCOUNT_PASSWORD as string);
+        await passwordInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
+        await passwordConfirmInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
         await ageInputField.fill('31');
         await monitorTab.check(testFirefoxProductsOption);
         await createAccountButton.click()
@@ -54,7 +54,7 @@ test.describe('Relay e2e function email forwarding', () => {
         const pages = context.pages()
         
         await expect.poll(async () => {
-          await pages[0].reload({ waitUntil: 'networkidle' })
+          await pages[0].reload()
           return await dashboardPage.maskCardForwardedAmount.textContent()
         }, {
           // wait at 2 sec in between
@@ -92,7 +92,7 @@ test.describe('Relay e2e auth flows', () => {
       // sign up with a randomly generated email
       testEmail = await generateRandomEmail()
       await landingPage.goToSignUp()
-      await authPage.signUp(testEmail, process.env.TEST_ACCOUNT_PASSWORD as string)
+      await authPage.signUp(testEmail, process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
 
       // get verificaton from restmail and enter
       const waitForRestmail = async (attempts = 5) => {
