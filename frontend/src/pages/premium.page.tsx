@@ -97,7 +97,7 @@ const PremiumPromo: NextPage = () => {
   ) : (
     <Button
       disabled={true}
-      title={l10n.getString("premium-promo-availability-warning-2")}
+      title={l10n.getString("premium-promo-availability-warning-3")}
     >
       {l10n.getString("premium-promo-hero-cta")}
     </Button>
@@ -140,7 +140,7 @@ const PremiumPromo: NextPage = () => {
               <p />
             </Localized>
             {cta}
-            <p>{l10n.getString("premium-promo-availability-warning-2")}</p>
+            <p>{l10n.getString("premium-promo-availability-warning-3")}</p>
           </div>
           <div className={styles["demo-phone"]}>
             <DemoPhone
