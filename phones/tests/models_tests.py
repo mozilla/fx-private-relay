@@ -197,6 +197,7 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
     call_kwargs = mock_number_create.call_args.kwargs
     assert call_kwargs["phone_number"] == relay_number
     assert call_kwargs["sms_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+    assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
 
     mock_messages_create.assert_called_once()
     call_kwargs = mock_messages_create.call_args.kwargs
@@ -234,6 +235,7 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     call_kwargs = mock_number_create.call_args.kwargs
     assert call_kwargs["phone_number"] == relay_number
     assert call_kwargs["sms_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+    assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
 
     mock_messages_create.assert_called_once()
     call_kwargs = mock_messages_create.call_args.kwargs

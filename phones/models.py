@@ -175,6 +175,7 @@ class RelayNumber(models.Model):
         incoming_number = client.incoming_phone_numbers.create(
             phone_number=self.number,
             sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+            voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID
         )
         return super().save(*args, **kwargs)
 
