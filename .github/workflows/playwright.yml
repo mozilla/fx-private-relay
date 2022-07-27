@@ -24,6 +24,12 @@ jobs:
 
       - name: Run Playwright tests
         run: npm run test:e2e
+        env:
+          E2E_TEST_ENV: stage
+          E2E_TEST_ACCOUNT_FREE: ${{ secrets.E2E_TEST_ACCOUNT_FREE }}
+          E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
+          E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
+          E2E_TEST_BASE_URL: ${{ secrets.E2E_TEST_BASE_URL }}
 
       - name: Upload html report as artifact to troubleshoot failures.
         uses: actions/upload-artifact@v2
