@@ -691,10 +691,11 @@ elif (
 ):
     sentry_release = f"{CIRCLE_BRANCH}:{CIRCLE_SHA1}"
 
+SENTRY_DEBUG = config("SENTRY_DEBUG", DEBUG, cast=bool)
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
     integrations=[DjangoIntegration()],
-    debug=DEBUG,
+    debug=SENTRY_DEBUG,
     with_locals=DEBUG,
     release=sentry_release,
 )
