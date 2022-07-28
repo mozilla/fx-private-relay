@@ -102,8 +102,11 @@ export class DashboardPage {
         await this.generateMask(numberOfMasks - 1)
     }    
 
-    async upgrade(){        
-        await this.upgradeButton.click()
+    async upgrade(){
+        await Promise.all([
+            this.page.waitForNavigation(),
+            this.upgradeButton.click()
+        ]);
     }
 
     async maybeDeleteMasks(clearAll = true, numberOfMasks = 1){       
