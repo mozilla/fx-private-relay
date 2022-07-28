@@ -6,6 +6,8 @@ import PerkIllustrationUnlimited from "../../public/images/perk-unlimited.svg";
 import PerkIllustrationCustomDomain from "../../public/images/perk-custom-domain.svg";
 import PerkIllustrationDashboard from "../../public/images/perk-dashboard.svg";
 import ShoppingIllustration from "../../public/images/use-case-shopping.svg";
+import PerkIllustrationBlockPromotionals from "../../public/images/perk-block-promotionals.svg";
+import PerkIllustrationTrackerBlocking from "../../public/images/perk-tracker-blocking.svg";
 import SocialNetworksIllustration from "../../public/images/use-case-social-networks.svg";
 import GamingIllustration from "../../public/images/use-case-gaming.svg";
 import OfflineIllustration from "../../public/images/use-case-offline.svg";
@@ -31,6 +33,8 @@ import { trackPurchaseStart } from "../functions/trackPurchase";
 import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
 import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
+import { isFlagActive } from "../functions/waffle";
+
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
@@ -50,6 +54,14 @@ const PremiumPromo: NextPage = () => {
     "premium-promo-perk-dashboard-cta": useGaViewPing({
       category: "Purchase Button",
       label: "premium-promo-perk-dashboard-cta",
+    }),
+    "premium-promo-perk-block-promotionals-cta": useGaViewPing({
+      category: "Purchase Button",
+      label: "premium-promo-perk-block-promotionals-cta",
+    }),
+    "premium-promo-perk-tracker-blocking-cta": useGaViewPing({
+      category: "Purchase Button",
+      label: "premium-promo-perk-tracker-blocking-cta",
     }),
   };
 
@@ -203,6 +215,46 @@ const PremiumPromo: NextPage = () => {
                 {getPerkCta("premium-promo-perk-dashboard-cta")}
               </div>
             </div>
+            <div className={styles.perk}>
+              <img src={PerkIllustrationBlockPromotionals.src} alt="" />
+              <div className={styles.description}>
+                <b className={styles.pill}>
+                  {l10n.getString("premium-promo-perks-pill-new")}
+                </b>
+                <h3>
+                  {l10n.getString(
+                    "premium-promo-perks-perk-block-promotionals-headline"
+                  )}
+                </h3>
+                <p>
+                  {l10n.getString(
+                    "premium-promo-perks-perk-block-promotionals-body"
+                  )}
+                </p>
+                {getPerkCta("premium-promo-perk-block-promotionals-cta")}
+              </div>
+            </div>
+            {isFlagActive(runtimeData.data, "tracker_removal") ? (
+              <div className={styles.perk}>
+                <img src={PerkIllustrationTrackerBlocking.src} alt="" />
+                <div className={styles.description}>
+                  <b className={styles.pill}>
+                    {l10n.getString("premium-promo-perks-pill-new")}
+                  </b>
+                  <h3>
+                    {l10n.getString(
+                      "premium-promo-perks-perk-tracker-blocking-headline"
+                    )}
+                  </h3>
+                  <p>
+                    {l10n.getString(
+                      "premium-promo-perks-perk-tracker-blocking-body"
+                    )}
+                  </p>
+                  {getPerkCta("premium-promo-perk-tracker-blocking-cta")}
+                </div>
+              </div>
+            ) : null}
           </div>
         </section>
         <section id="use-cases" className={styles["use-cases-wrapper"]}>
