@@ -3,3 +3,9 @@
 
 cd frontend
 npx --no-install lint-staged
+
+cd ..
+echo "Running black..."
+black --check .
+echo "Running mypy..."
+mypy .
