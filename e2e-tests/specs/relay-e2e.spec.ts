@@ -2,86 +2,42 @@ import test, { expect }  from '../fixtures/basePages'
 import {
   deleteEmailAddressMessages, 
   generateRandomEmail, 
-  waitForRestmail } from '../e2eTestUtils/helpers';
+  getVerificationCode } from '../e2eTestUtils/helpers';
 
 test.describe('Relay e2e function email forwarding', () => {
     // use stored authenticated state
     test.use({ storageState: 'state.json' })
 
     test.beforeEach(async ({ dashboardPage, context, request }) => {
-        // reset data
-        await dashboardPage.open()
-        await dashboardPage.maybeDeleteMasks()
-        
-        // create mask and use generated mask email to test email forwarding feature
-        await dashboardPage.generateMask(1)
-        const generatedMaskEmail = await dashboardPage.maskCardGeneratedEmail.textContent()
-    
-        const monitorTab = await context.newPage()
-        await monitorTab.goto("https://monitor.firefox.com/")
-    
-        const checkForBreachesEmailInput = monitorTab.locator('#scan-email').first();
-        const newsLetterCheckBox = '.create-fxa-checkbox-checkmark';
-        const CheckForBreachesButton = monitorTab.locator('#scan-user-email [data-entrypoint="fx-monitor-check-for-breaches-blue-btn"]').first();
-    
-        await checkForBreachesEmailInput.fill(generatedMaskEmail as string)
-        await monitorTab.check(newsLetterCheckBox)    
-        await Promise.all([
-          monitorTab.waitForNavigation(),
-          CheckForBreachesButton.click()
-        ]);
-    
-        const passwordInputField = monitorTab.locator('#password');
-        const passwordConfirmInputField = monitorTab.locator('#vpassword');
-        const ageInputField = monitorTab.locator('#age');
-        const createAccountButton = monitorTab.locator('#submit-btn');
-        const testFirefoxProductsOption = '#test-pilot';
-    
-        await passwordInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
-        await passwordConfirmInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
-        await ageInputField.fill('31');
-        await monitorTab.check(testFirefoxProductsOption);
-        await createAccountButton.click()
-    
-        // wait for email to be forward to restmail
-        await waitForRestmail(request, process.env.E2E_TEST_ACCOUNT_FREE as string)    
+      await dashboardPage.sendMaskEmail(context, request)
     });
-
+    
     test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
-        dashboardPage,
-        context
-      }) => {            
-        const pages = context.pages()
+      dashboardPage,
+    }) => {
+        await dashboardPage.open()
+        const forwardedEmailCount = await dashboardPage.checkForwardedEmailCount()
         
-        await expect.poll(async () => {
-          await pages[0].reload()
-          return await dashboardPage.maskCardForwardedAmount.textContent()
-        }, {
-          // wait at 2 sec in between
-          intervals: [2_000],
-          // Poll for 10 seconds; defaults to 5 seconds. Pass 0 to disable timeout.
-          timeout: 10000,
-        }).toContain('1');
+        expect(forwardedEmailCount).toEqual('1Forwarded')        
 
-        await dashboardPage.userMenuButton.click()        
-        await dashboardPage.signOutButton.click()        
+        await dashboardPage.userMenuButton.click()
+        await dashboardPage.signOutButton.click()
         expect(await dashboardPage.signOutToastAlert.textContent()).toContain('You have signed out.')     
     })
 })
 
 test.describe('Relay e2e auth flows', () => {
   let testEmail: string;
-  let verificationCode: string;
 
-  test.beforeEach(async ({ landingPage }) => {    
+  test.beforeEach(async ({ landingPage }) => {
       await landingPage.open()      
-    });
+  });
   
   test.afterEach(async ({ request }) => {
       if (testEmail) await deleteEmailAddressMessages(request, testEmail)
   })
 
-  test('Verify user can sign up for an account C1818784, C1811801, C1553064', async ({ 
+  test('Verify user can sign up for an account C1818784, C1811801, C1553064', async ({
       dashboardPage, 
       landingPage,
       authPage,
@@ -94,30 +50,8 @@ test.describe('Relay e2e auth flows', () => {
       await landingPage.goToSignUp()
       await authPage.signUp(testEmail, process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
 
-      // get verificaton from restmail and enter
-      const waitForRestmail = async (attempts = 5) => {
-        if (attempts === 0) {
-          throw new Error('Unable to retrieve restmail data');
-        }
-
-        const response = await request.get(
-          `http://restmail.net/mail/${testEmail}`,
-          {
-            failOnStatusCode: false
-          }
-        );
-
-        const resJson = await response.json();
-        if (resJson.length) {
-          const rawCode = resJson[0].subject
-          verificationCode = rawCode.split(':')[1].trim()
-          return;
-        }
-
-        await page.waitForTimeout(1000);
-        await waitForRestmail(attempts - 1);
-      };
-      await waitForRestmail();
+      // get verification code from restmail
+      const verificationCode = await getVerificationCode(request, testEmail, page)
       await authPage.enterVerificationCode(verificationCode)
 
       // verify successful login

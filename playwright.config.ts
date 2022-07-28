@@ -16,13 +16,13 @@ const config: PlaywrightTestConfig = {
   testDir: 'e2e-tests/specs',
 
   /* Maximum time one test can run for. */
-  timeout: process.env.CI ? 60000 : undefined,
+  timeout: 60000,
 
   /* Global setup */
   globalSetup: require.resolve('./e2e-tests/global-setup.ts'),
 
   /* Max time in milliseconds the whole test suite can to prevent CI breaking. */
-  globalTimeout: process.env.CI ? 360000 : undefined,
+  globalTimeout: 360000,
 
   // adding missing snapshots for later comparison
   updateSnapshots: 'missing',
@@ -73,18 +73,18 @@ const config: PlaywrightTestConfig = {
         ...devices['Desktop Chrome'],
       },
     },
-    {
-      name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-      },
-    },
-    {
-      name: 'webkit',
-      use: {
-        ...devices['Desktop Safari'],
-      },
-    },
+    // {
+    //   name: 'firefox',
+    //   use: {
+    //     ...devices['Desktop Firefox'],
+    //   },
+    // },
+    // {
+    //   name: 'webkit',
+    //   use: {
+    //     ...devices['Desktop Safari'],
+    //   },
+    // },
 
     /* Test against mobile viewports. */
     // {

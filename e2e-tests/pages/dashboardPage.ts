@@ -1,8 +1,10 @@
-import { Locator, Page } from "@playwright/test";
+import { APIRequestContext, BrowserContext, Locator, Page } from "@playwright/test";
+import { getVerificationCode } from "../e2eTestUtils/helpers";
 
 export class DashboardPage {
     readonly page: Page
     readonly header: Locator
+    readonly homeButton: Locator
     readonly FAQButton: Locator
     readonly newsButton: Locator
     readonly userMenuPopUp: Locator
@@ -44,6 +46,7 @@ export class DashboardPage {
         this.header = page.locator('div header').first();
         this.FAQButton = page.locator('header >> text=FAQ')
         this.newsButton = page.locator('header >> text=News')
+        this.homeButton = page.locator('header >> text=Home')
         this.userMenuButton = page.locator('//div[starts-with(@class, "UserMenu_wrapper")]')
         this.userMenuPopUp = page.locator('//ul[starts-with(@class, "UserMenu_popup")]')
         this.signOutButton = page.locator('button:has-text("Sign Out")').first()
@@ -148,5 +151,61 @@ export class DashboardPage {
         // wait for 500 ms and run flow again with the next masks
         await this.page.waitForTimeout(500)
         await this.maybeDeleteMasks(true, numberOfMasks - 1)
+    }
+
+    async sendMaskEmail(context: BrowserContext, request: APIRequestContext){
+        // reset data
+        await this.open()
+        await this.maybeDeleteMasks()
+        
+        // create mask and use generated mask email to test email forwarding feature
+        await this.generateMask(1)
+        const generatedMaskEmail = await this.maskCardGeneratedEmail.textContent()
+    
+        // const monitorTab = await context.newPage()
+        await this.page.goto("https://monitor.firefox.com/")
+    
+        const checkForBreachesEmailInput = this.page.locator('#scan-email').first();
+        const newsLetterCheckBox = '.create-fxa-checkbox-checkmark';
+        const CheckForBreachesButton = this.page.locator('#scan-user-email [data-entrypoint="fx-monitor-check-for-breaches-blue-btn"]').first();
+    
+        await checkForBreachesEmailInput.fill(generatedMaskEmail as string)
+        await this.page.check(newsLetterCheckBox)    
+        await Promise.all([
+          this.page.waitForNavigation(),
+          CheckForBreachesButton.click()
+        ]);
+    
+        const passwordInputField = this.page.locator('#password');
+        const passwordConfirmInputField = this.page.locator('#vpassword');
+        const ageInputField = this.page.locator('#age');
+        const createAccountButton = this.page.locator('#submit-btn');
+    
+        await passwordInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
+        await passwordConfirmInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
+        await ageInputField.fill('31');
+        await createAccountButton.click()
+    
+        // wait for email to be forward to restmail
+        await getVerificationCode(request, process.env.E2E_TEST_ACCOUNT_FREE as string, this.page)
+    }
+
+    async checkForwardedEmailCount(attempts = 10) {
+        if (attempts === 0) {
+            throw new Error('Email forwarded count did not update');
+        }
+
+        // force a re-request of relayaddresses
+        await this.FAQButton.click()
+        await this.homeButton.click()
+
+        // check the forward emails count, if not 0, return the current value
+        const forwardCount = await this.maskCardForwardedAmount.textContent()
+        if(forwardCount !== "0Forwarded"){
+            return forwardCount;
+        }
+    
+        await this.page.waitForTimeout(1000)
+        return this.checkForwardedEmailCount(attempts - 1)
     }
 }

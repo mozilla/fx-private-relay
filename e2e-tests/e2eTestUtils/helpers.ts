@@ -1,32 +1,25 @@
 import { APIRequestContext, Page } from '@playwright/test';
 
-export const waitForRestmail = async (req: APIRequestContext, testEmail: string, attempts = 10) => {
-    if (attempts === 0) {
-        throw new Error('Unable to retrieve restmail data');
-    }
-
-    try {
-      const response = await req.get(
-          `http://restmail.net/mail/${testEmail}`,
-          {
-          failOnStatusCode: false
-          }
-      );
-      
-      const resJson = JSON.parse(await response.text());
+export const getVerificationCode = async (req: APIRequestContext, testEmail: string, page: Page, attempts = 10) => {
+  if (attempts === 0) {
+    throw new Error('Unable to retrieve restmail data');
+  }
     
-      if (resJson.length) {
-          const rawCode = resJson[0].subject
-          const verificationCode = rawCode.split(':')[1].trim()
-          return verificationCode as string;
-      } else {
-        await delay(1000);
-        await waitForRestmail(req, testEmail, attempts - 1);
+  const res = await req.get(
+      `http://restmail.net/mail/${testEmail}`,
+      {
+      failOnStatusCode: false
       }
-      
-    } catch {
-      throw Error('Unable to return restmail from GET api')
-    }
+  );
+  const resJson = await res.json();
+              
+  if (resJson.length) {
+      const verificationCode = resJson[0].headers['x-verify-short-code']
+      return verificationCode;
+  }
+
+  await page.waitForTimeout(1000);
+  return getVerificationCode(req, testEmail, page, attempts - 1);
 }
 
 export const deleteEmailAddressMessages = async (req: APIRequestContext, testEmail: string) => {
