@@ -35,6 +35,12 @@ landing-use-cases-signups-hero-heading = Worry-free signups
 landing-use-cases-signups-hero-content1 = Want to start a new subscription, RSVP to an event, or get a bargain promo code without having spam flooding your inbox?
 landing-use-cases-signups-hero-content2 = Before you complete that next signup, use an email mask instead of your real one to protect your info and keep control over your inbox.
 
+premium-promo-perks-pill-new = New!
+premium-promo-perks-perk-block-promotionals-headline = Block promotional emails
+premium-promo-perks-perk-block-promotionals-body = With { -brand-name-relay-premium }, you can block promotional emails from reaching your inbox while still receiving emails like receipts or shipping information.
+premium-promo-perks-perk-tracker-blocking-headline = Remove email trackers
+premium-promo-perks-perk-tracker-blocking-body = Now { -brand-name-relay } can help you stop email tracking—your email masks will remove common email trackers from any emails forwarded to you, helping you stay invisible to trackers and advertisers.
+
 banner-download-install-chrome-extension-copy-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using masks even easier.
 multi-part-onboarding-premium-chrome-extension-get-description-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using email masks even easier.
 
