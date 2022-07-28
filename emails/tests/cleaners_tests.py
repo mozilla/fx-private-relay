@@ -187,6 +187,11 @@ Domain Addresses:
       Has Data: 0 (  0.0%)"""
     assert report == expected
 
+    # Clean the data, report is the same
+    assert cleaner.clean() == 0
+    report2 = cleaner.markdown_report()
+    assert report2 == expected
+
 
 @pytest.mark.django_db
 def test_server_storage_cleaner_some_data_to_clear() -> None:
