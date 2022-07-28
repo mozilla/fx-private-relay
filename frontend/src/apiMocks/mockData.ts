@@ -25,7 +25,10 @@ export const mockedRuntimeData: RuntimeData = {
     premium_countries: ["nl"],
     premium_available_in_country: true,
   },
-  WAFFLE_FLAGS: [["new_from_address", true]],
+  WAFFLE_FLAGS: [
+    ["new_from_address", true],
+    ["tracker_removal", true],
+  ],
 };
 
 export const mockedUsers: Record<typeof mockIds[number], UserData> = {
