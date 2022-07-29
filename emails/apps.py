@@ -54,12 +54,12 @@ class EmailsConfig(AppConfig):
         # TODO: fix the relative path issue on CircleCI to use the commented code
         # level_one_trackers = get_trackers()
         # with open("emails/tracker_lists/level-one-tracker.json", "w+") as f:
-        #     json.dump(level_one_trackers, f)
+        #     json.dump(level_one_trackers, f, indent=4)
         # level_two_trackers = get_trackers("EmailStrict") or get_trackers(
         #     "EmailAggressive"
         # )
         # with open("emails/tracker_lists/level-two-tracker.json", "w+") as f:
-        #     json.dump(level_two_trackers, f)
+        #     json.dump(level_two_trackers, f, indent=4)
 
     def _load_terms(self, filename):
         terms = []
