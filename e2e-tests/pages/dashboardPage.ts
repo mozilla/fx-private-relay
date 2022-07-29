@@ -109,7 +109,7 @@ export class DashboardPage {
         ]);
     }
 
-    async maybeDeleteMasks(clearAll = true, numberOfMasks = 1){       
+    async maybeDeleteMasks(clearAll = true, numberOfMasks = 1){               
         let isExpanded = false
 
         // check number of masks available
@@ -140,7 +140,7 @@ export class DashboardPage {
                 await this.page.waitForSelector(anchorLocator, { timeout: 3000 })
                 await this.page.locator(anchorLocator).click()
             } catch(err){
-                console.error('No current masks')
+                console.error('No current mask(s) to delete')
                 return
             }
         }

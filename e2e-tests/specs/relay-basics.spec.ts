@@ -2,7 +2,7 @@ import test, { expect }  from '../fixtures/basePages'
 import { defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 test.describe('Firefox Relay - Landing Page - Visual Regression', () => {
-  test.skip(({ browserName }) => browserName !== 'webkit', 'Webkit only image comparisons!');
+  test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only image comparisons!');
 
   test.beforeEach(async ({ landingPage }) => {
     await landingPage.open()
