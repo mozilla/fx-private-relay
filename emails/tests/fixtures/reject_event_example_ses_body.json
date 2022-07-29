@@ -1,0 +1,73 @@
+{
+  "eventType": "Reject",
+  "mail": {
+    "timestamp": "2016-10-14T17:38:15.211Z",
+    "source": "sender@example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+    "sendingAccountId": "123456789012",
+    "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+    "destination": [
+      "sender@example.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "From",
+        "value": "sender@example.com"
+      },
+      {
+        "name": "To",
+        "value": "recipient@example.com"
+      },
+      {
+        "name": "Subject",
+        "value": "Message sent from Amazon SES"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/mixed; boundary=\"qMm9M+Fa2AknHoGS\""
+      },
+      {
+        "name": "X-SES-MESSAGE-TAGS",
+        "value": "myCustomTag1=myCustomTagValue1, myCustomTag2=myCustomTagValue2"
+      }
+    ],
+    "commonHeaders": {
+      "from": [
+        "sender@example.com"
+      ],
+      "to": [
+        "recipient@example.com"
+      ],
+      "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+      "subject": "Message sent from Amazon SES"
+    },
+    "tags": {
+      "ses:configuration-set": [
+        "ConfigSet"
+      ],
+      "ses:source-ip": [
+        "192.0.2.0"
+      ],
+      "ses:from-domain": [
+        "example.com"
+      ],
+      "ses:caller-identity": [
+        "ses_user"
+      ],
+      "myCustomTag1": [
+        "myCustomTagValue1"
+      ],
+      "myCustomTag2": [
+        "myCustomTagValue2"
+      ]
+    }
+  },
+  "reject": {
+    "reason": "Bad content"
+  }
+}

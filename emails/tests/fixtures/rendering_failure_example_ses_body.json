@@ -1,0 +1,23 @@
+{
+  "eventType": "Rendering Failure",
+  "mail": {
+    "timestamp": "2018-01-22T18:43:06.197Z",
+    "source": "sender@example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+    "sendingAccountId": "123456789012",
+    "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+    "destination": [
+      "recipient@example.com"
+    ],
+    "headersTruncated": false,
+    "tags": {
+      "ses:configuration-set": [
+        "ConfigSet"
+      ]
+    }
+  },
+  "failure": {
+    "errorMessage": "Attribute 'attributeName' is not present in the rendering data.",
+    "templateName": "MyTemplate"
+  }
+}

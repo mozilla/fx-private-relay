@@ -1,0 +1,31 @@
+{
+  "eventType": "DeliveryDelay",
+  "mail": {
+    "timestamp": "2020-06-16T00:15:40.641Z",
+    "source": "sender@example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+    "sendingAccountId": "123456789012",
+    "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+    "destination": [
+      "recipient@example.com"
+    ],
+    "headersTruncated": false,
+    "tags": {
+      "ses:configuration-set": [
+        "ConfigSet"
+      ]
+    }
+  },
+  "deliveryDelay": {
+    "timestamp": "2020-06-16T00:25:40.095Z",
+    "delayType": "TransientCommunicationFailure",
+    "expirationTime": "2020-06-16T00:25:40.914Z",
+    "delayedRecipients": [
+      {
+        "emailAddress": "recipient@example.com",
+        "status": "4.4.1",
+        "diagnosticCode": "smtp; 421 4.4.1 Unable to connect to remote host"
+      }
+    ]
+  }
+}

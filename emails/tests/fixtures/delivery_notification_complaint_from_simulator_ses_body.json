@@ -1,0 +1,61 @@
+{
+  "notificationType": "Delivery",
+  "mail": {
+    "timestamp": "2022-08-03T17:38:31.048Z",
+    "source": "test@relay.example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:032756942992:identity/relay.example.com",
+    "sourceIp": "72.213.158.107",
+    "callerIdentity": "mozilla-relay",
+    "sendingAccountId": "032756942992",
+    "messageId": "0100018264c99e08-1aae1638-c00a-4c2b-93dd-acf9752adf56-000000",
+    "destination": [
+      "complaint@simulator.amazonses.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "text/plain; charset=\"utf-8\""
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Subject",
+        "value": "Test message for complaint"
+      },
+      {
+        "name": "From",
+        "value": "test@relay.example.com"
+      },
+      {
+        "name": "To",
+        "value": "complaint@simulator.amazonses.com"
+      }
+    ],
+    "commonHeaders": {
+      "from": [
+        "test@relay.example.com"
+      ],
+      "to": [
+        "complaint@simulator.amazonses.com"
+      ],
+      "subject": "Test message for complaint"
+    }
+  },
+  "delivery": {
+    "timestamp": "2022-08-03T17:38:31.509Z",
+    "processingTimeMillis": 461,
+    "recipients": [
+      "complaint@simulator.amazonses.com"
+    ],
+    "smtpResponse": "250 2.6.0 Message received",
+    "remoteMtaIp": "3.225.75.158",
+    "reportingMTA": "a48-113.smtp-out.amazonses.com"
+  }
+}

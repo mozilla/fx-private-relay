@@ -44,9 +44,13 @@ from .models import (
 )
 from .ses import (
     get_ses_message,
-    is_supported_ses_message,
-    ComplaintMessage,
-    DeliveryMessage,
+    is_supported_ses_message
+)
+from .ses_types import (
+    ComplaintEvent,
+    ComplaintNotification,
+    DeliveryEvent,
+    DeliveryNotification,
 )
 from .utils import (
     _get_bucket_and_key_from_s3_json,
@@ -71,6 +75,8 @@ from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
+ComplaintMessage = Union[ComplaintEvent, ComplaintNotification]
+DeliveryMessage = Union[DeliveryEvent, DeliveryNotification]
 
 
 class InReplyToNotFound(Exception):
@@ -460,12 +466,9 @@ def _sns_message(message_json):
         return HttpResponse("OK", status=200)
 
     if message:
-        if message.messageType.is_type("Complaint"):
-            assert isinstance(message, ComplaintMessage)
+        if isinstance(message, (ComplaintEvent, ComplaintNotification)):
             return _handle_complaint(message)
-        else:
-            assert message.messageType.is_type("Delivery")
-            assert isinstance(message, DeliveryMessage)
+        elif isinstance(message, (DeliveryEvent, DeliveryNotification)):
             return _handle_delivery(message)
 
     notification_type = message_json.get("notificationType")

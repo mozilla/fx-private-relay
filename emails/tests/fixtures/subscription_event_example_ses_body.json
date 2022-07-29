@@ -1,0 +1,108 @@
+{
+  "eventType": "Subscription",
+  "mail": {
+    "timestamp": "2022-01-12T01:00:14.340Z",
+    "source": "monitor@category.sysmon-iad.dohe.com",
+    "sourceArn": "arn:aws:ses:us-east-1:777788889999:identity/category.sysmon-iad.dohe.com",
+    "sendingAccountId": "777788889999",
+    "messageId": "0100017e4bccb684-777bc8de-afa7-4970-92b0-f515137b1497-000000",
+    "destination": [
+      "subscription-event-7799@default.sysmon-iad.dohe.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Return-Path",
+        "value": "monitor@category.sysmon-iad.dohe.com"
+      },
+      {
+        "name": "From",
+        "value": "monitor@category.sysmon-iad.dohe.com"
+      },
+      {
+        "name": "Reply-To",
+        "value": "monitor@category.sysmon-iad.dohe.com"
+      },
+      {
+        "name": "To",
+        "value": "subscription-event-7799@default.sysmon-iad.dohe.com"
+      },
+      {
+        "name": "Subject",
+        "value": "Bacon System Monitor test OP:SubscriptionEventCanary SEND_TIME:2022-01-12T01:00:14.180Z"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Content-Type",
+        "value": "text/html; charset=UTF-8"
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      }
+    ],
+    "commonHeaders": {
+      "returnPath": "monitor@category.sysmon-iad.dohe.com",
+      "from": [
+        "monitor@category.sysmon-iad.dohe.com"
+      ],
+      "replyTo": [
+        "monitor@category.sysmon-iad.dohe.com"
+      ],
+      "to": [
+        "subscription-event-7799@default.sysmon-iad.dohe.com"
+      ],
+      "messageId": "0100017e4bccb684-777bc8de-afa7-4970-92b0-f515137b1497-000000",
+      "subject": "Bacon System Monitor test OP:SubscriptionEventCanary SEND_TIME:2022-01-12T01:00:14.180Z"
+    },
+    "tags": {
+      "ses:operation": [
+        "SendEmail"
+      ],
+      "ses:configuration-set": [
+        "prod-us-east-1-sesV2-subscription-cardinal-configSet"
+      ],
+      "ses:source-ip": [
+        "54.156.777.999"
+      ],
+      "ses:from-domain": [
+        "category.sysmon-iad.dohe.com"
+      ],
+      "Canary": [
+        "SubscriptionEventCanary"
+      ],
+      "ses:caller-identity": [
+        "prod-us-east-1-core-app"
+      ],
+      "ExpectedOutcome": [
+        "Subscription"
+      ]
+    }
+  },
+  "subscription": {
+    "contactList": "SystemMonitor-Canary",
+    "timestamp": "2022-01-12T01:00:17.910Z",
+    "source": "UnsubscribeHeader",
+    "newTopicPreferences": {
+      "unsubscribeAll": true,
+      "topicSubscriptionStatus": [
+        {
+          "topicName": "Canary-Topic",
+          "subscriptionStatus": "OptOut"
+        }
+      ]
+    },
+    "oldTopicPreferences": {
+      "unsubscribeAll": false,
+      "topicSubscriptionStatus": [
+        {
+          "topicName": "Canary-Topic",
+          "subscriptionStatus": "OptOut"
+        }
+      ]
+    }
+  }
+}

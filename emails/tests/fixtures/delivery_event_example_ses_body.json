@@ -1,0 +1,82 @@
+{
+  "eventType": "Delivery",
+  "mail": {
+    "timestamp": "2016-10-19T23:20:52.240Z",
+    "source": "sender@example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:123456789012:identity/sender@example.com",
+    "sendingAccountId": "123456789012",
+    "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+    "destination": [
+      "recipient@example.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "From",
+        "value": "sender@example.com"
+      },
+      {
+        "name": "To",
+        "value": "recipient@example.com"
+      },
+      {
+        "name": "Subject",
+        "value": "Message sent from Amazon SES"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Content-Type",
+        "value": "text/html; charset=UTF-8"
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      }
+    ],
+    "commonHeaders": {
+      "from": [
+        "sender@example.com"
+      ],
+      "to": [
+        "recipient@example.com"
+      ],
+      "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+      "subject": "Message sent from Amazon SES"
+    },
+    "tags": {
+      "ses:configuration-set": [
+        "ConfigSet"
+      ],
+      "ses:source-ip": [
+        "192.0.2.0"
+      ],
+      "ses:from-domain": [
+        "example.com"
+      ],
+      "ses:caller-identity": [
+        "ses_user"
+      ],
+      "ses:outgoing-ip": [
+        "192.0.2.0"
+      ],
+      "myCustomTag1": [
+        "myCustomTagValue1"
+      ],
+      "myCustomTag2": [
+        "myCustomTagValue2"
+      ]
+    }
+  },
+  "delivery": {
+    "timestamp": "2016-10-19T23:21:04.133Z",
+    "processingTimeMillis": 11893,
+    "recipients": [
+      "recipient@example.com"
+    ],
+    "smtpResponse": "250 2.6.0 Message received",
+    "reportingMTA": "mta.example.com"
+  }
+}

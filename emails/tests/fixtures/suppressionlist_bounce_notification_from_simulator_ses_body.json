@@ -1,0 +1,67 @@
+{
+  "notificationType": "Bounce",
+  "bounce": {
+    "feedbackId": "0100018264cb1933-e973f0c7-a4ba-483e-b8bc-baa99e217b9f-000000",
+    "bounceType": "Permanent",
+    "bounceSubType": "General",
+    "bouncedRecipients": [
+      {
+        "emailAddress": "suppressionlist@simulator.amazonses.com",
+        "action": "failed",
+        "status": "5.1.1",
+        "diagnosticCode": "smtp; 550 5.1.1 user unknown ( blacklisted address: suppressionlist@simulator.amazonses.com )"
+      }
+    ],
+    "timestamp": "2022-08-03T17:40:08.000Z",
+    "remoteMtaIp": "54.209.96.121",
+    "reportingMTA": "dns; a48-113.smtp-out.amazonses.com"
+  },
+  "mail": {
+    "timestamp": "2022-08-03T17:40:07.588Z",
+    "source": "test@relay.example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:032756942992:identity/relay.example.com",
+    "sourceIp": "72.213.158.107",
+    "callerIdentity": "mozilla-relay",
+    "sendingAccountId": "032756942992",
+    "messageId": "0100018264cb1724-66162d8a-49a7-47dc-97bf-c2ff5ece42fe-000000",
+    "destination": [
+      "suppressionlist@simulator.amazonses.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "text/plain; charset=\"utf-8\""
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Subject",
+        "value": "Test message for suppressionlist"
+      },
+      {
+        "name": "From",
+        "value": "test@relay.example.com"
+      },
+      {
+        "name": "To",
+        "value": "suppressionlist@simulator.amazonses.com"
+      }
+    ],
+    "commonHeaders": {
+      "from": [
+        "test@relay.example.com"
+      ],
+      "to": [
+        "suppressionlist@simulator.amazonses.com"
+      ],
+      "subject": "Test message for suppressionlist"
+    }
+  }
+}
