@@ -9,18 +9,20 @@ jobs:
     name: 'Relay Application e2e Tests'
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    container: mcr.microsoft.com/playwright:v1.23.0-focal
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
           node-version: '14.x'
+          cache: 'npm'
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install
 
       - name: Install Playwright Browsers
-        run: npx playwright install --with-deps
+        run: |
+          npm install -D @playwright/test --with-deps
+          npx playwright install
 
       - name: Run Playwright tests
         run: npm run test:e2e
