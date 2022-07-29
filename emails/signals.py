@@ -46,7 +46,6 @@ def measure_feature_usage(sender, instance, **kwargs):
         != curr_profile.remove_level_one_email_trackers
     )
     if changed_tracker_removal_setting:
-        print(changed_tracker_removal_setting)
         if instance.remove_level_one_email_trackers:
             incr_if_enabled("tracker_removal_enabled")
         if not instance.remove_level_one_email_trackers:
@@ -55,6 +54,7 @@ def measure_feature_usage(sender, instance, **kwargs):
             "tracker_removal_feature",
             extra={
                 "enabled": instance.remove_level_one_email_trackers,
+                # TODO create a utility function or property for hashed fxa uid
                 "hashed_uid": sha256(instance.fxa.uid.encode("utf-8")).hexdigest(),
             },
         )
