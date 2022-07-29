@@ -835,6 +835,95 @@ class ProfileTest(TestCase):
     def test_emails_replied_new_user_aggregates_sum_of_replies_to_zero(self):
         assert self.profile.emails_replied == 0
 
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_remove_level_one_email_trackers_enabled_emits_metric_and_logs(
+        self, mocked_events_info, mocked_incr
+    ):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider="fxa",
+        )
+        self.profile.remove_level_one_email_trackers = True
+        self.profile.save()
+
+        expected_hashed_uid = sha256(self.profile.fxa.uid.encode("utf-8")).hexdigest()
+        mocked_incr.assert_called_once_with("tracker_removal_enabled")
+        mocked_events_info.assert_called_once_with(
+            "tracker_removal_feature",
+            extra={
+                "enabled": True,
+                "hashed_uid": expected_hashed_uid,
+            },
+        )
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_remove_level_one_email_trackers_disabled_emits_metric_and_logs(
+        self, mocked_events_info, mocked_incr
+    ):
+        profile = baker.make(Profile, remove_level_one_email_trackers=True)
+        baker.make(
+            SocialAccount,
+            user=profile.user,
+            provider="fxa",
+        )
+        profile.remove_level_one_email_trackers = False
+        profile.save()
+
+        expected_hashed_uid = sha256(profile.fxa.uid.encode("utf-8")).hexdigest()
+        mocked_incr.assert_called_once_with("tracker_removal_disabled")
+        mocked_events_info.assert_called_once_with(
+            "tracker_removal_feature",
+            extra={
+                "enabled": False,
+                "hashed_uid": expected_hashed_uid,
+            },
+        )
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_remove_level_one_email_trackers_unchanged_does_not_emit_metric_and_logs(
+        self, mocked_events_info, mocked_incr
+    ):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider="fxa",
+        )
+        self.profile.remove_level_one_email_trackers = False
+        self.profile.save()
+
+        mocked_incr.assert_not_called()
+        mocked_events_info.assert_not_called()
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_remove_level_one_email_trackers_unchanged_different_field_changed_does_not_emit_metric_and_logs(
+        self, mocked_events_info, mocked_incr
+    ):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider="fxa",
+        )
+        self.profile.server_storage = False
+        self.profile.save()
+
+        mocked_incr.assert_not_called()
+        mocked_events_info.assert_not_called()
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_profile_created_does_not_emit_metric_and_logs_from_measure_feature_usage_signal(
+        self, mocked_events_info, mocked_incr
+    ):
+        baker.make(Profile)
+
+        mocked_incr.assert_not_called()
+        mocked_events_info.assert_not_called()
+
 
 class DomainAddressTest(TestCase):
     def setUp(self):
