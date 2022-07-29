@@ -35,6 +35,9 @@ def check_premium_for_block_list_emails(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=Profile)
 def measure_feature_usage(sender, instance, **kwargs):
+    if instance._state.adding:
+        # if newly created Profile ignore the signal
+        return
     curr_profile = Profile.objects.get(id=instance.id)
 
     # measure tracker removal usage
