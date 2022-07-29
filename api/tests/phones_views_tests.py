@@ -374,6 +374,7 @@ def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
     assert relay_number.enabled == True
     mock_create.assert_not_called()
 
+
 def test_relaynumber_suggestions_bad_request_for_user_without_real_phone(phone_user):
     client = APIClient()
     client.force_authenticate(phone_user)
@@ -594,9 +595,10 @@ def test_inbound_sms_valid_twilio_signature_disabled_number(
     data = {"From": "+15556660000", "To": relay_number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
-    assert response.status_code == 200
+    assert response.status_code == 400
     decoded_content = response.content.decode()
-    assert "not accepting messages" in decoded_content
+    assert decoded_content.startswith("<?xml")
+    assert "Not Accepting Messages" in decoded_content
     mocked_twilio_client.messages.create.assert_not_called()
 
 
@@ -675,3 +677,26 @@ def test_inbound_call_valid_twilio_signature_good_data(
     decoded_content = response.content.decode()
     assert f'callerId="{caller_number}"' in decoded_content
     assert f"<Number>{real_phone_number}</Number>" in decoded_content
+
+
+def test_inbound_call_valid_twilio_signature_disabled_number(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    caller_number = "+15556660000"
+    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
+    RelayNumber.objects.create(user=phone_user, number=relay_number, enabled=False)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    data = {"Caller": caller_number, "Called": relay_number}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert decoded_content.startswith("<?xml")
+    assert "Not Accepting Calls" in decoded_content
+    mocked_twilio_client.messages.create.assert_not_called()

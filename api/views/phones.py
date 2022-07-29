@@ -29,7 +29,11 @@ from phones.models import (
 
 from ..exceptions import ConflictError
 from ..permissions import HasPhoneService
-from ..renderers import TwilioCallForwardXMLRenderer, vCardRenderer
+from ..renderers import (
+    TwilioInboundCallXMLRenderer,
+    TwilioInboundSMSXMLRenderer,
+    vCardRenderer,
+)
 from ..serializers.phones import RealPhoneSerializer, RelayNumberSerializer
 
 
@@ -351,6 +355,7 @@ def vCard(request, lookup_key):
 
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
+@decorators.renderer_classes([TwilioInboundSMSXMLRenderer])
 def inbound_sms(request):
     _validate_twilio_request(request)
     inbound_body = request.data.get("Body", None)
@@ -365,7 +370,7 @@ def inbound_sms(request):
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
     if not relay_number.enabled:
-        return response.Response(status=200, data={"message": "Number is not accepting messages."})
+        raise exceptions.ValidationError("Number is not accepting messages.")
     client = twilio_client()
     client.messages.create(
         from_=relay_number.number,
@@ -377,7 +382,7 @@ def inbound_sms(request):
 
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
-@decorators.renderer_classes([TwilioCallForwardXMLRenderer])
+@decorators.renderer_classes([TwilioInboundCallXMLRenderer])
 def inbound_call(request):
     _validate_twilio_request(request)
     inbound_from = request.data.get("Caller", None)
@@ -390,6 +395,9 @@ def inbound_call(request):
         real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
+
+    if not relay_number.enabled:
+        raise exceptions.ValidationError("Number is not accepting calls.")
 
     return response.Response(
         status=201,

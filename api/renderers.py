@@ -22,19 +22,42 @@ class vCardRenderer(renderers.BaseRenderer):
         return vCard.serialize().encode()
 
 
-class TwilioCallForwardXMLRenderer(renderers.BaseRenderer):
+class TwiMLBaseRenderer(renderers.BaseRenderer):
     """
-    Twilio POSTS its request with x-www-form-urlencoded but it wants responses
-    in TwiML XML.
+    Twilio POSTS its request with x-www-form-urlencoded but it wants
+    responses in TwiML XML.
+
+    This Base renderer also provides a default render() for all errors.
     """
 
     media_type = "text/xml"
     format = "xml"
+    xml_header = '<?xml version="1.0" encoding="UTF-8"?>'
+
+    def _get_resp_status_code(self, ctx):
+        ctx_resp = ctx.get("response", None)
+        status_code = getattr(ctx_resp, "status_code", None)
+        return status_code
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        xml_header = '<?xml version="1.0" encoding="UTF-8"?>'
-        if renderer_context["response"].status_code != 201:
-            error = data[0]
-            title = error.title()
-            return f"{xml_header}<Error><code>{error.code}</code><title>{title}</title></Error>"
-        return f'{xml_header}<Response><Dial callerId="{data["inbound_from"]}"><Number>{data["real_number"]}</Number></Dial></Response>'
+        error = data[0]
+        title = error.title()
+        return f"{self.xml_header}<Error><code>{error.code}</code><title>{title}</title></Error>"
+
+
+class TwilioInboundCallXMLRenderer(TwiMLBaseRenderer):
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        status_code = self._get_resp_status_code(renderer_context)
+        if status_code and status_code > 299:
+            return super().render(data, accepted_media_type, renderer_context)
+
+        return f'{self.xml_header}<Response><Dial callerId="{data["inbound_from"]}"><Number>{data["real_number"]}</Number></Dial></Response>'
+
+
+class TwilioInboundSMSXMLRenderer(TwiMLBaseRenderer):
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        status_code = self._get_resp_status_code(renderer_context)
+        if status_code and status_code > 299:
+            return super().render(data, accepted_media_type, renderer_context)
+
+        return f"{self.xml_header}<Response/>"
