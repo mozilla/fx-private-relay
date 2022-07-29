@@ -34,10 +34,23 @@ export const checkForSignInButton = async (page: Page) => {
   try {    
     const maybeSignInButton = 'button:has-text("Sign In")'
     await page.waitForSelector(maybeSignInButton, { timeout: 2000 })
-    await page.waitForNavigation() 
     await page.locator(maybeSignInButton).click()
   } catch (error) {
     console.error('Proceeded to logged in page')
+  }
+}
+
+export const checkForEmailInput = async (page: Page) => {
+  try {    
+    const maybeEmailInput = '.email'
+    await page.waitForSelector(maybeEmailInput, { timeout: 2000 })
+    const maybeSignInButton = page.locator('button:has-text("Sign up or sign in")')
+    await page.locator(maybeEmailInput).fill(process.env.E2E_TEST_ACCOUNT_FREE as string)
+    await maybeSignInButton.click()
+    await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
+    await page.locator('#submit-btn').click()
+  } catch (error) {
+    console.error('No email Proceeded to logged in page')
   }
 }
 
@@ -54,28 +67,3 @@ export const defaultScreenshotOpts: Partial<DefaultScreenshotOpts> = {
   animations: 'disabled',
   maxDiffPixelRatio: 0.04
 };
-
-export const generateMaskResponseObject =  {
-  mask_type: "random",
-  enabled: true,
-  description: "lfjldksjfkldsjflksjlkj",
-  generated_for: "",
-  block_list_emails: false,
-  used_on: null,
-  id: Date.now(),
-  address: "sdlfkjdskjfs",
-  domain: 2,
-  full_address: `sdlfkjdskjfs@${process.env.E2E_TEST_BASE_URL}`,
-  created_at: "2022-07-19T15:22:52.803508Z",
-  last_modified_at: "2022-07-19T15:22:52.803523Z",
-  last_used_at: null,
-  num_forwarded: 0,
-  num_blocked: 0,
-  num_replied: 0,
-  num_spam: 0  
-}
-
-export const delay = (timeInMilliSeconds: number)  =>
-  new Promise(function (resolve) {
-    setTimeout(resolve, timeInMilliSeconds);
-  });

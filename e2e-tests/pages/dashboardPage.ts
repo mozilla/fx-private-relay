@@ -1,5 +1,5 @@
 import { APIRequestContext, BrowserContext, Locator, Page } from "@playwright/test";
-import { getVerificationCode } from "../e2eTestUtils/helpers";
+import { checkForEmailInput, getVerificationCode } from "../e2eTestUtils/helpers";
 
 export class DashboardPage {
     readonly page: Page
@@ -85,7 +85,7 @@ export class DashboardPage {
     } 
 
     async open() {
-        await this.page.goto('/accounts/profile/', { waitUntil: 'networkidle' });
+        await this.page.goto('/accounts/profile/');
       }
 
     async generateMask(numberOfMasks = 1){        
@@ -159,6 +159,7 @@ export class DashboardPage {
     async sendMaskEmail(context: BrowserContext, request: APIRequestContext){
         // reset data
         await this.open()
+        await checkForEmailInput(this.page)
         await this.maybeDeleteMasks()
         
         // create mask and use generated mask email to test email forwarding feature

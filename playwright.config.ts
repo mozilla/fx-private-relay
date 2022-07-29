@@ -16,13 +16,13 @@ const config: PlaywrightTestConfig = {
   testDir: 'e2e-tests/specs',
 
   /* Maximum time one test can run for. */
-  timeout: 60000,
+  timeout: 60_000,
 
   /* Global setup */
   globalSetup: require.resolve('./e2e-tests/global-setup.ts'),
 
   /* Max time in milliseconds the whole test suite can to prevent CI breaking. */
-  globalTimeout: 360000,
+  globalTimeout: 360_000,
 
   // adding missing snapshots for later comparison
   updateSnapshots: 'missing',
@@ -32,7 +32,7 @@ const config: PlaywrightTestConfig = {
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
-    timeout: 5000
+    timeout: 5_000
   },
   /* Run tests in files in parallel */
   // fullyParallel: true,
@@ -41,7 +41,7 @@ const config: PlaywrightTestConfig = {
   /* Retry on CI only */
   retries: process.env.CI ? 1 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: 4,
+  workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
     [process.env.CI ? 'github' : 'html']
@@ -79,12 +79,12 @@ const config: PlaywrightTestConfig = {
         ...devices['Desktop Firefox'],
       },
     },
-    {
-      name: 'webkit',
-      use: {
-        ...devices['Desktop Safari'],
-      },
-    },
+    // {
+    //   name: 'webkit',
+    //   use: {
+    //     ...devices['Desktop Safari'],
+    //   },
+    // },
 
     /* Test against mobile viewports. */
     // {

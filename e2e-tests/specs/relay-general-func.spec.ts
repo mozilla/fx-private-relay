@@ -1,12 +1,12 @@
 import test, { expect }  from '../fixtures/basePages'
-import { checkForSignInButton, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
+import { checkForEmailInput, checkForSignInButton, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
 test.describe('Free - General Functionalities, Desktop', () => {
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()    
-    await checkForSignInButton(page)
+    await checkForEmailInput(page)
     await dashboardPage.maybeDeleteMasks()
   });
 
