@@ -5,6 +5,10 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  // <html> and <body> have overflow set to hidden to accommodate header
+  // positioning (for more info, see `.non-header-wrapper` in
+  // Layout.module.scss), so overflow: auto is needed to re-enable the scrollbar:
+  overflow: auto;
 }
 
 @keyframes fadein {
