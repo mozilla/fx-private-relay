@@ -41,6 +41,10 @@ class TwiMLBaseRenderer(renderers.BaseRenderer):
         return status_code
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
+        # if a view returns a Response directly, data is a string
+        if type(data) == str:
+            code = self._get_resp_status_code(renderer_context)
+            return f"{self.xml_header}<Error><code>{code}</code><title>{data}</title></Error>"
         error = data[0]
         title = error.title()
         return f"{self.xml_header}<Error><code>{error.code}</code><title>{title}</title></Error>"
