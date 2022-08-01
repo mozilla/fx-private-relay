@@ -1,5 +1,5 @@
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
-import { RealPhoneData } from "../hooks/api/phone";
+import { RealPhoneData, RelayPhoneData } from "../hooks/api/phone";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { UserData } from "../hooks/api/user";
@@ -261,6 +261,26 @@ export const mockedRealphones: Record<typeof mockIds[number], RealPhoneData> = {
       verification_sent_date: "2022-07-27T10:17:29.775Z",
       verified: true,
       verified_date: "2022-07-27T10:18:01.801Z",
+    },
+  ],
+};
+
+export const mockedRelaynumbers: Record<
+  typeof mockIds[number],
+  RelayPhoneData
+> = {
+  empty: [],
+  onboarding: [],
+  some: [
+    {
+      number: "+18089251571",
+      location: "Hilo",
+    },
+  ],
+  full: [
+    {
+      number: "+18089251571",
+      location: "Hilo",
     },
   ],
 };
