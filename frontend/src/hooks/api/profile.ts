@@ -6,6 +6,7 @@ export type ProfileData = {
   id: number;
   server_storage: boolean;
   has_premium: boolean;
+  has_phone: boolean;
   subdomain: string | null;
   onboarding_state: number;
   avatar: string;
