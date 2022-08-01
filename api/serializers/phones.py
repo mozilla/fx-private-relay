@@ -29,9 +29,12 @@ class RelayNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelayNumber
         fields = [
+            "id",
             "number",
             "location",
+            "enabled",
         ]
         read_only_fields = [
+            "id",
             "location",
         ]

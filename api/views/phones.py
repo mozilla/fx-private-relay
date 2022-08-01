@@ -29,7 +29,11 @@ from phones.models import (
 
 from ..exceptions import ConflictError
 from ..permissions import HasPhoneService
-from ..renderers import TwilioCallForwardXMLRenderer, vCardRenderer
+from ..renderers import (
+    TwilioInboundCallXMLRenderer,
+    TwilioInboundSMSXMLRenderer,
+    vCardRenderer,
+)
 from ..serializers.phones import RealPhoneSerializer, RelayNumberSerializer
 
 
@@ -159,7 +163,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         The authenticated user must have a subscription that grants one of the
         `SUBSCRIPTIONS_WITH_PHONE` capabilities.
 
-        The `{id}` should match a previously-`POST`ed resource.
+        The `{id}` should match a previously-`POST`ed resource that belongs to the user.
 
         The `number` field should be in [E.164][e164] format which includes a country
         code.
@@ -188,7 +192,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
 
 class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
-    http_method_names = ["get", "post"]
+    http_method_names = ["get", "post", "patch"]
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
     serializer_class = RelayNumberSerializer
 
@@ -215,7 +219,23 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         [test-numbers]: https://www.twilio.com/docs/iam/test-credentials#test-incoming-phone-numbers-parameters-PhoneNumber
         [e164]: https://en.wikipedia.org/wiki/E.164
         """
+        existing_number = RelayNumber.objects.filter(user=request.user)
+        if existing_number:
+            raise exceptions.ValidationError("User already has a RelayNumber.")
         return super().create(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        """
+        Update the authenticated user's relay number.
+
+        The authenticated user must have a subscription that grants one of the
+        `SUBSCRIPTIONS_WITH_PHONE` capabilities.
+
+        The `{id}` should match a previously-`POST`ed resource that belongs to the authenticated user.
+
+        This is primarily used to toggle the `enabled` field.
+        """
+        return super().partial_update(request, *args, **kwargs)
 
     @decorators.action(detail=False)
     def suggestions(self, request):
@@ -335,6 +355,7 @@ def vCard(request, lookup_key):
 
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
+@decorators.renderer_classes([TwilioInboundSMSXMLRenderer])
 def inbound_sms(request):
     _validate_twilio_request(request)
     inbound_body = request.data.get("Body", None)
@@ -348,6 +369,8 @@ def inbound_sms(request):
         real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
+    if not relay_number.enabled:
+        raise exceptions.ValidationError("Number is not accepting messages.")
     client = twilio_client()
     client.messages.create(
         from_=relay_number.number,
@@ -359,7 +382,7 @@ def inbound_sms(request):
 
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
-@decorators.renderer_classes([TwilioCallForwardXMLRenderer])
+@decorators.renderer_classes([TwilioInboundCallXMLRenderer])
 def inbound_call(request):
     _validate_twilio_request(request)
     inbound_from = request.data.get("Caller", None)
@@ -372,6 +395,9 @@ def inbound_call(request):
         real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
+
+    if not relay_number.enabled:
+        raise exceptions.ValidationError("Number is not accepting calls.")
 
     return response.Response(
         status=201,

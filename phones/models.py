@@ -155,13 +155,16 @@ class RelayNumber(models.Model):
     vcard_lookup_key = models.CharField(
         max_length=6, default=vcard_lookup_key_default, unique=True
     )
+    enabled = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         if not get_verified_realphone_records(self.user):
             raise ValidationError("User does not have a verified real phone.")
+
+        # if this number exists for this user, this is an update call
         existing_number = RelayNumber.objects.filter(user=self.user)
         if existing_number:
-            raise ValidationError("User already has a relay number.")
+            return super().save(*args, **kwargs)
 
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")
@@ -172,10 +175,10 @@ class RelayNumber(models.Model):
         if settings.TWILIO_TEST_ACCOUNT_SID:
             client = phones_config.twilio_test_client
 
-        incoming_number = client.incoming_phone_numbers.create(
+        client.incoming_phone_numbers.create(
             phone_number=self.number,
             sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
-            voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID
+            voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
         )
         return super().save(*args, **kwargs)
 
