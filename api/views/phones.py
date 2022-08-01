@@ -50,6 +50,25 @@ from ..serializers.phones import (
 logger = logging.getLogger("events")
 
 
+"""
+Twilio does not allow clients to delete messages that are "in-progress":
+
+https://www.twilio.com/docs/sms/api/message-resource#update-a-message-resource
+
+So, this custom response closes the connection first, which moves the message
+from "in-progress" to a finalized state. Then it calls the Twilio API to delete
+the message.
+
+See https://stackoverflow.com/a/4314182
+"""
+class DeleteTwilioMessageResponse(response.Response):
+    def close(self) -> None:
+        super().close()
+        sms_sid = self.renderer_context.get("request").data.get("SmsSid")
+        client = twilio_client()
+        client.messages(sms_sid).delete()
+
+
 def twilio_validator():
     phones_config = apps.get_app_config("phones")
     validator = phones_config.twilio_validator
@@ -389,11 +408,14 @@ def inbound_sms(request):
     if inbound_body is None or inbound_from is None or inbound_to is None:
         raise exceptions.ValidationError("Message missing From, To, Or Body.")
 
-    relay_number, real_phone, inbound_contact = _get_phone_objects(
-        inbound_to, inbound_from, "texts"
-    )
-    if inbound_contact:
-        _check_and_update_contact(inbound_contact, "texts")
+    try:
+        relay_number, real_phone, inbound_contact = _get_phone_objects(
+            inbound_to, inbound_from, "texts"
+        )
+        if inbound_contact:
+            _check_and_update_contact(inbound_contact, "texts")
+    except exceptions.ValidationError as e:
+        return DeleteTwilioMessageResponse(e.detail, status=400)
 
     client = twilio_client()
     client.messages.create(

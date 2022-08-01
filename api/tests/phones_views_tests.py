@@ -543,6 +543,13 @@ def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
 def test_inbound_sms_valid_twilio_signature_unknown_number(
     phone_user, mocked_twilio_client, mocked_twilio_validator
 ):
+    sms_sid = "SM395462dd611c162cf36a18465e40a8b3"
+    def _mock_messages_for_sid(sid=None):
+        if sid == sms_sid:
+            return mocked_twilio_client.messages
+        return Mock()
+
+    mocked_twilio_client.messages.side_effect = _mock_messages_for_sid
     mocked_twilio_validator.validate = Mock(return_value=True)
     real_phone_number = "+12223334444"
     relay_number = "+19998887777"
@@ -553,11 +560,20 @@ def test_inbound_sms_valid_twilio_signature_unknown_number(
 
     client = APIClient()
     path = "/api/v1/inbound_sms"
-    data = {"From": "+15556660000", "To": unknown_number, "Body": "test body"}
+    data = {
+        "From": "+15556660000",
+        "To": unknown_number,
+        "Body": "test body",
+        "SmsSid": sms_sid
+    }
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 400
-    assert "Could Not Find Relay Number." in response.data[0].title()
+    assert response.data == "Could not find relay number."
+    mocked_twilio_client.messages.assert_called_once()
+    call_args = mocked_twilio_client.messages.call_args.args
+    assert call_args[0] == sms_sid
+    mocked_twilio_client.messages.delete.assert_called_once()
 
 
 def test_inbound_sms_valid_twilio_signature_good_data(
