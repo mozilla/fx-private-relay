@@ -9,7 +9,11 @@ import { PurchasePhonesPlan } from "./PurchasePhonesPlan";
 import { RealPhoneSetup } from "./RealPhoneSetup";
 import { RelayNumberPicker } from "./RelayNumberPicker";
 
-export const PhoneOnboarding = () => {
+export type Props = {
+  onComplete: () => void;
+};
+
+export const PhoneOnboarding = (props: Props) => {
   const profiles = useProfiles();
   const realPhoneData = useRealPhonesData();
 
@@ -52,7 +56,7 @@ export const PhoneOnboarding = () => {
   }
 
   if (verifiedPhones.length > 0) {
-    step = <RelayNumberPicker onComplete={() => console.log("DONE!")} />;
+    step = <RelayNumberPicker onComplete={props.onComplete} />;
   }
 
   return (

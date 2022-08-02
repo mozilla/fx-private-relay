@@ -51,6 +51,7 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
     />
   );
 };
+
 type RealPhoneFormProps = {
   requestPhoneVerification: (phoneNumber: string) => void;
 };
