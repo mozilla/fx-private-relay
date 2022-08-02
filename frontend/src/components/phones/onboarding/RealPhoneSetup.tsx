@@ -1,8 +1,8 @@
 import { Localized, useLocalization } from "@fluent/react";
 import styles from "./RealPhoneSetup.module.scss";
 import PhoneVerify from "./images/phone-verify.svg";
-import EnteryVerifyCode from "./images/enter-verify-code.svg";
-import EnteryVerifyCodeError from "./images/verify-code-error.svg";
+import EnterVerifyCode from "./images/enter-verify-code.svg";
+import EnterVerifyCodeError from "./images/verify-code-error.svg";
 import { Button } from "../../Button";
 import {
   hasPendingVerification,
@@ -248,14 +248,14 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           className={`${styles["step-input-verificiation-code-lead-default"]}`}
         >
           {/* Default state */}
-          <img src={EnteryVerifyCode.src} alt="" width={300} />
+          <img src={EnterVerifyCode.src} alt="" width={300} />
           <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
         </div>
         <div
           className={`${styles["step-input-verificiation-code-lead-error"]} `}
         >
           {/* Timeout error state */}
-          <img src={EnteryVerifyCodeError.src} alt="" width={170} />
+          <img src={EnterVerifyCodeError.src} alt="" width={170} />
           <h2 className={`${styles["is-error"]} `}>
             {l10n.getString("phone-onboarding-step3-code-fail-title")}
           </h2>
@@ -267,7 +267,6 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       {/* TODO: Add logic to display timeout error */}
       {errorTimeExpired}
 
-      {/* <form onSubmit={onSubmit} className={`${styles.form}`}> */}
       <form ref={formRef} onSubmit={onSubmit} className={styles.form}>
         {/* TODO: Make remaining_time count backwards with "X minutes, XX seconds" */}
         <Localized
@@ -310,7 +309,6 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       </form>
 
       {/* TODO: Resubmit phone number for verification and reset count down */}
-      {/* onClick={() => props.requestPhoneVerification(phoneNumber)} */}
       <Button className={styles.button} type="button" variant="secondary">
         {l10n.getString("phone-onboarding-step3-button-resend")}
       </Button>

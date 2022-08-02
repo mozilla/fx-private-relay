@@ -1,12 +1,12 @@
 import { SWRResponse } from "swr";
 import { apiFetch, useApiV1 } from "./api";
 
-export type RelayPhone = {
+export type RelayNumber = {
   number: string;
   location?: string;
 };
 
-export type RelayPhoneData = Array<RelayPhone>;
+export type RelayNumberData = Array<RelayNumber>;
 
 export type PhoneNumberRegisterRelayNumberFn = (
   phoneNumber: string
@@ -15,10 +15,10 @@ export type PhoneNumberRegisterRelayNumberFn = (
  * Get relay (masked) phone number records for the authenticated user with our API using [SWR](https://swr.vercel.app).
  */
 
-export function useRelayNumber(): SWRResponse<RelayPhoneData, unknown> & {
+export function useRelayNumber(): SWRResponse<RelayNumberData, unknown> & {
   registerRelayNumber: PhoneNumberRegisterRelayNumberFn;
 } {
-  const relayNumber: SWRResponse<RelayPhoneData, unknown> =
+  const relayNumber: SWRResponse<RelayNumberData, unknown> =
     useApiV1("/relaynumber/");
 
   // TODO: Add post function to same API url

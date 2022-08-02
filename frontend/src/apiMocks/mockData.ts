@@ -1,6 +1,6 @@
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
 import { RealPhoneData } from "../hooks/api/realPhone";
-import { RelayPhoneData } from "../hooks/api/relayNumber";
+import { RelayNumberData } from "../hooks/api/relayNumber";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { UserData } from "../hooks/api/user";
@@ -268,7 +268,7 @@ export const mockedRealphones: Record<typeof mockIds[number], RealPhoneData> = {
 
 export const mockedRelaynumbers: Record<
   typeof mockIds[number],
-  RelayPhoneData
+  RelayNumberData
 > = {
   empty: [],
   onboarding: [],

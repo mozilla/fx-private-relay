@@ -5,7 +5,7 @@ import {
   VerificationPendingPhone,
   VerifiedPhone,
 } from "../hooks/api/realPhone";
-import { RelayPhone } from "../hooks/api/relayNumber";
+import { RelayNumber } from "../hooks/api/relayNumber";
 import { ProfileData } from "../hooks/api/profile";
 import {
   mockIds,
@@ -395,9 +395,9 @@ export function getHandlers(
       return res(ctx.status(400));
     }
 
-    const body = req.body as Pick<RelayPhone, "number">;
+    const body = req.body as Pick<RelayNumber, "number">;
 
-    const newRelaynumber: RelayPhone = {
+    const newRelaynumber: RelayNumber = {
       number: body.number,
       location: "Unhošť",
     };
