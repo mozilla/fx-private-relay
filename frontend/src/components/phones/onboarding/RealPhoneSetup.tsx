@@ -9,7 +9,7 @@ import {
   UnverifiedPhone,
   VerificationPendingPhone,
   PhoneNumberSubmitVerificationFn,
-} from "../../../hooks/api/phone";
+} from "../../../hooks/api/realPhone";
 import {
   ChangeEventHandler,
   FormEventHandler,

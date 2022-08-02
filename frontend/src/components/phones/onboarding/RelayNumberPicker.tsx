@@ -13,7 +13,7 @@ import { Button } from "../../Button";
 import {
   useRelayNumber,
   getRelayNumberSuggestions,
-} from "../../../hooks/api/phone";
+} from "../../../hooks/api/relayNumber";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;

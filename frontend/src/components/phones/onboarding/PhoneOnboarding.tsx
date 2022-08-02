@@ -4,7 +4,7 @@ import {
   useRealPhonesData,
   isVerified,
   isNotVerified,
-} from "../../../hooks/api/phone";
+} from "../../../hooks/api/realPhone";
 import { PurchasePhonesPlan } from "./PurchasePhonesPlan";
 import { RealPhoneSetup } from "./RealPhoneSetup";
 import { RelayNumberPicker } from "./RelayNumberPicker";

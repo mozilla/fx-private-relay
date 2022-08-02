@@ -1,11 +1,11 @@
 import { rest, RestHandler, RestRequest } from "msw";
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
 import {
-  RelayPhone,
   UnverifiedPhone,
   VerificationPendingPhone,
   VerifiedPhone,
-} from "../hooks/api/phone";
+} from "../hooks/api/realPhone";
+import { RelayPhone } from "../hooks/api/relayNumber";
 import { ProfileData } from "../hooks/api/profile";
 import {
   mockIds,

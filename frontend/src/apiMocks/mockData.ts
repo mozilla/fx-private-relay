@@ -1,5 +1,6 @@
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
-import { RealPhoneData, RelayPhoneData } from "../hooks/api/phone";
+import { RealPhoneData } from "../hooks/api/realPhone";
+import { RelayPhoneData } from "../hooks/api/relayNumber";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { UserData } from "../hooks/api/user";
