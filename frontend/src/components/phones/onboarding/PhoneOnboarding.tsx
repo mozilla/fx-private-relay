@@ -212,6 +212,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
           type="tel"
           required={true}
           onChange={onChange}
+          autoFocus={true}
         />
         {/* TODO: Add error class to input field */}
         <Button className={styles.button} type="submit">
@@ -415,6 +416,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           required={true}
           onChange={onChange}
           ref={inputRef}
+          autoFocus={true}
         />
         {/* TODO: Add logic to show success/fail on submit */}
         <Button className={styles.button} type="submit">
@@ -595,6 +597,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
             name="phoneNumberMask"
             id={`number${i}`}
             value={suggestion}
+            autoFocus={i === 0}
             // Note: If you need to hardcode for testing:
             // value="+15005550006"
           />
