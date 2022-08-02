@@ -11,33 +11,53 @@ export type VerifiedPhone = {
   verified_date: DateString;
 };
 
-export type UnverifiedPhone = {
+export type VerificationPendingPhone = {
   id: number;
   number: string;
   verification_code: string;
-  verification_sent_date: null | DateString;
+  verification_sent_date: DateString;
   verified: false | undefined;
   verified_date: null;
 };
 
-export type RealPhoneData = Array<VerifiedPhone | UnverifiedPhone>;
+export type UnverifiedPhone = {
+  id: number;
+  number: string;
+  verification_code: string;
+  verification_sent_date: null;
+  verified: false | undefined;
+  verified_date: null;
+};
 
-export function isVerified(
-  phone: UnverifiedPhone | VerifiedPhone
-): phone is VerifiedPhone {
+export type RealPhone =
+  | VerifiedPhone
+  | VerificationPendingPhone
+  | UnverifiedPhone;
+
+export type RealPhoneData = Array<RealPhone>;
+
+export function isVerified(phone: RealPhone): phone is VerifiedPhone {
   if (phone.verified === undefined) {
     return false;
   }
   return phone.verified;
 }
 
-export function hasVerificationSentDates(
-  phone: UnverifiedPhone | VerifiedPhone
-): phone is VerifiedPhone {
-  // Short circuit logic if there's no verification sent yet
+export function isNotVerified(
+  phone: RealPhone
+): phone is UnverifiedPhone | VerificationPendingPhone {
+  return !isVerified(phone);
+}
+
+export function hasPendingVerification(
+  phone: RealPhone
+): phone is VerificationPendingPhone {
+  // Short circuit logic if there's no verification sent yet,
+  // or if the phone number has already been verified:
   if (
     phone.verification_sent_date === undefined ||
-    phone.verification_sent_date === null
+    phone.verification_sent_date === null ||
+    phone.verified === true
   ) {
     return false;
   }
@@ -47,10 +67,7 @@ export function hasVerificationSentDates(
   ).getTime();
   const currentDateMinus5Mins = new Date().getTime() - 5 * 60 * 1000;
 
-  if (verificationSentDate < currentDateMinus5Mins) {
-    return false;
-  }
-  return true;
+  return verificationSentDate >= currentDateMinus5Mins;
 }
 
 export type RealPhonesData = [RealPhoneData];
@@ -59,9 +76,13 @@ export type PhoneNumberRequestVerificationFn = (
   phoneNumber: string
 ) => Promise<Response>;
 
+export type RealPhoneVerification = Pick<
+  VerifiedPhone,
+  "number" | "verification_code"
+>;
 export type PhoneNumberSubmitVerificationFn = (
   id: number,
-  obj: { number: string; verification_code: string }
+  obj: RealPhoneVerification
 ) => Promise<Response>;
 
 /**

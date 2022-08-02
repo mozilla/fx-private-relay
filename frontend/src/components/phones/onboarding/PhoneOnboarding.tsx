@@ -15,10 +15,13 @@ import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import {
   useRealPhonesData,
   isVerified,
-  hasVerificationSentDates,
-  VerifiedPhone,
+  hasPendingVerification,
   useRelayNumber,
   getRelayNumberSuggestions,
+  UnverifiedPhone,
+  VerificationPendingPhone,
+  PhoneNumberSubmitVerificationFn,
+  isNotVerified,
 } from "../../../hooks/api/phone";
 import {
   ChangeEventHandler,
@@ -33,20 +36,6 @@ import { parseDate } from "../../../functions/parseDate";
 export const PhoneOnboarding = () => {
   const profiles = useProfiles();
   const realPhoneData = useRealPhonesData();
-  const relayNumberData = useRelayNumber();
-  const [phoneOnboardingStep, setPhoneOnboardingStep] = useState(0);
-
-  useEffect(() => {
-    const data = window.localStorage.getItem("phoneOnboardingStep");
-    if (data !== null) setPhoneOnboardingStep(JSON.parse(data));
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      "phoneOnboardingStep",
-      JSON.stringify(phoneOnboardingStep)
-    );
-  }, [phoneOnboardingStep]);
 
   let step = null;
 
@@ -57,7 +46,7 @@ export const PhoneOnboarding = () => {
 
   // Show Upgrade Prompt - User has not yet purchased phone
   if (!profiles.data?.[0].has_phone) {
-    step = <StepOne />;
+    step = <PurchasePhonesPlan />;
     return (
       <>
         <section className={styles.onboarding}>{step}</section>
@@ -71,62 +60,23 @@ export const PhoneOnboarding = () => {
   }
 
   const verifiedPhones = realPhoneData.data.filter(isVerified);
-
-  const updateStepCount = (state: number) => {
-    setPhoneOnboardingStep(state);
-  };
+  const unverifiedPhones = realPhoneData.data.filter(isNotVerified);
 
   // Show Phone Verification
   if (realPhoneData.error || verifiedPhones.length === 0) {
     step = (
-      <StepTwo
-        updateStepCount={updateStepCount}
-        currentOnboardingStep={phoneOnboardingStep}
-        requestPhoneVerification={realPhoneData.requestPhoneVerification}
+      <RealPhoneSetup
+        unverifiedRealPhones={unverifiedPhones}
+        onRequestVerification={(number) =>
+          realPhoneData.requestPhoneVerification(number)
+        }
+        onSubmitVerification={realPhoneData.submitPhoneVerification}
       />
     );
   }
 
-  const phonesWithRecentVerificationSentDates = realPhoneData.data.filter(
-    hasVerificationSentDates
-  );
-
-  if (
-    verifiedPhones.length === 0 &&
-    phonesWithRecentVerificationSentDates.length > 0 &&
-    phoneOnboardingStep > 2
-  ) {
-    // If verification_sent_date is set and is not 5 mins old
-    step = (
-      <StepThree
-        updateStepCount={updateStepCount}
-        getVerifiedPhones={phonesWithRecentVerificationSentDates}
-        submitPhoneVerification={realPhoneData.submitPhoneVerification}
-        requestPhoneVerification={realPhoneData.requestPhoneVerification}
-      />
-    );
-  }
-
-  // TODO: Check if relay number is registered
-  if (verifiedPhones.length > 0 && phoneOnboardingStep > 2) {
-    // Show Relay Registration Step OR Phone Dashboard
-    step = <StepThreeSuccess updateStepCount={updateStepCount} />;
-  }
-
-  // TODO: Check if relay number is registered
-  if (verifiedPhones.length > 0 && phoneOnboardingStep > 3) {
-    step = (
-      <StepFour
-        registerRelayNumber={relayNumberData.registerRelayNumber}
-        updateStepCount={updateStepCount}
-      />
-    );
-  }
-
-  // TODO: Check if relay number is registered
-  if (relayNumberData.data && phoneOnboardingStep > 4) {
-    // Show Relay Registration Step OR Phone Dashboard
-    step = <StepFourSuccess />;
+  if (verifiedPhones.length > 0) {
+    step = <RelayNumberPicker onComplete={() => console.log("DONE!")} />;
   }
 
   return (
@@ -136,7 +86,7 @@ export const PhoneOnboarding = () => {
   );
 };
 
-const StepOne = () => {
+const PurchasePhonesPlan = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
 
@@ -182,13 +132,45 @@ const StepOne = () => {
   );
 };
 
-type StepTwoProps = {
-  currentOnboardingStep: number;
-  updateStepCount: (step: number) => void;
-  requestPhoneVerification: (phoneNumber: string) => Promise<Response>;
+type RealPhoneSetupProps = {
+  unverifiedRealPhones: Array<UnverifiedPhone | VerificationPendingPhone>;
+  onRequestVerification: (numberToVerify: string) => void;
+  onSubmitVerification: PhoneNumberSubmitVerificationFn;
 };
 
-const StepTwo = (props: StepTwoProps) => {
+const RealPhoneSetup = (props: RealPhoneSetupProps) => {
+  const phonesPendingVerification = props.unverifiedRealPhones.filter(
+    hasPendingVerification
+  );
+  const [isEnteringNumber, setIsEnteringNumber] = useState(
+    phonesPendingVerification.length === 0
+  );
+
+  if (isEnteringNumber || phonesPendingVerification.length === 0) {
+    return (
+      <RealPhoneForm
+        requestPhoneVerification={(number) => {
+          props.onRequestVerification(number);
+          setIsEnteringNumber(false);
+        }}
+      />
+    );
+  }
+
+  return (
+    <RealPhoneVerification
+      phonesPendingVerification={phonesPendingVerification}
+      submitPhoneVerification={props.onSubmitVerification}
+      onGoBack={() => setIsEnteringNumber(true)}
+    />
+  );
+};
+
+type RealPhoneFormProps = {
+  requestPhoneVerification: (phoneNumber: string) => void;
+};
+
+const RealPhoneForm = (props: RealPhoneFormProps) => {
   const { l10n } = useLocalization();
 
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -205,13 +187,9 @@ const StepTwo = (props: StepTwoProps) => {
     setPhoneNumber(event.target.value);
   };
 
-  const onSubmit: FormEventHandler = async (event) => {
+  const onSubmit: FormEventHandler = (event) => {
     event.preventDefault();
-    const response = await props.requestPhoneVerification(phoneNumber);
-
-    if (response.ok) {
-      props.updateStepCount(3);
-    }
+    props.requestPhoneVerification(phoneNumber);
   };
 
   return (
@@ -251,16 +229,6 @@ const StepTwo = (props: StepTwoProps) => {
 // If code is wrong, add is-error classes and update image/title
 // If code is correct, show successWhatsNext and  update image/title
 
-type StepThreeProps = {
-  getVerifiedPhones: VerifiedPhone[];
-  requestPhoneVerification: (phoneNumber: string) => void;
-  submitPhoneVerification: (
-    id: number,
-    obj: { number: string; verification_code: string }
-  ) => Promise<Response>;
-  updateStepCount: (step: number) => void;
-};
-
 type IntervalFunction = () => unknown | void;
 
 function useInterval(callback: IntervalFunction, delay: number) {
@@ -285,9 +253,9 @@ function useInterval(callback: IntervalFunction, delay: number) {
   }, [delay]);
 }
 
-function parseRemainingTime(verificationSentTime: number): number {
+function getRemainingTime(verificationSentTime: Date): number {
   const currentTime = new Date().getTime();
-  const elapsedTime = currentTime - verificationSentTime;
+  const elapsedTime = currentTime - verificationSentTime.getTime();
   const remainingTime = 5 * 60 * 1000 - elapsedTime;
   return remainingTime;
 }
@@ -312,18 +280,10 @@ function formatPhone(phoneNumber: string) {
   )}) ${phoneNumber.substring(5, 8)}-${phoneNumber.substring(8, 12)}`;
 }
 
-function getStartingSeconds(phones: VerifiedPhone[]) {
-  const mostRecentVerifiedPhone = phones.sort((a, b) => {
-    const sendDateA = parseDate(a.verification_sent_date).getTime();
-    const sendDateB = parseDate(b.verification_sent_date).getTime();
-    return sendDateA - sendDateB;
-  });
-
-  return parseDate(mostRecentVerifiedPhone[0].verification_sent_date).getTime();
-}
-
-function getVerificationPhoneData(phones: VerifiedPhone[]) {
-  const mostRecentVerifiedPhone = phones.sort((a, b) => {
+function getPhoneWithMostRecentlySentVerificationCode(
+  phones: VerificationPendingPhone[]
+) {
+  const mostRecentVerifiedPhone = [...phones].sort((a, b) => {
     const sendDateA = parseDate(a.verification_sent_date).getTime();
     const sendDateB = parseDate(b.verification_sent_date).getTime();
     return sendDateA - sendDateB;
@@ -332,18 +292,29 @@ function getVerificationPhoneData(phones: VerifiedPhone[]) {
   return mostRecentVerifiedPhone[0];
 }
 
-const StepThree = (props: StepThreeProps) => {
+type RealPhoneVerificationProps = {
+  phonesPendingVerification: VerificationPendingPhone[];
+  submitPhoneVerification: PhoneNumberSubmitVerificationFn;
+  onGoBack: () => void;
+};
+
+const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   const { l10n } = useLocalization();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const leadRef = useRef<HTMLDivElement>(null);
   const expiredErrorMsg = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const verifiedPhoneData = getVerificationPhoneData(props.getVerifiedPhones);
-  const [phoneNumber] = useState(verifiedPhoneData.number);
+  const phoneWithMostRecentlySentVerificationCode =
+    getPhoneWithMostRecentlySentVerificationCode(
+      props.phonesPendingVerification
+    );
   const [verificationCode, setVerificationCode] = useState("");
+  const verificationSentDate = parseDate(
+    phoneWithMostRecentlySentVerificationCode.verification_sent_date
+  );
   const [remainingTime, setRemainingTime] = useState(
-    parseRemainingTime(getStartingSeconds(props.getVerifiedPhones))
+    getRemainingTime(verificationSentDate)
   );
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
@@ -353,10 +324,13 @@ const StepThree = (props: StepThreeProps) => {
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
 
-    const response = await props.submitPhoneVerification(verifiedPhoneData.id, {
-      number: phoneNumber,
-      verification_code: verificationCode,
-    });
+    const response = await props.submitPhoneVerification(
+      phoneWithMostRecentlySentVerificationCode.id,
+      {
+        number: phoneWithMostRecentlySentVerificationCode.number,
+        verification_code: verificationCode,
+      }
+    );
 
     if (response.ok) {
       leadRef.current?.classList.add(`${styles["is-success"]}`);
@@ -372,9 +346,7 @@ const StepThree = (props: StepThreeProps) => {
       formRef.current?.classList.add(`${styles["is-hidden"]}`);
     }
 
-    setRemainingTime(
-      parseRemainingTime(getStartingSeconds(props.getVerifiedPhones))
-    );
+    setRemainingTime(getRemainingTime(verificationSentDate));
   }, 1000);
 
   const errorTimeExpired = (
@@ -425,7 +397,9 @@ const StepThree = (props: StepThreeProps) => {
         <Localized
           id="phone-onboarding-step3-body"
           vars={{
-            phone_number: formatPhone(phoneNumber),
+            phone_number: formatPhone(
+              phoneWithMostRecentlySentVerificationCode.number
+            ),
             remaining_time: formatTime(remainingTime),
           }}
           elems={{
@@ -449,7 +423,7 @@ const StepThree = (props: StepThreeProps) => {
 
         {/* TODO: Enable logic to "go back" to previous step */}
         <Button
-          onClick={() => props.updateStepCount(2)}
+          onClick={() => props.onGoBack()}
           className={styles.button}
           type="button"
           variant="secondary"
@@ -467,11 +441,35 @@ const StepThree = (props: StepThreeProps) => {
   );
 };
 
-type StepThreeSuccessProps = {
-  updateStepCount: (step: number) => void;
+type RelayNumberPickerProps = {
+  onComplete: () => void;
 };
 
-const StepThreeSuccess = (props: StepThreeSuccessProps) => {
+const RelayNumberPicker = (props: RelayNumberPickerProps) => {
+  const [hasStarted, setHasStarted] = useState(false);
+  const relayNumberData = useRelayNumber();
+
+  if (!hasStarted) {
+    return <RelayNumberIntro onStart={() => setHasStarted(true)} />;
+  }
+
+  if (!relayNumberData.data || relayNumberData.data.length === 0) {
+    return (
+      <RelayNumberSelection
+        registerRelayNumber={(number) =>
+          relayNumberData.registerRelayNumber(number)
+        }
+      />
+    );
+  }
+
+  return <RelayNumberConfirmation onComplete={props.onComplete} />;
+};
+
+type RelayNumberIntroProps = {
+  onStart: () => void;
+};
+const RelayNumberIntro = (props: RelayNumberIntroProps) => {
   const { l10n } = useLocalization();
 
   return (
@@ -501,10 +499,7 @@ const StepThreeSuccess = (props: StepThreeSuccessProps) => {
         <p>
           {l10n.getString("phone-onboarding-step3-code-success-subhead-body")}
         </p>
-        <Button
-          onClick={() => props.updateStepCount(4)}
-          className={styles.button}
-        >
+        <Button onClick={() => props.onStart()} className={styles.button}>
           {l10n.getString("phone-onboarding-step3-code-success-cta")}
         </Button>
       </div>
@@ -512,12 +507,11 @@ const StepThreeSuccess = (props: StepThreeSuccessProps) => {
   );
 };
 
-type StepFourProps = {
+type RelayNumberSelectionProps = {
   registerRelayNumber: (phoneNumber: string) => Promise<Response>;
-  updateStepCount: (step: number) => void;
 };
 
-const StepFour = (props: StepFourProps) => {
+const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const { l10n } = useLocalization();
 
   // TODO: Defaulting to true to stop FoUC however we need to catch any error in await getRelayNumberSuggestions();
@@ -564,12 +558,9 @@ const StepFour = (props: StepFourProps) => {
     setPhoneNumber(event.target.value);
   };
 
-  const onSubmit: FormEventHandler = async (event) => {
+  const onSubmit: FormEventHandler = (event) => {
     event.preventDefault();
-    const response = await props.registerRelayNumber(phoneNumber);
-    if (response.ok) {
-      props.updateStepCount(5);
-    }
+    props.registerRelayNumber(phoneNumber);
   };
 
   const loadingState = isLoading ? (
@@ -660,7 +651,10 @@ const StepFour = (props: StepFourProps) => {
   );
 };
 
-const StepFourSuccess = () => {
+type RelayNumberConfirmationProps = {
+  onComplete: () => void;
+};
+const RelayNumberConfirmation = (props: RelayNumberConfirmationProps) => {
   const { l10n } = useLocalization();
 
   return (
@@ -697,7 +691,7 @@ const StepFourSuccess = () => {
             "phone-onboarding-step4-code-success-subhead-body-p2"
           )}
         </p>
-        <Button className={styles.button}>
+        <Button onClick={() => props.onComplete()} className={styles.button}>
           {l10n.getString("phone-onboarding-step4-code-success-cta")}
         </Button>
       </div>
