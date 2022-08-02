@@ -1,0 +1,319 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+@import "../../../styles/tokens.scss";
+
+.step,
+.controls {
+  max-width: $content-md;
+  margin: 0 auto;
+  padding: $spacing-lg;
+
+  &.step-welcome {
+    max-width: $content-lg;
+  }
+}
+
+.step {
+  flex-grow: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: $spacing-xl;
+
+  .button {
+    width: 100%;
+
+    // TODO: This is not working
+    &.is-secondary {
+      font-weight: 400;
+    }
+  }
+
+  h2 {
+    @include text-title-xs;
+    font-family: $font-stack-firefox;
+    text-align: center;
+  }
+
+  .lead {
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+
+    p {
+      @include text-body-md;
+    }
+
+    img {
+      margin: 0 auto;
+    }
+  }
+
+  .description {
+    @include text-body-md;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-2xl;
+    padding: $spacing-md;
+    margin-top: $spacing-lg;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+
+    ul {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  .action {
+    flex-grow: 2;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-items: center;
+    text-align: center;
+    gap: $spacing-md;
+    background-color: $color-white;
+    padding: $spacing-lg $spacing-2xl;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+
+    h3 {
+      @include text-body-md;
+      font-family: $font-stack-firefox;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    span {
+      @include text-title-2xs;
+      padding-top: $spacing-sm;
+      display: block;
+      font-weight: 700;
+    }
+  }
+
+  .form {
+    max-width: $content-sm;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+  }
+}
+
+// Step 3: Enter verification code
+
+.step-input-verificiation-code {
+  .lead {
+    .step-input-verificiation-code-lead-error,
+    .step-input-verificiation-code-lead-success {
+      display: none;
+    }
+
+    &.is-error,
+    &.is-success {
+      .step-input-verificiation-code-lead-default {
+        display: none;
+      }
+    }
+
+    &.is-error {
+      .step-input-verificiation-code-lead-error {
+        display: block;
+      }
+      h2 {
+        color: $color-error;
+      }
+    }
+
+    &.is-success {
+      .step-input-verificiation-code-lead-success {
+        display: block;
+      }
+      h2 {
+        color: $color-success;
+      }
+    }
+  }
+
+  form {
+    background-color: $color-white;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-lg;
+    border-radius: $border-radius-md;
+    max-width: $screen-sm;
+    position: relative;
+
+    &.is-hidden {
+      display: none;
+    }
+
+    @media screen and #{$mq-md} {
+      padding: $spacing-lg $spacing-2xl;
+    }
+
+    p {
+      text-align: center;
+
+      strong {
+        display: inline-block;
+      }
+    }
+
+    .phone-number {
+      word-break: keep-all;
+      display: inline-block;
+    }
+
+    input {
+      @include text-body-xl;
+      border-radius: $border-radius-md;
+      display: block;
+      padding: $spacing-sm;
+      box-shadow: none;
+      border: 0;
+      background-color: $color-grey-10;
+      letter-spacing: 1rem;
+      text-align: center;
+      width: 100%;
+
+      &.is-error {
+        border: 2px solid $color-error;
+        outline: 4px solid $color-error-focus;
+      }
+
+      @media screen and #{$mq-md} {
+        padding: $spacing-md;
+        letter-spacing: 2rem;
+      }
+    }
+  }
+}
+
+.step-input-verificiation-code-success {
+  background-color: $color-white;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg $spacing-2xl;
+  max-width: $screen-sm;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  justify-content: center;
+
+  &.is-hidden {
+    display: none;
+  }
+
+  h3 {
+    @include text-body-md;
+  }
+
+  p,
+  h3 {
+    text-align: center;
+  }
+}
+
+.step-select-phone-number-mask {
+  background-color: $color-white;
+  box-shadow: $box-shadow-sm;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg $spacing-2xl;
+  max-width: $screen-md;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+  justify-content: center;
+
+  .lead {
+    display: flex;
+    flex-direction: row;
+    gap: $spacing-md;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      margin: 0;
+    }
+  }
+
+  .paragraph {
+    text-align: center;
+  }
+
+  .step-select-relay-numbers-radio-group {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-md;
+
+    > div {
+      display: flex;
+      gap: $spacing-sm;
+    }
+  }
+
+  .search {
+    @include form-input;
+    position: relative;
+    padding-left: $layout-md;
+    background: $spacing-sm center transparent no-repeat;
+    background-image: url("/icons/search-blue.svg");
+    background-size: 1.5rem auto;
+    max-width: $content-xs;
+    margin: 0 auto;
+  }
+}
+
+.step-select-phone-number-mask-loading {
+  display: flex;
+  // Magic number: Min-height for both loading animation and body copy
+  // TODO: Use height of parent container
+  flex-direction: column;
+  gap: $spacing-md;
+  align-items: center;
+  justify-content: center;
+
+  @media screen and #{$mq-tall} {
+    // min-height: 75vh;
+  }
+
+  .loading {
+    width: $layout-lg;
+    height: $layout-lg;
+    background: url("./images/loading.svg") center no-repeat transparent;
+    background-size: contain;
+    animation: spin 1s infinite linear;
+  }
+
+  p {
+    max-width: $content-xs;
+    margin: 0 auto;
+    text-align: center;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

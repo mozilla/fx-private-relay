@@ -1,6 +1,6 @@
 import { event as gaEvent } from "react-ga";
-import styles from "./PhoneOnboarding.module.scss";
 import { useLocalization } from "@fluent/react";
+import styles from "./PurchasePhonesPlan.module.scss";
 import WomanPhone from "./images/woman-phone.svg";
 import { LinkButton } from "../../Button";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
@@ -20,7 +20,7 @@ export const PurchasePhonesPlan = () => {
   };
 
   return (
-    <div className={`${styles.step} ${styles["step-welcome"]}`}>
+    <div className={styles.wrapper}>
       <div className={styles.lead}>
         <img src={WomanPhone.src} alt="" width={200} />
         <h2>{l10n.getString("phone-onboarding-step1-headline")}</h2>
@@ -40,12 +40,12 @@ export const PurchasePhonesPlan = () => {
           <LinkButton
             ref={useGaViewPing({
               category: "Purchase Button",
-              label: "premium-promo-cta",
+              label: "phone-onboarding-purchase-cta",
             })}
             href={getPhoneSubscribeLink(runtimeData.data)}
             onClick={() => purchase()}
           >
-            {l10n.getString("premium-promo-hero-cta")}
+            {l10n.getString("phone-onboarding-step1-button-cta")}
           </LinkButton>
         </div>
       </div>

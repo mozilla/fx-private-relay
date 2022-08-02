@@ -1,12 +1,3 @@
-import styles from "./PhoneOnboarding.module.scss";
-import { useLocalization } from "@fluent/react";
-import FlagUS from "./images/flag-usa.svg";
-import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
-import { Button } from "../../Button";
-import {
-  useRelayNumber,
-  getRelayNumberSuggestions,
-} from "../../../hooks/api/phone";
 import {
   ChangeEventHandler,
   FormEventHandler,
@@ -14,6 +5,15 @@ import {
   useEffect,
   useState,
 } from "react";
+import { useLocalization } from "@fluent/react";
+import styles from "./RelayNumberPicker.module.scss";
+import FlagUS from "./images/flag-usa.svg";
+import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
+import { Button } from "../../Button";
+import {
+  useRelayNumber,
+  getRelayNumberSuggestions,
+} from "../../../hooks/api/phone";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;

@@ -1,5 +1,5 @@
-import styles from "./PhoneOnboarding.module.scss";
 import { Localized, useLocalization } from "@fluent/react";
+import styles from "./RealPhoneSetup.module.scss";
 import PhoneVerify from "./images/phone-verify.svg";
 import EnteryVerifyCode from "./images/enter-verify-code.svg";
 import EnteryVerifyCodeError from "./images/verify-code-error.svg";
