@@ -401,7 +401,6 @@ def vCard(request, lookup_key):
 @decorators.renderer_classes([TwilioInboundSMSXMLRenderer])
 def inbound_sms(request):
     _validate_twilio_request(request)
-    inbound_msg_sid = request.data.get("SmsSid", None)
     inbound_body = request.data.get("Body", None)
     inbound_from = request.data.get("From", None)
     inbound_to = request.data.get("To", None)
@@ -423,8 +422,7 @@ def inbound_sms(request):
         body=f"[Relay 📲 {inbound_from}] {inbound_body}",
         to=real_phone.number,
     )
-    client.messages(inbound_msg_sid).delete()
-    return response.Response(status=201, data={"message": "Relayed message to user."})
+    return DeleteTwilioMessageResponse("Relayed message to user.", status=201)
 
 
 @decorators.api_view(["POST"])
