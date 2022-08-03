@@ -27,11 +27,6 @@ export const PhoneOnboarding = (props: Props) => {
   // Show Upgrade Prompt - User has not yet purchased phone
   if (!profiles.data?.[0].has_phone) {
     step = <PurchasePhonesPlan />;
-    return (
-      <>
-        <section className={styles.onboarding}>{step}</section>
-      </>
-    );
   }
 
   // Make sure realPhoneData data is available
@@ -61,7 +56,7 @@ export const PhoneOnboarding = (props: Props) => {
 
   return (
     <>
-      <section className={styles.onboarding}>{step}</section>
+      <main className={styles.onboarding}>{step}</main>
     </>
   );
 };

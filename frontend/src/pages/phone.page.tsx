@@ -16,7 +16,7 @@ const Phone: NextPage = () => {
 
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState(
-    relayNumberData.data && relayNumberData.data.length > 0
+    !relayNumberData.data || relayNumberData.data.length === 0
   );
 
   if (!profile || !user || !relayNumberData.data) {
