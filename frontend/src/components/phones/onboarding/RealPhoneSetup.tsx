@@ -121,10 +121,6 @@ type RealPhoneVerificationProps = {
 const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   const { l10n } = useLocalization();
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const leadRef = useRef<HTMLDivElement>(null);
-  const expiredErrorMsg = useRef<HTMLDivElement>(null);
-  const formRef = useRef<HTMLFormElement>(null);
   const phoneWithMostRecentlySentVerificationCode =
     getPhoneWithMostRecentlySentVerificationCode(
       props.phonesPendingVerification
@@ -136,6 +132,9 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   const [remainingTime, setRemainingTime] = useState(
     getRemainingTime(verificationSentDate)
   );
+  /** `undefined` if verification hasn't been attempted yet */
+  const [isVerifiedSuccessfully, setIsVerifiedSuccessfully] =
+    useState<boolean>();
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setVerificationCode(event.target.value);
@@ -152,27 +151,18 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       }
     );
 
-    if (response.ok) {
-      leadRef.current?.classList.add(`${styles["is-success"]}`);
-    } else {
-      leadRef.current?.classList.add(`${styles["is-error"]}`);
-      inputRef.current?.classList.add(`${styles["is-error"]}`);
-    }
+    setIsVerifiedSuccessfully(response.ok);
   };
 
   useInterval(() => {
-    if (remainingTime < 0) {
-      expiredErrorMsg.current?.classList.remove(`${styles["is-hidden"]}`);
-      formRef.current?.classList.add(`${styles["is-hidden"]}`);
-    }
-
     setRemainingTime(getRemainingTime(verificationSentDate));
   }, 1000);
 
   const errorTimeExpired = (
     <div
-      ref={expiredErrorMsg}
-      className={`${styles["step-input-verificiation-code-timeout"]} ${styles["is-hidden"]} `}
+      className={`${styles["step-input-verificiation-code-timeout"]} ${
+        remainingTime > 0 ? styles["is-hidden"] : ""
+      }`}
     >
       <p>{l10n.getString("phone-onboarding-step3-error-exipred")}</p>
       <Button className={styles.button} type="submit">
@@ -190,7 +180,11 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     <div
       className={`${styles.step}  ${styles["step-input-verificiation-code"]} `}
     >
-      <div ref={leadRef} className={styles.lead}>
+      <div
+        className={`${styles.lead} ${
+          isVerifiedSuccessfully === true ? styles["is-success"] : ""
+        }  ${isVerifiedSuccessfully === false ? styles["is-error"] : ""}`}
+      >
         <div
           className={`${styles["step-input-verificiation-code-lead-default"]}`}
         >
@@ -214,7 +208,12 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       {/* TODO: Add logic to display timeout error */}
       {errorTimeExpired}
 
-      <form ref={formRef} onSubmit={onSubmit} className={styles.form}>
+      <form
+        onSubmit={onSubmit}
+        className={`${styles.form} ${
+          remainingTime < 0 ? styles["is-hidden"] : ""
+        }`}
+      >
         {/* TODO: Make remaining_time count backwards with "X minutes, XX seconds" */}
         <Localized
           id="phone-onboarding-step3-body"
@@ -237,7 +236,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           placeholder={codeEntryPlaceholder}
           required={true}
           onChange={onChange}
-          ref={inputRef}
+          className={isVerifiedSuccessfully === false ? styles["is-error"] : ""}
           autoFocus={true}
         />
         {/* TODO: Add logic to show success/fail on submit */}
