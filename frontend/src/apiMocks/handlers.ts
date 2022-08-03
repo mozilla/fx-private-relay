@@ -1,10 +1,6 @@
 import { rest, RestHandler, RestRequest } from "msw";
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
-import {
-  UnverifiedPhone,
-  VerificationPendingPhone,
-  VerifiedPhone,
-} from "../hooks/api/realPhone";
+import { UnverifiedPhone, VerifiedPhone } from "../hooks/api/realPhone";
 import { RelayNumber } from "../hooks/api/relayNumber";
 import { ProfileData } from "../hooks/api/profile";
 import {
@@ -334,7 +330,7 @@ export function getHandlers(
       // Pretend the verification was sent 4:40m ago,
       // so expiry can easily be tested:
       const sentDate = Date.now() - 5 * 60 * 1000 + 20 * 1000;
-      const newVerificationPendingPhone: VerificationPendingPhone = {
+      const newVerificationPendingPhone: UnverifiedPhone = {
         id: mockedRealphones[mockId].length,
         number: body.number,
         verification_code: "123456",

@@ -7,7 +7,6 @@ import { Button } from "../../Button";
 import {
   hasPendingVerification,
   UnverifiedPhone,
-  VerificationPendingPhone,
   PhoneNumberSubmitVerificationFn,
 } from "../../../hooks/api/realPhone";
 import {
@@ -20,7 +19,7 @@ import {
 import { parseDate } from "../../../functions/parseDate";
 
 type RealPhoneSetupProps = {
-  unverifiedRealPhones: Array<UnverifiedPhone | VerificationPendingPhone>;
+  unverifiedRealPhones: Array<UnverifiedPhone>;
   onRequestVerification: (numberToVerify: string) => void;
   onSubmitVerification: PhoneNumberSubmitVerificationFn;
 };
@@ -114,7 +113,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 // If code is wrong, add is-error classes and update image/title
 // If code is correct, show successWhatsNext and  update image/title
 type RealPhoneVerificationProps = {
-  phonesPendingVerification: VerificationPendingPhone[];
+  phonesPendingVerification: UnverifiedPhone[];
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
   onGoBack: () => void;
 };
@@ -304,7 +303,7 @@ function formatPhone(phoneNumber: string) {
 }
 
 function getPhoneWithMostRecentlySentVerificationCode(
-  phones: VerificationPendingPhone[]
+  phones: UnverifiedPhone[]
 ) {
   const mostRecentVerifiedPhone = [...phones].sort((a, b) => {
     const sendDateA = parseDate(a.verification_sent_date).getTime();
