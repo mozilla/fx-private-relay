@@ -134,7 +134,19 @@ phone-onboarding-step2-button-cta = Send code
 phone-onboarding-step2-invalid-number = { $phone_number } is not a valid number. Please review and provide a real phone number.
 
 phone-onboarding-step3-headline = Verify your true phone number
-phone-onboarding-step3-body = Please enter the verification code that was sent to <span>{ $phone_number } </span> within <strong>{ $remaining_time } minutes</strong>.
+# Variables:
+#   $phone_number (string) - The phone number to which a verification code was sent, e.g. +1 (415) 555-2671
+#   $remaining_minutes (number) - The number of minutes (to be added to $remaining_seconds) left before the verification code expires
+#   $remaining_seconds (number) - The number of seconds (to be added to $remaining_minutes) left before the verification code expires
+phone-onboarding-step3-body =
+    { $remaining_minutes ->
+        [0] {$remaining_seconds ->
+            [1] Please enter the verification code that was sent to <span>{ $phone_number } </span> within <strong>{ $remaining_seconds } second</strong>.
+            *[other] Please enter the verification code that was sent to <span>{ $phone_number } </span> within <strong>{ $remaining_seconds } seconds</strong>.
+        }
+        *[other] Please enter the verification code that was sent to <span>{ $phone_number } </span> within <strong>{ $remaining_minutes }:{ NUMBER($remaining_seconds, minimumIntegerDigits: 2) } minutes</strong>.
+    }
+
 phone-onboarding-step3-input-placeholder = Enter 6-digit code
 phone-onboarding-step3-button-cta = Confirm my phone number
 phone-onboarding-step3-button-edit = Edit true phone number
