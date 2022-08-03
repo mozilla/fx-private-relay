@@ -49,7 +49,7 @@ def mocked_twilio_validator():
 
 @pytest.mark.parametrize("endpoint", ("realphone", "relaynumber"))
 @pytest.mark.django_db
-def test_phone_endspoints_require_auth_and_phone_service(endpoint):
+def test_phone_get_endpoints_require_auth(endpoint):
     client = APIClient()
     path = f"/api/v1/{endpoint}/"
     response = client.get(path)
@@ -58,7 +58,7 @@ def test_phone_endspoints_require_auth_and_phone_service(endpoint):
     free_user = baker.make(User)
     client.force_authenticate(free_user)
     response = client.get(path)
-    assert response.status_code == 403
+    assert response.status_code == 200
 
 
 def test_realphone_get_responds_200(phone_user):
