@@ -11,7 +11,7 @@ export type VerifiedPhone = {
   verified_date: DateString;
 };
 
-export type VerificationPendingPhone = {
+export type UnverifiedPhone = {
   id: number;
   number: string;
   verification_code: string;
@@ -20,19 +20,7 @@ export type VerificationPendingPhone = {
   verified_date: null;
 };
 
-export type UnverifiedPhone = {
-  id: number;
-  number: string;
-  verification_code: string;
-  verification_sent_date: null;
-  verified: false | undefined;
-  verified_date: null;
-};
-
-export type RealPhone =
-  | VerifiedPhone
-  | VerificationPendingPhone
-  | UnverifiedPhone;
+export type RealPhone = VerifiedPhone | UnverifiedPhone;
 
 export type RealPhoneData = Array<RealPhone>;
 
@@ -43,15 +31,13 @@ export function isVerified(phone: RealPhone): phone is VerifiedPhone {
   return phone.verified;
 }
 
-export function isNotVerified(
-  phone: RealPhone
-): phone is UnverifiedPhone | VerificationPendingPhone {
+export function isNotVerified(phone: RealPhone): phone is UnverifiedPhone {
   return !isVerified(phone);
 }
 
 export function hasPendingVerification(
   phone: RealPhone
-): phone is VerificationPendingPhone {
+): phone is UnverifiedPhone {
   // Short circuit logic if there's no verification sent yet,
   // or if the phone number has already been verified:
   if (

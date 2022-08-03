@@ -1,6 +1,5 @@
 import {
   VerifiedPhone,
-  VerificationPendingPhone,
   UnverifiedPhone,
   RealPhone,
   useRealPhonesData,
@@ -31,13 +30,13 @@ export function getMockVerifiedRealPhone(
 }
 
 export function getMockVerificationPendingRealPhone(
-  realPhone?: Partial<VerificationPendingPhone>
-): VerificationPendingPhone {
+  realPhone?: Partial<UnverifiedPhone>
+): UnverifiedPhone {
   return {
     id: 0,
     number: "+14155552671",
     verification_code: "123456",
-    verification_sent_date: "2022-07-27T10:17:29.775Z",
+    verification_sent_date: new Date().toISOString(),
     verified: false,
     verified_date: null,
     ...realPhone,
@@ -51,7 +50,7 @@ export function getMockUnverifiedRealPhone(
     id: 0,
     number: "+14155552671",
     verification_code: "123456",
-    verification_sent_date: null,
+    verification_sent_date: "2022-07-27T10:17:29.775Z",
     verified: false,
     verified_date: null,
     ...realPhone,
