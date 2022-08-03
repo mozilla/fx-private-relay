@@ -107,68 +107,12 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
     </div>
   );
 };
+
 // TODO: Add logic to display the correct information between: default/error/success for the following Step Three
 // Init state: Enter verification
 // If 5 mins expire, show errorTimeExpired message
 // If code is wrong, add is-error classes and update image/title
 // If code is correct, show successWhatsNext and  update image/title
-type IntervalFunction = () => unknown | void;
-function useInterval(callback: IntervalFunction, delay: number) {
-  const savedCallback = useRef<IntervalFunction | null>(null);
-
-  // Remember the latest callback.
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  // Set up the interval.
-  useEffect(() => {
-    function tick() {
-      if (savedCallback.current !== null) {
-        savedCallback.current();
-      }
-    }
-    if (delay !== null) {
-      const id = setInterval(tick, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
-}
-function getRemainingTime(verificationSentTime: Date): number {
-  const currentTime = new Date().getTime();
-  const elapsedTime = currentTime - verificationSentTime.getTime();
-  const remainingTime = 5 * 60 * 1000 - elapsedTime;
-  return remainingTime;
-}
-function formatTime(remainingMilliseconds: number) {
-  const remainingSeconds = Math.floor(remainingMilliseconds / 1000);
-  const minutes = Math.floor(remainingSeconds / 60);
-  const seconds = remainingSeconds - minutes * 60;
-
-  // Add a leading 0 if it's under 10 seconds.
-  const formmatedSeconds = seconds < 10 ? `0${seconds}` : seconds;
-
-  return `${minutes}:${formmatedSeconds}`;
-}
-function formatPhone(phoneNumber: string) {
-  // Bug: Any country code with two characters will break
-  // Return in +1 (111) 111-1111 format
-  return `${phoneNumber.substring(0, 2)} (${phoneNumber.substring(
-    2,
-    5
-  )}) ${phoneNumber.substring(5, 8)}-${phoneNumber.substring(8, 12)}`;
-}
-function getPhoneWithMostRecentlySentVerificationCode(
-  phones: VerificationPendingPhone[]
-) {
-  const mostRecentVerifiedPhone = [...phones].sort((a, b) => {
-    const sendDateA = parseDate(a.verification_sent_date).getTime();
-    const sendDateB = parseDate(b.verification_sent_date).getTime();
-    return sendDateA - sendDateB;
-  });
-
-  return mostRecentVerifiedPhone[0];
-}
 type RealPhoneVerificationProps = {
   phonesPendingVerification: VerificationPendingPhone[];
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
@@ -238,6 +182,9 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   );
 
   const codeEntryPlaceholder = "000000";
+  const remainingSeconds = Math.floor(remainingTime / 1000);
+  const minuteCountdown = Math.floor(remainingSeconds / 60);
+  const secondCountdown = remainingSeconds - minuteCountdown * 60;
 
   return (
     <div
@@ -275,7 +222,8 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
             phone_number: formatPhone(
               phoneWithMostRecentlySentVerificationCode.number
             ),
-            remaining_time: formatTime(remainingTime),
+            remaining_seconds: secondCountdown,
+            remaining_minutes: minuteCountdown,
           }}
           elems={{
             span: <span className={`${styles["phone-number"]}`} />,
@@ -315,3 +263,55 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     </div>
   );
 };
+
+type IntervalFunction = () => unknown | void;
+// See https://overreacted.io/making-setinterval-declarative-with-react-hooks/
+function useInterval(callback: IntervalFunction, delay: number) {
+  const savedCallback = useRef<IntervalFunction | null>(null);
+
+  // Remember the latest callback.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      if (savedCallback.current !== null) {
+        savedCallback.current();
+      }
+    }
+    if (delay !== null) {
+      const id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
+
+function getRemainingTime(verificationSentTime: Date): number {
+  const currentTime = new Date().getTime();
+  const elapsedTime = currentTime - verificationSentTime.getTime();
+  const remainingTime = 5 * 60 * 1000 - elapsedTime;
+  return remainingTime;
+}
+
+function formatPhone(phoneNumber: string) {
+  // Bug: Any country code with two characters will break
+  // Return in +1 (111) 111-1111 format
+  return `${phoneNumber.substring(0, 2)} (${phoneNumber.substring(
+    2,
+    5
+  )}) ${phoneNumber.substring(5, 8)}-${phoneNumber.substring(8, 12)}`;
+}
+
+function getPhoneWithMostRecentlySentVerificationCode(
+  phones: VerificationPendingPhone[]
+) {
+  const mostRecentVerifiedPhone = [...phones].sort((a, b) => {
+    const sendDateA = parseDate(a.verification_sent_date).getTime();
+    const sendDateB = parseDate(b.verification_sent_date).getTime();
+    return sendDateA - sendDateB;
+  });
+
+  return mostRecentVerifiedPhone[0];
+}
