@@ -30,6 +30,7 @@ from django.shortcuts import redirect
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.exceptions import ValidationError
 
 from .models import (
     address_hash,
@@ -457,13 +458,14 @@ def _sns_message(message_json):
     message = None
     try:
         message = get_ses_message(message_json)
-    except NotImplementedError:
-        pass  # Bounce, Received, etc.
-    except ValueError:
-        info_logger.exception(
-            "SES message processing error", extra={"payload": message_json}
+    except ValidationError as error:
+        logger.exception(
+            "SES message processing error",
+            extra={
+                "payload": json.dumps(message_json),
+                "errors": json.dumps(error.get_full_details())
+            }
         )
-        return HttpResponse("OK", status=200)
 
     if message:
         if isinstance(message, (ComplaintEvent, ComplaintNotification)):
@@ -475,6 +477,9 @@ def _sns_message(message_json):
     event_type = message_json.get("eventType")
     if notification_type == "Bounce" or event_type == "Bounce":
         return _handle_bounce(message_json)
+    if notification_type != "Received":
+        # Failed to parse message or unknown message type
+        return HttpResponse("OK", status=200)
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")

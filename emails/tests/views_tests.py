@@ -456,6 +456,45 @@ class SNSNotificationInvalidMessageTest(TestCase):
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
+    @patch("emails.views.logger", spec_set=["error"])
+    def test_new_notification_type(self, mock_logger):
+        """A new notificationType returns a 400 error"""
+        new_type = {
+            "notificationType": "NewType",
+            "new_type": {"foo": "bar"},
+        }
+        json_body = {"Message": json.dumps(new_type)}
+        response = _sns_notification(json_body)
+        assert response.status_code == 400
+        mock_logger.error.assert_called_once_with(
+            "SNS notification for unsupported type",
+            extra={
+                "notification_type": "NewType",
+                "event_type": "''",
+                "keys": ["notificationType", "new_type"],
+            },
+        )
+
+    @patch("emails.views.logger", spec_set=["exception"])
+    def test_bad_complaint_data(self, mock_logger):
+        """A complaint notification with bad content returns a 200 error"""
+        message = {"notificationType": "Complaint"}
+        json_body = {"Message": json.dumps(message)}
+        response = _sns_notification(json_body)
+        assert response.status_code == 200
+        mock_logger.exception.assert_called_once_with(
+            "SES message processing error",
+            extra={
+                "payload": '{"notificationType": "Complaint"}',
+                "errors": (
+                    '{"mail":'
+                    ' [{"message": "This field is required.", "code": "required"}],'
+                    ' "complaint":'
+                    ' [{"message": "This field is required.", "code": "required"}]}'
+                ),
+            },
+        )
+
 
 class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def setUp(self) -> None:
