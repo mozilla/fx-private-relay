@@ -123,8 +123,10 @@ class EnumField(serializers.Field):
         """Convert from string to Enum instance."""
         try:
             return self.enum(data)
-        except ValueError as exception:
-            raise ValidationError(str(exception))
+        except ValueError:
+            raise ValidationError(
+                f"'{shlex.quote(data)}' is not a valid {self.enum.__name__}"
+            )
 
     def to_representation(self, value: _Enum) -> str:
         """Convert from Enum instance to string."""
