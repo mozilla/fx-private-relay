@@ -628,7 +628,7 @@ class _BounceObjectSerializer(SesSerializer):
             raise serializers.ValidationError(
                 f'bounceType "{data["bounceType"].value}" and'
                 f' bounceSubType "{data["bounceSubType"].value}"'
-                ' is not a valid combination.'
+                " is not a valid combination."
             )
         return data
 

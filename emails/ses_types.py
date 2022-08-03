@@ -386,6 +386,7 @@ SES_MESSAGE_TYPE_TO_MESSAGE: dict[SesMessageType, Type[SesMessage]] = {
 # multiple top-level objects.
 #
 
+
 @dataclass
 class BounceObjectInNotification(SesObject):
     """bounce object in a BounceNotification."""

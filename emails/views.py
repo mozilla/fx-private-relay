@@ -43,10 +43,7 @@ from .models import (
     RelayAddress,
     Reply,
 )
-from .ses import (
-    get_ses_message,
-    is_supported_ses_message
-)
+from .ses import get_ses_message, is_supported_ses_message
 from .ses_types import (
     ComplaintEvent,
     ComplaintNotification,
@@ -463,8 +460,8 @@ def _sns_message(message_json):
             "SES message processing error",
             extra={
                 "payload": json.dumps(message_json),
-                "errors": json.dumps(error.get_full_details())
-            }
+                "errors": json.dumps(error.get_full_details()),
+            },
         )
 
     if message:
