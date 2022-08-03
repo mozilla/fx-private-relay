@@ -116,9 +116,58 @@ modal-custom-alias-picker-form-prefix-spaces-warning = Spaces are not allowed in
 modal-custom-alias-picker-form-prefix-invalid-warning = Email masks can only contain lowercase letters, numbers, and hyphens, and may not start or end with a hyphen.
 modal-custom-alias-picker-form-prefix-invalid-warning-2 = Email masks can only contain lowercase letters, numbers, periods, and hyphens, and may not start or end with a period or hyphen.
 
-## Phone Page
+## Phone Onboarding
+phone-onboarding-step1-headline = Introducing phone number masking
+phone-onboarding-step1-body = With phone number masking, you can create a phone number mask that helps you  protect your true phone number. Share it, and receive messages privately.
+phone-onboarding-step1-list-item-1 = Share a masked phone number that forwards messages to your true number.
+phone-onboarding-step1-list-item-2 = Need to confirm a dinner reservation? Share your phone number mask instead.
+phone-onboarding-step1-list-item-3 = With phone number masking, you can receive texts. Replying is not yet available.
 
-phone-headline = Introducing phone number masking
+phone-onboarding-step1-button-label = Upgrade to get phone number masking
+phone-onboarding-step1-button-price = $4.99 / month
+phone-onboarding-step1-button-cta = Upgrade Now
+
+phone-onboarding-step2-headline = Verify your true phone number
+phone-onboarding-step2-body = Provide the phone number where you’ll receive your SMS and calls (in the future). We’ll send a 6-digit code to this number to verify it.
+phone-onboarding-step2-input-placeholder = Enter your phone number
+phone-onboarding-step2-button-cta = Send code
+phone-onboarding-step2-invalid-number = { $phone_number } is not a valid number. Please review and provide a real phone number.
+
+phone-onboarding-step3-headline = Verify your true phone number
+phone-onboarding-step3-body = Please enter the verification code that was sent to <span>{ $phone_number } </span> within <strong>{ $remaining_time } minutes</strong>.
+phone-onboarding-step3-input-placeholder = Enter 6-digit code
+phone-onboarding-step3-button-cta = Confirm my phone number
+phone-onboarding-step3-button-edit = Edit true phone number
+phone-onboarding-step3-button-resend = Resend verification code
+phone-onboarding-step3-error-exipred = Try again—the time limit expired.
+phone-onboarding-step3-error-cta = Send me another code
+phone-onboarding-step3-code-fail-title = Wrong verification code
+phone-onboarding-step3-code-fail-body = Please try again or request a new code
+phone-onboarding-step3-code-success-title = Congratulations! 
+phone-onboarding-step3-code-success-body = You’re now ready to choose your phone number mask.
+phone-onboarding-step3-code-success-subhead-title = What’s next?
+phone-onboarding-step3-code-success-subhead-body = Choose your phone number mask and start using { -brand-name-firefox-relay } to protect your true phone number.
+phone-onboarding-step3-code-success-cta = Search for phone number masks
+phone-onboarding-step3-loading = Based on your true phone number, { -brand-name-relay } is looking for similar number combinations available to you.
+
+phone-onboarding-step4-country-us = United States
+phone-onboarding-step4-body = These available phone number masks are similar to your true phone number. Once you register a phone number mask, you cannot change it. 
+phone-onboarding-step4-smiliar-phone = Similar to { $phone_number }
+phone-onboarding-step4-insput-search = Enter a city name or area code
+phone-onboarding-step4-button-more-options = Show me other options
+phone-onboarding-step4-button-register-phone-number = Register phone number mask
+phone-onboarding-step4-search-results-body = Phone number masks available in <strong>{ $location }</strong>. Once you register a phone number mask, you cannot change it.
+phone-onboarding-step4-confirm-message = To confirm your your phone number mask, enter it below. This can’t be changed later.
+phone-onboarding-step4-confirm-alt-cancel = Cancel 
+phone-onboarding-step4-confirm-input-placeholder = Confirm phone number mask
+phone-onboarding-step4-button-register-phone-number = Confirm number
+phone-onboarding-step4-code-success-title = Congratulations! 
+phone-onboarding-step4-code-success-body = You’ve registered your new phone number mask.
+phone-onboarding-step4-code-success-subhead-title = What’s next?
+phone-onboarding-step4-code-success-subhead-body-p1 = { -brand-name-relay } sent you an SMS with a new contact card through which we’ll forward your calls and messages. 
+phone-onboarding-step4-code-success-subhead-body-p2 = Please save the contact so you can identify your forwarded messages and calls.
+phone-onboarding-step4-code-success-cta = Continue
+
 
 ## Replies
 profile-label-replies = Replies
