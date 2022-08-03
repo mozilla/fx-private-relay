@@ -1,3 +1,5 @@
+import logging
+
 import phonenumbers
 
 from django.apps import apps
@@ -35,6 +37,9 @@ from ..renderers import (
     vCardRenderer,
 )
 from ..serializers.phones import RealPhoneSerializer, RelayNumberSerializer
+
+
+logger = logging.getLogger("events")
 
 
 def twilio_validator():
@@ -326,6 +331,7 @@ def _get_number_details(e164_number):
         client = twilio_client()
         return client.lookups.v1.phone_numbers(e164_number).fetch(type=["carrier"])
     except Exception:
+        logger.exception(f"Could not get number details for {e164_number}")
         return None
 
 
