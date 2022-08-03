@@ -150,8 +150,9 @@ def wrapped_email_test(request):
         has_tracker_report_link = False
     if has_tracker_report_link:
         tracker_report_link = (
-            '/tracker-report/#{"sender": "sender@example.com", "received_at": 1658434657,'
-            + '"trackers": {"fake-tracker.example.com": 2}}'
+            '/tracker-report/#{"sender": "sender@example.com",'
+            ' "received_at": 1658434657,'
+            ' "trackers": {"fake-tracker.example.com": 2}}'
         )
     else:
         tracker_report_link = ""
