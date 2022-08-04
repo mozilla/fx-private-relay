@@ -6,6 +6,7 @@ import { PhoneOnboarding } from "../components/phones/onboarding/PhoneOnboarding
 import { useRelayNumber } from "../hooks/api/relayNumber";
 import { useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/Dashboard";
+import { getRuntimeConfig } from "../config";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
@@ -18,6 +19,10 @@ const Phone: NextPage = () => {
   const [isInOnboarding, setIsInOnboarding] = useState(
     !relayNumberData.data || relayNumberData.data.length === 0
   );
+
+  if (!userData.isValidating && userData.error) {
+    document.location.assign(getRuntimeConfig().fxaLoginUrl);
+  }
 
   if (!profile || !user || !relayNumberData.data) {
     // TODO: Show a loading spinner?
