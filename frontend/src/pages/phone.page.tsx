@@ -4,8 +4,9 @@ import { useProfiles } from "../hooks/api/profile";
 import { useUsers } from "../hooks/api/user";
 import { PhoneOnboarding } from "../components/phones/onboarding/PhoneOnboarding";
 import { useRelayNumber } from "../hooks/api/relayNumber";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/Dashboard";
+import { getRuntimeConfig } from "../config";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
@@ -15,9 +16,21 @@ const Phone: NextPage = () => {
   const user = userData.data?.[0];
 
   const relayNumberData = useRelayNumber();
-  const [isInOnboarding, setIsInOnboarding] = useState(
-    !relayNumberData.data || relayNumberData.data.length === 0
-  );
+  const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
+
+  useEffect(() => {
+    if (
+      typeof isInOnboarding === "undefined" &&
+      Array.isArray(relayNumberData.data) &&
+      relayNumberData.data.length === 0
+    ) {
+      setIsInOnboarding(true);
+    }
+  }, [isInOnboarding, relayNumberData]);
+
+  if (!userData.isValidating && userData.error) {
+    document.location.assign(getRuntimeConfig().fxaLoginUrl);
+  }
 
   if (!profile || !user || !relayNumberData.data) {
     // TODO: Show a loading spinner?
