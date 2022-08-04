@@ -36,7 +36,7 @@ describe("The settings screen", () => {
       });
 
       expect(results).toHaveNoViolations();
-    });
+    }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
   });
 
   it("shows a warning when the user currently has server-side label storage disabled", () => {

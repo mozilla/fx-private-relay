@@ -79,7 +79,7 @@ describe("The dashboard", () => {
       });
 
       expect(results).toHaveNoViolations();
-    });
+    }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
 
     it("passes axe accessibility testing with the Premium user interface", async () => {
       // The label editor sets a timeout when submitted, which axe doesn't wait for.
@@ -93,7 +93,7 @@ describe("The dashboard", () => {
       });
 
       expect(results).toHaveNoViolations();
-    });
+    }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
   });
 
   it("shows a count of the user's aliases for Premium users", () => {

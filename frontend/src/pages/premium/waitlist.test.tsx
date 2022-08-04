@@ -65,7 +65,7 @@ describe("The waitlist", () => {
       });
 
       expect(results).toHaveNoViolations();
-    });
+    }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
   });
 
   // Disabled since the upgrade to Jest 28; for some reason, the waitlist form's

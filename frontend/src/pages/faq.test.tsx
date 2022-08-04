@@ -26,6 +26,6 @@ describe("The page with Frequently Asked Questions", () => {
       });
 
       expect(results).toHaveNoViolations();
-    });
+    }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
   });
 });
