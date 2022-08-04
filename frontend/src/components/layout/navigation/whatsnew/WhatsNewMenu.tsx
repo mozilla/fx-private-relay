@@ -299,7 +299,7 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-tracker-removal-description"
+          "whatsnew-feature-tracker-removal-description-2"
         )}
         heading={l10n.getString("whatsnew-feature-tracker-removal-heading")}
         image={TrackerRemovalHero.src}
