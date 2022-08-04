@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from typing import Optional
@@ -184,7 +185,7 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
 
-    def test_domain_recipient(self) -> None:
+    def test_domain_recipient_autocreate(self) -> None:
         resp = _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
         assert resp.status_code == 200
 
@@ -193,6 +194,20 @@ class SNSNotificationTest(TestCase):
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
         assert_is_nowish(da.last_used_at)
+
+    def test_domain_recipient_existing(self) -> None:
+        da = DomainAddress.objects.create(user=self.premium_user, address="wildcard")
+        assert da.num_forwarded == 0
+        assert da.last_used_at is None
+
+        resp = _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
+        assert resp.status_code == 200
+        self.mock_ses_relay_email.assert_called_once()
+
+        da.refresh_from_db()
+        assert da.num_forwarded == 1
+        assert da.last_used_at
+        assert da.last_used_at.date() == datetime.today().date()
 
     def test_successful_email_relay_message_removed_from_s3(self) -> None:
         resp = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
@@ -219,6 +234,95 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
         assert_is_nowish(self.ra.last_used_at)
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_deleted_email_sns_notification(self) -> None:
+        self.ra.delete()
+
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        assert resp.status_code == 404
+        mm.assert_incr_once("fx.private.relay.email_for_deleted_address")
+
+        self.mock_ses_relay_email.assert_not_called()
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_multi_deleted_email_sns_notification(self) -> None:
+        self.ra.delete()
+        deleted = DeletedAddress.objects.get()
+        DeletedAddress.objects.create(address_hash=deleted.address_hash)
+
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        assert resp.status_code == 404
+        mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
+
+        self.mock_ses_relay_email.assert_not_called()
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_unknown_relay_email_sns_notification(self) -> None:
+        self.ra.address = "something_else"
+        self.ra.save()
+
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
+        assert resp.status_code == 404
+        mm.assert_incr_once("fx.private.relay.email_for_unknown_address")
+
+        self.mock_ses_relay_email.assert_not_called()
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_not_supported_domain_sns_notification(self) -> None:
+        note = deepcopy(EMAIL_SNS_BODIES["domain_recipient"])
+        note["Message"] = note["Message"].replace(
+            "wildcard@subdomain.test.com", "wildcard@sub.subdomain.test.com"
+        )
+        assert note["Message"] != EMAIL_SNS_BODIES["domain_recipient"]["Message"]
+
+        with MetricsMock() as mm:
+            resp = _sns_notification(note)
+        assert resp.status_code == 404
+        mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
+
+        self.mock_ses_relay_email.assert_not_called()
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_domain_recipient_unclaimed(self) -> None:
+        self.premium_profile.subdomain = "not-subdomain"
+        self.premium_profile.save()
+
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
+        assert resp.status_code == 404
+        mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
+
+        self.mock_ses_relay_email.assert_not_called()
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_domain_recipient_no_longer_premium(self) -> None:
+        fxa = SocialAccount.objects.get(user=self.premium_user, provider="fxa")
+        fxa.extra_data["subscriptions"] = ["other"]
+        fxa.save()
+        assert self.premium_profile.fxa.extra_data["subscriptions"] == ["other"]
+
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
+        assert resp.status_code == 404
+        mm.assert_not_incr("fx.private.email_for_active_address")
+
+        self.mock_ses_relay_email.assert_not_called()
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_domain_recipient_flagged(self) -> None:
+        self.premium_profile.last_account_flagged = datetime.now(tz=timezone.utc)
+        self.premium_profile.save()
+
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
+        assert resp.status_code == 404
+        mm.assert_not_incr("fx.private.email_for_active_address")
+
+        self.mock_ses_relay_email.assert_not_called()
 
 
 class BounceHandlingTest(TestCase):
