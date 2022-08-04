@@ -1,5 +1,5 @@
 import { useRef, useState, ReactNode } from "react";
-import { useLocalization } from "@fluent/react";
+import { Localized, useLocalization } from "@fluent/react";
 import { useToggleState, useTooltipTriggerState } from "react-stately";
 import {
   mergeProps,
@@ -394,7 +394,14 @@ const TrackersRemovedTooltip = (props: TooltipProps) => {
           className={styles.tooltip}
         >
           <p>{l10n.getString("profile-trackers-removed-tooltip-part1")}</p>
-          <p>{l10n.getString("profile-trackers-removed-tooltip-part2")}</p>
+          <Localized
+            id="profile-trackers-removed-tooltip-part2-2"
+            elems={{
+              b: <b />,
+            }}
+          >
+            <p />
+          </Localized>
         </div>
       )}
     </div>

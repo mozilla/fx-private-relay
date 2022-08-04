@@ -313,7 +313,7 @@ export const WhatsNewMenu = (props: Props) => {
     announcementDate: {
       year: 2022,
       month: 8,
-      day: 3,
+      day: 9,
     },
   };
   // Only show its announcement if tracker removal is live:
