@@ -44,7 +44,7 @@ const config: PlaywrightTestConfig = {
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [
-    [process.env.CI ? 'github' : 'html']
+    ['html']
     // ['allure-playwright']
     // ['json', {  outputFile: 'test-results.json' }],
   ],
@@ -53,7 +53,7 @@ const config: PlaywrightTestConfig = {
     /* Maximum time each action such as `click()` can take. Defaults to 0 (no limit). */
     actionTimeout: 0,
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: process.env.TEST_BASE_URL || 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net',
+    baseURL: process.env.E2E_TEST_BASE_URL || 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net',
 
     /* automatically take screenshot only on failures */
     screenshot: 'only-on-failure',
@@ -63,7 +63,7 @@ const config: PlaywrightTestConfig = {
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-  },
+  },  
 
   /* Configure projects for major browsers */
   projects: [

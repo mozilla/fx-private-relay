@@ -1,5 +1,5 @@
 import test, { expect }  from '../fixtures/basePages'
-import { checkForEmailInput, checkForSignInButton, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
+import { checkForEmailInput, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
@@ -9,12 +9,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
     await checkForEmailInput(page)
     await dashboardPage.maybeDeleteMasks()
   });
-
-  test('Verify that the "Upgrade" button redirects correctly,  C1812640, 1808503', async ({ dashboardPage, page }) => {
-    await dashboardPage.upgrade()
-    expect(page.url()).toContain('/premium/')
-  })
-
+  
   test('Check the free user can only create 5 masks, C1553067', async ({ dashboardPage }) => {      
     await dashboardPage.generateMask(5)
     
@@ -35,13 +30,14 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
 
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
-    await checkForSignInButton(page)
+    await checkForEmailInput(page)
     await dashboardPage.maybeDeleteMasks()
   });    
 
   test('Verify that the Header is displayed correctly for a Free user that is logged in, C1812639', async ({ dashboardPage }) => {
+    await dashboardPage.maybeCloseToaster()
     await expect(dashboardPage.header).toHaveScreenshot(
-      'dashboardHeader.png',
+      `${process.env.E2E_TEST_ENV}-dashboardHeader.png`,
       defaultScreenshotOpts
     );
   })
@@ -49,27 +45,27 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
   test('Verify that the "Profile" button and its options work correctly, C1812641', async ({ dashboardPage }) => {
     await dashboardPage.userMenuButton.click()
     await expect(dashboardPage.userMenuPopUp).toHaveScreenshot(
-      'userMenuPopUp.png',
-      defaultScreenshotOpts
+      `${process.env.E2E_TEST_ENV}-userMenuPopUp.png`,
+      {...defaultScreenshotOpts, mask: [dashboardPage.userMenuPopEmail]}
     );
     await dashboardPage.userMenuButton.click()
 
     await dashboardPage.relayExtensionBanner.scrollIntoViewIfNeeded()
     await expect(dashboardPage.relayExtensionBanner).toHaveScreenshot(
-      'relayExtensionBanner.png',
+      `${process.env.E2E_TEST_ENV}-relayExtensionBanner.png`,
       defaultScreenshotOpts
     );
 
     await dashboardPage.bottomUgradeBanner.scrollIntoViewIfNeeded()
     await expect(dashboardPage.bottomUgradeBanner).toHaveScreenshot(
-      'bottomUgradeBanner.png',
+      `${process.env.E2E_TEST_ENV}-bottomUgradeBanner.png`,
       defaultScreenshotOpts
     );
   })
 
   test('Verify that opened mask cards are displayed correctly to a Free user, C1553070', async ({ dashboardPage, page }) => {
     await dashboardPage.generateMask(1)
-    await expect(page.locator(dashboardPage.maskCard)).toHaveScreenshot('maskCard.png', 
+    await expect(page.locator(dashboardPage.maskCard)).toHaveScreenshot(`${process.env.E2E_TEST_ENV}-maskCard.png`, 
     {...defaultScreenshotOpts, mask: [
       dashboardPage.maskCardForwardEmail, 
       dashboardPage.maskCardGeneratedEmail, 
@@ -81,7 +77,7 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
     await dashboardPage.generateMask(1)
     await dashboardPage.maskCardDeleteButton.click()
 
-    await expect(dashboardPage.maskCardDeleteDialogModal).toHaveScreenshot('maskCardDeleteDialogModal.png',
+    await expect(dashboardPage.maskCardDeleteDialogModal).toHaveScreenshot(`${process.env.E2E_TEST_ENV}-maskCardDeleteDialogModal.png`,
     {...defaultScreenshotOpts, mask: [
       dashboardPage.maskCardDeleteDialogModalEmailString, 
       dashboardPage.maskCardDeleteDialogModalGeneratedEmail

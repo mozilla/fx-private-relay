@@ -7,8 +7,12 @@ export class DashboardPage {
     readonly homeButton: Locator
     readonly FAQButton: Locator
     readonly newsButton: Locator
+    readonly toastCloseButton: string
     readonly userMenuPopUp: Locator
+    readonly getMoreProtectionButton: Locator
+    readonly userMenuPopEmail: Locator
     readonly upgradeButton: Locator
+    readonly upgradeNowButton: Locator
     readonly userMenuButton: Locator
     readonly signOutButton: Locator
     readonly signOutToastAlert: Locator
@@ -49,17 +53,21 @@ export class DashboardPage {
         this.homeButton = page.locator('header >> text=Home')
         this.userMenuButton = page.locator('//div[starts-with(@class, "UserMenu_wrapper")]')
         this.userMenuPopUp = page.locator('//ul[starts-with(@class, "UserMenu_popup")]')
+        this.userMenuPopEmail = page.locator('//span[starts-with(@class, "UserMenu_account")]/b')
+        this.toastCloseButton = '//div[starts-with(@class, "Layout_close")]'
         this.signOutButton = page.locator('button:has-text("Sign Out")').first()
         this.signOutToastAlert = page.locator('//div[@class="Toastify__toast-body"]')
-
+        
         // dashboard elements
+        this.upgradeNowButton = page.locator('a:has-text("Upgrade Now")')
         this.upgradeButton = page.locator('a:has-text("Upgrade")').first()
+        this.getMoreProtectionButton = page.locator(':has-text("Get more protection")')
         this.dashboardPageWithoutHeader = page.locator('//main[starts-with(@class, "profile_profile-wrapper")]')
         this.emailsForwardedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[3]')
         this.emailsBlockedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[2]')
-        this.emailMasksUsedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[1]')
+        this.emailMasksUsedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[1]')        
         this.generateNewMaskButton = page.locator('button:has-text("Generate new mask")')
-        this.maxMaskLimitButton = page.locator('//div[starts-with(@class, "AliasList_controls__XMrn9")]//a[starts-with(@class, "Button_button")]')
+        this.maxMaskLimitButton = page.locator('//div[starts-with(@class, "AliasList_controls")]//a[starts-with(@class, "Button_button")]')
         this.bottomUgradeBanner = page.locator('//div[starts-with(@class, "profile_bottom-banner-wrapper")]')
         this.relayExtensionBanner = page.locator('//section[starts-with(@class, "profile_banners-wrapper")]/div')
         this.dashBoardWithoutMasks = page.locator('//section[starts-with(@class, "Onboarding_wrapper")]')
@@ -86,7 +94,7 @@ export class DashboardPage {
 
     async open() {
         await this.page.goto('/accounts/profile/');
-      }
+    }
 
     async generateMask(numberOfMasks = 1){        
         // check if max number of masks have been created
@@ -107,6 +115,22 @@ export class DashboardPage {
             this.page.waitForNavigation(),
             this.upgradeButton.click()
         ]);
+    }
+
+    async upgradeNow(){
+        await Promise.all([
+            this.page.waitForNavigation(),
+            this.upgradeNowButton.click()
+        ]);
+    }
+
+    async maybeCloseToaster(){
+        try {
+            await this.page.waitForSelector(this.toastCloseButton, { timeout: 2000 })
+            await this.page.locator(this.toastCloseButton).click()
+        } catch (error) {
+            console.error('No Toaster, please proceed')
+        }
     }
 
     async maybeDeleteMasks(clearAll = true, numberOfMasks = 1){               
@@ -156,7 +180,7 @@ export class DashboardPage {
         await this.maybeDeleteMasks(true, numberOfMasks - 1)
     }
 
-    async sendMaskEmail(context: BrowserContext, request: APIRequestContext){
+    async sendMaskEmail(request: APIRequestContext){
         // reset data
         await this.open()
         await checkForEmailInput(this.page)

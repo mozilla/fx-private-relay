@@ -10,7 +10,7 @@ test.describe('Firefox Relay - Landing Page - Visual Regression', () => {
 
   test('Verify that the header is displayed correctly for a user that is NOT logged in, C1812637', async ({ landingPage }) => {
     await expect(landingPage.header).toHaveScreenshot(
-      'landingHeader.png',
+      `${process.env.E2E_TEST_ENV}-landingHeader.png`,
       defaultScreenshotOpts
     );
   });
@@ -18,7 +18,7 @@ test.describe('Firefox Relay - Landing Page - Visual Regression', () => {
   test('Verify firefox apps and service', async ({ landingPage }) => {    
     await landingPage.openFirefoxAppsServices()
     await expect(landingPage.firefoxAppsServicesExpanded).toHaveScreenshot(
-      'firefoxAppsServicesExpanded.png',
+      `${process.env.E2E_TEST_ENV}-firefoxAppsServicesExpanded.png`,
       defaultScreenshotOpts
     );
   })  

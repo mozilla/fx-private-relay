@@ -2,11 +2,13 @@ import { LandingPage } from "../pages/landingPage";
 import { AuthPage } from "../pages/authPage";
 import { test as baseTest } from '@playwright/test'
 import { DashboardPage } from "../pages/dashboardPage";
+import { SubscriptionPaymentPage } from "../pages/subscriptionPaymentPage";
 
 const test = baseTest.extend<{
     landingPage: LandingPage;
     authPage: AuthPage;
     dashboardPage: DashboardPage;
+    subscriptionPage: SubscriptionPaymentPage
 }>({
     authPage: async ({  page }, use) => {
         await use(new AuthPage(page))
@@ -16,6 +18,9 @@ const test = baseTest.extend<{
     },
     dashboardPage: async ({  page }, use) => {
         await use(new DashboardPage(page))
+    },
+    subscriptionPage: async ({  page }, use) => {
+        await use(new SubscriptionPaymentPage(page))
     },
 })
 

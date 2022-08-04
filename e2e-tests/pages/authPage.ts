@@ -16,7 +16,7 @@ export class AuthPage {
         this.passwordConfirmInputField = page.locator('#vpassword');
         this.ageInputField = page.locator('#age');
         this.continueButton = page.locator('#submit-btn');
-        this.verifyCodeInputField = page.locator('//*[@id="main-content"]/section/form/div[1]/input')
+        this.verifyCodeInputField = page.locator('//div[@class="card"]//input')
     }
 
     async continue() {
@@ -33,20 +33,20 @@ export class AuthPage {
         await this.continue();
     }
 
-    async enterPassword(password: string) {
-        await this.passwordInputField.fill(password);
+    async enterPassword() {
+        await this.passwordInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
         await this.continue();
     }
     
-    async login(email: string, password: string) {
+    async login(email: string) {
         await this.enterEmail(email);
-        await this.enterPassword(password);
+        await this.enterPassword();
     }
 
-    async signUp(email: string, password: string){
+    async signUp(email: string){
         await this.enterEmail(email)
-        await this.passwordInputField.fill(password);
-        await this.passwordConfirmInputField.fill(password);
+        await this.passwordInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
+        await this.passwordConfirmInputField.fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string);
         await this.ageInputField.type("31");
         await this.continue();
     }

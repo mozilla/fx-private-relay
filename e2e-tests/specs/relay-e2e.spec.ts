@@ -4,12 +4,13 @@ import {
   generateRandomEmail, 
   getVerificationCode } from '../e2eTestUtils/helpers';
 
+test.skip(({ browserName }) => browserName !== 'chromium', 'chromium only image comparisons!');
 test.describe('Relay e2e function email forwarding', () => {
     // use stored authenticated state
     test.use({ storageState: 'state.json' })
 
-    test.beforeEach(async ({ dashboardPage, context, request }) => {
-      await dashboardPage.sendMaskEmail(context, request)
+    test.beforeEach(async ({ dashboardPage, request }) => {
+      await dashboardPage.sendMaskEmail(request)
     });
     
     test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
@@ -48,7 +49,7 @@ test.describe('Relay e2e auth flows', () => {
       // sign up with a randomly generated email
       testEmail = await generateRandomEmail()
       await landingPage.goToSignUp()
-      await authPage.signUp(testEmail, process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
+      await authPage.signUp(testEmail)
 
       // get verification code from restmail
       const verificationCode = await getVerificationCode(request, testEmail, page)
