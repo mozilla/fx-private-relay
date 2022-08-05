@@ -1,26 +1,28 @@
 import test, { expect }  from '../fixtures/basePages'
-import { checkForEmailInput, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
+import { checkForEmailInput, checkForSignInButton, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
 test.describe('Free - General Functionalities, Desktop', () => {
   test.beforeEach(async ({ dashboardPage, page }) => {
-    await dashboardPage.open()    
+    await dashboardPage.open()
+    await checkForSignInButton(page)
     await checkForEmailInput(page)
     await dashboardPage.maybeDeleteMasks()
   });
   
-  test('Check the free user can only create 5 masks, C1553067', async ({ dashboardPage }) => {      
+  test('Check the free user can only create 5 masks, C1553067', async ({ dashboardPage }) => {
     await dashboardPage.generateMask(5)
     
     // After five times, the button becomes greyed-out and the user cannot add other masks anymore (TODO: for a free user from a country where Premium is NOT available).
     expect(await dashboardPage.maxMaskLimitButton.textContent()).toContain('Get unlimited email masks')
   })
-
+  
   test('Check that when generating a new mask, its card is automatically opened, C1686210, C1553075', async ({ dashboardPage }) => {
     await dashboardPage.generateMask(1)
+    console.log('process.env.freeemail ===== ', process.env.E2E_TEST_ACCOUNT_FREE)
     await expect(dashboardPage.maskCardExpanded).toBeVisible()
-    const emailDomain = process.env.E2E_TEST_ENV === 'stage' ? '@mozmail.fxprivaterelay.nonprod.cloudops.mozgcp.net' : '@mozmail.com'
+    const emailDomain = process.env.E2E_TEST_ENV === 'prod' ? '@mozmail.com' : '@mozmail.fxprivaterelay.nonprod.cloudops.mozgcp.net'
     expect(await dashboardPage.maskCardHeader.textContent()).toContain(emailDomain)
   })
 })
@@ -30,6 +32,7 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
 
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
+    await checkForSignInButton(page)
     await checkForEmailInput(page)
     await dashboardPage.maybeDeleteMasks()
   });    
@@ -43,13 +46,6 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
   })
 
   test('Verify that the "Profile" button and its options work correctly, C1812641', async ({ dashboardPage }) => {
-    await dashboardPage.userMenuButton.click()
-    await expect(dashboardPage.userMenuPopUp).toHaveScreenshot(
-      `${process.env.E2E_TEST_ENV}-userMenuPopUp.png`,
-      {...defaultScreenshotOpts, mask: [dashboardPage.userMenuPopEmail]}
-    );
-    await dashboardPage.userMenuButton.click()
-
     await dashboardPage.relayExtensionBanner.scrollIntoViewIfNeeded()
     await expect(dashboardPage.relayExtensionBanner).toHaveScreenshot(
       `${process.env.E2E_TEST_ENV}-relayExtensionBanner.png`,

@@ -3,10 +3,11 @@ import { checkForEmailInput, checkForSignInButton, defaultScreenshotOpts } from 
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
-test.describe.skip('Premium Relay - Purchase Premium Flow, Desktop', () => {
+test.describe('Premium Relay - Purchase Premium Flow, Desktop', () => {
 
   test.beforeEach(async ({ dashboardPage, page }) => {
-    await dashboardPage.open()    
+    await dashboardPage.open()
+    await checkForSignInButton(page)
     await checkForEmailInput(page)
   });
 
@@ -16,7 +17,7 @@ test.describe.skip('Premium Relay - Purchase Premium Flow, Desktop', () => {
   })  
 })
 
-test.describe(() => {
+test.describe.skip(() => { // TODO: add flow for stage only
   // run this test only on stage as only stage will accept test cards
   test.skip(() => process.env.E2E_TEST_ENV !== 'stage', 'run only on stage');
 
@@ -24,18 +25,14 @@ test.describe(() => {
     await dashboardPage.open()
     await checkForEmailInput(page)
   });
-
-  test('Verify that user can purchase the product using a valid CC', async ({ dashboardPage, subscriptionPage, page }) => {
-
-    // TODO: add flow for stage only
-  })  
 })
 
 test.describe('Premium Relay - Purchase Premium Flow, Desktop - Visual Regression', () => {
   test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only image comparisons!');
 
   test.beforeEach(async ({ dashboardPage, page }) => {
-    await dashboardPage.open()    
+    await dashboardPage.open()
+    await checkForSignInButton(page)
     await checkForEmailInput(page)
   });
 

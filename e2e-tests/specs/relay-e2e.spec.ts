@@ -1,11 +1,16 @@
 import test, { expect }  from '../fixtures/basePages'
 import {
+  checkForEmailInput,
+  checkForSignInButton,
   deleteEmailAddressMessages, 
   generateRandomEmail, 
   getVerificationCode } from '../e2eTestUtils/helpers';
 
 test.skip(({ browserName }) => browserName !== 'chromium', 'chromium only image comparisons!');
 test.describe('Relay e2e function email forwarding', () => {
+    // skip CI runs until issue is fixed
+    test.skip(() => process.env.CI === 'true', 'Skipping due to issue with multiple masks being created for an existing account.');
+    
     // use stored authenticated state
     test.use({ storageState: 'state.json' })
 
@@ -15,8 +20,11 @@ test.describe('Relay e2e function email forwarding', () => {
     
     test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
       dashboardPage,
+      page
     }) => {
         await dashboardPage.open()
+        await checkForSignInButton(page)
+        await checkForEmailInput(page)
         const forwardedEmailCount = await dashboardPage.checkForwardedEmailCount()
         
         expect(forwardedEmailCount).toEqual('1Forwarded')        
@@ -38,7 +46,7 @@ test.describe('Relay e2e auth flows', () => {
       if (testEmail) await deleteEmailAddressMessages(request, testEmail)
   })
 
-  test('Verify user can sign up for an account C1818784, C1811801, C1553064', async ({
+  test.skip('Verify user can sign up for an account C1818784, C1811801, C1553064', async ({
       dashboardPage, 
       landingPage,
       authPage,

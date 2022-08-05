@@ -1,5 +1,5 @@
-import { APIRequestContext, BrowserContext, Locator, Page } from "@playwright/test";
-import { checkForEmailInput, getVerificationCode } from "../e2eTestUtils/helpers";
+import { APIRequestContext, Locator, Page } from "@playwright/test";
+import { checkForEmailInput, checkForSignInButton, getVerificationCode } from "../e2eTestUtils/helpers";
 
 export class DashboardPage {
     readonly page: Page
@@ -107,6 +107,7 @@ export class DashboardPage {
         await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
         
         // re-run until there are no more masks to generate
+        await this.page.waitForTimeout((Math.random() * 1500) + 300)
         await this.generateMask(numberOfMasks - 1)
     }    
 
@@ -183,6 +184,7 @@ export class DashboardPage {
     async sendMaskEmail(request: APIRequestContext){
         // reset data
         await this.open()
+        await checkForSignInButton(this.page)
         await checkForEmailInput(this.page)
         await this.maybeDeleteMasks()
         
