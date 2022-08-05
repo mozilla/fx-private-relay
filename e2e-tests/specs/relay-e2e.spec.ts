@@ -7,10 +7,8 @@ import {
   getVerificationCode } from '../e2eTestUtils/helpers';
 
 test.skip(({ browserName }) => browserName !== 'chromium', 'chromium only image comparisons!');
-test.describe('Relay e2e function email forwarding', () => {
-    // skip CI runs until issue is fixed
-    test.skip(() => process.env.CI === 'true', 'Skipping due to issue with multiple masks being created for an existing account.');
-    
+// skip CI runs until issue is fixed
+test.describe('Relay e2e function email forwarding', () => {    
     // use stored authenticated state
     test.use({ storageState: 'state.json' })
 
