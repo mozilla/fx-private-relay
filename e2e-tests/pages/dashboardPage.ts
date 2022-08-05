@@ -1,5 +1,5 @@
 import { APIRequestContext, Locator, Page } from "@playwright/test";
-import { checkForEmailInput, checkForSignInButton, getVerificationCode } from "../e2eTestUtils/helpers";
+import { checkForEmailInput, checkForSignInButton, checkForVerificationCodeInput, getVerificationCode } from "../e2eTestUtils/helpers";
 
 export class DashboardPage {
     readonly page: Page
@@ -186,6 +186,7 @@ export class DashboardPage {
         await this.open()
         await checkForSignInButton(this.page)
         await checkForEmailInput(this.page)
+        await checkForVerificationCodeInput(this.page)
         await this.maybeDeleteMasks()
         
         // create mask and use generated mask email to test email forwarding feature
@@ -217,7 +218,7 @@ export class DashboardPage {
         await createAccountButton.click()
     
         // wait for email to be forward to restmail
-        await getVerificationCode(request, process.env.E2E_TEST_ACCOUNT_FREE as string, this.page)
+        await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, this.page)
     }
 
     async checkForwardedEmailCount(attempts = 10) {

@@ -1,4 +1,4 @@
-import { Page, request } from "@playwright/test";
+import { getVerificationCode } from "./e2eTestUtils/helpers";
 import { AuthPage } from "./pages/authPage";
 import { LandingPage } from "./pages/landingPage";
 
@@ -27,28 +27,6 @@ async function globalSetup() {
 
     await page.context().storageState({ path: 'state.json' });
     await browser.close();
-}
-
-const getVerificationCode = async (testEmail: string, page: Page, attempts = 10) => {
-  if (attempts === 0) {
-    throw new Error('Unable to retrieve restmail data');
-  }
-
-  const context = await request.newContext();  
-  const res = await context.get(
-    `http://restmail.net/mail/${testEmail}`,
-    {
-      failOnStatusCode: false
-    }
-  );
-  const resJson = await res.json(); 
-  if (resJson.length) {
-    const verificationCode = resJson[0].headers['x-verify-short-code']
-    return verificationCode;
-  }
-
-  await page.waitForTimeout(1000);
-  return getVerificationCode(testEmail, page, attempts - 1);
 }
 
 export default globalSetup;

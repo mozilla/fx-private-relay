@@ -2,9 +2,8 @@ import test, { expect }  from '../fixtures/basePages'
 import {
   checkForEmailInput,
   checkForSignInButton,
-  deleteEmailAddressMessages, 
-  generateRandomEmail, 
-  getVerificationCode } from '../e2eTestUtils/helpers';
+  checkForVerificationCodeInput,
+  deleteEmailAddressMessages } from '../e2eTestUtils/helpers';
 
 test.skip(({ browserName }) => browserName !== 'chromium', 'chromium only image comparisons!');
 // skip CI runs until issue is fixed
@@ -23,6 +22,7 @@ test.describe('Relay e2e function email forwarding', () => {
         await dashboardPage.open()
         await checkForSignInButton(page)
         await checkForEmailInput(page)
+        await checkForVerificationCodeInput(page)
         const forwardedEmailCount = await dashboardPage.checkForwardedEmailCount()
         
         expect(forwardedEmailCount).toEqual('1Forwarded')        
@@ -43,34 +43,7 @@ test.describe('Relay e2e auth flows', () => {
   test.afterEach(async ({ request }) => {
       if (testEmail) await deleteEmailAddressMessages(request, testEmail)
   })
-
-  test.skip('Verify user can sign up for an account C1818784, C1811801, C1553064', async ({
-      dashboardPage, 
-      landingPage,
-      authPage,
-      request,
-      page
-    }) => {
-
-      // sign up with a randomly generated email
-      testEmail = await generateRandomEmail()
-      await landingPage.goToSignUp()
-      await authPage.signUp(testEmail)
-
-      // get verification code from restmail
-      const verificationCode = await getVerificationCode(request, testEmail, page)
-      await authPage.enterVerificationCode(verificationCode)
-
-      // verify successful login
-      expect(await dashboardPage.signOutToastAlert.textContent()).toContain('Successfully')
-      expect(await dashboardPage.signOutToastAlert.textContent()).toContain(testEmail)
-
-      // sign out and verify successful signout
-      await dashboardPage.userMenuButton.click()
-      await dashboardPage.signOutButton.click()
-      expect(await dashboardPage.signOutToastAlert.textContent()).toContain('You have signed out.')
-  })
-
+  
   test('Verify that the "Sign Up" button works correctly, C1818792', async ({     
     landingPage
   }) => {    

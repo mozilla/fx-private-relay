@@ -1,25 +1,25 @@
-import { APIRequestContext, Page } from '@playwright/test';
+import { APIRequestContext, Page, request } from '@playwright/test';
 
-export const getVerificationCode = async (req: APIRequestContext, testEmail: string, page: Page, attempts = 10) => {
+export const getVerificationCode = async (testEmail: string, page: Page, attempts = 10) => {
   if (attempts === 0) {
     throw new Error('Unable to retrieve restmail data');
   }
-    
-  const res = await req.get(
-      `http://restmail.net/mail/${testEmail}`,
-      {
+
+  const context = await request.newContext();  
+  const res = await context.get(
+    `http://restmail.net/mail/${testEmail}`,
+    {
       failOnStatusCode: false
-      }
+    }
   );
-  const resJson = await res.json();
-              
+  const resJson = await res.json(); 
   if (resJson.length) {
-      const verificationCode = resJson[0].headers['x-verify-short-code']
-      return verificationCode;
+    const verificationCode = resJson[0].headers['x-verify-short-code']
+    return verificationCode;
   }
 
   await page.waitForTimeout(1000);
-  return getVerificationCode(req, testEmail, page, attempts - 1);
+  return getVerificationCode(testEmail, page, attempts - 1);
 }
 
 export const deleteEmailAddressMessages = async (req: APIRequestContext, testEmail: string) => {
@@ -44,11 +44,24 @@ export const checkForEmailInput = async (page: Page) => {
   try {    
     const maybeEmailInput = '.email'
     await page.waitForSelector(maybeEmailInput, { timeout: 2000 })
-    const maybeSignInButton = page.locator('button:has-text("Sign up or sign in")')
+    const signInButton = page.locator('button:has-text("Sign up or sign in")')
     await page.locator(maybeEmailInput).fill(process.env.E2E_TEST_ACCOUNT_FREE as string)
-    await maybeSignInButton.click()
+    await signInButton.click()
     await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
     await page.locator('#submit-btn').click()
+  } catch (error) {
+    console.error('No email Proceeded to logged in page')
+  }
+}
+
+export const checkForVerificationCodeInput = async (page: Page) => {
+  try {    
+    const maybeVerificationCodeInput = '//div[@class="card"]//input'
+    await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 })
+    const confirmButton = page.locator('button:has-text("Sign up or sign in")')
+    const verificationCode = await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, page)
+    await page.locator(maybeVerificationCodeInput).fill(verificationCode)
+    await confirmButton.click()
   } catch (error) {
     console.error('No email Proceeded to logged in page')
   }

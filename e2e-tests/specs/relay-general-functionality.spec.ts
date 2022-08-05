@@ -1,5 +1,5 @@
 import test, { expect }  from '../fixtures/basePages'
-import { checkForEmailInput, checkForSignInButton, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
+import { checkForEmailInput, checkForSignInButton, checkForVerificationCodeInput, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
@@ -8,6 +8,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
     await dashboardPage.open()
     await checkForSignInButton(page)
     await checkForEmailInput(page)
+    await checkForVerificationCodeInput(page)
     await dashboardPage.maybeDeleteMasks()
   });
   
