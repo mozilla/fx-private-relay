@@ -53,6 +53,7 @@ if settings.PHONES_ENABLED:
     from .views.phones import (
         RealPhoneViewSet,
         RelayNumberViewSet,
+        InboundContactViewSet,
         inbound_call,
         inbound_sms,
         vCard,
@@ -60,6 +61,7 @@ if settings.PHONES_ENABLED:
 
     api_router.register(r"realphone", RealPhoneViewSet, "real_phone")
     api_router.register(r"relaynumber", RelayNumberViewSet, "relay_number")
+    api_router.register(r"inboundcontact", InboundContactViewSet, "inbound_contact")
     urlpatterns += [
         path("v1/inbound_sms", inbound_sms, name="inbound_sms"),
         path("v1/inbound_call", inbound_call, name="inbound_call"),

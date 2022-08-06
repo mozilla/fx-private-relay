@@ -9,6 +9,9 @@ from django.contrib.auth.models import User
 
 from model_bakery import baker
 from rest_framework.test import APIClient
+from emails.models import Profile
+
+from phones.models import InboundContact
 
 if settings.PHONES_ENABLED:
     from phones.models import RealPhone, RelayNumber
@@ -598,8 +601,97 @@ def test_inbound_sms_valid_twilio_signature_disabled_number(
     assert response.status_code == 400
     decoded_content = response.content.decode()
     assert decoded_content.startswith("<?xml")
-    assert "Not Accepting Messages" in decoded_content
+    assert "Not Accepting Texts" in decoded_content
     mocked_twilio_client.messages.create.assert_not_called()
+
+
+def test_inbound_sms_valid_twilio_signature_no_phone_log(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    inbound_number = "+15556660000"
+    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
+    RelayNumber.objects.create(user=phone_user, number=relay_number, enabled=True)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": inbound_number, "To": relay_number, "Body": "test body"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 201
+    decoded_content = response.content.decode()
+    assert decoded_content.startswith("<?xml")
+    assert "<Response/>" in decoded_content
+    mocked_twilio_client.messages.create.assert_called_once()
+    assert InboundContact.objects.filter(relay_number=relay_number).count() == 0
+
+
+def test_inbound_sms_valid_twilio_signature_blocked_contact(
+    phone_user, mocked_twilio_client, mocked_twilio_validator
+):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone_number = "+12223334444"
+    relay_number = "+19998887777"
+    inbound_number = "+15556660000"
+    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
+    relay_number_obj = RelayNumber.objects.create(
+        user=phone_user, number=relay_number, enabled=True
+    )
+    inbound_contact = InboundContact.objects.create(
+        relay_number=relay_number_obj, inbound_number=inbound_number
+    )
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": inbound_number, "To": relay_number, "Body": "test body"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 201
+    decoded_content = response.content.decode()
+    assert decoded_content.startswith("<?xml")
+    assert "<Response/>" in decoded_content
+    mocked_twilio_client.messages.create.assert_called_once()
+    inbound_contact.refresh_from_db()
+    assert inbound_contact.num_texts == 1
+
+    inbound_contact.blocked = True
+    inbound_contact.save()
+    mocked_twilio_client.reset_mock()
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert decoded_content.startswith("<?xml")
+    assert "Not Accepting Texts" in decoded_content
+    mocked_twilio_client.messages.create.assert_not_called()
+    inbound_contact.refresh_from_db()
+    assert inbound_contact.num_texts == 1
+    assert inbound_contact.num_texts_blocked == 1
+
+
+@pytest.mark.django_db
+def test_phone_get_inbound_contact_requires_relay_number(phone_user):
+    number = "+12223334444"
+    relay_number = "+19998887777"
+    client = APIClient()
+    path = "/api/v1/inboundcontact/"
+    free_user = baker.make(User)
+    client.force_authenticate(free_user)
+    response = client.get(path)
+    assert response.status_code == 404
+
+    client.force_authenticate(phone_user)
+    response = client.get(path)
+    assert response.status_code == 404
+
+    RealPhone.objects.create(user=phone_user, number=number, verified=True)
+    relay_number = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    response = client.get(path)
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
