@@ -114,7 +114,7 @@ csp_style_values = ["'self'"]
 # in our Content Security Policy.
 if RELAY_CHANNEL == "local":
     # When running locally, styles might get refreshed while the server is
-    # running, so their hashes would get oudated. Hence, we just allow all of
+    # running, so their hashes would get outdated. Hence, we just allow all of
     # them.
     csp_style_values.append("'unsafe-inline'")
 else:
