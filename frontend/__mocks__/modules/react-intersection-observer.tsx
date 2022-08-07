@@ -1,4 +1,4 @@
-export const mockReactIntersectionObsever = {
+export const mockReactIntersectionObserver = {
   useInView: jest.fn(() => {
     return [() => undefined, true, undefined];
   }),

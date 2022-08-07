@@ -5,7 +5,7 @@ import { axe } from "jest-axe";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../../__mocks__/modules/react-ga";
-import { mockReactIntersectionObsever } from "../../../__mocks__/modules/react-intersection-observer";
+import { mockReactIntersectionObserver } from "../../../__mocks__/modules/react-intersection-observer";
 import { mockConfigModule } from "../../../__mocks__/configMock";
 import {
   setMockProfileData,
@@ -41,7 +41,7 @@ import { RuntimeConfig } from "../../config";
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
-jest.mock("react-intersection-observer", () => mockReactIntersectionObsever);
+jest.mock("react-intersection-observer", () => mockReactIntersectionObserver);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../functions/renderDate.ts");
 jest.mock("../../functions/getLocale.ts", () => mockGetLocaleModule);
