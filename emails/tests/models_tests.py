@@ -1014,8 +1014,8 @@ class DomainAddressTest(TestCase):
         try:
             DomainAddress.make_domain_address(user_profile, "test-nosubdomain")
         except CannotMakeAddressException as e:
-            excpected_err_msg = "You must select a subdomain before creating email address with subdomain."
-            assert e.message == excpected_err_msg
+            expected_err_msg = "You must select a subdomain before creating email address with subdomain."
+            assert e.message == expected_err_msg
             return
         self.fail("Should have raise CannotMakeAddressException")
 
