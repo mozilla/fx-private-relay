@@ -237,7 +237,7 @@ trackerreport-tracker-count =
     }
 trackerreport-confidentiality-notice = Tracker information and from address shown in these reports are not saved by { -brand-name-firefox-relay } and only contained within report URLs. We do not save your emails.
 trackerreport-removal-explainer-heading = How tracker removal works
-# Note, at the time of writing, it's not actually possbile to enable tracker removal for individual masks.
+# Note, at the time of writing, it's not actually possible to enable tracker removal for individual masks.
 trackerreport-removal-explainer-content = { -brand-name-firefox-relay } can now remove common trackers from emails forwarded through your email masks. You’ll still receive your emails, but the trackers in your forwarded emails will be removed, so you can get your emails without being tracked. To enable tracker removal on all your masks at once, enable tracker removal in settings rather than individually for each mask.
 trackerreport-trackers-explainer-heading = About email trackers
 trackerreport-trackers-explainer-content-part1 = Email tracking is a common surveillance and advertising tool that has taken over many inboxes. These trackers can be used to understand more about your online behavior, your interests, and your email activity.
