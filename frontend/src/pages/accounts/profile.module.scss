@@ -150,7 +150,7 @@
               text-align: start;
 
               p + p {
-                // Not using `gap` on the parent becase we don't want space
+                // Not using `gap` on the parent because we don't want space
                 // between the close button and the first paragraph:
                 margin-top: $spacing-md;
               }
