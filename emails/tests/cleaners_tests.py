@@ -322,7 +322,7 @@ Users:
 
 @pytest.mark.django_db
 def test_missing_profile_cleaner_with_users() -> None:
-    """MissingProfileCleaner works when data is consistant."""
+    """MissingProfileCleaner works when data is consistent."""
     setup_profile_mismatch_test_data()
 
     task = MissingProfileCleaner()
@@ -400,7 +400,7 @@ Users:
 
 @pytest.mark.django_db
 def test_many_profile_detector_with_users() -> None:
-    """ManyProfileDetector works when data is consistant."""
+    """ManyProfileDetector works when data is consistent."""
     setup_profile_mismatch_test_data()
 
     task = ManyProfileDetector()
