@@ -11,7 +11,7 @@ sequenceDiagram
     AWS->>yourapp.ngrok.io: POST /emails/sns-inbound
     yourapp.ngrok.io->>127.0.0.1: POST /emails/sns-inbound
     127.0.0.1->>AWS: POST /SendRawEmail
-    AWS->>Reciving MTA: SMTP
+    AWS->>Receiving MTA: SMTP
 ```
 
 ## Requirements
@@ -366,7 +366,7 @@ sequenceDiagram
     Sending MTA->>AWS: SMTP
     Local app->>AWS: SQS fetch
     Local app->>AWS: POST /SendRawEmail
-    AWS->>Reciving MTA: SMTP
+    AWS->>Receiving MTA: SMTP
 ```
 
 To make this change:
