@@ -7,7 +7,7 @@ export type GaViewPingArgs = Omit<EventArgs, "action" | "nonInteraction">;
  * Returns a React RefObject, and sends a ping to Google Analytics whenever the element the Ref is attached to is scrolled into view.
  *
  * @param args Data to send to Google Analytics
- * @param options Options to configure the InstersectionObserver that influences when the ping is sent
+ * @param options Options to configure the IntersectionObserver that influences when the ping is sent
  * @returns A React RefObject that should be attached to the element to track
  */
 export function useGaViewPing(
