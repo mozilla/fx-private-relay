@@ -424,7 +424,7 @@ def _get_relay_recipient_from_message_json(message_json):
     # Go thru all To, Cc, and Bcc fields and
     # return the one that has a Relay domain
 
-    # First check commmon headers for to or cc match
+    # First check common headers for to or cc match
     headers_to_check = "to", "cc"
     common_headers = message_json["mail"]["commonHeaders"]
     for header in headers_to_check:
