@@ -124,7 +124,7 @@ class MiscEmailModelsTest(TestCase):
         assert address_hash(address, domain="firefox.com") == expected_hash
 
     @override_settings(RELAY_FIREFOX_DOMAIN="firefox.com")
-    def test_address_hash_without_subdomain_domain_not_firefoxz(self):
+    def test_address_hash_without_subdomain_domain_not_firefox(self):
         non_default = "test.com"
         address = "aaaaaaaaa"
         expected_hash = sha256(f"{address}@{non_default}".encode("utf-8")).hexdigest()
