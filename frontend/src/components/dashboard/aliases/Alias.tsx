@@ -33,7 +33,8 @@ export type Props = {
   profile: ProfileData;
   onUpdate: (updatedFields: Partial<AliasData>) => void;
   onDelete: () => void;
-  defaultOpen?: boolean;
+  isOpen: boolean;
+  onChangeOpen: (isOpen: boolean) => void;
   showLabelEditor?: boolean;
   runtimeData?: RuntimeData;
 };
@@ -47,7 +48,8 @@ export const Alias = (props: Props) => {
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const expandButtonState = useToggleState({
-    defaultSelected: props.defaultOpen === true,
+    isSelected: props.isOpen === true,
+    onChange: props.onChangeOpen,
   });
   const expandButtonProps = useToggleButton(
     {},

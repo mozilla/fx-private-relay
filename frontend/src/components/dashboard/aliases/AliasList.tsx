@@ -1,5 +1,5 @@
 import { Localized, useLocalization } from "@fluent/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VisuallyHidden } from "react-aria";
 import styles from "./AliasList.module.scss";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
@@ -36,6 +36,25 @@ export const AliasList = (props: Props) => {
   const [stringFilterVisible, setStringFilterVisible] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
+  const [openAlias, setOpenAlias] = useState<AliasData | undefined>(undefined);
+  const [existingAliases, setExistingAliases] = useState<AliasData[]>(
+    props.aliases
+  );
+
+  useEffect(() => {
+    if (props.aliases.length == 0) {
+      setOpenAlias(undefined);
+    } else {
+      const existingAliasIds = existingAliases.map((alias) => alias.id);
+      const newAliases = props.aliases.filter(
+        (alias) => existingAliasIds.indexOf(alias.id) === -1
+      );
+      if (newAliases.length != 0) {
+        setOpenAlias(newAliases[0]);
+      }
+    }
+    setExistingAliases(props.aliases);
+  }, [props.aliases, existingAliases]);
 
   if (props.aliases.length === 0) {
     return null;
@@ -66,7 +85,7 @@ export const AliasList = (props: Props) => {
     })
   );
 
-  const aliasCards = aliases.map((alias, index) => {
+  const aliasCards = aliases.map((alias) => {
     const onUpdate = (updatedFields: Partial<AliasData>) => {
       if (
         localLabels !== null &&
@@ -77,6 +96,14 @@ export const AliasList = (props: Props) => {
         delete updatedFields.description;
       }
       return props.onUpdate(alias, updatedFields);
+    };
+
+    const onChangeOpen = (isOpen: boolean) => {
+      if (isOpen === true) {
+        setOpenAlias(alias);
+      } else if (openAlias !== undefined && openAlias.id === alias.id) {
+        setOpenAlias(undefined);
+      }
     };
 
     return (
@@ -90,7 +117,8 @@ export const AliasList = (props: Props) => {
           profile={props.profile}
           onUpdate={onUpdate}
           onDelete={() => props.onDelete(alias)}
-          defaultOpen={index === 0}
+          isOpen={openAlias !== undefined && openAlias.id === alias.id}
+          onChangeOpen={onChangeOpen}
           showLabelEditor={props.profile.server_storage || localLabels !== null}
           runtimeData={props.runtimeData}
         />
