@@ -435,7 +435,7 @@ class ProfileTest(TestCase):
     def test_has_phone_default_False(self):
         assert self.profile.has_phone is False
 
-    def test_has_premium_with_unlimited_subsription_returns_True(self):
+    def test_has_premium_with_unlimited_subscription_returns_True(self):
         premium_user = baker.make(User)
         random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
