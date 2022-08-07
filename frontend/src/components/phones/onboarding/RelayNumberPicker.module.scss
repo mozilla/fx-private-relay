@@ -114,22 +114,22 @@
 
 // Step 3: Enter verification code
 
-.step-input-verificiation-code {
+.step-input-verification-code {
   .lead {
-    .step-input-verificiation-code-lead-error,
-    .step-input-verificiation-code-lead-success {
+    .step-input-verification-code-lead-error,
+    .step-input-verification-code-lead-success {
       display: none;
     }
 
     &.is-error,
     &.is-success {
-      .step-input-verificiation-code-lead-default {
+      .step-input-verification-code-lead-default {
         display: none;
       }
     }
 
     &.is-error {
-      .step-input-verificiation-code-lead-error {
+      .step-input-verification-code-lead-error {
         display: block;
       }
       h2 {
@@ -138,7 +138,7 @@
     }
 
     &.is-success {
-      .step-input-verificiation-code-lead-success {
+      .step-input-verification-code-lead-success {
         display: block;
       }
       h2 {
@@ -201,7 +201,7 @@
   }
 }
 
-.step-input-verificiation-code-success {
+.step-input-verification-code-success {
   background-color: $color-white;
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;

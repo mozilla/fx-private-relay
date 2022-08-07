@@ -159,7 +159,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
 
   const errorTimeExpired = (
     <div
-      className={`${styles["step-input-verificiation-code-timeout"]} ${
+      className={`${styles["step-input-verification-code-timeout"]} ${
         remainingTime > 0 ? styles["is-hidden"] : ""
       }`}
     >
@@ -177,7 +177,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
 
   return (
     <div
-      className={`${styles.step}  ${styles["step-input-verificiation-code"]} `}
+      className={`${styles.step}  ${styles["step-input-verification-code"]} `}
     >
       <div
         className={`${styles.lead} ${
@@ -185,14 +185,14 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
         }  ${isVerifiedSuccessfully === false ? styles["is-error"] : ""}`}
       >
         <div
-          className={`${styles["step-input-verificiation-code-lead-default"]}`}
+          className={`${styles["step-input-verification-code-lead-default"]}`}
         >
           {/* Default state */}
           <img src={EnterVerifyCode.src} alt="" width={300} />
           <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
         </div>
         <div
-          className={`${styles["step-input-verificiation-code-lead-error"]} `}
+          className={`${styles["step-input-verification-code-lead-error"]} `}
         >
           {/* Timeout error state */}
           <img src={EnterVerifyCodeError.src} alt="" width={170} />

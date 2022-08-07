@@ -46,11 +46,11 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
 
   return (
     <div
-      className={`${styles.step}  ${styles["step-input-verificiation-code"]} `}
+      className={`${styles.step}  ${styles["step-input-verification-code"]} `}
     >
       <div className={`${styles.lead}  ${styles["is-success"]} `}>
         <div
-          className={`${styles["step-input-verificiation-code-lead-success"]} `}
+          className={`${styles["step-input-verification-code-lead-success"]} `}
         >
           {/* Success state */}
           <img src={EnteryVerifyCodeSuccess.src} alt="" width={170} />
@@ -64,7 +64,7 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
 
       {/* TODO: Add logic to display success message */}
 
-      <div className={`${styles["step-input-verificiation-code-success"]} `}>
+      <div className={`${styles["step-input-verification-code-success"]} `}>
         <h3>
           {l10n.getString("phone-onboarding-step3-code-success-subhead-title")}
         </h3>
@@ -227,11 +227,11 @@ const RelayNumberConfirmation = (props: RelayNumberConfirmationProps) => {
 
   return (
     <div
-      className={`${styles.step}  ${styles["step-input-verificiation-code"]} `}
+      className={`${styles.step}  ${styles["step-input-verification-code"]} `}
     >
       <div className={`${styles.lead}  ${styles["is-success"]} `}>
         <div
-          className={`${styles["step-input-verificiation-code-lead-success"]} `}
+          className={`${styles["step-input-verification-code-lead-success"]} `}
         >
           {/* Success state */}
           <img src={EnteryVerifyCodeSuccess.src} alt="" width={170} />
@@ -245,7 +245,7 @@ const RelayNumberConfirmation = (props: RelayNumberConfirmationProps) => {
 
       {/* TODO: Add logic to display success message */}
 
-      <div className={`${styles["step-input-verificiation-code-success"]} `}>
+      <div className={`${styles["step-input-verification-code-success"]} `}>
         <h3>
           {l10n.getString("phone-onboarding-step4-code-success-subhead-title")}
         </h3>
