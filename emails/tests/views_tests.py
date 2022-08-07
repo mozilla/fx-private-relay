@@ -556,7 +556,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 
     @patch("emails.views._get_text_html_attachments")
     @patch("emails.views.remove_message_from_s3")
-    def test_get_text_hteml_s3_client_error_email_in_s3_not_deleted(
+    def test_get_text_html_s3_client_error_email_in_s3_not_deleted(
         self,
         mocked_message_removed,
         mocked_get_text_html,
