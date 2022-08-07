@@ -164,7 +164,7 @@ phone-onboarding-step3-loading = Based on your true phone number, { -brand-name-
 
 phone-onboarding-step4-country-us = United States
 phone-onboarding-step4-body = These available phone number masks are similar to your true phone number. Once you register a phone number mask, you cannot change it. 
-phone-onboarding-step4-smiliar-phone = Similar to { $phone_number }
+phone-onboarding-step4-similar-phone = Similar to { $phone_number }
 phone-onboarding-step4-insput-search = Enter a city name or area code
 phone-onboarding-step4-button-more-options = Show me other options
 phone-onboarding-step4-button-register-phone-number = Register phone number mask
