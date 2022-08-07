@@ -46,7 +46,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Relay API",
         default_version="v1",
-        description="API endpints for Relay back-end",
+        description="API endpoints for Relay back-end",
         contact=openapi.Contact(email="lcrouch+relayapi@mozilla.com"),
     ),
     public=settings.DEBUG,
