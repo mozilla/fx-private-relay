@@ -8,7 +8,7 @@ export function initialiseApiMocks() {
   } else {
     const worker = initialiseWorker();
     worker.start({
-      // This custom handler supresses the default warnings about not mocking expected requests:
+      // This custom handler suppresses the default warnings about not mocking expected requests:
       onUnhandledRequest: (req, print) => {
         if (
           !req.url.pathname.startsWith("/_next/") &&
