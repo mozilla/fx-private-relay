@@ -812,7 +812,7 @@ class ProfileTest(TestCase):
         profile = Profile.objects.get(user=user)
         assert profile.server_storage
 
-    def test_emails_replied_preimum_user_aggregates_sum_of_replies_from_all_addresses(
+    def test_emails_replied_premium_user_aggregates_sum_of_replies_from_all_addresses(
         self,
     ):
         subdomain = "test"
@@ -985,10 +985,10 @@ class DomainAddressTest(TestCase):
         assert domain_address.first_emailed_at is not None
 
     def test_make_domain_address_non_premium_user(self):
-        non_preimum_user_profile = baker.make(Profile)
+        non_premium_user_profile = baker.make(Profile)
         try:
             DomainAddress.make_domain_address(
-                non_preimum_user_profile, "test-non-premium"
+                non_premium_user_profile, "test-non-premium"
             )
         except CannotMakeAddressException as e:
             assert e.message == NOT_PREMIUM_USER_ERR_MSG.format(

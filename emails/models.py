@@ -397,7 +397,7 @@ class Profile(models.Model):
         if datetime.now(timezone.utc) > account_premium_feature_resumed:
             # premium feature has been resumed
             return False
-        # user was flagged and the premiume feature pause period is not yet over
+        # user was flagged and the premium feature pause period is not yet over
         return True
 
 
