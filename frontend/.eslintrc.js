@@ -12,7 +12,7 @@ module.exports = {
     // We export the Next.js app to static HTML,
     // whereas Next.js's <Image> depends on a server-side component:
     "@next/next/no-img-element": "off",
-    // Unused vars that start with an understore are allowed to be unused:
+    // Unused vars that start with an underscore are allowed to be unused:
     "@typescript-eslint/no-unused-vars": [
       "warn",
       { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
