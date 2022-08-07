@@ -163,7 +163,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
         remainingTime > 0 ? styles["is-hidden"] : ""
       }`}
     >
-      <p>{l10n.getString("phone-onboarding-step3-error-exipred")}</p>
+      <p>{l10n.getString("phone-onboarding-step3-error-expired")}</p>
       <Button className={styles.button} type="submit">
         {l10n.getString("phone-onboarding-step3-error-cta")}
       </Button>
