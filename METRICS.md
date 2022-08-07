@@ -178,7 +178,7 @@ We collect data for the following events:
   * `eventAction` : submitted
   * `eventLabel` : The given answer
   * `value` : A numeric value representing the given answer
-  * `dimension3` : Whether the given answer respresents satisfaction, neutral feeling, or dissatisfaction.
+  * `dimension3` : Whether the given answer represents satisfaction, neutral feeling, or dissatisfaction.
   * `dimension4` : The given answer
   * `metric10` : Always "1" (to count the number of answers)
   * `metric11` : A numeric value representing `dimension4`
