@@ -110,6 +110,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "server_storage",
+            "store_phone_log",
             "subdomain",
             "has_premium",
             "has_phone",

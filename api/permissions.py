@@ -13,7 +13,7 @@ class IsOwner(permissions.BasePermission):
 
 class HasPremium(permissions.BasePermission):
     def has_permission(self, request, view):
-        if (request.method in READ_METHODS):
+        if request.method in READ_METHODS:
             return True
         profile = Profile.objects.get(request.user)
         return profile.has_premium()
@@ -21,7 +21,7 @@ class HasPremium(permissions.BasePermission):
 
 class HasPhoneService(permissions.BasePermission):
     def has_permission(self, request, view):
-        if (request.method in READ_METHODS):
+        if request.method in READ_METHODS:
             return True
         profile = Profile.objects.get(user=request.user)
         return profile.has_phone
