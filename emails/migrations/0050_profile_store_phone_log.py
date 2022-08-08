@@ -27,7 +27,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' "last_soft_bounce" datetime NULL,'
             ' "subdomain" varchar(63) NULL UNIQUE,'
             ' "server_storage" bool NOT NULL,'
-            ' "store_phone_log" bool NOT NULL,'
+            ' "store_phone_log" bool NOT NULL DEFAULT 1,'
             ' "num_email_blocked_in_deleted_address" integer unsigned NOT NULL CHECK ("num_email_blocked_in_deleted_address" >= 0),'
             ' "num_email_forwarded_in_deleted_address" integer unsigned NOT NULL CHECK ("num_email_forwarded_in_deleted_address" >= 0),'
             ' "num_email_spam_in_deleted_address" integer unsigned NOT NULL CHECK ("num_email_spam_in_deleted_address" >= 0),'
