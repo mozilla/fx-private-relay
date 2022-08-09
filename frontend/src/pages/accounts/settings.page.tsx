@@ -277,12 +277,12 @@ const Settings: NextPage = () => {
         <div className={styles["field-control"]}>
           <input
             type="checkbox"
-            name="tracker-removal"
-            id="tracker-removal"
+            name="caller-sms-log"
+            id="caller-sms-log"
             defaultChecked={profile.store_phone_log}
             onChange={(e) => setPhoneCallerSMSLogEnabled(e.target.checked)}
           />
-          <label htmlFor="tracker-removal">
+          <label htmlFor="caller-sms-log">
             <p>{l10n.getString("phone-settings-caller-sms-log-description")}</p>
           </label>
         </div>
