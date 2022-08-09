@@ -60,5 +60,7 @@ class InboundContactSerializer(serializers.ModelSerializer):
             "inbound_number",
             "last_inbound_date",
             "num_calls",
+            "num_calls_blocked",
             "num_texts",
+            "num_texts_blocked",
         ]
