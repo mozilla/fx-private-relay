@@ -1,13 +1,16 @@
 import base64
 import contextlib
+from dataclasses import dataclass, field
 from email.header import Header
 from email.headerregistry import Address
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
+from enum import Enum
 import json
 import re
+from typing import Optional, Union
 
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
@@ -20,12 +23,23 @@ from waffle.models import Flag
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, User
+from django.db import transaction
 from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
 
-from .models import DomainAddress, RelayAddress, Reply, get_domains_from_settings
+from .models import (
+    CannotMakeAddressException,
+    DeletedAddress,
+    DomainAddress,
+    Profile,
+    RelayAddress,
+    Reply,
+    address_hash,
+    get_domain_numerical,
+    get_domains_from_settings,
+)
 
 
 NEW_FROM_ADDRESS_FLAG_NAME = "new_from_address"
@@ -428,3 +442,218 @@ def remove_trackers(html_content, level="general"):
         extra=logger_details,
     )
     return changed_content, tracker_details
+
+
+class EmailAddressType(Enum):
+    """Categories of emails."""
+
+    # A RelayAddress, like "foo@mozmail.com", or something that looks like it
+    RELAY_ADDRESS = "relay_address"
+    DELETED_RELAY_ADDRESS = "deleted_relay_address"
+    UNKNOWN_RELAY_ADDRESS = "unknown_relay_address"
+
+    # A Firefox Relay reply address, like "noreply@mozmail.com"
+    REPLY_ADDRESS = "reply_address"
+    PREMIUM_REPLY_ADDRESS = "premium_reply_address"
+
+    # A DomainAddress, like "foo@sub.mozmail.com", or a look-alike
+    DOMAIN_ADDRESS = "domain_address"
+    RESERVED_DOMAIN_ADDRESS = "unknown_domain_address"
+    DELETED_DOMAIN_ADDRESS = "deleted_domain_address"
+    UNKNOWN_DOMAIN_ADDRESS = "unknown_domain_address"
+
+    # A DomainAddress created by lookup_email_address(create_domain_address=True)
+    NEW_DOMAIN_ADDRESS = "new_domain_address"
+    RECREATED_DOMAIN_ADDRESS = "recreated_domain_address"
+
+    # The "real" address of a user
+    USER_ADDRESS = "user_address"
+
+    # Unknown email on an unknown domain
+    EXTERNAL_ADDRESS = "external_address"
+
+    # Not an email address, like "email" or "email@com@biz"
+    MALFORMED_ADDRESS = "malformed_address"
+
+    # A DomainAddress on the "old" domain
+    INVALID_DOMAIN_ADDRESS = "invalid_domain_address"
+
+    # Failed to create a DomainAddress with create_domain_address=True
+    FAILED_TO_CREATE_DOMAIN_ADDRESS = "failed_to_create_domain_address"
+
+
+@dataclass
+class EmailAddressInfo:
+    """Classification of email address and related data."""
+
+    email_address: str
+    email_type: EmailAddressType
+
+    # Set when an RelayAddress found or a DomainAddress found or created
+    address_object: Optional[Union[RelayAddress, DomainAddress]] = None
+
+    # Set when DeletedAddress objects are found for the email
+    deleted_address_objects: list[DeletedAddress] = field(default_factory=list)
+
+    # Set when the email address matches Users
+    users: list[User] = field(default_factory=list)
+
+    # Set when create_domain_address=True but creating a DomainAddress fails
+    creation_exception: Optional[CannotMakeAddressException] = None
+
+
+def lookup_email_address(
+    email_address: str, create_domain_address=False
+) -> EmailAddressInfo:
+    """
+    Classify an email address and return related objects.
+
+    If the email_address looks like a DomainAddress for an existing user, but
+    there is no matching undeleted DomainAddress then
+    create_domain_address=True will attempt to create it. This is done in this
+    function to ensure the Profile is locked during lookup and creation.
+    """
+    # Validate that email_address looks like an email with a local and domain part
+    try:
+        local_part, domain_part = email_address.split("@")
+    except ValueError:
+        return EmailAddressInfo(email_address, EmailAddressType.MALFORMED_ADDRESS)
+
+    # Look for the free account reply address, like "noreply@mozmail.com"
+    for setting_name in ("RELAY_FROM_ADDRESS", "NEW_RELAY_FROM_ADDRESS"):
+        relay_from_address = getattr(settings, setting_name)
+        _, reply_address = parseaddr(relay_from_address)
+        if email_address == reply_address:
+            return EmailAddressInfo(email_address, EmailAddressType.REPLY_ADDRESS)
+
+    # Look for relay or other addresses on the Firefox Relay domain
+    domains = get_domains_from_settings()
+    email_domains = domains.values()
+    if domain_part in email_domains:
+        return _lookup_relay_address(email_address)
+
+    # Look for domain addresses (subdomains of the Firefox Relay domain)
+    parent_domain: Optional[str] = None
+    try:
+        _, parent_domain = domain_part.split(".", 1)
+    except ValueError:
+        pass
+    if parent_domain and parent_domain in email_domains:
+        # The RELAY_FIREFOX_DOMAIN is invalid as a domain address.
+        # Check before entering transaction.
+        if parent_domain != domains["MOZMAIL_DOMAIN"]:
+            return EmailAddressInfo(
+                email_address, EmailAddressType.INVALID_DOMAIN_ADDRESS
+            )
+        if create_domain_address:
+            with transaction.atomic():
+                return _lookup_domain_address(email_address, True)
+        else:
+            return _lookup_domain_address(email_address, False)
+
+    # Look for users with this email address
+    users = list(User.objects.filter(email=email_address))
+    if users:
+        return EmailAddressInfo(
+            email_address, EmailAddressType.USER_ADDRESS, users=users
+        )
+
+    # This is an unknown, non-Relay email address
+    return EmailAddressInfo(email_address, EmailAddressType.EXTERNAL_ADDRESS)
+
+
+def _lookup_relay_address(email_address: str) -> EmailAddressInfo:
+    """Lookup email addresses on a relay domain, like l0c4l@mozmail.com."""
+
+    # Look for the premium reply address
+    premium_reply_domain = get_domains_from_settings()["RELAY_FIREFOX_DOMAIN"]
+    premium_reply_address = f"replies@{premium_reply_domain}"
+    if email_address == premium_reply_address:
+        return EmailAddressInfo(email_address, EmailAddressType.PREMIUM_REPLY_ADDRESS)
+
+    local_part, domain_part = email_address.split("@")
+    domain_numerical = get_domain_numerical(domain_part)
+    # Look for randomized relay addresses
+    relay_address = RelayAddress.objects.filter(
+        address=local_part, domain=domain_numerical
+    ).first()
+    if relay_address:
+        return EmailAddressInfo(
+            email_address,
+            EmailAddressType.RELAY_ADDRESS,
+            address_object=relay_address,
+        )
+    else:
+        # Look for deleted randomized relay addresses
+        deleted_addresses = list(
+            DeletedAddress.objects.filter(
+                address_hash=address_hash(local_part, domain=domain_part)
+            )
+        )
+        if deleted_addresses:
+            email_type = EmailAddressType.DELETED_RELAY_ADDRESS
+        else:
+            email_type = EmailAddressType.UNKNOWN_RELAY_ADDRESS
+        return EmailAddressInfo(
+            email_address, email_type, deleted_address_objects=deleted_addresses
+        )
+
+
+def _lookup_domain_address(
+    email_address: str, create_domain_address: bool
+) -> EmailAddressInfo:
+    """
+    Lookup and optionally auto-create domain emails, like local@subdomain.mozmail.com.
+    """
+    local_part, domain_part = email_address.split("@")
+    subdomain, parent_domain = domain_part.split(".", 1)
+    assert parent_domain == get_domains_from_settings()["MOZMAIL_DOMAIN"]
+
+    profile_query = Profile.objects.filter(subdomain=subdomain)
+    if create_domain_address:
+        profile_query = profile_query.select_for_update()
+    profile = profile_query.first()
+    if not profile:
+        return EmailAddressInfo(email_address, EmailAddressType.UNKNOWN_DOMAIN_ADDRESS)
+
+    domain_numerical = get_domain_numerical(parent_domain)
+    domain_address = DomainAddress.objects.filter(
+        user=profile.user, address=local_part, domain=domain_numerical
+    ).first()
+    if domain_address:
+        email_type = EmailAddressType.DOMAIN_ADDRESS
+        deleted_addresses = []
+    else:
+        deleted_addresses = list(
+            DeletedAddress.objects.filter(
+                address_hash=address_hash(local_part, domain=domain_part)
+            )
+        )
+        if create_domain_address:
+            try:
+                domain_address = DomainAddress.make_domain_address(
+                    profile, local_part, made_via_email=True
+                )
+            except CannotMakeAddressException as exception:
+                return EmailAddressInfo(
+                    email_address,
+                    EmailAddressType.FAILED_TO_CREATE_DOMAIN_ADDRESS,
+                    deleted_address_objects=deleted_addresses,
+                    creation_exception=exception,
+                )
+            if deleted_addresses:
+                email_type = EmailAddressType.RECREATED_DOMAIN_ADDRESS
+            else:
+                email_type = EmailAddressType.NEW_DOMAIN_ADDRESS
+        else:
+            if deleted_addresses:
+                email_type = EmailAddressType.DELETED_DOMAIN_ADDRESS
+            else:
+                email_type = EmailAddressType.RESERVED_DOMAIN_ADDRESS
+
+    return EmailAddressInfo(
+        email_address,
+        email_type,
+        address_object=domain_address,
+        deleted_address_objects=deleted_addresses,
+    )
