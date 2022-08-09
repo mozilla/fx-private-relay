@@ -171,6 +171,13 @@ const Settings: NextPage = () => {
     </div>
   );
 
+  const copyApiKeyToClipboard: MouseEventHandler<HTMLButtonElement> = () => {
+    navigator.clipboard.writeText(profile.api_token);
+    apiKeyElementRef.current?.select();
+    setJustCopiedApiKey(true);
+    setTimeout(() => setJustCopiedApiKey(false), 1000);
+  };
+
   const apiKeySetting = (
     <div className={styles.field}>
       <h2 className={styles["field-heading"]}>
@@ -223,13 +230,6 @@ const Settings: NextPage = () => {
       </div>
     </div>
   );
-
-  const copyApiKeyToClipboard: MouseEventHandler<HTMLButtonElement> = () => {
-    navigator.clipboard.writeText(profile.api_token);
-    apiKeyElementRef.current?.select();
-    setJustCopiedApiKey(true);
-    setTimeout(() => setJustCopiedApiKey(false), 1000);
-  };
 
   // To allow us to add this UI before the back-end is updated, we only show it
   // when the profiles API actually returns a property `remove_level_one_email_trackers`.
