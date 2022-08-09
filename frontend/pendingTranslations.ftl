@@ -254,3 +254,7 @@ faq-question-bulk-trackerremoval-question = Can I remove trackers only on some o
 faq-question-bulk-trackerremoval-answer = You can only turn tracker removal on at an account level—it either removes trackers from all of your emails, or none of them.
 faq-question-trackerremoval-breakage-question = Why do my emails look broken?
 faq-question-trackerremoval-breakage-answer = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
+
+phone-settings-caller-sms-log = Caller and SMS log
+phone-settings-caller-sms-log-description = Allow { -brand-name-firefox-relay } to keep a log of your callers and text senders.
+phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block senders or callers.
