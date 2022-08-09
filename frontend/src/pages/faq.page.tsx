@@ -36,7 +36,7 @@ const Faq: NextPage = () => {
           "faq-question-trackerremoval-breakage-question"
         )}
       >
-        <p>{l10n.getString("faq-question-trackerremoval-breakage-answer")}</p>
+        <p>{l10n.getString("faq-question-trackerremoval-breakage-answer-2")}</p>
       </QAndA>
     </>
   ) : null;

@@ -307,7 +307,7 @@ const Profile: NextPage = () => {
                     </p>
                     <p>
                       {l10n.getString(
-                        "profile-stat-label-trackers-learn-more-part2"
+                        "profile-stat-label-trackers-learn-more-part2-2"
                       )}
                     </p>
                   </StatExplainer>
