@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import logging
 
 import phonenumbers
@@ -457,7 +457,7 @@ def _check_and_update_contact(inbound_contact, contact_type):
         inbound_contact.save()
         raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
 
-    inbound_contact.last_inbound_date = datetime.now()
+    inbound_contact.last_inbound_date = datetime.now(timezone.utc)
     attr = f"num_{contact_type}"
     setattr(inbound_contact, attr, getattr(inbound_contact, attr) + 1)
     inbound_contact.save()
