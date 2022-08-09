@@ -260,7 +260,7 @@ const Settings: NextPage = () => {
           </div>
           <div className={styles["field-warning"]}>
             <InfoTriangleIcon alt="" />
-            <p>{l10n.getString("setting-tracker-removal-warning")}</p>
+            <p>{l10n.getString("setting-tracker-removal-warning-2")}</p>
           </div>
         </div>
       </div>

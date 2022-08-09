@@ -299,7 +299,7 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-tracker-removal-description"
+          "whatsnew-feature-tracker-removal-description-2"
         )}
         heading={l10n.getString("whatsnew-feature-tracker-removal-heading")}
         image={TrackerRemovalHero.src}
@@ -313,7 +313,7 @@ export const WhatsNewMenu = (props: Props) => {
     announcementDate: {
       year: 2022,
       month: 8,
-      day: 3,
+      day: 16,
     },
   };
   // Only show its announcement if tracker removal is live:

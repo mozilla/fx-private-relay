@@ -162,7 +162,7 @@ const TrackerReport: NextPage = () => {
               </p>
               <div className={styles["breakage-warning"]}>
                 <InfoTriangleIcon alt="" />
-                {l10n.getString("trackerreport-breakage-warning")}
+                {l10n.getString("trackerreport-breakage-warning-2")}
               </div>
             </div>
           </div>
@@ -205,7 +205,7 @@ const TrackerReport: NextPage = () => {
                       "faq-question-trackerremoval-breakage-question"
                     ),
                     a: l10n.getString(
-                      "faq-question-trackerremoval-breakage-answer"
+                      "faq-question-trackerremoval-breakage-answer-2"
                     ),
                   },
                 ]}
