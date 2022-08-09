@@ -230,7 +230,7 @@ class BounceHandlingTest(TestCase):
     def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
         _sns_notification(BOUNCE_SNS_BODIES["spam"])
         profile = self.user.profile_set.first()
-        assert profile.auto_block_spam == True
+        assert profile.auto_block_spam
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
