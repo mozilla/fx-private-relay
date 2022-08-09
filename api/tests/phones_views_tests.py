@@ -569,7 +569,8 @@ def test_inbound_sms_valid_twilio_signature_unknown_number(
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 400
-    assert response.data == "Could not find relay number."
+    decoded_content = response.content.decode()
+    assert "Could Not Find Relay Number." in decoded_content
     mocked_twilio_client.messages.assert_called_once()
     call_args = mocked_twilio_client.messages.call_args.args
     assert call_args[0] == sms_sid
