@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from email.message import EmailMessage
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 import glob
 import io
 import json
