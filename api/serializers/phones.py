@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from phones.models import RealPhone, RelayNumber
+from phones.models import InboundContact, RealPhone, RelayNumber
 
 
 class RealPhoneSerializer(serializers.ModelSerializer):
@@ -37,4 +37,30 @@ class RelayNumberSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "location",
+        ]
+
+
+class InboundContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InboundContact
+        fields = [
+            "id",
+            "relay_number",
+            "inbound_number",
+            "last_inbound_date",
+            "num_calls",
+            "num_calls_blocked",
+            "num_texts",
+            "num_texts_blocked",
+            "blocked",
+        ]
+        read_only_fields = [
+            "id",
+            "relay_number",
+            "inbound_number",
+            "last_inbound_date",
+            "num_calls",
+            "num_calls_blocked",
+            "num_texts",
+            "num_texts_blocked",
         ]

@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 
 import phonenumbers
@@ -15,10 +16,13 @@ from rest_framework import (
     viewsets,
     exceptions,
 )
+from rest_framework.generics import get_object_or_404
 
 from api.views import SaveToRequestUser
+from emails.models import Profile
 
 from phones.models import (
+    InboundContact,
     RealPhone,
     RelayNumber,
     get_pending_unverified_realphone_records,
@@ -36,7 +40,11 @@ from ..renderers import (
     TwilioInboundSMSXMLRenderer,
     vCardRenderer,
 )
-from ..serializers.phones import RealPhoneSerializer, RelayNumberSerializer
+from ..serializers.phones import (
+    InboundContactSerializer,
+    RealPhoneSerializer,
+    RelayNumberSerializer,
+)
 
 
 logger = logging.getLogger("events")
@@ -283,6 +291,16 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         return response.Response({}, 404)
 
 
+class InboundContactViewSet(viewsets.ModelViewSet):
+    http_method_names = ["get", "patch"]
+    permission_classes = [permissions.IsAuthenticated, HasPhoneService]
+    serializer_class = InboundContactSerializer
+
+    def get_queryset(self):
+        request_user_relay_num = get_object_or_404(RelayNumber, user=self.request.user)
+        return InboundContact.objects.filter(relay_number=request_user_relay_num)
+
+
 def _validate_number(request):
     parsed_number = _parse_number(
         request.data["number"], getattr(request, "country", None)
@@ -370,13 +388,12 @@ def inbound_sms(request):
     if inbound_body is None or inbound_from is None or inbound_to is None:
         raise exceptions.ValidationError("Message missing From, To, Or Body.")
 
-    try:
-        relay_number = RelayNumber.objects.get(number=inbound_to)
-        real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
-    except ObjectDoesNotExist:
-        raise exceptions.ValidationError("Could not find relay number.")
-    if not relay_number.enabled:
-        raise exceptions.ValidationError("Number is not accepting messages.")
+    relay_number, real_phone, inbound_contact = _get_phone_objects(
+        inbound_to, inbound_from, "texts"
+    )
+    if inbound_contact:
+        _check_and_update_contact(inbound_contact, "texts")
+
     client = twilio_client()
     client.messages.create(
         from_=relay_number.number,
@@ -396,19 +413,54 @@ def inbound_call(request):
     if inbound_from is None or inbound_to is None:
         raise exceptions.ValidationError("Call data missing Caller or Called.")
 
+    _, real_phone, inbound_contact = _get_phone_objects(
+        inbound_to, inbound_from, "calls"
+    )
+    if inbound_contact:
+        _check_and_update_contact(inbound_contact, "calls")
+
+    # Note: TwilioInboundCallXMLRenderer will render this as TwiML
+    return response.Response(
+        status=201,
+        data={"inbound_from": inbound_from, "real_number": real_phone.number},
+    )
+
+
+def _get_phone_objects(inbound_to, inbound_from, contact_type):
+    # Get RelayNumber and RealPhone
     try:
         relay_number = RelayNumber.objects.get(number=inbound_to)
         real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
 
+    # Check if RelayNumber is disabled
     if not relay_number.enabled:
-        raise exceptions.ValidationError("Number is not accepting calls.")
+        raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
 
-    return response.Response(
-        status=201,
-        data={"inbound_from": inbound_from, "real_number": real_phone.number},
+    # Check if RelayNumber is storing phone log
+    profile = Profile.objects.get(user=relay_number.user)
+    if not profile.store_phone_log:
+        return relay_number, real_phone, None
+
+    # Check if RelayNumber is blocking this inbound_from
+    inbound_contact, _ = InboundContact.objects.get_or_create(
+        relay_number=relay_number, inbound_number=inbound_from
     )
+    return relay_number, real_phone, inbound_contact
+
+
+def _check_and_update_contact(inbound_contact, contact_type):
+    if inbound_contact.blocked:
+        attr = f"num_{contact_type}_blocked"
+        setattr(inbound_contact, attr, getattr(inbound_contact, attr) + 1)
+        inbound_contact.save()
+        raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
+
+    inbound_contact.last_inbound_date = datetime.now()
+    attr = f"num_{contact_type}"
+    setattr(inbound_contact, attr, getattr(inbound_contact, attr) + 1)
+    inbound_contact.save()
 
 
 def _validate_twilio_request(request):

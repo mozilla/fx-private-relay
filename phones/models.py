@@ -204,6 +204,24 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
         )
 
 
+def last_inbound_date_default():
+    return datetime.now(timezone.utc)
+
+
+class InboundContact(models.Model):
+    relay_number = models.ForeignKey(RelayNumber, on_delete=models.CASCADE)
+    inbound_number = models.CharField(max_length=15)
+    last_inbound_date = models.DateTimeField(default=last_inbound_date_default)
+    num_calls = models.PositiveIntegerField(default=0)
+    num_calls_blocked = models.PositiveIntegerField(default=0)
+    num_texts = models.PositiveIntegerField(default=0)
+    num_texts_blocked = models.PositiveIntegerField(default=0)
+    blocked = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [models.Index(fields=["relay_number", "inbound_number"])]
+
+
 def suggested_numbers(user):
     real_phone = RealPhone.objects.filter(user=user, verified=True).first()
     if real_phone is None:
