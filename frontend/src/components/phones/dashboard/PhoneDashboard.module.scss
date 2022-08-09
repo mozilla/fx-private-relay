@@ -1,0 +1,35 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/tokens.scss";
+
+.dashboard-card {
+  box-shadow: $box-shadow-sm;
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+
+  .header-phone-number {
+    @include text-body-xl;
+    @include font-firefox;
+  }
+
+  .phone-data-cards-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .phone-data-card {
+    background: $color-light-gray-10;
+    padding: $spacing-md;
+    text-align: center;
+
+    .phone-data-card-title {
+      @include font-firefox;
+      @include text-title-2xs;
+      font-weight: 600;
+      border-radius: $border-radius-md;
+    }
+  }
+}

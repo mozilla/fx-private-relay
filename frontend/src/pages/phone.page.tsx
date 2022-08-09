@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/Dashboard";
 import { getRuntimeConfig } from "../config";
 import { PurchasePhonesPlan } from "../components/phones/onboarding/PurchasePhonesPlan";
+import styles from "./phone.module.scss";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
@@ -57,7 +58,9 @@ const Phone: NextPage = () => {
 
   return (
     <Layout>
-      <PhoneDashboard />
+      <main className={styles["main-wrapper"]}>
+        <PhoneDashboard />
+      </main>
     </Layout>
   );
 };
