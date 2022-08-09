@@ -369,7 +369,9 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
     def test_no_header_reply_email_in_s3_deleted(
         self, mocked_get_keys, mocked_message_removed
     ):
-        """If replies@... email has no "In-Reply-To" header, delete email, return 400."""
+        """
+        If replies@... email has no "In-Reply-To" header, delete email, return 400.
+        """
         mocked_get_keys.side_effect = InReplyToNotFound()
 
         with MetricsMock() as mm:
@@ -466,7 +468,9 @@ class SNSNotificationInvalidMessageTest(TestCase):
                 "complaintFeedbackType": "abuse",
                 "arrivalDate": "2009-12-03T04:24:21.000-05:00",
                 "timestamp": "2012-05-25T14:59:38.623Z",
-                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+                "feedbackId": (
+                    "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000"
+                ),
             },
         }
         json_body = {"Message": json.dumps(complaint)}
@@ -1067,5 +1071,6 @@ def test_wrapped_email_test(
         "Yes" if int(num_level_one_email_trackers_removed) else "No"
     )
     assert (
-        f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
+        "<dt>has_num_level_one_email_trackers_removed</dt>"
+        f"<dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html

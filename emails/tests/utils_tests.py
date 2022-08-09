@@ -240,10 +240,17 @@ class RemoveTrackers(TestCase):
             general_count == general_removed
         )  # count uses the same regex pattern as removing trackers
 
-    def test_general_tracker_embedded_in_another_tracker_replaced_only_once_with_relay_content(
+    def test_embedded_general_tracker_replaced_only_once_with_relay_content(
         self,
     ):
-        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>A link</a>"
+        """
+        A general tracker imbedded in the URL of another general tracker is
+        replaced only once.
+        """
+        content = (
+            "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>"
+            "A link</a>"
+        )
         changed_content, tracker_details = remove_trackers(content)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
@@ -252,10 +259,15 @@ class RemoveTrackers(TestCase):
         assert general_removed == 1
         assert general_count == 1
 
-    def test_general_tracker_also_in_text_tracker_replaced_only_once_with_relay_content(
-        self,
-    ):
-        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>trckr.com</a>"
+    def test_embedded_general_tracker_also_in_text_replaced_only_once(self):
+        """
+        A general tracker imbedded in the URL of another general tracker is
+        replaced only once. The same tracker in the text of a link is _not_ replaced.
+        """
+        content = (
+            "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>"
+            "trckr.com</a>"
+        )
         changed_content, tracker_details = remove_trackers(content)
         general_removed = tracker_details["tracker_removed"]
         general_count = tracker_details["level_one"]["count"]
