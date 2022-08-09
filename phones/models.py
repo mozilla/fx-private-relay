@@ -218,6 +218,9 @@ class InboundContact(models.Model):
     num_texts_blocked = models.PositiveIntegerField(default=0)
     blocked = models.BooleanField(default=False)
 
+    class Meta:
+        indexes = [models.Index(fields=["relay_number", "inbound_number"])]
+
 
 def suggested_numbers(user):
     real_phone = RealPhone.objects.filter(user=user, verified=True).first()
