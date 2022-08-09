@@ -89,13 +89,13 @@ export function getHandlers(
     return res(ctx.status(200), ctx.json({ available: true }));
   });
 
-  addPostHandler("/accounts/profile/subdomain", (req, res, ctx) => {
+  addPostHandler("/accounts/profile/subdomain", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
 
-    const body = req.body as string;
+    const body = (await req.text()) as string;
     const data = new URLSearchParams(body);
     mockedProfiles[mockId] = {
       ...mockedProfiles[mockId],
@@ -113,13 +113,13 @@ export function getHandlers(
     return res(ctx.status(200), ctx.json([mockedProfiles[mockId]]));
   });
 
-  addPatchHandler("/api/v1/profiles/:id/", (req, res, ctx) => {
+  addPatchHandler("/api/v1/profiles/:id/", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
 
-    const body = req.body as Partial<ProfileData>;
+    const body = (await req.json()) as Partial<ProfileData>;
     mockedProfiles[mockId] = {
       ...mockedProfiles[mockId],
       ...body,
@@ -136,13 +136,13 @@ export function getHandlers(
     return res(ctx.status(200), ctx.json(mockedRelayaddresses[mockId]));
   });
 
-  addPostHandler("/api/v1/relayaddresses/", (req, res, ctx) => {
+  addPostHandler("/api/v1/relayaddresses/", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
 
-    const body = req.body as Partial<RandomAliasData>;
+    const body = (await req.json()) as Partial<RandomAliasData>;
     const ownAddresses = mockedRelayaddresses[mockId];
     const id = (ownAddresses[ownAddresses.length - 1]?.id ?? -1) + 1;
     ownAddresses.push({
@@ -169,7 +169,7 @@ export function getHandlers(
     return res(ctx.status(200));
   });
 
-  addPatchHandler("/api/v1/relayaddresses/:id/", (req, res, ctx) => {
+  addPatchHandler("/api/v1/relayaddresses/:id/", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
@@ -182,7 +182,7 @@ export function getHandlers(
     if (index === -1) {
       return res(ctx.status(404));
     }
-    const body = req.body as Partial<RandomAliasData>;
+    const body = (await req.json()) as Partial<RandomAliasData>;
     ownAddresses[index] = {
       ...ownAddresses[index],
       ...body,
@@ -217,13 +217,13 @@ export function getHandlers(
     return res(ctx.status(200), ctx.json(mockedDomainaddresses[mockId]));
   });
 
-  addPostHandler("/api/v1/domainaddresses/", (req, res, ctx) => {
+  addPostHandler("/api/v1/domainaddresses/", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
 
-    const body = req.body as Partial<CustomAliasData>;
+    const body = (await req.json()) as Partial<CustomAliasData>;
     const ownAddresses = mockedDomainaddresses[mockId];
     const id = (ownAddresses[ownAddresses.length - 1]?.id ?? -1) + 1;
     ownAddresses.push({
@@ -250,7 +250,7 @@ export function getHandlers(
     return res(ctx.status(200));
   });
 
-  addPatchHandler("/api/v1/domainaddresses/:id/", (req, res, ctx) => {
+  addPatchHandler("/api/v1/domainaddresses/:id/", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
@@ -264,7 +264,7 @@ export function getHandlers(
       return res(ctx.status(404));
     }
 
-    const body = req.body as Partial<CustomAliasData>;
+    const body = (await req.json()) as Partial<CustomAliasData>;
     ownAddresses[index] = {
       ...ownAddresses[index],
       ...body,
@@ -298,7 +298,7 @@ export function getHandlers(
 
     return res(ctx.status(200), ctx.json(mockedRealphones[mockId]));
   });
-  addPostHandler("/api/v1/realphone/", (req, res, ctx) => {
+  addPostHandler("/api/v1/realphone/", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
@@ -306,7 +306,7 @@ export function getHandlers(
 
     type NewNumber = Pick<UnverifiedPhone, "number">;
     type Verification = Pick<VerifiedPhone, "number" | "verification_code">;
-    const body = req.body as NewNumber | Verification;
+    const body = (await req.json()) as NewNumber | Verification;
 
     const isVerification = (
       request: NewNumber | Verification
@@ -353,13 +353,13 @@ export function getHandlers(
     );
     return res(ctx.status(200), ctx.json(relevantRealPhone));
   });
-  addPatchHandler("/api/v1/realphone/:id/", (req, res, ctx) => {
+  addPatchHandler("/api/v1/realphone/:id/", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
     type Verification = Pick<VerifiedPhone, "number" | "verification_code">;
-    const body = req.body as Verification;
+    const body = (await req.json()) as Verification;
     mockedRealphones[mockId] = mockedRealphones[mockId].map((realPhone) => {
       if (
         realPhone.number !== body.number ||
@@ -385,13 +385,13 @@ export function getHandlers(
 
     return res(ctx.status(200), ctx.json(mockedRelaynumbers[mockId]));
   });
-  addPostHandler("/api/v1/relaynumber/", (req, res, ctx) => {
+  addPostHandler("/api/v1/relaynumber/", async (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
       return res(ctx.status(400));
     }
 
-    const body = req.body as Pick<RelayNumber, "number">;
+    const body = (await req.json()) as Pick<RelayNumber, "number">;
 
     const newRelaynumber: RelayNumber = {
       number: body.number,
