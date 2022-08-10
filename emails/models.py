@@ -681,6 +681,7 @@ class DomainAddress(models.Model):
     def user_profile(self):
         return Profile.objects.get(user=self.user)
 
+    @staticmethod
     def make_domain_address(user_profile, address=None, made_via_email=False):
         check_user_can_make_domain_address(user_profile)
 
