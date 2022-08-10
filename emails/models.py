@@ -71,7 +71,8 @@ def valid_available_subdomain(subdomain, *args, **kwargs):
     return True
 
 
-# This historical function is referenced in migration 0029_profile_add_deleted_metric_and_changeserver_storage_default
+# This historical function is referenced in migration
+# 0029_profile_add_deleted_metric_and_changeserver_storage_default
 def default_server_storage():
     return True
 
@@ -355,7 +356,9 @@ class Profile(models.Model):
         return subdomain
 
     def update_abuse_metric(self, address_created=False, replied=False):
-        #  TODO: this should be wrapped in atomic to ensure race conditions are properly handled
+        # TODO: this should be wrapped in atomic to ensure race conditions are
+        # properly handled.
+
         # look for abuse metrics created on the same UTC date, regardless of time.
         midnight_utc_today = datetime.combine(
             datetime.now(timezone.utc).date(), datetime.min.time()
