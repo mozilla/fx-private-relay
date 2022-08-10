@@ -230,7 +230,7 @@ if AWS_SES_CONFIGSET and AWS_SNS_TOPIC:
         "emails.apps.EmailsConfig",
     ]
 
-if PHONES_ENABLED and TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
+if PHONES_ENABLED:
     INSTALLED_APPS += [
         "phones.apps.PhonesConfig",
     ]
