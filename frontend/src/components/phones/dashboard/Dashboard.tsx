@@ -1,16 +1,16 @@
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
 import { CopyIcon } from "../../../components/Icons";
-import { useRef, useState } from "react";
+import { MouseEventHandler, useState } from "react";
 
 export const PhoneDashboard = () => {
   const relayNumberData = useRelayNumber();
-  const [justCopiedApiKey, setJustCopiedApiKey] = useState(false);
+  const [justCopiedApiKey, setJustCopiedPhoneNumber] = useState(false);
 
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
-    navigator.clipboard.writeText("Add phone number");
-    setJustCopiedApiKey(true);
-    setTimeout(() => setJustCopiedApiKey(false), 1000);
+    navigator.clipboard.writeText(relayNumberData.data?.[0]?.number);
+    setJustCopiedPhoneNumber(true);
+    setTimeout(() => setJustCopiedPhoneNumber(false), 1000);
   };
 
   return (
@@ -18,31 +18,31 @@ export const PhoneDashboard = () => {
       <div className={styles["dashboard-card"]}>
         {/* Phone dashboard comes here! Your Relay phone mask is{" "} */}
         {/* <samp>{relayNumberData.data?.[0]?.number ?? "still loading"}</samp>. */}
-        <p className={styles["header-phone-number"]}>
+        <span className={styles["header-phone-number"]}>
           {relayNumberData.data?.[0]?.number}
-        </p>
-        <span className={styles["copy-controls"]}>
-          <span className={styles["copy-button-wrapper"]}>
-            <button
-              type="button"
-              className={styles["copy-button"]}
-              title="Copied"
-              onClick={copyPhoneNumber}
-            >
-              <CopyIcon
-                alt="test"
-                className={styles["copy-icon"]}
-                width={24}
-                height={24}
-              />
-            </button>
-            <span
-              aria-hidden={!justCopiedApiKey}
-              className={`${styles["copied-confirmation"]} ${
-                justCopiedApiKey ? styles["is-shown"] : ""
-              }`}
-            >
-              Copied!
+          <span className={styles["copy-controls"]}>
+            <span className={styles["copy-button-wrapper"]}>
+              <button
+                type="button"
+                className={styles["copy-button"]}
+                title="Copied"
+                onClick={copyPhoneNumber}
+              >
+                <CopyIcon
+                  alt="test"
+                  className={styles["copy-icon"]}
+                  width={32}
+                  height={32}
+                />
+              </button>
+              <span
+                aria-hidden={!justCopiedApiKey}
+                className={`${styles["copied-confirmation"]} ${
+                  justCopiedApiKey ? styles["is-shown"] : ""
+                }`}
+              >
+                Copied!
+              </span>
             </span>
           </span>
         </span>

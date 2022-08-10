@@ -12,6 +12,7 @@
   .header-phone-number {
     @include text-body-xl;
     @include font-firefox;
+    display: flex;
   }
 
   .phone-data-cards-container {
@@ -30,6 +31,79 @@
       @include text-title-2xs;
       font-weight: 600;
       border-radius: $border-radius-md;
+    }
+  }
+
+  .copy-icon {
+    padding: 0 $spacing-sm;
+    opacity: 0.5;
+    display: inline-block;
+    // flex-grow: 2;
+    // flex-shrink: 0;
+    // max-width: $layout-sm;
+    color: $color-light-gray-90;
+    align-self: center;
+  }
+
+  .copy-button-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: $spacing-xs;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+
+    .copy-button {
+      align-content: center;
+      justify-content: center;
+      display: flex;
+      appearance: none;
+      border: 0;
+      background-color: transparent;
+      text-align: center;
+      color: $color-grey-20;
+      cursor: pointer;
+
+      svg {
+        width: $layout-sm;
+      }
+
+      &:hover {
+        color: $color-grey-30;
+      }
+    }
+
+    .copied-confirmation {
+      @include text-body-sm;
+      opacity: 0;
+      padding: $spacing-xs $spacing-sm;
+      justify-content: center;
+      pointer-events: none;
+      transition: opacity 2s;
+      background-color: $color-violet-30;
+      color: $color-white;
+      border-radius: $border-radius-md;
+      //   padding: 0 $spacing-xs;
+      // On small screens, there's not enough room for the "Copied!"
+      // notification to the right of the copy button, so it's absolutely
+      // positioned to overlap the copy button.
+      position: absolute;
+      right: 0;
+      // Position this in the middle of its container
+      top: 50%;
+      transform: translateY(-50%);
+
+      &.is-shown {
+        pointer-events: auto;
+        opacity: 1;
+        // Don't fade in when appearing:
+        transition: opacity 0s;
+      }
+
+      @media screen and #{$mq-sm} {
+        position: static;
+        transform: none;
+      }
     }
   }
 }
