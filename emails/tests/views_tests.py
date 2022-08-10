@@ -90,10 +90,12 @@ def assert_is_nowish(dt: Optional[datetime]) -> None:
 
 
 class SNSNotificationTest(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.user = baker.make(User)
-        self.profile = self.user.profile_set.first()
-        self.sa = baker.make(SocialAccount, user=self.user, provider="fxa")
+        self.profile = self.user.profile_set.get()
+        self.sa: SocialAccount = baker.make(
+            SocialAccount, user=self.user, provider="fxa"
+        )
         self.ra = baker.make(
             RelayAddress, user=self.user, address="ebsbdsan7", domain=2
         )
@@ -113,7 +115,7 @@ class SNSNotificationTest(TestCase):
         self.mock_remove_message_from_s3 = patcher2.start()
         self.addCleanup(patcher2.stop)
 
-    def test_single_recipient_sns_notification(self):
+    def test_single_recipient_sns_notification(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
         self.mock_ses_relay_email.assert_called_once()
@@ -122,7 +124,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert_is_nowish(self.ra.last_used_at)
 
-    def test_list_email_sns_notification(self):
+    def test_list_email_sns_notification(self) -> None:
         # by default, list emails should still forward
         _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
 
@@ -132,7 +134,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert_is_nowish(self.ra.last_used_at)
 
-    def test_block_list_email_sns_notification(self):
+    def test_block_list_email_sns_notification(self) -> None:
         # when an alias is blocking list emails, list emails should not forward
         self.ra.user = self.premium_user
         self.ra.save()
@@ -147,7 +149,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
         assert self.ra.num_blocked == 1
 
-    def test_spamVerdict_FAIL_default_still_relays(self):
+    def test_spamVerdict_FAIL_default_still_relays(self) -> None:
         # for a default user, spam email will still relay
         _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
 
@@ -155,7 +157,7 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
 
-    def test_spamVerdict_FAIL_auto_block_doesnt_relay(self):
+    def test_spamVerdict_FAIL_auto_block_doesnt_relay(self) -> None:
         # when user has auto_block_spam=True, spam will not relay
         self.profile.auto_block_spam = True
         self.profile.save()
@@ -166,7 +168,7 @@ class SNSNotificationTest(TestCase):
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 0
 
-    def test_domain_recipient(self):
+    def test_domain_recipient(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["domain_recipient"])
 
         self.mock_ses_relay_email.assert_called_once()
@@ -174,7 +176,7 @@ class SNSNotificationTest(TestCase):
         assert da.num_forwarded == 1
         assert_is_nowish(da.last_used_at)
 
-    def test_successful_email_relay_message_removed_from_s3(self):
+    def test_successful_email_relay_message_removed_from_s3(self) -> None:
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
 
         self.mock_ses_relay_email.assert_called_once()
@@ -184,7 +186,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert_is_nowish(self.ra.last_used_at)
 
-    def test_unsuccessful_email_relay_message_not_removed_from_s3(self):
+    def test_unsuccessful_email_relay_message_not_removed_from_s3(self) -> None:
         self.mock_ses_relay_email.return_value = HttpResponse(
             "Failed to relay email", status=500
         )
@@ -666,12 +668,12 @@ class SnsMessageTest(TestCase):
 
 @override_settings(SITE_ORIGIN="https://test.com", RELAY_CHANNEL="test")
 class GetAddressTest(TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         self.service_domain = "test.com"
         self.local_portion = "foo"
 
     @patch("emails.views._get_domain_address")
-    def test_get_address_with_domain_address(self, _get_domain_address_mocked):
+    def test_get_address_with_domain_address(self, _get_domain_address_mocked) -> None:
         expected = "DomainAddress"
         _get_domain_address_mocked.return_value = expected
         # email_domain_mocked.return_value = service_domain
@@ -683,7 +685,7 @@ class GetAddressTest(TestCase):
         )
         assert actual == expected
 
-    def test_get_address_with_relay_address(self):
+    def test_get_address_with_relay_address(self) -> None:
         local_portion = "foo"
         relay_address = baker.make(RelayAddress, address=local_portion)
 
@@ -695,7 +697,7 @@ class GetAddressTest(TestCase):
         assert actual == relay_address
 
     @patch("emails.views.incr_if_enabled")
-    def test_get_address_with_deleted_relay_address(self, incr_mocked):
+    def test_get_address_with_deleted_relay_address(self, incr_mocked) -> None:
         hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
 
@@ -713,7 +715,7 @@ class GetAddressTest(TestCase):
     @patch("emails.views.logger")
     def test_get_address_with_relay_address_does_not_exist(
         self, logging_mocked, incr_mocked
-    ):
+    ) -> None:
         try:
             _get_address(
                 to_address=f"{self.local_portion}@{self.service_domain}",
@@ -725,7 +727,7 @@ class GetAddressTest(TestCase):
             incr_mocked.assert_called_once_with("email_for_unknown_address", 1)
 
     @patch("emails.views.incr_if_enabled")
-    def test_get_address_with_deleted_relay_address_multiple(self, incr_mocked):
+    def test_get_address_with_deleted_relay_address_multiple(self, incr_mocked) -> None:
         hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
         baker.make(DeletedAddress, address_hash=hashed_address)
