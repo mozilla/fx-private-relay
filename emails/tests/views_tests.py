@@ -136,6 +136,7 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 1
         assert_is_nowish(self.ra.last_used_at)
 
+    @override_settings(STATSD_ENABLED=True)
     def test_block_list_email_sns_notification(self) -> None:
         # when an alias is blocking list emails, list emails should not forward
         self.ra.user = self.premium_user
@@ -143,8 +144,10 @@ class SNSNotificationTest(TestCase):
         self.ra.block_list_emails = True
         self.ra.save()
 
-        resp = _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["single_recipient_list"])
         assert resp.status_code == 200
+        mm.assert_incr_once("fx.private.relay.list_email_for_address_blocking_lists")
 
         self.mock_ses_relay_email.assert_not_called()
 
@@ -152,22 +155,30 @@ class SNSNotificationTest(TestCase):
         assert self.ra.num_forwarded == 0
         assert self.ra.num_blocked == 1
 
+    @override_settings(STATSD_ENABLED=True)
     def test_spamVerdict_FAIL_default_still_relays(self) -> None:
         # for a default user, spam email will still relay
-        resp = _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
         assert resp.status_code == 200
+        mm.assert_incr_once("fx.private.relay.email_for_active_address")
+        mm.assert_not_incr("fx.private.relay.email_auto_suppressed_for_spam")
 
         self.mock_ses_relay_email.assert_called_once()
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
 
+    @override_settings(STATSD_ENABLED=True)
     def test_spamVerdict_FAIL_auto_block_doesnt_relay(self) -> None:
         # when user has auto_block_spam=True, spam will not relay
         self.profile.auto_block_spam = True
         self.profile.save()
 
-        resp = _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
+        with MetricsMock() as mm:
+            resp = _sns_notification(EMAIL_SNS_BODIES["spamVerdict_FAIL"])
         assert resp.status_code == 200
+        mm.assert_not_incr("fx.private.relay.email_for_active_address")
+        mm.assert_incr_once("fx.private.relay.email_auto_suppressed_for_spam")
 
         self.mock_ses_relay_email.assert_not_called()
         self.ra.refresh_from_db()
