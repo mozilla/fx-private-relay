@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from email.message import EmailMessage
-from unittest.mock import patch, Mock
+from typing import Optional
+from unittest.mock import patch
 import glob
 import io
 import json
@@ -81,6 +82,13 @@ for email_file in glob.glob(
 FAIL_TEST_IF_CALLED = Exception("This function should not have been called.")
 
 
+def assert_is_nowish(dt: Optional[datetime]) -> None:
+    """Assert a datetime is within 1 second of now."""
+    assert dt is not None
+    now = datetime.now(timezone.utc)
+    assert (now - dt).total_seconds() == pytest.approx(0.0, abs=1.0)
+
+
 class SNSNotificationTest(TestCase):
     def setUp(self):
         self.user = baker.make(User)
@@ -112,7 +120,7 @@ class SNSNotificationTest(TestCase):
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
-        assert self.ra.last_used_at.date() == datetime.today().date()
+        assert_is_nowish(self.ra.last_used_at)
 
     def test_list_email_sns_notification(self):
         # by default, list emails should still forward
@@ -122,7 +130,7 @@ class SNSNotificationTest(TestCase):
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
-        assert self.ra.last_used_at.date() == datetime.today().date()
+        assert_is_nowish(self.ra.last_used_at)
 
     def test_block_list_email_sns_notification(self):
         # when an alias is blocking list emails, list emails should not forward
@@ -164,7 +172,7 @@ class SNSNotificationTest(TestCase):
         self.mock_ses_relay_email.assert_called_once()
         da = DomainAddress.objects.get(user=self.premium_user, address="wildcard")
         assert da.num_forwarded == 1
-        assert da.last_used_at.date() == datetime.today().date()
+        assert_is_nowish(da.last_used_at)
 
     def test_successful_email_relay_message_removed_from_s3(self):
         _sns_notification(EMAIL_SNS_BODIES["single_recipient"])
@@ -174,7 +182,7 @@ class SNSNotificationTest(TestCase):
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
-        assert self.ra.last_used_at.date() == datetime.today().date()
+        assert_is_nowish(self.ra.last_used_at)
 
     def test_unsuccessful_email_relay_message_not_removed_from_s3(self):
         self.mock_ses_relay_email.return_value = HttpResponse(
@@ -187,7 +195,7 @@ class SNSNotificationTest(TestCase):
 
         self.ra.refresh_from_db()
         assert self.ra.num_forwarded == 1
-        assert self.ra.last_used_at.date() == datetime.today().date()
+        assert_is_nowish(self.ra.last_used_at)
 
 
 class BounceHandlingTest(TestCase):
