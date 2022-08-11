@@ -76,7 +76,7 @@ Then, you can push your local `main` to heroku:
 
 We can also push un-merged branches:
 
-* `get push heroku change-1:main`
+* `git push heroku change-1:main`
 
 
 ## Release to Stage
