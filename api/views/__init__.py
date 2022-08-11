@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -11,9 +13,11 @@ from rest_framework import (
     decorators,
     permissions,
     response,
+    status,
     viewsets,
     exceptions,
 )
+from emails.utils import incr_if_enabled
 
 from privaterelay.settings import (
     BASKET_ORIGIN,
@@ -40,9 +44,10 @@ from ..serializers import (
     ProfileSerializer,
     RelayAddressSerializer,
     UserSerializer,
+    WebcompatIssueSerializer,
 )
 
-
+info_logger = logging.getLogger("eventsinfo")
 schema_view = get_schema_view(
     openapi.Info(
         title="Relay API",
@@ -145,6 +150,19 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
+
+    @decorators.action(detail=True, methods=["post"])
+    def report_webcompat_issue(self, request, pk=None):
+        serializer = WebcompatIssueSerializer(data=request.data)
+        if serializer.is_valid():
+            info_logger.info("webcompat_issue", extra=serializer.data)
+            incr_if_enabled(f"webcompat_issue", 1)
+            import ipdb; ipdb.set_trace()
+            for k, v in serializer.data.items():
+                if v:
+                    incr_if_enabled(f"webcompat_issue_{k}", 1)
+            return response.Response(status=status.HTTP_201_CREATED)
+        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):
