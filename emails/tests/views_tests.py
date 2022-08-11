@@ -712,8 +712,8 @@ class GetAddressTest(TestCase):
 
         actual = _get_address(
             to_address=f"{self.local_portion}@{self.service_domain}",
-            local_portion=f"{self.local_portion}",
-            domain_portion=f"{self.service_domain}",
+            local_portion=self.local_portion,
+            domain_portion=self.service_domain,
         )
         assert actual == relay_address
 
@@ -737,8 +737,8 @@ class GetAddressTest(TestCase):
         try:
             _get_address(
                 to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion={self.local_portion},
-                domain_portion=f"{self.service_domain}",
+                local_portion=self.local_portion,
+                domain_portion=self.service_domain,
             )
         except Exception as e:
             assert e.args[0] == "RelayAddress matching query does not exist."
@@ -754,7 +754,7 @@ class GetAddressTest(TestCase):
             _get_address(
                 to_address=f"{self.local_portion}@{self.service_domain}",
                 local_portion=self.local_portion,
-                domain_portion=f"{self.service_domain}",
+                domain_portion=self.service_domain,
             )
         except Exception as e:
             assert e.args[0] == "RelayAddress matching query does not exist."
