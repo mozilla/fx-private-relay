@@ -10,7 +10,7 @@
   padding: $spacing-lg 0;
 
   & > * {
-    padding: 0 $spacing-lg;
+    padding: 0 $spacing-xl;
   }
 
   .header-phone-number {
@@ -23,19 +23,27 @@
     padding-top: $spacing-md;
     display: flex;
     flex-direction: row;
+    gap: $spacing-sm;
     justify-content: space-between;
   }
 
   .phone-statistics {
     background: $color-light-gray-10;
-    padding: $spacing-md;
+    padding: $spacing-md $spacing-lg;
     text-align: center;
+    border-radius: $border-radius-md;
 
     .phone-statistics-title {
       @include font-firefox;
       @include text-title-2xs;
       font-weight: 600;
       border-radius: $border-radius-md;
+    }
+
+    .phone-statistics-body {
+      @include text-body-sm;
+      margin-top: $spacing-sm;
+      line-height: 120%;
     }
   }
 
@@ -144,6 +152,57 @@
           // align-self: center;
           align-items: center;
         }
+      }
+    }
+  }
+
+  .row {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin-top: $spacing-md;
+    border-bottom: 1px solid $color-light-gray-20;
+
+    &:last-child {
+      border-bottom-style: none;
+      padding-bottom: 0;
+    }
+
+    dl {
+      flex-grow: 2;
+      display: flex;
+      gap: $spacing-sm;
+      flex-direction: column;
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+        gap: $spacing-xl;
+      }
+
+      dt {
+        @include text-body-xs;
+        color: $color-dark-gray-05;
+      }
+    }
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+
+      .metadata {
+        $metadataIconSize: 24px;
+        background-repeat: no-repeat;
+        background-position: left center;
+        background-size: $metadataIconSize $metadataIconSize;
+        padding-left: calc($metadataIconSize + $spacing-md);
+      }
+
+      .forward-target {
+        // background-image: url("/icons/email.svg");
+        background-image: url("../../../../public/icons/email.svg");
+      }
+
+      .date-created {
+        background-image: url("../../../../public/icons/calendar.svg");
       }
     }
   }

@@ -75,6 +75,21 @@ export const PhoneDashboard = () => {
     </div>
   );
 
+  const phoneMetadata = (
+    <div className={styles.row}>
+      <dl>
+        <div className={`${styles["forward-target"]} ${styles.metadata}`}>
+          <dt>Forwarded to:</dt>
+          <dd>Phone number</dd>
+        </div>
+        <div className={`${styles["date-created"]} ${styles.metadata}`}>
+          <dt>Date Created:</dt>
+          <dd>Date</dd>
+        </div>
+      </dl>
+    </div>
+  );
+
   return (
     <main>
       <div className={styles["dashboard-card"]}>
@@ -111,6 +126,7 @@ export const PhoneDashboard = () => {
 
         {phoneStatistics}
         {phoneControls}
+        {phoneMetadata}
       </div>
     </main>
   );
