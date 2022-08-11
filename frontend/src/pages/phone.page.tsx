@@ -38,7 +38,7 @@ const Phone: NextPage = () => {
     return null;
   }
 
-  // show the phone plan purchase page if the user has no phone number
+  // show the phone plan purchase page if the user has not purchased phone product
   if (profile && user && !profile.has_phone) {
     return (
       <Layout>
