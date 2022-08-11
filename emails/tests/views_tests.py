@@ -733,10 +733,7 @@ class GetAddressTest(TestCase):
             incr_mocked.assert_called_once_with("email_for_deleted_address", 1)
 
     @patch("emails.views.incr_if_enabled")
-    @patch("emails.views.logger")
-    def test_get_address_with_relay_address_does_not_exist(
-        self, logging_mocked, incr_mocked
-    ) -> None:
+    def test_get_address_with_relay_address_does_not_exist(self, incr_mocked) -> None:
         try:
             _get_address(
                 to_address=f"{self.local_portion}@{self.service_domain}",
