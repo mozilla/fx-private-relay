@@ -43,7 +43,7 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
     await dashboardPage.maybeCloseToaster()
     await expect(dashboardPage.header).toHaveScreenshot(
       `${process.env.E2E_TEST_ENV}-dashboardHeader.png`,
-      defaultScreenshotOpts
+      {...defaultScreenshotOpts, mask: [dashboardPage.userMenuLetter] }
     );
   })
 

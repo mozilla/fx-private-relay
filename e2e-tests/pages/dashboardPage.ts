@@ -9,6 +9,7 @@ export class DashboardPage {
     readonly newsButton: Locator
     readonly toastCloseButton: string
     readonly userMenuPopUp: Locator
+    readonly userMenuLetter: Locator
     readonly getMoreProtectionButton: Locator
     readonly userMenuPopEmail: Locator
     readonly upgradeButton: Locator
@@ -53,6 +54,7 @@ export class DashboardPage {
         this.homeButton = page.locator('header >> text=Home')
         this.userMenuButton = page.locator('//div[starts-with(@class, "UserMenu_wrapper")]')
         this.userMenuPopUp = page.locator('//ul[starts-with(@class, "UserMenu_popup")]')
+        this.userMenuLetter = page.locator('//div[starts-with(@class, "UserMenu_wrapper")]')
         this.userMenuPopEmail = page.locator('//span[starts-with(@class, "UserMenu_account")]/b')
         this.toastCloseButton = '//div[starts-with(@class, "Layout_close")]'
         this.signOutButton = page.locator('button:has-text("Sign Out")').first()
@@ -156,7 +158,7 @@ export class DashboardPage {
             } catch (error) {
                 console.error('There are no expanded')
             }
-        }
+        }        
         
         // locate mask expand button only if mask is not already expanded
         if(!isExpanded){
