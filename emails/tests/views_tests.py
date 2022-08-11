@@ -693,18 +693,19 @@ class GetAddressTest(TestCase):
         self.service_domain = "test.com"
         self.local_portion = "foo"
 
-    @patch("emails.views._get_domain_address")
-    def test_get_address_with_domain_address(self, _get_domain_address_mocked) -> None:
-        expected = "DomainAddress"
-        _get_domain_address_mocked.return_value = expected
-        # email_domain_mocked.return_value = service_domain
+    def test_get_address_with_domain_address(self) -> None:
+        user = make_premium_test_user()
+        profile = user.profile_set.get()
+        profile.subdomain = "subdomain"
+        profile.save()
+        address = DomainAddress.objects.create(user=user, address=self.local_portion)
 
         actual = _get_address(
             to_address=f"{self.local_portion}@subdomain.{self.service_domain}",
             local_portion=self.local_portion,
             domain_portion=f"subdomain.{self.service_domain}",
         )
-        assert actual == expected
+        assert actual == address
 
     def test_get_address_with_relay_address(self) -> None:
         local_portion = "foo"
