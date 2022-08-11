@@ -4,6 +4,7 @@ import { apiFetch, useApiV1 } from "./api";
 export type RelayNumber = {
   number: string;
   location?: string;
+  id?: number;
   enabled: boolean;
 };
 
@@ -12,12 +13,19 @@ export type RelayNumberData = Array<RelayNumber>;
 export type PhoneNumberRegisterRelayNumberFn = (
   phoneNumber: string
 ) => Promise<Response>;
+
+export type PhoneNumberUpdateRelayNumberForwardingStateFn = (
+  phoneNumber: string,
+  enabled: boolean,
+  id: number
+) => Promise<Response>;
 /**
  * Get relay (masked) phone number records for the authenticated user with our API using [SWR](https://swr.vercel.app).
  */
 
 export function useRelayNumber(): SWRResponse<RelayNumberData, unknown> & {
   registerRelayNumber: PhoneNumberRegisterRelayNumberFn;
+  setForwardingState: PhoneNumberUpdateRelayNumberForwardingStateFn;
 } {
   const relayNumber: SWRResponse<RelayNumberData, unknown> =
     useApiV1("/relaynumber/");
@@ -38,10 +46,23 @@ export function useRelayNumber(): SWRResponse<RelayNumberData, unknown> & {
     relayNumber.mutate();
     return response;
   };
+  /**
+   * Set the forwarding state
+   */
+  const setForwardingState: PhoneNumberUpdateRelayNumberForwardingStateFn =
+    async (phoneNumber: string, enabled: boolean, id: number) => {
+      const response = await apiFetch(`/relaynumber/${id}/`, {
+        method: "PATCH",
+        body: JSON.stringify({ phoneNumber, enabled }),
+      });
+      relayNumber.mutate();
+      return response;
+    };
 
   return {
     ...relayNumber,
     registerRelayNumber: registerRelayNumber,
+    setForwardingState: setForwardingState,
   };
 }
 /**

@@ -8,8 +8,9 @@ export const PhoneDashboard = () => {
   const relayNumberData = useRelayNumber();
   const [justCopiedApiKey, setJustCopiedPhoneNumber] = useState(false);
 
-  const [enableForwarding, setEnableForwarding] = useState(true);
-  const [blockForwarding, setBlockForwarding] = useState(false);
+  const [enableForwarding, setEnableForwarding] = useState(
+    relayNumberData.data?.[0].enabled
+  );
 
   const arrayPhoneNumber = relayNumberData.data?.[0].number.split("");
   arrayPhoneNumber?.splice(2, 0, " (");
@@ -19,7 +20,13 @@ export const PhoneDashboard = () => {
 
   const toggleForwarding = () => {
     setEnableForwarding(!enableForwarding);
-    setBlockForwarding(!blockForwarding);
+    // TODO: Find a way to not have to use a non-null assertion operator here
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    relayNumberData.setForwardingState(
+      relayNumberData.data?.[0].number!,
+      !enableForwarding,
+      relayNumberData.data?.[0].id!
+    );
   };
 
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
@@ -46,7 +53,7 @@ export const PhoneDashboard = () => {
 
       <div
         className={`${styles["phone-statistics"]} ${
-          blockForwarding ? styles["inactive-statistics"] : ""
+          enableForwarding ? "" : styles["inactive-statistics"]
         }`}
       >
         <p className={styles["phone-statistics-title"]}>7</p>
@@ -73,10 +80,6 @@ export const PhoneDashboard = () => {
       <div className={styles["phone-controls"]}>
         <button
           onClick={toggleForwarding}
-          // className={
-          //   enableForwarding ? styles["active-button"] : styles["base-button"]
-          // }
-
           className={`${styles["base-button"]} ${
             enableForwarding ? styles["active-button"] : ""
           }`}
@@ -91,7 +94,7 @@ export const PhoneDashboard = () => {
         <button
           onClick={toggleForwarding}
           className={`${styles["base-button"]} ${
-            blockForwarding ? styles["active-button"] : ""
+            enableForwarding ? "" : styles["active-button"]
           }`}
         >
           <BlockIcon

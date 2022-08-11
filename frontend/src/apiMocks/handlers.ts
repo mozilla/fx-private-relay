@@ -396,6 +396,7 @@ export function getHandlers(
     const newRelaynumber: RelayNumber = {
       number: body.number,
       location: "Unhošť",
+      enabled: true,
     };
     mockedRelaynumbers[mockId].push(newRelaynumber);
     return res(ctx.status(201), ctx.json(newRelaynumber));
