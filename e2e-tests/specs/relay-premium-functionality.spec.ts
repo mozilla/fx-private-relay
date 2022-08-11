@@ -1,7 +1,7 @@
 import test, { expect }  from '../fixtures/basePages'
 
 // using logged in state outside of describe block will cover state for all tests in file
-test.describe('Premium - General Functionalities, Desktop', () => {
+test.describe.skip('Premium - General Functionalities, Desktop', () => {
   test.beforeEach(async ({ landingPage, authPage, dashboardPage }) => {
     await landingPage.open()
     await landingPage.goToSignIn()

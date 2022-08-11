@@ -1,4 +1,4 @@
-import { APIRequestContext, Locator, Page } from "@playwright/test";
+import { Locator, Page } from "@playwright/test";
 import { checkForEmailInput, checkForSignInButton, checkForVerificationCodeInput, getVerificationCode } from "../e2eTestUtils/helpers";
 
 export class DashboardPage {
@@ -96,7 +96,7 @@ export class DashboardPage {
         await this.page.goto('/accounts/profile/');
     }
 
-    async generateMask(numberOfMasks = 1){        
+    async generateMask(numberOfMasks = 1){
         // check if max number of masks have been created
         if(numberOfMasks === 0){
             return
@@ -106,8 +106,8 @@ export class DashboardPage {
         await this.generateNewMaskButton.click()
         await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
         
-        // re-run until there are no more masks to generate
-        await this.page.waitForTimeout((Math.random() * 1500) + 300)
+        // randomize between 1.5-2.5 secs between each generate to deal with issue of multiple quick clicks
+        await this.page.waitForTimeout((Math.random() * 2500) + 1500)
         await this.generateMask(numberOfMasks - 1)
     }    
 
@@ -181,7 +181,7 @@ export class DashboardPage {
         await this.maybeDeleteMasks(true, numberOfMasks - 1)
     }
 
-    async sendMaskEmail(request: APIRequestContext){
+    async sendMaskEmail(){
         // reset data
         await this.open()
         await checkForSignInButton(this.page)
@@ -193,7 +193,6 @@ export class DashboardPage {
         await this.generateMask(1)
         const generatedMaskEmail = await this.maskCardGeneratedEmail.textContent()
     
-        // const monitorTab = await context.newPage()
         await this.page.goto("https://monitor.firefox.com/")
     
         const checkForBreachesEmailInput = this.page.locator('#scan-email').first();

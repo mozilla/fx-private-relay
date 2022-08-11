@@ -3,12 +3,14 @@ import { checkForEmailInput, checkForSignInButton, checkForVerificationCodeInput
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
+test.describe.configure({ mode: 'parallel' });
 test.describe('Premium Relay - Purchase Premium Flow, Desktop', () => {
 
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
     await checkForSignInButton(page)
     await checkForEmailInput(page)
+    await checkForVerificationCodeInput(page)
   });
 
   test('Verify that the "Upgrade" button redirects correctly,  C1812640, 1808503', async ({ dashboardPage, page }) => {
@@ -23,7 +25,9 @@ test.describe.skip(() => { // TODO: add flow for stage only
 
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
+    await checkForSignInButton(page)
     await checkForEmailInput(page)
+    await checkForVerificationCodeInput(page)
   });
 })
 

@@ -1,4 +1,4 @@
-import { getVerificationCode } from "./e2eTestUtils/helpers";
+import { getVerificationCode, setEnvVariables } from "./e2eTestUtils/helpers";
 import { AuthPage } from "./pages/authPage";
 import { LandingPage } from "./pages/landingPage";
 
@@ -9,7 +9,10 @@ async function globalSetup() {
     const browser = await chromium.launch();
     const page = await browser.newPage();
 
+    // generate email and set env variables
     const randomEmail = `${Date.now()}_tstact@restmail.net`
+    await setEnvVariables(randomEmail)
+
     await page.goto(process.env.E2E_TEST_BASE_URL as string)
     const landingPage = new LandingPage(page);
     await landingPage.goToSignUp()
@@ -21,10 +24,7 @@ async function globalSetup() {
     // get verification code from restmail
     const verificationCode = await getVerificationCode(randomEmail, page)
     await authPage.enterVerificationCode(verificationCode)
-
-    // set env variable
-    process.env['E2E_TEST_ACCOUNT_FREE'] = randomEmail;
-
+    
     await page.context().storageState({ path: 'state.json' });
     await browser.close();
 }

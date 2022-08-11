@@ -21,7 +21,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
   
   test('Check that when generating a new mask, its card is automatically opened, C1686210, C1553075', async ({ dashboardPage }) => {
     await dashboardPage.generateMask(1)
-    console.log('process.env.freeemail ===== ', process.env.E2E_TEST_ACCOUNT_FREE)
+    
     await expect(dashboardPage.maskCardExpanded).toBeVisible()
     const emailDomain = process.env.E2E_TEST_ENV === 'prod' ? '@mozmail.com' : '@mozmail.fxprivaterelay.nonprod.cloudops.mozgcp.net'
     expect(await dashboardPage.maskCardHeader.textContent()).toContain(emailDomain)
@@ -35,6 +35,7 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
     await dashboardPage.open()
     await checkForSignInButton(page)
     await checkForEmailInput(page)
+    await checkForVerificationCodeInput(page)
     await dashboardPage.maybeDeleteMasks()
   });    
 

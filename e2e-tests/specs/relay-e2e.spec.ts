@@ -5,14 +5,14 @@ import {
   checkForVerificationCodeInput,
   deleteEmailAddressMessages } from '../e2eTestUtils/helpers';
 
-test.skip(({ browserName }) => browserName !== 'chromium', 'chromium only image comparisons!');
-// skip CI runs until issue is fixed
-test.describe('Relay e2e function email forwarding', () => {    
+test.describe.configure({ mode: 'parallel' });
+test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only e2e!');
+test.describe('Relay e2e function email forwarding', () => { 
     // use stored authenticated state
     test.use({ storageState: 'state.json' })
 
-    test.beforeEach(async ({ dashboardPage, request }) => {
-      await dashboardPage.sendMaskEmail(request)
+    test.beforeEach(async ({ dashboardPage, request }) => {      
+      await dashboardPage.sendMaskEmail()
     });
     
     test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
@@ -34,15 +34,9 @@ test.describe('Relay e2e function email forwarding', () => {
 })
 
 test.describe('Relay e2e auth flows', () => {
-  let testEmail: string;
-
   test.beforeEach(async ({ landingPage }) => {
       await landingPage.open()      
   });
-  
-  test.afterEach(async ({ request }) => {
-      if (testEmail) await deleteEmailAddressMessages(request, testEmail)
-  })
   
   test('Verify that the "Sign Up" button works correctly, C1818792', async ({     
     landingPage

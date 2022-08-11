@@ -58,18 +58,46 @@ export const checkForVerificationCodeInput = async (page: Page) => {
   try {    
     const maybeVerificationCodeInput = '//div[@class="card"]//input'
     await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 })
-    const confirmButton = page.locator('button:has-text("Sign up or sign in")')
+    const confirmButton = page.locator('button:has-text("Confirm")')
     const verificationCode = await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, page)
     await page.locator(maybeVerificationCodeInput).fill(verificationCode)
     await confirmButton.click()
   } catch (error) {
-    console.error('No email Proceeded to logged in page')
+    console.error('No email proceeding to logged in page')
   }
 }
 
 export const generateRandomEmail = async () => {  
   return `${Date.now()}_tstact@restmail.net`;
 };
+
+export const setEnvVariables = async (email: string) => {
+  // set env variable -- stage will currently be the default
+  let E2E_TEST_BASE_URL = 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net'
+  let E2E_TEST_ENV = 'stage'
+
+  // set base urls
+  switch (process.env.NODE_ENV) {
+      case 'prod':
+          E2E_TEST_BASE_URL = 'https://relay.firefox.com';
+          E2E_TEST_ENV = 'prod'
+          break;
+      case 'stage':
+          E2E_TEST_BASE_URL = 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net';
+          E2E_TEST_ENV = 'stage'
+          break;
+      case 'local':
+          E2E_TEST_BASE_URL = 'http://localhost:3000';
+          E2E_TEST_ENV = 'local'
+          break;
+      default:
+          break;
+  }
+
+  process.env['E2E_TEST_ACCOUNT_FREE'] = email;
+  process.env['E2E_TEST_BASE_URL'] = E2E_TEST_BASE_URL
+  process.env['E2E_TEST_ENV'] = E2E_TEST_ENV
+}
 
 interface DefaultScreenshotOpts {
   animations?: "disabled" | "allow" | undefined
