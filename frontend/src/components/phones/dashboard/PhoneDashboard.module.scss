@@ -134,29 +134,40 @@
       justify-content: center;
       gap: $spacing-md;
 
-      .phone-controls-button {
+      .base-button {
         border: none;
-        background: none;
+        border-radius: 20px;
+        background-color: $color-light-gray-30;
+        width: $layout-xl;
+        padding: $spacing-sm $spacing-sm;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+      }
+
+      .active-button {
         background-color: $color-violet-70;
+        border: none;
         border-radius: 20px;
         width: $layout-xl;
         padding: $spacing-sm $spacing-sm;
         display: flex;
         align-items: center;
         justify-content: center;
+        cursor: pointer;
+      }
 
-        .forward-icon,
-        .block-icon {
-          color: $color-white;
-          justify-items: center;
-          // align-self: center;
-          align-items: center;
-        }
+      .forward-icon,
+      .block-icon {
+        color: $color-white;
+        justify-items: center;
+        align-items: center;
       }
     }
   }
 
-  .row {
+  .metadata-container {
     display: flex;
     flex-direction: column;
     gap: $spacing-md;

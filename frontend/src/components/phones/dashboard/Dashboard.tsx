@@ -8,6 +8,14 @@ export const PhoneDashboard = () => {
   const relayNumberData = useRelayNumber();
   const [justCopiedApiKey, setJustCopiedPhoneNumber] = useState(false);
 
+  const [enableForwarding, setEnableForwarding] = useState(true);
+  const [blockForwarding, setBlockForwarding] = useState(false);
+
+  const toggleForwarding = () => {
+    setEnableForwarding(!enableForwarding);
+    setBlockForwarding(!blockForwarding);
+  };
+
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
     // TODO: Find a way to not have to use a non-null assertion operator here
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -51,7 +59,12 @@ export const PhoneDashboard = () => {
   const phoneControls = (
     <div className={styles["phone-controls-container"]}>
       <div className={styles["phone-controls"]}>
-        <button className={styles["phone-controls-button"]}>
+        <button
+          onClick={toggleForwarding}
+          className={
+            enableForwarding ? styles["active-button"] : styles["base-button"]
+          }
+        >
           <ForwardIcon
             alt="Forwarding All Messages"
             className={styles["forward-icon"]}
@@ -59,7 +72,12 @@ export const PhoneDashboard = () => {
             height={15}
           />
         </button>
-        <button className={styles["phone-controls-button"]}>
+        <button
+          onClick={toggleForwarding}
+          className={
+            blockForwarding ? styles["active-button"] : styles["base-button"]
+          }
+        >
           <BlockIcon
             alt="Blocking All Messages"
             className={styles["block-icon"]}
@@ -69,14 +87,23 @@ export const PhoneDashboard = () => {
         </button>
       </div>
       <div className={styles["phone-controls-description"]}>
-        Relay is currently forwarding all phone calls and SMS messages to your
-        true phone number.
+        {enableForwarding ? (
+          <span>
+            Relay is currently forwarding all phone calls and SMS messages to
+            your true phone number.
+          </span>
+        ) : (
+          <span>
+            Relay is blocking all phone calls and text messages—you will not
+            receive anything from your phone number mask.
+          </span>
+        )}
       </div>
     </div>
   );
 
   const phoneMetadata = (
-    <div className={styles.row}>
+    <div className={styles["metadata-container"]}>
       <dl>
         <div className={`${styles["forward-target"]} ${styles.metadata}`}>
           <dt>Forwarded to:</dt>
