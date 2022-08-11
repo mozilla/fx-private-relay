@@ -123,7 +123,7 @@ def ses_send_raw_email(
         )
         incr_if_enabled("ses_send_raw_email", 1)
 
-        _store_reply_record(mail, ses_response, address)
+        _store_reply_record(mail, ses_response.MessageId, address)
     except ClientError as e:
         logger.error("ses_client_error_raw_email", extra=e.response["Error"])
         # 503 service unavailable reponse to SNS so it can retry
@@ -181,13 +181,13 @@ def _add_attachments_to_message(msg, attachments):
     return msg
 
 
-def _store_reply_record(mail, ses_response, address):
+def _store_reply_record(mail, message_id, address):
     # After relaying email, store a Reply record for it
     reply_metadata = {}
     for header in mail["headers"]:
         if header["name"].lower() in ["message-id", "from", "reply-to"]:
             reply_metadata[header["name"].lower()] = header["value"]
-    message_id_bytes = get_message_id_bytes(ses_response["MessageId"])
+    message_id_bytes = get_message_id_bytes(message_id)
     (lookup_key, encryption_key) = derive_reply_keys(message_id_bytes)
     lookup = b64_lookup_key(lookup_key)
     encrypted_metadata = encrypt_reply_metadata(encryption_key, reply_metadata)
