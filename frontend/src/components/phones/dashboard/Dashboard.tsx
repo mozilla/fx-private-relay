@@ -44,14 +44,22 @@ export const PhoneDashboard = () => {
         <p className={styles["phone-statistics-body"]}>Remaining texts</p>
       </div>
 
-      <div className={styles["phone-statistics"]}>
+      <div
+        className={`${styles["phone-statistics"]} ${
+          blockForwarding ? styles["inactive-statistics"] : ""
+        }`}
+      >
         <p className={styles["phone-statistics-title"]}>7</p>
         <p className={styles["phone-statistics-body"]}>
           Calls and texts forwarded
         </p>
       </div>
 
-      <div className={styles["phone-statistics"]}>
+      <div
+        className={`${styles["phone-statistics"]} ${
+          enableForwarding ? styles["inactive-statistics"] : ""
+        }`}
+      >
         <p className={styles["phone-statistics-title"]}>0</p>
         <p className={styles["phone-statistics-body"]}>
           Calls and texts blocked

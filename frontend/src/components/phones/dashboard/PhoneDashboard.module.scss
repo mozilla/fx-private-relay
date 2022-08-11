@@ -52,6 +52,10 @@
     }
   }
 
+  .inactive-statistics {
+    color: $color-light-gray-70;
+  }
+
   .copy-icon {
     padding: 0 $spacing-sm;
     opacity: 0.5;
