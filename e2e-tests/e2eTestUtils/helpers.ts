@@ -32,7 +32,7 @@ export const deleteEmailAddressMessages = async (req: APIRequestContext, testEma
 
 export const checkForSignInButton = async (page: Page) => {
   try {    
-    const maybeSignInButton = 'button:has-text("Sign In")'
+    const maybeSignInButton = 'button:has-text("Sign in")'
     await page.waitForSelector(maybeSignInButton, { timeout: 2000 })
     await page.locator(maybeSignInButton).click()
   } catch (error) {
