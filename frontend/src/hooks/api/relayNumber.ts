@@ -4,6 +4,7 @@ import { apiFetch, useApiV1 } from "./api";
 export type RelayNumber = {
   number: string;
   location?: string;
+  enabled: boolean;
 };
 
 export type RelayNumberData = Array<RelayNumber>;

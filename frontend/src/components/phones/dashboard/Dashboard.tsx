@@ -11,6 +11,12 @@ export const PhoneDashboard = () => {
   const [enableForwarding, setEnableForwarding] = useState(true);
   const [blockForwarding, setBlockForwarding] = useState(false);
 
+  const arrayPhoneNumber = relayNumberData.data?.[0].number.split("");
+  arrayPhoneNumber?.splice(2, 0, " (");
+  arrayPhoneNumber?.splice(6, 0, ") ");
+
+  const phoneNumberBracketed = arrayPhoneNumber?.join("");
+
   const toggleForwarding = () => {
     setEnableForwarding(!enableForwarding);
     setBlockForwarding(!blockForwarding);
@@ -107,7 +113,7 @@ export const PhoneDashboard = () => {
       <dl>
         <div className={`${styles["forward-target"]} ${styles.metadata}`}>
           <dt>Forwarded to:</dt>
-          <dd>Phone number</dd>
+          <dd>{phoneNumberBracketed}</dd>
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
           <dt>Date Created:</dt>
@@ -123,7 +129,7 @@ export const PhoneDashboard = () => {
         {/* Phone dashboard comes here! Your Relay phone mask is{" "} */}
         {/* <samp>{relayNumberData.data?.[0]?.number ?? "still loading"}</samp>. */}
         <span className={styles["header-phone-number"]}>
-          {relayNumberData.data?.[0]?.number}
+          {phoneNumberBracketed}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
               <button
