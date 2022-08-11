@@ -40,6 +40,7 @@ from .models import (
     get_domain_numerical,
     get_domains_from_settings,
 )
+from .ses import send_raw_email
 
 
 NEW_FROM_ADDRESS_FLAG_NAME = "new_from_address"
@@ -115,14 +116,10 @@ def ses_send_raw_email(
 
     try:
         # Provide the contents of the email.
-        emails_config = apps.get_app_config("emails")
-        ses_response = emails_config.ses_client.send_raw_email(
-            Source=from_address,
-            Destinations=[to_address],
-            RawMessage={
-                "Data": msg_with_attachments.as_string(),
-            },
-            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
+        ses_response = send_raw_email(
+            from_address=from_address,
+            to_addresses=[to_address],
+            raw_message=msg_with_attachments.as_string(),
         )
         incr_if_enabled("ses_send_raw_email", 1)
 
