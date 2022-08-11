@@ -33,20 +33,21 @@ test.describe.skip(() => { // TODO: add flow for stage only
 
 test.describe('Premium Relay - Purchase Premium Flow, Desktop - Visual Regression', () => {
   test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only image comparisons!');
-
+  
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
     await checkForSignInButton(page)
     await checkForEmailInput(page)
     await checkForVerificationCodeInput(page)
   });
-
+  
   test('Verify that the subscription page is displayed correctly, C1553108', async ({ subscriptionPage, dashboardPage, page }) => {
+    test.skip(() => !!process.env.CI, 'run only local machines');
+    
     await dashboardPage.upgradeNow()
     expect(page.url()).toContain('subscriptions')
 
     await expect(subscriptionPage.paypalButton).toBeVisible()
-
     await expect(subscriptionPage.productDetails).toHaveScreenshot(
         `${process.env.E2E_TEST_ENV}-productDetails.png`,
         defaultScreenshotOpts
