@@ -2,9 +2,13 @@ import json
 import logging
 import os
 import requests
+from types import ModuleType
+from typing import Final, Optional
 
 import boto3
 from botocore.config import Config
+from mypy_boto3_s3.client import S3Client
+from mypy_boto3_ses.client import SESClient
 
 from django.apps import AppConfig
 from django.conf import settings
@@ -29,9 +33,13 @@ def get_trackers(category="Email"):
 
 
 class EmailsConfig(AppConfig):
-    name = "emails"
+    name: Final = "emails"
+    ses_client: SESClient
+    s3_client: S3Client
+    badwords: list[str]
+    blocklist: list[str]
 
-    def __init__(self, app_name, app_module):
+    def __init__(self, app_name: str, app_module: Optional[ModuleType]):
         super(EmailsConfig, self).__init__(app_name, app_module)
         try:
             self.ses_client = boto3.client("ses", region_name=settings.AWS_REGION)
