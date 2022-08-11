@@ -28,9 +28,14 @@
   }
 
   .phone-statistics {
+    flex: 1;
     background: $color-light-gray-10;
     padding: $spacing-md $spacing-lg;
     text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
     border-radius: $border-radius-md;
 
     .phone-statistics-title {
@@ -41,7 +46,7 @@
     }
 
     .phone-statistics-body {
-      @include text-body-sm;
+      @include text-body-xs;
       margin-top: $spacing-sm;
       line-height: 120%;
     }
@@ -148,14 +153,14 @@
 
       .active-button {
         background-color: $color-violet-70;
-        border: none;
-        border-radius: 20px;
-        width: $layout-xl;
-        padding: $spacing-sm $spacing-sm;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
+        // border: none;
+        // border-radius: 20px;
+        // width: $layout-xl;
+        // padding: $spacing-sm $spacing-sm;
+        // display: flex;
+        // align-items: center;
+        // justify-content: center;
+        // cursor: pointer;
       }
 
       .forward-icon,

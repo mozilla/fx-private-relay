@@ -40,23 +40,21 @@ export const PhoneDashboard = () => {
       </div>
 
       <div className={styles["phone-statistics"]}>
-        <p className={styles["phone-statistics-title"]}>12:04 min</p>
+        <p className={styles["phone-statistics-title"]}>36</p>
+        <p className={styles["phone-statistics-body"]}>Remaining texts</p>
+      </div>
+
+      <div className={styles["phone-statistics"]}>
+        <p className={styles["phone-statistics-title"]}>7</p>
         <p className={styles["phone-statistics-body"]}>
-          Remaining call minutes
+          Calls and texts forwarded
         </p>
       </div>
 
       <div className={styles["phone-statistics"]}>
-        <p className={styles["phone-statistics-title"]}>12:04 min</p>
+        <p className={styles["phone-statistics-title"]}>0</p>
         <p className={styles["phone-statistics-body"]}>
-          Remaining call minutes
-        </p>
-      </div>
-
-      <div className={styles["phone-statistics"]}>
-        <p className={styles["phone-statistics-title"]}>12:04 min</p>
-        <p className={styles["phone-statistics-body"]}>
-          Remaining call minutes
+          Calls and texts blocked
         </p>
       </div>
     </div>
@@ -67,9 +65,13 @@ export const PhoneDashboard = () => {
       <div className={styles["phone-controls"]}>
         <button
           onClick={toggleForwarding}
-          className={
-            enableForwarding ? styles["active-button"] : styles["base-button"]
-          }
+          // className={
+          //   enableForwarding ? styles["active-button"] : styles["base-button"]
+          // }
+
+          className={`${styles["base-button"]} ${
+            enableForwarding ? styles["active-button"] : ""
+          }`}
         >
           <ForwardIcon
             alt="Forwarding All Messages"
@@ -80,9 +82,9 @@ export const PhoneDashboard = () => {
         </button>
         <button
           onClick={toggleForwarding}
-          className={
-            blockForwarding ? styles["active-button"] : styles["base-button"]
-          }
+          className={`${styles["base-button"]} ${
+            blockForwarding ? styles["active-button"] : ""
+          }`}
         >
           <BlockIcon
             alt="Blocking All Messages"
