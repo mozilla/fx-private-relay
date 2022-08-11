@@ -31,7 +31,7 @@ test.describe.skip(() => { // TODO: add flow for stage only
   });
 })
 
-test.describe('Premium Relay - Purchase Premium Flow, Desktop - Visual Regression', () => {
+test.describe.skip('Premium Relay - Purchase Premium Flow, Desktop - Visual Regression', () => {
   test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only image comparisons!');
   
   test.beforeEach(async ({ dashboardPage, page }) => {
@@ -42,7 +42,6 @@ test.describe('Premium Relay - Purchase Premium Flow, Desktop - Visual Regressio
   });
   
   test('Verify that the subscription page is displayed correctly, C1553108', async ({ subscriptionPage, dashboardPage, page }) => {
-    test.skip(() => !!process.env.CI, 'run only local machines');
     
     await dashboardPage.upgradeNow()
     expect(page.url()).toContain('subscriptions')
