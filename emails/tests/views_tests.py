@@ -808,9 +808,7 @@ class GetAddressTest(TestCase):
 
         with MetricsMock() as mm:
             actual = _get_address(
-                to_address=f"{self.local_portion}@subdomain.{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=f"subdomain.{self.service_domain}",
+                f"{self.local_portion}@subdomain.{self.service_domain}"
             )
         assert actual == address
         assert mm.get_records() == []
@@ -820,11 +818,7 @@ class GetAddressTest(TestCase):
         relay_address = baker.make(RelayAddress, address=local_portion)
 
         with MetricsMock() as mm:
-            actual = _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=self.service_domain,
-            )
+            actual = _get_address(f"{self.local_portion}@{self.service_domain}")
         assert actual == relay_address
         assert mm.get_records() == []
 
@@ -833,21 +827,13 @@ class GetAddressTest(TestCase):
         baker.make(DeletedAddress, address_hash=hashed_address)
 
         with MetricsMock() as mm, pytest.raises(RelayAddress.DoesNotExist) as exc_info:
-            _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=self.service_domain,
-            )
+            _get_address(f"{self.local_portion}@{self.service_domain}")
         assert str(exc_info.value) == "RelayAddress matching query does not exist."
         mm.assert_incr_once("fx.private.relay.email_for_deleted_address")
 
     def test_get_address_with_relay_address_does_not_exist(self) -> None:
         with MetricsMock() as mm, pytest.raises(RelayAddress.DoesNotExist) as exc_info:
-            _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=self.service_domain,
-            )
+            _get_address(f"{self.local_portion}@{self.service_domain}")
         assert str(exc_info.value) == "RelayAddress matching query does not exist."
         mm.assert_incr_once("fx.private.relay.email_for_unknown_address")
 
@@ -857,11 +843,7 @@ class GetAddressTest(TestCase):
         baker.make(DeletedAddress, address_hash=hashed_address)
 
         with MetricsMock() as mm, pytest.raises(RelayAddress.DoesNotExist) as exc_info:
-            _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=self.service_domain,
-            )
+            _get_address(f"{self.local_portion}@{self.service_domain}")
         assert str(exc_info.value) == "RelayAddress matching query does not exist."
         mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
 

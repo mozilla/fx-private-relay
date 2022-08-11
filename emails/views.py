@@ -475,7 +475,7 @@ def _sns_message(message_json):
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        address = _get_address(to_address, to_local_portion, to_domain_portion)
+        address = _get_address(to_address)
         user_profile = address.user.profile_set.prefetch_related(
             "user__socialaccount_set"
         ).first()
@@ -714,8 +714,7 @@ def _reply_allowed(from_address, to_address, reply_record):
         # The From: is not a Relay user, so make sure this is a reply *TO* a
         # premium Relay user
         try:
-            [to_local_portion, to_domain_portion] = to_address.split("@")
-            address = _get_address(to_address, to_local_portion, to_domain_portion)
+            address = _get_address(to_address)
             user_profile = address.user.profile_set.first()
             if user_profile.has_premium:
                 return True
@@ -791,9 +790,7 @@ def _handle_reply(from_address, message_json, to_address):
         return HttpResponse("SES client error", status=400)
 
 
-def _get_address(
-    to_address: str, local_portion: str, domain_portion: str
-) -> Union[RelayAddress, DomainAddress]:
+def _get_address(to_address: str) -> Union[RelayAddress, DomainAddress]:
     """
     Turn a "to:" email address into a RelayAddress or DomainAddress
 
@@ -802,9 +799,6 @@ def _get_address(
 
     If the email address could be a valid DomainAddress, attempt to create it.
     An exception CannotMakeSubdomainException is raised on failure.
-
-    local_portion and domain_portion are accepted but unused, to match the
-    previous interface.
     """
     address_info = lookup_email_address(to_address, create_domain_address=True)
 
