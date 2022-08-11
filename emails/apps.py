@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import requests
@@ -72,4 +71,4 @@ class EmailsConfig(AppConfig):
         return terms
 
     def ready(self):
-        import emails.signals
+        import emails.signals  # NOQA
