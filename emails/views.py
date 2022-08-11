@@ -11,6 +11,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
+from typing import Union
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -31,9 +32,7 @@ from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
 from .models import (
-    address_hash,
     CannotMakeAddressException,
-    get_domain_numerical,
     get_domains_from_settings,
     DeletedAddress,
     DomainAddress,
@@ -42,22 +41,24 @@ from .models import (
     Reply,
 )
 from .utils import (
+    EmailAddressType,
     _get_bucket_and_key_from_s3_json,
     b64_lookup_key,
-    remove_trackers,
     count_all_trackers,
-    get_message_content_from_s3,
-    get_post_data_from_request,
-    incr_if_enabled,
-    histogram_if_enabled,
-    ses_relay_email,
-    urlize_and_linebreaks,
-    derive_reply_keys,
     decrypt_reply_metadata,
-    remove_message_from_s3,
-    ses_send_raw_email,
-    get_message_id_bytes,
+    derive_reply_keys,
     generate_relay_From,
+    get_message_content_from_s3,
+    get_message_id_bytes,
+    get_post_data_from_request,
+    histogram_if_enabled,
+    incr_if_enabled,
+    lookup_email_address,
+    remove_message_from_s3,
+    remove_trackers,
+    ses_relay_email,
+    ses_send_raw_email,
+    urlize_and_linebreaks,
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
@@ -790,64 +791,46 @@ def _handle_reply(from_address, message_json, to_address):
         return HttpResponse("SES client error", status=400)
 
 
-def _get_domain_address(local_portion, domain_portion):
-    [address_subdomain, address_domain] = domain_portion.split(".", 1)
-    if address_domain != get_domains_from_settings()["MOZMAIL_DOMAIN"]:
-        incr_if_enabled("email_for_not_supported_domain", 1)
-        raise ObjectDoesNotExist("Address does not exist")
-    try:
-        with transaction.atomic():
-            locked_profile = Profile.objects.select_for_update().get(
-                subdomain=address_subdomain
-            )
-            domain_numerical = get_domain_numerical(address_domain)
-            # filter DomainAddress because it may not exist
-            # which will throw an error with get()
-            domain_address = DomainAddress.objects.filter(
-                user=locked_profile.user, address=local_portion, domain=domain_numerical
-            ).first()
-            if domain_address is None:
-                # TODO: Consider flows when a user generating alias on a fly
-                # was unable to receive an email due to user no longer being a
-                # premium user as seen in exception thrown on make_domain_address
-                domain_address = DomainAddress.make_domain_address(
-                    locked_profile, local_portion, True
-                )
-            domain_address.last_used_at = datetime.now(timezone.utc)
-            domain_address.save()
-            return domain_address
-    except Profile.DoesNotExist as e:
-        incr_if_enabled("email_for_dne_subdomain", 1)
-        raise e
+def _get_address(
+    to_address: str, local_portion: str, domain_portion: str
+) -> Union[RelayAddress, DomainAddress]:
+    """
+    Turn a "to:" email address into a RelayAddress or DomainAddress
 
+    If a address is not found, a RelayAddress.DoesNotExist is raised, and
+    a metric is emitted to identify the cause (deleted address, unknown address, etc.)
 
-def _get_address(to_address, local_portion, domain_portion):
-    # if the domain is not the site's 'top' relay domain,
-    # it may be for a user's subdomain
-    email_domains = get_domains_from_settings().values()
-    if domain_portion not in email_domains:
-        return _get_domain_address(local_portion, domain_portion)
+    If the email address could be a valid DomainAddress, attempt to create it.
+    An exception CannotMakeSubdomainException is raised on failure.
 
-    # the domain is the site's 'top' relay domain, so look up the RelayAddress
-    try:
-        domain_numerical = get_domain_numerical(domain_portion)
-        relay_address = RelayAddress.objects.get(
-            address=local_portion, domain=domain_numerical
-        )
-        return relay_address
-    except RelayAddress.DoesNotExist as e:
-        try:
-            DeletedAddress.objects.get(
-                address_hash=address_hash(local_portion, domain=domain_portion)
-            )
-            incr_if_enabled("email_for_deleted_address", 1)
-            # TODO: create a hard bounce receipt rule in SES
-        except DeletedAddress.DoesNotExist:
-            incr_if_enabled("email_for_unknown_address", 1)
-        except DeletedAddress.MultipleObjectsReturned:
-            # not sure why this happens on stage but let's handle it
-            incr_if_enabled("email_for_deleted_address_multiple", 1)
-        raise e
+    local_portion and domain_portion are accepted but unused, to match the
+    previous interface.
+    """
+    address_info = lookup_email_address(to_address, create_domain_address=True)
+
+    if address_info.address_object:
+        # email_type in
+        # {RELAY_ADDRESS, DOMAIN_ADDRESS, NEW_DOMAIN_ADDRESS, RECREATED_DOMAIN_ADDRESS}
+        return address_info.address_object
+    elif address_info.creation_exception:
+        # email_type == FAILED_TO_CREATE_DOMAIN_ADDRESS
+        raise address_info.creation_exception
+
+    # No matching address. Emit a metric and raise RelayAddress.DoesNotExist
+    if address_info.deleted_address_objects:
+        # email_type == DELETED_RELAY_ADDRESS
+        if len(address_info.deleted_address_objects) == 1:
+            metric = "deleted_address"
+        else:
+            metric = "deleted_address_multiple"
+    else:
+        # all others email_types
+        metric = {
+            EmailAddressType.EXTERNAL_ADDRESS: "not_supported_domain",
+            EmailAddressType.RESERVED_DOMAIN_ADDRESS: "dne_subdomain",
+        }.get(address_info.email_type, "unknown_address")
+    incr_if_enabled(f"email_for_{metric}")
+    raise RelayAddress.DoesNotExist("RelayAddress matching query does not exist.")
 
 
 def _handle_bounce(message_json):
