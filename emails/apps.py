@@ -15,7 +15,8 @@ logger = logging.getLogger("events")
 def get_trackers(category="Email"):
     # email tracker lists from shavar-prod-list as per agreed use under license:
     resp = requests.get(
-        "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/master/disconnect-blacklist.json"
+        "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists"
+        "/master/disconnect-blacklist.json"
     )
     json_resp = resp.json()
     formatted_trackers = json_resp["categories"][category]
@@ -37,7 +38,8 @@ class EmailsConfig(AppConfig):
             s3_config = Config(
                 region_name=settings.AWS_REGION,
                 retries={
-                    "max_attempts": 1,  # this includes the initial attempt to get the email
+                    # this includes the initial attempt to get the email
+                    "max_attempts": 1,
                     "mode": "standard",
                 },
             )
