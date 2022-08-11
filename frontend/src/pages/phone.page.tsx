@@ -7,6 +7,7 @@ import { useRelayNumber } from "../hooks/api/relayNumber";
 import { useEffect, useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/Dashboard";
 import { getRuntimeConfig } from "../config";
+import { PurchasePhonesPlan } from "../components/phones/onboarding/PurchasePhonesPlan";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
@@ -35,6 +36,15 @@ const Phone: NextPage = () => {
   if (!profile || !user || !relayNumberData.data) {
     // TODO: Show a loading spinner?
     return null;
+  }
+
+  // show the phone plan purchase page if the user has no phone number
+  if (profile && user && !profile.has_phone) {
+    return (
+      <Layout>
+        <PurchasePhonesPlan />
+      </Layout>
+    );
   }
 
   if (isInOnboarding || relayNumberData.data.length === 0) {
