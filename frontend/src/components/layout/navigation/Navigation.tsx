@@ -11,16 +11,12 @@ import { UserMenu } from "./UserMenu";
 import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
-import {
-  getPhoneSubscribeLink,
-  isPremiumAvailableInCountry,
-} from "../../../functions/getPlan";
+import { isPremiumAvailableInCountry } from "../../../functions/getPlan";
 import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
   theme: "free" | "premium";
   hasPremium: boolean;
-  hasPhone: boolean;
   mobileMenuExpanded: boolean | undefined;
   handleToggle: CallableFunction;
   profile: ProfileData | undefined;
@@ -37,18 +33,14 @@ export const Navigation = (props: Props) => {
     handleToggle,
     profile,
     hasPremium,
-    hasPhone,
     isLoggedIn,
   } = props;
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
-  const phonePath = hasPhone
-    ? "/phone"
-    : getPhoneSubscribeLink(runtimeData.data);
   const isPremiumPage = router.pathname === "/premium";
 
   const phoneLink =
     isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
-      <Link href={phonePath!}>
+      <Link href="/phone">
         <a
           className={`${styles.link} ${
             router.pathname === "/phone" ? styles["is-active"] : null

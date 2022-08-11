@@ -41,7 +41,6 @@ export const Layout = (props: Props) => {
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
   const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
-  const hasPhone: boolean = profiles.data?.[0].has_phone ?? false;
   const usersData = useUsers().data?.[0];
   const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>();
 
@@ -133,7 +132,6 @@ export const Layout = (props: Props) => {
               theme={isDark ? "free" : "premium"}
               handleToggle={handleToggle}
               hasPremium={hasPremium}
-              hasPhone={hasPhone}
               isLoggedIn={isLoggedIn}
               profile={profiles.data?.[0]}
             />
