@@ -723,27 +723,25 @@ class GetAddressTest(TestCase):
         hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
 
-        try:
+        with pytest.raises(RelayAddress.DoesNotExist) as exc_info:
             _get_address(
                 to_address=f"{self.local_portion}@{self.service_domain}",
                 local_portion=self.local_portion,
                 domain_portion=self.service_domain,
             )
-        except Exception as e:
-            assert e.args[0] == "RelayAddress matching query does not exist."
-            incr_mocked.assert_called_once_with("email_for_deleted_address", 1)
+        assert str(exc_info.value) == "RelayAddress matching query does not exist."
+        incr_mocked.assert_called_once_with("email_for_deleted_address", 1)
 
     @patch("emails.views.incr_if_enabled")
     def test_get_address_with_relay_address_does_not_exist(self, incr_mocked) -> None:
-        try:
+        with pytest.raises(RelayAddress.DoesNotExist) as exc_info:
             _get_address(
                 to_address=f"{self.local_portion}@{self.service_domain}",
                 local_portion=self.local_portion,
                 domain_portion=self.service_domain,
             )
-        except Exception as e:
-            assert e.args[0] == "RelayAddress matching query does not exist."
-            incr_mocked.assert_called_once_with("email_for_unknown_address", 1)
+        assert str(exc_info.value) == "RelayAddress matching query does not exist."
+        incr_mocked.assert_called_once_with("email_for_unknown_address", 1)
 
     @patch("emails.views.incr_if_enabled")
     def test_get_address_with_deleted_relay_address_multiple(self, incr_mocked) -> None:
@@ -751,15 +749,14 @@ class GetAddressTest(TestCase):
         baker.make(DeletedAddress, address_hash=hashed_address)
         baker.make(DeletedAddress, address_hash=hashed_address)
 
-        try:
+        with pytest.raises(RelayAddress.DoesNotExist) as exc_info:
             _get_address(
                 to_address=f"{self.local_portion}@{self.service_domain}",
                 local_portion=self.local_portion,
                 domain_portion=self.service_domain,
             )
-        except Exception as e:
-            assert e.args[0] == "RelayAddress matching query does not exist."
-            incr_mocked.assert_called_once_with("email_for_deleted_address_multiple", 1)
+        assert str(exc_info.value) == "RelayAddress matching query does not exist."
+        incr_mocked.assert_called_once_with("email_for_deleted_address_multiple", 1)
 
 
 class GetAttachmentTests(TestCase):
