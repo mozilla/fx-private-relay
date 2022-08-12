@@ -12,34 +12,32 @@ Moment.globalFormat = "D MMM YYYY";
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
 
-  const relayNumberData = useRelayNumber();
-  const relayPhoneData = useRealPhonesData();
+  const relayNumber = useRelayNumber();
+  const realPhone = useRealPhonesData();
+  const relayNumberData = relayNumber.data?.[0];
+  const realPhoneData = realPhone.data?.[0];
   const phoneDateCreated = useRealPhonesData();
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
   const [enableForwarding, setEnableForwarding] = useState(
-    relayNumberData.data?.[0].enabled
+    relayNumberData ? relayNumberData.enabled : false
   );
-
-  const phoneNumber = relayNumberData.data?.[0].number!;
-  const realPhone = relayPhoneData.data?.[0].number!;
 
   const dateToFormat = phoneDateCreated.data?.[0].verified_date!;
 
   const toggleForwarding = () => {
-    setEnableForwarding(!enableForwarding);
-    // TODO: Find a way to not have to use a non-null assertion operator here
-    relayNumberData.setForwardingState(
-      !enableForwarding,
-      relayNumberData.data?.[0].id!
-    );
+    if (relayNumberData?.id) {
+      setEnableForwarding(!enableForwarding);
+      relayNumber.setForwardingState(!enableForwarding, relayNumberData.id);
+    }
   };
 
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
-    // TODO: Find a way to not have to use a non-null assertion operator here
-    navigator.clipboard.writeText(relayNumberData?.data?.[0].number!);
-    setJustCopiedPhoneNumber(true);
-    setTimeout(() => setJustCopiedPhoneNumber(false), 1000);
+    if (relayNumberData?.number) {
+      navigator.clipboard.writeText(relayNumberData.number);
+      setJustCopiedPhoneNumber(true);
+      setTimeout(() => setJustCopiedPhoneNumber(false), 1000);
+    }
   };
 
   const phoneStatistics = (
@@ -127,7 +125,7 @@ export const PhoneDashboard = () => {
       <dl>
         <div className={`${styles["forward-target"]} ${styles.metadata}`}>
           <dt>{l10n.getString("phone-dashboard-metadata-forwarded-to")}</dt>
-          <dd>{realPhone}</dd>
+          <dd>{realPhoneData?.number}</dd>
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
           <dt>
@@ -145,7 +143,9 @@ export const PhoneDashboard = () => {
     <main className={styles["main-phone-wrapper"]}>
       <div className={styles["dashboard-card"]}>
         <span className={styles["header-phone-number"]}>
-          {formatPhoneNumberToUSDisplay(phoneNumber)}
+          {realPhoneData?.number
+            ? formatPhoneNumberToUSDisplay(realPhoneData.number)
+            : ""}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
               <button
