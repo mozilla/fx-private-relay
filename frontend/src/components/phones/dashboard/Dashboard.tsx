@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
@@ -12,11 +13,7 @@ export const PhoneDashboard = () => {
     relayNumberData.data?.[0].enabled
   );
 
-  const arrayPhoneNumber = relayNumberData.data?.[0].number.split("");
-  arrayPhoneNumber?.splice(2, 0, " (");
-  arrayPhoneNumber?.splice(6, 0, ") ");
-
-  const phoneNumberBracketed = arrayPhoneNumber?.join("");
+  e164PhoneNumberFormat(relayNumberData.data?.[0].number!);
 
   const toggleForwarding = () => {
     setEnableForwarding(!enableForwarding);
@@ -138,7 +135,7 @@ export const PhoneDashboard = () => {
     <main>
       <div className={styles["dashboard-card"]}>
         <span className={styles["header-phone-number"]}>
-          {phoneNumberBracketed}
+          {e164PhoneNumberFormat(relayNumberData.data?.[0].number!)}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
               <button
@@ -173,3 +170,11 @@ export const PhoneDashboard = () => {
     </main>
   );
 };
+
+function e164PhoneNumberFormat(relayNumber: string) {
+  const arrayPhoneNumber = relayNumber.split("");
+  arrayPhoneNumber?.splice(2, 0, " (");
+  arrayPhoneNumber?.splice(6, 0, ") ");
+  const phoneNumberBracketed = arrayPhoneNumber?.join("");
+  return phoneNumberBracketed;
+}
