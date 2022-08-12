@@ -4,22 +4,24 @@ import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
 import { CopyIcon, ForwardIcon, BlockIcon } from "../../../components/Icons";
 import { MouseEventHandler, useState } from "react";
+import { useRealPhonesData } from "../../../hooks/api/realPhone";
 
 export const PhoneDashboard = () => {
   const relayNumberData = useRelayNumber();
+  const relayPhoneData = useRealPhonesData();
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
   const [enableForwarding, setEnableForwarding] = useState(
     relayNumberData.data?.[0].enabled
   );
 
-  e164PhoneNumberFormat(relayNumberData.data?.[0].number!);
+  const phoneNumber = relayNumberData.data?.[0].number!;
+  const realPhone = relayPhoneData.data?.[0].number!;
 
   const toggleForwarding = () => {
     setEnableForwarding(!enableForwarding);
     // TODO: Find a way to not have to use a non-null assertion operator here
     relayNumberData.setForwardingState(
-      relayNumberData.data?.[0].number!,
       !enableForwarding,
       relayNumberData.data?.[0].id!
     );
@@ -121,7 +123,7 @@ export const PhoneDashboard = () => {
       <dl>
         <div className={`${styles["forward-target"]} ${styles.metadata}`}>
           <dt>Forwarded to:</dt>
-          <dd>Add user phone number here</dd>
+          <dd>{realPhone}</dd>
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
           <dt>Date Created:</dt>
@@ -135,7 +137,7 @@ export const PhoneDashboard = () => {
     <main>
       <div className={styles["dashboard-card"]}>
         <span className={styles["header-phone-number"]}>
-          {e164PhoneNumberFormat(relayNumberData.data?.[0].number!)}
+          {e164PhoneNumberFormat(phoneNumber)}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
               <button
@@ -172,9 +174,9 @@ export const PhoneDashboard = () => {
 };
 
 function e164PhoneNumberFormat(relayNumber: string) {
-  const arrayPhoneNumber = relayNumber.split("");
-  arrayPhoneNumber?.splice(2, 0, " (");
-  arrayPhoneNumber?.splice(6, 0, ") ");
-  const phoneNumberBracketed = arrayPhoneNumber?.join("");
-  return phoneNumberBracketed;
+  const friendlyPhoneNumber = relayNumber.split("");
+  friendlyPhoneNumber?.splice(2, 0, " (");
+  friendlyPhoneNumber?.splice(6, 0, ") ");
+  friendlyPhoneNumber?.join("");
+  return friendlyPhoneNumber;
 }

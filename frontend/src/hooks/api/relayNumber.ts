@@ -15,7 +15,6 @@ export type PhoneNumberRegisterRelayNumberFn = (
 ) => Promise<Response>;
 
 export type UpdateForwardingToPhone = (
-  phoneNumber: string,
   enabled: boolean,
   id: number
 ) => Promise<Response>;
@@ -50,13 +49,12 @@ export function useRelayNumber(): SWRResponse<RelayNumberData, unknown> & {
    * Set the forwarding state
    */
   const setForwardingState: UpdateForwardingToPhone = async (
-    phoneNumber: string,
     enabled: boolean,
     id: number
   ) => {
     const response = await apiFetch(`/relaynumber/${id}/`, {
       method: "PATCH",
-      body: JSON.stringify({ phoneNumber, enabled }),
+      body: JSON.stringify({ enabled }),
     });
     relayNumber.mutate();
     return response;
