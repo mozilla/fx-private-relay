@@ -1,5 +1,6 @@
 from copy import deepcopy
 from datetime import datetime, timezone
+from email import policy
 from email.message import EmailMessage
 from email.utils import parseaddr
 from typing import Optional
@@ -846,16 +847,61 @@ def test_sns_message_on_received_fixture_missing_user(ses_fixture: str) -> None:
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["received"])
-def test_sns_message_on_received_fixture_has_user(ses_fixture: str) -> None:
-    """The example received notifications fail."""
+def test_sns_message_on_received_fixture_has_user_has_content() -> None:
+    """A received notification with content passes if it BCCs a Relay user."""
     user = make_free_test_user()
     address = RelayAddress.objects.create(user=user, address="a_relay_address")
-    message_json = deepcopy(SES_BODIES[ses_fixture])
+    message_json = deepcopy(SES_BODIES["received_notification_action_example"])
     message_json["receipt"]["recipients"].append(address.full_address)
-    with pytest.raises(KeyError) as exc_info:
-        _sns_message(message_json)
-    assert str(exc_info.value) == "'dmarcVerdict'"
+
+    with patch(
+        "emails.views.ses_relay_email",
+        return_value=HttpResponse("Successfully relayed emails"),
+    ) as mock_ses_relay_email:
+        response = _sns_message(message_json)
+    assert response.status_code == 200
+    mock_ses_relay_email.assert_called_once()
+
+
+@pytest.mark.django_db
+def test_sns_message_on_received_fixture_has_user_S3_content() -> None:
+    """A received notification with S3-stored content passes if it BCCs a Relay user."""
+    user = make_free_test_user()
+    address = RelayAddress.objects.create(user=user, address="a_relay_address")
+    message_json = deepcopy(SES_BODIES["received_notification_alert_example"])
+    message_json["receipt"]["recipients"].append(address.full_address)
+
+    with patch(
+        "emails.views.ses_relay_email",
+        return_value=HttpResponse("Successfully relayed emails"),
+    ) as mock_ses_relay_email, patch(
+        "emails.views.get_message_content_from_s3",
+        return_value=b"the_s3_message",
+    ) as mock_get_message_content_from_s3, patch(
+        "emails.views.message_from_bytes",
+        return_value="the_email_message",
+    ) as mock_message_from_bytes, patch(
+        "emails.views._get_all_contents",
+        return_value=("text", "<html>", []),
+    ) as mock_get_add_contents:
+        response = _sns_message(message_json)
+    assert response.status_code == 200
+    mock_ses_relay_email.assert_called_once()
+    mock_get_message_content_from_s3.assert_called_once()
+    mock_message_from_bytes.assert_called_once_with(
+        b"the_s3_message", policy=policy.default
+    )
+    mock_get_add_contents.assert_called_once_with("the_email_message")
+
+
+@pytest.mark.django_db
+def test_sns_message_on_received_fixture_without_commonheader() -> None:
+    """A received notification for an unknown email is a 404."""
+    message_json = deepcopy(SES_BODIES["received_notification_action_no_headers"])
+    response = _sns_message(message_json)
+    assert response.status_code == 400
+    content = response.content.decode()
+    assert content == "Received SNS notification without commonHeaders."
 
 
 @override_settings(

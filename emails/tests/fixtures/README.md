@@ -34,13 +34,10 @@ These are derived from examples:
 
 ## SES Received Notification Examples
 
-These are examples from [Examples of notifications for Amazon SES email receiving](https://docs.aws.amazon.com/ses/latest/dg/receiving-email-notifications-examples.html):
+These are derived from examples on [Examples of notifications for Amazon SES email receiving](https://docs.aws.amazon.com/ses/latest/dg/receiving-email-notifications-examples.html):
 
-* `received_notification_action_example_ses_body.json`
-* `received_notification_alert_example_ses_body.json`
-
-These are derived from the examples:
-
+* `received_notification_action_example_ses_body.json` - added `receipt.dmarcVerdict`
+* `received_notification_alert_example_ses_body.json` - added `receipt.dmarcVerdict`
 * `received_notification_action_no_headers_ses_body.json` - Removed headers to simulate when including headers is not configured
 
 ## SES Event Examples

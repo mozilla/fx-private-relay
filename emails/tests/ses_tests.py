@@ -26,7 +26,6 @@ SES_TEST_CASES: dict[str, list[str]] = {
         "delivery_notification_ooto_from_simulator",
         "delivery_notification_success_from_simulator",
         "open_event_example",
-        # "received_notification_action_no_headers",  # Received, but no commonHeaders
         "reject_event_example",
         "rendering_failure_example",
         "send_event_example",
@@ -50,7 +49,7 @@ for fixture_file in sorted(fixtures_path.glob(f"*{suffix}")):
     if "bounce_" in key:
         SES_TEST_CASES["bounce"].append(key)
     elif key == "received_notification_action_no_headers":
-        pass  # Supported type, unexpected data
+        pass  # Supported type, but missing commonHeaders
     else:
         assert "received_" in key
         SES_TEST_CASES["received"].append(key)

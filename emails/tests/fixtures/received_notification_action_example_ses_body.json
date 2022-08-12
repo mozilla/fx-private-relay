@@ -18,6 +18,9 @@
     "dkimVerdict": {
       "status": "PASS"
     },
+    "dmarcVerdict": {
+      "status": "PASS"
+    },
     "action": {
       "type": "SNS",
       "topicArn": "arn:aws:sns:us-east-1:012345678912:example-topic"
