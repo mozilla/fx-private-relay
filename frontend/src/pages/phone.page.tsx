@@ -58,7 +58,7 @@ const Phone: NextPage = () => {
 
   return (
     <Layout>
-      <main className={styles["main-wrapper"]}>
+      <main className={styles["main-phone-wrapper"]}>
         <PhoneDashboard />
       </main>
     </Layout>
