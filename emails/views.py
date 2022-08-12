@@ -11,7 +11,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
-from typing import Union
+from typing import cast, Any, Optional, Union
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -430,6 +430,8 @@ def _sns_message(message_json):
         response = _handle_received(message_json)
     elif event_type == "Bounce" or notification_type == "Bounce":
         response = _handle_bounce(message_json)
+    elif event_type == "Complaint" or notification_type == "Complaint":
+        response = _handle_complaint(message_json)
     else:
         logger.error(
             "SNS notification for unsupported type",
@@ -871,6 +873,59 @@ def _handle_bounce(message_json):
             # TODO: handle sub-types: 'MessageTooLarge', 'AttachmentRejected',
             # 'ContentRejected'
         profile.save()
+    return HttpResponse("OK", status=200)
+
+
+def _log_data_for_email(email_address: Optional[str]) -> dict[str, Any]:
+    """Return log data for an email address"""
+    if email_address:
+        name, email = parseaddr(email_address)
+        info = lookup_email_address(email)
+        if info.email_type != EmailAddressType.MALFORMED_ADDRESS:
+            return {
+                "has_name": bool(name),
+                "domain": email.split("@")[1],
+                "email_type": info.email_type.value,
+            }
+    return {"bad_address": email_address, "email_type": "malformed_address"}
+
+
+def _handle_complaint(data: dict[str, Any]) -> HttpResponse:
+    if data.get("notificationType"):
+        channel = "notification"
+    else:
+        channel = "event"
+    complaint: dict[str, Any] = data["complaint"]
+    mail: dict[str, Any] = data["mail"]
+    commonHeaders: dict[str, Any] = mail.get("commonHeaders", {})
+    complaint_type = complaint.get("complaintFeedbackType")
+
+    source_data = _log_data_for_email(mail.get("source"))
+    complainedRecipients_data = [
+        _log_data_for_email(cr["emailAddress"])
+        for cr in cast(list[dict[str, str]], complaint["complainedRecipients"])
+    ]
+    headers = ("to", "cc", "bcc", "from", "sender", "replyTo")
+    header_data: dict[str, Any] = {}
+    for header in headers:
+        if header in commonHeaders:
+            header_val = cast(list[str], commonHeaders.get(header))
+            key = "reply_to" if header == "replyTo" else header
+            header_data[key] = [_log_data_for_email(addr) for addr in header_val]
+    if "returnPath" in commonHeaders:
+        header_data["return_path"] = _log_data_for_email(commonHeaders["returnPath"])
+
+    extra = {
+        "complaint_type": complaint_type,
+        "source": source_data,
+        "complained_recipients": complainedRecipients_data,
+        "message_id": mail.get("messageId"),
+        "complaint_subtype": complaint.get("complaintSubType"),
+        "feedback_id": complaint.get("feedbackId"),
+        "user_agent": complaint.get("userAgent"),
+    }
+    extra.update(header_data)
+    info_logger.info(f"Complaint {channel} received.", extra=extra)
     return HttpResponse("OK", status=200)
 
 

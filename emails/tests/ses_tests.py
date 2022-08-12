@@ -15,10 +15,6 @@ from emails.ses import send_simulator_email, SimulatorScenario
 SES_TEST_CASES: dict[str, list[str]] = {
     "unsupported": [
         "click_event_example",
-        "complaint_event_example",
-        "complaint_notification_from_simulator",
-        "complaint_notification_with_feedback_example",
-        "complaint_notification_without_feedback_example",
         "delivery_delay_event_example",
         "delivery_event_example",
         "delivery_notification_complaint_from_simulator",
@@ -32,6 +28,7 @@ SES_TEST_CASES: dict[str, list[str]] = {
         "subscription_event_example",
     ],
     "bounce": [],
+    "complaint": [],
     "received": [],
 }
 
@@ -48,6 +45,8 @@ for fixture_file in sorted(fixtures_path.glob(f"*{suffix}")):
         continue
     if "bounce_" in key:
         SES_TEST_CASES["bounce"].append(key)
+    elif "complaint_" in key:
+        SES_TEST_CASES["complaint"].append(key)
     elif key == "received_notification_action_no_headers":
         pass  # Supported type, but missing commonHeaders
     else:
@@ -55,6 +54,7 @@ for fixture_file in sorted(fixtures_path.glob(f"*{suffix}")):
         SES_TEST_CASES["received"].append(key)
 
 assert SES_TEST_CASES["bounce"]
+assert SES_TEST_CASES["complaint"]
 assert SES_TEST_CASES["received"]
 
 

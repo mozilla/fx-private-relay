@@ -33,14 +33,15 @@ from emails.models import (
     Reply,
 )
 from emails.views import (
+    InReplyToNotFound,
     _get_address,
     _get_attachment,
+    _log_data_for_email,
     _record_receipt_verdicts,
     _sns_message,
     _sns_notification,
     validate_sns_header,
     wrapped_email_test,
-    InReplyToNotFound,
 )
 
 from .models_tests import (
@@ -838,6 +839,80 @@ def test_sns_message_on_bounce_fixture_has_user(ses_fixture: str) -> None:
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["complaint"])
+def test_sns_message_on_complaint_fixture(ses_fixture, caplog) -> None:
+    """A complaint message is a 200."""
+    message_json = deepcopy(SES_BODIES[ses_fixture])
+    response = _sns_message(message_json)
+    assert response.status_code == 200
+    ctype = "event" if "eventType" in message_json else "notification"
+    assert caplog.record_tuples == [
+        ("eventsinfo", logging.INFO, f"Complaint {ctype} received.")
+    ]
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("return_path", ("with_returnPath", "no_returnPath"))
+def test_sns_message_on_complaint_fixture_log_details(caplog, return_path) -> None:
+    """A complaint message does not log email addresses."""
+    message_json = deepcopy(SES_BODIES["complaint_notification_from_simulator"])
+    add_return_path = return_path == "with_returnPath"
+    if add_return_path:
+        # Fake a returnPath for code coverage
+        message_json["mail"]["commonHeaders"]["returnPath"] = "test@relay.example.com"
+    response = _sns_message(message_json)
+    assert response.status_code == 200
+    record = caplog.records[0]
+    assert record.complaint_type == "abuse"
+    assert record.source == {
+        "has_name": False,
+        "domain": "relay.example.com",
+        "email_type": "external_address",
+    }
+    assert record.complained_recipients == [
+        {
+            "has_name": False,
+            "domain": "simulator.amazonses.com",
+            "email_type": "external_address",
+        }
+    ]
+    assert (
+        record.message_id
+        == "0100018264c99e08-1aae1638-c00a-4c2b-93dd-acf9752adf56-000000"
+    )
+    assert record.complaint_subtype is None
+    assert (
+        record.feedback_id
+        == "0100018264c9a044-451ca066-90ad-47ac-ae48-df21fb8a2fe8-000000"
+    )
+    assert record.user_agent == "Amazon SES Mailbox Simulator"
+    assert getattr(record, "from") == [
+        {
+            "has_name": False,
+            "domain": "relay.example.com",
+            "email_type": "external_address",
+        }
+    ]
+    assert record.to == [
+        {
+            "has_name": False,
+            "domain": "simulator.amazonses.com",
+            "email_type": "external_address",
+        }
+    ]
+    for header in ("cc", "bcc", "sender", "reply_to"):
+        assert not hasattr(record, header)
+    if add_return_path:
+        assert record.return_path == {
+            "has_name": False,
+            "domain": "relay.example.com",
+            "email_type": "external_address",
+        }
+    else:
+        assert not hasattr(record, header)
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["received"])
 def test_sns_message_on_received_fixture_missing_user(ses_fixture: str) -> None:
     """A received notification for an unknown email is a 404."""
@@ -902,6 +977,27 @@ def test_sns_message_on_received_fixture_without_commonheader() -> None:
     assert response.status_code == 400
     content = response.content.decode()
     assert content == "Received SNS notification without commonHeaders."
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("email", (None, "bad"))
+def test_log_data_for_bad_email(email) -> None:
+    assert _log_data_for_email(email) == {
+        "bad_address": email,
+        "email_type": "malformed_address",
+    }
+
+
+@pytest.mark.django_db
+def test_log_data_for_relay_email() -> None:
+    user = make_free_test_user()
+    address = RelayAddress.objects.create(user=user, address="aug12")
+    email = f"Relay User <{address.full_address}>"
+    assert _log_data_for_email(email) == {
+        "has_name": True,
+        "domain": "test.com",
+        "email_type": "relay_address",
+    }
 
 
 @override_settings(
