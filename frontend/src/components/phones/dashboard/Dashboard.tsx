@@ -5,8 +5,12 @@ import styles from "./PhoneDashboard.module.scss";
 import { CopyIcon, ForwardIcon, BlockIcon } from "../../../components/Icons";
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
+import { getL10n } from "../../../functions/getL10n";
+import { useLocalization } from "@fluent/react";
 
 export const PhoneDashboard = () => {
+  const { l10n } = useLocalization();
+
   const relayNumberData = useRelayNumber();
   const relayPhoneData = useRealPhonesData();
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
@@ -39,13 +43,15 @@ export const PhoneDashboard = () => {
       <div className={styles["phone-statistics"]}>
         <p className={styles["phone-statistics-title"]}>12:04 min</p>
         <p className={styles["phone-statistics-body"]}>
-          Remaining call minutes
+          {l10n.getString("phone-statistics-remaining-call-minutes")}
         </p>
       </div>
 
       <div className={styles["phone-statistics"]}>
         <p className={styles["phone-statistics-title"]}>36</p>
-        <p className={styles["phone-statistics-body"]}>Remaining texts</p>
+        <p className={styles["phone-statistics-body"]}>
+          {l10n.getString("phone-statistics-remaining-texts")}
+        </p>
       </div>
 
       <div
@@ -55,7 +61,7 @@ export const PhoneDashboard = () => {
       >
         <p className={styles["phone-statistics-title"]}>7</p>
         <p className={styles["phone-statistics-body"]}>
-          Calls and texts forwarded
+          {l10n.getString("phone-statistics-calls-texts-forwarded")}
         </p>
       </div>
 
@@ -66,7 +72,7 @@ export const PhoneDashboard = () => {
       >
         <p className={styles["phone-statistics-title"]}>0</p>
         <p className={styles["phone-statistics-body"]}>
-          Calls and texts blocked
+          {l10n.getString("phone-statistics-calls-texts-blocked")}
         </p>
       </div>
     </div>
@@ -104,15 +110,9 @@ export const PhoneDashboard = () => {
       </div>
       <div className={styles["phone-controls-description"]}>
         {enableForwarding ? (
-          <span>
-            Relay is currently forwarding all phone calls and SMS messages to
-            your true phone number.
-          </span>
+          <span>{l10n.getString("phone-dashboard-forwarding-enabled")}</span>
         ) : (
-          <span>
-            Relay is blocking all phone calls and text messages—you will not
-            receive anything from your phone number mask.
-          </span>
+          <span>{l10n.getString("phone-dashboard-forwarding-blocked")}</span>
         )}
       </div>
     </div>
@@ -122,11 +122,13 @@ export const PhoneDashboard = () => {
     <div className={styles["metadata-container"]}>
       <dl>
         <div className={`${styles["forward-target"]} ${styles.metadata}`}>
-          <dt>Forwarded to:</dt>
+          <dt>{l10n.getString("phone-dashboard-metadata-forwarded-to")}</dt>
           <dd>{realPhone}</dd>
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
-          <dt>Date Created:</dt>
+          <dt>
+            <dt>{l10n.getString("phone-dashboard-metadata-date-created")}</dt>
+          </dt>
           <dd>Date</dd>
         </div>
       </dl>
@@ -159,7 +161,7 @@ export const PhoneDashboard = () => {
                   justCopiedPhoneNumber ? styles["is-shown"] : ""
                 }`}
               >
-                Copied!
+                {l10n.getString("phone-dashboard-number-copied")}
               </span>
             </span>
           </span>
