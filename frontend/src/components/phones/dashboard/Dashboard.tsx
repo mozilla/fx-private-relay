@@ -6,7 +6,7 @@ import { MouseEventHandler, useState } from "react";
 
 export const PhoneDashboard = () => {
   const relayNumberData = useRelayNumber();
-  const [justCopiedApiKey, setJustCopiedPhoneNumber] = useState(false);
+  const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
   const [enableForwarding, setEnableForwarding] = useState(
     relayNumberData.data?.[0].enabled
@@ -21,7 +21,6 @@ export const PhoneDashboard = () => {
   const toggleForwarding = () => {
     setEnableForwarding(!enableForwarding);
     // TODO: Find a way to not have to use a non-null assertion operator here
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     relayNumberData.setForwardingState(
       relayNumberData.data?.[0].number!,
       !enableForwarding,
@@ -31,7 +30,6 @@ export const PhoneDashboard = () => {
 
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
     // TODO: Find a way to not have to use a non-null assertion operator here
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     navigator.clipboard.writeText(relayNumberData?.data?.[0].number!);
     setJustCopiedPhoneNumber(true);
     setTimeout(() => setJustCopiedPhoneNumber(false), 1000);
@@ -126,7 +124,7 @@ export const PhoneDashboard = () => {
       <dl>
         <div className={`${styles["forward-target"]} ${styles.metadata}`}>
           <dt>Forwarded to:</dt>
-          <dd>{phoneNumberBracketed}</dd>
+          <dd>Add user phone number here</dd>
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
           <dt>Date Created:</dt>
@@ -139,8 +137,6 @@ export const PhoneDashboard = () => {
   return (
     <main>
       <div className={styles["dashboard-card"]}>
-        {/* Phone dashboard comes here! Your Relay phone mask is{" "} */}
-        {/* <samp>{relayNumberData.data?.[0]?.number ?? "still loading"}</samp>. */}
         <span className={styles["header-phone-number"]}>
           {phoneNumberBracketed}
           <span className={styles["copy-controls"]}>
@@ -159,9 +155,9 @@ export const PhoneDashboard = () => {
                 />
               </button>
               <span
-                aria-hidden={!justCopiedApiKey}
+                aria-hidden={!justCopiedPhoneNumber}
                 className={`${styles["copied-confirmation"]} ${
-                  justCopiedApiKey ? styles["is-shown"] : ""
+                  justCopiedPhoneNumber ? styles["is-shown"] : ""
                 }`}
               >
                 Copied!
