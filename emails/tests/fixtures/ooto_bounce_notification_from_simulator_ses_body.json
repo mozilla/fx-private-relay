@@ -1,0 +1,62 @@
+{
+  "notificationType": "Bounce",
+  "bounce": {
+    "feedbackId": "0100018264c790f6-4eca7ee8-dd82-4f94-8b91-3b4917f769ec-000000",
+    "bounceType": "Transient",
+    "bounceSubType": "General",
+    "bouncedRecipients": [
+      {
+        "emailAddress": "ooto@simulator.amazonses.com"
+      }
+    ],
+    "timestamp": "2022-08-03T17:36:16.000Z"
+  },
+  "mail": {
+    "timestamp": "2022-08-03T17:36:16.058Z",
+    "source": "test@relay.example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:032756942992:identity/relay.example.com",
+    "sourceIp": "72.213.158.107",
+    "callerIdentity": "mozilla-relay",
+    "sendingAccountId": "032756942992",
+    "messageId": "0100018264c78eba-a9093e0f-c835-49b7-ae65-36cfc8f953e8-000000",
+    "destination": [
+      "ooto@simulator.amazonses.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "text/plain; charset=\"utf-8\""
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Subject",
+        "value": "Test message for ooto"
+      },
+      {
+        "name": "From",
+        "value": "test@relay.example.com"
+      },
+      {
+        "name": "To",
+        "value": "ooto@simulator.amazonses.com"
+      }
+    ],
+    "commonHeaders": {
+      "from": [
+        "test@relay.example.com"
+      ],
+      "to": [
+        "ooto@simulator.amazonses.com"
+      ],
+      "subject": "Test message for ooto"
+    }
+  }
+}

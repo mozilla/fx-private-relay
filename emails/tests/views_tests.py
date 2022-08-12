@@ -1,6 +1,7 @@
 from copy import deepcopy
 from datetime import datetime, timezone
 from email.message import EmailMessage
+from email.utils import parseaddr
 from typing import Optional
 from unittest.mock import patch
 import glob
@@ -40,7 +41,12 @@ from emails.views import (
     InReplyToNotFound,
 )
 
-from .models_tests import make_premium_test_user, upgrade_test_user_to_premium
+from .models_tests import (
+    make_free_test_user,
+    make_premium_test_user,
+    upgrade_test_user_to_premium,
+)
+from .ses_tests import SES_BODIES, SES_TEST_CASES
 
 # Load the sns json fixtures from files
 real_abs_cwd = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -572,25 +578,6 @@ class SNSNotificationInvalidMessageTest(TestCase):
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
-    def test_notification_type_complaint(self):
-        """A notificationType of complaint returns a 400 error"""
-        # Manual json_body because no instances captured, from
-        # https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
-        complaint = {
-            "notificationType": "Complaint",
-            "complaint": {
-                "userAgent": "ExampleCorp Feedback Loop (V0.01)",
-                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
-                "complaintFeedbackType": "abuse",
-                "arrivalDate": "2009-12-03T04:24:21.000-05:00",
-                "timestamp": "2012-05-25T14:59:38.623Z",
-                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
-            },
-        }
-        json_body = {"Message": json.dumps(complaint)}
-        response = _sns_notification(json_body)
-        assert response.status_code == 400
-
 
 class SNSNotificationValidUserEmailsInS3Test(TestCase):
     def setUp(self) -> None:
@@ -789,6 +776,94 @@ class SnsMessageTest(TestCase):
         response = _sns_message(message_json)
         mocked_ses_relay_email.assert_called_once()
         assert response.status_code == 200
+
+
+@pytest.mark.parametrize("ses_fixture", sorted(SES_TEST_CASES["unsupported"]))
+def test_sns_message_unsupported_type(ses_fixture: str) -> None:
+    """
+    Unsupported types fail in _sns_message.
+
+    They either fail from missing ["mail"]["commonHeaders"], or a KeyError on
+    ["receipt"], when processed as Received notifications.
+    _sns_notification checks the notificationType and eventType to prevent
+    these from getting to _sns_message.
+    """
+    message_json = SES_BODIES[ses_fixture]
+    if "commonHeaders" not in message_json.get("mail", {}):
+        response = _sns_message(message_json)
+        assert response.status_code == 400
+        content = response.content.decode()
+        assert content == "Received SNS notification without commonHeaders."
+    else:
+        with pytest.raises(KeyError) as exc_info:
+            _sns_message(message_json)
+        assert str(exc_info.value) == "'receipt'"
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["bounce"])
+def test_sns_message_on_bounce_fixture_missing_user(ses_fixture: str) -> None:
+    """A bounce for an unknown email is a 404."""
+    message_json = deepcopy(SES_BODIES[ses_fixture])
+    recipients = message_json["bounce"]["bouncedRecipients"]
+    has_email = bool(any([recipient.get("emailAddress") for recipient in recipients]))
+    assert has_email
+
+    response = _sns_message(message_json)
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["bounce"])
+def test_sns_message_on_bounce_fixture_has_user(ses_fixture: str) -> None:
+    """A bounce for a known user is 200, sets profile flags."""
+    message_json = deepcopy(SES_BODIES[ses_fixture])
+    bounce = message_json["bounce"]
+    bounce_type = bounce.get("bounceType", "")
+
+    recipients = bounce["bouncedRecipients"]
+    users = []
+    for recipient in recipients:
+        raw_email = recipient.get("emailAddress")
+        if not raw_email:
+            continue
+        _, email = parseaddr(raw_email)
+        is_spam = "spam" in recipient.get("diagnosticCode", "")
+        users.append((baker.make(User, email=email), is_spam))
+    assert users
+
+    response = _sns_message(message_json)
+    assert response.status_code == 200
+    for user, is_spam in users:
+        profile = user.profile_set.get()
+        if bounce_type == "Permanent":
+            assert_is_nowish(profile.last_hard_bounce)
+        if bounce_type == "Transient":
+            assert_is_nowish(profile.last_soft_bounce)
+        if is_spam:
+            assert profile.auto_block_spam
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["received"])
+def test_sns_message_on_received_fixture_missing_user(ses_fixture: str) -> None:
+    """A received notification for an unknown email is a 404."""
+    message_json = deepcopy(SES_BODIES[ses_fixture])
+    response = _sns_message(message_json)
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["received"])
+def test_sns_message_on_received_fixture_has_user(ses_fixture: str) -> None:
+    """The example received notifications fail."""
+    user = make_free_test_user()
+    address = RelayAddress.objects.create(user=user, address="a_relay_address")
+    message_json = deepcopy(SES_BODIES[ses_fixture])
+    message_json["receipt"]["recipients"].append(address.full_address)
+    with pytest.raises(KeyError) as exc_info:
+        _sns_message(message_json)
+    assert str(exc_info.value) == "'dmarcVerdict'"
 
 
 @override_settings(

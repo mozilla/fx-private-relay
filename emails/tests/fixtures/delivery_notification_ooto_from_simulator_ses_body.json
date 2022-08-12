@@ -1,0 +1,61 @@
+{
+  "notificationType": "Delivery",
+  "mail": {
+    "timestamp": "2022-08-03T17:36:16.058Z",
+    "source": "test@relay.example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:032756942992:identity/relay.example.com",
+    "sourceIp": "72.213.158.107",
+    "callerIdentity": "mozilla-relay",
+    "sendingAccountId": "032756942992",
+    "messageId": "0100018264c78eba-a9093e0f-c835-49b7-ae65-36cfc8f953e8-000000",
+    "destination": [
+      "ooto@simulator.amazonses.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "text/plain; charset=\"utf-8\""
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Subject",
+        "value": "Test message for ooto"
+      },
+      {
+        "name": "From",
+        "value": "test@relay.example.com"
+      },
+      {
+        "name": "To",
+        "value": "ooto@simulator.amazonses.com"
+      }
+    ],
+    "commonHeaders": {
+      "from": [
+        "test@relay.example.com"
+      ],
+      "to": [
+        "ooto@simulator.amazonses.com"
+      ],
+      "subject": "Test message for ooto"
+    }
+  },
+  "delivery": {
+    "timestamp": "2022-08-03T17:36:16.512Z",
+    "processingTimeMillis": 454,
+    "recipients": [
+      "ooto@simulator.amazonses.com"
+    ],
+    "smtpResponse": "250 2.6.0 Message received",
+    "remoteMtaIp": "54.86.94.241",
+    "reportingMTA": "a48-112.smtp-out.amazonses.com"
+  }
+}

@@ -1,13 +1,60 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Iterator
 from unittest.mock import Mock, patch
 from uuid import uuid4
+import json
 
 import pytest
 
-from emails.ses import SimulatorScenario, send_simulator_email
+from emails.ses import send_simulator_email, SimulatorScenario
+
+# Test cases by message type - supported cases are loaded with JSON bodies
+SES_TEST_CASES: dict[str, list[str]] = {
+    "unsupported": [
+        "click_event_example",
+        "complaint_event_example",
+        "complaint_notification_from_simulator",
+        "complaint_notification_with_feedback_example",
+        "complaint_notification_without_feedback_example",
+        "delivery_delay_event_example",
+        "delivery_event_example",
+        "delivery_notification_complaint_from_simulator",
+        "delivery_notification_example",
+        "delivery_notification_ooto_from_simulator",
+        "delivery_notification_success_from_simulator",
+        "open_event_example",
+        "received_notification_action_no_headers",  # Received, but no commonHeaders
+        "reject_event_example",
+        "rendering_failure_example",
+        "send_event_example",
+        "subscription_event_example",
+    ],
+    "bounce": [],
+    "received": [],
+}
+
+# Load the SES json fixtures from files
+SES_BODIES: dict[str, dict[str, Any]] = {}
+my_path = Path(__file__)
+fixtures_path = my_path.parent / "fixtures"
+suffix = "_ses_body.json"
+for fixture_file in sorted(fixtures_path.glob(f"*{suffix}")):
+    key = fixture_file.name[: -len(suffix)]
+    content = json.loads(fixture_file.read_text())
+    SES_BODIES[key] = content
+    if key in SES_TEST_CASES["unsupported"]:
+        continue
+    if "bounce_" in key:
+        SES_TEST_CASES["bounce"].append(key)
+    else:
+        assert "received_" in key
+        SES_TEST_CASES["received"].append(key)
+
+assert SES_TEST_CASES["bounce"]
+assert SES_TEST_CASES["received"]
 
 
 def _ok_response_from_send_raw_email() -> dict[str, Any]:

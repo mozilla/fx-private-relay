@@ -1,0 +1,67 @@
+{
+  "notificationType": "Bounce",
+  "bounce": {
+    "feedbackId": "0100018264c6525d-e8967b05-82f8-4575-9413-34faff769528-000000",
+    "bounceType": "Permanent",
+    "bounceSubType": "General",
+    "bouncedRecipients": [
+      {
+        "emailAddress": "bounce@simulator.amazonses.com",
+        "action": "failed",
+        "status": "5.1.1",
+        "diagnosticCode": "smtp; 550 5.1.1 user unknown"
+      }
+    ],
+    "timestamp": "2022-08-03T17:34:55.000Z",
+    "remoteMtaIp": "3.225.75.158",
+    "reportingMTA": "dns; a8-43.smtp-out.amazonses.com"
+  },
+  "mail": {
+    "timestamp": "2022-08-03T17:34:54.558Z",
+    "source": "test@relay.example.com",
+    "sourceArn": "arn:aws:ses:us-east-1:032756942992:identity/relay.example.com",
+    "sourceIp": "72.213.158.107",
+    "callerIdentity": "mozilla-relay",
+    "sendingAccountId": "032756942992",
+    "messageId": "0100018264c6505e-66ca92ab-0593-41de-8df9-38b09a02a206-000000",
+    "destination": [
+      "bounce@simulator.amazonses.com"
+    ],
+    "headersTruncated": false,
+    "headers": [
+      {
+        "name": "Content-Type",
+        "value": "text/plain; charset=\"utf-8\""
+      },
+      {
+        "name": "Content-Transfer-Encoding",
+        "value": "7bit"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Subject",
+        "value": "Test message for bounce"
+      },
+      {
+        "name": "From",
+        "value": "test@relay.example.com"
+      },
+      {
+        "name": "To",
+        "value": "bounce@simulator.amazonses.com"
+      }
+    ],
+    "commonHeaders": {
+      "from": [
+        "test@relay.example.com"
+      ],
+      "to": [
+        "bounce@simulator.amazonses.com"
+      ],
+      "subject": "Test message for bounce"
+    }
+  }
+}

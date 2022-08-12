@@ -1,0 +1,36 @@
+{
+  "notificationType": "Received",
+  "receipt": {
+    "timestamp": "2015-09-11T20:32:33.936Z",
+    "processingTimeMillis": 406,
+    "recipients": [
+      "recipient@example.com"
+    ],
+    "spamVerdict": {
+      "status": "PASS"
+    },
+    "virusVerdict": {
+      "status": "PASS"
+    },
+    "spfVerdict": {
+      "status": "PASS"
+    },
+    "dkimVerdict": {
+      "status": "PASS"
+    },
+    "action": {
+      "type": "S3",
+      "topicArn": "arn:aws:sns:us-east-1:012345678912:example-topic",
+      "bucketName": "my-S3-bucket",
+      "objectKey": "\\email"
+    }
+  },
+  "mail": {
+    "timestamp": "2015-09-11T20:32:33.936Z",
+    "source": "0000014fbe1c09cf-7cb9f704-7531-4e53-89a1-5fa9744f5eb6-000000@amazonses.com",
+    "messageId": "d6iitobk75ur44p8kdnnp7g2n800",
+    "destination": [
+      "recipient@example.com"
+    ]
+  }
+}

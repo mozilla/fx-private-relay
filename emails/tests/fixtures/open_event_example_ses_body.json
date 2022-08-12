@@ -1,0 +1,78 @@
+{
+  "eventType": "Open",
+  "mail": {
+    "commonHeaders": {
+      "from": [
+        "sender@example.com"
+      ],
+      "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+      "subject": "Message sent from Amazon SES",
+      "to": [
+        "recipient@example.com"
+      ]
+    },
+    "destination": [
+      "recipient@example.com"
+    ],
+    "headers": [
+      {
+        "name": "X-SES-CONFIGURATION-SET",
+        "value": "ConfigSet"
+      },
+      {
+        "name": "X-SES-MESSAGE-TAGS",
+        "value": "myCustomTag1=myCustomValue1, myCustomTag2=myCustomValue2"
+      },
+      {
+        "name": "From",
+        "value": "sender@example.com"
+      },
+      {
+        "name": "To",
+        "value": "recipient@example.com"
+      },
+      {
+        "name": "Subject",
+        "value": "Message sent from Amazon SES"
+      },
+      {
+        "name": "MIME-Version",
+        "value": "1.0"
+      },
+      {
+        "name": "Content-Type",
+        "value": "multipart/alternative; boundary=\"XBoundary\""
+      }
+    ],
+    "headersTruncated": false,
+    "messageId": "EXAMPLE7c191be45-e9aedb9a-02f9-4d12-a87d-dd0099a07f8a-000000",
+    "sendingAccountId": "123456789012",
+    "source": "sender@example.com",
+    "tags": {
+      "myCustomTag1": [
+        "myCustomValue1"
+      ],
+      "myCustomTag2": [
+        "myCustomValue2"
+      ],
+      "ses:caller-identity": [
+        "IAM_user_or_role_name"
+      ],
+      "ses:configuration-set": [
+        "ConfigSet"
+      ],
+      "ses:from-domain": [
+        "example.com"
+      ],
+      "ses:source-ip": [
+        "192.0.2.0"
+      ]
+    },
+    "timestamp": "2017-08-09T21:59:49.927Z"
+  },
+  "open": {
+    "ipAddress": "192.0.2.1",
+    "timestamp": "2017-08-09T22:00:19.652Z",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_3 like Mac OS X) AppleWebKit/603.3.8 (KHTML, like Gecko) Mobile/14G60"
+  }
+}
