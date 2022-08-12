@@ -7,6 +7,7 @@ from unittest.mock import patch
 import glob
 import io
 import json
+import logging
 import os
 import re
 
@@ -779,25 +780,16 @@ class SnsMessageTest(TestCase):
 
 
 @pytest.mark.parametrize("ses_fixture", sorted(SES_TEST_CASES["unsupported"]))
-def test_sns_message_unsupported_type(ses_fixture: str) -> None:
-    """
-    Unsupported types fail in _sns_message.
-
-    They either fail from missing ["mail"]["commonHeaders"], or a KeyError on
-    ["receipt"], when processed as Received notifications.
-    _sns_notification checks the notificationType and eventType to prevent
-    these from getting to _sns_message.
-    """
+def test_sns_message_unsupported_type(ses_fixture: str, caplog) -> None:
+    """Unsupported types in _sns_message are logged, return a 400."""
     message_json = SES_BODIES[ses_fixture]
-    if "commonHeaders" not in message_json.get("mail", {}):
+    with MetricsMock() as mm:
         response = _sns_message(message_json)
-        assert response.status_code == 400
-        content = response.content.decode()
-        assert content == "Received SNS notification without commonHeaders."
-    else:
-        with pytest.raises(KeyError) as exc_info:
-            _sns_message(message_json)
-        assert str(exc_info.value) == "'receipt'"
+    assert response.status_code == 400
+    assert mm.get_records() == []
+    assert caplog.record_tuples == [
+        ("events", logging.ERROR, "SNS notification for unsupported type")
+    ]
 
 
 @pytest.mark.django_db

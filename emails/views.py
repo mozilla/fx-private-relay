@@ -388,22 +388,6 @@ def _sns_notification(json_body):
         )
         return HttpResponse("Received SNS notification with non-JSON body", status=400)
 
-    event_type = message_json.get("eventType")
-    notification_type = message_json.get("notificationType")
-    if notification_type not in ["Received", "Bounce"] and event_type != "Bounce":
-        logger.error(
-            "SNS notification for unsupported type",
-            extra={
-                "notification_type": shlex.quote(notification_type),
-                "event_type": shlex.quote(event_type),
-                "keys": [shlex.quote(key) for key in message_json.keys()],
-            },
-        )
-        return HttpResponse(
-            "Received SNS notification for unsupported Type: %s"
-            % html.escape(shlex.quote(notification_type)),
-            status=400,
-        )
     response = _sns_message(message_json)
     bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
     if response.status_code < 500:
@@ -440,11 +424,31 @@ def _get_relay_recipient_from_message_json(message_json):
 
 
 def _sns_message(message_json):
-    incr_if_enabled("sns_inbound_Notification_Received", 1)
-    notification_type = message_json.get("notificationType")
     event_type = message_json.get("eventType")
-    if notification_type == "Bounce" or event_type == "Bounce":
-        return _handle_bounce(message_json)
+    notification_type = message_json.get("notificationType")
+    if notification_type == "Received":
+        response = _handle_received(message_json)
+    elif event_type == "Bounce" or notification_type == "Bounce":
+        response = _handle_bounce(message_json)
+    else:
+        logger.error(
+            "SNS notification for unsupported type",
+            extra={
+                "notification_type": shlex.quote(notification_type),
+                "event_type": shlex.quote(event_type),
+                "keys": [shlex.quote(key) for key in message_json.keys()],
+            },
+        )
+        return HttpResponse(
+            "Received SNS notification for unsupported Type: %s"
+            % html.escape(shlex.quote(notification_type)),
+            status=400,
+        )
+    incr_if_enabled("sns_inbound_Notification_Received", 1)
+    return response
+
+
+def _handle_received(message_json):
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
