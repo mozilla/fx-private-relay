@@ -432,6 +432,8 @@ def _sns_message(message_json):
         response = _handle_bounce(message_json)
     elif event_type == "Complaint" or notification_type == "Complaint":
         response = _handle_complaint(message_json)
+    elif event_type == "Delivery" or notification_type == "Delivery":
+        response = _handle_delivery(message_json)
     else:
         logger.error(
             "SNS notification for unsupported type",
@@ -926,6 +928,25 @@ def _handle_complaint(data: dict[str, Any]) -> HttpResponse:
     }
     extra.update(header_data)
     info_logger.info(f"Complaint {channel} received.", extra=extra)
+    return HttpResponse("OK", status=200)
+
+
+def _handle_delivery(data: dict[str, Any]) -> HttpResponse:
+    if data.get("notificationType"):
+        channel = "notification"
+    else:
+        channel = "event"
+    delivery: dict[str, Any] = data["delivery"]
+    recipients_data = [
+        _log_data_for_email(addr) for addr in delivery.get("recipients", [])
+    ]
+    extra = {
+        "recipients": recipients_data,
+        "reporting_mta": delivery.get("reportingMTA"),
+        "smtp_response": delivery.get("smtpResponse"),
+        "processing_time_s": round(delivery.get("processingTimeMillis", 0) / 1000.0, 3),
+    }
+    info_logger.info(f"Delivery report {channel} received.", extra=extra)
     return HttpResponse("OK", status=200)
 
 

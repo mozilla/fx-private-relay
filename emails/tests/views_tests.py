@@ -913,6 +913,40 @@ def test_sns_message_on_complaint_fixture_log_details(caplog, return_path) -> No
 
 
 @pytest.mark.django_db
+@pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["delivery"])
+def test_sns_message_on_delivery_fixture(ses_fixture, caplog) -> None:
+    """A complaint message is a 200."""
+    message_json = deepcopy(SES_BODIES[ses_fixture])
+    response = _sns_message(message_json)
+    assert response.status_code == 200
+    dtype = "event" if "eventType" in message_json else "notification"
+    assert caplog.record_tuples == [
+        ("eventsinfo", logging.INFO, f"Delivery report {dtype} received.")
+    ]
+
+
+@pytest.mark.django_db
+def test_sns_message_on_delivery_fixture_log_details(caplog) -> None:
+    """A delivery message does not log email addresses."""
+    message_json = deepcopy(
+        SES_BODIES["delivery_notification_complaint_from_simulator"]
+    )
+    response = _sns_message(message_json)
+    assert response.status_code == 200
+    record = caplog.records[0]
+    assert record.recipients == [
+        {
+            "has_name": False,
+            "domain": "simulator.amazonses.com",
+            "email_type": "external_address",
+        }
+    ]
+    assert record.reporting_mta == "a48-113.smtp-out.amazonses.com"
+    assert record.smtp_response == "250 2.6.0 Message received"
+    assert record.processing_time_s == 0.461
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize("ses_fixture", SES_TEST_CASES["received"])
 def test_sns_message_on_received_fixture_missing_user(ses_fixture: str) -> None:
     """A received notification for an unknown email is a 404."""

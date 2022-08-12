@@ -16,11 +16,6 @@ SES_TEST_CASES: dict[str, list[str]] = {
     "unsupported": [
         "click_event_example",
         "delivery_delay_event_example",
-        "delivery_event_example",
-        "delivery_notification_complaint_from_simulator",
-        "delivery_notification_example",
-        "delivery_notification_ooto_from_simulator",
-        "delivery_notification_success_from_simulator",
         "open_event_example",
         "reject_event_example",
         "rendering_failure_example",
@@ -29,6 +24,7 @@ SES_TEST_CASES: dict[str, list[str]] = {
     ],
     "bounce": [],
     "complaint": [],
+    "delivery": [],
     "received": [],
 }
 
@@ -45,8 +41,10 @@ for fixture_file in sorted(fixtures_path.glob(f"*{suffix}")):
         continue
     if "bounce_" in key:
         SES_TEST_CASES["bounce"].append(key)
-    elif "complaint_" in key:
+    elif "complaint_event_" in key or "complaint_notification_" in key:
         SES_TEST_CASES["complaint"].append(key)
+    elif "delivery_event_" in key or "delivery_notification_" in key:
+        SES_TEST_CASES["delivery"].append(key)
     elif key == "received_notification_action_no_headers":
         pass  # Supported type, but missing commonHeaders
     else:
