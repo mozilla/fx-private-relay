@@ -689,3 +689,47 @@ export const QuotationIcon = ({
     </svg>
   );
 };
+
+export const ForwardIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 -5 20 20"
+      width={20}
+      height={20}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M16.86 3.6C15.01 1.99 12.61 1 9.96 1C5.31 1 1.38 4.03 0 8.22L2.36 9C3.41 5.81 6.41 3.5 9.96 3.5C11.91 3.5 13.69 4.22 15.08 5.38L11.46 9H20.46V0L16.86 3.6Z" />
+    </svg>
+  );
+};
+
+export const BlockIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM2 10C2 5.58 5.58 2 10 2C11.85 2 13.55 2.63 14.9 3.69L3.69 14.9C2.63 13.55 2 11.85 2 10ZM10 18C8.15 18 6.45 17.37 5.1 16.31L16.31 5.1C17.37 6.45 18 8.15 18 10C18 14.42 14.42 18 10 18Z" />
+    </svg>
+  );
+};

@@ -280,12 +280,14 @@ export const mockedRelaynumbers: Record<
     {
       number: "+18089251571",
       location: "Hilo",
+      enabled: true,
     },
   ],
   full: [
     {
       number: "+18089251571",
       location: "Hilo",
+      enabled: true,
     },
   ],
 };

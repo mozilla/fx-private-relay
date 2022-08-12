@@ -1,0 +1,267 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/tokens.scss";
+
+.main-phone-wrapper {
+  max-width: $content-lg;
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-md;
+
+  .dashboard-card {
+    box-shadow: $box-shadow-sm;
+    background-color: $color-white;
+    border-radius: $border-radius-md;
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-lg 0;
+
+    .header-phone-number {
+      @include text-body-xl;
+      @include font-firefox;
+      display: flex;
+      padding: 0 $spacing-xl;
+    }
+
+    .phone-statistics-container {
+      margin: $spacing-md $spacing-lg 0 $spacing-lg;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-radius: $border-radius-lg;
+      border: $border-radius-xs solid $color-light-gray-20;
+      gap: $spacing-md;
+      padding-top: $spacing-md;
+
+      @media screen and #{$mq-sm} {
+        flex-direction: row;
+        margin: 0 $spacing-lg;
+        border-radius: auto;
+        border: none;
+        gap: none;
+      }
+    }
+
+    .phone-statistics {
+      justify-content: space-between;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      padding-left: $spacing-md;
+      padding-right: $spacing-md;
+      padding-bottom: $spacing-md;
+      border-bottom: 1px solid $color-light-gray-20;
+      margin: 0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      @media screen and #{$mq-sm} {
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+        border-radius: $border-radius-md;
+        background: $color-light-gray-10;
+        padding: $spacing-md $spacing-lg;
+      }
+
+      .phone-statistics-title {
+        font-weight: 600;
+        border-radius: $border-radius-md;
+
+        @include text-title-3xs;
+
+        @media screen and #{$mq-sm} {
+          @include text-title-2xs;
+          @include font-firefox;
+        }
+      }
+
+      .phone-statistics-body {
+        line-height: 120%;
+
+        @media screen and #{$mq-sm} {
+          @include text-body-xs;
+        }
+      }
+    }
+
+    .inactive-statistics {
+      color: $color-light-gray-70;
+    }
+
+    .copy-icon {
+      padding: 0 $spacing-sm;
+      opacity: 0.5;
+      display: inline-block;
+      color: $color-light-gray-90;
+      align-self: center;
+    }
+
+    .copy-button-wrapper {
+      display: flex;
+      flex-direction: row;
+      gap: $spacing-xs;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+
+      .copy-button {
+        align-content: center;
+        justify-content: center;
+        display: flex;
+        appearance: none;
+        border: 0;
+        background-color: transparent;
+        text-align: center;
+        color: $color-grey-20;
+        cursor: pointer;
+
+        svg {
+          width: $layout-sm;
+        }
+
+        &:hover {
+          color: $color-grey-30;
+        }
+      }
+
+      .copied-confirmation {
+        @include text-body-sm;
+        opacity: 0;
+        padding: $spacing-xs $spacing-sm;
+        justify-content: center;
+        pointer-events: none;
+        transition: opacity 2s;
+        background-color: $color-violet-30;
+        color: $color-white;
+        border-radius: $border-radius-md;
+        position: absolute;
+        right: 0;
+        top: 50%;
+        transform: translateY(-50%);
+
+        &.is-shown {
+          pointer-events: auto;
+          opacity: 1;
+          // Don't fade in when appearing:
+          transition: opacity 0s;
+        }
+
+        @media screen and #{$mq-sm} {
+          position: static;
+          transform: none;
+        }
+      }
+    }
+
+    .phone-controls-container {
+      display: flex;
+      flex-direction: column;
+      margin-top: $spacing-md;
+      padding: 0 $spacing-lg $spacing-2xl $spacing-lg;
+      width: 100%;
+      gap: $spacing-lg;
+      border-bottom: 1px solid $color-light-gray-20;
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+        width: auto;
+        gap: $layout-xl;
+        padding: $spacing-lg $spacing-lg $spacing-2xl $spacing-lg;
+        border-top: 1px solid $color-light-gray-20;
+      }
+
+      .phone-controls {
+        border-radius: 40px;
+        border: $border-radius-xs solid $color-light-gray-20;
+        padding: $spacing-sm;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-md;
+
+        .base-button {
+          border: none;
+          border-radius: $border-radius-lg;
+          background-color: $color-light-gray-30;
+          padding: $spacing-sm $spacing-sm;
+          display: flex;
+          width: 100%;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+
+          @media screen and #{$mq-md} {
+            width: $layout-xl;
+          }
+        }
+
+        .active-button {
+          background-color: $color-violet-70;
+        }
+
+        .forward-icon,
+        .block-icon {
+          color: $color-white;
+          justify-items: center;
+          align-items: center;
+        }
+      }
+    }
+
+    .metadata-container {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      padding: 0 $spacing-xl;
+      margin-top: $spacing-md;
+      border-bottom: 1px solid $color-light-gray-20;
+
+      &:last-child {
+        border-bottom-style: none;
+        padding-bottom: 0;
+      }
+
+      dl {
+        flex-grow: 2;
+        display: flex;
+        gap: $spacing-sm;
+        flex-direction: column;
+
+        @media screen and #{$mq-md} {
+          flex-direction: row;
+          gap: $spacing-xl;
+        }
+
+        dt {
+          @include text-body-xs;
+          color: $color-dark-gray-05;
+        }
+      }
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+
+        .metadata {
+          $metadataIconSize: 24px;
+          background-repeat: no-repeat;
+          background-position: left center;
+          background-size: $metadataIconSize $metadataIconSize;
+          padding-left: calc($metadataIconSize + $spacing-md);
+        }
+
+        .forward-target {
+          // background-image: url("/icons/email.svg");
+          background-image: url("../../../../public/icons/email.svg");
+        }
+
+        .date-created {
+          background-image: url("../../../../public/icons/calendar.svg");
+        }
+      }
+    }
+  }
+}

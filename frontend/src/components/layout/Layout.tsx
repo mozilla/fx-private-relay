@@ -158,7 +158,9 @@ export const Layout = (props: Props) => {
             userEmail={usersData?.email}
             userAvatar={profiles.data?.[0].avatar}
           />
-          <div className={styles.content}>{props.children}</div>
+          <div role="main" className={styles.content}>
+            {props.children}
+          </div>
           <footer className={styles.footer}>
             <a
               href="https://www.mozilla.org"
