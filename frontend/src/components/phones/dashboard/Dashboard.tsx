@@ -5,7 +5,6 @@ import styles from "./PhoneDashboard.module.scss";
 import { CopyIcon, ForwardIcon, BlockIcon } from "../../../components/Icons";
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
-import { getL10n } from "../../../functions/getL10n";
 import { useLocalization } from "@fluent/react";
 
 export const PhoneDashboard = () => {
