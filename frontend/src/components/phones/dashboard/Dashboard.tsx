@@ -139,7 +139,7 @@ export const PhoneDashboard = () => {
     <main>
       <div className={styles["dashboard-card"]}>
         <span className={styles["header-phone-number"]}>
-          {e164PhoneNumberFormat(phoneNumber)}
+          {formatPhoneNumberToUSDisplay(phoneNumber)}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
               <button
@@ -175,8 +175,8 @@ export const PhoneDashboard = () => {
   );
 };
 
-function e164PhoneNumberFormat(relayNumber: string) {
-  const friendlyPhoneNumber = relayNumber.split("");
+function formatPhoneNumberToUSDisplay(e164Number: string) {
+  const friendlyPhoneNumber = e164Number.split("");
   friendlyPhoneNumber?.splice(2, 0, " (");
   friendlyPhoneNumber?.splice(6, 0, ") ");
   friendlyPhoneNumber?.join("");
