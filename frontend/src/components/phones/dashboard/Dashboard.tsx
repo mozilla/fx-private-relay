@@ -1,17 +1,20 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+import Moment from "react-moment";
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
 import { CopyIcon, ForwardIcon, BlockIcon } from "../../../components/Icons";
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
+Moment.globalFormat = "D MMM YYYY";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
 
   const relayNumberData = useRelayNumber();
   const relayPhoneData = useRealPhonesData();
+  const phoneDateCreated = useRealPhonesData();
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
   const [enableForwarding, setEnableForwarding] = useState(
@@ -20,6 +23,8 @@ export const PhoneDashboard = () => {
 
   const phoneNumber = relayNumberData.data?.[0].number!;
   const realPhone = relayPhoneData.data?.[0].number!;
+
+  const dateToFormat = phoneDateCreated.data?.[0].verified_date!;
 
   const toggleForwarding = () => {
     setEnableForwarding(!enableForwarding);
@@ -128,7 +133,9 @@ export const PhoneDashboard = () => {
           <dt>
             <dt>{l10n.getString("phone-dashboard-metadata-date-created")}</dt>
           </dt>
-          <dd>Date</dd>
+          <dd>
+            <Moment>{dateToFormat}</Moment>
+          </dd>
         </div>
       </dl>
     </div>
