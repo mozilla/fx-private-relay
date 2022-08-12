@@ -395,6 +395,7 @@ $trackerRemovalIndicatorWidth: 20px;
     gap: $spacing-md;
     padding-inline: $spacing-md;
     padding-bottom: $spacing-md;
+    border-bottom: 1px solid $color-light-gray-20;
 
     &:last-child {
       border-bottom-style: none;

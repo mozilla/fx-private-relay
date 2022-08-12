@@ -9,10 +9,6 @@
   flex-direction: column;
   padding: $spacing-lg 0;
 
-  //   & > * {
-  //     padding: 0 $spacing-xl;
-  //   }
-
   .header-phone-number {
     @include text-body-xl;
     @include font-firefox;
