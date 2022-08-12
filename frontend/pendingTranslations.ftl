@@ -192,6 +192,7 @@ phone-statistics-calls-texts-forwarded = Calls and texts forwarded
 phone-statistics-calls-texts-blocked = Calls and texts blocked
 phone-dashboard-metadata-forwarded-to = Forwarded to:
 phone-dashboard-metadata-date-created = Date Created:
+phone-dashboard-number-copied = Copied!
 phone-dashboard-forwarding-enabled = { -brand-name-relay } is currently forwarding all phone calls and SMS messages to your true phone number.
 phone-dashboard-forwarding-blocked = { -brand-name-relay } is blocking all phone calls and text messages—you will not receive anything from your phone number mask.
 

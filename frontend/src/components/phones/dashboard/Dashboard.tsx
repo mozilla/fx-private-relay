@@ -142,39 +142,41 @@ export const PhoneDashboard = () => {
   );
 
   return (
-    <main className={styles["dashboard-card"]}>
-      <span className={styles["header-phone-number"]}>
-        {formatPhoneNumberToUSDisplay(phoneNumber)}
-        <span className={styles["copy-controls"]}>
-          <span className={styles["copy-button-wrapper"]}>
-            <button
-              type="button"
-              className={styles["copy-button"]}
-              title="Copied"
-              onClick={copyPhoneNumber}
-            >
-              <CopyIcon
-                alt="test"
-                className={styles["copy-icon"]}
-                width={32}
-                height={32}
-              />
-            </button>
-            <span
-              aria-hidden={!justCopiedPhoneNumber}
-              className={`${styles["copied-confirmation"]} ${
-                justCopiedPhoneNumber ? styles["is-shown"] : ""
-              }`}
-            >
-              {l10n.getString("phone-dashboard-number-copied")}
+    <main className={styles["main-phone-wrapper"]}>
+      <div className={styles["dashboard-card"]}>
+        <span className={styles["header-phone-number"]}>
+          {formatPhoneNumberToUSDisplay(phoneNumber)}
+          <span className={styles["copy-controls"]}>
+            <span className={styles["copy-button-wrapper"]}>
+              <button
+                type="button"
+                className={styles["copy-button"]}
+                title="Copied"
+                onClick={copyPhoneNumber}
+              >
+                <CopyIcon
+                  alt="test"
+                  className={styles["copy-icon"]}
+                  width={32}
+                  height={32}
+                />
+              </button>
+              <span
+                aria-hidden={!justCopiedPhoneNumber}
+                className={`${styles["copied-confirmation"]} ${
+                  justCopiedPhoneNumber ? styles["is-shown"] : ""
+                }`}
+              >
+                {l10n.getString("phone-dashboard-number-copied")}
+              </span>
             </span>
           </span>
         </span>
-      </span>
 
-      {phoneStatistics}
-      {phoneControls}
-      {phoneMetadata}
+        {phoneStatistics}
+        {phoneControls}
+        {phoneMetadata}
+      </div>
     </main>
   );
 };
