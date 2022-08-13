@@ -143,8 +143,8 @@ export const PhoneDashboard = () => {
     <main className={styles["main-phone-wrapper"]}>
       <div className={styles["dashboard-card"]}>
         <span className={styles["header-phone-number"]}>
-          {realPhoneData?.number
-            ? formatPhoneNumberToUSDisplay(realPhoneData.number)
+          {relayNumberData?.number
+            ? formatPhoneNumberToUSDisplay(relayNumberData.number)
             : ""}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>

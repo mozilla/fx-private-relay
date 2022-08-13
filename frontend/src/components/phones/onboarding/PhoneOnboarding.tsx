@@ -54,9 +54,5 @@ export const PhoneOnboarding = (props: Props) => {
     step = <RelayNumberPicker onComplete={props.onComplete} />;
   }
 
-  return (
-    <>
-      <main className={styles.onboarding}>{step}</main>
-    </>
-  );
+  return <main className={styles.onboarding}>{step}</main>;
 };

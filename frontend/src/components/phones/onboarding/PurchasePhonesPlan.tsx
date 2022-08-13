@@ -20,7 +20,7 @@ export const PurchasePhonesPlan = () => {
   };
 
   return (
-    <div className={styles.wrapper}>
+    <main className={styles.wrapper}>
       <div className={styles.lead}>
         <img src={WomanPhone.src} alt="" width={200} />
         <h2>{l10n.getString("phone-onboarding-step1-headline")}</h2>
@@ -49,6 +49,6 @@ export const PurchasePhonesPlan = () => {
           </LinkButton>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
