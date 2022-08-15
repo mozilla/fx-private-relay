@@ -155,13 +155,16 @@ class RelayNumber(models.Model):
     vcard_lookup_key = models.CharField(
         max_length=6, default=vcard_lookup_key_default, unique=True
     )
+    enabled = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         if not get_verified_realphone_records(self.user):
             raise ValidationError("User does not have a verified real phone.")
+
+        # if this number exists for this user, this is an update call
         existing_number = RelayNumber.objects.filter(user=self.user)
         if existing_number:
-            raise ValidationError("User already has a relay number.")
+            return super().save(*args, **kwargs)
 
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")
@@ -172,9 +175,10 @@ class RelayNumber(models.Model):
         if settings.TWILIO_TEST_ACCOUNT_SID:
             client = phones_config.twilio_test_client
 
-        incoming_number = client.incoming_phone_numbers.create(
+        client.incoming_phone_numbers.create(
             phone_number=self.number,
             sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
+            voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
         )
         return super().save(*args, **kwargs)
 
@@ -198,6 +202,24 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
             to=real_phone.number,
             media_url=[media_url],
         )
+
+
+def last_inbound_date_default():
+    return datetime.now(timezone.utc)
+
+
+class InboundContact(models.Model):
+    relay_number = models.ForeignKey(RelayNumber, on_delete=models.CASCADE)
+    inbound_number = models.CharField(max_length=15)
+    last_inbound_date = models.DateTimeField(default=last_inbound_date_default)
+    num_calls = models.PositiveIntegerField(default=0)
+    num_calls_blocked = models.PositiveIntegerField(default=0)
+    num_texts = models.PositiveIntegerField(default=0)
+    num_texts_blocked = models.PositiveIntegerField(default=0)
+    blocked = models.BooleanField(default=False)
+
+    class Meta:
+        indexes = [models.Index(fields=["relay_number", "inbound_number"])]
 
 
 def suggested_numbers(user):

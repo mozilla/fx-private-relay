@@ -12,6 +12,9 @@ nav-support = Help and Support
 nav-sign-out = Sign Out
 nav-contact = Contact Us
 
+landing-pricing-free-feature-3 = Email tracker removal
+landing-pricing-premium-feature-6 = Email tracker removal
+
 landing-use-cases-shopping = Shopping
 landing-use-cases-shopping-hero-heading = Shopping with email masks
 landing-use-cases-shopping-hero-content1 = Want to buy something online and don’t know or fully trust the shop?
@@ -32,13 +35,19 @@ landing-use-cases-signups-hero-heading = Worry-free signups
 landing-use-cases-signups-hero-content1 = Want to start a new subscription, RSVP to an event, or get a bargain promo code without having spam flooding your inbox?
 landing-use-cases-signups-hero-content2 = Before you complete that next signup, use an email mask instead of your real one to protect your info and keep control over your inbox.
 
+premium-promo-perks-pill-new = New!
+premium-promo-perks-perk-block-promotionals-headline = Block promotional emails
+premium-promo-perks-perk-block-promotionals-body = With { -brand-name-relay-premium }, you can block promotional emails from reaching your inbox while still receiving emails like receipts or shipping information.
+premium-promo-perks-perk-tracker-blocking-headline = Remove email trackers
+premium-promo-perks-perk-tracker-blocking-body = Now { -brand-name-relay } can help you stop email tracking—your email masks will remove common email trackers from any emails forwarded to you, helping you stay invisible to trackers and advertisers.
+
 banner-download-install-chrome-extension-copy-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using masks even easier.
 multi-part-onboarding-premium-chrome-extension-get-description-2 = The { -brand-name-firefox-relay } extension for { -brand-name-chrome } makes creating and using email masks even easier.
 
 setting-tracker-removal-heading = Remove Email Trackers
 setting-tracker-removal-description = Remove email trackers in all forwarded emails.
 setting-tracker-removal-note = { -brand-name-firefox-relay } can now remove common trackers from emails forwarded through your masks.
-setting-tracker-removal-warning = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images.
+setting-tracker-removal-warning-2 = Important: Removing trackers may cause your email to look broken, because trackers are often contained in images and links. Any emails you receive like this cannot be fixed or recovered.
 setting-api-key-copied = Copied!
 
 profile-promo-email-blocking-option-promotionals-premiumonly-marker = ({ -brand-name-premium } only)
@@ -107,9 +116,85 @@ modal-custom-alias-picker-form-prefix-spaces-warning = Spaces are not allowed in
 modal-custom-alias-picker-form-prefix-invalid-warning = Email masks can only contain lowercase letters, numbers, and hyphens, and may not start or end with a hyphen.
 modal-custom-alias-picker-form-prefix-invalid-warning-2 = Email masks can only contain lowercase letters, numbers, periods, and hyphens, and may not start or end with a period or hyphen.
 
-## Phone Page
+## Phone Onboarding
+phone-onboarding-step1-headline = Introducing phone number masking
+phone-onboarding-step1-body = With phone number masking, you can create a phone number mask that helps you  protect your true phone number. Share it, and receive messages privately.
+phone-onboarding-step1-list-item-1 = Share a masked phone number that forwards messages to your true number.
+phone-onboarding-step1-list-item-2 = Need to confirm a dinner reservation? Share your phone number mask instead.
+phone-onboarding-step1-list-item-3 = With phone number masking, you can receive texts. Replying is not yet available.
 
-phone-headline = Introducing phone number masking
+phone-onboarding-step1-button-label = Upgrade to get phone number masking
+phone-onboarding-step1-button-price = $4.99 / month
+phone-onboarding-step1-button-cta = Upgrade Now
+
+phone-onboarding-step2-headline = Verify your true phone number
+phone-onboarding-step2-body = Provide the phone number where you’ll receive your SMS and calls (in the future). We’ll send a 6-digit code to this number to verify it.
+phone-onboarding-step2-input-placeholder = Enter your phone number
+phone-onboarding-step2-button-cta = Send code
+phone-onboarding-step2-invalid-number = { $phone_number } is not a valid number. Please review and provide a real phone number.
+
+phone-onboarding-step3-headline = Verify your true phone number
+# Variables:
+#   $phone_number (string) - The phone number to which a verification code was sent, e.g. +1 (415) 555-2671
+#   $remaining_minutes (number) - The number of minutes (to be added to $remaining_seconds) left before the verification code expires
+#   $remaining_seconds (number) - The number of seconds (to be added to $remaining_minutes) left before the verification code expires
+phone-onboarding-step3-body =
+    { $remaining_minutes ->
+        [0] {$remaining_seconds ->
+            [1] Please enter the verification code that was sent to <span>{ $phone_number } </span> within <strong>{ $remaining_seconds } second</strong>.
+            *[other] Please enter the verification code that was sent to <span>{ $phone_number } </span> within <strong>{ $remaining_seconds } seconds</strong>.
+        }
+        *[other] Please enter the verification code that was sent to <span>{ $phone_number } </span> within <strong>{ $remaining_minutes }:{ NUMBER($remaining_seconds, minimumIntegerDigits: 2) } minutes</strong>.
+    }
+
+phone-onboarding-step3-input-placeholder = Enter 6-digit code
+phone-onboarding-step3-button-cta = Confirm my phone number
+phone-onboarding-step3-button-edit = Edit true phone number
+phone-onboarding-step3-button-resend = Resend verification code
+phone-onboarding-step3-error-exipred = Try again—the time limit expired.
+phone-onboarding-step3-error-cta = Send me another code
+phone-onboarding-step3-code-fail-title = Wrong verification code
+phone-onboarding-step3-code-fail-body = Please try again or request a new code
+phone-onboarding-step3-code-success-title = Congratulations! 
+phone-onboarding-step3-code-success-body = You’re now ready to choose your phone number mask.
+phone-onboarding-step3-code-success-subhead-title = What’s next?
+phone-onboarding-step3-code-success-subhead-body = Choose your phone number mask and start using { -brand-name-firefox-relay } to protect your true phone number.
+phone-onboarding-step3-code-success-cta = Search for phone number masks
+phone-onboarding-step3-loading = Based on your true phone number, { -brand-name-relay } is looking for similar number combinations available to you.
+
+phone-onboarding-step4-country-us = United States
+phone-onboarding-step4-body = These available phone number masks are similar to your true phone number. Once you register a phone number mask, you cannot change it. 
+phone-onboarding-step4-smiliar-phone = Similar to { $phone_number }
+phone-onboarding-step4-insput-search = Enter a city name or area code
+phone-onboarding-step4-button-more-options = Show me other options
+phone-onboarding-step4-button-register-phone-number = Register phone number mask
+phone-onboarding-step4-search-results-body = Phone number masks available in <strong>{ $location }</strong>. Once you register a phone number mask, you cannot change it.
+phone-onboarding-step4-confirm-message = To confirm your your phone number mask, enter it below. This can’t be changed later.
+phone-onboarding-step4-confirm-alt-cancel = Cancel 
+phone-onboarding-step4-confirm-input-placeholder = Confirm phone number mask
+phone-onboarding-step4-button-register-phone-number = Confirm number
+phone-onboarding-step4-code-success-title = Congratulations! 
+phone-onboarding-step4-code-success-body = You’ve registered your new phone number mask.
+phone-onboarding-step4-code-success-subhead-title = What’s next?
+phone-onboarding-step4-code-success-subhead-body-p1 = { -brand-name-relay } sent you an SMS with a new contact card through which we’ll forward your calls and messages. 
+phone-onboarding-step4-code-success-subhead-body-p2 = Please save the contact so you can identify your forwarded messages and calls.
+phone-onboarding-step4-code-success-cta = Continue
+
+# Phone Settings
+phone-settings-caller-sms-log = Caller and SMS log
+phone-settings-caller-sms-log-description = Allow { -brand-name-firefox-relay } to keep a log of your callers and text senders.
+phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block senders or callers.
+
+# Phone Dashboard
+phone-statistics-remaining-call-minutes = Remaining call minutes
+phone-statistics-remaining-texts = Remaining texts
+phone-statistics-calls-texts-forwarded = Calls and texts forwarded
+phone-statistics-calls-texts-blocked = Calls and texts blocked
+phone-dashboard-metadata-forwarded-to = Forwarded to:
+phone-dashboard-metadata-date-created = Date Created:
+phone-dashboard-number-copied = Copied!
+phone-dashboard-forwarding-enabled = { -brand-name-relay } is currently forwarding all phone calls and SMS messages to your true phone number.
+phone-dashboard-forwarding-blocked = { -brand-name-relay } is blocking all phone calls and text messages—you will not receive anything from your phone number mask.
 
 ## Replies
 profile-label-replies = Replies
@@ -126,18 +211,18 @@ whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
 # When translating, please make sure the resulting string is of roughly similar
 # length as the English version.
 whatsnew-feature-tracker-removal-snippet = Now { -brand-name-relay } can remove common email trackers from emails forwarded…
-whatsnew-feature-tracker-removal-description = Now { -brand-name-relay } can remove common email trackers from emails forwarded to you, helping you stay invisible to advertisers.
+whatsnew-feature-tracker-removal-description-2 = Now { -brand-name-relay } can remove common email trackers from emails forwarded to you, helping you stay invisible to advertisers. Turn it on in “Settings.”
 
 profile-stat-learn-more = Learn more
 profile-stat-learn-more-close = Close
 # This is displayed in small under a number in a large font indicating the number of trackers that have been removed from all emails sent to all of a user's masks
 profile-stat-label-trackers-removed = Trackers removed
 profile-stat-label-trackers-learn-more-part1 = Enabling tracker removal will remove common email trackers from your forwarded emails.
-profile-stat-label-trackers-learn-more-part2 = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images.
+profile-stat-label-trackers-learn-more-part2-2 = Important: Removing trackers may cause your email to look broken, because the trackers are often contained within images and links.
 # This is displayed in small under a number in a large font indicating the number of trackers that have been removed from all emails sent to a particular mask
 profile-label-trackers-removed = Trackers removed
 profile-trackers-removed-tooltip-part1 = With tracker removal enabled, common email trackers will be removed from your forwarded emails.
-profile-trackers-removed-tooltip-part2 = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images.
+profile-trackers-removed-tooltip-part2-2 = <b>Important:</b> Removing trackers may cause your email to look broken, because the trackers are often contained within images and links.
 # This is a button that, when clicked, will open a tooltip with profile-indicator-tracker-removal-tooltip ("Currently removing email trackers").
 profile-indicator-tracker-removal-alt = Tracker removal
 profile-indicator-tracker-removal-tooltip = Currently removing email trackers
@@ -172,7 +257,7 @@ trackerreport-removal-explainer-content = { -brand-name-firefox-relay } can now 
 trackerreport-trackers-explainer-heading = About email trackers
 trackerreport-trackers-explainer-content-part1 = Email tracking is a common surveillance and advertising tool that has taken over many inboxes. These trackers can be used to understand more about your online behavior, your interests, and your email activity.
 trackerreport-trackers-explainer-content-part2 = A company or organization will embed a tracker in emails sent to you, usually hidden within an image or a link. When the email is opened, code within the tracker sends data back to the company.
-trackerreport-breakage-warning = Important: Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images, which will not load if they contain a tracker.
+trackerreport-breakage-warning-2 = Important: Removing trackers may cause your email to look broken, because trackers are often contained in images and links. Any emails you receive like this cannot be fixed or recovered.
 trackerreport-faq-heading = Top questions about email trackers
 trackerreport-faq-cta = See more FAQs about { -brand-name-firefox-relay }
 trackerreport-loading = Loading your tracker removal report…
@@ -183,7 +268,7 @@ faq-question-disable-trackerremoval-answer = Yes. If you’re having trouble wit
 faq-question-bulk-trackerremoval-question = Can I remove trackers only on some of my email masks?
 faq-question-bulk-trackerremoval-answer = You can only turn tracker removal on at an account level—it either removes trackers from all of your emails, or none of them.
 faq-question-trackerremoval-breakage-question = Why do my emails look broken?
-faq-question-trackerremoval-breakage-answer = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
+faq-question-trackerremoval-breakage-answer-2 = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images and links. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
 
 faq-question-availability-answer-v3 = Free { -brand-name-relay } is available in most countries. { -brand-name-relay-premium } is available in Austria, Belgium, Canada, Cyprus, Estonia, Finland, France, Germany, Greece, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Malta, Netherlands, New Zealand, Portugal, Singapore, Slovakia, Slovenia, Spain, Sweden, Switzerland, United Kingdom, and the United States.
 premium-promo-availability-warning-3 = { -brand-name-relay-premium } is available in Austria, Belgium, Canada, Cyprus, Estonia, Finland, France, Germany, Greece, Ireland, Italy, Latvia, Lithuania, Luxembourg, Malaysia, Malta, Netherlands, New Zealand, Portugal, Singapore, Slovakia, Slovenia, Spain, Sweden, Switzerland, United Kingdom, and the United States.

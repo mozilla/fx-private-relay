@@ -43,6 +43,9 @@ const Settings: NextPage = () => {
   const [trackerRemovalEnabled, setTrackerRemovalEnabled] = useState(
     profileData.data?.[0].remove_level_one_email_trackers
   );
+  const [phoneCallerSMSLogEnabled, setPhoneCallerSMSLogEnabled] = useState(
+    profileData.data?.[0].store_phone_log
+  );
   const [justCopiedApiKey, setJustCopiedApiKey] = useState(false);
   const apiKeyElementRef = useRef<HTMLInputElement>(null);
 
@@ -94,6 +97,7 @@ const Settings: NextPage = () => {
           typeof profile.remove_level_one_email_trackers === "boolean"
             ? trackerRemovalEnabled
             : undefined,
+        store_phone_log: phoneCallerSMSLogEnabled,
       });
 
       // After having enabled new server-side data storage, upload the locally stored labels:
@@ -144,12 +148,88 @@ const Settings: NextPage = () => {
     </li>
   ) : null;
 
+  const labelCollectionPrivacySetting = (
+    <div className={styles.field}>
+      <h2 className={styles["field-heading"]}>
+        {l10n.getString("setting-label-collection-heading-v2")}
+      </h2>
+      <div className={styles["field-content"]}>
+        <div className={styles["field-control"]}>
+          <input
+            type="checkbox"
+            name="label-collection"
+            id="label-collection"
+            defaultChecked={profile.server_storage}
+            onChange={(e) => setLabelCollectionEnabled(e.target.checked)}
+          />
+          <label htmlFor="label-collection">
+            {l10n.getString("setting-label-collection-description-2")}
+          </label>
+        </div>
+        {labelCollectionWarning}
+      </div>
+    </div>
+  );
+
   const copyApiKeyToClipboard: MouseEventHandler<HTMLButtonElement> = () => {
     navigator.clipboard.writeText(profile.api_token);
     apiKeyElementRef.current?.select();
     setJustCopiedApiKey(true);
     setTimeout(() => setJustCopiedApiKey(false), 1000);
   };
+
+  const apiKeySetting = (
+    <div className={styles.field}>
+      <h2 className={styles["field-heading"]}>
+        <label htmlFor="api-key">
+          {l10n.getString("setting-label-api-key")}
+        </label>
+      </h2>
+      <div
+        className={`${styles["copy-api-key-content"]} ${styles["field-content"]}`}
+      >
+        <div className={styles["settings-api-key-wrapper"]}>
+          <input
+            id="api-key"
+            ref={apiKeyElementRef}
+            className={styles["copy-api-key-display"]}
+            value={profile.api_token}
+            size={profile.api_token.length}
+            readOnly={true}
+          />
+          <span className={styles["copy-controls"]}>
+            <span className={styles["copy-button-wrapper"]}>
+              <button
+                type="button"
+                className={styles["copy-button"]}
+                title={l10n.getString("settings-button-copy")}
+                onClick={copyApiKeyToClipboard}
+              >
+                <CopyIcon
+                  alt={l10n.getString("settings-button-copy")}
+                  className={styles["copy-icon"]}
+                  width={24}
+                  height={24}
+                />
+              </button>
+              <span
+                aria-hidden={!justCopiedApiKey}
+                className={`${styles["copied-confirmation"]} ${
+                  justCopiedApiKey ? styles["is-shown"] : ""
+                }`}
+              >
+                {l10n.getString("setting-api-key-copied")}
+              </span>
+            </span>
+          </span>
+        </div>
+        <div className={styles["settings-api-key-copy"]}>
+          {l10n.getString("settings-api-key-description")}{" "}
+          <b>{l10n.getString("settings-api-key-description-bolded")}</b>
+        </div>
+      </div>
+    </div>
+  );
 
   // To allow us to add this UI before the back-end is updated, we only show it
   // when the profiles API actually returns a property `remove_level_one_email_trackers`.
@@ -180,11 +260,39 @@ const Settings: NextPage = () => {
           </div>
           <div className={styles["field-warning"]}>
             <InfoTriangleIcon alt="" />
-            <p>{l10n.getString("setting-tracker-removal-warning")}</p>
+            <p>{l10n.getString("setting-tracker-removal-warning-2")}</p>
           </div>
         </div>
       </div>
     ) : null;
+
+  const phoneCallerSMSLogSetting = isFlagActive(runtimeData.data, "phones") ? (
+    <div className={styles.field}>
+      <h2 className={styles["field-heading"]}>
+        <span className={styles["field-heading-icon-wrapper"]}>
+          {l10n.getString("phone-settings-caller-sms-log")}
+        </span>
+      </h2>
+      <div className={styles["field-content"]}>
+        <div className={styles["field-control"]}>
+          <input
+            type="checkbox"
+            name="caller-sms-log"
+            id="caller-sms-log"
+            defaultChecked={profile.store_phone_log}
+            onChange={(e) => setPhoneCallerSMSLogEnabled(e.target.checked)}
+          />
+          <label htmlFor="caller-sms-log">
+            <p>{l10n.getString("phone-settings-caller-sms-log-description")}</p>
+          </label>
+        </div>
+        <div className={styles["field-warning"]}>
+          <InfoTriangleIcon alt="" />
+          <p>{l10n.getString("phone-settings-caller-sms-log-warning")}</p>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   return (
     <>
@@ -194,83 +302,11 @@ const Settings: NextPage = () => {
             {currentSettingWarning}
             <div className={styles["settings-form-wrapper"]}>
               <form onSubmit={saveSettings} className={styles["settings-form"]}>
-                <div className={styles.field}>
-                  <h2 className={styles["field-heading"]}>
-                    {l10n.getString("setting-label-collection-heading-v2")}
-                  </h2>
-                  <div className={styles["field-content"]}>
-                    <div className={styles["field-control"]}>
-                      <input
-                        type="checkbox"
-                        name="label-collection"
-                        id="label-collection"
-                        defaultChecked={profile.server_storage}
-                        onChange={(e) =>
-                          setLabelCollectionEnabled(e.target.checked)
-                        }
-                      />
-                      <label htmlFor="label-collection">
-                        {l10n.getString(
-                          "setting-label-collection-description-2"
-                        )}
-                      </label>
-                    </div>
-                    {labelCollectionWarning}
-                  </div>
-                </div>
-                <div className={styles.field}>
-                  <h2 className={styles["field-heading"]}>
-                    <label htmlFor="api-key">
-                      {l10n.getString("setting-label-api-key")}
-                    </label>
-                  </h2>
-                  <div
-                    className={`${styles["copy-api-key-content"]} ${styles["field-content"]}`}
-                  >
-                    <div className={styles["settings-api-key-wrapper"]}>
-                      <input
-                        id="api-key"
-                        ref={apiKeyElementRef}
-                        className={styles["copy-api-key-display"]}
-                        value={profile.api_token}
-                        size={profile.api_token.length}
-                        readOnly={true}
-                      />
-                      <span className={styles["copy-controls"]}>
-                        <span className={styles["copy-button-wrapper"]}>
-                          <button
-                            type="button"
-                            className={styles["copy-button"]}
-                            title={l10n.getString("settings-button-copy")}
-                            onClick={copyApiKeyToClipboard}
-                          >
-                            <CopyIcon
-                              alt={l10n.getString("settings-button-copy")}
-                              className={styles["copy-icon"]}
-                              width={24}
-                              height={24}
-                            />
-                          </button>
-                          <span
-                            aria-hidden={!justCopiedApiKey}
-                            className={`${styles["copied-confirmation"]} ${
-                              justCopiedApiKey ? styles["is-shown"] : ""
-                            }`}
-                          >
-                            {l10n.getString("setting-api-key-copied")}
-                          </span>
-                        </span>
-                      </span>
-                    </div>
-                    <div className={styles["settings-api-key-copy"]}>
-                      {l10n.getString("settings-api-key-description")}{" "}
-                      <b>
-                        {l10n.getString("settings-api-key-description-bolded")}
-                      </b>
-                    </div>
-                  </div>
-                </div>
+                {labelCollectionPrivacySetting}
+                {apiKeySetting}
                 {trackerRemovalSetting}
+                {phoneCallerSMSLogSetting}
+
                 <div className={styles.controls}>
                   <Button type="submit">
                     {l10n.getString("settings-button-save-label")}

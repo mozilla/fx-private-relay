@@ -230,7 +230,7 @@ if AWS_SES_CONFIGSET and AWS_SNS_TOPIC:
         "emails.apps.EmailsConfig",
     ]
 
-if PHONES_ENABLED and TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
+if PHONES_ENABLED:
     INSTALLED_APPS += [
         "phones.apps.PhonesConfig",
     ]
@@ -639,7 +639,7 @@ REST_FRAMEWORK = {
 }
 
 PHONE_RATE_LIMIT = "5/minute"
-if IN_PYTEST:
+if IN_PYTEST or DEBUG:
     PHONE_RATE_LIMIT = "1000/minute"
 
 # Turn on logging out on GET in development.
@@ -691,10 +691,11 @@ elif (
 ):
     sentry_release = f"{CIRCLE_BRANCH}:{CIRCLE_SHA1}"
 
+SENTRY_DEBUG = config("SENTRY_DEBUG", DEBUG, cast=bool)
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
     integrations=[DjangoIntegration()],
-    debug=DEBUG,
+    debug=SENTRY_DEBUG,
     with_locals=DEBUG,
     release=sentry_release,
 )

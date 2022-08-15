@@ -13,6 +13,7 @@ import {
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../config";
 import Link from "next/link";
+import { isFlagActive } from "../../functions/waffle";
 
 export type Props = {
   premiumCountriesData?: RuntimeDataWithPremiumAvailable;
@@ -33,6 +34,12 @@ export const Plans = (props: Props) => {
   });
 
   /** List of premium features **/
+  const trackerBlockingFeatureListingPremium = isFlagActive(
+    props.premiumCountriesData,
+    "tracker_removal"
+  ) ? (
+    <li>{l10n.getString("landing-pricing-premium-feature-6")}</li>
+  ) : null;
   const premiumFeatures = (
     <ul className={styles.features}>
       <li>{l10n.getString("landing-pricing-premium-feature-1-2")}</li>
@@ -40,14 +47,22 @@ export const Plans = (props: Props) => {
       <li>{l10n.getString("landing-pricing-premium-feature-3-2")}</li>
       <li>{l10n.getString("landing-pricing-premium-feature-4")}</li>
       <li>{l10n.getString("landing-pricing-premium-feature-5")}</li>
+      {trackerBlockingFeatureListingPremium}
     </ul>
   );
 
   /** List of free features **/
+  const trackerBlockingFeatureListingFree = isFlagActive(
+    props.premiumCountriesData,
+    "tracker_removal"
+  ) ? (
+    <li>{l10n.getString("landing-pricing-free-feature-3")}</li>
+  ) : null;
   const freeFeatures = (
     <ul className={styles.features}>
       <li>{l10n.getString("landing-pricing-free-feature-1-2")}</li>
       <li>{l10n.getString("landing-pricing-free-feature-2")}</li>
+      {trackerBlockingFeatureListingFree}
     </ul>
   );
 

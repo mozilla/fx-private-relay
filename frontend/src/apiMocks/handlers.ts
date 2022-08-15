@@ -1,5 +1,7 @@
 import { rest, RestHandler, RestRequest } from "msw";
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
+import { UnverifiedPhone, VerifiedPhone } from "../hooks/api/realPhone";
+import { RelayNumber } from "../hooks/api/relayNumber";
 import { ProfileData } from "../hooks/api/profile";
 import {
   mockIds,
@@ -8,6 +10,8 @@ import {
   mockedRelayaddresses,
   mockedRuntimeData,
   mockedUsers,
+  mockedRealphones,
+  mockedRelaynumbers,
 } from "./mockData";
 
 export function getHandlers(
@@ -285,6 +289,199 @@ export function getHandlers(
     ownAddresses.splice(index, 1);
     return res(ctx.status(200));
   });
+
+  addGetHandler("/api/v1/realphone/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    return res(ctx.status(200), ctx.json(mockedRealphones[mockId]));
+  });
+  addPostHandler("/api/v1/realphone/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    type NewNumber = Pick<UnverifiedPhone, "number">;
+    type Verification = Pick<VerifiedPhone, "number" | "verification_code">;
+    const body = req.body as NewNumber | Verification;
+
+    const isVerification = (
+      request: NewNumber | Verification
+    ): request is Verification => {
+      return typeof (request as Verification).verification_code === "string";
+    };
+
+    if (isVerification(body)) {
+      mockedRealphones[mockId] = mockedRealphones[mockId].map((realPhone) => {
+        if (realPhone.number !== body.number) {
+          return realPhone;
+        }
+
+        return {
+          ...realPhone,
+          verified: true,
+          verified_date: new Date().toISOString(),
+        } as VerifiedPhone;
+      });
+    } else {
+      // Pretend the verification was sent 4:40m ago,
+      // so expiry can easily be tested:
+      const sentDate = Date.now() - 5 * 60 * 1000 + 20 * 1000;
+      const newVerificationPendingPhone: UnverifiedPhone = {
+        id: mockedRealphones[mockId].length,
+        number: body.number,
+        verification_code: "123456",
+        verification_sent_date: new Date(sentDate).toISOString(),
+        verified: false,
+        verified_date: null,
+      };
+      mockedRealphones[mockId].push(newVerificationPendingPhone);
+    }
+    return res(ctx.status(200));
+  });
+  addGetHandler("/api/v1/realphone/:id/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+    const relevantRealPhone = mockedRealphones[mockId].find(
+      (realPhone) =>
+        realPhone.id === Number.parseInt(req.params.id as string, 10)
+    );
+    return res(ctx.status(200), ctx.json(relevantRealPhone));
+  });
+  addPatchHandler("/api/v1/realphone/:id/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+    type Verification = Pick<VerifiedPhone, "number" | "verification_code">;
+    const body = req.body as Verification;
+    mockedRealphones[mockId] = mockedRealphones[mockId].map((realPhone) => {
+      if (
+        realPhone.number !== body.number ||
+        realPhone.id !== Number.parseInt(req.params.id as string, 10)
+      ) {
+        return realPhone;
+      }
+
+      return {
+        ...realPhone,
+        verified: true,
+        verified_date: new Date().toISOString(),
+      } as VerifiedPhone;
+    });
+    return res(ctx.status(200));
+  });
+
+  addGetHandler("/api/v1/relaynumber/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    return res(ctx.status(200), ctx.json(mockedRelaynumbers[mockId]));
+  });
+  addPostHandler("/api/v1/relaynumber/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    const body = req.body as Pick<RelayNumber, "number">;
+
+    const newRelaynumber: RelayNumber = {
+      number: body.number,
+      location: "Unhošť",
+      enabled: true,
+    };
+    mockedRelaynumbers[mockId].push(newRelaynumber);
+    return res(ctx.status(201), ctx.json(newRelaynumber));
+  });
+
+  // TODO: Move to phone API hook:
+  type TwilioPhone = {
+    phone_number: string;
+    locality: string;
+    // See convert_twilio_numbers_to_dict in phones/models.py for other fields.
+  };
+
+  addGetHandler("/api/v1/relaynumber/search/", (req, res, ctx) => {
+    const location = req.url.searchParams.get("location");
+    const areaCode = req.url.searchParams.get("area_code");
+
+    if (location === null && areaCode === null) {
+      return res(ctx.status(404), ctx.json({}));
+    }
+
+    const mockedSearchResults: TwilioPhone[] = Array.from(new Array(10), () => {
+      const numberEnd = Math.random().toString().substring(4, 7);
+      return {
+        phone_number: `+1${areaCode ?? "808"}${numberEnd}`,
+        locality: location ?? "Hilo",
+      };
+    });
+
+    return res(ctx.status(200), ctx.json(mockedSearchResults));
+  });
+
+  addGetHandler("/api/v1/relaynumber/suggestions/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    const userNumber = mockedRealphones[mockId][0]?.number ?? "+18089251571";
+
+    const mockedSuggestions = {
+      same_prefix_options: Array.from(new Array(10), (_, index) => {
+        const suffixNum =
+          Number.parseInt(userNumber.substring(10), 10) + 1 + index;
+        const suggestedNumber: TwilioPhone = {
+          phone_number: userNumber.substring(0, 10) + suffixNum.toString(),
+          locality: "Hilo",
+        };
+        return suggestedNumber;
+      }),
+      other_areas_options: Array.from(new Array(10), () => {
+        const areaCode = Math.random().toString().substring(2, 5);
+        const suggestedNumber: TwilioPhone = {
+          phone_number:
+            userNumber.substring(0, 2) + areaCode + userNumber.substring(5),
+          locality: "Hilo",
+        };
+        return suggestedNumber;
+      }),
+      same_area_options: Array.from(new Array(10), () => {
+        const suffixNum = Math.random().toString().substring(2, 9);
+        const suggestedNumber: TwilioPhone = {
+          phone_number: userNumber.substring(0, 5) + suffixNum.toString(),
+          locality: "Hilo",
+        };
+        return suggestedNumber;
+      }),
+    };
+
+    return res(ctx.status(200), ctx.json(mockedSuggestions));
+  });
+
+  addGetHandler("/api/v1/relaynumber/:id/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    return res(
+      ctx.status(200),
+      ctx.json(
+        mockedRelaynumbers[mockId][Number.parseInt(req.params.id as string, 10)]
+      )
+    );
+  });
+
   handlers.push(
     rest.post("https://basket-mock.com/news/subscribe/", (_req, res, ctx) => {
       return res(ctx.status(200), ctx.json({ status: "ok" }));

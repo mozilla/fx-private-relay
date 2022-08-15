@@ -38,17 +38,18 @@ export const Navigation = (props: Props) => {
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const isPremiumPage = router.pathname === "/premium";
 
-  const phoneLink = isFlagActive(runtimeData.data, "phones") ? (
-    <Link href="/phone">
-      <a
-        className={`${styles.link} ${
-          router.pathname === "/phone" ? styles["is-active"] : null
-        }`}
-      >
-        {l10n.getString("nav-phone")}
-      </a>
-    </Link>
-  ) : null;
+  const phoneLink =
+    isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
+      <Link href="/phone">
+        <a
+          className={`${styles.link} ${
+            router.pathname === "/phone" ? styles["is-active"] : null
+          }`}
+        >
+          {l10n.getString("nav-phone")}
+        </a>
+      </Link>
+    ) : null;
 
   const ToggleButton = () => (
     <button

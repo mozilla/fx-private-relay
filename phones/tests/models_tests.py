@@ -12,6 +12,7 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
 
 from emails.models import Profile
+from phones.models import InboundContact
 
 if settings.PHONES_ENABLED:
     from ..models import (
@@ -45,7 +46,6 @@ def mocked_twilio_client():
 def make_phone_test_user():
     phone_user = baker.make(User)
     phone_user_profile = Profile.objects.get(user=phone_user)
-    phone_user_profile.server_storage = True
     phone_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
     phone_user_profile.save()
     upgrade_test_user_to_phone(phone_user)
@@ -197,6 +197,7 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
     call_kwargs = mock_number_create.call_args.kwargs
     assert call_kwargs["phone_number"] == relay_number
     assert call_kwargs["sms_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+    assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
 
     mock_messages_create.assert_called_once()
     call_kwargs = mock_messages_create.call_args.kwargs
@@ -234,6 +235,7 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     call_kwargs = mock_number_create.call_args.kwargs
     assert call_kwargs["phone_number"] == relay_number
     assert call_kwargs["sms_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+    assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
 
     mock_messages_create.assert_called_once()
     call_kwargs = mock_messages_create.call_args.kwargs
@@ -317,3 +319,43 @@ def test_area_code_numbers(mocked_twilio_client):
     available_numbers_calls = mock_twilio_client.available_phone_numbers.call_args_list
     assert available_numbers_calls == [call("US")]
     assert mock_list.call_args_list == [call(area_code="918", limit=10)]
+
+
+def test_save_store_phone_log_no_relay_number_does_nothing():
+    user = make_phone_test_user()
+    profile = Profile.objects.get(user=user)
+    profile.store_phone_log = True
+    profile.save()
+
+    profile.refresh_from_db()
+    assert profile.store_phone_log
+
+    profile.store_phone_log = False
+    profile.save()
+    assert not profile.store_phone_log
+
+
+def test_save_store_phone_log_true_doesnt_delete_data():
+    user = make_phone_test_user()
+    profile = Profile.objects.get(user=user)
+    baker.make(RealPhone, user=user, verified=True)
+    relay_number = baker.make(RelayNumber, user=user)
+    inbound_contact = baker.make(InboundContact, relay_number=relay_number)
+    profile.store_phone_log = True
+    profile.save()
+
+    inbound_contact.refresh_from_db()
+    assert inbound_contact
+
+
+def test_save_store_phone_log_false_deletes_data():
+    user = make_phone_test_user()
+    profile = Profile.objects.get(user=user)
+    baker.make(RealPhone, user=user, verified=True)
+    relay_number = baker.make(RelayNumber, user=user)
+    inbound_contact = baker.make(InboundContact, relay_number=relay_number)
+    profile.store_phone_log = False
+    profile.save()
+
+    with pytest.raises(InboundContact.DoesNotExist):
+        inbound_contact.refresh_from_db()

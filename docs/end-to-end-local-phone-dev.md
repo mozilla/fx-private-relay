@@ -55,6 +55,10 @@ number for Relay and set it to your `TWILIO_MAIN_NUMBER` env var.
 [buy-number]: https://console.twilio.com/us1/develop/phone-numbers/manage/search?frameUrl=%2Fconsole%2Fphone-numbers%2Fsearch
 
 
+#### Configure local to enable phone features in .env
+1. Add `PHONES_ENABLED=True`
+2. Add `SUBSCRIPTIONS_WITH_PHONE="relay-phones"`
+
 #### Send a test message
 Now you're ready to send a test message to make sure Twilio is configured
 correctly. The first message in the Relay phone flow is the verification code:

@@ -127,7 +127,7 @@ class ServerStorageCleaner(CleanerTask):
             )
 
             cleaned = counts.get("cleaned")
-            if cleaned is None:
+            if cleaned is None or has_data == 0:
                 return lines
             lines.append(f"        Cleaned: {self._as_percent(cleaned, has_data)}")
             return lines

@@ -154,6 +154,7 @@ jobs:
             --build-arg CIRCLE_BRANCH="$CIRCLE_BRANCH" \
             --build-arg CIRCLE_TAG="$CIRCLE_TAG" \
             --build-arg CIRCLE_SHA1="$CIRCLE_SHA1" \
+            --build-arg PHONES_ENABLED="$PHONES_ENABLED" \
             .
 
       - run:
@@ -174,8 +175,6 @@ jobs:
               --entrypoint "/bin/bash" \
               --volumes-from workspace-test-results \
               -e PHONES_ENABLED=$PHONES_ENABLED \
-              -e TWILIO_ACCOUNT_SID=$TWILIO_ACCOUNT_SID \
-              -e TWILIO_AUTH_TOKEN=$TWILIO_AUTH_TOKEN \
               fx-private-relay \
               -c \
                 'mkdir --parents /tmp/workspace/test-results/pytest && \

@@ -1,4 +1,6 @@
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
+import { RealPhoneData } from "../hooks/api/realPhone";
+import { RelayNumberData } from "../hooks/api/relayNumber";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { UserData } from "../hooks/api/user";
@@ -25,7 +27,11 @@ export const mockedRuntimeData: RuntimeData = {
     premium_countries: ["nl"],
     premium_available_in_country: true,
   },
-  WAFFLE_FLAGS: [["new_from_address", true]],
+  WAFFLE_FLAGS: [
+    ["new_from_address", true],
+    ["tracker_removal", true],
+    ["phones", true],
+  ],
 };
 
 export const mockedUsers: Record<typeof mockIds[number], UserData> = {
@@ -43,10 +49,12 @@ export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
     date_subscribed: null,
     remove_level_one_email_trackers: false,
     has_premium: false,
+    has_phone: false,
     id: 0,
     next_email_try: "2020-04-09T00:00:00.000Z",
     onboarding_state: 0,
     server_storage: true,
+    store_phone_log: true,
     subdomain: null,
     emails_blocked: 0,
     emails_forwarded: 0,
@@ -60,6 +68,7 @@ export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
     date_subscribed: "2020-04-09T00:00:00.000Z",
     remove_level_one_email_trackers: false,
     has_premium: true,
+    has_phone: true,
     id: 1,
     next_email_try: "2020-04-09T00:00:00.000Z",
     onboarding_state: 0,
@@ -69,6 +78,7 @@ export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
     emails_forwarded: 0,
     emails_replied: 0,
     level_one_trackers_blocked: 0,
+    store_phone_log: true,
   },
   some: {
     api_token: "some",
@@ -77,6 +87,7 @@ export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
     date_subscribed: "2020-04-09T00:00:00.000Z",
     remove_level_one_email_trackers: false,
     has_premium: true,
+    has_phone: true,
     id: 2,
     next_email_try: "2020-04-09T00:00:00.000Z",
     onboarding_state: 3,
@@ -86,6 +97,7 @@ export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
     emails_forwarded: 1337,
     emails_replied: 40,
     level_one_trackers_blocked: 72,
+    store_phone_log: true,
   },
   full: {
     api_token: "full",
@@ -94,6 +106,7 @@ export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
     date_subscribed: "2020-04-09T00:00:00.000Z",
     remove_level_one_email_trackers: true,
     has_premium: true,
+    has_phone: true,
     id: 3,
     next_email_try: "2020-04-09T00:00:00.000Z",
     onboarding_state: 3,
@@ -103,6 +116,7 @@ export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
     emails_forwarded: 1337,
     emails_replied: 9631,
     level_one_trackers_blocked: 1409,
+    store_phone_log: true,
   },
 };
 export const mockedRelayaddresses: Record<
@@ -227,6 +241,53 @@ export const mockedDomainaddresses: Record<
       num_level_one_trackers_blocked: 1337,
       mask_type: "custom",
       used_on: "",
+    },
+  ],
+};
+
+export const mockedRealphones: Record<typeof mockIds[number], RealPhoneData> = {
+  empty: [],
+  onboarding: [],
+  some: [
+    {
+      id: 0,
+      number: "+14155552671",
+      verification_code: "123456",
+      verification_sent_date: "2022-07-27T10:17:29.775Z",
+      verified: true,
+      verified_date: "2022-07-27T10:18:01.801Z",
+    },
+  ],
+  full: [
+    {
+      id: 0,
+      number: "+14155552671",
+      verification_code: "123456",
+      verification_sent_date: "2022-07-27T10:17:29.775Z",
+      verified: true,
+      verified_date: "2022-07-27T10:18:01.801Z",
+    },
+  ],
+};
+
+export const mockedRelaynumbers: Record<
+  typeof mockIds[number],
+  RelayNumberData
+> = {
+  empty: [],
+  onboarding: [],
+  some: [
+    {
+      number: "+18089251571",
+      location: "Hilo",
+      enabled: true,
+    },
+  ],
+  full: [
+    {
+      number: "+18089251571",
+      location: "Hilo",
+      enabled: true,
     },
   ],
 };

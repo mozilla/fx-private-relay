@@ -30,6 +30,7 @@ RUN ln --symbolic /app/privaterelay/locales/pt-BR/ privaterelay/locales/pt
 RUN ln --symbolic /app/privaterelay/locales/es-ES/ privaterelay/locales/es
 COPY --chown=app .env-dist /app/.env
 
+ARG PHONES_ENABLED
 RUN mkdir -p /app/staticfiles && \
     python manage.py collectstatic --no-input -v 2
 
