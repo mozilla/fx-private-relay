@@ -42,7 +42,7 @@ export const AliasList = (props: Props) => {
   );
 
   useEffect(() => {
-    if (props.aliases.length == 0) {
+    if (props.aliases.length === 0) {
       setOpenAlias(undefined);
     } else {
       const existingAliasIds = existingAliases.map((alias) => alias.id);
