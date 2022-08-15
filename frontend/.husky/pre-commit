@@ -2,10 +2,4 @@
 . "$(dirname "$0")/_/husky.sh"
 
 cd frontend
-npx --no-install lint-staged
-
-cd ..
-echo "Running black..."
-black --check .
-echo "Running mypy..."
-mypy .
+npx --no-install lint-staged --cwd ..
