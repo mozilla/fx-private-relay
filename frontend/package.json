@@ -38,7 +38,7 @@
   "devDependencies": {
     "@next/bundle-analyzer": "^12.2.3",
     "@next/eslint-plugin-next": "^12.1.1",
-    "@testing-library/dom": "^8.14.0",
+    "@testing-library/dom": "^8.17.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "^8.0.1",
