@@ -12,6 +12,7 @@ import {
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
+import { useInboundContact } from "../../../hooks/api/inboundContact";
 Moment.globalFormat = "D MMM YYYY";
 
 export const PhoneDashboard = () => {
@@ -22,6 +23,7 @@ export const PhoneDashboard = () => {
   const relayNumberData = relayNumber.data?.[0];
   const realPhoneData = realPhone.data?.[0];
   const phoneDateCreated = useRealPhonesData();
+  const inboundContactData = useInboundContact();
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
   const [enableForwarding, setEnableForwarding] = useState(
@@ -30,6 +32,8 @@ export const PhoneDashboard = () => {
   const [showingPrimaryDashboard, toggleDashboardPanel] = useState(true);
 
   const dateToFormat = phoneDateCreated.data?.[0].verified_date!;
+
+  // console.log(inboundContactData.data?.[0]);
 
   const toggleForwarding = () => {
     if (relayNumberData?.id) {
@@ -203,18 +207,20 @@ export const PhoneDashboard = () => {
   const callerSMSSendersPanel = (
     <div id="secondary-panel" className={styles["dashboard-card"]}>
       <div className={styles["dashboard-card-caller-sms-senders-header"]}>
-        <button
-          type="button"
-          onClick={showCallerSMSSendersPanel}
-          className={styles["caller-sms-logs-back-btn"]}
-        >
-          <ChevronLeftIcon
-            alt="Back to Primary Dashboard"
-            className={styles["back-icon"]}
-            width={25}
-            height={25}
-          />
-        </button>
+        <span>
+          <button
+            type="button"
+            onClick={showCallerSMSSendersPanel}
+            className={styles["caller-sms-logs-back-btn"]}
+          >
+            <ChevronLeftIcon
+              alt="Back to Primary Dashboard"
+              className={styles["back-icon"]}
+              width={25}
+              height={25}
+            />
+          </button>
+        </span>
         <span className={styles["caller-sms-logs-title"]}>
           Callers and SMS senders
         </span>

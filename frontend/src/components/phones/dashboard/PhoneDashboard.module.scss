@@ -30,13 +30,13 @@
 
     > * {
       flex: 1;
-      text-align: center;
     }
 
     .caller-sms-logs-title {
       @include text-title-3xs;
       left: -20px; // Width of the back button
       position: relative;
+      text-align: center;
     }
 
     .back-icon {

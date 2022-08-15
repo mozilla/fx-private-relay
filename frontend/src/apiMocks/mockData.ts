@@ -1,6 +1,7 @@
 import { CustomAliasData, RandomAliasData } from "../hooks/api/aliases";
 import { RealPhoneData } from "../hooks/api/realPhone";
 import { RelayNumberData } from "../hooks/api/relayNumber";
+import { InboundContactData } from "../hooks/api/inboundContact";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { UserData } from "../hooks/api/user";
@@ -288,6 +289,40 @@ export const mockedRelaynumbers: Record<
       number: "+18089251571",
       location: "Hilo",
       enabled: true,
+    },
+  ],
+};
+
+export const mockedInboundContacts: Record<
+  typeof mockIds[number],
+  InboundContactData
+> = {
+  empty: [],
+  onboarding: [],
+  some: [
+    {
+      id: 0,
+      relay_number: 150,
+      inbound_number: "+18089251571",
+      last_inbound_date: "2022-07-27T10:18:01.801Z",
+      num_calls: 45,
+      num_calls_blocked: 3,
+      num_texts: 13,
+      num_texts_blocked: 18,
+      blocked: false,
+    },
+  ],
+  full: [
+    {
+      id: 0,
+      relay_number: 150,
+      inbound_number: "+18089251571",
+      last_inbound_date: "2022-07-27T10:18:01.801Z",
+      num_calls: 45,
+      num_calls_blocked: 3,
+      num_texts: 13,
+      num_texts_blocked: 18,
+      blocked: false,
     },
   ],
 };
