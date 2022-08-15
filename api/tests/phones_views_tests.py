@@ -1,3 +1,4 @@
+from datetime import timezone
 import pytest
 from unittest.mock import Mock, patch, call
 
@@ -657,6 +658,8 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
     mocked_twilio_client.messages.create.assert_called_once()
     inbound_contact.refresh_from_db()
     assert inbound_contact.num_texts == 1
+    assert inbound_contact.last_inbound_type == "text"
+    pre_block_contact_date = inbound_contact.last_inbound_date
 
     inbound_contact.blocked = True
     inbound_contact.save()
@@ -671,6 +674,7 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
     inbound_contact.refresh_from_db()
     assert inbound_contact.num_texts == 1
     assert inbound_contact.num_texts_blocked == 1
+    assert inbound_contact.last_inbound_date == pre_block_contact_date
 
 
 @pytest.mark.django_db
@@ -757,7 +761,7 @@ def test_inbound_call_valid_twilio_signature_good_data(
     relay_number = "+19998887777"
     caller_number = "+15556660000"
     RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    RelayNumber.objects.create(user=phone_user, number=relay_number)
+    relay_num_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
@@ -769,6 +773,9 @@ def test_inbound_call_valid_twilio_signature_good_data(
     decoded_content = response.content.decode()
     assert f'callerId="{caller_number}"' in decoded_content
     assert f"<Number>{real_phone_number}</Number>" in decoded_content
+    inbound_contact = InboundContact.objects.get(relay_number=relay_num_obj, inbound_number=caller_number)
+    assert inbound_contact.num_calls == 1
+    assert inbound_contact.last_inbound_type == "call"
 
 
 def test_inbound_call_valid_twilio_signature_disabled_number(
