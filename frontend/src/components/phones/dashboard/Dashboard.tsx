@@ -3,7 +3,12 @@
 import Moment from "react-moment";
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
-import { CopyIcon, ForwardIcon, BlockIcon } from "../../../components/Icons";
+import {
+  CopyIcon,
+  ForwardIcon,
+  BlockIcon,
+  ChevronLeftIcon,
+} from "../../../components/Icons";
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
@@ -22,6 +27,7 @@ export const PhoneDashboard = () => {
   const [enableForwarding, setEnableForwarding] = useState(
     relayNumberData ? relayNumberData.enabled : false
   );
+  const [showingPrimaryDashboard, toggleDashboardPanel] = useState(true);
 
   const dateToFormat = phoneDateCreated.data?.[0].verified_date!;
 
@@ -39,6 +45,14 @@ export const PhoneDashboard = () => {
       setTimeout(() => setJustCopiedPhoneNumber(false), 1000);
     }
   };
+
+  const showCallerSMSSendersPanel: MouseEventHandler<
+    HTMLButtonElement
+  > = () => {
+    toggleDashboardPanel(!showingPrimaryDashboard);
+  };
+
+  console.log(showingPrimaryDashboard);
 
   const phoneStatistics = (
     <div className={styles["phone-statistics-container"]}>
@@ -139,9 +153,9 @@ export const PhoneDashboard = () => {
     </div>
   );
 
-  return (
-    <main className={styles["main-phone-wrapper"]}>
-      <div className={styles["dashboard-card"]}>
+  const primaryPanel = (
+    <div id="primary-panel" className={styles["dashboard-card"]}>
+      <div className={styles["dashboard-card-header"]}>
         <span className={styles["header-phone-number"]}>
           {relayNumberData?.number
             ? formatPhoneNumberToUSDisplay(relayNumberData.number)
@@ -172,11 +186,60 @@ export const PhoneDashboard = () => {
             </span>
           </span>
         </span>
-
-        {phoneStatistics}
-        {phoneControls}
-        {phoneMetadata}
+        <button
+          type="button"
+          className={styles["senders-cta"]}
+          onClick={showCallerSMSSendersPanel}
+        >
+          Callers and SMS senders
+        </button>
       </div>
+      {phoneStatistics}
+      {phoneControls}
+      {phoneMetadata}
+    </div>
+  );
+
+  const callerSMSSendersPanel = (
+    <div id="secondary-panel" className={styles["dashboard-card"]}>
+      <div className={styles["dashboard-card-caller-sms-senders-header"]}>
+        <button
+          type="button"
+          onClick={showCallerSMSSendersPanel}
+          className={styles["caller-sms-logs-back-btn"]}
+        >
+          <ChevronLeftIcon
+            alt="Back to Primary Dashboard"
+            className={styles["back-icon"]}
+            width={25}
+            height={25}
+          />
+        </button>
+        <span className={styles["caller-sms-logs-title"]}>
+          Callers and SMS senders
+        </span>
+        <span></span>
+      </div>
+
+      <ul className={styles["caller-sms-senders-table"]}>
+        <li className={styles["caller-sms-senders-item"]}>
+          <span>Sender</span>
+          <span>Latest Activity</span>
+          <span>Action</span>
+        </li>
+      </ul>
+    </div>
+  );
+
+  return (
+    <main className={styles["main-phone-wrapper"]}>
+      {showingPrimaryDashboard ? (
+        // Primary Panel
+        <>{primaryPanel}</>
+      ) : (
+        // Caller and SMS Senders Panel
+        <>{callerSMSSendersPanel}</>
+      )}
     </main>
   );
 };

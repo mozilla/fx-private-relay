@@ -7,6 +7,60 @@
   margin: 0 auto;
   padding: $spacing-md;
 
+  button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .dashboard-card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 $spacing-xl;
+  }
+
+  .dashboard-card-caller-sms-senders-header {
+    display: flex;
+    flex-direction: row;
+    padding: 0 $spacing-lg;
+    justify-content: space-between;
+    align-items: center;
+
+    > * {
+      flex: 1;
+      text-align: center;
+    }
+
+    .caller-sms-logs-title {
+      @include text-title-3xs;
+      left: -20px; // Width of the back button
+      position: relative;
+    }
+
+    .back-icon {
+      color: $color-light-gray-80;
+      stroke: $color-light-gray-80;
+      stroke-width: 1px;
+    }
+  }
+
+  .caller-sms-senders-table {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-md;
+    margin-top: $spacing-2xl;
+    padding: 0 $spacing-2xl;
+
+    .caller-sms-senders-item {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      border-bottom: 1px solid $color-light-gray-30;
+      padding-bottom: $spacing-sm;
+    }
+  }
+
   .dashboard-card {
     box-shadow: $box-shadow-sm;
     background-color: $color-white;
@@ -19,7 +73,6 @@
       @include text-body-xl;
       @include font-firefox;
       display: flex;
-      padding: 0 $spacing-xl;
     }
 
     .phone-statistics-container {
@@ -184,7 +237,6 @@
         gap: $spacing-md;
 
         .base-button {
-          border: none;
           border-radius: $border-radius-lg;
           background-color: $color-light-gray-30;
           padding: $spacing-sm $spacing-sm;
@@ -192,7 +244,6 @@
           width: 100%;
           align-items: center;
           justify-content: center;
-          cursor: pointer;
 
           @media screen and #{$mq-md} {
             width: $layout-xl;
