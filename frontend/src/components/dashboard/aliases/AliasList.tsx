@@ -49,7 +49,7 @@ export const AliasList = (props: Props) => {
       const newAliases = props.aliases.filter(
         (alias) => existingAliasIds.indexOf(alias.id) === -1
       );
-      if (newAliases.length != 0) {
+      if (newAliases.length !== 0) {
         setOpenAlias(newAliases[0]);
       }
     }
