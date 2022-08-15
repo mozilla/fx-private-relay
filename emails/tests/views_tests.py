@@ -233,6 +233,42 @@ class BounceHandlingTest(TestCase):
         assert profile.auto_block_spam == True
 
 
+class ComplaintHandlingTest(TestCase):
+    """Test Complaint notifications and events."""
+
+    @pytest.fixture(autouse=True)
+    def use_caplog(self, caplog):
+        self.caplog = caplog
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_notification_type_complaint(self):
+        """
+        A notificationType of complaint increments a counter, logs details, and returns 200.
+
+        Example derived from:
+        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        """
+        complaint = {
+            "notificationType": "Complaint",
+            "complaint": {
+                "userAgent": "ExampleCorp Feedback Loop (V0.01)",
+                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
+                "complaintFeedbackType": "abuse",
+                "arrivalDate": "2009-12-03T04:24:21.000-05:00",
+                "timestamp": "2012-05-25T14:59:38.623Z",
+                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+            },
+        }
+        json_body = {"Message": json.dumps(complaint)}
+        with MetricsMock() as mm:
+            response = _sns_notification(json_body)
+        assert response.status_code == 200
+        mm.assert_incr_once("fx.private.relay.email_complaint")
+        assert len(self.caplog.records) == 1
+        record = self.caplog.records[0]
+        assert record.msg == "complaint_received"
+
+
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
     def setUp(self) -> None:
         self.bucket = "test-bucket"
@@ -454,22 +490,25 @@ class SNSNotificationInvalidMessageTest(TestCase):
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
-    def test_notification_type_complaint(self):
-        """A notificationType of complaint returns a 400 error"""
-        # Manual json_body because no instances captured, from
-        # https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
-        complaint = {
-            "notificationType": "Complaint",
-            "complaint": {
-                "userAgent": "ExampleCorp Feedback Loop (V0.01)",
-                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
-                "complaintFeedbackType": "abuse",
-                "arrivalDate": "2009-12-03T04:24:21.000-05:00",
-                "timestamp": "2012-05-25T14:59:38.623Z",
-                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+    def test_notification_type_delivery(self):
+        """
+        A notificationType of delivery returns a 400 error.
+
+        Test JSON derived from:
+        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+        """
+        notification = {
+            "notificationType": "Delivery",
+            "delivery": {
+                "timestamp": "2014-05-28T22:41:01.184Z",
+                "processingTimeMillis": 546,
+                "recipients": ["success@simulator.amazonses.com"],
+                "smtpResponse": "250 ok:  Message 64111812 accepted",
+                "reportingMTA": "a8-70.smtp-out.amazonses.com",
+                "remoteMtaIp": "127.0.2.0",
             },
         }
-        json_body = {"Message": json.dumps(complaint)}
+        json_body = {"Message": json.dumps(notification)}
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
