@@ -8,12 +8,13 @@ import {
   ForwardIcon,
   BlockIcon,
   ChevronLeftIcon,
+  ChevronRightIcon,
 } from "../../../components/Icons";
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
-Moment.globalFormat = "D MMM YYYY";
+// Moment.globalFormat = "D MMM YYYY";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
@@ -24,6 +25,7 @@ export const PhoneDashboard = () => {
   const realPhoneData = realPhone.data?.[0];
   const phoneDateCreated = useRealPhonesData();
   const inboundContactData = useInboundContact();
+  const inboundNumber = inboundContactData.data?.[0];
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
   const [enableForwarding, setEnableForwarding] = useState(
@@ -31,14 +33,27 @@ export const PhoneDashboard = () => {
   );
   const [showingPrimaryDashboard, toggleDashboardPanel] = useState(true);
 
+  const [inboundContactEnableForwarding, setEnableForwardingForInboundContact] =
+    useState(inboundNumber ? inboundNumber.blocked : false);
+
   const dateToFormat = phoneDateCreated.data?.[0].verified_date!;
 
-  // console.log(inboundContactData.data?.[0]);
+  console.log(inboundContactData.data?.[0]);
 
   const toggleForwarding = () => {
     if (relayNumberData?.id) {
       setEnableForwarding(!enableForwarding);
       relayNumber.setForwardingState(!enableForwarding, relayNumberData.id);
+    }
+  };
+
+  const toggleInboundContactForwarding = () => {
+    if (inboundNumber?.id) {
+      setEnableForwardingForInboundContact(!inboundContactEnableForwarding);
+      inboundContactData.setForwardingState(
+        !inboundContactEnableForwarding,
+        inboundNumber.id
+      );
     }
   };
 
@@ -150,7 +165,7 @@ export const PhoneDashboard = () => {
             <dt>{l10n.getString("phone-dashboard-metadata-date-created")}</dt>
           </dt>
           <dd>
-            <Moment>{dateToFormat}</Moment>
+            <Moment format="D MMM YYYY">{dateToFormat}</Moment>
           </dd>
         </div>
       </dl>
@@ -195,7 +210,13 @@ export const PhoneDashboard = () => {
           className={styles["senders-cta"]}
           onClick={showCallerSMSSendersPanel}
         >
-          Callers and SMS senders
+          <span>Callers and SMS senders</span>
+          <ChevronRightIcon
+            alt="See Caller and SMS Senders"
+            className={styles["nav-icon"]}
+            width={25}
+            height={25}
+          />
         </button>
       </div>
       {phoneStatistics}
@@ -215,7 +236,7 @@ export const PhoneDashboard = () => {
           >
             <ChevronLeftIcon
               alt="Back to Primary Dashboard"
-              className={styles["back-icon"]}
+              className={styles["nav-icon"]}
               width={25}
               height={25}
             />
@@ -228,10 +249,30 @@ export const PhoneDashboard = () => {
       </div>
 
       <ul className={styles["caller-sms-senders-table"]}>
-        <li className={styles["caller-sms-senders-item"]}>
+        <li className={styles["greyed-contact"]}>
           <span>Sender</span>
           <span>Latest Activity</span>
           <span>Action</span>
+        </li>
+        {/* <li className={`${
+          inboundNumber?.blocked ? styles["blocked-contact"] : styles["unblocked"]
+        }`}> */}
+
+        <li className={inboundNumber?.blocked ? styles["greyed-contact"] : ""}>
+          <span>{inboundNumber?.inbound_number}</span>
+          <span>
+            <Moment format="YYYY-MM-DD - HH:mm">
+              {inboundNumber?.last_inbound_date}
+            </Moment>
+          </span>
+          <span>
+            <button
+              onClick={toggleInboundContactForwarding}
+              className={styles["block-btn"]}
+            >
+              {inboundNumber?.blocked ? "Unblock" : "Block"}
+            </button>
+          </span>
         </li>
       </ul>
     </div>

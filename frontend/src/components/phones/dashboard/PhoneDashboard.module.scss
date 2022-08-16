@@ -7,6 +7,12 @@
   margin: 0 auto;
   padding: $spacing-md;
 
+  .nav-icon {
+    color: $color-light-gray-80;
+    stroke: $color-light-gray-80;
+    stroke-width: 1px;
+  }
+
   button {
     border: 0;
     padding: 0;
@@ -21,12 +27,26 @@
     padding: 0 $spacing-xl;
   }
 
-  .dashboard-card-caller-sms-senders-header {
+  .senders-cta {
     display: flex;
     flex-direction: row;
+    gap: $spacing-sm;
+  }
+
+  .dashboard-card-caller-sms-senders-header {
+    display: flex;
+    flex-direction: column;
     padding: 0 $spacing-lg;
     justify-content: space-between;
     align-items: center;
+
+    @media screen and #{$mq-sm} {
+      flex-direction: row;
+      margin: 0 $spacing-lg;
+      border-radius: auto;
+      border: none;
+      gap: none;
+    }
 
     > * {
       flex: 1;
@@ -38,12 +58,6 @@
       position: relative;
       text-align: center;
     }
-
-    .back-icon {
-      color: $color-light-gray-80;
-      stroke: $color-light-gray-80;
-      stroke-width: 1px;
-    }
   }
 
   .caller-sms-senders-table {
@@ -53,11 +67,23 @@
     margin-top: $spacing-2xl;
     padding: 0 $spacing-2xl;
 
-    .caller-sms-senders-item {
+    li {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
       border-bottom: 1px solid $color-light-gray-30;
       padding-bottom: $spacing-sm;
+    }
+
+    .greyed-contact {
+      color: $color-light-gray-80;
+    }
+
+    .unblocked {
+      color: black;
+    }
+
+    .block-btn {
+      color: $color-blue-50;
     }
   }
 

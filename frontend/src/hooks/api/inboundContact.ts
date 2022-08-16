@@ -18,36 +18,37 @@ export type InboundContactData = Array<InboundContact>;
 export type InboundContactNumber = (
   inbound_number: string
 ) => Promise<Response>;
-/**
 
-/**
- * Get relay (masked) phone number records for the authenticated user with our API using [SWR](https://swr.vercel.app).
- */
+export type UpdateForwardingToPhone = (
+  enabled: boolean,
+  id: number
+) => Promise<Response>;
 
-export function useInboundContact(): SWRResponse<InboundContactData, unknown> {
+export function useInboundContact(): SWRResponse<
+  InboundContactData,
+  unknown
+> & {
+  setForwardingState: UpdateForwardingToPhone;
+} {
   const inboundContactNumber: SWRResponse<InboundContactData, unknown> =
     useApiV1("/inboundcontact/");
 
-  // TODO: Add post function to same API url
-  /**
-   * Register selected Relay number
-   */
-
-  //    const findInboundContactNumber: InboundContactNumber = async (
-  //     phoneNumber
-  //   ) => {
-  //     // TODO: Validate number as E.164
-  //     // https://blog.kevinchisholm.com/javascript/javascript-e164-phone-number-validation/
-  //     const response = await apiFetch("/inboundcontact/", {
-  //       method: "POST",
-  //       body: JSON.stringify({ number: phoneNumber }),
-  //     });
-  //     inboundContactNumber.mutate();
-  //     return response;
-  //   };
+  const setForwardingState: UpdateForwardingToPhone = async (
+    blocked: boolean,
+    id: number
+  ) => {
+    const response = await apiFetch(`/inboundcontact/${id}/`, {
+      method: "PATCH",
+      body: JSON.stringify({ blocked }),
+    });
+    inboundContactNumber.mutate();
+    return response;
+  };
 
   return {
     ...inboundContactNumber,
+    setForwardingState: setForwardingState,
+
     // getInboundContactNumber: findInboundContactNumber,
   };
 }
