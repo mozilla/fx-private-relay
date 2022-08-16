@@ -14,7 +14,6 @@ import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
-// Moment.globalFormat = "D MMM YYYY";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
@@ -196,7 +195,7 @@ export const PhoneDashboard = () => {
           className={styles["senders-cta"]}
           onClick={showCallerSMSSendersPanel}
         >
-          <span>Callers and SMS senders</span>
+          <span>{l10n.getString("phone-dashboard-senders-header")}</span>
           <ChevronRightIcon
             alt="See Caller and SMS Senders"
             className={styles["nav-icon"]}
@@ -254,15 +253,21 @@ export const PhoneDashboard = () => {
           </button>
         </span>
         <span className={styles["caller-sms-logs-title"]}>
-          Callers and SMS senders
+          {l10n.getString("phone-dashboard-senders-header")}
         </span>
         <span></span>
       </div>
       <ul className={styles["caller-sms-senders-table"]}>
         <li className={styles["greyed-contact"]}>
-          <span>Sender</span>
-          <span>Latest Activity</span>
-          <span>Action</span>
+          <span>
+            {l10n.getString("phone-dashboard-sender-table-title-sender")}
+          </span>
+          <span>
+            {l10n.getString("phone-dashboard-sender-table-title-activity")}
+          </span>
+          <span>
+            {l10n.getString("phone-dashboard-sender-table-title-action")}
+          </span>
         </li>
         {inboundContactArray}
       </ul>
