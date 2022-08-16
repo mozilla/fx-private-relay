@@ -42,7 +42,6 @@
 
     @media screen and #{$mq-sm} {
       flex-direction: row;
-      margin: 0 $spacing-lg;
       border-radius: auto;
       border: none;
       gap: none;
@@ -65,7 +64,7 @@
     flex-direction: column;
     gap: $spacing-md;
     margin-top: $spacing-2xl;
-    padding: 0 $spacing-2xl;
+    padding: 0 $spacing-xl;
 
     li {
       display: grid;
@@ -331,7 +330,6 @@
         }
 
         .forward-target {
-          // background-image: url("/icons/email.svg");
           background-image: url("../../../../public/icons/email.svg");
         }
 

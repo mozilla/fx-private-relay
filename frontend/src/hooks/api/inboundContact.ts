@@ -48,7 +48,5 @@ export function useInboundContact(): SWRResponse<
   return {
     ...inboundContactNumber,
     setForwardingState: setForwardingState,
-
-    // getInboundContactNumber: findInboundContactNumber,
   };
 }

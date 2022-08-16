@@ -25,7 +25,6 @@ export const PhoneDashboard = () => {
   const realPhoneData = realPhone.data?.[0];
   const phoneDateCreated = useRealPhonesData();
   const inboundContactData = useInboundContact();
-  const inboundNumber = inboundContactData.data?.[0];
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
   const [enableForwarding, setEnableForwarding] = useState(
@@ -33,27 +32,16 @@ export const PhoneDashboard = () => {
   );
   const [showingPrimaryDashboard, toggleDashboardPanel] = useState(true);
 
-  const [inboundContactEnableForwarding, setEnableForwardingForInboundContact] =
-    useState(inboundNumber ? inboundNumber.blocked : false);
-
   const dateToFormat = phoneDateCreated.data?.[0].verified_date!;
 
-  console.log(inboundContactData.data?.[0]);
+  console.log(inboundContactData.data);
+
+  const inboundArray = inboundContactData.data;
 
   const toggleForwarding = () => {
     if (relayNumberData?.id) {
       setEnableForwarding(!enableForwarding);
       relayNumber.setForwardingState(!enableForwarding, relayNumberData.id);
-    }
-  };
-
-  const toggleInboundContactForwarding = () => {
-    if (inboundNumber?.id) {
-      setEnableForwardingForInboundContact(!inboundContactEnableForwarding);
-      inboundContactData.setForwardingState(
-        !inboundContactEnableForwarding,
-        inboundNumber.id
-      );
     }
   };
 
@@ -70,8 +58,6 @@ export const PhoneDashboard = () => {
   > = () => {
     toggleDashboardPanel(!showingPrimaryDashboard);
   };
-
-  console.log(showingPrimaryDashboard);
 
   const phoneStatistics = (
     <div className={styles["phone-statistics-container"]}>
@@ -225,6 +211,31 @@ export const PhoneDashboard = () => {
     </div>
   );
 
+  const inboundContactArray = inboundArray?.reverse().map((data) => {
+    return (
+      <li
+        key={data.id}
+        className={data.blocked ? styles["greyed-contact"] : ""}
+      >
+        <span>{data.inbound_number}</span>
+        <span>
+          <Moment format="YYYY-MM-DD - HH:mm">{data.last_inbound_date}</Moment>
+        </span>
+        <span>
+          <button
+            onClick={() =>
+              inboundContactData.setForwardingState(!data.blocked, data.id)
+            }
+            //onClick={toggleInboundContactForwarding(data.blocked, data.id)}
+            className={styles["block-btn"]}
+          >
+            {data.blocked ? "Unblock" : "Block"}
+          </button>
+        </span>
+      </li>
+    );
+  });
+
   const callerSMSSendersPanel = (
     <div id="secondary-panel" className={styles["dashboard-card"]}>
       <div className={styles["dashboard-card-caller-sms-senders-header"]}>
@@ -247,33 +258,13 @@ export const PhoneDashboard = () => {
         </span>
         <span></span>
       </div>
-
       <ul className={styles["caller-sms-senders-table"]}>
         <li className={styles["greyed-contact"]}>
           <span>Sender</span>
           <span>Latest Activity</span>
           <span>Action</span>
         </li>
-        {/* <li className={`${
-          inboundNumber?.blocked ? styles["blocked-contact"] : styles["unblocked"]
-        }`}> */}
-
-        <li className={inboundNumber?.blocked ? styles["greyed-contact"] : ""}>
-          <span>{inboundNumber?.inbound_number}</span>
-          <span>
-            <Moment format="YYYY-MM-DD - HH:mm">
-              {inboundNumber?.last_inbound_date}
-            </Moment>
-          </span>
-          <span>
-            <button
-              onClick={toggleInboundContactForwarding}
-              className={styles["block-btn"]}
-            >
-              {inboundNumber?.blocked ? "Unblock" : "Block"}
-            </button>
-          </span>
-        </li>
+        {inboundContactArray}
       </ul>
     </div>
   );
