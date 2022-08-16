@@ -210,15 +210,24 @@ export const PhoneDashboard = () => {
     </div>
   );
 
+  const calendarStrings = {
+    //TODO: Add eng strings to pendingTranslations.ftl
+    lastDay: "[Yesterday at] LT`",
+    sameDay: "[Today at] LT",
+    lastWeek: "L LT",
+    nextWeek: "L LT",
+    sameElse: "L LT",
+  };
+
   const inboundContactArray = inboundArray?.reverse().map((data) => {
     return (
       <li
         key={data.id}
         className={data.blocked ? styles["greyed-contact"] : ""}
       >
-        <span>{data.inbound_number}</span>
+        <span>{formatPhoneNumberToUSDisplay(data.inbound_number)}</span>
         <span>
-          <Moment format="YYYY-MM-DD - HH:mm">{data.last_inbound_date}</Moment>
+          <Moment calendar={calendarStrings}>{data.last_inbound_date}</Moment>
         </span>
         <span>
           <button

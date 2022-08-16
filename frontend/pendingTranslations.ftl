@@ -200,8 +200,6 @@ phone-dashboard-sender-table-title-sender = Sender
 phone-dashboard-sender-table-title-activity = Latest Activity
 phone-dashboard-sender-table-title-action = Action
 
-
-
 ## Replies
 profile-label-replies = Replies
 profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.
