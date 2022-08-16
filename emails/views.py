@@ -389,7 +389,11 @@ def _sns_notification(json_body):
 
     event_type = message_json.get("eventType")
     notification_type = message_json.get("notificationType")
-    if notification_type not in ["Received", "Bounce"] and event_type != "Bounce":
+    if notification_type not in {
+        "Complaint",
+        "Received",
+        "Bounce",
+    } and event_type not in {"Complaint", "Bounce"}:
         logger.error(
             "SNS notification for unsupported type",
             extra={
@@ -444,6 +448,8 @@ def _sns_message(message_json):
     event_type = message_json.get("eventType")
     if notification_type == "Bounce" or event_type == "Bounce":
         return _handle_bounce(message_json)
+    if notification_type == "Complaint" or event_type == "Complaint":
+        return _handle_complaint(message_json)
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
@@ -890,6 +896,31 @@ def _handle_bounce(message_json):
             # TODO: handle sub-types: 'MessageTooLarge', 'AttachmentRejected',
             # 'ContentRejected'
         profile.save()
+    return HttpResponse("OK", status=200)
+
+
+def _handle_complaint(message_json):
+    incr_if_enabled("email_complaint")
+    complaint = message_json.get("complaint")
+    complained_recipients = complaint.get("complainedRecipients")
+    subtype = complaint.get("complaintSubType")
+    feedback = complaint.get("complaintFeedbackType")
+    recipient_domains = []
+    for recipient in complained_recipients:
+        recipient_address = recipient.get("emailAddress")
+        if recipient_address is None:
+            continue
+        recipient_address = parseaddr(recipient_address)[1]
+        recipient_domain = recipient_address.split("@")[1]
+        recipient_domains.append(recipient_domain)
+    info_logger.info(
+        "complaint_received",
+        extra={
+            "recipient_domains": sorted(recipient_domains),
+            "subtype": subtype,
+            "feedback": feedback,
+        },
+    )
     return HttpResponse("OK", status=200)
 
 

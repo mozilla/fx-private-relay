@@ -298,23 +298,22 @@ def decrypt_reply_metadata(key, jwe):
 
 
 def _get_bucket_and_key_from_s3_json(message_json):
-    bucket = None
-    object_key = None
+    # Only Received notifications have S3-stored data
+    notification_type = message_json.get("notificationType")
+    if notification_type != "Received":
+        return None, None
+
     if "receipt" in message_json and "action" in message_json["receipt"]:
         message_json_receipt = message_json["receipt"]
     else:
-        notification_type = message_json.get("notificationType")
-        event_type = message_json.get("eventType")
-        is_bounce_notification = notification_type == "Bounce" or event_type == "Bounce"
-        if not is_bounce_notification:
-            # TODO: sns inbound notification does not have 'receipt'
-            # we need to look into this more
-            logger.error(
-                "sns_inbound_message_without_receipt",
-                extra={"message_json_keys": message_json.keys()},
-            )
+        logger.error(
+            "sns_inbound_message_without_receipt",
+            extra={"message_json_keys": message_json.keys()},
+        )
         return None, None
 
+    bucket = None
+    object_key = None
     try:
         if "S3" in message_json_receipt["action"]["type"]:
             bucket = message_json_receipt["action"]["bucketName"]
@@ -322,9 +321,7 @@ def _get_bucket_and_key_from_s3_json(message_json):
     except (KeyError, TypeError) as e:
         logger.error(
             "sns_inbound_message_receipt_malformed",
-            extra={
-                "receipt_action": message_json_receipt["action"],
-            },
+            extra={"receipt_action": message_json_receipt["action"]},
         )
     return bucket, object_key
 
