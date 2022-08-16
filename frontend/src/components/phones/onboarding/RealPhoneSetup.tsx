@@ -20,7 +20,7 @@ import { parseDate } from "../../../functions/parseDate";
 
 type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
-  onRequestVerification: (numberToVerify: string) => void;
+  onRequestVerification: (numberToVerify: string) => Promise<Response>;
   onSubmitVerification: PhoneNumberSubmitVerificationFn;
 };
 export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
@@ -35,8 +35,8 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
     return (
       <RealPhoneForm
         requestPhoneVerification={(number) => {
-          props.onRequestVerification(number);
           setIsEnteringNumber(false);
+          return props.onRequestVerification(number);
         }}
       />
     );
@@ -52,29 +52,49 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
 };
 
 type RealPhoneFormProps = {
-  requestPhoneVerification: (phoneNumber: string) => void;
+  requestPhoneVerification: (phoneNumber: string) => Promise<Response>;
 };
+
 const RealPhoneForm = (props: RealPhoneFormProps) => {
   const { l10n } = useLocalization();
 
   const [phoneNumber, setPhoneNumber] = useState("");
-
-  const errorMessage = (
-    <div className={`${styles["error"]}`}>
-      {l10n.getString("phone-onboarding-step2-invalid-number", {
-        phone_number: "+1 (000) 000-0000",
-      })}
-    </div>
-  );
+  const [phoneNumberSubmitted, setPhoneNumberSubmitted] = useState("");
+  const errorMessage = useRef<HTMLDivElement>(null);
+  const phoneNumberField = useRef<HTMLInputElement>(null);
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setPhoneNumber(event.target.value);
   };
 
-  const onSubmit: FormEventHandler = (event) => {
+  const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
-    props.requestPhoneVerification(phoneNumber);
+
+    // use this number to show user the number they submitted
+    setPhoneNumberSubmitted(phoneNumber);
+
+    // submit the request for phone verification
+    const res = await props.requestPhoneVerification(phoneNumber);
+
+    // check if the phone number was successfully submitted for verification
+    if (res.status !== 201) {
+      // show error message if the phone number was not submitted for verification successfully
+      errorMessage.current?.classList.remove(styles["is-hidden"]);
+      // add error class to input field
+      phoneNumberField.current?.classList.add(styles["is-error"]);
+    }
   };
+
+  const renderErrorMessage = (
+    <div
+      ref={errorMessage}
+      className={`${styles["error"]} ${styles["is-hidden"]}`}
+    >
+      {l10n.getString("phone-onboarding-step2-invalid-number", {
+        phone_number: formatPhone(phoneNumberSubmitted),
+      })}
+    </div>
+  );
 
   return (
     <div className={`${styles.step}  ${styles["step-verify-input"]} `}>
@@ -85,20 +105,19 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
       </div>
       {/* Add error class of `mzp-is-error` */}
       <form onSubmit={onSubmit} className={styles.form}>
-        {/* TODO: Wrap error message in logic */}
-        {errorMessage}
+        {renderErrorMessage}
 
         <input
           className={`${styles["c-verify-phone-input"]}`}
           placeholder={l10n.getString(
             "phone-onboarding-step2-input-placeholder"
           )}
+          ref={phoneNumberField}
           type="tel"
           required={true}
           onChange={onChange}
           autoFocus={true}
         />
-        {/* TODO: Add error class to input field */}
         <Button className={styles.button} type="submit">
           {l10n.getString("phone-onboarding-step2-button-cta")}
         </Button>

@@ -42,8 +42,8 @@ export const PhoneOnboarding = (props: Props) => {
     step = (
       <RealPhoneSetup
         unverifiedRealPhones={unverifiedPhones}
-        onRequestVerification={(number) =>
-          realPhoneData.requestPhoneVerification(number)
+        onRequestVerification={async (number) =>
+          await realPhoneData.requestPhoneVerification(number)
         }
         onSubmitVerification={realPhoneData.submitPhoneVerification}
       />

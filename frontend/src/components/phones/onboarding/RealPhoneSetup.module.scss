@@ -105,6 +105,14 @@
   padding: $spacing-md;
   text-align: center;
 }
+.step-verify-input .is-error {
+  border: 2px solid $color-red-60;
+  box-shadow: 0 0 4px 4px $color-red-30;
+}
+
+.step-verify-input .is-hidden {
+  display: none;
+}
 
 .form {
   max-width: $content-sm;
