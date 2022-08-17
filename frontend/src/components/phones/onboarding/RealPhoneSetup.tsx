@@ -192,7 +192,6 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
         className={styles.button}
         type="button"
         onClick={() => {
-          console.log(phoneWithMostRecentlySentVerificationCode);
           props.requestPhoneVerification(
             phoneWithMostRecentlySentVerificationCode.number
           );
@@ -233,6 +232,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
             {l10n.getString("phone-onboarding-step3-code-fail-title")}
           </h2>
           <p>{l10n.getString("phone-onboarding-step3-code-fail-body")}</p>
+          {/* button here */}
         </div>
       </div>
       {/* Add error class of `mzp-is-error` */}
@@ -272,12 +272,17 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           className={isVerifiedSuccessfully === false ? styles["is-error"] : ""}
           autoFocus={true}
         />
-        {/* TODO: Add logic to show success/fail on submit */}
-        <Button className={styles.button} type="submit">
+        {/* TODO: add validation */}
+        <Button
+          className={styles.button}
+          type="submit"
+          disabled={verificationCode.length === 0 || verificationCode === " "}
+        >
           {l10n.getString("phone-onboarding-step3-button-cta")}
         </Button>
+      </form>
 
-        {/* TODO: Enable logic to "go back" to previous step */}
+      {(remainingTime < 0 || !isVerifiedSuccessfully) && (
         <Button
           onClick={() => props.onGoBack()}
           className={styles.button}
@@ -286,12 +291,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
         >
           {l10n.getString("phone-onboarding-step3-button-edit")}
         </Button>
-      </form>
-
-      {/* TODO: Resubmit phone number for verification and reset count down */}
-      <Button className={styles.button} type="button" variant="secondary">
-        {l10n.getString("phone-onboarding-step3-button-resend")}
-      </Button>
+      )}
     </div>
   );
 };
@@ -324,7 +324,7 @@ function getRemainingTime(verificationSentTime: Date): number {
   const currentTime = new Date().getTime();
   const elapsedTime = currentTime - verificationSentTime.getTime();
   // TODO: Put remainingTime back to 5 minutes
-  const remainingTime = 0.1 * 60 * 1000 - elapsedTime;
+  const remainingTime = 5 * 60 * 1000 - elapsedTime;
   return remainingTime;
 }
 
