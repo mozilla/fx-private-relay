@@ -30,7 +30,7 @@ export const InfoIcon = ({
 };
 
 /** Filled info button that inherits the text color of its container */
-export const InfoFilledIcon = ({
+export const WarningFilledIcon = ({
   alt,
   ...props
 }: SVGProps<SVGSVGElement> & { alt: string }) => {
@@ -48,6 +48,28 @@ export const InfoFilledIcon = ({
     >
       <title>{alt}</title>
       <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V13H11V15ZM11 11H9V5H11V11Z" />
+    </svg>
+  );
+};
+
+export const InfoFilledIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M10 0C4.48 0 0 4.48 0 10C0 15.52 4.48 20 10 20C15.52 20 20 15.52 20 10C20 4.48 15.52 0 10 0ZM11 15H9V9H11V15ZM11 7H9V5H11V7Z" />
     </svg>
   );
 };

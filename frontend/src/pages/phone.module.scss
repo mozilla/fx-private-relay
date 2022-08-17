@@ -1,9 +1,14 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "../styles/tokens.scss";
 
-.main-phone-wrapper {
+.main-wrapper {
   max-width: $content-lg;
   width: 100%;
   margin: 0 auto;
   padding: $spacing-md;
+}
+
+.banner-wrapper {
+  @include text-body-sm;
+  padding-bottom: $spacing-xl;
 }

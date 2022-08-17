@@ -8,6 +8,10 @@
   background-color: $color-white;
   position: relative;
 
+  .banner.info & {
+    padding: $spacing-xs;
+  }
+
   &:not(.promo) {
     box-shadow: $box-shadow-sm;
   }
@@ -48,10 +52,20 @@
     flex: 1 0 50%;
   }
 
-  .banner:not(.promo) & {
+  .info-icon {
+    align-self: center;
+    margin-right: $spacing-lg;
+    color: $color-yellow-50;
+  }
+
+  .banner:not(.promo):not(.info) & {
     padding: $spacing-xs $spacing-lg $spacing-md;
     border-left-width: 4px;
     border-left-style: solid;
+  }
+
+  .banner.info & {
+    padding: 0 $spacing-sm 0 $spacing-md;
   }
 
   .banner.promo & {
@@ -83,10 +97,21 @@
   align-items: center;
   padding: $spacing-md 0;
 
+  .banner.info & {
+    @include text-body-sm;
+    font-family: $font-stack-base;
+    padding: $spacing-xs 0;
+    font-weight: 600;
+  }
+
   .icon {
     margin-right: $spacing-md;
 
     .warning & {
+      color: $color-yellow-50;
+    }
+
+    .info & {
       color: $color-yellow-50;
     }
   }
@@ -98,6 +123,12 @@
     padding: $spacing-md 0;
     font-weight: 700;
     color: $color-blue-50;
+
+    .banner.info & {
+      font-weight: 500;
+      text-decoration: underline;
+      padding: $spacing-sm 0 0 0;
+    }
 
     &:hover {
       color: $color-blue-40;
