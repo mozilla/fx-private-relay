@@ -46,6 +46,10 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
     <RealPhoneVerification
       phonesPendingVerification={phonesPendingVerification}
       submitPhoneVerification={props.onSubmitVerification}
+      requestPhoneVerification={(number) => {
+        setIsEnteringNumber(false);
+        return props.onRequestVerification(number);
+      }}
       onGoBack={() => setIsEnteringNumber(true)}
     />
   );
@@ -134,6 +138,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 type RealPhoneVerificationProps = {
   phonesPendingVerification: UnverifiedPhone[];
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
+  requestPhoneVerification: (numberToVerify: string) => Promise<Response>;
   onGoBack: () => void;
 };
 const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
@@ -183,7 +188,16 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       }`}
     >
       <p>{l10n.getString("phone-onboarding-step3-error-exipred")}</p>
-      <Button className={styles.button} type="submit">
+      <Button
+        className={styles.button}
+        type="button"
+        onClick={() => {
+          console.log(phoneWithMostRecentlySentVerificationCode);
+          props.requestPhoneVerification(
+            phoneWithMostRecentlySentVerificationCode.number
+          );
+        }}
+      >
         {l10n.getString("phone-onboarding-step3-error-cta")}
       </Button>
     </div>
@@ -309,7 +323,8 @@ function useInterval(callback: IntervalFunction, delay: number) {
 function getRemainingTime(verificationSentTime: Date): number {
   const currentTime = new Date().getTime();
   const elapsedTime = currentTime - verificationSentTime.getTime();
-  const remainingTime = 5 * 60 * 1000 - elapsedTime;
+  // TODO: Put remainingTime back to 5 minutes
+  const remainingTime = 0.1 * 60 * 1000 - elapsedTime;
   return remainingTime;
 }
 
