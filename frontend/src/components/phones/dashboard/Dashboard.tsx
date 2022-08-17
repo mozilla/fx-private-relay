@@ -59,6 +59,7 @@ export const PhoneDashboard = () => {
     toggleDashboardPanel(!showingPrimaryDashboard);
   };
 
+  //TODO: Add real data to phone stats
   const phoneStatistics = (
     <div className={styles["phone-statistics-container"]}>
       <div className={styles["phone-statistics"]}>
@@ -104,7 +105,7 @@ export const PhoneDashboard = () => {
       <div className={styles["phone-controls"]}>
         <button
           onClick={toggleForwarding}
-          className={`${styles["base-button"]} ${
+          className={`${styles["forwarding-controls-button"]} ${
             enableForwarding ? styles["active-button"] : ""
           }`}
         >
@@ -117,7 +118,7 @@ export const PhoneDashboard = () => {
         </button>
         <button
           onClick={toggleForwarding}
-          className={`${styles["base-button"]} ${
+          className={`${styles["forwarding-controls-button"]} ${
             enableForwarding ? "" : styles["active-button"]
           }`}
         >
@@ -200,8 +201,8 @@ export const PhoneDashboard = () => {
           <ChevronRightIcon
             alt="See Caller and SMS Senders"
             className={styles["nav-icon"]}
-            width={25}
-            height={25}
+            width={20}
+            height={20}
           />
         </button>
       </div>
@@ -223,7 +224,7 @@ export const PhoneDashboard = () => {
   const inboundContactArray = inboundArray
     ?.sort(
       (a, b) =>
-        // Sorted with the latest message/call being placed first
+        // Sort by last sent date
         moment(b.last_inbound_date).unix() - moment(a.last_inbound_date).unix()
     )
     .map((data) => {
@@ -232,11 +233,13 @@ export const PhoneDashboard = () => {
           key={data.id}
           className={data.blocked ? styles["greyed-contact"] : ""}
         >
-          <span>{formatPhoneNumberToUSDisplay(data.inbound_number)}</span>
-          <span>
+          <span className={styles["sender-number"]}>
+            {formatPhoneNumberToUSDisplay(data.inbound_number)}
+          </span>
+          <span className={styles["sender-date"]}>
             <Moment calendar={calendarStrings}>{data.last_inbound_date}</Moment>
           </span>
-          <span>
+          <span className={styles["sender-controls"]}>
             <button
               onClick={() =>
                 inboundContactData.setForwardingState(!data.blocked, data.id)
@@ -263,8 +266,8 @@ export const PhoneDashboard = () => {
             <ChevronLeftIcon
               alt="Back to Primary Dashboard"
               className={styles["nav-icon"]}
-              width={25}
-              height={25}
+              width={20}
+              height={20}
             />
           </button>
         </span>
