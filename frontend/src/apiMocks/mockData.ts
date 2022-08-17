@@ -32,6 +32,7 @@ export const mockedRuntimeData: RuntimeData = {
     ["tracker_removal", true],
     ["phones", true],
   ],
+  MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
 };
 
 export const mockedUsers: Record<typeof mockIds[number], UserData> = {
