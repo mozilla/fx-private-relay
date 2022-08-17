@@ -16,7 +16,6 @@ from phones.models import InboundContact
 
 if settings.PHONES_ENABLED:
     from ..models import (
-        MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         RealPhone,
         RelayNumber,
         area_code_numbers,
@@ -94,7 +93,7 @@ def test_get_valid_realphone_verification_record_returns_none(phone_user):
         number=number,
         verification_sent_date=(
             datetime.now(timezone.utc)
-            - timedelta(0, 60 * MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
+            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
     record = get_valid_realphone_verification_record(
@@ -139,7 +138,7 @@ def test_create_realphone_deletes_expired_unverified_records(
         verified=False,
         verification_sent_date=(
             datetime.now(timezone.utc)
-            - timedelta(0, 60 * MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
+            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE + 1)
         ),
     )
     expired_verification_records = get_expired_unverified_realphone_records(number)

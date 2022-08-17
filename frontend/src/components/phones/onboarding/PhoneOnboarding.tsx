@@ -5,6 +5,7 @@ import {
   isVerified,
   isNotVerified,
 } from "../../../hooks/api/realPhone";
+import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { PurchasePhonesPlan } from "./PurchasePhonesPlan";
 import { RealPhoneSetup } from "./RealPhoneSetup";
 import { RelayNumberPicker } from "./RelayNumberPicker";
@@ -16,11 +17,12 @@ export type Props = {
 export const PhoneOnboarding = (props: Props) => {
   const profiles = useProfiles();
   const realPhoneData = useRealPhonesData();
+  const runtimeData = useRuntimeData();
 
   let step = null;
 
-  // Make sure profile data is available
-  if (profiles.data?.[0] === undefined) {
+  // Make sure profile and runtime data are available
+  if (profiles.data?.[0] === undefined || !runtimeData.data) {
     return <>TODO: Profile Loading/Error</>;
   }
 
@@ -46,6 +48,7 @@ export const PhoneOnboarding = (props: Props) => {
           await realPhoneData.requestPhoneVerification(number)
         }
         onSubmitVerification={realPhoneData.submitPhoneVerification}
+        runtimeData={runtimeData.data}
       />
     );
   }

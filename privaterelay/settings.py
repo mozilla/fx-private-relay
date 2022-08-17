@@ -180,6 +180,7 @@ TWILIO_MAIN_NUMBER = config("TWILIO_MAIN_NUMBER", None)
 TWILIO_SMS_APPLICATION_SID = config("TWILIO_SMS_APPLICATION_SID", None)
 TWILIO_TEST_ACCOUNT_SID = config("TWILIO_TEST_ACCOUNT_SID", None)
 TWILIO_TEST_AUTH_TOKEN = config("TWILIO_TEST_AUTH_TOKEN", None)
+MAX_MINUTES_TO_VERIFY_REAL_PHONE = config("MAX_MINUTES_TO_VERIFY_REAL_PHONE", 5, cast=int)
 
 STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
 STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
@@ -649,13 +650,17 @@ if IN_PYTEST or DEBUG:
 # an auth token:
 ACCOUNT_LOGOUT_ON_GET = DEBUG
 
+CORS_URLS_REGEX = r"^/api/"
 CORS_ALLOWED_ORIGINS = [
     "https://vault.bitwarden.com",
 ]
-if RELAY_CHANNEL in ["local", "dev", "stage"]:
+if RELAY_CHANNEL in ["dev", "stage"]:
     CORS_ALLOWED_ORIGINS += ["https://vault.qa.bitwarden.pw"]
+if RELAY_CHANNEL == "local":
+    # In local dev, next runs on localhost and makes requests to /accounts/
+    CORS_ALLOWED_ORIGINS += ["http://localhost:3000"]
+    CORS_URLS_REGEX = r"^/(api|accounts)/"
 
-CORS_URLS_REGEX = r"^/api/"
 CSRF_TRUSTED_ORIGINS = []
 if RELAY_CHANNEL == "local":
     # In local development, the React UI can be served up from a different server

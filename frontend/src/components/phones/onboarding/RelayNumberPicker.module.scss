@@ -17,8 +17,8 @@
   flex-grow: 2;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
-  gap: $spacing-xl;
+  justify-content: center;
+  gap: $spacing-2xl;
 
   .button {
     width: 100%;
