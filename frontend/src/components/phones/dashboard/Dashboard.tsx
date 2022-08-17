@@ -14,6 +14,7 @@ import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
+import moment from "moment";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
@@ -212,37 +213,43 @@ export const PhoneDashboard = () => {
 
   const calendarStrings = {
     //TODO: Add eng strings to pendingTranslations.ftl
-    lastDay: "[Yesterday at] LT`",
+    lastDay: "[Yesterday at] LT",
     sameDay: "[Today at] LT",
     lastWeek: "L LT",
     nextWeek: "L LT",
     sameElse: "L LT",
   };
 
-  const inboundContactArray = inboundArray?.reverse().map((data) => {
-    return (
-      <li
-        key={data.id}
-        className={data.blocked ? styles["greyed-contact"] : ""}
-      >
-        <span>{formatPhoneNumberToUSDisplay(data.inbound_number)}</span>
-        <span>
-          <Moment calendar={calendarStrings}>{data.last_inbound_date}</Moment>
-        </span>
-        <span>
-          <button
-            onClick={() =>
-              inboundContactData.setForwardingState(!data.blocked, data.id)
-            }
-            //onClick={toggleInboundContactForwarding(data.blocked, data.id)}
-            className={styles["block-btn"]}
-          >
-            {data.blocked ? "Unblock" : "Block"}
-          </button>
-        </span>
-      </li>
-    );
-  });
+  const inboundContactArray = inboundArray
+    ?.sort(
+      (a, b) =>
+        // Sorted with the latest message/call being placed first
+        moment(b.last_inbound_date).unix() - moment(a.last_inbound_date).unix()
+    )
+    .map((data) => {
+      return (
+        <li
+          key={data.id}
+          className={data.blocked ? styles["greyed-contact"] : ""}
+        >
+          <span>{formatPhoneNumberToUSDisplay(data.inbound_number)}</span>
+          <span>
+            <Moment calendar={calendarStrings}>{data.last_inbound_date}</Moment>
+          </span>
+          <span>
+            <button
+              onClick={() =>
+                inboundContactData.setForwardingState(!data.blocked, data.id)
+              }
+              //onClick={toggleInboundContactForwarding(data.blocked, data.id)}
+              className={styles["block-btn"]}
+            >
+              {data.blocked ? "Unblock" : "Block"}
+            </button>
+          </span>
+        </li>
+      );
+    });
 
   const callerSMSSendersPanel = (
     <div id="secondary-panel" className={styles["dashboard-card"]}>
