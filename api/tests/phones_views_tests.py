@@ -1,4 +1,3 @@
-from datetime import timezone
 import pytest
 from unittest.mock import Mock, patch, call
 
