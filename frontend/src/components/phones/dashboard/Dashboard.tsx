@@ -31,11 +31,7 @@ export const PhoneDashboard = () => {
     relayNumberData ? relayNumberData.enabled : false
   );
   const [showingPrimaryDashboard, toggleDashboardPanel] = useState(true);
-
   const dateToFormat = phoneDateCreated.data?.[0].verified_date!;
-
-  console.log(inboundContactData.data);
-
   const inboundArray = inboundContactData.data;
 
   const toggleForwarding = () => {
