@@ -84,8 +84,12 @@ Every tag pushed to GitHub is automatically deployed to the [Stage][stage]
 server. The standard practice is to create a tag from `main` every Tuesday at
 the end of the day, and to name the tag with `YYYY-MM-DD` [CalVer][calver]
 syntax. This tag will include only the changes that have been merged to `main`.
-E.g., the following `2022.08.02` tag includes only `change-1` and `change-2`.
+E.g.,
 
+1. `git tag 2022.08.02`
+2. `git push --tags`
+
+E.g., the following `2022.08.02` tag includes only `change-1` and `change-2`.
 ```mermaid
 %%{init: { 'theme': 'base', 'gitGraph': {'rotateCommitLabel': true} } }%%
     gitGraph
@@ -109,18 +113,36 @@ E.g., the following `2022.08.02` tag includes only `change-1` and `change-2`.
        checkout main
 ```
 
+### Create Release Notes on GitHub
+After you push the tag to GitHub, you should also
+[make a pre-release on GitHub][github-new-release] for the tag.
+
+1. Choose the tag you just pushed (e.g., `2022.08.02`)
+2. Type the same tag name for the releae title (e.g., `2022.08.02`)
+3. Click "Previous tag:" and choose the tag currently on production.
+   * You can find this at [the `__version__` endpoint][prod-version].
+4. Click the "Generate release notes" button!
+5. Check the pre-release box.
+6. Click "Publish release"
+
+
 ## Release to Prod
 We leave the tag on [Stage][stage] for a week so that we (and especially QA)
 can check the tag on GCP infrastucture before we deploy it to production. To
 deploy the tag to production:
 
-1. [Make a release on GitHub][github-new-release] for the tag.
-   * Use the "Generate release notes" button!
-   * Mark it as a pre-release.
-2. File an [SRE ticket][sre-board] to deploy the tag to [Prod][prod].
+1. File an [SRE ticket][sre-board] to deploy the tag to [Prod][prod].
    * Include a link to the GitHub Release
-   * When the tag goes to prod, update the GitHub Release from "pre-release" to
-     a full release.
+   * You can assign it directly to our primary SRE for the day
+2. When SRE starts the deploy, "cloudops-jenkins" will send status messages
+   into the #fx-private-relay-eng channel.
+3. When you see `PROMOTE PROD COMPLETE`, do some checks on prod:
+   * Check sentry prod project for a spike in any new issues
+   * Check grafana dashboard for any unexpected spike in ops
+   * Spot-check the site for basic functionality
+   * Ping SDET to run end-to-end tests on prod
+4. Uupdate the GitHub Release from "pre-release" to a full release.
+
 
 ## Stage-fixes
 Ideally, every change can ride the regular weekly release "trains". But
@@ -212,6 +234,19 @@ from the stage-fix branch.
        merge stage-fix-2022.08.02
 ```
 
+### Creating GitHub Release Notes for stage-fix release
+Whether you make a "clean" or "dirty" stage-fix, after you push the new tag to
+GitHub, you should [make a pre-release on GitHub][github-new-release] for the
+new release tag.
+
+1. Choose the tag you just pushed (e.g., `2022.08.02.01`)
+2. Type the same tag name for the releae title (e.g., `2022.08.02.01`)
+3. Click "Previous tag:" and choose the previous tag. (e.g., `2022.08.02`)
+4. Click the "Generate release notes" button!
+5. Check the pre-release box.
+6. Click "Publish release"
+
+
 ## Example of regular release + "clean" stage-fix release + regular release
 ```mermaid
 %%{init: { 'theme': 'base' } }%%
@@ -275,3 +310,4 @@ merge from `main` to long-running branches for `dev`, `stage`, `pre-prod`, and
 [calver]: https://calver.org/
 [sre-board]: https://mozilla-hub.atlassian.net/jira/software/c/projects/SVCSE/boards/316
 [github-new-release]: https://github.com/mozilla/fx-private-relay/releases/new
+[prod-version]: https://relay.firefox.com/__version__
