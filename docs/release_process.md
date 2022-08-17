@@ -162,7 +162,7 @@ GitHub Flow:
 3. Create a pull request to `main`
 4. Address review comments
 5. Merge pull request
-6. Make and push a new tag. E.g.: `2022.08.02.01
+6. Make and push a new tag. E.g.: `2022.08.02.01`
 
 ```mermaid
 %%{init: { 'theme': 'base' } }%%
@@ -298,6 +298,10 @@ When we are confident that `main` can always be released, we may get rid of
 release tags completely, and move to something more like a GitLab Flow where we
 merge from `main` to long-running branches for `dev`, `stage`, `pre-prod`, and
 `prod` environments.
+
+![Future release process with long-running
+branches](release-process-future-long-branches.png "Future release process with
+long-running branches")
 
 
 [prod]: https://relay.firefox.com/
