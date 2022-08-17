@@ -57,6 +57,7 @@ if settings.PHONES_ENABLED:
         inbound_call,
         inbound_sms,
         vCard,
+        resend_welcome_sms,
     )
 
     api_router.register(r"realphone", RealPhoneViewSet, "real_phone")
@@ -66,6 +67,11 @@ if settings.PHONES_ENABLED:
         path("v1/inbound_sms", inbound_sms, name="inbound_sms"),
         path("v1/inbound_call", inbound_call, name="inbound_call"),
         path("v1/vCard/<lookup_key>", vCard, name="vCard"),
+        path(
+            "v1/realphone/resend_welcome_sms",
+            resend_welcome_sms,
+            name="resend_welcome_sms",
+        ),
     ]
 
 urlpatterns += [
