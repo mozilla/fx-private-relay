@@ -9,6 +9,7 @@ import {
   UnverifiedPhone,
   PhoneNumberSubmitVerificationFn,
 } from "../../../hooks/api/realPhone";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
 import {
   ChangeEventHandler,
   FormEventHandler,
@@ -22,6 +23,7 @@ type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
   onRequestVerification: (numberToVerify: string) => Promise<Response>;
   onSubmitVerification: PhoneNumberSubmitVerificationFn;
+  runtimeData: RuntimeData;
 };
 export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
   const phonesPendingVerification = props.unverifiedRealPhones.filter(
@@ -50,6 +52,7 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
         setIsEnteringNumber(false);
         return props.onRequestVerification(number);
       }}
+      maxMinutesToVerify={props.runtimeData.MAX_MINUTES_TO_VERIFY_REAL_PHONE}
       onGoBack={() => setIsEnteringNumber(true)}
     />
   );
@@ -139,6 +142,7 @@ type RealPhoneVerificationProps = {
   phonesPendingVerification: UnverifiedPhone[];
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
   requestPhoneVerification: (numberToVerify: string) => Promise<Response>;
+  maxMinutesToVerify: number;
   onGoBack: () => void;
 };
 const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
@@ -153,7 +157,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     phoneWithMostRecentlySentVerificationCode.verification_sent_date
   );
   const [remainingTime, setRemainingTime] = useState(
-    getRemainingTime(verificationSentDate)
+    getRemainingTime(verificationSentDate, props.maxMinutesToVerify)
   );
   /** `undefined` if verification hasn't been attempted yet */
   const [isVerifiedSuccessfully, setIsVerifiedSuccessfully] =
@@ -178,7 +182,9 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   };
 
   useInterval(() => {
-    setRemainingTime(getRemainingTime(verificationSentDate));
+    setRemainingTime(
+      getRemainingTime(verificationSentDate, props.maxMinutesToVerify)
+    );
   }, 1000);
 
   const errorTimeExpired = (
@@ -320,11 +326,13 @@ function useInterval(callback: IntervalFunction, delay: number) {
   }, [delay]);
 }
 
-function getRemainingTime(verificationSentTime: Date): number {
+function getRemainingTime(
+  verificationSentTime: Date,
+  maxMinutesToVerify: number
+): number {
   const currentTime = new Date().getTime();
   const elapsedTime = currentTime - verificationSentTime.getTime();
-  // TODO: Put remainingTime back to 5 minutes
-  const remainingTime = 0.1 * 60 * 1000 - elapsedTime;
+  const remainingTime = maxMinutesToVerify * 60 * 1000 - elapsedTime;
   return remainingTime;
 }
 
