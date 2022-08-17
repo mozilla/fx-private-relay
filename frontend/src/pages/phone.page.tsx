@@ -8,10 +8,14 @@ import { useEffect, useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/Dashboard";
 import { getRuntimeConfig } from "../config";
 import { PurchasePhonesPlan } from "../components/phones/onboarding/PurchasePhonesPlan";
+import { Banner } from "../components/Banner";
+import styles from "./phone.module.scss";
+import { useLocalization } from "@fluent/react";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
   const profile = profileData.data?.[0];
+  const { l10n } = useLocalization();
 
   const userData = useUsers();
   const user = userData.data?.[0];
@@ -57,7 +61,27 @@ const Phone: NextPage = () => {
 
   return (
     <Layout>
-      <PhoneDashboard />
+      <div className={styles["main-wrapper"]}>
+        <div className={styles["banner-wrapper"]}>
+          <Banner
+            title={l10n.getString("phone-banner-resend-welcome-sms-title")}
+            type="info"
+            // TODO: add resend welcome SMS trigger here
+            cta={{
+              target: "/",
+              content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
+              onClick: () => "",
+              gaViewPing: {
+                category: "Resend Welcome SMS",
+                label: "phone-page-banner-resend-welcome",
+              },
+            }}
+          >
+            {l10n.getString("phone-banner-resend-welcome-sms-body")}
+          </Banner>
+        </div>
+        <PhoneDashboard />
+      </div>
     </Layout>
   );
 };
