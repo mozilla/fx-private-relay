@@ -124,7 +124,7 @@
       }
 
       @media screen and #{$mq-md} {
-        grid-template-columns: 2fr 1fr 1fr;
+        grid-template-columns: 3fr 2fr 2fr;
       }
 
       .sender-number {
@@ -135,11 +135,18 @@
       .sender-date {
         grid-row: 2;
         grid-column: 1;
+        display: flex;
+        gap: $spacing-sm;
+        align-items: center;
       }
 
       .sender-controls {
         position: absolute;
         justify-self: end;
+      }
+
+      .forwarded-type-icon {
+        color: $color-light-gray-70;
       }
 
       @media screen and #{$mq-md} {

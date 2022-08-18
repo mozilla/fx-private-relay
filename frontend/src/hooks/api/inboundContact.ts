@@ -6,6 +6,7 @@ export type InboundContact = {
   relay_number: number;
   inbound_number: string;
   last_inbound_date: string;
+  last_inbound_type: string;
   num_calls: number;
   num_calls_blocked: number;
   num_texts: number;

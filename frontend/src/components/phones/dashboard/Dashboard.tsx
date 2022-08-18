@@ -9,6 +9,8 @@ import {
   BlockIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  ForwardedCallIcon,
+  ForwardedTextIcon,
 } from "../../../components/Icons";
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
@@ -233,6 +235,22 @@ export const PhoneDashboard = () => {
             {formatPhoneNumberToUSDisplay(data.inbound_number)}
           </span>
           <span className={styles["sender-date"]}>
+            {data.last_inbound_type === "text" && (
+              <ForwardedTextIcon
+                alt="Back to Primary Dashboard"
+                className={styles["forwarded-type-icon"]}
+                width={20}
+                height={15}
+              />
+            )}
+            {data.last_inbound_type === "call" && (
+              <ForwardedCallIcon
+                alt="Back to Primary Dashboard"
+                className={styles["forwarded-type-icon"]}
+                width={20}
+                height={18}
+              />
+            )}
             <Moment calendar={calendarStrings}>{data.last_inbound_date}</Moment>
           </span>
           <span className={styles["sender-controls"]}>
