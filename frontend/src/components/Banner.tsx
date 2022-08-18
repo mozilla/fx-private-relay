@@ -50,7 +50,7 @@ export const Banner = (props: BannerProps) => {
     <WarningFilledIcon alt="" className={styles.icon} width={20} height={20} />
   );
   const infoIcon =
-    props.type === "info" ? (
+    type === "info" ? (
       <div className={styles["info-icon"]}>
         <InfoFilledIcon alt="" className={styles.icon} width={20} height={20} />
       </div>
@@ -58,15 +58,13 @@ export const Banner = (props: BannerProps) => {
 
   const title =
     typeof props.title !== "undefined"
-      ? (props.type === "warning" && (
+      ? (type === "warning" && (
           <h2 className={styles.title}>
             {warningIcon}
             {props.title}
           </h2>
         )) ||
-        (props.type === "info" && (
-          <h2 className={styles.title}>{props.title}</h2>
-        ))
+        (type === "info" && <h2 className={styles.title}>{props.title}</h2>)
       : null;
 
   const illustration = props.illustration ? (
