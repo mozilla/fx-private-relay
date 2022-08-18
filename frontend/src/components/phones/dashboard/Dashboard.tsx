@@ -240,7 +240,7 @@ export const PhoneDashboard = () => {
                 alt="Last received a text"
                 className={styles["forwarded-type-icon"]}
                 width={20}
-                height={15}
+                height={12}
               />
             )}
             {data.last_inbound_type === "call" && (
@@ -248,7 +248,7 @@ export const PhoneDashboard = () => {
                 alt="Last received a call"
                 className={styles["forwarded-type-icon"]}
                 width={20}
-                height={18}
+                height={15}
               />
             )}
             <Moment calendar={calendarStrings}>{data.last_inbound_date}</Moment>

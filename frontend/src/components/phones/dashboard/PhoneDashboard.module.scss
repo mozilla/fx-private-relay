@@ -99,10 +99,10 @@
     flex-direction: column;
     gap: $spacing-sm;
     margin-top: $spacing-lg;
-    padding: 0 $spacing-xl;
+    padding: 0 $spacing-lg;
 
     @media screen and #{$mq-md} {
-      margin: 0 $spacing-lg;
+      margin: 0 $spacing-sm;
       margin-top: $spacing-2xl;
     }
 
@@ -123,7 +123,7 @@
       }
 
       @media screen and #{$mq-md} {
-        grid-template-columns: 3fr 2fr 2fr;
+        grid-template-columns: 3fr 2fr 1fr;
         grid-gap: $spacing-md;
       }
 
@@ -140,7 +140,7 @@
       .sender-date-wrapper {
         display: flex;
         align-items: center;
-        gap: $spacing-xs;
+        gap: $spacing-sm;
       }
 
       .sender-controls {
