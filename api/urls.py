@@ -55,8 +55,9 @@ if settings.PHONES_ENABLED:
         RelayNumberViewSet,
         InboundContactViewSet,
         inbound_call,
+        delete_real_phone,
         inbound_sms,
-        vCard,
+        vCard, 
     )
 
     api_router.register(r"realphone", RealPhoneViewSet, "real_phone")
@@ -65,6 +66,7 @@ if settings.PHONES_ENABLED:
     urlpatterns += [
         path("v1/inbound_sms", inbound_sms, name="inbound_sms"),
         path("v1/inbound_call", inbound_call, name="inbound_call"),
+        path("v1/realphone/<real_phone>", delete_real_phone, name="delete_real_phone"),
         path("v1/vCard/<lookup_key>", vCard, name="vCard"),
     ]
 

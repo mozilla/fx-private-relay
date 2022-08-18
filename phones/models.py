@@ -101,7 +101,8 @@ class RealPhone(models.Model):
         # We are not ready to support multiple real phone numbers per user,
         # so raise an exception if this save() would create a second
         # RealPhone record for the user
-        user_verified_number_records = get_verified_realphone_records(self.user)
+        user_verified_number_records = get_verified_realphone_records(
+            self.user)
         for verified_number in user_verified_number_records:
             if (
                 verified_number.number == self.number
@@ -115,6 +116,14 @@ class RealPhone(models.Model):
         # call super save to save into the DB
         # See also: realphone_post_save receiver below
         return super().save(*args, **kwargs)
+
+    def delete_real_phone(self):
+        self.verified = False
+        self.verified_date = ""
+        verification_sent_date = ""
+        self.number = ""
+        self.save(force_update=True)
+        return self
 
     def mark_verified(self):
         self.verified = True

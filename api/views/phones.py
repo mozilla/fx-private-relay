@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import json
 import logging
 
 import phonenumbers
@@ -80,6 +81,18 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
     def get_queryset(self):
         return RealPhone.objects.filter(user=self.request.user)
+
+    def remove(self, request):
+        """
+        Remove the authenticated user's real phone number.
+
+        The authenticated user must have a subscription that grants one of the
+        `SUBSCRIPTIONS_WITH_PHONE` capabilities.
+        """
+
+        instance = self.get_object()
+        instance.delete()
+        return response.Response(status=204)
 
     def create(self, request):
         """
@@ -297,7 +310,8 @@ class InboundContactViewSet(viewsets.ModelViewSet):
     serializer_class = InboundContactSerializer
 
     def get_queryset(self):
-        request_user_relay_num = get_object_or_404(RelayNumber, user=self.request.user)
+        request_user_relay_num = get_object_or_404(
+            RelayNumber, user=self.request.user)
         return InboundContact.objects.filter(relay_number=request_user_relay_num)
 
 
@@ -377,6 +391,24 @@ def vCard(request, lookup_key):
     return resp
 
 
+@decorators.api_view(["DELETE"])
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+def delete_real_phone(request, real_phone):
+    """
+    Delete a specific phone number .
+    """
+    try:
+        realPhoneToDelete = RealPhone.objects.get(number=real_phone)
+    except RealPhone.DoesNotExist:
+        raise exceptions.NotFound()
+
+    realPhoneToDelete.delete()
+
+    resp = response.Response(
+        status=201, data={"msg": 'Phone number deleted'})
+    return resp
+
+
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TwilioInboundSMSXMLRenderer])
@@ -430,13 +462,15 @@ def _get_phone_objects(inbound_to, inbound_from, contact_type):
     # Get RelayNumber and RealPhone
     try:
         relay_number = RelayNumber.objects.get(number=inbound_to)
-        real_phone = RealPhone.objects.get(user=relay_number.user, verified=True)
+        real_phone = RealPhone.objects.get(
+            user=relay_number.user, verified=True)
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
 
     # Check if RelayNumber is disabled
     if not relay_number.enabled:
-        raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
+        raise exceptions.ValidationError(
+            f"Number is not accepting {contact_type}.")
 
     # Check if RelayNumber is storing phone log
     profile = Profile.objects.get(user=relay_number.user)
@@ -455,7 +489,8 @@ def _check_and_update_contact(inbound_contact, contact_type):
         attr = f"num_{contact_type}_blocked"
         setattr(inbound_contact, attr, getattr(inbound_contact, attr) + 1)
         inbound_contact.save()
-        raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
+        raise exceptions.ValidationError(
+            f"Number is not accepting {contact_type}.")
 
     inbound_contact.last_inbound_date = datetime.now(timezone.utc)
     attr = f"num_{contact_type}"
