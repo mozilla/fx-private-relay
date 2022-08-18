@@ -458,6 +458,8 @@ def _check_and_update_contact(inbound_contact, contact_type):
         raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
 
     inbound_contact.last_inbound_date = datetime.now(timezone.utc)
+    # strip trailing "s": InboundContact.last_inbound_type is max_length 4
+    inbound_contact.last_inbound_type = contact_type[:-1]
     attr = f"num_{contact_type}"
     setattr(inbound_contact, attr, getattr(inbound_contact, attr) + 1)
     inbound_contact.save()

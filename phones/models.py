@@ -15,6 +15,13 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
 
+MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
+LAST_CONTACT_TYPE_CHOICES = [
+    ("call", "call"),
+    ("text", "text"),
+]
+
+
 def twilio_client():
     phones_config = apps.get_app_config("phones")
     client = phones_config.twilio_client
@@ -209,6 +216,9 @@ class InboundContact(models.Model):
     relay_number = models.ForeignKey(RelayNumber, on_delete=models.CASCADE)
     inbound_number = models.CharField(max_length=15)
     last_inbound_date = models.DateTimeField(default=last_inbound_date_default)
+    last_inbound_type = models.CharField(
+        max_length=4, choices=LAST_CONTACT_TYPE_CHOICES, default="text"
+    )
     num_calls = models.PositiveIntegerField(default=0)
     num_calls_blocked = models.PositiveIntegerField(default=0)
     num_texts = models.PositiveIntegerField(default=0)
