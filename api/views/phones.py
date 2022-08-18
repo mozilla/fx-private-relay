@@ -242,7 +242,8 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         URL configured for your `TWILIO_SMS_APPLICATION_SID`.
 
         [test-creds]: https://www.twilio.com/docs/iam/test-credentials
-        [test-numbers]: https://www.twilio.com/docs/iam/test-credentials#test-incoming-phone-numbers-parameters-PhoneNumber
+        # test-incoming-phone-numbers-parameters-PhoneNumber
+        [test-numbers]: https://www.twilio.com/docs/iam/test-credentials
         [e164]: https://en.wikipedia.org/wiki/E.164
         """
         existing_number = RelayNumber.objects.filter(user=request.user)
@@ -289,7 +290,8 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
           * ?area_code=
             * Will be passed to `AvailablePhoneNumbers` `area_code` param
 
-        [apn]: https://www.twilio.com/docs/phone-numbers/api/availablephonenumberlocal-resource#read-multiple-availablephonenumberlocal-resources
+        # read-multiple-availablephonenumberlocal-resources
+        [apn]: https://www.twilio.com/docs/phone-numbers/api/availablephonenumberlocal-resource
         """
         location = request.query_params.get("location")
         if location is not None:
@@ -402,11 +404,15 @@ def delete_real_phone(request, real_phone):
     except RealPhone.DoesNotExist:
         raise exceptions.NotFound()
 
+    # Check if phone number is verified
+    if realPhoneToDelete.verified:
+        return response.Response(
+        status=400, data={"msg": 'Verified phone number cannot be deleted'})
+ 
+    # Delete phone number
     realPhoneToDelete.delete()
-
-    resp = response.Response(
+    return response.Response(
         status=201, data={"msg": 'Phone number deleted'})
-    return resp
 
 
 @decorators.api_view(["POST"])
