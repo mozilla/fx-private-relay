@@ -2,7 +2,7 @@
 @import "../styles/tokens.scss";
 
 .main-wrapper {
-  max-width: $content-lg;
+  max-width: calc($content-lg + $layout-lg);
   width: 100%;
   margin: 0 auto;
   padding: $spacing-md;

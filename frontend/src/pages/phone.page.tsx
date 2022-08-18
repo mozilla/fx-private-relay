@@ -11,6 +11,7 @@ import { PurchasePhonesPlan } from "../components/phones/onboarding/PurchasePhon
 import { Banner } from "../components/Banner";
 import styles from "./phone.module.scss";
 import { useLocalization } from "@fluent/react";
+import { useRealPhonesData } from "../hooks/api/realPhone";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
@@ -22,6 +23,7 @@ const Phone: NextPage = () => {
 
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
+  const realPhoneData = useRealPhonesData();
 
   useEffect(() => {
     if (
@@ -66,15 +68,18 @@ const Phone: NextPage = () => {
           <Banner
             title={l10n.getString("phone-banner-resend-welcome-sms-title")}
             type="info"
-            // TODO: add resend welcome SMS trigger here
+            // TODO: add resend welcome SMS trigger here *WIP!!!!*
             cta={{
-              target: "/",
+              target: "",
               content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
-              onClick: () => "",
+              onClick: () => realPhoneData.resendWelcomeSMS(),
               gaViewPing: {
                 category: "Resend Welcome SMS",
                 label: "phone-page-banner-resend-welcome",
               },
+            }}
+            dismissal={{
+              key: "resend-sms-banner",
             }}
           >
             {l10n.getString("phone-banner-resend-welcome-sms-body")}

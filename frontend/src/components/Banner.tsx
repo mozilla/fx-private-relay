@@ -12,7 +12,7 @@ export type BannerProps = {
   title?: string;
   illustration?: ReactNode;
   cta?: {
-    target: string;
+    target?: string;
     content: string;
     onClick?: () => void;
     gaViewPing?: Parameters<typeof useGaViewPing>[0];
