@@ -51,9 +51,7 @@ export const PhoneDashboard = () => {
     }
   };
 
-  const showCallerSMSSendersPanel: MouseEventHandler<
-    HTMLButtonElement
-  > = () => {
+  const toggleSendersPanel: MouseEventHandler<HTMLButtonElement> = () => {
     toggleDashboardPanel(!showingPrimaryDashboard);
   };
 
@@ -193,7 +191,7 @@ export const PhoneDashboard = () => {
         <button
           type="button"
           className={styles["senders-cta"]}
-          onClick={showCallerSMSSendersPanel}
+          onClick={toggleSendersPanel}
         >
           <span>{l10n.getString("phone-dashboard-senders-header")}</span>
           <ChevronRightIcon
@@ -237,7 +235,7 @@ export const PhoneDashboard = () => {
           <span className={styles["sender-date"]}>
             {data.last_inbound_type === "text" && (
               <ForwardedTextIcon
-                alt="Back to Primary Dashboard"
+                alt="Last received a text"
                 className={styles["forwarded-type-icon"]}
                 width={20}
                 height={15}
@@ -245,7 +243,7 @@ export const PhoneDashboard = () => {
             )}
             {data.last_inbound_type === "call" && (
               <ForwardedCallIcon
-                alt="Back to Primary Dashboard"
+                alt="Last received a call"
                 className={styles["forwarded-type-icon"]}
                 width={20}
                 height={18}
@@ -258,7 +256,6 @@ export const PhoneDashboard = () => {
               onClick={() =>
                 inboundContactData.setForwardingState(!data.blocked, data.id)
               }
-              //onClick={toggleInboundContactForwarding(data.blocked, data.id)}
               className={styles["block-btn"]}
             >
               {data.blocked ? "Unblock" : "Block"}
@@ -274,7 +271,7 @@ export const PhoneDashboard = () => {
         <span>
           <button
             type="button"
-            onClick={showCallerSMSSendersPanel}
+            onClick={toggleSendersPanel}
             className={styles["caller-sms-logs-back-btn"]}
           >
             <ChevronLeftIcon
