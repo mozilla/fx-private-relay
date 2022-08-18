@@ -112,19 +112,19 @@
       border-bottom: 1px solid $color-light-gray-20;
       padding-bottom: $spacing-sm;
       align-items: center;
-      gap: $spacing-xl;
+      gap: $spacing-sm;
 
       &:first-child {
         display: none;
 
         @media screen and #{$mq-md} {
           display: grid;
-          gap: $spacing-xs;
         }
       }
 
       @media screen and #{$mq-md} {
         grid-template-columns: 3fr 2fr 2fr;
+        grid-gap: $spacing-md;
       }
 
       .sender-number {
@@ -135,9 +135,12 @@
       .sender-date {
         grid-row: 2;
         grid-column: 1;
+      }
+
+      .sender-date-wrapper {
         display: flex;
-        gap: $spacing-sm;
         align-items: center;
+        gap: $spacing-xs;
       }
 
       .sender-controls {

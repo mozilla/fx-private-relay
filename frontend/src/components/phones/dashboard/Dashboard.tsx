@@ -232,7 +232,9 @@ export const PhoneDashboard = () => {
           <span className={styles["sender-number"]}>
             {formatPhoneNumberToUSDisplay(data.inbound_number)}
           </span>
-          <span className={styles["sender-date"]}>
+          <span
+            className={`${styles["sender-date"]} ${styles["sender-date-wrapper"]}`}
+          >
             {data.last_inbound_type === "text" && (
               <ForwardedTextIcon
                 alt="Last received a text"
