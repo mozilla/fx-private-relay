@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import Moment from "react-moment";
@@ -17,7 +18,6 @@ import { OutboundLink } from "react-ga";
 
 export type Props = {
   type: "primary" | "disabled" | "empty";
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   back_btn: any;
 };
 
