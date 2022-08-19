@@ -62,6 +62,8 @@ export type PhoneNumberRequestVerificationFn = (
   phoneNumber: string
 ) => Promise<Response>;
 
+export type ResendWelcomeSMSFn = () => Promise<Response>;
+
 export type RealPhoneVerification = Pick<
   VerifiedPhone,
   "number" | "verification_code"
@@ -77,6 +79,7 @@ export type PhoneNumberSubmitVerificationFn = (
 export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
   requestPhoneVerification: PhoneNumberRequestVerificationFn;
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
+  resendWelcomeSMS: ResendWelcomeSMSFn;
 } {
   const realphone: SWRResponse<RealPhoneData, unknown> =
     useApiV1("/realphone/");
@@ -113,9 +116,18 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
     return response;
   };
 
+  const resendWelcomeSMS: ResendWelcomeSMSFn = async () => {
+    const response = await apiFetch("/realphone/resend_welcome_sms", {
+      method: "POST",
+    });
+    realphone.mutate();
+    return response;
+  };
+
   return {
     ...realphone,
     requestPhoneVerification: requestPhoneVerification,
     submitPhoneVerification: submitPhoneVerification,
+    resendWelcomeSMS: resendWelcomeSMS,
   };
 }

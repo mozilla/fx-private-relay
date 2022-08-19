@@ -194,18 +194,22 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
         return
 
     if created:
-        real_phone = RealPhone.objects.get(user=instance.user)
         # only send welcome vCard when creating new record
-        media_url = settings.SITE_ORIGIN + reverse(
-            "vCard", kwargs={"lookup_key": instance.vcard_lookup_key}
-        )
-        client = twilio_client()
-        client.messages.create(
-            body="Welcome to Relay Phoanz! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
-            from_=settings.TWILIO_MAIN_NUMBER,
-            to=real_phone.number,
-            media_url=[media_url],
-        )
+        send_welcome_message(instance.user, instance)
+
+
+def send_welcome_message(user, relay_number):
+    real_phone = RealPhone.objects.get(user=user)
+    media_url = settings.SITE_ORIGIN + reverse(
+        "vCard", kwargs={"lookup_key": relay_number.vcard_lookup_key}
+    )
+    client = twilio_client()
+    client.messages.create(
+        body="Welcome to Relay Phoanz! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
+        from_=settings.TWILIO_MAIN_NUMBER,
+        to=real_phone.number,
+        media_url=[media_url],
+    )
 
 
 def last_inbound_date_default():

@@ -3,12 +3,12 @@ import { OutboundLink } from "react-ga";
 import { useLocalization } from "@fluent/react";
 import styles from "./Banner.module.scss";
 import { useLocalDismissal } from "../hooks/localDismissal";
-import { CloseIcon, InfoFilledIcon } from "./Icons";
+import { CloseIcon, WarningFilledIcon, InfoFilledIcon } from "./Icons";
 import { useGaViewPing } from "../hooks/gaViewPing";
 
 export type BannerProps = {
   children: ReactNode;
-  type?: "promo" | "warning";
+  type?: "promo" | "warning" | "info";
   title?: string;
   illustration?: ReactNode;
   cta?: {
@@ -19,6 +19,11 @@ export type BannerProps = {
   };
   ctaLargeButton?: {
     target: string;
+    content: string;
+    onClick?: () => void;
+    gaViewPing?: Parameters<typeof useGaViewPing>[0];
+  };
+  btn?: {
     content: string;
     onClick?: () => void;
     gaViewPing?: Parameters<typeof useGaViewPing>[0];
@@ -45,17 +50,27 @@ export const Banner = (props: BannerProps) => {
   });
   const { l10n } = useLocalization();
   const type = props.type ?? "warning";
-  const icon =
-    props.type === "warning" ? (
-      <InfoFilledIcon alt="" className={styles.icon} width={20} height={20} />
+
+  const warningIcon = (
+    <WarningFilledIcon alt="" className={styles.icon} width={20} height={20} />
+  );
+  const infoIcon =
+    type === "info" ? (
+      <div className={styles["info-icon"]}>
+        <InfoFilledIcon alt="" className={styles.icon} width={20} height={20} />
+      </div>
     ) : null;
+
   const title =
-    typeof props.title !== "undefined" ? (
-      <h2 className={styles.title}>
-        {icon}
-        {props.title}
-      </h2>
-    ) : null;
+    typeof props.title !== "undefined"
+      ? (type === "warning" && (
+          <h2 className={styles.title}>
+            {warningIcon}
+            {props.title}
+          </h2>
+        )) ||
+        (type === "info" && <h2 className={styles.title}>{props.title}</h2>)
+      : null;
 
   const illustration = props.illustration ? (
     <div className={styles.illustration}>{props.illustration}</div>
@@ -89,6 +104,14 @@ export const Banner = (props: BannerProps) => {
     </div>
   ) : null;
 
+  const btn = props.btn ? (
+    <div className={styles.cta}>
+      <button onClick={props.btn.onClick}>
+        <span ref={ctaRef}>{props.btn.content}</span>
+      </button>
+    </div>
+  ) : null;
+
   const dismissButton =
     typeof props.dismissal !== "undefined" ? (
       <button
@@ -112,10 +135,12 @@ export const Banner = (props: BannerProps) => {
     >
       <div className={`${styles["highlight-wrapper"]}`}>
         {illustration}
+        {infoIcon}
         <div className={`${styles["title-text"]}`}>
           {title}
           {props.children}
           {cta}
+          {btn}
         </div>
         {ctaLargeButton}
       </div>

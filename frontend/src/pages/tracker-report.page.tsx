@@ -7,7 +7,7 @@ import logo from "./images/placeholder-logo.svg";
 import { PageMetadata } from "../components/layout/PageMetadata";
 import {
   HideIcon,
-  InfoFilledIcon,
+  WarningFilledIcon,
   InfoTriangleIcon,
 } from "../components/Icons";
 import Link from "next/link";
@@ -138,7 +138,7 @@ const TrackerReport: NextPage = () => {
               {trackerListing}
             </div>
             <div className={styles["confidentiality-notice"]}>
-              <InfoFilledIcon alt="" />
+              <WarningFilledIcon alt="" />
               {l10n.getString("trackerreport-confidentiality-notice")}
             </div>
             <div className={styles.explainer}>

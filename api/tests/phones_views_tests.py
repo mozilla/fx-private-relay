@@ -506,6 +506,35 @@ def test_vcard_valid_lookup_key(phone_user):
     )
 
 
+def test_resend_welcome_sms_requires_phone_user():
+    client = APIClient()
+    path = "/api/v1/realphone/resend_welcome_sms"
+    response = client.post(path)
+
+    assert response.status_code == 403
+
+
+def test_resend_welcome_sms(phone_user, mocked_twilio_client):
+    mock_messages_create = mocked_twilio_client.messages.create
+    real_phone = "+12223334444"
+    RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
+    relay_number = "+19998887777"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+
+    mocked_twilio_client.reset_mock()
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = "/api/v1/realphone/resend_welcome_sms"
+    response = client.post(path)
+
+    assert response.status_code == 201
+    mock_messages_create.assert_called_once()
+    call_kwargs = mock_messages_create.call_args.kwargs
+    assert "Welcome" in call_kwargs["body"]
+    assert call_kwargs["to"] == real_phone
+    assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
+
+
 @pytest.mark.django_db
 def test_inbound_sms_no_twilio_signature():
     client = APIClient()
