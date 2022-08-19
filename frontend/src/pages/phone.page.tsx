@@ -12,7 +12,6 @@ import { Banner } from "../components/Banner";
 import styles from "./phone.module.scss";
 import { useLocalization } from "@fluent/react";
 import { useRealPhonesData } from "../hooks/api/realPhone";
-import { useLocalDismissal } from "../hooks/localDismissal";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
