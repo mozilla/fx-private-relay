@@ -15,7 +15,6 @@ import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import { useProfiles } from "../../../hooks/api/profile";
 import { SendersPanelView } from "./SendersPanelView";
-import moment from "moment";
 import { formatPhone } from "../../../functions/formatPhone";
 
 export const PhoneDashboard = () => {
@@ -208,16 +207,16 @@ export const PhoneDashboard = () => {
       {phoneMetadata}
     </div>
   );
-  
+
   function setSendersPanelView() {
-  if (profileData.data?.[0].store_phone_log === false) {
-    return "disabled";
+    if (profileData.data?.[0].store_phone_log === false) {
+      return "disabled";
+    }
+    if (inboundArray && inboundArray.length === 0) {
+      return "empty";
+    }
+    return "primary";
   }
-  if (inboundArray && inboundArray.length === 0) {
-    return "empty";
-  }
-  return "primary";
-}
 
   return (
     <main className={styles["main-phone-wrapper"]}>
