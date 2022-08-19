@@ -620,7 +620,7 @@ LOGGING = {
     },
 }
 
-if DEBUG:
+if DEBUG and not IN_PYTEST:
     DRF_RENDERERS = [
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework.renderers.JSONRenderer",

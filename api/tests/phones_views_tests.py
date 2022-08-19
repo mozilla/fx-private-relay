@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 
 from model_bakery import baker
 from rest_framework.test import APIClient
-from emails.models import Profile
 
 from phones.models import InboundContact
 
@@ -328,6 +327,32 @@ def test_realphone_patch_invalid_verification_code(phone_user, mocked_twilio_cli
 
     mock_fetch.assert_not_called()
 
+
+def test_realphone_delete_cant_delete_verified(phone_user):
+    number = "+12223334444"
+    real_phone = RealPhone.objects.create(user=phone_user, number=number, verified=True)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = f"/api/v1/realphone/{real_phone.id}/"
+
+    response = client.delete(path, format="json")
+
+    assert response.status_code == 400
+    real_phone.refresh_from_db()
+    assert real_phone.verified == True
+
+def test_realphone_delete_non_verified(phone_user):
+    number = "+12223334444"
+    real_phone = RealPhone.objects.create(user=phone_user, number=number, verified=False)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = f"/api/v1/realphone/{real_phone.id}/"
+
+    response = client.delete(path, format="json")
+
+    assert response.status_code == 204
+    with pytest.raises(RealPhone.DoesNotExist):
+        real_phone.refresh_from_db()
 
 def test_relaynumber_post_with_existing_returns_error(phone_user, mocked_twilio_client):
     number = "+12223334444"
