@@ -117,7 +117,7 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
   };
 
   const resendWelcomeSMS: ResendWelcomeSMSFn = async () => {
-    const response = await apiFetch("/realphone/resend_welcome_sms/", {
+    const response = await apiFetch("/realphone/resend_welcome_sms", {
       method: "POST",
     });
     realphone.mutate();
