@@ -238,12 +238,10 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
             {l10n.getString("phone-onboarding-step3-code-fail-title")}
           </h2>
           <p>{l10n.getString("phone-onboarding-step3-code-fail-body")}</p>
-          {/* button here */}
         </div>
       </div>
       {/* Add error class of `mzp-is-error` */}
 
-      {/* TODO: Add logic to display timeout error */}
       {errorTimeExpired}
 
       <form

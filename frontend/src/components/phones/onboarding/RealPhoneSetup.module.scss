@@ -145,6 +145,10 @@
       display: none;
     }
 
+    h2 {
+      padding-top: $spacing-md;
+    }
+
     &.is-error,
     &.is-success {
       .step-input-verificiation-code-lead-default {
