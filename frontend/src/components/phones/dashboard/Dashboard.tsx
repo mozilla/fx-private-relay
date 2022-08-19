@@ -215,14 +215,7 @@ export const PhoneDashboard = () => {
         <>{primaryPanel}</>
       ) : (
         // Caller and SMS Senders Panel
-        <SendersPanelView
-          type="primary"
-          back_btn={{
-            onClick: () => {
-              toggleDashboardPanel;
-            },
-          }}
-        />
+        <SendersPanelView type="primary" back_btn={toggleSendersPanel} />
       )}
     </main>
   );

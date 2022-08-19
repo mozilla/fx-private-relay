@@ -16,7 +16,7 @@ import { OutboundLink } from "react-ga";
 
 export type Props = {
   type: "primary" | "disabled" | "empty";
-  back_btn: { onClick: () => void };
+  back_btn: any;
 };
 
 export const SendersPanelView = (props: Props) => {
@@ -122,7 +122,7 @@ export const SendersPanelView = (props: Props) => {
         <span>
           <button
             type="button"
-            onClick={props.back_btn.onClick}
+            onClick={() => props.back_btn()}
             className={styles["caller-sms-logs-back-btn"]}
           >
             <ChevronLeftIcon

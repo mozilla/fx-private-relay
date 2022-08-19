@@ -12,6 +12,7 @@ import { Banner } from "../components/Banner";
 import styles from "./phone.module.scss";
 import { useLocalization } from "@fluent/react";
 import { useRealPhonesData } from "../hooks/api/realPhone";
+import { useLocalDismissal } from "../hooks/localDismissal";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
@@ -71,13 +72,14 @@ const Phone: NextPage = () => {
             btn={{
               content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
               onClick: () => realPhoneData.resendWelcomeSMS(),
+
               gaViewPing: {
                 category: "Resend Welcome SMS",
                 label: "phone-page-banner-resend-welcome",
               },
             }}
             dismissal={{
-              key: "resend-sms-banner",
+              key: `resend-sms-banner-${profile?.id}`,
             }}
           >
             {l10n.getString("phone-banner-resend-welcome-sms-body")}
