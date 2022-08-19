@@ -243,7 +243,7 @@ export const PhoneDashboard = () => {
       </p>
       <div className={styles["update-settings-cta"]}>
         <OutboundLink
-          to={`${runtimeData?.data?.FXA_ORIGIN}/settings/`}
+          to="/accounts/settings/"
           eventLabel="Update Settings"
           target="_blank"
           rel="noopener noreferrer"
