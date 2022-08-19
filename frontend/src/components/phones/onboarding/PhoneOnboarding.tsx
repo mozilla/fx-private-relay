@@ -47,6 +47,9 @@ export const PhoneOnboarding = (props: Props) => {
         onRequestVerification={async (number) =>
           await realPhoneData.requestPhoneVerification(number)
         }
+        onRequestPhoneRemoval={async (id: number) =>
+          await realPhoneData.requestPhoneRemoval(id)
+        }
         onSubmitVerification={realPhoneData.submitPhoneVerification}
         runtimeData={runtimeData.data}
       />

@@ -6,6 +6,7 @@ import EnterVerifyCodeError from "./images/verify-code-error.svg";
 import { Button } from "../../Button";
 import {
   hasPendingVerification,
+  RequestPhoneRemovalFn,
   UnverifiedPhone,
   PhoneNumberSubmitVerificationFn,
 } from "../../../hooks/api/realPhone";
@@ -23,6 +24,7 @@ type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
   onRequestVerification: (numberToVerify: string) => Promise<Response>;
   onSubmitVerification: PhoneNumberSubmitVerificationFn;
+  onRequestPhoneRemoval: RequestPhoneRemovalFn;
   runtimeData: RuntimeData;
 };
 export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
@@ -54,6 +56,10 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
       }}
       maxMinutesToVerify={props.runtimeData.MAX_MINUTES_TO_VERIFY_REAL_PHONE}
       onGoBack={() => setIsEnteringNumber(true)}
+      requestPhoneRemoval={(id: number) => {
+        setIsEnteringNumber(true);
+        return props.onRequestPhoneRemoval(id);
+      }}
     />
   );
 };
@@ -141,6 +147,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 type RealPhoneVerificationProps = {
   phonesPendingVerification: UnverifiedPhone[];
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
+  requestPhoneRemoval: (id: number) => Promise<Response>;
   requestPhoneVerification: (numberToVerify: string) => Promise<Response>;
   maxMinutesToVerify: number;
   onGoBack: () => void;
@@ -288,7 +295,11 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
 
       {(remainingTime < 0 || !isVerifiedSuccessfully) && (
         <Button
-          onClick={() => props.onGoBack()}
+          onClick={() =>
+            props.requestPhoneRemoval(
+              phoneWithMostRecentlySentVerificationCode.id
+            )
+          }
           className={styles.button}
           type="button"
           variant="secondary"
