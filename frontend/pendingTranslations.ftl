@@ -204,7 +204,9 @@ phone-dashboard-senders-header = Callers and SMS senders
 phone-dashboard-sender-table-title-sender = Sender
 phone-dashboard-sender-table-title-activity = Latest Activity
 phone-dashboard-sender-table-title-action = Action
-
+phone-dashboard-sender-disabled-body =  You have disabled the Caller and Sender log. Go to your settings to
+        enable { -brand-name-relay } to keep a log of your callers and senders.
+phone-dashboard-sender-disabled-update-settings = Update Settings
 
 ## Replies
 profile-label-replies = Replies

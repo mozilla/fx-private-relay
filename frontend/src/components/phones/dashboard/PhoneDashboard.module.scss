@@ -90,12 +90,33 @@
   }
 
   .disabled-senders-panel {
+    margin-top: $spacing-lg;
     padding: 0 $spacing-lg;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: $spacing-lg;
+    min-height: $content-sm;
+
+    .disabled-senders-panel-body {
+      padding-top: $spacing-lg;
+      text-align: center;
+      max-width: $content-md;
+      margin: 0 auto;
+      display: flex;
+    }
+
+    .update-settings-cta {
+      display: inline-block;
+      padding: $spacing-md 0;
+      font-weight: 700;
+      color: $color-blue-50;
+
+      &:hover {
+        color: $color-blue-80;
+      }
+    }
 
     .warning-icon {
       color: $color-yellow-50;

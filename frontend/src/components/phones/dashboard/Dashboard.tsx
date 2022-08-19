@@ -13,16 +13,20 @@ import {
   ForwardedTextIcon,
   WarningFilledIcon,
 } from "../../../components/Icons";
-// import { disabledSendersDataIllustration } from "./images/sender-data-disabled-illustration.svg";
+import disabledSendersDataIllustration from "./images/sender-data-disabled-illustration.svg";
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import moment from "moment";
 import { useProfiles } from "../../../hooks/api/profile";
+import { OutboundLink } from "react-ga";
+import { useRuntimeData } from "../../../hooks/api/runtimeData";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
+
+  const runtimeData = useRuntimeData();
 
   const profileData = useProfiles();
   const relayNumber = useRelayNumber();
@@ -224,71 +228,86 @@ export const PhoneDashboard = () => {
   const disabledCallerSMSSendersPanel = (
     <div className={styles["disabled-senders-panel"]}>
       <img
-        src="./images/sender-data-disabled-illustration.svg"
+        src={disabledSendersDataIllustration.src}
         alt="Disabled Senders Data Illustration"
+        width={170}
       />
-      <p>
+      <p className={styles["disabled-senders-panel-body"]}>
         <WarningFilledIcon
           alt=""
           className={styles["warning-icon"]}
           width={20}
           height={20}
         />
-        You have disabled the Caller and Sender log. Go to your settings to
-        enable Relay to keep a log of your callers and senders.
+        {l10n.getString("phone-dashboard-sender-disabled-body")}
       </p>
+      <div className={styles["update-settings-cta"]}>
+        <OutboundLink
+          to={`${runtimeData?.data?.FXA_ORIGIN}/settings/`}
+          eventLabel="Update Settings"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {l10n.getString("phone-dashboard-sender-disabled-update-settings")}
+        </OutboundLink>
+      </div>
     </div>
   );
 
-  const inboundContactArray = inboundArray
-    ?.sort(
-      (a, b) =>
-        // Sort by last sent date
-        moment(b.last_inbound_date).unix() - moment(a.last_inbound_date).unix()
-    )
-    .map((data) => {
-      return (
-        <li
-          key={data.id}
-          className={data.blocked ? styles["greyed-contact"] : ""}
-        >
-          <span className={styles["sender-number"]}>
-            {formatPhoneNumberToUSDisplay(data.inbound_number)}
-          </span>
-          <span
-            className={`${styles["sender-date"]} ${styles["sender-date-wrapper"]}`}
+  const inboundContactArray =
+    inboundContactData &&
+    inboundArray
+      ?.sort(
+        (a, b) =>
+          // Sort by last sent date
+          moment(b.last_inbound_date).unix() -
+          moment(a.last_inbound_date).unix()
+      )
+      .map((data) => {
+        return (
+          <li
+            key={data.id}
+            className={data.blocked ? styles["greyed-contact"] : ""}
           >
-            {data.last_inbound_type === "text" && (
-              <ForwardedTextIcon
-                alt="Last received a text"
-                className={styles["forwarded-type-icon"]}
-                width={20}
-                height={12}
-              />
-            )}
-            {data.last_inbound_type === "call" && (
-              <ForwardedCallIcon
-                alt="Last received a call"
-                className={styles["forwarded-type-icon"]}
-                width={20}
-                height={15}
-              />
-            )}
-            <Moment calendar={calendarStrings}>{data.last_inbound_date}</Moment>
-          </span>
-          <span className={styles["sender-controls"]}>
-            <button
-              onClick={() =>
-                inboundContactData.setForwardingState(!data.blocked, data.id)
-              }
-              className={styles["block-btn"]}
+            <span className={styles["sender-number"]}>
+              {formatPhoneNumberToUSDisplay(data.inbound_number)}
+            </span>
+            <span
+              className={`${styles["sender-date"]} ${styles["sender-date-wrapper"]}`}
             >
-              {data.blocked ? "Unblock" : "Block"}
-            </button>
-          </span>
-        </li>
-      );
-    });
+              {data.last_inbound_type === "text" && (
+                <ForwardedTextIcon
+                  alt="Last received a text"
+                  className={styles["forwarded-type-icon"]}
+                  width={20}
+                  height={12}
+                />
+              )}
+              {data.last_inbound_type === "call" && (
+                <ForwardedCallIcon
+                  alt="Last received a call"
+                  className={styles["forwarded-type-icon"]}
+                  width={20}
+                  height={15}
+                />
+              )}
+              <Moment calendar={calendarStrings}>
+                {data.last_inbound_date}
+              </Moment>
+            </span>
+            <span className={styles["sender-controls"]}>
+              <button
+                onClick={() =>
+                  inboundContactData.setForwardingState(!data.blocked, data.id)
+                }
+                className={styles["block-btn"]}
+              >
+                {data.blocked ? "Unblock" : "Block"}
+              </button>
+            </span>
+          </li>
+        );
+      });
 
   const callerSMSSendersPanel = (
     <div id="secondary-panel" className={styles["dashboard-card"]}>
