@@ -27,6 +27,7 @@ from phones.models import (
     RelayNumber,
     get_pending_unverified_realphone_records,
     get_valid_realphone_verification_record,
+    send_welcome_message,
     suggested_numbers,
     location_numbers,
     area_code_numbers,
@@ -386,6 +387,24 @@ def vCard(request, lookup_key):
 
     resp = response.Response({"number": number})
     resp["Content-Disposition"] = f"attachment; filename={number}.vcf"
+    return resp
+
+
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+def resend_welcome_sms(request):
+    """
+    Resend the "Welcome" SMS, including vCard.
+
+    Requires the user to be signed in and to have phone service.
+    """
+    try:
+        relay_number = RelayNumber.objects.get(user=request.user)
+    except RelayNumber.DoesNotExist:
+        raise exceptions.NotFound()
+    send_welcome_message(request.user, relay_number)
+
+    resp = response.Response(status=201, data={"msg": "sent"})
     return resp
 
 

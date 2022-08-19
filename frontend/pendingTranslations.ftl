@@ -185,6 +185,11 @@ phone-settings-caller-sms-log = Caller and SMS log
 phone-settings-caller-sms-log-description = Allow { -brand-name-firefox-relay } to keep a log of your callers and text senders.
 phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block senders or callers.
 
+# Phone Resend SMS Banner
+phone-banner-resend-welcome-sms-cta = Resend welcome SMS
+phone-banner-resend-welcome-sms-title = Quick Tip
+phone-banner-resend-welcome-sms-body =  Remember to save the contact we shared with you by SMS to help you identify messages forwarded by { -brand-name-relay }. Can’t find it?  
+
 # Phone Dashboard
 phone-statistics-remaining-call-minutes = Remaining call minutes
 phone-statistics-remaining-texts = Remaining texts
@@ -195,6 +200,11 @@ phone-dashboard-metadata-date-created = Date Created:
 phone-dashboard-number-copied = Copied!
 phone-dashboard-forwarding-enabled = { -brand-name-relay } is currently forwarding all phone calls and SMS messages to your true phone number.
 phone-dashboard-forwarding-blocked = { -brand-name-relay } is blocking all phone calls and text messages—you will not receive anything from your phone number mask.
+phone-dashboard-senders-header = Callers and SMS senders
+phone-dashboard-sender-table-title-sender = Sender
+phone-dashboard-sender-table-title-activity = Latest Activity
+phone-dashboard-sender-table-title-action = Action
+
 
 ## Replies
 profile-label-replies = Replies

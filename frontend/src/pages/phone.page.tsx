@@ -8,16 +8,22 @@ import { useEffect, useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/Dashboard";
 import { getRuntimeConfig } from "../config";
 import { PurchasePhonesPlan } from "../components/phones/onboarding/PurchasePhonesPlan";
+import { Banner } from "../components/Banner";
+import styles from "./phone.module.scss";
+import { useLocalization } from "@fluent/react";
+import { useRealPhonesData } from "../hooks/api/realPhone";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
   const profile = profileData.data?.[0];
+  const { l10n } = useLocalization();
 
   const userData = useUsers();
   const user = userData.data?.[0];
 
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
+  const realPhoneData = useRealPhonesData();
 
   useEffect(() => {
     if (
@@ -57,7 +63,28 @@ const Phone: NextPage = () => {
 
   return (
     <Layout>
-      <PhoneDashboard />
+      <div className={styles["main-wrapper"]}>
+        <div className={styles["banner-wrapper"]}>
+          <Banner
+            title={l10n.getString("phone-banner-resend-welcome-sms-title")}
+            type="info"
+            btn={{
+              content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
+              onClick: () => realPhoneData.resendWelcomeSMS(),
+              gaViewPing: {
+                category: "Resend Welcome SMS",
+                label: "phone-page-banner-resend-welcome",
+              },
+            }}
+            dismissal={{
+              key: "resend-sms-banner",
+            }}
+          >
+            {l10n.getString("phone-banner-resend-welcome-sms-body")}
+          </Banner>
+        </div>
+        <PhoneDashboard />
+      </div>
     </Layout>
   );
 };
