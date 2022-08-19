@@ -68,7 +68,6 @@ const Phone: NextPage = () => {
           <Banner
             title={l10n.getString("phone-banner-resend-welcome-sms-title")}
             type="info"
-            // TODO: add resend welcome SMS trigger here *WIP!!!!*
             btn={{
               content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
               onClick: () => realPhoneData.resendWelcomeSMS(),
