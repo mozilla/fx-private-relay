@@ -15,6 +15,8 @@ import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import { useProfiles } from "../../../hooks/api/profile";
 import { SendersPanelView } from "./SendersPanelView";
+import moment from "moment";
+import { formatPhone } from "../../../functions/formatPhone";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
@@ -23,6 +25,8 @@ export const PhoneDashboard = () => {
   const realPhone = useRealPhonesData();
   const relayNumberData = relayNumber.data?.[0];
   const realPhoneData = realPhone.data?.[0];
+  const formattedPhoneNumber = formatPhone(realPhoneData?.number ?? "");
+  const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "");
   const phoneDateCreated = useRealPhonesData();
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
@@ -140,7 +144,7 @@ export const PhoneDashboard = () => {
       <dl>
         <div className={`${styles["forward-target"]} ${styles.metadata}`}>
           <dt>{l10n.getString("phone-dashboard-metadata-forwarded-to")}</dt>
-          <dd>{realPhoneData?.number}</dd>
+          <dd>{formattedPhoneNumber}</dd>
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
           <dt>
@@ -158,9 +162,7 @@ export const PhoneDashboard = () => {
     <div id="primary-panel" className={styles["dashboard-card"]}>
       <div className={styles["dashboard-card-header"]}>
         <span className={styles["header-phone-number"]}>
-          {relayNumberData?.number
-            ? formatPhoneNumberToUSDisplay(relayNumberData.number)
-            : ""}
+          {formattedRelayNumber}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
               <button
@@ -206,16 +208,16 @@ export const PhoneDashboard = () => {
       {phoneMetadata}
     </div>
   );
-
+  
   function setSendersPanelView() {
-    if (profileData.data?.[0].store_phone_log === false) {
-      return "disabled";
-    }
-    if (inboundArray && inboundArray.length === 0) {
-      return "empty";
-    }
-    return "primary";
+  if (profileData.data?.[0].store_phone_log === false) {
+    return "disabled";
   }
+  if (inboundArray && inboundArray.length === 0) {
+    return "empty";
+  }
+  return "primary";
+}
 
   return (
     <main className={styles["main-phone-wrapper"]}>
@@ -232,11 +234,3 @@ export const PhoneDashboard = () => {
     </main>
   );
 };
-
-function formatPhoneNumberToUSDisplay(e164Number: string) {
-  const friendlyPhoneNumber = e164Number.split("");
-  friendlyPhoneNumber?.splice(2, 0, " (");
-  friendlyPhoneNumber?.splice(6, 0, ") ");
-  friendlyPhoneNumber?.join("");
-  return friendlyPhoneNumber;
-}
