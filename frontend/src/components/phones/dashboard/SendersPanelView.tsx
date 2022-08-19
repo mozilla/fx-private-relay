@@ -9,7 +9,7 @@ import {
   WarningFilledIcon,
 } from "../../../components/Icons";
 import disabledSendersDataIllustration from "./images/sender-data-disabled-illustration.svg";
-import emptySenderDataIllustration from "./images/sender-data-disabled-illustration.svg";
+import emptySenderDataIllustration from "./images/sender-data-empty-illustration.svg";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import moment from "moment";
@@ -47,14 +47,12 @@ export const SendersPanelView = (props: Props) => {
         width={130}
       />
       <p className={styles["senders-panel-body"]}>
-        <span>
-          <WarningFilledIcon
-            alt=""
-            className={styles["warning-icon"]}
-            width={20}
-            height={20}
-          />
-        </span>
+        <WarningFilledIcon
+          alt=""
+          className={styles["warning-icon"]}
+          width={20}
+          height={20}
+        />
         {l10n.getString("phone-dashboard-sender-disabled-body")}
       </p>
       <div className={styles["update-settings-cta"]}>
