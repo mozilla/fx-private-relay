@@ -17,6 +17,7 @@ import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import moment from "moment";
+import { formatPhone } from "../../../functions/formatPhone";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
@@ -25,6 +26,8 @@ export const PhoneDashboard = () => {
   const realPhone = useRealPhonesData();
   const relayNumberData = relayNumber.data?.[0];
   const realPhoneData = realPhone.data?.[0];
+  const formattedPhoneNumber = formatPhone(realPhoneData?.number ?? "");
+  const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "");
   const phoneDateCreated = useRealPhonesData();
   const inboundContactData = useInboundContact();
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
@@ -141,7 +144,7 @@ export const PhoneDashboard = () => {
       <dl>
         <div className={`${styles["forward-target"]} ${styles.metadata}`}>
           <dt>{l10n.getString("phone-dashboard-metadata-forwarded-to")}</dt>
-          <dd>{realPhoneData?.number}</dd>
+          <dd>{formattedPhoneNumber}</dd>
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
           <dt>
@@ -159,9 +162,7 @@ export const PhoneDashboard = () => {
     <div id="primary-panel" className={styles["dashboard-card"]}>
       <div className={styles["dashboard-card-header"]}>
         <span className={styles["header-phone-number"]}>
-          {relayNumberData?.number
-            ? formatPhoneNumberToUSDisplay(relayNumberData.number)
-            : ""}
+          {formattedRelayNumber}
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
               <button
@@ -230,7 +231,7 @@ export const PhoneDashboard = () => {
           className={data.blocked ? styles["greyed-contact"] : ""}
         >
           <span className={styles["sender-number"]}>
-            {formatPhoneNumberToUSDisplay(data.inbound_number)}
+            {formatPhone(data.inbound_number)}
           </span>
           <span
             className={`${styles["sender-date"]} ${styles["sender-date-wrapper"]}`}
@@ -318,11 +319,3 @@ export const PhoneDashboard = () => {
     </main>
   );
 };
-
-function formatPhoneNumberToUSDisplay(e164Number: string) {
-  const friendlyPhoneNumber = e164Number.split("");
-  friendlyPhoneNumber?.splice(2, 0, " (");
-  friendlyPhoneNumber?.splice(6, 0, ") ");
-  friendlyPhoneNumber?.join("");
-  return friendlyPhoneNumber;
-}
