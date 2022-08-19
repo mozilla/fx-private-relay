@@ -69,8 +69,7 @@ const Phone: NextPage = () => {
             title={l10n.getString("phone-banner-resend-welcome-sms-title")}
             type="info"
             // TODO: add resend welcome SMS trigger here *WIP!!!!*
-            cta={{
-              target: "",
+            btn={{
               content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
               onClick: () => realPhoneData.resendWelcomeSMS(),
               gaViewPing: {

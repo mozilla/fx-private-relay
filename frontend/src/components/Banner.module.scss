@@ -118,11 +118,15 @@
 }
 
 .cta {
-  a {
+  a,
+  button {
     display: inline-block;
     padding: $spacing-md 0;
     font-weight: 700;
     color: $color-blue-50;
+    cursor: pointer;
+    background: none;
+    border: none;
 
     .banner.info & {
       font-weight: 500;

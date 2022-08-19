@@ -12,13 +12,18 @@ export type BannerProps = {
   title?: string;
   illustration?: ReactNode;
   cta?: {
-    target?: string;
+    target: string;
     content: string;
     onClick?: () => void;
     gaViewPing?: Parameters<typeof useGaViewPing>[0];
   };
   ctaLargeButton?: {
     target: string;
+    content: string;
+    onClick?: () => void;
+    gaViewPing?: Parameters<typeof useGaViewPing>[0];
+  };
+  btn?: {
     content: string;
     onClick?: () => void;
     gaViewPing?: Parameters<typeof useGaViewPing>[0];
@@ -99,6 +104,14 @@ export const Banner = (props: BannerProps) => {
     </div>
   ) : null;
 
+  const btn = props.btn ? (
+    <div className={styles.cta}>
+      <button onClick={props.btn.onClick}>
+        <span ref={ctaRef}>{props.btn.content}</span>
+      </button>
+    </div>
+  ) : null;
+
   const dismissButton =
     typeof props.dismissal !== "undefined" ? (
       <button
@@ -127,6 +140,7 @@ export const Banner = (props: BannerProps) => {
           {title}
           {props.children}
           {cta}
+          {btn}
         </div>
         {ctaLargeButton}
       </div>

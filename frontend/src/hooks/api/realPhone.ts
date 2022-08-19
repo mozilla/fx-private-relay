@@ -120,6 +120,7 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
     const response = await apiFetch("/realphone/resend_welcome_sms/", {
       method: "POST",
     });
+    realphone.mutate();
     return response;
   };
 
