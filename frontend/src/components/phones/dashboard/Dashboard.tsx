@@ -14,12 +14,10 @@ import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import { useProfiles } from "../../../hooks/api/profile";
-import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { SendersPanelView } from "./SendersPanelView";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
-  const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const relayNumber = useRelayNumber();
   const realPhone = useRealPhonesData();
@@ -213,11 +211,9 @@ export const PhoneDashboard = () => {
     if (profileData.data?.[0].store_phone_log === false) {
       return "disabled";
     }
-
     if (inboundArray && inboundArray.length === 0) {
       return "empty";
     }
-
     return "primary";
   }
 

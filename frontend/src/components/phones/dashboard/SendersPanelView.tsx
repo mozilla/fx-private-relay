@@ -17,6 +17,7 @@ import { OutboundLink } from "react-ga";
 
 export type Props = {
   type: "primary" | "disabled" | "empty";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   back_btn: any;
 };
 
@@ -26,32 +27,34 @@ export const SendersPanelView = (props: Props) => {
   const inboundArray = inboundContactData.data;
 
   const emptyCallerSMSSendersPanel = (
-    <div className={styles["disabled-senders-panel"]}>
+    <div className={styles["senders-panel"]}>
       <img
         src={emptySenderDataIllustration.src}
         alt="Empty Senders Data Illustration"
         width={130}
       />
-      <p className={styles["disabled-senders-panel-body"]}>
+      <p className={styles["senders-panel-body"]}>
         {l10n.getString("phone-dashboard-sender-empty-body")}
       </p>
     </div>
   );
 
   const disabledCallerSMSSendersPanel = (
-    <div className={styles["disabled-senders-panel"]}>
+    <div className={styles["senders-panel"]}>
       <img
         src={disabledSendersDataIllustration.src}
         alt="Disabled Senders Data Illustration"
         width={130}
       />
-      <p className={styles["disabled-senders-panel-body"]}>
-        <WarningFilledIcon
-          alt=""
-          className={styles["warning-icon"]}
-          width={20}
-          height={20}
-        />
+      <p className={styles["senders-panel-body"]}>
+        <span>
+          <WarningFilledIcon
+            alt=""
+            className={styles["warning-icon"]}
+            width={20}
+            height={20}
+          />
+        </span>
         {l10n.getString("phone-dashboard-sender-disabled-body")}
       </p>
       <div className={styles["update-settings-cta"]}>
