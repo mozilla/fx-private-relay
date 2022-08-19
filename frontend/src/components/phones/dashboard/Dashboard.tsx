@@ -19,7 +19,6 @@ import { SendersPanelView } from "./SendersPanelView";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
-
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const relayNumber = useRelayNumber();
@@ -28,6 +27,8 @@ export const PhoneDashboard = () => {
   const realPhoneData = realPhone.data?.[0];
   const phoneDateCreated = useRealPhonesData();
   const inboundContactData = useInboundContact();
+  const inboundArray = inboundContactData.data;
+
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
   const [enableForwarding, setEnableForwarding] = useState(
@@ -208,6 +209,18 @@ export const PhoneDashboard = () => {
     </div>
   );
 
+  function setSendersPanelView() {
+    if (profileData.data?.[0].store_phone_log === false) {
+      return "disabled";
+    }
+
+    if (inboundArray && inboundArray.length === 0) {
+      return "empty";
+    }
+
+    return "primary";
+  }
+
   return (
     <main className={styles["main-phone-wrapper"]}>
       {showingPrimaryDashboard && inboundContactData !== undefined ? (
@@ -215,7 +228,10 @@ export const PhoneDashboard = () => {
         <>{primaryPanel}</>
       ) : (
         // Caller and SMS Senders Panel
-        <SendersPanelView type="primary" back_btn={toggleSendersPanel} />
+        <SendersPanelView
+          type={setSendersPanelView()}
+          back_btn={toggleSendersPanel}
+        />
       )}
     </main>
   );

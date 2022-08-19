@@ -9,6 +9,7 @@ import {
   WarningFilledIcon,
 } from "../../../components/Icons";
 import disabledSendersDataIllustration from "./images/sender-data-disabled-illustration.svg";
+import emptySenderDataIllustration from "./images/sender-data-disabled-illustration.svg";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import moment from "moment";
@@ -24,12 +25,25 @@ export const SendersPanelView = (props: Props) => {
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
 
+  const emptyCallerSMSSendersPanel = (
+    <div className={styles["disabled-senders-panel"]}>
+      <img
+        src={emptySenderDataIllustration.src}
+        alt="Empty Senders Data Illustration"
+        width={130}
+      />
+      <p className={styles["disabled-senders-panel-body"]}>
+        {l10n.getString("phone-dashboard-sender-empty-body")}
+      </p>
+    </div>
+  );
+
   const disabledCallerSMSSendersPanel = (
     <div className={styles["disabled-senders-panel"]}>
       <img
         src={disabledSendersDataIllustration.src}
         alt="Disabled Senders Data Illustration"
-        width={170}
+        width={130}
       />
       <p className={styles["disabled-senders-panel-body"]}>
         <WarningFilledIcon
@@ -116,6 +130,23 @@ export const SendersPanelView = (props: Props) => {
         );
       });
 
+  const senderLogsPanel = (
+    <ul className={styles["caller-sms-senders-table"]}>
+      <li className={styles["greyed-contact"]}>
+        <span>
+          {l10n.getString("phone-dashboard-sender-table-title-sender")}
+        </span>
+        <span>
+          {l10n.getString("phone-dashboard-sender-table-title-activity")}
+        </span>
+        <span>
+          {l10n.getString("phone-dashboard-sender-table-title-action")}
+        </span>
+      </li>
+      {inboundContactArray}
+    </ul>
+  );
+
   return (
     <div id="secondary-panel" className={styles["dashboard-card"]}>
       <div className={styles["dashboard-card-caller-sms-senders-header"]}>
@@ -138,32 +169,9 @@ export const SendersPanelView = (props: Props) => {
         </span>
         <span></span>
       </div>
-
-      {/* Show senders UI only if enabled allows Caller and SMS Senders data in their settings */}
-      {props.type === "primary" && (
-        <ul className={styles["caller-sms-senders-table"]}>
-          <li className={styles["greyed-contact"]}>
-            <span>
-              {l10n.getString("phone-dashboard-sender-table-title-sender")}
-            </span>
-            <span>
-              {l10n.getString("phone-dashboard-sender-table-title-activity")}
-            </span>
-            <span>
-              {l10n.getString("phone-dashboard-sender-table-title-action")}
-            </span>
-          </li>
-          {inboundContactArray}
-        </ul>
-      )}
-
+      {props.type === "primary" && <>{senderLogsPanel}</>}
       {props.type === "disabled" && <>{disabledCallerSMSSendersPanel}</>}
-
-      {props.type === "empty" && (
-        <>
-          <p>EMPTY</p>
-        </>
-      )}
+      {props.type === "empty" && <>{emptyCallerSMSSendersPanel}</>}
     </div>
   );
 };
