@@ -61,22 +61,23 @@ environment. To do this, we first release code to [Dev][dev] and
 [Stage][stage].
 
 ## Release to Dev
-~~Every commit to `main` is automatically deployed to the [Dev][dev] server.~~
-(Since the [Great GitHub Heroku Incident of 2022][github-heroku-incident], we
-have disabled GitHub integration on our Heroku app.)
-We try to push `main` to [Dev][dev] often. To do so, you need to add the heroku
-app as a remote:
+Every commit to `main` is automatically deployed to the [Dev][dev] server, as
+long as it can be done with a fast-forward push. Since the
+[Great GitHub Heroku Incident of 2022][github-heroku-incident], this is
+done from CircleCI using a [service account][service-account].
+
+To push a different branch, you need to add the Heroku app as a remote:
 
 * `heroku login`
 * `heroku git:remote -a fx-private-relay`
 
-Then, you can push your local `main` to heroku:
+Then, you can push your local unmerged branch to Heroku:
 
-* `git push heroku main`
+* `git push -f heroku change-1:main`
 
-We can also push un-merged branches:
+Merges to main will fail to deploy until someone manually resets it to `main`:
 
-* `git push heroku change-1:main`
+* `git push -f heroku main`
 
 
 ## Release to Stage
@@ -311,6 +312,7 @@ long-running branches")
 [docs]: https://github.com/mozilla/fx-private-relay/tree/main/docs
 [github-flow]: https://docs.github.com/en/get-started/quickstart/github-flow
 [github-heroku-incident]: https://blog.heroku.com/april-2022-incident-review
+[service-account]: https://mana.mozilla.org/wiki/display/TS/List+of+Heroku+service+accounts
 [calver]: https://calver.org/
 [sre-board]: https://mozilla-hub.atlassian.net/jira/software/c/projects/SVCSE/boards/316
 [github-new-release]: https://github.com/mozilla/fx-private-relay/releases/new
