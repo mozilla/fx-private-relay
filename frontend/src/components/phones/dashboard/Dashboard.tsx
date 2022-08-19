@@ -11,16 +11,20 @@ import {
   ChevronRightIcon,
   ForwardedCallIcon,
   ForwardedTextIcon,
+  WarningFilledIcon,
 } from "../../../components/Icons";
+// import { disabledSendersDataIllustration } from "./images/sender-data-disabled-illustration.svg";
 import { MouseEventHandler, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import moment from "moment";
+import { useProfiles } from "../../../hooks/api/profile";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
 
+  const profileData = useProfiles();
   const relayNumber = useRelayNumber();
   const realPhone = useRealPhonesData();
   const relayNumberData = relayNumber.data?.[0];
@@ -217,6 +221,25 @@ export const PhoneDashboard = () => {
     sameElse: "L LT",
   };
 
+  const disabledCallerSMSSendersPanel = (
+    <div className={styles["disabled-senders-panel"]}>
+      <img
+        src="./images/sender-data-disabled-illustration.svg"
+        alt="Disabled Senders Data Illustration"
+      />
+      <p>
+        <WarningFilledIcon
+          alt=""
+          className={styles["warning-icon"]}
+          width={20}
+          height={20}
+        />
+        You have disabled the Caller and Sender log. Go to your settings to
+        enable Relay to keep a log of your callers and senders.
+      </p>
+    </div>
+  );
+
   const inboundContactArray = inboundArray
     ?.sort(
       (a, b) =>
@@ -289,20 +312,26 @@ export const PhoneDashboard = () => {
         </span>
         <span></span>
       </div>
-      <ul className={styles["caller-sms-senders-table"]}>
-        <li className={styles["greyed-contact"]}>
-          <span>
-            {l10n.getString("phone-dashboard-sender-table-title-sender")}
-          </span>
-          <span>
-            {l10n.getString("phone-dashboard-sender-table-title-activity")}
-          </span>
-          <span>
-            {l10n.getString("phone-dashboard-sender-table-title-action")}
-          </span>
-        </li>
-        {inboundContactArray}
-      </ul>
+
+      {/* Show senders UI only if enabled allows Caller and SMS Senders data in their settings */}
+      {profileData.data?.[0].store_phone_log ? (
+        <ul className={styles["caller-sms-senders-table"]}>
+          <li className={styles["greyed-contact"]}>
+            <span>
+              {l10n.getString("phone-dashboard-sender-table-title-sender")}
+            </span>
+            <span>
+              {l10n.getString("phone-dashboard-sender-table-title-activity")}
+            </span>
+            <span>
+              {l10n.getString("phone-dashboard-sender-table-title-action")}
+            </span>
+          </li>
+          {inboundContactArray}
+        </ul>
+      ) : (
+        <>{disabledCallerSMSSendersPanel}</>
+      )}
     </div>
   );
 
