@@ -27,6 +27,7 @@ from phones.models import (
     RelayNumber,
     get_pending_unverified_realphone_records,
     get_valid_realphone_verification_record,
+    get_verified_realphone_record,
     send_welcome_message,
     suggested_numbers,
     location_numbers,
@@ -138,6 +139,12 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
                 ],
             )
             return response.Response(response_data, status=201, headers=headers)
+
+        # to prevent sending verification codes to verified numbers,
+        # check if the number is already a verified number.
+        is_verified = get_verified_realphone_record(serializer.validated_data["number"])
+        if is_verified:
+            raise ConflictError("A verified record already exists for this number.")
 
         # to prevent abusive sending of verification messages,
         # check if there is an un-expired verification code for the user

@@ -61,6 +61,9 @@ def get_pending_unverified_realphone_records(number):
 def get_verified_realphone_records(user):
     return RealPhone.objects.filter(user=user, verified=True)
 
+def get_verified_realphone_record(number):
+    return RealPhone.objects.filter(number=number, verified=True).first()
+
 
 def get_valid_realphone_verification_record(user, number, verification_code):
     return RealPhone.objects.filter(
