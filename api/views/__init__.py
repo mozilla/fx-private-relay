@@ -21,6 +21,7 @@ from privaterelay.settings import (
     GOOGLE_ANALYTICS_ID,
     PREMIUM_PROD_ID,
     PHONE_PROD_ID,
+    MAX_MINUTES_TO_VERIFY_REAL_PHONE,
 )
 from privaterelay.utils import get_premium_countries_info_from_request
 
@@ -183,5 +184,6 @@ def runtime_data(request):
             "WAFFLE_FLAGS": flag_values,
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
+            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE
         }
     )

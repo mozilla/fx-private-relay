@@ -73,12 +73,15 @@ export type PhoneNumberSubmitVerificationFn = (
   obj: RealPhoneVerification
 ) => Promise<Response>;
 
+export type RequestPhoneRemovalFn = (id: number) => Promise<Response>;
+
 /**
  * Get real (true) phone number records for the authenticated user with our API using [SWR](https://swr.vercel.app).
  */
 export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
   requestPhoneVerification: PhoneNumberRequestVerificationFn;
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
+  requestPhoneRemoval: RequestPhoneRemovalFn;
   resendWelcomeSMS: ResendWelcomeSMSFn;
 } {
   const realphone: SWRResponse<RealPhoneData, unknown> =
@@ -116,6 +119,15 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
     return response;
   };
 
+  // Remove real phone record by id.
+  const requestPhoneRemoval: RequestPhoneRemovalFn = async (id: number) => {
+    const response = await apiFetch(`/realphone/${id}/`, {
+      method: "DELETE",
+    });
+    realphone.mutate();
+    return response;
+  };
+
   const resendWelcomeSMS: ResendWelcomeSMSFn = async () => {
     const response = await apiFetch("/realphone/resend_welcome_sms", {
       method: "POST",
@@ -126,8 +138,9 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
 
   return {
     ...realphone,
-    requestPhoneVerification: requestPhoneVerification,
-    submitPhoneVerification: submitPhoneVerification,
+    requestPhoneVerification,
+    submitPhoneVerification,
+    requestPhoneRemoval,
     resendWelcomeSMS: resendWelcomeSMS,
   };
 }

@@ -42,7 +42,7 @@ def get_expired_unverified_realphone_records(number):
         verified=False,
         verification_sent_date__lt=(
             datetime.now(timezone.utc)
-            - timedelta(0, 60 * MAX_MINUTES_TO_VERIFY_REAL_PHONE)
+            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
         ),
     )
 
@@ -53,7 +53,7 @@ def get_pending_unverified_realphone_records(number):
         verified=False,
         verification_sent_date__gt=(
             datetime.now(timezone.utc)
-            - timedelta(0, 60 * MAX_MINUTES_TO_VERIFY_REAL_PHONE)
+            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
         ),
     )
 
@@ -69,7 +69,7 @@ def get_valid_realphone_verification_record(user, number, verification_code):
         verification_code=verification_code,
         verification_sent_date__gt=(
             datetime.now(timezone.utc)
-            - timedelta(0, 60 * MAX_MINUTES_TO_VERIFY_REAL_PHONE)
+            - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
         ),
     ).first()
 

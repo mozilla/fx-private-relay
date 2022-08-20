@@ -71,9 +71,10 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     Client must be authenticated, and these endpoints only return data that is
     "owned" by the authenticated user.
 
+    All endpoints are rate-limited to settings.PHONE_RATE_LIMIT
     """
 
-    http_method_names = ["get", "post", "patch"]
+    http_method_names = ["get", "post", "patch", "delete"]
     permission_classes = [permissions.IsAuthenticated, HasPhoneService]
     serializer_class = RealPhoneSerializer
     # TODO: this doesn't seem to e working?
@@ -204,6 +205,17 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         instance.mark_verified()
         return super().partial_update(request, *args, **kwargs)
 
+    def destroy(self, request,*args, **kwargs):
+        """
+        Delete a real phone resource.
+
+        Only **un-verified** real phone resources can be deleted.
+        """
+        instance = self.get_object()
+        if instance.verified:
+            raise exceptions.ValidationError("Only un-verified real phone resources can be deleted.")
+
+        return super().destroy(request, *args, **kwargs)
 
 class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch"]

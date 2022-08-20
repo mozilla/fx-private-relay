@@ -6,9 +6,11 @@ import EnterVerifyCodeError from "./images/verify-code-error.svg";
 import { Button } from "../../Button";
 import {
   hasPendingVerification,
+  RequestPhoneRemovalFn,
   UnverifiedPhone,
   PhoneNumberSubmitVerificationFn,
 } from "../../../hooks/api/realPhone";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
 import {
   ChangeEventHandler,
   FormEventHandler,
@@ -22,6 +24,8 @@ type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
   onRequestVerification: (numberToVerify: string) => Promise<Response>;
   onSubmitVerification: PhoneNumberSubmitVerificationFn;
+  onRequestPhoneRemoval: RequestPhoneRemovalFn;
+  runtimeData: RuntimeData;
 };
 export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
   const phonesPendingVerification = props.unverifiedRealPhones.filter(
@@ -46,7 +50,16 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
     <RealPhoneVerification
       phonesPendingVerification={phonesPendingVerification}
       submitPhoneVerification={props.onSubmitVerification}
+      requestPhoneVerification={(number) => {
+        setIsEnteringNumber(false);
+        return props.onRequestVerification(number);
+      }}
+      maxMinutesToVerify={props.runtimeData.MAX_MINUTES_TO_VERIFY_REAL_PHONE}
       onGoBack={() => setIsEnteringNumber(true)}
+      requestPhoneRemoval={(id: number) => {
+        setIsEnteringNumber(true);
+        return props.onRequestPhoneRemoval(id);
+      }}
     />
   );
 };
@@ -134,6 +147,9 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 type RealPhoneVerificationProps = {
   phonesPendingVerification: UnverifiedPhone[];
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
+  requestPhoneRemoval: (id: number) => Promise<Response>;
+  requestPhoneVerification: (numberToVerify: string) => Promise<Response>;
+  maxMinutesToVerify: number;
   onGoBack: () => void;
 };
 const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
@@ -148,7 +164,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     phoneWithMostRecentlySentVerificationCode.verification_sent_date
   );
   const [remainingTime, setRemainingTime] = useState(
-    getRemainingTime(verificationSentDate)
+    getRemainingTime(verificationSentDate, props.maxMinutesToVerify)
   );
   /** `undefined` if verification hasn't been attempted yet */
   const [isVerifiedSuccessfully, setIsVerifiedSuccessfully] =
@@ -173,7 +189,9 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   };
 
   useInterval(() => {
-    setRemainingTime(getRemainingTime(verificationSentDate));
+    setRemainingTime(
+      getRemainingTime(verificationSentDate, props.maxMinutesToVerify)
+    );
   }, 1000);
 
   const errorTimeExpired = (
@@ -183,7 +201,15 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       }`}
     >
       <p>{l10n.getString("phone-onboarding-step3-error-exipred")}</p>
-      <Button className={styles.button} type="submit">
+      <Button
+        className={styles.button}
+        type="button"
+        onClick={() => {
+          props.requestPhoneVerification(
+            phoneWithMostRecentlySentVerificationCode.number
+          );
+        }}
+      >
         {l10n.getString("phone-onboarding-step3-error-cta")}
       </Button>
     </div>
@@ -223,7 +249,6 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       </div>
       {/* Add error class of `mzp-is-error` */}
 
-      {/* TODO: Add logic to display timeout error */}
       {errorTimeExpired}
 
       <form
@@ -258,26 +283,30 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           className={isVerifiedSuccessfully === false ? styles["is-error"] : ""}
           autoFocus={true}
         />
-        {/* TODO: Add logic to show success/fail on submit */}
-        <Button className={styles.button} type="submit">
+        {/* TODO: add validation */}
+        <Button
+          className={styles.button}
+          type="submit"
+          disabled={verificationCode.length === 0 || verificationCode === " "}
+        >
           {l10n.getString("phone-onboarding-step3-button-cta")}
         </Button>
+      </form>
 
-        {/* TODO: Enable logic to "go back" to previous step */}
+      {(remainingTime < 0 || !isVerifiedSuccessfully) && (
         <Button
-          onClick={() => props.onGoBack()}
+          onClick={() =>
+            props.requestPhoneRemoval(
+              phoneWithMostRecentlySentVerificationCode.id
+            )
+          }
           className={styles.button}
           type="button"
           variant="secondary"
         >
           {l10n.getString("phone-onboarding-step3-button-edit")}
         </Button>
-      </form>
-
-      {/* TODO: Resubmit phone number for verification and reset count down */}
-      <Button className={styles.button} type="button" variant="secondary">
-        {l10n.getString("phone-onboarding-step3-button-resend")}
-      </Button>
+      )}
     </div>
   );
 };
@@ -306,10 +335,13 @@ function useInterval(callback: IntervalFunction, delay: number) {
   }, [delay]);
 }
 
-function getRemainingTime(verificationSentTime: Date): number {
+function getRemainingTime(
+  verificationSentTime: Date,
+  maxMinutesToVerify: number
+): number {
   const currentTime = new Date().getTime();
   const elapsedTime = currentTime - verificationSentTime.getTime();
-  const remainingTime = 5 * 60 * 1000 - elapsedTime;
+  const remainingTime = maxMinutesToVerify * 60 * 1000 - elapsedTime;
   return remainingTime;
 }
 

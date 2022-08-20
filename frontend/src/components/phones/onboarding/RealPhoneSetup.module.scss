@@ -6,8 +6,8 @@
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
-  gap: $spacing-xl;
+  justify-content: center;
+  gap: $spacing-2xl;
   max-width: $content-md;
   margin: 0 auto;
   padding: $spacing-lg;
@@ -143,6 +143,10 @@
     .step-input-verificiation-code-lead-error,
     .step-input-verificiation-code-lead-success {
       display: none;
+    }
+
+    h2 {
+      padding-top: $spacing-md;
     }
 
     &.is-error,
