@@ -222,6 +222,29 @@ def test_realphone_post_invalid_verification_code(phone_user, mocked_twilio_clie
     mock_fetch.assert_not_called()
 
 
+def test_realphone_post_existing_verified_number(phone_user, mocked_twilio_client):
+    number = "+12223334444"
+    real_phone = RealPhone.objects.create(user=phone_user, number=number, verified=True)
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = "/api/v1/realphone/"
+    data = {"number": number}
+
+    mock_fetch = Mock(
+        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
+    )
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
+
+    response = client.post(path, data, format="json")
+    assert response.status_code == 409
+    assert "verified record already exists" in response.content.decode()
+    real_phone.refresh_from_db()
+
+    mock_fetch.assert_not_called()
+
+
 def test_realphone_patch_verification_code(phone_user, mocked_twilio_client):
     number = "+12223334444"
     real_phone = RealPhone.objects.create(
@@ -826,7 +849,9 @@ def test_inbound_call_valid_twilio_signature_good_data(
     decoded_content = response.content.decode()
     assert f'callerId="{caller_number}"' in decoded_content
     assert f"<Number>{real_phone_number}</Number>" in decoded_content
-    inbound_contact = InboundContact.objects.get(relay_number=relay_num_obj, inbound_number=caller_number)
+    inbound_contact = InboundContact.objects.get(
+        relay_number=relay_num_obj, inbound_number=caller_number
+    )
     assert inbound_contact.num_calls == 1
     assert inbound_contact.last_inbound_type == "call"
 
