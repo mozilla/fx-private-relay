@@ -208,7 +208,7 @@ export const PhoneDashboard = () => {
     </div>
   );
 
-  function setSendersPanelView() {
+  function getSendersPanelType() {
     if (profileData.data?.[0].store_phone_log === false) {
       return "disabled";
     }
@@ -226,7 +226,7 @@ export const PhoneDashboard = () => {
       ) : (
         // Caller and SMS Senders Panel
         <SendersPanelView
-          type={setSendersPanelView()}
+          type={getSendersPanelType()}
           back_btn={toggleSendersPanel}
         />
       )}

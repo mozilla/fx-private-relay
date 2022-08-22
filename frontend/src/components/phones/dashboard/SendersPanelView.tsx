@@ -15,6 +15,7 @@ import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import moment from "moment";
 import { OutboundLink } from "react-ga";
+import { formatPhone } from "../../../functions/formatPhone";
 
 export type Props = {
   type: "primary" | "disabled" | "empty";
@@ -92,7 +93,7 @@ export const SendersPanelView = (props: Props) => {
             className={data.blocked ? styles["greyed-contact"] : ""}
           >
             <span className={styles["sender-number"]}>
-              {formatPhoneNumberToUSDisplay(data.inbound_number)}
+              {formatPhone(data.inbound_number ?? "")}
             </span>
             <span
               className={`${styles["sender-date"]} ${styles["sender-date-wrapper"]}`}
@@ -176,11 +177,3 @@ export const SendersPanelView = (props: Props) => {
     </div>
   );
 };
-
-function formatPhoneNumberToUSDisplay(e164Number: string) {
-  const friendlyPhoneNumber = e164Number.split("");
-  friendlyPhoneNumber?.splice(2, 0, " (");
-  friendlyPhoneNumber?.splice(6, 0, ") ");
-  friendlyPhoneNumber?.join("");
-  return friendlyPhoneNumber;
-}
