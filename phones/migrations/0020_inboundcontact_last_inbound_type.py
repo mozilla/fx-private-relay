@@ -21,7 +21,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,'
             '  "inbound_number" varchar(15) NOT NULL,'
             '  "last_inbound_date" datetime NOT NULL,'
-            '  "last_inbound_type" varchar(4) NOT NULL,'
+            '  "last_inbound_type" varchar(4) NOT NULL DEFAULT \'text\','
             '  "num_calls" integer unsigned NOT NULL CHECK ("num_calls" >= 0),'
             '  "num_calls_blocked" integer unsigned NOT NULL CHECK ("num_calls_blocked" >= 0),'
             '  "num_texts" integer unsigned NOT NULL CHECK ("num_texts" >= 0),'
