@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import logging
 import secrets
 import string
 
@@ -18,6 +19,8 @@ LAST_CONTACT_TYPE_CHOICES = [
     ("call", "call"),
     ("text", "text"),
 ]
+
+logger = logging.getLogger("events")
 
 
 def twilio_client():
@@ -74,6 +77,20 @@ def get_valid_realphone_verification_record(user, number, verification_code):
             - timedelta(0, 60 * settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE)
         ),
     ).first()
+
+
+def get_last_text_sender(relay_number):
+    try:
+        return (
+            InboundContact.objects.filter(
+                relay_number=relay_number, last_inbound_type="text"
+            )
+            .order_by("last_inbound_date")
+            .first()
+        )
+    except InboundContact.DoesNotExist:
+        logger.exception("Could not get an inbound text contact.")
+        return None
 
 
 class RealPhone(models.Model):

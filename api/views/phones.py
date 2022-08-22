@@ -19,12 +19,13 @@ from rest_framework import (
 from rest_framework.generics import get_object_or_404
 
 from api.views import SaveToRequestUser
-from emails.models import Profile
+from emails.models import Profile, get_storing_phone_log
 
 from phones.models import (
     InboundContact,
     RealPhone,
     RelayNumber,
+    get_last_text_sender,
     get_pending_unverified_realphone_records,
     get_valid_realphone_verification_record,
     get_verified_realphone_record,
@@ -212,7 +213,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         instance.mark_verified()
         return super().partial_update(request, *args, **kwargs)
 
-    def destroy(self, request,*args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
         """
         Delete a real phone resource.
 
@@ -220,9 +221,12 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         """
         instance = self.get_object()
         if instance.verified:
-            raise exceptions.ValidationError("Only un-verified real phone resources can be deleted.")
+            raise exceptions.ValidationError(
+                "Only un-verified real phone resources can be deleted."
+            )
 
         return super().destroy(request, *args, **kwargs)
+
 
 class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch"]
@@ -426,9 +430,17 @@ def inbound_sms(request):
     if inbound_body is None or inbound_from is None or inbound_to is None:
         raise exceptions.ValidationError("Message missing From, To, Or Body.")
 
-    relay_number, real_phone, inbound_contact = _get_phone_objects(
-        inbound_to, inbound_from, "texts"
-    )
+    relay_number, real_phone = _get_phone_objects(inbound_to)
+
+    if inbound_from == real_phone.number:
+        _handle_sms_reply(relay_number, real_phone, inbound_body)
+        return response.Response(
+            status=200, data={"message": "Sent reply to last sender."}
+        )
+
+    _check_disabled(relay_number, "texts")
+
+    inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "texts")
 
@@ -451,9 +463,9 @@ def inbound_call(request):
     if inbound_from is None or inbound_to is None:
         raise exceptions.ValidationError("Call data missing Caller or Called.")
 
-    _, real_phone, inbound_contact = _get_phone_objects(
-        inbound_to, inbound_from, "calls"
-    )
+    relay_number, real_phone = _get_phone_objects(inbound_to)
+    _check_disabled(relay_number, "calls")
+    inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "calls")
 
@@ -464,7 +476,7 @@ def inbound_call(request):
     )
 
 
-def _get_phone_objects(inbound_to, inbound_from, contact_type):
+def _get_phone_objects(inbound_to):
     # Get RelayNumber and RealPhone
     try:
         relay_number = RelayNumber.objects.get(number=inbound_to)
@@ -472,20 +484,55 @@ def _get_phone_objects(inbound_to, inbound_from, contact_type):
     except ObjectDoesNotExist:
         raise exceptions.ValidationError("Could not find relay number.")
 
+    return relay_number, real_phone
+
+
+def _handle_sms_reply(relay_number, real_phone, inbound_body):
+    client = twilio_client()
+    storing_phone_log = get_storing_phone_log(relay_number)
+    if not storing_phone_log:
+        client.messages.create(
+            from_=relay_number.number,
+            body="You can only reply if you allow Firefox Relay to keep a log of your callers and text senders. https://relay.firefox.com/accounts/settings/",
+            to=real_phone.number,
+        )
+        return response.Response(
+            status=200, data={"message": "User not storing phone log"}
+        )
+    last_text_sender = get_last_text_sender(relay_number)
+    if last_text_sender == None:
+        client.messages.create(
+            from_=relay_number.number,
+            body="Could not find a previous text sender.",
+            to=real_phone.number,
+        )
+        return response.Response(
+            status=200, data={"message": "Could not find last text sender."}
+        )
+    client.messages.create(
+        from_=relay_number.number,
+        body=inbound_body,
+        to=last_text_sender.inbound_number,
+    )
+
+
+def _check_disabled(relay_number, contact_type):
     # Check if RelayNumber is disabled
     if not relay_number.enabled:
-        raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
+        raise exceptions.ValidationError(f"Number is not accepting {contact_type}s.")
 
+
+def _get_inbound_contact(relay_number, inbound_from):
     # Check if RelayNumber is storing phone log
     profile = Profile.objects.get(user=relay_number.user)
     if not profile.store_phone_log:
-        return relay_number, real_phone, None
+        return None
 
     # Check if RelayNumber is blocking this inbound_from
     inbound_contact, _ = InboundContact.objects.get_or_create(
         relay_number=relay_number, inbound_number=inbound_from
     )
-    return relay_number, real_phone, inbound_contact
+    return inbound_contact
 
 
 def _check_and_update_contact(inbound_contact, contact_type):

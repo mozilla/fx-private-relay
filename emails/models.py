@@ -415,6 +415,11 @@ class Profile(models.Model):
         return True
 
 
+def get_storing_phone_log(relay_number):
+    profile = Profile.objects.get(user=relay_number.user)
+    return profile.store_phone_log
+
+
 @receiver(models.signals.post_save, sender=Profile)
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
