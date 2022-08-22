@@ -6,7 +6,7 @@ dj-database-url==1.0.0
 django-allauth==0.51.0
 django-cors-headers==3.13.0
 django-csp==3.7
-django-debug-toolbar==3.5.0
+django-debug-toolbar==3.6.0
 django-filter==22.1
 django-redis==5.2.0
 django-ftl==0.13
@@ -29,7 +29,7 @@ sentry-sdk==1.9.4
 whitenoise==6.2.0
 
 # phones app
-phonenumbers==8.12.53
+phonenumbers==8.12.54
 twilio==7.12.1
 vobject==0.9.6.1
 
