@@ -157,9 +157,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             info_logger.info("webcompat_issue", extra=serializer.data)
             incr_if_enabled(f"webcompat_issue", 1)
-            import ipdb; ipdb.set_trace()
             for k, v in serializer.data.items():
-                if v:
+                if v and k != "issue_on_domain":
                     incr_if_enabled(f"webcompat_issue_{k}", 1)
             return response.Response(status=status.HTTP_201_CREATED)
         return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -202,6 +201,6 @@ def runtime_data(request):
             "WAFFLE_FLAGS": flag_values,
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
-            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE
+            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         }
     )
