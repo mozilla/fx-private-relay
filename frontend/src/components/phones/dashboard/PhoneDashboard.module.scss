@@ -39,7 +39,9 @@
   .senders-cta {
     display: flex;
     flex-direction: row;
-    padding: $spacing-xs $spacing-sm;
+    padding: $spacing-sm;
+    position: relative;
+    left: $spacing-sm;
     border-radius: $border-radius-lg;
     align-items: center;
     gap: $spacing-xs;
@@ -54,6 +56,7 @@
 
       @media screen and #{$mq-md} {
         display: block;
+        left: 0;
       }
     }
   }
@@ -217,13 +220,19 @@
     border-radius: $border-radius-md;
     display: flex;
     flex-direction: column;
-    padding: $spacing-lg 0;
+    padding: $spacing-md 0;
     min-height: $content-xs;
 
     .header-phone-number {
-      @include text-body-xl;
+      @include text-body-lg;
       @include font-firefox;
       display: flex;
+      justify-content: center;
+      align-items: center;
+
+      @media screen and #{$mq-sm} {
+        @include text-body-xl;
+      }
     }
 
     .phone-statistics-container {
@@ -342,21 +351,14 @@
         background-color: $color-violet-30;
         color: $color-white;
         border-radius: $border-radius-md;
-        position: absolute;
+        position: static;
         right: 0;
-        top: 50%;
-        transform: translateY(-50%);
 
         &.is-shown {
           pointer-events: auto;
           opacity: 1;
           // Don't fade in when appearing:
           transition: opacity 0s;
-        }
-
-        @media screen and #{$mq-md} {
-          position: static;
-          transform: none;
         }
       }
     }
