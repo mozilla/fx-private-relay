@@ -7,7 +7,8 @@
     "url": "https://github.com/mozilla/fx-private-relay/issues"
   },
   "devDependencies": {
-    "@playwright/test": "^1.24.0",
+    "@playwright/test": "^1.25.0",
+    "allure-playwright": "^2.0.0-beta.19",
     "dotenv": "^16.0.1"
   },
   "engines": {
@@ -30,8 +31,9 @@
   "scripts": {
     "test:e2e": "npx playwright test --retries=1",
     "test:headed": "npx playwright test --retries=1 --headed",
-    "test:local": "NODE_ENV=local npx playwright test --retries=2",
-    "test:stage": "NODE_ENV=stage npx playwright test --retries=2",
+    "test:report": "npx playwright show-report",
+    "test:local": "NODE_ENV=local npx playwright test --retries=2 --headed",
+    "test:stage": "NODE_ENV=stage npx playwright test --retries=2 --headed",
     "test:prod": "NODE_ENV=prod npx playwright test --retries=2 --headed",
     "heroku-prebuild": "printf '{\"commit\":\"%s\", \"commit_link\":\"https://github.com/mozilla/fx-private-relay/commit/%s\"}\n' \"$SOURCE_VERSION\" \"$SOURCE_VERSION\" > version.json",
     "heroku-postbuild": "cd frontend; NODE_ENV=\"development\" npm ci; npm run build"

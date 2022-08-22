@@ -11,7 +11,7 @@ export class AuthPage {
 
     constructor(page: Page){
         this.page = page;
-        this.emailInputField = page.locator('.email');
+        this.emailInputField = page.locator('input[name="email"]');
         this.passwordInputField = page.locator('#password');        
         this.passwordConfirmInputField = page.locator('#vpassword');
         this.ageInputField = page.locator('#age');
@@ -20,7 +20,7 @@ export class AuthPage {
     }
 
     async continue() {
-        this.continueButton.click()
+        await this.continueButton.click()
     }
 
     async enterVerificationCode(code: string){

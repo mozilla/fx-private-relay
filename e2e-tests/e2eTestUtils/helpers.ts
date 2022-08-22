@@ -30,41 +30,57 @@ export const deleteEmailAddressMessages = async (req: APIRequestContext, testEma
   }
 };
 
-export const checkForSignInButton = async (page: Page) => {
+const setYourPassword = async (page: Page) => {
   try {    
-    const maybeSignInButton = 'button:has-text("Sign in")'
-    await page.waitForSelector(maybeSignInButton, { timeout: 2000 })
-    await page.locator(maybeSignInButton).click()
-  } catch (error) {
-    console.error('Proceeded to logged in page')
-  }
-}
-
-export const checkForEmailInput = async (page: Page) => {
-  try {    
-    const maybeEmailInput = '.email'
-    await page.waitForSelector(maybeEmailInput, { timeout: 2000 })
-    const signInButton = page.locator('button:has-text("Sign up or sign in")')
-    await page.locator(maybeEmailInput).fill(process.env.E2E_TEST_ACCOUNT_FREE as string)
-    await signInButton.click()
     await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
-    await page.locator('#submit-btn').click()
-  } catch (error) {
-    console.error('No email Proceeded to logged in page')
-  }
+    await page.locator('#vpassword').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
+    await page.locator('#age').fill('31');
+    await page.locator('button:has-text("Create account")').click()
+    await checkAuthState(page)
+  } catch {}
+  
 }
 
-export const checkForVerificationCodeInput = async (page: Page) => {
-  try {    
+const enterConfirmationCode = async (page: Page) => {
+  try {        
     const maybeVerificationCodeInput = '//div[@class="card"]//input'
     await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 })
     const confirmButton = page.locator('button:has-text("Confirm")')
     const verificationCode = await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, page)
     await page.locator(maybeVerificationCodeInput).fill(verificationCode)
     await confirmButton.click()
-  } catch (error) {
-    console.error('No email proceeding to logged in page')
-  }
+    await checkAuthState(page)
+  } catch {}
+}
+
+const signIn = async (page: Page) => {
+  try {
+    const signInButton = page.locator('#use-logged-in')
+    await Promise.all([
+      page.waitForNavigation(),
+      signInButton.click()
+    ]);
+    await checkAuthState(page)
+  } catch {}
+}
+
+const enterYourEmail = async (page: Page) => {
+  try {    
+    const maybeEmailInput = 'input[name="email"]'
+    await page.waitForSelector(maybeEmailInput, { timeout: 2000 })
+    const signInButton = page.locator('#submit-btn')
+    await page.locator(maybeEmailInput).fill(process.env.E2E_TEST_ACCOUNT_FREE as string)
+    await signInButton.click()
+    await checkAuthState(page)
+  } catch {}
+}
+
+const enterYourPassword = async (page: Page) => {
+  try {    
+    await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
+    await page.locator('#submit-btn').click()
+    await checkAuthState(page)
+  } catch {}
 }
 
 export const generateRandomEmail = async () => {  
@@ -108,3 +124,32 @@ export const defaultScreenshotOpts: Partial<DefaultScreenshotOpts> = {
   animations: 'disabled',
   maxDiffPixelRatio: 0.04
 };
+
+export const checkAuthState = async (page: Page) => {
+  try {    
+    const authStateTitleString = await page.locator('h1').textContent({ timeout: 1000 })  
+    const checkIfTitleConatins = (potentialTitle: string) => {
+      return authStateTitleString?.includes(potentialTitle)
+    }
+
+    switch (true) {
+      case checkIfTitleConatins('Enter your email'):      
+        await enterYourEmail(page)
+        break;
+      case checkIfTitleConatins('Enter your password'):     
+        await enterYourPassword(page)
+        break;
+      case checkIfTitleConatins('Set your password'):      
+        await setYourPassword(page)
+        break;
+      case checkIfTitleConatins('Enter confirmation code'):      
+        await enterConfirmationCode(page)
+        break;
+      case checkIfTitleConatins('Sign in'):      
+        await signIn(page)
+        break;
+      default:
+        break;
+    }
+  } catch {}
+}

@@ -15,3 +15,4 @@ junit.xml
 /playwright/.cache/
 state.json
 har/
+allure-results/

@@ -1,5 +1,5 @@
 import { Locator, Page } from "@playwright/test";
-import { checkForEmailInput, checkForSignInButton, checkForVerificationCodeInput, getVerificationCode } from "../e2eTestUtils/helpers";
+import { checkAuthState, getVerificationCode } from "../e2eTestUtils/helpers";
 
 export class DashboardPage {
     readonly page: Page
@@ -21,7 +21,6 @@ export class DashboardPage {
     readonly relayExtensionBanner: Locator
     readonly dashBoardWithoutMasks: Locator
     readonly dashBoardWithoutMasksEmail: Locator
-    readonly generateNewMaskButton: Locator
     readonly emailsForwardedAmount: Locator
     readonly emailsBlockedAmount: Locator
     readonly emailMasksUsedAmount: Locator
@@ -68,7 +67,6 @@ export class DashboardPage {
         this.emailsForwardedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[3]')
         this.emailsBlockedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[2]')
         this.emailMasksUsedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[1]')        
-        this.generateNewMaskButton = page.locator('button:has-text("Generate new mask")')
         this.maxMaskLimitButton = page.locator('//div[starts-with(@class, "AliasList_controls")]//a[starts-with(@class, "Button_button")]')
         this.bottomUgradeBanner = page.locator('//div[starts-with(@class, "profile_bottom-banner-wrapper")]')
         this.relayExtensionBanner = page.locator('//section[starts-with(@class, "profile_banners-wrapper")]/div')
@@ -94,18 +92,21 @@ export class DashboardPage {
         this.maskCardFinalDeleteButton = page.locator('//button[contains(@class, "Button_is-destructive")]')
     } 
 
-    async open() {
+    async open() {        
         await this.page.goto('/accounts/profile/');
     }
 
     async generateMask(numberOfMasks = 1){
+        const generateNewMaskButtonString = 'button:has-text("Generate new mask")'
+        await this.page.waitForSelector(generateNewMaskButtonString, { timeout: 5000 })
+
         // check if max number of masks have been created
         if(numberOfMasks === 0){
             return
         }
            
         // generate a new mask and confirm
-        await this.generateNewMaskButton.click()
+        await this.page.locator(generateNewMaskButtonString).click()
         await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
         
         // randomize between 1.5-2.5 secs between each generate to deal with issue of multiple quick clicks
@@ -186,15 +187,13 @@ export class DashboardPage {
     async sendMaskEmail(){
         // reset data
         await this.open()
-        await checkForSignInButton(this.page)
-        await checkForEmailInput(this.page)
-        await checkForVerificationCodeInput(this.page)
+        await checkAuthState(this.page)
         await this.maybeDeleteMasks()
         
         // create mask and use generated mask email to test email forwarding feature
         await this.generateMask(1)
         const generatedMaskEmail = await this.maskCardGeneratedEmail.textContent()
-    
+            
         await this.page.goto("https://monitor.firefox.com/")
     
         const checkForBreachesEmailInput = this.page.locator('#scan-email').first();

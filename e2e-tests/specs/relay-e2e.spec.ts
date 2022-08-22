@@ -1,9 +1,5 @@
 import test, { expect }  from '../fixtures/basePages'
-import {
-  checkForEmailInput,
-  checkForSignInButton,
-  checkForVerificationCodeInput,
-  deleteEmailAddressMessages } from '../e2eTestUtils/helpers';
+import { checkAuthState } from '../e2eTestUtils/helpers';
 
 test.describe.configure({ mode: 'parallel' });
 test.skip(({ browserName }) => browserName !== 'firefox', 'firefox only e2e!');
@@ -11,20 +7,18 @@ test.describe('Relay e2e function email forwarding', () => {
     // use stored authenticated state
     test.use({ storageState: 'state.json' })
 
-    test.beforeEach(async ({ dashboardPage, request }) => {      
+    test.beforeEach(async ({ dashboardPage }) => {      
       await dashboardPage.sendMaskEmail()
     });
     
-    test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065', async ({ 
+    test('Check that the user can use the masks on websites and receive emails sent to the masks, C1553068, C1553065, C1811801', async ({ 
       dashboardPage,
       page
     }) => {
         await dashboardPage.open()
-        await checkForSignInButton(page)
-        await checkForEmailInput(page)
-        await checkForVerificationCodeInput(page)
+        await checkAuthState(page)
         const forwardedEmailCount = await dashboardPage.checkForwardedEmailCount()
-        
+                
         expect(forwardedEmailCount).toEqual('1Forwarded')        
 
         await dashboardPage.userMenuButton.click()

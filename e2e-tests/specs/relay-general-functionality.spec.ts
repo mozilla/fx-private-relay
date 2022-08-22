@@ -1,14 +1,12 @@
 import test, { expect }  from '../fixtures/basePages'
-import { checkForEmailInput, checkForSignInButton, checkForVerificationCodeInput, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
+import { checkAuthState, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
 test.describe('Free - General Functionalities, Desktop', () => {
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
-    await checkForSignInButton(page)
-    await checkForEmailInput(page)
-    await checkForVerificationCodeInput(page)
+    await checkAuthState(page)
     await dashboardPage.maybeDeleteMasks()
   });
   
@@ -19,7 +17,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
     expect(await dashboardPage.maxMaskLimitButton.textContent()).toContain('Get unlimited email masks')
   })
   
-  test('Check that when generating a new mask, its card is automatically opened, C1686210, C1553075', async ({ dashboardPage }) => {
+  test('Check that when generating a new mask, its card is automatically opened, C1686210, C1553075, C1553064', async ({ dashboardPage }) => {
     await dashboardPage.generateMask(1)
     
     await expect(dashboardPage.maskCardExpanded).toBeVisible()
@@ -33,9 +31,7 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
 
   test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
-    await checkForSignInButton(page)
-    await checkForEmailInput(page)
-    await checkForVerificationCodeInput(page)
+    await checkAuthState(page)
     await dashboardPage.maybeDeleteMasks()
   });    
 

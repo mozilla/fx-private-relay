@@ -47,12 +47,12 @@ test.describe('Check header buttons and their redirects,  C1812638',  () => {
     expect(page.url()).toEqual(`${process.env.E2E_TEST_BASE_URL}/`)
   }) 
 
-  test('Verify sign in button authentication flow', async ({ landingPage, authPage }) => {
+  test('Verify sign in button authentication flow, C1818784', async ({ landingPage, authPage }) => {
     await landingPage.goToSignIn()
     expect(authPage.emailInputField.isVisible()).toBeTruthy()
   })
 
-  test('Verify  sign up button authentication flow', async ({ landingPage, authPage }) => {        
+  test('Verify  sign up button authentication flow, C1818782', async ({ landingPage, authPage }) => {        
     await landingPage.goToSignUp()
     expect(authPage.emailInputField.isVisible()).toBeTruthy()
   }) 
