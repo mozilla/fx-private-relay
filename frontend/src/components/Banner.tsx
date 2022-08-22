@@ -116,35 +116,41 @@ export const Banner = (props: BannerProps) => {
     typeof props.dismissal !== "undefined" ? (
       <button
         className={styles["dismiss-button"]}
-        onClick={() => dismissal.dismiss()}
+        onClick={() => {
+          dismissal.dismiss();
+        }}
         title={l10n.getString("banner-dismiss")}
       >
         <CloseIcon alt={l10n.getString("banner-dismiss")} />
       </button>
     ) : null;
 
-  return (
-    // The add-on will hide anything with the class `is-hidden-with-addon`
-    // if it's installed.
-    // (Note that that should be the literal class name, i.e. it shouldn't
-    // be imported from the CSS module.)
-    <div
-      className={`${styles.banner} ${styles[type]} ${
-        props.hiddenWithAddon === true ? "is-hidden-with-addon" : ""
-      }`}
-    >
-      <div className={`${styles["highlight-wrapper"]}`}>
-        {illustration}
-        {infoIcon}
-        <div className={`${styles["title-text"]}`}>
-          {title}
-          {props.children}
-          {cta}
-          {btn}
+  // The add-on will hide anything with the class `is-hidden-with-addon`
+  // if it's installed.
+  // (Note that that should be the literal class name, i.e. it shouldn't
+  // be imported from the CSS module.)
+  if (!dismissal.isDismissed) {
+    return (
+      <div
+        className={`${styles.banner} ${styles[type]} ${
+          props.hiddenWithAddon === true ? "is-hidden-with-addon" : ""
+        }`}
+      >
+        <div className={`${styles["highlight-wrapper"]}`}>
+          {illustration}
+          {infoIcon}
+          <div className={`${styles["title-text"]}`}>
+            {title}
+            {props.children}
+            {cta}
+            {btn}
+          </div>
+          {ctaLargeButton}
         </div>
-        {ctaLargeButton}
+        {dismissButton}
       </div>
-      {dismissButton}
-    </div>
-  );
+    );
+  }
+
+  return null;
 };

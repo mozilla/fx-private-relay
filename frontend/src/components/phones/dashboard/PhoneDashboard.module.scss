@@ -89,6 +89,41 @@
     }
   }
 
+  .senders-panel {
+    padding: 0 $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-lg;
+    min-height: $content-xs;
+    margin-top: $spacing-lg;
+
+    .senders-panel-body {
+      padding-top: $spacing-sm;
+      text-align: center;
+      max-width: $content-md;
+      margin: 0 auto;
+      display: flex;
+    }
+
+    .update-settings-cta {
+      display: inline-block;
+      padding: $spacing-md 0;
+      font-weight: 700;
+      color: $color-blue-50;
+
+      &:hover {
+        color: $color-blue-80;
+      }
+    }
+
+    .warning-icon {
+      color: $color-yellow-50;
+      min-width: 20px;
+    }
+  }
+
   .caller-sms-senders-table {
     display: flex;
     flex-direction: column;
