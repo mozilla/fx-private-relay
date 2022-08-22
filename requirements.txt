@@ -13,7 +13,7 @@ django-ftl==0.13
 django-referrer-policy==1.0
 djangorestframework==3.13.1
 django-waffle==2.7.0
-dockerflow==2022.7.0
+dockerflow==2022.8.0
 drf-yasg==1.21.3
 google-measurement-protocol==1.1.0
 gunicorn==20.1.0
