@@ -117,7 +117,6 @@ export const Banner = (props: BannerProps) => {
       <button
         className={styles["dismiss-button"]}
         onClick={() => {
-          console.log("dismissal is coming up next!");
           dismissal.dismiss();
         }}
         title={l10n.getString("banner-dismiss")}
