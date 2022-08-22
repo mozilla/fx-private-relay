@@ -279,7 +279,8 @@ class RelayAddressTest(TestCase):
 
 class ProfileTest(TestCase):
     def setUp(self):
-        self.profile = baker.make(Profile)
+        user = baker.make(User)
+        self.profile = user.profile_set.first()
         self.profile.server_storage = True
         self.profile.save()
 
@@ -712,7 +713,10 @@ class ProfileTest(TestCase):
             _quantity=4,
         )
 
-        server_stored_data_profile = baker.make(Profile, server_storage=True)
+        server_stored_data_user = baker.make(User)
+        server_stored_data_profile = server_stored_data_user.profile_set.first()
+        server_stored_data_profile.server_storage = True
+        server_stored_data_profile.save()
         baker.make(
             RelayAddress,
             user=server_stored_data_profile.user,

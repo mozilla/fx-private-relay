@@ -11,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import SuspiciousOperation
 from django.core.validators import MinLengthValidator
-from django.db import models
+from django.db import models, transaction
 from django.dispatch import receiver
 from django.utils.functional import cached_property
 from django.utils.translation.trans_real import (
@@ -552,15 +552,19 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs):
-        profile = self.user.profile_set.first()
+    def save(self, *args, **kwargs):      
         if self._state.adding:
-            check_user_can_make_another_address(self.user)
-            while True:
-                if valid_address(self.address, self.domain):
-                    break
-                self.address = address_default()
-            profile.update_abuse_metric(address_created=True)
+            with transaction.atomic():
+                locked_profile = Profile.objects.select_for_update().get(
+                    user=self.user
+                )
+                check_user_can_make_another_address(self.user)
+                while True:
+                    if valid_address(self.address, self.domain):
+                        break
+                    self.address = address_default()
+                locked_profile.update_abuse_metric(address_created=True)
+        profile = self.user.profile_set.first()
         if not profile.server_storage:
             self.description = ""
             self.generated_for = ""
