@@ -558,7 +558,7 @@ class RelayAddress(models.Model):
                 locked_profile = Profile.objects.select_for_update().get(
                     user=self.user
                 )
-                check_user_can_make_another_address(self.user)
+                check_user_can_make_another_address(locked_profile)
                 while True:
                     if valid_address(self.address, self.domain):
                         break
@@ -580,11 +580,10 @@ class RelayAddress(models.Model):
         return "%s@%s" % (self.address, self.domain_value)
 
 
-def check_user_can_make_another_address(user):
-    user_profile = user.profile_set.first()
-    if user_profile.is_flagged:
+def check_user_can_make_another_address(profile):
+    if profile.is_flagged:
         raise CannotMakeAddressException(ACCOUNT_PAUSED_ERR_MSG)
-    if user_profile.at_max_free_aliases and not user_profile.has_premium:
+    if profile.at_max_free_aliases and not profile.has_premium:
         hit_limit = f"make more than {settings.MAX_NUM_FREE_ALIASES} aliases"
         raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG.format(hit_limit))
 
