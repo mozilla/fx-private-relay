@@ -14,6 +14,7 @@ import {
   useRelayNumber,
   getRelayNumberSuggestions,
 } from "../../../hooks/api/relayNumber";
+import { formatPhone } from "../../../functions/formatPhone";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;
@@ -81,6 +82,15 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
 type RelayNumberSelectionProps = {
   registerRelayNumber: (phoneNumber: string) => Promise<Response>;
 };
+type RelayNumberOption = {
+  friendly_name: string;
+  iso_country: string;
+  locality: string;
+  phone_number: string;
+  postal_code: string;
+  region: string;
+};
+
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const { l10n } = useLocalization();
 
@@ -90,39 +100,38 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
     string[]
   >([]);
-  const [sliceStart, setSliceStart] = useState(0);
-  const [sliceEnd, setSliceEnd] = useState(3);
+  const [relayNumberIndex, setRelayNumberIndex] = useState(0);
 
   useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      const resp = await getRelayNumberSuggestions();
-      setIsLoading(false);
-      const respObject = await resp.json();
-      const suggestedNumbers: string[] = [];
-
-      // TODO: DRY If statements below
-      if (respObject.other_areas_options) {
-        for (const otherAreaOption of respObject.other_areas_options) {
-          suggestedNumbers.push(otherAreaOption.phone_number);
-        }
-      }
-
-      if (respObject.same_area_options) {
-        for (const sameAreaOption of respObject.same_area_options) {
-          suggestedNumbers.push(sameAreaOption.phone_number);
-        }
-      }
-
-      if (respObject.same_prefix_options) {
-        for (const samePrefixOption of respObject.same_prefix_options) {
-          suggestedNumbers.push(samePrefixOption.phone_number);
-        }
-      }
-
-      setRelayNumberSuggestions(suggestedNumbers);
-    })();
+    _getRelayNumberSuggestions();
   }, []);
+
+  // GET request to get relay number suggestions
+  const _getRelayNumberSuggestions = () => {
+    setIsLoading(true);
+    getRelayNumberSuggestions()
+      .then((response) => response.json())
+      .then((data) => {
+        const { other_areas_options, same_area_options, same_prefix_options } =
+          data;
+        const suggestedNumbers: RelayNumberOption[] = [
+          ...same_area_options,
+          ...same_prefix_options,
+          ...other_areas_options,
+        ];
+
+        setRelayNumberSuggestions(
+          suggestedNumbers.map(
+            (suggestion: RelayNumberOption) => suggestion.phone_number
+          )
+        );
+
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        // Do nothing, just keep the default values
+      });
+  };
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setPhoneNumber(event.target.value);
@@ -140,23 +149,20 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     </div>
   ) : null;
 
-  const moreRelayNumberOptions: MouseEventHandler<HTMLButtonElement> = () => {
-    setSliceStart(sliceStart + 3);
-    setSliceEnd(sliceEnd + 3);
+  const getRelayNumberOptions: MouseEventHandler<HTMLButtonElement> = () => {
+    const newRelayNumberIndex = relayNumberIndex + 3;
+
+    if (newRelayNumberIndex >= relayNumberSuggestions.length) {
+      _getRelayNumberSuggestions();
+      setRelayNumberIndex(0);
+    } else {
+      setRelayNumberIndex(newRelayNumberIndex);
+    }
   };
 
   const suggestedNumberRadioInputs = relayNumberSuggestions
-    .slice(sliceStart, sliceEnd)
+    .slice(relayNumberIndex, relayNumberIndex + 3)
     .map((suggestion, i) => {
-      function formatPhone(phoneNumber: string) {
-        // Bug: Any country code with two characters will break
-        // Return in +1 (111) 111-1111 format
-        return `${phoneNumber.substring(0, 2)} (${phoneNumber.substring(
-          2,
-          5
-        )}) ${phoneNumber.substring(5, 8)}-${phoneNumber.substring(8, 12)}`;
-      }
-
       return (
         <div key={suggestion}>
           <input
@@ -195,7 +201,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
         </div>
 
         <Button
-          onClick={moreRelayNumberOptions}
+          onClick={getRelayNumberOptions}
           className={styles.button}
           type="button"
           variant="secondary"
@@ -205,7 +211,9 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
         {/* TODO: Add error class to input field */}
         <Button className={styles.button} type="submit">
-          {l10n.getString("phone-onboarding-step2-button-cta")}
+          {l10n.getString(
+            "phone-onboarding-step4-button-register-phone-number"
+          )}
         </Button>
       </form>
     </div>
