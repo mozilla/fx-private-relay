@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import Moment from "react-moment";
 import styles from "./PhoneDashboard.module.scss";
 import {
   ChevronLeftIcon,
@@ -13,9 +12,10 @@ import disabledSendersDataIllustration from "./images/sender-data-disabled-illus
 import emptySenderDataIllustration from "./images/sender-data-empty-illustration.svg";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
-import moment from "moment";
 import { OutboundLink } from "react-ga";
 import { formatPhone } from "../../../functions/formatPhone";
+import { parseDate } from "../../../functions/parseDate";
+import { getLocale } from "../../../functions/getLocale";
 
 export type Props = {
   type: "primary" | "disabled" | "empty";
@@ -26,6 +26,10 @@ export const SendersPanelView = (props: Props) => {
   const { l10n } = useLocalization();
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
+  const dateTimeFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
 
   const emptyCallerSMSSendersPanel = (
     <div className={styles["senders-panel"]}>
@@ -69,22 +73,14 @@ export const SendersPanelView = (props: Props) => {
     </div>
   );
 
-  const calendarStrings = {
-    lastDay: "[Yesterday at] LT",
-    sameDay: "[Today at] LT",
-    lastWeek: "L LT",
-    nextWeek: "L LT",
-    sameElse: "L LT",
-  };
-
   const inboundContactArray =
     inboundContactData &&
     inboundArray
       ?.sort(
         (a, b) =>
           // Sort by last sent date
-          moment(b.last_inbound_date).unix() -
-          moment(a.last_inbound_date).unix()
+          parseDate(b.last_inbound_date).getTime() -
+          parseDate(a.last_inbound_date).getTime()
       )
       .map((data) => {
         return (
@@ -114,9 +110,7 @@ export const SendersPanelView = (props: Props) => {
                   height={15}
                 />
               )}
-              <Moment calendar={calendarStrings}>
-                {data.last_inbound_date}
-              </Moment>
+              {dateTimeFormatter.format(parseDate(data.last_inbound_date))}
             </span>
             <span className={styles["sender-controls"]}>
               <button

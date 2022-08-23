@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
-import Moment from "react-moment";
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
 import {
@@ -16,6 +15,8 @@ import { useInboundContact } from "../../../hooks/api/inboundContact";
 import { useProfiles } from "../../../hooks/api/profile";
 import { SendersPanelView } from "./SendersPanelView";
 import { formatPhone } from "../../../functions/formatPhone";
+import { getLocale } from "../../../functions/getLocale";
+import { parseDate } from "../../../functions/parseDate";
 
 export const PhoneDashboard = () => {
   const { l10n } = useLocalization();
@@ -26,7 +27,6 @@ export const PhoneDashboard = () => {
   const realPhoneData = realPhone.data?.[0];
   const formattedPhoneNumber = formatPhone(realPhoneData?.number ?? "");
   const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "");
-  const phoneDateCreated = useRealPhonesData();
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
 
@@ -36,7 +36,12 @@ export const PhoneDashboard = () => {
     relayNumberData ? relayNumberData.enabled : false
   );
   const [showingPrimaryDashboard, toggleDashboardPanel] = useState(true);
-  const dateToFormat = phoneDateCreated.data?.[0].verified_date!;
+  const dateToFormat = realPhone.data?.[0].verified_date
+    ? parseDate(realPhone.data[0].verified_date)
+    : new Date();
+  const dateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
+    dateStyle: "medium",
+  });
 
   const toggleForwarding = () => {
     if (relayNumberData?.id) {
@@ -147,9 +152,7 @@ export const PhoneDashboard = () => {
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
           <dt>{l10n.getString("phone-dashboard-metadata-date-created")}</dt>
-          <dd>
-            <Moment format="D MMM YYYY">{dateToFormat}</Moment>
-          </dd>
+          <dd>{dateFormatter.format(dateToFormat)}</dd>
         </div>
       </dl>
     </div>

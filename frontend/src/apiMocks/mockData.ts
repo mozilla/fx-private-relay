@@ -329,5 +329,31 @@ export const mockedInboundContacts: Record<
       num_texts_blocked: 18,
       blocked: false,
     },
+    {
+      id: 1,
+      relay_number: 150,
+      inbound_number: "+18089251571",
+      last_inbound_date: new Date(
+        Date.now() - 24 * 60 * 60 * 1000
+      ).toISOString(),
+      last_inbound_type: "text",
+      num_calls: 45,
+      num_calls_blocked: 3,
+      num_texts: 13,
+      num_texts_blocked: 18,
+      blocked: false,
+    },
+    {
+      id: 2,
+      relay_number: 150,
+      inbound_number: "+18089251571",
+      last_inbound_date: new Date().toISOString(),
+      last_inbound_type: "text",
+      num_calls: 45,
+      num_calls_blocked: 3,
+      num_texts: 13,
+      num_texts_blocked: 18,
+      blocked: false,
+    },
   ],
 };
