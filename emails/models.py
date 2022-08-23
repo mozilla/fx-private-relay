@@ -21,7 +21,6 @@ from django.utils.translation.trans_real import (
 
 from rest_framework.authtoken.models import Token
 
-from phones.models import InboundContact, RelayNumber
 
 emails_config = apps.get_app_config("emails")
 logger = logging.getLogger("events")
@@ -131,14 +130,16 @@ class Profile(models.Model):
         if not self.server_storage:
             relay_addresses = RelayAddress.objects.filter(user=self.user)
             relay_addresses.update(description="", generated_for="", used_on="")
-        # any time a profile is saved with store_phone_log False, delete the
-        # appropriate server-stored InboundContact records
-        if not self.store_phone_log:
-            try:
-                relay_number = RelayNumber.objects.get(user=self.user)
-                InboundContact.objects.filter(relay_number=relay_number).delete()
-            except RelayNumber.DoesNotExist:
-                pass
+        if settings.PHONES_ENABLED:
+            # any time a profile is saved with store_phone_log False, delete the
+            # appropriate server-stored InboundContact records
+            from phones.models import InboundContact, RelayNumber
+            if not self.store_phone_log:
+                try:
+                    relay_number = RelayNumber.objects.get(user=self.user)
+                    InboundContact.objects.filter(relay_number=relay_number).delete()
+                except RelayNumber.DoesNotExist:
+                    pass
         return ret
 
     @property
