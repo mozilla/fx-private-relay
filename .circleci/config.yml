@@ -484,6 +484,14 @@ workflows:
             tags:
               only: /.*/
 
+      - python_job:
+          name: python test phones disabled
+          command: PHONES_ENABLED=0 pytest --junit-xml=job-results/pytest-phones-disabled.xml .
+          has_results: true
+          filters:
+            tags:
+              only: /.*/
+
       - test_frontend:
           requires:
             - build_frontend
