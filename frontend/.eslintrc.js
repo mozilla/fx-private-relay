@@ -17,6 +17,10 @@ module.exports = {
       "warn",
       { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
     ],
+    // Weirdly this rule does not get set by ESLint's recommended ruleset,
+    // but we try to avoid implicitly casting values (see e.g. reviews of
+    // https://github.com/mozilla/fx-private-relay/pull/2315):
+    eqeqeq: ["error", "always"],
   },
   overrides: [
     {
