@@ -1,6 +1,4 @@
 from datetime import datetime, timedelta, timezone
-import math
-import random
 import secrets
 import string
 
@@ -29,7 +27,7 @@ def twilio_client():
 
 
 def verification_code_default():
-    return str(math.floor(random.random() * 999999)).zfill(6)
+    return str(secrets.randbelow(1000000)).zfill(6)
 
 
 def verification_sent_date_default():
