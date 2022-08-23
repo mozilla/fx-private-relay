@@ -21,6 +21,7 @@ export class DashboardPage {
     readonly relayExtensionBanner: Locator
     readonly dashBoardWithoutMasks: Locator
     readonly dashBoardWithoutMasksEmail: Locator
+    readonly generateNewMaskButton: Locator
     readonly emailsForwardedAmount: Locator
     readonly emailsBlockedAmount: Locator
     readonly emailMasksUsedAmount: Locator
@@ -67,6 +68,7 @@ export class DashboardPage {
         this.emailsForwardedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[3]')
         this.emailsBlockedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[2]')
         this.emailMasksUsedAmount = page.locator('(//dd[starts-with(@class, "profile_value")])[1]')        
+        this.generateNewMaskButton = page.locator('button:has-text("Generate new mask")')
         this.maxMaskLimitButton = page.locator('//div[starts-with(@class, "AliasList_controls")]//a[starts-with(@class, "Button_button")]')
         this.bottomUgradeBanner = page.locator('//div[starts-with(@class, "profile_bottom-banner-wrapper")]')
         this.relayExtensionBanner = page.locator('//section[starts-with(@class, "profile_banners-wrapper")]/div')
@@ -97,16 +99,13 @@ export class DashboardPage {
     }
 
     async generateMask(numberOfMasks = 1){
-        const generateNewMaskButtonString = 'button:has-text("Generate new mask")'
-        await this.page.waitForSelector(generateNewMaskButtonString, { timeout: 5000 })
-
         // check if max number of masks have been created
         if(numberOfMasks === 0){
             return
         }
            
         // generate a new mask and confirm
-        await this.page.locator(generateNewMaskButtonString).click()
+        await this.generateNewMaskButton.click()
         await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
         
         // randomize between 1.5-2.5 secs between each generate to deal with issue of multiple quick clicks
@@ -146,38 +145,36 @@ export class DashboardPage {
         }
 
         // if clear all, check if there's an expanded mask card
-        if(clearAll){                        
+        if(clearAll){
             try {                
-                await this.page.waitForSelector(this.maskCard, { timeout: 3000 })
+                await this.page.waitForSelector(this.maskCard, { timeout: 3000 })                
                 numberOfMasks = await this.page.locator(this.maskCard).count()
             } catch (error) {
                 console.error('There are no masks to delete')
+                return
             }
             
             try {
-                isExpanded = await this.maskCardExpanded.isVisible()                            
-            } catch (error) {
-                console.error('There are no expanded')
-            }
+                isExpanded = await this.maskCardExpanded.isVisible()
+            } catch {}
         }        
         
-        // locate mask expand button only if mask is not already expanded
-        if(!isExpanded){
+        // locate mask expand button only if mask is not already expanded        
+        if(numberOfMasks && !isExpanded){
             try {
                 const anchorLocator = `(//div[starts-with(@class, "Alias_expand-toggle")])[${numberOfMasks}]/button`
                 await this.page.waitForSelector(anchorLocator, { timeout: 3000 })
                 await this.page.locator(anchorLocator).click()
-            } catch(err){
-                console.error('No current mask(s) to delete')
-                return
-            }
+            } catch {}
         }
         
-        // delete flow
-        const currentMaskCardDeleteButton = this.page.locator(`(//button[starts-with(@class, "AliasDeletionButton_deletion")])[${numberOfMasks}]`)
-        await currentMaskCardDeleteButton.click()
-        await this.maskCardDeleteConfirmationCheckbox.click()
-        await this.maskCardFinalDeleteButton.click()
+        // delete flow        
+        if(numberOfMasks){
+            const currentMaskCardDeleteButton = this.page.locator(`(//button[starts-with(@class, "AliasDeletionButton_deletion")])[${numberOfMasks}]`)
+            await currentMaskCardDeleteButton.click()
+            await this.maskCardDeleteConfirmationCheckbox.click()
+            await this.maskCardFinalDeleteButton.click()            
+        }        
 
         // wait for 500 ms and run flow again with the next masks
         await this.page.waitForTimeout(500)

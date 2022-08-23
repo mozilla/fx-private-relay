@@ -45,7 +45,7 @@ const enterConfirmationCode = async (page: Page) => {
   try {        
     const maybeVerificationCodeInput = '//div[@class="card"]//input'
     await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 })
-    const confirmButton = page.locator('button:has-text("Confirm")')
+    const confirmButton = page.locator('#submit-btn')
     const verificationCode = await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, page)
     await page.locator(maybeVerificationCodeInput).fill(verificationCode)
     await confirmButton.click()
@@ -54,33 +54,29 @@ const enterConfirmationCode = async (page: Page) => {
 }
 
 const signIn = async (page: Page) => {
-  try {
-    const signInButton = page.locator('#use-logged-in')
-    await Promise.all([
-      page.waitForNavigation(),
-      signInButton.click()
-    ]);
-    await checkAuthState(page)
-  } catch {}
+  const signInButton = '//*[@id="use-logged-in"]'
+  await page.waitForSelector(signInButton, { timeout: 2000 })
+  // await page.locator('//*[@id="use-logged-in"]').click({ force: true })
+  await page.locator(signInButton).click({force: true})
+  await page.waitForTimeout(500)
+  await checkAuthState(page)
 }
 
 const enterYourEmail = async (page: Page) => {
-  try {    
-    const maybeEmailInput = 'input[name="email"]'
-    await page.waitForSelector(maybeEmailInput, { timeout: 2000 })
-    const signInButton = page.locator('#submit-btn')
-    await page.locator(maybeEmailInput).fill(process.env.E2E_TEST_ACCOUNT_FREE as string)
-    await signInButton.click()
-    await checkAuthState(page)
-  } catch {}
+  const maybeEmailInput = 'input[name="email"]'
+  await page.waitForSelector(maybeEmailInput, { timeout: 2000 })
+  const signInButton = page.locator('#submit-btn')
+  await page.locator(maybeEmailInput).fill(process.env.E2E_TEST_ACCOUNT_FREE as string)
+  await signInButton.click()
+  await page.waitForTimeout(500)
+  await checkAuthState(page)
 }
 
 const enterYourPassword = async (page: Page) => {
-  try {    
-    await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
-    await page.locator('#submit-btn').click()
-    await checkAuthState(page)
-  } catch {}
+  await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
+  await page.locator('#submit-btn').click()
+  await page.waitForTimeout(500)
+  await checkAuthState(page)
 }
 
 export const generateRandomEmail = async () => {  
@@ -127,7 +123,7 @@ export const defaultScreenshotOpts: Partial<DefaultScreenshotOpts> = {
 
 export const checkAuthState = async (page: Page) => {
   try {    
-    const authStateTitleString = await page.locator('h1').textContent({ timeout: 1000 })  
+    const authStateTitleString = await page.locator('h1').textContent({ timeout: 2000 })  
     const checkIfTitleConatins = (potentialTitle: string) => {
       return authStateTitleString?.includes(potentialTitle)
     }
