@@ -56,7 +56,7 @@ export const PhoneDashboard = () => {
     }
   };
 
-  const toggleSendersPanel: MouseEventHandler<HTMLButtonElement> = () => {
+  const toggleSendersPanel = () => {
     toggleDashboardPanel(!showingPrimaryDashboard);
   };
 
