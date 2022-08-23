@@ -39,16 +39,18 @@
   .senders-cta {
     display: flex;
     flex-direction: row;
-    padding: $spacing-sm;
-    position: relative;
-    left: $spacing-sm;
     border-radius: $border-radius-lg;
     align-items: center;
-    gap: $spacing-xs;
-    margin-left: $spacing-sm;
+    justify-content: center;
 
-    &:hover {
-      background: $color-light-gray-10;
+    @media screen and #{$mq-md} {
+      padding: $spacing-sm;
+      gap: $spacing-xs;
+      margin-left: $spacing-sm; // Cancel out extra space from padding
+
+      &:hover {
+        background: $color-light-gray-10;
+      }
     }
 
     span {
@@ -56,7 +58,6 @@
 
       @media screen and #{$mq-md} {
         display: block;
-        left: 0;
       }
     }
   }
@@ -351,7 +352,6 @@
         background-color: $color-violet-30;
         color: $color-white;
         border-radius: $border-radius-md;
-        position: static;
         right: 0;
 
         &.is-shown {
