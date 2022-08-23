@@ -146,9 +146,7 @@ export const PhoneDashboard = () => {
           <dd>{formattedPhoneNumber}</dd>
         </div>
         <div className={`${styles["date-created"]} ${styles.metadata}`}>
-          <dt>
-            <dt>{l10n.getString("phone-dashboard-metadata-date-created")}</dt>
-          </dt>
+          <dt>{l10n.getString("phone-dashboard-metadata-date-created")}</dt>
           <dd>
             <Moment format="D MMM YYYY">{dateToFormat}</Moment>
           </dd>
