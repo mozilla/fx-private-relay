@@ -41,7 +41,6 @@
     flex-direction: row;
     border-radius: $border-radius-lg;
     align-items: center;
-    justify-content: center;
 
     @media screen and #{$mq-md} {
       padding: $spacing-sm;
