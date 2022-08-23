@@ -21,8 +21,6 @@ from django.utils.translation.trans_real import (
 
 from rest_framework.authtoken.models import Token
 
-from phones.models import InboundContact, RelayNumber
-
 emails_config = apps.get_app_config("emails")
 logger = logging.getLogger("events")
 abuse_logger = logging.getLogger("abusemetrics")
@@ -131,14 +129,18 @@ class Profile(models.Model):
         if not self.server_storage:
             relay_addresses = RelayAddress.objects.filter(user=self.user)
             relay_addresses.update(description="", generated_for="", used_on="")
-        # any time a profile is saved with store_phone_log False, delete the
-        # appropriate server-stored InboundContact records
-        if not self.store_phone_log:
-            try:
-                relay_number = RelayNumber.objects.get(user=self.user)
-                InboundContact.objects.filter(relay_number=relay_number).delete()
-            except RelayNumber.DoesNotExist:
-                pass
+
+        if settings.PHONES_ENABLED:
+            from phones.models import InboundContact, RelayNumber
+
+            # any time a profile is saved with store_phone_log False, delete the
+            # appropriate server-stored InboundContact records
+            if not self.store_phone_log:
+                try:
+                    relay_number = RelayNumber.objects.get(user=self.user)
+                    InboundContact.objects.filter(relay_number=relay_number).delete()
+                except RelayNumber.DoesNotExist:
+                    pass
         return ret
 
     @property
@@ -552,12 +554,10 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs):      
+    def save(self, *args, **kwargs):
         if self._state.adding:
             with transaction.atomic():
-                locked_profile = Profile.objects.select_for_update().get(
-                    user=self.user
-                )
+                locked_profile = Profile.objects.select_for_update().get(user=self.user)
                 check_user_can_make_another_address(locked_profile)
                 while True:
                     if valid_address(self.address, self.domain):
