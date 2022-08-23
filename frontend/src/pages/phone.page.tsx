@@ -63,7 +63,7 @@ const Phone: NextPage = () => {
 
   return (
     <Layout>
-      <div className={styles["main-wrapper"]}>
+      <main className={styles["main-wrapper"]}>
         <div className={styles["banner-wrapper"]}>
           <Banner
             title={l10n.getString("phone-banner-resend-welcome-sms-title")}
@@ -85,7 +85,7 @@ const Phone: NextPage = () => {
           </Banner>
         </div>
         <PhoneDashboard />
-      </div>
+      </main>
     </Layout>
   );
 };
