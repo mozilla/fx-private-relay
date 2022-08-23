@@ -217,7 +217,7 @@ export const PhoneDashboard = () => {
   }
 
   return (
-    <main className={styles["main-phone-wrapper"]}>
+    <div className={styles["main-phone-wrapper"]}>
       {showingPrimaryDashboard && inboundContactData !== undefined ? (
         // Primary Panel
         <>{primaryPanel}</>
@@ -228,6 +228,6 @@ export const PhoneDashboard = () => {
           back_btn={toggleSendersPanel}
         />
       )}
-    </main>
+    </div>
   );
 };
