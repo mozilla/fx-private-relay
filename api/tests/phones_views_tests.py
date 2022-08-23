@@ -10,10 +10,9 @@ from django.contrib.auth.models import User
 from model_bakery import baker
 from rest_framework.test import APIClient
 
-from phones.models import InboundContact
 
 if settings.PHONES_ENABLED:
-    from phones.models import RealPhone, RelayNumber
+    from phones.models import InboundContact, RealPhone, RelayNumber
     from phones.tests.models_tests import make_phone_test_user
 
 

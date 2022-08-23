@@ -12,10 +12,10 @@ from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
 
 from emails.models import Profile
-from phones.models import InboundContact
 
 if settings.PHONES_ENABLED:
     from ..models import (
+        InboundContact,
         RealPhone,
         RelayNumber,
         area_code_numbers,
