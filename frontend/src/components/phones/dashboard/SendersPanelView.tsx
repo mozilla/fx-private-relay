@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import styles from "./PhoneDashboard.module.scss";
 import {
   ChevronLeftIcon,
@@ -17,7 +16,7 @@ import { getLocale } from "../../../functions/getLocale";
 
 export type Props = {
   type: "primary" | "disabled" | "empty";
-  back_btn: any;
+  back_btn: () => void;
 };
 
 export const SendersPanelView = (props: Props) => {
