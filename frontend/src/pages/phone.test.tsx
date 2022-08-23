@@ -51,6 +51,7 @@ describe("The Phone dashboard", () => {
     beforeEach(() => {
       setMockRelayNumberData([getMockRelayNumber()]);
       setMockRealPhonesData([getMockVerifiedRealPhone()]);
+      setMockProfileData({ has_phone: true });
     });
 
     describe("under axe accessibility testing", () => {

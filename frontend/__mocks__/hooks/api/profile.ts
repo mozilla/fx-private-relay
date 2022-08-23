@@ -18,6 +18,8 @@ type MockData = Partial<ProfileData>;
 export function getMockProfileData(profileData?: MockData): ProfileData {
   return {
     has_premium: false,
+    has_phone: false,
+    store_phone_log: true,
     id: 0,
     server_storage: true,
     remove_level_one_email_trackers: false,
