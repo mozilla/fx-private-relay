@@ -46,7 +46,8 @@
     @media screen and #{$mq-md} {
       padding: $spacing-sm;
       gap: $spacing-xs;
-      margin-left: $spacing-sm; // Cancel out extra space from padding
+      left: $spacing-sm; // Cancel out extra space from padding
+      position: relative;
 
       &:hover {
         background: $color-light-gray-10;
