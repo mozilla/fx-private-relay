@@ -56,8 +56,7 @@ const enterConfirmationCode = async (page: Page) => {
 const signIn = async (page: Page) => {
   const signInButton = '//*[@id="use-logged-in"]'
   await page.waitForSelector(signInButton, { timeout: 2000 })
-  // await page.locator('//*[@id="use-logged-in"]').click({ force: true })
-  await page.locator(signInButton).click({force: true})
+  await page.locator(signInButton).click()
   await page.waitForTimeout(500)
   await checkAuthState(page)
 }
