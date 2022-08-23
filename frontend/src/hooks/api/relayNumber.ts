@@ -2,9 +2,9 @@ import { SWRResponse } from "swr";
 import { apiFetch, useApiV1 } from "./api";
 
 export type RelayNumber = {
+  id: number;
   number: string;
   location?: string;
-  id?: number;
   enabled: boolean;
 };
 
