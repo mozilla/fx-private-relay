@@ -70,60 +70,38 @@ export const MobileNavigation = (props: Props) => {
       ? styles["is-active"]
       : styles["not-active"];
 
-  const duoMaskPhoneMobileHeader =
-    isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
-      <div className={styles["nav-mask-phone"]}>
-        <Link href={homePath}>
-          <a
-            className={`${styles["nav-mask-phone-icon"]} ${
-              router.pathname === "/accounts/profile"
-                ? styles["is-active"]
-                : null
-            }`}
-          >
-            <MaskIcon width={20} height={20} alt="" />
-          </a>
-        </Link>
-
-        <Link href={phonePath}>
-          <a
-            className={`${styles["nav-mask-phone-icon"]} ${
-              router.pathname === "/phone" ? styles["is-active"] : null
-            }`}
-          >
-            <PhoneIcon width={20} height={20} alt="" />
-          </a>
-        </Link>
-      </div>
-    ) : null;
-
   return (
     <>
-      {duoMaskPhoneMobileHeader}
-
-      <div className={styles["nav-mask-phone"]}>
-        <Link href={homePath}>
-          <a
-            className={`${styles["nav-mask-phone-icon"]} ${
-              router.pathname === "/accounts/profile"
-                ? styles["is-active"]
-                : null
-            }`}
-          >
-            <MaskIcon width={20} height={20} alt="" />
-          </a>
-        </Link>
-
-        <Link href={phonePath}>
-          <a
-            className={`${styles["nav-mask-phone-icon"]} ${
-              router.pathname === "/phone" ? styles["is-active"] : null
-            }`}
-          >
-            <PhoneIcon width={20} height={20} alt="" />
-          </a>
-        </Link>
-      </div>
+      {/* Mask and Phone Header on Mobile */}
+      {isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
+        <div
+          className={`${styles["nav-mask-phone"]} ${styles["hidden-desktop"]}`}
+        >
+          <Link href={homePath}>
+            <a
+              className={`${styles["nav-mask-phone-icon"]} ${
+                router.pathname === "/accounts/profile"
+                  ? styles["is-active"]
+                  : null
+              }`}
+            >
+              <MaskIcon width={20} height={20} alt="" />
+            </a>
+          </Link>
+          <Link href={phonePath}>
+            <a
+              className={`${styles["nav-mask-phone-icon"]} ${
+                router.pathname === "/phone" ? styles["is-active"] : null
+              }`}
+            >
+              <span className={styles["phone-icon-new-wrapper"]}>
+                <PhoneIcon width={20} height={20} alt="" />
+                <p>{l10n.getString("phone-dashboard-header-new")}</p>
+              </span>
+            </a>
+          </Link>
+        </div>
+      ) : null}
 
       <nav
         aria-label={l10n.getString("nav-menu-mobile")}

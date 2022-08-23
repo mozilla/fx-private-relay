@@ -12,6 +12,7 @@ import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { isPremiumAvailableInCountry } from "../../../functions/getPlan";
+import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
   theme: "free" | "premium";
@@ -37,18 +38,18 @@ export const Navigation = (props: Props) => {
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const isPremiumPage = router.pathname === "/premium";
 
-  // const phoneLink =
-  //   isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
-  //     <Link href="/phone">
-  //       <a
-  //         className={`${styles.link} ${
-  //           router.pathname === "/phone" ? styles["is-active"] : null
-  //         }`}
-  //       >
-  //         {l10n.getString("nav-phone")}
-  //       </a>
-  //     </Link>
-  //   ) : null;
+  const phoneLink =
+    isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
+      <Link href="/phone">
+        <a
+          className={`${styles.link} ${styles["hidden-mobile"]} ${
+            router.pathname === "/phone" ? styles["is-active"] : null
+          }`}
+        >
+          {l10n.getString("nav-phone")}
+        </a>
+      </Link>
+    ) : null;
 
   const ToggleButton = () => (
     <button
@@ -72,6 +73,8 @@ export const Navigation = (props: Props) => {
           {l10n.getString("nav-home")}
         </a>
       </Link>
+
+      {phoneLink}
 
       <Link href="/faq">
         <a

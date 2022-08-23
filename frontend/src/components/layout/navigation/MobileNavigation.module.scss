@@ -21,6 +21,7 @@
   flex-direction: row;
   gap: $spacing-md;
   border-bottom: 1px solid $color-light-gray-20;
+  background-color: white;
 
   > * {
     flex: 1 1 auto;
@@ -43,6 +44,23 @@
     &.is-active {
       color: $color-purple-40;
       stroke: $color-purple-40;
+    }
+  }
+
+  .phone-icon-new-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: $spacing-xs;
+    align-content: center;
+
+    p {
+      @include text-body-sm;
+      margin: 0;
+      font-weight: 700;
+
+      &.is-active {
+        color: $color-purple-40;
+      }
     }
   }
 }
@@ -197,5 +215,11 @@
     svg {
       color: $color-purple-40;
     }
+  }
+}
+
+.hidden-desktop {
+  @media screen and (min-width: $screen-md) {
+    display: none;
   }
 }
