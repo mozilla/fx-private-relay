@@ -142,7 +142,7 @@ deploy the tag to production:
    * Check grafana dashboard for any unexpected spike in ops
    * Spot-check the site for basic functionality
    * Ping SDET to run end-to-end tests on prod
-4. Uupdate the GitHub Release from "pre-release" to a full release.
+4. Update the GitHub Release from "pre-release" to a full release and reference the production deploy SRE Jira ticket.
 
 
 ## Stage-fixes
