@@ -12,6 +12,7 @@ import {
   mockedUsers,
   mockedRealphones,
   mockedRelaynumbers,
+  mockedInboundContacts,
 } from "./mockData";
 
 export function getHandlers(
@@ -481,6 +482,15 @@ export function getHandlers(
         mockedRelaynumbers[mockId][Number.parseInt(req.params.id as string, 10)]
       )
     );
+  });
+
+  addGetHandler("/api/v1/inboundcontact/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    return res(ctx.status(200), ctx.json(mockedInboundContacts[mockId]));
   });
 
   handlers.push(
