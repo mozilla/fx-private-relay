@@ -64,7 +64,7 @@
 
   .dashboard-card-caller-sms-senders-header {
     display: flex;
-    padding: 0 $spacing-lg $spacing-md $spacing-lg;
+    padding: 0 $spacing-xl $spacing-md $spacing-xl;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -90,6 +90,11 @@
       @media screen and #{$mq-md} {
         left: -20px; // Width of the back button
       }
+    }
+
+    .caller-sms-logs-back-btn {
+      display: flex;
+      align-items: center;
     }
   }
 
