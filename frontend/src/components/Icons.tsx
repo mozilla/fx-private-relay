@@ -805,3 +805,51 @@ export const ForwardedCallIcon = ({
     </svg>
   );
 };
+
+// Keywords: mail, mask, alias, letter, email
+export const MaskIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      // viewBox="-2 -2 15 15"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M20 2C20 0.9 19.1 0 18 0H2C0.9 0 0 0.9 0 2V14C0 15.1 0.9 16 2 16H18C19.1 16 20 15.1 20 14V2ZM18 2L10 7L2 2H18ZM18 14H2V4L10 9L18 4V14Z" />
+    </svg>
+  );
+};
+
+// Keywords: phonenumber, cell, call
+export const PhoneIcon = ({
+  alt,
+  ...props
+}: SVGProps<SVGSVGElement> & { alt: string }) => {
+  return (
+    <svg
+      role="img"
+      aria-label={alt}
+      aria-hidden={alt === ""}
+      xmlns="http://www.w3.org/2000/svg"
+      // viewBox="-2 -2 15 15"
+      viewBox="0 0 20 20"
+      width={20}
+      height={20}
+      {...props}
+      className={`${props.className ?? ""} ${styles["colorify-fill"]}`}
+    >
+      <title>{alt}</title>
+      <path d="M10.5 0H2.5C1.12 0 0 1.12 0 2.5V19.5C0 20.88 1.12 22 2.5 22H10.5C11.88 22 13 20.88 13 19.5V2.5C13 1.12 11.88 0 10.5 0ZM6.5 21C5.67 21 5 20.33 5 19.5C5 18.67 5.67 18 6.5 18C7.33 18 8 18.67 8 19.5C8 20.33 7.33 21 6.5 21ZM11 17H2V3H11V17Z" />
+    </svg>
+  );
+};

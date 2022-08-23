@@ -7,9 +7,7 @@
   margin: 0 auto;
   padding: $spacing-md;
   margin-bottom: $layout-md;
-}
-
-.banner-wrapper {
-  @include text-body-sm;
-  padding-bottom: $spacing-xl;
+  gap: $spacing-lg;
+  display: flex;
+  flex-direction: column;
 }

@@ -12,7 +12,6 @@ import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { isPremiumAvailableInCountry } from "../../../functions/getPlan";
-import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
   theme: "free" | "premium";
@@ -38,18 +37,18 @@ export const Navigation = (props: Props) => {
   const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const isPremiumPage = router.pathname === "/premium";
 
-  const phoneLink =
-    isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
-      <Link href="/phone">
-        <a
-          className={`${styles.link} ${
-            router.pathname === "/phone" ? styles["is-active"] : null
-          }`}
-        >
-          {l10n.getString("nav-phone")}
-        </a>
-      </Link>
-    ) : null;
+  // const phoneLink =
+  //   isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
+  //     <Link href="/phone">
+  //       <a
+  //         className={`${styles.link} ${
+  //           router.pathname === "/phone" ? styles["is-active"] : null
+  //         }`}
+  //       >
+  //         {l10n.getString("nav-phone")}
+  //       </a>
+  //     </Link>
+  //   ) : null;
 
   const ToggleButton = () => (
     <button
@@ -73,8 +72,6 @@ export const Navigation = (props: Props) => {
           {l10n.getString("nav-home")}
         </a>
       </Link>
-
-      {phoneLink}
 
       <Link href="/faq">
         <a
@@ -107,11 +104,11 @@ export const Navigation = (props: Props) => {
         />
       )}
 
-      {/* Only show the upgrade button if the following conditions are met: 
-        - if user is logged in
-        - user does not have premium
-        - user is NOT on the premium page /premium
-        - premium is available in this country */}
+      {/* Only show the upgrade button if the following conditions are met:
+      - if user is logged in
+      - user does not have premium
+      - user is NOT on the premium page /premium
+      - premium is available in this country */}
       {isLoggedIn &&
         !hasPremium &&
         !isPremiumPage &&

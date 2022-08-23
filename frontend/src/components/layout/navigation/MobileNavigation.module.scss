@@ -13,6 +13,40 @@
   flex-direction: column;
 }
 
+.nav-mask-phone {
+  width: 100%;
+  position: absolute;
+  display: flex;
+  z-index: 1;
+  flex-direction: row;
+  gap: $spacing-md;
+  border-bottom: 1px solid $color-light-gray-20;
+
+  > * {
+    flex: 1 1 auto;
+    padding: $spacing-lg 0 $spacing-md 0;
+    justify-content: center;
+    display: flex;
+    border-bottom: 3px solid transparent;
+
+    &.is-active {
+      border-bottom: 3px solid $color-purple-40;
+    }
+  }
+
+  .nav-mask-phone-icon {
+    color: $color-grey-40;
+    stroke: $color-grey-40;
+    stroke-width: 0.5px;
+    width: 35px; // Size of Mask / Phone icon
+
+    &.is-active {
+      color: $color-purple-40;
+      stroke: $color-purple-40;
+    }
+  }
+}
+
 #mobile-menu {
   transform: translateY(-100%);
   background-color: $color-white;

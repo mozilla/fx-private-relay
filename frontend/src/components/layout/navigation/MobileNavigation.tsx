@@ -11,10 +11,14 @@ import {
   NewTabIcon,
   SignOutIcon,
   SupportIcon,
+  MaskIcon,
+  PhoneIcon,
 } from "../../Icons";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
+import { isFlagActive } from "../../../functions/waffle";
+import { useRouter } from "next/router";
 
 export type MenuItem = {
   url: string;
@@ -37,6 +41,10 @@ export const MobileNavigation = (props: Props) => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
   const { supportUrl } = getRuntimeConfig();
+  const router = useRouter();
+
+  const homePath = isLoggedIn ? "/accounts/profile" : "/";
+  const phonePath = isLoggedIn ? "/phone" : "/";
 
   const renderMenuItem = (item: MenuItem) => {
     const { isVisible = true } = item;
@@ -62,108 +70,170 @@ export const MobileNavigation = (props: Props) => {
       ? styles["is-active"]
       : styles["not-active"];
 
-  return (
-    <nav
-      aria-label={l10n.getString("nav-menu-mobile")}
-      className={`${styles["mobile-menu"]}`}
-    >
-      {/* Below we have conditional rendering of menu items  */}
-      <ul
-        id={`${styles["mobile-menu"]}`}
-        className={`${styles["menu-item-list"]} ${toggleMenuStateClass}`}
-      >
-        {isLoggedIn && (
-          <li className={`${styles["menu-item"]} ${styles["user-info"]}`}>
-            <img
-              src={userAvatar ?? ""}
-              alt=""
-              className={styles["user-avatar"]}
-              width={42}
-              height={42}
-            />
-            <span>
-              <b className={styles["user-email"]}>{userEmail ?? ""}</b>
-              <a
-                href={`${runtimeData?.data?.FXA_ORIGIN}/settings/`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles["settings-link"]}
-              >
-                {l10n.getString("nav-profile-manage-fxa")}
-                <NewTabIcon width={12} height={18} viewBox="0 0 16 18" alt="" />
-              </a>
-            </span>
-          </li>
-        )}
-
-        {renderMenuItem({
-          url: "/",
-          isVisible: !isLoggedIn,
-          icon: <HomeIcon width={20} height={20} alt="" />,
-          l10n: "nav-home",
-        })}
-
-        {renderMenuItem({
-          url: "/accounts/profile",
-          isVisible: isLoggedIn,
-          icon: <DashboardIcon width={20} height={20} alt="" />,
-          l10n: "nav-dashboard",
-        })}
-
-        {/* omitting condition as this should always be visible */}
-        {renderMenuItem({
-          url: "/faq",
-          icon: <FaqIcon width={20} height={20} alt="" />,
-          l10n: "nav-faq",
-        })}
-
-        {!isLoggedIn && (
-          <li
-            className={`${styles["menu-item"]} ${styles["sign-up-menu-item"]}`}
+  const duoMaskPhoneMobileHeader =
+    isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
+      <div className={styles["nav-mask-phone"]}>
+        <Link href={homePath}>
+          <a
+            className={`${styles["nav-mask-phone-icon"]} ${
+              router.pathname === "/accounts/profile"
+                ? styles["is-active"]
+                : null
+            }`}
           >
-            <SignUpButton className={`${styles["sign-up-button"]}`} />
-          </li>
-        )}
+            <MaskIcon width={20} height={20} alt="" />
+          </a>
+        </Link>
 
-        {renderMenuItem({
-          url: "/accounts/settings",
-          isVisible: isLoggedIn,
-          icon: <Cogwheel width={20} height={20} alt="" />,
-          l10n: "nav-settings",
-        })}
+        <Link href={phonePath}>
+          <a
+            className={`${styles["nav-mask-phone-icon"]} ${
+              router.pathname === "/phone" ? styles["is-active"] : null
+            }`}
+          >
+            <PhoneIcon width={20} height={20} alt="" />
+          </a>
+        </Link>
+      </div>
+    ) : null;
 
-        {renderMenuItem({
-          url: `${runtimeData?.data?.FXA_ORIGIN}/support/?utm_source=${
-            getRuntimeConfig().frontendOrigin
-          }`,
-          isVisible: isLoggedIn && hasPremium,
-          icon: <ContactIcon width={20} height={20} alt="" />,
-          l10n: "nav-contact",
-        })}
+  return (
+    <>
+      {duoMaskPhoneMobileHeader}
 
-        {renderMenuItem({
-          url: `${supportUrl}?utm_source=${getRuntimeConfig().frontendOrigin}`,
-          isVisible: isLoggedIn,
-          icon: <SupportIcon width={20} height={20} alt="" />,
-          l10n: "nav-support",
-        })}
+      <div className={styles["nav-mask-phone"]}>
+        <Link href={homePath}>
+          <a
+            className={`${styles["nav-mask-phone-icon"]} ${
+              router.pathname === "/accounts/profile"
+                ? styles["is-active"]
+                : null
+            }`}
+          >
+            <MaskIcon width={20} height={20} alt="" />
+          </a>
+        </Link>
 
-        {isLoggedIn && (
-          <li className={`${styles["menu-item"]}`}>
-            <form method="POST" action={getRuntimeConfig().fxaLogoutUrl}>
-              <input
-                type="hidden"
-                name="csrfmiddlewaretoken"
-                value={getCsrfToken()}
+        <Link href={phonePath}>
+          <a
+            className={`${styles["nav-mask-phone-icon"]} ${
+              router.pathname === "/phone" ? styles["is-active"] : null
+            }`}
+          >
+            <PhoneIcon width={20} height={20} alt="" />
+          </a>
+        </Link>
+      </div>
+
+      <nav
+        aria-label={l10n.getString("nav-menu-mobile")}
+        className={`${styles["mobile-menu"]}`}
+      >
+        {/* Below we have conditional rendering of menu items  */}
+        <ul
+          id={`${styles["mobile-menu"]}`}
+          className={`${styles["menu-item-list"]} ${toggleMenuStateClass}`}
+        >
+          {isLoggedIn && (
+            <li className={`${styles["menu-item"]} ${styles["user-info"]}`}>
+              <img
+                src={userAvatar ?? ""}
+                alt=""
+                className={styles["user-avatar"]}
+                width={42}
+                height={42}
               />
-              <button className={`${styles.link}`} type="submit">
-                <SignOutIcon width={20} height={20} alt="" />
-                {l10n.getString("nav-sign-out")}
-              </button>
-            </form>
-          </li>
-        )}
-      </ul>
-    </nav>
+              <span>
+                <b className={styles["user-email"]}>{userEmail ?? ""}</b>
+                <a
+                  href={`${runtimeData?.data?.FXA_ORIGIN}/settings/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles["settings-link"]}
+                >
+                  {l10n.getString("nav-profile-manage-fxa")}
+                  <NewTabIcon
+                    width={12}
+                    height={18}
+                    viewBox="0 0 16 18"
+                    alt=""
+                  />
+                </a>
+              </span>
+            </li>
+          )}
+
+          {renderMenuItem({
+            url: "/",
+            isVisible: !isLoggedIn,
+            icon: <HomeIcon width={20} height={20} alt="" />,
+            l10n: "nav-home",
+          })}
+
+          {renderMenuItem({
+            url: "/accounts/profile",
+            isVisible: isLoggedIn,
+            icon: <DashboardIcon width={20} height={20} alt="" />,
+            l10n: "nav-dashboard",
+          })}
+
+          {/* omitting condition as this should always be visible */}
+          {renderMenuItem({
+            url: "/faq",
+            icon: <FaqIcon width={20} height={20} alt="" />,
+            l10n: "nav-faq",
+          })}
+
+          {!isLoggedIn && (
+            <li
+              className={`${styles["menu-item"]} ${styles["sign-up-menu-item"]}`}
+            >
+              <SignUpButton className={`${styles["sign-up-button"]}`} />
+            </li>
+          )}
+
+          {renderMenuItem({
+            url: "/accounts/settings",
+            isVisible: isLoggedIn,
+            icon: <Cogwheel width={20} height={20} alt="" />,
+            l10n: "nav-settings",
+          })}
+
+          {renderMenuItem({
+            url: `${runtimeData?.data?.FXA_ORIGIN}/support/?utm_source=${
+              getRuntimeConfig().frontendOrigin
+            }`,
+            isVisible: isLoggedIn && hasPremium,
+            icon: <ContactIcon width={20} height={20} alt="" />,
+            l10n: "nav-contact",
+          })}
+
+          {renderMenuItem({
+            url: `${supportUrl}?utm_source=${
+              getRuntimeConfig().frontendOrigin
+            }`,
+            isVisible: isLoggedIn,
+            icon: <SupportIcon width={20} height={20} alt="" />,
+            l10n: "nav-support",
+          })}
+
+          {isLoggedIn && (
+            <li className={`${styles["menu-item"]}`}>
+              <form method="POST" action={getRuntimeConfig().fxaLogoutUrl}>
+                <input
+                  type="hidden"
+                  name="csrfmiddlewaretoken"
+                  value={getCsrfToken()}
+                />
+                <button className={`${styles.link}`} type="submit">
+                  <SignOutIcon width={20} height={20} alt="" />
+                  {l10n.getString("nav-sign-out")}
+                </button>
+              </form>
+            </li>
+          )}
+        </ul>
+      </nav>
+    </>
   );
 };
