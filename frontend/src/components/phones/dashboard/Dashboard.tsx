@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
 import {
