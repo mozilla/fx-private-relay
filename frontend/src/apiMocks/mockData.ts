@@ -280,6 +280,7 @@ export const mockedRelaynumbers: Record<
   onboarding: [],
   some: [
     {
+      id: 0,
       number: "+18089251571",
       location: "Hilo",
       enabled: true,
@@ -287,6 +288,7 @@ export const mockedRelaynumbers: Record<
   ],
   full: [
     {
+      id: 0,
       number: "+18089251571",
       location: "Hilo",
       enabled: true,
