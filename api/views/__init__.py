@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db import IntegrityError
 
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from waffle import get_waffle_flag_model
@@ -151,18 +152,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Profile.objects.filter(user=self.request.user)
 
-    @decorators.action(detail=True, methods=["post"])
-    def report_webcompat_issue(self, request, pk=None):
-        serializer = WebcompatIssueSerializer(data=request.data)
-        if serializer.is_valid():
-            info_logger.info("webcompat_issue", extra=serializer.data)
-            incr_if_enabled(f"webcompat_issue", 1)
-            for k, v in serializer.data.items():
-                if v and k != "issue_on_domain":
-                    incr_if_enabled(f"webcompat_issue_{k}", 1)
-            return response.Response(status=status.HTTP_201_CREATED)
-        return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
@@ -204,3 +193,18 @@ def runtime_data(request):
             "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         }
     )
+
+
+@swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.IsAuthenticated])
+def report_webcompat_issue(request):
+    serializer = WebcompatIssueSerializer(data=request.data)
+    if serializer.is_valid():
+        info_logger.info("webcompat_issue", extra=serializer.data)
+        incr_if_enabled(f"webcompat_issue", 1)
+        for k, v in serializer.data.items():
+            if v and k != "issue_on_domain":
+                incr_if_enabled(f"webcompat_issue_{k}", 1)
+        return response.Response(status=status.HTTP_201_CREATED)
+    return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
