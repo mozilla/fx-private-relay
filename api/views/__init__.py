@@ -1,8 +1,11 @@
+import logging
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from waffle import get_waffle_flag_model
@@ -11,9 +14,11 @@ from rest_framework import (
     decorators,
     permissions,
     response,
+    status,
     viewsets,
     exceptions,
 )
+from emails.utils import incr_if_enabled
 
 from privaterelay.settings import (
     BASKET_ORIGIN,
@@ -40,9 +45,10 @@ from ..serializers import (
     ProfileSerializer,
     RelayAddressSerializer,
     UserSerializer,
+    WebcompatIssueSerializer,
 )
 
-
+info_logger = logging.getLogger("eventsinfo")
 schema_view = get_schema_view(
     openapi.Info(
         title="Relay API",
@@ -184,6 +190,21 @@ def runtime_data(request):
             "WAFFLE_FLAGS": flag_values,
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
-            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE
+            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         }
     )
+
+
+@swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.IsAuthenticated])
+def report_webcompat_issue(request):
+    serializer = WebcompatIssueSerializer(data=request.data)
+    if serializer.is_valid():
+        info_logger.info("webcompat_issue", extra=serializer.data)
+        incr_if_enabled("webcompat_issue", 1)
+        for k, v in serializer.data.items():
+            if v and k != "issue_on_domain":
+                incr_if_enabled(f"webcompat_issue_{k}", 1)
+        return response.Response(status=status.HTTP_201_CREATED)
+    return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
