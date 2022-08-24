@@ -77,6 +77,7 @@ export const MobileNavigation = (props: Props) => {
         <div
           className={`${styles["nav-mask-phone"]} ${styles["hidden-desktop"]}`}
         >
+          {/* // Mask Btn */}
           <Link href={homePath}>
             <a
               className={`${styles["nav-mask-phone-icon"]} ${
@@ -88,6 +89,7 @@ export const MobileNavigation = (props: Props) => {
               <MaskIcon width={20} height={20} alt="" />
             </a>
           </Link>
+          {/* // Phone Btn */}
           <Link href={phonePath}>
             <a
               className={`${styles["nav-mask-phone-icon"]} ${
@@ -95,7 +97,7 @@ export const MobileNavigation = (props: Props) => {
               }`}
             >
               <span className={styles["phone-icon-new-wrapper"]}>
-                <PhoneIcon width={20} height={20} alt="" />
+                <PhoneIcon width={20} height={20} alt="" viewBox="0 0 20 25" />
                 <p>{l10n.getString("phone-dashboard-header-new")}</p>
               </span>
             </a>

@@ -28,10 +28,10 @@
     padding: $spacing-lg 0 $spacing-md 0;
     justify-content: center;
     display: flex;
-    border-bottom: 3px solid transparent;
+    border-bottom: 5px solid transparent;
 
     &.is-active {
-      border-bottom: 3px solid $color-purple-40;
+      border-bottom: 5px solid $color-purple-40;
     }
   }
 
@@ -39,11 +39,15 @@
     color: $color-grey-40;
     stroke: $color-grey-40;
     stroke-width: 0.5px;
-    width: 35px; // Size of Mask / Phone icon
+    height: 35px; // Size of Mask / Phone icon
 
     &.is-active {
       color: $color-purple-40;
       stroke: $color-purple-40;
+
+      p {
+        color: $color-purple-70;
+      }
     }
   }
 
@@ -56,11 +60,7 @@
     p {
       @include text-body-sm;
       margin: 0;
-      font-weight: 700;
-
-      &.is-active {
-        color: $color-purple-40;
-      }
+      font-weight: 600;
     }
   }
 }
