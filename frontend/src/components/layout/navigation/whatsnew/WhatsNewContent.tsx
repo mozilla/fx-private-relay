@@ -1,3 +1,5 @@
+import { OutboundLink } from "react-ga";
+import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import styles from "./WhatsNewContent.module.scss";
 
 export type Props = {
@@ -5,6 +7,12 @@ export type Props = {
   description: string;
   image: string;
   videos?: Record<string, string>;
+  cta?: {
+    target: string;
+    content: string;
+    onClick?: () => void;
+    gaViewPing?: Parameters<typeof useGaViewPing>[0];
+  };
 };
 
 /**
@@ -16,13 +24,21 @@ export type Props = {
  * so when that happens, and we know more about what distinguishes those from
  * this component, we can rename this.
  */
+
 export const WhatsNewContent = (props: Props) => {
+  const cta = props.cta ? (
+    <OutboundLink to={props.cta.target} eventLabel={props.cta.content}>
+      <span>{props.cta.content}</span>
+    </OutboundLink>
+  ) : null;
+
   return (
     <div className={styles.wrapper}>
       <Hero image={props.image} videos={props.videos} />
       <div className={styles.content}>
         <h2>{props.heading}</h2>
         <p>{props.description}</p>
+        {cta}
       </div>
     </div>
   );

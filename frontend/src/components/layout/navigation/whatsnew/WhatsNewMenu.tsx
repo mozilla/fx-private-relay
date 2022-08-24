@@ -36,6 +36,8 @@ import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
+import PhoneMaskingHero from "./images/phone-masking-hero.svg";
+import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -48,6 +50,11 @@ import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
+import {
+  getPremiumSubscribeLink,
+  RuntimeDataWithPremiumAvailable,
+} from "../../../../functions/getPlan";
+import { trackPurchaseStart } from "../../../../functions/trackPurchase";
 
 export type WhatsNewEntry = {
   title: string;
@@ -56,6 +63,7 @@ export type WhatsNewEntry = {
   hero: string;
   icon: string;
   dismissal: DismissalData;
+  cta?: string;
   /**
    * This is used to automatically archive entries of a certain age
    */
@@ -72,6 +80,7 @@ export type Props = {
   profile: ProfileData;
   style: string;
   runtimeData?: RuntimeData;
+  runtimeDataWithPremiumAvailable?: RuntimeDataWithPremiumAvailable;
 };
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
@@ -319,6 +328,41 @@ export const WhatsNewMenu = (props: Props) => {
   // Only show its announcement if tracker removal is live:
   if (isFlagActive(props.runtimeData, "tracker_removal")) {
     entries.push(trackerRemoval);
+  }
+
+  const phoneAnnouncement: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-phone-header"),
+    snippet: l10n.getString("whatsnew-feature-phone-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString("whatsnew-feature-phone-description")}
+        heading={l10n.getString("whatsnew-feature-phone-header")}
+        image={PhoneMaskingHero.src}
+        cta={{
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          target: "/upgrade",
+          content: l10n.getString("whatsnew-feature-phone-upgrade-cta"),
+          onClick: () => trackPurchaseStart(),
+          gaViewPing: {
+            category: "Purchase Button",
+            label: "profile-banner-promo",
+          },
+        }}
+      />
+    ),
+    hero: PhoneMaskingHero.src,
+    icon: PhoneMaskingIcon.src,
+    dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
+    announcementDate: {
+      year: 2022,
+      month: 8,
+      day: 16,
+    },
+  };
+
+  // Only show its announcement if phone masking is live:
+  if (isFlagActive(props.runtimeData, "phones")) {
+    entries.push(phoneAnnouncement);
   }
 
   entries.sort(entriesDescByDateSorter);
