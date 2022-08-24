@@ -50,10 +50,6 @@ import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
-import {
-  getPremiumSubscribeLink,
-  RuntimeDataWithPremiumAvailable,
-} from "../../../../functions/getPlan";
 import { trackPurchaseStart } from "../../../../functions/trackPurchase";
 
 export type WhatsNewEntry = {
@@ -80,7 +76,6 @@ export type Props = {
   profile: ProfileData;
   style: string;
   runtimeData?: RuntimeData;
-  runtimeDataWithPremiumAvailable?: RuntimeDataWithPremiumAvailable;
 };
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
@@ -339,13 +334,12 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString("whatsnew-feature-phone-header")}
         image={PhoneMaskingHero.src}
         cta={{
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          target: "/upgrade",
+          type: "upgrade",
           content: l10n.getString("whatsnew-feature-phone-upgrade-cta"),
           onClick: () => trackPurchaseStart(),
           gaViewPing: {
             category: "Purchase Button",
-            label: "profile-banner-promo",
+            label: "whatsnew-phone-promo",
           },
         }}
       />
