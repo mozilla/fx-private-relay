@@ -19,7 +19,6 @@
   display: flex;
   z-index: 1;
   flex-direction: row;
-  gap: $spacing-md;
   border-bottom: 1px solid $color-light-gray-20;
   background-color: white;
 
@@ -39,7 +38,10 @@
     color: $color-grey-40;
     stroke: $color-grey-40;
     stroke-width: 0.5px;
-    height: 35px; // Size of Mask / Phone icon
+
+    p {
+      color: $color-purple-70;
+    }
 
     &.is-active {
       color: $color-purple-40;
@@ -54,13 +56,13 @@
   .phone-icon-new-wrapper {
     display: flex;
     flex-direction: row;
-    gap: $spacing-xs;
     align-content: center;
 
     p {
       @include text-body-sm;
       margin: 0;
       font-weight: 600;
+      align-self: center;
     }
   }
 }

@@ -260,7 +260,7 @@ $toastify-toast-close-button: var(--toast-close-button);
 }
 
 .mobile-nav-wrapper {
-  padding-bottom: $layout-lg; // Adds padding to make room for the mask/phone nav on mobile
+  padding-bottom: $layout-xl; // Adds padding to make room for the mask/phone nav on mobile
 
   @media screen and (min-width: $screen-md) {
     padding-bottom: 0;

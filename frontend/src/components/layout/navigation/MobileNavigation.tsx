@@ -86,7 +86,7 @@ export const MobileNavigation = (props: Props) => {
                   : null
               }`}
             >
-              <MaskIcon width={20} height={20} alt="" />
+              <MaskIcon width={25} height={25} alt="Go to Masks Dashboard" />
             </a>
           </Link>
           {/* // Phone Btn */}
@@ -97,7 +97,12 @@ export const MobileNavigation = (props: Props) => {
               }`}
             >
               <span className={styles["phone-icon-new-wrapper"]}>
-                <PhoneIcon width={20} height={20} alt="" viewBox="0 0 20 25" />
+                <PhoneIcon
+                  width={30}
+                  height={30}
+                  alt="Go to Phones Dashboard"
+                  viewBox="0 0 20 25"
+                />
                 <p>{l10n.getString("phone-dashboard-header-new")}</p>
               </span>
             </a>
