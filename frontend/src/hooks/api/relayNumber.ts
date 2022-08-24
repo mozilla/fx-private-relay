@@ -76,3 +76,30 @@ export async function getRelayNumberSuggestions(): Promise<Response> {
   });
   return response;
 }
+
+type RelayNumberSuggestion = {
+  friendly_name: string;
+  iso_country: string;
+  locality: string;
+  phone_number: string;
+  postal_code: string;
+  region: string;
+};
+
+export type RelayNumberSuggestionsData = {
+  same_area_options: Array<RelayNumberSuggestion>;
+  same_prefix_options: Array<RelayNumberSuggestion>;
+  other_areas_options: Array<RelayNumberSuggestion>;
+};
+
+export function useRelayNumberSuggestions(): SWRResponse<
+  RelayNumberSuggestionsData,
+  unknown
+> {
+  const relayNumberSuggestions: SWRResponse<
+    RelayNumberSuggestionsData,
+    unknown
+  > = useApiV1("/relaynumber/suggestions/");
+
+  return relayNumberSuggestions;
+}

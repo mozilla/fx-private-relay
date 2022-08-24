@@ -12,7 +12,7 @@ import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
 import {
   useRelayNumber,
-  getRelayNumberSuggestions,
+  useRelayNumberSuggestions,
 } from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
 
@@ -39,6 +39,7 @@ export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
 
   return <RelayNumberConfirmation onComplete={props.onComplete} />;
 };
+
 type RelayNumberIntroProps = {
   onStart: () => void;
 };
@@ -79,22 +80,13 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
     </div>
   );
 };
+
 type RelayNumberSelectionProps = {
   registerRelayNumber: (phoneNumber: string) => Promise<Response>;
 };
-type RelayNumberOption = {
-  friendly_name: string;
-  iso_country: string;
-  locality: string;
-  phone_number: string;
-  postal_code: string;
-  region: string;
-};
-
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const { l10n } = useLocalization();
-
-  // TODO: Defaulting to true to stop FoUC however we need to catch any error in await getRelayNumberSuggestions();
+  const relayNumberSuggestionsData = useRelayNumberSuggestions();
   const [isLoading, setIsLoading] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
@@ -103,35 +95,26 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const [relayNumberIndex, setRelayNumberIndex] = useState(0);
 
   useEffect(() => {
-    _getRelayNumberSuggestions();
-  }, []);
+    if (relayNumberSuggestionsData.data) {
+      // get all relay number suggestions from our API
+      const { other_areas_options, same_area_options, same_prefix_options } =
+        relayNumberSuggestionsData.data;
+      // combine all relay number suggestions into one array
+      const suggestedNumbers = [
+        ...same_area_options,
+        ...other_areas_options,
+        ...same_prefix_options,
+      ];
 
-  // GET request to get relay number suggestions
-  const _getRelayNumberSuggestions = () => {
-    setIsLoading(true);
-    getRelayNumberSuggestions()
-      .then((response) => response.json())
-      .then((data) => {
-        const { other_areas_options, same_area_options, same_prefix_options } =
-          data;
-        const suggestedNumbers: RelayNumberOption[] = [
-          ...same_area_options,
-          ...same_prefix_options,
-          ...other_areas_options,
-        ];
+      // set the relay number suggestions - an array of strings
+      setRelayNumberSuggestions(
+        suggestedNumbers.map((suggestion) => suggestion.phone_number)
+      );
 
-        setRelayNumberSuggestions(
-          suggestedNumbers.map(
-            (suggestion: RelayNumberOption) => suggestion.phone_number
-          )
-        );
-
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        // Do nothing, just keep the default values
-      });
-  };
+      // remove the loading spinner
+      setIsLoading(false);
+    }
+  });
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setPhoneNumber(event.target.value);
@@ -152,12 +135,12 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const getRelayNumberOptions: MouseEventHandler<HTMLButtonElement> = () => {
     const newRelayNumberIndex = relayNumberIndex + 3;
 
-    if (newRelayNumberIndex >= relayNumberSuggestions.length) {
-      _getRelayNumberSuggestions();
-      setRelayNumberIndex(0);
-    } else {
-      setRelayNumberIndex(newRelayNumberIndex);
-    }
+    // if we have reached the end of the list, reset to the beginning
+    setRelayNumberIndex(
+      newRelayNumberIndex >= relayNumberSuggestions.length
+        ? 0
+        : newRelayNumberIndex
+    );
   };
 
   const suggestedNumberRadioInputs = relayNumberSuggestions
