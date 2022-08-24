@@ -56,7 +56,17 @@ export const BlockLevelSlider = (props: Props) => {
     numberFormatter: numberFormatter,
     label: l10n.getString("profile-promo-email-blocking-title"),
     onChange: (value) => {
-      const blockLevel = getBlockLevelFromSliderValue(value[onlyThumbIndex]);
+      const blockLevel = getBlockLevelFromSliderValue(
+        // The type assertion `as number[]` is here because react-stately now
+        // also supports a slider having just a single value, added in
+        // https://github.com/adobe/react-spectrum/pull/3264/commits/a2f570fb9e3ef74e706b9aa4441c84df799b29f1#diff-0e37708ee0e64cad9adcf7ddf87b9a7ae07dc77983925597394d5fb6a0a9d3a0R180-R181
+        // (Whereas before, values were linked to the individual thumbs, which
+        // is a bit weird when you just have a single thumb.)
+        // However, since you still can't access that value directly on
+        // `sliderState`, we'll still need `onlyThumbIndex` anyway, so for
+        // consistency, we're still using a single-element array.
+        (value as [number])[onlyThumbIndex]
+      );
       gaEvent({
         category: "Dashboard Alias Settings",
         action: "Toggle Forwarding",
