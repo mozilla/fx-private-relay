@@ -39,17 +39,14 @@
     stroke: $color-grey-40;
     stroke-width: 0.5px;
 
-    p {
+    p,
+    p.is-active {
       color: $color-purple-70;
     }
 
     &.is-active {
       color: $color-purple-40;
       stroke: $color-purple-40;
-
-      p {
-        color: $color-purple-70;
-      }
     }
   }
 
