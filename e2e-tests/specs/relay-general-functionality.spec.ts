@@ -1,5 +1,5 @@
 import test, { expect }  from '../fixtures/basePages'
-import { checkAuthState, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
+import { checkAuthState, defaultScreenshotOpts, ENV_DOMAINS } from '../e2eTestUtils/helpers';
 
 // using logged in state outside of describe block will cover state for all tests in file
 test.use({ storageState: 'state.json' })
@@ -21,8 +21,7 @@ test.describe('Free - General Functionalities, Desktop', () => {
     await dashboardPage.generateMask(1)
     
     await expect(dashboardPage.maskCardExpanded).toBeVisible()
-    const emailDomain = process.env.E2E_TEST_ENV === 'prod' ? '@mozmail.com' : '@mozmail.fxprivaterelay.nonprod.cloudops.mozgcp.net'
-    expect(await dashboardPage.maskCardHeader.textContent()).toContain(emailDomain)
+    expect(await dashboardPage.maskCardHeader.textContent()).toContain(ENV_DOMAINS[process.env.E2E_TEST_ENV as string])
   })
 })
 

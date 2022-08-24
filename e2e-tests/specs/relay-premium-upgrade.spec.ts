@@ -5,8 +5,7 @@ import { checkAuthState, defaultScreenshotOpts } from '../e2eTestUtils/helpers';
 test.use({ storageState: 'state.json' })
 test.describe.configure({ mode: 'parallel' });
 test.describe('Premium Relay - Purchase Premium Flow, Desktop', () => {
-
-  test.beforeEach(async ({ dashboardPage, page, landingPage, authPage }) => {        
+  test.beforeEach(async ({ dashboardPage, page }) => {
     await dashboardPage.open()
     await checkAuthState(page)
   });
@@ -17,7 +16,8 @@ test.describe('Premium Relay - Purchase Premium Flow, Desktop', () => {
   })  
 })
 
-test.describe.skip(() => { // TODO: add flow for stage only
+test.describe.skip(() => {
+  // TODO: add flow for stage only
   // run this test only on stage as only stage will accept test cards
   test.skip(() => process.env.E2E_TEST_ENV !== 'stage', 'run only on stage');
 

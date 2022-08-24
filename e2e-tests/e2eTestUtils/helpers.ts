@@ -1,5 +1,17 @@
 import { APIRequestContext, Page, request } from '@playwright/test';
 
+export const ENV_DOMAINS = {
+  stage: '@mozmail.fxprivaterelay.nonprod.cloudops.mozgcp.net',
+  prod: '@mozmail.com',
+  dev: '@mozmail.dev.fxprivaterelay.nonprod.cloudops.mozgcp.net'
+}
+
+export const ENV_URLS = {
+  stage: 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net',
+  prod: 'https://relay.firefox.com',
+  dev: 'https://dev.fxprivaterelay.nonprod.cloudops.mozgcp.net'
+}
+
 export const getVerificationCode = async (testEmail: string, page: Page, attempts = 10) => {
   if (attempts === 0) {
     throw new Error('Unable to retrieve restmail data');
@@ -30,27 +42,24 @@ export const deleteEmailAddressMessages = async (req: APIRequestContext, testEma
   }
 };
 
-const setYourPassword = async (page: Page) => {
-  try {    
-    await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
-    await page.locator('#vpassword').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
-    await page.locator('#age').fill('31');
-    await page.locator('button:has-text("Create account")').click()
-    await checkAuthState(page)
-  } catch {}
-  
+const setYourPassword = async (page: Page) => {  
+  await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
+  await page.locator('#vpassword').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
+  await page.locator('#age').fill('31');
+  await page.locator('button:has-text("Create account")').click({force: true})
+  await page.waitForTimeout(500)
+  await checkAuthState(page)  
 }
 
-const enterConfirmationCode = async (page: Page) => {
-  try {        
-    const maybeVerificationCodeInput = '//div[@class="card"]//input'
-    await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 })
-    const confirmButton = page.locator('#submit-btn')
-    const verificationCode = await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, page)
-    await page.locator(maybeVerificationCodeInput).fill(verificationCode)
-    await confirmButton.click()
-    await checkAuthState(page)
-  } catch {}
+const enterConfirmationCode = async (page: Page) => {        
+  const maybeVerificationCodeInput = '//div[@class="card"]//input'
+  await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 })
+  const confirmButton = page.locator('#submit-btn')
+  const verificationCode = await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, page)
+  await page.locator(maybeVerificationCodeInput).fill(verificationCode)
+  await confirmButton.click({force: true})
+  await page.waitForTimeout(500)
+  await checkAuthState(page)
 }
 
 const signIn = async (page: Page) => {
@@ -66,14 +75,16 @@ const enterYourEmail = async (page: Page) => {
   await page.waitForSelector(maybeEmailInput, { timeout: 2000 })
   const signInButton = page.locator('#submit-btn')
   await page.locator(maybeEmailInput).fill(process.env.E2E_TEST_ACCOUNT_FREE as string)
-  await signInButton.click()
+  await signInButton.click({force: true})
   await page.waitForTimeout(500)
   await checkAuthState(page)
 }
 
 const enterYourPassword = async (page: Page) => {
   await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
-  await page.locator('#submit-btn').click()
+
+  // using force here due to fxa issue with playwright
+  await page.locator('#submit-btn').click({force: true})
   await page.waitForTimeout(500)
   await checkAuthState(page)
 }
@@ -82,32 +93,12 @@ export const generateRandomEmail = async () => {
   return `${Date.now()}_tstact@restmail.net`;
 };
 
-export const setEnvVariables = async (email: string) => {
-  // set env variable -- stage will currently be the default
-  let E2E_TEST_BASE_URL = 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net'
-  let E2E_TEST_ENV = 'stage'
-
-  // set base urls
-  switch (process.env.NODE_ENV) {
-      case 'prod':
-          E2E_TEST_BASE_URL = 'https://relay.firefox.com';
-          E2E_TEST_ENV = 'prod'
-          break;
-      case 'stage':
-          E2E_TEST_BASE_URL = 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net';
-          E2E_TEST_ENV = 'stage'
-          break;
-      case 'local':
-          E2E_TEST_BASE_URL = 'http://localhost:3000';
-          E2E_TEST_ENV = 'local'
-          break;
-      default:
-          break;
-  }
-
+export const setEnvVariables = async (email: string) => {  
+  // set env variables
+  // stage will currently be the default
   process.env['E2E_TEST_ACCOUNT_FREE'] = email;
-  process.env['E2E_TEST_BASE_URL'] = E2E_TEST_BASE_URL
-  process.env['E2E_TEST_ENV'] = E2E_TEST_ENV
+  process.env['E2E_TEST_BASE_URL'] = ENV_URLS[process.env.E2E_TEST_ENV as string] || 'https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net'
+  process.env['E2E_TEST_ENV'] = process.env.E2E_TEST_ENV || 'stage'
 }
 
 interface DefaultScreenshotOpts {

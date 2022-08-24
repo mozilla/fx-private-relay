@@ -1,4 +1,4 @@
-import { getVerificationCode, setEnvVariables } from "./e2eTestUtils/helpers";
+import { ENV_URLS, getVerificationCode, setEnvVariables } from "./e2eTestUtils/helpers";
 import { AuthPage } from "./pages/authPage";
 import { LandingPage } from "./pages/landingPage";
 
@@ -13,7 +13,7 @@ async function globalSetup() {
     const randomEmail = `${Date.now()}_tstact@restmail.net`
     await setEnvVariables(randomEmail)
 
-    await page.goto(process.env.E2E_TEST_BASE_URL as string)
+    await page.goto(ENV_URLS[process.env.E2E_TEST_ENV as string])
     const landingPage = new LandingPage(page);
     await landingPage.goToSignUp()
 

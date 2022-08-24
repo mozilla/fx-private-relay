@@ -8,7 +8,7 @@ test.describe.skip('Premium - General Functionalities, Desktop', () => {
     await dashboardPage.maybeDeleteMasks()
   });
 
-  test('Check the premium user can more than 5 masks', async ({ dashboardPage }) => {      
+  test('Check the premium user can more than 5 masks', async ({ dashboardPage }) => {
     await dashboardPage.generateMask(6)
     
     await expect.poll(async () => {
