@@ -349,8 +349,8 @@ export const WhatsNewMenu = (props: Props) => {
     dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
     announcementDate: {
       year: 2022,
-      month: 8,
-      day: 16,
+      month: 10,
+      day: 11,
     },
   };
 
