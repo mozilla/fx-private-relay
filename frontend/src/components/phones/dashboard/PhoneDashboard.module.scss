@@ -39,14 +39,18 @@
   .senders-cta {
     display: flex;
     flex-direction: row;
-    padding: $spacing-xs $spacing-sm;
     border-radius: $border-radius-lg;
     align-items: center;
-    gap: $spacing-xs;
-    margin-left: $spacing-sm;
 
-    &:hover {
-      background: $color-light-gray-10;
+    @media screen and #{$mq-md} {
+      padding: $spacing-sm;
+      gap: $spacing-xs;
+      left: $spacing-sm; // Cancel out extra space from padding
+      position: relative;
+
+      &:hover {
+        background: $color-light-gray-10;
+      }
     }
 
     span {
@@ -60,7 +64,7 @@
 
   .dashboard-card-caller-sms-senders-header {
     display: flex;
-    padding: 0 $spacing-lg $spacing-md $spacing-lg;
+    padding: 0 $spacing-xl $spacing-md $spacing-xl;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
@@ -86,6 +90,11 @@
       @media screen and #{$mq-md} {
         left: -20px; // Width of the back button
       }
+    }
+
+    .caller-sms-logs-back-btn {
+      display: flex;
+      align-items: center;
     }
   }
 
@@ -217,13 +226,19 @@
     border-radius: $border-radius-md;
     display: flex;
     flex-direction: column;
-    padding: $spacing-lg 0;
+    padding: $spacing-md 0;
     min-height: $content-xs;
 
     .header-phone-number {
-      @include text-body-xl;
+      @include text-body-lg;
       @include font-firefox;
       display: flex;
+      justify-content: center;
+      align-items: center;
+
+      @media screen and #{$mq-sm} {
+        @include text-body-xl;
+      }
     }
 
     .phone-statistics-container {
@@ -342,21 +357,13 @@
         background-color: $color-violet-30;
         color: $color-white;
         border-radius: $border-radius-md;
-        position: absolute;
         right: 0;
-        top: 50%;
-        transform: translateY(-50%);
 
         &.is-shown {
           pointer-events: auto;
           opacity: 1;
           // Don't fade in when appearing:
           transition: opacity 0s;
-        }
-
-        @media screen and #{$mq-md} {
-          position: static;
-          transform: none;
         }
       }
     }

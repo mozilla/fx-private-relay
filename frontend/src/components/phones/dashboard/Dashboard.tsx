@@ -160,7 +160,7 @@ export const PhoneDashboard = () => {
     <div id="primary-panel" className={styles["dashboard-card"]}>
       <div className={styles["dashboard-card-header"]}>
         <span className={styles["header-phone-number"]}>
-          {formattedRelayNumber}
+          <span>{formattedRelayNumber}</span>
           <span className={styles["copy-controls"]}>
             <span className={styles["copy-button-wrapper"]}>
               <button
@@ -170,10 +170,10 @@ export const PhoneDashboard = () => {
                 onClick={copyPhoneNumber}
               >
                 <CopyIcon
-                  alt="test"
+                  alt={l10n.getString("setting-api-key-copied-alt")}
                   className={styles["copy-icon"]}
-                  width={32}
-                  height={32}
+                  width={20}
+                  height={20}
                 />
               </button>
               <span
