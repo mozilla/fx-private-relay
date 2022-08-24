@@ -80,17 +80,13 @@ def get_valid_realphone_verification_record(user, number, verification_code):
 
 
 def get_last_text_sender(relay_number):
-    try:
-        return (
-            InboundContact.objects.filter(
-                relay_number=relay_number, last_inbound_type="text"
-            )
-            .order_by("last_inbound_date")
-            .first()
+    return (
+        InboundContact.objects.filter(
+            relay_number=relay_number, last_inbound_type="text"
         )
-    except InboundContact.DoesNotExist:
-        logger.exception("Could not get an inbound text contact.")
-        return None
+        .order_by("-last_inbound_date")
+        .first()
+    )
 
 
 class RealPhone(models.Model):
