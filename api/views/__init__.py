@@ -202,7 +202,7 @@ def report_webcompat_issue(request):
     serializer = WebcompatIssueSerializer(data=request.data)
     if serializer.is_valid():
         info_logger.info("webcompat_issue", extra=serializer.data)
-        incr_if_enabled(f"webcompat_issue", 1)
+        incr_if_enabled("webcompat_issue", 1)
         for k, v in serializer.data.items():
             if v and k != "issue_on_domain":
                 incr_if_enabled(f"webcompat_issue_{k}", 1)
