@@ -2,7 +2,6 @@ import { OutboundLink } from "react-ga";
 import {
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
-  RuntimeDataWithPremiumAvailable,
 } from "../../../../functions/getPlan";
 import { useProfiles } from "../../../../hooks/api/profile";
 import { useRuntimeData } from "../../../../hooks/api/runtimeData";
@@ -21,7 +20,6 @@ export type Props = {
     onClick?: () => void;
     gaViewPing?: Parameters<typeof useGaViewPing>[0];
   };
-  runtimeDataWithPremiumAvailable?: RuntimeDataWithPremiumAvailable;
 };
 
 /**
@@ -56,6 +54,7 @@ export const WhatsNewContent = (props: Props) => {
       <OutboundLink
         to={getPremiumSubscribeLink(runtimeData.data)}
         eventLabel={props.cta.content}
+        className={styles["upgrade-cta"]}
       >
         <span>{props.cta.content}</span>
       </OutboundLink>
@@ -67,8 +66,10 @@ export const WhatsNewContent = (props: Props) => {
       <div className={styles.content}>
         <h2>{props.heading}</h2>
         <p>{props.description}</p>
-        {cta}
-        {ctaUpgrade}
+        <div className={styles.cta}>
+          {cta}
+          {ctaUpgrade}
+        </div>
       </div>
     </div>
   );

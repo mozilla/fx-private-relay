@@ -19,6 +19,18 @@
       font-family: $font-stack-firefox;
       padding-bottom: $spacing-sm;
     }
+
+    .cta {
+      @include text-body-lg;
+      color: $color-blue-50;
+      font-weight: 500;
+      text-decoration: underline;
+      margin-top: $spacing-sm;
+
+      &:hover {
+        color: $color-blue-80;
+      }
+    }
   }
 
   .still-alternative {
