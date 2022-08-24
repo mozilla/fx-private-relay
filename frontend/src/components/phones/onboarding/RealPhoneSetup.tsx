@@ -1,5 +1,6 @@
 import { Localized, useLocalization } from "@fluent/react";
 import styles from "./RealPhoneSetup.module.scss";
+import "react-phone-number-input/style.css";
 import PhoneVerify from "./images/phone-verify.svg";
 import EnterVerifyCode from "./images/enter-verify-code.svg";
 import EnterVerifyCodeError from "./images/verify-code-error.svg";
@@ -120,9 +121,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
         {renderErrorMessage}
 
         <PhoneInput
-          className={`${styles["PhoneInput"]} ${
-            phoneNumberError ? "is-error" : ""
-          }`}
+          className={`${phoneNumberError ? styles["is-error"] : ""}`}
           placeholder={l10n.getString(
             "phone-onboarding-step2-input-placeholder"
           )}
