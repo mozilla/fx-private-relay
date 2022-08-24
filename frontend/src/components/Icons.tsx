@@ -792,7 +792,6 @@ export const ForwardedCallIcon = ({
       aria-label={alt}
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
-      // viewBox="-2 -2 15 15"
       viewBox="0 0 9 12"
       width={20}
       height={20}
@@ -817,7 +816,6 @@ export const MaskIcon = ({
       aria-label={alt}
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
-      // viewBox="-2 -2 15 15"
       viewBox="0 0 20 20"
       width={20}
       height={20}
@@ -841,7 +839,6 @@ export const PhoneIcon = ({
       aria-label={alt}
       aria-hidden={alt === ""}
       xmlns="http://www.w3.org/2000/svg"
-      // viewBox="-2 -2 15 15"
       viewBox="0 0 20 20"
       width={20}
       height={20}
