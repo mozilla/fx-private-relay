@@ -678,6 +678,73 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
     assert inbound_contact.last_inbound_date == pre_block_contact_date
 
 
+def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_client):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    mocked_twilio_client.reset_mock()
+    profile = Profile.objects.get(user=phone_user)
+    profile.store_phone_log = False
+    profile.save()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert "You Can Only Reply" in decoded_content
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert "You can only reply" in call_kwargs["body"]
+
+
+def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert "Could Not Find A Previous Text Sender" in decoded_content
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert "Could not find a previous text sender" in call_kwargs["body"]
+
+
+def test_inbound_sms_reply(phone_user, mocked_twilio_client):
+    mocked_twilio_validator.validate = Mock(return_value=True)
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    inbound_contact = InboundContact.objects.create(
+        relay_number=relay_number, inbound_number="+15556660000", last_inbound_type="text"
+    )
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == inbound_contact.inbound_number
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == "test reply"
+
+
 @pytest.mark.django_db
 def test_phone_get_inbound_contact_requires_relay_number(phone_user):
     client = APIClient()

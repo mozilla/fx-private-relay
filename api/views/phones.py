@@ -491,24 +491,22 @@ def _handle_sms_reply(relay_number, real_phone, inbound_body):
     client = twilio_client()
     storing_phone_log = get_storing_phone_log(relay_number)
     if not storing_phone_log:
+        error = "You can only reply if you allow Firefox Relay to keep a log of your callers and text senders. https://relay.firefox.com/accounts/settings/"
         client.messages.create(
             from_=relay_number.number,
-            body="You can only reply if you allow Firefox Relay to keep a log of your callers and text senders. https://relay.firefox.com/accounts/settings/",
+            body=error,
             to=real_phone.number,
         )
-        return response.Response(
-            status=200, data={"message": "User not storing phone log"}
-        )
+        raise exceptions.ValidationError(error)
     last_text_sender = get_last_text_sender(relay_number)
     if last_text_sender == None:
+        error = "Could not find a previous text sender."
         client.messages.create(
             from_=relay_number.number,
-            body="Could not find a previous text sender.",
+            body=error,
             to=real_phone.number,
         )
-        return response.Response(
-            status=200, data={"message": "Could not find last text sender."}
-        )
+        raise exceptions.ValidationError(error)
     client.messages.create(
         from_=relay_number.number,
         body=inbound_body,
