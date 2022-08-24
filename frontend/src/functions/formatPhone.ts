@@ -21,8 +21,9 @@ export function formatPhone(phoneNumber: PhoneString) {
   // This only checks for valid length of the phone number.
   // Ex: ('+12223333333') === true
   if (!parsedNumber?.isPossible()) {
-    // Bug: Any country code with two digits will break
-    // Return in +1 (111) 111-1111 format
+    // This does not take into account two digit country codes.
+    // The purpose is to show users a consistent format, even for invalid phone numbers.
+    // Ex: input of +122244 will be formatted as +1 (222) 44-
     return `${phoneNumber.substring(0, 2)} (${phoneNumber.substring(
       2,
       5
