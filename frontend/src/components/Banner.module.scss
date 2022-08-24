@@ -65,6 +65,7 @@
   }
 
   .banner.info & {
+    @include text-body-sm;
     padding: 0 $spacing-sm 0 $spacing-md;
   }
 
