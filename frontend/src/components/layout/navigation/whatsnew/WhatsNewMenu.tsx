@@ -36,7 +36,7 @@ import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
-import PhoneMaskingHero from "./images/phone-masking-hero.svg";
+import PhoneMaskingHero from "./images/phone-masking-hero.webm";
 import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
