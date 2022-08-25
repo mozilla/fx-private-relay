@@ -16,12 +16,7 @@ export type BannerProps = {
     content: string;
     onClick?: () => void;
     gaViewPing?: Parameters<typeof useGaViewPing>[0];
-  };
-  ctaLargeButton?: {
-    target: string;
-    content: string;
-    onClick?: () => void;
-    gaViewPing?: Parameters<typeof useGaViewPing>[0];
+    size?: "medium" | "large";
   };
   btn?: {
     content: string;
@@ -77,7 +72,11 @@ export const Banner = (props: BannerProps) => {
   ) : null;
 
   const cta = props.cta ? (
-    <div className={styles.cta}>
+    <div
+      className={
+        props.cta.size === "large" ? styles["cta-large-button"] : styles.cta
+      }
+    >
       <OutboundLink
         to={props.cta.target}
         eventLabel={props.cta.content}
@@ -86,20 +85,6 @@ export const Banner = (props: BannerProps) => {
         onClick={props.cta.onClick}
       >
         <span ref={ctaRef}>{props.cta.content}</span>
-      </OutboundLink>
-    </div>
-  ) : null;
-
-  const ctaLargeButton = props.ctaLargeButton ? (
-    <div className={styles["cta-large-button"]}>
-      <OutboundLink
-        to={props.ctaLargeButton.target}
-        eventLabel={props.ctaLargeButton.content}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={props.ctaLargeButton.onClick}
-      >
-        <span ref={ctaRef}>{props.ctaLargeButton.content}</span>
       </OutboundLink>
     </div>
   ) : null;
@@ -142,10 +127,10 @@ export const Banner = (props: BannerProps) => {
           <div className={`${styles["title-text"]}`}>
             {title}
             {props.children}
-            {cta}
+            {props.cta?.size !== "large" ? cta : null}
             {btn}
           </div>
-          {ctaLargeButton}
+          {props.cta?.size === "large" ? cta : null}
         </div>
         {dismissButton}
       </div>

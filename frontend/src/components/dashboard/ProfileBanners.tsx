@@ -235,7 +235,8 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
       type="promo"
       title={l10n.getString("banner-upgrade-loyalist-headline-2")}
       illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
-      ctaLargeButton={{
+      cta={{
+        size: "large",
         target: getPremiumSubscribeLink(props.runtimeData),
         content: l10n.getString("banner-upgrade-loyalist-cta"),
         onClick: () => trackPurchaseStart(),
