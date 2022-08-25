@@ -15,6 +15,7 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import {
   ChangeEventHandler,
   FormEventHandler,
+  InvalidEvent,
   useEffect,
   useRef,
   useState,
@@ -135,7 +136,8 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
           value={phoneNumber}
           required={true}
           autoFocus={true}
-          onChange={(number: E164Number) => setPhoneNumber(number ?? "")}
+          onChange={(number: E164Number) => setPhoneNumber(number)}
+          inputMode="numeric"
         />
 
         <Button className={styles.button} type="submit">
@@ -161,12 +163,12 @@ type RealPhoneVerificationProps = {
 };
 const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   const { l10n } = useLocalization();
-
   const phoneWithMostRecentlySentVerificationCode =
     getPhoneWithMostRecentlySentVerificationCode(
       props.phonesPendingVerification
     );
   const [verificationCode, setVerificationCode] = useState("");
+
   const verificationSentDate = parseDate(
     phoneWithMostRecentlySentVerificationCode.verification_sent_date
   );
@@ -178,7 +180,13 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     useState<boolean>();
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setVerificationCode(event.currentTarget.value.replace(/[^0-9]/gi, ""));
+    setVerificationCode(event.currentTarget.value);
+  };
+
+  const onInvalid: FormEventHandler<HTMLInputElement> = (event) => {
+    event.currentTarget.setCustomValidity(
+      l10n.getString("phone-onboarding-step3-input-placeholder")
+    );
   };
 
   const onSubmit: FormEventHandler = async (event) => {
@@ -286,12 +294,16 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           placeholder={codeEntryPlaceholder}
           required={true}
           maxLength={6}
+          minLength={6}
           className={isVerifiedSuccessfully === false ? styles["is-error"] : ""}
           onChange={onChange}
           autoFocus={true}
+          pattern="^\d{6}$"
+          onInvalid={onInvalid}
+          title={l10n.getString("phone-onboarding-step3-input-placeholder")}
           value={verificationCode}
         />
-        {/* TODO: add validation */}
+
         <Button
           className={styles.button}
           type="submit"
