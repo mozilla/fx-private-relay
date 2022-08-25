@@ -30,11 +30,10 @@
   ],
   "scripts": {
     "test:e2e": "npx playwright test --retries=1",
-    "test:headed": "npx playwright test --retries=1 --headed",
-    "test:report": "npx playwright show-report",
-    "test:local": "NODE_ENV=local npx playwright test --retries=2 --headed",
-    "test:stage": "NODE_ENV=stage npx playwright test --retries=2 --headed",
-    "test:prod": "NODE_ENV=prod npx playwright test --retries=2 --headed",
+    "test:local": "E2E_TEST_ENV=local npx playwright test --retries=1 --headed",
+    "test:dev": "E2E_TEST_ENV=dev npx playwright test --retries=1",
+    "test:stage": "E2E_TEST_ENV=stage npx playwright test --retries=1 --headed",
+    "test:prod": "E2E_TEST_ENV=prod npx playwright test --retries=2",
     "heroku-prebuild": "printf '{\"commit\":\"%s\", \"commit_link\":\"https://github.com/mozilla/fx-private-relay/commit/%s\"}\n' \"$SOURCE_VERSION\" \"$SOURCE_VERSION\" > version.json",
     "heroku-postbuild": "cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
   },
