@@ -8,15 +8,15 @@ import {
   getPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
-  RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { getRuntimeConfig } from "../../config";
 import Link from "next/link";
 import { isFlagActive } from "../../functions/waffle";
+import { RuntimeData } from "../../hooks/api/runtimeData";
 
 export type Props = {
-  premiumCountriesData?: RuntimeDataWithPremiumAvailable;
+  runtimeData?: RuntimeData;
 };
 
 /**
@@ -35,7 +35,7 @@ export const Plans = (props: Props) => {
 
   /** List of premium features **/
   const trackerBlockingFeatureListingPremium = isFlagActive(
-    props.premiumCountriesData,
+    props.runtimeData,
     "tracker_removal"
   ) ? (
     <li>{l10n.getString("landing-pricing-premium-feature-6")}</li>
@@ -53,7 +53,7 @@ export const Plans = (props: Props) => {
 
   /** List of free features **/
   const trackerBlockingFeatureListingFree = isFlagActive(
-    props.premiumCountriesData,
+    props.runtimeData,
     "tracker_removal"
   ) ? (
     <li>{l10n.getString("landing-pricing-free-feature-3")}</li>
@@ -122,9 +122,7 @@ export const Plans = (props: Props) => {
     </a>
   );
 
-  const freePlanCard = isPremiumAvailableInCountry(
-    props.premiumCountriesData
-  ) ? (
+  const freePlanCard = isPremiumAvailableInCountry(props.runtimeData) ? (
     <a
       href={getRuntimeConfig().fxaLoginUrl}
       className={`${styles.plan} ${styles["free-plan"]}`}
@@ -152,19 +150,15 @@ export const Plans = (props: Props) => {
   ) : (
     unavailablePremiumPanel
   );
-  const topPremiumDetail = isPremiumAvailableInCountry(
-    props.premiumCountriesData
-  ) ? (
+  const topPremiumDetail = isPremiumAvailableInCountry(props.runtimeData) ? (
     <span className={styles.callout}>
       {l10n.getString("landing-pricing-premium-price-highlight")}
     </span>
   ) : null;
 
-  const premiumPlanCard = isPremiumAvailableInCountry(
-    props.premiumCountriesData
-  ) ? (
+  const premiumPlanCard = isPremiumAvailableInCountry(props.runtimeData) ? (
     <a
-      href={getPremiumSubscribeLink(props.premiumCountriesData)}
+      href={getPremiumSubscribeLink(props.runtimeData)}
       onClick={() => trackPurchaseStart()}
       className={`${styles.plan} ${styles["premium-plan"]}`}
     >
@@ -175,7 +169,7 @@ export const Plans = (props: Props) => {
       />
       <b className={styles.price}>
         {l10n.getString("landing-pricing-premium-price", {
-          monthly_price: getPlan(props.premiumCountriesData).price,
+          monthly_price: getPlan(props.runtimeData).price,
         })}
       </b>
       {premiumFeatures}
@@ -190,7 +184,7 @@ export const Plans = (props: Props) => {
   return (
     <div
       className={
-        isPremiumAvailableInCountry(props.premiumCountriesData)
+        isPremiumAvailableInCountry(props.runtimeData)
           ? styles["comparison"]
           : styles["comparison-waitlist"]
       }
