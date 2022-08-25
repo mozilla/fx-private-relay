@@ -2,7 +2,6 @@ import {
   ChangeEventHandler,
   FormEventHandler,
   MouseEventHandler,
-  useEffect,
   useState,
 } from "react";
 import { useLocalization } from "@fluent/react";
@@ -87,34 +86,15 @@ type RelayNumberSelectionProps = {
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const { l10n } = useLocalization();
   const relayNumberSuggestionsData = useRelayNumberSuggestions();
-  const [isLoading, setIsLoading] = useState(true);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
-    string[]
-  >([]);
   const [relayNumberIndex, setRelayNumberIndex] = useState(0);
-
-  useEffect(() => {
-    if (relayNumberSuggestionsData.data) {
-      // get all relay number suggestions from our API
-      const { other_areas_options, same_area_options, same_prefix_options } =
-        relayNumberSuggestionsData.data;
-      // combine all relay number suggestions into one array
-      const suggestedNumbers = [
-        ...same_area_options,
-        ...other_areas_options,
-        ...same_prefix_options,
-      ];
-
-      // set the relay number suggestions - an array of strings
-      setRelayNumberSuggestions(
-        suggestedNumbers.map((suggestion) => suggestion.phone_number)
-      );
-
-      // remove the loading spinner
-      setIsLoading(false);
-    }
-  });
+  const relayNumberSuggestions = relayNumberSuggestionsData.data
+    ? [
+        ...relayNumberSuggestionsData.data.same_area_options,
+        ...relayNumberSuggestionsData.data.other_areas_options,
+        ...relayNumberSuggestionsData.data.same_prefix_options,
+      ].map((suggestion) => suggestion.phone_number)
+    : [];
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setPhoneNumber(event.target.value);
@@ -125,7 +105,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     props.registerRelayNumber(phoneNumber);
   };
 
-  const loadingState = isLoading ? (
+  const loadingState = !relayNumberSuggestionsData.data ? (
     <div className={`${styles["step-select-phone-number-mask-loading"]} `}>
       <div className={styles.loading} />
       <p>{l10n.getString("phone-onboarding-step3-loading")}</p>
@@ -161,7 +141,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
       );
     });
 
-  const form = isLoading ? null : (
+  const form = !relayNumberSuggestionsData.data ? null : (
     <div className={`${styles["step-select-phone-number-mask"]} `}>
       <div className={styles.lead}>
         <img src={FlagUS.src} alt="" width={45} />
