@@ -151,7 +151,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   // overlap the AppPicker drawer).
   // Thus, upping the z-index stack the header, and menus
   // expanding from it, on top again:
-  z-index: 2;
+  z-index: 3;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -257,8 +257,6 @@ $toastify-toast-close-button: var(--toast-close-button);
   height: 100%;
   display: flex;
   flex-direction: column;
-  position: sticky;
-  top: 0;
   z-index: 2; //z-index is a unit higher, so that it sits above the mask/phone duo nav
 }
 

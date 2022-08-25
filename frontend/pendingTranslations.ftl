@@ -11,6 +11,8 @@ nav-settings = Settings
 nav-support = Help and Support
 nav-sign-out = Sign Out
 nav-contact = Contact Us
+nav-duo-email-mask-alt = Go to Email Masks Dashboard
+nav-duo-phone-mask-alt = Go to Phone Masks Dashboard
 
 landing-pricing-free-feature-3 = Email tracker removal
 landing-pricing-premium-feature-6 = Email tracker removal

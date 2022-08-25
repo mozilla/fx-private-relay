@@ -72,12 +72,12 @@ export const MobileNavigation = (props: Props) => {
 
   return (
     <>
-      {/* Mask and Phone Header on Mobile */}
+      {/* Email and Phone Duo Header on Mobile */}
       {isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
-        <div
+        <nav
           className={`${styles["nav-mask-phone"]} ${styles["hidden-desktop"]}`}
         >
-          {/* Mask Btn */}
+          {/* Email Mask Btn */}
           <Link href={homePath}>
             <a
               className={`${styles["nav-mask-phone-icon"]} ${
@@ -85,29 +85,35 @@ export const MobileNavigation = (props: Props) => {
                   ? styles["is-active"]
                   : null
               }`}
+              title={l10n.getString("nav-duo-email-mask-alt")}
             >
-              <MaskIcon width={25} height={25} alt="Go to Masks Dashboard" />
+              <MaskIcon
+                width={25}
+                height={25}
+                alt={l10n.getString("nav-duo-phone-mask-alt")}
+              />
             </a>
           </Link>
-          {/* Phone Btn */}
+          {/* Phone Mask Btn */}
           <Link href={phonePath}>
             <a
               className={`${styles["nav-mask-phone-icon"]} ${
                 router.pathname === "/phone" ? styles["is-active"] : null
               }`}
+              title={l10n.getString("nav-duo-phone-mask-alt")}
             >
               <span className={styles["phone-icon-new-wrapper"]}>
                 <PhoneIcon
                   width={30}
                   height={30}
-                  alt="Go to Phones Dashboard"
+                  alt={l10n.getString("nav-duo-phone-mask-alt")}
                   viewBox="0 0 20 25"
                 />
                 <p>{l10n.getString("phone-dashboard-header-new")}</p>
               </span>
             </a>
           </Link>
-        </div>
+        </nav>
       ) : null}
 
       <nav
