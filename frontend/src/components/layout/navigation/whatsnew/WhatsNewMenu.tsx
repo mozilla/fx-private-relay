@@ -36,7 +36,7 @@ import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
-import PhoneMaskingHero from "./images/phone-masking-hero.webm";
+import PhoneMaskingHero from "./images/phone-masking-hero.svg";
 import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
@@ -353,6 +353,14 @@ export const WhatsNewMenu = (props: Props) => {
         description={l10n.getString("whatsnew-feature-phone-description")}
         heading={l10n.getString("whatsnew-feature-phone-header")}
         image={PhoneMaskingHero.src}
+        videos={{
+          // Unfortunately video files cannot currently be imported, so make
+          // sure these files are present in /public. See
+          // https://github.com/vercel/next.js/issues/35248
+          "video/webm; codecs='vp9'":
+            "/animations/whatsnew/phone-masking-hero.webm",
+          "video/mp4": "/animations/whatsnew/phone-masking-hero.mp4",
+        }}
         cta={ctaUpgradePhones}
       />
     ),
