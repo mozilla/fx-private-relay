@@ -18,6 +18,18 @@ export type PhoneString = string;
 export function formatPhone(phoneNumber: PhoneString) {
   const parsedNumber = parsePhoneNumber(phoneNumber);
 
+  // This only checks for valid length of the phone number.
+  // Ex: ('+12223333333') === true
+  if (!parsedNumber?.isPossible()) {
+    // This does not take into account two digit country codes.
+    // The purpose is to show users a consistent format, even for invalid phone numbers.
+    // Ex: input of +122244 will be formatted as +1 (222) 44-
+    return `${phoneNumber.substring(0, 2)} (${phoneNumber.substring(
+      2,
+      5
+    )}) ${phoneNumber.substring(5, 8)}-${phoneNumber.substring(8, 12)}`;
+  }
+
   // formats the phone number to +X (XXX) XXX-XXXX
   return parsedNumber?.country
     ? `+${getCountryCallingCode(parsedNumber.country)} ${formatPhoneNumber(

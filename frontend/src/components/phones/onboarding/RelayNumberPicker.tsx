@@ -2,7 +2,6 @@ import {
   ChangeEventHandler,
   FormEventHandler,
   MouseEventHandler,
-  useEffect,
   useState,
 } from "react";
 import { useLocalization } from "@fluent/react";
@@ -12,8 +11,9 @@ import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
 import {
   useRelayNumber,
-  getRelayNumberSuggestions,
+  useRelayNumberSuggestions,
 } from "../../../hooks/api/relayNumber";
+import { formatPhone } from "../../../functions/formatPhone";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;
@@ -38,6 +38,7 @@ export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
 
   return <RelayNumberConfirmation onComplete={props.onComplete} />;
 };
+
 type RelayNumberIntroProps = {
   onStart: () => void;
 };
@@ -78,51 +79,22 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
     </div>
   );
 };
+
 type RelayNumberSelectionProps = {
   registerRelayNumber: (phoneNumber: string) => Promise<Response>;
 };
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const { l10n } = useLocalization();
-
-  // TODO: Defaulting to true to stop FoUC however we need to catch any error in await getRelayNumberSuggestions();
-  const [isLoading, setIsLoading] = useState(true);
+  const relayNumberSuggestionsData = useRelayNumberSuggestions();
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
-    string[]
-  >([]);
-  const [sliceStart, setSliceStart] = useState(0);
-  const [sliceEnd, setSliceEnd] = useState(3);
-
-  useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-      const resp = await getRelayNumberSuggestions();
-      setIsLoading(false);
-      const respObject = await resp.json();
-      const suggestedNumbers: string[] = [];
-
-      // TODO: DRY If statements below
-      if (respObject.other_areas_options) {
-        for (const otherAreaOption of respObject.other_areas_options) {
-          suggestedNumbers.push(otherAreaOption.phone_number);
-        }
-      }
-
-      if (respObject.same_area_options) {
-        for (const sameAreaOption of respObject.same_area_options) {
-          suggestedNumbers.push(sameAreaOption.phone_number);
-        }
-      }
-
-      if (respObject.same_prefix_options) {
-        for (const samePrefixOption of respObject.same_prefix_options) {
-          suggestedNumbers.push(samePrefixOption.phone_number);
-        }
-      }
-
-      setRelayNumberSuggestions(suggestedNumbers);
-    })();
-  }, []);
+  const [relayNumberIndex, setRelayNumberIndex] = useState(0);
+  const relayNumberSuggestions = relayNumberSuggestionsData.data
+    ? [
+        ...relayNumberSuggestionsData.data.same_area_options,
+        ...relayNumberSuggestionsData.data.other_areas_options,
+        ...relayNumberSuggestionsData.data.same_prefix_options,
+      ].map((suggestion) => suggestion.phone_number)
+    : [];
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setPhoneNumber(event.target.value);
@@ -133,30 +105,27 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     props.registerRelayNumber(phoneNumber);
   };
 
-  const loadingState = isLoading ? (
+  const loadingState = !relayNumberSuggestionsData.data ? (
     <div className={`${styles["step-select-phone-number-mask-loading"]} `}>
       <div className={styles.loading} />
       <p>{l10n.getString("phone-onboarding-step3-loading")}</p>
     </div>
   ) : null;
 
-  const moreRelayNumberOptions: MouseEventHandler<HTMLButtonElement> = () => {
-    setSliceStart(sliceStart + 3);
-    setSliceEnd(sliceEnd + 3);
+  const getRelayNumberOptions: MouseEventHandler<HTMLButtonElement> = () => {
+    const newRelayNumberIndex = relayNumberIndex + 3;
+
+    // if we have reached the end of the list, reset to the beginning
+    setRelayNumberIndex(
+      newRelayNumberIndex >= relayNumberSuggestions.length
+        ? 0
+        : newRelayNumberIndex
+    );
   };
 
   const suggestedNumberRadioInputs = relayNumberSuggestions
-    .slice(sliceStart, sliceEnd)
+    .slice(relayNumberIndex, relayNumberIndex + 3)
     .map((suggestion, i) => {
-      function formatPhone(phoneNumber: string) {
-        // Bug: Any country code with two characters will break
-        // Return in +1 (111) 111-1111 format
-        return `${phoneNumber.substring(0, 2)} (${phoneNumber.substring(
-          2,
-          5
-        )}) ${phoneNumber.substring(5, 8)}-${phoneNumber.substring(8, 12)}`;
-      }
-
       return (
         <div key={suggestion}>
           <input
@@ -172,7 +141,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
       );
     });
 
-  const form = isLoading ? null : (
+  const form = !relayNumberSuggestionsData.data ? null : (
     <div className={`${styles["step-select-phone-number-mask"]} `}>
       <div className={styles.lead}>
         <img src={FlagUS.src} alt="" width={45} />
@@ -195,7 +164,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
         </div>
 
         <Button
-          onClick={moreRelayNumberOptions}
+          onClick={getRelayNumberOptions}
           className={styles.button}
           type="button"
           variant="secondary"
@@ -205,7 +174,9 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
         {/* TODO: Add error class to input field */}
         <Button className={styles.button} type="submit">
-          {l10n.getString("phone-onboarding-step2-button-cta")}
+          {l10n.getString(
+            "phone-onboarding-step4-button-register-phone-number"
+          )}
         </Button>
       </form>
     </div>

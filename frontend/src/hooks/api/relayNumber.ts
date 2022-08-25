@@ -66,13 +66,31 @@ export function useRelayNumber(): SWRResponse<RelayNumberData, unknown> & {
     setForwardingState: setForwardingState,
   };
 }
-/**
- * Get an array of possible Relay numbers the user can register.
- */
 
-export async function getRelayNumberSuggestions(): Promise<Response> {
-  const response = await apiFetch("/relaynumber/suggestions/", {
-    method: "GET",
-  });
-  return response;
+type RelayNumberSuggestion = {
+  friendly_name: string;
+  iso_country: string;
+  locality: string;
+  phone_number: string;
+  postal_code: string;
+  region: string;
+};
+
+export type RelayNumberSuggestionsData = {
+  real_num: string;
+  same_area_options: Array<RelayNumberSuggestion>;
+  same_prefix_options: Array<RelayNumberSuggestion>;
+  other_areas_options: Array<RelayNumberSuggestion>;
+};
+
+export function useRelayNumberSuggestions(): SWRResponse<
+  RelayNumberSuggestionsData,
+  unknown
+> {
+  const relayNumberSuggestions: SWRResponse<
+    RelayNumberSuggestionsData,
+    unknown
+  > = useApiV1("/relaynumber/suggestions/");
+
+  return relayNumberSuggestions;
 }

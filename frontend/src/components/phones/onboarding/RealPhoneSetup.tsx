@@ -1,5 +1,6 @@
 import { Localized, useLocalization } from "@fluent/react";
 import styles from "./RealPhoneSetup.module.scss";
+import "react-phone-number-input/style.css";
 import PhoneVerify from "./images/phone-verify.svg";
 import EnterVerifyCode from "./images/enter-verify-code.svg";
 import EnterVerifyCodeError from "./images/verify-code-error.svg";
@@ -19,6 +20,9 @@ import {
   useState,
 } from "react";
 import { parseDate } from "../../../functions/parseDate";
+import PhoneInput from "react-phone-number-input";
+import { E164Number } from "libphonenumber-js/min";
+import { formatPhone } from "../../../functions/formatPhone";
 
 type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
@@ -73,12 +77,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberSubmitted, setPhoneNumberSubmitted] = useState("");
-  const errorMessage = useRef<HTMLDivElement>(null);
-  const phoneNumberField = useRef<HTMLInputElement>(null);
-
-  const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setPhoneNumber(event.target.value);
-  };
+  const [phoneNumberError, setPhoneNumberError] = useState<boolean>(false);
 
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
@@ -89,19 +88,19 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
     // submit the request for phone verification
     const res = await props.requestPhoneVerification(phoneNumber);
 
-    // check if the phone number was successfully submitted for verification
-    if (res.status !== 201) {
-      // show error message if the phone number was not submitted for verification successfully
-      errorMessage.current?.classList.remove(styles["is-hidden"]);
-      // add error class to input field
-      phoneNumberField.current?.classList.add(styles["is-error"]);
-    }
+    /**
+     * Check if the phone number was successfully submitted for verification
+     * This will let us show error message if the phone number was not submitted for
+     * verification successfully and add an error class to input field
+     */
+    setPhoneNumberError(res.status !== 201);
   };
 
   const renderErrorMessage = (
     <div
-      ref={errorMessage}
-      className={`${styles["error"]} ${styles["is-hidden"]}`}
+      className={`${styles["error"]} ${
+        phoneNumberError ? "" : styles["is-hidden"]
+      }`}
     >
       {l10n.getString("phone-onboarding-step2-invalid-number", {
         phone_number: formatPhone(phoneNumberSubmitted),
@@ -110,7 +109,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
   );
 
   return (
-    <div className={`${styles.step}  ${styles["step-verify-input"]} `}>
+    <div className={`${styles.step} ${styles["step-verify-input"]} `}>
       <div className={styles.lead}>
         <img src={PhoneVerify.src} alt="" width={200} />
         <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
@@ -120,17 +119,29 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
       <form onSubmit={onSubmit} className={styles.form}>
         {renderErrorMessage}
 
-        <input
-          className={`${styles["c-verify-phone-input"]}`}
+        <PhoneInput
+          className={`${phoneNumberError ? styles["is-error"] : ""} ${
+            styles["phone-input"]
+          }`}
           placeholder={l10n.getString(
             "phone-onboarding-step2-input-placeholder"
           )}
-          ref={phoneNumberField}
+          countries={["US", "CA"]}
+          // flags are found in /public/images/countryFlags/
+          flagUrl="/images/countryFlags/{xx}.svg"
+          defaultCountry="US"
           type="tel"
+          withCountryCallingCode={true}
+          international
+          autoComplete="tel"
+          limitMaxLength
+          value={phoneNumber}
           required={true}
-          onChange={onChange}
           autoFocus={true}
+          onChange={(number: E164Number) => setPhoneNumber(number)}
+          inputMode="numeric"
         />
+
         <Button className={styles.button} type="submit">
           {l10n.getString("phone-onboarding-step2-button-cta")}
         </Button>
@@ -154,12 +165,12 @@ type RealPhoneVerificationProps = {
 };
 const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   const { l10n } = useLocalization();
-
   const phoneWithMostRecentlySentVerificationCode =
     getPhoneWithMostRecentlySentVerificationCode(
       props.phonesPendingVerification
     );
   const [verificationCode, setVerificationCode] = useState("");
+
   const verificationSentDate = parseDate(
     phoneWithMostRecentlySentVerificationCode.verification_sent_date
   );
@@ -171,7 +182,13 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     useState<boolean>();
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setVerificationCode(event.target.value);
+    setVerificationCode(event.currentTarget.value);
+  };
+
+  const onInvalid: FormEventHandler<HTMLInputElement> = (event) => {
+    event.currentTarget.setCustomValidity(
+      l10n.getString("phone-onboarding-step3-input-placeholder")
+    );
   };
 
   const onSubmit: FormEventHandler = async (event) => {
@@ -279,11 +296,16 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           placeholder={codeEntryPlaceholder}
           required={true}
           maxLength={6}
-          onChange={onChange}
+          minLength={6}
           className={isVerifiedSuccessfully === false ? styles["is-error"] : ""}
+          onChange={onChange}
           autoFocus={true}
+          pattern="^\d{6}$"
+          onInvalid={onInvalid}
+          title={l10n.getString("phone-onboarding-step3-input-placeholder")}
+          value={verificationCode}
         />
-        {/* TODO: add validation */}
+
         <Button
           className={styles.button}
           type="submit"
@@ -343,15 +365,6 @@ function getRemainingTime(
   const elapsedTime = currentTime - verificationSentTime.getTime();
   const remainingTime = maxMinutesToVerify * 60 * 1000 - elapsedTime;
   return remainingTime;
-}
-
-function formatPhone(phoneNumber: string) {
-  // Bug: Any country code with two characters will break
-  // Return in +1 (111) 111-1111 format
-  return `${phoneNumber.substring(0, 2)} (${phoneNumber.substring(
-    2,
-    5
-  )}) ${phoneNumber.substring(5, 8)}-${phoneNumber.substring(8, 12)}`;
 }
 
 function getPhoneWithMostRecentlySentVerificationCode(

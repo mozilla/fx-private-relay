@@ -105,10 +105,6 @@
   padding: $spacing-md;
   text-align: center;
 }
-.step-verify-input .is-error {
-  border: 2px solid $color-red-60;
-  box-shadow: 0 0 4px 4px $color-red-30;
-}
 
 .step-verify-input .is-hidden {
   display: none;
@@ -120,20 +116,6 @@
   display: flex;
   flex-direction: column;
   gap: $spacing-lg;
-}
-
-// https://github.com/jackocnr/intl-tel-input
-.c-verify-phone-input {
-  @include form-input;
-  position: relative;
-  padding-left: $layout-md;
-  background: $spacing-sm center transparent no-repeat;
-  background-image: url("./images/flag-usa.svg");
-  background-size: 1.5rem auto;
-  max-width: $content-xs;
-  margin: 0 auto;
-  // https://stackoverflow.com/questions/37653706/before-with-input-in-firefox
-  // Input doesn't support before/after
 }
 
 // Step 3: Enter verification code
@@ -272,5 +254,18 @@
   p,
   h3 {
     text-align: center;
+  }
+}
+
+.is-error > input {
+  border: 2px solid $color-red-60;
+  box-shadow: 0 0 4px 4px $color-red-30;
+}
+
+// Removes the international option from the phone number country select component
+// We limit the country select to only the countries that we support
+.phone-input :global {
+  option[value="ZZ"] {
+    display: none;
   }
 }
