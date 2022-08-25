@@ -13,7 +13,7 @@ https://docs.docker.com/get-docker/
 ### 2. Build Docker container using official image from playwright
 
 ```
-docker run -v $PWD:/tests -w /tests --rm --ipc=host -it mcr.microsoft.com/playwright:v1.23.0-focal /bin/bash
+docker run -v $PWD:/tests -w /tests --rm --ipc=host -it mcr.microsoft.com/playwright:v1.24.0-focal /bin/bash
 ```
 
 ### 3. Install Node Dependencies
@@ -33,9 +33,7 @@ npx playwright install
 ```
 create/update a .env file with the following:
 
-E2E_TEST_BASE_URL={/* base will be stage url */}
-E2E_TEST_ACCOUNT_FREE=
-E2E_TEST_ACCOUNT_PASSWORD=
+E2E_TEST_ACCOUNT_PASSWORD=<arbitrary password>
 ```
 
 ### 6. Run Tests
