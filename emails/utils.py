@@ -214,12 +214,6 @@ def urlize_and_linebreaks(text, autoescape=True):
     return linebreaksbr(urlize(text, autoescape=autoescape), autoescape=autoescape)
 
 
-def get_post_data_from_request(request):
-    if request.content_type == "application/json":
-        return json.loads(request.body)
-    return request.POST
-
-
 def generate_relay_From(original_from_address, user_profile=None):
     _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
     try:
