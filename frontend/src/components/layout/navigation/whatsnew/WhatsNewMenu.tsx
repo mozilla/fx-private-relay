@@ -51,7 +51,7 @@ import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
 import {
-  getPremiumSubscribeLink,
+  getPhoneSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../../../functions/getPlan";
 
@@ -62,11 +62,6 @@ export type WhatsNewEntry = {
   hero: string;
   icon: string;
   dismissal: DismissalData;
-  cta?: {
-    type?: "upgrade";
-    target?: string;
-    content: string;
-  };
   /**
    * This is used to automatically archive entries of a certain age
    */
@@ -98,13 +93,14 @@ export const WhatsNewMenu = (props: Props) => {
     },
   });
 
-  const ctaUpgrade =
+  const ctaUpgradePhones =
     props.runtimeData &&
+    props.runtimeData !== undefined &&
     !props.profile.has_phone &&
     !props.profile.has_premium &&
     isPremiumAvailableInCountry(props.runtimeData) ? (
       <OutboundLink
-        to={getPremiumSubscribeLink(props.runtimeData)}
+        to={getPhoneSubscribeLink(props.runtimeData)}
         eventLabel={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
         className={styles.cta}
       >
@@ -352,16 +348,12 @@ export const WhatsNewMenu = (props: Props) => {
   const phoneAnnouncement: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-phone-header"),
     snippet: l10n.getString("whatsnew-feature-phone-snippet"),
-    cta: {
-      type: "upgrade",
-      content: l10n.getString("whatsnew-feature-phone-upgrade-cta"),
-    },
     content: (
       <WhatsNewContent
         description={l10n.getString("whatsnew-feature-phone-description")}
         heading={l10n.getString("whatsnew-feature-phone-header")}
         image={PhoneMaskingHero.src}
-        cta={ctaUpgrade}
+        cta={ctaUpgradePhones}
       />
     ),
 
