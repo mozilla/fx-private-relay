@@ -62,7 +62,7 @@ const Home: NextPage = () => {
     <section id="pricing" className={styles["plans-wrapper"]}>
       <div className={styles.plans}>
         <div className={styles["plan-comparison"]}>
-          <Plans premiumCountriesData={runtimeData.data} />
+          <Plans runtimeData={runtimeData.data} />
         </div>
         <div className={styles.callout}>
           <h2>
@@ -78,7 +78,7 @@ const Home: NextPage = () => {
     /* Show waitlist prompt if user is a non-premium country */
     <section id="pricing" className={styles["plans-wrapper"]}>
       <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
-        <Plans />
+        <Plans runtimeData={runtimeData.data} />
       </div>
     </section>
   );
