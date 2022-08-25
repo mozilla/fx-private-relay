@@ -81,14 +81,14 @@ export const SendersPanelView = (props: Props) => {
       )
       .map((data) => {
         return (
-          <li
+          <tr
             key={data.id}
             className={data.blocked ? styles["greyed-contact"] : ""}
           >
-            <span className={styles["sender-number"]}>
+            <td className={styles["sender-number"]}>
               {formatPhone(data.inbound_number ?? "")}
-            </span>
-            <span
+            </td>
+            <td
               className={`${styles["sender-date"]} ${styles["sender-date-wrapper"]}`}
             >
               {data.last_inbound_type === "text" && (
@@ -108,8 +108,8 @@ export const SendersPanelView = (props: Props) => {
                 />
               )}
               {dateTimeFormatter.format(parseDate(data.last_inbound_date))}
-            </span>
-            <span className={styles["sender-controls"]}>
+            </td>
+            <td className={styles["sender-controls"]}>
               <button
                 onClick={() =>
                   inboundContactData.setForwardingState(!data.blocked, data.id)
@@ -118,26 +118,24 @@ export const SendersPanelView = (props: Props) => {
               >
                 {data.blocked ? "Unblock" : "Block"}
               </button>
-            </span>
-          </li>
+            </td>
+          </tr>
         );
       });
 
   const senderLogsPanel = (
-    <ul className={styles["caller-sms-senders-table"]}>
-      <li className={styles["greyed-contact"]}>
-        <span>
-          {l10n.getString("phone-dashboard-sender-table-title-sender")}
-        </span>
-        <span>
-          {l10n.getString("phone-dashboard-sender-table-title-activity")}
-        </span>
-        <span>
-          {l10n.getString("phone-dashboard-sender-table-title-action")}
-        </span>
-      </li>
-      {inboundContactArray}
-    </ul>
+    <table className={styles["caller-sms-senders-table"]}>
+      <thead>
+        <tr className={styles["greyed-contact"]}>
+          <th>{l10n.getString("phone-dashboard-sender-table-title-sender")}</th>
+          <th>
+            {l10n.getString("phone-dashboard-sender-table-title-activity")}
+          </th>
+          <th>{l10n.getString("phone-dashboard-sender-table-title-action")}</th>
+        </tr>
+      </thead>
+      <tbody>{inboundContactArray}</tbody>
+    </table>
   );
 
   return (
