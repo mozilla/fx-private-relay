@@ -25,7 +25,7 @@ export const WhatsNewContent = (props: Props) => {
       <div className={styles.content}>
         <h2>{props.heading}</h2>
         <p>{props.description}</p>
-        <div className={styles.cta}>{props.cta}</div>
+        {props.cta && <div className={styles.cta}>{props.cta}</div>}
       </div>
     </div>
   );
