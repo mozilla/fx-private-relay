@@ -20,7 +20,7 @@ import {
   VisuallyHidden,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
-import { event as gaEvent } from "react-ga";
+import { event as gaEvent, OutboundLink } from "react-ga";
 import styles from "./WhatsNewMenu.module.scss";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
 import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
@@ -50,7 +50,10 @@ import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
-import { trackPurchaseStart } from "../../../../functions/trackPurchase";
+import {
+  getPremiumSubscribeLink,
+  isPremiumAvailableInCountry,
+} from "../../../../functions/getPlan";
 
 export type WhatsNewEntry = {
   title: string;
@@ -59,7 +62,11 @@ export type WhatsNewEntry = {
   hero: string;
   icon: string;
   dismissal: DismissalData;
-  cta?: string;
+  cta?: {
+    type?: "upgrade";
+    target?: string;
+    content: string;
+  };
   /**
    * This is used to automatically archive entries of a certain age
    */
@@ -77,8 +84,10 @@ export type Props = {
   style: string;
   runtimeData?: RuntimeData;
 };
+
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
+
   const triggerState = useOverlayTriggerState({
     onOpenChange(isOpen) {
       gaEvent({
@@ -88,6 +97,21 @@ export const WhatsNewMenu = (props: Props) => {
       });
     },
   });
+
+  const ctaUpgrade =
+    props.runtimeData &&
+    !props.profile.has_phone &&
+    !props.profile.has_premium &&
+    isPremiumAvailableInCountry(props.runtimeData) ? (
+      <OutboundLink
+        to={getPremiumSubscribeLink(props.runtimeData)}
+        eventLabel={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
+        className={styles.cta}
+      >
+        <span>{l10n.getString("whatsnew-feature-phone-upgrade-cta")}</span>
+      </OutboundLink>
+    ) : null;
+
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const addonData = useAddonData();
@@ -328,22 +352,19 @@ export const WhatsNewMenu = (props: Props) => {
   const phoneAnnouncement: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-phone-header"),
     snippet: l10n.getString("whatsnew-feature-phone-snippet"),
+    cta: {
+      type: "upgrade",
+      content: l10n.getString("whatsnew-feature-phone-upgrade-cta"),
+    },
     content: (
       <WhatsNewContent
         description={l10n.getString("whatsnew-feature-phone-description")}
         heading={l10n.getString("whatsnew-feature-phone-header")}
         image={PhoneMaskingHero.src}
-        cta={{
-          type: "upgrade",
-          content: l10n.getString("whatsnew-feature-phone-upgrade-cta"),
-          onClick: () => trackPurchaseStart(),
-          gaViewPing: {
-            category: "Purchase Button",
-            label: "whatsnew-phone-promo",
-          },
-        }}
+        cta={ctaUpgrade}
       />
     ),
+
     hero: PhoneMaskingHero.src,
     icon: PhoneMaskingIcon.src,
     dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),

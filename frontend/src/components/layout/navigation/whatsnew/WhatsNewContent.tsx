@@ -1,11 +1,3 @@
-import { OutboundLink } from "react-ga";
-import {
-  getPremiumSubscribeLink,
-  isPremiumAvailableInCountry,
-} from "../../../../functions/getPlan";
-import { useProfiles } from "../../../../hooks/api/profile";
-import { useRuntimeData } from "../../../../hooks/api/runtimeData";
-import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import styles from "./WhatsNewContent.module.scss";
 
 export type Props = {
@@ -13,13 +5,7 @@ export type Props = {
   description: string;
   image: string;
   videos?: Record<string, string>;
-  cta?: {
-    type?: "upgrade" | undefined;
-    target?: string;
-    content: string;
-    onClick?: () => void;
-    gaViewPing?: Parameters<typeof useGaViewPing>[0];
-  };
+  cta?: JSX.Element | null;
 };
 
 /**
@@ -33,43 +19,13 @@ export type Props = {
  */
 
 export const WhatsNewContent = (props: Props) => {
-  const profiles = useProfiles();
-  const runtimeData = useRuntimeData();
-  const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
-
-  // Non-upgrade CTAs
-  const cta =
-    props.cta && props.cta.target ? (
-      <OutboundLink to={props.cta.target} eventLabel={props.cta.content}>
-        <span>{props.cta.content}</span>
-      </OutboundLink>
-    ) : null;
-
-  // Upgrade CTA
-  const ctaUpgrade =
-    !hasPremium &&
-    isPremiumAvailableInCountry(runtimeData.data) &&
-    props.cta &&
-    props.cta.type === "upgrade" ? (
-      <OutboundLink
-        to={getPremiumSubscribeLink(runtimeData.data)}
-        eventLabel={props.cta.content}
-        className={styles["upgrade-cta"]}
-      >
-        <span>{props.cta.content}</span>
-      </OutboundLink>
-    ) : null;
-
   return (
     <div className={styles.wrapper}>
       <Hero image={props.image} videos={props.videos} />
       <div className={styles.content}>
         <h2>{props.heading}</h2>
         <p>{props.description}</p>
-        <div className={styles.cta}>
-          {cta}
-          {ctaUpgrade}
-        </div>
+        <div className={styles.cta}>{props.cta}</div>
       </div>
     </div>
   );
