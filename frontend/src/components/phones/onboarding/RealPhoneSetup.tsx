@@ -15,14 +15,12 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import {
   ChangeEventHandler,
   FormEventHandler,
-  InvalidEvent,
   useEffect,
   useRef,
   useState,
 } from "react";
 import { parseDate } from "../../../functions/parseDate";
 import PhoneInput from "react-phone-number-input";
-import flags from "react-phone-number-input/flags";
 import { E164Number } from "libphonenumber-js/min";
 import { formatPhone } from "../../../functions/formatPhone";
 
@@ -122,14 +120,18 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
         {renderErrorMessage}
 
         <PhoneInput
-          className={`${phoneNumberError ? styles["is-error"] : ""}`}
+          className={`${phoneNumberError ? styles["is-error"] : ""} ${
+            styles["phone-input"]
+          }`}
           placeholder={l10n.getString(
             "phone-onboarding-step2-input-placeholder"
           )}
           countries={["US", "CA"]}
-          flags={flags}
+          // flags are found in /public/images/countryFlags/
+          flagUrl="/images/countryFlags/{xx}.svg"
           defaultCountry="US"
           type="tel"
+          withCountryCallingCode={true}
           international
           autoComplete="tel"
           limitMaxLength

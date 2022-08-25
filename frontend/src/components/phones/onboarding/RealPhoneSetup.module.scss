@@ -261,3 +261,11 @@
   border: 2px solid $color-red-60;
   box-shadow: 0 0 4px 4px $color-red-30;
 }
+
+// Removes the international option from the phone number country select component
+// We limit the country select to only the countries that we support
+.phone-input :global {
+  option[value="ZZ"] {
+    display: none;
+  }
+}
