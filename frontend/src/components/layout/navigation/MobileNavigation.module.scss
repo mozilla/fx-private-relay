@@ -3,13 +3,8 @@
 
 .mobile-menu {
   width: 100%;
-  position: sticky;
-  top: 0;
   // `height: 0` prevents the menu from taking up space when it's not expanded:
   height: 0;
-  // z-index of 1 (so it overlaps content)
-  // allows menu to slide under main navigation header
-  z-index: 1;
   flex-direction: column;
 }
 
@@ -17,7 +12,6 @@
   width: 100%;
   position: absolute;
   display: flex;
-  z-index: 1;
   flex-direction: row;
   border-bottom: 1px solid $color-light-gray-20;
   background-color: white;
@@ -42,6 +36,7 @@
     p,
     p.is-active {
       color: $color-purple-70;
+      text-transform: uppercase;
     }
 
     &.is-active {

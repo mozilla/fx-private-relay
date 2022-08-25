@@ -257,9 +257,15 @@ $toastify-toast-close-button: var(--toast-close-button);
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: sticky;
+  top: 0;
+  z-index: 2; //z-index is a unit higher, so that it sits above the mask/phone duo nav
 }
 
-.mobile-nav-wrapper {
+.mobile-nav-duo-wrapper {
+  z-index: 1; //z-index is a unit lower, so that the mask/phone duo nav slides sits under the expanded mobile menu
+  position: sticky;
+  top: 0;
   padding-bottom: $layout-xl; // Adds padding to make room for the mask/phone nav on mobile
 
   @media screen and (min-width: $screen-md) {

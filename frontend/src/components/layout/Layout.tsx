@@ -151,7 +151,7 @@ export const Layout = (props: Props) => {
         />
 
         <div className={styles["non-header-wrapper"]}>
-          <div className={styles["mobile-nav-wrapper"]}>
+          <div className={styles["mobile-nav-duo-wrapper"]}>
             <MobileNavigation
               mobileMenuExpanded={mobileMenuExpanded}
               hasPremium={hasPremium}

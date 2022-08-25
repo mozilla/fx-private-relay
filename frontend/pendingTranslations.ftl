@@ -208,7 +208,7 @@ phone-dashboard-sender-disabled-body =  You have disabled the Caller and Sender 
         enable { -brand-name-relay } to keep a log of your callers and senders.
 phone-dashboard-sender-disabled-update-settings = Update Settings
 phone-dashboard-sender-empty-body = You haven't received any call or message yet!
-phone-dashboard-header-new = NEW
+phone-dashboard-header-new = New
 ## Replies
 profile-label-replies = Replies
 profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.
