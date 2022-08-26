@@ -11,6 +11,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
+from typing import Any, Optional
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -307,23 +308,22 @@ def _index_DELETE(request_data, user_profile):
 @csrf_exempt
 def sns_inbound(request):
     incr_if_enabled("sns_inbound", 1)
-    # We can check for some invalid values in headers before processing body
-    # Grabs message information for validation
-    topic_arn = request.headers.get("X-Amz-Sns-Topic-Arn", None)
-    message_type = request.headers.get("X-Amz-Sns-Message-Type", None)
-
-    # Validates header
-    error_details = validate_sns_header(topic_arn, message_type)
-    if error_details:
-        logger.error("validate_sns_header_error", extra=error_details)
-        return HttpResponse(error_details["error"], status=400)
-
+    # First thing we do is verify the signature
     json_body = json.loads(request.body)
     verified_json_body = verify_from_sns(json_body)
+
+    # Validate ARN and message type
+    topic_arn = verified_json_body.get("TopicArn", None)
+    message_type = verified_json_body.get("Type", None)
+    error_details = validate_sns_arn_and_type(topic_arn, message_type)
+    if error_details:
+        logger.error("validate_sns_arn_and_type_error", extra=error_details)
+        return HttpResponse(error_details["error"], status=400)
+
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
-def validate_sns_header(topic_arn, message_type):
+def validate_sns_arn_and_type(topic_arn: str, message_type: str) -> Optional[dict[str, Any]]:
     """
     Validate Topic ARN and SNS Message Type.
 

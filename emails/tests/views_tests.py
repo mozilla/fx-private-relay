@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from unittest.mock import patch, Mock
@@ -33,7 +34,7 @@ from emails.views import (
     _record_receipt_verdicts,
     _sns_message,
     _sns_notification,
-    validate_sns_header,
+    validate_sns_arn_and_type,
     wrapped_email_test,
     InReplyToNotFound,
 )
@@ -870,13 +871,13 @@ TEST_AWS_SNS_TOPIC2 = TEST_AWS_SNS_TOPIC + "-alt"
 
 
 @override_settings(AWS_SNS_TOPIC={TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2})
-class ValidateSnsHeaderTests(SimpleTestCase):
-    def test_valid_headers(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "SubscriptionConfirmation")
+class ValidateSnsArnTypeTests(SimpleTestCase):
+    def test_valid_arn_and_type(self):
+        ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC, "SubscriptionConfirmation")
         assert ret is None
 
     def test_no_topic_arn(self):
-        ret = validate_sns_header(None, "Notification")
+        ret = validate_sns_arn_and_type(None, "Notification")
         assert ret == {
             "error": "Received SNS request without Topic ARN.",
             "received_topic_arn": "''",
@@ -886,15 +887,15 @@ class ValidateSnsHeaderTests(SimpleTestCase):
         }
 
     def test_wrong_topic_arn(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC + "-new", "Notification")
+        ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC + "-new", "Notification")
         assert ret["error"] == "Received SNS message for wrong topic."
 
     def test_no_message_type(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC2, None)
+        ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC2, None)
         assert ret["error"] == "Received SNS request without Message Type."
 
     def test_unsupported_message_type(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
+        ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
         assert ret["error"] == "Received SNS message for unsupported Type."
 
 
@@ -937,44 +938,48 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         )
         assert ret.status_code == 200
 
-    def test_no_topic_arn_header(self):
-        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
+    def test_no_topic_arn(self):
+        invalid_message = deepcopy(self.valid_message)
+        invalid_message["TopicArn"] = None
         ret = self.client.post(
             self.url,
-            data=self.valid_message,
+            data=invalid_message,
             content_type="application/json",
             HTTP_X_AMZ_SNS_TOPIC_ARN=None,
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Topic ARN."
 
-    def test_wrong_topic_arn_header(self):
-        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
+    def test_wrong_topic_arn(self):
+        invalid_message = deepcopy(self.valid_message)
+        invalid_message["TopicArn"] = "wrong_arn"
         ret = self.client.post(
             self.url,
-            data=self.valid_message,
+            data=invalid_message,
             content_type="application/json",
             HTTP_X_AMZ_SNS_TOPIC_ARN="wrong_arn",
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS message for wrong topic."
 
-    def test_no_message_type_header(self):
-        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
+    def test_no_message_type(self):
+        invalid_message = deepcopy(self.valid_message)
+        invalid_message["Type"] = None
         ret = self.client.post(
             self.url,
-            data=self.valid_message,
+            data=invalid_message,
             content_type="application/json",
             HTTP_X_AMZ_SNS_MESSAGE_TYPE=None,
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Message Type."
 
-    def test_unsupported_message_type_header(self):
-        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
+    def test_unsupported_message_type(self):
+        invalid_message = deepcopy(self.valid_message)
+        invalid_message["Type"] = "UnsubscribeConfirmation"
         ret = self.client.post(
             self.url,
-            data=self.valid_message,
+            data=invalid_message,
             content_type="application/json",
             HTTP_X_AMZ_SNS_MESSAGE_TYPE="UnsubscribeConfirmation",
         )
