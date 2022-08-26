@@ -491,7 +491,8 @@ def _handle_sms_reply(relay_number, real_phone, inbound_body):
     client = twilio_client()
     storing_phone_log = get_storing_phone_log(relay_number)
     if not storing_phone_log:
-        error = "You can only reply if you allow Firefox Relay to keep a log of your callers and text senders. https://relay.firefox.com/accounts/settings/"
+        origin = settings.SITE_ORIGIN
+        error = f"You can only reply if you allow Firefox Relay to keep a log of your callers and text senders. {origin}/accounts/settings/"
         client.messages.create(
             from_=relay_number.number,
             body=error,

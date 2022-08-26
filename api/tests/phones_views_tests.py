@@ -700,6 +700,7 @@ def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_clien
     assert call_kwargs["to"] == real_phone.number
     assert call_kwargs["from_"] == relay_number.number
     assert "You can only reply" in call_kwargs["body"]
+    assert f"{settings.SITE_ORIGIN}" in call_kwargs["body"]
 
 
 def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
