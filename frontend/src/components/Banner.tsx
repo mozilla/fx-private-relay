@@ -11,18 +11,7 @@ export type BannerProps = {
   type?: "promo" | "warning" | "info";
   title?: string;
   illustration?: ReactNode;
-  cta?: {
-    target: string;
-    content: string;
-    onClick?: () => void;
-    gaViewPing?: Parameters<typeof useGaViewPing>[0];
-    size?: "medium" | "large";
-  };
-  btn?: {
-    content: string;
-    onClick?: () => void;
-    gaViewPing?: Parameters<typeof useGaViewPing>[0];
-  };
+  cta?: BannerCtaProps;
   /**
    * See {@link useLocalDismissal}; determines whether and for how long the user can dismiss this banner.
    */
@@ -39,7 +28,6 @@ export type BannerProps = {
  * See {@link BannerProps["type"]} for the different types of banner themes supported.
  */
 export const Banner = (props: BannerProps) => {
-  const ctaRef = useGaViewPing(props.cta?.gaViewPing ?? null);
   const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", {
     duration: props.dismissal?.duration,
   });
@@ -71,31 +59,7 @@ export const Banner = (props: BannerProps) => {
     <div className={styles.illustration}>{props.illustration}</div>
   ) : null;
 
-  const cta = props.cta ? (
-    <div
-      className={
-        props.cta.size === "large" ? styles["cta-large-button"] : styles.cta
-      }
-    >
-      <OutboundLink
-        to={props.cta.target}
-        eventLabel={props.cta.content}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={props.cta.onClick}
-      >
-        <span ref={ctaRef}>{props.cta.content}</span>
-      </OutboundLink>
-    </div>
-  ) : null;
-
-  const btn = props.btn ? (
-    <div className={styles.cta}>
-      <button onClick={props.btn.onClick}>
-        <span ref={ctaRef}>{props.btn.content}</span>
-      </button>
-    </div>
-  ) : null;
+  const cta = props.cta ? <BannerCta {...props.cta} /> : null;
 
   const dismissButton =
     typeof props.dismissal !== "undefined" ? (
@@ -128,7 +92,6 @@ export const Banner = (props: BannerProps) => {
             {title}
             {props.children}
             {props.cta?.size !== "large" ? cta : null}
-            {btn}
           </div>
           {props.cta?.size === "large" ? cta : null}
         </div>
@@ -138,4 +101,47 @@ export const Banner = (props: BannerProps) => {
   }
 
   return null;
+};
+
+type BannerCtaProps = {
+  target?: string;
+  content: string;
+  onClick?: () => void;
+  gaViewPing?: Parameters<typeof useGaViewPing>[0];
+  size?: "medium" | "large";
+} & ({ target: string } | { onClick: () => void }); // At least one of `target` and `onClick` is required:
+export const BannerCta = (props: BannerCtaProps) => {
+  const ctaRef = useGaViewPing(props.gaViewPing ?? null);
+
+  if (typeof props.target !== "string") {
+    return (
+      <div
+        className={
+          props.size === "large" ? styles["cta-large-button"] : styles.cta
+        }
+      >
+        <button onClick={props.onClick}>
+          <span ref={ctaRef}>{props.content}</span>
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={
+        props.size === "large" ? styles["cta-large-button"] : styles.cta
+      }
+    >
+      <OutboundLink
+        to={props.target}
+        eventLabel={props.content}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={props.onClick}
+      >
+        <span ref={ctaRef}>{props.content}</span>
+      </OutboundLink>
+    </div>
+  );
 };
