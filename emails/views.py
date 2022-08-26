@@ -21,12 +21,10 @@ from waffle import sample_is_active
 from waffle.models import Flag
 
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
@@ -48,7 +46,6 @@ from .utils import (
     remove_trackers,
     count_all_trackers,
     get_message_content_from_s3,
-    get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
     ses_relay_email,
@@ -191,118 +188,6 @@ def wrapped_email_test(request):
         num_level_one_email_trackers_removed=num_level_one_email_trackers_removed,
     )
     return HttpResponse(wrapped_email)
-
-
-@csrf_exempt
-def index(request):
-    incr_if_enabled("emails_index", 1)
-    try:
-        request_data = get_post_data_from_request(request)
-    except JSONDecodeError:
-        return HttpResponse("Could not process request.", status=422)
-    is_validated_create = request_data.get(
-        "method_override", None
-    ) is None and request_data.get("api_token", False)
-    is_validated_user = request.user.is_authenticated and request_data.get(
-        "api_token", False
-    )
-    if is_validated_create:
-        return _index_POST(request)
-    if not is_validated_user:
-        return redirect("profile")
-    if request.method == "POST":
-        return _index_POST(request)
-    incr_if_enabled("emails_index_get", 1)
-    return redirect("profile")
-
-
-def _get_user_profile(request, api_token):
-    if not request.user.is_authenticated:
-        return Profile.objects.get(api_token=api_token)
-    return request.user.profile_set.first()
-
-
-def _index_POST(request):
-    try:
-        request_data = get_post_data_from_request(request)
-    except JSONDecodeError:
-        return HttpResponse("Could not process request.", status=422)
-    api_token = request_data.get("api_token", None)
-    if not api_token:
-        raise PermissionDenied
-    user_profile = _get_user_profile(request, api_token)
-    if not user_profile.user.is_active:
-        raise PermissionDenied
-    try:
-        if request_data.get("method_override", None) == "PUT":
-            return _index_PUT(request_data, user_profile)
-        if request_data.get("method_override", None) == "DELETE":
-            return _index_DELETE(request_data, user_profile)
-    except (RelayAddress.DoesNotExist, DomainAddress.DoesNotExist):
-        return HttpResponse("Address does not exist", status=404)
-
-    incr_if_enabled("emails_index_post", 1)
-
-    with transaction.atomic():
-        locked_profile = Profile.objects.select_for_update().get(user=user_profile.user)
-        try:
-            relay_address = RelayAddress.objects.create(
-                user=locked_profile.user,
-            )
-        except CannotMakeAddressException as e:
-            if settings.SITE_ORIGIN not in request.headers.get("Origin", ""):
-                # add-on request
-                return HttpResponse(e.message, status=402)
-            messages.error(request, e.message)
-            return redirect("profile")
-
-    if settings.SITE_ORIGIN not in request.headers.get("Origin", ""):
-        return JsonResponse(
-            {
-                "id": relay_address.id,
-                "address": relay_address.full_address,
-                "domain": relay_address.domain_value,
-                "local_portion": relay_address.address,
-            },
-            status=201,
-        )
-
-    return redirect("profile")
-
-
-def _get_address_from_id(request_data, user_profile):
-    if request_data.get("relay_address_id", False):
-        relay_address = RelayAddress.objects.get(
-            id=request_data["relay_address_id"], user=user_profile.user
-        )
-        return relay_address
-    domain_address = DomainAddress.objects.get(
-        id=request_data["domain_address_id"], user=user_profile.user
-    )
-    return domain_address
-
-
-def _index_PUT(request_data, user_profile):
-    incr_if_enabled("emails_index_put", 1)
-    address = _get_address_from_id(request_data, user_profile)
-    if request_data.get("enabled") == "Disable":
-        # TODO?: create a soft bounce receipt rule for the address?
-        address.enabled = False
-    elif request_data.get("enabled") == "Enable":
-        # TODO?: remove soft bounce receipt rule for the address?
-        address.enabled = True
-    address.save()
-
-    forwardingStatus = {"enabled": address.enabled}
-    return JsonResponse(forwardingStatus)
-
-
-def _index_DELETE(request_data, user_profile):
-    incr_if_enabled("emails_index_delete", 1)
-    address = _get_address_from_id(request_data, user_profile)
-    # TODO?: create hard bounce receipt rule for the address
-    address.delete()
-    return redirect("profile")
 
 
 @csrf_exempt
