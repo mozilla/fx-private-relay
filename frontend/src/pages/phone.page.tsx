@@ -72,7 +72,7 @@ const Phone: NextPage = () => {
           <Banner
             title={l10n.getString("phone-banner-resend-welcome-sms-title")}
             type="info"
-            btn={{
+            cta={{
               content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
               onClick: () => realPhoneData.resendWelcomeSMS(),
 
