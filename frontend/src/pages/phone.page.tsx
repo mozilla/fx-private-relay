@@ -12,6 +12,7 @@ import { Banner } from "../components/Banner";
 import styles from "./phone.module.scss";
 import { useLocalization } from "@fluent/react";
 import { useRealPhonesData } from "../hooks/api/realPhone";
+import { DashboardSwitcher } from "../components/layout/navigation/DashboardSwitcher";
 
 const Phone: NextPage = () => {
   const profileData = useProfiles();
@@ -48,6 +49,7 @@ const Phone: NextPage = () => {
   if (profile && user && !profile.has_phone) {
     return (
       <Layout>
+        <DashboardSwitcher />
         <PurchasePhonesPlan />
       </Layout>
     );
@@ -56,6 +58,7 @@ const Phone: NextPage = () => {
   if (isInOnboarding || relayNumberData.data.length === 0) {
     return (
       <Layout>
+        <DashboardSwitcher />
         <PhoneOnboarding onComplete={() => setIsInOnboarding(false)} />
       </Layout>
     );
@@ -63,6 +66,7 @@ const Phone: NextPage = () => {
 
   return (
     <Layout>
+      <DashboardSwitcher />
       <main className={styles["main-wrapper"]}>
         <div className={styles["banner-wrapper"]}>
           <Banner
