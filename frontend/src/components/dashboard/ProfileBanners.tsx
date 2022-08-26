@@ -1,5 +1,5 @@
 import { Localized, useLocalization } from "@fluent/react";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
@@ -24,6 +24,9 @@ import { renderDate } from "../../functions/renderDate";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
+import { getLocale } from "../../functions/getLocale";
+import { CountdownTimer, introPricingOfferEndDate } from "../CountdownTimer";
+import { useInterval } from "../../hooks/interval";
 
 export type Props = {
   profile: ProfileData;
@@ -67,6 +70,19 @@ export const ProfileBanners = (props: Props) => {
       onCreate={props.onCreateSubdomain}
     />
   );
+
+  if (
+    !props.profile.has_premium &&
+    isPremiumAvailableInCountry(props.runtimeData)
+  ) {
+    banners.push(
+      <EndOfIntroPricingOfferBanner
+        key="end-of-intro-pricing"
+        runtimeData={props.runtimeData}
+        profile={props.profile}
+      />
+    );
+  }
 
   // Don't show the "Get Firefox" banner if we have an extension available,
   // to avoid banner overload:
@@ -249,6 +265,56 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
       <p>
         {l10n.getString("banner-upgrade-loyalist-copy-2", {
           monthly_price: getPlan(props.runtimeData).price,
+        })}
+      </p>
+    </Banner>
+  );
+};
+
+type EndOfIntroPricingOfferBannerProps = {
+  runtimeData: RuntimeDataWithPremiumAvailable;
+  profile: ProfileData;
+};
+const EndOfIntroPricingOfferBanner = (
+  props: EndOfIntroPricingOfferBannerProps
+) => {
+  const { l10n } = useLocalization();
+  const [now, setNow] = useState(Date.now());
+  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
+    dateStyle: "long",
+  });
+
+  useInterval(() => {
+    setNow(Date.now());
+  }, 1000);
+
+  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
+
+  // Don't show if the countdown has finished, or is so far in the future that
+  // the user's computer's clock is likely to be wrong:
+  if (remainingTimeInMs <= 0 || remainingTimeInMs > 32 * 24 * 60 * 60 * 1000) {
+    return null;
+  }
+
+  return (
+    <Banner
+      key="offer-end-banner"
+      type="promo"
+      title={l10n.getString("banner-offer-end-headline")}
+      illustration={<CountdownTimer remainingTimeInMs={remainingTimeInMs} />}
+      cta={{
+        size: "large",
+        content: l10n.getString("banner-offer-end-cta"),
+        target: getPremiumSubscribeLink(props.runtimeData),
+        onClick: () => trackPurchaseStart(),
+      }}
+      dismissal={{
+        key: `offer-end-${props.profile.id}`,
+      }}
+    >
+      <p>
+        {l10n.getString("banner-offer-end-copy", {
+          end_date: endDateFormatter.format(introPricingOfferEndDate),
         })}
       </p>
     </Banner>
