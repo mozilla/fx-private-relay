@@ -10,6 +10,7 @@ import {
   RequestPhoneRemovalFn,
   UnverifiedPhone,
   PhoneNumberSubmitVerificationFn,
+  useRealPhonesData,
 } from "../../../hooks/api/realPhone";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import {
@@ -20,7 +21,10 @@ import {
   useState,
 } from "react";
 import { parseDate } from "../../../functions/parseDate";
-import PhoneInput from "react-phone-number-input";
+import PhoneInput, {
+  isPossiblePhoneNumber,
+  parsePhoneNumber,
+} from "react-phone-number-input";
 import { E164Number } from "libphonenumber-js/min";
 import { formatPhone } from "../../../functions/formatPhone";
 
@@ -46,6 +50,9 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
           setIsEnteringNumber(false);
           return props.onRequestVerification(number);
         }}
+        requestPhoneRemoval={(id) => {
+          return props.onRequestPhoneRemoval(id);
+        }}
       />
     );
   }
@@ -55,14 +62,11 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
       phonesPendingVerification={phonesPendingVerification}
       submitPhoneVerification={props.onSubmitVerification}
       requestPhoneVerification={(number) => {
-        setIsEnteringNumber(false);
         return props.onRequestVerification(number);
       }}
       maxMinutesToVerify={props.runtimeData.MAX_MINUTES_TO_VERIFY_REAL_PHONE}
-      onGoBack={() => setIsEnteringNumber(true)}
-      requestPhoneRemoval={(id: number) => {
+      onGoBack={() => {
         setIsEnteringNumber(true);
-        return props.onRequestPhoneRemoval(id);
       }}
     />
   );
@@ -70,11 +74,12 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
 
 type RealPhoneFormProps = {
   requestPhoneVerification: (phoneNumber: string) => Promise<Response>;
+  requestPhoneRemoval: (id: number) => Promise<Response>;
 };
 
 const RealPhoneForm = (props: RealPhoneFormProps) => {
   const { l10n } = useLocalization();
-
+  const phoneNumberData = useRealPhonesData();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberSubmitted, setPhoneNumberSubmitted] = useState("");
   const [phoneNumberError, setPhoneNumberError] = useState<boolean>(false);
@@ -84,6 +89,24 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 
     // use this number to show user the number they submitted
     setPhoneNumberSubmitted(phoneNumber);
+
+    // check if number is a possible number to begin with
+    // this should deal with the case where the user enters a number with too few digits.
+    if (!isPossiblePhoneNumber(phoneNumber)) {
+      setPhoneNumberError(true);
+      return;
+    }
+
+    // check if phone data is available, check if current number matches number being passed in.
+    // Only request removal if numbers don't match.
+    if (
+      phoneNumberData.data &&
+      phoneNumberData.data[0] &&
+      phoneNumberData.data[0].number !== phoneNumber
+    ) {
+      // request removal of current number
+      await props.requestPhoneRemoval(phoneNumberData.data[0].id);
+    }
 
     // submit the request for phone verification
     const res = await props.requestPhoneVerification(phoneNumber);
@@ -150,15 +173,9 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
   );
 };
 
-// TODO: Add logic to display the correct information between: default/error/success for the following Step Three
-// Init state: Enter verification
-// If 5 mins expire, show errorTimeExpired message
-// If code is wrong, add is-error classes and update image/title
-// If code is correct, show successWhatsNext and  update image/title
 type RealPhoneVerificationProps = {
   phonesPendingVerification: UnverifiedPhone[];
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
-  requestPhoneRemoval: (id: number) => Promise<Response>;
   requestPhoneVerification: (numberToVerify: string) => Promise<Response>;
   maxMinutesToVerify: number;
   onGoBack: () => void;
@@ -205,6 +222,12 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     setIsVerifiedSuccessfully(response.ok);
   };
 
+  const onSendNewCode = async () => {
+    props.requestPhoneVerification(
+      phoneWithMostRecentlySentVerificationCode.number
+    );
+  };
+
   useInterval(() => {
     setRemainingTime(
       getRemainingTime(verificationSentDate, props.maxMinutesToVerify)
@@ -218,15 +241,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
       }`}
     >
       <p>{l10n.getString("phone-onboarding-step3-error-exipred")}</p>
-      <Button
-        className={styles.button}
-        type="button"
-        onClick={() => {
-          props.requestPhoneVerification(
-            phoneWithMostRecentlySentVerificationCode.number
-          );
-        }}
-      >
+      <Button className={styles.button} type="button" onClick={onSendNewCode}>
         {l10n.getString("phone-onboarding-step3-error-cta")}
       </Button>
     </div>
@@ -317,11 +332,9 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
 
       {(remainingTime < 0 || !isVerifiedSuccessfully) && (
         <Button
-          onClick={() =>
-            props.requestPhoneRemoval(
-              phoneWithMostRecentlySentVerificationCode.id
-            )
-          }
+          onClick={() => {
+            props.onGoBack();
+          }}
           className={styles.button}
           type="button"
           variant="secondary"
