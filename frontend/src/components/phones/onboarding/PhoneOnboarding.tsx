@@ -23,7 +23,7 @@ export const PhoneOnboarding = (props: Props) => {
 
   // Make sure profile and runtime data are available
   if (profiles.data?.[0] === undefined || !runtimeData.data) {
-    return null;
+    return <>TODO: Profile Loading/Error</>;
   }
 
   // Show Upgrade Prompt - User has not yet purchased phone
@@ -33,7 +33,7 @@ export const PhoneOnboarding = (props: Props) => {
 
   // Make sure realPhoneData data is available
   if (realPhoneData.data === undefined) {
-    return null;
+    return <>TODO: realPhoneData Loading/Error</>;
   }
 
   const verifiedPhones = realPhoneData.data.filter(isVerified);

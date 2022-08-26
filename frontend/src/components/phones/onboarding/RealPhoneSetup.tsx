@@ -21,10 +21,7 @@ import {
   useState,
 } from "react";
 import { parseDate } from "../../../functions/parseDate";
-import PhoneInput, {
-  isPossiblePhoneNumber,
-  parsePhoneNumber,
-} from "react-phone-number-input";
+import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
 import { E164Number } from "libphonenumber-js/min";
 import { formatPhone } from "../../../functions/formatPhone";
 
