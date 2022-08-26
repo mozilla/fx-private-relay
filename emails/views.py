@@ -11,6 +11,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
+from typing import Any, Optional
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -322,7 +323,7 @@ def sns_inbound(request):
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
-def validate_sns_arn_and_type(topic_arn, message_type):
+def validate_sns_arn_and_type(topic_arn: str, message_type: str) -> Optional[dict[str, Any]]:
     """
     Validate Topic ARN and SNS Message Type.
 
