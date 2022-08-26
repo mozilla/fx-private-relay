@@ -43,7 +43,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' "num_address_created_per_day",'
             ' "num_replies_per_day",'
             ' "user_id",'
-            ' 0,'
+            " 0,"
             ' 0 FROM "emails_abusemetrics";'
         )
         schema_editor.execute('DROP TABLE "emails_abusemetrics";')
