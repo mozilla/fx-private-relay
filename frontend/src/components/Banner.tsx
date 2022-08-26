@@ -52,7 +52,9 @@ export const Banner = (props: BannerProps) => {
             {props.title}
           </h2>
         )) ||
-        (type === "info" && <h2 className={styles.title}>{props.title}</h2>)
+        (["info", "promo"].includes(type) && (
+          <h2 className={styles.title}>{props.title}</h2>
+        ))
       : null;
 
   const illustration = props.illustration ? (
