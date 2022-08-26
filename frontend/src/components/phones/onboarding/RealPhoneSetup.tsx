@@ -1,4 +1,7 @@
+import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { Localized, useLocalization } from "@fluent/react";
+import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
+import { E164Number } from "libphonenumber-js/min";
 import styles from "./RealPhoneSetup.module.scss";
 import "react-phone-number-input/style.css";
 import PhoneVerify from "./images/phone-verify.svg";
@@ -13,17 +16,9 @@ import {
   useRealPhonesData,
 } from "../../../hooks/api/realPhone";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
-import {
-  ChangeEventHandler,
-  FormEventHandler,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
 import { parseDate } from "../../../functions/parseDate";
-import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
-import { E164Number } from "libphonenumber-js/min";
 import { formatPhone } from "../../../functions/formatPhone";
+import { useInterval } from "../../../hooks/interval";
 
 type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
@@ -345,30 +340,6 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     </div>
   );
 };
-
-type IntervalFunction = () => unknown | void;
-// See https://overreacted.io/making-setinterval-declarative-with-react-hooks/
-function useInterval(callback: IntervalFunction, delay: number) {
-  const savedCallback = useRef<IntervalFunction | null>(null);
-
-  // Remember the latest callback.
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  // Set up the interval.
-  useEffect(() => {
-    function tick() {
-      if (savedCallback.current !== null) {
-        savedCallback.current();
-      }
-    }
-    if (delay !== null) {
-      const id = setInterval(tick, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
-}
 
 function getRemainingTime(
   verificationSentTime: Date,

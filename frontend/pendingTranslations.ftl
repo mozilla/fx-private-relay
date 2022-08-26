@@ -229,6 +229,49 @@ banner-upgrade-loyalist-headline-2 = Protect your privacy, save the internet
 #   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
 banner-upgrade-loyalist-copy-2 = Protect your privacy while joining our mission to build a better internet, all for { $monthly_price }
 
+# End of intro pricing banner
+
+banner-offer-end-headline = Our intro pricing offer ends soon!
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27"
+banner-offer-end-copy = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our intro month-to-month price.
+banner-offer-end-cta = Upgrade now
+
+# Time remaining until Relay Premium's introductory pricing is no longer available.
+# This will not be shown anymore once the time runs out.
+# Variables:
+#   $remaining_days (number) - The number of days before the countdown stops
+#   $remaining_hours (number) - The number of hours (in addition to $remaining_days) before the countdown stops
+offer-countdown-timer-alt =
+    { $remaining_days ->
+        [0] { $remaining_hours ->
+            [1] 1 hour remaining
+            *[other] { $remaining_hours } hours remaining
+        }
+        [1] { $remaining_hours ->
+            [0] 1 day remaining
+            [1] 1 day and 1 hour remaining
+            *[other] 1 day and { $remaining_hours } hours remaining
+        }
+        *[other] { $remaining_hours ->
+            [0] { $remaining_days } days remaining
+            [1] { $remaining_days } days and 1 hour remaining
+            *[other] { $remaining_days } days and { $remaining_hours } hours remaining
+        }
+    }
+# This is a label displayed on top of a large number representing the number of days that the introductory pricing offer is still valid
+# There's not much room for this, so this might need abbreviating.
+offer-countdown-timer-days = Days
+# This is a label displayed on top of a large number representing the number of hours of the remaining time the introductory pricing offer is still valid
+# There's not much room for this, so this might need abbreviating.
+offer-countdown-timer-hours = Hours
+# This is a label displayed on top of a large number representing the number of minutes of the remaining time the introductory pricing offer is still valid
+# There's not much room for this, hence the abbreviation.
+offer-countdown-timer-minutes = Min.
+# This is a label displayed on top of a large number representing the number of seconds of the remaining time the introductory pricing offer is still valid
+# There's not much room for this, hence the abbreviation.
+offer-countdown-timer-seconds = Sec.
+
 whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
 # A preview of the full content of `whatsnew-feature-tracker-removal-description`.
 # When translating, please make sure the resulting string is of roughly similar
