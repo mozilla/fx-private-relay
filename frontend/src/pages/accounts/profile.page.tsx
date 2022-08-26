@@ -52,6 +52,7 @@ import { AddonData } from "../../components/dashboard/AddonData";
 import { useAddonData } from "../../hooks/addon";
 import { CloseIcon } from "../../components/Icons";
 import { isFlagActive } from "../../functions/waffle";
+import { DashboardSwitcher } from "../../components/layout/navigation/DashboardSwitcher";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -136,6 +137,9 @@ const Profile: NextPage = () => {
           totalForwardedEmails={profile.emails_forwarded}
         />
         <Layout runtimeData={runtimeData.data}>
+          {isFlagActive(runtimeData.data, "phones") ? (
+            <DashboardSwitcher />
+          ) : null}
           <PremiumOnboarding
             profile={profile}
             onNextStep={onNextStep}
@@ -379,6 +383,9 @@ const Profile: NextPage = () => {
         totalForwardedEmails={profile.emails_forwarded}
       />
       <Layout runtimeData={runtimeData.data}>
+        {isFlagActive(runtimeData.data, "phones") ? (
+          <DashboardSwitcher />
+        ) : null}
         <main className={styles["profile-wrapper"]}>
           {stats}
           {topBanners}

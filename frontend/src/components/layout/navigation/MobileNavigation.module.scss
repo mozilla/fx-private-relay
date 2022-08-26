@@ -3,60 +3,14 @@
 
 .mobile-menu {
   width: 100%;
+  position: sticky;
+  top: 0;
+  // z-index of 1 (so it overlaps content)
+  // allows menu to slide under main navigation header
+  z-index: 1;
   // `height: 0` prevents the menu from taking up space when it's not expanded:
   height: 0;
   flex-direction: column;
-}
-
-.nav-mask-phone {
-  width: 100%;
-  position: absolute;
-  display: flex;
-  flex-direction: row;
-  border-bottom: 1px solid $color-light-gray-20;
-  background-color: white;
-
-  > * {
-    flex: 1 1 auto;
-    padding: $spacing-lg 0 $spacing-md 0;
-    justify-content: center;
-    display: flex;
-    border-bottom: 5px solid transparent;
-
-    &.is-active {
-      border-bottom: 5px solid $color-purple-40;
-    }
-  }
-
-  .nav-mask-phone-icon {
-    color: $color-grey-40;
-    stroke: $color-grey-40;
-    stroke-width: 0.5px;
-
-    p,
-    p.is-active {
-      color: $color-purple-70;
-      text-transform: uppercase;
-    }
-
-    &.is-active {
-      color: $color-purple-40;
-      stroke: $color-purple-40;
-    }
-  }
-
-  .phone-icon-new-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-content: center;
-
-    p {
-      @include text-body-sm;
-      margin: 0;
-      font-weight: 600;
-      align-self: center;
-    }
-  }
 }
 
 #mobile-menu {
@@ -209,11 +163,5 @@
     svg {
       color: $color-purple-40;
     }
-  }
-}
-
-.hidden-desktop {
-  @media screen and (min-width: $screen-md) {
-    display: none;
   }
 }
