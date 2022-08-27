@@ -1,3 +1,4 @@
+import fc from "fast-check";
 import { getRemainingTimeParts } from "./CountdownTimer";
 
 describe("getRemainingTimeParts", () => {
@@ -140,5 +141,140 @@ describe("getRemainingTimeParts", () => {
       remainingMinutes: 3,
       remainingSeconds: 59,
     });
+  });
+
+  it("never returns a negative number of days", () => {
+    const runs = 100;
+    expect.assertions(runs);
+    fc.assert(
+      fc.property(
+        fc.nat({ max: 90 * 24 * 60 * 60 * 1000 }),
+        (timeInMilliseconds) => {
+          const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
+          expect(remainingTimeParts.remainingDays).toBeGreaterThanOrEqual(0);
+        }
+      ),
+      { numRuns: runs }
+    );
+  });
+
+  it("never returns more hours than fit in a day", () => {
+    const runs = 100;
+    expect.assertions(runs);
+    fc.assert(
+      fc.property(
+        fc.nat({ max: 90 * 24 * 60 * 60 * 1000 }),
+        (timeInMilliseconds) => {
+          const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
+          expect(remainingTimeParts.remainingHours).toBeLessThan(24);
+        }
+      ),
+      { numRuns: runs }
+    );
+  });
+
+  it("never returns a negative number of hours", () => {
+    const runs = 100;
+    expect.assertions(runs);
+    fc.assert(
+      fc.property(
+        fc.nat({ max: 90 * 24 * 60 * 60 * 1000 }),
+        (timeInMilliseconds) => {
+          const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
+          expect(remainingTimeParts.remainingHours).toBeGreaterThanOrEqual(0);
+        }
+      ),
+      { numRuns: runs }
+    );
+  });
+
+  it("never returns more minutes than fit in an hour", () => {
+    const runs = 100;
+    expect.assertions(runs);
+    fc.assert(
+      fc.property(
+        fc.nat({ max: 90 * 24 * 60 * 60 * 1000 }),
+        (timeInMilliseconds) => {
+          const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
+          expect(remainingTimeParts.remainingMinutes).toBeLessThan(60);
+        }
+      ),
+      { numRuns: runs }
+    );
+  });
+
+  it("never returns a negative number of minutes", () => {
+    const runs = 100;
+    expect.assertions(runs);
+    fc.assert(
+      fc.property(
+        fc.nat({ max: 90 * 24 * 60 * 60 * 1000 }),
+        (timeInMilliseconds) => {
+          const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
+          expect(remainingTimeParts.remainingMinutes).toBeGreaterThanOrEqual(0);
+        }
+      ),
+      { numRuns: runs }
+    );
+  });
+
+  it("never returns more seconds than fit in a minute", () => {
+    const runs = 100;
+    expect.assertions(runs);
+    fc.assert(
+      fc.property(
+        fc.nat({ max: 90 * 24 * 60 * 60 * 1000 }),
+        (timeInMilliseconds) => {
+          const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
+          expect(remainingTimeParts.remainingSeconds).toBeLessThan(60);
+        }
+      ),
+      { numRuns: runs }
+    );
+  });
+
+  it("never returns a negative number of seconds", () => {
+    const runs = 100;
+    expect.assertions(runs);
+    fc.assert(
+      fc.property(
+        fc.nat({ max: 90 * 24 * 60 * 60 * 1000 }),
+        (timeInMilliseconds) => {
+          const remainingTimeParts = getRemainingTimeParts(timeInMilliseconds);
+          expect(remainingTimeParts.remainingSeconds).toBeGreaterThanOrEqual(0);
+        }
+      ),
+      { numRuns: runs }
+    );
+  });
+
+  it("always properly detects the number of remaining days, hours, minutes and seconds", () => {
+    const runs = 100;
+    expect.assertions(runs * 4);
+    fc.assert(
+      fc.property(
+        fc.tuple(
+          fc.nat({ max: 90 }),
+          fc.nat({ max: 23 }),
+          fc.nat({ max: 59 }),
+          fc.nat({ max: 59 }),
+          fc.nat({ max: 999 })
+        ),
+        ([days, hours, minutes, seconds, milliseconds]) => {
+          const remainingTimeParts = getRemainingTimeParts(
+            days * 24 * 60 * 60 * 1000 +
+              hours * 60 * 60 * 1000 +
+              minutes * 60 * 1000 +
+              seconds * 1000 +
+              milliseconds
+          );
+          expect(remainingTimeParts.remainingDays).toBe(days);
+          expect(remainingTimeParts.remainingHours).toBe(hours);
+          expect(remainingTimeParts.remainingMinutes).toBe(minutes);
+          expect(remainingTimeParts.remainingSeconds).toBe(seconds);
+        }
+      ),
+      { numRuns: runs }
+    );
   });
 });
