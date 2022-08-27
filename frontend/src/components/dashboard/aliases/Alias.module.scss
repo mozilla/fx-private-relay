@@ -108,7 +108,7 @@ $trackerRemovalIndicatorWidth: 20px;
     width: 100%;
     flex-basis: 0;
 
-    &:focus {
+    &:focus-visible {
       // For some reason (presumably related to `.copy-button-wrapper`'s
       // relative positioning), Protocol's default outline isn't visible by
       // default. Thus, we add a focus style using a border, and then remove the
