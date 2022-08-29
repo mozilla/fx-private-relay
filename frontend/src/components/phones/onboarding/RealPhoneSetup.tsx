@@ -94,6 +94,9 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
       return;
     }
 
+    // reset error state
+    setPhoneNumberError(false);
+
     // check if phone data is available, check if current number matches number being passed in.
     // Only request removal if numbers don't match.
     if (
