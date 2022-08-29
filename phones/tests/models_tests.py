@@ -21,6 +21,7 @@ if settings.PHONES_ENABLED:
         area_code_numbers,
         get_expired_unverified_realphone_records,
         get_valid_realphone_verification_record,
+        get_last_text_sender,
         location_numbers,
         suggested_numbers,
     )
@@ -358,3 +359,60 @@ def test_save_store_phone_log_false_deletes_data():
 
     with pytest.raises(InboundContact.DoesNotExist):
         inbound_contact.refresh_from_db()
+
+
+def test_get_last_text_sender_returning_None():
+    user = make_phone_test_user()
+    baker.make(RealPhone, user=user, verified=True)
+    relay_number = baker.make(RelayNumber, user=user)
+
+    assert get_last_text_sender(relay_number) == None
+
+
+def test_get_last_text_sender_returning_one():
+    user = make_phone_test_user()
+    baker.make(RealPhone, user=user, verified=True)
+    relay_number = baker.make(RelayNumber, user=user)
+    inbound_contact = baker.make(
+        InboundContact, relay_number=relay_number, last_inbound_type="text"
+    )
+
+    assert get_last_text_sender(relay_number) == inbound_contact
+
+
+def test_get_last_text_sender_lots_of_inbound_returns_one():
+    user = make_phone_test_user()
+    baker.make(RealPhone, user=user, verified=True)
+    relay_number = baker.make(RelayNumber, user=user)
+    baker.make(
+        InboundContact,
+        relay_number=relay_number,
+        last_inbound_type="call",
+        last_inbound_date=datetime.now(timezone.utc) - timedelta(days=4),
+    )
+    baker.make(
+        InboundContact,
+        relay_number=relay_number,
+        last_inbound_type="text",
+        last_inbound_date=datetime.now(timezone.utc) - timedelta(days=3),
+    )
+    baker.make(
+        InboundContact,
+        relay_number=relay_number,
+        last_inbound_type="call",
+        last_inbound_date=datetime.now(timezone.utc) - timedelta(days=2),
+    )
+    baker.make(
+        InboundContact,
+        relay_number=relay_number,
+        last_inbound_type="text",
+        last_inbound_date=datetime.now(timezone.utc) - timedelta(days=1),
+    )
+    inbound_contact = baker.make(
+        InboundContact,
+        relay_number=relay_number,
+        last_inbound_type="text",
+        last_inbound_date=datetime.now(timezone.utc),
+    )
+
+    assert get_last_text_sender(relay_number) == inbound_contact
