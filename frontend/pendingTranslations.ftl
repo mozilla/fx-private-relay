@@ -193,8 +193,8 @@ phone-banner-resend-welcome-sms-body =  Remember to save the contact we shared w
 
 # Phone What's New
 whatsnew-feature-phone-header = Introducing phone number masking
-whatsnew-feature-phone-snippet = With { -brand-name-relay-premium }, you can now create a phone number mask that helps you get...
-whatsnew-feature-phone-description = With { -brand-name-relay-premium }, you can now create a phone number mask that helps you get texts and calls without revealing your true number.
+whatsnew-feature-phone-snippet = With phone number masking, you can now create a phone number mask that helps you…
+whatsnew-feature-phone-description = With phone number masking, you can now create a phone number mask that helps you get texts and calls without revealing your true number.
 whatsnew-feature-phone-upgrade-cta = Upgrade now
 
 # Phone Dashboard
