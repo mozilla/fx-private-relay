@@ -151,15 +151,13 @@ export const Layout = (props: Props) => {
         />
 
         <div className={styles["non-header-wrapper"]}>
-          <div className={styles["mobile-nav-duo-wrapper"]}>
-            <MobileNavigation
-              mobileMenuExpanded={mobileMenuExpanded}
-              hasPremium={hasPremium}
-              isLoggedIn={isLoggedIn}
-              userEmail={usersData?.email}
-              userAvatar={profiles.data?.[0].avatar}
-            />
-          </div>
+          <MobileNavigation
+            mobileMenuExpanded={mobileMenuExpanded}
+            hasPremium={hasPremium}
+            isLoggedIn={isLoggedIn}
+            userEmail={usersData?.email}
+            userAvatar={profiles.data?.[0].avatar}
+          />
           <div className={styles.content}>{props.children}</div>
           <footer className={styles.footer}>
             <a
