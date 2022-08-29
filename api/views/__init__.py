@@ -184,6 +184,6 @@ def runtime_data(request):
             "WAFFLE_FLAGS": flag_values,
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
-            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE
+            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         }
     )

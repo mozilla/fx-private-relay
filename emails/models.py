@@ -134,6 +134,7 @@ class Profile(models.Model):
             # any time a profile is saved with store_phone_log False, delete the
             # appropriate server-stored InboundContact records
             from phones.models import InboundContact, RelayNumber
+
             if not self.store_phone_log:
                 try:
                     relay_number = RelayNumber.objects.get(user=self.user)
@@ -557,12 +558,10 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs):      
+    def save(self, *args, **kwargs):
         if self._state.adding:
             with transaction.atomic():
-                locked_profile = Profile.objects.select_for_update().get(
-                    user=self.user
-                )
+                locked_profile = Profile.objects.select_for_update().get(user=self.user)
                 check_user_can_make_another_address(locked_profile)
                 while True:
                     if valid_address(self.address, self.domain):

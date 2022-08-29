@@ -36,7 +36,9 @@ def mocked_twilio_client():
         "phones.apps.PhonesConfig.twilio_client", spec_set=Client
     ) as mock_twilio_client:
         mock_fetch = Mock(
-            return_value=Mock(country_code="US", phone_number="+12223334444", carrier="verizon")
+            return_value=Mock(
+                country_code="US", phone_number="+12223334444", carrier="verizon"
+            )
         )
         mock_twilio_client.lookups.v1.phone_numbers = Mock(
             return_value=Mock(fetch=mock_fetch)
@@ -181,7 +183,10 @@ def test_realphone_post_valid_verification_code(phone_user, mocked_twilio_client
     client = APIClient()
     client.force_authenticate(phone_user)
     path = "/api/v1/realphone/"
-    data = {"number": real_phone.number, "verification_code": real_phone.verification_code}
+    data = {
+        "number": real_phone.number,
+        "verification_code": real_phone.verification_code,
+    }
 
     response = client.post(path, data, format="json")
     assert response.status_code == 201
@@ -229,7 +234,10 @@ def test_realphone_patch_verification_code(phone_user, mocked_twilio_client):
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
-    data = {"number": real_phone.number, "verification_code": real_phone.verification_code}
+    data = {
+        "number": real_phone.number,
+        "verification_code": real_phone.verification_code,
+    }
 
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
@@ -245,7 +253,10 @@ def test_realphone_patch_verification_code_twice(phone_user, mocked_twilio_clien
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
-    data = {"number": real_phone.number, "verification_code": real_phone.verification_code}
+    data = {
+        "number": real_phone.number,
+        "verification_code": real_phone.verification_code,
+    }
 
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
@@ -564,9 +575,7 @@ def test_inbound_sms_valid_twilio_signature_unknown_number(
     assert "Could Not Find Relay Number." in response.data[0].title()
 
 
-def test_inbound_sms_valid_twilio_signature_good_data(
-    phone_user, mocked_twilio_client
-):
+def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_client):
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)
     mocked_twilio_client.reset_mock()
@@ -720,7 +729,9 @@ def test_inbound_sms_reply(phone_user, mocked_twilio_client):
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     inbound_contact = InboundContact.objects.create(
-        relay_number=relay_number, inbound_number="+15556660000", last_inbound_type="text"
+        relay_number=relay_number,
+        inbound_number="+15556660000",
+        last_inbound_type="text",
     )
     mocked_twilio_client.reset_mock()
 
