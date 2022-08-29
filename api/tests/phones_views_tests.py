@@ -52,6 +52,7 @@ def mocked_twilio_validator():
     with patch(
         "phones.apps.PhonesConfig.twilio_validator", spec_set=RequestValidator
     ) as mock_twilio_validator:
+        mock_twilio_validator.validate = Mock(return_value=True)
         yield mock_twilio_validator
 
 
@@ -537,9 +538,7 @@ def test_inbound_sms_invalid_twilio_signature(mocked_twilio_validator):
 
 
 @pytest.mark.django_db
-def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-
+def test_inbound_sms_valid_twilio_signature_bad_data():
     client = APIClient()
     path = "/api/v1/inbound_sms"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
@@ -549,9 +548,8 @@ def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
 
 
 def test_inbound_sms_valid_twilio_signature_unknown_number(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     _make_real_phone(phone_user, verified=True)
     _make_relay_number(phone_user)
     unknown_number = "+1234567890"
@@ -567,9 +565,8 @@ def test_inbound_sms_valid_twilio_signature_unknown_number(
 
 
 def test_inbound_sms_valid_twilio_signature_good_data(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)
     mocked_twilio_client.reset_mock()
@@ -588,9 +585,8 @@ def test_inbound_sms_valid_twilio_signature_good_data(
 
 
 def test_inbound_sms_valid_twilio_signature_disabled_number(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=False)
     mocked_twilio_client.reset_mock()
@@ -608,12 +604,11 @@ def test_inbound_sms_valid_twilio_signature_disabled_number(
 
 
 def test_inbound_sms_valid_twilio_signature_no_phone_log(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
     profile = Profile.objects.get(user=phone_user)
     profile.store_phone_log = False
     profile.save()
-    mocked_twilio_validator.validate = Mock(return_value=True)
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     inbound_number = "+15556660000"
@@ -633,12 +628,11 @@ def test_inbound_sms_valid_twilio_signature_no_phone_log(
 
 
 def test_inbound_sms_valid_twilio_signature_blocked_contact(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
     profile = Profile.objects.get(user=phone_user)
     profile.store_phone_log = True
     profile.save()
-    mocked_twilio_validator.validate = Mock(return_value=True)
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     inbound_number = "+15556660000"
@@ -679,7 +673,6 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
 
 
 def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_client):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     mocked_twilio_client.reset_mock()
@@ -704,7 +697,6 @@ def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_clien
 
 
 def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     mocked_twilio_client.reset_mock()
@@ -725,7 +717,6 @@ def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
 
 
 def test_inbound_sms_reply(phone_user, mocked_twilio_client):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     inbound_contact = InboundContact.objects.create(
@@ -788,9 +779,7 @@ def test_inbound_call_invalid_twilio_signature(mocked_twilio_validator):
 
 
 @pytest.mark.django_db
-def test_inbound_call_valid_twilio_signature_bad_data(mocked_twilio_validator):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-
+def test_inbound_call_valid_twilio_signature_bad_data():
     client = APIClient()
     path = "/api/v1/inbound_call"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
@@ -800,9 +789,8 @@ def test_inbound_call_valid_twilio_signature_bad_data(mocked_twilio_validator):
 
 
 def test_inbound_call_valid_twilio_signature_unknown_number(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     _make_real_phone(phone_user, verified=True)
     _make_relay_number(phone_user, enabled=True)
     unknown_number = "+1234567890"
@@ -819,9 +807,8 @@ def test_inbound_call_valid_twilio_signature_unknown_number(
 
 
 def test_inbound_call_valid_twilio_signature_good_data(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     caller_number = "+15556660000"
@@ -844,9 +831,8 @@ def test_inbound_call_valid_twilio_signature_good_data(
 
 
 def test_inbound_call_valid_twilio_signature_disabled_number(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=False)
     caller_number = "+15556660000"
