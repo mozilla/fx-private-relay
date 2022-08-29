@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-import logging
 import secrets
 import string
 
@@ -19,8 +18,6 @@ LAST_CONTACT_TYPE_CHOICES = [
     ("call", "call"),
     ("text", "text"),
 ]
-
-logger = logging.getLogger("events")
 
 
 def twilio_client():
