@@ -11,6 +11,9 @@ nav-settings = Settings
 nav-support = Help and Support
 nav-sign-out = Sign Out
 nav-contact = Contact Us
+nav-duo-description = Switch dashboards
+nav-duo-email-mask-alt = Email masks
+nav-duo-phone-mask-alt = Phone masks
 
 landing-pricing-free-feature-3 = Email tracker removal
 landing-pricing-premium-feature-6 = Email tracker removal
@@ -215,7 +218,7 @@ phone-dashboard-sender-disabled-body =  You have disabled the Caller and Sender 
         enable { -brand-name-relay } to keep a log of your callers and senders.
 phone-dashboard-sender-disabled-update-settings = Update Settings
 phone-dashboard-sender-empty-body = You haven't received any call or message yet!
-
+phone-dashboard-header-new = New
 ## Replies
 profile-label-replies = Replies
 profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.

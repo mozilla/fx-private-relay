@@ -263,7 +263,10 @@ $toastify-toast-close-button: var(--toast-close-button);
   flex-grow: 2;
   display: flex;
   flex-direction: column;
-  background-color: $color-light-gray-10;
+
+  @media screen and (min-width: $screen-md) {
+    background-color: $color-light-gray-10;
+  }
 }
 
 .footer {

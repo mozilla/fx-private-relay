@@ -42,7 +42,7 @@ export const Navigation = (props: Props) => {
     isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
       <Link href="/phone">
         <a
-          className={`${styles.link} ${
+          className={`${styles.link} ${styles["hidden-mobile"]} ${
             router.pathname === "/phone" ? styles["is-active"] : null
           }`}
         >
@@ -107,11 +107,11 @@ export const Navigation = (props: Props) => {
         />
       )}
 
-      {/* Only show the upgrade button if the following conditions are met: 
-        - if user is logged in
-        - user does not have premium
-        - user is NOT on the premium page /premium
-        - premium is available in this country */}
+      {/* Only show the upgrade button if the following conditions are met:
+      - if user is logged in
+      - user does not have premium
+      - user is NOT on the premium page /premium
+      - premium is available in this country */}
       {isLoggedIn &&
         !hasPremium &&
         !isPremiumPage &&

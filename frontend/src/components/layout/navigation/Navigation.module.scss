@@ -56,3 +56,9 @@
     display: none;
   }
 }
+
+.hidden-desktop {
+  @media screen and (min-width: $screen-md) {
+    display: none;
+  }
+}
