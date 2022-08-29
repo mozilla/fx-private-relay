@@ -25,7 +25,13 @@ from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
 
-from .models import DomainAddress, RelayAddress, Reply, get_domains_from_settings
+from .models import (
+    DomainAddress,
+    Profile,
+    RelayAddress,
+    Reply,
+    get_domains_from_settings,
+)
 
 
 NEW_FROM_ADDRESS_FLAG_NAME = "new_from_address"
@@ -111,6 +117,8 @@ def ses_send_raw_email(
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         incr_if_enabled("ses_send_raw_email", 1)
+        profile = Profile.objects.filter().first(user__email=to_address)
+        profile.update_abuse_metric(email_forwarded=True)
 
         _store_reply_record(mail, ses_response, address)
     except ClientError as e:
