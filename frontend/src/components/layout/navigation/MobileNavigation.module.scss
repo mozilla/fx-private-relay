@@ -17,7 +17,7 @@
   background-color: white;
 
   > * {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     padding: $spacing-lg 0 $spacing-md 0;
     justify-content: center;
     display: flex;
@@ -25,6 +25,10 @@
 
     &.is-active {
       border-bottom: 5px solid $color-purple-40;
+    }
+
+    &:hover {
+      background-color: $color-purple-05;
     }
   }
 
