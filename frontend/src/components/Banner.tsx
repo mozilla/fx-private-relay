@@ -90,14 +90,16 @@ export const Banner = (props: BannerProps) => {
         <div className={`${styles["highlight-wrapper"]}`}>
           {illustration}
           {infoIcon}
-          <div className={`${styles["title-text"]}`}>
-            {title}
-            {props.children}
-            {/* A regular-sized button is shown close to the content… */}
-            {props.cta?.size !== "large" ? cta : null}
+          <div className={styles["title-and-large-cta-wrapper"]}>
+            <div className={`${styles["title-text"]}`}>
+              {title}
+              {props.children}
+              {/* A regular-sized button is shown close to the content… */}
+              {props.cta?.size !== "large" ? cta : null}
+            </div>
+            {/* …whereas a large button can stand on its own. */}
+            {props.cta?.size === "large" ? cta : null}
           </div>
-          {/* …whereas a large button can stand on its own. */}
-          {props.cta?.size === "large" ? cta : null}
         </div>
         {dismissButton}
       </div>
