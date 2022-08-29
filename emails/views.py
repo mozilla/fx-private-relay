@@ -534,6 +534,10 @@ def _sns_message(message_json):
         # an external sender to a relay user
         pass
 
+    # if account flagged for abuse, early return
+    if user_profile.is_flagged:
+        return HttpResponse("Address is temporarily disabled.")
+
     # if address is set to block, early return
     if not address.enabled:
         incr_if_enabled("email_for_disabled_address", 1)
