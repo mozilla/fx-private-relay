@@ -5,6 +5,7 @@ export type Props = {
   description: string;
   image: string;
   videos?: Record<string, string>;
+  cta?: JSX.Element | null;
 };
 
 /**
@@ -16,6 +17,7 @@ export type Props = {
  * so when that happens, and we know more about what distinguishes those from
  * this component, we can rename this.
  */
+
 export const WhatsNewContent = (props: Props) => {
   return (
     <div className={styles.wrapper}>
@@ -23,6 +25,7 @@ export const WhatsNewContent = (props: Props) => {
       <div className={styles.content}>
         <h2>{props.heading}</h2>
         <p>{props.description}</p>
+        {props.cta && <div className={styles.cta}>{props.cta}</div>}
       </div>
     </div>
   );

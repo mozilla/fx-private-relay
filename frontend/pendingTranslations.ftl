@@ -191,6 +191,12 @@ phone-banner-resend-welcome-sms-cta = Resend welcome SMS
 phone-banner-resend-welcome-sms-title = Quick Tip
 phone-banner-resend-welcome-sms-body =  Remember to save the contact we shared with you by SMS to help you identify messages forwarded by { -brand-name-relay }. Can’t find it?  
 
+# Phone What's New
+whatsnew-feature-phone-header = Introducing phone number masking
+whatsnew-feature-phone-snippet = With phone number masking, you can now create a phone number mask that helps you…
+whatsnew-feature-phone-description = With phone number masking, you can now create a phone number mask that helps you get texts and calls without revealing your true number.
+whatsnew-feature-phone-upgrade-cta = Upgrade now
+
 # Phone Dashboard
 phone-statistics-remaining-call-minutes = Remaining call minutes
 phone-statistics-remaining-texts = Remaining texts

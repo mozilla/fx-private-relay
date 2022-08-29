@@ -20,7 +20,7 @@ import {
   VisuallyHidden,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
-import { event as gaEvent } from "react-ga";
+import { event as gaEvent, OutboundLink } from "react-ga";
 import styles from "./WhatsNewMenu.module.scss";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
 import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
@@ -36,6 +36,8 @@ import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
+import PhoneMaskingHero from "./images/phone-masking-hero.svg";
+import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
 import { WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -48,6 +50,10 @@ import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
+import {
+  getPhoneSubscribeLink,
+  isPremiumAvailableInCountry,
+} from "../../../../functions/getPlan";
 
 export type WhatsNewEntry = {
   title: string;
@@ -73,8 +79,10 @@ export type Props = {
   style: string;
   runtimeData?: RuntimeData;
 };
+
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
+
   const triggerState = useOverlayTriggerState({
     onOpenChange(isOpen) {
       gaEvent({
@@ -84,6 +92,22 @@ export const WhatsNewMenu = (props: Props) => {
       });
     },
   });
+
+  const ctaUpgradePhones =
+    props.runtimeData &&
+    props.runtimeData !== undefined &&
+    !props.profile.has_phone &&
+    !props.profile.has_premium &&
+    isPremiumAvailableInCountry(props.runtimeData) ? (
+      <OutboundLink
+        to={getPhoneSubscribeLink(props.runtimeData)}
+        eventLabel={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
+        className={styles.cta}
+      >
+        <span>{l10n.getString("whatsnew-feature-phone-upgrade-cta")}</span>
+      </OutboundLink>
+    ) : null;
+
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const addonData = useAddonData();
@@ -319,6 +343,41 @@ export const WhatsNewMenu = (props: Props) => {
   // Only show its announcement if tracker removal is live:
   if (isFlagActive(props.runtimeData, "tracker_removal")) {
     entries.push(trackerRemoval);
+  }
+
+  const phoneAnnouncement: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-phone-header"),
+    snippet: l10n.getString("whatsnew-feature-phone-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString("whatsnew-feature-phone-description")}
+        heading={l10n.getString("whatsnew-feature-phone-header")}
+        image={PhoneMaskingHero.src}
+        videos={{
+          // Unfortunately video files cannot currently be imported, so make
+          // sure these files are present in /public. See
+          // https://github.com/vercel/next.js/issues/35248
+          "video/webm; codecs='vp9'":
+            "/animations/whatsnew/phone-masking-hero.webm",
+          "video/mp4": "/animations/whatsnew/phone-masking-hero.mp4",
+        }}
+        cta={ctaUpgradePhones}
+      />
+    ),
+
+    hero: PhoneMaskingHero.src,
+    icon: PhoneMaskingIcon.src,
+    dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
+    announcementDate: {
+      year: 2022,
+      month: 10,
+      day: 11,
+    },
+  };
+
+  // Only show its announcement if phone masking is live:
+  if (isFlagActive(props.runtimeData, "phones")) {
+    entries.push(phoneAnnouncement);
   }
 
   entries.sort(entriesDescByDateSorter);
