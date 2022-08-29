@@ -84,8 +84,7 @@ def get_last_text_sender(relay_number):
         InboundContact.objects.filter(
             relay_number=relay_number, last_inbound_type="text"
         )
-        .order_by("-last_inbound_date")
-        .first()
+        .latest("last_inbound_date")
     )
 
 
