@@ -784,6 +784,7 @@ class AbuseMetrics(models.Model):
     last_recorded = models.DateTimeField(auto_now_add=True, db_index=True)
     num_address_created_per_day = models.PositiveSmallIntegerField(default=0)
     num_replies_per_day = models.PositiveSmallIntegerField(default=0)
+    num_email_forwarded_per_day = models.PositiveSmallIntegerField(default=0)
 
     class Meta:
         unique_together = ["user", "first_recorded"]
