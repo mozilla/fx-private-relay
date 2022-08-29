@@ -308,7 +308,14 @@ const EndOfIntroPricingOfferBanner = (
         size: "large",
         content: l10n.getString("banner-offer-end-cta"),
         target: getPremiumSubscribeLink(props.runtimeData),
-        onClick: () => trackPurchaseStart(),
+        onClick: () =>
+          trackPurchaseStart({
+            label: "Intro-Pricing: Dashboard",
+          }),
+        gaViewPing: {
+          category: "Purchase Button",
+          label: "Intro-Pricing: Dashboard",
+        },
       }}
       dismissal={{
         key: `offer-end-${props.profile.id}`,
