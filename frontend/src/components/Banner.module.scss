@@ -52,10 +52,15 @@
     display: flex;
     flex-wrap: wrap;
     flex: 1 0 $content-xs;
+
+    @media screen and #{$mq-lg} {
+      flex-wrap: nowrap;
+    }
   }
 
   .title-text {
     flex: 1 1 auto;
+    padding-inline: $spacing-md;
   }
 
   .info-icon {
@@ -154,7 +159,8 @@
 
 // For Loyalist upsell
 .cta-large-button {
-  margin: $spacing-xl 0 $spacing-md $spacing-md;
+  padding: $spacing-md;
+  flex: 0 0 auto;
   align-self: center;
 
   @media screen and #{$mq-md} {
