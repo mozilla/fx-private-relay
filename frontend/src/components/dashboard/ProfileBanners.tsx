@@ -27,6 +27,7 @@ import { AliasData } from "../../hooks/api/aliases";
 import { getLocale } from "../../functions/getLocale";
 import { CountdownTimer, introPricingOfferEndDate } from "../CountdownTimer";
 import { useInterval } from "../../hooks/interval";
+import { isFlagActive } from "../../functions/waffle";
 
 export type Props = {
   profile: ProfileData;
@@ -73,7 +74,8 @@ export const ProfileBanners = (props: Props) => {
 
   if (
     !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.runtimeData)
+    isPremiumAvailableInCountry(props.runtimeData) &&
+    isFlagActive(props.runtimeData, "intro_pricing_countdown")
   ) {
     banners.push(
       <EndOfIntroPricingOfferBanner
