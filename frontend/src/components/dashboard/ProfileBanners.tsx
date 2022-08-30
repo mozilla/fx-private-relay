@@ -25,9 +25,10 @@ import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
 import { getLocale } from "../../functions/getLocale";
-import { CountdownTimer, introPricingOfferEndDate } from "../CountdownTimer";
+import { CountdownTimer } from "../CountdownTimer";
 import { useInterval } from "../../hooks/interval";
 import { isFlagActive } from "../../functions/waffle";
+import { parseDate } from "../../functions/parseDate";
 
 export type Props = {
   profile: ProfileData;
@@ -290,6 +291,9 @@ const EndOfIntroPricingOfferBanner = (
     setNow(Date.now());
   }, 1000);
 
+  const introPricingOfferEndDate = parseDate(
+    props.runtimeData.INTRO_PRICING_END
+  );
   const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
 
   // Don't show if the countdown has finished, or is so far in the future that

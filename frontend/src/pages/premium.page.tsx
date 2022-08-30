@@ -37,10 +37,8 @@ import { CarouselContentCards } from "../components/landing/carousel/ContentCard
 import { isFlagActive } from "../functions/waffle";
 import { getLocale } from "../functions/getLocale";
 import { useInterval } from "../hooks/interval";
-import {
-  CountdownTimer,
-  introPricingOfferEndDate,
-} from "../components/CountdownTimer";
+import { CountdownTimer } from "../components/CountdownTimer";
+import { parseDate } from "../functions/parseDate";
 
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
@@ -90,6 +88,9 @@ const PremiumPromo: NextPage = () => {
     setNow(Date.now());
   }, 1000);
 
+  const introPricingOfferEndDate = runtimeData.data
+    ? parseDate(runtimeData.data.INTRO_PRICING_END)
+    : new Date(0);
   const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
 
   const plansSection =

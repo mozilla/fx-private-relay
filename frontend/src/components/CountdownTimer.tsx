@@ -1,16 +1,6 @@
 import { useLocalization } from "@fluent/react";
 import styles from "./CountdownTimer.module.scss";
 
-/**
- * A single place to define the day our intro pricing offer ends.
- *
- * This might not be the best place to keep this; if the back-end needs this as
- * well, we'll probalby want to add it to {@link RuntimeData}.
- *
- * The deadline is currently September 27th at 9AM PT, so 4PM UTC.
- */
-export const introPricingOfferEndDate = new Date(Date.UTC(2022, 8, 27, 16));
-
 export type Props = {
   remainingTimeInMs: number;
 };

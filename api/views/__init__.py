@@ -24,6 +24,7 @@ from privaterelay.settings import (
     BASKET_ORIGIN,
     FXA_BASE_ORIGIN,
     GOOGLE_ANALYTICS_ID,
+    INTRO_PRICING_END,
     PREMIUM_PROD_ID,
     PHONE_PROD_ID,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE,
@@ -183,6 +184,7 @@ def runtime_data(request):
         {
             "FXA_ORIGIN": FXA_BASE_ORIGIN,
             "GOOGLE_ANALYTICS_ID": GOOGLE_ANALYTICS_ID,
+            "INTRO_PRICING_END": INTRO_PRICING_END,
             "PREMIUM_PRODUCT_ID": PREMIUM_PROD_ID,
             "PHONE_PRODUCT_ID": PHONE_PROD_ID,
             "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
