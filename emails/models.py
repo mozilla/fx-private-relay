@@ -795,7 +795,7 @@ class AbuseMetrics(models.Model):
     # Values from 0 to 32767 are safe in all databases supported by Django.
     num_email_forwarded_per_day = models.PositiveSmallIntegerField(default=0)
     # Values from 0 to 9223372036854775807 are safe in all databases supported by Django.
-    email_size_per_day = models.PositiveBigIntegerField(default=0)
+    forwarded_email_size_per_day = models.PositiveBigIntegerField(default=0)
 
     class Meta:
         unique_together = ["user", "first_recorded"]

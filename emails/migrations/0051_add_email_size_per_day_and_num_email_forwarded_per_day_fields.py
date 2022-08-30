@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 def add_db_default_forward_func(apps, schema_editor):
     """
-    Add field email_size_per_day and num_email_forwarded_per_day to abusemetrics
+    Add field forwarded_email_size_per_day and num_email_forwarded_per_day to abusemetrics
 
     Using `./manage.py sqlmigrate` for the SQL, and the technique from:
     https://stackoverflow.com/a/45232678/10612
@@ -13,7 +13,7 @@ def add_db_default_forward_func(apps, schema_editor):
     if schema_editor.connection.vendor.startswith("postgres"):
         schema_editor.execute(
             'ALTER TABLE "emails_abusemetrics"'
-            ' ALTER COLUMN "email_size_per_day" SET DEFAULT 0'
+            ' ALTER COLUMN "forwarded_email_size_per_day" SET DEFAULT 0'
             ' ALTER COLUMN "num_email_forwarded_per_day" SET DEFAULT 0'
         )
     elif schema_editor.connection.vendor.startswith("sqlite"):
@@ -25,7 +25,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' "num_address_created_per_day" smallint unsigned NOT NULL CHECK ("num_address_created_per_day" >= 0),'
             ' "num_replies_per_day" smallint unsigned NOT NULL CHECK ("num_replies_per_day" >= 0),'
             ' "user_id" integer NOT NULL REFERENCES "auth_user" ("id") DEFERRABLE INITIALLY DEFERRED,'
-            ' "email_size_per_day" bigint unsigned NOT NULL DEFAULT 0 CHECK ("email_size_per_day" >= 0),'
+            ' "forwarded_email_size_per_day" bigint unsigned NOT NULL DEFAULT 0 CHECK ("forwarded_email_size_per_day" >= 0),'
             ' "num_email_forwarded_per_day" smallint unsigned NOT NULL DEFAULT 0 CHECK ("num_email_forwarded_per_day" >= 0));'
         )
         schema_editor.execute(
@@ -36,7 +36,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' "num_address_created_per_day",'
             ' "num_replies_per_day",'
             ' "user_id",'
-            ' "email_size_per_day",'
+            ' "forwarded_email_size_per_day",'
             ' "num_email_forwarded_per_day") SELECT "id",'
             ' "first_recorded",'
             ' "last_recorded",'
@@ -75,7 +75,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="abusemetrics",
-            name="email_size_per_day",
+            name="forwarded_email_size_per_day",
             field=models.PositiveBigIntegerField(default=0),
         ),
         migrations.AddField(
