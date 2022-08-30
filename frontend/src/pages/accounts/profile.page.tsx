@@ -135,6 +135,7 @@ const Profile: NextPage = () => {
           runtimeData={runtimeData.data}
           totalBlockedEmails={profile.emails_blocked}
           totalForwardedEmails={profile.emails_forwarded}
+          totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
         />
         <Layout runtimeData={runtimeData.data}>
           {isFlagActive(runtimeData.data, "phones") ? (
@@ -381,6 +382,7 @@ const Profile: NextPage = () => {
         runtimeData={runtimeData.data}
         totalBlockedEmails={profile.emails_blocked}
         totalForwardedEmails={profile.emails_forwarded}
+        totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
       <Layout runtimeData={runtimeData.data}>
         {isFlagActive(runtimeData.data, "phones") ? (
