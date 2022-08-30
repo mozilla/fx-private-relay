@@ -357,7 +357,11 @@ class Profile(models.Model):
         return subdomain
 
     def update_abuse_metric(
-        self, address_created=False, replied=False, email_forwarded=False, forwarded_email_size=0
+        self,
+        address_created=False,
+        replied=False,
+        email_forwarded=False,
+        forwarded_email_size=0,
     ):
         #  TODO: this should be wrapped in atomic to ensure race conditions are properly handled
         # look for abuse metrics created on the same UTC date, regardless of time.
@@ -400,9 +404,15 @@ class Profile(models.Model):
             abuse_metric.num_email_forwarded_per_day >= settings.MAX_FORWARDED_PER_DAY
         )
         hit_max_forwarded_email_size = (
-            abuse_metric.forwarded_email_size_per_day >= settings.MAX_FORWARDED_EMAIL_SIZE_PER_DAY
+            abuse_metric.forwarded_email_size_per_day
+            >= settings.MAX_FORWARDED_EMAIL_SIZE_PER_DAY
         )
-        if hit_max_create or hit_max_replies or hit_max_forwarded or hit_max_forwarded_email_size:
+        if (
+            hit_max_create
+            or hit_max_replies
+            or hit_max_forwarded
+            or hit_max_forwarded_email_size
+        ):
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
             data = {
@@ -411,6 +421,7 @@ class Profile(models.Model):
                 "replies": abuse_metric.num_replies_per_day,
                 "addresses": abuse_metric.num_address_created_per_day,
                 "forwarded": abuse_metric.num_email_forwarded_per_day,
+                "forwarded_size_in_bytes": abuse_metric.forwarded_email_size_per_day,
             }
             # log for further secops review
             abuse_logger.info("Abuse flagged", extra=data)

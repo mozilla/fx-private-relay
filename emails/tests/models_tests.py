@@ -950,7 +950,7 @@ class ProfileTest(TestCase):
 
     @patch("emails.models.abuse_logger.info")
     @override_settings(MAX_FORWARDED_PER_DAY=5)
-    def test_update_abuse_metric_flags_profile_when_abuse_threshold_met(
+    def test_update_abuse_metric_flags_profile_when_emails_forwarded_abuse_threshold_met(
         self, mocked_abuse_info
     ):
         expected_now = self.patch_datetime_now()
@@ -971,10 +971,40 @@ class ProfileTest(TestCase):
                 "replies": 0,
                 "addresses": 0,
                 "forwarded": 5,
+                "forwarded_size_in_bytes": 0,
             },
         )
         assert abuse_metrics.num_email_forwarded_per_day == 5
-        assert profile.last_account_flagged != None
+        assert profile.last_account_flagged == expected_now
+
+    @patch("emails.models.abuse_logger.info")
+    @override_settings(MAX_FORWARDED_EMAIL_SIZE_PER_DAY=100)
+    def test_update_abuse_metric_flags_profile_when_forwarded_email_size_abuse_threshold_met(
+        self, mocked_abuse_info
+    ):
+        expected_now = self.patch_datetime_now()
+        user = make_premium_test_user()
+        baker.make(AbuseMetrics, user=user, forwarded_email_size_per_day=50)
+        profile = user.profile_set.first()
+
+        assert profile.last_account_flagged == None
+        profile.update_abuse_metric(forwarded_email_size=50)
+
+        abuse_metrics = AbuseMetrics.objects.get(user=user)
+
+        mocked_abuse_info.assert_called_once_with(
+            "Abuse flagged",
+            extra={
+                "uid": profile.fxa.uid,
+                "flagged": expected_now.timestamp(),
+                "replies": 0,
+                "addresses": 0,
+                "forwarded": 0,
+                "forwarded_size_in_bytes": 100,
+            },
+        )
+        assert abuse_metrics.forwarded_email_size_per_day == 100
+        assert profile.last_account_flagged == expected_now
 
 
 class DomainAddressTest(TestCase):

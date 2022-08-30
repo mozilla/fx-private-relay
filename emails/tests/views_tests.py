@@ -618,7 +618,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_get_text_html,
         mocked_relay_email,
     ):
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
+        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
         mocked_relay_email.return_value = HttpResponse("SES client failed", status=503)
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
@@ -635,7 +635,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_get_text_html,
         mocked_relay_email,
     ):
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
+        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
         mocked_relay_email.return_value = HttpResponse("Email relayed", status=200)
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
@@ -654,7 +654,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_relay_email,
     ):
         """A message with a failing DMARC and a "reject" policy is rejected."""
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
+        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
         mocked_relay_email.side_effect = FAIL_TEST_IF_CALLED
 
         with MetricsMock() as mm:
@@ -686,7 +686,7 @@ class SnsMessageTest(TestCase):
 
         patcher = patch(
             "emails.views._get_text_html_attachments",
-            return_value=("text", "html", "attachments"),
+            return_value=("text", "html", "attachments", 50),
         )
         patcher.start()
         self.addCleanup(patcher.stop)
