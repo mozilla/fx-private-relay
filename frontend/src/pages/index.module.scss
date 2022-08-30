@@ -164,6 +164,7 @@
   .callout {
     display: flex;
     flex-direction: column;
+    align-items: start;
     text-align: center;
     max-width: $content-md;
     gap: $spacing-lg;

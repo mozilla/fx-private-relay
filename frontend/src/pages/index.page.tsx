@@ -30,7 +30,11 @@ import { CarouselContentTextOnly } from "../components/landing/carousel/ContentT
 import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 import { Plans } from "../components/landing/Plans";
-import { getPlan, isPremiumAvailableInCountry } from "../functions/getPlan";
+import {
+  getPlan,
+  getPremiumSubscribeLink,
+  isPremiumAvailableInCountry,
+} from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { getRuntimeConfig } from "../config";
 import { setCookie } from "../functions/cookies";
@@ -52,12 +56,12 @@ const Home: NextPage = () => {
     category: "Sign In",
     label: "home-hero-cta",
   });
-  const heroCountdownRef = useGaViewPing({
-    category: "Countdown timer",
+  const heroCountdownCtaRef = useGaViewPing({
+    category: "Purchase Button",
     label: "Landing Page: Top Banner",
   });
-  const plansCountdownRef = useGaViewPing({
-    category: "Countdown timer",
+  const plansCountdownCtaRef = useGaViewPing({
+    category: "Purchase Button",
     label: "Landing Page: Bottom Banner",
   });
 
@@ -108,12 +112,24 @@ const Home: NextPage = () => {
               })}
             </h2>
             <div
-              ref={plansCountdownRef}
               className={styles["end-of-intro-pricing-countdown-and-warning"]}
             >
               <b>{l10n.getString("landing-pricing-offer-end-warning")}</b>
               <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
             </div>
+            <LinkButton
+              ref={plansCountdownCtaRef}
+              href={getPremiumSubscribeLink(runtimeData.data)}
+              onClick={() => {
+                gaEvent({
+                  category: "Purchase Button",
+                  action: "Engage",
+                  label: "Landing Page: Bottom Banner",
+                });
+              }}
+            >
+              {l10n.getString("landing-pricing-offer-end-cta")}
+            </LinkButton>
             <p>
               {l10n.getString("landing-pricing-offer-end-body", {
                 end_date: endDateFormatter.format(introPricingOfferEndDate),
@@ -161,10 +177,7 @@ const Home: NextPage = () => {
     isPremiumAvailableInCountry(runtimeData.data) &&
     // …the relevant feature flag is enabled:
     isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
-      <div
-        ref={heroCountdownRef}
-        className={styles["end-of-intro-pricing-hero"]}
-      >
+      <div className={styles["end-of-intro-pricing-hero"]}>
         <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
         <div>
           <h3>{l10n.getString("landing-offer-end-hero-heading")}</h3>
@@ -177,6 +190,32 @@ const Home: NextPage = () => {
       </div>
     ) : null;
 
+  const cta =
+    introPricingEndBanner === null ||
+    !isPremiumAvailableInCountry(runtimeData.data) ? (
+      <LinkButton
+        ref={heroCtaRef}
+        onClick={() => signup()}
+        href={getRuntimeConfig().fxaLoginUrl}
+      >
+        {l10n.getString("nav-profile-sign-up")}
+      </LinkButton>
+    ) : (
+      <LinkButton
+        ref={heroCountdownCtaRef}
+        href={getPremiumSubscribeLink(runtimeData.data)}
+        onClick={() => {
+          gaEvent({
+            category: "Purchase Button",
+            action: "Engage",
+            label: "Landing Page: Top Banner",
+          });
+        }}
+      >
+        {l10n.getString("landing-offer-end-hero-cta")}
+      </LinkButton>
+    );
+
   return (
     <Layout runtimeData={runtimeData.data}>
       <main>
@@ -185,13 +224,7 @@ const Home: NextPage = () => {
             <h2>{l10n.getString("landing-hero-headline-2")}</h2>
             <p>{l10n.getString("landing-hero-body-2")}</p>
             {introPricingEndBanner}
-            <LinkButton
-              ref={heroCtaRef}
-              onClick={() => signup()}
-              href={getRuntimeConfig().fxaLoginUrl}
-            >
-              {l10n.getString("nav-profile-sign-up")}
-            </LinkButton>
+            {cta}
             <img
               src={Testimonials.src}
               alt="Forbes, ZDNet, Lifehacker, PCMag"
