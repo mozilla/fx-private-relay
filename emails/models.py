@@ -792,7 +792,10 @@ class AbuseMetrics(models.Model):
     last_recorded = models.DateTimeField(auto_now_add=True, db_index=True)
     num_address_created_per_day = models.PositiveSmallIntegerField(default=0)
     num_replies_per_day = models.PositiveSmallIntegerField(default=0)
+    # Values from 0 to 32767 are safe in all databases supported by Django.
     num_email_forwarded_per_day = models.PositiveSmallIntegerField(default=0)
+    # Values from 0 to 9223372036854775807 are safe in all databases supported by Django.
+    email_size_per_day = models.PositiveBigIntegerField(default=0)
 
     class Meta:
         unique_together = ["user", "first_recorded"]
