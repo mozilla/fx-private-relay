@@ -52,6 +52,14 @@ const Home: NextPage = () => {
     category: "Sign In",
     label: "home-hero-cta",
   });
+  const heroCountdownRef = useGaViewPing({
+    category: "Countdown timer",
+    label: "Landing Page: Top Banner",
+  });
+  const plansCountdownRef = useGaViewPing({
+    category: "Countdown timer",
+    label: "Landing Page: Bottom Banner",
+  });
 
   const [now, setNow] = useState(Date.now());
   const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
@@ -100,6 +108,7 @@ const Home: NextPage = () => {
               })}
             </h2>
             <div
+              ref={plansCountdownRef}
               className={styles["end-of-intro-pricing-countdown-and-warning"]}
             >
               <b>{l10n.getString("landing-pricing-offer-end-warning")}</b>
@@ -152,7 +161,10 @@ const Home: NextPage = () => {
     isPremiumAvailableInCountry(runtimeData.data) &&
     // …the relevant feature flag is enabled:
     isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
-      <div className={styles["end-of-intro-pricing-hero"]}>
+      <div
+        ref={heroCountdownRef}
+        className={styles["end-of-intro-pricing-hero"]}
+      >
         <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
         <div>
           <h3>{l10n.getString("landing-offer-end-hero-heading")}</h3>
