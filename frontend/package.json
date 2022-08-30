@@ -44,7 +44,7 @@
     "@testing-library/user-event": "^14.4.3",
     "@types/jest-axe": "^3.5.4",
     "@types/react": "^18.0.6",
-    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/eslint-plugin": "^5.36.0",
     "@typescript-eslint/parser": "^5.33.1",
     "babel-jest": "^29.0.1",
     "chokidar-cli": "^3.0.0",
