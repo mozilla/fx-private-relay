@@ -13,7 +13,7 @@ def add_db_default_forward_func(apps, schema_editor):
     if schema_editor.connection.vendor.startswith("postgres"):
         schema_editor.execute(
             'ALTER TABLE "emails_abusemetrics"'
-            ' ALTER COLUMN "forwarded_email_size_per_day" SET DEFAULT 0'
+            ' ALTER COLUMN "forwarded_email_size_per_day" SET DEFAULT 0,'
             ' ALTER COLUMN "num_email_forwarded_per_day" SET DEFAULT 0'
         )
     elif schema_editor.connection.vendor.startswith("sqlite"):
