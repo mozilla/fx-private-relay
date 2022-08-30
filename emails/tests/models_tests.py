@@ -17,6 +17,7 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 
 from ..models import (
+    AbuseMetrics,
     address_hash,
     ACCOUNT_PAUSED_ERR_MSG,
     CannotMakeAddressException,
@@ -283,6 +284,25 @@ class ProfileTest(TestCase):
         self.profile = user.profile_set.first()
         self.profile.server_storage = True
         self.profile.save()
+
+    def patch_datetime_now(self):
+        """
+        Selectively patch datatime.now() for emails models
+
+        https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
+        """
+        patcher = patch("emails.models.datetime")
+        mocked_datetime = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        expected_now = datetime.now(timezone.utc)
+        mocked_datetime.combine.return_value = datetime.combine(
+            datetime.now(timezone.utc).date(), datetime.min.time()
+        )
+        mocked_datetime.now.return_value = expected_now
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+
+        return expected_now
 
     def test_bounce_paused_no_bounces(self):
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
@@ -927,6 +947,64 @@ class ProfileTest(TestCase):
 
         mocked_incr.assert_not_called()
         mocked_events_info.assert_not_called()
+
+    @patch("emails.models.abuse_logger.info")
+    @override_settings(MAX_FORWARDED_PER_DAY=5)
+    def test_update_abuse_metric_flags_profile_when_emails_forwarded_abuse_threshold_met(
+        self, mocked_abuse_info
+    ):
+        expected_now = self.patch_datetime_now()
+        user = make_premium_test_user()
+        baker.make(AbuseMetrics, user=user, num_email_forwarded_per_day=4)
+        profile = user.profile_set.first()
+
+        assert profile.last_account_flagged == None
+        profile.update_abuse_metric(email_forwarded=True)
+
+        abuse_metrics = AbuseMetrics.objects.get(user=user)
+
+        mocked_abuse_info.assert_called_once_with(
+            "Abuse flagged",
+            extra={
+                "uid": profile.fxa.uid,
+                "flagged": expected_now.timestamp(),
+                "replies": 0,
+                "addresses": 0,
+                "forwarded": 5,
+                "forwarded_size_in_bytes": 0,
+            },
+        )
+        assert abuse_metrics.num_email_forwarded_per_day == 5
+        assert profile.last_account_flagged == expected_now
+
+    @patch("emails.models.abuse_logger.info")
+    @override_settings(MAX_FORWARDED_EMAIL_SIZE_PER_DAY=100)
+    def test_update_abuse_metric_flags_profile_when_forwarded_email_size_abuse_threshold_met(
+        self, mocked_abuse_info
+    ):
+        expected_now = self.patch_datetime_now()
+        user = make_premium_test_user()
+        baker.make(AbuseMetrics, user=user, forwarded_email_size_per_day=50)
+        profile = user.profile_set.first()
+
+        assert profile.last_account_flagged == None
+        profile.update_abuse_metric(forwarded_email_size=50)
+
+        abuse_metrics = AbuseMetrics.objects.get(user=user)
+
+        mocked_abuse_info.assert_called_once_with(
+            "Abuse flagged",
+            extra={
+                "uid": profile.fxa.uid,
+                "flagged": expected_now.timestamp(),
+                "replies": 0,
+                "addresses": 0,
+                "forwarded": 0,
+                "forwarded_size_in_bytes": 100,
+            },
+        )
+        assert abuse_metrics.forwarded_email_size_per_day == 100
+        assert profile.last_account_flagged == expected_now
 
 
 class DomainAddressTest(TestCase):

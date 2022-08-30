@@ -356,7 +356,13 @@ class Profile(models.Model):
         RegisteredSubdomain.objects.create(subdomain_hash=hash_subdomain(subdomain))
         return subdomain
 
-    def update_abuse_metric(self, address_created=False, replied=False):
+    def update_abuse_metric(
+        self,
+        address_created=False,
+        replied=False,
+        email_forwarded=False,
+        forwarded_email_size=0,
+    ):
         #  TODO: this should be wrapped in atomic to ensure race conditions are properly handled
         # look for abuse metrics created on the same UTC date, regardless of time.
         midnight_utc_today = datetime.combine(
@@ -376,12 +382,19 @@ class Profile(models.Model):
             abuse_metric.num_address_created_per_day += 1
         if replied:
             abuse_metric.num_replies_per_day += 1
+        if email_forwarded:
+            abuse_metric.num_email_forwarded_per_day += 1
+        if forwarded_email_size > 0:
+            abuse_metric.forwarded_email_size_per_day += forwarded_email_size
         abuse_metric.last_recorded = datetime.now(timezone.utc)
         abuse_metric.save()
 
         # check user should be flagged for abuse
         hit_max_create = False
         hit_max_replies = False
+        hit_max_forwarded = False
+        hit_max_forwarded_email_size = False
+
         hit_max_create = (
             abuse_metric.num_address_created_per_day
             >= settings.MAX_ADDRESS_CREATION_PER_DAY
@@ -389,7 +402,19 @@ class Profile(models.Model):
         hit_max_replies = (
             abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
         )
-        if hit_max_create or hit_max_replies:
+        hit_max_forwarded = (
+            abuse_metric.num_email_forwarded_per_day >= settings.MAX_FORWARDED_PER_DAY
+        )
+        hit_max_forwarded_email_size = (
+            abuse_metric.forwarded_email_size_per_day
+            >= settings.MAX_FORWARDED_EMAIL_SIZE_PER_DAY
+        )
+        if (
+            hit_max_create
+            or hit_max_replies
+            or hit_max_forwarded
+            or hit_max_forwarded_email_size
+        ):
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
             data = {
@@ -397,6 +422,8 @@ class Profile(models.Model):
                 "flagged": self.last_account_flagged.timestamp(),
                 "replies": abuse_metric.num_replies_per_day,
                 "addresses": abuse_metric.num_address_created_per_day,
+                "forwarded": abuse_metric.num_email_forwarded_per_day,
+                "forwarded_size_in_bytes": abuse_metric.forwarded_email_size_per_day,
             }
             # log for further secops review
             abuse_logger.info("Abuse flagged", extra=data)
@@ -787,6 +814,10 @@ class AbuseMetrics(models.Model):
     last_recorded = models.DateTimeField(auto_now_add=True, db_index=True)
     num_address_created_per_day = models.PositiveSmallIntegerField(default=0)
     num_replies_per_day = models.PositiveSmallIntegerField(default=0)
+    # Values from 0 to 32767 are safe in all databases supported by Django.
+    num_email_forwarded_per_day = models.PositiveSmallIntegerField(default=0)
+    # Values from 0 to 9223372036854775807 are safe in all databases supported by Django.
+    forwarded_email_size_per_day = models.PositiveBigIntegerField(default=0)
 
     class Meta:
         unique_together = ["user", "first_recorded"]

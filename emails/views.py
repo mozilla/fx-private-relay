@@ -419,6 +419,10 @@ def _sns_message(message_json):
         # an external sender to a relay user
         pass
 
+    # if account flagged for abuse, early return
+    if user_profile.is_flagged:
+        return HttpResponse("Address is temporarily disabled.")
+
     # if address is set to block, early return
     if not address.enabled:
         incr_if_enabled("email_for_disabled_address", 1)
@@ -442,9 +446,12 @@ def _sns_message(message_json):
     subject = common_headers.get("subject", "")
 
     try:
-        text_content, html_content, attachments = _get_text_html_attachments(
-            message_json
-        )
+        (
+            text_content,
+            html_content,
+            attachments,
+            email_size,
+        ) = _get_text_html_attachments(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -533,6 +540,9 @@ def _sns_message(message_json):
         # early return the response to trigger SNS to re-attempt
         return response
 
+    user_profile.update_abuse_metric(
+        email_forwarded=True, forwarded_email_size=email_size
+    )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
     address.save(update_fields=["num_forwarded", "last_used_at"])
@@ -643,7 +653,7 @@ def _handle_reply(from_address, message_json, to_address):
     to_address = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
 
     try:
-        text_content, html_content, attachments = _get_text_html_attachments(
+        text_content, html_content, attachments, _ = _get_text_html_attachments(
             message_json
         )
     except ClientError as e:
@@ -817,12 +827,13 @@ def _get_text_html_attachments(message_json):
         # assume email content in S3
         bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
         message_content = get_message_content_from_s3(bucket, object_key)
-        histogram_if_enabled("relayed_email.size", len(message_content))
-
+    email_size = len(message_content)
+    histogram_if_enabled("relayed_email.size", email_size)
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
     text_content, html_content, attachments = _get_all_contents(bytes_email_message)
-    return text_content, html_content, attachments
+    # TODO add logs on the entire size of the email and the time it takes to download/process
+    return text_content, html_content, attachments, email_size
 
 
 def _get_attachment(part):
