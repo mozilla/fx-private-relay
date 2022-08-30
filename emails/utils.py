@@ -334,6 +334,7 @@ def _get_bucket_and_key_from_s3_json(message_json):
     return bucket, object_key
 
 
+@time_if_enabled("s3_get_message_content")
 def get_message_content_from_s3(bucket, object_key):
     if bucket and object_key:
         s3_client = apps.get_app_config("emails").s3_client
@@ -343,6 +344,7 @@ def get_message_content_from_s3(bucket, object_key):
         return streamed_s3_object.read()
 
 
+@time_if_enabled("s3_remove_message_from")
 def remove_message_from_s3(bucket, object_key):
     if bucket is None or object_key is None:
         return False
