@@ -6,6 +6,12 @@ export type RelayNumber = {
   number: string;
   location?: string;
   enabled: boolean;
+  remaining_texts: number;
+  remaining_minutes: number;
+  calls_forwarded: number;
+  calls_blocked: number;
+  texts_forwarded: number;
+  texts_blocked: number;
 };
 
 export type RelayNumberData = Array<RelayNumber>;

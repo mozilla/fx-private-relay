@@ -171,6 +171,16 @@ class RelayNumber(models.Model):
         max_length=6, default=vcard_lookup_key_default, unique=True
     )
     enabled = models.BooleanField(default=True)
+    remaining_minutes = models.IntegerField(
+        blank=True, null=True, default=settings.MAX_MINUTES_PER_BILLING_CYCLE
+    )
+    remaining_texts = models.IntegerField(
+        blank=True, null=True, default=settings.MAX_TEXTS_PER_BILLING_CYCLE
+    )
+    calls_forwarded = models.IntegerField(blank=True, null=True, default=0)
+    calls_blocked = models.IntegerField(blank=True, null=True, default=0)
+    texts_forwarded = models.IntegerField(blank=True, null=True, default=0)
+    texts_blocked = models.IntegerField(blank=True, null=True, default=0)
 
     def save(self, *args, **kwargs):
         if not get_verified_realphone_records(self.user):
