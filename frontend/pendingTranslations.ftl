@@ -306,6 +306,18 @@ offer-countdown-timer-minutes = Min.
 # There's not much room for this, hence the abbreviation.
 offer-countdown-timer-seconds = Sec.
 
+whatsnew-feature-offer-countdown-heading = Our intro pricing offer ends soon!
+# A preview of the full content of `whatsnew-feature-offer-countdown-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+whatsnew-feature-offer-countdown-snippet = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our…
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+whatsnew-feature-offer-countdown-description = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our intro month-to-month price.
+whatsnew-feature-offer-countdown-cta = Upgrade now
+
 # Variables:
 #   $premium_link (string) - This is a link to relay.firefox.com/premium. Example: <a href="https://relay.firefox.com/premium" ...>Relay Premium</a>
 forwarded-email-header-offer-countdown-banner = Our intro monthly pricing offer is expiring. Upgrade to { $premium_link }.
