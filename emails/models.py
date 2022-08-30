@@ -393,6 +393,8 @@ class Profile(models.Model):
         hit_max_create = False
         hit_max_replies = False
         hit_max_forwarded = False
+        hit_max_forwarded_email_size = False
+
         hit_max_create = (
             abuse_metric.num_address_created_per_day
             >= settings.MAX_ADDRESS_CREATION_PER_DAY
