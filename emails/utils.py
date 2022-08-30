@@ -117,8 +117,6 @@ def ses_send_raw_email(
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
         )
         incr_if_enabled("ses_send_raw_email", 1)
-        profile = Profile.objects.filter(user__email=to_address).first()
-        profile.update_abuse_metric(email_forwarded=True)
 
         _store_reply_record(mail, ses_response, address)
     except ClientError as e:

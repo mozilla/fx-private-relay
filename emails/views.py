@@ -652,6 +652,7 @@ def _sns_message(message_json):
         # early return the response to trigger SNS to re-attempt
         return response
 
+    user_profile.update_abuse_metric(email_forwarded=True)
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
     address.save(update_fields=["num_forwarded", "last_used_at"])
