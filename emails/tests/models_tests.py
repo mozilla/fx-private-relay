@@ -949,7 +949,7 @@ class ProfileTest(TestCase):
         profile.update_abuse_metric(email_forwarded=True)
 
         abuse_metrics = AbuseMetrics.objects.get(user=user)
-        
+
         mocked_abuse_info.assert_called_once_with(
             "Abuse flagged",
             extra={
