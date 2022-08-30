@@ -438,7 +438,6 @@ workflows:
       - python_job:
           name: black style check
           command: black --check .
-          allow_fail: true
           filters:
             tags:
               only: /.*/
@@ -447,7 +446,6 @@ workflows:
           name: mypy type check
           command: mypy --no-incremental --junit-xml job-results/mypy.xml .
           has_results: true
-          allow_fail: true
           filters:
             tags:
               only: /.*/
