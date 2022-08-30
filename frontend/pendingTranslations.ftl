@@ -233,14 +233,22 @@ banner-upgrade-loyalist-copy-2 = Protect your privacy while joining our mission 
 
 banner-offer-end-headline = Our intro pricing offer ends soon!
 # Variables:
-#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27"
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
 banner-offer-end-copy = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our intro month-to-month price.
 banner-offer-end-cta = Upgrade now
 
 landing-offer-end-hero-heading = Our intro pricing offer is ending soon!
 # Variables:
-#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27"
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
 landing-offer-end-hero-content = Get { -brand-name-relay-premium } before { $end_date } and enjoy premium email protection at our intro month-to-month price.
+
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
+landing-pricing-offer-end-headline = Introductory price: Unlimited masks for { $monthly_price } per month
+landing-pricing-offer-end-warning = This promo is expiring soon
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+landing-pricing-offer-end-body = Get { -brand-name-relay-premium } before { $end_date } and enjoy premium email protection at our intro month-to-month price.
 
 # Time remaining until Relay Premium's introductory pricing is no longer available.
 # This will not be shown anymore once the time runs out.

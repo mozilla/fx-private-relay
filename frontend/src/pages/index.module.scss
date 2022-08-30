@@ -162,14 +162,22 @@
   }
 
   .callout {
+    display: flex;
+    flex-direction: column;
     text-align: center;
     max-width: $content-md;
+    gap: $spacing-lg;
 
     h2 {
       @include text-title-sm;
       font-family: $font-stack-firefox;
       font-weight: 500;
-      padding: $spacing-lg 0;
+    }
+
+    .end-of-intro-pricing-countdown-and-warning {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
     }
   }
 
