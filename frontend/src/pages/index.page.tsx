@@ -77,30 +77,69 @@ const Home: NextPage = () => {
     setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
   };
 
-  const plansSection = isPremiumAvailableInCountry(runtimeData.data) ? (
-    <section id="pricing" className={styles["plans-wrapper"]}>
-      <div className={styles.plans}>
-        <div className={styles["plan-comparison"]}>
+  const plansSection =
+    // Show the countdown timer to the end of our introductory pricing offer if…
+    // …the offer hasn't expired yet,
+    remainingTimeInMs > 0 &&
+    // …the remaining time isn't far enough in the future that the user's
+    // computer's clock is likely to be wrong,
+    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
+    // …the user is able to purchase Premium at the introductory offer price, and
+    isPremiumAvailableInCountry(runtimeData.data) &&
+    // …the relevant feature flag is enabled:
+    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={styles.plans}>
+          <div className={styles["plan-comparison"]}>
+            <Plans runtimeData={runtimeData.data} />
+          </div>
+          <div className={styles.callout}>
+            <h2>
+              {l10n.getString("landing-pricing-offer-end-headline", {
+                monthly_price: getPlan(runtimeData.data).price,
+              })}
+            </h2>
+            <div
+              className={styles["end-of-intro-pricing-countdown-and-warning"]}
+            >
+              <b>{l10n.getString("landing-pricing-offer-end-warning")}</b>
+              <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
+            </div>
+            <p>
+              {l10n.getString("landing-pricing-offer-end-body", {
+                end_date: endDateFormatter.format(introPricingOfferEndDate),
+              })}
+            </p>
+          </div>
+        </div>
+      </section>
+    ) : // Otherwise, if Premium is available in the user's country,
+    // allow them to purchase it:
+    isPremiumAvailableInCountry(runtimeData.data) ? (
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={styles.plans}>
+          <div className={styles["plan-comparison"]}>
+            <Plans runtimeData={runtimeData.data} />
+          </div>
+          <div className={styles.callout}>
+            <h2>
+              {l10n.getString("landing-pricing-headline-2", {
+                monthly_price: getPlan(runtimeData.data).price,
+              })}
+            </h2>
+            <p>{l10n.getString("landing-pricing-body-2")}</p>
+          </div>
+        </div>
+      </section>
+    ) : (
+      // Or finally, if Premium is not available in the country,
+      // prompt them to join the waitlist:
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
           <Plans runtimeData={runtimeData.data} />
         </div>
-        <div className={styles.callout}>
-          <h2>
-            {l10n.getString("landing-pricing-headline-2", {
-              monthly_price: getPlan(runtimeData.data).price,
-            })}
-          </h2>
-          <p>{l10n.getString("landing-pricing-body-2")}</p>
-        </div>
-      </div>
-    </section>
-  ) : (
-    /* Show waitlist prompt if user is a non-premium country */
-    <section id="pricing" className={styles["plans-wrapper"]}>
-      <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
-        <Plans runtimeData={runtimeData.data} />
-      </div>
-    </section>
-  );
+      </section>
+    );
 
   // Only show the countdown timer to the end of our introductory pricing offer if…
   const introPricingEndBanner =
