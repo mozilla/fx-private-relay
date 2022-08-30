@@ -43,6 +43,16 @@
       width: auto;
     }
   }
+
+  .end-of-intro-pricing-hero {
+    display: flex;
+    gap: $spacing-lg;
+    flex-wrap: wrap;
+
+    & > div {
+      flex: 1 1 $content-xs;
+    }
+  }
 }
 
 .how-it-works-wrapper {

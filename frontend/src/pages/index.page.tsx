@@ -1,6 +1,7 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { useState } from "react";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./index.module.scss";
@@ -34,6 +35,13 @@ import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { getRuntimeConfig } from "../config";
 import { setCookie } from "../functions/cookies";
 import { Reviews } from "../components/landing/Reviews";
+import { getLocale } from "../functions/getLocale";
+import { useInterval } from "../hooks/interval";
+import {
+  CountdownTimer,
+  introPricingOfferEndDate,
+} from "../components/CountdownTimer";
+import { isFlagActive } from "../functions/waffle";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -44,6 +52,17 @@ const Home: NextPage = () => {
     category: "Sign In",
     label: "home-hero-cta",
   });
+
+  const [now, setNow] = useState(Date.now());
+  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
+    dateStyle: "long",
+  });
+
+  useInterval(() => {
+    setNow(Date.now());
+  }, 1000);
+
+  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
 
   if (typeof userData.data?.[0] === "object" && !userData.error) {
     router.push("/accounts/profile/");
@@ -83,6 +102,30 @@ const Home: NextPage = () => {
     </section>
   );
 
+  // Only show the countdown timer to the end of our introductory pricing offer if…
+  const introPricingEndBanner =
+    // …the offer hasn't expired yet,
+    remainingTimeInMs > 0 &&
+    // …the remaining time isn't far enough in the future that the user's
+    // computer's clock is likely to be wrong,
+    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
+    // …the user is able to purchase Premium at the introductory offer price, and
+    isPremiumAvailableInCountry(runtimeData.data) &&
+    // …the relevant feature flag is enabled:
+    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
+      <div className={styles["end-of-intro-pricing-hero"]}>
+        <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
+        <div>
+          <h3>{l10n.getString("landing-offer-end-hero-heading")}</h3>
+          <p>
+            {l10n.getString("landing-offer-end-hero-content", {
+              end_date: endDateFormatter.format(introPricingOfferEndDate),
+            })}
+          </p>
+        </div>
+      </div>
+    ) : null;
+
   return (
     <Layout runtimeData={runtimeData.data}>
       <main>
@@ -90,6 +133,7 @@ const Home: NextPage = () => {
           <div className={styles.lead}>
             <h2>{l10n.getString("landing-hero-headline-2")}</h2>
             <p>{l10n.getString("landing-hero-body-2")}</p>
+            {introPricingEndBanner}
             <LinkButton
               ref={heroCtaRef}
               onClick={() => signup()}
