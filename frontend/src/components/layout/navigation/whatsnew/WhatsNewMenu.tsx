@@ -52,14 +52,18 @@ import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
 import {
   getPhoneSubscribeLink,
+  getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../../../functions/getPlan";
+import { parseDate } from "../../../../functions/parseDate";
+import { useGaViewPing } from "../../../../hooks/gaViewPing";
+import { CountdownTimer } from "../../../CountdownTimer";
+import { useInterval } from "../../../../hooks/interval";
 
 export type WhatsNewEntry = {
   title: string;
   snippet: string;
   content: ReactNode;
-  hero: string;
   icon: string;
   dismissal: DismissalData;
   /**
@@ -140,7 +144,6 @@ export const WhatsNewMenu = (props: Props) => {
           }}
         />
       ),
-      hero: SizeLimitHero.src,
       icon: SizeLimitIcon.src,
       dismissal: useLocalDismissal(
         `whatsnew-feature_size-limit_${props.profile.id}`
@@ -164,7 +167,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={ForwardSomeHero.src}
       />
     ),
-    hero: ForwardSomeHero.src,
     icon: ForwardSomeIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_sign-back-in_${props.profile.id}`
@@ -191,7 +193,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={SignBackInHero.src}
       />
     ),
-    hero: SignBackInHero.src,
     icon: SignBackInIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_sign-back-in_${props.profile.id}`
@@ -218,7 +219,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={aliasToMaskHero.src}
       />
     ),
-    hero: aliasToMaskHero.src,
     icon: aliasToMaskIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_alias-to-mask_${props.profile.id}`
@@ -267,7 +267,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={PremiumSwedenHero.src}
       />
     ),
-    hero: PremiumSwedenHero.src,
     icon: PremiumSwedenIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_premium-expansion-sweden_${props.profile.id}`
@@ -299,7 +298,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={PremiumFinlandHero.src}
       />
     ),
-    hero: PremiumFinlandHero.src,
     icon: PremiumFinlandIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_premium-expansion-finland_${props.profile.id}`
@@ -329,7 +327,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={TrackerRemovalHero.src}
       />
     ),
-    hero: TrackerRemovalHero.src,
     icon: TrackerRemovalIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_tracker-removal_${props.profile.id}`
@@ -365,7 +362,6 @@ export const WhatsNewMenu = (props: Props) => {
       />
     ),
 
-    hero: PhoneMaskingHero.src,
     icon: PhoneMaskingIcon.src,
     dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
     announcementDate: {
