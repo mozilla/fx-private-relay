@@ -21,6 +21,7 @@ type RelayNumberPickerProps = {
 export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
   const [hasStarted, setHasStarted] = useState(false);
   const relayNumberData = useRelayNumber();
+  const relayNumberSuggestionsData = useRelayNumberSuggestions();
 
   if (!hasStarted) {
     return <RelayNumberIntro onStart={() => setHasStarted(true)} />;
@@ -32,6 +33,7 @@ export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
         registerRelayNumber={(number) =>
           relayNumberData.registerRelayNumber(number)
         }
+        search={(search) => relayNumberSuggestionsData.search(search)}
       />
     );
   }
@@ -82,27 +84,74 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
 
 type RelayNumberSelectionProps = {
   registerRelayNumber: (phoneNumber: string) => Promise<Response>;
+  search: (search: string) => Promise<Response | undefined>;
 };
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const { l10n } = useLocalization();
   const relayNumberSuggestionsData = useRelayNumberSuggestions();
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [relayNumberIndex, setRelayNumberIndex] = useState(0);
-  const relayNumberSuggestions = relayNumberSuggestionsData.data
-    ? [
+  const [isSearching, setIsSearching] = useState(false);
+  const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
+    string[]
+  >([]);
+
+  if (relayNumberSuggestionsData.data && relayNumberSuggestions.length === 0) {
+    setRelayNumberSuggestions(
+      [
         ...relayNumberSuggestionsData.data.same_area_options,
         ...relayNumberSuggestionsData.data.other_areas_options,
         ...relayNumberSuggestionsData.data.same_prefix_options,
       ].map((suggestion) => suggestion.phone_number)
-    : [];
+    );
+  }
 
-  const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+  const onRelayNumberChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setPhoneNumber(event.target.value);
   };
 
-  const onSubmit: FormEventHandler = (event) => {
+  const onSearchChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    setSearchValue(event.target.value);
+  };
+
+  const onSubmitRelayNumber: FormEventHandler = (event) => {
     event.preventDefault();
     props.registerRelayNumber(phoneNumber);
+  };
+
+  const onSubmitSearch: FormEventHandler = (event) => {
+    event.preventDefault();
+
+    // return early if search is currently taking place
+    if (isSearching) return;
+
+    // set search to true as we begin searching
+    setIsSearching(true);
+
+    // submit string for search to our API
+    props
+      .search(searchValue)
+      .then((res) => res?.json())
+      .then((data) => {
+        if (data?.length !== 0) {
+          // empty out current relay number suggestions
+          relayNumberSuggestions.length = 0;
+
+          // add new relay number suggestions
+          setRelayNumberSuggestions(
+            data?.map(
+              (suggestion: { phone_number: string }) => suggestion.phone_number
+            )
+          );
+
+          // reset relay number index
+          setRelayNumberIndex(0);
+
+          // set search state to false
+          setIsSearching(false);
+        }
+      });
   };
 
   const loadingState = !relayNumberSuggestionsData.data ? (
@@ -129,7 +178,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
       return (
         <div key={suggestion}>
           <input
-            onChange={onChange}
+            onChange={onRelayNumberChange}
             type="radio"
             name="phoneNumberMask"
             id={`number${i}`}
@@ -148,13 +197,16 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
         <span>{l10n.getString("phone-onboarding-step4-country-us")}</span>
       </div>
 
-      <form onSubmit={onSubmit} className={styles.form}>
+      <form onSubmit={onSubmitSearch} className={styles.form}>
         <input
           className={styles.search}
+          onChange={onSearchChange}
           placeholder={l10n.getString("phone-onboarding-step4-insput-search")}
           type="search"
         />
+      </form>
 
+      <form onSubmit={onSubmitRelayNumber} className={styles.form}>
         <p className={styles.paragraph}>
           {l10n.getString("phone-onboarding-step4-body")}
         </p>

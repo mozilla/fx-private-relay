@@ -83,14 +83,44 @@ export type RelayNumberSuggestionsData = {
   other_areas_options: Array<RelayNumberSuggestion>;
 };
 
+type SearchBody = {
+  area_code?: string;
+  location?: string;
+};
+
+export type SearchFunction = (search: string) => Promise<Response | undefined>;
+
 export function useRelayNumberSuggestions(): SWRResponse<
   RelayNumberSuggestionsData,
   unknown
-> {
+> & { search: SearchFunction } {
   const relayNumberSuggestions: SWRResponse<
     RelayNumberSuggestionsData,
     unknown
   > = useApiV1("/relaynumber/suggestions/");
 
-  return relayNumberSuggestions;
+  /**
+   * Search folr relay number suggestions
+   */
+  const search: SearchFunction = async (search: string) => {
+    // return early if search is empty
+    if (search.length === 0) return;
+
+    // if search is a number, assume it is an area code
+    // if search is not a number, assume it is a location
+    const searchParameter = !isNaN(+search)
+      ? `?area_code=${search}`
+      : `?location=${search}`;
+
+    // use api to search for relay number suggestions based on search body
+    const response = await apiFetch(`/relaynumber/search/${searchParameter}`, {
+      method: "GET",
+    });
+
+    relayNumberSuggestions.mutate();
+
+    return response;
+  };
+
+  return { ...relayNumberSuggestions, search };
 }
