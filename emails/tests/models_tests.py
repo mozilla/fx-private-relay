@@ -285,6 +285,25 @@ class ProfileTest(TestCase):
         self.profile.server_storage = True
         self.profile.save()
 
+    def patch_datetime_now(self):
+        """
+        Selectively patch datatime.now() for emails models
+
+        https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
+        """
+        patcher = patch("emails.models.datetime")
+        mocked_datetime = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        expected_now = datetime.now(timezone.utc)
+        mocked_datetime.combine.return_value = datetime.combine(
+            datetime.now(timezone.utc).date(), datetime.min.time()
+        )
+        mocked_datetime.now.return_value = expected_now
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+
+        return expected_now
+
     def test_bounce_paused_no_bounces(self):
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
 
@@ -930,17 +949,11 @@ class ProfileTest(TestCase):
         mocked_events_info.assert_not_called()
 
     @patch("emails.models.abuse_logger.info")
-    @patch("emails.models.datetime")
     @override_settings(MAX_FORWARDED_PER_DAY=5)
     def test_update_abuse_metric_flags_profile_when_abuse_threshold_met(
-        self, mocked_datetime, mocked_abuse_info
+        self, mocked_abuse_info
     ):
-        expected_now = datetime.now(timezone.utc)
-        mocked_datetime.combine.return_value = datetime.combine(
-            datetime.now(timezone.utc).date(), datetime.min.time()
-        )
-        mocked_datetime.now.return_value = expected_now
-        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+        expected_now = self.patch_datetime_now()
         user = make_premium_test_user()
         baker.make(AbuseMetrics, user=user, num_email_forwarded_per_day=4)
         profile = user.profile_set.first()
