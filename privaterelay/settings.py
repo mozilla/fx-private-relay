@@ -722,6 +722,9 @@ ignore_logger("django.security.DisallowedHost")
 # It is more effective to process these from logs using BigQuery than to track
 # as events in Sentry.
 ignore_logger("django_ftl.message_errors")
+# Security scanner attempts on Heroku dev, no action required
+if RELAY_CHANNEL == "dev":
+    ignore_logger("django.security.SuspiciousFileOperation")
 
 markus.configure(
     backends=[

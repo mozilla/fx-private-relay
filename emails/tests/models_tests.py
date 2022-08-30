@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import BadRequest
 from django.test import (
     override_settings,
     TestCase,
@@ -249,7 +249,7 @@ class RelayAddressTest(TestCase):
 
     def test_free_user_cant_set_block_list_emails(self):
         relay_address = RelayAddress.objects.create(user=self.user)
-        with self.assertRaises(SuspiciousOperation):
+        with self.assertRaises(BadRequest):
             relay_address.block_list_emails = True
             relay_address.save()
         relay_address.refresh_from_db()
