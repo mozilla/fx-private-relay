@@ -19,7 +19,7 @@ def add_db_default_forward_func(apps, schema_editor):
         schema_editor.execute(
             'CREATE TABLE "new__emails_abusemetrics"'
             ' ("id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,'
-            ' "num_email_forwarded_per_day" smallint unsigned NOT NULL CHECK ("num_email_forwarded_per_day" >= 0),'
+            ' "num_email_forwarded_per_day" smallint unsigned NOT NULL DEFAULT 0 CHECK ("num_email_forwarded_per_day" >= 0),'
             ' "first_recorded" datetime NOT NULL,'
             ' "last_recorded" datetime NOT NULL,'
             ' "num_address_created_per_day" smallint unsigned NOT NULL CHECK ("num_address_created_per_day" >= 0),'
