@@ -237,6 +237,11 @@ banner-offer-end-headline = Our intro pricing offer ends soon!
 banner-offer-end-copy = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our intro month-to-month price.
 banner-offer-end-cta = Upgrade now
 
+landing-offer-end-hero-heading = Our intro pricing offer is ending soon!
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27"
+landing-offer-end-hero-content = Get { -brand-name-relay-premium } before { $end_date } and enjoy premium email protection at our intro month-to-month price.
+
 # Time remaining until Relay Premium's introductory pricing is no longer available.
 # This will not be shown anymore once the time runs out.
 # Variables:
