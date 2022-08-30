@@ -59,3 +59,27 @@ const Hero = (props: Pick<Props, "image" | "videos">) => {
     </>
   );
 };
+
+export type WhatsNewComponentContentProps = {
+  heading: string;
+  description: string;
+  hero: JSX.Element;
+  cta?: JSX.Element | null;
+};
+/**
+ * Content of a "What's New" entry with a component as the hero
+ */
+export const WhatsNewComponentContent = (
+  props: WhatsNewComponentContentProps
+) => {
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles["hero-wrapper"]}>{props.hero}</div>
+      <div className={styles.content}>
+        <h2>{props.heading}</h2>
+        <p>{props.description}</p>
+        {props.cta && <div className={styles.cta}>{props.cta}</div>}
+      </div>
+    </div>
+  );
+};

@@ -16,6 +16,7 @@ export function getMockRuntimeDataWithPremium(): RuntimeData {
     FXA_ORIGIN: "https://fxa-mock.com",
     BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
+    INTRO_PRICING_END: "2022-09-27T16:00:00.000Z",
     PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     PREMIUM_PLANS: {
@@ -39,6 +40,7 @@ export function getMockRuntimeDataWithoutPremium(): RuntimeData {
     FXA_ORIGIN: "https://fxa-mock.com",
     BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
+    INTRO_PRICING_END: "2022-09-27T16:00:00.000Z",
     PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     PREMIUM_PLANS: {
