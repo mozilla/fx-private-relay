@@ -7,8 +7,8 @@ import {
   useModal,
   useOverlay,
   usePreventScroll,
+  AriaOverlayProps,
 } from "react-aria";
-import { OverlayProps } from "@react-aria/overlays";
 import styles from "./RelayNumberConfirmationModal.module.scss";
 import { CloseIcon } from "../../Icons";
 import { Button } from "../../Button";
@@ -63,7 +63,9 @@ type ConfirmationDialogProps = {
   isOpen: boolean;
   onClose?: () => void;
 };
-const ConfirmationDialog = (props: ConfirmationDialogProps & OverlayProps) => {
+const ConfirmationDialog = (
+  props: ConfirmationDialogProps & AriaOverlayProps
+) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
   usePreventScroll();
