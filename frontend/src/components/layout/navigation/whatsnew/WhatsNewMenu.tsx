@@ -539,10 +539,7 @@ export const WhatsNewMenu = (props: Props) => {
     isOpen: triggerState.isOpen,
   }).overlayProps;
 
-  const { buttonProps } = useButton(
-    { onPress: () => triggerState.open() },
-    triggerRef
-  );
+  const { buttonProps } = useButton(triggerProps, triggerRef);
 
   if (entries.length === 0) {
     return null;
@@ -564,7 +561,6 @@ export const WhatsNewMenu = (props: Props) => {
     <>
       <button
         {...buttonProps}
-        {...triggerProps}
         ref={triggerRef}
         className={`${styles.trigger} ${
           triggerState.isOpen ? styles["is-open"] : ""
