@@ -227,7 +227,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
   };
 
   const onSendNewCode = async () => {
-    await props.requestPhoneVerification(
+    props.requestPhoneVerification(
       phoneWithMostRecentlySentVerificationCode.number
     );
   };
