@@ -420,10 +420,7 @@ const StatExplainer = (props: { children: React.ReactNode }) => {
     openButtonRef
   );
 
-  const openButtonProps = useButton(
-    { onPress: () => explainerState.open() },
-    openButtonRef
-  ).buttonProps;
+  const openButtonProps = useButton(triggerProps, openButtonRef).buttonProps;
   const closeButtonProps = useButton(
     { onPress: explainerState.close },
     closeButtonRef
@@ -446,7 +443,6 @@ const StatExplainer = (props: { children: React.ReactNode }) => {
     >
       <button
         {...openButtonProps}
-        {...triggerProps}
         ref={openButtonRef}
         className={styles["open-button"]}
       >

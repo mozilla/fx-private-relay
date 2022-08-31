@@ -60,10 +60,7 @@ export const CategoryFilter = (props: Props) => {
     isOpen: menuState.isOpen,
   }).overlayProps;
 
-  const { buttonProps } = useButton(
-    { onPress: () => menuState.open() },
-    triggerRef
-  );
+  const { buttonProps } = useButton(triggerProps, triggerRef);
 
   const onClose = (onCloseParams: OnCloseParams) => {
     const { selectedFilters, saveFilters = true } = onCloseParams;
@@ -91,7 +88,6 @@ export const CategoryFilter = (props: Props) => {
     <>
       <button
         {...buttonProps}
-        {...triggerProps}
         ref={triggerRef}
         title={l10n.getString("profile-filter-category-button-tooltip")}
         className={styles["filter-button"]}
