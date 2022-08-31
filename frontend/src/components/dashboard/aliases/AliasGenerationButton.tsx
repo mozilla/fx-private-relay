@@ -9,8 +9,8 @@ import {
   useMenuItem,
   useFocus,
   useButton,
+  AriaOverlayProps,
 } from "react-aria";
-import { OverlayProps } from "@react-aria/overlays";
 import { AriaMenuItemProps } from "@react-aria/menu";
 import {
   Item,
@@ -217,7 +217,7 @@ const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
 type AliasTypeMenuPopupProps = TreeProps<Record<string, never>> & {
   onAction: AriaMenuItemProps["onAction"];
   domProps: HTMLAttributes<HTMLElement>;
-  onClose?: OverlayProps["onClose"];
+  onClose?: AriaOverlayProps["onClose"];
   autoFocus?: MenuTriggerState["focusStrategy"];
 };
 const AliasTypeMenuPopup = (props: AliasTypeMenuPopupProps) => {
