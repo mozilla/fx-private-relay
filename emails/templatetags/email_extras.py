@@ -20,6 +20,7 @@ def bold_violet_link(href, link_text):
         % (href, link_text)
     )
 
+
 @register.simple_tag
 def is_intro_offer_expired():
     return settings.INTRO_PRICING_END >= datetime.now()
