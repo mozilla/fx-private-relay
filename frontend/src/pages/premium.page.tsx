@@ -216,12 +216,12 @@ const PremiumPromo: NextPage = () => {
       )}
     </LinkButton>
   ) : (
-    <Button
-      disabled={true}
+    <LinkButton
+      href="/premium/waitlist"
       title={l10n.getString("premium-promo-availability-warning-2")}
     >
-      {l10n.getString("premium-promo-hero-cta")}
-    </Button>
+      {l10n.getString("waitlist-submit-label")}
+    </LinkButton>
   );
 
   const getPerkCta = (label: keyof typeof perkCtaRefs) => {
