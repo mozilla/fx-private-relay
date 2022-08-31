@@ -194,7 +194,10 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     useState<boolean>();
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setVerificationCode(event.currentTarget.value);
+    // prevent user from entering non-numeric characters
+    if (event.currentTarget.value.match(/^[0-9]*$/)) {
+      setVerificationCode(event.currentTarget.value);
+    }
   };
 
   const onInvalid: FormEventHandler<HTMLInputElement> = (event) => {
@@ -319,7 +322,9 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
         <Button
           className={styles.button}
           type="submit"
-          disabled={verificationCode.length === 0 || verificationCode === " "}
+          disabled={
+            verificationCode.length === 0 || verificationCode.length < 6
+          }
         >
           {l10n.getString("phone-onboarding-step3-button-cta")}
         </Button>
