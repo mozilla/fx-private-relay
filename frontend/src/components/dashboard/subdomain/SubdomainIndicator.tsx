@@ -7,6 +7,7 @@ import {
   FocusScope,
   OverlayContainer,
   useOverlayPosition,
+  AriaOverlayProps,
 } from "react-aria";
 import {
   forwardRef,
@@ -16,7 +17,6 @@ import {
   useRef,
 } from "react";
 import { useOverlayTriggerState } from "react-stately";
-import { OverlayProps } from "@react-aria/overlays";
 import styles from "./SubdomainIndicator.module.scss";
 import { CloseIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
@@ -157,7 +157,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
   );
 };
 
-type ExplainerProps = OverlayProps & {
+type ExplainerProps = AriaOverlayProps & {
   children: ReactNode;
   positionProps: HTMLAttributes<HTMLElement>;
 };

@@ -16,10 +16,10 @@ import {
   mergeProps,
   useMenuItem,
   useFocus,
+  AriaOverlayProps,
 } from "react-aria";
 import { HTMLAttributes, Key, ReactNode, useRef, useState } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
-import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { event as gaEvent } from "react-ga";
@@ -256,7 +256,7 @@ const UserMenuTrigger = ({
 type UserMenuPopupProps = TreeProps<Record<string, never>> & {
   onAction: AriaMenuItemProps["onAction"];
   domProps: HTMLAttributes<HTMLElement>;
-  onClose?: OverlayProps["onClose"];
+  onClose?: AriaOverlayProps["onClose"];
   autoFocus?: MenuTriggerState["focusStrategy"];
 };
 const UserMenuPopup = (props: UserMenuPopupProps) => {

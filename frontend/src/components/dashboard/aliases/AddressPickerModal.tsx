@@ -17,8 +17,8 @@ import {
   useOverlay,
   usePreventScroll,
   useButton,
+  AriaOverlayProps,
 } from "react-aria";
-import { OverlayProps } from "@react-aria/overlays";
 import styles from "./AddressPickerModal.module.scss";
 import { InfoIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
@@ -188,7 +188,7 @@ type PickerDialogProps = {
   isOpen: boolean;
   onClose?: () => void;
 };
-const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
+const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
   usePreventScroll();
