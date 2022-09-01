@@ -19,7 +19,7 @@ import OnTheGoPhone from "../components/landing/carousel/images/onthego-illustra
 import OnTheGoReceipt from "../components/landing/carousel/images/onthego-illustration-receipts.svg";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
-import { Button, LinkButton } from "../components/Button";
+import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { Carousel } from "../components/landing/carousel/Carousel";
