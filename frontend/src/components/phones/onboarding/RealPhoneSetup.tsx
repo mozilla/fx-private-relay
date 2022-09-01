@@ -1,4 +1,8 @@
+import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { Localized, useLocalization } from "@fluent/react";
+import { isPossiblePhoneNumber } from "react-phone-number-input";
+import PhoneInput from "react-phone-number-input/input";
+import { E164Number } from "libphonenumber-js/min";
 import styles from "./RealPhoneSetup.module.scss";
 import "react-phone-number-input/style.css";
 import PhoneVerify from "./images/phone-verify.svg";
@@ -13,17 +17,9 @@ import {
   useRealPhonesData,
 } from "../../../hooks/api/realPhone";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
-import {
-  ChangeEventHandler,
-  FormEventHandler,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
 import { parseDate } from "../../../functions/parseDate";
-import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
-import { E164Number } from "libphonenumber-js/min";
 import { formatPhone } from "../../../functions/formatPhone";
+import { useInterval } from "../../../hooks/interval";
 
 type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
@@ -138,32 +134,37 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
         <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
         <p>{l10n.getString("phone-onboarding-step2-body")}</p>
       </div>
+
+      {renderErrorMessage}
+
       {/* Add error class of `mzp-is-error` */}
       <form onSubmit={onSubmit} className={styles.form}>
-        {renderErrorMessage}
+        <div className={styles["input-container"]}>
+          {/* static country code */}
+          <span className={styles["phone-input-country-code"]}>+1</span>
 
-        <PhoneInput
-          className={`${phoneNumberError ? styles["is-error"] : ""} ${
-            styles["phone-input"]
-          }`}
-          placeholder={l10n.getString(
-            "phone-onboarding-step2-input-placeholder"
-          )}
-          countries={["US", "CA"]}
-          // flags are found in /public/images/countryFlags/
-          flagUrl="/images/countryFlags/{xx}.svg"
-          defaultCountry="US"
-          type="tel"
-          withCountryCallingCode={true}
-          international
-          autoComplete="tel"
-          limitMaxLength
-          value={phoneNumber}
-          required={true}
-          autoFocus={true}
-          onChange={(number: E164Number) => setPhoneNumber(number)}
-          inputMode="numeric"
-        />
+          <PhoneInput
+            className={`${phoneNumberError ? styles["is-error"] : ""} ${
+              styles["phone-input"]
+            }`}
+            placeholder={l10n.getString(
+              "phone-onboarding-step2-input-placeholder"
+            )}
+            countries={["US", "CA"]}
+            defaultCountry="US"
+            type="tel"
+            withCountryCallingCode={true}
+            international
+            autoComplete="tel"
+            minLength={14}
+            maxLength={14}
+            value={phoneNumber}
+            required={true}
+            autoFocus={true}
+            onChange={(number: E164Number) => setPhoneNumber(number)}
+            inputMode="numeric"
+          />
+        </div>
 
         <Button className={styles.button} type="submit">
           {l10n.getString("phone-onboarding-step2-button-cta")}
@@ -199,7 +200,10 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     useState<boolean>();
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setVerificationCode(event.currentTarget.value);
+    // prevent user from entering non-numeric characters
+    if (event.currentTarget.value.match(/^[0-9]*$/)) {
+      setVerificationCode(event.currentTarget.value);
+    }
   };
 
   const onInvalid: FormEventHandler<HTMLInputElement> = (event) => {
@@ -324,7 +328,9 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
         <Button
           className={styles.button}
           type="submit"
-          disabled={verificationCode.length === 0 || verificationCode === " "}
+          disabled={
+            verificationCode.length === 0 || verificationCode.length < 6
+          }
         >
           {l10n.getString("phone-onboarding-step3-button-cta")}
         </Button>
@@ -345,30 +351,6 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
     </div>
   );
 };
-
-type IntervalFunction = () => unknown | void;
-// See https://overreacted.io/making-setinterval-declarative-with-react-hooks/
-function useInterval(callback: IntervalFunction, delay: number) {
-  const savedCallback = useRef<IntervalFunction | null>(null);
-
-  // Remember the latest callback.
-  useEffect(() => {
-    savedCallback.current = callback;
-  }, [callback]);
-
-  // Set up the interval.
-  useEffect(() => {
-    function tick() {
-      if (savedCallback.current !== null) {
-        savedCallback.current();
-      }
-    }
-    if (delay !== null) {
-      const id = setInterval(tick, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
-}
 
 function getRemainingTime(
   verificationSentTime: Date,

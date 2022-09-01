@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 
 from model_bakery import baker
 from rest_framework.test import APIClient
+from emails.models import Profile
 
 
 if settings.PHONES_ENABLED:
@@ -34,6 +35,14 @@ def mocked_twilio_client():
     with patch(
         "phones.apps.PhonesConfig.twilio_client", spec_set=Client
     ) as mock_twilio_client:
+        mock_fetch = Mock(
+            return_value=Mock(
+                country_code="US", phone_number="+12223334444", carrier="verizon"
+            )
+        )
+        mock_twilio_client.lookups.v1.phone_numbers = Mock(
+            return_value=Mock(fetch=mock_fetch)
+        )
         yield mock_twilio_client
 
 
@@ -45,7 +54,18 @@ def mocked_twilio_validator():
     with patch(
         "phones.apps.PhonesConfig.twilio_validator", spec_set=RequestValidator
     ) as mock_twilio_validator:
+        mock_twilio_validator.validate = Mock(return_value=True)
         yield mock_twilio_validator
+
+
+def _make_real_phone(phone_user, **kwargs):
+    number = "+12223334444"
+    return RealPhone.objects.create(user=phone_user, number=number, **kwargs)
+
+
+def _make_relay_number(phone_user, **kwargs):
+    relay_number = "+19998887777"
+    return RelayNumber.objects.create(user=phone_user, number=relay_number, **kwargs)
 
 
 @pytest.mark.parametrize("endpoint", ("realphone", "relaynumber"))
@@ -110,13 +130,6 @@ def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
     path = "/api/v1/realphone/"
     data = {"number": number}
 
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
-
     response = client.post(path, data, format="json")
     assert response.status_code == 201
     assert response.data["number"] == number
@@ -125,7 +138,7 @@ def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
     assert "Sent verification" in response.data["message"]
 
     mocked_twilio_client.lookups.v1.phone_numbers.assert_called_once_with(number)
-    mock_fetch.assert_called_once()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_called_once()
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == number
@@ -141,13 +154,6 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     path = "/api/v1/realphone/"
     data = {"number": number}
 
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
-
     # the first POST should work fine
     response = client.post(path, data, format="json")
     assert response.status_code == 201
@@ -157,7 +163,7 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     assert "Sent verification" in response.data["message"]
 
     mocked_twilio_client.lookups.v1.phone_numbers.assert_called_once_with(number)
-    mock_fetch.assert_called_once()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_called_once()
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == number
@@ -168,48 +174,35 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     response = client.post(path, data, format="json")
     assert response.status_code == 409
     mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
-    mock_fetch.assert_not_called()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
     mocked_twilio_client.messages.create.assert_not_called()
 
 
 def test_realphone_post_valid_verification_code(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(user=phone_user, number=number)
+    real_phone = _make_real_phone(phone_user)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = "/api/v1/realphone/"
-    data = {"number": number, "verification_code": real_phone.verification_code}
-
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
+    data = {
+        "number": real_phone.number,
+        "verification_code": real_phone.verification_code,
+    }
 
     response = client.post(path, data, format="json")
     assert response.status_code == 201
-    assert response.data["number"] == number
+    assert response.data["number"] == real_phone.number
     assert response.data["verified"] == True
     assert response.data["verified_date"] != ""
 
-    mock_fetch.assert_not_called()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
 
 def test_realphone_post_invalid_verification_code(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(user=phone_user, number=number)
+    real_phone = _make_real_phone(phone_user)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = "/api/v1/realphone/"
-    data = {"number": number, "verification_code": "invalid"}
-
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
+    data = {"number": real_phone.number, "verification_code": "invalid"}
 
     response = client.post(path, data, format="json")
     assert response.status_code == 400
@@ -218,128 +211,90 @@ def test_realphone_post_invalid_verification_code(phone_user, mocked_twilio_clie
     assert real_phone.verified == False
     assert real_phone.verified_date == None
 
-    mock_fetch.assert_not_called()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
 
 def test_realphone_post_existing_verified_number(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(user=phone_user, number=number, verified=True)
+    real_phone = _make_real_phone(phone_user)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = "/api/v1/realphone/"
-    data = {"number": number}
-
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
+    data = {"number": real_phone.number}
 
     response = client.post(path, data, format="json")
     assert response.status_code == 409
     assert "verified record already exists" in response.content.decode()
     real_phone.refresh_from_db()
 
-    mock_fetch.assert_not_called()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
 
 def test_realphone_patch_verification_code(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(
-        user=phone_user, number=number, verified=False
-    )
+    real_phone = _make_real_phone(phone_user, verified=False)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
-    data = {"number": number, "verification_code": real_phone.verification_code}
-
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
+    data = {
+        "number": real_phone.number,
+        "verification_code": real_phone.verification_code,
+    }
 
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
-    assert response.data["number"] == number
+    assert response.data["number"] == real_phone.number
     assert response.data["verified"] == True
     assert response.data["verified_date"] != ""
 
-    mock_fetch.assert_not_called()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
 
 def test_realphone_patch_verification_code_twice(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(
-        user=phone_user, number=number, verified=False
-    )
+    real_phone = _make_real_phone(phone_user, verified=False)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
-    data = {"number": number, "verification_code": real_phone.verification_code}
-
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
+    data = {
+        "number": real_phone.number,
+        "verification_code": real_phone.verification_code,
+    }
 
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
-    assert response.data["number"] == number
+    assert response.data["number"] == real_phone.number
     assert response.data["verified"] == True
     assert response.data["verified_date"] != ""
 
-    mock_fetch.assert_not_called()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
     response = client.patch(path, data, format="json")
     assert response.status_code == 200
-    assert response.data["number"] == number
+    assert response.data["number"] == real_phone.number
     assert response.data["verified"] == True
     assert response.data["verified_date"] != ""
 
 
 def test_realphone_patch_invalid_number(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(user=phone_user, number=number)
+    real_phone = _make_real_phone(phone_user)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
     data = {"number": "+98887776666", "verification_code": "invalid"}
 
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
-
     response = client.patch(path, data, format="json")
     assert response.status_code == 400
     real_phone.refresh_from_db()
     assert real_phone.verified == False
     assert real_phone.verified_date == None
 
-    mock_fetch.assert_not_called()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
 
 def test_realphone_patch_invalid_verification_code(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(user=phone_user, number=number)
+    real_phone = _make_real_phone(phone_user)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
-    data = {"number": number, "verification_code": "invalid"}
-
-    mock_fetch = Mock(
-        return_value=Mock(country_code="US", phone_number=number, carrier="verizon")
-    )
-    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
-        return_value=Mock(fetch=mock_fetch)
-    )
+    data = {"number": real_phone.number, "verification_code": "invalid"}
 
     response = client.patch(path, data, format="json")
     assert response.status_code == 400
@@ -347,12 +302,11 @@ def test_realphone_patch_invalid_verification_code(phone_user, mocked_twilio_cli
     assert real_phone.verified == False
     assert real_phone.verified_date == None
 
-    mock_fetch.assert_not_called()
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
 
 
 def test_realphone_delete_cant_delete_verified(phone_user):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(user=phone_user, number=number, verified=True)
+    real_phone = _make_real_phone(phone_user, verified=True)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
@@ -363,9 +317,9 @@ def test_realphone_delete_cant_delete_verified(phone_user):
     real_phone.refresh_from_db()
     assert real_phone.verified == True
 
+
 def test_realphone_delete_non_verified(phone_user):
-    number = "+12223334444"
-    real_phone = RealPhone.objects.create(user=phone_user, number=number, verified=False)
+    real_phone = _make_real_phone(phone_user, verified=False)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = f"/api/v1/realphone/{real_phone.id}/"
@@ -376,11 +330,10 @@ def test_realphone_delete_non_verified(phone_user):
     with pytest.raises(RealPhone.DoesNotExist):
         real_phone.refresh_from_db()
 
+
 def test_relaynumber_post_with_existing_returns_error(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    relay_number = "+19998887777"
-    RealPhone.objects.create(user=phone_user, number=number, verified=True)
-    relay_number = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    _make_real_phone(phone_user, verified=True)
+    _make_relay_number(phone_user)
     mock_create = Mock()
     mocked_twilio_client.incoming_phone_numbers.create = mock_create
 
@@ -397,10 +350,8 @@ def test_relaynumber_post_with_existing_returns_error(phone_user, mocked_twilio_
 
 
 def test_relaynumber_patch_to_toggle(phone_user, mocked_twilio_client):
-    number = "+12223334444"
-    relay_number = "+19998887777"
-    RealPhone.objects.create(user=phone_user, number=number, verified=True)
-    relay_number = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user)
     assert relay_number.enabled == True
     mock_create = Mock()
     mocked_twilio_client.incoming_phone_numbers.create = mock_create
@@ -436,10 +387,8 @@ def test_relaynumber_suggestions_bad_request_for_user_without_real_phone(phone_u
 
 
 def test_relaynumber_suggestions_bad_request_for_user_already_with_number(phone_user):
-    real_phone = "+12223334444"
-    RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
-    relay_number = "+19998887777"
-    RelayNumber.objects.create(user=phone_user, number=relay_number)
+    _make_real_phone(phone_user, verified=True)
+    _make_relay_number(phone_user)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = "/api/v1/relaynumber/suggestions/"
@@ -450,8 +399,7 @@ def test_relaynumber_suggestions_bad_request_for_user_already_with_number(phone_
 
 
 def test_relaynumber_suggestions(phone_user):
-    real_phone = "+12223334444"
-    RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
+    real_phone = _make_real_phone(phone_user, verified=True)
     client = APIClient()
     client.force_authenticate(phone_user)
     path = "/api/v1/relaynumber/suggestions/"
@@ -460,7 +408,7 @@ def test_relaynumber_suggestions(phone_user):
 
     assert response.status_code == 200
     data_keys = list(response.data.keys())
-    assert response.data["real_num"] == real_phone
+    assert response.data["real_num"] == real_phone.number
     assert "same_prefix_options" in data_keys
     assert "other_areas_options" in data_keys
     assert "same_area_options" in data_keys
@@ -536,17 +484,15 @@ def test_vcard_wrong_lookup_key():
 
 
 def test_vcard_valid_lookup_key(phone_user):
-    real_phone = "+12223334444"
-    RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
-    relay_number = "+19998887777"
-    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user)
 
     client = APIClient()
-    path = f"/api/v1/vCard/{relay_number_obj.vcard_lookup_key}"
+    path = f"/api/v1/vCard/{relay_number.vcard_lookup_key}"
     response = client.get(path)
 
     assert response.status_code == 200
-    assert response.data["number"] == relay_number
+    assert response.data["number"] == relay_number.number
     assert (
         response.headers["Content-Disposition"]
         == "attachment; filename=+19998887777.vcf"
@@ -563,10 +509,8 @@ def test_resend_welcome_sms_requires_phone_user():
 
 def test_resend_welcome_sms(phone_user, mocked_twilio_client):
     mock_messages_create = mocked_twilio_client.messages.create
-    real_phone = "+12223334444"
-    RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
-    relay_number = "+19998887777"
-    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user)
 
     mocked_twilio_client.reset_mock()
     client = APIClient()
@@ -578,8 +522,8 @@ def test_resend_welcome_sms(phone_user, mocked_twilio_client):
     mock_messages_create.assert_called_once()
     call_kwargs = mock_messages_create.call_args.kwargs
     assert "Welcome" in call_kwargs["body"]
-    assert call_kwargs["to"] == real_phone
-    assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
+    assert call_kwargs["to"] == real_phone.number
+    assert relay_number.vcard_lookup_key in call_kwargs["media_url"][0]
 
 
 @pytest.mark.django_db
@@ -605,9 +549,7 @@ def test_inbound_sms_invalid_twilio_signature(mocked_twilio_validator):
 
 
 @pytest.mark.django_db
-def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-
+def test_inbound_sms_valid_twilio_signature_bad_data():
     client = APIClient()
     path = "/api/v1/inbound_sms"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
@@ -617,14 +559,11 @@ def test_inbound_sms_valid_twilio_signature_bad_data(mocked_twilio_validator):
 
 
 def test_inbound_sms_valid_twilio_signature_unknown_number(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-    real_phone_number = "+12223334444"
-    relay_number = "+19998887777"
+    _make_real_phone(phone_user, verified=True)
+    _make_relay_number(phone_user)
     unknown_number = "+1234567890"
-    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    RelayNumber.objects.create(user=phone_user, number=relay_number)
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
@@ -636,42 +575,34 @@ def test_inbound_sms_valid_twilio_signature_unknown_number(
     assert "Could Not Find Relay Number." in response.data[0].title()
 
 
-def test_inbound_sms_valid_twilio_signature_good_data(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
-):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-    real_phone_number = "+12223334444"
-    relay_number = "+19998887777"
-    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    RelayNumber.objects.create(user=phone_user, number=relay_number)
+def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_client):
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user)
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
     path = "/api/v1/inbound_sms"
-    data = {"From": "+15556660000", "To": relay_number, "Body": "test body"}
+    data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 201
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
-    assert call_kwargs["to"] == real_phone_number
-    assert call_kwargs["from_"] == relay_number
+    assert call_kwargs["to"] == real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
     assert "[Relay" in call_kwargs["body"]
 
 
 def test_inbound_sms_valid_twilio_signature_disabled_number(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-    real_phone_number = "+12223334444"
-    relay_number = "+19998887777"
-    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    RelayNumber.objects.create(user=phone_user, number=relay_number, enabled=False)
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=False)
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
     path = "/api/v1/inbound_sms"
-    data = {"From": "+15556660000", "To": relay_number, "Body": "test body"}
+    data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 400
@@ -682,19 +613,19 @@ def test_inbound_sms_valid_twilio_signature_disabled_number(
 
 
 def test_inbound_sms_valid_twilio_signature_no_phone_log(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-    real_phone_number = "+12223334444"
-    relay_number = "+19998887777"
+    profile = Profile.objects.get(user=phone_user)
+    profile.store_phone_log = False
+    profile.save()
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
     inbound_number = "+15556660000"
-    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    RelayNumber.objects.create(user=phone_user, number=relay_number, enabled=True)
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
     path = "/api/v1/inbound_sms"
-    data = {"From": inbound_number, "To": relay_number, "Body": "test body"}
+    data = {"From": inbound_number, "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 201
@@ -706,24 +637,22 @@ def test_inbound_sms_valid_twilio_signature_no_phone_log(
 
 
 def test_inbound_sms_valid_twilio_signature_blocked_contact(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-    real_phone_number = "+12223334444"
-    relay_number = "+19998887777"
+    profile = Profile.objects.get(user=phone_user)
+    profile.store_phone_log = True
+    profile.save()
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
     inbound_number = "+15556660000"
-    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    relay_number_obj = RelayNumber.objects.create(
-        user=phone_user, number=relay_number, enabled=True
-    )
     inbound_contact = InboundContact.objects.create(
-        relay_number=relay_number_obj, inbound_number=inbound_number
+        relay_number=relay_number, inbound_number=inbound_number
     )
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
     path = "/api/v1/inbound_sms"
-    data = {"From": inbound_number, "To": relay_number, "Body": "test body"}
+    data = {"From": inbound_number, "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 201
@@ -752,10 +681,75 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
     assert inbound_contact.last_inbound_date == pre_block_contact_date
 
 
+def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_client):
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    mocked_twilio_client.reset_mock()
+    profile = Profile.objects.get(user=phone_user)
+    profile.store_phone_log = False
+    profile.save()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert "You Can Only Reply" in decoded_content
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert "You can only reply" in call_kwargs["body"]
+    assert f"{settings.SITE_ORIGIN}" in call_kwargs["body"]
+
+
+def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert "Could Not Find A Previous Text Sender" in decoded_content
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert "Could not find a previous text sender" in call_kwargs["body"]
+
+
+def test_inbound_sms_reply(phone_user, mocked_twilio_client):
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    inbound_contact = InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+15556660000",
+        last_inbound_type="text",
+    )
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == inbound_contact.inbound_number
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == "test reply"
+
+
 @pytest.mark.django_db
 def test_phone_get_inbound_contact_requires_relay_number(phone_user):
-    number = "+12223334444"
-    relay_number = "+19998887777"
     client = APIClient()
     path = "/api/v1/inboundcontact/"
     free_user = baker.make(User)
@@ -767,8 +761,8 @@ def test_phone_get_inbound_contact_requires_relay_number(phone_user):
     response = client.get(path)
     assert response.status_code == 404
 
-    RealPhone.objects.create(user=phone_user, number=number, verified=True)
-    relay_number = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    _make_real_phone(phone_user, verified=True)
+    _make_relay_number(phone_user, enabled=True)
     response = client.get(path)
     assert response.status_code == 200
 
@@ -796,9 +790,7 @@ def test_inbound_call_invalid_twilio_signature(mocked_twilio_validator):
 
 
 @pytest.mark.django_db
-def test_inbound_call_valid_twilio_signature_bad_data(mocked_twilio_validator):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-
+def test_inbound_call_valid_twilio_signature_bad_data():
     client = APIClient()
     path = "/api/v1/inbound_call"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
@@ -808,15 +800,12 @@ def test_inbound_call_valid_twilio_signature_bad_data(mocked_twilio_validator):
 
 
 def test_inbound_call_valid_twilio_signature_unknown_number(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-    real_phone_number = "+12223334444"
-    relay_number = "+19998887777"
+    _make_real_phone(phone_user, verified=True)
+    _make_relay_number(phone_user, enabled=True)
     unknown_number = "+1234567890"
     caller_number = "+15556660000"
-    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    RelayNumber.objects.create(user=phone_user, number=relay_number)
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
@@ -829,46 +818,40 @@ def test_inbound_call_valid_twilio_signature_unknown_number(
 
 
 def test_inbound_call_valid_twilio_signature_good_data(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-    real_phone_number = "+12223334444"
-    relay_number = "+19998887777"
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
     caller_number = "+15556660000"
-    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    relay_num_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
     path = "/api/v1/inbound_call"
-    data = {"Caller": caller_number, "Called": relay_number}
+    data = {"Caller": caller_number, "Called": relay_number.number}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 201
     decoded_content = response.content.decode()
     assert f'callerId="{caller_number}"' in decoded_content
-    assert f"<Number>{real_phone_number}</Number>" in decoded_content
+    assert f"<Number>{real_phone.number}</Number>" in decoded_content
     inbound_contact = InboundContact.objects.get(
-        relay_number=relay_num_obj, inbound_number=caller_number
+        relay_number=relay_number, inbound_number=caller_number
     )
     assert inbound_contact.num_calls == 1
     assert inbound_contact.last_inbound_type == "call"
 
 
 def test_inbound_call_valid_twilio_signature_disabled_number(
-    phone_user, mocked_twilio_client, mocked_twilio_validator
+    phone_user, mocked_twilio_client
 ):
-    mocked_twilio_validator.validate = Mock(return_value=True)
-    real_phone_number = "+12223334444"
-    relay_number = "+19998887777"
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=False)
     caller_number = "+15556660000"
-    RealPhone.objects.create(user=phone_user, number=real_phone_number, verified=True)
-    RelayNumber.objects.create(user=phone_user, number=relay_number, enabled=False)
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
     path = "/api/v1/inbound_call"
-    data = {"Caller": caller_number, "Called": relay_number}
+    data = {"Caller": caller_number, "Called": relay_number.number}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 400

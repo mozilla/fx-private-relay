@@ -9,7 +9,7 @@ import uuid
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import BadRequest
 from django.core.validators import MinLengthValidator
 from django.db import models, transaction
 from django.dispatch import receiver
@@ -134,6 +134,7 @@ class Profile(models.Model):
             # any time a profile is saved with store_phone_log False, delete the
             # appropriate server-stored InboundContact records
             from phones.models import InboundContact, RelayNumber
+
             if not self.store_phone_log:
                 try:
                     relay_number = RelayNumber.objects.get(user=self.user)
@@ -355,7 +356,13 @@ class Profile(models.Model):
         RegisteredSubdomain.objects.create(subdomain_hash=hash_subdomain(subdomain))
         return subdomain
 
-    def update_abuse_metric(self, address_created=False, replied=False):
+    def update_abuse_metric(
+        self,
+        address_created=False,
+        replied=False,
+        email_forwarded=False,
+        forwarded_email_size=0,
+    ):
         #  TODO: this should be wrapped in atomic to ensure race conditions are properly handled
         # look for abuse metrics created on the same UTC date, regardless of time.
         midnight_utc_today = datetime.combine(
@@ -375,12 +382,19 @@ class Profile(models.Model):
             abuse_metric.num_address_created_per_day += 1
         if replied:
             abuse_metric.num_replies_per_day += 1
+        if email_forwarded:
+            abuse_metric.num_email_forwarded_per_day += 1
+        if forwarded_email_size > 0:
+            abuse_metric.forwarded_email_size_per_day += forwarded_email_size
         abuse_metric.last_recorded = datetime.now(timezone.utc)
         abuse_metric.save()
 
         # check user should be flagged for abuse
         hit_max_create = False
         hit_max_replies = False
+        hit_max_forwarded = False
+        hit_max_forwarded_email_size = False
+
         hit_max_create = (
             abuse_metric.num_address_created_per_day
             >= settings.MAX_ADDRESS_CREATION_PER_DAY
@@ -388,7 +402,19 @@ class Profile(models.Model):
         hit_max_replies = (
             abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
         )
-        if hit_max_create or hit_max_replies:
+        hit_max_forwarded = (
+            abuse_metric.num_email_forwarded_per_day >= settings.MAX_FORWARDED_PER_DAY
+        )
+        hit_max_forwarded_email_size = (
+            abuse_metric.forwarded_email_size_per_day
+            >= settings.MAX_FORWARDED_EMAIL_SIZE_PER_DAY
+        )
+        if (
+            hit_max_create
+            or hit_max_replies
+            or hit_max_forwarded
+            or hit_max_forwarded_email_size
+        ):
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
             data = {
@@ -396,6 +422,8 @@ class Profile(models.Model):
                 "flagged": self.last_account_flagged.timestamp(),
                 "replies": abuse_metric.num_replies_per_day,
                 "addresses": abuse_metric.num_address_created_per_day,
+                "forwarded": abuse_metric.num_email_forwarded_per_day,
+                "forwarded_size_in_bytes": abuse_metric.forwarded_email_size_per_day,
             }
             # log for further secops review
             abuse_logger.info("Abuse flagged", extra=data)
@@ -413,6 +441,10 @@ class Profile(models.Model):
             return False
         # user was flagged and the premiume feature pause period is not yet over
         return True
+
+
+def get_storing_phone_log(relay_number):
+    return relay_number.user.profile_set.get().store_phone_log
 
 
 @receiver(models.signals.post_save, sender=Profile)
@@ -480,9 +512,7 @@ class RegisteredSubdomain(models.Model):
         return self.subdomain_hash
 
 
-# extend from SuspiciousOperation to trigger 400 status code error
-# TODO: in Django 3.2+ change this to BadRequest
-class CannotMakeSubdomainException(SuspiciousOperation):
+class CannotMakeSubdomainException(BadRequest):
     """Exception raised by Profile due to error on subdomain creation.
 
     Attributes:
@@ -493,9 +523,7 @@ class CannotMakeSubdomainException(SuspiciousOperation):
         self.message = message
 
 
-# extend from SuspiciousOperation to trigger 400 status code error
-# TODO: in Django 3.2+ change this to BadRequest
-class CannotMakeAddressException(SuspiciousOperation):
+class CannotMakeAddressException(BadRequest):
     """Exception raised by RelayAddress or DomainAddress due to error on alias creation.
 
     Attributes:
@@ -553,12 +581,10 @@ class RelayAddress(models.Model):
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
-    def save(self, *args, **kwargs):      
+    def save(self, *args, **kwargs):
         if self._state.adding:
             with transaction.atomic():
-                locked_profile = Profile.objects.select_for_update().get(
-                    user=self.user
-                )
+                locked_profile = Profile.objects.select_for_update().get(user=self.user)
                 check_user_can_make_another_address(locked_profile)
                 while True:
                     if valid_address(self.address, self.domain):
@@ -784,6 +810,10 @@ class AbuseMetrics(models.Model):
     last_recorded = models.DateTimeField(auto_now_add=True, db_index=True)
     num_address_created_per_day = models.PositiveSmallIntegerField(default=0)
     num_replies_per_day = models.PositiveSmallIntegerField(default=0)
+    # Values from 0 to 32767 are safe in all databases supported by Django.
+    num_email_forwarded_per_day = models.PositiveSmallIntegerField(default=0)
+    # Values from 0 to 9223372036854775807 are safe in all databases supported by Django.
+    forwarded_email_size_per_day = models.PositiveBigIntegerField(default=0)
 
     class Meta:
         unique_together = ["user", "first_recorded"]

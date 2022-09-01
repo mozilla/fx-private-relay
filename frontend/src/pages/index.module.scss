@@ -43,6 +43,16 @@
       width: auto;
     }
   }
+
+  .end-of-intro-pricing-hero {
+    display: flex;
+    gap: $spacing-lg;
+    flex-wrap: wrap;
+
+    & > div {
+      flex: 1 1 $content-xs;
+    }
+  }
 }
 
 .how-it-works-wrapper {
@@ -152,14 +162,23 @@
   }
 
   .callout {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
     text-align: center;
     max-width: $content-md;
+    gap: $spacing-lg;
 
     h2 {
       @include text-title-sm;
       font-family: $font-stack-firefox;
       font-weight: 500;
-      padding: $spacing-lg 0;
+    }
+
+    .end-of-intro-pricing-countdown-and-warning {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
     }
   }
 

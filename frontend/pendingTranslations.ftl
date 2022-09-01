@@ -229,6 +229,102 @@ banner-upgrade-loyalist-headline-2 = Protect your privacy, save the internet
 #   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
 banner-upgrade-loyalist-copy-2 = Protect your privacy while joining our mission to build a better internet, all for { $monthly_price }
 
+# End of intro pricing banner
+
+banner-offer-end-headline = Our intro pricing offer ends soon!
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+banner-offer-end-copy = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our intro month-to-month price.
+banner-offer-end-cta = Upgrade now
+
+landing-offer-end-hero-heading = Our intro pricing offer is ending soon!
+landing-offer-end-hero-cta = Upgrade now
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+landing-offer-end-hero-content = Get { -brand-name-relay-premium } before { $end_date } and enjoy premium email protection at our intro month-to-month price.
+
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
+landing-pricing-offer-end-headline = Introductory price: Unlimited masks for { $monthly_price } per month
+landing-pricing-offer-end-warning = This promo is expiring soon
+landing-pricing-offer-end-cta = Upgrade now
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+landing-pricing-offer-end-body = Get { -brand-name-relay-premium } before { $end_date } and enjoy premium email protection at our intro month-to-month price.
+
+premium-promo-offer-end-hero-heading = Our intro pricing offer is ending soon!
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+premium-promo-offer-end-hero-content = Get { -brand-name-relay-premium } before { $end_date } and enjoy premium email protection at our intro month-to-month price.
+premium-promo-offer-end-hero-cta = Upgrade now
+
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
+premium-promo-pricing-offer-end-headline = Introductory price: Unlimited masks for { $monthly_price } per month
+premium-promo-pricing-offer-end-warning = This promo is expiring soon
+premium-promo-pricing-offer-end-cta = Upgrade now
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+premium-promo-pricing-offer-end-body = Get { -brand-name-relay-premium } before { $end_date } and enjoy premium email protection at our intro month-to-month price.
+
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
+premium-promo-hero-body-3 = With { -brand-name-firefox-relay-premium }, you get unlimited custom email masks that forward only the emails you want to your true email address.
+
+# Time remaining until Relay Premium's introductory pricing is no longer available.
+# This will not be shown anymore once the time runs out.
+# Variables:
+#   $remaining_days (number) - The number of days before the countdown stops
+#   $remaining_hours (number) - The number of hours (in addition to $remaining_days) before the countdown stops
+offer-countdown-timer-alt =
+    { $remaining_days ->
+        [0] { $remaining_hours ->
+            [1] 1 hour remaining
+            *[other] { $remaining_hours } hours remaining
+        }
+        [1] { $remaining_hours ->
+            [0] 1 day remaining
+            [1] 1 day and 1 hour remaining
+            *[other] 1 day and { $remaining_hours } hours remaining
+        }
+        *[other] { $remaining_hours ->
+            [0] { $remaining_days } days remaining
+            [1] { $remaining_days } days and 1 hour remaining
+            *[other] { $remaining_days } days and { $remaining_hours } hours remaining
+        }
+    }
+# This is a label displayed on top of a large number representing the number of days that the introductory pricing offer is still valid
+# There's not much room for this, so this might need abbreviating.
+offer-countdown-timer-days = Days
+# This is a label displayed on top of a large number representing the number of hours of the remaining time the introductory pricing offer is still valid
+# There's not much room for this, so this might need abbreviating.
+offer-countdown-timer-hours = Hours
+# This is a label displayed on top of a large number representing the number of minutes of the remaining time the introductory pricing offer is still valid
+# There's not much room for this, hence the abbreviation.
+offer-countdown-timer-minutes = Min.
+# This is a label displayed on top of a large number representing the number of seconds of the remaining time the introductory pricing offer is still valid
+# There's not much room for this, hence the abbreviation.
+offer-countdown-timer-seconds = Sec.
+
+whatsnew-feature-offer-countdown-heading = Our intro pricing offer ends soon!
+# A preview of the full content of `whatsnew-feature-offer-countdown-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+whatsnew-feature-offer-countdown-snippet = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our…
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+whatsnew-feature-offer-countdown-description = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our intro month-to-month price.
+whatsnew-feature-offer-countdown-cta = Upgrade now
+
+# Variables:
+#   $premium_link (string) - This is a link to relay.firefox.com/premium. Example: <a href="https://relay.firefox.com/premium" ...>Relay Premium</a>
+forwarded-email-header-offer-countdown-banner = Our intro monthly pricing offer is expiring. Upgrade to { $premium_link }.
+# Variables:
+#   $premium_link (string) - This is a link to relay.firefox.com/premium. Example: <a href="https://relay.firefox.com/premium" ...>Relay Premium</a>
+forwarded-email-footer-offer-countdown-banner = Upgrade to { $premium_link } before our intro pricing expires.
+
 whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
 # A preview of the full content of `whatsnew-feature-tracker-removal-description`.
 # When translating, please make sure the resulting string is of roughly similar

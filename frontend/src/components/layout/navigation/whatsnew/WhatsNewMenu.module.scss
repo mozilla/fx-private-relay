@@ -68,3 +68,9 @@ button.trigger {
     color: $color-blue-80;
   }
 }
+
+.countdown-timer {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-2xl 0;
+}
