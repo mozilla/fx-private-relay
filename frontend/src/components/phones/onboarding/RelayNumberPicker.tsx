@@ -10,8 +10,10 @@ import FlagUS from "./images/flag-usa.svg";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
 import {
+  RelayNumberSuggestion,
   useRelayNumber,
   useRelayNumberSuggestions,
+  search,
 } from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
 
@@ -33,7 +35,7 @@ export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
         registerRelayNumber={(number) =>
           relayNumberData.registerRelayNumber(number)
         }
-        search={(search) => relayNumberSuggestionsData.search(search)}
+        search={(query) => search(query)}
       />
     );
   }
@@ -84,7 +86,7 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
 
 type RelayNumberSelectionProps = {
   registerRelayNumber: (phoneNumber: string) => Promise<Response>;
-  search: (search: string) => Promise<Response | undefined>;
+  search: (search: string) => Promise<RelayNumberSuggestion[] | undefined>;
 };
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const { l10n } = useLocalization();
@@ -120,7 +122,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     props.registerRelayNumber(phoneNumber);
   };
 
-  const onSubmitSearch: FormEventHandler = (event) => {
+  const onSubmitSearch: FormEventHandler = async (event) => {
     event.preventDefault();
 
     // return early if search is currently taking place
@@ -129,29 +131,20 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     // set search to true as we begin searching
     setIsSearching(true);
 
-    // submit string for search to our API
-    props
-      .search(searchValue)
-      .then((res) => res?.json())
-      .then((data) => {
-        if (data?.length !== 0) {
-          // empty out current relay number suggestions
-          relayNumberSuggestions.length = 0;
+    const data = await props.search(searchValue);
 
-          // add new relay number suggestions
-          setRelayNumberSuggestions(
-            data?.map(
-              (suggestion: { phone_number: string }) => suggestion.phone_number
-            )
-          );
+    if (data && data?.length !== 0) {
+      // add new relay number suggestions
+      setRelayNumberSuggestions(
+        data.map((suggestion) => suggestion.phone_number)
+      );
 
-          // reset relay number index
-          setRelayNumberIndex(0);
+      // reset relay number index
+      setRelayNumberIndex(0);
+    }
 
-          // set search state to false
-          setIsSearching(false);
-        }
-      });
+    // set search state to false
+    setIsSearching(false);
   };
 
   const loadingState = !relayNumberSuggestionsData.data ? (
