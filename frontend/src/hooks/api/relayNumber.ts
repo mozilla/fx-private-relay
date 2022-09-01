@@ -74,11 +74,6 @@ export type RelayNumberSuggestionsData = {
   other_areas_options: Array<RelayNumberSuggestion>;
 };
 
-type SearchBody = {
-  area_code?: string;
-  location?: string;
-};
-
 export function useRelayNumberSuggestions(): SWRResponse<
   RelayNumberSuggestionsData,
   unknown

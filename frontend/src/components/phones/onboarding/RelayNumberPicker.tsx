@@ -16,6 +16,7 @@ import {
   search,
 } from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
+import { RefreshIcon } from "../../Icons";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;
@@ -186,15 +187,14 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const form = !relayNumberSuggestionsData.data ? null : (
     <div className={`${styles["step-select-phone-number-mask"]} `}>
       <div className={styles.lead}>
-        <img src={FlagUS.src} alt="" width={45} />
-        <span>{l10n.getString("phone-onboarding-step4-country-us")}</span>
+        <span>{l10n.getString("phone-onboarding-step4-country")}</span>
       </div>
 
       <form onSubmit={onSubmitSearch} className={styles.form}>
         <input
           className={styles.search}
           onChange={onSearchChange}
-          placeholder={l10n.getString("phone-onboarding-step4-insput-search")}
+          placeholder={l10n.getString("phone-onboarding-step4-input-search")}
           type="search"
         />
       </form>
@@ -210,12 +210,17 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
         <Button
           onClick={getRelayNumberOptions}
-          className={styles.button}
+          className={`styles.button ${styles["show-more-options"]}`}
           type="button"
           variant="secondary"
         >
+          <RefreshIcon alt="" />
           {l10n.getString("phone-onboarding-step4-button-more-options")}
         </Button>
+
+        <p className={styles.paragraph}>
+          {l10n.getString("phone-onboarding-step4-sub-body")}
+        </p>
 
         {/* TODO: Add error class to input field */}
         <Button className={styles.button} type="submit">

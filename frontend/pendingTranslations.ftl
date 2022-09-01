@@ -166,10 +166,11 @@ phone-onboarding-step3-code-success-subhead-body = Choose your phone number mask
 phone-onboarding-step3-code-success-cta = Search for phone number masks
 phone-onboarding-step3-loading = Based on your true phone number, { -brand-name-relay } is looking for similar number combinations available to you.
 
-phone-onboarding-step4-country-us = United States
-phone-onboarding-step4-body = These available phone number masks are similar to your true phone number. Once you register a phone number mask, you cannot change it. 
+phone-onboarding-step4-country = United States and Canada
+phone-onboarding-step4-body = These available phone number masks are similar to your true phone number.
+phone-onboarding-step4-sub-body = Once you register a phone number mask, you cannot change it.
 phone-onboarding-step4-smiliar-phone = Similar to { $phone_number }
-phone-onboarding-step4-insput-search = Enter a city name or area code
+phone-onboarding-step4-input-search = Enter an area code
 phone-onboarding-step4-button-more-options = Show me other options
 phone-onboarding-step4-button-register-phone-number = Register phone number mask
 phone-onboarding-step4-search-results-body = Phone number masks available in <strong>{ $location }</strong>. Once you register a phone number mask, you cannot change it.
