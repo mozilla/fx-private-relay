@@ -19,7 +19,7 @@ import OnTheGoPhone from "../components/landing/carousel/images/onthego-illustra
 import OnTheGoReceipt from "../components/landing/carousel/images/onthego-illustration-receipts.svg";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
-import { Button, LinkButton } from "../components/Button";
+import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { Carousel } from "../components/landing/carousel/Carousel";
@@ -216,12 +216,12 @@ const PremiumPromo: NextPage = () => {
       )}
     </LinkButton>
   ) : (
-    <Button
-      disabled={true}
+    <LinkButton
+      href="/premium/waitlist"
       title={l10n.getString("premium-promo-availability-warning-2")}
     >
-      {l10n.getString("premium-promo-hero-cta")}
-    </Button>
+      {l10n.getString("waitlist-submit-label")}
+    </LinkButton>
   );
 
   const getPerkCta = (label: keyof typeof perkCtaRefs) => {
