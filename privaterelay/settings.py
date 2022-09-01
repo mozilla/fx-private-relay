@@ -649,7 +649,7 @@ REST_FRAMEWORK = {
 }
 
 PHONE_RATE_LIMIT = "5/minute"
-if IN_PYTEST or DEBUG:
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
     PHONE_RATE_LIMIT = "1000/minute"
 
 # Turn on logging out on GET in development.
