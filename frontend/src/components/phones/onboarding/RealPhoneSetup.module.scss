@@ -13,8 +13,6 @@
   padding: $spacing-lg;
 
   .button {
-    width: 100%;
-
     // TODO: This is not working
     &.is-secondary {
       font-weight: 400;
@@ -99,11 +97,13 @@
 // Step 2: Verify Phone Number
 
 .step-verify-input .error {
+  max-width: $content-sm;
   background-color: $color-white;
   border-radius: $border-radius-md;
   box-shadow: $box-shadow-sm;
   padding: $spacing-md;
   text-align: center;
+  margin: 0 auto;
 }
 
 .step-verify-input .is-hidden {
@@ -257,15 +257,29 @@
   }
 }
 
-.is-error > input {
-  border: 2px solid $color-red-60;
-  box-shadow: 0 0 4px 4px $color-red-30;
+.input-container {
+  display: flex;
+  align-items: center;
+
+  @include text-body-sm;
 }
 
-// Removes the international option from the phone number country select component
-// We limit the country select to only the countries that we support
-.phone-input :global {
-  option[value="ZZ"] {
-    display: none;
+.phone-input {
+  width: $content-xs;
+  height: $layout-sm;
+  padding: $spacing-md $spacing-sm $spacing-md $spacing-2xl;
+
+  &.is-error {
+    border: 2px solid $color-red-60;
+    box-shadow: 0 0 4px 4px $color-red-30;
   }
+}
+
+// static country code in the real phone number input "+1"
+.phone-input-country-code {
+  background-color: $color-grey-10;
+  border-radius: $border-radius-sm;
+  position: absolute;
+  padding: 0 $spacing-sm;
+  margin-left: $spacing-sm;
 }

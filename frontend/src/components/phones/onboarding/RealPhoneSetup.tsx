@@ -1,6 +1,7 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { Localized, useLocalization } from "@fluent/react";
-import PhoneInput, { isPossiblePhoneNumber } from "react-phone-number-input";
+import { isPossiblePhoneNumber } from "react-phone-number-input";
+import PhoneInput from "react-phone-number-input/input";
 import { E164Number } from "libphonenumber-js/min";
 import styles from "./RealPhoneSetup.module.scss";
 import "react-phone-number-input/style.css";
@@ -133,32 +134,37 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
         <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
         <p>{l10n.getString("phone-onboarding-step2-body")}</p>
       </div>
+
+      {renderErrorMessage}
+
       {/* Add error class of `mzp-is-error` */}
       <form onSubmit={onSubmit} className={styles.form}>
-        {renderErrorMessage}
+        <div className={styles["input-container"]}>
+          {/* static country code */}
+          <span className={styles["phone-input-country-code"]}>+1</span>
 
-        <PhoneInput
-          className={`${phoneNumberError ? styles["is-error"] : ""} ${
-            styles["phone-input"]
-          }`}
-          placeholder={l10n.getString(
-            "phone-onboarding-step2-input-placeholder"
-          )}
-          countries={["US", "CA"]}
-          // flags are found in /public/images/countryFlags/
-          flagUrl="/images/countryFlags/{xx}.svg"
-          defaultCountry="US"
-          type="tel"
-          withCountryCallingCode={true}
-          international
-          autoComplete="tel"
-          limitMaxLength
-          value={phoneNumber}
-          required={true}
-          autoFocus={true}
-          onChange={(number: E164Number) => setPhoneNumber(number)}
-          inputMode="numeric"
-        />
+          <PhoneInput
+            className={`${phoneNumberError ? styles["is-error"] : ""} ${
+              styles["phone-input"]
+            }`}
+            placeholder={l10n.getString(
+              "phone-onboarding-step2-input-placeholder"
+            )}
+            countries={["US", "CA"]}
+            defaultCountry="US"
+            type="tel"
+            withCountryCallingCode={true}
+            international
+            autoComplete="tel"
+            minLength={14}
+            maxLength={14}
+            value={phoneNumber}
+            required={true}
+            autoFocus={true}
+            onChange={(number: E164Number) => setPhoneNumber(number)}
+            inputMode="numeric"
+          />
+        </div>
 
         <Button className={styles.button} type="submit">
           {l10n.getString("phone-onboarding-step2-button-cta")}
