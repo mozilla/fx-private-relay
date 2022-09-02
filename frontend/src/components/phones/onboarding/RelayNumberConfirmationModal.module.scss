@@ -32,6 +32,12 @@
       text-align: center;
       gap: $spacing-xl;
       padding: $spacing-lg $spacing-md;
+
+      p {
+        display: flex;
+        gap: $spacing-xs;
+        flex-direction: column;
+      }
     }
 
     .confirm-button {

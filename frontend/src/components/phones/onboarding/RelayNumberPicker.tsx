@@ -6,7 +6,6 @@ import {
 } from "react";
 import { useLocalization } from "@fluent/react";
 import styles from "./RelayNumberPicker.module.scss";
-import FlagUS from "./images/flag-usa.svg";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
 import {
@@ -25,7 +24,6 @@ type RelayNumberPickerProps = {
 export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
   const [hasStarted, setHasStarted] = useState(false);
   const relayNumberData = useRelayNumber();
-  const relayNumberSuggestionsData = useRelayNumberSuggestions();
 
   if (!hasStarted) {
     return <RelayNumberIntro onStart={() => setHasStarted(true)} />;
@@ -97,10 +95,12 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [relayNumberIndex, setRelayNumberIndex] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
+  const [confirmationState, setConfirmationState] = useState<boolean>(false);
   const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
     string[]
   >([]);
 
+  // load suggestions. Order: same_area_options, other_area_options, same_prefix_options.
   if (relayNumberSuggestionsData.data && relayNumberSuggestions.length === 0) {
     setRelayNumberSuggestions(
       [
@@ -123,7 +123,10 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
   const onSubmitRelayNumber: FormEventHandler = (event) => {
     event.preventDefault();
-    props.registerRelayNumber(phoneNumber);
+
+    if (phoneNumber.length !== 0) {
+      setConfirmationState(true);
+    }
   };
 
   const onSubmitSearch: FormEventHandler = async (event) => {
@@ -187,73 +190,81 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
       );
     });
 
-  const form = !relayNumberSuggestionsData.data ? null : (
-    <div className={`${styles["step-select-phone-number-mask"]} `}>
-      <div className={styles.lead}>
-        <span>{l10n.getString("phone-onboarding-step4-country")}</span>
-      </div>
-
-      <form onSubmit={onSubmitSearch} className={styles.form}>
-        <input
-          className={styles.search}
-          onChange={onSearchChange}
-          pattern="^\d{3}$"
-          maxLength={3}
-          minLength={3}
-          autoFocus={true}
-          value={searchValue}
-          title={l10n.getString("phone-onboarding-step4-input-search")}
-          placeholder={l10n.getString("phone-onboarding-step4-input-search")}
-          type="search"
-        />
-      </form>
-
-      <form onSubmit={onSubmitRelayNumber} className={styles.form}>
-        <p className={styles.paragraph}>
-          {l10n.getString("phone-onboarding-step4-body")}
-        </p>
-
-        <div className={`${styles["step-select-relay-numbers-radio-group"]} `}>
-          {suggestedNumberRadioInputs}
+  const form =
+    !relayNumberSuggestionsData.data && !confirmationState ? null : (
+      <div className={`${styles["step-select-phone-number-mask"]} `}>
+        <div className={styles.lead}>
+          <span>{l10n.getString("phone-onboarding-step4-country")}</span>
         </div>
 
-        <Button
-          onClick={getRelayNumberOptions}
-          className={`styles.button ${styles["show-more-options"]}`}
-          type="button"
-          variant="secondary"
-        >
-          <RefreshIcon alt="" />
-          {l10n.getString("phone-onboarding-step4-button-more-options")}
-        </Button>
+        <form onSubmit={onSubmitSearch} className={styles.form}>
+          <input
+            className={styles.search}
+            onChange={onSearchChange}
+            pattern="^\d{3}$"
+            maxLength={3}
+            minLength={3}
+            autoFocus={true}
+            value={searchValue}
+            title={l10n.getString("phone-onboarding-step4-input-search")}
+            placeholder={l10n.getString("phone-onboarding-step4-input-search")}
+            type="search"
+          />
+        </form>
 
-        <p className={styles.paragraph}>
-          {l10n.getString("phone-onboarding-step4-sub-body")}
-        </p>
+        <form onSubmit={onSubmitRelayNumber} className={styles.form}>
+          <p className={styles.paragraph}>
+            {l10n.getString("phone-onboarding-step4-body")}
+          </p>
 
-        {/* TODO: Add error class to input field */}
-        <Button className={styles.button} type="submit">
-          {l10n.getString(
-            "phone-onboarding-step4-button-register-phone-number"
-          )}
-        </Button>
-      </form>
-    </div>
-  );
+          <div
+            className={`${styles["step-select-relay-numbers-radio-group"]} `}
+          >
+            {suggestedNumberRadioInputs}
+          </div>
+
+          <Button
+            onClick={getRelayNumberOptions}
+            className={`styles.button ${styles["show-more-options"]}`}
+            type="button"
+            variant="secondary"
+          >
+            <RefreshIcon alt="" />
+            {l10n.getString("phone-onboarding-step4-button-more-options")}
+          </Button>
+
+          <p className={styles.paragraph}>
+            {l10n.getString("phone-onboarding-step4-sub-body")}
+          </p>
+
+          {/* TODO: Add error class to input field */}
+          <Button className={styles.button} type="submit">
+            {l10n.getString(
+              "phone-onboarding-step4-button-register-phone-number"
+            )}
+          </Button>
+        </form>
+      </div>
+    );
 
   return (
     <div className={`${styles.step}`}>
-      <RelayNumberConfirmationModal
-        subdomain={""}
-        isOpen={true}
-        relayNumber={RelayNumberSelection}
-        onClose={() => {
-          console.log("test");
-        }}
-      />
+      {confirmationState && (
+        <RelayNumberConfirmationModal
+          relayNumber={phoneNumber}
+          onClose={() => {
+            setConfirmationState(false);
+          }}
+          confirm={() => {
+            setConfirmationState(false);
+            props.registerRelayNumber(phoneNumber);
+          }}
+        />
+      )}
 
       {/* TODO: Add logic to show this instead of step-select-phone-number-mask when loading */}
       {loadingState}
+
       {form}
     </div>
   );
