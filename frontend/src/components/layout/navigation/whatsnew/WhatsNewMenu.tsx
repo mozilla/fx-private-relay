@@ -393,7 +393,9 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString("whatsnew-feature-offer-countdown-heading")}
         hero={
           <div className={styles["countdown-timer"]}>
-            <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
+            <CountdownTimer
+              remainingTimeInMs={Math.max(remainingTimeInMs, 0)}
+            />
           </div>
         }
         cta={offerCountdownCta}
