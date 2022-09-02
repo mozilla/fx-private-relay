@@ -89,6 +89,7 @@ export const mockedRuntimeData: RuntimeData = {
     ["tracker_removal", true],
     ["phones", true],
     ["intro_pricing_countdown", true],
+    ["bundle", true],
   ],
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
 };
