@@ -394,3 +394,37 @@ faq-question-bulk-trackerremoval-answer = You can only turn tracker removal on a
 faq-question-trackerremoval-breakage-question = Why do my emails look broken?
 faq-question-trackerremoval-breakage-answer-2 = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images and links. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
 
+## Comparison table of the different plans
+
+plan-matrix-heading-features = Features
+plan-matrix-heading-plan-free = Limited email protection
+plan-matrix-heading-plan-premium = Email protection
+plan-matrix-heading-plan-phones = Email & phone protection
+plan-matrix-heading-plan-bundle = Add VPN protection
+plan-matrix-heading-plan-bundle-alt = Get { -brand-name-relay-premium } and { -brand-name-mozilla-vpn }
+# This heading accompanies the number of email masks available in each plan (i.e. 5 for free plans, unlimited otherwise)
+plan-matrix-heading-feature-email_masks = Email masks
+plan-matrix-heading-feature-browser_extension = Browser extension
+plan-matrix-heading-feature-email_tracker_removal = Remove email trackers
+plan-matrix-heading-feature-promo_email_blocking = Block promotional emails
+plan-matrix-heading-feature-email_subdomain = Email subdomain
+plan-matrix-heading-feature-email_reply = Reply to forwarded emails
+plan-matrix-heading-feature-phone_mask = Phone number mask
+plan-matrix-heading-feature-vpn = Access to <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
+plan-matrix-heading-price = Price
+plan-matrix-feature-count-unlimited = Unlimited
+plan-matrix-feature-included = Included
+plan-matrix-feature-not-included = Not included
+plan-matrix-price-free = Free
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
+plan-matrix-price-monthly = { $monthly_price }/month
+plan-matrix-price-period-yearly = Yearly
+# We're showing a monthly price to make it easier to compare, but with an asterisk noting that it'll be billed yearly
+plan-matrix-price-period-yearly-note = Billing yearly
+plan-matrix-price-period-monthly = Monthly
+# Variables:
+#   $percentage (number) - how many percent discount this plan gets subscribers on the regular Mozilla VPN price
+plan-matrix-price-vpn-discount = Save { $percentage }% on regular VPN price
+plan-matrix-pick = Sign Up
+plan-matrix-join-waitlist = Join the Waitlist
