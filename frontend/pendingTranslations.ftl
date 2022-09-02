@@ -166,10 +166,11 @@ phone-onboarding-step3-code-success-subhead-body = Choose your phone number mask
 phone-onboarding-step3-code-success-cta = Search for phone number masks
 phone-onboarding-step3-loading = Based on your true phone number, { -brand-name-relay } is looking for similar number combinations available to you.
 
-phone-onboarding-step4-country-us = United States
-phone-onboarding-step4-body = These available phone number masks are similar to your true phone number. Once you register a phone number mask, you cannot change it. 
+phone-onboarding-step4-country = United States and Canada
+phone-onboarding-step4-body = These available phone number masks are similar to your true phone number.
+phone-onboarding-step4-sub-body = Once you register a phone number mask, you cannot change it.
 phone-onboarding-step4-smiliar-phone = Similar to { $phone_number }
-phone-onboarding-step4-insput-search = Enter a city name or area code
+phone-onboarding-step4-input-search = Enter an area code
 phone-onboarding-step4-button-more-options = Show me other options
 phone-onboarding-step4-button-register-phone-number = Register phone number mask
 phone-onboarding-step4-search-results-body = Phone number masks available in <strong>{ $location }</strong>. Once you register a phone number mask, you cannot change it.
@@ -305,6 +306,25 @@ offer-countdown-timer-minutes = Min.
 # This is a label displayed on top of a large number representing the number of seconds of the remaining time the introductory pricing offer is still valid
 # There's not much room for this, hence the abbreviation.
 offer-countdown-timer-seconds = Sec.
+
+whatsnew-feature-offer-countdown-heading = Our intro pricing offer ends soon!
+# A preview of the full content of `whatsnew-feature-offer-countdown-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+whatsnew-feature-offer-countdown-snippet = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our…
+# Variables:
+#   $end_date (string) - The localised date the introductory pricing offer ends, e.g. "September 27 2022"
+whatsnew-feature-offer-countdown-description = Get { -brand-name-relay-premium } before { $end_date } and enjoy unlimited masking at our intro month-to-month price.
+whatsnew-feature-offer-countdown-cta = Upgrade now
+
+# Variables:
+#   $premium_link (string) - This is a link to relay.firefox.com/premium. Example: <a href="https://relay.firefox.com/premium" ...>Relay Premium</a>
+forwarded-email-header-offer-countdown-banner = Our intro monthly pricing offer is expiring. Upgrade to { $premium_link }.
+# Variables:
+#   $premium_link (string) - This is a link to relay.firefox.com/premium. Example: <a href="https://relay.firefox.com/premium" ...>Relay Premium</a>
+forwarded-email-footer-offer-countdown-banner = Upgrade to { $premium_link } before our intro pricing expires.
 
 whatsnew-feature-tracker-removal-heading = Introducing email tracker removal
 # A preview of the full content of `whatsnew-feature-tracker-removal-description`.

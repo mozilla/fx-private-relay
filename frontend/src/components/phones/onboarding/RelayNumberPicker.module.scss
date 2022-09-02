@@ -20,6 +20,10 @@
   justify-content: center;
   gap: $spacing-2xl;
 
+  .show-more-options {
+    font-weight: 400;
+  }
+
   .button {
     width: 100%;
 
@@ -36,8 +40,8 @@
   }
 
   .lead {
-    @include text-title-3xs;
-    font-family: $font-stack-firefox;
+    @include text-body-sm;
+    font-family: $font-stack-base;
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -231,8 +235,8 @@
   background-color: $color-white;
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
-  padding: $spacing-lg $spacing-2xl;
-  max-width: $screen-md;
+  padding: $spacing-xl $spacing-lg;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;

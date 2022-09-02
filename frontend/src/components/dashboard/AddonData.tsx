@@ -9,6 +9,7 @@ export type Props = {
   aliases: AliasData[];
   totalForwardedEmails: number;
   totalBlockedEmails: number;
+  totalEmailTrackersRemoved: number;
 };
 
 export const AddonData = (props: Props) => {
@@ -29,6 +30,7 @@ export const AddonData = (props: Props) => {
       data-aliases-used-val={props.aliases.length}
       data-emails-forwarded-val={props.totalForwardedEmails}
       data-emails-blocked-val={props.totalBlockedEmails}
+      data-email-trackers-removed-val={props.totalEmailTrackersRemoved}
       data-premium-subdomain-set={
         typeof props.profile.subdomain === "string"
           ? props.profile.subdomain

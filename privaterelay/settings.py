@@ -167,6 +167,9 @@ AWS_SQS_QUEUE_URL = config("AWS_SQS_QUEUE_URL", None)
 RELAY_FROM_ADDRESS = config("RELAY_FROM_ADDRESS", None)
 NEW_RELAY_FROM_ADDRESS = config("NEW_RELAY_FROM_ADDRESS")
 GOOGLE_ANALYTICS_ID = config("GOOGLE_ANALYTICS_ID", None)
+INTRO_PRICING_END = datetime.fromisoformat(
+    config("INTRO_PRICING_END", "2022-09-27T09:00:00.000-07:00")
+)
 INCLUDE_VPN_BANNER = config("INCLUDE_VPN_BANNER", False, cast=bool)
 RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
 RECRUITMENT_BANNER_TEXT = config("RECRUITMENT_BANNER_TEXT", None)
@@ -440,7 +443,9 @@ MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 MAX_ADDRESS_CREATION_PER_DAY = config("MAX_ADDRESS_CREATION_PER_DAY", 100, cast=int)
 MAX_REPLIES_PER_DAY = config("MAX_REPLIES_PER_DAY", 100, cast=int)
 MAX_FORWARDED_PER_DAY = config("MAX_FORWARDED_PER_DAY", 1000, cast=int)
-MAX_FORWARDED_EMAIL_SIZE_PER_DAY = config("MAX_FORWARDED_EMAIL_SIZE_PER_DAY", 1_000_000_000, cast=int)
+MAX_FORWARDED_EMAIL_SIZE_PER_DAY = config(
+    "MAX_FORWARDED_EMAIL_SIZE_PER_DAY", 1_000_000_000, cast=int
+)
 PREMIUM_FEATURE_PAUSED_DAYS = config("ACCOUNT_PREMIUM_FEATURE_PAUSED_DAYS", 1, cast=int)
 
 SOFT_BOUNCE_ALLOWED_DAYS = config("SOFT_BOUNCE_ALLOWED_DAYS", 1, cast=int)
@@ -644,7 +649,7 @@ REST_FRAMEWORK = {
 }
 
 PHONE_RATE_LIMIT = "5/minute"
-if IN_PYTEST or DEBUG:
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
     PHONE_RATE_LIMIT = "1000/minute"
 
 # Turn on logging out on GET in development.
@@ -717,6 +722,9 @@ ignore_logger("django.security.DisallowedHost")
 # It is more effective to process these from logs using BigQuery than to track
 # as events in Sentry.
 ignore_logger("django_ftl.message_errors")
+# Security scanner attempts on Heroku dev, no action required
+if RELAY_CHANNEL == "dev":
+    ignore_logger("django.security.SuspiciousFileOperation")
 
 markus.configure(
     backends=[

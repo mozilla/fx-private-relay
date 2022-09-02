@@ -41,11 +41,9 @@ import { setCookie } from "../functions/cookies";
 import { Reviews } from "../components/landing/Reviews";
 import { getLocale } from "../functions/getLocale";
 import { useInterval } from "../hooks/interval";
-import {
-  CountdownTimer,
-  introPricingOfferEndDate,
-} from "../components/CountdownTimer";
+import { CountdownTimer } from "../components/CountdownTimer";
 import { isFlagActive } from "../functions/waffle";
+import { parseDate } from "../functions/parseDate";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -74,6 +72,9 @@ const Home: NextPage = () => {
     setNow(Date.now());
   }, 1000);
 
+  const introPricingOfferEndDate = runtimeData.data
+    ? parseDate(runtimeData.data?.INTRO_PRICING_END)
+    : new Date(0);
   const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
 
   if (typeof userData.data?.[0] === "object" && !userData.error) {

@@ -6,14 +6,16 @@ import {
 } from "react";
 import { useLocalization } from "@fluent/react";
 import styles from "./RelayNumberPicker.module.scss";
-import FlagUS from "./images/flag-usa.svg";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
 import {
+  RelayNumberSuggestion,
   useRelayNumber,
   useRelayNumberSuggestions,
+  search,
 } from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
+import { RefreshIcon } from "../../Icons";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;
@@ -32,6 +34,7 @@ export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
         registerRelayNumber={(number) =>
           relayNumberData.registerRelayNumber(number)
         }
+        search={(query) => search(query)}
       />
     );
   }
@@ -82,27 +85,67 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
 
 type RelayNumberSelectionProps = {
   registerRelayNumber: (phoneNumber: string) => Promise<Response>;
+  search: (search: string) => Promise<RelayNumberSuggestion[] | undefined>;
 };
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const { l10n } = useLocalization();
   const relayNumberSuggestionsData = useRelayNumberSuggestions();
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [relayNumberIndex, setRelayNumberIndex] = useState(0);
-  const relayNumberSuggestions = relayNumberSuggestionsData.data
-    ? [
+  const [isSearching, setIsSearching] = useState(false);
+  const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
+    string[]
+  >([]);
+
+  if (relayNumberSuggestionsData.data && relayNumberSuggestions.length === 0) {
+    setRelayNumberSuggestions(
+      [
         ...relayNumberSuggestionsData.data.same_area_options,
         ...relayNumberSuggestionsData.data.other_areas_options,
         ...relayNumberSuggestionsData.data.same_prefix_options,
       ].map((suggestion) => suggestion.phone_number)
-    : [];
+    );
+  }
 
-  const onChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+  const onRelayNumberChange: ChangeEventHandler<HTMLInputElement> = (event) => {
     setPhoneNumber(event.target.value);
   };
 
-  const onSubmit: FormEventHandler = (event) => {
+  const onSearchChange: ChangeEventHandler<HTMLInputElement> = (event) => {
+    if (event.currentTarget.value.match(/^[0-9]*$/)) {
+      setSearchValue(event.target.value);
+    }
+  };
+
+  const onSubmitRelayNumber: FormEventHandler = (event) => {
     event.preventDefault();
     props.registerRelayNumber(phoneNumber);
+  };
+
+  const onSubmitSearch: FormEventHandler = async (event) => {
+    event.preventDefault();
+
+    // return early if search is currently taking place
+    if (isSearching) return;
+
+    // set search to true as we begin searching
+    setIsSearching(true);
+
+    const data = await props.search(searchValue);
+
+    if (data && data?.length !== 0) {
+      // add new relay number suggestions
+      setRelayNumberSuggestions(
+        data.map((suggestion) => suggestion.phone_number)
+      );
+
+      // reset relay number index
+      setRelayNumberIndex(0);
+    }
+
+    // set search state to false
+    setIsSearching(false);
   };
 
   const loadingState = !relayNumberSuggestionsData.data ? (
@@ -129,7 +172,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
       return (
         <div key={suggestion}>
           <input
-            onChange={onChange}
+            onChange={onRelayNumberChange}
             type="radio"
             name="phoneNumberMask"
             id={`number${i}`}
@@ -144,17 +187,25 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const form = !relayNumberSuggestionsData.data ? null : (
     <div className={`${styles["step-select-phone-number-mask"]} `}>
       <div className={styles.lead}>
-        <img src={FlagUS.src} alt="" width={45} />
-        <span>{l10n.getString("phone-onboarding-step4-country-us")}</span>
+        <span>{l10n.getString("phone-onboarding-step4-country")}</span>
       </div>
 
-      <form onSubmit={onSubmit} className={styles.form}>
+      <form onSubmit={onSubmitSearch} className={styles.form}>
         <input
           className={styles.search}
-          placeholder={l10n.getString("phone-onboarding-step4-insput-search")}
+          onChange={onSearchChange}
+          pattern="^\d{3}$"
+          maxLength={3}
+          minLength={3}
+          autoFocus={true}
+          value={searchValue}
+          title={l10n.getString("phone-onboarding-step4-input-search")}
+          placeholder={l10n.getString("phone-onboarding-step4-input-search")}
           type="search"
         />
+      </form>
 
+      <form onSubmit={onSubmitRelayNumber} className={styles.form}>
         <p className={styles.paragraph}>
           {l10n.getString("phone-onboarding-step4-body")}
         </p>
@@ -165,12 +216,17 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
         <Button
           onClick={getRelayNumberOptions}
-          className={styles.button}
+          className={`styles.button ${styles["show-more-options"]}`}
           type="button"
           variant="secondary"
         >
+          <RefreshIcon alt="" />
           {l10n.getString("phone-onboarding-step4-button-more-options")}
         </Button>
+
+        <p className={styles.paragraph}>
+          {l10n.getString("phone-onboarding-step4-sub-body")}
+        </p>
 
         {/* TODO: Add error class to input field */}
         <Button className={styles.button} type="submit">
