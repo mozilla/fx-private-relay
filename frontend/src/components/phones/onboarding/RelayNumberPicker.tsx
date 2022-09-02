@@ -6,7 +6,6 @@ import {
 } from "react";
 import { useLocalization } from "@fluent/react";
 import styles from "./RelayNumberPicker.module.scss";
-import FlagUS from "./images/flag-usa.svg";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
 import {
@@ -24,7 +23,6 @@ type RelayNumberPickerProps = {
 export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
   const [hasStarted, setHasStarted] = useState(false);
   const relayNumberData = useRelayNumber();
-  const relayNumberSuggestionsData = useRelayNumberSuggestions();
 
   if (!hasStarted) {
     return <RelayNumberIntro onStart={() => setHasStarted(true)} />;
