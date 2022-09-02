@@ -115,7 +115,9 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   };
 
   const onSearchChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    setSearchValue(event.target.value);
+    if (event.currentTarget.value.match(/^[0-9]*$/)) {
+      setSearchValue(event.target.value);
+    }
   };
 
   const onSubmitRelayNumber: FormEventHandler = (event) => {
@@ -194,6 +196,12 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
         <input
           className={styles.search}
           onChange={onSearchChange}
+          pattern="^\d{3}$"
+          maxLength={3}
+          minLength={3}
+          autoFocus={true}
+          value={searchValue}
+          title={l10n.getString("phone-onboarding-step4-input-search")}
           placeholder={l10n.getString("phone-onboarding-step4-input-search")}
           type="search"
         />
