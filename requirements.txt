@@ -41,7 +41,7 @@ pytest-django==4.5.2
 responses==0.21.0
 
 # linting
-black==22.6.0
+black==22.8.0
 
 # type hinting
 mypy==0.971
