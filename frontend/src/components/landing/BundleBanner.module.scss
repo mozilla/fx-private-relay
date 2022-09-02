@@ -1,0 +1,38 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.bundle-banner-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background-image: url("./images/bundle-bg.svg");
+  background-size: cover;
+  border-radius: $border-radius-lg;
+  height: 400px;
+  position: relative;
+  gap: $layout-md;
+
+  .img-wrapper {
+    width: 100%;
+
+    .main-image {
+      position: absolute;
+      bottom: 0;
+    }
+  }
+
+  .bundle-banner-description {
+    color: $color-white;
+
+    h2 {
+      @include text-title-sm;
+      @include font-firefox;
+      font-weight: 700;
+    }
+
+    h3 {
+      @include text-title-xs;
+      @include font-firefox;
+      font-weight: 600;
+    }
+  }
+}

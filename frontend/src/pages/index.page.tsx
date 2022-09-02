@@ -45,6 +45,7 @@ import { CountdownTimer } from "../components/CountdownTimer";
 import { isFlagActive } from "../functions/waffle";
 import { parseDate } from "../functions/parseDate";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
+import { BundleBanner } from "../components/landing/BundleBanner";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -249,6 +250,11 @@ const Home: NextPage = () => {
             />
           </div>
         </section>
+
+        <section className={styles["bundle-banner-section"]}>
+          <BundleBanner />
+        </section>
+
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
           <div className={styles["how-it-works"]}>
             <h2 className={styles.headline}>
