@@ -17,6 +17,7 @@ import {
 } from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
 import { RefreshIcon } from "../../Icons";
+import { RelayNumberConfirmationModal } from "./RelayNumberConfirmationModal";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;
@@ -242,6 +243,15 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
   return (
     <div className={`${styles.step}`}>
+      <RelayNumberConfirmationModal
+        subdomain={""}
+        isOpen={true}
+        relayNumber={RelayNumberSelection}
+        onClose={() => {
+          console.log("test");
+        }}
+      />
+
       {/* TODO: Add logic to show this instead of step-select-phone-number-mask when loading */}
       {loadingState}
       {form}
