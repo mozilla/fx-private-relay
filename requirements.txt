@@ -25,7 +25,7 @@ PyJWT==2.4.0
 python-decouple==3.6
 pyOpenSSL==22.0.0
 requests==2.28.1
-sentry-sdk==1.9.5
+sentry-sdk==1.9.7
 whitenoise==6.2.0
 
 # phones app
@@ -41,7 +41,7 @@ pytest-django==4.5.2
 responses==0.21.0
 
 # linting
-black==22.6.0
+black==22.8.0
 
 # type hinting
 mypy==0.971
