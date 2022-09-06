@@ -393,7 +393,9 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString("whatsnew-feature-offer-countdown-heading")}
         hero={
           <div className={styles["countdown-timer"]}>
-            <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
+            <CountdownTimer
+              remainingTimeInMs={Math.max(remainingTimeInMs, 0)}
+            />
           </div>
         }
         cta={offerCountdownCta}
@@ -409,6 +411,9 @@ export const WhatsNewMenu = (props: Props) => {
       day: 13,
     },
   };
+  // Make sure to move the end-of-intro-pricing news entry is in the History
+  // tab if the countdown has finished:
+  introPricingCountdown.dismissal.isDismissed ||= remainingTimeInMs <= 0;
   if (
     // If the remaining time isn't far enough in the future that the user's
     // computer's clock is likely to be wrong,
