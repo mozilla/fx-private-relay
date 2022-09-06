@@ -1,0 +1,62 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.underlay {
+  position: fixed;
+  background-color: rgba($color-black, 0.4);
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .dialog-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    background: $color-white;
+    gap: $spacing-lg;
+    max-width: $content-sm;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-md;
+
+    .dialog-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: $spacing-xl;
+      padding: $spacing-lg $spacing-md;
+
+      p {
+        display: flex;
+        gap: $spacing-xs;
+        flex-direction: column;
+      }
+    }
+
+    .confirm-button {
+      width: $content-xs;
+    }
+
+    .cancel-button {
+      border-style: none;
+      background-color: transparent;
+      cursor: pointer;
+      color: $color-grey-40;
+
+      &:hover {
+        color: $color-link-hover;
+      }
+
+      &:focus {
+        color: $color-blue-50;
+      }
+    }
+  }
+}

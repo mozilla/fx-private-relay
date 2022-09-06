@@ -5,6 +5,7 @@ import {
   useState,
 } from "react";
 import { useLocalization } from "@fluent/react";
+import { useOverlayTriggerState } from "react-stately";
 import styles from "./RelayNumberPicker.module.scss";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
@@ -16,6 +17,7 @@ import {
 } from "../../../hooks/api/relayNumber";
 import { formatPhone } from "../../../functions/formatPhone";
 import { RefreshIcon } from "../../Icons";
+import { RelayNumberConfirmationModal } from "./RelayNumberConfirmationModal";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;
@@ -94,11 +96,13 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [relayNumberIndex, setRelayNumberIndex] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
+  const confirmationModalState = useOverlayTriggerState({});
   const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
-    string[]
-  >([]);
+    string[] | undefined
+  >();
 
-  if (relayNumberSuggestionsData.data && relayNumberSuggestions.length === 0) {
+  // load suggestions. Order: same_area_options, other_area_options, same_prefix_options.
+  if (relayNumberSuggestionsData.data && relayNumberSuggestions === undefined) {
     setRelayNumberSuggestions(
       [
         ...relayNumberSuggestionsData.data.same_area_options,
@@ -120,7 +124,10 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
   const onSubmitRelayNumber: FormEventHandler = (event) => {
     event.preventDefault();
-    props.registerRelayNumber(phoneNumber);
+
+    if (phoneNumber.length !== 0) {
+      confirmationModalState.open();
+    }
   };
 
   const onSubmitSearch: FormEventHandler = async (event) => {
@@ -134,7 +141,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
     const data = await props.search(searchValue);
 
-    if (data && data?.length !== 0) {
+    if (data) {
       // add new relay number suggestions
       setRelayNumberSuggestions(
         data.map((suggestion) => suggestion.phone_number)
@@ -159,30 +166,37 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     const newRelayNumberIndex = relayNumberIndex + 3;
 
     // if we have reached the end of the list, reset to the beginning
-    setRelayNumberIndex(
-      newRelayNumberIndex >= relayNumberSuggestions.length
-        ? 0
-        : newRelayNumberIndex
-    );
+    if (relayNumberSuggestions) {
+      setRelayNumberIndex(
+        newRelayNumberIndex >= relayNumberSuggestions.length
+          ? 0
+          : newRelayNumberIndex
+      );
+    }
   };
 
-  const suggestedNumberRadioInputs = relayNumberSuggestions
-    .slice(relayNumberIndex, relayNumberIndex + 3)
-    .map((suggestion, i) => {
-      return (
-        <div key={suggestion}>
-          <input
-            onChange={onRelayNumberChange}
-            type="radio"
-            name="phoneNumberMask"
-            id={`number${i}`}
-            value={suggestion}
-            autoFocus={i === 0}
-          />
-          <label htmlFor={`number${i}`}>{formatPhone(suggestion)}</label>
-        </div>
-      );
-    });
+  const suggestedNumberRadioInputs =
+    relayNumberSuggestions && relayNumberSuggestions.length > 0 ? (
+      relayNumberSuggestions
+        .slice(relayNumberIndex, relayNumberIndex + 3)
+        .map((suggestion, i) => {
+          return (
+            <div key={suggestion}>
+              <input
+                onChange={onRelayNumberChange}
+                type="radio"
+                name="phoneNumberMask"
+                id={`number${i}`}
+                value={suggestion}
+                autoFocus={i === 0}
+              />
+              <label htmlFor={`number${i}`}>{formatPhone(suggestion)}</label>
+            </div>
+          );
+        })
+    ) : (
+      <p>{l10n.getString("phone-onboarding-step4-results")}</p>
+    );
 
   const form = !relayNumberSuggestionsData.data ? null : (
     <div className={`${styles["step-select-phone-number-mask"]} `}>
@@ -240,8 +254,23 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
   return (
     <div className={`${styles.step}`}>
+      {confirmationModalState.isOpen && (
+        <RelayNumberConfirmationModal
+          relayNumber={phoneNumber}
+          onClose={() => {
+            confirmationModalState.close();
+          }}
+          isOpen={confirmationModalState.isOpen}
+          confirm={() => {
+            confirmationModalState.close();
+            props.registerRelayNumber(phoneNumber);
+          }}
+        />
+      )}
+
       {/* TODO: Add logic to show this instead of step-select-phone-number-mask when loading */}
       {loadingState}
+
       {form}
     </div>
   );

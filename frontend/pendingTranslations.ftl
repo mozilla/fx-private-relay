@@ -175,15 +175,17 @@ phone-onboarding-step4-button-more-options = Show me other options
 phone-onboarding-step4-button-register-phone-number = Register phone number mask
 phone-onboarding-step4-search-results-body = Phone number masks available in <strong>{ $location }</strong>. Once you register a phone number mask, you cannot change it.
 phone-onboarding-step4-confirm-message = To confirm your your phone number mask, enter it below. This can’t be changed later.
-phone-onboarding-step4-confirm-alt-cancel = Cancel 
-phone-onboarding-step4-confirm-input-placeholder = Confirm phone number mask
+phone-onboarding-step4-confirm-alt-cancel = Cancel
 phone-onboarding-step4-button-register-phone-number = Confirm number
+phone-onboarding-step4-body-confirm-relay-number = Please confirm that this is the phone number mask you want. This can’t be changed later.
+phone-onboarding-step4-button-confirm-relay-number = Confirm 
 phone-onboarding-step4-code-success-title = Congratulations! 
 phone-onboarding-step4-code-success-body = You’ve registered your new phone number mask.
 phone-onboarding-step4-code-success-subhead-title = What’s next?
 phone-onboarding-step4-code-success-subhead-body-p1 = { -brand-name-relay } sent you an SMS with a new contact card through which we’ll forward your calls and messages. 
 phone-onboarding-step4-code-success-subhead-body-p2 = Please save the contact so you can identify your forwarded messages and calls.
 phone-onboarding-step4-code-success-cta = Continue
+phone-onboarding-step4-results= No results found. Please try again.
 
 # Phone Settings
 phone-settings-caller-sms-log = Caller and SMS log
