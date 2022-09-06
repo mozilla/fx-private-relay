@@ -17,6 +17,7 @@ import { formatPhone } from "../../../functions/formatPhone";
 export type Props = {
   onClose: () => void;
   confirm: () => void;
+  isOpen: boolean;
   relayNumber: string;
 };
 
@@ -32,6 +33,7 @@ export const RelayNumberConfirmationModal = (props: Props) => {
       <PickerDialog
         title={`test`}
         onClose={() => props.onClose()}
+        isOpen={props.isOpen}
         isDismissable={true}
       >
         <button
@@ -64,6 +66,7 @@ export const RelayNumberConfirmationModal = (props: Props) => {
 type PickerDialogProps = {
   title: string | ReactElement;
   children: ReactNode;
+  isOpen: boolean;
   onClose?: () => void;
 };
 const PickerDialog = (props: PickerDialogProps & OverlayProps) => {

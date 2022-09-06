@@ -5,6 +5,7 @@ import {
   useState,
 } from "react";
 import { useLocalization } from "@fluent/react";
+import { useOverlayTriggerState } from "react-stately";
 import styles from "./RelayNumberPicker.module.scss";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
@@ -95,7 +96,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const [searchValue, setSearchValue] = useState("");
   const [relayNumberIndex, setRelayNumberIndex] = useState(0);
   const [isSearching, setIsSearching] = useState(false);
-  const [confirmationState, setConfirmationState] = useState<boolean>(false);
+  const confirmationModalState = useOverlayTriggerState({});
   const [relayNumberSuggestions, setRelayNumberSuggestions] = useState<
     string[]
   >([]);
@@ -125,7 +126,7 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     event.preventDefault();
 
     if (phoneNumber.length !== 0) {
-      setConfirmationState(true);
+      confirmationModalState.open();
     }
   };
 
@@ -246,14 +247,15 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
 
   return (
     <div className={`${styles.step}`}>
-      {confirmationState && (
+      {confirmationModalState.isOpen && (
         <RelayNumberConfirmationModal
           relayNumber={phoneNumber}
           onClose={() => {
-            setConfirmationState(false);
+            confirmationModalState.close();
           }}
+          isOpen={confirmationModalState.isOpen}
           confirm={() => {
-            setConfirmationState(false);
+            confirmationModalState.close();
             props.registerRelayNumber(phoneNumber);
           }}
         />
