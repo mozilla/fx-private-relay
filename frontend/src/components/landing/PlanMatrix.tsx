@@ -25,6 +25,7 @@ import { RuntimeData } from "../../hooks/api/runtimeData";
 import { CheckIcon, MozillaVpnWordmark } from "../Icons";
 import { getRuntimeConfig } from "../../config";
 import { useGaViewPing } from "../../hooks/gaViewPing";
+import { Plan, trackPlanPurchaseStart } from "../../functions/trackPurchase";
 
 type FeatureList = {
   email_masks: number;
@@ -197,6 +198,10 @@ export const PlanMatrix = (props: Props) => {
                     category: "Purchase monthly Premium button",
                     label: "plan-matrix-premium-monthly-cta-desktop",
                   },
+                  plan: {
+                    plan: "premium",
+                    billing_period: "monthly",
+                  },
                 }}
                 yearlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
@@ -210,6 +215,10 @@ export const PlanMatrix = (props: Props) => {
                   gaViewPing: {
                     category: "Purchase yearly Premium button",
                     label: "plan-matrix-premium-yearly-cta-desktop",
+                  },
+                  plan: {
+                    plan: "premium",
+                    billing_period: "yearly",
                   },
                 }}
               />
@@ -244,6 +253,10 @@ export const PlanMatrix = (props: Props) => {
                       category: "Purchase monthly Premium+phones button",
                       label: "plan-matrix-phone-monthly-cta-desktop",
                     },
+                    plan: {
+                      plan: "phones",
+                      billing_period: "monthly",
+                    },
                   }}
                   yearlyBilled={{
                     monthly_price: getPhonesPrice(props.runtimeData, "yearly"),
@@ -254,6 +267,10 @@ export const PlanMatrix = (props: Props) => {
                     gaViewPing: {
                       category: "Purchase yearly Premium+phones button",
                       label: "plan-matrix-phone-yearly-cta-desktop",
+                    },
+                    plan: {
+                      plan: "phones",
+                      billing_period: "yearly",
                     },
                   }}
                 />
@@ -279,6 +296,12 @@ export const PlanMatrix = (props: Props) => {
                     <a
                       ref={bundleButtonDesktopRef}
                       href={getBundleSubscribeLink(props.runtimeData)}
+                      onClick={() =>
+                        trackPlanPurchaseStart(
+                          { plan: "bundle" },
+                          { label: "plan-matrix-bundle-cta-desktop" }
+                        )
+                      }
                       className={styles["pick-button"]}
                     >
                       {l10n.getString("plan-matrix-pick")}
@@ -335,6 +358,10 @@ export const PlanMatrix = (props: Props) => {
                     category: "Purchase monthly Premium button",
                     label: "plan-matrix-premium-monthly-cta-mobile",
                   },
+                  plan: {
+                    plan: "premium",
+                    billing_period: "monthly",
+                  },
                 }}
                 yearlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
@@ -348,6 +375,10 @@ export const PlanMatrix = (props: Props) => {
                   gaViewPing: {
                     category: "Purchase yearly Premium button",
                     label: "plan-matrix-premium-yearly-cta-mobile",
+                  },
+                  plan: {
+                    plan: "premium",
+                    billing_period: "yearly",
                   },
                 }}
               />
@@ -389,6 +420,10 @@ export const PlanMatrix = (props: Props) => {
                     category: "Purchase monthly Premium+phones button",
                     label: "plan-matrix-phone-monthly-cta-mobile",
                   },
+                  plan: {
+                    plan: "phones",
+                    billing_period: "monthly",
+                  },
                 }}
                 yearlyBilled={{
                   monthly_price: getPhonesPrice(props.runtimeData, "yearly"),
@@ -399,6 +434,10 @@ export const PlanMatrix = (props: Props) => {
                   gaViewPing: {
                     category: "Purchase yearly Premium+phones button",
                     label: "plan-matrix-phone-yearly-cta-mobile",
+                  },
+                  plan: {
+                    plan: "phones",
+                    billing_period: "yearly",
                   },
                 }}
               />
@@ -426,6 +465,12 @@ export const PlanMatrix = (props: Props) => {
                   <a
                     ref={bundleButtonMobileRef}
                     href={getBundleSubscribeLink(props.runtimeData)}
+                    onClick={() =>
+                      trackPlanPurchaseStart(
+                        { plan: "bundle" },
+                        { label: "plan-matrix-bundle-cta-mobile" }
+                      )
+                    }
                     className={styles["pick-button"]}
                   >
                     {l10n.getString("plan-matrix-pick")}
@@ -581,11 +626,13 @@ type PricingToggleProps = {
     monthly_price: string;
     subscribeLink: string;
     gaViewPing: Parameters<typeof useGaViewPing>[0];
+    plan: Plan;
   };
   monthlyBilled: {
     monthly_price: string;
     subscribeLink: string;
     gaViewPing: Parameters<typeof useGaViewPing>[0];
+    plan: Plan;
   };
 };
 const PricingToggle = (props: PricingToggleProps) => {
@@ -608,6 +655,11 @@ const PricingToggle = (props: PricingToggleProps) => {
         <a
           ref={yearlyButtonRef}
           href={props.yearlyBilled.subscribeLink}
+          onClick={() =>
+            trackPlanPurchaseStart(props.yearlyBilled.plan, {
+              label: props.yearlyBilled.gaViewPing?.label,
+            })
+          }
           // tabIndex tells react-aria that this element is focusable
           tabIndex={0}
           className={styles["pick-button"]}
@@ -630,6 +682,11 @@ const PricingToggle = (props: PricingToggleProps) => {
         <a
           ref={monthlyButtonRef}
           href={props.monthlyBilled.subscribeLink}
+          onClick={() =>
+            trackPlanPurchaseStart(props.monthlyBilled.plan, {
+              label: props.monthlyBilled.gaViewPing?.label,
+            })
+          }
           // tabIndex tells react-aria that this element is focusable
           tabIndex={0}
           className={styles["pick-button"]}
