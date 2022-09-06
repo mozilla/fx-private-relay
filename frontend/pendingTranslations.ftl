@@ -411,6 +411,17 @@ plan-matrix-heading-feature-email_subdomain = Email subdomain
 plan-matrix-heading-feature-email_reply = Reply to forwarded emails
 plan-matrix-heading-feature-phone_mask = Phone number mask
 plan-matrix-heading-feature-vpn = Access to <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
+plan-matrix-feature-list-email_masks_unlimited = Unlimited email masks
+# Variables:
+#   $mask_limit (number) - the number of masks included with a particular plan
+plan-matrix-feature-list-email_masks = { $mask_limit } email masks
+plan-matrix-feature-list-browser_extension = Browser extension
+plan-matrix-feature-list-email_tracker_removal = Remove email trackers
+plan-matrix-feature-list-promo_email_blocking = Block promotional emails
+plan-matrix-feature-list-email_subdomain = Email subdomain
+plan-matrix-feature-list-email_reply = Reply to forwarded emails
+plan-matrix-feature-list-phone_mask = Phone number mask
+plan-matrix-feature-list-vpn = Access to <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
 plan-matrix-heading-price = Price
 plan-matrix-feature-count-unlimited = Unlimited
 plan-matrix-feature-included = Included
