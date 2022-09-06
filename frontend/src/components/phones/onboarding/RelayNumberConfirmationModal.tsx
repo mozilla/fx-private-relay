@@ -1,4 +1,4 @@
-import { FormEventHandler, ReactElement, ReactNode, useRef } from "react";
+import { ReactNode, useRef } from "react";
 import { useLocalization } from "@fluent/react";
 import {
   OverlayContainer,
@@ -10,7 +10,7 @@ import {
 } from "react-aria";
 import { OverlayProps } from "@react-aria/overlays";
 import styles from "./RelayNumberConfirmationModal.module.scss";
-import { CloseIcon, InfoIcon } from "../../Icons";
+import { CloseIcon } from "../../Icons";
 import { Button } from "../../Button";
 import { formatPhone } from "../../../functions/formatPhone";
 
@@ -24,14 +24,9 @@ export type Props = {
 export const RelayNumberConfirmationModal = (props: Props) => {
   const { l10n } = useLocalization();
 
-  const onSubmit: FormEventHandler = (event) => {
-    event.preventDefault();
-  };
-
   return (
     <OverlayContainer>
-      <PickerDialog
-        title={`test`}
+      <ConfirmationDialog
         onClose={() => props.onClose()}
         isOpen={props.isOpen}
         isDismissable={true}
@@ -42,7 +37,7 @@ export const RelayNumberConfirmationModal = (props: Props) => {
         >
           <CloseIcon alt="Close" />
         </button>
-        <form onSubmit={onSubmit}>
+        <div className={styles["dialog-content"]}>
           <p>
             {l10n.getString("phone-onboarding-step4-body-confirm-relay-number")}
             <p>{formatPhone(props.relayNumber)}</p>
@@ -57,19 +52,18 @@ export const RelayNumberConfirmationModal = (props: Props) => {
               "phone-onboarding-step4-button-confirm-relay-number"
             )}
           </Button>
-        </form>
-      </PickerDialog>
+        </div>
+      </ConfirmationDialog>
     </OverlayContainer>
   );
 };
 
-type PickerDialogProps = {
-  title: string | ReactElement;
+type ConfirmationDialogProps = {
   children: ReactNode;
   isOpen: boolean;
   onClose?: () => void;
 };
-const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
+const ConfirmationDialog = (props: ConfirmationDialogProps & OverlayProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
   usePreventScroll();
