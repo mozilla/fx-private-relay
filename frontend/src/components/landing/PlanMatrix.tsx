@@ -72,8 +72,23 @@ export type Props = {
 export const PlanMatrix = (props: Props) => {
   const { l10n } = useLocalization();
 
+  let planCount = 2;
+  if (
+    isFlagActive(props.runtimeData, "phones") &&
+    isPhonesAvailableInCountry(props.runtimeData)
+  ) {
+    planCount += 1;
+  }
+  if (
+    isFlagActive(props.runtimeData, "bundle") &&
+    isBundleAvailableInCountry(props.runtimeData)
+  ) {
+    planCount += 1;
+  }
+  const planCountClass = styles[`has-${planCount}-plans`];
+
   const desktopView = (
-    <table className={styles.desktop}>
+    <table className={`${styles.desktop} ${planCountClass}`}>
       <thead>
         <tr>
           <th scope="col">{l10n.getString("plan-matrix-heading-features")}</th>
@@ -245,7 +260,140 @@ export const PlanMatrix = (props: Props) => {
     </table>
   );
 
-  return desktopView;
+  const mobileView = (
+    <div className={`${styles.mobile} ${planCountClass}`}>
+      <ul className={styles.plans}>
+        <li className={styles.plan}>
+          <h3>{l10n.getString("plan-matrix-heading-plan-free")}</h3>
+          <MobileFeatureList list={freeFeatures} />
+          <div className={styles.pricing}>
+            <div className={styles["pricing-overview"]}>
+              <span className={styles.price}>
+                {l10n.getString("plan-matrix-price-free")}
+              </span>
+              <a
+                href={getRuntimeConfig().fxaLoginUrl}
+                className={styles["pick-button"]}
+              >
+                {l10n.getString("plan-matrix-pick")}
+              </a>
+            </div>
+          </div>
+        </li>
+        <li className={styles.plan}>
+          {isPeriodicalPremiumAvailableInCountry(props.runtimeData) ? (
+            <>
+              <h3>{l10n.getString("plan-matrix-heading-plan-premium")}</h3>
+              <MobileFeatureList list={premiumFeatures} />
+              <PricingToggle
+                monthlyBilled={{
+                  monthly_price: getPeriodicalPremiumPrice(
+                    props.runtimeData,
+                    "monthly"
+                  ),
+                  subscribeLink: getPeriodicalPremiumSubscribeLink(
+                    props.runtimeData,
+                    "monthly"
+                  ),
+                }}
+                yearlyBilled={{
+                  monthly_price: getPeriodicalPremiumPrice(
+                    props.runtimeData,
+                    "yearly"
+                  ),
+                  subscribeLink: getPeriodicalPremiumSubscribeLink(
+                    props.runtimeData,
+                    "yearly"
+                  ),
+                }}
+              />
+            </>
+          ) : (
+            <>
+              <h3>{l10n.getString("plan-matrix-heading-plan-premium")}</h3>
+              <MobileFeatureList list={premiumFeatures} />
+              <div className={styles.pricing}>
+                <div className={styles["pricing-overview"]}>
+                  <span className={styles.price}>
+                    {/* Clunky method to make sure that there's whitespace
+                        where the prices are for other plans on the same row. */}
+                    &nbsp;
+                  </span>
+                  <Link href="/premium/waitlist">
+                    <a className={styles["pick-button"]}>
+                      {l10n.getString("plan-matrix-join-waitlist")}
+                    </a>
+                  </Link>
+                </div>
+              </div>
+            </>
+          )}
+        </li>
+        {isFlagActive(props.runtimeData, "phones") &&
+          isPhonesAvailableInCountry(props.runtimeData) && (
+            <li className={styles.plan}>
+              <h3>{l10n.getString("plan-matrix-heading-plan-phones")}</h3>
+              <MobileFeatureList list={phoneFeatures} />
+              <PricingToggle
+                monthlyBilled={{
+                  monthly_price: getPhonesPrice(props.runtimeData, "monthly"),
+                  subscribeLink: getPhoneSubscribeLink(
+                    props.runtimeData,
+                    "monthly"
+                  ),
+                }}
+                yearlyBilled={{
+                  monthly_price: getPhonesPrice(props.runtimeData, "yearly"),
+                  subscribeLink: getPhoneSubscribeLink(
+                    props.runtimeData,
+                    "yearly"
+                  ),
+                }}
+              />
+            </li>
+          )}
+        {isFlagActive(props.runtimeData, "bundle") &&
+          isBundleAvailableInCountry(props.runtimeData) && (
+            <li className={`${styles.plan} ${styles.recommended}`}>
+              <h3>{l10n.getString("plan-matrix-heading-plan-bundle")}</h3>
+              <MobileFeatureList list={bundleFeatures} />
+              <div className={styles.pricing}>
+                <div className={styles["pricing-toggle-wrapper"]}>
+                  <p className={styles["discount-notice"]}>
+                    {l10n.getString("plan-matrix-price-vpn-discount", {
+                      percentage: "??",
+                    })}
+                  </p>
+                </div>
+                <div className={styles["pricing-overview"]}>
+                  <span className={styles.price}>
+                    {l10n.getString("plan-matrix-price-monthly", {
+                      monthly_price: getBundlePrice(props.runtimeData),
+                    })}
+                  </span>
+                  <a
+                    href={getBundleSubscribeLink(props.runtimeData)}
+                    className={styles["pick-button"]}
+                  >
+                    {l10n.getString("plan-matrix-pick")}
+                  </a>
+                  <small>
+                    * {l10n.getString("plan-matrix-price-period-yearly-note")}
+                  </small>
+                </div>
+              </div>
+            </li>
+          )}
+      </ul>
+    </div>
+  );
+
+  return (
+    <div className={styles.wrapper}>
+      {desktopView}
+      {mobileView}
+    </div>
+  );
 };
 
 type DesktopFeatureProps = {
@@ -283,6 +431,57 @@ const DesktopFeature = (props: DesktopFeatureProps) => {
         )}
     </tr>
   );
+};
+
+type MobileFeatureListProps = {
+  list: FeatureList;
+};
+const MobileFeatureList = (props: MobileFeatureListProps) => {
+  const { l10n } = useLocalization();
+
+  const lis = Object.entries(props.list)
+    .filter(
+      ([_feature, availability]) =>
+        typeof availability !== "boolean" || availability
+    )
+    .map(([feature, availability]) => {
+      const variables =
+        typeof availability === "number"
+          ? { mask_limit: availability }
+          : undefined;
+      const featureDescription =
+        feature === "email_masks" && availability === Number.POSITIVE_INFINITY
+          ? l10n.getString("plan-matrix-feature-list-email_masks_unlimited")
+          : l10n.getString(`plan-matrix-feature-list-${feature}`, variables);
+
+      return (
+        <li key={feature}>
+          <Localized
+            id={`plan-matrix-heading-feature-${feature}`}
+            elems={{
+              "vpn-logo": <VpnWordmark />,
+            }}
+          >
+            <span
+              className={styles.description}
+              // The aria label makes sure that listings like "Email masks"
+              // with a number in span.availability get read by screen readers
+              // as "5 email masks" rather than "Email masks 5".
+              // However, the VPN feature has an image in there, marked up as
+              // <vpn-logo> in the Fluent localisation file, so we don't want
+              // that read out loud. And since the VPN feature doesn't contain
+              // a number, we can skip overriding its aria-label.
+              aria-label={feature !== "vpn" ? featureDescription : undefined}
+            />
+          </Localized>
+          <span aria-hidden={true} className={styles.availability}>
+            <AvailabilityListing availability={availability} />
+          </span>
+        </li>
+      );
+    });
+
+  return <ul className={styles["feature-list"]}>{lis}</ul>;
 };
 
 type AvailabilityListingProps = {
