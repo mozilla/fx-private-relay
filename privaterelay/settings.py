@@ -706,12 +706,19 @@ elif (
     sentry_release = f"{CIRCLE_BRANCH}:{CIRCLE_SHA1}"
 
 SENTRY_DEBUG = config("SENTRY_DEBUG", DEBUG, cast=bool)
+
+SENTRY_ENVIRONMENT = RELAY_CHANNEL
+# Use "local" as default rather than "prod", to catch ngrok.io URLs
+if RELAY_CHANNEL == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
+    SENTRY_ENVIRONMENT = "local"
+
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
     integrations=[DjangoIntegration()],
     debug=SENTRY_DEBUG,
     with_locals=DEBUG,
     release=sentry_release,
+    environment=SENTRY_ENVIRONMENT,
 )
 # Duplicates events for unhandled exceptions, but without useful tracebacks
 ignore_logger("request.summary")
