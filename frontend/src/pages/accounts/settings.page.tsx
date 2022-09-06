@@ -46,6 +46,8 @@ const Settings: NextPage = () => {
   const [phoneCallerSMSLogEnabled, setPhoneCallerSMSLogEnabled] = useState(
     profileData.data?.[0].store_phone_log
   );
+  const [phoneCallerSMSLogEnabledLabel, setPhoneCallerSMSLogEnabledLabel] =
+    useState(false);
   const [justCopiedApiKey, setJustCopiedApiKey] = useState(false);
   const apiKeyElementRef = useRef<HTMLInputElement>(null);
 
@@ -280,16 +282,21 @@ const Settings: NextPage = () => {
             name="caller-sms-log"
             id="caller-sms-log"
             defaultChecked={profile.store_phone_log}
-            onChange={(e) => setPhoneCallerSMSLogEnabled(e.target.checked)}
+            onChange={(e) => {
+              setPhoneCallerSMSLogEnabled(e.target.checked);
+              setPhoneCallerSMSLogEnabledLabel(!phoneCallerSMSLogEnabledLabel);
+            }}
           />
           <label htmlFor="caller-sms-log">
             <p>{l10n.getString("phone-settings-caller-sms-log-description")}</p>
           </label>
         </div>
-        <div className={styles["field-warning"]}>
-          <InfoTriangleIcon alt="" />
-          <p>{l10n.getString("phone-settings-caller-sms-log-warning")}</p>
-        </div>
+        {phoneCallerSMSLogEnabledLabel ? (
+          <div className={styles["field-warning"]}>
+            <InfoTriangleIcon alt="" />
+            <p>{l10n.getString("phone-settings-caller-sms-log-warning")}</p>
+          </div>
+        ) : null}
       </div>
     </div>
   ) : null;
