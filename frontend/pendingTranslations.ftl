@@ -190,7 +190,7 @@ phone-onboarding-step4-results= No results found. Please try again.
 # Phone Settings
 phone-settings-caller-sms-log = Caller and SMS log
 phone-settings-caller-sms-log-description = Allow { -brand-name-firefox-relay } to keep a log of your callers and text senders.
-phone-settings-caller-sms-log-warning = If you decide to opt-out from this preference, you will lose the ability to view the names/labels of the websites where the aliases have been generated using the add-on. 
+phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block and reply to senders or callers. If you’ve blocked any, they will become unblocked and your existing caller and SMS sender log will be permanently cleared from your history. 
 
 # Phone Resend SMS Banner
 phone-banner-resend-welcome-sms-cta = Resend welcome SMS
