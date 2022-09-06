@@ -39,6 +39,7 @@ import { getLocale } from "../functions/getLocale";
 import { useInterval } from "../hooks/interval";
 import { CountdownTimer } from "../components/CountdownTimer";
 import { parseDate } from "../functions/parseDate";
+import { PlanMatrix } from "../components/landing/PlanMatrix";
 
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
@@ -140,6 +141,13 @@ const PremiumPromo: NextPage = () => {
               })}
             </p>
           </div>
+        </div>
+      </section>
+    ) : // Otherwise, if the countdown timer has reached 0:
+    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={styles.plans}>
+          <PlanMatrix runtimeData={runtimeData.data} />
         </div>
       </section>
     ) : // Otherwise, if Premium is available in the user's country,
