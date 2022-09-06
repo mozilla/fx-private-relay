@@ -12,28 +12,24 @@ table.desktop {
   }
 
   tr {
-    // It's a bit clunky to use flexbox on table rows,
-    // but at the time of writing CSS subgrid is not supported outside of
-    // Firefox yet, so we can't use grid positioning for table elements, and
-    // the default table layout doesn't allow us to achieve the desired layout:
-    display: flex;
-
     th:first-child {
-      flex: 1 1 $content-xs;
-      display: flex;
-      align-items: center;
+      width: 100%;
       font-weight: 400;
       text-align: start;
     }
 
     th:not(:first-child),
     td:not(:first-child) {
-      flex: 0 0 20%;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
+      min-width: $layout-2xl;
+      text-align: center;
       background-color: $color-white;
       padding: $spacing-md;
+      // Fake spacing between the columns. The disadvantage of this method is
+      // that the horizontal bottom border on rows is interrupted, but if we
+      // used the appropriate
+      //   border-collapse: separate;
+      //   border-spacing: $spacing-md 0;
+      // then we wouldn't have been able to apply a bottom border at all.
       border-inline: $spacing-md / 2 solid $color-light-gray-10;
 
       &:last-child {
@@ -44,6 +40,9 @@ table.desktop {
 
   thead {
     tr {
+      // This is needed so that `.recommended b` can also have a height of 100%:
+      height: 100%;
+
       th:first-child {
         color: $color-grey-40;
       }
@@ -59,6 +58,8 @@ table.desktop {
 
         &.recommended {
           padding: 0;
+          // This is needed so that `.recommended b` can also have a height of 100%:
+          height: 100%;
 
           b {
             display: flex;
@@ -78,10 +79,18 @@ table.desktop {
 
   tbody {
     tr {
+      th {
+        svg {
+          display: inline;
+          vertical-align: middle;
+        }
+      }
+
       td {
         color: $color-dark-gray-50;
 
         svg {
+          display: inline;
           color: $color-blue-60;
         }
       }
@@ -92,6 +101,10 @@ table.desktop {
     tr:last-child td {
       border-bottom-left-radius: $spacing-sm;
       border-bottom-right-radius: $spacing-sm;
+    }
+
+    td {
+      vertical-align: top;
     }
 
     .pricing {
