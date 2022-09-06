@@ -390,6 +390,19 @@ export const PlanMatrix = (props: Props) => {
 
   return (
     <div className={styles.wrapper}>
+      {isFlagActive(props.runtimeData, "bundle") &&
+        isBundleAvailableInCountry(props.runtimeData) && (
+          <h2 className={styles["bundle-offer-heading"]}>
+            {l10n.getString("plan-matrix-bundle-offer-heading", {
+              monthly_price: getBundlePrice(props.runtimeData),
+            })}
+          </h2>
+        )}
+      {isPeriodicalPremiumAvailableInCountry(props.runtimeData) && (
+        <p className={styles["bundle-offer-content"]}>
+          {l10n.getString("plan-matrix-bundle-offer-content")}
+        </p>
+      )}
       {desktopView}
       {mobileView}
     </div>
