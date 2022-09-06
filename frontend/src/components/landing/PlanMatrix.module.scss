@@ -3,6 +3,29 @@
 
 .wrapper {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+
+  .bundle-offer-heading {
+    background-image: linear-gradient(
+      to right,
+      $color-violet-30,
+      $color-violet-80 20%,
+      $color-violet-30 80%
+    );
+    background-clip: text;
+    color: transparent;
+
+    @include text-title-xs;
+    text-align: center;
+    font-weight: 700;
+  }
+  .bundle-offer-content {
+    max-width: $content-md;
+    text-align: center;
+  }
 
   .desktop {
     display: none;
