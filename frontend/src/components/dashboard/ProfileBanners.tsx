@@ -5,7 +5,7 @@ import FirefoxLogo from "./images/fx-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
 import RelayLogo from "./images/placeholder-logo.svg";
 import {
-  getPlan,
+  getPremiumPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
   RuntimeDataWithPremiumAvailable,
@@ -267,7 +267,7 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
     >
       <p>
         {l10n.getString("banner-upgrade-loyalist-copy-2", {
-          monthly_price: getPlan(props.runtimeData).price,
+          monthly_price: getPremiumPlan(props.runtimeData).price,
         })}
       </p>
     </Banner>

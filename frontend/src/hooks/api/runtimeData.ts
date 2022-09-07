@@ -4,6 +4,22 @@ import { useApiV1 } from "./api";
 type CountryCode = string;
 type LanguageCode = string;
 type WaffleFlag = [string, boolean];
+
+export type PlanData = {
+  monthly: { id: string; price: string };
+  yearly: { id: string; price: string };
+};
+
+export type ProductData<P extends Partial<PlanData> = PlanData> = {
+  country_code: CountryCode;
+  countries: CountryCode[];
+  available_in_country: boolean;
+  plan_country_lang_mapping: Record<CountryCode, Record<LanguageCode, P>>;
+};
+
+/**
+ * @deprecated
+ */
 export type PremiumPlans = {
   country_code: CountryCode;
   premium_countries: CountryCode[];
@@ -18,8 +34,14 @@ export type RuntimeData = {
   GOOGLE_ANALYTICS_ID: `UA-${number}-${number}`;
   INTRO_PRICING_END: string;
   PREMIUM_PRODUCT_ID: `prod_${string}`;
+  PERIODICAL_PREMIUM_PRODUCT_ID: `prod_${string}`;
   PHONE_PRODUCT_ID: `prod_${string}`;
+  BUNDLE_PRODUCT_ID: `prod_${string}`;
+  /** @deprecated See PERIODICAL_PREMIUM_PLANS instead */
   PREMIUM_PLANS: PremiumPlans;
+  PERIODICAL_PREMIUM_PLANS: ProductData<PlanData>;
+  PHONE_PLANS: ProductData<PlanData>;
+  BUNDLE_PLANS: ProductData<Pick<PlanData, "yearly">>;
   BASKET_ORIGIN: string;
   WAFFLE_FLAGS: WaffleFlag[];
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: number;

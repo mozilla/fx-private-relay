@@ -55,6 +55,7 @@ import { isFlagActive } from "../../../../functions/waffle";
 import {
   getPhoneSubscribeLink,
   getPremiumSubscribeLink,
+  isPhonesAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../../../../functions/getPlan";
 import { parseDate } from "../../../../functions/parseDate";
@@ -104,9 +105,9 @@ export const WhatsNewMenu = (props: Props) => {
     props.runtimeData !== undefined &&
     !props.profile.has_phone &&
     !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.runtimeData) ? (
+    isPhonesAvailableInCountry(props.runtimeData) ? (
       <OutboundLink
-        to={getPhoneSubscribeLink(props.runtimeData)}
+        to={getPhoneSubscribeLink(props.runtimeData, "monthly")}
         eventLabel={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
         className={styles.cta}
       >
