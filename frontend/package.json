@@ -61,7 +61,7 @@
     "jest-junit": "^14.0.1",
     "license-checker": "^25.0.1",
     "lint-staged": "^13.0.3",
-    "msw": "^0.46.1",
+    "msw": "^0.47.0",
     "next": "^12.2.5",
     "prettier": "2.7.1",
     "react-test-renderer": "^17.0.2",
