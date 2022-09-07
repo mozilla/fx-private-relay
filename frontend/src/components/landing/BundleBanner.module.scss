@@ -15,7 +15,6 @@
     grid-template-columns: 5fr 5fr;
     background-size: cover;
     gap: $layout-md;
-    // height: 450px; // Height of desktop banner
   }
   @media #{$mq-xl} {
     grid-template-columns: 4fr 6fr;
@@ -77,15 +76,13 @@
             max-width: 90px;
           }
         }
-
         .feature-one {
           right: $layout-lg;
           top: $layout-lg;
         }
-
         .feature-two {
           right: $layout-xs;
-          bottom: $layout-xl;
+          bottom: $layout-2xl;
         }
         .feature-three {
           left: $layout-sm;
@@ -113,7 +110,7 @@
       flex-direction: column;
       display: flex;
       gap: $spacing-md;
-      padding: 0 $spacing-md $spacing-xl $spacing-md;
+      padding: 0 $spacing-md $spacing-2xl $spacing-md;
 
       @media #{$mq-lg} {
         height: auto;
@@ -143,7 +140,7 @@
       h3 {
         @include text-title-2xs;
         @include font-firefox;
-        font-weight: 600;
+        font-weight: 500;
       }
 
       .pricing-logo-wrapper {
@@ -151,6 +148,11 @@
         flex-direction: column;
         gap: $spacing-md;
         align-items: center;
+
+        img {
+          max-width: 130px;
+          align-self: center;
+        }
 
         @media #{$mq-lg} {
           flex-direction: row;
@@ -162,7 +164,6 @@
           border: 2px solid rgba(255, 255, 255, 0.4);
           display: flex;
           flex-direction: column;
-          align-items: center;
 
           @media #{$mq-lg} {
             flex-direction: row;
@@ -174,7 +175,7 @@
           }
 
           span {
-            padding: $spacing-xs $spacing-md;
+            padding: $spacing-sm $spacing-md;
             display: flex;
             flex-direction: row;
 
@@ -189,6 +190,7 @@
 
               @media #{$mq-lg} {
                 border-right: 1px solid rgba(255, 255, 255, 0.4);
+                border-bottom: none;
               }
 
               .price {
