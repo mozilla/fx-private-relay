@@ -32,7 +32,7 @@ const Phone: NextPage = () => {
 
   useEffect(() => {
     // check if phone flag is active - return to premium page if not.
-    if (!isFlagActive(runtimeData.data, "phones")) {
+    if (isFlagActive(runtimeData.data, "phones")) {
       Router.push("/premium");
     }
 
@@ -43,7 +43,7 @@ const Phone: NextPage = () => {
     ) {
       setIsInOnboarding(true);
     }
-  }, [isInOnboarding, relayNumberData]);
+  }, [isInOnboarding, relayNumberData, runtimeData.data]);
 
   if (!userData.isValidating && userData.error) {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
