@@ -1,6 +1,26 @@
 import { Button } from "../Button";
 import styles from "./BundleBanner.module.scss";
 import womanInBanner from "./images/bundle-banner-woman.png";
+import bundleFloatOne from "./images/bundle-float-1.svg";
+import bundleFloatTwo from "./images/bundle-float-2.svg";
+import bundleFloatThree from "./images/bundle-float-2.svg";
+
+type FloatingFeaturesProps = {
+  icon: string;
+  text: string;
+  position: string;
+};
+
+const FloatingFeatures = (props: FloatingFeaturesProps) => {
+  return (
+    <div
+      className={`${styles[props.position]} ${styles["float-features-item"]}`}
+    >
+      <img alt={props.text} src={props.icon} />
+      <span className={styles["float-features-text"]}>{props.text}</span>
+    </div>
+  );
+};
 
 export const BundleBanner = () => {
   const mainImage = (
@@ -39,7 +59,26 @@ export const BundleBanner = () => {
 
   return (
     <div className={styles["bundle-banner-wrapper"]}>
-      <div className={styles["img-wrapper"]}>{mainImage}</div>
+      <div className={styles["left-section"]}>
+        <div className={styles["main-img-wrapper"]}>{mainImage}</div>
+        <div className={styles["float-features-wrapper"]}>
+          <FloatingFeatures
+            icon={bundleFloatOne.src}
+            text="More than 400 servers"
+            position="feature-one"
+          />
+          <FloatingFeatures
+            icon={bundleFloatTwo.src}
+            text="More than 30 countries"
+            position="feature-two"
+          />
+          <FloatingFeatures
+            icon={bundleFloatThree.src}
+            text="Fast and secure network"
+            position="feature-three"
+          />
+        </div>
+      </div>
       {bannerDescription}
     </div>
   );

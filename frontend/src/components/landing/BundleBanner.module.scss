@@ -8,12 +8,14 @@
   background-size: cover;
   border-radius: $border-radius-lg;
   height: 400px;
-  position: relative;
   gap: $layout-md;
 
-  .img-wrapper {
-    width: 100%;
+  .left-section {
+    margin-right: $layout-xl;
+    position: relative;
+  }
 
+  .main-img-wrapper {
     .main-image {
       position: absolute;
       bottom: 0;
@@ -33,6 +35,51 @@
       @include text-title-xs;
       @include font-firefox;
       font-weight: 600;
+    }
+  }
+
+  .float-features-wrapper {
+    .float-features-item {
+      @include text-body-xs;
+      @include font-firefox;
+      font-weight: 600;
+      background: rgba(
+        255,
+        255,
+        255,
+        0.9
+      ); // Using rgba to manipulate alpha value
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $spacing-sm;
+      padding: $spacing-sm;
+      border-radius: $border-radius-md;
+
+      .float-features-text {
+        line-height: 100%;
+        max-width: 90px;
+      }
+    }
+
+    .feature-one {
+      right: $layout-lg;
+      top: $layout-lg;
+    }
+
+    .feature-two {
+      right: $layout-lg;
+      top: calc($layout-2xl + $layout-md);
+    }
+
+    .feature-three {
+      left: $layout-sm;
+      top: calc($layout-2xl + $layout-xl);
+
+      .float-features-text {
+        max-width: 100px;
+      }
     }
   }
 }
