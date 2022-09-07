@@ -4,6 +4,7 @@ import womanInBanner from "./images/bundle-banner-woman.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
+import bundleLogo from "./images/vpn-and-relay-logo.svg";
 
 type FloatingFeaturesProps = {
   icon: string;
@@ -31,32 +32,6 @@ export const BundleBanner = () => {
     />
   );
 
-  const bannerDescription = (
-    <div className={styles["bundle-banner-description"]}>
-      <h2>Firefox Relay with VPN</h2>
-      <h3>
-        Security, reliability and speed — on every device, anywhere you go.
-      </h3>
-      <p>
-        Surf, stream, game, and get work done while maintaining your privacy
-        online. Whether you’re traveling, using public Wi-Fi, or simply looking
-        for more online security, we will always put your privacy first.
-      </p>
-      <p>
-        1 year plan: <strong>Firefox Relay Premium + Mozilla VPN</strong>
-      </p>
-      <div className={styles["pricing-wrapper"]}>
-        <span>
-          <strong>Monthly: </strong>$4.99
-        </span>
-        <span>
-          <strong>Save 50% </strong>Normally $11.99
-        </span>
-      </div>
-      <Button>Sign up</Button>
-    </div>
-  );
-
   return (
     <div className={styles["bundle-banner-wrapper"]}>
       <div className={styles["first-section"]}>
@@ -79,7 +54,37 @@ export const BundleBanner = () => {
           />
         </div>
       </div>
-      <div className={styles["second-section"]}>{bannerDescription}</div>
+      <div className={styles["second-section"]}>
+        <div className={styles["bundle-banner-description"]}>
+          <h2>Firefox Relay with VPN</h2>
+          <h3>
+            Security, reliability and speed — on every device, anywhere you go.
+          </h3>
+          <p>
+            Surf, stream, game, and get work done while maintaining your privacy
+            online. Whether you’re traveling, using public Wi-Fi, or simply
+            looking for more online security, we will always put your privacy
+            first.
+          </p>
+          <p>
+            1 year plan: <strong>Firefox Relay Premium + Mozilla VPN</strong>
+          </p>
+          <div className={styles["pricing-logo-wrapper"]}>
+            <div className={styles["pricing-wrapper"]}>
+              <span>
+                <strong>Monthly:</strong>
+                <p className={styles["price"]}>$4.99</p>
+              </span>
+              <span>
+                <strong>Save 50%</strong>
+                <p className={styles["price"]}>Normally $11.99</p>
+              </span>
+            </div>
+            <img src={bundleLogo.src} alt="Bundle logo" />
+          </div>
+          <Button className={styles["button"]}>Get VPN + Relay</Button>
+        </div>
+      </div>
     </div>
   );
 };

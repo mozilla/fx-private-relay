@@ -6,15 +6,16 @@
   grid-template-columns: 10fr;
   grid-template-rows: auto;
   background-color: $color-violet-80;
-  gap: $layout-md;
   border-radius: $border-radius-lg;
+  gap: $layout-xs;
 
   // Snap to 2 columns
   @media #{$mq-lg} {
     background-image: url("./images/bundle-bg.svg");
     grid-template-columns: 5fr 5fr;
     background-size: cover;
-    height: 400px;
+    gap: $layout-md;
+    // height: 450px; // Height of desktop banner
   }
   @media #{$mq-xl} {
     grid-template-columns: 4fr 6fr;
@@ -98,25 +99,105 @@
     }
   }
 
-  .bundle-banner-description {
-    color: $color-white;
-
-    h2 {
-      @include text-title-sm;
-      @include font-firefox;
-      font-weight: 700;
-    }
-
-    h3 {
-      @include text-title-xs;
-      @include font-firefox;
-      font-weight: 600;
-    }
-  }
-
   .second-section {
     @media #{$mq-lg} {
       padding-left: $layout-md;
+      display: flex;
+      justify-content: end;
+    }
+
+    .bundle-banner-description {
+      justify-content: space-between;
+      color: $color-white;
+      height: auto;
+      flex-direction: column;
+      display: flex;
+      gap: $spacing-md;
+      padding: 0 $spacing-md $spacing-xl $spacing-md;
+
+      @media #{$mq-lg} {
+        height: auto;
+        max-width: 600px;
+        padding: $spacing-2xl 0;
+        margin-right: $spacing-xl;
+      }
+
+      .button {
+        background: white;
+        color: $color-blue-50;
+
+        &:hover {
+          opacity: 0.8;
+        }
+
+        @media #{$mq-lg} {
+          align-self: flex-start;
+        }
+      }
+      h2 {
+        @include text-title-xs;
+        @include font-firefox;
+        font-weight: 700;
+      }
+
+      h3 {
+        @include text-title-2xs;
+        @include font-firefox;
+        font-weight: 600;
+      }
+
+      .pricing-logo-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        align-items: center;
+
+        @media #{$mq-lg} {
+          flex-direction: row;
+        }
+
+        .pricing-wrapper {
+          border-radius: $border-radius-sm;
+          // Using rgba to manipulate alpha value
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          @media #{$mq-lg} {
+            flex-direction: row;
+          }
+
+          strong {
+            font-weight: 600;
+            padding-right: $spacing-xs;
+          }
+
+          span {
+            padding: $spacing-xs $spacing-md;
+            display: flex;
+            flex-direction: row;
+
+            .price {
+              @include text-body-sm;
+              text-decoration: line-through;
+            }
+
+            &:first-child {
+              // Using rgba to manipulate alpha value
+              border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+
+              @media #{$mq-lg} {
+                border-right: 1px solid rgba(255, 255, 255, 0.4);
+              }
+
+              .price {
+                text-decoration: none;
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
