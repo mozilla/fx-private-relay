@@ -2,6 +2,7 @@ import { Localized, useLocalization } from "@fluent/react";
 import { useTab, useTabList, useTabPanel, VisuallyHidden } from "react-aria";
 import { Key, ReactNode, useRef } from "react";
 import Link from "next/link";
+import { event as gaEvent } from "react-ga";
 import {
   Item,
   TabListProps,
@@ -26,6 +27,7 @@ import { CheckIcon, MozillaVpnWordmark } from "../Icons";
 import { getRuntimeConfig } from "../../config";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { Plan, trackPlanPurchaseStart } from "../../functions/trackPurchase";
+import { setCookie } from "../../functions/cookies";
 
 type FeatureList = {
   email_masks: number;
@@ -89,6 +91,15 @@ export const PlanMatrix = (props: Props) => {
     category: "Purchase Bundle button",
     label: "plan-matrix-bundle-cta-mobile",
   });
+
+  const countSignIn = (label: string) => {
+    gaEvent({
+      category: "Sign In",
+      action: "Engage",
+      label: label,
+    });
+    setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
+  };
 
   let planCount = 2;
   if (
@@ -175,6 +186,7 @@ export const PlanMatrix = (props: Props) => {
                 <a
                   ref={freeButtonDesktopRef}
                   href={getRuntimeConfig().fxaLoginUrl}
+                  onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
                   className={styles["pick-button"]}
                 >
                   {l10n.getString("plan-matrix-pick")}
@@ -332,6 +344,7 @@ export const PlanMatrix = (props: Props) => {
               <a
                 ref={freeButtonMobileRef}
                 href={getRuntimeConfig().fxaLoginUrl}
+                onClick={() => countSignIn("plan-matrix-free-cta-mobile")}
                 className={styles["pick-button"]}
               >
                 {l10n.getString("plan-matrix-pick")}
