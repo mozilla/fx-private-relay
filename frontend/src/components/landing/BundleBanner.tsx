@@ -3,7 +3,7 @@ import styles from "./BundleBanner.module.scss";
 import womanInBanner from "./images/bundle-banner-woman.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
-import bundleFloatThree from "./images/bundle-float-2.svg";
+import bundleFloatThree from "./images/bundle-float-3.svg";
 
 type FloatingFeaturesProps = {
   icon: string;
@@ -59,7 +59,7 @@ export const BundleBanner = () => {
 
   return (
     <div className={styles["bundle-banner-wrapper"]}>
-      <div className={styles["left-section"]}>
+      <div className={styles["first-section"]}>
         <div className={styles["main-img-wrapper"]}>{mainImage}</div>
         <div className={styles["float-features-wrapper"]}>
           <FloatingFeatures
@@ -79,7 +79,7 @@ export const BundleBanner = () => {
           />
         </div>
       </div>
-      {bannerDescription}
+      <div className={styles["second-section"]}>{bannerDescription}</div>
     </div>
   );
 };
