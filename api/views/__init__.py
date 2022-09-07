@@ -29,7 +29,10 @@ from privaterelay.settings import (
     PHONE_PROD_ID,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE,
 )
-from privaterelay.utils import get_premium_countries_info_from_request
+from privaterelay.utils import (
+    get_countries_info_from_request_and_mapping,
+    get_premium_countries_info_from_request,
+)
 
 from emails.models import (
     CannotMakeAddressException,
@@ -188,6 +191,15 @@ def runtime_data(request):
             "PREMIUM_PRODUCT_ID": PREMIUM_PROD_ID,
             "PHONE_PRODUCT_ID": PHONE_PROD_ID,
             "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
+            "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
+                request, settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING
+            ),
+            "PHONE_PLANS": get_countries_info_from_request_and_mapping(
+                request, settings.PHONE_PLAN_COUNTRY_LANG_MAPPING
+            ),
+            "BUNDLE_PLANS": get_countries_info_from_request_and_mapping(
+                request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
+            ),
             "BASKET_ORIGIN": BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,
             "WAFFLE_SWITCHES": switch_values,

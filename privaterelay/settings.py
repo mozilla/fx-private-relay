@@ -307,7 +307,9 @@ RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=
 MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
 MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PREMIUM_PROD_ID = config("PREMIUM_PROD_ID", "", cast=str)
+PERIODICAL_PREMIUM_PROD_ID = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
 PHONE_PROD_ID = config("PHONE_PROD_ID", "", cast=str)
+BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
 PREMIUM_PRICE_ID_OVERRIDE = config("PREMIUM_PRICE_ID_OVERRIDE", "", cast=str)
 PREMIUM_PLAN_ID_MATRIX = {
     "chf": {
@@ -432,6 +434,273 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     },
     "sg": {
         "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+}
+
+PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
+    "chf": {
+        "de": {
+            "monthly": {
+                "id": "price_1LYCqOJNcmPzuWtRuIXpQRxi",
+                "price": "CHF ?.??",
+            },
+            "yearly": {
+                "id": "price_1LYCqyJNcmPzuWtR3Um5qDPu",
+                "price": "CHF ?.??",
+            },
+        },
+        "fr": {
+            "monthly": {
+                "id": "price_1LYCvpJNcmPzuWtRq9ci2gXi",
+                "price": "CHF ?.??",
+            },
+            "yearly": {
+                "id": "price_1LYCwMJNcmPzuWtRm6ebmq2N",
+                "price": "CHF ?.??",
+            },
+        },
+        "it": {
+            "monthly": {
+                "id": "price_1LYCiBJNcmPzuWtRxtI8D5Uy",
+                "price": "CHF ?.??",
+            },
+            "yearly": {
+                "id": "price_1LYClxJNcmPzuWtRWjslDdkG",
+                "price": "CHF ?.??",
+            },
+        },
+    },
+    "euro": {
+        # Values unknown, but also `PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING`
+        # is pointing to the German plan ID for Austria?
+        "at": {
+            "monthly": {
+                "id": "",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "",
+                "price": "?.?? €",
+            },
+        },
+        "de": {
+            "monthly": {
+                "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
+                "price": "?.?? €",
+            },
+        },
+        # Values unknown, and in `PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING`
+        # Ireland is pointing to this, while there also being an `ie` value?
+        "en": {
+            "monthly": {
+                "id": "",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "",
+                "price": "?.?? €",
+            },
+        },
+        "es": {
+            "monthly": {
+                "id": "price_1LYCWmJNcmPzuWtRtopZog9E",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYCXNJNcmPzuWtRu586XOFf",
+                "price": "?.?? €",
+            },
+        },
+        "fr": {
+            "monthly": {
+                "id": "price_1LYBuLJNcmPzuWtRn58XQcky",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYBwcJNcmPzuWtRpgoWcb03",
+                "price": "?.?? €",
+            },
+        },
+        "it": {
+            "monthly": {
+                "id": "price_1LYCMrJNcmPzuWtRTP9vD8wY",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYCN2JNcmPzuWtRtWz7yMno",
+                "price": "?.?? €",
+            },
+        },
+        "nl": {
+            "monthly": {
+                "id": "price_1LYCdLJNcmPzuWtR0J1EHoJ0",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYCdtJNcmPzuWtRVm4jLzq2",
+                "price": "?.?? €",
+            },
+        },
+        # Values unknown, and in `PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING`
+        # Ireland is pointing to `en`?
+        "ie": {
+            "monthly": {
+                "id": "",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "",
+                "price": "?.?? €",
+            },
+        },
+        "sv": {
+            "monthly": {
+                "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYBeMJNcmPzuWtRT5A931WH",
+                "price": "?.?? €",
+            },
+        },
+        "fi": {
+            "monthly": {
+                "id": "price_1LYBn9JNcmPzuWtRI3nvHgMi",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYBq1JNcmPzuWtRmyEa08Wv",
+                "price": "?.?? €",
+            },
+        },
+    },
+    "usd": {
+        "en": {
+            "monthly": {
+                "id": "price_1LXUcnJNcmPzuWtRpbNOajYS",
+                "price": "$?.??",
+            },
+            "yearly": {
+                "id": "price_1LXUdlJNcmPzuWtRKTYg7mpZ",
+                "price": "$?.??",
+            },
+        },
+        "gb": {
+            "monthly": {
+                "id": "price_1LYCHpJNcmPzuWtRhrhSYOKB",
+                "price": "$?.??",
+            },
+            "yearly": {
+                "id": "price_1LYCIlJNcmPzuWtRQtYLA92j",
+                "price": "$?.??",
+            },
+        },
+    },
+}
+PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
+    # Austria
+    "at": {"de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"]},
+    # Belgium
+    "be": {
+        "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
+        "de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
+        "nl": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
+    },
+    # Switzerland
+    "ch": {
+        "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["fr"],
+        "de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["de"],
+        "it": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["it"],
+    },
+    # Germany
+    "de": {
+        "de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
+    },
+    # Spain
+    "es": {
+        "es": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["es"],
+    },
+    # France
+    "fr": {
+        "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
+    },
+    # Ireland
+    "ie": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["en"],
+    },
+    # Italy
+    "it": {
+        "it": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["it"],
+    },
+    # Netherlands
+    "nl": {
+        "nl": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
+    },
+    # Sweden
+    "se": {
+        "sv": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["sv"],
+    },
+    # Finland
+    "fi": {
+        "fi": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fi"],
+    },
+    "us": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    "gb": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+    "ca": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+    "nz": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+    "my": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+    "sg": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+}
+
+PHONE_PLAN_ID_MATRIX = {
+    "usd": {
+        "en": {
+            "monthly": {
+                "id": "price_1LXUenJNcmPzuWtRw3rhjQNP",
+                "price": "$?.??",
+            },
+            "yearly": {
+                "id": "price_1LXUhcJNcmPzuWtRHUFHVk12",
+                "price": "$?.??",
+            },
+        },
+    },
+}
+PHONE_PLAN_COUNTRY_LANG_MAPPING = {
+    "us": {
+        "en": PHONE_PLAN_ID_MATRIX["usd"]["en"],
+    },
+}
+
+BUNDLE_PLAN_ID_MATRIX = {
+    "usd": {
+        "en": {
+            "yearly": {
+                "id": "price_1La3d7JNcmPzuWtRn0cg2EyH",
+                "price": "$?.??",
+            },
+        },
+    },
+}
+BUNDLE_PLAN_COUNTRY_LANG_MAPPING = {
+    "us": {
+        "en": BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
     },
 }
 
