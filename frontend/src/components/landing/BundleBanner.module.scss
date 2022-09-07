@@ -110,7 +110,7 @@
       flex-direction: column;
       display: flex;
       gap: $spacing-md;
-      padding: 0 $spacing-md $spacing-2xl $spacing-md;
+      padding: 0 $spacing-md $spacing-xl $spacing-md;
 
       @media #{$mq-lg} {
         height: auto;
@@ -120,6 +120,7 @@
       }
 
       .button {
+        margin-top: $spacing-md;
         background: white;
         color: $color-blue-50;
 
