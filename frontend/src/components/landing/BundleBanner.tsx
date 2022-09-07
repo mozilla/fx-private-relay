@@ -1,4 +1,6 @@
+import { Localized, useLocalization } from "@fluent/react";
 import { Button } from "../Button";
+import { MozillaVpnWordmark } from "../Icons";
 import styles from "./BundleBanner.module.scss";
 import womanInBanner from "./images/bundle-banner-woman.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";
@@ -24,6 +26,8 @@ const FloatingFeatures = (props: FloatingFeaturesProps) => {
 };
 
 export const BundleBanner = () => {
+  const { l10n } = useLocalization();
+
   const mainImage = (
     <img
       src={womanInBanner.src}
@@ -39,24 +43,33 @@ export const BundleBanner = () => {
         <div className={styles["float-features-wrapper"]}>
           <FloatingFeatures
             icon={bundleFloatOne.src}
-            text="More than 400 servers"
+            text={l10n.getString("bundle-feature-one")}
             position="feature-one"
           />
           <FloatingFeatures
             icon={bundleFloatTwo.src}
-            text="More than 30 countries"
+            text={l10n.getString("bundle-feature-two")}
             position="feature-two"
           />
           <FloatingFeatures
             icon={bundleFloatThree.src}
-            text="Fast and secure network"
+            text={l10n.getString("bundle-feature-three")}
             position="feature-three"
           />
         </div>
       </div>
       <div className={styles["second-section"]}>
         <div className={styles["bundle-banner-description"]}>
-          <h2>Firefox Relay with VPN</h2>
+          <h2>
+            <Localized
+              id={"bundle-banner-header"}
+              elems={{
+                "vpn-logo": <VpnWordmark />,
+              }}
+            >
+              <th scope="row" />
+            </Localized>
+          </h2>
           <h3>
             Security, reliability and speed — on every device, anywhere you go.
           </h3>
@@ -86,5 +99,14 @@ export const BundleBanner = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const VpnWordmark = (props: { children?: string }) => {
+  return (
+    <>
+      &nbsp;
+      <MozillaVpnWordmark alt={props.children ?? "Mozilla VPN"} />
+    </>
   );
 };
