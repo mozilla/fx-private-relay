@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import logging
 
 import phonenumbers
@@ -20,6 +20,7 @@ from rest_framework.generics import get_object_or_404
 
 from api.views import SaveToRequestUser
 from emails.models import Profile, get_storing_phone_log
+from privaterelay.views import _handle_fxa_profile_change
 
 from phones.models import (
     InboundContact,
@@ -439,7 +440,7 @@ def inbound_sms(request):
         )
 
     _check_disabled(relay_number, "texts")
-
+    _check_remaining(relay_number, "texts")
     inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
@@ -467,16 +468,21 @@ def inbound_call(request):
         raise exceptions.ValidationError("Call data missing Caller or Called.")
 
     relay_number, real_phone = _get_phone_objects(inbound_to)
+
     _check_disabled(relay_number, "calls")
+    _check_remaining(relay_number, "minutes")
     inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "calls", relay_number)
 
     # Note: TwilioInboundCallXMLRenderer will render this as TwiML
+    relay_number.calls_forwarded += 1
+    relay_number.save()
     return response.Response(
         status=201,
         data={"inbound_from": inbound_from, "real_number": real_phone.number},
     )
+    # TODO: update relay_number.remaining_minutes
 
 
 def _get_phone_objects(inbound_to):
@@ -530,6 +536,30 @@ def _check_disabled(relay_number, contact_type):
         raise exceptions.ValidationError(f"Number is not accepting {contact_type}s.")
 
 
+def _check_remaining(relay_number, resource_type):
+    profile = Profile.objects.get(user=relay_number.user)
+    model_attr = f"remaining_{resource_type}"
+    # Has it been more than 30 days since we last checked the user's phone subscription?
+    if profile.date_phone_subscription_checked <= datetime.now(timezone.utc) - timedelta(30):
+        # Re-fetch all FXA data into profile so we can see if the user still has
+        # a phone subscription.
+        fxa = relay_number.user.socialtoken_set.filter(provider="fxa").first()
+        _handle_fxa_profile_change(fxa)
+
+        # If they still have a phone subscription, re-set their remaining_texts or
+        # remaining_minutes to the maximum value per month.
+        if not profile.has_phone:
+            raise exceptions.ValidationError(f"Number is out of {resource_type}.")
+        cap_attr = model_attr.upper()
+        setting_attr = f"MAX_{cap_attr}_PER_BILLING_CYCLE"
+        value = getattr(settings, setting_attr)
+        setattr(relay_number, model_attr, value)
+        relay_number.save()
+        return True
+    if getattr(relay_number, model_attr) <= 0:
+        raise exceptions.ValidationError(f"Number is out of {resource_type}.")
+    return True
+
 def _get_inbound_contact(relay_number, inbound_from):
     # Check if RelayNumber is storing phone log
     profile = Profile.objects.get(user=relay_number.user)
@@ -545,8 +575,8 @@ def _get_inbound_contact(relay_number, inbound_from):
 
 def _check_and_update_contact(inbound_contact, contact_type, relay_number):
     if inbound_contact.blocked:
-        attr = f"num_{contact_type}_blocked"
-        setattr(inbound_contact, attr, getattr(inbound_contact, attr) + 1)
+        contact_attr = f"num_{contact_type}_blocked"
+        setattr(inbound_contact, contact_attr, getattr(inbound_contact, contact_attr) + 1)
         inbound_contact.save()
         relay_attr = f"{contact_type}_blocked"
         setattr(relay_number, relay_attr, getattr(relay_number, relay_attr) + 1)

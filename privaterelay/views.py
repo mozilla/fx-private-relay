@@ -4,6 +4,7 @@ from hashlib import sha256
 import json
 import logging
 import os
+import requests
 from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
@@ -267,6 +268,7 @@ def _update_all_data(social_account, extra_data, new_email):
     try:
         profile = social_account.user.profile_set.first()
         had_premium = profile.has_premium
+        had_phone = profile.has_phone
         with transaction.atomic():
             social_account.extra_data = extra_data
             social_account.save()
@@ -275,10 +277,21 @@ def _update_all_data(social_account, extra_data, new_email):
             newly_premium = not had_premium and now_has_premium
             no_longer_premium = had_premium and not now_has_premium
             if newly_premium:
+                incr_if_enabled("user_purchased_premium", 1)
                 profile.date_subscribed = datetime.now(timezone.utc)
                 profile.save()
             if no_longer_premium:
                 incr_if_enabled("user_has_downgraded", 1)
+            now_has_phone = profile.has_phone
+            newly_phone = not had_phone and now_has_phone
+            no_longer_phone = had_phone and not now_has_phone
+            if newly_phone:
+                incr_if_enabled("user_purchased_phone", 1)
+                profile.date_subscribed_phone = datetime.now(timezone.utc)
+                profile.date_phone_subscription_checked = datetime.now(timezone.utc)
+                profile.save()
+            if no_longer_phone:
+                incr_if_enabled("user_has_dropped_phone", 1)
             social_account.user.email = new_email
             social_account.user.save()
             email_address_record = social_account.user.emailaddress_set.first()
