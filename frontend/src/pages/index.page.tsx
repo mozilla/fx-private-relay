@@ -31,7 +31,7 @@ import { CarouselContentHero } from "../components/landing/carousel/ContentHero"
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 import { Plans } from "../components/landing/Plans";
 import {
-  getPlan,
+  getPremiumPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
@@ -109,7 +109,7 @@ const Home: NextPage = () => {
           <div className={styles.callout}>
             <h2>
               {l10n.getString("landing-pricing-offer-end-headline", {
-                monthly_price: getPlan(runtimeData.data).price,
+                monthly_price: getPremiumPlan(runtimeData.data).price,
               })}
             </h2>
             <div
@@ -150,7 +150,7 @@ const Home: NextPage = () => {
           <div className={styles.callout}>
             <h2>
               {l10n.getString("landing-pricing-headline-2", {
-                monthly_price: getPlan(runtimeData.data).price,
+                monthly_price: getPremiumPlan(runtimeData.data).price,
               })}
             </h2>
             <p>{l10n.getString("landing-pricing-body-2")}</p>

@@ -5,7 +5,7 @@ import RelayWordmark from "./images/logo-firefox-relay.svg";
 import RelayPremiumWordmark from "./images/logo-firefox-premium-relay.svg";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import {
-  getPlan,
+  getPremiumPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
@@ -169,7 +169,7 @@ export const Plans = (props: Props) => {
       />
       <b className={styles.price}>
         {l10n.getString("landing-pricing-premium-price", {
-          monthly_price: getPlan(props.runtimeData).price,
+          monthly_price: getPremiumPlan(props.runtimeData).price,
         })}
       </b>
       {premiumFeatures}

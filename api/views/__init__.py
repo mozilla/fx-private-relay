@@ -22,9 +22,11 @@ from emails.utils import incr_if_enabled
 
 from privaterelay.settings import (
     BASKET_ORIGIN,
+    BUNDLE_PROD_ID,
     FXA_BASE_ORIGIN,
     GOOGLE_ANALYTICS_ID,
     INTRO_PRICING_END,
+    PERIODICAL_PREMIUM_PROD_ID,
     PREMIUM_PROD_ID,
     PHONE_PROD_ID,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE,
@@ -186,7 +188,9 @@ def runtime_data(request):
     return response.Response(
         {
             "FXA_ORIGIN": FXA_BASE_ORIGIN,
+            "PERIODICAL_PREMIUM_PRODUCT_ID": PERIODICAL_PREMIUM_PROD_ID,
             "GOOGLE_ANALYTICS_ID": GOOGLE_ANALYTICS_ID,
+            "BUNDLE_PRODUCT_ID": BUNDLE_PROD_ID,
             "INTRO_PRICING_END": INTRO_PRICING_END,
             "PREMIUM_PRODUCT_ID": PREMIUM_PROD_ID,
             "PHONE_PRODUCT_ID": PHONE_PROD_ID,
