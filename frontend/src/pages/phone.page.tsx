@@ -13,8 +13,12 @@ import styles from "./phone.module.scss";
 import { useLocalization } from "@fluent/react";
 import { useRealPhonesData } from "../hooks/api/realPhone";
 import { DashboardSwitcher } from "../components/layout/navigation/DashboardSwitcher";
+import { isFlagActive } from "../functions/waffle";
+import { useRuntimeData } from "../hooks/api/runtimeData";
+import Router from "next/router";
 
 const Phone: NextPage = () => {
+  const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const profile = profileData.data?.[0];
   const { l10n } = useLocalization();
@@ -27,6 +31,11 @@ const Phone: NextPage = () => {
   const realPhoneData = useRealPhonesData();
 
   useEffect(() => {
+    // check if phone flag is active - return to premium page if not.
+    if (!isFlagActive(runtimeData.data, "phones")) {
+      Router.push("/premium");
+    }
+
     if (
       typeof isInOnboarding === "undefined" &&
       Array.isArray(relayNumberData.data) &&
