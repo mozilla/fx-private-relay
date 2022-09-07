@@ -459,7 +459,10 @@ export const WhatsNewMenu = (props: Props) => {
   };
 
   // Only show its announcement if phone masking is live:
-  if (isFlagActive(props.runtimeData, "phones")) {
+  if (
+    isPhonesAvailableInCountry(props.runtimeData) &&
+    isFlagActive(props.runtimeData, "phones")
+  ) {
     entries.push(phoneAnnouncement);
   }
 

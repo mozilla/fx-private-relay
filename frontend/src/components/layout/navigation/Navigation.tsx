@@ -11,7 +11,10 @@ import { UserMenu } from "./UserMenu";
 import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
-import { isPremiumAvailableInCountry } from "../../../functions/getPlan";
+import {
+  isPhonesAvailableInCountry,
+  isPremiumAvailableInCountry,
+} from "../../../functions/getPlan";
 import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
@@ -39,7 +42,9 @@ export const Navigation = (props: Props) => {
   const isPremiumPage = router.pathname === "/premium";
 
   const phoneLink =
-    isLoggedIn && isFlagActive(runtimeData.data, "phones") ? (
+    isLoggedIn &&
+    isPhonesAvailableInCountry(runtimeData.data) &&
+    isFlagActive(runtimeData.data, "phones") ? (
       <Link href="/phone">
         <a
           className={`${styles.link} ${styles["hidden-mobile"]} ${
