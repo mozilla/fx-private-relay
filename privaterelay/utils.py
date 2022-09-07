@@ -13,6 +13,18 @@ def get_premium_countries_info_from_request(request):
     }
 
 
+def get_countries_info_from_request_and_mapping(request, mapping):
+    country_code = _get_cc_from_request(request)
+    countries = mapping.keys()
+    available_in_country = country_code in countries
+    return {
+        "country_code": country_code,
+        "countries": countries,
+        "available_in_country": available_in_country,
+        "plan_country_lang_mapping": mapping,
+    }
+
+
 def _get_cc_from_request(request):
     if "X-Client-Region" in request.headers:
         return request.headers["X-Client-Region"].lower()
