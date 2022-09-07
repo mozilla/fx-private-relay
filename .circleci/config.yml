@@ -333,7 +333,12 @@ jobs:
                   echo "# Production tag is ${PROD_TAG}"
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
-                  git checkout --theirs "${CIRCLE_BRANCH}" -- '**/migrations/**'
+                  if  [ -z "${CIRCLE_TAG}" ]; then
+                    git checkout --theirs "${CIRCLE_BRANCH}" -- '**/migrations/**'
+                  else
+                    git fetch --force origin tag ${CIRCLE_TAG}
+                    git checkout --theirs "${CIRCLE_TAG}" -- '**/migrations/**'
+                  fi
                   git status
       - unless:
           condition: << parameters.allow_fail >>
@@ -409,7 +414,12 @@ jobs:
                   echo "# Production tag is ${PROD_TAG}"
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
-                  git checkout --theirs "${CIRCLE_BRANCH}" -- '**/migrations/**'
+                  if  [ -z "${CIRCLE_TAG}" ]; then
+                    git checkout --theirs "${CIRCLE_BRANCH}" -- '**/migrations/**'
+                  else
+                    git fetch --force origin tag ${CIRCLE_TAG}
+                    git checkout --theirs "${CIRCLE_TAG}" -- '**/migrations/**'
+                  fi
                   git status
       - run:
           name: Run tests
