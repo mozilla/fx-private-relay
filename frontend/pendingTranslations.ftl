@@ -128,7 +128,9 @@ phone-onboarding-step1-list-item-2 = Need to confirm a dinner reservation? Share
 phone-onboarding-step1-list-item-3 = With phone number masking, you can receive texts. Replying is not yet available.
 
 phone-onboarding-step1-button-label = Upgrade to get phone number masking
-phone-onboarding-step1-button-price = $4.99 / month
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
+phone-onboarding-step1-button-price = { $monthly_price } / month
 phone-onboarding-step1-button-cta = Upgrade Now
 
 phone-onboarding-step2-headline = Verify your true phone number

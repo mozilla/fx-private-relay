@@ -1,6 +1,6 @@
 import { PlanData, ProductData, RuntimeData } from "../hooks/api/runtimeData";
 
-export const getPlan = <P extends Partial<PlanData>>(
+const getPlan = <P extends Partial<PlanData>>(
   productData: ProductData<P>,
   billingPeriod: keyof P
 ) => {
@@ -13,6 +13,12 @@ export const getPlan = <P extends Partial<PlanData>>(
   return plan[billingPeriod];
 };
 
+export const getPeriodicalPremiumPrice = (
+  runtimeData: RuntimeDataWithPeriodicalPremiumAvailable,
+  billingPeriod: keyof PlanData
+) => {
+  return getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod).price;
+};
 /**
  * Given {@link RuntimeDataWithPeriodicalPremiumAvailable}, returns the URL the user should visit to purchase Premium.
  */
@@ -25,6 +31,12 @@ export const getPeriodicalPremiumSubscribeLink = (
   return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PERIODICAL_PREMIUM_PRODUCT_ID}?plan=${plan.id}`;
 };
 
+export const getPhonesPrice = (
+  runtimeData: RuntimeDataWithPhonesAvailable,
+  billingPeriod: keyof PlanData
+) => {
+  return getPlan(runtimeData.PHONE_PLANS, billingPeriod).price;
+};
 export const getPhoneSubscribeLink = (
   runtimeData: RuntimeDataWithPhonesAvailable,
   billingPeriod: keyof PlanData
@@ -33,6 +45,9 @@ export const getPhoneSubscribeLink = (
   return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PHONE_PRODUCT_ID}?plan=${plan.id}`;
 };
 
+export const getBundlePrice = (runtimeData: RuntimeDataWithBundleAvailable) => {
+  return getPlan(runtimeData.BUNDLE_PLANS, "yearly").price;
+};
 export const getBundleSubscribeLink = (
   runtimeData: RuntimeDataWithBundleAvailable
 ) => {

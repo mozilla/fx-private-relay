@@ -5,6 +5,7 @@ import WomanPhone from "./images/woman-phone.svg";
 import { LinkButton } from "../../Button";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import {
+  getPhonesPrice,
   getPhoneSubscribeLink,
   isPhonesAvailableInCountry,
 } from "../../../functions/getPlan";
@@ -46,7 +47,11 @@ export const PurchasePhonesPlan = () => {
         <div className={styles.action}>
           <h3>
             {l10n.getString("phone-onboarding-step1-button-label")}
-            <span>{l10n.getString("phone-onboarding-step1-button-price")}</span>
+            <span>
+              {l10n.getString("phone-onboarding-step1-button-price", {
+                monthly_price: getPhonesPrice(runtimeData.data, "monthly"),
+              })}
+            </span>
           </h3>
           <LinkButton
             ref={purchaseButtonRef}
