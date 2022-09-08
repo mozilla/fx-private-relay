@@ -616,6 +616,28 @@ def test_inbound_sms_valid_twilio_signature_disabled_number(
     mocked_twilio_client.messages.create.assert_not_called()
 
 
+def test_inbound_sms_to_number_with_no_remaining_texts(
+    phone_user, mocked_twilio_client
+):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    relay_number.remaining_texts = 0
+    relay_number.save()
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert decoded_content.startswith("<?xml")
+    relay_number.refresh_from_db()
+    assert "Number Is Out Of Texts" in decoded_content
+    mocked_twilio_client.messages.create.assert_not_called()
+
+
 def test_inbound_sms_valid_twilio_signature_no_phone_log(
     phone_user, mocked_twilio_client
 ):

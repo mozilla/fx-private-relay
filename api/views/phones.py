@@ -558,7 +558,9 @@ def _get_inbound_contact(relay_number, inbound_from):
 def _check_and_update_contact(inbound_contact, contact_type, relay_number):
     if inbound_contact.blocked:
         contact_attr = f"num_{contact_type}_blocked"
-        setattr(inbound_contact, contact_attr, getattr(inbound_contact, contact_attr) + 1)
+        setattr(
+            inbound_contact, contact_attr, getattr(inbound_contact, contact_attr) + 1
+        )
         inbound_contact.save()
         relay_attr = f"{contact_type}_blocked"
         setattr(relay_number, relay_attr, getattr(relay_number, relay_attr) + 1)
