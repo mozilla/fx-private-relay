@@ -52,7 +52,7 @@ const setYourPassword = async (page: Page) => {
 }
 
 const enterConfirmationCode = async (page: Page) => {        
-  const maybeVerificationCodeInput = '//div[@class="card"]//input'
+  const maybeVerificationCodeInput = 'div.card input'
   await page.waitForSelector(maybeVerificationCodeInput, { timeout: 2000 })
   const confirmButton = page.locator('#submit-btn')
   const verificationCode = await getVerificationCode(process.env.E2E_TEST_ACCOUNT_FREE as string, page)
@@ -84,7 +84,7 @@ const enterYourPassword = async (page: Page) => {
   await page.locator('#password').fill(process.env.E2E_TEST_ACCOUNT_PASSWORD as string)
 
   // using force here due to fxa issue with playwright
-  await page.locator('#submit-btn').click({force: true})
+  await page.locator('#submit-btn').click()
   await page.waitForTimeout(500)
   await checkAuthState(page)
 }

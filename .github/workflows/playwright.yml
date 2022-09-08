@@ -1,9 +1,9 @@
 name: Relay e2e Tests
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]  
+  schedule:
+    - cron: '0 8 * * *'
+
+  workflow_dispatch:
 
 jobs:
   relaye2e:

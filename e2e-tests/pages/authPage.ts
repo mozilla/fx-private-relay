@@ -16,7 +16,7 @@ export class AuthPage {
         this.passwordConfirmInputField = page.locator('#vpassword');
         this.ageInputField = page.locator('#age');
         this.continueButton = page.locator('#submit-btn');
-        this.verifyCodeInputField = page.locator('//div[@class="card"]//input')
+        this.verifyCodeInputField = page.locator('div.card input')
     }
 
     async continue() {

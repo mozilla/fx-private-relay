@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
   testDir: 'e2e-tests/specs',
 
   /* Maximum time one test can run for. */
-  timeout: 60_000,
+  timeout: 30_000,
 
   /* Global setup */
   globalSetup: require.resolve('./e2e-tests/global-setup.ts'),
