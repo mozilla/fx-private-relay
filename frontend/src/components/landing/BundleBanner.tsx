@@ -1,3 +1,4 @@
+import { FluentVariable } from "@fluent/bundle";
 import { Localized, useLocalization } from "@fluent/react";
 import {
   getBundlePrice,
@@ -18,6 +19,7 @@ type FloatingFeaturesProps = {
   icon: string;
   text: string;
   position: string;
+  vars?: Record<string, FluentVariable>;
 };
 
 export type Props = {
@@ -25,12 +27,24 @@ export type Props = {
 };
 
 const FloatingFeatures = (props: FloatingFeaturesProps) => {
+  const { l10n } = useLocalization();
+
+  const hasVariable = props.vars ? (
+    <Localized id={props.text} vars={props.vars}>
+      <span className={styles["float-features-text"]} />
+    </Localized>
+  ) : (
+    <span className={styles["float-features-text"]}>
+      {l10n.getString(props.text)}
+    </span>
+  );
+
   return (
     <div
       className={`${styles[props.position]} ${styles["float-features-item"]}`}
     >
       <img alt="" src={props.icon} />
-      <span className={styles["float-features-text"]}>{props.text}</span>
+      {hasVariable}
     </div>
   );
 };
@@ -53,17 +67,23 @@ export const BundleBanner = (props: Props) => {
         <div className={styles["float-features-wrapper"]}>
           <FloatingFeatures
             icon={bundleFloatOne.src}
-            text={l10n.getString("bundle-feature-one")}
+            text="bundle-feature-one"
             position="feature-one"
+            vars={{
+              num_vpn_servers: "400",
+            }}
           />
           <FloatingFeatures
             icon={bundleFloatTwo.src}
-            text={l10n.getString("bundle-feature-two")}
+            text="bundle-feature-two"
             position="feature-two"
+            vars={{
+              num_vpn_countries: "30",
+            }}
           />
           <FloatingFeatures
             icon={bundleFloatThree.src}
-            text={l10n.getString("bundle-feature-three")}
+            text="bundle-feature-three"
             position="feature-three"
           />
         </div>
@@ -112,7 +132,7 @@ export const BundleBanner = (props: Props) => {
                       old_price: "$??", // Design states $11.99
                     }}
                     elems={{
-                      "outdated-price": <p className={styles["price"]} />,
+                      "outdated-price": <s className={styles["price"]} />,
                     }}
                   >
                     <span />

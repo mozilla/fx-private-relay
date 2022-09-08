@@ -187,7 +187,6 @@
 
             .price {
               @include text-body-sm;
-              text-decoration: line-through;
               font-weight: 400;
             }
 
@@ -198,12 +197,6 @@
               @media #{$mq-lg} {
                 border-right: 1px solid rgba(255, 255, 255, 0.4);
                 border-bottom: none;
-              }
-
-              .price {
-                text-decoration: none;
-                font-weight: 400;
-                padding-right: 0;
               }
             }
           }

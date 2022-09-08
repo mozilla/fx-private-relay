@@ -395,18 +395,24 @@ faq-question-trackerremoval-breakage-question = Why do my emails look broken?
 faq-question-trackerremoval-breakage-answer-2 = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images and links. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
 
 ## VPN and Relay Bundle Banner
-#   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
-#   $old_price (string) - the outdated monthly cost (including currency symbol) for a given plan. This value has a strikethrough.
-#   #savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
 bundle-banner-header = { -brand-name-firefox-relay } with <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
 bundle-banner-subheader = Security, reliability and speed — on every device, anywhere you go.
 bundle-banner-body = Surf, stream, game, and get work done while maintaining your privacy online. Whether you’re traveling, using public Wi-Fi, or simply looking for more online security, we will always put your privacy first.
 bundle-banner-1-year-plan = 1 year plan: <b>{ -brand-name-firefox-relay-premium } + { -brand-name-mozilla-vpn }</b>
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
 bundle-price-monthly = Monthly: <monthly-price>{ $monthly_price }</monthly-price>
+# Variables:
+#   #savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
+#   $old_price (string) - the outdated monthly cost (including currency symbol) for a given plan. This value has a strikethrough.
 bundle-price-save-amount = Save { $savings } <outdated-price>Normally { $old_price }</outdated-price>
 bundle-banner-cta = Get { -brand-name-mozilla-vpn } and { -brand-name-relay }
-bundle-feature-one = More than 400 servers
-bundle-feature-two = More than 30 countries
+# Variables:
+#   #num_vpn_servers (string) - the number of VPN servers
+bundle-feature-one = More than { $num_vpn_servers } servers
+# Variables:
+#   #num_vpn_countries (string) - the number of VPN available countries
+bundle-feature-two = More than { $num_vpn_countries } countries
 bundle-feature-three = Fast and secure network
 
 ## Comparison table of the different plans
