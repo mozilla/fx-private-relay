@@ -182,6 +182,14 @@ class RelayNumber(models.Model):
     texts_forwarded = models.IntegerField(blank=True, null=True, default=0)
     texts_blocked = models.IntegerField(blank=True, null=True, default=0)
 
+    @property
+    def calls_and_texts_forwarded(self):
+        return self.calls_forwarded + self.texts_forwarded
+
+    @property
+    def calls_and_texts_blocked(self):
+        return self.calls_blocked + self.texts_blocked
+
     def save(self, *args, **kwargs):
         if not get_verified_realphone_records(self.user):
             raise ValidationError("User does not have a verified real phone.")

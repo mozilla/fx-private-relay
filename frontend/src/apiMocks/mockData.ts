@@ -348,6 +348,8 @@ export const mockedRelaynumbers: Record<
       calls_blocked: 1,
       texts_forwarded: 17,
       texts_blocked: 5,
+      calls_and_texts_forwarded: 20,
+      calls_and_texts_blocked: 6,
     },
   ],
   full: [
@@ -362,6 +364,8 @@ export const mockedRelaynumbers: Record<
       calls_blocked: 1,
       texts_forwarded: 17,
       texts_blocked: 5,
+      calls_and_texts_forwarded: 20,
+      calls_and_texts_blocked: 6,
     },
   ],
 };

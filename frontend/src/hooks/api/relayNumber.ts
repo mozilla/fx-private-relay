@@ -12,6 +12,8 @@ export type RelayNumber = {
   calls_blocked: number;
   texts_forwarded: number;
   texts_blocked: number;
+  calls_and_texts_forwarded: number;
+  calls_and_texts_blocked: number;
 };
 
 export type RelayNumberData = Array<RelayNumber>;

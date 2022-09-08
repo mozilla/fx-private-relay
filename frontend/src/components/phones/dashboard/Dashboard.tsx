@@ -27,14 +27,6 @@ export const PhoneDashboard = () => {
   const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "");
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
-  const callsAndTextsForwarded =
-    relayNumberData?.calls_forwarded && relayNumberData?.texts_forwarded
-      ? relayNumberData?.calls_forwarded + relayNumberData?.texts_forwarded
-      : 0;
-  const callsAndTextsBlocked =
-    relayNumberData?.calls_blocked && relayNumberData?.texts_blocked
-      ? relayNumberData?.calls_blocked + relayNumberData?.texts_blocked
-      : 0;
 
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
@@ -95,7 +87,7 @@ export const PhoneDashboard = () => {
         }`}
       >
         <p className={styles["phone-statistics-title"]}>
-          {callsAndTextsForwarded}
+          {relayNumberData?.calls_and_texts_forwarded}
         </p>
         <p className={styles["phone-statistics-body"]}>
           {l10n.getString("phone-statistics-calls-texts-forwarded")}
@@ -108,7 +100,7 @@ export const PhoneDashboard = () => {
         }`}
       >
         <p className={styles["phone-statistics-title"]}>
-          {callsAndTextsBlocked}
+          {relayNumberData?.calls_and_texts_blocked}
         </p>
         <p className={styles["phone-statistics-body"]}>
           {l10n.getString("phone-statistics-calls-texts-blocked")}

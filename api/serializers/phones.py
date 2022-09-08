@@ -39,6 +39,8 @@ class RelayNumberSerializer(serializers.ModelSerializer):
             "calls_blocked",
             "texts_forwarded",
             "texts_blocked",
+            "calls_and_texts_forwarded",
+            "calls_and_texts_blocked",
         ]
         read_only_fields = [
             "id",
@@ -49,6 +51,8 @@ class RelayNumberSerializer(serializers.ModelSerializer):
             "calls_blocked",
             "texts_forwarded",
             "texts_blocked",
+            "calls_and_texts_forwarded",
+            "calls_and_texts_blocked",
         ]
 
 
