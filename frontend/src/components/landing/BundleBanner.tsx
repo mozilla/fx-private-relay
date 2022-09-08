@@ -10,22 +10,24 @@ import { RuntimeData } from "../../hooks/api/runtimeData";
 import { MozillaVpnWordmark } from "../Icons";
 import styles from "./BundleBanner.module.scss";
 import { LinkButton } from "../Button";
-import womanInBanner from "./images/bundle-banner-woman.png";
+import womanInBanner400w from "./images/bundle-banner-woman-400w.png";
+import womanInBanner768w from "./images/bundle-banner-woman-768w.png";
+import womanInBanner1280w from "./images/bundle-banner-woman-1280w.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
 import bundleLogo from "./images/vpn-and-relay-logo.svg";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
 
+export type Props = {
+  runtimeData: RuntimeData;
+};
+
 type FloatingFeaturesProps = {
   icon: string;
   text: string;
   position: string;
   vars?: Record<string, FluentVariable>;
-};
-
-export type Props = {
-  runtimeData: RuntimeData;
 };
 
 const FloatingFeatures = (props: FloatingFeaturesProps) => {
@@ -56,7 +58,8 @@ export const BundleBanner = (props: Props) => {
 
   const mainImage = (
     <img
-      src={womanInBanner.src}
+      src={womanInBanner400w.src}
+      srcSet={`${womanInBanner400w.src} 400w, ${womanInBanner768w.src} 768w, ${womanInBanner1280w.src} 1280w`}
       alt="Woman in Banner"
       className={styles["main-image"]}
     />
