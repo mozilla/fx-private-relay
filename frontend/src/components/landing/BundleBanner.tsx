@@ -29,7 +29,7 @@ const FloatingFeatures = (props: FloatingFeaturesProps) => {
     <div
       className={`${styles[props.position]} ${styles["float-features-item"]}`}
     >
-      <img alt={props.text} src={props.icon} />
+      <img alt="" src={props.icon} />
       <span className={styles["float-features-text"]}>{props.text}</span>
     </div>
   );
