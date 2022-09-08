@@ -60,7 +60,7 @@ export const BundleBanner = (props: Props) => {
     <img
       src={womanInBanner400w.src}
       srcSet={`${womanInBanner400w.src} 400w, ${womanInBanner768w.src} 768w, ${womanInBanner1280w.src} 1280w`}
-      alt="Woman in Banner"
+      alt=""
       className={styles["main-image"]}
     />
   );
