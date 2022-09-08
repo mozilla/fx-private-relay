@@ -21,7 +21,7 @@
   }
 
   .first-section {
-    padding-right: $layout-lg;
+    padding-right: $layout-lg; // Shrinks image towards the left side
     position: relative;
     background-image: url("./images/bundle-bg-mobile.svg");
     background-size: cover;
@@ -29,8 +29,16 @@
     border-bottom: 4px solid $color-purple-30;
     border-radius: $border-radius-lg $border-radius-lg 0 0;
 
+    @media #{$mq-sm} {
+      padding-right: $layout-xl;
+    }
+    @media #{$mq-md} {
+      padding-right: $content-sm;
+    }
+
     // Snap to 2 columns
     @media #{$mq-lg} {
+      padding-right: $layout-lg;
       border-bottom: none;
       background-image: none;
     }

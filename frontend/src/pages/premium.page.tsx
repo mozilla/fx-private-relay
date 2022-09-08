@@ -28,6 +28,7 @@ import { Plans } from "../components/landing/Plans";
 import {
   getPremiumPlan,
   getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { trackPurchaseStart } from "../functions/trackPurchase";
@@ -40,6 +41,7 @@ import { useInterval } from "../hooks/interval";
 import { CountdownTimer } from "../components/CountdownTimer";
 import { parseDate } from "../functions/parseDate";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
+import { BundleBanner } from "../components/landing/BundleBanner";
 
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
@@ -240,7 +242,7 @@ const PremiumPromo: NextPage = () => {
       <LinkButton
         ref={perkCtaRefs[label]}
         onClick={() => trackPurchaseStart({ label: label })}
-        href={getPremiumSubscribeLink(runtimeData.data)}
+        href="#pricing"
         title={l10n.getString("premium-promo-perks-cta-tooltip")}
       >
         {l10n.getString("premium-promo-perks-cta-label")}
@@ -278,6 +280,14 @@ const PremiumPromo: NextPage = () => {
             />
           </div>
         </section>
+
+        {isFlagActive(runtimeData.data, "intro_pricing_countdown") &&
+          isBundleAvailableInCountry(runtimeData.data) && (
+            <section className={styles["bundle-banner-section"]}>
+              <BundleBanner runtimeData={runtimeData.data} />
+            </section>
+          )}
+
         <section id="perks" className={styles["perks-wrapper"]}>
           <div className={styles.perks}>
             <h2 className={styles.headline}>

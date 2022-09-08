@@ -15,6 +15,7 @@ import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
 import bundleLogo from "./images/vpn-and-relay-logo.svg";
+import { trackPurchaseStart } from "../../functions/trackPurchase";
 
 type FloatingFeaturesProps = {
   icon: string;
@@ -146,6 +147,9 @@ export const BundleBanner = (props: Props) => {
                   target="_blank"
                   className={styles["button"]}
                   href={getBundleSubscribeLink(props.runtimeData)}
+                  onClick={() =>
+                    trackPurchaseStart({ label: "bundle-banner-upgrade-promo" })
+                  }
                 >
                   {l10n.getString("bundle-banner-cta")}
                 </LinkButton>
