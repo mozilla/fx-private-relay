@@ -10,6 +10,7 @@ import {
   isPhonesAvailableInCountry,
 } from "../../../functions/getPlan";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
+import { trackPlanPurchaseStart } from "../../../functions/trackPurchase";
 
 export const PurchasePhonesPlan = () => {
   const { l10n } = useLocalization();
@@ -25,10 +26,11 @@ export const PurchasePhonesPlan = () => {
 
   const purchase = () => {
     gaEvent({
-      category: "Purchase Button",
+      category: "Purchase Premium+phones button",
       action: "Engage",
       label: "phone-cta",
     });
+    trackPlanPurchaseStart({ plan: "phones", billing_period: "monthly" });
   };
 
   return (
