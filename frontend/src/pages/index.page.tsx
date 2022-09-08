@@ -33,6 +33,7 @@ import { Plans } from "../components/landing/Plans";
 import {
   getPremiumPlan,
   getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -251,6 +252,7 @@ const Home: NextPage = () => {
           </div>
         </section>
 
+        {/* Add flag */}
         <section className={styles["bundle-banner-section"]}>
           <BundleBanner />
         </section>

@@ -119,6 +119,12 @@
         margin-right: $spacing-xl;
       }
 
+      .headline {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
       .button {
         margin-top: $spacing-md;
         background: white;
@@ -171,20 +177,18 @@
             flex-direction: row;
           }
 
-          strong {
-            font-weight: 600;
-            padding-right: $spacing-xs;
-          }
-
           span {
             padding: $spacing-sm $spacing-md;
             display: flex;
             flex-direction: row;
             align-items: center;
+            font-weight: 600;
+            gap: $spacing-xs;
 
             .price {
               @include text-body-sm;
               text-decoration: line-through;
+              font-weight: 400;
             }
 
             &:first-child {
@@ -198,6 +202,8 @@
 
               .price {
                 text-decoration: none;
+                font-weight: 400;
+                padding-right: 0;
               }
             }
           }

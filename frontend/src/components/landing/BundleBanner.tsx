@@ -1,4 +1,6 @@
 import { Localized, useLocalization } from "@fluent/react";
+import { getBundlePrice } from "../../functions/getPlan";
+import { RuntimeData } from "../../hooks/api/runtimeData";
 import { Button } from "../Button";
 import { MozillaVpnWordmark } from "../Icons";
 import styles from "./BundleBanner.module.scss";
@@ -14,6 +16,10 @@ type FloatingFeaturesProps = {
   position: string;
 };
 
+export type Props = {
+  runtimeData: RuntimeData;
+};
+
 const FloatingFeatures = (props: FloatingFeaturesProps) => {
   return (
     <div
@@ -25,7 +31,7 @@ const FloatingFeatures = (props: FloatingFeaturesProps) => {
   );
 };
 
-export const BundleBanner = () => {
+export const BundleBanner = (props: Props) => {
   const { l10n } = useLocalization();
 
   const mainImage = (
@@ -67,35 +73,51 @@ export const BundleBanner = () => {
                 "vpn-logo": <VpnWordmark />,
               }}
             >
-              <th scope="row" />
+              <span className={styles["headline"]} />
             </Localized>
           </h2>
-          <h3>
-            Security, reliability and speed — on every device, anywhere you go.
-          </h3>
-          <p>
-            Surf, stream, game, and get work done while maintaining your privacy
-            online. Whether you’re traveling, using public Wi-Fi, or simply
-            looking for more online security, we will always put your privacy
-            first.
-          </p>
-          <p>
-            1 year plan: <strong>Firefox Relay Premium + Mozilla VPN</strong>
-          </p>
+          <h3>{l10n.getString("bundle-banner-subheader")}</h3>
+          <p>{l10n.getString("bundle-banner-body")}</p>
+          <Localized
+            id={"bundle-banner-1-year-plan"}
+            elems={{
+              b: <b />,
+            }}
+          >
+            <p />
+          </Localized>
           <div className={styles["pricing-logo-wrapper"]}>
             <div className={styles["pricing-wrapper"]}>
-              <span>
-                <strong>Monthly:</strong>
-                <p className={styles["price"]}>$4.99</p>
-              </span>
-              <span>
-                <strong>Save 50%</strong>
-                <p className={styles["price"]}>Normally $11.99</p>
-              </span>
+              <Localized
+                id={"bundle-price-monthly"}
+                vars={{
+                  // change to getBundlePrice(props.runtimeData)
+                  monthly_price: "$4.99",
+                }}
+                elems={{
+                  "monthly-price": <p className={styles["price"]} />,
+                }}
+              >
+                <span />
+              </Localized>
+              <Localized
+                id={"bundle-price-save-amount"}
+                vars={{
+                  savings: "50%",
+                  old_price: "$11.99",
+                }}
+                elems={{
+                  "outdated-price": <p className={styles["price"]} />,
+                }}
+              >
+                <span />
+              </Localized>
             </div>
             <img src={bundleLogo.src} alt="Bundle logo" />
           </div>
-          <Button className={styles["button"]}>Get VPN + Relay</Button>
+          <Button className={styles["button"]}>
+            {l10n.getString("bundle-banner-cta")}
+          </Button>
         </div>
       </div>
     </div>
