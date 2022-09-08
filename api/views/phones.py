@@ -540,18 +540,23 @@ def _check_remaining(relay_number, resource_type):
     profile = Profile.objects.get(user=relay_number.user)
     model_attr = f"remaining_{resource_type}"
     # Has it been more than 30 days since we last checked the user's phone subscription?
-    if profile.date_phone_subscription_checked <= datetime.now(timezone.utc) - timedelta(30):
+    if (
+        not profile.date_phone_subscription_checked or
+        profile.date_phone_subscription_checked <= datetime.now(timezone.utc) - timedelta(30)
+    ):
         # Re-fetch all FXA data into profile so we can see if the user still has
         # a phone subscription.
-        fxa = relay_number.user.socialtoken_set.filter(provider="fxa").first()
+        fxa = relay_number.user.socialaccount_set.filter(provider="fxa").first()
         _handle_fxa_profile_change(fxa)
+        profile.date_phone_subscription_checked = datetime.now(timezone.utc)
+        profile.save()
 
         # If they still have a phone subscription, re-set their remaining_texts or
         # remaining_minutes to the maximum value per month.
         if not profile.has_phone:
             raise exceptions.ValidationError(f"Number is out of {resource_type}.")
-        cap_attr = model_attr.upper()
-        setting_attr = f"MAX_{cap_attr}_PER_BILLING_CYCLE"
+        cap_type = resource_type.upper()
+        setting_attr = f"MAX_{cap_type}_PER_BILLING_CYCLE"
         value = getattr(settings, setting_attr)
         setattr(relay_number, model_attr, value)
         relay_number.save()
