@@ -1,5 +1,9 @@
 import { Localized, useLocalization } from "@fluent/react";
-import { getBundlePrice } from "../../functions/getPlan";
+import {
+  getBundlePrice,
+  isBundleAvailableInCountry,
+} from "../../functions/getPlan";
+import { isFlagActive } from "../../functions/waffle";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { Button } from "../Button";
 import { MozillaVpnWordmark } from "../Icons";
@@ -86,35 +90,37 @@ export const BundleBanner = (props: Props) => {
           >
             <p />
           </Localized>
-          <div className={styles["pricing-logo-wrapper"]}>
-            <div className={styles["pricing-wrapper"]}>
-              <Localized
-                id={"bundle-price-monthly"}
-                vars={{
-                  // change to getBundlePrice(props.runtimeData)
-                  monthly_price: "$4.99",
-                }}
-                elems={{
-                  "monthly-price": <p className={styles["price"]} />,
-                }}
-              >
-                <span />
-              </Localized>
-              <Localized
-                id={"bundle-price-save-amount"}
-                vars={{
-                  savings: "50%",
-                  old_price: "$11.99",
-                }}
-                elems={{
-                  "outdated-price": <p className={styles["price"]} />,
-                }}
-              >
-                <span />
-              </Localized>
-            </div>
-            <img src={bundleLogo.src} alt="Bundle logo" />
-          </div>
+          {isFlagActive(props.runtimeData, "bundle") &&
+            isBundleAvailableInCountry(props.runtimeData) && (
+              <div className={styles["pricing-logo-wrapper"]}>
+                <div className={styles["pricing-wrapper"]}>
+                  <Localized
+                    id={"bundle-price-monthly"}
+                    vars={{
+                      monthly_price: getBundlePrice(props.runtimeData),
+                    }}
+                    elems={{
+                      "monthly-price": <p className={styles["price"]} />,
+                    }}
+                  >
+                    <span />
+                  </Localized>
+                  <Localized
+                    id={"bundle-price-save-amount"}
+                    vars={{
+                      savings: "??%", // Design states 50%
+                      old_price: "$??", // Design states $11.99
+                    }}
+                    elems={{
+                      "outdated-price": <p className={styles["price"]} />,
+                    }}
+                  >
+                    <span />
+                  </Localized>
+                </div>
+                <img src={bundleLogo.src} alt="Bundle logo" />
+              </div>
+            )}
           <Button className={styles["button"]}>
             {l10n.getString("bundle-banner-cta")}
           </Button>

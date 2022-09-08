@@ -252,10 +252,12 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        {/* Add flag */}
-        <section className={styles["bundle-banner-section"]}>
-          <BundleBanner />
-        </section>
+        {isFlagActive(runtimeData.data, "intro_pricing_countdown") &&
+          isBundleAvailableInCountry(runtimeData.data) && (
+            <section className={styles["bundle-banner-section"]}>
+              <BundleBanner runtimeData={runtimeData.data} />
+            </section>
+          )}
 
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
           <div className={styles["how-it-works"]}>
