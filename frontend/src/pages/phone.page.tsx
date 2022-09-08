@@ -15,13 +15,14 @@ import { useRealPhonesData } from "../hooks/api/realPhone";
 import { DashboardSwitcher } from "../components/layout/navigation/DashboardSwitcher";
 import { isFlagActive } from "../functions/waffle";
 import { useRuntimeData } from "../hooks/api/runtimeData";
-import Router from "next/router";
+import { useRouter } from "next/router";
 
 const Phone: NextPage = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const profile = profileData.data?.[0];
   const { l10n } = useLocalization();
+  const router = useRouter();
 
   const userData = useUsers();
   const user = userData.data?.[0];
@@ -31,11 +32,6 @@ const Phone: NextPage = () => {
   const realPhoneData = useRealPhonesData();
 
   useEffect(() => {
-    // check if phone flag is active - return to premium page if not.
-    if (isFlagActive(runtimeData.data, "phones")) {
-      Router.push("/premium");
-    }
-
     if (
       typeof isInOnboarding === "undefined" &&
       Array.isArray(relayNumberData.data) &&
@@ -43,7 +39,12 @@ const Phone: NextPage = () => {
     ) {
       setIsInOnboarding(true);
     }
-  }, [isInOnboarding, relayNumberData, runtimeData.data]);
+  }, [isInOnboarding, relayNumberData]);
+
+  // check if phone flag is active - return to premium page if not.
+  if (isFlagActive(runtimeData.data, "phones")) {
+    router.push("/premium");
+  }
 
   if (!userData.isValidating && userData.error) {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
