@@ -20,17 +20,6 @@ from rest_framework import (
 )
 from emails.utils import incr_if_enabled
 
-from privaterelay.settings import (
-    BASKET_ORIGIN,
-    BUNDLE_PROD_ID,
-    FXA_BASE_ORIGIN,
-    GOOGLE_ANALYTICS_ID,
-    INTRO_PRICING_END,
-    PERIODICAL_PREMIUM_PROD_ID,
-    PREMIUM_PROD_ID,
-    PHONE_PROD_ID,
-    MAX_MINUTES_TO_VERIFY_REAL_PHONE,
-)
 from privaterelay.utils import (
     get_countries_info_from_request_and_mapping,
     get_premium_countries_info_from_request,
@@ -187,13 +176,13 @@ def runtime_data(request):
     sample_values = [(s.name, s.is_active()) for s in samples]
     return response.Response(
         {
-            "FXA_ORIGIN": FXA_BASE_ORIGIN,
-            "PERIODICAL_PREMIUM_PRODUCT_ID": PERIODICAL_PREMIUM_PROD_ID,
-            "GOOGLE_ANALYTICS_ID": GOOGLE_ANALYTICS_ID,
-            "BUNDLE_PRODUCT_ID": BUNDLE_PROD_ID,
-            "INTRO_PRICING_END": INTRO_PRICING_END,
-            "PREMIUM_PRODUCT_ID": PREMIUM_PROD_ID,
-            "PHONE_PRODUCT_ID": PHONE_PROD_ID,
+            "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,
+            "PERIODICAL_PREMIUM_PRODUCT_ID": settings.PERIODICAL_PREMIUM_PROD_ID,
+            "GOOGLE_ANALYTICS_ID": settings.GOOGLE_ANALYTICS_ID,
+            "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
+            "INTRO_PRICING_END": settings.INTRO_PRICING_END,
+            "PREMIUM_PRODUCT_ID": settings.PREMIUM_PROD_ID,
+            "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
             "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
                 request, settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING
@@ -204,11 +193,11 @@ def runtime_data(request):
             "BUNDLE_PLANS": get_countries_info_from_request_and_mapping(
                 request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
             ),
-            "BASKET_ORIGIN": BASKET_ORIGIN,
+            "BASKET_ORIGIN": settings.BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
-            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": MAX_MINUTES_TO_VERIFY_REAL_PHONE,
+            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         }
     )
 
