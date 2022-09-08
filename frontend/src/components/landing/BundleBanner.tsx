@@ -33,7 +33,7 @@ type FloatingFeaturesProps = {
 const FloatingFeatures = (props: FloatingFeaturesProps) => {
   const { l10n } = useLocalization();
 
-  const hasVariable = props.vars ? (
+  const text = props.vars ? (
     <Localized id={props.text} vars={props.vars}>
       <span className={styles["float-features-text"]} />
     </Localized>
@@ -48,7 +48,7 @@ const FloatingFeatures = (props: FloatingFeaturesProps) => {
       className={`${styles[props.position]} ${styles["float-features-item"]}`}
     >
       <img alt="" src={props.icon} />
-      {hasVariable}
+      {text}
     </div>
   );
 };
