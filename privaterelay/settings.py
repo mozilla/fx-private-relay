@@ -471,18 +471,17 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         },
     },
     "euro": {
-        # Values unknown, but also `PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING`
-        # is pointing to the German plan ID for Austria?
-        "at": {
-            "monthly": {
-                "id": "",
-                "price": "?.?? €",
-            },
-            "yearly": {
-                "id": "",
-                "price": "?.?? €",
-            },
-        },
+        # TODO: Get plan ID for Austria
+        # "at": {
+        #     "monthly": {
+        #         "id": "",
+        #         "price": "?.?? €",
+        #     },
+        #     "yearly": {
+        #         "id": "",
+        #         "price": "?.?? €",
+        #     },
+        # },
         "de": {
             "monthly": {
                 "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
@@ -490,18 +489,6 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
             },
             "yearly": {
                 "id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
-                "price": "?.?? €",
-            },
-        },
-        # Values unknown, and in `PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING`
-        # Ireland is pointing to this, while there also being an `ie` value?
-        "en": {
-            "monthly": {
-                "id": "",
-                "price": "?.?? €",
-            },
-            "yearly": {
-                "id": "",
                 "price": "?.?? €",
             },
         },
@@ -545,18 +532,17 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
                 "price": "?.?? €",
             },
         },
-        # Values unknown, and in `PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING`
-        # Ireland is pointing to `en`?
-        "ie": {
-            "monthly": {
-                "id": "",
-                "price": "?.?? €",
-            },
-            "yearly": {
-                "id": "",
-                "price": "?.?? €",
-            },
-        },
+        # TODO: Get plan ID for Ireland
+        # "ie": {
+        #     "monthly": {
+        #         "id": "",
+        #         "price": "?.?? €",
+        #     },
+        #     "yearly": {
+        #         "id": "",
+        #         "price": "?.?? €",
+        #     },
+        # },
         "sv": {
             "monthly": {
                 "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
@@ -603,7 +589,8 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
 }
 PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     # Austria
-    "at": {"de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"]},
+    # Commented out; no plan ID known yet
+    # "at": {"de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["at"]},
     # Belgium
     "be": {
         "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
@@ -629,9 +616,10 @@ PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
         "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
     },
     # Ireland
-    "ie": {
-        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["en"],
-    },
+    # Commented out; no plan ID known yet
+    # "ie": {
+    #     "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ie"],
+    # },
     # Italy
     "it": {
         "it": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["it"],
@@ -680,12 +668,27 @@ PHONE_PLAN_ID_MATRIX = {
                 "price": "$?.??",
             },
         },
+        # TODO: Get plan ID for Canada
+        # "ca": {
+        #     "monthly": {
+        #         "id": "",
+        #         "price": "$?.??",
+        #     },
+        #     "yearly": {
+        #         "id": "",
+        #         "price": "$?.??",
+        #     },
+        # },
     },
 }
 PHONE_PLAN_COUNTRY_LANG_MAPPING = {
     "us": {
         "en": PHONE_PLAN_ID_MATRIX["usd"]["en"],
     },
+    # Commented out; no plan ID known yet
+    # "ca": {
+    #     "en": PHONE_PLAN_ID_MATRIX["usd"]["ca"],
+    # },
 }
 
 BUNDLE_PLAN_ID_MATRIX = {
@@ -696,12 +699,23 @@ BUNDLE_PLAN_ID_MATRIX = {
                 "price": "$?.??",
             },
         },
+        # TODO: Get plan ID for Canada
+        # "ca": {
+        #     "yearly": {
+        #         "id": "",
+        #         "price": "$?.??",
+        #     },
+        # },
     },
 }
 BUNDLE_PLAN_COUNTRY_LANG_MAPPING = {
     "us": {
         "en": BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
     },
+    # Commented out; no plan ID known yet
+    # "ca": {
+    #     "en": BUNDLE_PLAN_ID_MATRIX["usd"]["ca"],
+    # },
 }
 
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
