@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 import logging
 
 import phonenumbers
@@ -20,7 +20,6 @@ from rest_framework.generics import get_object_or_404
 
 from api.views import SaveToRequestUser
 from emails.models import Profile, get_storing_phone_log
-from privaterelay.views import _handle_fxa_profile_change
 
 from phones.models import (
     InboundContact,
@@ -537,33 +536,11 @@ def _check_disabled(relay_number, contact_type):
 
 
 def _check_remaining(relay_number, resource_type):
-    profile = Profile.objects.get(user=relay_number.user)
     model_attr = f"remaining_{resource_type}"
-    # Has it been more than 30 days since we last checked the user's phone subscription?
-    if (
-        not profile.date_phone_subscription_checked or
-        profile.date_phone_subscription_checked <= datetime.now(timezone.utc) - timedelta(30)
-    ):
-        # Re-fetch all FXA data into profile so we can see if the user still has
-        # a phone subscription.
-        fxa = relay_number.user.socialaccount_set.filter(provider="fxa").first()
-        _handle_fxa_profile_change(fxa)
-        profile.date_phone_subscription_checked = datetime.now(timezone.utc)
-        profile.save()
-
-        # If they still have a phone subscription, re-set their remaining_texts or
-        # remaining_minutes to the maximum value per month.
-        if not profile.has_phone:
-            raise exceptions.ValidationError(f"Number is out of {resource_type}.")
-        cap_type = resource_type.upper()
-        setting_attr = f"MAX_{cap_type}_PER_BILLING_CYCLE"
-        value = getattr(settings, setting_attr)
-        setattr(relay_number, model_attr, value)
-        relay_number.save()
-        return True
     if getattr(relay_number, model_attr) <= 0:
         raise exceptions.ValidationError(f"Number is out of {resource_type}.")
     return True
+
 
 def _get_inbound_contact(relay_number, inbound_from):
     # Check if RelayNumber is storing phone log

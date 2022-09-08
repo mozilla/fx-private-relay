@@ -63,7 +63,7 @@ def profile_refresh(request):
     profile = request.user.profile_set.first()
 
     fxa = _get_fxa(request)
-    _handle_fxa_profile_change(fxa)
+    update_fxa(fxa)
     if "clicked-purchase" in request.COOKIES and profile.has_premium:
         event = "user_purchased_premium"
         incr_if_enabled(event, 1)
@@ -178,7 +178,7 @@ def fxa_rp_events(request):
                         "event_key": event_key,
                     },
                 )
-            _handle_fxa_profile_change(social_account, authentic_jwt, event_key)
+            update_fxa(social_account, authentic_jwt, event_key)
         if event_key == FXA_DELETE_EVENT:
             _handle_fxa_delete(authentic_jwt, social_account, event_key)
     return HttpResponse("200 OK", status=200)
@@ -229,7 +229,7 @@ def _get_event_keys_from_jwt(authentic_jwt):
     return authentic_jwt["events"].keys()
 
 
-def _handle_fxa_profile_change(social_account, authentic_jwt=None, event_key=None):
+def update_fxa(social_account, authentic_jwt=None, event_key=None):
     try:
         client = _get_oauth2_session(social_account)
     except NoSocialToken as e:
@@ -288,7 +288,6 @@ def _update_all_data(social_account, extra_data, new_email):
             if newly_phone:
                 incr_if_enabled("user_purchased_phone", 1)
                 profile.date_subscribed_phone = datetime.now(timezone.utc)
-                profile.date_phone_subscription_checked = datetime.now(timezone.utc)
                 profile.save()
             if no_longer_phone:
                 incr_if_enabled("user_has_dropped_phone", 1)
