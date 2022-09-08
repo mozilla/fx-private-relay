@@ -2,13 +2,14 @@ import { FluentVariable } from "@fluent/bundle";
 import { Localized, useLocalization } from "@fluent/react";
 import {
   getBundlePrice,
+  getBundleSubscribeLink,
   isBundleAvailableInCountry,
 } from "../../functions/getPlan";
 import { isFlagActive } from "../../functions/waffle";
 import { RuntimeData } from "../../hooks/api/runtimeData";
-import { Button } from "../Button";
 import { MozillaVpnWordmark } from "../Icons";
 import styles from "./BundleBanner.module.scss";
+import { LinkButton } from "../Button";
 import womanInBanner from "./images/bundle-banner-woman.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
@@ -88,30 +89,30 @@ export const BundleBanner = (props: Props) => {
           />
         </div>
       </div>
-      <div className={styles["second-section"]}>
-        <div className={styles["bundle-banner-description"]}>
-          <h2>
-            <Localized
-              id={"bundle-banner-header"}
-              elems={{
-                "vpn-logo": <VpnWordmark />,
-              }}
-            >
-              <span className={styles["headline"]} />
-            </Localized>
-          </h2>
-          <h3>{l10n.getString("bundle-banner-subheader")}</h3>
-          <p>{l10n.getString("bundle-banner-body")}</p>
-          <Localized
-            id={"bundle-banner-1-year-plan"}
-            elems={{
-              b: <b />,
-            }}
-          >
-            <p />
-          </Localized>
-          {isFlagActive(props.runtimeData, "bundle") &&
-            isBundleAvailableInCountry(props.runtimeData) && (
+      {isFlagActive(props.runtimeData, "bundle") &&
+        isBundleAvailableInCountry(props.runtimeData) && (
+          <div className={styles["second-section"]}>
+            <div className={styles["bundle-banner-description"]}>
+              <h2>
+                <Localized
+                  id={"bundle-banner-header"}
+                  elems={{
+                    "vpn-logo": <VpnWordmark />,
+                  }}
+                >
+                  <span className={styles["headline"]} />
+                </Localized>
+              </h2>
+              <h3>{l10n.getString("bundle-banner-subheader")}</h3>
+              <p>{l10n.getString("bundle-banner-body")}</p>
+              <Localized
+                id={"bundle-banner-1-year-plan"}
+                elems={{
+                  b: <b />,
+                }}
+              >
+                <p />
+              </Localized>
               <div className={styles["pricing-logo-wrapper"]}>
                 <div className={styles["pricing-wrapper"]}>
                   <Localized
@@ -140,12 +141,26 @@ export const BundleBanner = (props: Props) => {
                 </div>
                 <img src={bundleLogo.src} alt="Bundle logo" />
               </div>
-            )}
-          <Button className={styles["button"]}>
-            {l10n.getString("bundle-banner-cta")}
-          </Button>
-        </div>
-      </div>
+              <div className={styles["bottom-section"]}>
+                <LinkButton
+                  target="_blank"
+                  className={styles["button"]}
+                  href={getBundleSubscribeLink(props.runtimeData)}
+                >
+                  {l10n.getString("bundle-banner-cta")}
+                </LinkButton>
+                <Localized
+                  id={"bundle-banner-money-back-guarantee"}
+                  vars={{
+                    days_guarantee: "30",
+                  }}
+                >
+                  <span className={styles["money-back-guarantee"]} />
+                </Localized>
+              </div>
+            </div>
+          </div>
+        )}
     </div>
   );
 };

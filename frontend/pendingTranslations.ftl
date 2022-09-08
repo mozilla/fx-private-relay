@@ -408,10 +408,13 @@ bundle-price-monthly = Monthly: <monthly-price>{ $monthly_price }</monthly-price
 bundle-price-save-amount = Save { $savings } <outdated-price>Normally { $old_price }</outdated-price>
 bundle-banner-cta = Get { -brand-name-mozilla-vpn } and { -brand-name-relay }
 # Variables:
-#   #num_vpn_servers (string) - the number of VPN servers
+#   $days_guarantee (string) - the number of days for money-back guarantee. Examples: 30, 90
+bundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee included 
+# Variables:
+#   #num_vpn_servers (string) - the number of VPN servers. Examples: 400, 500, 600
 bundle-feature-one = More than { $num_vpn_servers } servers
 # Variables:
-#   #num_vpn_countries (string) - the number of VPN available countries
+#   #num_vpn_countries (string) - the number of VPN available countries. Examples: 30, 40, 50
 bundle-feature-two = More than { $num_vpn_countries } countries
 bundle-feature-three = Fast and secure network
 
