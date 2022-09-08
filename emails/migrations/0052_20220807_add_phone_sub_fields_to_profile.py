@@ -6,18 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('emails', '0050_profile_store_phone_log'),
+        (
+            "emails",
+            "0051_add_email_size_per_day_and_num_email_forwarded_per_day_fields",
+        ),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='date_phone_subscription_checked',
+            model_name="profile",
+            name="date_phone_subscription_checked",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='date_subscribed_phone',
+            model_name="profile",
+            name="date_subscribed_phone",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]
