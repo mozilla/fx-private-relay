@@ -161,6 +161,7 @@ export const BundleBanner = (props: Props) => {
                   className={styles["button"]}
                   href={getBundleSubscribeLink(props.runtimeData)}
                   onClick={() =>
+                    // TODO: Update to trackPlanPurchaseStart
                     trackPurchaseStart({ label: "bundle-banner-upgrade-promo" })
                   }
                 >
