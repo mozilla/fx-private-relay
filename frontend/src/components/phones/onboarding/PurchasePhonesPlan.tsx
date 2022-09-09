@@ -7,22 +7,20 @@ import { useGaViewPing } from "../../../hooks/gaViewPing";
 import {
   getPhonesPrice,
   getPhoneSubscribeLink,
-  isPhonesAvailableInCountry,
+  RuntimeDataWithPhonesAvailable,
 } from "../../../functions/getPlan";
-import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { trackPlanPurchaseStart } from "../../../functions/trackPurchase";
 
-export const PurchasePhonesPlan = () => {
+export type Props = {
+  runtimeData: RuntimeDataWithPhonesAvailable;
+};
+
+export const PurchasePhonesPlan = (props: Props) => {
   const { l10n } = useLocalization();
-  const runtimeData = useRuntimeData();
   const purchaseButtonRef = useGaViewPing({
     category: "Purchase Button",
     label: "phone-onboarding-purchase-cta",
   });
-
-  if (!isPhonesAvailableInCountry(runtimeData.data)) {
-    return null;
-  }
 
   const purchase = () => {
     gaEvent({
@@ -51,13 +49,13 @@ export const PurchasePhonesPlan = () => {
             {l10n.getString("phone-onboarding-step1-button-label")}
             <span>
               {l10n.getString("phone-onboarding-step1-button-price", {
-                monthly_price: getPhonesPrice(runtimeData.data, "monthly"),
+                monthly_price: getPhonesPrice(props.runtimeData, "monthly"),
               })}
             </span>
           </h3>
           <LinkButton
             ref={purchaseButtonRef}
-            href={getPhoneSubscribeLink(runtimeData.data, "monthly")}
+            href={getPhoneSubscribeLink(props.runtimeData, "monthly")}
             onClick={() => purchase()}
           >
             {l10n.getString("phone-onboarding-step1-button-cta")}
