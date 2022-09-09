@@ -33,6 +33,7 @@ import { Plans } from "../components/landing/Plans";
 import {
   getPremiumPlan,
   getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -45,6 +46,7 @@ import { CountdownTimer } from "../components/CountdownTimer";
 import { isFlagActive } from "../functions/waffle";
 import { parseDate } from "../functions/parseDate";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
+import { BundleBanner } from "../components/landing/BundleBanner";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -249,6 +251,14 @@ const Home: NextPage = () => {
             />
           </div>
         </section>
+
+        {isFlagActive(runtimeData.data, "bundle") &&
+          isBundleAvailableInCountry(runtimeData.data) && (
+            <section className={styles["bundle-banner-section"]}>
+              <BundleBanner runtimeData={runtimeData.data} />
+            </section>
+          )}
+
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
           <div className={styles["how-it-works"]}>
             <h2 className={styles.headline}>
