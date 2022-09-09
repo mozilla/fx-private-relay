@@ -17,7 +17,7 @@ import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
 import bundleLogo from "./images/vpn-and-relay-logo.svg";
-import { trackPurchaseStart } from "../../functions/trackPurchase";
+import { trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 
 export type Props = {
@@ -161,8 +161,10 @@ export const BundleBanner = (props: Props) => {
                   className={styles["button"]}
                   href={getBundleSubscribeLink(props.runtimeData)}
                   onClick={() =>
-                    // TODO: Update to trackPlanPurchaseStart
-                    trackPurchaseStart({ label: "bundle-banner-upgrade-promo" })
+                    trackPlanPurchaseStart(
+                      { plan: "bundle" },
+                      { label: "bundle-banner-upgrade-promo" }
+                    )
                   }
                 >
                   {l10n.getString("bundle-banner-cta")}
