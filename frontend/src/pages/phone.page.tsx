@@ -36,7 +36,7 @@ const Phone: NextPage = () => {
     if (!isFlagActive(runtimeData.data, "phones")) {
       router.push("/premium");
     }
-  }, [runtimeData.data, router]);
+  }, [runtimeData.data]);
 
   useEffect(() => {
     if (
