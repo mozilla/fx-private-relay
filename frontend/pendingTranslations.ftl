@@ -128,9 +128,12 @@ phone-onboarding-step1-list-item-2 = Need to confirm a dinner reservation? Share
 phone-onboarding-step1-list-item-3 = With phone number masking, you can receive texts. Replying is not yet available.
 
 phone-onboarding-step1-button-label = Upgrade to get phone number masking
+phone-onboarding-step1-period-toggle-yearly = Yearly
+phone-onboarding-step1-period-toggle-monthly = Monthly
 # Variables:
 #   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
 phone-onboarding-step1-button-price = { $monthly_price } / month
+phone-onboarding-step1-button-price-note  = (Billing yearly)
 phone-onboarding-step1-button-cta = Upgrade Now
 
 phone-onboarding-step2-headline = Verify your true phone number
@@ -161,7 +164,7 @@ phone-onboarding-step3-error-exipred = Try again—the time limit expired.
 phone-onboarding-step3-error-cta = Send a new code
 phone-onboarding-step3-code-fail-title = Wrong verification code
 phone-onboarding-step3-code-fail-body = Please try again or request a new code
-phone-onboarding-step3-code-success-title = Congratulations! 
+phone-onboarding-step3-code-success-title = Congratulations!
 phone-onboarding-step3-code-success-body = You’re now ready to choose your phone number mask.
 phone-onboarding-step3-code-success-subhead-title = What’s next?
 phone-onboarding-step3-code-success-subhead-body = Choose your phone number mask and start using { -brand-name-firefox-relay } to protect your true phone number.
@@ -180,11 +183,11 @@ phone-onboarding-step4-confirm-message = To confirm your your phone number mask,
 phone-onboarding-step4-confirm-alt-cancel = Cancel
 phone-onboarding-step4-button-register-phone-number = Confirm number
 phone-onboarding-step4-body-confirm-relay-number = Please confirm that this is the phone number mask you want. This can’t be changed later.
-phone-onboarding-step4-button-confirm-relay-number = Confirm 
-phone-onboarding-step4-code-success-title = Congratulations! 
+phone-onboarding-step4-button-confirm-relay-number = Confirm
+phone-onboarding-step4-code-success-title = Congratulations!
 phone-onboarding-step4-code-success-body = You’ve registered your new phone number mask.
 phone-onboarding-step4-code-success-subhead-title = What’s next?
-phone-onboarding-step4-code-success-subhead-body-p1 = { -brand-name-relay } sent you an SMS with a new contact card through which we’ll forward your calls and messages. 
+phone-onboarding-step4-code-success-subhead-body-p1 = { -brand-name-relay } sent you an SMS with a new contact card through which we’ll forward your calls and messages.
 phone-onboarding-step4-code-success-subhead-body-p2 = Please save the contact so you can identify your forwarded messages and calls.
 phone-onboarding-step4-code-success-cta = Continue
 phone-onboarding-step4-results= No results found. Please try again.
@@ -192,12 +195,12 @@ phone-onboarding-step4-results= No results found. Please try again.
 # Phone Settings
 phone-settings-caller-sms-log = Caller and SMS log
 phone-settings-caller-sms-log-description = Allow { -brand-name-firefox-relay } to keep a log of your callers and text senders.
-phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block and reply to senders or callers. If you’ve blocked any, they will become unblocked and your existing caller and SMS sender log will be permanently cleared from your history. 
+phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block and reply to senders or callers. If you’ve blocked any, they will become unblocked and your existing caller and SMS sender log will be permanently cleared from your history.
 
 # Phone Resend SMS Banner
 phone-banner-resend-welcome-sms-cta = Resend welcome SMS
 phone-banner-resend-welcome-sms-title = Quick Tip
-phone-banner-resend-welcome-sms-body =  Remember to save the contact we shared with you by SMS to help you identify messages forwarded by { -brand-name-relay }. Can’t find it?  
+phone-banner-resend-welcome-sms-body =  Remember to save the contact we shared with you by SMS to help you identify messages forwarded by { -brand-name-relay }. Can’t find it?
 
 # Phone What's New
 whatsnew-feature-phone-header = Introducing phone number masking
