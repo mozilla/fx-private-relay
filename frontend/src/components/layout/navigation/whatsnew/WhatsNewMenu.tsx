@@ -100,15 +100,17 @@ export const WhatsNewMenu = (props: Props) => {
     },
   });
 
-  const ctaUpgradePhones = isPhonesAvailableInCountry(props.runtimeData) ? (
-    <OutboundLink
-      to={getPhoneSubscribeLink(props.runtimeData, "monthly")}
-      eventLabel={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
-      className={styles.cta}
-    >
-      <span>{l10n.getString("whatsnew-feature-phone-upgrade-cta")}</span>
-    </OutboundLink>
-  ) : null;
+  const ctaUpgradePhones = isPhonesAvailableInCountry(props.runtimeData) &&
+    // Hide Upgrade CTA if user already has phones plan
+    !props.profile.has_phone && (
+      <OutboundLink
+        to={getPhoneSubscribeLink(props.runtimeData, "monthly")}
+        eventLabel={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
+        className={styles.cta}
+      >
+        <span>{l10n.getString("whatsnew-feature-phone-upgrade-cta")}</span>
+      </OutboundLink>
+    );
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
