@@ -43,27 +43,27 @@ type Callbacks = {
   setSubdomain: SetSubdomainFn;
 };
 function getReturnValue(
-  profileData?: MockData,
+  profileData?: MockData | null,
   callbacks?: Callbacks
 ): ReturnType<typeof useProfiles> {
   return {
     isValidating: false,
     mutate: jest.fn(),
     update: callbacks?.updater ?? jest.fn(),
-    data: [getMockProfileData(profileData)],
+    data: profileData === null ? undefined : [getMockProfileData(profileData)],
     setSubdomain: callbacks?.setSubdomain ?? jest.fn(),
   };
 }
 
 export const setMockProfileData = (
-  profileData?: MockData,
+  profileData?: MockData | null,
   callbacks?: Callbacks
 ) => {
   mockedUseProfiles.mockReturnValue(getReturnValue(profileData, callbacks));
 };
 
 export const setMockProfileDataOnce = (
-  profileData?: MockData,
+  profileData?: MockData | null,
   callbacks?: Callbacks
 ) => {
   mockedUseProfiles.mockReturnValueOnce(getReturnValue(profileData, callbacks));

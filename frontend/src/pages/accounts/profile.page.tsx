@@ -36,6 +36,7 @@ import { LinkButton } from "../../components/Button";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import {
   getPremiumSubscribeLink,
+  isPhonesAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
 import { useGaViewPing } from "../../hooks/gaViewPing";
@@ -138,7 +139,8 @@ const Profile: NextPage = () => {
           totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
         />
         <Layout runtimeData={runtimeData.data}>
-          {isFlagActive(runtimeData.data, "phones") ? (
+          {isPhonesAvailableInCountry(runtimeData.data) &&
+          isFlagActive(runtimeData.data, "phones") ? (
             <DashboardSwitcher />
           ) : null}
           <PremiumOnboarding
@@ -385,7 +387,8 @@ const Profile: NextPage = () => {
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
       <Layout runtimeData={runtimeData.data}>
-        {isFlagActive(runtimeData.data, "phones") ? (
+        {isPhonesAvailableInCountry(runtimeData.data) &&
+        isFlagActive(runtimeData.data, "phones") ? (
           <DashboardSwitcher />
         ) : null}
         <main className={styles["profile-wrapper"]}>

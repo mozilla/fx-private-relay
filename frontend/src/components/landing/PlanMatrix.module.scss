@@ -1,0 +1,368 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+
+  .bundle-offer-heading {
+    background-image: linear-gradient(
+      to right,
+      $color-violet-30,
+      $color-violet-80 20%,
+      $color-violet-30 80%
+    );
+    background-clip: text;
+    color: transparent;
+
+    @include text-title-xs;
+    text-align: center;
+    font-weight: 700;
+  }
+  .bundle-offer-content {
+    max-width: $content-md;
+    text-align: center;
+  }
+
+  .desktop {
+    display: none;
+  }
+  .mobile {
+    display: initial;
+  }
+
+  @media screen and #{$mq-lg} {
+    .desktop.has-2-plans,
+    .desktop.has-3-plans {
+      display: initial;
+    }
+    .mobile.has-2-plans,
+    .mobile.has-3-plans {
+      display: none;
+    }
+  }
+  @media screen and #{$mq-xl} {
+    .desktop {
+      display: initial;
+    }
+    .mobile {
+      display: none;
+    }
+  }
+}
+
+table.desktop {
+  $row-spacing: 2px;
+  width: 100%;
+
+  thead tr,
+  tbody tr,
+  tfoot tr:not(:last-child) {
+    border-bottom: $row-spacing solid $color-grey-10;
+  }
+
+  tr {
+    th:first-child {
+      width: 100%;
+      font-weight: 400;
+      text-align: start;
+    }
+
+    th:not(:first-child),
+    td:not(:first-child) {
+      min-width: $layout-2xl;
+      text-align: center;
+      background-color: $color-white;
+      padding: $spacing-md;
+      // Fake spacing between the columns. The disadvantage of this method is
+      // that the horizontal bottom border on rows is interrupted, but if we
+      // used the appropriate
+      //   border-collapse: separate;
+      //   border-spacing: $spacing-md 0;
+      // then we wouldn't have been able to apply a bottom border at all.
+      border-inline: $spacing-md / 2 solid $color-light-gray-10;
+
+      &:last-child {
+        border-right-style: none;
+      }
+    }
+  }
+
+  thead {
+    tr {
+      th:first-child {
+        color: $color-grey-40;
+      }
+
+      &:first-child th {
+        border-top-left-radius: $spacing-sm;
+        border-top-right-radius: $spacing-sm;
+      }
+
+      th:not(:first-child) {
+        color: $color-violet-70;
+        font-weight: 600;
+
+        &.recommended {
+          position: relative;
+          padding: 0;
+
+          b {
+            // This element is positioned absolutely (relative to th.recommended)
+            // so we can make it cover the entire <th>. Unfortunately, just
+            // setting `height: 100%` doesn't work in Chrome at the time of writing.
+            position: absolute;
+            top: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            // We make it slightly taller than the <tr> so that it overlaps the
+            // `thead tr`'s bottom border (with a width of $row-spacing).
+            height: calc(100% + $row-spacing);
+            background-color: $color-violet-80;
+            color: $color-white;
+            border-radius: $spacing-sm;
+            margin-bottom: -1 * $row-spacing;
+          }
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      th {
+        svg {
+          display: inline;
+          vertical-align: middle;
+        }
+      }
+
+      td {
+        color: $color-dark-gray-50;
+
+        svg {
+          display: inline;
+          color: $color-blue-60;
+        }
+      }
+    }
+  }
+
+  tfoot {
+    tr:last-child td {
+      border-bottom-left-radius: $spacing-sm;
+      border-bottom-right-radius: $spacing-sm;
+    }
+
+    td {
+      vertical-align: top;
+    }
+
+    .pricing {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      width: 100%;
+      text-align: center;
+      $pricing-toggle-height: 35px;
+
+      &.single-price {
+        padding-top: $spacing-md + $pricing-toggle-height;
+      }
+      .pricing-toggle-wrapper {
+        height: $pricing-toggle-height;
+      }
+
+      .discount-notice {
+        @include text-body-md;
+        font-weight: 700;
+      }
+
+      .pricing-overview {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+
+        .price {
+          @include text-body-lg;
+          color: $color-blue-50;
+          font-weight: 600;
+        }
+
+        .pick-button {
+          border: 2px solid $color-blue-50;
+          border-radius: $border-radius-sm;
+          padding: $spacing-sm;
+          text-align: center;
+          color: $color-blue-50;
+          font-weight: 700;
+
+          &:hover {
+            background-color: $color-blue-50;
+            color: $color-white;
+            cursor: pointer;
+          }
+        }
+
+        small {
+          text-align: center;
+        }
+      }
+    }
+  }
+}
+
+.mobile {
+  padding: $spacing-lg;
+
+  .plans {
+    display: flex;
+    flex-wrap: wrap;
+    gap: $spacing-lg;
+    list-style-type: none;
+
+    .plan {
+      flex: 1 0 $content-xs;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-lg;
+      background-color: $color-white;
+      border-radius: $border-radius-md;
+      padding: $spacing-md;
+
+      h3 {
+        @include text-title-2xs;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      &.recommended h3 {
+        // .plan adds a padding of $spacing-md on all sides of the h3.
+        // Since we want the h3 to spand the full width of the plan, and to be
+        // flush with the top of the .plan, we enlarge it by that amount on the
+        // sides and at the top:
+        width: calc(100% + 2 * $spacing-md);
+        margin-top: -1 * $spacing-md;
+        margin-inline: -1 * $spacing-md;
+        padding: $spacing-md;
+        background-color: $color-violet-80;
+        color: $color-white;
+        border-radius: $spacing-sm;
+      }
+
+      .feature-list {
+        flex: 1 0 auto;
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+        width: 100%;
+        list-style-type: none;
+
+        li {
+          display: flex;
+
+          .description {
+            flex: 1 0 auto;
+
+            svg {
+              display: inline;
+              vertical-align: middle;
+            }
+          }
+          .availability {
+            flex: 0 1 $layout-lg;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            svg {
+              color: $color-blue-60;
+            }
+          }
+        }
+      }
+
+      .pricing {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        width: 100%;
+
+        .discount-notice {
+          @include text-body-md;
+          font-weight: 700;
+          text-align: center;
+        }
+
+        .pricing-overview {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: $spacing-md;
+          width: 100%;
+          $billingMonthlyNoteHeight: 18px;
+          padding-bottom: $billingMonthlyNoteHeight + $spacing-md;
+
+          small {
+            @include text-body-md;
+            display: block;
+            height: $billingMonthlyNoteHeight;
+            line-height: $billingMonthlyNoteHeight;
+            margin-bottom: -1 * ($billingMonthlyNoteHeight + $spacing-md);
+          }
+
+          .price {
+            @include text-body-xl;
+            color: $color-blue-50;
+            font-weight: 600;
+          }
+
+          .pick-button {
+            border: 2px solid $color-blue-50;
+            border-radius: $border-radius-sm;
+            width: 100%;
+            padding: $spacing-sm;
+            text-align: center;
+            color: $color-blue-50;
+            font-weight: 700;
+
+            &:hover {
+              background-color: $color-blue-50;
+              color: $color-white;
+              cursor: pointer;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.pricing-toggle {
+  display: flex;
+  background-color: $color-grey-10;
+  padding: $spacing-xs;
+  border-radius: $border-radius-lg;
+
+  > div {
+    @include text-body-sm;
+    width: 50%;
+    padding: $spacing-xs $spacing-sm;
+    text-align: center;
+    color: $color-grey-40;
+    font-weight: 500;
+    cursor: pointer;
+
+    &.is-selected {
+      background-color: $color-white;
+      border-radius: $border-radius-lg;
+      color: $color-blue-50;
+    }
+  }
+}

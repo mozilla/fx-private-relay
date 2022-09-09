@@ -1,4 +1,7 @@
-import { getPlan, isPremiumAvailableInCountry } from "../../functions/getPlan";
+import {
+  getPremiumPlan,
+  isPremiumAvailableInCountry,
+} from "../../functions/getPlan";
 import { AliasData } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { RuntimeData } from "../../hooks/api/runtimeData";
@@ -24,7 +27,7 @@ export const AddonData = (props: Props) => {
       data-premium-prod-id={props.runtimeData.PREMIUM_PRODUCT_ID}
       data-premium-price-id={
         isPremiumAvailableInCountry(props.runtimeData)
-          ? getPlan(props.runtimeData).id
+          ? getPremiumPlan(props.runtimeData).id
           : undefined
       }
       data-aliases-used-val={props.aliases.length}

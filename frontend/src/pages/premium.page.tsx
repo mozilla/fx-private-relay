@@ -26,7 +26,7 @@ import { Carousel } from "../components/landing/carousel/Carousel";
 import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
 import { Plans } from "../components/landing/Plans";
 import {
-  getPlan,
+  getPremiumPlan,
   getPremiumSubscribeLink,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
@@ -39,6 +39,7 @@ import { getLocale } from "../functions/getLocale";
 import { useInterval } from "../hooks/interval";
 import { CountdownTimer } from "../components/CountdownTimer";
 import { parseDate } from "../functions/parseDate";
+import { PlanMatrix } from "../components/landing/PlanMatrix";
 
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
@@ -112,7 +113,7 @@ const PremiumPromo: NextPage = () => {
           <div className={styles.callout}>
             <h2>
               {l10n.getString("premium-promo-pricing-offer-end-headline", {
-                monthly_price: getPlan(runtimeData.data).price,
+                monthly_price: getPremiumPlan(runtimeData.data).price,
               })}
             </h2>
             <div
@@ -142,6 +143,13 @@ const PremiumPromo: NextPage = () => {
           </div>
         </div>
       </section>
+    ) : // Otherwise, if the countdown timer has reached 0:
+    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={styles.plans}>
+          <PlanMatrix runtimeData={runtimeData.data} />
+        </div>
+      </section>
     ) : // Otherwise, if Premium is available in the user's country,
     // allow them to purchase it:
     isPremiumAvailableInCountry(runtimeData.data) ? (
@@ -153,7 +161,7 @@ const PremiumPromo: NextPage = () => {
           <div className={styles.callout}>
             <h2>
               {l10n.getString("landing-pricing-headline-2", {
-                monthly_price: getPlan(runtimeData.data).price,
+                monthly_price: getPremiumPlan(runtimeData.data).price,
               })}
             </h2>
             <p>{l10n.getString("landing-pricing-body-2")}</p>
@@ -250,7 +258,7 @@ const PremiumPromo: NextPage = () => {
               id="premium-promo-hero-body-3"
               vars={{
                 monthly_price: isPremiumAvailableInCountry(runtimeData.data)
-                  ? getPlan(runtimeData.data).price
+                  ? getPremiumPlan(runtimeData.data).price
                   : runtimeData.data?.PREMIUM_PLANS.plan_country_lang_mapping.us
                       .en.price ?? "&hellip;",
               }}

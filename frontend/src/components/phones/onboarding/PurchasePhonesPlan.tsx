@@ -4,12 +4,24 @@ import styles from "./PurchasePhonesPlan.module.scss";
 import WomanPhone from "./images/woman-phone.svg";
 import { LinkButton } from "../../Button";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
-import { getPhoneSubscribeLink } from "../../../functions/getPlan";
+import {
+  getPhonesPrice,
+  getPhoneSubscribeLink,
+  isPhonesAvailableInCountry,
+} from "../../../functions/getPlan";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 
 export const PurchasePhonesPlan = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
+  const purchaseButtonRef = useGaViewPing({
+    category: "Purchase Button",
+    label: "phone-onboarding-purchase-cta",
+  });
+
+  if (!isPhonesAvailableInCountry(runtimeData.data)) {
+    return null;
+  }
 
   const purchase = () => {
     gaEvent({
@@ -35,14 +47,15 @@ export const PurchasePhonesPlan = () => {
         <div className={styles.action}>
           <h3>
             {l10n.getString("phone-onboarding-step1-button-label")}
-            <span>{l10n.getString("phone-onboarding-step1-button-price")}</span>
+            <span>
+              {l10n.getString("phone-onboarding-step1-button-price", {
+                monthly_price: getPhonesPrice(runtimeData.data, "monthly"),
+              })}
+            </span>
           </h3>
           <LinkButton
-            ref={useGaViewPing({
-              category: "Purchase Button",
-              label: "phone-onboarding-purchase-cta",
-            })}
-            href={getPhoneSubscribeLink(runtimeData.data)}
+            ref={purchaseButtonRef}
+            href={getPhoneSubscribeLink(runtimeData.data, "monthly")}
             onClick={() => purchase()}
           >
             {l10n.getString("phone-onboarding-step1-button-cta")}
