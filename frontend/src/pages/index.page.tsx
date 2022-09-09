@@ -252,7 +252,7 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        {isFlagActive(runtimeData.data, "intro_pricing_countdown") &&
+        {isFlagActive(runtimeData.data, "bundle") &&
           isBundleAvailableInCountry(runtimeData.data) && (
             <section className={styles["bundle-banner-section"]}>
               <BundleBanner runtimeData={runtimeData.data} />

@@ -18,6 +18,7 @@ import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
 import bundleLogo from "./images/vpn-and-relay-logo.svg";
 import { trackPurchaseStart } from "../../functions/trackPurchase";
+import { useGaViewPing } from "../../hooks/gaViewPing";
 
 export type Props = {
   runtimeData: RuntimeData;
@@ -60,10 +61,16 @@ export const BundleBanner = (props: Props) => {
     <img
       src={womanInBanner400w.src}
       srcSet={`${womanInBanner400w.src} 400w, ${womanInBanner768w.src} 768w, ${womanInBanner1280w.src} 1280w`}
+      sizes={`(max-width: 600px) 768px 1280px`}
       alt=""
       className={styles["main-image"]}
     />
   );
+
+  const bundleUpgradeCta = useGaViewPing({
+    category: "Bundle banner",
+    label: "bundle-banner-upgrade-promo",
+  });
 
   return (
     <div className={styles["bundle-banner-wrapper"]}>
@@ -143,11 +150,14 @@ export const BundleBanner = (props: Props) => {
                     <span />
                   </Localized>
                 </div>
-                <img src={bundleLogo.src} alt="Bundle logo" />
+                <img
+                  src={bundleLogo.src}
+                  alt={l10n.getString("bundle-banner-alt")}
+                />
               </div>
               <div className={styles["bottom-section"]}>
                 <LinkButton
-                  target="_blank"
+                  ref={bundleUpgradeCta}
                   className={styles["button"]}
                   href={getBundleSubscribeLink(props.runtimeData)}
                   onClick={() =>
