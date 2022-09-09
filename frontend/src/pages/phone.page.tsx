@@ -42,7 +42,7 @@ const Phone: NextPage = () => {
   }, [isInOnboarding, relayNumberData]);
 
   // check if phone flag is active - return to premium page if not.
-  if (isFlagActive(runtimeData.data, "phones")) {
+  if (!isFlagActive(runtimeData.data, "phones")) {
     router.push("/premium");
   }
 
