@@ -11,7 +11,6 @@ import {
   setMockRelayNumberData,
 } from "../../__mocks__/hooks/api/relayNumber";
 import {
-  getMockRuntimeDataWithPremium,
   setMockRuntimeData,
   setMockRuntimeDataOnce,
 } from "../../__mocks__/hooks/api/runtimeData";
