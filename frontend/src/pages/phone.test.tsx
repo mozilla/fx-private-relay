@@ -10,7 +10,11 @@ import {
   getMockRelayNumber,
   setMockRelayNumberData,
 } from "../../__mocks__/hooks/api/relayNumber";
-import { setMockRuntimeDataOnce } from "../../__mocks__/hooks/api/runtimeData";
+import {
+  getMockRuntimeDataWithPremium,
+  setMockRuntimeData,
+  setMockRuntimeDataOnce,
+} from "../../__mocks__/hooks/api/runtimeData";
 import { setMockUserData } from "../../__mocks__/hooks/api/user";
 import { mockFluentReact } from "../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../__mocks__/modules/next__router";
@@ -26,6 +30,7 @@ jest.mock("../hooks/gaViewPing.ts");
 
 setMockProfileData();
 setMockUserData();
+setMockRuntimeData();
 
 describe("The Phone dashboard", () => {
   describe("when onboarding", () => {
