@@ -16,6 +16,7 @@ import { DashboardSwitcher } from "../components/layout/navigation/DashboardSwit
 import { isFlagActive } from "../functions/waffle";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useRouter } from "next/router";
+import { isPhonesAvailableInCountry } from "../functions/getPlan";
 
 const Phone: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -30,13 +31,32 @@ const Phone: NextPage = () => {
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
   const realPhoneData = useRealPhonesData();
+  // The user hasn't completed the onboarding yet if...
+  const isNotSetup =
+    // ...they haven't purchased the phone plan yet, or...
+    profile?.has_phone === false ||
+    // ...the API request for their Relay number has completed but returned no
+    // result, or...
+    (!relayNumberData.isValidating &&
+      typeof relayNumberData.error === "undefined" &&
+      typeof relayNumberData.data === "undefined") ||
+    // ...there was a list of Relay numbers, but it was empty:
+    relayNumberData.data?.length === 0;
 
   useEffect(() => {
-    // check if phone flag is active - return to premium page if not.
-    if (!isFlagActive(runtimeData.data, "phones")) {
+    if (!runtimeData.data) {
+      return;
+    }
+    if (
+      // Send the user to /premium if the phones flag is disabled...
+      !isFlagActive(runtimeData.data, "phones") ||
+      // ...or if a phone subscription is not available in the current country,
+      // and the user has not set it up before (possibly in another country):
+      (!isPhonesAvailableInCountry(runtimeData.data) && isNotSetup)
+    ) {
       router.push("/premium");
     }
-  }, [runtimeData.data, router]);
+  }, [runtimeData.data, router, isNotSetup]);
 
   useEffect(() => {
     if (
@@ -52,56 +72,69 @@ const Phone: NextPage = () => {
     document.location.assign(getRuntimeConfig().fxaLoginUrl);
   }
 
-  if (!profile || !user || !relayNumberData.data) {
+  if (!profile || !user || !relayNumberData.data || !runtimeData.data) {
     // TODO: Show a loading spinner?
     return null;
   }
 
+  // If the user has their phone subscription all set up, show the dashboard:
+  if (profile.has_phone && !isInOnboarding && relayNumberData.data.length > 0) {
+    return (
+      <Layout>
+        <DashboardSwitcher />
+        <main className={styles["main-wrapper"]}>
+          <div className={styles["banner-wrapper"]}>
+            <Banner
+              title={l10n.getString("phone-banner-resend-welcome-sms-title")}
+              type="info"
+              cta={{
+                content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
+                onClick: () => realPhoneData.resendWelcomeSMS(),
+
+                gaViewPing: {
+                  category: "Resend Welcome SMS",
+                  label: "phone-page-banner-resend-welcome",
+                },
+              }}
+              dismissal={{
+                key: `resend-sms-banner-${profile?.id}`,
+              }}
+            >
+              {l10n.getString("phone-banner-resend-welcome-sms-body")}
+            </Banner>
+          </div>
+          <PhoneDashboard />
+        </main>
+      </Layout>
+    );
+  }
+
+  // If the user doesn't have a phone subscription already set up and can't
+  // buy it in the country they're in, don't render anything; the `useEffect`
+  // above will redirect the user to /premium
+  if (!isPhonesAvailableInCountry(runtimeData.data)) {
+    return null;
+  }
+
   // show the phone plan purchase page if the user has not purchased phone product
-  if (profile && user && !profile.has_phone) {
+  if (!profile.has_phone) {
     return (
       <Layout>
         <DashboardSwitcher />
-        <PurchasePhonesPlan />
+        <PurchasePhonesPlan runtimeData={runtimeData.data} />
       </Layout>
     );
   }
 
-  if (isInOnboarding || relayNumberData.data.length === 0) {
-    return (
-      <Layout>
-        <DashboardSwitcher />
-        <PhoneOnboarding onComplete={() => setIsInOnboarding(false)} />
-      </Layout>
-    );
-  }
-
+  // Otherwise start the onboarding process
   return (
     <Layout>
       <DashboardSwitcher />
-      <main className={styles["main-wrapper"]}>
-        <div className={styles["banner-wrapper"]}>
-          <Banner
-            title={l10n.getString("phone-banner-resend-welcome-sms-title")}
-            type="info"
-            cta={{
-              content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
-              onClick: () => realPhoneData.resendWelcomeSMS(),
-
-              gaViewPing: {
-                category: "Resend Welcome SMS",
-                label: "phone-page-banner-resend-welcome",
-              },
-            }}
-            dismissal={{
-              key: `resend-sms-banner-${profile?.id}`,
-            }}
-          >
-            {l10n.getString("phone-banner-resend-welcome-sms-body")}
-          </Banner>
-        </div>
-        <PhoneDashboard />
-      </main>
+      <PhoneOnboarding
+        onComplete={() => setIsInOnboarding(false)}
+        profile={profile}
+        runtimeData={runtimeData.data}
+      />
     </Layout>
   );
 };
