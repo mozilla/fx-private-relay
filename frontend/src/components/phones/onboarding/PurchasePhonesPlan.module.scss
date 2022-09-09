@@ -11,15 +11,6 @@
   margin: 0 auto;
   padding: $spacing-lg;
 
-  .button {
-    width: 100%;
-
-    // TODO: This is not working
-    &.is-secondary {
-      font-weight: 400;
-    }
-  }
-
   h2 {
     @include text-title-xs;
     font-family: $font-stack-firefox;
@@ -86,11 +77,57 @@
       font-weight: 400;
     }
 
-    span {
-      @include text-title-2xs;
-      padding-top: $spacing-sm;
-      display: block;
-      font-weight: 700;
+    .pricing {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+
+      .pricing-toggle {
+        display: flex;
+        background-color: $color-grey-10;
+        padding: $spacing-xs;
+        border-radius: $border-radius-lg;
+
+        > div {
+          @include text-body-sm;
+          width: 50%;
+          padding: $spacing-xs $spacing-sm;
+          text-align: center;
+          color: $color-grey-40;
+          font-weight: 500;
+          cursor: pointer;
+
+          &.is-selected {
+            background-color: $color-white;
+            border-radius: $border-radius-lg;
+            color: $color-blue-50;
+          }
+        }
+      }
+
+      [role="tabpanel"] {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+
+        .price {
+          @include text-title-2xs;
+          padding-top: $spacing-sm;
+          display: block;
+          font-weight: 700;
+          width: $content-xs;
+
+          > span {
+            @include text-body-sm;
+            font-weight: 400;
+            vertical-align: middle;
+          }
+        }
+
+        .pick-button {
+          width: 100%;
+        }
+      }
     }
   }
 }
