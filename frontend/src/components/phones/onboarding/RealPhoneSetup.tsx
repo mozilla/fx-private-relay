@@ -1,8 +1,6 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { Localized, useLocalization } from "@fluent/react";
 import { isPossiblePhoneNumber } from "react-phone-number-input";
-import PhoneInput from "react-phone-number-input/input";
-import { E164Number } from "libphonenumber-js/min";
 import styles from "./RealPhoneSetup.module.scss";
 import "react-phone-number-input/style.css";
 import PhoneVerify from "./images/phone-verify.svg";
@@ -80,12 +78,14 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
 
+    const phoneNumberWithCountryCode = `+1${phoneNumber}`;
+
     // use this number to show user the number they submitted
     setPhoneNumberSubmitted(phoneNumber);
 
     // check if number is a possible number to begin with
     // this should deal with the case where the user enters a number with too few digits.
-    if (!isPossiblePhoneNumber(phoneNumber)) {
+    if (!isPossiblePhoneNumber(phoneNumberWithCountryCode)) {
       setPhoneNumberError(true);
       return;
     }
@@ -98,14 +98,16 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
     if (
       phoneNumberData.data &&
       phoneNumberData.data[0] &&
-      phoneNumberData.data[0].number !== phoneNumber
+      phoneNumberData.data[0].number !== phoneNumberWithCountryCode
     ) {
       // request removal of current number
       await props.requestPhoneRemoval(phoneNumberData.data[0].id);
     }
 
     // submit the request for phone verification
-    const res = await props.requestPhoneVerification(phoneNumber);
+    const res = await props.requestPhoneVerification(
+      phoneNumberWithCountryCode
+    );
 
     /**
      * Check if the phone number was successfully submitted for verification
@@ -127,6 +129,16 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
     </div>
   );
 
+  const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    // remove all non-digit characters
+    const phone = e.target.value.replace(/\D/g, "");
+
+    // set the new value if under 10 digits
+    if (phone.length <= 10) {
+      setPhoneNumber(phone);
+    }
+  };
+
   return (
     <div className={`${styles.step} ${styles["step-verify-input"]} `}>
       <div className={styles.lead}>
@@ -143,25 +155,19 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
           {/* static country code */}
           <span className={styles["phone-input-country-code"]}>+1</span>
 
-          <PhoneInput
+          <input
             className={`${phoneNumberError ? styles["is-error"] : ""} ${
               styles["phone-input"]
             }`}
             placeholder={l10n.getString(
               "phone-onboarding-step2-input-placeholder"
             )}
-            countries={["US", "CA"]}
-            defaultCountry="US"
             type="tel"
-            withCountryCallingCode={true}
-            international
             autoComplete="tel"
-            minLength={14}
-            maxLength={14}
-            value={phoneNumber}
+            value={formatPhone(phoneNumber)}
             required={true}
             autoFocus={true}
-            onChange={(number: E164Number) => setPhoneNumber(number)}
+            onChange={onChange}
             inputMode="numeric"
           />
         </div>
