@@ -18,6 +18,8 @@ type MockData = Partial<ProfileData>;
 export function getMockProfileData(profileData?: MockData): ProfileData {
   return {
     has_premium: false,
+    has_phone: false,
+    store_phone_log: true,
     id: 0,
     server_storage: true,
     remove_level_one_email_trackers: false,
@@ -31,7 +33,7 @@ export function getMockProfileData(profileData?: MockData): ProfileData {
     emails_blocked: 0,
     emails_forwarded: 0,
     emails_replied: 0,
-    num_level_one_trackers_blocked_in_deleted_address: 0,
+    level_one_trackers_blocked: 0,
     ...profileData,
   };
 }
@@ -41,27 +43,27 @@ type Callbacks = {
   setSubdomain: SetSubdomainFn;
 };
 function getReturnValue(
-  profileData?: MockData,
+  profileData?: MockData | null,
   callbacks?: Callbacks
 ): ReturnType<typeof useProfiles> {
   return {
     isValidating: false,
     mutate: jest.fn(),
     update: callbacks?.updater ?? jest.fn(),
-    data: [getMockProfileData(profileData)],
+    data: profileData === null ? undefined : [getMockProfileData(profileData)],
     setSubdomain: callbacks?.setSubdomain ?? jest.fn(),
   };
 }
 
 export const setMockProfileData = (
-  profileData?: MockData,
+  profileData?: MockData | null,
   callbacks?: Callbacks
 ) => {
   mockedUseProfiles.mockReturnValue(getReturnValue(profileData, callbacks));
 };
 
 export const setMockProfileDataOnce = (
-  profileData?: MockData,
+  profileData?: MockData | null,
   callbacks?: Callbacks
 ) => {
   mockedUseProfiles.mockReturnValueOnce(getReturnValue(profileData, callbacks));

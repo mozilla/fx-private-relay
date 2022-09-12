@@ -1,0 +1,502 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/tokens.scss";
+
+.main-phone-wrapper {
+  .nav-icon {
+    color: $color-light-gray-80;
+    stroke: $color-light-gray-80;
+    stroke-width: 1px;
+
+    &:hover {
+      color: $color-blue-50;
+    }
+  }
+
+  button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+
+    &:hover {
+      color: $color-blue-50;
+
+      .nav-icon {
+        color: $color-blue-50;
+        stroke: $color-blue-50;
+      }
+    }
+  }
+
+  .dashboard-card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 $spacing-xl $spacing-md $spacing-xl;
+    border-bottom: 1px solid $color-light-gray-20;
+  }
+
+  .senders-cta {
+    display: flex;
+    flex-direction: row;
+    border-radius: $border-radius-lg;
+    align-items: center;
+
+    @media screen and #{$mq-md} {
+      padding: $spacing-sm;
+      gap: $spacing-xs;
+      left: $spacing-sm; // Cancel out extra space from padding
+      position: relative;
+
+      &:hover {
+        background: $color-light-gray-10;
+      }
+    }
+
+    span {
+      display: none;
+
+      @media screen and #{$mq-md} {
+        display: block;
+      }
+    }
+  }
+
+  .dashboard-card-caller-sms-senders-header {
+    display: flex;
+    padding: 0 $spacing-xl $spacing-md $spacing-xl;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid $color-light-gray-20;
+
+    > * {
+      flex: auto;
+
+      @media screen and #{$mq-md} {
+        flex: 1 1 auto;
+
+        span:last-child {
+          display: none;
+        }
+      }
+    }
+
+    .caller-sms-logs-title {
+      @include text-title-3xs;
+      position: relative;
+      text-align: center;
+
+      @media screen and #{$mq-md} {
+        left: -20px; // Width of the back button
+      }
+    }
+
+    .caller-sms-logs-back-btn {
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .senders-panel {
+    padding: 0 $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-lg;
+    min-height: $content-xs;
+    margin-top: $spacing-lg;
+
+    .senders-panel-body {
+      padding-top: $spacing-sm;
+      text-align: center;
+      max-width: $content-md;
+      margin: 0 auto;
+      display: flex;
+    }
+
+    .update-settings-cta {
+      display: inline-block;
+      padding: $spacing-md 0;
+      font-weight: 700;
+      color: $color-blue-50;
+
+      &:hover {
+        color: $color-blue-80;
+      }
+    }
+
+    .warning-icon {
+      color: $color-yellow-50;
+      min-width: 20px;
+    }
+  }
+
+  .caller-sms-senders-table {
+    display: flex;
+    flex-direction: column;
+    margin-top: $spacing-lg;
+    padding: 0 $spacing-lg;
+
+    @media screen and #{$mq-md} {
+      margin: 0 $spacing-sm;
+      margin-top: $spacing-2xl;
+    }
+
+    thead {
+      // On mobile, the table heading only exists for screen readers.
+      // See https://webaim.org/techniques/css/invisiblecontent/#offscreen.
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      clip-path: circle(0);
+
+      @media screen and #{$mq-md} {
+        position: unset;
+        width: unset;
+        height: unset;
+        overflow: unset;
+        clip: unset;
+        clip-path: unset;
+      }
+    }
+
+    tr {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      border-bottom: 1px solid $color-light-gray-20;
+      padding: $spacing-sm 0;
+      align-items: center;
+      gap: $spacing-sm;
+
+      @media screen and #{$mq-md} {
+        grid-template-columns: 3fr 2fr 1fr;
+        grid-gap: $spacing-md;
+      }
+
+      th {
+        text-align: start;
+        font-weight: 400;
+      }
+
+      .sender-number {
+        grid-row: 1;
+        grid-column: 1;
+      }
+
+      .sender-date {
+        grid-row: 2;
+        grid-column: 1;
+      }
+
+      .sender-date-wrapper {
+        display: flex;
+        align-items: center;
+        gap: $spacing-sm;
+      }
+
+      .sender-controls {
+        grid-row: 1 / 3;
+        grid-column: 2;
+        align-self: center;
+        justify-self: end;
+      }
+
+      .forwarded-type-icon {
+        color: $color-light-gray-70;
+      }
+
+      @media screen and #{$mq-md} {
+        .sender-number,
+        .sender-date,
+        .sender-controls {
+          grid-row: auto;
+          grid-column: auto;
+          justify-self: auto;
+        }
+      }
+    }
+
+    .greyed-contact {
+      color: $color-light-gray-80;
+    }
+
+    .unblocked {
+      color: black;
+    }
+
+    .block-btn {
+      color: $color-blue-50;
+
+      &:hover {
+        color: $color-blue-80;
+      }
+    }
+  }
+
+  .dashboard-card {
+    box-shadow: $box-shadow-sm;
+    background-color: $color-white;
+    border-radius: $border-radius-md;
+    display: flex;
+    flex-direction: column;
+    padding: $spacing-md 0;
+    min-height: $content-xs;
+
+    .header-phone-number {
+      @include text-body-lg;
+      @include font-firefox;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      @media screen and #{$mq-sm} {
+        @include text-body-xl;
+      }
+    }
+
+    .phone-statistics-container {
+      margin: $spacing-md $spacing-lg 0 $spacing-lg;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-radius: $border-radius-lg;
+      border: $border-radius-xs solid $color-light-gray-20;
+      gap: $spacing-md;
+      padding-top: $spacing-md;
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+        margin: 0 $spacing-lg;
+        border-radius: auto;
+        border: none;
+        gap: none;
+      }
+    }
+
+    .phone-statistics {
+      justify-content: space-between;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
+      padding-left: $spacing-md;
+      padding-right: $spacing-md;
+      padding-bottom: $spacing-md;
+      border-bottom: 1px solid $color-light-gray-20;
+      margin: 0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      @media screen and #{$mq-md} {
+        flex: 1;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        text-align: center;
+        border-radius: $border-radius-md;
+        background: $color-light-gray-10;
+        padding: $spacing-md $spacing-lg;
+      }
+
+      .phone-statistics-title {
+        font-weight: 600;
+        border-radius: $border-radius-md;
+
+        @include text-title-3xs;
+
+        @media screen and #{$mq-md} {
+          @include text-title-2xs;
+          @include font-firefox;
+        }
+      }
+
+      .phone-statistics-body {
+        line-height: 120%;
+
+        @media screen and #{$mq-md} {
+          @include text-body-xs;
+        }
+      }
+    }
+
+    .inactive-statistics {
+      color: $color-light-gray-70;
+    }
+
+    .copy-icon {
+      padding: 0 $spacing-sm;
+      opacity: 0.5;
+      display: inline-block;
+      color: $color-light-gray-90;
+      align-self: center;
+    }
+
+    .copy-button-wrapper {
+      display: flex;
+      flex-direction: row;
+      gap: $spacing-xs;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+
+      .copy-button {
+        align-content: center;
+        justify-content: center;
+        display: flex;
+        appearance: none;
+        border: 0;
+        background-color: transparent;
+        text-align: center;
+        color: $color-grey-20;
+        cursor: pointer;
+
+        svg {
+          width: $layout-sm;
+        }
+
+        &:hover {
+          color: $color-grey-30;
+        }
+      }
+
+      .copied-confirmation {
+        @include text-body-sm;
+        opacity: 0;
+        padding: $spacing-xs $spacing-sm;
+        justify-content: center;
+        pointer-events: none;
+        transition: opacity 2s;
+        background-color: $color-violet-30;
+        color: $color-white;
+        border-radius: $border-radius-md;
+        right: 0;
+
+        &.is-shown {
+          pointer-events: auto;
+          opacity: 1;
+          // Don't fade in when appearing:
+          transition: opacity 0s;
+        }
+      }
+    }
+
+    .phone-controls-container {
+      display: flex;
+      flex-direction: column;
+      margin-top: $spacing-md;
+      padding: 0 $spacing-lg $spacing-2xl $spacing-lg;
+      width: 100%;
+      gap: $spacing-lg;
+      border-bottom: 1px solid $color-light-gray-20;
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+        width: auto;
+        gap: $layout-xl;
+        padding: $spacing-lg $spacing-lg $spacing-2xl $spacing-lg;
+        border-top: 1px solid $color-light-gray-20;
+      }
+
+      .phone-controls {
+        border-radius: 40px;
+        border: $border-radius-xs solid $color-light-gray-20;
+        padding: $spacing-sm;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-md;
+
+        .forwarding-controls-button {
+          border-radius: $border-radius-lg;
+          background-color: $color-light-gray-30;
+          padding: $spacing-sm $spacing-sm;
+          display: flex;
+          width: 100%;
+          align-items: center;
+          justify-content: center;
+
+          &:hover {
+            background: $color-purple-05;
+            color: $color-blue-50;
+
+            .forward-icon,
+            .block-icon {
+              color: $color-blue-50;
+            }
+          }
+
+          @media screen and #{$mq-md} {
+            width: $layout-xl;
+          }
+        }
+
+        .active-button {
+          background-color: $color-violet-70;
+        }
+
+        .forward-icon,
+        .block-icon {
+          color: $color-white;
+          justify-items: center;
+          align-items: center;
+        }
+      }
+    }
+
+    .metadata-container {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-md;
+      padding: 0 $spacing-xl;
+      margin-top: $spacing-md;
+      border-bottom: 1px solid $color-light-gray-20;
+
+      &:last-child {
+        border-bottom-style: none;
+        padding-bottom: 0;
+      }
+
+      dl {
+        flex-grow: 2;
+        display: flex;
+        gap: $spacing-sm;
+        flex-direction: column;
+
+        @media screen and #{$mq-md} {
+          flex-direction: row;
+          gap: $spacing-xl;
+        }
+
+        dt {
+          @include text-body-xs;
+          color: $color-dark-gray-05;
+        }
+      }
+
+      @media screen and #{$mq-md} {
+        flex-direction: row;
+
+        .metadata {
+          $metadataIconSize: 24px;
+          background-repeat: no-repeat;
+          background-position: left center;
+          background-size: $metadataIconSize $metadataIconSize;
+          padding-left: calc($metadataIconSize + $spacing-md);
+        }
+
+        .forward-target {
+          background-image: url("../../../../public/icons/email.svg");
+        }
+
+        .date-created {
+          background-image: url("../../../../public/icons/calendar.svg");
+        }
+      }
+    }
+  }
+}

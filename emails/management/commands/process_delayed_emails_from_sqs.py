@@ -9,7 +9,7 @@ from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from emails.views import _sns_inbound_logic, validate_sns_header, verify_from_sns
+from emails.views import _sns_inbound_logic, validate_sns_arn_and_type, verify_from_sns
 from emails.utils import incr_if_enabled
 
 
@@ -23,7 +23,7 @@ def _verify_and_run_sns_inbound_on_message(message):
     verified_json_body = verify_from_sns(json_body)
     topic_arn = verified_json_body["TopicArn"]
     message_type = verified_json_body["Type"]
-    validate_sns_header(topic_arn, message_type)
+    validate_sns_arn_and_type(topic_arn, message_type)
     try:
         _sns_inbound_logic(topic_arn, message_type, verified_json_body)
         info_logger.info(f"processed sqs message ID: {message.message_id}")

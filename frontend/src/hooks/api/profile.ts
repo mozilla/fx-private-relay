@@ -6,6 +6,7 @@ export type ProfileData = {
   id: number;
   server_storage: boolean;
   has_premium: boolean;
+  has_phone: boolean;
   subdomain: string | null;
   onboarding_state: number;
   avatar: string;
@@ -17,7 +18,8 @@ export type ProfileData = {
   emails_blocked: number;
   emails_forwarded: number;
   emails_replied: number;
-  num_level_one_trackers_blocked_in_deleted_address: number;
+  level_one_trackers_blocked: number;
+  store_phone_log: boolean;
 };
 
 export type ProfilesData = [ProfileData];

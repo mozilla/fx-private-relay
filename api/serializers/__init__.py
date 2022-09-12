@@ -1,7 +1,8 @@
+from django.contrib.auth.models import User
+
 from rest_framework import serializers, exceptions
 
 from emails.models import Profile, DomainAddress, RelayAddress
-from django.contrib.auth.models import User
 
 
 class PremiumValidatorsMixin:
@@ -41,6 +42,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_level_one_trackers_blocked",
             "num_replied",
             "num_spam",
         ]
@@ -55,6 +57,7 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_level_one_trackers_blocked",
             "num_replied",
             "num_spam",
         ]
@@ -81,6 +84,7 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_level_one_trackers_blocked",
             "num_replied",
             "num_spam",
         ]
@@ -94,6 +98,7 @@ class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerialize
             "last_used_at",
             "num_forwarded",
             "num_blocked",
+            "num_level_one_trackers_blocked",
             "num_replied",
             "num_spam",
         ]
@@ -105,8 +110,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "server_storage",
+            "store_phone_log",
             "subdomain",
             "has_premium",
+            "has_phone",
             "onboarding_state",
             "date_subscribed",
             "avatar",
@@ -116,11 +123,13 @@ class ProfileSerializer(serializers.ModelSerializer):
             "emails_blocked",
             "emails_forwarded",
             "emails_replied",
+            "level_one_trackers_blocked",
             "remove_level_one_email_trackers",
         ]
         read_only_fields = [
             "id",
             "has_premium",
+            "has_phone",
             "date_subscribed",
             "avatar",
             "next_email_try",
@@ -129,6 +138,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             "emails_blocked",
             "emails_forwarded",
             "emails_replied",
+            "level_one_trackers_blocked",
         ]
 
 
@@ -137,3 +147,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email"]
         read_only_fields = ["email"]
+
+
+class WebcompatIssueSerializer(serializers.Serializer):
+    issue_on_domain = serializers.URLField(
+        max_length=200, min_length=None, allow_blank=False
+    )
+    email_mask_not_accepted = serializers.BooleanField(required=False, default=False)
+    add_on_visual_issue = serializers.BooleanField(required=False, default=False)
+    email_not_received = serializers.BooleanField(required=False, default=False)
+    other_issue = serializers.CharField(required=False, default="", allow_blank=True)

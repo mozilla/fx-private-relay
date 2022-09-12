@@ -4,11 +4,14 @@
 # DOCKER_USER    - login info for docker hub
 # DOCKER_PASS
 # COVERALLS_REPO_TOKEN - used by coveralls-python
+# HEROKU_APP_NAME - Name on Heroku
+# HEROKU_API_KEY - API key from service account
 #
 version: 2.1
 orbs:
   node: circleci/node@5.0.0
   python: circleci/python@2.0.3
+  heroku: circleci/heroku@1.2.6
 commands:
   checkout_with_submodules:
     description: Checkout Relay code and submodules
@@ -154,6 +157,7 @@ jobs:
             --build-arg CIRCLE_BRANCH="$CIRCLE_BRANCH" \
             --build-arg CIRCLE_TAG="$CIRCLE_TAG" \
             --build-arg CIRCLE_SHA1="$CIRCLE_SHA1" \
+            --build-arg PHONES_ENABLED="$PHONES_ENABLED" \
             .
 
       - run:
@@ -173,6 +177,7 @@ jobs:
             docker run \
               --entrypoint "/bin/bash" \
               --volumes-from workspace-test-results \
+              -e PHONES_ENABLED=$PHONES_ENABLED \
               fx-private-relay \
               -c \
                 'mkdir --parents /tmp/workspace/test-results/pytest && \
@@ -278,6 +283,13 @@ jobs:
               docker push "${DOCKERHUB_REPO}:${CIRCLE_TAG}"
             fi
 
+  heroku_deploy:
+    executor: heroku/default
+    steps:
+      - checkout
+      - heroku/install
+      - heroku/deploy-via-git
+
   python_job:
     executor: python
     parameters:
@@ -293,6 +305,10 @@ jobs:
         description: "Allow the command to fail without failing job."
         type: boolean
         default: false
+      production_with_new_migrations:
+        description: "Test if deployed code will work with new migrations."
+        type: boolean
+        default: false
     steps:
       - checkout_with_submodules
       - python/install-packages:
@@ -306,6 +322,19 @@ jobs:
       - run:
           name: Set test defaults
           command: cp .env-dist .env
+      - when:
+          condition: << parameters.production_with_new_migrations >>
+          steps:
+            - run:
+                name: Switch to production tag with branch's migrations
+                command: |
+                  echo 'export PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")' >> $BASH_ENV
+                  source $BASH_ENV
+                  echo "# Production tag is ${PROD_TAG}"
+                  git fetch --force origin tag ${PROD_TAG}
+                  git checkout ${PROD_TAG}
+                  git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
+                  git status
       - unless:
           condition: << parameters.allow_fail >>
           steps:
@@ -339,6 +368,15 @@ jobs:
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
+    parameters:
+      production_with_new_migrations:
+        description: "Test if deployed code will work with new migrations."
+        type: boolean
+        default: false
+      test_file_name:
+        description: "Name of the test report"
+        type: string
+        default: "report.xml"
     steps:
       - checkout_with_submodules
       - python/install-packages:
@@ -360,9 +398,22 @@ jobs:
       - run:
           name: Create test-report directory
           command: mkdir test-report
+      - when:
+          condition: << parameters.production_with_new_migrations >>
+          steps:
+            - run:
+                name: Switch to production tag with branch's migrations
+                command: |
+                  echo 'export PROD_TAG=$(curl --silent https://relay.firefox.com/__version__ | jq -r ".version")' >> $BASH_ENV
+                  source $BASH_ENV
+                  echo "# Production tag is ${PROD_TAG}"
+                  git fetch --force origin tag ${PROD_TAG}
+                  git checkout ${PROD_TAG}
+                  git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
+                  git status
       - run:
           name: Run tests
-          command: pytest --junit-xml=test-report/report.xml .
+          command: pytest --junit-xml=test-report/<< parameters.test_file_name >> .
           environment:
             DATABASE_URL: postgresql://postgres:6edef2d746f2274cab951a452d5fc13d@localhost/circle
       - store_test_results:
@@ -387,7 +438,6 @@ workflows:
       - python_job:
           name: black style check
           command: black --check .
-          allow_fail: true
           filters:
             tags:
               only: /.*/
@@ -396,7 +446,6 @@ workflows:
           name: mypy type check
           command: mypy --no-incremental --junit-xml job-results/mypy.xml .
           has_results: true
-          allow_fail: true
           filters:
             tags:
               only: /.*/
@@ -411,6 +460,32 @@ workflows:
               only: /.*/
 
       - python_test_postgres:
+          filters:
+            tags:
+              only: /.*/
+
+      - python_job:
+          name: sqlite migrations test
+          command: pytest --maxfail=3 --junit-xml=job-results/pytest-migrations.xml .
+          has_results: true
+          allow_fail: false
+          production_with_new_migrations: true
+          filters:
+            tags:
+              only: /.*/
+
+      - python_test_postgres:
+          name: postgres migrations test
+          production_with_new_migrations: true
+          test_file_name: psql_migrations.xml
+          filters:
+            tags:
+              only: /.*/
+
+      - python_job:
+          name: python test phones disabled
+          command: PHONES_ENABLED=0 pytest --junit-xml=job-results/pytest-phones-disabled.xml .
+          has_results: true
           filters:
             tags:
               only: /.*/
@@ -443,5 +518,12 @@ workflows:
           filters:
             tags:
               ignore: /addon-.*/
+            branches:
+              only: main
+
+      - heroku_deploy:
+          requires:
+            - build_test_backend
+          filters:
             branches:
               only: main

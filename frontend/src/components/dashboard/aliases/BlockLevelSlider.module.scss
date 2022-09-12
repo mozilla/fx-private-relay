@@ -76,6 +76,16 @@ $trackLineHeight: 4px;
           width: 100%;
         }
 
+        &:focus-within {
+          .track-line,
+          .track-stop {
+            background-color: $color-violet-05;
+          }
+          .track-stop p {
+            color: $color-violet-90;
+          }
+        }
+
         .thumb-container {
           position: absolute;
           transform: translateX(-50%);
@@ -232,6 +242,7 @@ $trackLineHeight: 4px;
     }
 
     .value-description-content {
+      width: $content-xs;
       display: flex;
       flex-direction: column;
       gap: $spacing-xs;

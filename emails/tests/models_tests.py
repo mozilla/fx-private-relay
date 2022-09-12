@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import BadRequest
 from django.test import (
     override_settings,
     TestCase,
@@ -17,6 +17,7 @@ from allauth.socialaccount.models import SocialAccount
 from model_bakery import baker
 
 from ..models import (
+    AbuseMetrics,
     address_hash,
     ACCOUNT_PAUSED_ERR_MSG,
     CannotMakeAddressException,
@@ -152,6 +153,7 @@ class MiscEmailModelsTest(TestCase):
     def test_valid_address_pattern_is_valid(self):
         assert valid_address_pattern("foo")
         assert valid_address_pattern("foo-bar")
+        assert valid_address_pattern("foo.bar")
         assert valid_address_pattern("f00bar")
         assert valid_address_pattern("123foo")
         assert valid_address_pattern("123")
@@ -160,6 +162,8 @@ class MiscEmailModelsTest(TestCase):
         assert not valid_address_pattern("-")
         assert not valid_address_pattern("-foo")
         assert not valid_address_pattern("foo-")
+        assert not valid_address_pattern(".foo")
+        assert not valid_address_pattern("foo.")
         assert not valid_address_pattern("foo bar")
         assert not valid_address_pattern("Foo")
 
@@ -245,7 +249,7 @@ class RelayAddressTest(TestCase):
 
     def test_free_user_cant_set_block_list_emails(self):
         relay_address = RelayAddress.objects.create(user=self.user)
-        with self.assertRaises(SuspiciousOperation):
+        with self.assertRaises(BadRequest):
             relay_address.block_list_emails = True
             relay_address.save()
         relay_address.refresh_from_db()
@@ -276,9 +280,29 @@ class RelayAddressTest(TestCase):
 
 class ProfileTest(TestCase):
     def setUp(self):
-        self.profile = baker.make(Profile)
+        user = baker.make(User)
+        self.profile = user.profile_set.first()
         self.profile.server_storage = True
         self.profile.save()
+
+    def patch_datetime_now(self):
+        """
+        Selectively patch datatime.now() for emails models
+
+        https://docs.python.org/3/library/unittest.mock-examples.html#partial-mocking
+        """
+        patcher = patch("emails.models.datetime")
+        mocked_datetime = patcher.start()
+        self.addCleanup(patcher.stop)
+
+        expected_now = datetime.now(timezone.utc)
+        mocked_datetime.combine.return_value = datetime.combine(
+            datetime.now(timezone.utc).date(), datetime.min.time()
+        )
+        mocked_datetime.now.return_value = expected_now
+        mocked_datetime.side_effect = lambda *args, **kw: datetime(*args, **kw)
+
+        return expected_now
 
     def test_bounce_paused_no_bounces(self):
         bounce_paused, bounce_type = self.profile.check_bounce_pause()
@@ -428,6 +452,9 @@ class ProfileTest(TestCase):
 
     def test_has_premium_default_False(self):
         assert self.profile.has_premium is False
+
+    def test_has_phone_default_False(self):
+        assert self.profile.has_phone is False
 
     def test_has_premium_with_unlimited_subsription_returns_True(self):
         premium_user = baker.make(User)
@@ -706,7 +733,10 @@ class ProfileTest(TestCase):
             _quantity=4,
         )
 
-        server_stored_data_profile = baker.make(Profile, server_storage=True)
+        server_stored_data_user = baker.make(User)
+        server_stored_data_profile = server_stored_data_user.profile_set.first()
+        server_stored_data_profile.server_storage = True
+        server_stored_data_profile.save()
         baker.make(
             RelayAddress,
             user=server_stored_data_profile.user,
@@ -828,6 +858,153 @@ class ProfileTest(TestCase):
 
     def test_emails_replied_new_user_aggregates_sum_of_replies_to_zero(self):
         assert self.profile.emails_replied == 0
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_remove_level_one_email_trackers_enabled_emits_metric_and_logs(
+        self, mocked_events_info, mocked_incr
+    ):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider="fxa",
+        )
+        self.profile.remove_level_one_email_trackers = True
+        self.profile.save()
+
+        expected_hashed_uid = sha256(self.profile.fxa.uid.encode("utf-8")).hexdigest()
+        mocked_incr.assert_called_once_with("tracker_removal_enabled")
+        mocked_events_info.assert_called_once_with(
+            "tracker_removal_feature",
+            extra={
+                "enabled": True,
+                "hashed_uid": expected_hashed_uid,
+            },
+        )
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_remove_level_one_email_trackers_disabled_emits_metric_and_logs(
+        self, mocked_events_info, mocked_incr
+    ):
+        profile = baker.make(Profile, remove_level_one_email_trackers=True)
+        baker.make(
+            SocialAccount,
+            user=profile.user,
+            provider="fxa",
+        )
+        profile.remove_level_one_email_trackers = False
+        profile.save()
+
+        expected_hashed_uid = sha256(profile.fxa.uid.encode("utf-8")).hexdigest()
+        mocked_incr.assert_called_once_with("tracker_removal_disabled")
+        mocked_events_info.assert_called_once_with(
+            "tracker_removal_feature",
+            extra={
+                "enabled": False,
+                "hashed_uid": expected_hashed_uid,
+            },
+        )
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_remove_level_one_email_trackers_unchanged_does_not_emit_metric_and_logs(
+        self, mocked_events_info, mocked_incr
+    ):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider="fxa",
+        )
+        self.profile.remove_level_one_email_trackers = False
+        self.profile.save()
+
+        mocked_incr.assert_not_called()
+        mocked_events_info.assert_not_called()
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_remove_level_one_email_trackers_unchanged_different_field_changed_does_not_emit_metric_and_logs(
+        self, mocked_events_info, mocked_incr
+    ):
+        baker.make(
+            SocialAccount,
+            user=self.profile.user,
+            provider="fxa",
+        )
+        self.profile.server_storage = False
+        self.profile.save()
+
+        mocked_incr.assert_not_called()
+        mocked_events_info.assert_not_called()
+
+    @patch("emails.signals.incr_if_enabled")
+    @patch("emails.signals.info_logger.info")
+    def test_profile_created_does_not_emit_metric_and_logs_from_measure_feature_usage_signal(
+        self, mocked_events_info, mocked_incr
+    ):
+        baker.make(Profile)
+
+        mocked_incr.assert_not_called()
+        mocked_events_info.assert_not_called()
+
+    @patch("emails.models.abuse_logger.info")
+    @override_settings(MAX_FORWARDED_PER_DAY=5)
+    def test_update_abuse_metric_flags_profile_when_emails_forwarded_abuse_threshold_met(
+        self, mocked_abuse_info
+    ):
+        expected_now = self.patch_datetime_now()
+        user = make_premium_test_user()
+        baker.make(AbuseMetrics, user=user, num_email_forwarded_per_day=4)
+        profile = user.profile_set.first()
+
+        assert profile.last_account_flagged == None
+        profile.update_abuse_metric(email_forwarded=True)
+
+        abuse_metrics = AbuseMetrics.objects.get(user=user)
+
+        mocked_abuse_info.assert_called_once_with(
+            "Abuse flagged",
+            extra={
+                "uid": profile.fxa.uid,
+                "flagged": expected_now.timestamp(),
+                "replies": 0,
+                "addresses": 0,
+                "forwarded": 5,
+                "forwarded_size_in_bytes": 0,
+            },
+        )
+        assert abuse_metrics.num_email_forwarded_per_day == 5
+        assert profile.last_account_flagged == expected_now
+
+    @patch("emails.models.abuse_logger.info")
+    @override_settings(MAX_FORWARDED_EMAIL_SIZE_PER_DAY=100)
+    def test_update_abuse_metric_flags_profile_when_forwarded_email_size_abuse_threshold_met(
+        self, mocked_abuse_info
+    ):
+        expected_now = self.patch_datetime_now()
+        user = make_premium_test_user()
+        baker.make(AbuseMetrics, user=user, forwarded_email_size_per_day=50)
+        profile = user.profile_set.first()
+
+        assert profile.last_account_flagged == None
+        profile.update_abuse_metric(forwarded_email_size=50)
+
+        abuse_metrics = AbuseMetrics.objects.get(user=user)
+
+        mocked_abuse_info.assert_called_once_with(
+            "Abuse flagged",
+            extra={
+                "uid": profile.fxa.uid,
+                "flagged": expected_now.timestamp(),
+                "replies": 0,
+                "addresses": 0,
+                "forwarded": 0,
+                "forwarded_size_in_bytes": 100,
+            },
+        )
+        assert abuse_metrics.forwarded_email_size_per_day == 100
+        assert profile.last_account_flagged == expected_now
 
 
 class DomainAddressTest(TestCase):

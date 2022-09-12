@@ -16,7 +16,6 @@ import jwcrypto.jwe
 import jwcrypto.jwk
 import markus
 import logging
-from waffle import sample_is_active
 from waffle.models import Flag
 
 from django.apps import apps
@@ -26,18 +25,25 @@ from django.http import HttpResponse
 from django.template.defaultfilters import linebreaksbr, urlize
 from urllib.parse import urlparse
 
-from .models import DomainAddress, RelayAddress, Reply, get_domains_from_settings
+from .models import (
+    DomainAddress,
+    Profile,
+    RelayAddress,
+    Reply,
+    get_domains_from_settings,
+)
 
 
 NEW_FROM_ADDRESS_FLAG_NAME = "new_from_address"
 
 logger = logging.getLogger("events")
+info_logger = logging.getLogger("eventsinfo")
 study_logger = logging.getLogger("studymetrics")
 metrics = markus.get_metrics("fx-private-relay")
 
-with open("emails/tracker_lists/general-tracker.json", "r") as f:
+with open("emails/tracker_lists/level-one-tracker.json", "r") as f:
     GENERAL_TRACKERS = json.load(f)
-with open("emails/tracker_lists/strict-tracker.json", "r") as f:
+with open("emails/tracker_lists/level-two-tracker.json", "r") as f:
     STRICT_TRACKERS = json.load(f)
 
 
@@ -214,12 +220,6 @@ def urlize_and_linebreaks(text, autoescape=True):
     return linebreaksbr(urlize(text, autoescape=autoescape), autoescape=autoescape)
 
 
-def get_post_data_from_request(request):
-    if request.content_type == "application/json":
-        return json.loads(request.body)
-    return request.POST
-
-
 def generate_relay_From(original_from_address, user_profile=None):
     _, relay_from_address = parseaddr(settings.RELAY_FROM_ADDRESS)
     try:
@@ -298,23 +298,22 @@ def decrypt_reply_metadata(key, jwe):
 
 
 def _get_bucket_and_key_from_s3_json(message_json):
-    bucket = None
-    object_key = None
+    # Only Received notifications have S3-stored data
+    notification_type = message_json.get("notificationType")
+    if notification_type != "Received":
+        return None, None
+
     if "receipt" in message_json and "action" in message_json["receipt"]:
         message_json_receipt = message_json["receipt"]
     else:
-        notification_type = message_json.get("notificationType")
-        event_type = message_json.get("eventType")
-        is_bounce_notification = notification_type == "Bounce" or event_type == "Bounce"
-        if not is_bounce_notification:
-            # TODO: sns inbound notification does not have 'receipt'
-            # we need to look into this more
-            logger.error(
-                "sns_inbound_message_without_receipt",
-                extra={"message_json_keys": message_json.keys()},
-            )
+        logger.error(
+            "sns_inbound_message_without_receipt",
+            extra={"message_json_keys": message_json.keys()},
+        )
         return None, None
 
+    bucket = None
+    object_key = None
     try:
         if "S3" in message_json_receipt["action"]["type"]:
             bucket = message_json_receipt["action"]["bucketName"]
@@ -322,13 +321,12 @@ def _get_bucket_and_key_from_s3_json(message_json):
     except (KeyError, TypeError) as e:
         logger.error(
             "sns_inbound_message_receipt_malformed",
-            extra={
-                "receipt_action": message_json_receipt["action"],
-            },
+            extra={"receipt_action": message_json_receipt["action"]},
         )
     return bucket, object_key
 
 
+@time_if_enabled("s3_get_message_content")
 def get_message_content_from_s3(bucket, object_key):
     if bucket and object_key:
         s3_client = apps.get_app_config("emails").s3_client
@@ -338,6 +336,7 @@ def get_message_content_from_s3(bucket, object_key):
         return streamed_s3_object.read()
 
 
+@time_if_enabled("s3_remove_message_from")
 def remove_message_from_s3(bucket, object_key):
     if bucket is None or object_key is None:
         return False
@@ -373,12 +372,17 @@ def set_user_group(user):
     internal_group.user_set.add(user)
 
 
+def convert_domains_to_regex_patterns(domain_pattern):
+    return r"""(["'])(\S*://(\S*\.)*""" + re.escape(domain_pattern) + r"\S*)\1"
+
+
 def count_tracker(html_content, trackers):
     tracker_total = 0
     details = {}
     # html_content needs to be str for count()
     for tracker in trackers:
-        count = html_content.count(tracker)
+        pattern = convert_domains_to_regex_patterns(tracker)
+        html_content, count = re.subn(pattern, "", html_content)
         if count:
             tracker_total += count
             details[tracker] = count
@@ -393,44 +397,33 @@ def count_all_trackers(html_content):
     incr_if_enabled("tracker.strict_count", strict_detail["count"])
     study_logger.info(
         "email_tracker_summary",
-        extra={"general": general_detail, "strict": strict_detail},
+        extra={"level_one": general_detail, "level_two": strict_detail},
     )
-
-
-def convert_domains_to_regex_patterns(domain_pattern):
-    return "([\"'])(\\S*://(\\S*\.)*" + re.escape(domain_pattern) + "\\S*)\\1"
 
 
 def remove_trackers(html_content, level="general"):
     trackers = GENERAL_TRACKERS if level == "general" else STRICT_TRACKERS
     tracker_removed = 0
     changed_content = html_content
-    control = True  # tracker is NOT removed
 
-    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
-    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
+    for tracker in trackers:
+        pattern = convert_domains_to_regex_patterns(tracker)
+        changed_content, matched = re.subn(
+            pattern, rf"\g<1>{settings.SITE_ORIGIN}/faq\g<1>", changed_content
+        )
+        tracker_removed += matched
 
-    if sample_is_active("foxfood-tracker-removal-sample"):
-        control = False  # tracker is removed
-        for tracker in trackers:
-            pattern = convert_domains_to_regex_patterns(tracker)
-            changed_content, matched = re.subn(
-                pattern, f"\g<1>{settings.SITE_ORIGIN}/faq\g<1>", changed_content
-            )
-            tracker_removed += matched
+    level_one_detail = count_tracker(html_content, GENERAL_TRACKERS)
+    level_two_detail = count_tracker(html_content, STRICT_TRACKERS)
 
-    incr_if_enabled(f"tracker_foxfooding.{level}_removed_count", tracker_removed)
-    incr_if_enabled("tracker_foxfooding.general_count", general_detail["count"])
-    incr_if_enabled("tracker_foxfooding.strict_count", strict_detail["count"])
-    study_details = {
+    tracker_details = {
         "tracker_removed": tracker_removed,
-        "general": general_detail,
-        "strict": strict_detail,
+        "level_one": level_one_detail,
     }
-    logger_details = {"level": level, "is_control": control}
-    logger_details.update(study_details)
-    study_logger.info(
-        "email_tracker_foxfooding_summary",
+    logger_details = {"level": level, "level_two": level_two_detail}
+    logger_details.update(tracker_details)
+    info_logger.info(
+        "email_tracker_summary",
         extra=logger_details,
     )
-    return changed_content, control, study_details
+    return changed_content, tracker_details

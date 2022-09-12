@@ -79,7 +79,7 @@ describe("The dashboard", () => {
       });
 
       expect(results).toHaveNoViolations();
-    });
+    }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
 
     it("passes axe accessibility testing with the Premium user interface", async () => {
       // The label editor sets a timeout when submitted, which axe doesn't wait for.
@@ -93,7 +93,7 @@ describe("The dashboard", () => {
       });
 
       expect(results).toHaveNoViolations();
-    });
+    }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
   });
 
   it("shows a count of the user's aliases for Premium users", () => {
@@ -600,8 +600,25 @@ describe("The dashboard", () => {
     const blockLevelSlider = screen.getByRole("slider", {
       name: "l10n string: [profile-promo-email-blocking-title], with vars: {}",
     });
+
+    // Since an upgrade of @testing-library/user-event (see
+    // https://github.com/mozilla/fx-private-relay/pull/2366),
+    // the interactions with the slider cause the input value to be changed to
+    // NaN, which makes React complain about the `value` attribute for the
+    // slider thumb's <input> being set to that. This swallows that specific
+    // error. If this test starts failing because that error no longer occurs,
+    // feel free to revert the commit that introduced this comment.
+    const originalConsoleError = console.error;
+    console.error = jest.fn();
     await userEvent.click(blockLevelSlider);
     await userEvent.keyboard("[ArrowRight][ArrowRight]");
+    expect(console.error).toHaveBeenCalledTimes(1);
+    expect(console.error).toHaveBeenCalledWith(
+      "Warning: Received NaN for the `%s` attribute. If this is expected, cast the value to a string.%s",
+      "value",
+      expect.any(String)
+    );
+    console.error = originalConsoleError;
 
     expect(updateFn).toHaveBeenCalledWith(
       expect.objectContaining({ id: 42, mask_type: "random" }),

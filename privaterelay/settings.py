@@ -167,14 +167,25 @@ AWS_SQS_QUEUE_URL = config("AWS_SQS_QUEUE_URL", None)
 RELAY_FROM_ADDRESS = config("RELAY_FROM_ADDRESS", None)
 NEW_RELAY_FROM_ADDRESS = config("NEW_RELAY_FROM_ADDRESS")
 GOOGLE_ANALYTICS_ID = config("GOOGLE_ANALYTICS_ID", None)
+INTRO_PRICING_END = datetime.fromisoformat(
+    config("INTRO_PRICING_END", "2022-09-27T09:00:00.000-07:00")
+)
 INCLUDE_VPN_BANNER = config("INCLUDE_VPN_BANNER", False, cast=bool)
 RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
 RECRUITMENT_BANNER_TEXT = config("RECRUITMENT_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_TEXT = config("RECRUITMENT_EMAIL_BANNER_TEXT", None)
 RECRUITMENT_EMAIL_BANNER_LINK = config("RECRUITMENT_EMAIL_BANNER_LINK", None)
 
+PHONES_ENABLED = config("PHONES_ENABLED", False, cast=bool)
 TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
+TWILIO_MAIN_NUMBER = config("TWILIO_MAIN_NUMBER", None)
+TWILIO_SMS_APPLICATION_SID = config("TWILIO_SMS_APPLICATION_SID", None)
+TWILIO_TEST_ACCOUNT_SID = config("TWILIO_TEST_ACCOUNT_SID", None)
+TWILIO_TEST_AUTH_TOKEN = config("TWILIO_TEST_AUTH_TOKEN", None)
+MAX_MINUTES_TO_VERIFY_REAL_PHONE = config(
+    "MAX_MINUTES_TO_VERIFY_REAL_PHONE", 5, cast=int
+)
 
 STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
 STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
@@ -204,6 +215,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "waffle",
     "privaterelay.apps.PrivateRelayConfig",
+    "api.apps.ApiConfig",
 ]
 
 if DEBUG:
@@ -224,7 +236,7 @@ if AWS_SES_CONFIGSET and AWS_SNS_TOPIC:
         "emails.apps.EmailsConfig",
     ]
 
-if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
+if PHONES_ENABLED:
     INSTALLED_APPS += [
         "phones.apps.PhonesConfig",
     ]
@@ -264,7 +276,7 @@ MIDDLEWARE += [
     "dockerflow.django.middleware.DockerflowMiddleware",
     "waffle.middleware.WaffleMiddleware",
     "privaterelay.middleware.FxAToRequest",
-    "privaterelay.middleware.AddDetectedCountryToResponseHeaders",
+    "privaterelay.middleware.AddDetectedCountryToRequestAndResponseHeaders",
     "privaterelay.middleware.StoreFirstVisit",
 ]
 
@@ -295,7 +307,9 @@ RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=
 MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
 MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PREMIUM_PROD_ID = config("PREMIUM_PROD_ID", "", cast=str)
+PERIODICAL_PREMIUM_PROD_ID = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
 PHONE_PROD_ID = config("PHONE_PROD_ID", "", cast=str)
+BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
 PREMIUM_PRICE_ID_OVERRIDE = config("PREMIUM_PRICE_ID_OVERRIDE", "", cast=str)
 PREMIUM_PLAN_ID_MATRIX = {
     "chf": {
@@ -423,12 +437,298 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     },
 }
 
+PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
+    "chf": {
+        "de": {
+            "monthly": {
+                "id": "price_1LYCqOJNcmPzuWtRuIXpQRxi",
+                "price": "CHF ?.??",
+            },
+            "yearly": {
+                "id": "price_1LYCqyJNcmPzuWtR3Um5qDPu",
+                "price": "CHF ?.??",
+            },
+        },
+        "fr": {
+            "monthly": {
+                "id": "price_1LYCvpJNcmPzuWtRq9ci2gXi",
+                "price": "CHF ?.??",
+            },
+            "yearly": {
+                "id": "price_1LYCwMJNcmPzuWtRm6ebmq2N",
+                "price": "CHF ?.??",
+            },
+        },
+        "it": {
+            "monthly": {
+                "id": "price_1LYCiBJNcmPzuWtRxtI8D5Uy",
+                "price": "CHF ?.??",
+            },
+            "yearly": {
+                "id": "price_1LYClxJNcmPzuWtRWjslDdkG",
+                "price": "CHF ?.??",
+            },
+        },
+    },
+    "euro": {
+        # TODO: Get plan ID for Austria
+        # "at": {
+        #     "monthly": {
+        #         "id": "",
+        #         "price": "?.?? €",
+        #     },
+        #     "yearly": {
+        #         "id": "",
+        #         "price": "?.?? €",
+        #     },
+        # },
+        "de": {
+            "monthly": {
+                "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
+                "price": "?.?? €",
+            },
+        },
+        "es": {
+            "monthly": {
+                "id": "price_1LYCWmJNcmPzuWtRtopZog9E",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYCXNJNcmPzuWtRu586XOFf",
+                "price": "?.?? €",
+            },
+        },
+        "fr": {
+            "monthly": {
+                "id": "price_1LYBuLJNcmPzuWtRn58XQcky",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYBwcJNcmPzuWtRpgoWcb03",
+                "price": "?.?? €",
+            },
+        },
+        "it": {
+            "monthly": {
+                "id": "price_1LYCMrJNcmPzuWtRTP9vD8wY",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYCN2JNcmPzuWtRtWz7yMno",
+                "price": "?.?? €",
+            },
+        },
+        "nl": {
+            "monthly": {
+                "id": "price_1LYCdLJNcmPzuWtR0J1EHoJ0",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYCdtJNcmPzuWtRVm4jLzq2",
+                "price": "?.?? €",
+            },
+        },
+        # TODO: Get plan ID for Ireland
+        # "ie": {
+        #     "monthly": {
+        #         "id": "",
+        #         "price": "?.?? €",
+        #     },
+        #     "yearly": {
+        #         "id": "",
+        #         "price": "?.?? €",
+        #     },
+        # },
+        "sv": {
+            "monthly": {
+                "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYBeMJNcmPzuWtRT5A931WH",
+                "price": "?.?? €",
+            },
+        },
+        "fi": {
+            "monthly": {
+                "id": "price_1LYBn9JNcmPzuWtRI3nvHgMi",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LYBq1JNcmPzuWtRmyEa08Wv",
+                "price": "?.?? €",
+            },
+        },
+    },
+    "usd": {
+        "en": {
+            "monthly": {
+                "id": "price_1LXUcnJNcmPzuWtRpbNOajYS",
+                "price": "$?.??",
+            },
+            "yearly": {
+                "id": "price_1LXUdlJNcmPzuWtRKTYg7mpZ",
+                "price": "$?.??",
+            },
+        },
+        "gb": {
+            "monthly": {
+                "id": "price_1LYCHpJNcmPzuWtRhrhSYOKB",
+                "price": "$?.??",
+            },
+            "yearly": {
+                "id": "price_1LYCIlJNcmPzuWtRQtYLA92j",
+                "price": "$?.??",
+            },
+        },
+    },
+}
+PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
+    # Austria
+    # Commented out; no plan ID known yet
+    # "at": {"de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["at"]},
+    # Belgium
+    "be": {
+        "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
+        "de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
+        "nl": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
+    },
+    # Switzerland
+    "ch": {
+        "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["fr"],
+        "de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["de"],
+        "it": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["chf"]["it"],
+    },
+    # Germany
+    "de": {
+        "de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
+    },
+    # Spain
+    "es": {
+        "es": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["es"],
+    },
+    # France
+    "fr": {
+        "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
+    },
+    # Ireland
+    # Commented out; no plan ID known yet
+    # "ie": {
+    #     "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ie"],
+    # },
+    # Italy
+    "it": {
+        "it": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["it"],
+    },
+    # Netherlands
+    "nl": {
+        "nl": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
+    },
+    # Sweden
+    "se": {
+        "sv": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["sv"],
+    },
+    # Finland
+    "fi": {
+        "fi": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fi"],
+    },
+    "us": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    "gb": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+    "ca": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+    "nz": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+    "my": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+    "sg": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+    },
+}
+
+PHONE_PLAN_ID_MATRIX = {
+    "usd": {
+        "en": {
+            "monthly": {
+                "id": "price_1LXUenJNcmPzuWtRw3rhjQNP",
+                "price": "$?.??",
+            },
+            "yearly": {
+                "id": "price_1LXUhcJNcmPzuWtRHUFHVk12",
+                "price": "$?.??",
+            },
+        },
+        # TODO: Get plan ID for Canada
+        # "ca": {
+        #     "monthly": {
+        #         "id": "",
+        #         "price": "$?.??",
+        #     },
+        #     "yearly": {
+        #         "id": "",
+        #         "price": "$?.??",
+        #     },
+        # },
+    },
+}
+PHONE_PLAN_COUNTRY_LANG_MAPPING = {
+    "us": {
+        "en": PHONE_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    # Commented out; no plan ID known yet
+    # "ca": {
+    #     "en": PHONE_PLAN_ID_MATRIX["usd"]["ca"],
+    # },
+}
+
+BUNDLE_PLAN_ID_MATRIX = {
+    "usd": {
+        "en": {
+            "yearly": {
+                "id": "price_1La3d7JNcmPzuWtRn0cg2EyH",
+                "price": "$?.??",
+            },
+        },
+        # TODO: Get plan ID for Canada
+        # "ca": {
+        #     "yearly": {
+        #         "id": "",
+        #         "price": "$?.??",
+        #     },
+        # },
+    },
+}
+BUNDLE_PLAN_COUNTRY_LANG_MAPPING = {
+    "us": {
+        "en": BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
+    },
+    # Commented out; no plan ID known yet
+    # "ca": {
+    #     "en": BUNDLE_PLAN_ID_MATRIX["usd"]["ca"],
+    # },
+}
+
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
+SUBSCRIPTIONS_WITH_PHONE = config("SUBSCRIPTIONS_WITH_PHONE", default="")
 
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 
 MAX_ADDRESS_CREATION_PER_DAY = config("MAX_ADDRESS_CREATION_PER_DAY", 100, cast=int)
 MAX_REPLIES_PER_DAY = config("MAX_REPLIES_PER_DAY", 100, cast=int)
+MAX_FORWARDED_PER_DAY = config("MAX_FORWARDED_PER_DAY", 1000, cast=int)
+MAX_FORWARDED_EMAIL_SIZE_PER_DAY = config(
+    "MAX_FORWARDED_EMAIL_SIZE_PER_DAY", 1_000_000_000, cast=int
+)
 PREMIUM_FEATURE_PAUSED_DAYS = config("ACCOUNT_PREMIUM_FEATURE_PAUSED_DAYS", 1, cast=int)
 
 SOFT_BOUNCE_ALLOWED_DAYS = config("SOFT_BOUNCE_ALLOWED_DAYS", 1, cast=int)
@@ -612,7 +912,7 @@ LOGGING = {
     },
 }
 
-if DEBUG:
+if DEBUG and not IN_PYTEST:
     DRF_RENDERERS = [
         "rest_framework.renderers.BrowsableAPIRenderer",
         "rest_framework.renderers.JSONRenderer",
@@ -631,6 +931,10 @@ REST_FRAMEWORK = {
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
 }
 
+PHONE_RATE_LIMIT = "5/minute"
+if IN_PYTEST or RELAY_CHANNEL in ["local", "dev"]:
+    PHONE_RATE_LIMIT = "1000/minute"
+
 # Turn on logging out on GET in development.
 # This allows `/mock/logout/` in the front-end to clear the
 # session cookie. Without this, after switching accounts in dev mode,
@@ -638,13 +942,17 @@ REST_FRAMEWORK = {
 # an auth token:
 ACCOUNT_LOGOUT_ON_GET = DEBUG
 
+CORS_URLS_REGEX = r"^/api/"
 CORS_ALLOWED_ORIGINS = [
     "https://vault.bitwarden.com",
 ]
-if RELAY_CHANNEL in ["local", "dev", "stage"]:
+if RELAY_CHANNEL in ["dev", "stage"]:
     CORS_ALLOWED_ORIGINS += ["https://vault.qa.bitwarden.pw"]
+if RELAY_CHANNEL == "local":
+    # In local dev, next runs on localhost and makes requests to /accounts/
+    CORS_ALLOWED_ORIGINS += ["http://localhost:3000"]
+    CORS_URLS_REGEX = r"^/(api|accounts)/"
 
-CORS_URLS_REGEX = r"^/api/"
 CSRF_TRUSTED_ORIGINS = []
 if RELAY_CHANNEL == "local":
     # In local development, the React UI can be served up from a different server
@@ -680,12 +988,20 @@ elif (
 ):
     sentry_release = f"{CIRCLE_BRANCH}:{CIRCLE_SHA1}"
 
+SENTRY_DEBUG = config("SENTRY_DEBUG", DEBUG, cast=bool)
+
+SENTRY_ENVIRONMENT = RELAY_CHANNEL
+# Use "local" as default rather than "prod", to catch ngrok.io URLs
+if RELAY_CHANNEL == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
+    SENTRY_ENVIRONMENT = "local"
+
 sentry_sdk.init(
     dsn=config("SENTRY_DSN", None),
     integrations=[DjangoIntegration()],
-    debug=DEBUG,
+    debug=SENTRY_DEBUG,
     with_locals=DEBUG,
     release=sentry_release,
+    environment=SENTRY_ENVIRONMENT,
 )
 # Duplicates events for unhandled exceptions, but without useful tracebacks
 ignore_logger("request.summary")
@@ -696,6 +1012,9 @@ ignore_logger("django.security.DisallowedHost")
 # It is more effective to process these from logs using BigQuery than to track
 # as events in Sentry.
 ignore_logger("django_ftl.message_errors")
+# Security scanner attempts on Heroku dev, no action required
+if RELAY_CHANNEL == "dev":
+    ignore_logger("django.security.SuspiciousFileOperation")
 
 markus.configure(
     backends=[

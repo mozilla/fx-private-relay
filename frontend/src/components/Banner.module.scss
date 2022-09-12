@@ -8,6 +8,10 @@
   background-color: $color-white;
   position: relative;
 
+  .banner.info & {
+    padding: $spacing-xs;
+  }
+
   &:not(.promo) {
     box-shadow: $box-shadow-sm;
   }
@@ -44,14 +48,36 @@
   background-color: $color-white;
   flex-wrap: wrap;
 
-  .title-text {
-    flex: 1 0 50%;
+  .title-and-large-cta-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    flex: 1 0 $content-xs;
+
+    @media screen and #{$mq-lg} {
+      flex-wrap: nowrap;
+    }
   }
 
-  .banner:not(.promo) & {
+  .title-text {
+    flex: 1 1 auto;
+    padding-inline: $spacing-md;
+  }
+
+  .info-icon {
+    align-self: center;
+    margin-right: $spacing-lg;
+    color: $color-yellow-50;
+  }
+
+  .banner:not(.promo):not(.info) & {
     padding: $spacing-xs $spacing-lg $spacing-md;
     border-left-width: 4px;
     border-left-style: solid;
+  }
+
+  .banner.info & {
+    @include text-body-sm;
+    padding: 0 $spacing-sm 0 $spacing-md;
   }
 
   .banner.promo & {
@@ -83,21 +109,42 @@
   align-items: center;
   padding: $spacing-md 0;
 
+  .banner.info & {
+    @include text-body-sm;
+    font-family: $font-stack-base;
+    padding: $spacing-xs 0;
+    font-weight: 600;
+  }
+
   .icon {
     margin-right: $spacing-md;
 
     .warning & {
       color: $color-yellow-50;
     }
+
+    .info & {
+      color: $color-yellow-50;
+    }
   }
 }
 
 .cta {
-  a {
+  a,
+  button {
     display: inline-block;
     padding: $spacing-md 0;
     font-weight: 700;
     color: $color-blue-50;
+    cursor: pointer;
+    background: none;
+    border: none;
+
+    .banner.info & {
+      font-weight: 500;
+      text-decoration: underline;
+      padding: $spacing-sm 0 0 0;
+    }
 
     &:hover {
       color: $color-blue-40;
@@ -112,7 +159,8 @@
 
 // For Loyalist upsell
 .cta-large-button {
-  margin: $spacing-xl 0 $spacing-md $spacing-md;
+  padding: $spacing-md;
+  flex: 0 0 auto;
   align-self: center;
 
   @media screen and #{$mq-md} {
@@ -122,6 +170,7 @@
   }
 
   a {
+    display: block;
     padding: $spacing-md $spacing-lg;
     font-weight: 700;
     background: $color-blue-50;

@@ -1,5 +1,5 @@
 import { Localized, useLocalization } from "@fluent/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { VisuallyHidden } from "react-aria";
 import styles from "./AliasList.module.scss";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
@@ -36,9 +36,25 @@ export const AliasList = (props: Props) => {
   const [stringFilterVisible, setStringFilterVisible] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
-  // Whenever a new alias is created, this value tracks the aliases that existed
-  // before that. That allows us to expand newly-created aliases by default.
-  const [existingAliases, setExistingAliases] = useState(props.aliases);
+  const [openAlias, setOpenAlias] = useState<AliasData | undefined>(undefined);
+  const [existingAliases, setExistingAliases] = useState<AliasData[]>(
+    props.aliases
+  );
+
+  useEffect(() => {
+    if (props.aliases.length === 0) {
+      setOpenAlias(undefined);
+    } else {
+      const existingAliasIds = existingAliases.map((alias) => alias.id);
+      const newAliases = props.aliases.filter(
+        (alias) => existingAliasIds.indexOf(alias.id) === -1
+      );
+      if (newAliases.length !== 0) {
+        setOpenAlias(newAliases[0]);
+      }
+    }
+    setExistingAliases(props.aliases);
+  }, [props.aliases, existingAliases]);
 
   if (props.aliases.length === 0) {
     return null;
@@ -82,9 +98,13 @@ export const AliasList = (props: Props) => {
       return props.onUpdate(alias, updatedFields);
     };
 
-    const isExistingAlias = existingAliases.some(
-      (existingAlias) => existingAlias.id === alias.id
-    );
+    const onChangeOpen = (isOpen: boolean) => {
+      if (isOpen === true) {
+        setOpenAlias(alias);
+      } else if (openAlias !== undefined && openAlias.id === alias.id) {
+        setOpenAlias(undefined);
+      }
+    };
 
     return (
       <li
@@ -97,7 +117,8 @@ export const AliasList = (props: Props) => {
           profile={props.profile}
           onUpdate={onUpdate}
           onDelete={() => props.onDelete(alias)}
-          defaultOpen={!isExistingAlias}
+          isOpen={openAlias !== undefined && openAlias.id === alias.id}
+          onChangeOpen={onChangeOpen}
           showLabelEditor={props.profile.server_storage || localLabels !== null}
           runtimeData={props.runtimeData}
         />
@@ -135,12 +156,6 @@ export const AliasList = (props: Props) => {
         <p className={styles["empty-state-message"]} />
       </Localized>
     ) : null;
-
-  const onCreate: typeof props.onCreate = (options) => {
-    setExistingAliases(props.aliases);
-
-    return props.onCreate(options);
-  };
 
   return (
     <section>
@@ -184,7 +199,7 @@ export const AliasList = (props: Props) => {
             aliases={props.aliases}
             profile={props.profile}
             runtimeData={props.runtimeData}
-            onCreate={onCreate}
+            onCreate={props.onCreate}
           />
         </div>
       </div>

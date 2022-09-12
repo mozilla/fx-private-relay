@@ -1,4 +1,7 @@
-import { getPlan, isPremiumAvailableInCountry } from "../../functions/getPlan";
+import {
+  getPremiumPlan,
+  isPremiumAvailableInCountry,
+} from "../../functions/getPlan";
 import { AliasData } from "../../hooks/api/aliases";
 import { ProfileData } from "../../hooks/api/profile";
 import { RuntimeData } from "../../hooks/api/runtimeData";
@@ -9,6 +12,7 @@ export type Props = {
   aliases: AliasData[];
   totalForwardedEmails: number;
   totalBlockedEmails: number;
+  totalEmailTrackersRemoved: number;
 };
 
 export const AddonData = (props: Props) => {
@@ -23,12 +27,13 @@ export const AddonData = (props: Props) => {
       data-premium-prod-id={props.runtimeData.PREMIUM_PRODUCT_ID}
       data-premium-price-id={
         isPremiumAvailableInCountry(props.runtimeData)
-          ? getPlan(props.runtimeData).id
+          ? getPremiumPlan(props.runtimeData).id
           : undefined
       }
       data-aliases-used-val={props.aliases.length}
       data-emails-forwarded-val={props.totalForwardedEmails}
       data-emails-blocked-val={props.totalBlockedEmails}
+      data-email-trackers-removed-val={props.totalEmailTrackersRemoved}
       data-premium-subdomain-set={
         typeof props.profile.subdomain === "string"
           ? props.profile.subdomain

@@ -4,6 +4,7 @@ import {
   ReactNode,
   RefObject,
   useRef,
+  useState,
 } from "react";
 import { useLocalization } from "@fluent/react";
 import {
@@ -20,7 +21,7 @@ import {
   VisuallyHidden,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
-import { event as gaEvent } from "react-ga";
+import { event as gaEvent, OutboundLink } from "react-ga";
 import styles from "./WhatsNewMenu.module.scss";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
 import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
@@ -36,7 +37,10 @@ import PremiumSwedenHero from "./images/premium-expansion-sweden-hero.svg";
 import PremiumSwedenIcon from "./images/premium-expansion-sweden-icon.svg";
 import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
-import { WhatsNewContent } from "./WhatsNewContent";
+import PhoneMaskingHero from "./images/phone-masking-hero.svg";
+import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
+import OfferCountdownIcon from "./images/offer-countdown-icon.svg";
+import { WhatsNewComponentContent, WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
   useLocalDismissal,
@@ -48,12 +52,21 @@ import { isUsingFirefox } from "../../../../functions/userAgent";
 import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
+import {
+  getPhoneSubscribeLink,
+  getPremiumSubscribeLink,
+  isPhonesAvailableInCountry,
+  isPremiumAvailableInCountry,
+} from "../../../../functions/getPlan";
+import { parseDate } from "../../../../functions/parseDate";
+import { useGaViewPing } from "../../../../hooks/gaViewPing";
+import { CountdownTimer } from "../../../CountdownTimer";
+import { useInterval } from "../../../../hooks/interval";
 
 export type WhatsNewEntry = {
   title: string;
   snippet: string;
   content: ReactNode;
-  hero: string;
   icon: string;
   dismissal: DismissalData;
   /**
@@ -73,8 +86,10 @@ export type Props = {
   style: string;
   runtimeData?: RuntimeData;
 };
+
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
+
   const triggerState = useOverlayTriggerState({
     onOpenChange(isOpen) {
       gaEvent({
@@ -84,6 +99,22 @@ export const WhatsNewMenu = (props: Props) => {
       });
     },
   });
+
+  const ctaUpgradePhones =
+    props.runtimeData &&
+    props.runtimeData !== undefined &&
+    !props.profile.has_phone &&
+    !props.profile.has_premium &&
+    isPhonesAvailableInCountry(props.runtimeData) ? (
+      <OutboundLink
+        to={getPhoneSubscribeLink(props.runtimeData, "monthly")}
+        eventLabel={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
+        className={styles.cta}
+      >
+        <span>{l10n.getString("whatsnew-feature-phone-upgrade-cta")}</span>
+      </OutboundLink>
+    ) : null;
+
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const addonData = useAddonData();
@@ -116,7 +147,6 @@ export const WhatsNewMenu = (props: Props) => {
           }}
         />
       ),
-      hero: SizeLimitHero.src,
       icon: SizeLimitIcon.src,
       dismissal: useLocalDismissal(
         `whatsnew-feature_size-limit_${props.profile.id}`
@@ -140,7 +170,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={ForwardSomeHero.src}
       />
     ),
-    hero: ForwardSomeHero.src,
     icon: ForwardSomeIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_sign-back-in_${props.profile.id}`
@@ -167,7 +196,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={SignBackInHero.src}
       />
     ),
-    hero: SignBackInHero.src,
     icon: SignBackInIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_sign-back-in_${props.profile.id}`
@@ -194,7 +222,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={aliasToMaskHero.src}
       />
     ),
-    hero: aliasToMaskHero.src,
     icon: aliasToMaskIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_alias-to-mask_${props.profile.id}`
@@ -243,7 +270,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={PremiumSwedenHero.src}
       />
     ),
-    hero: PremiumSwedenHero.src,
     icon: PremiumSwedenIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_premium-expansion-sweden_${props.profile.id}`
@@ -275,7 +301,6 @@ export const WhatsNewMenu = (props: Props) => {
         image={PremiumFinlandHero.src}
       />
     ),
-    hero: PremiumFinlandHero.src,
     icon: PremiumFinlandIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_premium-expansion-finland_${props.profile.id}`
@@ -299,26 +324,146 @@ export const WhatsNewMenu = (props: Props) => {
     content: (
       <WhatsNewContent
         description={l10n.getString(
-          "whatsnew-feature-tracker-removal-description"
+          "whatsnew-feature-tracker-removal-description-2"
         )}
         heading={l10n.getString("whatsnew-feature-tracker-removal-heading")}
         image={TrackerRemovalHero.src}
       />
     ),
-    hero: TrackerRemovalHero.src,
     icon: TrackerRemovalIcon.src,
     dismissal: useLocalDismissal(
       `whatsnew-feature_tracker-removal_${props.profile.id}`
     ),
     announcementDate: {
       year: 2022,
-      month: 6,
-      day: 23,
+      month: 8,
+      day: 16,
     },
   };
   // Only show its announcement if tracker removal is live:
   if (isFlagActive(props.runtimeData, "tracker_removal")) {
     entries.push(trackerRemoval);
+  }
+
+  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
+    dateStyle: "long",
+  });
+  const introPricingOfferEndDate = props.runtimeData
+    ? parseDate(props.runtimeData.INTRO_PRICING_END)
+    : new Date(0);
+  const [now, setNow] = useState(Date.now());
+  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
+  // Show the countdown timer to the end of our introductory pricing offer if…
+  useInterval(
+    () => {
+      setNow(Date.now());
+    },
+    // Only count down if the deadline is close and not in the past:
+    remainingTimeInMs > 0 && remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000
+      ? 1000
+      : null
+  );
+
+  const offerCountdownCtaRef = useGaViewPing({
+    category: "Purchase Button",
+    label: "Intro-pricing: news",
+  });
+  const offerCountdownCta =
+    props.runtimeData && isPremiumAvailableInCountry(props.runtimeData) ? (
+      <OutboundLink
+        to={getPremiumSubscribeLink(props.runtimeData)}
+        eventLabel={"Intro-pricing: news"}
+        className={styles.cta}
+      >
+        <span ref={offerCountdownCtaRef}>
+          {l10n.getString("whatsnew-feature-offer-countdown-cta")}
+        </span>
+      </OutboundLink>
+    ) : null;
+  const introPricingCountdown: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-offer-countdown-heading"),
+    snippet: l10n.getString("whatsnew-feature-offer-countdown-snippet", {
+      end_date: endDateFormatter.format(introPricingOfferEndDate),
+    }),
+    content: (
+      <WhatsNewComponentContent
+        description={l10n.getString(
+          "whatsnew-feature-offer-countdown-description",
+          { end_date: endDateFormatter.format(introPricingOfferEndDate) }
+        )}
+        heading={l10n.getString("whatsnew-feature-offer-countdown-heading")}
+        hero={
+          <div className={styles["countdown-timer"]}>
+            <CountdownTimer
+              remainingTimeInMs={Math.max(remainingTimeInMs, 0)}
+            />
+          </div>
+        }
+        cta={offerCountdownCta}
+      />
+    ),
+    icon: OfferCountdownIcon.src,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_offer-countdown_${props.profile.id}`
+    ),
+    announcementDate: {
+      year: 2022,
+      month: 9,
+      day: 13,
+    },
+  };
+  // Make sure to move the end-of-intro-pricing news entry is in the History
+  // tab if the countdown has finished:
+  introPricingCountdown.dismissal.isDismissed ||= remainingTimeInMs <= 0;
+  if (
+    // If the remaining time isn't far enough in the future that the user's
+    // computer's clock is likely to be wrong,
+    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
+    // …the user does not have Premium yet,
+    !props.profile.has_premium &&
+    // …the user is able to purchase Premium at the introductory offer price, and
+    isPremiumAvailableInCountry(props.runtimeData) &&
+    // …the relevant feature flag is enabled:
+    isFlagActive(props.runtimeData, "intro_pricing_countdown")
+  ) {
+    entries.push(introPricingCountdown);
+  }
+
+  const phoneAnnouncement: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-phone-header"),
+    snippet: l10n.getString("whatsnew-feature-phone-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString("whatsnew-feature-phone-description")}
+        heading={l10n.getString("whatsnew-feature-phone-header")}
+        image={PhoneMaskingHero.src}
+        videos={{
+          // Unfortunately video files cannot currently be imported, so make
+          // sure these files are present in /public. See
+          // https://github.com/vercel/next.js/issues/35248
+          "video/webm; codecs='vp9'":
+            "/animations/whatsnew/phone-masking-hero.webm",
+          "video/mp4": "/animations/whatsnew/phone-masking-hero.mp4",
+        }}
+        cta={ctaUpgradePhones}
+      />
+    ),
+
+    icon: PhoneMaskingIcon.src,
+    dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
+    announcementDate: {
+      year: 2022,
+      month: 10,
+      day: 11,
+    },
+  };
+
+  // Only show its announcement if phone masking is live:
+  if (
+    isPhonesAvailableInCountry(props.runtimeData) &&
+    isFlagActive(props.runtimeData, "phones")
+  ) {
+    entries.push(phoneAnnouncement);
   }
 
   entries.sort(entriesDescByDateSorter);

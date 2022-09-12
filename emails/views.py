@@ -11,6 +11,7 @@ import re
 import shlex
 from tempfile import SpooledTemporaryFile
 from textwrap import dedent
+from typing import Any, Optional
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
@@ -20,12 +21,10 @@ from waffle import sample_is_active
 from waffle.models import Flag
 
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
-from django.http import HttpResponse, JsonResponse
-from django.shortcuts import redirect, render
+from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
@@ -47,7 +46,6 @@ from .utils import (
     remove_trackers,
     count_all_trackers,
     get_message_content_from_s3,
-    get_post_data_from_request,
     incr_if_enabled,
     histogram_if_enabled,
     ses_relay_email,
@@ -78,7 +76,8 @@ def wrap_html_email(
     in_premium_country,
     display_email,
     has_attachment,
-    email_tracker_study_link=None,
+    num_level_one_email_trackers_removed=None,
+    tracker_report_link=0,
 ):
     """Add Relay banners, surveys, etc. to an HTML email"""
     email_context = {
@@ -88,7 +87,8 @@ def wrap_html_email(
         "in_premium_country": in_premium_country,
         "display_email": display_email,
         "has_attachment": has_attachment,
-        "email_tracker_study_link": email_tracker_study_link,
+        "tracker_report_link": tracker_report_link,
+        "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
         "survey_text": settings.RECRUITMENT_EMAIL_BANNER_TEXT,
         "survey_link": settings.RECRUITMENT_EMAIL_BANNER_LINK,
@@ -135,16 +135,24 @@ def wrapped_email_test(request):
     else:
         has_attachment = True
 
-    if "has_email_tracker_study_link" in request.GET:
-        has_email_tracker_study_link = strtobool(
-            request.GET["has_email_tracker_study_link"]
+    if "has_tracker_report_link" in request.GET:
+        has_tracker_report_link = strtobool(request.GET["has_tracker_report_link"])
+    else:
+        has_tracker_report_link = False
+    if has_tracker_report_link:
+        tracker_report_link = (
+            '/tracker-report/#{"sender": "sender@example.com", "received_at": 1658434657,'
+            + '"trackers": {"fake-tracker.example.com": 2}}'
         )
     else:
-        has_email_tracker_study_link = False
-    if has_email_tracker_study_link:
-        email_tracker_study_link = "https://example.com/fake_survey_link"
+        tracker_report_link = ""
+
+    if "num_level_one_email_trackers_removed" in request.GET:
+        num_level_one_email_trackers_removed = int(
+            request.GET["num_level_one_email_trackers_removed"]
+        )
     else:
-        email_tracker_study_link = ""
+        num_level_one_email_trackers_removed = 0
 
     html_content = dedent(
         f"""\
@@ -161,8 +169,10 @@ def wrapped_email_test(request):
         <dd>{"Yes" if in_premium_country else "No"}</dd>
       <dt>has_attachment</dt>
         <dd>{"Yes" if has_attachment else "No"}</dd>
-      <dt>has_email_tracker_study_link</dt>
-        <dd>{"Yes" if has_email_tracker_study_link else "No"}</dd>
+      <dt>has_tracker_report_link</dt>
+        <dd>{"Yes" if has_tracker_report_link else "No"}</dd>
+      <dt>has_num_level_one_email_trackers_removed</dt>
+        <dd>{"Yes" if num_level_one_email_trackers_removed else "No"}</dd>
     </dl>
     """
     )
@@ -172,145 +182,35 @@ def wrapped_email_test(request):
         language=language,
         has_premium=has_premium,
         in_premium_country=in_premium_country,
-        email_tracker_study_link=email_tracker_study_link,
+        tracker_report_link=tracker_report_link,
         display_email="test@relay.firefox.com",
         has_attachment=has_attachment,
+        num_level_one_email_trackers_removed=num_level_one_email_trackers_removed,
     )
     return HttpResponse(wrapped_email)
 
 
 @csrf_exempt
-def index(request):
-    incr_if_enabled("emails_index", 1)
-    try:
-        request_data = get_post_data_from_request(request)
-    except JSONDecodeError:
-        return HttpResponse("Could not process request.", status=422)
-    is_validated_create = request_data.get(
-        "method_override", None
-    ) is None and request_data.get("api_token", False)
-    is_validated_user = request.user.is_authenticated and request_data.get(
-        "api_token", False
-    )
-    if is_validated_create:
-        return _index_POST(request)
-    if not is_validated_user:
-        return redirect("profile")
-    if request.method == "POST":
-        return _index_POST(request)
-    incr_if_enabled("emails_index_get", 1)
-    return redirect("profile")
-
-
-def _get_user_profile(request, api_token):
-    if not request.user.is_authenticated:
-        return Profile.objects.get(api_token=api_token)
-    return request.user.profile_set.first()
-
-
-def _index_POST(request):
-    try:
-        request_data = get_post_data_from_request(request)
-    except JSONDecodeError:
-        return HttpResponse("Could not process request.", status=422)
-    api_token = request_data.get("api_token", None)
-    if not api_token:
-        raise PermissionDenied
-    user_profile = _get_user_profile(request, api_token)
-    if not user_profile.user.is_active:
-        raise PermissionDenied
-    try:
-        if request_data.get("method_override", None) == "PUT":
-            return _index_PUT(request_data, user_profile)
-        if request_data.get("method_override", None) == "DELETE":
-            return _index_DELETE(request_data, user_profile)
-    except (RelayAddress.DoesNotExist, DomainAddress.DoesNotExist):
-        return HttpResponse("Address does not exist", status=404)
-
-    incr_if_enabled("emails_index_post", 1)
-
-    with transaction.atomic():
-        locked_profile = Profile.objects.select_for_update().get(user=user_profile.user)
-        try:
-            relay_address = RelayAddress.objects.create(
-                user=locked_profile.user,
-            )
-        except CannotMakeAddressException as e:
-            if settings.SITE_ORIGIN not in request.headers.get("Origin", ""):
-                # add-on request
-                return HttpResponse(e.message, status=402)
-            messages.error(request, e.message)
-            return redirect("profile")
-
-    if settings.SITE_ORIGIN not in request.headers.get("Origin", ""):
-        return JsonResponse(
-            {
-                "id": relay_address.id,
-                "address": relay_address.full_address,
-                "domain": relay_address.domain_value,
-                "local_portion": relay_address.address,
-            },
-            status=201,
-        )
-
-    return redirect("profile")
-
-
-def _get_address_from_id(request_data, user_profile):
-    if request_data.get("relay_address_id", False):
-        relay_address = RelayAddress.objects.get(
-            id=request_data["relay_address_id"], user=user_profile.user
-        )
-        return relay_address
-    domain_address = DomainAddress.objects.get(
-        id=request_data["domain_address_id"], user=user_profile.user
-    )
-    return domain_address
-
-
-def _index_PUT(request_data, user_profile):
-    incr_if_enabled("emails_index_put", 1)
-    address = _get_address_from_id(request_data, user_profile)
-    if request_data.get("enabled") == "Disable":
-        # TODO?: create a soft bounce receipt rule for the address?
-        address.enabled = False
-    elif request_data.get("enabled") == "Enable":
-        # TODO?: remove soft bounce receipt rule for the address?
-        address.enabled = True
-    address.save()
-
-    forwardingStatus = {"enabled": address.enabled}
-    return JsonResponse(forwardingStatus)
-
-
-def _index_DELETE(request_data, user_profile):
-    incr_if_enabled("emails_index_delete", 1)
-    address = _get_address_from_id(request_data, user_profile)
-    # TODO?: create hard bounce receipt rule for the address
-    address.delete()
-    return redirect("profile")
-
-
-@csrf_exempt
 def sns_inbound(request):
     incr_if_enabled("sns_inbound", 1)
-    # We can check for some invalid values in headers before processing body
-    # Grabs message information for validation
-    topic_arn = request.headers.get("X-Amz-Sns-Topic-Arn", None)
-    message_type = request.headers.get("X-Amz-Sns-Message-Type", None)
-
-    # Validates header
-    error_details = validate_sns_header(topic_arn, message_type)
-    if error_details:
-        logger.error("validate_sns_header_error", extra=error_details)
-        return HttpResponse(error_details["error"], status=400)
-
+    # First thing we do is verify the signature
     json_body = json.loads(request.body)
     verified_json_body = verify_from_sns(json_body)
+
+    # Validate ARN and message type
+    topic_arn = verified_json_body.get("TopicArn", None)
+    message_type = verified_json_body.get("Type", None)
+    error_details = validate_sns_arn_and_type(topic_arn, message_type)
+    if error_details:
+        logger.error("validate_sns_arn_and_type_error", extra=error_details)
+        return HttpResponse(error_details["error"], status=400)
+
     return _sns_inbound_logic(topic_arn, message_type, verified_json_body)
 
 
-def validate_sns_header(topic_arn, message_type):
+def validate_sns_arn_and_type(
+    topic_arn: str, message_type: str
+) -> Optional[dict[str, Any]]:
     """
     Validate Topic ARN and SNS Message Type.
 
@@ -376,7 +276,11 @@ def _sns_notification(json_body):
 
     event_type = message_json.get("eventType")
     notification_type = message_json.get("notificationType")
-    if notification_type not in ["Received", "Bounce"] and event_type != "Bounce":
+    if notification_type not in {
+        "Complaint",
+        "Received",
+        "Bounce",
+    } and event_type not in {"Complaint", "Bounce"}:
         logger.error(
             "SNS notification for unsupported type",
             extra={
@@ -431,6 +335,8 @@ def _sns_message(message_json):
     event_type = message_json.get("eventType")
     if notification_type == "Bounce" or event_type == "Bounce":
         return _handle_bounce(message_json)
+    if notification_type == "Complaint" or event_type == "Complaint":
+        return _handle_complaint(message_json)
     mail = message_json["mail"]
     if "commonHeaders" not in mail:
         logger.error("SNS message without commonHeaders")
@@ -515,6 +421,10 @@ def _sns_message(message_json):
         # an external sender to a relay user
         pass
 
+    # if account flagged for abuse, early return
+    if user_profile.is_flagged:
+        return HttpResponse("Address is temporarily disabled.")
+
     # if address is set to block, early return
     if not address.enabled:
         incr_if_enabled("email_for_disabled_address", 1)
@@ -538,9 +448,12 @@ def _sns_message(message_json):
     subject = common_headers.get("subject", "")
 
     try:
-        text_content, html_content, attachments = _get_text_html_attachments(
-            message_json
-        )
+        (
+            text_content,
+            html_content,
+            attachments,
+            email_size,
+        ) = _get_text_html_attachments(message_json)
     except ClientError as e:
         if e.response["Error"].get("Code", "") == "NoSuchKey":
             logger.error("s3_object_does_not_exist", extra=e.response["Error"])
@@ -558,31 +471,44 @@ def _sns_message(message_json):
     display_email = re.sub("([@.:])", r"<span>\1</span>", to_address)
 
     message_body = {}
-    email_tracker_study_link = ""
+    tracker_report_link = ""
+    removed_count = 0
     if html_content:
         incr_if_enabled("email_with_html_content", 1)
-        foxfood_flag = Flag.objects.filter(name="foxfood").first()
-        if foxfood_flag and foxfood_flag.is_active_for_user(address.user):
-            html_content, control, study_details = remove_trackers(html_content)
-            removed_count = study_details["tracker_removed"]
-            general_count = study_details["general"]["count"]
-            strict_count = study_details["strict"]["count"]
-            email_tracker_study_link = (
-                "https://www.surveygizmo.com/s3/6837234/Relay-General-Email-Tracker-Removal-2022?"
-                + f"general-found={general_count}&"
-                + f"general-removed={removed_count}&"
-                + f"strict-found={strict_count}&"
-                + f"control={control}"
+        tracker_removal_flag = Flag.objects.filter(name="tracker_removal").first()
+        tracker_removal_flag_active = (
+            tracker_removal_flag
+            and tracker_removal_flag.is_active_for_user(address.user)
+        )
+        if tracker_removal_flag_active and user_profile.remove_level_one_email_trackers:
+            html_content, tracker_details = remove_trackers(html_content)
+            removed_count = tracker_details["tracker_removed"]
+            datetime_now = int(
+                datetime.now(timezone.utc).timestamp() * 1000
+            )  # frontend is expecting in milli seconds
+            tracker_report_details = {
+                "sender": from_address,
+                "received_at": datetime_now,
+                "trackers": tracker_details["level_one"]["trackers"],
+            }
+            tracker_report_link = (
+                f"{settings.SITE_ORIGIN}/tracker-report/#"
+                + json.dumps(tracker_report_details)
             )
+            address.num_level_one_trackers_blocked = (
+                address.num_level_one_trackers_blocked or 0
+            ) + removed_count
+            address.save()
 
         wrapped_html = wrap_html_email(
             original_html=html_content,
             language=user_profile.language,
             has_premium=user_profile.has_premium,
             in_premium_country=user_profile.fxa_locale_in_premium_country,
-            email_tracker_study_link=email_tracker_study_link,
             display_email=display_email,
             has_attachment=bool(attachments),
+            tracker_report_link=tracker_report_link,
+            num_level_one_email_trackers_removed=removed_count,
         )
         message_body["Html"] = {"Charset": "UTF-8", "Data": wrapped_html}
 
@@ -616,6 +542,9 @@ def _sns_message(message_json):
         # early return the response to trigger SNS to re-attempt
         return response
 
+    user_profile.update_abuse_metric(
+        email_forwarded=True, forwarded_email_size=email_size
+    )
     address.num_forwarded += 1
     address.last_used_at = datetime.now(timezone.utc)
     address.save(update_fields=["num_forwarded", "last_used_at"])
@@ -726,7 +655,7 @@ def _handle_reply(from_address, message_json, to_address):
     to_address = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
 
     try:
-        text_content, html_content, attachments = _get_text_html_attachments(
+        text_content, html_content, attachments, _ = _get_text_html_attachments(
             message_json
         )
     except ClientError as e:
@@ -867,6 +796,31 @@ def _handle_bounce(message_json):
     return HttpResponse("OK", status=200)
 
 
+def _handle_complaint(message_json):
+    incr_if_enabled("email_complaint")
+    complaint = message_json.get("complaint")
+    complained_recipients = complaint.get("complainedRecipients")
+    subtype = complaint.get("complaintSubType")
+    feedback = complaint.get("complaintFeedbackType")
+    recipient_domains = []
+    for recipient in complained_recipients:
+        recipient_address = recipient.get("emailAddress")
+        if recipient_address is None:
+            continue
+        recipient_address = parseaddr(recipient_address)[1]
+        recipient_domain = recipient_address.split("@")[1]
+        recipient_domains.append(recipient_domain)
+    info_logger.info(
+        "complaint_received",
+        extra={
+            "recipient_domains": sorted(recipient_domains),
+            "subtype": subtype,
+            "feedback": feedback,
+        },
+    )
+    return HttpResponse("OK", status=200)
+
+
 def _get_text_html_attachments(message_json):
     if "content" in message_json:
         # email content in sns message
@@ -875,12 +829,13 @@ def _get_text_html_attachments(message_json):
         # assume email content in S3
         bucket, object_key = _get_bucket_and_key_from_s3_json(message_json)
         message_content = get_message_content_from_s3(bucket, object_key)
-        histogram_if_enabled("relayed_email.size", len(message_content))
-
+    email_size = len(message_content)
+    histogram_if_enabled("relayed_email.size", email_size)
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
     text_content, html_content, attachments = _get_all_contents(bytes_email_message)
-    return text_content, html_content, attachments
+    # TODO add logs on the entire size of the email and the time it takes to download/process
+    return text_content, html_content, attachments, email_size
 
 
 def _get_attachment(part):

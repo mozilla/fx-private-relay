@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from unittest.mock import patch
 from model_bakery import baker
-from waffle.testutils import override_sample
 from waffle.models import Flag
 
 from emails.models import get_domains_from_settings
@@ -178,8 +177,7 @@ class FormattingToolsTest(TestCase):
 
 
 @override_settings(SITE_ORIGIN="https://test.com")
-@override_sample("foxfood-tracker-removal-sample", active=True)
-@patch("emails.utils.GENERAL_TRACKERS", ["open.tracker.com"])
+@patch("emails.utils.GENERAL_TRACKERS", ["trckr.com", "open.tracker.com"])
 @patch("emails.utils.STRICT_TRACKERS", ["strict.tracker.com"])
 class RemoveTrackers(TestCase):
     def setUp(self):
@@ -193,96 +191,88 @@ class RemoveTrackers(TestCase):
             '<a href="https://open.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://open.tracker.com/foo/bar.jpg">An image</img>'
         )
-        changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details["tracker_removed"]
-        general_count = study_details["general"]["count"]
-        strict_count = study_details["strict"]["count"]
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
 
         assert changed_content == self.expected_content
         assert general_removed == 2
         assert general_count == 2
-        assert strict_count == 0
-        assert control == False
 
     def test_complex_general_tracker_replaced_with_relay_content(self):
         content = (
             '<a href="https://foo.open.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://bar.open.tracker.com/foo/bar.jpg">An image</img>'
         )
-        changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details["tracker_removed"]
-        general_count = study_details["general"]["count"]
-        strict_count = study_details["strict"]["count"]
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
 
         assert changed_content == self.expected_content
         assert general_removed == 2
         assert general_count == 2
-        assert strict_count == 0
-        assert control == False
 
     def test_complex_single_quote_general_tracker_replaced_with_relay_content(self):
         content = (
             "<a href='https://foo.open.tracker.com/foo/bar.html'>A link</a>\n"
             + "<img src='https://bar.open.tracker.com/foo/bar.jpg'>An image</img>"
         )
-        changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details["tracker_removed"]
-        general_count = study_details["general"]["count"]
-        strict_count = study_details["strict"]["count"]
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
 
         assert changed_content == self.expected_content.replace('"', "'")
         assert general_removed == 2
         assert general_count == 2
-        assert strict_count == 0
-        assert control == False
 
     def test_no_tracker_replaced_with_relay_content(self):
         content = (
             '<a href="https://fooopen.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://baropen.tracker.com/foo/bar.jpg">An image</img>'
         )
-        changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details["tracker_removed"]
-        general_count = study_details["general"]["count"]
-        strict_count = study_details["strict"]["count"]
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
 
         assert changed_content == content
         assert general_removed == 0
         assert (
-            general_count == 2
-        )  # this is because the count uses search and not regex pattern
-        assert strict_count == 0
-        assert control == False
+            general_count == general_removed
+        )  # count uses the same regex pattern as removing trackers
+
+    def test_general_tracker_embedded_in_another_tracker_replaced_only_once_with_relay_content(
+        self,
+    ):
+        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>A link</a>"
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
+
+        assert changed_content == "<a href='https://test.com/faq'>A link</a>"
+        assert general_removed == 1
+        assert general_count == 1
+
+    def test_general_tracker_also_in_text_tracker_replaced_only_once_with_relay_content(
+        self,
+    ):
+        content = "<a href='https://foo.open.tracker.com/foo/bar.html?src=trckr.com'>trckr.com</a>"
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
+
+        assert changed_content == "<a href='https://test.com/faq'>trckr.com</a>"
+        assert general_removed == 1
+        assert general_count == 1
 
     def test_simple_strict_tracker_found(self):
         content = (
             '<a href="https://strict.tracker.com/foo/bar.html">A link</a>\n'
             + '<img src="https://strict.tracker.com/foo/bar.jpg">An image</img>'
         )
-        changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details["tracker_removed"]
-        general_count = study_details["general"]["count"]
-        strict_count = study_details["strict"]["count"]
+        changed_content, tracker_details = remove_trackers(content)
+        general_removed = tracker_details["tracker_removed"]
+        general_count = tracker_details["level_one"]["count"]
 
         assert changed_content == content
         assert general_removed == 0
         assert general_count == 0
-        assert strict_count == 2
-        assert control == False
-
-    @override_sample("foxfood-tracker-removal-sample", active=False)
-    def test_simple_general_strict_tracker_found_no_tracker_removed(self):
-        content = (
-            '<a href="https://foo.open.tracker.com/foo/bar.html">A link</a>\n'
-            + '<img src="https://strict.tracker.com/foo/bar.jpg">An image</img>'
-        )
-        changed_content, control, study_details = remove_trackers(content)
-        general_removed = study_details["tracker_removed"]
-        general_count = study_details["general"]["count"]
-        strict_count = study_details["strict"]["count"]
-
-        assert changed_content == content
-        assert general_removed == 0
-        assert general_count == 1
-        assert strict_count == 1
-        assert control == True

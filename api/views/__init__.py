@@ -1,13 +1,29 @@
+import logging
+
 from django.conf import settings
-from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 
 from django_filters import rest_framework as filters
+from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework import decorators, permissions, response, viewsets, exceptions
 from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
+from rest_framework import (
+    decorators,
+    permissions,
+    response,
+    status,
+    viewsets,
+    exceptions,
+)
+from emails.utils import incr_if_enabled
+
+from privaterelay.utils import (
+    get_countries_info_from_request_and_mapping,
+    get_premium_countries_info_from_request,
+)
 
 from emails.models import (
     CannotMakeAddressException,
@@ -15,25 +31,19 @@ from emails.models import (
     Profile,
     RelayAddress,
 )
-from privaterelay.settings import (
-    BASKET_ORIGIN,
-    FXA_BASE_ORIGIN,
-    GOOGLE_ANALYTICS_ID,
-    PREMIUM_PROD_ID,
-    PHONE_PROD_ID,
-)
-from privaterelay.utils import get_premium_countries_info_from_request
 
-from .permissions import IsOwner
-from .serializers import (
+
+from ..exceptions import ConflictError
+from ..permissions import IsOwner
+from ..serializers import (
     DomainAddressSerializer,
     ProfileSerializer,
     RelayAddressSerializer,
     UserSerializer,
+    WebcompatIssueSerializer,
 )
-from .exceptions import ConflictError
 
-
+info_logger = logging.getLogger("eventsinfo")
 schema_view = get_schema_view(
     openapi.Info(
         title="Relay API",
@@ -166,14 +176,42 @@ def runtime_data(request):
     sample_values = [(s.name, s.is_active()) for s in samples]
     return response.Response(
         {
-            "FXA_ORIGIN": FXA_BASE_ORIGIN,
-            "GOOGLE_ANALYTICS_ID": GOOGLE_ANALYTICS_ID,
-            "PREMIUM_PRODUCT_ID": PREMIUM_PROD_ID,
-            "PHONE_PRODUCT_ID": PHONE_PROD_ID,
+            "FXA_ORIGIN": settings.FXA_BASE_ORIGIN,
+            "PERIODICAL_PREMIUM_PRODUCT_ID": settings.PERIODICAL_PREMIUM_PROD_ID,
+            "GOOGLE_ANALYTICS_ID": settings.GOOGLE_ANALYTICS_ID,
+            "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
+            "INTRO_PRICING_END": settings.INTRO_PRICING_END,
+            "PREMIUM_PRODUCT_ID": settings.PREMIUM_PROD_ID,
+            "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
             "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
-            "BASKET_ORIGIN": BASKET_ORIGIN,
+            "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
+                request, settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING
+            ),
+            "PHONE_PLANS": get_countries_info_from_request_and_mapping(
+                request, settings.PHONE_PLAN_COUNTRY_LANG_MAPPING
+            ),
+            "BUNDLE_PLANS": get_countries_info_from_request_and_mapping(
+                request, settings.BUNDLE_PLAN_COUNTRY_LANG_MAPPING
+            ),
+            "BASKET_ORIGIN": settings.BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,
             "WAFFLE_SWITCHES": switch_values,
             "WAFFLE_SAMPLES": sample_values,
+            "MAX_MINUTES_TO_VERIFY_REAL_PHONE": settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         }
     )
+
+
+@swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.IsAuthenticated])
+def report_webcompat_issue(request):
+    serializer = WebcompatIssueSerializer(data=request.data)
+    if serializer.is_valid():
+        info_logger.info("webcompat_issue", extra=serializer.data)
+        incr_if_enabled("webcompat_issue", 1)
+        for k, v in serializer.data.items():
+            if v and k != "issue_on_domain":
+                incr_if_enabled(f"webcompat_issue_{k}", 1)
+        return response.Response(status=status.HTTP_201_CREATED)
+    return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

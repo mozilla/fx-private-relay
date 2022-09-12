@@ -9,9 +9,9 @@ import uuid
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.exceptions import SuspiciousOperation
+from django.core.exceptions import BadRequest
 from django.core.validators import MinLengthValidator
-from django.db import models
+from django.db import models, transaction
 from django.dispatch import receiver
 from django.utils.functional import cached_property
 from django.utils.translation.trans_real import (
@@ -20,6 +20,7 @@ from django.utils.translation.trans_real import (
 )
 
 from rest_framework.authtoken.models import Token
+
 
 emails_config = apps.get_app_config("emails")
 logger = logging.getLogger("events")
@@ -91,6 +92,9 @@ class Profile(models.Model):
     last_account_flagged = models.DateTimeField(blank=True, null=True, db_index=True)
     num_email_forwarded_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_blocked_in_deleted_address = models.PositiveIntegerField(default=0)
+    num_level_one_trackers_blocked_in_deleted_address = models.PositiveIntegerField(
+        default=0, null=True
+    )
     num_email_replied_in_deleted_address = models.PositiveIntegerField(default=0)
     num_email_spam_in_deleted_address = models.PositiveIntegerField(default=0)
     subdomain = models.CharField(
@@ -101,7 +105,10 @@ class Profile(models.Model):
         db_index=True,
         validators=[valid_available_subdomain],
     )
+    # Whether we store the user's alias labels in the server
     server_storage = models.BooleanField(default=True)
+    # Whether we store the caller/sender log for the user's relay number
+    store_phone_log = models.BooleanField(default=True)
     # TODO: Data migration to set null to false
     # TODO: Schema migration to remove null=True
     remove_level_one_email_trackers = models.BooleanField(null=True, default=False)
@@ -123,6 +130,17 @@ class Profile(models.Model):
         if not self.server_storage:
             relay_addresses = RelayAddress.objects.filter(user=self.user)
             relay_addresses.update(description="", generated_for="", used_on="")
+        if settings.PHONES_ENABLED:
+            # any time a profile is saved with store_phone_log False, delete the
+            # appropriate server-stored InboundContact records
+            from phones.models import InboundContact, RelayNumber
+
+            if not self.store_phone_log:
+                try:
+                    relay_number = RelayNumber.objects.get(user=self.user)
+                    InboundContact.objects.filter(relay_number=relay_number).delete()
+                except RelayNumber.DoesNotExist:
+                    pass
         return ret
 
     @property
@@ -270,6 +288,16 @@ class Profile(models.Model):
         return False
 
     @property
+    def has_phone(self):
+        if not self.fxa:
+            return False
+        user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
+        for sub in settings.SUBSCRIPTIONS_WITH_PHONE.split(","):
+            if sub in user_subscriptions:
+                return True
+        return False
+
+    @property
     def emails_forwarded(self):
         return (
             sum(ra.num_forwarded for ra in self.relay_addresses)
@@ -300,6 +328,16 @@ class Profile(models.Model):
         return total_num_replied + self.num_email_replied_in_deleted_address
 
     @property
+    def level_one_trackers_blocked(self):
+        return (
+            sum(ra.num_level_one_trackers_blocked or 0 for ra in self.relay_addresses)
+            + sum(
+                da.num_level_one_trackers_blocked or 0 for da in self.domain_addresses
+            )
+            + (self.num_level_one_trackers_blocked_in_deleted_address or 0)
+        )
+
+    @property
     def joined_before_premium_release(self):
         date_created = self.user.date_joined
         return date_created < datetime.fromisoformat("2021-10-22 17:00:00+00:00")
@@ -318,7 +356,13 @@ class Profile(models.Model):
         RegisteredSubdomain.objects.create(subdomain_hash=hash_subdomain(subdomain))
         return subdomain
 
-    def update_abuse_metric(self, address_created=False, replied=False):
+    def update_abuse_metric(
+        self,
+        address_created=False,
+        replied=False,
+        email_forwarded=False,
+        forwarded_email_size=0,
+    ):
         #  TODO: this should be wrapped in atomic to ensure race conditions are properly handled
         # look for abuse metrics created on the same UTC date, regardless of time.
         midnight_utc_today = datetime.combine(
@@ -338,12 +382,19 @@ class Profile(models.Model):
             abuse_metric.num_address_created_per_day += 1
         if replied:
             abuse_metric.num_replies_per_day += 1
+        if email_forwarded:
+            abuse_metric.num_email_forwarded_per_day += 1
+        if forwarded_email_size > 0:
+            abuse_metric.forwarded_email_size_per_day += forwarded_email_size
         abuse_metric.last_recorded = datetime.now(timezone.utc)
         abuse_metric.save()
 
         # check user should be flagged for abuse
         hit_max_create = False
         hit_max_replies = False
+        hit_max_forwarded = False
+        hit_max_forwarded_email_size = False
+
         hit_max_create = (
             abuse_metric.num_address_created_per_day
             >= settings.MAX_ADDRESS_CREATION_PER_DAY
@@ -351,7 +402,19 @@ class Profile(models.Model):
         hit_max_replies = (
             abuse_metric.num_replies_per_day >= settings.MAX_REPLIES_PER_DAY
         )
-        if hit_max_create or hit_max_replies:
+        hit_max_forwarded = (
+            abuse_metric.num_email_forwarded_per_day >= settings.MAX_FORWARDED_PER_DAY
+        )
+        hit_max_forwarded_email_size = (
+            abuse_metric.forwarded_email_size_per_day
+            >= settings.MAX_FORWARDED_EMAIL_SIZE_PER_DAY
+        )
+        if (
+            hit_max_create
+            or hit_max_replies
+            or hit_max_forwarded
+            or hit_max_forwarded_email_size
+        ):
             self.last_account_flagged = datetime.now(timezone.utc)
             self.save()
             data = {
@@ -359,6 +422,8 @@ class Profile(models.Model):
                 "flagged": self.last_account_flagged.timestamp(),
                 "replies": abuse_metric.num_replies_per_day,
                 "addresses": abuse_metric.num_address_created_per_day,
+                "forwarded": abuse_metric.num_email_forwarded_per_day,
+                "forwarded_size_in_bytes": abuse_metric.forwarded_email_size_per_day,
             }
             # log for further secops review
             abuse_logger.info("Abuse flagged", extra=data)
@@ -376,6 +441,10 @@ class Profile(models.Model):
             return False
         # user was flagged and the premiume feature pause period is not yet over
         return True
+
+
+def get_storing_phone_log(relay_number):
+    return relay_number.user.profile_set.get().store_phone_log
 
 
 @receiver(models.signals.post_save, sender=Profile)
@@ -443,9 +512,7 @@ class RegisteredSubdomain(models.Model):
         return self.subdomain_hash
 
 
-# extend from SuspiciousOperation to trigger 400 status code error
-# TODO: in Django 3.2+ change this to BadRequest
-class CannotMakeSubdomainException(SuspiciousOperation):
+class CannotMakeSubdomainException(BadRequest):
     """Exception raised by Profile due to error on subdomain creation.
 
     Attributes:
@@ -456,9 +523,7 @@ class CannotMakeSubdomainException(SuspiciousOperation):
         self.message = message
 
 
-# extend from SuspiciousOperation to trigger 400 status code error
-# TODO: in Django 3.2+ change this to BadRequest
-class CannotMakeAddressException(SuspiciousOperation):
+class CannotMakeAddressException(BadRequest):
     """Exception raised by RelayAddress or DomainAddress due to error on alias creation.
 
     Attributes:
@@ -483,6 +548,7 @@ class RelayAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_level_one_trackers_blocked = models.PositiveIntegerField(default=0, null=True)
     num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     generated_for = models.CharField(max_length=255, blank=True)
@@ -507,20 +573,25 @@ class RelayAddress(models.Model):
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
+        profile.num_level_one_trackers_blocked_in_deleted_address = (
+            profile.num_level_one_trackers_blocked_in_deleted_address or 0
+        ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()
         return super(RelayAddress, self).delete(*args, **kwargs)
 
     def save(self, *args, **kwargs):
-        profile = self.user.profile_set.first()
         if self._state.adding:
-            check_user_can_make_another_address(self.user)
-            while True:
-                if valid_address(self.address, self.domain):
-                    break
-                self.address = address_default()
-            profile.update_abuse_metric(address_created=True)
+            with transaction.atomic():
+                locked_profile = Profile.objects.select_for_update().get(user=self.user)
+                check_user_can_make_another_address(locked_profile)
+                while True:
+                    if valid_address(self.address, self.domain):
+                        break
+                    self.address = address_default()
+                locked_profile.update_abuse_metric(address_created=True)
+        profile = self.user.profile_set.first()
         if not profile.server_storage:
             self.description = ""
             self.generated_for = ""
@@ -536,11 +607,10 @@ class RelayAddress(models.Model):
         return "%s@%s" % (self.address, self.domain_value)
 
 
-def check_user_can_make_another_address(user):
-    user_profile = user.profile_set.first()
-    if user_profile.is_flagged:
+def check_user_can_make_another_address(profile):
+    if profile.is_flagged:
         raise CannotMakeAddressException(ACCOUNT_PAUSED_ERR_MSG)
-    if user_profile.at_max_free_aliases and not user_profile.has_premium:
+    if profile.at_max_free_aliases and not profile.has_premium:
         hit_limit = f"make more than {settings.MAX_NUM_FREE_ALIASES} aliases"
         raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG.format(hit_limit))
 
@@ -548,7 +618,7 @@ def check_user_can_make_another_address(user):
 def valid_address_pattern(address):
     #   can't start or end with a hyphen
     #   must be 1-63 lowercase alphanumeric characters and/or hyphens
-    valid_address_pattern = re.compile("^(?!-)[a-z0-9-]{1,63}(?<!-)$")
+    valid_address_pattern = re.compile("^(?![-.])[a-z0-9-.]{1,63}(?<![-.])$")
     return valid_address_pattern.match(address) is not None
 
 
@@ -609,6 +679,7 @@ class DomainAddress(models.Model):
     last_used_at = models.DateTimeField(blank=True, null=True)
     num_forwarded = models.PositiveIntegerField(default=0)
     num_blocked = models.PositiveIntegerField(default=0)
+    num_level_one_trackers_blocked = models.PositiveIntegerField(default=0, null=True)
     num_replied = models.PositiveIntegerField(default=0)
     num_spam = models.PositiveIntegerField(default=0)
     block_list_emails = models.BooleanField(default=False)
@@ -681,6 +752,9 @@ class DomainAddress(models.Model):
         profile.num_address_deleted += 1
         profile.num_email_forwarded_in_deleted_address += self.num_forwarded
         profile.num_email_blocked_in_deleted_address += self.num_blocked
+        profile.num_level_one_trackers_blocked_in_deleted_address = (
+            profile.num_level_one_trackers_blocked_in_deleted_address or 0
+        ) + (self.num_level_one_trackers_blocked or 0)
         profile.num_email_replied_in_deleted_address += self.num_replied
         profile.num_email_spam_in_deleted_address += self.num_spam
         profile.save()
@@ -736,6 +810,10 @@ class AbuseMetrics(models.Model):
     last_recorded = models.DateTimeField(auto_now_add=True, db_index=True)
     num_address_created_per_day = models.PositiveSmallIntegerField(default=0)
     num_replies_per_day = models.PositiveSmallIntegerField(default=0)
+    # Values from 0 to 32767 are safe in all databases supported by Django.
+    num_email_forwarded_per_day = models.PositiveSmallIntegerField(default=0)
+    # Values from 0 to 9223372036854775807 are safe in all databases supported by Django.
+    forwarded_email_size_per_day = models.PositiveBigIntegerField(default=0)
 
     class Meta:
         unique_together = ["user", "first_recorded"]

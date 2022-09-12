@@ -1,5 +1,5 @@
 import { useRef, useState, ReactNode } from "react";
-import { useLocalization } from "@fluent/react";
+import { Localized, useLocalization } from "@fluent/react";
 import { useToggleState, useTooltipTriggerState } from "react-stately";
 import {
   mergeProps,
@@ -8,7 +8,7 @@ import {
   useTooltipTrigger,
 } from "react-aria";
 import styles from "./Alias.module.scss";
-import { ArrowDownIcon, CopyIcon } from "../../Icons";
+import { ArrowDownIcon, CopyIcon, HideIcon } from "../../Icons";
 import IllustrationHoliday from "../../../../public/illustrations/holiday.svg";
 import IllustrationLibrary from "../../../../public/illustrations/library.svg";
 import {
@@ -25,7 +25,7 @@ import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
-import { HideIcon } from "../../Icons";
+import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
   alias: AliasData;
@@ -33,7 +33,8 @@ export type Props = {
   profile: ProfileData;
   onUpdate: (updatedFields: Partial<AliasData>) => void;
   onDelete: () => void;
-  defaultOpen?: boolean;
+  isOpen: boolean;
+  onChangeOpen: (isOpen: boolean) => void;
   showLabelEditor?: boolean;
   runtimeData?: RuntimeData;
 };
@@ -47,7 +48,8 @@ export const Alias = (props: Props) => {
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const expandButtonState = useToggleState({
-    defaultSelected: props.defaultOpen === true,
+    isSelected: props.isOpen === true,
+    onChange: props.onChangeOpen,
   });
   const expandButtonProps = useToggleButton(
     {},
@@ -182,7 +184,11 @@ export const Alias = (props: Props) => {
           <BlockLevelLabel alias={props.alias} />
         </div>
         {/* This <Stats> will be hidden on small screens: */}
-        <Stats alias={props.alias} profile={props.profile} />
+        <Stats
+          alias={props.alias}
+          profile={props.profile}
+          runtimeData={props.runtimeData}
+        />
         <div className={styles["expand-toggle"]}>
           <button {...expandButtonProps} ref={expandButtonRef}>
             <ArrowDownIcon
@@ -199,7 +205,11 @@ export const Alias = (props: Props) => {
       </div>
       <div className={styles["secondary-data"]}>
         {/* This <Stats> will be hidden on large screens: */}
-        <Stats alias={props.alias} profile={props.profile} />
+        <Stats
+          alias={props.alias}
+          profile={props.profile}
+          runtimeData={props.runtimeData}
+        />
         <div className={styles.row}>
           <BlockLevelSlider
             alias={props.alias}
@@ -232,6 +242,7 @@ export const Alias = (props: Props) => {
 type StatsProps = {
   alias: AliasData;
   profile: ProfileData;
+  runtimeData?: RuntimeData;
 };
 const Stats = (props: StatsProps) => {
   const { l10n } = useLocalization();
@@ -275,16 +286,19 @@ const Stats = (props: StatsProps) => {
         If the back-end does not yet support providing tracker blocking stats,
         hide the blocked trackers count:
        */}
-      {typeof props.alias.num_level_one_trackers_blocked === "number" && (
-        <TrackersRemovedTooltip>
-          <span className={styles.number}>
-            {numberFormatter.format(props.alias.num_level_one_trackers_blocked)}
-          </span>
-          <span className={styles.label}>
-            {l10n.getString("profile-label-trackers-removed")}
-          </span>
-        </TrackersRemovedTooltip>
-      )}
+      {isFlagActive(props.runtimeData, "tracker_removal") &&
+        typeof props.alias.num_level_one_trackers_blocked === "number" && (
+          <TrackersRemovedTooltip>
+            <span className={styles.number}>
+              {numberFormatter.format(
+                props.alias.num_level_one_trackers_blocked
+              )}
+            </span>
+            <span className={styles.label}>
+              {l10n.getString("profile-label-trackers-removed")}
+            </span>
+          </TrackersRemovedTooltip>
+        )}
     </div>
   );
 };
@@ -382,7 +396,14 @@ const TrackersRemovedTooltip = (props: TooltipProps) => {
           className={styles.tooltip}
         >
           <p>{l10n.getString("profile-trackers-removed-tooltip-part1")}</p>
-          <p>{l10n.getString("profile-trackers-removed-tooltip-part2")}</p>
+          <Localized
+            id="profile-trackers-removed-tooltip-part2-2"
+            elems={{
+              b: <b />,
+            }}
+          >
+            <p />
+          </Localized>
         </div>
       )}
     </div>

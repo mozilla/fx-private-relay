@@ -30,7 +30,11 @@ We use [SWR](https://swr.vercel.app/). See `src/hooks/api` for examples.
 
 ## Add a new string
 
-Add it to `pendingTranslations.ftl`, then submit a PR to the l10n repo.
+Add it to `pendingTranslations.ftl`, then submit a PR to the l10n repo. Updates
+to that repository (both yours, as well as updated translations from Pontoon)
+are automatically pushed to this repository (see the "Update submodules" commits
+in the commit history) by
+[a scheduled daily job](https://github.com/mozilla-l10n/fx-private-relay-l10n/actions/workflows/update-upstream-relay-repo.yml).
 
 ## Add styling
 
@@ -169,6 +173,17 @@ in
 We don't actually do this. Instead, the add-on simply calls
 `browser.tabs.reload` on any open website tab if it needs to reflect updated
 data.
+
+## Show/hide content to/from users with the add-on installed
+
+Apply the class `is-visible-with-addon` to hide an element unless the user is
+visiting with the add-on. Conversely, add `is-hidden-with-addon` to _show_ it
+unless the user is visiting with the add-on. Note that these are plain CSS
+classes, i.e. not CSS modules (in other words, use them as plain strings, rather
+than via `styles["is-visible-with-addon"]`).
+
+They are defined in `/frontend/src/styles/globals.scss` for the website, and in
+`relay-website.css` in the add-on.
 
 ## Work on the tracker removal report
 

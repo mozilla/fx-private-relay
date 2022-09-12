@@ -1,0 +1,232 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.bundle-banner-wrapper {
+  display: grid;
+  grid-template-columns: 10fr;
+  grid-template-rows: auto;
+  background-color: $color-violet-80;
+  border-radius: $border-radius-lg;
+  gap: $layout-xs;
+
+  // Snap to 2 columns
+  @media #{$mq-lg} {
+    background-image: url("./images/bundle-bg.svg");
+    grid-template-columns: 5fr 5fr;
+    background-size: cover;
+    gap: $layout-md;
+  }
+  @media #{$mq-xl} {
+    grid-template-columns: 4fr 6fr;
+  }
+
+  .first-section {
+    padding-right: $layout-lg; // Shrinks image towards the left side
+    position: relative;
+    background-image: url("./images/bundle-bg-mobile.svg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-bottom: 4px solid $color-purple-30;
+    border-radius: $border-radius-lg $border-radius-lg 0 0;
+
+    @media #{$mq-sm} {
+      padding-right: $layout-xl;
+    }
+    @media #{$mq-md} {
+      padding-right: $content-sm;
+    }
+
+    // Snap to 2 columns
+    @media #{$mq-lg} {
+      padding-right: $layout-lg;
+      border-bottom: none;
+      background-image: none;
+    }
+
+    .main-img-wrapper {
+      .main-image {
+        margin-top: -$layout-lg; // Leave space for image to bleed out of frame
+
+        @media #{$mq-lg} {
+          position: absolute;
+          bottom: 0;
+          margin-top: auto;
+        }
+      }
+    }
+
+    .float-features-wrapper {
+      display: none;
+
+      @media #{$mq-lg} {
+        display: block;
+
+        .float-features-item {
+          @include text-body-xs;
+          @include font-firefox;
+          font-weight: 600;
+          background: rgba(
+            255,
+            255,
+            255,
+            0.9
+          ); // Using rgba to manipulate alpha value
+          position: absolute;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: $spacing-sm;
+          padding: $spacing-sm;
+          border-radius: $border-radius-md;
+
+          .float-features-text {
+            line-height: 100%;
+            max-width: 90px;
+          }
+        }
+        .feature-one {
+          right: $layout-lg;
+          top: $layout-lg;
+        }
+        .feature-two {
+          right: $layout-xs;
+          bottom: $layout-2xl;
+        }
+        .feature-three {
+          left: $layout-sm;
+          bottom: $layout-lg;
+
+          .float-features-text {
+            max-width: 100px;
+          }
+        }
+      }
+    }
+  }
+
+  .second-section {
+    @media #{$mq-lg} {
+      padding-left: $layout-md;
+      display: flex;
+      justify-content: end;
+    }
+
+    .bundle-banner-description {
+      justify-content: space-between;
+      color: $color-white;
+      height: auto;
+      flex-direction: column;
+      display: flex;
+      gap: $spacing-md;
+      padding: 0 $spacing-md $spacing-xl $spacing-md;
+
+      @media #{$mq-lg} {
+        height: auto;
+        max-width: 600px;
+        padding: $spacing-2xl 0;
+        margin-right: $spacing-xl;
+      }
+
+      .headline {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .bottom-section {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-lg;
+        font-weight: 600;
+        margin-top: $spacing-md;
+        align-items: center;
+
+        @media #{$mq-lg} {
+          flex-direction: row;
+          gap: $spacing-md;
+          align-self: flex-start;
+        }
+
+        .button {
+          background: white;
+          color: $color-blue-50;
+          padding: $spacing-sm $spacing-md;
+          border-radius: $border-radius-sm;
+
+          &:hover {
+            opacity: 0.8;
+          }
+        }
+
+        .money-back-guarantee {
+          @include text-body-sm;
+        }
+      }
+
+      h2 {
+        @include text-title-xs;
+        @include font-firefox;
+        font-weight: 700;
+      }
+
+      h3 {
+        @include text-title-2xs;
+        @include font-firefox;
+        font-weight: 500;
+      }
+
+      .pricing-logo-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-md;
+        align-items: center;
+
+        img {
+          max-width: 130px;
+          align-self: center;
+        }
+
+        @media #{$mq-lg} {
+          flex-direction: row;
+        }
+
+        .pricing-wrapper {
+          border-radius: $border-radius-sm;
+          // Using rgba to manipulate alpha value
+          border: 2px solid rgba(255, 255, 255, 0.4);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+
+          @media #{$mq-lg} {
+            flex-direction: row;
+          }
+
+          span {
+            padding: $spacing-sm $spacing-md;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            font-weight: 600;
+            gap: $spacing-xs;
+
+            .price {
+              @include text-body-sm;
+              font-weight: 400;
+            }
+
+            &:first-child {
+              // Using rgba to manipulate alpha value
+              border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+
+              @media #{$mq-lg} {
+                border-right: 1px solid rgba(255, 255, 255, 0.4);
+                border-bottom: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

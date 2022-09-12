@@ -1,4 +1,5 @@
 import { NextPage } from "next";
+import { useState } from "react";
 import { Localized, useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./premium.module.scss";
@@ -6,6 +7,8 @@ import PerkIllustrationUnlimited from "../../public/images/perk-unlimited.svg";
 import PerkIllustrationCustomDomain from "../../public/images/perk-custom-domain.svg";
 import PerkIllustrationDashboard from "../../public/images/perk-dashboard.svg";
 import ShoppingIllustration from "../../public/images/use-case-shopping.svg";
+import PerkIllustrationBlockPromotionals from "../../public/images/perk-block-promotionals.svg";
+import PerkIllustrationTrackerBlocking from "../../public/images/perk-tracker-blocking.svg";
 import SocialNetworksIllustration from "../../public/images/use-case-social-networks.svg";
 import GamingIllustration from "../../public/images/use-case-gaming.svg";
 import OfflineIllustration from "../../public/images/use-case-offline.svg";
@@ -16,21 +19,30 @@ import OnTheGoPhone from "../components/landing/carousel/images/onthego-illustra
 import OnTheGoReceipt from "../components/landing/carousel/images/onthego-illustration-receipts.svg";
 import { Layout } from "../components/layout/Layout";
 import { useGaViewPing } from "../hooks/gaViewPing";
-import { Button, LinkButton } from "../components/Button";
+import { LinkButton } from "../components/Button";
 import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { Carousel } from "../components/landing/carousel/Carousel";
 import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
 import { Plans } from "../components/landing/Plans";
 import {
-  getPlan,
+  getPremiumPlan,
   getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { trackPurchaseStart } from "../functions/trackPurchase";
 import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
 import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
+import { isFlagActive } from "../functions/waffle";
+import { getLocale } from "../functions/getLocale";
+import { useInterval } from "../hooks/interval";
+import { CountdownTimer } from "../components/CountdownTimer";
+import { parseDate } from "../functions/parseDate";
+import { PlanMatrix } from "../components/landing/PlanMatrix";
+import { BundleBanner } from "../components/landing/BundleBanner";
+
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
@@ -51,56 +63,175 @@ const PremiumPromo: NextPage = () => {
       category: "Purchase Button",
       label: "premium-promo-perk-dashboard-cta",
     }),
-  };
-
-  const purchase = () => {
-    gaEvent({
+    "premium-promo-perk-block-promotionals-cta": useGaViewPing({
       category: "Purchase Button",
-      action: "Engage",
-      label: "home-hero-cta",
-    });
+      label: "premium-promo-perk-block-promotionals-cta",
+    }),
+    "premium-promo-perk-tracker-blocking-cta": useGaViewPing({
+      category: "Purchase Button",
+      label: "premium-promo-perk-tracker-blocking-cta",
+    }),
   };
 
-  const plansSection = isPremiumAvailableInCountry(runtimeData.data) ? (
-    <section id="pricing" className={styles["plans-wrapper"]}>
-      <div className={styles.plans}>
-        <div className={styles["plan-comparison"]}>
-          <Plans premiumCountriesData={runtimeData.data} />
+  const heroCountdownCtaRef = useGaViewPing({
+    category: "Purchase Button",
+    label: "Interstitial Page: Top Banner",
+  });
+  const plansCountdownCtaRef = useGaViewPing({
+    category: "Purchase Button",
+    label: "Interstitial Page: Bottom Banner",
+  });
+
+  const [now, setNow] = useState(Date.now());
+  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
+    dateStyle: "long",
+  });
+
+  useInterval(() => {
+    setNow(Date.now());
+  }, 1000);
+
+  const introPricingOfferEndDate = runtimeData.data
+    ? parseDate(runtimeData.data.INTRO_PRICING_END)
+    : new Date(0);
+  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
+
+  const plansSection =
+    // Show the countdown timer to the end of our introductory pricing offer if…
+    // …the offer hasn't expired yet,
+    remainingTimeInMs > 0 &&
+    // …the remaining time isn't far enough in the future that the user's
+    // computer's clock is likely to be wrong,
+    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
+    // …the user is able to purchase Premium at the introductory offer price, and
+    isPremiumAvailableInCountry(runtimeData.data) &&
+    // …the relevant feature flag is enabled:
+    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={styles.plans}>
+          <div className={styles["plan-comparison"]}>
+            <Plans runtimeData={runtimeData.data} />
+          </div>
+          <div className={styles.callout}>
+            <h2>
+              {l10n.getString("premium-promo-pricing-offer-end-headline", {
+                monthly_price: getPremiumPlan(runtimeData.data).price,
+              })}
+            </h2>
+            <div
+              className={styles["end-of-intro-pricing-countdown-and-warning"]}
+            >
+              <b>{l10n.getString("premium-promo-pricing-offer-end-warning")}</b>
+              <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
+            </div>
+            <LinkButton
+              ref={plansCountdownCtaRef}
+              href={getPremiumSubscribeLink(runtimeData.data)}
+              onClick={() => {
+                gaEvent({
+                  category: "Purchase Button",
+                  action: "Engage",
+                  label: "Interstitial Page: Bottom Banner",
+                });
+              }}
+            >
+              {l10n.getString("premium-promo-pricing-offer-end-cta")}
+            </LinkButton>
+            <p>
+              {l10n.getString("premium-promo-pricing-offer-end-body", {
+                end_date: endDateFormatter.format(introPricingOfferEndDate),
+              })}
+            </p>
+          </div>
         </div>
-        <div className={styles.callout}>
-          <h2>
-            {l10n.getString("landing-pricing-headline-2", {
-              monthly_price: getPlan(runtimeData.data).price,
+      </section>
+    ) : // Otherwise, if the countdown timer has reached 0:
+    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={styles.plans}>
+          <PlanMatrix runtimeData={runtimeData.data} />
+        </div>
+      </section>
+    ) : // Otherwise, if Premium is available in the user's country,
+    // allow them to purchase it:
+    isPremiumAvailableInCountry(runtimeData.data) ? (
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={styles.plans}>
+          <div className={styles["plan-comparison"]}>
+            <Plans runtimeData={runtimeData.data} />
+          </div>
+          <div className={styles.callout}>
+            <h2>
+              {l10n.getString("landing-pricing-headline-2", {
+                monthly_price: getPremiumPlan(runtimeData.data).price,
+              })}
+            </h2>
+            <p>{l10n.getString("landing-pricing-body-2")}</p>
+          </div>
+        </div>
+      </section>
+    ) : (
+      // Or finally, if Premium is not available in the country,
+      // prompt them to join the waitlist:
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
+          <Plans runtimeData={runtimeData.data} />
+        </div>
+      </section>
+    );
+
+  // Only show the countdown timer to the end of our introductory pricing offer if…
+  const introPricingEndBanner =
+    // …the offer hasn't expired yet,
+    remainingTimeInMs > 0 &&
+    // …the remaining time isn't far enough in the future that the user's
+    // computer's clock is likely to be wrong,
+    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
+    // …the user is able to purchase Premium at the introductory offer price, and
+    isPremiumAvailableInCountry(runtimeData.data) &&
+    // …the relevant feature flag is enabled:
+    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
+      <div className={styles["end-of-intro-pricing-hero"]}>
+        <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
+        <div>
+          <h3>{l10n.getString("premium-promo-offer-end-hero-heading")}</h3>
+          <p>
+            {l10n.getString("premium-promo-offer-end-hero-content", {
+              end_date: endDateFormatter.format(introPricingOfferEndDate),
             })}
-          </h2>
-          <p>{l10n.getString("landing-pricing-body-2")}</p>
+          </p>
         </div>
       </div>
-    </section>
-  ) : (
-    /* Show waitlist prompt if user is a non-premium country */
-    <section id="pricing" className={styles["plans-wrapper"]}>
-      <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
-        <Plans />
-      </div>
-    </section>
-  );
+    ) : null;
 
   const cta = isPremiumAvailableInCountry(runtimeData.data) ? (
     <LinkButton
-      ref={heroCtaRef}
+      ref={introPricingEndBanner === null ? heroCtaRef : heroCountdownCtaRef}
       href={getPremiumSubscribeLink(runtimeData.data)}
-      onClick={() => purchase()}
+      onClick={() => {
+        gaEvent({
+          category: "Purchase Button",
+          action: "Engage",
+          label:
+            introPricingEndBanner === null
+              ? "home-hero-cta"
+              : "Interstitial Page: Top Banner",
+        });
+      }}
     >
-      {l10n.getString("premium-promo-hero-cta")}
+      {l10n.getString(
+        introPricingEndBanner === null
+          ? "premium-promo-hero-cta"
+          : "premium-promo-offer-end-hero-cta"
+      )}
     </LinkButton>
   ) : (
-    <Button
-      disabled={true}
+    <LinkButton
+      href="/premium/waitlist"
       title={l10n.getString("premium-promo-availability-warning-2")}
     >
-      {l10n.getString("premium-promo-hero-cta")}
-    </Button>
+      {l10n.getString("waitlist-submit-label")}
+    </LinkButton>
   );
 
   const getPerkCta = (label: keyof typeof perkCtaRefs) => {
@@ -111,7 +242,7 @@ const PremiumPromo: NextPage = () => {
       <LinkButton
         ref={perkCtaRefs[label]}
         onClick={() => trackPurchaseStart({ label: label })}
-        href={getPremiumSubscribeLink(runtimeData.data)}
+        href="#pricing"
         title={l10n.getString("premium-promo-perks-cta-tooltip")}
       >
         {l10n.getString("premium-promo-perks-cta-label")}
@@ -126,19 +257,17 @@ const PremiumPromo: NextPage = () => {
           <div className={styles.lead}>
             <h2>{l10n.getString("premium-promo-hero-headline")}</h2>
             <Localized
-              id="premium-promo-hero-body-2-html"
+              id="premium-promo-hero-body-3"
               vars={{
                 monthly_price: isPremiumAvailableInCountry(runtimeData.data)
-                  ? getPlan(runtimeData.data).price
+                  ? getPremiumPlan(runtimeData.data).price
                   : runtimeData.data?.PREMIUM_PLANS.plan_country_lang_mapping.us
                       .en.price ?? "&hellip;",
-              }}
-              elems={{
-                b: <b />,
               }}
             >
               <p />
             </Localized>
+            {introPricingEndBanner}
             {cta}
             <p>{l10n.getString("premium-promo-availability-warning-2")}</p>
           </div>
@@ -151,6 +280,14 @@ const PremiumPromo: NextPage = () => {
             />
           </div>
         </section>
+
+        {isFlagActive(runtimeData.data, "bundle") &&
+          isBundleAvailableInCountry(runtimeData.data) && (
+            <section className={styles["bundle-banner-section"]}>
+              <BundleBanner runtimeData={runtimeData.data} />
+            </section>
+          )}
+
         <section id="perks" className={styles["perks-wrapper"]}>
           <div className={styles.perks}>
             <h2 className={styles.headline}>
@@ -203,6 +340,46 @@ const PremiumPromo: NextPage = () => {
                 {getPerkCta("premium-promo-perk-dashboard-cta")}
               </div>
             </div>
+            <div className={styles.perk}>
+              <img src={PerkIllustrationBlockPromotionals.src} alt="" />
+              <div className={styles.description}>
+                <b className={styles.pill}>
+                  {l10n.getString("premium-promo-perks-pill-new")}
+                </b>
+                <h3>
+                  {l10n.getString(
+                    "premium-promo-perks-perk-block-promotionals-headline"
+                  )}
+                </h3>
+                <p>
+                  {l10n.getString(
+                    "premium-promo-perks-perk-block-promotionals-body"
+                  )}
+                </p>
+                {getPerkCta("premium-promo-perk-block-promotionals-cta")}
+              </div>
+            </div>
+            {isFlagActive(runtimeData.data, "tracker_removal") ? (
+              <div className={styles.perk}>
+                <img src={PerkIllustrationTrackerBlocking.src} alt="" />
+                <div className={styles.description}>
+                  <b className={styles.pill}>
+                    {l10n.getString("premium-promo-perks-pill-new")}
+                  </b>
+                  <h3>
+                    {l10n.getString(
+                      "premium-promo-perks-perk-tracker-blocking-headline"
+                    )}
+                  </h3>
+                  <p>
+                    {l10n.getString(
+                      "premium-promo-perks-perk-tracker-blocking-body"
+                    )}
+                  </p>
+                  {getPerkCta("premium-promo-perk-tracker-blocking-cta")}
+                </div>
+              </div>
+            ) : null}
           </div>
         </section>
         <section id="use-cases" className={styles["use-cases-wrapper"]}>

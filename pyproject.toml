@@ -12,6 +12,7 @@ warn_unused_ignores = true
 django_settings_module = "privaterelay.settings"
 
 [[tool.mypy.overrides]]
+ignore_missing_imports = true
 module = [
     "allauth.account",
     "allauth.account.models",
@@ -28,6 +29,7 @@ module = [
     "django_filters",
     "django_ftl.bundles",
     "drf_yasg",
+    "drf_yasg.utils",
     "drf_yasg.views",
     "google_measurement_protocol",
     "jwcrypto",
@@ -40,16 +42,15 @@ module = [
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
     "twilio.rest",
-    "twilio.twiml.messaging_response",
+    "twilio.request_validator",
+    "vobject",
     "waffle",
     "waffle.models",
-    "waffle.testutils",
 ]
-ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 # Optional modules or in-progress features
+ignore_missing_imports = true
 module = [
     "silk",
 ]
-ignore_missing_imports = true

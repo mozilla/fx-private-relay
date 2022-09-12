@@ -26,7 +26,7 @@ import OpenSSL
 from django.core.management.base import CommandError
 
 from emails.sns import verify_from_sns
-from emails.views import _sns_inbound_logic, validate_sns_header
+from emails.views import _sns_inbound_logic, validate_sns_arn_and_type
 from emails.utils import incr_if_enabled, gauge_if_enabled
 from emails.management.command_from_django_settings import (
     CommandFromDjangoSettings,
@@ -367,7 +367,7 @@ class Command(CommandFromDjangoSettings):
 
         topic_arn = verified_json_body["TopicArn"]
         message_type = verified_json_body["Type"]
-        error_details = validate_sns_header(topic_arn, message_type)
+        error_details = validate_sns_arn_and_type(topic_arn, message_type)
         if error_details:
             results["success"] = False
             results.update(error_details)

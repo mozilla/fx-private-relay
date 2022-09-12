@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import datetime, timezone
 from email.message import EmailMessage
 from unittest.mock import patch, Mock
@@ -33,7 +34,7 @@ from emails.views import (
     _record_receipt_verdicts,
     _sns_message,
     _sns_notification,
-    validate_sns_header,
+    validate_sns_arn_and_type,
     wrapped_email_test,
     InReplyToNotFound,
 )
@@ -231,6 +232,42 @@ class BounceHandlingTest(TestCase):
         _sns_notification(BOUNCE_SNS_BODIES["spam"])
         profile = self.user.profile_set.first()
         assert profile.auto_block_spam == True
+
+
+class ComplaintHandlingTest(TestCase):
+    """Test Complaint notifications and events."""
+
+    @pytest.fixture(autouse=True)
+    def use_caplog(self, caplog):
+        self.caplog = caplog
+
+    @override_settings(STATSD_ENABLED=True)
+    def test_notification_type_complaint(self):
+        """
+        A notificationType of complaint increments a counter, logs details, and returns 200.
+
+        Example derived from:
+        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
+        """
+        complaint = {
+            "notificationType": "Complaint",
+            "complaint": {
+                "userAgent": "ExampleCorp Feedback Loop (V0.01)",
+                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
+                "complaintFeedbackType": "abuse",
+                "arrivalDate": "2009-12-03T04:24:21.000-05:00",
+                "timestamp": "2012-05-25T14:59:38.623Z",
+                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+            },
+        }
+        json_body = {"Message": json.dumps(complaint)}
+        with MetricsMock() as mm:
+            response = _sns_notification(json_body)
+        assert response.status_code == 200
+        mm.assert_incr_once("fx.private.relay.email_complaint")
+        assert len(self.caplog.records) == 1
+        record = self.caplog.records[0]
+        assert record.msg == "complaint_received"
 
 
 class SNSNotificationRemoveEmailsInS3Test(TestCase):
@@ -454,22 +491,25 @@ class SNSNotificationInvalidMessageTest(TestCase):
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
-    def test_notification_type_complaint(self):
-        """A notificationType of complaint returns a 400 error"""
-        # Manual json_body because no instances captured, from
-        # https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
-        complaint = {
-            "notificationType": "Complaint",
-            "complaint": {
-                "userAgent": "ExampleCorp Feedback Loop (V0.01)",
-                "complainedRecipients": [{"emailAddress": "recipient1@example.com"}],
-                "complaintFeedbackType": "abuse",
-                "arrivalDate": "2009-12-03T04:24:21.000-05:00",
-                "timestamp": "2012-05-25T14:59:38.623Z",
-                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+    def test_notification_type_delivery(self):
+        """
+        A notificationType of delivery returns a 400 error.
+
+        Test JSON derived from:
+        https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html
+        """
+        notification = {
+            "notificationType": "Delivery",
+            "delivery": {
+                "timestamp": "2014-05-28T22:41:01.184Z",
+                "processingTimeMillis": 546,
+                "recipients": ["success@simulator.amazonses.com"],
+                "smtpResponse": "250 ok:  Message 64111812 accepted",
+                "reportingMTA": "a8-70.smtp-out.amazonses.com",
+                "remoteMtaIp": "127.0.2.0",
             },
         }
-        json_body = {"Message": json.dumps(complaint)}
+        json_body = {"Message": json.dumps(notification)}
         response = _sns_notification(json_body)
         assert response.status_code == 400
 
@@ -579,7 +619,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_get_text_html,
         mocked_relay_email,
     ):
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
+        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
         mocked_relay_email.return_value = HttpResponse("SES client failed", status=503)
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
@@ -596,7 +636,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_get_text_html,
         mocked_relay_email,
     ):
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
+        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
         mocked_relay_email.return_value = HttpResponse("Email relayed", status=200)
 
         response = _sns_notification(EMAIL_SNS_BODIES["s3_stored"])
@@ -615,7 +655,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         mocked_relay_email,
     ):
         """A message with a failing DMARC and a "reject" policy is rejected."""
-        mocked_get_text_html.return_value = ("text_content", None, ["attachments"])
+        mocked_get_text_html.return_value = ("text_content", None, ["attachments"], 50)
         mocked_relay_email.side_effect = FAIL_TEST_IF_CALLED
 
         with MetricsMock() as mm:
@@ -647,7 +687,7 @@ class SnsMessageTest(TestCase):
 
         patcher = patch(
             "emails.views._get_text_html_attachments",
-            return_value=("text", "html", "attachments"),
+            return_value=("text", "html", "attachments", 50),
         )
         patcher.start()
         self.addCleanup(patcher.stop)
@@ -831,13 +871,13 @@ TEST_AWS_SNS_TOPIC2 = TEST_AWS_SNS_TOPIC + "-alt"
 
 
 @override_settings(AWS_SNS_TOPIC={TEST_AWS_SNS_TOPIC, TEST_AWS_SNS_TOPIC2})
-class ValidateSnsHeaderTests(SimpleTestCase):
-    def test_valid_headers(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "SubscriptionConfirmation")
+class ValidateSnsArnTypeTests(SimpleTestCase):
+    def test_valid_arn_and_type(self):
+        ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC, "SubscriptionConfirmation")
         assert ret is None
 
     def test_no_topic_arn(self):
-        ret = validate_sns_header(None, "Notification")
+        ret = validate_sns_arn_and_type(None, "Notification")
         assert ret == {
             "error": "Received SNS request without Topic ARN.",
             "received_topic_arn": "''",
@@ -847,15 +887,15 @@ class ValidateSnsHeaderTests(SimpleTestCase):
         }
 
     def test_wrong_topic_arn(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC + "-new", "Notification")
+        ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC + "-new", "Notification")
         assert ret["error"] == "Received SNS message for wrong topic."
 
     def test_no_message_type(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC2, None)
+        ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC2, None)
         assert ret["error"] == "Received SNS request without Message Type."
 
     def test_unsupported_message_type(self):
-        ret = validate_sns_header(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
+        ret = validate_sns_arn_and_type(TEST_AWS_SNS_TOPIC, "UnsubscribeConfirmation")
         assert ret["error"] == "Received SNS message for unsupported Type."
 
 
@@ -898,44 +938,48 @@ class SnsInboundViewSimpleTests(SimpleTestCase):
         )
         assert ret.status_code == 200
 
-    def test_no_topic_arn_header(self):
-        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
+    def test_no_topic_arn(self):
+        invalid_message = deepcopy(self.valid_message)
+        invalid_message["TopicArn"] = None
         ret = self.client.post(
             self.url,
-            data=self.valid_message,
+            data=invalid_message,
             content_type="application/json",
             HTTP_X_AMZ_SNS_TOPIC_ARN=None,
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Topic ARN."
 
-    def test_wrong_topic_arn_header(self):
-        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
+    def test_wrong_topic_arn(self):
+        invalid_message = deepcopy(self.valid_message)
+        invalid_message["TopicArn"] = "wrong_arn"
         ret = self.client.post(
             self.url,
-            data=self.valid_message,
+            data=invalid_message,
             content_type="application/json",
             HTTP_X_AMZ_SNS_TOPIC_ARN="wrong_arn",
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS message for wrong topic."
 
-    def test_no_message_type_header(self):
-        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
+    def test_no_message_type(self):
+        invalid_message = deepcopy(self.valid_message)
+        invalid_message["Type"] = None
         ret = self.client.post(
             self.url,
-            data=self.valid_message,
+            data=invalid_message,
             content_type="application/json",
             HTTP_X_AMZ_SNS_MESSAGE_TYPE=None,
         )
         assert ret.status_code == 400
         assert ret.content == b"Received SNS request without Message Type."
 
-    def test_unsupported_message_type_header(self):
-        self.mock_verify_from_sns.side_effect = FAIL_TEST_IF_CALLED
+    def test_unsupported_message_type(self):
+        invalid_message = deepcopy(self.valid_message)
+        invalid_message["Type"] = "UnsubscribeConfirmation"
         ret = self.client.post(
             self.url,
-            data=self.valid_message,
+            data=invalid_message,
             content_type="application/json",
             HTTP_X_AMZ_SNS_MESSAGE_TYPE="UnsubscribeConfirmation",
         )
@@ -1020,28 +1064,34 @@ def test_wrapped_email_test_from_profile(rf):
     assert "<dt>has_premium</dt><dd>No</dd>" in no_space_html
     assert "<dt>in_premium_country</dt><dd>Yes</dd>" in no_space_html
     assert "<dt>has_attachment</dt><dd>Yes</dd>" in no_space_html
-    assert "<dt>has_email_tracker_study_link</dt><dd>No</dd>" in no_space_html
+    assert "<dt>has_tracker_report_link</dt><dd>No</dd>" in no_space_html
+    assert (
+        "<dt>has_num_level_one_email_trackers_removed</dt><dd>No</dd>" in no_space_html
+    )
 
 
 @pytest.mark.parametrize("language", ("en", "fy-NL", "ja"))
 @pytest.mark.parametrize("has_premium", ("Yes", "No"))
 @pytest.mark.parametrize("in_premium_country", ("Yes", "No"))
 @pytest.mark.parametrize("has_attachment", ("Yes", "No"))
-@pytest.mark.parametrize("has_email_tracker_study_link", ("Yes", "No"))
+@pytest.mark.parametrize("has_tracker_report_link", ("Yes", "No"))
+@pytest.mark.parametrize("num_level_one_email_trackers_removed", ("1", "0"))
 def test_wrapped_email_test(
     rf,
     language,
     has_premium,
     in_premium_country,
     has_attachment,
-    has_email_tracker_study_link,
+    has_tracker_report_link,
+    num_level_one_email_trackers_removed,
 ):
     data = {
         "language": language,
         "has_premium": has_premium,
         "in_premium_country": in_premium_country,
         "has_attachment": has_attachment,
-        "has_email_tracker_study_link": has_email_tracker_study_link,
+        "has_tracker_report_link": has_tracker_report_link,
+        "num_level_one_email_trackers_removed": num_level_one_email_trackers_removed,
     }
     request = rf.get("/emails/wrapped_email_test", data=data)
     response = wrapped_email_test(request)
@@ -1055,6 +1105,11 @@ def test_wrapped_email_test(
     assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
     assert f"<dt>has_attachment</dt><dd>{has_attachment}</dd>" in no_space_html
     assert (
-        "<dt>has_email_tracker_study_link</dt>"
-        f"<dd>{has_email_tracker_study_link}</dd>"
+        "<dt>has_tracker_report_link</dt>" f"<dd>{has_tracker_report_link}</dd>"
+    ) in no_space_html
+    has_num_level_one_email_trackers_removed = (
+        "Yes" if int(num_level_one_email_trackers_removed) else "No"
+    )
+    assert (
+        f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html

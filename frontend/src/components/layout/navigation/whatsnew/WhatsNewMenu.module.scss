@@ -1,4 +1,6 @@
 @import "../../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 
 button.trigger {
   flex-shrink: 0;
@@ -53,4 +55,22 @@ button.trigger {
     transform: rotate(45deg);
     background-color: $color-white;
   }
+}
+
+.cta {
+  @include text-body-lg;
+  color: $color-blue-50;
+  font-weight: 500;
+  text-decoration: underline;
+  margin-top: $spacing-sm;
+
+  &:hover {
+    color: $color-blue-80;
+  }
+}
+
+.countdown-timer {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-2xl 0;
 }
