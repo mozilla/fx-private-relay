@@ -33,7 +33,7 @@ const Phone: NextPage = () => {
 
   useEffect(() => {
     // check if phone flag is active - return to premium page if not.
-    if (runtimeData.data && !isFlagActive(runtimeData.data, "phones")) {
+    if (!isFlagActive(runtimeData.data, "phones")) {
       router.push("/premium");
     }
   }, [runtimeData.data, router]);
