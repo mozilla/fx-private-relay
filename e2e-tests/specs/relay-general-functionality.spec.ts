@@ -42,7 +42,7 @@ test.describe('Free - General Functionalities, Desktop - Visual Regression', () 
     );
   })
 
-  test('Verify that the "Profile" button and its options work correctly, C1812641', async ({ dashboardPage }) => {
+  test.fixme('Verify that the "Profile" button and its options work correctly, C1812641', async ({ dashboardPage }) => {    
     await dashboardPage.relayExtensionBanner.scrollIntoViewIfNeeded()
     await expect(dashboardPage.relayExtensionBanner).toHaveScreenshot(
       `${process.env.E2E_TEST_ENV}-relayExtensionBanner.png`,
