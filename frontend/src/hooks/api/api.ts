@@ -1,4 +1,4 @@
-import useSWR, { Fetcher, SWRResponse } from "swr";
+import useSWR, { Fetcher, SWRConfig, SWRResponse } from "swr";
 import { PublicConfiguration } from "swr/dist/types";
 import { getRuntimeConfig } from "../../config";
 import { getCsrfToken } from "../../functions/cookies";
@@ -75,6 +75,26 @@ export function useApiV1<Data = unknown>(
   //       (This is currently enforced by doing a full page refresh when logging out.)
   const result = useSWR(route, fetcher, {
     revalidateOnFocus: false,
+    onErrorRetry: (
+      error: unknown | FetchError,
+      key,
+      config: Parameters<typeof SWRConfig.default.onErrorRetry>[2],
+      revalidate,
+      revalidateOpts
+    ) => {
+      if (error instanceof FetchError && error.response.ok === false) {
+        // When the request got rejected by the back-end, do not retry:
+        return;
+      }
+      // Otherwise, use SWR's default exponential back-off to retry:
+      SWRConfig.default.onErrorRetry(
+        error,
+        key,
+        config,
+        revalidate,
+        revalidateOpts
+      );
+    },
     ...swrOptions,
   }) as SWRResponse<Data, FetchError>;
   return result;
