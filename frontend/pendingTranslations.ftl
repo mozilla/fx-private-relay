@@ -128,7 +128,9 @@ phone-onboarding-step1-list-item-2 = Need to confirm a dinner reservation? Share
 phone-onboarding-step1-list-item-3 = With phone number masking, you can receive texts. Replying is not yet available.
 
 phone-onboarding-step1-button-label = Upgrade to get phone number masking
-phone-onboarding-step1-button-price = $4.99 / month
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
+phone-onboarding-step1-button-price = { $monthly_price } / month
 phone-onboarding-step1-button-cta = Upgrade Now
 
 phone-onboarding-step2-headline = Verify your true phone number
@@ -392,3 +394,78 @@ faq-question-bulk-trackerremoval-answer = You can only turn tracker removal on a
 faq-question-trackerremoval-breakage-question = Why do my emails look broken?
 faq-question-trackerremoval-breakage-answer-2 = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images and links. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
 
+## VPN and Relay Bundle Banner
+bundle-banner-header = { -brand-name-firefox-relay } with <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
+bundle-banner-subheader = Security, reliability and speed — on every device, anywhere you go.
+bundle-banner-body = Surf, stream, game, and get work done while maintaining your privacy online. Whether you’re traveling, using public Wi-Fi, or simply looking for more online security, we will always put your privacy first.
+bundle-banner-1-year-plan = 1 year plan: <b>{ -brand-name-firefox-relay-premium } + { -brand-name-mozilla-vpn }</b>
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
+bundle-price-monthly = Monthly: <monthly-price>{ $monthly_price }</monthly-price>
+# Variables:
+#   #savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
+#   $old_price (string) - the outdated monthly cost (including currency symbol) for a given plan. This value has a strikethrough.
+bundle-price-save-amount = Save { $savings } <outdated-price>Normally { $old_price }</outdated-price>
+bundle-banner-alt = { -brand-name-mozilla-vpn } and { -brand-name-relay }
+bundle-banner-cta = Get { -brand-name-mozilla-vpn } + { -brand-name-relay }
+# Variables:
+#   $days_guarantee (string) - the number of days for money-back guarantee. Examples: 30, 90
+bundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee included 
+# Variables:
+#   #num_vpn_servers (string) - the number of VPN servers. Examples: 400, 500, 600
+bundle-feature-one = More than { $num_vpn_servers } servers
+# Variables:
+#   #num_vpn_countries (string) - the number of VPN available countries. Examples: 30, 40, 50
+bundle-feature-two = More than { $num_vpn_countries } countries
+bundle-feature-three = Fast and secure network
+
+## Comparison table of the different plans
+
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
+# Please preserve the asterisk (*) following the price; it indicates that the price is billed yearly.
+plan-matrix-bundle-offer-heading = Limited-time only: { -brand-name-relay-premium } + { -brand-name-mozilla-vpn } ${ $monthly_price }/month*
+plan-matrix-bundle-offer-content = Try { -brand-name-firefox-relay } email masks and start protecting your email inbox. Then upgrade to { -brand-name-relay-premium } for even more flexibility and customized control.
+plan-matrix-heading-features = Features
+plan-matrix-heading-plan-free = Limited email protection
+plan-matrix-heading-plan-premium = Email protection
+plan-matrix-heading-plan-phones = Email & phone protection
+plan-matrix-heading-plan-bundle = Add VPN protection
+plan-matrix-heading-plan-bundle-alt = Get { -brand-name-relay-premium } and { -brand-name-mozilla-vpn }
+# This heading accompanies the number of email masks available in each plan (i.e. 5 for free plans, unlimited otherwise)
+plan-matrix-heading-feature-email_masks = Email masks
+plan-matrix-heading-feature-browser_extension = Browser extension
+plan-matrix-heading-feature-email_tracker_removal = Remove email trackers
+plan-matrix-heading-feature-promo_email_blocking = Block promotional emails
+plan-matrix-heading-feature-email_subdomain = Email subdomain
+plan-matrix-heading-feature-email_reply = Reply to forwarded emails
+plan-matrix-heading-feature-phone_mask = Phone number mask
+plan-matrix-heading-feature-vpn = Access to <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
+plan-matrix-feature-list-email_masks_unlimited = Unlimited email masks
+# Variables:
+#   $mask_limit (number) - the number of masks included with a particular plan
+plan-matrix-feature-list-email_masks = { $mask_limit } email masks
+plan-matrix-feature-list-browser_extension = Browser extension
+plan-matrix-feature-list-email_tracker_removal = Remove email trackers
+plan-matrix-feature-list-promo_email_blocking = Block promotional emails
+plan-matrix-feature-list-email_subdomain = Email subdomain
+plan-matrix-feature-list-email_reply = Reply to forwarded emails
+plan-matrix-feature-list-phone_mask = Phone number mask
+plan-matrix-feature-list-vpn = Access to <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
+plan-matrix-heading-price = Price
+plan-matrix-feature-count-unlimited = Unlimited
+plan-matrix-feature-included = Included
+plan-matrix-feature-not-included = Not included
+plan-matrix-price-free = Free
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
+plan-matrix-price-monthly = { $monthly_price }/month
+plan-matrix-price-period-yearly = Yearly
+# We're showing a monthly price to make it easier to compare, but with an asterisk noting that it'll be billed yearly
+plan-matrix-price-period-yearly-note = Billing yearly
+plan-matrix-price-period-monthly = Monthly
+# Variables:
+#   $percentage (number) - how many percent discount this plan gets subscribers on the regular Mozilla VPN price
+plan-matrix-price-vpn-discount = Save { $percentage }% on regular VPN price
+plan-matrix-pick = Sign Up
+plan-matrix-join-waitlist = Join the Waitlist

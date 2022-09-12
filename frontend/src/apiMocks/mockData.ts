@@ -15,7 +15,9 @@ export const mockedRuntimeData: RuntimeData = {
   GOOGLE_ANALYTICS_ID: "UA-123456789-0",
   INTRO_PRICING_END: "2022-09-27T16:00:00.000Z",
   PREMIUM_PRODUCT_ID: "prod_123456789",
+  PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
   PHONE_PRODUCT_ID: "prod_123456789",
+  BUNDLE_PRODUCT_ID: "prod_123456789",
   PREMIUM_PLANS: {
     country_code: "nl",
     plan_country_lang_mapping: {
@@ -29,11 +31,65 @@ export const mockedRuntimeData: RuntimeData = {
     premium_countries: ["nl"],
     premium_available_in_country: true,
   },
+  PERIODICAL_PREMIUM_PLANS: {
+    country_code: "nl",
+    plan_country_lang_mapping: {
+      nl: {
+        nl: {
+          monthly: {
+            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
+            price: "€2,50",
+          },
+          yearly: {
+            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
+            price: "€1,99",
+          },
+        },
+      },
+    },
+    countries: ["nl"],
+    available_in_country: true,
+  },
+  PHONE_PLANS: {
+    country_code: "nl",
+    plan_country_lang_mapping: {
+      nl: {
+        nl: {
+          monthly: {
+            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
+            price: "€5,99",
+          },
+          yearly: {
+            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
+            price: "€4,99",
+          },
+        },
+      },
+    },
+    countries: ["nl"],
+    available_in_country: true,
+  },
+  BUNDLE_PLANS: {
+    country_code: "nl",
+    plan_country_lang_mapping: {
+      nl: {
+        nl: {
+          yearly: {
+            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
+            price: "€8,99",
+          },
+        },
+      },
+    },
+    countries: ["nl"],
+    available_in_country: true,
+  },
   WAFFLE_FLAGS: [
     ["new_from_address", true],
     ["tracker_removal", true],
     ["phones", true],
     ["intro_pricing_countdown", true],
+    ["bundle", true],
   ],
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
 };

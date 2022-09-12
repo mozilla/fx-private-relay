@@ -29,6 +29,7 @@ import { AliasData, useAliases } from "../../hooks/api/aliases";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { useAddonData } from "../../hooks/addon";
 import { isFlagActive } from "../../functions/waffle";
+import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 
 const Settings: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -268,38 +269,44 @@ const Settings: NextPage = () => {
       </div>
     ) : null;
 
-  const phoneCallerSMSLogSetting = isFlagActive(runtimeData.data, "phones") ? (
-    <div className={styles.field}>
-      <h2 className={styles["field-heading"]}>
-        <span className={styles["field-heading-icon-wrapper"]}>
-          {l10n.getString("phone-settings-caller-sms-log")}
-        </span>
-      </h2>
-      <div className={styles["field-content"]}>
-        <div className={styles["field-control"]}>
-          <input
-            type="checkbox"
-            name="caller-sms-log"
-            id="caller-sms-log"
-            defaultChecked={profile.store_phone_log}
-            onChange={(e) => {
-              setPhoneCallerSMSLogEnabled(e.target.checked);
-              setPhoneCallerSMSLogEnabledLabel(!phoneCallerSMSLogEnabledLabel);
-            }}
-          />
-          <label htmlFor="caller-sms-log">
-            <p>{l10n.getString("phone-settings-caller-sms-log-description")}</p>
-          </label>
-        </div>
-        {phoneCallerSMSLogEnabledLabel ? (
-          <div className={styles["field-warning"]}>
-            <InfoTriangleIcon alt="" />
-            <p>{l10n.getString("phone-settings-caller-sms-log-warning")}</p>
+  const phoneCallerSMSLogSetting =
+    isPhonesAvailableInCountry(runtimeData.data) &&
+    isFlagActive(runtimeData.data, "phones") ? (
+      <div className={styles.field}>
+        <h2 className={styles["field-heading"]}>
+          <span className={styles["field-heading-icon-wrapper"]}>
+            {l10n.getString("phone-settings-caller-sms-log")}
+          </span>
+        </h2>
+        <div className={styles["field-content"]}>
+          <div className={styles["field-control"]}>
+            <input
+              type="checkbox"
+              name="caller-sms-log"
+              id="caller-sms-log"
+              defaultChecked={profile.store_phone_log}
+              onChange={(e) => {
+                setPhoneCallerSMSLogEnabled(e.target.checked);
+                setPhoneCallerSMSLogEnabledLabel(
+                  !phoneCallerSMSLogEnabledLabel
+                );
+              }}
+            />
+            <label htmlFor="caller-sms-log">
+              <p>
+                {l10n.getString("phone-settings-caller-sms-log-description")}
+              </p>
+            </label>
           </div>
-        ) : null}
+          {phoneCallerSMSLogEnabledLabel ? (
+            <div className={styles["field-warning"]}>
+              <InfoTriangleIcon alt="" />
+              <p>{l10n.getString("phone-settings-caller-sms-log-warning")}</p>
+            </div>
+          ) : null}
+        </div>
       </div>
-    </div>
-  ) : null;
+    ) : null;
 
   return (
     <>

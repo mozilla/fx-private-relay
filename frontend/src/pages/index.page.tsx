@@ -31,8 +31,9 @@ import { CarouselContentHero } from "../components/landing/carousel/ContentHero"
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 import { Plans } from "../components/landing/Plans";
 import {
-  getPlan,
+  getPremiumPlan,
   getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -44,6 +45,8 @@ import { useInterval } from "../hooks/interval";
 import { CountdownTimer } from "../components/CountdownTimer";
 import { isFlagActive } from "../functions/waffle";
 import { parseDate } from "../functions/parseDate";
+import { PlanMatrix } from "../components/landing/PlanMatrix";
+import { BundleBanner } from "../components/landing/BundleBanner";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -109,7 +112,7 @@ const Home: NextPage = () => {
           <div className={styles.callout}>
             <h2>
               {l10n.getString("landing-pricing-offer-end-headline", {
-                monthly_price: getPlan(runtimeData.data).price,
+                monthly_price: getPremiumPlan(runtimeData.data).price,
               })}
             </h2>
             <div
@@ -139,6 +142,13 @@ const Home: NextPage = () => {
           </div>
         </div>
       </section>
+    ) : // Otherwise, if the countdown timer has reached 0:
+    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
+      <section id="pricing" className={styles["plans-wrapper"]}>
+        <div className={styles.plans}>
+          <PlanMatrix runtimeData={runtimeData.data} />
+        </div>
+      </section>
     ) : // Otherwise, if Premium is available in the user's country,
     // allow them to purchase it:
     isPremiumAvailableInCountry(runtimeData.data) ? (
@@ -150,7 +160,7 @@ const Home: NextPage = () => {
           <div className={styles.callout}>
             <h2>
               {l10n.getString("landing-pricing-headline-2", {
-                monthly_price: getPlan(runtimeData.data).price,
+                monthly_price: getPremiumPlan(runtimeData.data).price,
               })}
             </h2>
             <p>{l10n.getString("landing-pricing-body-2")}</p>
@@ -241,6 +251,14 @@ const Home: NextPage = () => {
             />
           </div>
         </section>
+
+        {isFlagActive(runtimeData.data, "bundle") &&
+          isBundleAvailableInCountry(runtimeData.data) && (
+            <section className={styles["bundle-banner-section"]}>
+              <BundleBanner runtimeData={runtimeData.data} />
+            </section>
+          )}
+
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
           <div className={styles["how-it-works"]}>
             <h2 className={styles.headline}>
