@@ -63,6 +63,7 @@ button.trigger {
   font-weight: 500;
   text-decoration: underline;
   margin-top: $spacing-sm;
+  cursor: pointer;
 
   &:hover {
     color: $color-blue-80;
