@@ -172,15 +172,13 @@ class RelayNumber(models.Model):
     )
     enabled = models.BooleanField(default=True)
     remaining_minutes = models.IntegerField(
-        blank=True, null=True, default=settings.MAX_MINUTES_PER_BILLING_CYCLE
+        default=settings.MAX_MINUTES_PER_BILLING_CYCLE
     )
-    remaining_texts = models.IntegerField(
-        blank=True, null=True, default=settings.MAX_TEXTS_PER_BILLING_CYCLE
-    )
-    calls_forwarded = models.IntegerField(blank=True, null=True, default=0)
-    calls_blocked = models.IntegerField(blank=True, null=True, default=0)
-    texts_forwarded = models.IntegerField(blank=True, null=True, default=0)
-    texts_blocked = models.IntegerField(blank=True, null=True, default=0)
+    remaining_texts = models.IntegerField(default=settings.MAX_TEXTS_PER_BILLING_CYCLE)
+    calls_forwarded = models.IntegerField(default=0)
+    calls_blocked = models.IntegerField(default=0)
+    texts_forwarded = models.IntegerField(default=0)
+    texts_blocked = models.IntegerField(default=0)
 
     @property
     def calls_and_texts_forwarded(self):
