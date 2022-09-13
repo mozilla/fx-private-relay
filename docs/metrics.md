@@ -28,7 +28,8 @@ Configuration is controlled by these environment variables:
   `DJANGO_STATSD_ENABLED` or `STATSD_DEBUG` are `True`
 - `STATSD_HOST` (default `"127.0.0.1"`) - statsd server IP
 - `STATSD_PORT` (default `8125`) - statsd server port
-- `STATSD_PREFIX` (default `"fx-private-relay"`) - prefix for all metrics
+- `STATSD_PREFIX` (default `"fx.private.relay"`) - prefix for all metrics.
+  Dashes (and maybe other values) are converted to periods.
 
 With the defaults `DJANGO_STATSD_ENABLED=False` and `STATSD_DEBUG=False`, no metrics
 are emitted. In deployments, `DJANGO_STATSD_ENABLED=True` and `STATSD_DEBUG=False`,
@@ -83,12 +84,12 @@ class CodeTest(TestCase):
         with MetricsMock() as mm:
             assert code_that_emits_metric() == 1
 
-        mm.assert_incr_once(stat="fx-private-relay.code_called")
+        mm.assert_incr_once("fx.private.relay.code_called")
 ```
 
 When testing, note that the `STATSD_PREFIX` (default `"fx-private-relay"`) is
 in the emitted metric name, so in this example, the test is looking for
-`"fx-private-relay.code_called"`, not `"code_called"`.
+`"fx.private.relay.code_called"`, not `"code_called"`.
 
 [markus-datadogmetrics]: https://markus.readthedocs.io/en/latest/backends.html#datadog-metrics
 [markus-loggingmetrics]: https://markus.readthedocs.io/en/latest/backends.html#logging-metrics
