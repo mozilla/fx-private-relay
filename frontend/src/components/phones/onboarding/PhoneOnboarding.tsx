@@ -1,34 +1,29 @@
-import { useProfiles } from "../../../hooks/api/profile";
+import { ProfileData } from "../../../hooks/api/profile";
 import styles from "./PhoneOnboarding.module.scss";
 import {
   useRealPhonesData,
   isVerified,
   isNotVerified,
 } from "../../../hooks/api/realPhone";
-import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { PurchasePhonesPlan } from "./PurchasePhonesPlan";
 import { RealPhoneSetup } from "./RealPhoneSetup";
 import { RelayNumberPicker } from "./RelayNumberPicker";
+import { RuntimeDataWithPhonesAvailable } from "../../../functions/getPlan";
 
 export type Props = {
   onComplete: () => void;
+  profile: ProfileData;
+  runtimeData: RuntimeDataWithPhonesAvailable;
 };
 
 export const PhoneOnboarding = (props: Props) => {
-  const profiles = useProfiles();
   const realPhoneData = useRealPhonesData();
-  const runtimeData = useRuntimeData();
 
   let step = null;
 
-  // Make sure profile and runtime data are available
-  if (profiles.data?.[0] === undefined || !runtimeData.data) {
-    return null;
-  }
-
   // Show Upgrade Prompt - User has not yet purchased phone
-  if (!profiles.data?.[0].has_phone) {
-    step = <PurchasePhonesPlan />;
+  if (!props.profile.has_phone) {
+    step = <PurchasePhonesPlan runtimeData={props.runtimeData} />;
   }
 
   // Make sure realPhoneData data is available
@@ -51,7 +46,7 @@ export const PhoneOnboarding = (props: Props) => {
           await realPhoneData.requestPhoneRemoval(id)
         }
         onSubmitVerification={realPhoneData.submitPhoneVerification}
-        runtimeData={runtimeData.data}
+        runtimeData={props.runtimeData}
       />
     );
   }
