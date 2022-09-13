@@ -5,7 +5,7 @@
  */
 export function formatPhone(
   phoneNumber: string,
-  options?: { withCountryCode?: boolean }
+  options?: { withCountryCode?: boolean; digitsOnly?: boolean }
 ): string {
   // remove country code by default
   // remove all none numeric characters
@@ -19,7 +19,16 @@ export function formatPhone(
   const zip = phone.substring(0, 3);
   const middle = phone.substring(3, 6);
   const last = phone.substring(6, 10);
-  const countryCode = options && options.withCountryCode ? "+1 " : "";
+  const countryCode =
+    options && options.withCountryCode
+      ? options.digitsOnly
+        ? "+1"
+        : "+1 "
+      : "";
+
+  if (options && options.digitsOnly) {
+    return `${countryCode}${phone}`;
+  }
 
   return phone.length > 6
     ? `${countryCode}(${zip}) ${middle} - ${last}`

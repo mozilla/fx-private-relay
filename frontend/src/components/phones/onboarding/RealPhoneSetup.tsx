@@ -1,8 +1,6 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
 import { Localized, useLocalization } from "@fluent/react";
-import { isPossiblePhoneNumber } from "react-phone-number-input";
 import styles from "./RealPhoneSetup.module.scss";
-import "react-phone-number-input/style.css";
 import PhoneVerify from "./images/phone-verify.svg";
 import EnterVerifyCode from "./images/enter-verify-code.svg";
 import EnterVerifyCodeError from "./images/verify-code-error.svg";
@@ -78,14 +76,18 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
 
-    const phoneNumberWithCountryCode = `+1${phoneNumber}`;
+    // this will format our phone number to be in the format +19094567890
+    const phoneNumberWithCountryCode = formatPhone(phoneNumber, {
+      withCountryCode: true,
+      digitsOnly: true,
+    });
 
     // use this number to show user the number they submitted
     setPhoneNumberSubmitted(phoneNumber);
 
     // check if number is a possible number to begin with
     // this should deal with the case where the user enters a number with too few digits.
-    if (!isPossiblePhoneNumber(phoneNumberWithCountryCode)) {
+    if (phoneNumberWithCountryCode.length < 12) {
       setPhoneNumberError(true);
       return;
     }
@@ -131,12 +133,9 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     // remove all non-digit characters
-    const phone = e.target.value.replace(/\D/g, "");
+    const phone = formatPhone(e.target.value, { digitsOnly: true });
 
-    // set the new value if under 10 digits
-    if (phone.length <= 10) {
-      setPhoneNumber(phone);
-    }
+    setPhoneNumber(phone);
   };
 
   return (
@@ -169,6 +168,8 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
             autoFocus={true}
             onChange={onChange}
             inputMode="numeric"
+            maxLength={16}
+            minLength={16}
           />
         </div>
 
