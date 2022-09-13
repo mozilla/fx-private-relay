@@ -56,8 +56,6 @@ import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
 import {
   getBundlePrice,
-  getBundleSubscribeLink,
-  getPhoneSubscribeLink,
   getPremiumSubscribeLink,
   isBundleAvailableInCountry,
   isPhonesAvailableInCountry,
@@ -67,6 +65,7 @@ import { parseDate } from "../../../../functions/parseDate";
 import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import { CountdownTimer } from "../../../CountdownTimer";
 import { useInterval } from "../../../../hooks/interval";
+import Link from "next/link";
 
 export type WhatsNewEntry = {
   title: string;
@@ -93,7 +92,7 @@ export type Props = {
 };
 
 type CtaProps = {
-  link: string;
+  link?: string;
   label: string;
   subscribed?: boolean;
 };
@@ -104,14 +103,9 @@ const CtaLinkButton = (props: CtaProps) => {
   return (
     <>
       {!hasSubscription ? (
-        // Only show upgrade link if user has not yet subscribed to a plan
-        <OutboundLink
-          to={props.link}
-          eventLabel={props.label}
-          className={styles.cta}
-        >
-          <span>{props.label}</span>
-        </OutboundLink>
+        <Link href="/premium#pricing">
+          <span className={styles.cta}>{props.label}</span>
+        </Link>
       ) : null}
     </>
   );
@@ -465,7 +459,6 @@ export const WhatsNewMenu = (props: Props) => {
           cta={
             <CtaLinkButton
               subscribed={props.profile.has_phone}
-              link={getPhoneSubscribeLink(props.runtimeData, "monthly")}
               label={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
             />
           }
@@ -512,7 +505,6 @@ export const WhatsNewMenu = (props: Props) => {
           cta={
             <CtaLinkButton
               // TODO: Add has_bundle to profile data => subscribed={props.profile.has_bundle}
-              link={getBundleSubscribeLink(props.runtimeData)}
               label={l10n.getString("whatsnew-feature-bundle-upgrade-cta")}
             />
           }
