@@ -1,7 +1,11 @@
-import { act, render } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { mockConfigModule } from "../../__mocks__/configMock";
-import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
+import { setMockInboundContactData } from "../../__mocks__/hooks/api/inboundContact";
+import {
+  setMockProfileData,
+  setMockProfileDataOnce,
+} from "../../__mocks__/hooks/api/profile";
 import {
   getMockVerifiedRealPhone,
   setMockRealPhonesData,
@@ -9,8 +13,10 @@ import {
 import {
   getMockRelayNumber,
   setMockRelayNumberData,
+  setMockRelayNumberDataOnce,
 } from "../../__mocks__/hooks/api/relayNumber";
 import {
+  getMockRuntimeDataWithPremium,
   setMockRuntimeData,
   setMockRuntimeDataOnce,
 } from "../../__mocks__/hooks/api/runtimeData";
@@ -54,12 +60,40 @@ describe("The Phone dashboard", () => {
         expect(results).toHaveNoViolations();
       }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
     });
+
+    it("redirects the user to /premium if they have not subscribed to the phone plan and it is not available in their current location", async () => {
+      setMockRuntimeDataOnce(getMockRuntimeDataWithPremium());
+      setMockProfileDataOnce({ has_phone: false });
+      const mockedNextRouterModule = jest.requireMock("next/router");
+      const mockedPush = jest.fn();
+      mockedNextRouterModule.useRouter = jest.fn(() => ({ push: mockedPush }));
+      expect(mockedPush).not.toHaveBeenCalled();
+
+      render(<PhoneDashboard />);
+
+      expect(mockedPush).toHaveBeenCalledWith("/premium");
+    });
+
+    it("redirects the user to /premium if they have not set up a Relay number yet and the phone plan is not available in their current location", async () => {
+      setMockRuntimeDataOnce(getMockRuntimeDataWithPremium());
+      setMockProfileDataOnce({ has_phone: true });
+      setMockRelayNumberDataOnce([]);
+      const mockedNextRouterModule = jest.requireMock("next/router");
+      const mockedPush = jest.fn();
+      mockedNextRouterModule.useRouter = jest.fn(() => ({ push: mockedPush }));
+      expect(mockedPush).not.toHaveBeenCalled();
+
+      render(<PhoneDashboard />);
+
+      expect(mockedPush).toHaveBeenCalledWith("/premium");
+    });
   });
 
   describe("with an initialised account", () => {
     beforeEach(() => {
       setMockRelayNumberData([getMockRelayNumber()]);
       setMockRealPhonesData([getMockVerifiedRealPhone()]);
+      setMockInboundContactData();
       setMockProfileData({ has_phone: true });
     });
 
@@ -78,6 +112,19 @@ describe("The Phone dashboard", () => {
 
         expect(results).toHaveNoViolations();
       }, 10000); // axe runs a suite of tests that can exceed the default 5s timeout, so we set it to 10s
+    });
+
+    it("shows the dashboard even if the phone plan isn't available in the user's current location", () => {
+      setMockRuntimeDataOnce(getMockRuntimeDataWithPremium());
+
+      render(<PhoneDashboard />);
+
+      const shownPhoneNumbers = screen.getAllByText(/\+1/);
+
+      // The Relay number and the real number should be shown
+      expect(shownPhoneNumbers).toHaveLength(2);
+      expect(shownPhoneNumbers[0]).toBeInTheDocument();
+      expect(shownPhoneNumbers[1]).toBeInTheDocument();
     });
   });
 });
