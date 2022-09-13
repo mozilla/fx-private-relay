@@ -39,6 +39,8 @@ import PremiumFinlandHero from "./images/premium-expansion-finland-hero.svg";
 import PremiumFinlandIcon from "./images/premium-expansion-finland-icon.svg";
 import PhoneMaskingHero from "./images/phone-masking-hero.svg";
 import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
+import BundleHero from "./images/bundle-promo-hero.svg";
+import BundleIcon from "./images/bundle-promo-icon.svg";
 import OfferCountdownIcon from "./images/offer-countdown-icon.svg";
 import { WhatsNewComponentContent, WhatsNewContent } from "./WhatsNewContent";
 import {
@@ -53,8 +55,9 @@ import { getLocale } from "../../../../functions/getLocale";
 import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
 import {
-  getPhoneSubscribeLink,
+  getBundlePrice,
   getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPhonesAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../../../../functions/getPlan";
@@ -62,6 +65,7 @@ import { parseDate } from "../../../../functions/parseDate";
 import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import { CountdownTimer } from "../../../CountdownTimer";
 import { useInterval } from "../../../../hooks/interval";
+import Link from "next/link";
 
 export type WhatsNewEntry = {
   title: string;
@@ -87,6 +91,26 @@ export type Props = {
   runtimeData?: RuntimeData;
 };
 
+type CtaProps = {
+  link?: string;
+  label: string;
+  subscribed?: boolean;
+};
+
+const CtaLinkButton = (props: CtaProps) => {
+  const hasSubscription = props.subscribed;
+
+  return (
+    <>
+      {!hasSubscription ? (
+        <Link href="/premium#pricing">
+          <span className={styles.cta}>{props.label}</span>
+        </Link>
+      ) : null}
+    </>
+  );
+};
+
 export const WhatsNewMenu = (props: Props) => {
   const { l10n } = useLocalization();
 
@@ -99,21 +123,6 @@ export const WhatsNewMenu = (props: Props) => {
       });
     },
   });
-
-  const ctaUpgradePhones =
-    props.runtimeData &&
-    props.runtimeData !== undefined &&
-    !props.profile.has_phone &&
-    !props.profile.has_premium &&
-    isPhonesAvailableInCountry(props.runtimeData) ? (
-      <OutboundLink
-        to={getPhoneSubscribeLink(props.runtimeData, "monthly")}
-        eventLabel={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
-        className={styles.cta}
-      >
-        <span>{l10n.getString("whatsnew-feature-phone-upgrade-cta")}</span>
-      </OutboundLink>
-    ) : null;
 
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -158,6 +167,7 @@ export const WhatsNewMenu = (props: Props) => {
       },
     },
   ];
+
   const forwardSomeEntry: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-forward-some-heading"),
     snippet: l10n.getString("whatsnew-feature-forward-some-snippet"),
@@ -432,22 +442,28 @@ export const WhatsNewMenu = (props: Props) => {
   const phoneAnnouncement: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-phone-header"),
     snippet: l10n.getString("whatsnew-feature-phone-snippet"),
-    content: (
-      <WhatsNewContent
-        description={l10n.getString("whatsnew-feature-phone-description")}
-        heading={l10n.getString("whatsnew-feature-phone-header")}
-        image={PhoneMaskingHero.src}
-        videos={{
-          // Unfortunately video files cannot currently be imported, so make
-          // sure these files are present in /public. See
-          // https://github.com/vercel/next.js/issues/35248
-          "video/webm; codecs='vp9'":
-            "/animations/whatsnew/phone-masking-hero.webm",
-          "video/mp4": "/animations/whatsnew/phone-masking-hero.mp4",
-        }}
-        cta={ctaUpgradePhones}
-      />
-    ),
+    content:
+      props.runtimeData && isPhonesAvailableInCountry(props.runtimeData) ? (
+        <WhatsNewContent
+          description={l10n.getString("whatsnew-feature-phone-description")}
+          heading={l10n.getString("whatsnew-feature-phone-header")}
+          image={PhoneMaskingHero.src}
+          videos={{
+            // Unfortunately video files cannot currently be imported, so make
+            // sure these files are present in /public. See
+            // https://github.com/vercel/next.js/issues/35248
+            "video/webm; codecs='vp9'":
+              "/animations/whatsnew/phone-masking-hero.webm",
+            "video/mp4": "/animations/whatsnew/phone-masking-hero.mp4",
+          }}
+          cta={
+            <CtaLinkButton
+              subscribed={props.profile.has_phone}
+              label={l10n.getString("whatsnew-feature-phone-upgrade-cta")}
+            />
+          }
+        />
+      ) : null,
 
     icon: PhoneMaskingIcon.src,
     dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
@@ -464,6 +480,52 @@ export const WhatsNewMenu = (props: Props) => {
     isFlagActive(props.runtimeData, "phones")
   ) {
     entries.push(phoneAnnouncement);
+  }
+
+  const vpnAndRelayAnnouncement: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-bundle-header"),
+    snippet: l10n.getString("whatsnew-feature-bundle-snippet"),
+    content:
+      props.runtimeData && isBundleAvailableInCountry(props.runtimeData) ? (
+        <WhatsNewContent
+          description={l10n.getString("whatsnew-feature-bundle-body", {
+            monthly_price: getBundlePrice(props.runtimeData),
+            savings: "??%", // Design states 50%
+          })}
+          heading={l10n.getString("whatsnew-feature-bundle-header")}
+          image={BundleHero.src}
+          videos={{
+            // Unfortunately video files cannot currently be imported, so make
+            // sure these files are present in /public. See
+            // https://github.com/vercel/next.js/issues/35248
+            "video/webm; codecs='vp9'":
+              "/animations/whatsnew/bundle-promo-hero.webm",
+            "video/mp4": "/animations/whatsnew/bundle-promo-hero.mp4",
+          }}
+          cta={
+            <CtaLinkButton
+              // TODO: Add has_bundle to profile data => subscribed={props.profile.has_bundle}
+              label={l10n.getString("whatsnew-feature-bundle-upgrade-cta")}
+            />
+          }
+        />
+      ) : null,
+
+    icon: BundleIcon.src,
+    dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
+    announcementDate: {
+      year: 2022,
+      month: 10,
+      day: 11,
+    },
+  };
+
+  // Only show its announcement if bundle is live:
+  if (
+    isFlagActive(props.runtimeData, "bundle") &&
+    isBundleAvailableInCountry(props.runtimeData)
+  ) {
+    entries.push(vpnAndRelayAnnouncement);
   }
 
   entries.sort(entriesDescByDateSorter);

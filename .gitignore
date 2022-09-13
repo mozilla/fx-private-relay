@@ -10,3 +10,9 @@ htmlcov
 staticfiles
 coverage/
 junit.xml
+/test-results/
+/playwright-report/
+/playwright/.cache/
+state.json
+har/
+allure-results/

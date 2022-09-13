@@ -1,0 +1,43 @@
+name: Relay e2e Tests
+on:
+  schedule:
+    - cron: '0 8 * * *'
+
+  workflow_dispatch:
+
+jobs:
+  relaye2e:
+    name: 'Relay Application e2e Tests'
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm install
+
+      - name: Install Playwright Browsers
+        run: |
+          npm install -D @playwright/test --with-deps
+          npx playwright install
+
+      - name: Run Playwright tests
+        run: npm run test:e2e
+        env:
+          E2E_TEST_ENV: stage
+          E2E_TEST_ACCOUNT_FREE: ${{ secrets.E2E_TEST_ACCOUNT_FREE }}
+          E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
+          E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
+          E2E_TEST_BASE_URL: ${{ secrets.E2E_TEST_BASE_URL }}
+
+      - name: Upload html report as artifact to troubleshoot failures.
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
