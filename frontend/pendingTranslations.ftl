@@ -401,6 +401,17 @@ faq-question-bulk-trackerremoval-answer = You can only turn tracker removal on a
 faq-question-trackerremoval-breakage-question = Why do my emails look broken?
 faq-question-trackerremoval-breakage-answer-2 = Sometimes removing trackers may cause your email to look broken, because the trackers are often contained within images and links. When the tracker is removed, the email looks like it’s been formatted wrong because images are missing. This can’t be fixed for emails you’ve already received. If this is preventing you from reading your emails properly, turn off tracker removal.
 
+-brand-name-vpn = VPN
+
+## VPN and Relay Bundle What's New Announcement
+whatsnew-feature-bundle-header = Introducing: { -brand-name-relay } + { -brand-name-vpn } subscription plan
+whatsnew-feature-bundle-snippet = Upgrade your subscription to get both { -brand-name-firefox-relay-premium } + { -brand-name-mozilla-vpn }…
+# Variables:
+#   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
+#   $savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
+whatsnew-feature-bundle-body = Upgrade your subscription to get both { -brand-name-firefox-relay-premium } + { -brand-name-mozilla-vpn } for { $monthly_price }/month. Save { $savings }!
+whatsnew-feature-bundle-upgrade-cta = Upgrade now
+
 ## VPN and Relay Bundle Banner
 bundle-banner-header = { -brand-name-firefox-relay } with <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
 bundle-banner-subheader = Security, reliability and speed — on every device, anywhere you go.
@@ -410,7 +421,7 @@ bundle-banner-1-year-plan = 1 year plan: <b>{ -brand-name-firefox-relay-premium 
 #   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
 bundle-price-monthly = Monthly: <monthly-price>{ $monthly_price }</monthly-price>
 # Variables:
-#   #savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
+#   $savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
 #   $old_price (string) - the outdated monthly cost (including currency symbol) for a given plan. This value has a strikethrough.
 bundle-price-save-amount = Save { $savings } <outdated-price>Normally { $old_price }</outdated-price>
 bundle-banner-alt = { -brand-name-mozilla-vpn } and { -brand-name-relay }
@@ -419,10 +430,10 @@ bundle-banner-cta = Get { -brand-name-mozilla-vpn } + { -brand-name-relay }
 #   $days_guarantee (string) - the number of days for money-back guarantee. Examples: 30, 90
 bundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee included 
 # Variables:
-#   #num_vpn_servers (string) - the number of VPN servers. Examples: 400, 500, 600
+#   $num_vpn_servers (string) - the number of VPN servers. Examples: 400, 500, 600
 bundle-feature-one = More than { $num_vpn_servers } servers
 # Variables:
-#   #num_vpn_countries (string) - the number of VPN available countries. Examples: 30, 40, 50
+#   $num_vpn_countries (string) - the number of VPN available countries. Examples: 30, 40, 50
 bundle-feature-two = More than { $num_vpn_countries } countries
 bundle-feature-three = Fast and secure network
 
