@@ -19,6 +19,7 @@ jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../hooks/gaViewPing.ts");
+jest.mock("../../hooks/overlayBugWorkaround.tsx");
 
 setMockAliasesData();
 setMockProfileData();

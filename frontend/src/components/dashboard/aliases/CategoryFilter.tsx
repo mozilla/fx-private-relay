@@ -21,6 +21,7 @@ import { Filters } from "../../../functions/filterAliases";
 import { useOverlayTriggerState } from "react-stately";
 import { Button } from "../../Button";
 import { FilterIcon } from "../../Icons";
+import { useOverlayBugWorkaround } from "../../../hooks/overlayBugWorkaround";
 
 export type SelectedFilters = {
   domainType?: Filters["domainType"];
@@ -59,6 +60,7 @@ export const CategoryFilter = (props: Props) => {
     offset: 16,
     isOpen: menuState.isOpen,
   }).overlayProps;
+  const overlayBugWorkaround = useOverlayBugWorkaround(menuState);
 
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
@@ -86,6 +88,7 @@ export const CategoryFilter = (props: Props) => {
 
   return (
     <>
+      {overlayBugWorkaround}
       <button
         {...buttonProps}
         ref={triggerRef}
