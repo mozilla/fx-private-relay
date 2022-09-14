@@ -450,31 +450,31 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         "de": {
             "monthly": {
                 "id": "price_1LYCqOJNcmPzuWtRuIXpQRxi",
-                "price": "CHF ?.??",
+                "price": "CHF 2.00",
             },
             "yearly": {
                 "id": "price_1LYCqyJNcmPzuWtR3Um5qDPu",
-                "price": "CHF ?.??",
+                "price": "CHF 1.00",
             },
         },
         "fr": {
             "monthly": {
                 "id": "price_1LYCvpJNcmPzuWtRq9ci2gXi",
-                "price": "CHF ?.??",
+                "price": "CHF 2.00",
             },
             "yearly": {
                 "id": "price_1LYCwMJNcmPzuWtRm6ebmq2N",
-                "price": "CHF ?.??",
+                "price": "CHF 1.00",
             },
         },
         "it": {
             "monthly": {
                 "id": "price_1LYCiBJNcmPzuWtRxtI8D5Uy",
-                "price": "CHF ?.??",
+                "price": "CHF 2.00",
             },
             "yearly": {
                 "id": "price_1LYClxJNcmPzuWtRWjslDdkG",
-                "price": "CHF ?.??",
+                "price": "CHF 1.00",
             },
         },
     },
@@ -482,81 +482,81 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         "de": {
             "monthly": {
                 "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
-                "price": "?.?? €",
+                "price": "1,99 €",
             },
             "yearly": {
                 "id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
-                "price": "?.?? €",
+                "price": "0,99 €",
             },
         },
         "es": {
             "monthly": {
                 "id": "price_1LYCWmJNcmPzuWtRtopZog9E",
-                "price": "?.?? €",
+                "price": "1,99 €",
             },
             "yearly": {
                 "id": "price_1LYCXNJNcmPzuWtRu586XOFf",
-                "price": "?.?? €",
+                "price": "0,99 €",
             },
         },
         "fr": {
             "monthly": {
                 "id": "price_1LYBuLJNcmPzuWtRn58XQcky",
-                "price": "?.?? €",
+                "price": "1,99 €",
             },
             "yearly": {
                 "id": "price_1LYBwcJNcmPzuWtRpgoWcb03",
-                "price": "?.?? €",
+                "price": "0,99 €",
             },
         },
         "it": {
             "monthly": {
                 "id": "price_1LYCMrJNcmPzuWtRTP9vD8wY",
-                "price": "?.?? €",
+                "price": "1,99 €",
             },
             "yearly": {
                 "id": "price_1LYCN2JNcmPzuWtRtWz7yMno",
-                "price": "?.?? €",
+                "price": "0,99 €",
             },
         },
         "nl": {
             "monthly": {
                 "id": "price_1LYCdLJNcmPzuWtR0J1EHoJ0",
-                "price": "?.?? €",
+                "price": "1,99 €",
             },
             "yearly": {
                 "id": "price_1LYCdtJNcmPzuWtRVm4jLzq2",
-                "price": "?.?? €",
+                "price": "0,99 €",
             },
         },
         "ie": {
             "monthly": {
                 "id": "price_1LhdrkJNcmPzuWtRvCc4hsI2",
-                "price": "?.?? €",
+                "price": "1,99 €",
             },
             "yearly": {
                 "id": "price_1LhdprJNcmPzuWtR7HqzkXTS",
-                "price": "?.?? €",
+                "price": "0,99 €",
             },
         },
         "sv": {
             "monthly": {
                 "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
-                "price": "?.?? €",
+                "price": "1,99 €",
             },
             "yearly": {
                 "id": "price_1LYBeMJNcmPzuWtRT5A931WH",
-                "price": "?.?? €",
+                "price": "0,99 €",
             },
         },
         "fi": {
             "monthly": {
                 "id": "price_1LYBn9JNcmPzuWtRI3nvHgMi",
-                "price": "?.?? €",
+                "price": "1,99 €",
             },
             "yearly": {
                 "id": "price_1LYBq1JNcmPzuWtRmyEa08Wv",
-                "price": "?.?? €",
+                "price": "0,99 €",
             },
         },
     },
@@ -564,21 +564,21 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         "en": {
             "monthly": {
                 "id": "price_1LXUcnJNcmPzuWtRpbNOajYS",
-                "price": "$?.??",
+                "price": "$1.99",
             },
             "yearly": {
                 "id": "price_1LXUdlJNcmPzuWtRKTYg7mpZ",
-                "price": "$?.??",
+                "price": "$0.99",
             },
         },
         "gb": {
             "monthly": {
                 "id": "price_1LYCHpJNcmPzuWtRhrhSYOKB",
-                "price": "$?.??",
+                "price": "$1.99",
             },
             "yearly": {
                 "id": "price_1LYCIlJNcmPzuWtRQtYLA92j",
-                "price": "$?.??",
+                "price": "$0.99",
             },
         },
     },
