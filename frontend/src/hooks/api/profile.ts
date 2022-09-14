@@ -7,6 +7,7 @@ export type ProfileData = {
   server_storage: boolean;
   has_premium: boolean;
   has_phone: boolean;
+  has_vpn: boolean;
   subdomain: string | null;
   onboarding_state: number;
   avatar: string;
