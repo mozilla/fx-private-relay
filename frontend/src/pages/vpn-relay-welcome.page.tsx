@@ -1,5 +1,4 @@
 import { NextPage } from "next";
-import { useState } from "react";
 import { useLocalization } from "@fluent/react";
 import { Layout } from "../components/layout/Layout";
 import { useRuntimeData } from "../hooks/api/runtimeData";
@@ -9,13 +8,23 @@ import panelArt from "./images/vpn-relay-panel-art.svg";
 import vpnLogo from "./images/mozilla-vpn-logo.svg";
 import styles from "./vpn-relay-welcome.module.scss";
 import { LinkButton } from "../components/Button";
+import { useProfiles } from "../hooks/api/profile";
+import { useRouter } from "next/router";
+import { isFlagActive } from "../functions/waffle";
 
 const VpnRelayWelcome: NextPage = () => {
   const { l10n } = useLocalization();
+  const profile = useProfiles();
+  const router = useRouter();
   const runtimeData = useRuntimeData();
 
-  return (
-    <Layout runtimeData={runtimeData.data}>
+  // redirect user if they haven't purchased vpn-relay
+  if (profile && profile.data && !profile.data[0].has_vpn) {
+    router.push("/");
+  }
+
+  return runtimeData && isFlagActive(runtimeData.data, "bundle") ? (
+    <Layout>
       <main>
         <div className={styles["content-container"]}>
           <div className={styles["content-head"]}>
@@ -45,14 +54,16 @@ const VpnRelayWelcome: NextPage = () => {
 
               <p>{l10n.getString("vpn-relay-go-relay-body")}</p>
               <LinkButton
-                href={"#"}
+                href={"https://www.mozilla.org/en-US/products/vpn/download/"}
                 target="_blank"
                 className={styles["get-addon-button"]}
               >
                 {l10n.getString("vpn-relay-go-relay-cta")}
               </LinkButton>
             </div>
+
             <img src={panelArt.src} alt="" className={styles["panel-art"]} />
+
             <div className={styles.panel}>
               <div className={styles.logo}>
                 <img
@@ -65,7 +76,7 @@ const VpnRelayWelcome: NextPage = () => {
 
               <p>{l10n.getString("vpn-relay-go-vpn-body")}</p>
               <LinkButton
-                href={"#"}
+                href={"https://relay.firefox.com/"}
                 target="_blank"
                 className={styles["get-addon-button"]}
               >
@@ -76,7 +87,7 @@ const VpnRelayWelcome: NextPage = () => {
         </div>
       </main>
     </Layout>
-  );
+  ) : null;
 };
 
 export default VpnRelayWelcome;
