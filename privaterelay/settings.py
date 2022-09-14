@@ -462,31 +462,37 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         "de": {
             "monthly": {
                 "id": "price_1LYCqOJNcmPzuWtRuIXpQRxi",
-                "price": "CHF 2.00",
+                "price": 2.00,
+                "currency": "CHF",
             },
             "yearly": {
                 "id": "price_1LYCqyJNcmPzuWtR3Um5qDPu",
-                "price": "CHF 1.00",
+                "price": 1.00,
+                "currency": "CHF",
             },
         },
         "fr": {
             "monthly": {
                 "id": "price_1LYCvpJNcmPzuWtRq9ci2gXi",
-                "price": "CHF 2.00",
+                "price": 2.00,
+                "currency": "CHF",
             },
             "yearly": {
                 "id": "price_1LYCwMJNcmPzuWtRm6ebmq2N",
-                "price": "CHF 1.00",
+                "price": 1.00,
+                "currency": "CHF",
             },
         },
         "it": {
             "monthly": {
                 "id": "price_1LYCiBJNcmPzuWtRxtI8D5Uy",
-                "price": "CHF 2.00",
+                "price": 2.00,
+                "currency": "CHF",
             },
             "yearly": {
                 "id": "price_1LYClxJNcmPzuWtRWjslDdkG",
-                "price": "CHF 1.00",
+                "price": 1.00,
+                "currency": "CHF",
             },
         },
     },
@@ -494,81 +500,97 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         "de": {
             "monthly": {
                 "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
-                "price": "1,99 €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
-                "price": "0,99 €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "es": {
             "monthly": {
                 "id": "price_1LYCWmJNcmPzuWtRtopZog9E",
-                "price": "1,99 €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYCXNJNcmPzuWtRu586XOFf",
-                "price": "0,99 €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "fr": {
             "monthly": {
                 "id": "price_1LYBuLJNcmPzuWtRn58XQcky",
-                "price": "1,99 €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYBwcJNcmPzuWtRpgoWcb03",
-                "price": "0,99 €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "it": {
             "monthly": {
                 "id": "price_1LYCMrJNcmPzuWtRTP9vD8wY",
-                "price": "1,99 €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYCN2JNcmPzuWtRtWz7yMno",
-                "price": "0,99 €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "nl": {
             "monthly": {
                 "id": "price_1LYCdLJNcmPzuWtR0J1EHoJ0",
-                "price": "1,99 €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYCdtJNcmPzuWtRVm4jLzq2",
-                "price": "0,99 €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "ie": {
             "monthly": {
                 "id": "price_1LhdrkJNcmPzuWtRvCc4hsI2",
-                "price": "1,99 €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LhdprJNcmPzuWtR7HqzkXTS",
-                "price": "0,99 €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "sv": {
             "monthly": {
                 "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
-                "price": "1,99 €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYBeMJNcmPzuWtRT5A931WH",
-                "price": "0,99 €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "fi": {
             "monthly": {
                 "id": "price_1LYBn9JNcmPzuWtRI3nvHgMi",
-                "price": "1,99 €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYBq1JNcmPzuWtRmyEa08Wv",
-                "price": "0,99 €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
     },
@@ -576,21 +598,25 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         "en": {
             "monthly": {
                 "id": PREMIUM_PLAN_ID_US_MONTHLY,
-                "price": "$1.99",
+                "price": 1.99,
+                "currency": "USD",
             },
             "yearly": {
                 "id": PREMIUM_PLAN_ID_US_YEARLY,
-                "price": "$0.99",
+                "price": 0.99,
+                "currency": "USD",
             },
         },
         "gb": {
             "monthly": {
                 "id": "price_1LYCHpJNcmPzuWtRhrhSYOKB",
-                "price": "$1.99",
+                "price": 1.99,
+                "currency": "USD",
             },
             "yearly": {
                 "id": "price_1LYCIlJNcmPzuWtRQtYLA92j",
-                "price": "$0.99",
+                "price": 0.99,
+                "currency": "USD",
             },
         },
     },
@@ -669,11 +695,13 @@ PHONE_PLAN_ID_MATRIX = {
         "en": {
             "monthly": {
                 "id": PHONE_PLAN_ID_US_MONTHLY,
-                "price": "$4.99",
+                "price": 4.99,
+                "currency": "USD",
             },
             "yearly": {
                 "id": PHONE_PLAN_ID_US_YEARLY,
-                "price": "$3.99",
+                "price": 3.99,
+                "currency": "USD",
             },
         },
     },
@@ -694,7 +722,9 @@ BUNDLE_PLAN_ID_MATRIX = {
                 # To allow testing the subscription flow on stage, we can set
                 # a custom plan ID via an environment variable:
                 "id": BUNDLE_PLAN_ID_US,
-                "price": "$?.??",
+                # TODO: Insert correct price
+                "price": -1337,
+                "currency": "USD",
             },
         },
     },

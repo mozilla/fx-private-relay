@@ -129,7 +129,7 @@ export const BundleBanner = (props: Props) => {
                   <Localized
                     id={"bundle-price-monthly"}
                     vars={{
-                      monthly_price: getBundlePrice(props.runtimeData),
+                      monthly_price: getBundlePrice(props.runtimeData, l10n),
                     }}
                     elems={{
                       "monthly-price": <p className={styles["price"]} />,

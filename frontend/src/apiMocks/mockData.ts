@@ -38,11 +38,13 @@ export const mockedRuntimeData: RuntimeData = {
         nl: {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€2,50",
+            price: 2.5,
+            currency: "EUR",
           },
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€1,99",
+            price: 1.99,
+            currency: "EUR",
           },
         },
       },
@@ -57,11 +59,13 @@ export const mockedRuntimeData: RuntimeData = {
         nl: {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€5,99",
+            price: 5.99,
+            currency: "EUR",
           },
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€4,99",
+            price: 4.99,
+            currency: "EUR",
           },
         },
       },
@@ -76,7 +80,8 @@ export const mockedRuntimeData: RuntimeData = {
         nl: {
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€8,99",
+            price: 8.99,
+            currency: "EUR",
           },
         },
       },
