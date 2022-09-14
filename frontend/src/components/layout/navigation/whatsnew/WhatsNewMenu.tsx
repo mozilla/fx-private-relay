@@ -66,6 +66,7 @@ import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import { CountdownTimer } from "../../../CountdownTimer";
 import { useInterval } from "../../../../hooks/interval";
 import Link from "next/link";
+import { useOverlayBugWorkaround } from "../../../../hooks/overlayBugWorkaround";
 
 export type WhatsNewEntry = {
   title: string;
@@ -557,6 +558,7 @@ export const WhatsNewMenu = (props: Props) => {
     offset: 10,
     isOpen: triggerState.isOpen,
   }).overlayProps;
+  const overlayBugWorkaround = useOverlayBugWorkaround(triggerState);
 
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
@@ -578,6 +580,7 @@ export const WhatsNewMenu = (props: Props) => {
 
   return (
     <>
+      {overlayBugWorkaround}
       <button
         {...buttonProps}
         ref={triggerRef}

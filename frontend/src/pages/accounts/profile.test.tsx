@@ -57,6 +57,7 @@ jest.mock("../../hooks/api/api.ts", () => ({
 }));
 jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
+jest.mock("../../hooks/overlayBugWorkaround.tsx");
 
 setMockAliasesData();
 setMockProfileData();

@@ -21,6 +21,7 @@ import styles from "./SubdomainIndicator.module.scss";
 import { CloseIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { AddressPickerModal } from "../aliases/AddressPickerModal";
+import { useOverlayBugWorkaround } from "../../../hooks/overlayBugWorkaround";
 
 export type Props = {
   subdomain: string | null;
@@ -87,6 +88,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
     offset: 16,
     isOpen: explainerState.isOpen,
   }).overlayProps;
+  const overlayBugWorkaround = useOverlayBugWorkaround(explainerState);
 
   const onPick = (
     address: string,
@@ -98,6 +100,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
 
   return (
     <>
+      {overlayBugWorkaround}
       <button
         className={styles["open-button"]}
         {...openButtonProps}
