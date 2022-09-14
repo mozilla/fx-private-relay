@@ -224,6 +224,13 @@ phone-dashboard-sender-disabled-body =  You have disabled the Caller and Sender 
 phone-dashboard-sender-disabled-update-settings = Update Settings
 phone-dashboard-sender-empty-body = You haven't received any call or message yet!
 phone-dashboard-header-new = New
+
+vpn-relay-welcome-headline = Welcome to your new protection plan
+vpn-relay-welcome-subheadline = { -brand-name-firefox-relay } + { -brand-name-mozilla-vpn }
+vpn-relay-go-relay-body = Protect your email inbox and your phone number
+vpn-relay-go-relay-cta = Go to { -brand-name-relay }
+vpn-relay-go-vpn-body = Protect your connection and online actvitiy
+vpn-relay-go-vpn-cta = Download { -brand-name-mozilla-vpn }
 ## Replies
 profile-label-replies = Replies
 profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.
