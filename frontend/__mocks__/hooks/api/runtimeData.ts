@@ -22,11 +22,13 @@ function getAvailableProductData(): ProductData {
         nl: {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€0,99",
+            price: 0.99,
+            currency: "EUR",
           },
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€0,99",
+            price: 0.99,
+            currency: "EUR",
           },
         },
       },
