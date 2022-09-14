@@ -471,17 +471,6 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         },
     },
     "euro": {
-        # TODO: Get plan ID for Austria
-        # "at": {
-        #     "monthly": {
-        #         "id": "",
-        #         "price": "?.?? €",
-        #     },
-        #     "yearly": {
-        #         "id": "",
-        #         "price": "?.?? €",
-        #     },
-        # },
         "de": {
             "monthly": {
                 "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
@@ -532,17 +521,16 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
                 "price": "?.?? €",
             },
         },
-        # TODO: Get plan ID for Ireland
-        # "ie": {
-        #     "monthly": {
-        #         "id": "",
-        #         "price": "?.?? €",
-        #     },
-        #     "yearly": {
-        #         "id": "",
-        #         "price": "?.?? €",
-        #     },
-        # },
+        "ie": {
+            "monthly": {
+                "id": "price_1LhdrkJNcmPzuWtRvCc4hsI2",
+                "price": "?.?? €",
+            },
+            "yearly": {
+                "id": "price_1LhdprJNcmPzuWtR7HqzkXTS",
+                "price": "?.?? €",
+            },
+        },
         "sv": {
             "monthly": {
                 "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
@@ -589,8 +577,9 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
 }
 PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     # Austria
-    # Commented out; no plan ID known yet
-    # "at": {"de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["at"]},
+    "at": {
+        "de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
+    },
     # Belgium
     "be": {
         "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
@@ -616,10 +605,9 @@ PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
         "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
     },
     # Ireland
-    # Commented out; no plan ID known yet
-    # "ie": {
-    #     "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ie"],
-    # },
+    "ie": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ie"],
+    },
     # Italy
     "it": {
         "it": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["it"],
@@ -660,35 +648,23 @@ PHONE_PLAN_ID_MATRIX = {
     "usd": {
         "en": {
             "monthly": {
-                "id": "price_1LXUenJNcmPzuWtRw3rhjQNP",
+                "id": "TBD",
                 "price": "$?.??",
             },
             "yearly": {
-                "id": "price_1LXUhcJNcmPzuWtRHUFHVk12",
+                "id": "TBD",
                 "price": "$?.??",
             },
         },
-        # TODO: Get plan ID for Canada
-        # "ca": {
-        #     "monthly": {
-        #         "id": "",
-        #         "price": "$?.??",
-        #     },
-        #     "yearly": {
-        #         "id": "",
-        #         "price": "$?.??",
-        #     },
-        # },
     },
 }
 PHONE_PLAN_COUNTRY_LANG_MAPPING = {
     "us": {
         "en": PHONE_PLAN_ID_MATRIX["usd"]["en"],
     },
-    # Commented out; no plan ID known yet
-    # "ca": {
-    #     "en": PHONE_PLAN_ID_MATRIX["usd"]["ca"],
-    # },
+    "ca": {
+        "en": PHONE_PLAN_ID_MATRIX["usd"]["en"],
+    },
 }
 
 BUNDLE_PLAN_ID_MATRIX = {
@@ -699,23 +675,15 @@ BUNDLE_PLAN_ID_MATRIX = {
                 "price": "$?.??",
             },
         },
-        # TODO: Get plan ID for Canada
-        # "ca": {
-        #     "yearly": {
-        #         "id": "",
-        #         "price": "$?.??",
-        #     },
-        # },
     },
 }
 BUNDLE_PLAN_COUNTRY_LANG_MAPPING = {
     "us": {
         "en": BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
     },
-    # Commented out; no plan ID known yet
-    # "ca": {
-    #     "en": BUNDLE_PLAN_ID_MATRIX["usd"]["ca"],
-    # },
+    "ca": {
+        "en": BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
+    },
 }
 
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
