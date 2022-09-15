@@ -21,7 +21,6 @@ import { Filters } from "../../../functions/filterAliases";
 import { useOverlayTriggerState } from "react-stately";
 import { Button } from "../../Button";
 import { FilterIcon } from "../../Icons";
-import { useOverlayBugWorkaround } from "../../../hooks/overlayBugWorkaround";
 
 export type SelectedFilters = {
   domainType?: Filters["domainType"];
@@ -60,7 +59,6 @@ export const CategoryFilter = (props: Props) => {
     offset: 16,
     isOpen: menuState.isOpen,
   }).overlayProps;
-  const overlayBugWorkaround = useOverlayBugWorkaround(menuState);
 
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
@@ -73,22 +71,8 @@ export const CategoryFilter = (props: Props) => {
     menuState.close();
   };
 
-  const menu = menuState.isOpen ? (
-    <OverlayContainer>
-      <FilterMenu
-        {...overlayProps}
-        {...positionProps}
-        ref={overlayRef}
-        isOpen={menuState.isOpen}
-        selectedFilters={props.selectedFilters}
-        onClose={onClose}
-      />
-    </OverlayContainer>
-  ) : null;
-
   return (
     <>
-      {overlayBugWorkaround}
       <button
         {...buttonProps}
         ref={triggerRef}
@@ -101,7 +85,16 @@ export const CategoryFilter = (props: Props) => {
           height={20}
         />
       </button>
-      {menu}
+      <OverlayContainer>
+        <FilterMenu
+          {...overlayProps}
+          {...positionProps}
+          ref={overlayRef}
+          isOpen={menuState.isOpen}
+          selectedFilters={props.selectedFilters}
+          onClose={onClose}
+        />
+      </OverlayContainer>
     </>
   );
 };
@@ -153,12 +146,18 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
       resetAndClose();
     };
 
+    const mergedOverlayProps = mergeProps(overlayProps, otherProps);
+
     return (
       <FocusScope contain restoreFocus autoFocus>
         <div
-          {...mergeProps(overlayProps, otherProps)}
+          {...mergedOverlayProps}
           ref={overlayRef}
           className={styles["filter-menu"]}
+          style={{
+            ...mergedOverlayProps.style,
+            display: !isOpen ? "none" : mergedOverlayProps.style?.display,
+          }}
         >
           <form
             onSubmit={onSubmit}
