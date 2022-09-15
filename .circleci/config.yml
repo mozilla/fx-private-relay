@@ -44,7 +44,7 @@ jobs:
           command: npm run build
           working_directory: ./frontend/
       - save_cache:
-          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
+          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}-{{ checksum "frontend/package-lock.json" }}
           paths:
             - ./frontend/out/
 
@@ -134,7 +134,7 @@ jobs:
           version: 20.10.11
           docker_layer_caching: True
       - restore_cache:
-          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}
+          key: v1-frontend-build-{{ .Branch }}-{{ .Revision }}-{{ checksum "frontend/package-lock.json" }}
       - run:
           name: Copy build artefacts from build_frontend into this folder
           command: mv /home/circleci/project/frontend/out /dockerflow/frontend/
