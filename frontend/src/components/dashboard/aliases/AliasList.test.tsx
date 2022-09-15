@@ -9,7 +9,6 @@ import { AliasList } from "./AliasList";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("../../../config.ts", () => mockConfigModule);
-jest.mock("../../../hooks/overlayBugWorkaround.tsx");
 LocalLabelsMock.setMockLocalLabels();
 
 describe("<AliasList>", () => {
