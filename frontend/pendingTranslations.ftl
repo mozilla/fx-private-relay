@@ -181,6 +181,20 @@ bundle-feature-one = More than { $num_vpn_servers } servers
 bundle-feature-two = More than { $num_vpn_countries } countries
 bundle-feature-three = Fast and secure network
 
+## Phone Banner
+
+phone-banner-pill-new = New!
+phone-banner-callout = Phone number masking
+phone-banner-header = Layer on even more protection with phone number masking
+phone-banner-body = With phone number masking, you can choose a phone number mask that protects your phone number. Share your phone number mask to receive and reply to calls and texts privately without revealing your true phone number.
+phone-banner-cta-landing = Sign Up
+phone-banner-cta-user = Upgrade now
+# Variables:
+#   $nr_calls (number) - the number of calls one can make per month
+#   $nr_texts (number) - the number of texts one can send and receive per month
+phone-banner-float-limits = { $nr_calls } call minutes + { $nr_texts } texts
+phone-banner-float-replies = Reply to texts privately
+
 ## Comparison table of the different plans
 
 # Variables:
