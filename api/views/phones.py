@@ -474,14 +474,15 @@ def inbound_call(request):
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "calls", relay_number)
 
-    # Note: TwilioInboundCallXMLRenderer will render this as TwiML
     relay_number.calls_forwarded += 1
+    # TODO: update relay_number.remaining_minutes
     relay_number.save()
+
+    # Note: TwilioInboundCallXMLRenderer will render this as TwiML
     return response.Response(
         status=201,
         data={"inbound_from": inbound_from, "real_number": real_phone.number},
     )
-    # TODO: update relay_number.remaining_minutes
 
 
 def _get_phone_objects(inbound_to):

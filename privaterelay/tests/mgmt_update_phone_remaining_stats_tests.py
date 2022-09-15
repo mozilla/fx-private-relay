@@ -86,10 +86,7 @@ def test_one_account_with_phones_checked_31_day_ago_with_relay_number(phone_user
 
     profile.refresh_from_db()
     relay_number.refresh_from_db()
-    assert (
-        profile.date_phone_subscription_checked.date()
-        == datetime.now(timezone.utc).today().date()
-    )
+    assert profile.date_phone_subscription_checked >= pre_update_datetime
     assert len(updated_profiles) == 1
     assert profile in updated_profiles
     assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE

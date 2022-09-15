@@ -16,11 +16,12 @@ def update_phone_remaining_stats():
         return []
     accounts_with_phones = []
     for sub_with_phone in settings.SUBSCRIPTIONS_WITH_PHONE.split(","):
+        if sub_with_phone == "":
+            continue
         social_accounts = SocialAccount.objects.filter(
             extra_data__icontains=sub_with_phone
         )
-        for social_account in social_accounts:
-            accounts_with_phones.append(social_account)
+        accounts_with_phones.extend(list(social_accounts))
     updated_profiles = []
     for social_account in accounts_with_phones:
         profile = social_account.user.profile_set.first()
@@ -49,7 +50,7 @@ def update_phone_remaining_stats():
                     )
                     relay_number.save()
                 except RelayNumber.DoesNotExist:
-                    # no need to update they relay number - they haven't got one yet.
+                    # no need to update their relay number - they haven't got one yet.
                     pass
     return updated_profiles
 
