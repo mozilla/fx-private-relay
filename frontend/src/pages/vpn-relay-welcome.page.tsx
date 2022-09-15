@@ -11,12 +11,21 @@ import { LinkButton } from "../components/Button";
 import { useProfiles } from "../hooks/api/profile";
 import { useRouter } from "next/router";
 import { isFlagActive } from "../functions/waffle";
+import { useEffect } from "react";
+import { authenticatedFetch } from "../hooks/api/api";
 
 const VpnRelayWelcome: NextPage = () => {
   const { l10n } = useLocalization();
   const profile = useProfiles();
   const router = useRouter();
   const runtimeData = useRuntimeData();
+
+  useEffect(() => {
+    // Tell the backend that there will probably be new subscriptions.
+    // It will then ask Firefox Accounts for up-to-date subscription information,
+    // and have that ready for the next request to `/profiles`.
+    authenticatedFetch("/accounts/profile/refresh");
+  }, []);
 
   // redirect user if they haven't purchased vpn-relay
   if (profile && profile.data && !profile.data[0].has_vpn) {
