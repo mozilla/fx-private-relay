@@ -7,18 +7,19 @@ import logoType from "../components/layout/images/fx-private-relay-premium-logot
 import panelArt from "./images/vpn-relay-panel-art.svg";
 import vpnLogo from "./images/mozilla-vpn-logo.svg";
 import styles from "./vpn-relay-welcome.module.scss";
-import { LinkButton } from "../components/Button";
-import { useProfiles } from "../hooks/api/profile";
-import { useRouter } from "next/router";
 import { isFlagActive } from "../functions/waffle";
 import { useEffect } from "react";
 import { authenticatedFetch } from "../hooks/api/api";
+import Link from "next/link";
+import { LinkButton } from "../components/Button";
 
 const VpnRelayWelcome: NextPage = () => {
   const { l10n } = useLocalization();
-  const profile = useProfiles();
-  const router = useRouter();
   const runtimeData = useRuntimeData();
+  const referringSiteUrl =
+    typeof document !== "undefined"
+      ? document.location.host
+      : "relay.firefox.com";
 
   useEffect(() => {
     // Tell the backend that there will probably be new subscriptions.
@@ -27,22 +28,18 @@ const VpnRelayWelcome: NextPage = () => {
     authenticatedFetch("/accounts/profile/refresh");
   }, []);
 
-  // redirect user if they haven't purchased vpn-relay
-  if (profile && profile.data && !profile.data[0].has_vpn) {
-    router.push("/");
-  }
-
+  console.log(runtimeData.data);
   return runtimeData && isFlagActive(runtimeData.data, "bundle") ? (
-    <Layout>
+    <Layout theme="premium">
       <main>
         <div className={styles["content-container"]}>
           <div className={styles["content-head"]}>
-            <p className={styles.headline}>
+            <b className={styles.headline}>
               {l10n.getString("vpn-relay-welcome-headline")}
-            </p>
-            <p className={styles.subheadline}>
+            </b>
+            <h2 className={styles.subheadline}>
               {l10n.getString("vpn-relay-welcome-subheadline")}
-            </p>
+            </h2>
           </div>
 
           <div className={styles["content-body"]}>
@@ -62,13 +59,11 @@ const VpnRelayWelcome: NextPage = () => {
               </div>
 
               <p>{l10n.getString("vpn-relay-go-relay-body")}</p>
-              <LinkButton
-                href={"https://www.mozilla.org/en-US/products/vpn/download/"}
-                target="_blank"
-                className={styles["get-addon-button"]}
-              >
-                {l10n.getString("vpn-relay-go-relay-cta")}
-              </LinkButton>
+              <Link href={"/"} target="_blank">
+                <a className={styles.button}>
+                  {l10n.getString("vpn-relay-go-relay-cta")}
+                </a>
+              </Link>
             </div>
 
             <img src={panelArt.src} alt="" className={styles["panel-art"]} />
@@ -85,7 +80,9 @@ const VpnRelayWelcome: NextPage = () => {
 
               <p>{l10n.getString("vpn-relay-go-vpn-body")}</p>
               <LinkButton
-                href={"https://relay.firefox.com/"}
+                href={`https://www.mozilla.org/en-US/products/vpn/download/?utm_source=${encodeURIComponent(
+                  referringSiteUrl
+                )}&utm_medium=referral&utm_campaign=vpn-relay-welcome&utm_content=download-button`}
                 target="_blank"
                 className={styles["get-addon-button"]}
               >
