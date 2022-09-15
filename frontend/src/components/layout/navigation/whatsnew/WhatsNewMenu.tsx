@@ -66,7 +66,6 @@ import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import { CountdownTimer } from "../../../CountdownTimer";
 import { useInterval } from "../../../../hooks/interval";
 import Link from "next/link";
-import { useOverlayBugWorkaround } from "../../../../hooks/overlayBugWorkaround";
 
 export type WhatsNewEntry = {
   title: string;
@@ -558,7 +557,6 @@ export const WhatsNewMenu = (props: Props) => {
     offset: 10,
     isOpen: triggerState.isOpen,
   }).overlayProps;
-  const overlayBugWorkaround = useOverlayBugWorkaround(triggerState);
 
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
@@ -580,7 +578,6 @@ export const WhatsNewMenu = (props: Props) => {
 
   return (
     <>
-      {overlayBugWorkaround}
       <button
         {...buttonProps}
         ref={triggerRef}
@@ -591,7 +588,7 @@ export const WhatsNewMenu = (props: Props) => {
         {l10n.getString("whatsnew-trigger-label")}
         {pill}
       </button>
-      {triggerState.isOpen && (
+      {
         <OverlayContainer>
           <WhatsNewPopover
             {...overlayProps}
@@ -608,7 +605,7 @@ export const WhatsNewMenu = (props: Props) => {
             />
           </WhatsNewPopover>
         </OverlayContainer>
-      )}
+      }
     </>
   );
 };
@@ -637,12 +634,23 @@ const WhatsNewPopover = forwardRef<HTMLDivElement, PopoverProps>(
       ref as RefObject<HTMLDivElement>
     );
 
+    const mergedOverlayProps = mergeProps(
+      overlayProps,
+      dialogProps,
+      otherProps,
+      modalProps
+    );
+
     return (
       <FocusScope restoreFocus contain autoFocus>
         <div
-          {...mergeProps(overlayProps, dialogProps, otherProps, modalProps)}
+          {...mergedOverlayProps}
           ref={ref}
           className={styles["popover-wrapper"]}
+          style={{
+            ...mergedOverlayProps.style,
+            display: !isOpen ? "none" : mergedOverlayProps.style?.display,
+          }}
         >
           <VisuallyHidden>
             <h2 {...titleProps}>{title}</h2>
