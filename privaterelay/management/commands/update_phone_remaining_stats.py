@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta, timezone
-from allauth.socialaccount.models import SocialAccount
+
 from django.conf import settings
 from django.core.management.base import BaseCommand
+
+from allauth.socialaccount.models import SocialAccount
 
 if settings.PHONES_ENABLED:
     from phones.models import RelayNumber
@@ -27,7 +29,7 @@ def update_phone_remaining_stats():
         if (
             not profile.date_phone_subscription_checked
             or profile.date_phone_subscription_checked
-            <= datetime.now(timezone.utc) - timedelta(30)
+            <= datetime.now(timezone.utc) - timedelta(settings.DAYS_PER_BILLING_CYCLE)
         ):
             # Re-fetch all FXA data into profile so we can see if the user still has
             # a phone subscription.
@@ -55,5 +57,5 @@ def update_phone_remaining_stats():
 class Command(BaseCommand):
     help = "Update all phone users' subscription and stats."
 
-    def handle(self):
+    def handle(self, *args, **options):
         update_phone_remaining_stats()
