@@ -6,16 +6,16 @@ the root project folder.
 
 fx-private-relay uses [markus][markus] to emit statsd-style metrics like
 counters, gauges, and timers. We use the [datadog extensions][dogstatsd], which
-include tags for metrics. In deployments, metrics are emitted as [UDP
-packets][udp], collected by a local [telegraf][telegraf] forwarder, and stored
-in [influxdb][influxdb]. In development, metrics are disabled by default, or
-are emitted locally and ignored.
+include tags for metrics. In deployments, metrics are emitted as
+[UDP packets][udp], collected by a local [telegraf][telegraf] forwarder, and
+stored in [influxdb][influxdb]. In development, metrics are disabled by
+default.
 
 [markus]: https://markus.readthedocs.io/en/latest/index.html "Markus documentation"
 [dogstatsd]: https://docs.datadoghq.com/developers/dogstatsd "dogstatsd documentation"
 [udp]: https://en.wikipedia.org/wiki/User_Datagram_Protocol
 [telegraf]: https://docs.influxdata.com/telegraf
-[influxdb]: https://docs.influxdata.com/influxdb
+[influxdb]: https://docs.influxdata.com/influxdb/v2.4/reference/key-concepts/
 
 ## Configuration
 
@@ -87,11 +87,16 @@ class CodeTest(TestCase):
         mm.assert_incr_once("fx.private.relay.code_called")
 ```
 
-When testing, note that the `STATSD_PREFIX` (default `"fx-private-relay"`) is
+When testing, note that the `STATSD_PREFIX` (default `"fx.private.relay"`) is
 in the emitted metric name, so in this example, the test is looking for
 `"fx.private.relay.code_called"`, not `"code_called"`.
+
+`MetricsMock` has other useful helper methods, such as
+[print_records()][print_records] to see all captured metrics. This can help
+when determining what metrics code is emitting.
 
 [markus-datadogmetrics]: https://markus.readthedocs.io/en/latest/backends.html#datadog-metrics
 [markus-loggingmetrics]: https://markus.readthedocs.io/en/latest/backends.html#logging-metrics
 [override_settings]: https://docs.djangoproject.com/en/3.2/topics/testing/tools/#django.test.override_settings
 [metricsmock]: https://markus.readthedocs.io/en/latest/testing.html
+[print_records]: https://markus.readthedocs.io/en/latest/testing.html#markus.testing.MetricsMock.print_records
