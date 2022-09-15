@@ -990,9 +990,9 @@ elif (
 
 SENTRY_DEBUG = config("SENTRY_DEBUG", DEBUG, cast=bool)
 
-SENTRY_ENVIRONMENT = RELAY_CHANNEL
+SENTRY_ENVIRONMENT = config("SENTRY_ENVIRONMENT", RELAY_CHANNEL)
 # Use "local" as default rather than "prod", to catch ngrok.io URLs
-if RELAY_CHANNEL == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
+if SENTRY_ENVIRONMENT == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
     SENTRY_ENVIRONMENT = "local"
 
 sentry_sdk.init(
