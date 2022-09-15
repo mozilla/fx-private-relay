@@ -36,7 +36,7 @@ export function getPhoneSubscribeLink(
   if (runtimeData === undefined) {
     return undefined;
   }
-  return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PHONE_PRODUCT_ID}`;
+  return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PHONE_PRODUCT_ID}?plan=${runtimeData.PHONE_PLAN_ID}`;
 }
 
 /**

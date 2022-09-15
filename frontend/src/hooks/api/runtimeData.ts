@@ -19,6 +19,7 @@ export type RuntimeData = {
   INTRO_PRICING_END: string;
   PREMIUM_PRODUCT_ID: `prod_${string}`;
   PHONE_PRODUCT_ID: `prod_${string}`;
+  PHONE_PLAN_ID: `price_${string}`;
   PREMIUM_PLANS: PremiumPlans;
   BASKET_ORIGIN: string;
   WAFFLE_FLAGS: WaffleFlag[];
