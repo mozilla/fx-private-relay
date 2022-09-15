@@ -308,6 +308,7 @@ MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
 MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PREMIUM_PROD_ID = config("PREMIUM_PROD_ID", "", cast=str)
 PHONE_PROD_ID = config("PHONE_PROD_ID", "", cast=str)
+PHONE_PLAN_ID = config("PHONE_PLAN_ID", "", cast=str)
 PREMIUM_PRICE_ID_OVERRIDE = config("PREMIUM_PRICE_ID_OVERRIDE", "", cast=str)
 PREMIUM_PLAN_ID_MATRIX = {
     "chf": {

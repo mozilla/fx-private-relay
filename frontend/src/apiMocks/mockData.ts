@@ -16,6 +16,7 @@ export const mockedRuntimeData: RuntimeData = {
   INTRO_PRICING_END: "2022-09-27T16:00:00.000Z",
   PREMIUM_PRODUCT_ID: "prod_123456789",
   PHONE_PRODUCT_ID: "prod_123456789",
+  PHONE_PLAN_ID: "price_1Kz3rKKb9q6OnNsLkiBHTGXE",
   PREMIUM_PLANS: {
     country_code: "nl",
     plan_country_lang_mapping: {

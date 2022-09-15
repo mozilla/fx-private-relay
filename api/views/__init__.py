@@ -27,6 +27,7 @@ from privaterelay.settings import (
     INTRO_PRICING_END,
     PREMIUM_PROD_ID,
     PHONE_PROD_ID,
+    PHONE_PLAN_ID,
     MAX_MINUTES_TO_VERIFY_REAL_PHONE,
 )
 from privaterelay.utils import get_premium_countries_info_from_request
@@ -187,6 +188,7 @@ def runtime_data(request):
             "INTRO_PRICING_END": INTRO_PRICING_END,
             "PREMIUM_PRODUCT_ID": PREMIUM_PROD_ID,
             "PHONE_PRODUCT_ID": PHONE_PROD_ID,
+            "PHONE_PLAN_ID": PHONE_PLAN_ID,
             "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
             "BASKET_ORIGIN": BASKET_ORIGIN,
             "WAFFLE_FLAGS": flag_values,
