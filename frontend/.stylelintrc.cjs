@@ -46,9 +46,7 @@ module.exports = {
         "ignorePseudoClasses": ["global"] 
       }
     ],
-    "scss/at-rule-no-unknown": [true, {
-      "ignoreAtRules": ["value"]
-    }],
+    "scss/at-rule-no-unknown": true,
     "scss/at-import-partial-extension": null,
     "scss/at-import-partial-extension-whitelist": "scss"
   }

@@ -1,7 +1,6 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/lib";
 @import "../styles/tokens.scss";
-
-@value button from "../../src/components/Button.module.scss";
+@import "../../src/components/Button.module.scss";
 
 .content-container {
   display: flex;
