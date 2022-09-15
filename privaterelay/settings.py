@@ -14,7 +14,7 @@ from __future__ import annotations
 import ipaddress
 import os, sys
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 
 from decouple import config, Choices, Csv
@@ -187,10 +187,12 @@ MAX_MINUTES_TO_VERIFY_REAL_PHONE = config(
     "MAX_MINUTES_TO_VERIFY_REAL_PHONE", 5, cast=int
 )
 
-STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
+DJANGO_STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
+STATSD_DEBUG = config("STATSD_DEBUG", False, cast=bool)
+STATSD_ENABLED = DJANGO_STATSD_ENABLED or STATSD_DEBUG
 STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
 STATSD_PORT = config("DJANGO_STATSD_PORT", "8125")
-STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "fx-private-relay")
+STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "fx.private.relay")
 
 SERVE_ADDON = config("SERVE_ADDON", None)
 
@@ -910,6 +912,7 @@ LOGGING = {
         },
         "abusemetrics": {"handlers": ["console_out"], "level": "INFO"},
         "studymetrics": {"handlers": ["console_out"], "level": "INFO"},
+        "markus": {"handlers": ["console_out"], "level": "DEBUG"},
     },
 }
 
@@ -1017,8 +1020,10 @@ ignore_logger("django_ftl.message_errors")
 if RELAY_CHANNEL == "dev":
     ignore_logger("django.security.SuspiciousFileOperation")
 
-markus.configure(
-    backends=[
+
+_MARKUS_BACKENDS: list[dict[str, Any]] = []
+if DJANGO_STATSD_ENABLED:
+    _MARKUS_BACKENDS.append(
         {
             "class": "markus.backends.datadog.DatadogMetrics",
             "options": {
@@ -1027,8 +1032,18 @@ markus.configure(
                 "statsd_prefix": STATSD_PREFIX,
             },
         }
-    ]
-)
+    )
+if STATSD_DEBUG:
+    _MARKUS_BACKENDS.append(
+        {
+            "class": "markus.backends.logging.LoggingMetrics",
+            "options": {
+                "logger_name": "markus",
+                "leader": "METRICS",
+            },
+        }
+    )
+markus.configure(backends=_MARKUS_BACKENDS)
 
 if USE_SILK:
     SILKY_PYTHON_PROFILER = True
