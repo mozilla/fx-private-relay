@@ -23,12 +23,8 @@ export const PhoneDashboard = () => {
   const realPhone = useRealPhonesData();
   const relayNumberData = relayNumber.data?.[0];
   const realPhoneData = realPhone.data?.[0];
-  const formattedPhoneNumber = formatPhone(realPhoneData?.number ?? "", {
-    withCountryCode: true,
-  });
-  const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "", {
-    withCountryCode: true,
-  });
+  const formattedPhoneNumber = formatPhone(realPhoneData?.number ?? "");
+  const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "");
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
 
