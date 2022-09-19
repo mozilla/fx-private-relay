@@ -15,6 +15,7 @@ import logoTypeDark from "./images/fx-private-relay-logotype-dark.svg";
 import logoTypePremiumLight from "./images/fx-private-relay-premium-logotype-light.svg";
 import logoTypePremiumDark from "./images/fx-private-relay-premium-logotype-dark.svg";
 import logo from "./images/relay-logo.svg";
+import vpnRelayLogo from "./images/vpn-relay-logo.svg";
 import mozillaLogo from "./images/moz-logo-bw-rgb.svg";
 import { useProfiles } from "../../hooks/api/profile";
 import { Navigation } from "./navigation/Navigation";
@@ -26,6 +27,7 @@ import { MobileNavigation } from "./navigation/MobileNavigation";
 import { CloseIcon } from "../Icons";
 import { PageMetadata } from "./PageMetadata";
 import { RuntimeData } from "../../hooks/api/runtimeData";
+import { useRouter } from "next/router";
 
 export type Props = {
   children: ReactNode;
@@ -40,6 +42,7 @@ export const Layout = (props: Props) => {
   const { l10n } = useLocalization();
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
+  const router = useRouter();
   const hasPremium: boolean = profiles.data?.[0].has_premium ?? false;
   const usersData = useUsers().data?.[0];
   const [mobileMenuExpanded, setMobileMenuExpanded] = useState<boolean>();
@@ -111,18 +114,24 @@ export const Layout = (props: Props) => {
           <div className={styles["logo-wrapper"]}>
             <Link href={homePath}>
               <a className={styles.logo}>
-                <img
-                  src={logo.src}
-                  alt=""
-                  className={styles.logomark}
-                  width={42}
-                />
-                <img
-                  src={logoType.src}
-                  alt={logoAlt}
-                  className={styles.logotype}
-                  height={20}
-                />
+                {router.pathname === "/vpn-relay-welcome" ? (
+                  <img src={vpnRelayLogo.src} alt="" height={32} />
+                ) : (
+                  <>
+                    <img
+                      src={logo.src}
+                      alt=""
+                      className={styles.logomark}
+                      width={42}
+                    />
+                    <img
+                      src={logoType.src}
+                      alt={logoAlt}
+                      className={styles.logotype}
+                      height={20}
+                    />
+                  </>
+                )}
               </a>
             </Link>
           </div>
