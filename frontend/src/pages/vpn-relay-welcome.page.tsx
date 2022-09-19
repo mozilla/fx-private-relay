@@ -28,7 +28,6 @@ const VpnRelayWelcome: NextPage = () => {
     authenticatedFetch("/accounts/profile/refresh");
   }, []);
 
-  console.log(runtimeData.data);
   return runtimeData && isFlagActive(runtimeData.data, "bundle") ? (
     <Layout theme="premium">
       <main>
@@ -59,7 +58,7 @@ const VpnRelayWelcome: NextPage = () => {
               </div>
 
               <p>{l10n.getString("vpn-relay-go-relay-body")}</p>
-              <Link href={"/"} target="_blank">
+              <Link href={"/"}>
                 <a className={styles.button}>
                   {l10n.getString("vpn-relay-go-relay-cta")}
                 </a>
@@ -80,7 +79,7 @@ const VpnRelayWelcome: NextPage = () => {
 
               <p>{l10n.getString("vpn-relay-go-vpn-body")}</p>
               <LinkButton
-                href={`https://www.mozilla.org/en-US/products/vpn/download/?utm_source=${encodeURIComponent(
+                href={`https://www.mozilla.org/products/vpn/download/?utm_source=${encodeURIComponent(
                   referringSiteUrl
                 )}&utm_medium=referral&utm_campaign=vpn-relay-welcome&utm_content=download-button`}
                 target="_blank"
