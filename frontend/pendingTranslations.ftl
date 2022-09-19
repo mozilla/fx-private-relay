@@ -70,6 +70,7 @@ waitlist-control-required = Required
 waitlist-control-email-label = What is your email address?
 waitlist-control-email-placeholder = yourname@example.com
 waitlist-control-country-label = What country do you live in?
+waitlist-control-country-label-2 = What country or region do you live in?
 waitlist-control-locale-label = Select your preferred language.
 waitlist-submit-label = Join the Waitlist
 waitlist-privacy-policy-agree = By clicking “{ waitlist-submit-label }”, you agree to our <a>Privacy Policy</a>.

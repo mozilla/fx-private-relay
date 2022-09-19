@@ -111,7 +111,7 @@ const PremiumWaitlist: NextPage = () => {
             </div>
             <div className={styles.control}>
               <label htmlFor="country">
-                {l10n.getString("waitlist-control-country-label")}
+                {l10n.getString("waitlist-control-country-label-2")}
               </label>
               <i>{l10n.getString("waitlist-control-required")}</i>
               <CountryPicker
