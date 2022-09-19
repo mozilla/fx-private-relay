@@ -1,0 +1,100 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../styles/tokens.scss";
+@import "../../src/components/Button.module.scss";
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  max-width: $content-lg;
+  margin: 0 auto;
+}
+
+.content-head {
+  display: flex;
+  max-width: $content-lg;
+  gap: $spacing-md;
+  padding: $layout-xl $spacing-md;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.headline {
+  font-family: $font-stack-base;
+  color: $color-grey-40;
+  font-weight: 400;
+
+  @include text-title-3xs;
+}
+
+.subheadline {
+  font-family: $font-stack-firefox;
+  color: $color-grey-60;
+  font-weight: 700;
+
+  @include text-title-md;
+}
+
+.logo {
+  display: flex;
+  gap: $spacing-md;
+  justify-content: center;
+}
+
+.content-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-2xl;
+
+  @media #{$mq-lg} {
+    flex-direction: row;
+    background-color: $color-white;
+    padding: 0 $spacing-2xl;
+    border-radius: $border-radius-md;
+    box-shadow: $box-shadow-sm;
+  }
+
+  .panel-art {
+    display: none;
+
+    @media #{$mq-lg} {
+      display: block;
+    }
+  }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: $spacing-xl;
+  max-width: $content-xs;
+  background-color: $color-white;
+  padding: $spacing-2xl;
+  border-radius: $border-radius-md;
+  box-shadow: $box-shadow-sm;
+
+  @media #{$mq-lg} {
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  p {
+    max-width: $content-xs;
+    font-family: $font-stack-base;
+
+    @include text-body-md;
+  }
+
+  a {
+    white-space: pre;
+    font-weight: 500;
+    font-family: $font-stack-firefox;
+  }
+}
