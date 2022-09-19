@@ -121,6 +121,7 @@ modal-custom-alias-picker-form-prefix-invalid-warning = Email masks can only con
 modal-custom-alias-picker-form-prefix-invalid-warning-2 = Email masks can only contain lowercase letters, numbers, periods, and hyphens, and may not start or end with a period or hyphen.
 
 ## Phone Onboarding
+
 phone-onboarding-step1-headline = Introducing phone number masking
 phone-onboarding-step1-body = With phone number masking, you can create a phone number mask that helps you  protect your true phone number. Share it, and receive messages privately.
 phone-onboarding-step1-list-item-1 = Share a masked phone number that forwards messages to your true number.
@@ -181,7 +182,6 @@ phone-onboarding-step4-button-register-phone-number = Register phone number mask
 phone-onboarding-step4-search-results-body = Phone number masks available in <strong>{ $location }</strong>. Once you register a phone number mask, you cannot change it.
 phone-onboarding-step4-confirm-message = To confirm your your phone number mask, enter it below. This can’t be changed later.
 phone-onboarding-step4-confirm-alt-cancel = Cancel
-phone-onboarding-step4-button-register-phone-number = Confirm number
 phone-onboarding-step4-body-confirm-relay-number = Please confirm that this is the phone number mask you want. This can’t be changed later.
 phone-onboarding-step4-button-confirm-relay-number = Confirm
 phone-onboarding-step4-code-success-title = Congratulations!
@@ -225,7 +225,7 @@ phone-dashboard-sender-table-title-action = Action
 phone-dashboard-sender-disabled-body =  You have disabled the Caller and Sender log. Go to your settings to
         enable { -brand-name-relay } to keep a log of your callers and senders.
 phone-dashboard-sender-disabled-update-settings = Update Settings
-phone-dashboard-sender-empty-body = You haven't received any call or message yet!
+phone-dashboard-sender-empty-body = You haven’t received any call or message yet!
 phone-dashboard-header-new = New
 
 vpn-relay-welcome-headline = Welcome to your new protection plan
@@ -234,7 +234,9 @@ vpn-relay-go-relay-body = Protect your email inbox and your phone number
 vpn-relay-go-relay-cta = Go to { -brand-name-relay }
 vpn-relay-go-vpn-body = Protect your connection and online actvitiy
 vpn-relay-go-vpn-cta = Download { -brand-name-mozilla-vpn }
+
 ## Replies
+
 profile-label-replies = Replies
 profile-replies-tooltip = You can reply to emails received through this mask, and { -brand-name-firefox-relay } will continue to protect your true email address.
 
@@ -407,6 +409,7 @@ faq-question-trackerremoval-breakage-answer-2 = Sometimes removing trackers may 
 -brand-name-vpn = VPN
 
 ## VPN and Relay Bundle What's New Announcement
+
 whatsnew-feature-bundle-header = Introducing: { -brand-name-relay } + { -brand-name-vpn } subscription plan
 whatsnew-feature-bundle-snippet = Upgrade your subscription to get both { -brand-name-firefox-relay-premium } + { -brand-name-mozilla-vpn }…
 # Variables:
@@ -416,6 +419,7 @@ whatsnew-feature-bundle-body = Upgrade your subscription to get both { -brand-na
 whatsnew-feature-bundle-upgrade-cta = Upgrade now
 
 ## VPN and Relay Bundle Banner
+
 bundle-banner-header = { -brand-name-firefox-relay } with <vpn-logo>{ -brand-name-mozilla-vpn }</vpn-logo>
 bundle-banner-subheader = Security, reliability and speed — on every device, anywhere you go.
 bundle-banner-body = Surf, stream, game, and get work done while maintaining your privacy online. Whether you’re traveling, using public Wi-Fi, or simply looking for more online security, we will always put your privacy first.
@@ -431,7 +435,7 @@ bundle-banner-alt = { -brand-name-mozilla-vpn } and { -brand-name-relay }
 bundle-banner-cta = Get { -brand-name-mozilla-vpn } + { -brand-name-relay }
 # Variables:
 #   $days_guarantee (string) - the number of days for money-back guarantee. Examples: 30, 90
-bundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee included 
+bundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee included
 # Variables:
 #   $num_vpn_servers (string) - the number of VPN servers. Examples: 400, 500, 600
 bundle-feature-one = More than { $num_vpn_servers } servers
