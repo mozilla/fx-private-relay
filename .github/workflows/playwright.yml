@@ -35,7 +35,7 @@ jobs:
           E2E_TEST_BASE_URL: ${{ secrets.E2E_TEST_BASE_URL }}
 
       - name: Upload html report as artifact to troubleshoot failures.
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: always()
         with:
           name: playwright-report
