@@ -132,7 +132,7 @@ describe("The landing page", () => {
     render(<Home />);
 
     const phoneFeatureRow = screen.getByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-phone_mask] and vars: {}]",
+      name: "[<Localized> with id [plan-matrix-heading-feature-phone-mask] and vars: {}]",
     });
 
     expect(phoneFeatureRow).toBeInTheDocument();
