@@ -343,7 +343,7 @@ def _validate_number(request):
             f"Could not get number details for {e164_number}"
         )
 
-    if number_details.country_code != "US":
+    if number_details.country_code not in ["US", "CA"]:
         raise exceptions.ValidationError(
             "Relay Phone is currently only available in the US. "
             "Your phone number country code is: "
