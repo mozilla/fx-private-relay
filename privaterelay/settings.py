@@ -651,12 +651,12 @@ PHONE_PLAN_ID_MATRIX = {
     "usd": {
         "en": {
             "monthly": {
-                "id": "TBD",
-                "price": "$?.??",
+                "id": "price_1Li0w8JNcmPzuWtR2rGU80P3",
+                "price": "$4.99",
             },
             "yearly": {
-                "id": "TBD",
-                "price": "$?.??",
+                "id": "price_1Li15WJNcmPzuWtRIh0F4VwP",
+                "price": "$3.99",
             },
         },
     },
