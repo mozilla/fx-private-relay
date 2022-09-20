@@ -492,6 +492,29 @@ export function getHandlers(
     );
   });
 
+  addPatchHandler("/api/v1/relaynumber/:id/", async (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    const ownRelayNumbers = mockedRelaynumbers[mockId];
+    const index = ownRelayNumbers.findIndex(
+      (relayNumber) =>
+        relayNumber.id === Number.parseInt(req.params.id as string, 10)
+    );
+    if (index === -1) {
+      return res(ctx.status(404));
+    }
+
+    const body = (await req.json()) as Partial<RelayNumber>;
+    ownRelayNumbers[index] = {
+      ...ownRelayNumbers[index],
+      ...body,
+    };
+    return res(ctx.status(200));
+  });
+
   addGetHandler("/api/v1/inboundcontact/", (req, res, ctx) => {
     const mockId = getMockId(req);
     if (mockId === null) {
