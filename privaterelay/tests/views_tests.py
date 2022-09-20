@@ -1,4 +1,5 @@
 import json
+from unittest.mock import call, patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -40,6 +41,50 @@ class UpdateExtraDataAndEmailTest(TestCase):
 
         assert sa.extra_data == new_extra_data
         assert ea.email == new_email
+
+    @patch("privaterelay.views.incr_if_enabled")
+    def test_update_newly_premium(self, incr_mocked):
+        user = baker.make(User)
+        baker.make(EmailAddress, user=user)
+        sa = baker.make(
+            SocialAccount,
+            user=user,
+            provider="fxa",
+            extra_data=json.loads('{"test": "test"}'),
+        )
+        new_email = "newemail@example.com"
+        new_extra_data = json.loads('{"subscriptions": ["premium-relay"]}')
+
+        response = _update_all_data(sa, new_extra_data, new_email)
+
+        assert response.status_code == 202
+        sa.refresh_from_db()
+        profile = sa.user.profile_set.first()
+        assert profile.date_subscribed
+        assert sa.extra_data == new_extra_data
+        incr_mocked.assert_called_once()
+
+    @patch("privaterelay.views.incr_if_enabled")
+    def test_update_newly_phone(self, incr_mocked):
+        user = baker.make(User)
+        baker.make(EmailAddress, user=user)
+        sa = baker.make(
+            SocialAccount,
+            user=user,
+            provider="fxa",
+            extra_data=json.loads('{"test": "test"}'),
+        )
+        new_email = "newemail@example.com"
+        new_extra_data = json.loads('{"subscriptions": ["relay-phones"]}')
+
+        response = _update_all_data(sa, new_extra_data, new_email)
+
+        assert response.status_code == 202
+        sa.refresh_from_db()
+        profile = sa.user.profile_set.first()
+        assert profile.date_subscribed_phone
+        assert sa.extra_data == new_extra_data
+        incr_mocked.assert_called_once()
 
     def test_update_all_data_conflict(self):
         extra_data = json.loads('{"test": "test"}')

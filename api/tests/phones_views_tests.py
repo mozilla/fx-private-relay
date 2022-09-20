@@ -578,6 +578,7 @@ def test_inbound_sms_valid_twilio_signature_unknown_number(
 def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_client):
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)
+    pre_inbound_remaining_texts = relay_number.remaining_texts
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
@@ -591,6 +592,9 @@ def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_
     assert call_kwargs["to"] == real_phone.number
     assert call_kwargs["from_"] == relay_number.number
     assert "[Relay" in call_kwargs["body"]
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+    assert relay_number.remaining_texts == pre_inbound_remaining_texts - 1
 
 
 def test_inbound_sms_valid_twilio_signature_disabled_number(
@@ -608,7 +612,31 @@ def test_inbound_sms_valid_twilio_signature_disabled_number(
     assert response.status_code == 400
     decoded_content = response.content.decode()
     assert decoded_content.startswith("<?xml")
+    relay_number.refresh_from_db()
+    assert relay_number.texts_blocked == 1
     assert "Not Accepting Texts" in decoded_content
+    mocked_twilio_client.messages.create.assert_not_called()
+
+
+def test_inbound_sms_to_number_with_no_remaining_texts(
+    phone_user, mocked_twilio_client
+):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    relay_number.remaining_texts = 0
+    relay_number.save()
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_sms"
+    data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert decoded_content.startswith("<?xml")
+    relay_number.refresh_from_db()
+    assert "Number Is Out Of Texts" in decoded_content
     mocked_twilio_client.messages.create.assert_not_called()
 
 
@@ -663,6 +691,9 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
     inbound_contact.refresh_from_db()
     assert inbound_contact.num_texts == 1
     assert inbound_contact.last_inbound_type == "text"
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_blocked == 0
     pre_block_contact_date = inbound_contact.last_inbound_date
 
     inbound_contact.blocked = True
@@ -678,6 +709,9 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
     inbound_contact.refresh_from_db()
     assert inbound_contact.num_texts == 1
     assert inbound_contact.num_texts_blocked == 1
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_blocked == 1
     assert inbound_contact.last_inbound_date == pre_block_contact_date
 
 
@@ -746,6 +780,8 @@ def test_inbound_sms_reply(phone_user, mocked_twilio_client):
     assert call_kwargs["to"] == inbound_contact.inbound_number
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == "test reply"
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
 
 
 @pytest.mark.django_db
@@ -822,6 +858,7 @@ def test_inbound_call_valid_twilio_signature_good_data(
 ):
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
+    pre_call_calls_forwarded = relay_number.calls_forwarded
     caller_number = "+15556660000"
     mocked_twilio_client.reset_mock()
 
@@ -834,6 +871,8 @@ def test_inbound_call_valid_twilio_signature_good_data(
     decoded_content = response.content.decode()
     assert f'callerId="{caller_number}"' in decoded_content
     assert f"<Number>{real_phone.number}</Number>" in decoded_content
+    relay_number.refresh_from_db()
+    assert relay_number.calls_forwarded == pre_call_calls_forwarded + 1
     inbound_contact = InboundContact.objects.get(
         relay_number=relay_number, inbound_number=caller_number
     )

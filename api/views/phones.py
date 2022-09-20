@@ -439,10 +439,10 @@ def inbound_sms(request):
         )
 
     _check_disabled(relay_number, "texts")
-
+    _check_remaining(relay_number, "texts")
     inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
-        _check_and_update_contact(inbound_contact, "texts")
+        _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     client = twilio_client()
     client.messages.create(
@@ -450,6 +450,9 @@ def inbound_sms(request):
         body=f"[Relay 📲 {inbound_from}] {inbound_body}",
         to=real_phone.number,
     )
+    relay_number.remaining_texts -= 1
+    relay_number.texts_forwarded += 1
+    relay_number.save()
     return response.Response(status=201, data={"message": "Relayed message to user."})
 
 
@@ -464,10 +467,16 @@ def inbound_call(request):
         raise exceptions.ValidationError("Call data missing Caller or Called.")
 
     relay_number, real_phone = _get_phone_objects(inbound_to)
+
     _check_disabled(relay_number, "calls")
+    _check_remaining(relay_number, "minutes")
     inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
-        _check_and_update_contact(inbound_contact, "calls")
+        _check_and_update_contact(inbound_contact, "calls", relay_number)
+
+    relay_number.calls_forwarded += 1
+    # TODO: update relay_number.remaining_minutes
+    relay_number.save()
 
     # Note: TwilioInboundCallXMLRenderer will render this as TwiML
     return response.Response(
@@ -513,12 +522,25 @@ def _handle_sms_reply(relay_number, real_phone, inbound_body):
         body=inbound_body,
         to=last_text_sender.inbound_number,
     )
+    relay_number.remaining_texts -= 1
+    relay_number.texts_forwarded += 1
+    relay_number.save()
 
 
 def _check_disabled(relay_number, contact_type):
     # Check if RelayNumber is disabled
     if not relay_number.enabled:
+        attr = f"{contact_type}_blocked"
+        setattr(relay_number, attr, getattr(relay_number, attr) + 1)
+        relay_number.save()
         raise exceptions.ValidationError(f"Number is not accepting {contact_type}s.")
+
+
+def _check_remaining(relay_number, resource_type):
+    model_attr = f"remaining_{resource_type}"
+    if getattr(relay_number, model_attr) <= 0:
+        raise exceptions.ValidationError(f"Number is out of {resource_type}.")
+    return True
 
 
 def _get_inbound_contact(relay_number, inbound_from):
@@ -534,11 +556,16 @@ def _get_inbound_contact(relay_number, inbound_from):
     return inbound_contact
 
 
-def _check_and_update_contact(inbound_contact, contact_type):
+def _check_and_update_contact(inbound_contact, contact_type, relay_number):
     if inbound_contact.blocked:
-        attr = f"num_{contact_type}_blocked"
-        setattr(inbound_contact, attr, getattr(inbound_contact, attr) + 1)
+        contact_attr = f"num_{contact_type}_blocked"
+        setattr(
+            inbound_contact, contact_attr, getattr(inbound_contact, contact_attr) + 1
+        )
         inbound_contact.save()
+        relay_attr = f"{contact_type}_blocked"
+        setattr(relay_number, relay_attr, getattr(relay_number, relay_attr) + 1)
+        relay_number.save()
         raise exceptions.ValidationError(f"Number is not accepting {contact_type}.")
 
     inbound_contact.last_inbound_date = datetime.now(timezone.utc)
