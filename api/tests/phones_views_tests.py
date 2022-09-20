@@ -178,6 +178,28 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     mocked_twilio_client.messages.create.assert_not_called()
 
 
+def test_realphone_post_canadian_number(phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    number = "+12501234567"
+    path = "/api/v1/realphone/"
+    data = {"number": number}
+
+    mock_fetch = Mock(
+        return_value=Mock(country_code="CA", phone_number=number, carrier="telus")
+    )
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
+
+    response = client.post(path, data, format="json", HTTP_X_CLIENT_REGION="nl")
+    assert response.status_code == 201
+    assert response.data["number"] == number
+    assert response.data["verified"] == False
+    assert response.data["verification_sent_date"] != ""
+    assert "Sent verification" in response.data["message"]
+
+
 def test_realphone_post_valid_verification_code(phone_user, mocked_twilio_client):
     real_phone = _make_real_phone(phone_user)
     client = APIClient()
