@@ -1,3 +1,5 @@
+import { useToggleState } from "react-stately";
+import { useToggleButton } from "react-aria";
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
 import {
@@ -6,7 +8,7 @@ import {
   BlockIcon,
   ChevronRightIcon,
 } from "../../../components/Icons";
-import { MouseEventHandler, useState } from "react";
+import { MouseEventHandler, useRef, useState } from "react";
 import { useRealPhonesData } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
@@ -34,9 +36,6 @@ export const PhoneDashboard = () => {
 
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
-  const [enableForwarding, setEnableForwarding] = useState(
-    relayNumberData ? relayNumberData.enabled : false
-  );
   const [showingPrimaryDashboard, toggleDashboardPanel] = useState(true);
   const dateToFormat = realPhone.data?.[0].verified_date
     ? parseDate(realPhone.data[0].verified_date)
@@ -45,12 +44,20 @@ export const PhoneDashboard = () => {
     dateStyle: "medium",
   });
 
-  const toggleForwarding = () => {
-    if (relayNumberData?.id) {
-      setEnableForwarding(!enableForwarding);
-      relayNumber.setForwardingState(!enableForwarding, relayNumberData.id);
-    }
-  };
+  const forwardToggleButtonRef = useRef<HTMLSpanElement>(null);
+  const forwardToggleState = useToggleState({
+    defaultSelected: relayNumberData?.enabled ?? false,
+    onChange: (isSelected) => {
+      if (typeof relayNumberData?.id === "number") {
+        relayNumber.setForwardingState(isSelected, relayNumberData.id);
+      }
+    },
+  });
+  const forwardToggleButtonProps = useToggleButton(
+    { elementType: "span" },
+    forwardToggleState,
+    forwardToggleButtonRef
+  ).buttonProps;
 
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
     if (relayNumberData?.number) {
@@ -87,7 +94,7 @@ export const PhoneDashboard = () => {
 
       <div
         className={`${styles["phone-statistics"]} ${
-          enableForwarding ? "" : styles["inactive-statistics"]
+          relayNumberData?.enabled ? "" : styles["inactive-statistics"]
         }`}
       >
         <p className={styles["phone-statistics-title"]}>
@@ -100,7 +107,7 @@ export const PhoneDashboard = () => {
 
       <div
         className={`${styles["phone-statistics"]} ${
-          enableForwarding ? styles["inactive-statistics"] : ""
+          relayNumberData?.enabled ? styles["inactive-statistics"] : ""
         }`}
       >
         <p className={styles["phone-statistics-title"]}>
@@ -116,35 +123,55 @@ export const PhoneDashboard = () => {
   const phoneControls = (
     <div className={styles["phone-controls-container"]}>
       <div className={styles["phone-controls"]}>
-        <button
-          onClick={toggleForwarding}
-          className={`${styles["forwarding-controls-button"]} ${
-            enableForwarding ? styles["active-button"] : ""
+        <span
+          // This is a <span> rather than a <button> to allow the use of flexbox,
+          // but React Aria makes sure it's correctly recognised as a button
+          // thanks to `elementType` passed to `useToggleButton`:
+          {...forwardToggleButtonProps}
+          ref={forwardToggleButtonRef}
+          className={`${styles["forwarding-toggle"]} ${
+            forwardToggleState.isSelected
+              ? styles["is-forwarding"]
+              : styles["is-blocking"]
           }`}
+          title={
+            forwardToggleState.isSelected
+              ? l10n.getString("phone-dashboard-forwarding-toggle-enabled")
+              : l10n.getString("phone-dashboard-forwarding-toggle-disabled")
+          }
         >
-          <ForwardIcon
-            alt="Forwarding All Messages"
-            className={styles["forward-icon"]}
-            width={15}
-            height={15}
-          />
-        </button>
-        <button
-          onClick={toggleForwarding}
-          className={`${styles["forwarding-controls-button"]} ${
-            enableForwarding ? "" : styles["active-button"]
-          }`}
-        >
-          <BlockIcon
-            alt="Blocking All Messages"
-            className={styles["block-icon"]}
-            width={15}
-            height={15}
-          />
-        </button>
+          <span
+            aria-hidden={!forwardToggleState.isSelected}
+            className={`${styles["forwarding-toggle-icon"]} ${styles["forward-icon"]}`}
+          >
+            <ForwardIcon
+              alt={
+                forwardToggleState.isSelected
+                  ? l10n.getString("phone-dashboard-forwarding-toggle-enabled")
+                  : ""
+              }
+              width={15}
+              height={15}
+            />
+          </span>
+          <span
+            aria-hidden={forwardToggleState.isSelected}
+            className={`${styles["forwarding-toggle-icon"]} ${styles["block-icon"]}`}
+          >
+            <BlockIcon
+              alt={
+                forwardToggleState.isSelected
+                  ? ""
+                  : l10n.getString("phone-dashboard-forwarding-toggle-disabled")
+              }
+              width={15}
+              height={15}
+            />
+          </span>
+        </span>
       </div>
       <div className={styles["phone-controls-description"]}>
-        {enableForwarding ? (
+        {relayNumberData?.enabled ? (
           <span>{l10n.getString("phone-dashboard-forwarding-enabled")}</span>
         ) : (
           <span>{l10n.getString("phone-dashboard-forwarding-blocked")}</span>
