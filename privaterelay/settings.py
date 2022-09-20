@@ -308,7 +308,19 @@ MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
 MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PREMIUM_PROD_ID = config("PREMIUM_PROD_ID", "", cast=str)
 PERIODICAL_PREMIUM_PROD_ID = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
+PREMIUM_PLAN_ID_US_MONTHLY = config(
+    "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS", cast=str
+)
+PREMIUM_PLAN_ID_US_YEARLY = config(
+    "PREMIUM_PLAN_ID_US_YEARLY", "price_1LXUdlJNcmPzuWtRKTYg7mpZ", cast=str
+)
 PHONE_PROD_ID = config("PHONE_PROD_ID", "", cast=str)
+PHONE_PLAN_ID_US_MONTHLY = config(
+    "PHONE_PLAN_ID_US_MONTHLY", "price_1Li0w8JNcmPzuWtR2rGU80P3", cast=str
+)
+PHONE_PLAN_ID_US_YEARLY = config(
+    "PHONE_PLAN_ID_US_YEARLY", "price_1Li15WJNcmPzuWtRIh0F4VwP", cast=str
+)
 BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
 BUNDLE_PLAN_ID_US = config(
     "BUNDLE_PLAN_ID_US", "price_1La3d7JNcmPzuWtRn0cg2EyH", cast=str
@@ -558,11 +570,11 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
     "usd": {
         "en": {
             "monthly": {
-                "id": "price_1LXUcnJNcmPzuWtRpbNOajYS",
+                "id": PREMIUM_PLAN_ID_US_MONTHLY,
                 "price": "$1.99",
             },
             "yearly": {
-                "id": "price_1LXUdlJNcmPzuWtRKTYg7mpZ",
+                "id": PREMIUM_PLAN_ID_US_YEARLY,
                 "price": "$0.99",
             },
         },
@@ -651,11 +663,11 @@ PHONE_PLAN_ID_MATRIX = {
     "usd": {
         "en": {
             "monthly": {
-                "id": "price_1Li0w8JNcmPzuWtR2rGU80P3",
+                "id": PHONE_PLAN_ID_US_MONTHLY,
                 "price": "$4.99",
             },
             "yearly": {
-                "id": "price_1Li15WJNcmPzuWtRIh0F4VwP",
+                "id": PHONE_PLAN_ID_US_YEARLY,
                 "price": "$3.99",
             },
         },
