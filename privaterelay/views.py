@@ -4,6 +4,7 @@ from hashlib import sha256
 import json
 import logging
 import os
+import requests
 from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
@@ -62,7 +63,7 @@ def profile_refresh(request):
     profile = request.user.profile_set.first()
 
     fxa = _get_fxa(request)
-    _handle_fxa_profile_change(fxa)
+    update_fxa(fxa)
     if "clicked-purchase" in request.COOKIES and profile.has_premium:
         event = "user_purchased_premium"
         incr_if_enabled(event, 1)
@@ -177,7 +178,7 @@ def fxa_rp_events(request):
                         "event_key": event_key,
                     },
                 )
-            _handle_fxa_profile_change(social_account, authentic_jwt, event_key)
+            update_fxa(social_account, authentic_jwt, event_key)
         if event_key == FXA_DELETE_EVENT:
             _handle_fxa_delete(authentic_jwt, social_account, event_key)
     return HttpResponse("200 OK", status=200)
@@ -228,7 +229,7 @@ def _get_event_keys_from_jwt(authentic_jwt):
     return authentic_jwt["events"].keys()
 
 
-def _handle_fxa_profile_change(social_account, authentic_jwt=None, event_key=None):
+def update_fxa(social_account, authentic_jwt=None, event_key=None):
     try:
         client = _get_oauth2_session(social_account)
     except NoSocialToken as e:
@@ -267,6 +268,7 @@ def _update_all_data(social_account, extra_data, new_email):
     try:
         profile = social_account.user.profile_set.first()
         had_premium = profile.has_premium
+        had_phone = profile.has_phone
         with transaction.atomic():
             social_account.extra_data = extra_data
             social_account.save()
@@ -275,10 +277,20 @@ def _update_all_data(social_account, extra_data, new_email):
             newly_premium = not had_premium and now_has_premium
             no_longer_premium = had_premium and not now_has_premium
             if newly_premium:
+                incr_if_enabled("user_purchased_premium", 1)
                 profile.date_subscribed = datetime.now(timezone.utc)
                 profile.save()
             if no_longer_premium:
                 incr_if_enabled("user_has_downgraded", 1)
+            now_has_phone = profile.has_phone
+            newly_phone = not had_phone and now_has_phone
+            no_longer_phone = had_phone and not now_has_phone
+            if newly_phone:
+                incr_if_enabled("user_purchased_phone", 1)
+                profile.date_subscribed_phone = datetime.now(timezone.utc)
+                profile.save()
+            if no_longer_phone:
+                incr_if_enabled("user_has_dropped_phone", 1)
             social_account.user.email = new_email
             social_account.user.save()
             email_address_record = social_account.user.emailaddress_set.first()
