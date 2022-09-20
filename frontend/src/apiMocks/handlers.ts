@@ -399,6 +399,14 @@ export function getHandlers(
       location: "Unhošť",
       enabled: true,
       id: mockedRelaynumbers[mockId].length,
+      remaining_texts: 74,
+      remaining_minutes: 49,
+      calls_forwarded: 3,
+      calls_blocked: 1,
+      texts_forwarded: 17,
+      texts_blocked: 5,
+      calls_and_texts_forwarded: 20,
+      calls_and_texts_blocked: 6,
     };
     mockedRelaynumbers[mockId].push(newRelaynumber);
     return res(ctx.status(201), ctx.json(newRelaynumber));

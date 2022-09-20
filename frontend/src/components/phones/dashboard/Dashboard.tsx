@@ -23,8 +23,12 @@ export const PhoneDashboard = () => {
   const realPhone = useRealPhonesData();
   const relayNumberData = relayNumber.data?.[0];
   const realPhoneData = realPhone.data?.[0];
-  const formattedPhoneNumber = formatPhone(realPhoneData?.number ?? "");
-  const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "");
+  const formattedPhoneNumber = formatPhone(realPhoneData?.number ?? "", {
+    withCountryCode: true,
+  });
+  const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "", {
+    withCountryCode: true,
+  });
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
 
@@ -64,14 +68,18 @@ export const PhoneDashboard = () => {
   const phoneStatistics = (
     <div className={styles["phone-statistics-container"]}>
       <div className={styles["phone-statistics"]}>
-        <p className={styles["phone-statistics-title"]}>12:04 min</p>
+        <p className={styles["phone-statistics-title"]}>
+          {relayNumberData?.remaining_minutes}
+        </p>
         <p className={styles["phone-statistics-body"]}>
           {l10n.getString("phone-statistics-remaining-call-minutes")}
         </p>
       </div>
 
       <div className={styles["phone-statistics"]}>
-        <p className={styles["phone-statistics-title"]}>36</p>
+        <p className={styles["phone-statistics-title"]}>
+          {relayNumberData?.remaining_texts}
+        </p>
         <p className={styles["phone-statistics-body"]}>
           {l10n.getString("phone-statistics-remaining-texts")}
         </p>
@@ -82,7 +90,9 @@ export const PhoneDashboard = () => {
           enableForwarding ? "" : styles["inactive-statistics"]
         }`}
       >
-        <p className={styles["phone-statistics-title"]}>7</p>
+        <p className={styles["phone-statistics-title"]}>
+          {relayNumberData?.calls_and_texts_forwarded}
+        </p>
         <p className={styles["phone-statistics-body"]}>
           {l10n.getString("phone-statistics-calls-texts-forwarded")}
         </p>
@@ -93,7 +103,9 @@ export const PhoneDashboard = () => {
           enableForwarding ? styles["inactive-statistics"] : ""
         }`}
       >
-        <p className={styles["phone-statistics-title"]}>0</p>
+        <p className={styles["phone-statistics-title"]}>
+          {relayNumberData?.calls_and_texts_blocked}
+        </p>
         <p className={styles["phone-statistics-body"]}>
           {l10n.getString("phone-statistics-calls-texts-blocked")}
         </p>

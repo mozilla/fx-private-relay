@@ -14,7 +14,7 @@ from __future__ import annotations
 import ipaddress
 import os, sys
 from datetime import datetime
-from typing import Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 
 from decouple import config, Choices, Csv
@@ -186,11 +186,16 @@ TWILIO_TEST_AUTH_TOKEN = config("TWILIO_TEST_AUTH_TOKEN", None)
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = config(
     "MAX_MINUTES_TO_VERIFY_REAL_PHONE", 5, cast=int
 )
+MAX_TEXTS_PER_BILLING_CYCLE = config("MAX_TEXTS_PER_BILLING_CYCLE", 75, cast=int)
+MAX_MINUTES_PER_BILLING_CYCLE = config("MAX_MINUTES_PER_BILLING_CYCLE", 50, cast=int)
+DAYS_PER_BILLING_CYCLE = config("DAYS_PER_BILLING_CYCLE", 30, cast=int)
 
-STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
+DJANGO_STATSD_ENABLED = config("DJANGO_STATSD_ENABLED", False, cast=bool)
+STATSD_DEBUG = config("STATSD_DEBUG", False, cast=bool)
+STATSD_ENABLED = DJANGO_STATSD_ENABLED or STATSD_DEBUG
 STATSD_HOST = config("DJANGO_STATSD_HOST", "127.0.0.1")
 STATSD_PORT = config("DJANGO_STATSD_PORT", "8125")
-STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "fx-private-relay")
+STATSD_PREFIX = config("DJANGO_STATSD_PREFIX", "fx.private.relay")
 
 SERVE_ADDON = config("SERVE_ADDON", None)
 
@@ -705,6 +710,7 @@ BUNDLE_PLAN_COUNTRY_LANG_MAPPING = {
 
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
 SUBSCRIPTIONS_WITH_PHONE = config("SUBSCRIPTIONS_WITH_PHONE", default="")
+SUBSCRIPTIONS_WITH_VPN = config("SUBSCRIPTIONS_WITH_VPN", default="")
 
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 
@@ -894,6 +900,7 @@ LOGGING = {
         },
         "abusemetrics": {"handlers": ["console_out"], "level": "INFO"},
         "studymetrics": {"handlers": ["console_out"], "level": "INFO"},
+        "markus": {"handlers": ["console_out"], "level": "DEBUG"},
     },
 }
 
@@ -975,9 +982,9 @@ elif (
 
 SENTRY_DEBUG = config("SENTRY_DEBUG", DEBUG, cast=bool)
 
-SENTRY_ENVIRONMENT = RELAY_CHANNEL
+SENTRY_ENVIRONMENT = config("SENTRY_ENVIRONMENT", RELAY_CHANNEL)
 # Use "local" as default rather than "prod", to catch ngrok.io URLs
-if RELAY_CHANNEL == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
+if SENTRY_ENVIRONMENT == "prod" and SITE_ORIGIN != "https://relay.firefox.com":
     SENTRY_ENVIRONMENT = "local"
 
 sentry_sdk.init(
@@ -1001,8 +1008,10 @@ ignore_logger("django_ftl.message_errors")
 if RELAY_CHANNEL == "dev":
     ignore_logger("django.security.SuspiciousFileOperation")
 
-markus.configure(
-    backends=[
+
+_MARKUS_BACKENDS: list[dict[str, Any]] = []
+if DJANGO_STATSD_ENABLED:
+    _MARKUS_BACKENDS.append(
         {
             "class": "markus.backends.datadog.DatadogMetrics",
             "options": {
@@ -1011,8 +1020,18 @@ markus.configure(
                 "statsd_prefix": STATSD_PREFIX,
             },
         }
-    ]
-)
+    )
+if STATSD_DEBUG:
+    _MARKUS_BACKENDS.append(
+        {
+            "class": "markus.backends.logging.LoggingMetrics",
+            "options": {
+                "logger_name": "markus",
+                "leader": "METRICS",
+            },
+        }
+    )
+markus.configure(backends=_MARKUS_BACKENDS)
 
 if USE_SILK:
     SILKY_PYTHON_PROFILER = True
