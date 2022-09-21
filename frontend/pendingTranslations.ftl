@@ -172,7 +172,7 @@ bundle-banner-alt = { -brand-name-mozilla-vpn } and { -brand-name-relay }
 bundle-banner-cta = Get { -brand-name-mozilla-vpn } + { -brand-name-relay }
 # Variables:
 #   $days_guarantee (string) - the number of days for money-back guarantee. Examples: 30, 90
-bundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee included
+bundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee for first-time subscribers
 # Variables:
 #   $num_vpn_servers (string) - the number of VPN servers. Examples: 400, 500, 600
 bundle-feature-one = More than { $num_vpn_servers } servers
