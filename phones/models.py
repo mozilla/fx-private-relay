@@ -206,11 +206,16 @@ class RelayNumber(models.Model):
         if settings.TWILIO_TEST_ACCOUNT_SID:
             client = phones_config.twilio_test_client
 
-        client.incoming_phone_numbers.create(
+        twilio_incoming_number = client.incoming_phone_numbers.create(
             phone_number=self.number,
             sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
             voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
         )
+        # Also add this number to the Relay messaging service, so it goes
+        # into our US A2P 10DLC campaign
+        client.messaging.v1.services(
+            settings.TWILIO_MESSAGING_SERVICE_SID
+        ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
         return super().save(*args, **kwargs)
 
 
