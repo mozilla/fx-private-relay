@@ -1,4 +1,6 @@
+import { ReactLocalization } from "@fluent/react";
 import { PlanData, ProductData, RuntimeData } from "../hooks/api/runtimeData";
+import { getLocale } from "./getLocale";
 
 const getPlan = <P extends Partial<PlanData>>(
   productData: ProductData<P>,
@@ -15,9 +17,15 @@ const getPlan = <P extends Partial<PlanData>>(
 
 export const getPeriodicalPremiumPrice = (
   runtimeData: RuntimeDataWithPeriodicalPremiumAvailable,
-  billingPeriod: keyof PlanData
+  billingPeriod: keyof PlanData,
+  l10n: ReactLocalization
 ) => {
-  return getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod).price;
+  const plan = getPlan(runtimeData.PERIODICAL_PREMIUM_PLANS, billingPeriod);
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(plan.price);
 };
 /**
  * Given {@link RuntimeDataWithPeriodicalPremiumAvailable}, returns the URL the user should visit to purchase Premium.
@@ -33,9 +41,15 @@ export const getPeriodicalPremiumSubscribeLink = (
 
 export const getPhonesPrice = (
   runtimeData: RuntimeDataWithPhonesAvailable,
-  billingPeriod: keyof PlanData
+  billingPeriod: keyof PlanData,
+  l10n: ReactLocalization
 ) => {
-  return getPlan(runtimeData.PHONE_PLANS, billingPeriod).price;
+  const plan = getPlan(runtimeData.PHONE_PLANS, billingPeriod);
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(plan.price);
 };
 export const getPhoneSubscribeLink = (
   runtimeData: RuntimeDataWithPhonesAvailable,
@@ -45,8 +59,16 @@ export const getPhoneSubscribeLink = (
   return `${runtimeData.FXA_ORIGIN}/subscriptions/products/${runtimeData.PHONE_PRODUCT_ID}?plan=${plan.id}`;
 };
 
-export const getBundlePrice = (runtimeData: RuntimeDataWithBundleAvailable) => {
-  return getPlan(runtimeData.BUNDLE_PLANS, "yearly").price;
+export const getBundlePrice = (
+  runtimeData: RuntimeDataWithBundleAvailable,
+  l10n: ReactLocalization
+) => {
+  const plan = getPlan(runtimeData.BUNDLE_PLANS, "yearly");
+  const formatter = new Intl.NumberFormat(getLocale(l10n), {
+    style: "currency",
+    currency: plan.currency,
+  });
+  return formatter.format(plan.price);
 };
 export const getBundleSubscribeLink = (
   runtimeData: RuntimeDataWithBundleAvailable

@@ -171,6 +171,22 @@ class RelayNumber(models.Model):
         max_length=6, default=vcard_lookup_key_default, unique=True
     )
     enabled = models.BooleanField(default=True)
+    remaining_minutes = models.IntegerField(
+        default=settings.MAX_MINUTES_PER_BILLING_CYCLE
+    )
+    remaining_texts = models.IntegerField(default=settings.MAX_TEXTS_PER_BILLING_CYCLE)
+    calls_forwarded = models.IntegerField(default=0)
+    calls_blocked = models.IntegerField(default=0)
+    texts_forwarded = models.IntegerField(default=0)
+    texts_blocked = models.IntegerField(default=0)
+
+    @property
+    def calls_and_texts_forwarded(self):
+        return self.calls_forwarded + self.texts_forwarded
+
+    @property
+    def calls_and_texts_blocked(self):
+        return self.calls_blocked + self.texts_blocked
 
     def save(self, *args, **kwargs):
         if not get_verified_realphone_records(self.user):
@@ -216,7 +232,7 @@ def send_welcome_message(user, relay_number):
     )
     client = twilio_client()
     client.messages.create(
-        body="Welcome to Relay Phoanz! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
+        body="Welcome to Relay phone masking! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
         from_=settings.TWILIO_MAIN_NUMBER,
         to=real_phone.number,
         media_url=[media_url],

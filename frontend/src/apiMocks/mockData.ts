@@ -38,11 +38,13 @@ export const mockedRuntimeData: RuntimeData = {
         nl: {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€2,50",
+            price: 2.5,
+            currency: "EUR",
           },
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€1,99",
+            price: 1.99,
+            currency: "EUR",
           },
         },
       },
@@ -57,11 +59,13 @@ export const mockedRuntimeData: RuntimeData = {
         nl: {
           monthly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€5,99",
+            price: 5.99,
+            currency: "EUR",
           },
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€4,99",
+            price: 4.99,
+            currency: "EUR",
           },
         },
       },
@@ -76,7 +80,8 @@ export const mockedRuntimeData: RuntimeData = {
         nl: {
           yearly: {
             id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€8,99",
+            price: 8.99,
+            currency: "EUR",
           },
         },
       },
@@ -346,6 +351,14 @@ export const mockedRelaynumbers: Record<
       number: "+18089251571",
       location: "Hilo",
       enabled: true,
+      remaining_texts: 74,
+      remaining_minutes: 49,
+      calls_forwarded: 3,
+      calls_blocked: 1,
+      texts_forwarded: 17,
+      texts_blocked: 5,
+      calls_and_texts_forwarded: 20,
+      calls_and_texts_blocked: 6,
     },
   ],
   full: [
@@ -354,6 +367,14 @@ export const mockedRelaynumbers: Record<
       number: "+18089251571",
       location: "Hilo",
       enabled: true,
+      remaining_texts: 74,
+      remaining_minutes: 49,
+      calls_forwarded: 3,
+      calls_blocked: 1,
+      texts_forwarded: 17,
+      texts_blocked: 5,
+      calls_and_texts_forwarded: 20,
+      calls_and_texts_blocked: 6,
     },
   ],
 };

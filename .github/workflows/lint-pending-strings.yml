@@ -1,0 +1,25 @@
+name: Lint Reference Files
+on:
+  push:
+    paths: ['frontend/pendingTranslations.ftl', '.github/workflows/lint-pending-strings.yml'  ]
+    branches: [ '*' ]
+  workflow_dispatch:
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - name: Set up Python 3
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+      - name: Install Python dependencies
+        run: |
+          pip install -r privaterelay/locales/.github/requirements.txt
+      - name: Lint reference
+        run: |
+          moz-fluent-lint frontend --config privaterelay/locales/.github/linter_config.yml

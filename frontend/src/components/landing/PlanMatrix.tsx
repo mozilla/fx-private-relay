@@ -30,36 +30,36 @@ import { Plan, trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { setCookie } from "../../functions/cookies";
 
 type FeatureList = {
-  email_masks: number;
-  browser_extension: boolean;
-  email_tracker_removal: boolean;
-  promo_email_blocking: boolean;
-  email_subdomain: boolean;
-  email_reply: boolean;
-  phone_mask: boolean;
+  "email-masks": number;
+  "browser-extension": boolean;
+  "email-tracker-removal": boolean;
+  "promo-email-blocking": boolean;
+  "email-subdomain": boolean;
+  "email-reply": boolean;
+  "phone-mask": boolean;
   vpn: boolean;
 };
 
 const freeFeatures: FeatureList = {
-  email_masks: 5,
-  browser_extension: true,
-  email_tracker_removal: true,
-  promo_email_blocking: false,
-  email_subdomain: false,
-  email_reply: false,
-  phone_mask: false,
+  "email-masks": 5,
+  "browser-extension": true,
+  "email-tracker-removal": true,
+  "promo-email-blocking": false,
+  "email-subdomain": false,
+  "email-reply": false,
+  "phone-mask": false,
   vpn: false,
 };
 const premiumFeatures: FeatureList = {
   ...freeFeatures,
-  email_masks: Number.POSITIVE_INFINITY,
-  promo_email_blocking: true,
-  email_subdomain: true,
-  email_reply: true,
+  "email-masks": Number.POSITIVE_INFINITY,
+  "promo-email-blocking": true,
+  "email-subdomain": true,
+  "email-reply": true,
 };
 const phoneFeatures: FeatureList = {
   ...premiumFeatures,
-  phone_mask: true,
+  "phone-mask": true,
 };
 const bundleFeatures: FeatureList = {
   ...phoneFeatures,
@@ -140,29 +140,29 @@ export const PlanMatrix = (props: Props) => {
         </tr>
       </thead>
       <tbody>
-        <DesktopFeature runtimeData={props.runtimeData} feature="email_masks" />
+        <DesktopFeature runtimeData={props.runtimeData} feature="email-masks" />
         <DesktopFeature
           runtimeData={props.runtimeData}
-          feature="browser_extension"
+          feature="browser-extension"
         />
         <DesktopFeature
           runtimeData={props.runtimeData}
-          feature="email_tracker_removal"
+          feature="email-tracker-removal"
         />
         <DesktopFeature
           runtimeData={props.runtimeData}
-          feature="promo_email_blocking"
+          feature="promo-email-blocking"
         />
         <DesktopFeature
           runtimeData={props.runtimeData}
-          feature="email_subdomain"
+          feature="email-subdomain"
         />
-        <DesktopFeature runtimeData={props.runtimeData} feature="email_reply" />
+        <DesktopFeature runtimeData={props.runtimeData} feature="email-reply" />
         {isFlagActive(props.runtimeData, "phones") &&
           isPhonesAvailableInCountry(props.runtimeData) && (
             <DesktopFeature
               runtimeData={props.runtimeData}
-              feature="phone_mask"
+              feature="phone-mask"
             />
           )}
         {isFlagActive(props.runtimeData, "bundle") &&
@@ -200,7 +200,8 @@ export const PlanMatrix = (props: Props) => {
                 monthlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
-                    "monthly"
+                    "monthly",
+                    l10n
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
@@ -218,7 +219,8 @@ export const PlanMatrix = (props: Props) => {
                 yearlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
-                    "yearly"
+                    "yearly",
+                    l10n
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
@@ -256,7 +258,11 @@ export const PlanMatrix = (props: Props) => {
               <td>
                 <PricingToggle
                   monthlyBilled={{
-                    monthly_price: getPhonesPrice(props.runtimeData, "monthly"),
+                    monthly_price: getPhonesPrice(
+                      props.runtimeData,
+                      "monthly",
+                      l10n
+                    ),
                     subscribeLink: getPhoneSubscribeLink(
                       props.runtimeData,
                       "monthly"
@@ -271,7 +277,11 @@ export const PlanMatrix = (props: Props) => {
                     },
                   }}
                   yearlyBilled={{
-                    monthly_price: getPhonesPrice(props.runtimeData, "yearly"),
+                    monthly_price: getPhonesPrice(
+                      props.runtimeData,
+                      "yearly",
+                      l10n
+                    ),
                     subscribeLink: getPhoneSubscribeLink(
                       props.runtimeData,
                       "yearly"
@@ -302,7 +312,7 @@ export const PlanMatrix = (props: Props) => {
                   <div className={styles["pricing-overview"]}>
                     <span className={styles.price}>
                       {l10n.getString("plan-matrix-price-monthly", {
-                        monthly_price: getBundlePrice(props.runtimeData),
+                        monthly_price: getBundlePrice(props.runtimeData, l10n),
                       })}
                     </span>
                     <a
@@ -361,7 +371,8 @@ export const PlanMatrix = (props: Props) => {
                 monthlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
-                    "monthly"
+                    "monthly",
+                    l10n
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
@@ -379,7 +390,8 @@ export const PlanMatrix = (props: Props) => {
                 yearlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
-                    "yearly"
+                    "yearly",
+                    l10n
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
@@ -424,7 +436,11 @@ export const PlanMatrix = (props: Props) => {
               <MobileFeatureList list={phoneFeatures} />
               <PricingToggle
                 monthlyBilled={{
-                  monthly_price: getPhonesPrice(props.runtimeData, "monthly"),
+                  monthly_price: getPhonesPrice(
+                    props.runtimeData,
+                    "monthly",
+                    l10n
+                  ),
                   subscribeLink: getPhoneSubscribeLink(
                     props.runtimeData,
                     "monthly"
@@ -439,7 +455,11 @@ export const PlanMatrix = (props: Props) => {
                   },
                 }}
                 yearlyBilled={{
-                  monthly_price: getPhonesPrice(props.runtimeData, "yearly"),
+                  monthly_price: getPhonesPrice(
+                    props.runtimeData,
+                    "yearly",
+                    l10n
+                  ),
                   subscribeLink: getPhoneSubscribeLink(
                     props.runtimeData,
                     "yearly"
@@ -472,7 +492,7 @@ export const PlanMatrix = (props: Props) => {
                 <div className={styles["pricing-overview"]}>
                   <span className={styles.price}>
                     {l10n.getString("plan-matrix-price-monthly", {
-                      monthly_price: getBundlePrice(props.runtimeData),
+                      monthly_price: getBundlePrice(props.runtimeData, l10n),
                     })}
                   </span>
                   <a
@@ -505,7 +525,7 @@ export const PlanMatrix = (props: Props) => {
         isBundleAvailableInCountry(props.runtimeData) && (
           <h2 className={styles["bundle-offer-heading"]}>
             {l10n.getString("plan-matrix-bundle-offer-heading", {
-              monthly_price: getBundlePrice(props.runtimeData),
+              monthly_price: getBundlePrice(props.runtimeData, l10n),
             })}
           </h2>
         )}
@@ -574,8 +594,8 @@ const MobileFeatureList = (props: MobileFeatureListProps) => {
           ? { mask_limit: availability }
           : undefined;
       const featureDescription =
-        feature === "email_masks" && availability === Number.POSITIVE_INFINITY
-          ? l10n.getString("plan-matrix-feature-list-email_masks_unlimited")
+        feature === "email-masks" && availability === Number.POSITIVE_INFINITY
+          ? l10n.getString("plan-matrix-feature-list-email-masks-unlimited")
           : l10n.getString(`plan-matrix-feature-list-${feature}`, variables);
 
       return (

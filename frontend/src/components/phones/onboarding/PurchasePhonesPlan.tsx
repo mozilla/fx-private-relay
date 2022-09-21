@@ -69,7 +69,7 @@ const PricingToggle = (props: PricingToggleProps) => {
       >
         <span className={styles.price}>
           {l10n.getString("phone-onboarding-step1-button-price", {
-            monthly_price: getPhonesPrice(props.runtimeData, "yearly"),
+            monthly_price: getPhonesPrice(props.runtimeData, "yearly", l10n),
           })}
           <span>
             {` `}
@@ -100,7 +100,7 @@ const PricingToggle = (props: PricingToggleProps) => {
       >
         <span className={styles.price}>
           {l10n.getString("phone-onboarding-step1-button-price", {
-            monthly_price: getPhonesPrice(props.runtimeData, "monthly"),
+            monthly_price: getPhonesPrice(props.runtimeData, "monthly", l10n),
           })}
         </span>
         <LinkButton

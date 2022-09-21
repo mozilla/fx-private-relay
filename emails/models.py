@@ -20,6 +20,7 @@ from django.utils.translation.trans_real import (
 )
 
 from rest_framework.authtoken.models import Token
+from waffle.models import Flag
 
 
 emails_config = apps.get_app_config("emails")
@@ -86,6 +87,8 @@ class Profile(models.Model):
     api_token = models.UUIDField(default=uuid.uuid4)
     num_address_deleted = models.PositiveIntegerField(default=0)
     date_subscribed = models.DateTimeField(blank=True, null=True)
+    date_subscribed_phone = models.DateTimeField(blank=True, null=True)
+    date_phone_subscription_checked = models.DateTimeField(blank=True, null=True)
     address_last_deleted = models.DateTimeField(blank=True, null=True, db_index=True)
     last_soft_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
     last_hard_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
@@ -291,6 +294,10 @@ class Profile(models.Model):
     def has_phone(self):
         if not self.fxa:
             return False
+        flags = Flag.objects.filter(name="free_phones")
+        for flag in flags:
+            if flag.is_active_for_user(self.user):
+                return True
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
         for sub in settings.SUBSCRIPTIONS_WITH_PHONE.split(","):
             if sub in user_subscriptions:
