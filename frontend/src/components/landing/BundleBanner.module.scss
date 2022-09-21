@@ -148,6 +148,7 @@
         }
 
         .button {
+          flex: 1 0 auto;
           background: white;
           color: $color-blue-50;
           padding: $spacing-sm $spacing-md;
