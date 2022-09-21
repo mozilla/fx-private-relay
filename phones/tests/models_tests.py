@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 import pytest
 import random
 from twilio.rest import Client
@@ -221,9 +222,12 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
 def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     phone_user, mocked_twilio_client
 ):
+    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     mock_twilio_client = mocked_twilio_client
     mock_messages_create = mock_twilio_client.messages.create
     mock_number_create = mock_twilio_client.incoming_phone_numbers.create
+    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
+    mock_services = mock_twilio_client.messaging.v1.services
 
     real_phone = "+12223334444"
     RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
@@ -238,6 +242,16 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     assert call_kwargs["phone_number"] == relay_number
     assert call_kwargs["sms_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
     assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+
+    mock_services.assert_called_once()
+    call_args = mock_services.call_args
+    assert call_args[0][0] == settings.TWILIO_MESSAGING_SERVICE_SID
+    mock_messaging_number_create = (
+        mock_twilio_client.messaging.v1.services().phone_numbers.create
+    )
+    mock_messaging_number_create.assert_called_once()
+    call_kwargs = mock_messaging_number_create.call_args.kwargs
+    assert call_kwargs["phone_number_sid"] == twilio_incoming_number_sid
 
     mock_messages_create.assert_called_once()
     call_kwargs = mock_messages_create.call_args.kwargs
