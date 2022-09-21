@@ -171,8 +171,8 @@ class RelayNumber(models.Model):
         max_length=6, default=vcard_lookup_key_default, unique=True
     )
     enabled = models.BooleanField(default=True)
-    remaining_minutes = models.IntegerField(
-        default=settings.MAX_MINUTES_PER_BILLING_CYCLE
+    remaining_seconds = models.IntegerField(
+        default=settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
     )
     remaining_texts = models.IntegerField(default=settings.MAX_TEXTS_PER_BILLING_CYCLE)
     calls_forwarded = models.IntegerField(default=0)

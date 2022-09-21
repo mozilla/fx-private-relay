@@ -485,6 +485,25 @@ def inbound_call(request):
     )
 
 
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.AllowAny])
+def voice_status(request):
+    called = request.data.get("Called", None)
+    call_status = request.data.get("CallStatus", None)
+    call_duration = request.data.get("CallDuration", None)
+    if called is None or call_status is None or call_duration is None:
+        raise exceptions.ValidationError(
+            "Call data missing Called, CallStatus, or CallDuration"
+        )
+
+    if call_status != "completed":
+        return response.Response(status=200)
+    relay_number, _ = _get_phone_objects(called)
+    relay_number.remaining_seconds = relay_number.remaining_seconds - int(call_duration)
+    relay_number.save()
+    return response.Response(status=200)
+
+
 def _get_phone_objects(inbound_to):
     # Get RelayNumber and RealPhone
     try:
