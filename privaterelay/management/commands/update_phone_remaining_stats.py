@@ -40,13 +40,13 @@ def update_phone_remaining_stats():
             updated_profiles.append(profile)
             if profile.has_phone:
                 # If they still have a phone subscription, re-set their
-                # remaining_texts and remaining_minutes to the maximum value per
+                # remaining_texts and remaining_seconds to the maximum value per
                 # month.
                 try:
                     relay_number = RelayNumber.objects.get(user=profile.user)
                     relay_number.remaining_texts = settings.MAX_TEXTS_PER_BILLING_CYCLE
-                    relay_number.remaining_minutes = (
-                        settings.MAX_MINUTES_PER_BILLING_CYCLE
+                    relay_number.remaining_seconds = (
+                        settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
                     )
                     relay_number.save()
                 except RelayNumber.DoesNotExist:

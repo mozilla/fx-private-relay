@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from math import floor
 import secrets
 import string
 
@@ -179,6 +180,10 @@ class RelayNumber(models.Model):
     calls_blocked = models.IntegerField(default=0)
     texts_forwarded = models.IntegerField(default=0)
     texts_blocked = models.IntegerField(default=0)
+
+    @property
+    def remaining_minutes(self):
+        return floor(self.remaining_seconds / 60)
 
     @property
     def calls_and_texts_forwarded(self):
