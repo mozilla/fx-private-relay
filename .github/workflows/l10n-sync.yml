@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: 'recursive'
+          token: ${{ secrets.L10N_UPDATE_TOKEN }}
 
       - name: Pull & update submodules recursively
         run: |
