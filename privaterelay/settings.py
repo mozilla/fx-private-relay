@@ -379,7 +379,7 @@ PREMIUM_PLAN_ID_MATRIX = {
             "id": "price_1JmRCQJNcmPzuWtRprMnmtax",
             "price": "0,99 €",
         },
-        "sv": {
+        "se": {
             "id": "price_1KQc1PJNcmPzuWtRsEfb6inB",
             "price": "0,99 €",
         },
@@ -431,7 +431,7 @@ PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     },
     # Sweden
     "se": {
-        "sv": PREMIUM_PLAN_ID_MATRIX["euro"]["sv"],
+        "sv": PREMIUM_PLAN_ID_MATRIX["euro"]["se"],
     },
     # Finland
     "fi": {
@@ -569,7 +569,7 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
                 "currency": "EUR",
             },
         },
-        "sv": {
+        "se": {
             "monthly": {
                 "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
                 "price": 1.99,
@@ -664,7 +664,7 @@ PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     },
     # Sweden
     "se": {
-        "sv": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["sv"],
+        "sv": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["se"],
     },
     # Finland
     "fi": {
