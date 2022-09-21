@@ -89,11 +89,6 @@ class Migration(migrations.Migration):
             field=models.IntegerField(default=3000),
         ),
         migrations.RunPython(
-            code=add_db_default_forward_func,
-            reverse_code=migrations.RunPython.noop,
-            elidable=True,
-        ),
-        migrations.RunPython(
             code=migrate_existing_data,
             reverse_code=migrations.RunPython.noop,
             elidable=True,
@@ -101,5 +96,10 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name="relaynumber",
             name="remaining_minutes",
+        ),
+        migrations.RunPython(
+            code=add_db_default_forward_func,
+            reverse_code=migrations.RunPython.noop,
+            elidable=True,
         ),
     ]
