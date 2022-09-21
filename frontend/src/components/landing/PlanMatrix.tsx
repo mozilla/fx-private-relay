@@ -200,7 +200,8 @@ export const PlanMatrix = (props: Props) => {
                 monthlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
-                    "monthly"
+                    "monthly",
+                    l10n
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
@@ -218,7 +219,8 @@ export const PlanMatrix = (props: Props) => {
                 yearlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
-                    "yearly"
+                    "yearly",
+                    l10n
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
@@ -256,7 +258,11 @@ export const PlanMatrix = (props: Props) => {
               <td>
                 <PricingToggle
                   monthlyBilled={{
-                    monthly_price: getPhonesPrice(props.runtimeData, "monthly"),
+                    monthly_price: getPhonesPrice(
+                      props.runtimeData,
+                      "monthly",
+                      l10n
+                    ),
                     subscribeLink: getPhoneSubscribeLink(
                       props.runtimeData,
                       "monthly"
@@ -271,7 +277,11 @@ export const PlanMatrix = (props: Props) => {
                     },
                   }}
                   yearlyBilled={{
-                    monthly_price: getPhonesPrice(props.runtimeData, "yearly"),
+                    monthly_price: getPhonesPrice(
+                      props.runtimeData,
+                      "yearly",
+                      l10n
+                    ),
                     subscribeLink: getPhoneSubscribeLink(
                       props.runtimeData,
                       "yearly"
@@ -302,7 +312,7 @@ export const PlanMatrix = (props: Props) => {
                   <div className={styles["pricing-overview"]}>
                     <span className={styles.price}>
                       {l10n.getString("plan-matrix-price-monthly", {
-                        monthly_price: getBundlePrice(props.runtimeData),
+                        monthly_price: getBundlePrice(props.runtimeData, l10n),
                       })}
                     </span>
                     <a
@@ -361,7 +371,8 @@ export const PlanMatrix = (props: Props) => {
                 monthlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
-                    "monthly"
+                    "monthly",
+                    l10n
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
@@ -379,7 +390,8 @@ export const PlanMatrix = (props: Props) => {
                 yearlyBilled={{
                   monthly_price: getPeriodicalPremiumPrice(
                     props.runtimeData,
-                    "yearly"
+                    "yearly",
+                    l10n
                   ),
                   subscribeLink: getPeriodicalPremiumSubscribeLink(
                     props.runtimeData,
@@ -424,7 +436,11 @@ export const PlanMatrix = (props: Props) => {
               <MobileFeatureList list={phoneFeatures} />
               <PricingToggle
                 monthlyBilled={{
-                  monthly_price: getPhonesPrice(props.runtimeData, "monthly"),
+                  monthly_price: getPhonesPrice(
+                    props.runtimeData,
+                    "monthly",
+                    l10n
+                  ),
                   subscribeLink: getPhoneSubscribeLink(
                     props.runtimeData,
                     "monthly"
@@ -439,7 +455,11 @@ export const PlanMatrix = (props: Props) => {
                   },
                 }}
                 yearlyBilled={{
-                  monthly_price: getPhonesPrice(props.runtimeData, "yearly"),
+                  monthly_price: getPhonesPrice(
+                    props.runtimeData,
+                    "yearly",
+                    l10n
+                  ),
                   subscribeLink: getPhoneSubscribeLink(
                     props.runtimeData,
                     "yearly"
@@ -472,7 +492,7 @@ export const PlanMatrix = (props: Props) => {
                 <div className={styles["pricing-overview"]}>
                   <span className={styles.price}>
                     {l10n.getString("plan-matrix-price-monthly", {
-                      monthly_price: getBundlePrice(props.runtimeData),
+                      monthly_price: getBundlePrice(props.runtimeData, l10n),
                     })}
                   </span>
                   <a
@@ -505,7 +525,7 @@ export const PlanMatrix = (props: Props) => {
         isBundleAvailableInCountry(props.runtimeData) && (
           <h2 className={styles["bundle-offer-heading"]}>
             {l10n.getString("plan-matrix-bundle-offer-heading", {
-              monthly_price: getBundlePrice(props.runtimeData),
+              monthly_price: getBundlePrice(props.runtimeData, l10n),
             })}
           </h2>
         )}

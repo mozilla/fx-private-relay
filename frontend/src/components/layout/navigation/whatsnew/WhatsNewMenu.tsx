@@ -489,7 +489,7 @@ export const WhatsNewMenu = (props: Props) => {
       props.runtimeData && isBundleAvailableInCountry(props.runtimeData) ? (
         <WhatsNewContent
           description={l10n.getString("whatsnew-feature-bundle-body", {
-            monthly_price: getBundlePrice(props.runtimeData),
+            monthly_price: getBundlePrice(props.runtimeData, l10n),
             savings: "??%", // Design states 50%
           })}
           heading={l10n.getString("whatsnew-feature-bundle-header")}

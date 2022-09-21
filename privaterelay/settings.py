@@ -313,8 +313,23 @@ MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
 MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
 PREMIUM_PROD_ID = config("PREMIUM_PROD_ID", "", cast=str)
 PERIODICAL_PREMIUM_PROD_ID = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
+PREMIUM_PLAN_ID_US_MONTHLY = config(
+    "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS", cast=str
+)
+PREMIUM_PLAN_ID_US_YEARLY = config(
+    "PREMIUM_PLAN_ID_US_YEARLY", "price_1LXUdlJNcmPzuWtRKTYg7mpZ", cast=str
+)
 PHONE_PROD_ID = config("PHONE_PROD_ID", "", cast=str)
+PHONE_PLAN_ID_US_MONTHLY = config(
+    "PHONE_PLAN_ID_US_MONTHLY", "price_1Li0w8JNcmPzuWtR2rGU80P3", cast=str
+)
+PHONE_PLAN_ID_US_YEARLY = config(
+    "PHONE_PLAN_ID_US_YEARLY", "price_1Li15WJNcmPzuWtRIh0F4VwP", cast=str
+)
 BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
+BUNDLE_PLAN_ID_US = config(
+    "BUNDLE_PLAN_ID_US", "price_1La3d7JNcmPzuWtRn0cg2EyH", cast=str
+)
 PREMIUM_PRICE_ID_OVERRIDE = config("PREMIUM_PRICE_ID_OVERRIDE", "", cast=str)
 PREMIUM_PLAN_ID_MATRIX = {
     "chf": {
@@ -447,155 +462,170 @@ PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
         "de": {
             "monthly": {
                 "id": "price_1LYCqOJNcmPzuWtRuIXpQRxi",
-                "price": "CHF ?.??",
+                "price": 2.00,
+                "currency": "CHF",
             },
             "yearly": {
                 "id": "price_1LYCqyJNcmPzuWtR3Um5qDPu",
-                "price": "CHF ?.??",
+                "price": 1.00,
+                "currency": "CHF",
             },
         },
         "fr": {
             "monthly": {
                 "id": "price_1LYCvpJNcmPzuWtRq9ci2gXi",
-                "price": "CHF ?.??",
+                "price": 2.00,
+                "currency": "CHF",
             },
             "yearly": {
                 "id": "price_1LYCwMJNcmPzuWtRm6ebmq2N",
-                "price": "CHF ?.??",
+                "price": 1.00,
+                "currency": "CHF",
             },
         },
         "it": {
             "monthly": {
                 "id": "price_1LYCiBJNcmPzuWtRxtI8D5Uy",
-                "price": "CHF ?.??",
+                "price": 2.00,
+                "currency": "CHF",
             },
             "yearly": {
                 "id": "price_1LYClxJNcmPzuWtRWjslDdkG",
-                "price": "CHF ?.??",
+                "price": 1.00,
+                "currency": "CHF",
             },
         },
     },
     "euro": {
-        # TODO: Get plan ID for Austria
-        # "at": {
-        #     "monthly": {
-        #         "id": "",
-        #         "price": "?.?? €",
-        #     },
-        #     "yearly": {
-        #         "id": "",
-        #         "price": "?.?? €",
-        #     },
-        # },
         "de": {
             "monthly": {
                 "id": "price_1LYC79JNcmPzuWtRU7Q238yL",
-                "price": "?.?? €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYC7xJNcmPzuWtRcdKXCVZp",
-                "price": "?.?? €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "es": {
             "monthly": {
                 "id": "price_1LYCWmJNcmPzuWtRtopZog9E",
-                "price": "?.?? €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYCXNJNcmPzuWtRu586XOFf",
-                "price": "?.?? €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "fr": {
             "monthly": {
                 "id": "price_1LYBuLJNcmPzuWtRn58XQcky",
-                "price": "?.?? €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYBwcJNcmPzuWtRpgoWcb03",
-                "price": "?.?? €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "it": {
             "monthly": {
                 "id": "price_1LYCMrJNcmPzuWtRTP9vD8wY",
-                "price": "?.?? €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYCN2JNcmPzuWtRtWz7yMno",
-                "price": "?.?? €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "nl": {
             "monthly": {
                 "id": "price_1LYCdLJNcmPzuWtR0J1EHoJ0",
-                "price": "?.?? €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYCdtJNcmPzuWtRVm4jLzq2",
-                "price": "?.?? €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
-        # TODO: Get plan ID for Ireland
-        # "ie": {
-        #     "monthly": {
-        #         "id": "",
-        #         "price": "?.?? €",
-        #     },
-        #     "yearly": {
-        #         "id": "",
-        #         "price": "?.?? €",
-        #     },
-        # },
+        "ie": {
+            "monthly": {
+                "id": "price_1LhdrkJNcmPzuWtRvCc4hsI2",
+                "price": 1.99,
+                "currency": "EUR",
+            },
+            "yearly": {
+                "id": "price_1LhdprJNcmPzuWtR7HqzkXTS",
+                "price": 0.99,
+                "currency": "EUR",
+            },
+        },
         "sv": {
             "monthly": {
                 "id": "price_1LYBblJNcmPzuWtRGRHIoYZ5",
-                "price": "?.?? €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYBeMJNcmPzuWtRT5A931WH",
-                "price": "?.?? €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
         "fi": {
             "monthly": {
                 "id": "price_1LYBn9JNcmPzuWtRI3nvHgMi",
-                "price": "?.?? €",
+                "price": 1.99,
+                "currency": "EUR",
             },
             "yearly": {
                 "id": "price_1LYBq1JNcmPzuWtRmyEa08Wv",
-                "price": "?.?? €",
+                "price": 0.99,
+                "currency": "EUR",
             },
         },
     },
     "usd": {
         "en": {
             "monthly": {
-                "id": "price_1LXUcnJNcmPzuWtRpbNOajYS",
-                "price": "$?.??",
+                "id": PREMIUM_PLAN_ID_US_MONTHLY,
+                "price": 1.99,
+                "currency": "USD",
             },
             "yearly": {
-                "id": "price_1LXUdlJNcmPzuWtRKTYg7mpZ",
-                "price": "$?.??",
+                "id": PREMIUM_PLAN_ID_US_YEARLY,
+                "price": 0.99,
+                "currency": "USD",
             },
         },
         "gb": {
             "monthly": {
                 "id": "price_1LYCHpJNcmPzuWtRhrhSYOKB",
-                "price": "$?.??",
+                "price": 1.99,
+                "currency": "USD",
             },
             "yearly": {
                 "id": "price_1LYCIlJNcmPzuWtRQtYLA92j",
-                "price": "$?.??",
+                "price": 0.99,
+                "currency": "USD",
             },
         },
     },
 }
 PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
     # Austria
-    # Commented out; no plan ID known yet
-    # "at": {"de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["at"]},
+    "at": {
+        "de": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
+    },
     # Belgium
     "be": {
         "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
@@ -621,10 +651,9 @@ PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
         "fr": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
     },
     # Ireland
-    # Commented out; no plan ID known yet
-    # "ie": {
-    #     "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ie"],
-    # },
+    "ie": {
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["ie"],
+    },
     # Italy
     "it": {
         "it": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["euro"]["it"],
@@ -665,62 +694,48 @@ PHONE_PLAN_ID_MATRIX = {
     "usd": {
         "en": {
             "monthly": {
-                "id": "price_1LXUenJNcmPzuWtRw3rhjQNP",
-                "price": "$?.??",
+                "id": PHONE_PLAN_ID_US_MONTHLY,
+                "price": 4.99,
+                "currency": "USD",
             },
             "yearly": {
-                "id": "price_1LXUhcJNcmPzuWtRHUFHVk12",
-                "price": "$?.??",
+                "id": PHONE_PLAN_ID_US_YEARLY,
+                "price": 3.99,
+                "currency": "USD",
             },
         },
-        # TODO: Get plan ID for Canada
-        # "ca": {
-        #     "monthly": {
-        #         "id": "",
-        #         "price": "$?.??",
-        #     },
-        #     "yearly": {
-        #         "id": "",
-        #         "price": "$?.??",
-        #     },
-        # },
     },
 }
 PHONE_PLAN_COUNTRY_LANG_MAPPING = {
     "us": {
         "en": PHONE_PLAN_ID_MATRIX["usd"]["en"],
     },
-    # Commented out; no plan ID known yet
-    # "ca": {
-    #     "en": PHONE_PLAN_ID_MATRIX["usd"]["ca"],
-    # },
+    "ca": {
+        "en": PHONE_PLAN_ID_MATRIX["usd"]["en"],
+    },
 }
 
 BUNDLE_PLAN_ID_MATRIX = {
     "usd": {
         "en": {
             "yearly": {
-                "id": "price_1La3d7JNcmPzuWtRn0cg2EyH",
-                "price": "$?.??",
+                # To allow testing the subscription flow on stage, we can set
+                # a custom plan ID via an environment variable:
+                "id": BUNDLE_PLAN_ID_US,
+                # TODO: Insert correct price
+                "price": -1337,
+                "currency": "USD",
             },
         },
-        # TODO: Get plan ID for Canada
-        # "ca": {
-        #     "yearly": {
-        #         "id": "",
-        #         "price": "$?.??",
-        #     },
-        # },
     },
 }
 BUNDLE_PLAN_COUNTRY_LANG_MAPPING = {
     "us": {
         "en": BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
     },
-    # Commented out; no plan ID known yet
-    # "ca": {
-    #     "en": BUNDLE_PLAN_ID_MATRIX["usd"]["ca"],
-    # },
+    "ca": {
+        "en": BUNDLE_PLAN_ID_MATRIX["usd"]["en"],
+    },
 }
 
 SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
