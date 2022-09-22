@@ -6,8 +6,8 @@ type LanguageCode = string;
 type WaffleFlag = [string, boolean];
 
 export type PlanData = {
-  monthly: { id: string; price: string };
-  yearly: { id: string; price: string };
+  monthly: { id: string; price: number; currency: string };
+  yearly: { id: string; price: number; currency: string };
 };
 
 export type ProductData<P extends Partial<PlanData> = PlanData> = {

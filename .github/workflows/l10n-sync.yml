@@ -1,0 +1,28 @@
+name: Fetch latest strings from the l10n repo
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+          token: ${{ secrets.L10N_UPDATE_TOKEN }}
+
+      - name: Pull & update submodules recursively
+        run: |
+          git submodule update --init --recursive
+          git submodule update --recursive --remote
+      - name: Commit
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions — l10n sync"
+          git add --all
+          git commit --message="Merge in latest l10n strings" || echo "No changes to commit"
+          git push

@@ -475,7 +475,6 @@ def inbound_call(request):
         _check_and_update_contact(inbound_contact, "calls", relay_number)
 
     relay_number.calls_forwarded += 1
-    # TODO: update relay_number.remaining_minutes
     relay_number.save()
 
     # Note: TwilioInboundCallXMLRenderer will render this as TwiML
@@ -483,6 +482,24 @@ def inbound_call(request):
         status=201,
         data={"inbound_from": inbound_from, "real_number": real_phone.number},
     )
+
+
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.AllowAny])
+def voice_status(request):
+    called = request.data.get("Called", None)
+    call_status = request.data.get("CallStatus", None)
+    if called is None or call_status is None:
+        raise exceptions.ValidationError("Call data missing Called, CallStatus")
+    if call_status != "completed":
+        return response.Response(status=200)
+    call_duration = request.data.get("CallDuration", None)
+    if call_duration is None:
+        raise exceptions.ValidationError("completed call data missing CallDuration")
+    relay_number, _ = _get_phone_objects(called)
+    relay_number.remaining_seconds = relay_number.remaining_seconds - int(call_duration)
+    relay_number.save()
+    return response.Response(status=200)
 
 
 def _get_phone_objects(inbound_to):

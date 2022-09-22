@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from math import floor
 import secrets
 import string
 
@@ -171,14 +172,18 @@ class RelayNumber(models.Model):
         max_length=6, default=vcard_lookup_key_default, unique=True
     )
     enabled = models.BooleanField(default=True)
-    remaining_minutes = models.IntegerField(
-        default=settings.MAX_MINUTES_PER_BILLING_CYCLE
+    remaining_seconds = models.IntegerField(
+        default=settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
     )
     remaining_texts = models.IntegerField(default=settings.MAX_TEXTS_PER_BILLING_CYCLE)
     calls_forwarded = models.IntegerField(default=0)
     calls_blocked = models.IntegerField(default=0)
     texts_forwarded = models.IntegerField(default=0)
     texts_blocked = models.IntegerField(default=0)
+
+    @property
+    def remaining_minutes(self):
+        return floor(self.remaining_seconds / 60)
 
     @property
     def calls_and_texts_forwarded(self):
@@ -206,11 +211,16 @@ class RelayNumber(models.Model):
         if settings.TWILIO_TEST_ACCOUNT_SID:
             client = phones_config.twilio_test_client
 
-        client.incoming_phone_numbers.create(
+        twilio_incoming_number = client.incoming_phone_numbers.create(
             phone_number=self.number,
             sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
             voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
         )
+        # Also add this number to the Relay messaging service, so it goes
+        # into our US A2P 10DLC campaign
+        client.messaging.v1.services(
+            settings.TWILIO_MESSAGING_SERVICE_SID
+        ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
         return super().save(*args, **kwargs)
 
 
@@ -232,7 +242,7 @@ def send_welcome_message(user, relay_number):
     )
     client = twilio_client()
     client.messages.create(
-        body="Welcome to Relay Phoanz! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
+        body="Welcome to Relay phone masking! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
         from_=settings.TWILIO_MAIN_NUMBER,
         to=real_phone.number,
         media_url=[media_url],

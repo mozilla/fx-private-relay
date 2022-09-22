@@ -1,11 +1,12 @@
 # Private Relay
+
 Private Relay provides generated email addresses to use in place of personal
 email addresses.
 
 Recipients will still receive emails, but Private Relay keeps their personal
-email address from being [harvested](https://blog.hubspot.com/marketing/what-is-a-landing-page-ht), 
-and then [bought, sold, traded, or combined](https://www.bookyourdata.com/) 
-with  other data to personally identify, track, and/or [target
+email address from being [harvested](https://blog.hubspot.com/marketing/what-is-a-landing-page-ht),
+and then [bought, sold, traded, or combined](https://www.bookyourdata.com/)
+with other data to personally identify, track, and/or [target
 them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content).
 
 ## Development
@@ -13,102 +14,106 @@ them](https://www.facebook.com/business/help/606443329504150?helpref=faq_content
 Please refer to our [coding standards](docs/coding-standards.md) for code styles, naming conventions and other methodologies.
 
 ### Requirements
-* python 3.9 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
-* PostgreSQL - even if you are using sqlite for development, requirements.txt installs
+
+- python 3.9 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
+- PostgreSQL - even if you are using sqlite for development, requirements.txt installs
   psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites) and Python header files.
   The following should work:
-    * [On Windows](https://www.postgresql.org/download/windows/)
-    * On Ubuntu: `sudo apt install postgresql libpq-dev python3-dev`
-    * On OSX: `brew install postgresql libpq`
-    * On Fedora: `sudo dnf install libpq-devel python3-devel`
-* [SES](https://aws.amazon.com/ses/) if you want to send real emails
-* [Volta](https://volta.sh/) – Sets up the right versions of Node and npm, needed to compile the front-end
+  - [On Windows](https://www.postgresql.org/download/windows/)
+  - On Ubuntu: `sudo apt install postgresql libpq-dev python3-dev`
+  - On OSX: `brew install postgresql libpq`
+  - On Fedora: `sudo dnf install libpq-devel python3-devel`
+- [SES](https://aws.amazon.com/ses/) if you want to send real emails
+- [Volta](https://volta.sh/) – Sets up the right versions of Node and npm, needed to compile the front-end
 
 ### Install and Run the Site Locally
 
 1. Clone and change to the directory:
 
-    ```sh
-    git clone --recurse-submodules https://github.com/mozilla/fx-private-relay.git
-    cd fx-private-relay
-    ```
+   ```sh
+   git clone --recurse-submodules https://github.com/mozilla/fx-private-relay.git
+   cd fx-private-relay
+   ```
 
 2. Create and activate a virtual environment:
 
-    ```sh
-    virtualenv env
-    source env/bin/activate
-    ```
+   ```sh
+   virtualenv env
+   source env/bin/activate
+   ```
 
 3. Install Python and Node requirements:
 
-    ```sh
-    pip install -r requirements.txt
-    ```
+   ```sh
+   pip install -r requirements.txt
+   ```
 
-    ```sh
-    cd frontend
-    npm install
-    ```
-
+   ```sh
+   cd frontend
+   npm install
+   cd ../
+   ```
 
 4. Copy `.env` file for
    [`decouple`](https://pypi.org/project/python-decouple/) config:
 
-    ```sh
-    cp .env-dist .env
-    ```
+   ```sh
+   cp .env-dist .env
+   ```
 
 5. Add a `SECRET_KEY` value to `.env`:
 
-    ```ini
-    SECRET_KEY=secret-key-should-be-different-for-every-install
-    ```
+   ```ini
+   SECRET_KEY=secret-key-should-be-different-for-every-install
+   ```
 
 6. Migrate DB:
 
-    ```sh
-    python manage.py migrate
-    ```
+   ```sh
+   python manage.py migrate
+   ```
 
 7. Create superuser:
 
-    ```sh
-    python manage.py createsuperuser
-    ```
+   ```sh
+   python manage.py createsuperuser
+   ```
 
 8. Run the backend:
 
-    ```sh
-    python manage.py runserver
-    ```
+   ```sh
+   python manage.py runserver
+   ```
 
-    and in a different terminal, build the frontend:
+   and in a different terminal, build the frontend:
 
-    ```sh
-    cd frontend
-    npm run watch
-    ```
+   ```sh
+   cd frontend
+   npm run watch
+   ```
 
 ### Working with translations
+
 The following docs will get you started with development, include creating new
-strings to translate.  See [Translation and Localization](docs/translations.md)
+strings to translate. See [Translation and Localization](docs/translations.md)
 for general information on Relay localization.
 
 #### Getting the latest translations
+
 We use a [git submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 for translated message files. The `--recurse-submodules` step of installation
 should bring the message files into your working directory already, but you may
 want also want to update the translations after install. The easiest way to do
 that is:
 
-* `git submodule update --remote`
+- `git submodule update --remote`
 
 To update the submodule automatically when running `git pull` or other commands:
 
-* `git config --global submodule.recurse true`
+- `git config --global submodule.recurse true`
 
 #### Add/update messages for translation
+
 The `privaterelay/locales` directory is a git repository like any other, so to
 make changes to the messages:
 
@@ -128,22 +133,24 @@ tentatively add them to `frontend/pendingTranslations.ftl`. Strings in that file
 will show up until strings with the same ID are added to the l10n repository.
 
 #### Commit translations for release
+
 To commit updates to the app's translations (e.g., before a release), we need
 to commit this submodule update. So, if the updated translations are ready to
 be committed into the app, you can `git add` the submodule just like any other
 file:
 
-* `git add privaterelay/locales`
+- `git add privaterelay/locales`
 
 You can then commit and push to set the app repository to the updated version
 of the translations submodule:
 
-* `git push`
+- `git push`
 
 An automated process updates the submodule daily, bringing in any new changes
 and translations from the Localization Team.
 
 ### Recommended: Enable Firefox Accounts authentication
+
 To enable Firefox Accounts authentication on your local server, you can use the
 "Firefox Private Relay local dev" OAuth app on accounts.stage.mozaws.net.
 
@@ -153,15 +160,15 @@ To do so:
 
 2. Shutdown the server if running, and add the admin tables with:
 
-    ```sh
-    python manage.py migrate
-    ```
+   ```sh
+   python manage.py migrate
+   ```
 
-3. Run  the server, now with `/admin` endpoints:
+3. Run the server, now with `/admin` endpoints:
 
-    ```sh
-    python manage.py runserver
-    ```
+   ```sh
+   python manage.py runserver
+   ```
 
 4. Go to [the django admin page to change the default
    site](http://127.0.0.1:8000/admin/sites/site/1/change/).
@@ -172,13 +179,13 @@ To do so:
    page](http://127.0.0.1:8000/admin/socialaccount/socialapp/), sign in with the
    superuser account you created above, and add a social app for Firefox Accounts:
 
-| Field | Value |
-|-------|-------|
-| Provider | Firefox Accounts |
-| Name | `accounts.stage.mozaws.net` |
-| Client id | `9ebfe2c2f9ea3c58` |
+| Field      | Value                                                   |
+| ---------- | ------------------------------------------------------- |
+| Provider   | Firefox Accounts                                        |
+| Name       | `accounts.stage.mozaws.net`                             |
+| Client id  | `9ebfe2c2f9ea3c58`                                      |
 | Secret key | Request this from `#fx-private-relay-eng` Slack channel |
-| Sites | `127.0.0.1:8000` -> Chosen sites |
+| Sites      | `127.0.0.1:8000` -> Chosen sites                        |
 
 Now you can sign into [http://127.0.0.1:8000/](http://127.0.0.1:8000/) with an
 FxA.
@@ -189,10 +196,9 @@ the production site, accounts.firefox.com.
 <!-- #### Optional: Enable SES
 TODO -->
 
-
 ### Optional: Install and run the add-on locally
 
-*Note: The add-on is located in a [separate repo](https://github.com/mozilla/fx-private-relay-add-on/). See it for additional information on getting started.* 
+_Note: The add-on is located in a [separate repo](https://github.com/mozilla/fx-private-relay-add-on/). See it for additional information on getting started._
 
 The add-on adds Firefox UI to generate and auto-fill email addresses across the web. Running the add-on locally allows it to communicate with your local server (`127.0.0.1:8000`) instead of the production server (`relay.firefox.com`).
 
@@ -226,7 +232,7 @@ At a high level, to set up Relay premium subscription, we:
 1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Create a product & price in our [Stripe dashboard](https://dashboard.stripe.com/).
-(Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
+   (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
 
 3. Link free users of Relay to the appropriate SubPlat purchase flow.
 
@@ -238,28 +244,30 @@ In detail:
 1. [Enable Firefox Accounts Authentication](#recommended-enable-firefox-accounts-authentication) as described above.
 
 2. Go to our [Stripe dashboard](https://dashboard.stripe.com/).
-(Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
+   (Ask in #subscription-platform Slack channel to get access to our Stripe dashboard.)
 
 3. Create a new product in Stripe.
 
 4. Add all [required `product:` metadata](https://github.com/mozilla/fxa/blob/a0c7ac2b4bad0412a0f3a25fc82b5670922f8957/packages/fxa-auth-server/lib/routes/validators.js#L396-L437).
-   * Note: each piece of this metadata must have a `product:` prefix. So, for
+
+   - Note: each piece of this metadata must have a `product:` prefix. So, for
      example, `webIconURL` must be entered as `product:webIconURL`.
 
 5. Add `capabilities:` metadata.
-   * Note: Each piece of this metadata must have a format like
+
+   - Note: Each piece of this metadata must have a format like
      `capabilities:<fxa oauth client ID>`, and the value is a free-form string
      to describe the "capability" that purchasing the subscription gives to the
      user. E.g., `capabilities:9ebfe2c2f9ea3c58` with value of `premium-relay`.
 
 6. Set some env vars with values from the above steps:
 
-| Var | Value |
-|-------|-------|
-| `FXA_SUBSCRIPTIONS_URL` | `https://accounts.stage.mozaws.net/subscriptions` |
-| `PREMIUM_PROD_ID` | `prod_IyCWnXUbkYjDgL` (from Stripe)|
-| `PREMIUM_PRICE_ID` | `price_1IMG7KKb9q6OnNsL15Hsn1HE` (from Stripe)|
-| `SUBSCRIPTIONS_WITH_UNLIMITED` | `"premium-relay"` (match the `capabilities` value you used in Stripe)|
+| Var                            | Value                                                                 |
+| ------------------------------ | --------------------------------------------------------------------- |
+| `FXA_SUBSCRIPTIONS_URL`        | `https://accounts.stage.mozaws.net/subscriptions`                     |
+| `PREMIUM_PROD_ID`              | `prod_IyCWnXUbkYjDgL` (from Stripe)                                   |
+| `PREMIUM_PRICE_ID`             | `price_1IMG7KKb9q6OnNsL15Hsn1HE` (from Stripe)                        |
+| `SUBSCRIPTIONS_WITH_UNLIMITED` | `"premium-relay"` (match the `capabilities` value you used in Stripe) |
 
 ### Optional: Debugging JavaScript bundle sizes
 
@@ -284,11 +292,13 @@ You can use [Stripe's test credit card details](https://stripe.com/docs/testing#
 ## Production Environments
 
 ### Requirements
+
 In addition to the requirements for dev, production environments should use:
 
-* [PostgreSQL](https://www.postgresql.org/)-compatible DB
+- [PostgreSQL](https://www.postgresql.org/)-compatible DB
 
 ### Environment Variables
+
 Production environments should also set some additional environment variables:
 
 ```
