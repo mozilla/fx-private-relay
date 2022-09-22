@@ -96,7 +96,7 @@ phone-onboarding-step4-code-success-cta = Continue
 phone-onboarding-step4-results= No results found. Please try again.
 
 # Phone Settings
-phone-settings-caller-sms-log = Caller and text log
+phone-settings-caller-sms-log = Caller and texts log
 phone-settings-caller-sms-log-description = Allow { -brand-name-firefox-relay } to keep a log of your callers and text senders.
 phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block and reply to senders or callers. If you’ve blocked any, they will become unblocked and your existing caller and text sender log will be permanently cleared from your history.
 
