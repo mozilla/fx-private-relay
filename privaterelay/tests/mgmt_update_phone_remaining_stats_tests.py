@@ -76,7 +76,7 @@ def test_one_account_with_phones_checked_31_day_ago_with_relay_number(phone_user
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user)
     relay_number.remaining_texts = 6
-    relay_number.remaining_minutes = 25
+    relay_number.remaining_seconds = 25 * 60
     relay_number.save()
 
     with patch(
@@ -91,3 +91,4 @@ def test_one_account_with_phones_checked_31_day_ago_with_relay_number(phone_user
     assert profile in updated_profiles
     assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
     assert relay_number.remaining_minutes == settings.MAX_MINUTES_PER_BILLING_CYCLE
+    assert relay_number.remaining_seconds == settings.MAX_MINUTES_PER_BILLING_CYCLE * 60

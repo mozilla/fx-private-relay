@@ -898,3 +898,61 @@ def test_inbound_call_valid_twilio_signature_disabled_number(
     assert decoded_content.startswith("<?xml")
     assert "Not Accepting Calls" in decoded_content
     mocked_twilio_client.messages.create.assert_not_called()
+
+
+def test_voice_status_missing_required_params_error():
+    client = APIClient()
+    path = "/api/v1/voice_status"
+    response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 400
+    assert "Missing Called, Callstatus" in response.data[0].title()
+
+
+def test_voice_status_not_completed_does_nothing(phone_user):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=False)
+    pre_request_remaining_seconds = relay_number.remaining_seconds
+
+    client = APIClient()
+    path = "/api/v1/voice_status"
+    data = {"Called": relay_number.number, "CallStatus": "in-progress"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_seconds == pre_request_remaining_seconds
+
+
+def test_voice_status_completed_no_duration_error(phone_user):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=False)
+    pre_request_remaining_seconds = relay_number.remaining_seconds
+
+    client = APIClient()
+    path = "/api/v1/voice_status"
+    data = {"Called": relay_number.number, "CallStatus": "completed"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    assert "Missing Callduration" in response.data[0].title()
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_seconds == pre_request_remaining_seconds
+
+
+def test_voice_status_completed_reduces_remaining_seconds(phone_user):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=False)
+    pre_request_remaining_seconds = relay_number.remaining_seconds
+
+    client = APIClient()
+    path = "/api/v1/voice_status"
+    data = {
+        "Called": relay_number.number,
+        "CallStatus": "completed",
+        "CallDuration": "27",
+    }
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_seconds == pre_request_remaining_seconds - 27
