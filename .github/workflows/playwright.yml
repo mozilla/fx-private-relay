@@ -2,8 +2,18 @@ name: Relay e2e Tests
 on:
   schedule:
     - cron: '0 8 * * *'
-
+  
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to run the e2e against'
+        required: true
+        default: 'stage'
+        type: choice
+        options:
+          - stage
+          - prod
+          - dev
 
 jobs:
   relaye2e:
@@ -26,9 +36,9 @@ jobs:
           npx playwright install
 
       - name: Run Playwright tests
-        run: npm run test:e2e
+        run: npm run test:${{ inputs.environment }}
         env:
-          E2E_TEST_ENV: stage
+          E2E_TEST_ENV: ${{ inputs.environment }}
           E2E_TEST_ACCOUNT_FREE: ${{ secrets.E2E_TEST_ACCOUNT_FREE }}
           E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
