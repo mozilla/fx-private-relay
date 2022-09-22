@@ -900,6 +900,18 @@ def test_inbound_call_valid_twilio_signature_disabled_number(
     mocked_twilio_client.messages.create.assert_not_called()
 
 
+@pytest.mark.django_db
+def test_voice_status_invalid_twilio_signature(mocked_twilio_validator):
+    mocked_twilio_validator.validate = Mock(return_value=False)
+
+    client = APIClient()
+    path = "/api/v1/voice_status"
+    response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="invalid")
+
+    assert response.status_code == 400
+    assert "Invalid Signature" in response.data[0].title()
+
+
 def test_voice_status_missing_required_params_error():
     client = APIClient()
     path = "/api/v1/voice_status"
