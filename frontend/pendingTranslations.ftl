@@ -41,7 +41,7 @@ phone-onboarding-step1-button-price-note  = (Billing yearly)
 phone-onboarding-step1-button-cta = Upgrade Now
 
 phone-onboarding-step2-headline = Verify your true phone number
-phone-onboarding-step2-body = Provide the phone number where you’ll receive your SMS and calls (in the future). We’ll send a 6-digit code to this number to verify it.
+phone-onboarding-step2-body = Provide the phone number where you’ll receive your texts and calls (in the future). We’ll send a 6-digit code to this number to verify it.
 phone-onboarding-step2-input-placeholder = Enter your phone number
 phone-onboarding-step2-button-cta = Send code
 phone-onboarding-step2-invalid-number = { $phone_number } is not a valid number. Please review and provide a real phone number.
@@ -90,20 +90,20 @@ phone-onboarding-step4-button-confirm-relay-number = Confirm
 phone-onboarding-step4-code-success-title = Congratulations!
 phone-onboarding-step4-code-success-body = You’ve registered your new phone number mask.
 phone-onboarding-step4-code-success-subhead-title = What’s next?
-phone-onboarding-step4-code-success-subhead-body-p1 = { -brand-name-relay } sent you an SMS with a new contact card through which we’ll forward your calls and messages.
+phone-onboarding-step4-code-success-subhead-body-p1 = { -brand-name-relay } sent you a text with a new contact card through which we’ll forward your calls and messages.
 phone-onboarding-step4-code-success-subhead-body-p2 = Please save the contact so you can identify your forwarded messages and calls.
 phone-onboarding-step4-code-success-cta = Continue
 phone-onboarding-step4-results= No results found. Please try again.
 
 # Phone Settings
-phone-settings-caller-sms-log = Caller and SMS log
+phone-settings-caller-sms-log = Caller and texts log
 phone-settings-caller-sms-log-description = Allow { -brand-name-firefox-relay } to keep a log of your callers and text senders.
-phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block and reply to senders or callers. If you’ve blocked any, they will become unblocked and your existing caller and SMS sender log will be permanently cleared from your history.
+phone-settings-caller-sms-log-warning = If you decide to opt out from this preference, you will lose the ability to block and reply to senders or callers. If you’ve blocked any, they will become unblocked and your existing caller and text sender log will be permanently cleared from your history.
 
 # Phone Resend SMS Banner
-phone-banner-resend-welcome-sms-cta = Resend welcome SMS
+phone-banner-resend-welcome-sms-cta = Resend welcome text
 phone-banner-resend-welcome-sms-title = Quick Tip
-phone-banner-resend-welcome-sms-body =  Remember to save the contact we shared with you by SMS to help you identify messages forwarded by { -brand-name-relay }. Can’t find it?
+phone-banner-resend-welcome-sms-body =  Remember to save the contact we shared with you by text to help you identify messages forwarded by { -brand-name-relay }. Can’t find it?
 
 # Phone What's New
 whatsnew-feature-phone-header = Introducing phone number masking
@@ -121,7 +121,7 @@ phone-dashboard-metadata-date-created = Date Created:
 phone-dashboard-number-copied = Copied!
 phone-dashboard-forwarding-enabled = { -brand-name-relay } is currently forwarding all phone calls and text messages to your true phone number.
 phone-dashboard-forwarding-blocked = { -brand-name-relay } is blocking all phone calls and text messages—you will not receive anything from your phone number mask.
-phone-dashboard-senders-header = Callers and SMS senders
+phone-dashboard-senders-header = Callers and text senders
 phone-dashboard-sender-table-title-sender = Sender
 phone-dashboard-sender-table-title-activity = Latest Activity
 phone-dashboard-sender-table-title-action = Action
