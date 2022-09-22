@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+from math import floor
 import secrets
 import string
 
@@ -171,14 +172,18 @@ class RelayNumber(models.Model):
         max_length=6, default=vcard_lookup_key_default, unique=True
     )
     enabled = models.BooleanField(default=True)
-    remaining_minutes = models.IntegerField(
-        default=settings.MAX_MINUTES_PER_BILLING_CYCLE
+    remaining_seconds = models.IntegerField(
+        default=settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
     )
     remaining_texts = models.IntegerField(default=settings.MAX_TEXTS_PER_BILLING_CYCLE)
     calls_forwarded = models.IntegerField(default=0)
     calls_blocked = models.IntegerField(default=0)
     texts_forwarded = models.IntegerField(default=0)
     texts_blocked = models.IntegerField(default=0)
+
+    @property
+    def remaining_minutes(self):
+        return floor(self.remaining_seconds / 60)
 
     @property
     def calls_and_texts_forwarded(self):
