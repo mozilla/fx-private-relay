@@ -726,7 +726,6 @@ BUNDLE_PLAN_ID_MATRIX = {
                 # To allow testing the subscription flow on stage, we can set
                 # a custom plan ID via an environment variable:
                 "id": BUNDLE_PLAN_ID_US,
-                # TODO: Insert correct price
                 "price": 6.99,
                 "currency": "USD",
             },
