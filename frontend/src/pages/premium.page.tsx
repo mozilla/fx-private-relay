@@ -242,7 +242,14 @@ const PremiumPromo: NextPage = () => {
 
   const getPerkCta = (label: keyof typeof perkCtaRefs) => {
     if (!isPremiumAvailableInCountry(runtimeData.data)) {
-      return null;
+      return (
+        <LinkButton
+          href="/premium/waitlist"
+          title={l10n.getString("premium-promo-availability-warning-2")}
+        >
+          {l10n.getString("waitlist-submit-label")}
+        </LinkButton>
+      );
     }
     return (
       <LinkButton
