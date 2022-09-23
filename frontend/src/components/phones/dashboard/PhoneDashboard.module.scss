@@ -433,7 +433,10 @@
           }
 
           &:hover {
-            border-color: $color-violet-70;
+            &.is-forwarding .block-icon,
+            &.is-blocking .forward-icon {
+              color: $color-blue-50;
+            }
           }
           &:hover,
           &:focus {
@@ -441,7 +444,6 @@
 
             &.is-forwarding .block-icon,
             &.is-blocking .forward-icon {
-              color: $color-blue-50;
               background-color: $color-purple-05;
             }
           }
