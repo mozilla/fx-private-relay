@@ -238,7 +238,7 @@ const PremiumPromo: NextPage = () => {
     if (!isPremiumAvailableInCountry(runtimeData.data)) {
       return (
         <LinkButton
-          href="#pricing"
+          href="/premium/waitlist"
           title={l10n.getString("premium-promo-availability-warning-2")}
         >
           {l10n.getString("waitlist-submit-label")}
