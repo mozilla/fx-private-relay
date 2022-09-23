@@ -12,8 +12,8 @@ import { AppPicker } from "./AppPicker";
 import { MenuToggle } from "./MenuToggle";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import {
+  isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
-  isPremiumAvailableInCountry,
 } from "../../../functions/getPlan";
 import { isFlagActive } from "../../../functions/waffle";
 
@@ -120,7 +120,9 @@ export const Navigation = (props: Props) => {
       {isLoggedIn &&
         !hasPremium &&
         !isPremiumPage &&
-        isPremiumAvailableInCountry(runtimeData.data) && <UpgradeButton />}
+        isPeriodicalPremiumAvailableInCountry(runtimeData.data) && (
+          <UpgradeButton />
+        )}
 
       <ToggleButton />
 
