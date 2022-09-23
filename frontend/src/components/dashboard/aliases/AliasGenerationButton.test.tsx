@@ -5,7 +5,7 @@ import { getMockRandomAlias } from "../../../../__mocks__/hooks/api/aliases";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
 import {
   getMockRuntimeDataWithoutPremium,
-  getMockRuntimeDataWithPremium,
+  getMockRuntimeDataWithPeriodicalPremium,
 } from "../../../../__mocks__/hooks/api/runtimeData";
 import { mockFluentReact } from "../../../../__mocks__/modules/fluent__react";
 
@@ -71,7 +71,7 @@ describe("<AliasGenerationButton>", () => {
         ]}
         profile={getMockProfileData({ has_premium: false })}
         onCreate={jest.fn()}
-        runtimeData={getMockRuntimeDataWithPremium()}
+        runtimeData={getMockRuntimeDataWithPeriodicalPremium()}
       />
     );
 
