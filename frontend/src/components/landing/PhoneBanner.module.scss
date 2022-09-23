@@ -1,0 +1,117 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../styles/tokens.scss";
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap-reverse;
+  column-gap: $spacing-2xl;
+  row-gap: $spacing-lg;
+  background-image: url("./images/bg-fingerprint.svg");
+  background-repeat: no-repeat;
+  background-position: right 0 bottom 0;
+  max-width: 100%;
+  padding: $spacing-lg;
+  // The side edges of .illustration get cut off on small screens
+  overflow-x: hidden;
+
+  @media screen and #{$mq-sm} {
+    overflow-x: unset;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $spacing-md;
+    width: $content-md;
+
+    .callout {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      font-weight: 500;
+
+      .pill {
+        background-color: $color-violet-30;
+        color: $color-white;
+        text-transform: uppercase;
+        font-family: $font-stack-firefox;
+        font-weight: 600;
+        padding: $spacing-xs;
+        border-radius: $border-radius-sm;
+      }
+    }
+
+    h2 {
+      @include text-title-xs;
+      font-family: $font-stack-firefox;
+      font-weight: 700;
+    }
+  }
+
+  .illustration {
+    position: relative;
+    margin-inline: -1 * $spacing-2xl;
+
+    @media screen and #{$mq-sm} {
+      margin-inline: unset;
+    }
+
+    .floating-features {
+      li {
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: $spacing-sm;
+        background-color: rgba(255, 255, 255, 0.9);
+        box-shadow: $box-shadow-sm;
+        border-radius: $border-radius-md;
+
+        &.with-text {
+          padding: $spacing-sm;
+          width: $layout-2xl;
+          font-family: $font-stack-firefox;
+          font-weight: 600;
+
+          @include text-body-sm;
+        }
+
+        &.image-only {
+          border-radius: 100%;
+          padding: $spacing-md;
+        }
+
+        &:nth-child(1) {
+          top: $layout-lg;
+          right: $spacing-2xl;
+
+          @media screen and #{$mq-md} {
+            right: -1 * $layout-md;
+          }
+        }
+
+        &:nth-child(2) {
+          bottom: $layout-lg;
+          left: $spacing-2xl;
+
+          @media screen and #{$mq-md} {
+            left: unset;
+          }
+        }
+
+        &:nth-last-child(1) {
+          right: $layout-lg;
+          bottom: $layout-xl;
+        }
+
+        &:nth-last-child(2) {
+          left: $layout-xl;
+          bottom: $layout-2xl;
+        }
+      }
+    }
+  }
+}

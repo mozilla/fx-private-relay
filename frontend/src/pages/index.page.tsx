@@ -34,6 +34,7 @@ import {
   getPremiumPlan,
   getPremiumSubscribeLink,
   isBundleAvailableInCountry,
+  isPhonesAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -47,6 +48,7 @@ import { isFlagActive } from "../functions/waffle";
 import { parseDate } from "../functions/parseDate";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
+import { PhoneBanner } from "../components/landing/PhoneBanner";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -64,6 +66,10 @@ const Home: NextPage = () => {
   const plansCountdownCtaRef = useGaViewPing({
     category: "Purchase Button",
     label: "Landing Page: Bottom Banner",
+  });
+  const phoneBannerCtaRef = useGaViewPing({
+    category: "Sign In",
+    label: "Landing Page: Phone Banner",
   });
 
   const [now, setNow] = useState(Date.now());
@@ -227,6 +233,22 @@ const Home: NextPage = () => {
       </LinkButton>
     );
 
+  const phoneBannerCta = (
+    <LinkButton
+      href="#pricing"
+      ref={phoneBannerCtaRef}
+      onClick={() =>
+        gaEvent({
+          category: "Sign In",
+          action: "Engage",
+          label: "Landing Page: Phone Banner",
+        })
+      }
+    >
+      {l10n.getString("phone-banner-cta-landing")}
+    </LinkButton>
+  );
+
   return (
     <Layout runtimeData={runtimeData.data}>
       <main>
@@ -256,6 +278,13 @@ const Home: NextPage = () => {
           isBundleAvailableInCountry(runtimeData.data) && (
             <section className={styles["bundle-banner-section"]}>
               <BundleBanner runtimeData={runtimeData.data} />
+            </section>
+          )}
+
+        {isFlagActive(runtimeData.data, "phones") &&
+          isPhonesAvailableInCountry(runtimeData.data) && (
+            <section className={styles["phone-banner-section"]}>
+              <PhoneBanner cta={phoneBannerCta} />
             </section>
           )}
 

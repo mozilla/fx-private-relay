@@ -31,8 +31,8 @@
     "test:e2e": "playwright test --retries=1",
     "test:local": "E2E_TEST_ENV=local playwright test --retries=1 --headed",
     "test:dev": "E2E_TEST_ENV=dev playwright test --retries=1",
-    "test:stage": "E2E_TEST_ENV=stage playwright test --retries=1 --headed",
-    "test:prod": "E2E_TEST_ENV=prod playwright test --retries=2",
+    "test:stage": "E2E_TEST_ENV=stage playwright test --retries=1",
+    "test:prod": "E2E_TEST_ENV=prod playwright test --retries=1",
     "heroku-prebuild": "printf '{\"commit\":\"%s\", \"commit_link\":\"https://github.com/mozilla/fx-private-relay/commit/%s\"}\n' \"$SOURCE_VERSION\" \"$SOURCE_VERSION\" > version.json",
     "heroku-postbuild": "cd frontend; NODE_ENV=\"development\" npm ci; npm run build"
   },

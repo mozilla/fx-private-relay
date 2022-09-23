@@ -487,6 +487,7 @@ def inbound_call(request):
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def voice_status(request):
+    _validate_twilio_request(request)
     called = request.data.get("Called", None)
     call_status = request.data.get("CallStatus", None)
     if called is None or call_status is None:
