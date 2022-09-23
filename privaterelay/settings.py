@@ -678,7 +678,7 @@ PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
     },
     "ca": {
-        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
+        "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
     },
     "nz": {
         "en": PERIODICAL_PREMIUM_PLAN_ID_MATRIX["usd"]["gb"],
