@@ -16,7 +16,7 @@ import {
   setMockRelayNumberDataOnce,
 } from "../../__mocks__/hooks/api/relayNumber";
 import {
-  getMockRuntimeDataWithPremium,
+  getMockRuntimeDataWithPeriodicalPremium,
   setMockRuntimeData,
   setMockRuntimeDataOnce,
 } from "../../__mocks__/hooks/api/runtimeData";
@@ -62,7 +62,7 @@ describe("The Phone dashboard", () => {
     });
 
     it("redirects the user to /premium if they have not subscribed to the phone plan and it is not available in their current location", async () => {
-      setMockRuntimeDataOnce(getMockRuntimeDataWithPremium());
+      setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
       setMockProfileDataOnce({ has_phone: false });
       const mockedNextRouterModule = jest.requireMock("next/router");
       const mockedPush = jest.fn();
@@ -75,7 +75,7 @@ describe("The Phone dashboard", () => {
     });
 
     it("redirects the user to /premium if they have not set up a Relay number yet and the phone plan is not available in their current location", async () => {
-      setMockRuntimeDataOnce(getMockRuntimeDataWithPremium());
+      setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
       setMockProfileDataOnce({ has_phone: true });
       setMockRelayNumberDataOnce([]);
       const mockedNextRouterModule = jest.requireMock("next/router");
@@ -115,7 +115,7 @@ describe("The Phone dashboard", () => {
     });
 
     it("shows the dashboard even if the phone plan isn't available in the user's current location", () => {
-      setMockRuntimeDataOnce(getMockRuntimeDataWithPremium());
+      setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
 
       render(<PhoneDashboard />);
 
