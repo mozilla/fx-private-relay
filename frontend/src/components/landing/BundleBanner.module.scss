@@ -108,7 +108,7 @@
     @media #{$mq-lg} {
       padding-left: $layout-md;
       display: flex;
-      justify-content: end;
+      justify-content: flex-end;
     }
 
     .bundle-banner-description {
