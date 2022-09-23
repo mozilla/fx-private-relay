@@ -403,47 +403,50 @@
       }
 
       .phone-controls {
-        border-radius: 40px;
-        border: $border-radius-xs solid $color-light-gray-20;
-        padding: $spacing-sm;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: $spacing-md;
-
-        .forwarding-controls-button {
-          border-radius: $border-radius-lg;
-          background-color: $color-light-gray-30;
-          padding: $spacing-sm $spacing-sm;
+        .forwarding-toggle {
+          border-radius: 40px;
+          border: $border-radius-xs solid $color-light-gray-20;
+          padding: $spacing-sm;
           display: flex;
-          width: 100%;
           align-items: center;
           justify-content: center;
+          gap: $spacing-md;
 
-          &:hover {
-            background: $color-purple-05;
-            color: $color-blue-50;
+          .forwarding-toggle-icon {
+            border-radius: $border-radius-lg;
+            background-color: $color-light-gray-30;
+            padding: $spacing-sm $spacing-sm;
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: center;
 
-            .forward-icon,
-            .block-icon {
-              color: $color-blue-50;
+            @media screen and #{$mq-md} {
+              width: $layout-xl;
             }
           }
 
-          @media screen and #{$mq-md} {
-            width: $layout-xl;
+          &.is-forwarding .forward-icon,
+          &.is-blocking .block-icon {
+            background-color: $color-violet-70;
+            color: $color-white;
           }
-        }
 
-        .active-button {
-          background-color: $color-violet-70;
-        }
+          &:hover {
+            &.is-forwarding .block-icon,
+            &.is-blocking .forward-icon {
+              color: $color-blue-50;
+            }
+          }
+          &:hover,
+          &:focus {
+            cursor: pointer;
 
-        .forward-icon,
-        .block-icon {
-          color: $color-white;
-          justify-items: center;
-          align-items: center;
+            &.is-forwarding .block-icon,
+            &.is-blocking .forward-icon {
+              background-color: $color-purple-05;
+            }
+          }
         }
       }
     }
