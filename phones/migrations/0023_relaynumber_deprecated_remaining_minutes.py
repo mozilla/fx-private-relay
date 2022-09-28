@@ -69,7 +69,7 @@ class Migration(migrations.Migration):
             model_name="relaynumber",
             name="deprecated_remaining_minutes",
             field=models.IntegerField(
-                blank=True, db_column="remaining_minutes", null=True
+                blank=True, db_column="remaining_minutes", default=50, null=True
             ),
         ),
         migrations.RunPython(
