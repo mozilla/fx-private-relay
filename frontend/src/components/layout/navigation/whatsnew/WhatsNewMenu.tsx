@@ -21,7 +21,7 @@ import {
   VisuallyHidden,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
-import { event as gaEvent, OutboundLink } from "react-ga";
+import { event as gaEvent } from "react-ga";
 import styles from "./WhatsNewMenu.module.scss";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
 import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
@@ -56,13 +56,11 @@ import { RuntimeData } from "../../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../../functions/waffle";
 import {
   getBundlePrice,
-  getPremiumSubscribeLink,
   isBundleAvailableInCountry,
   isPhonesAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../../../../functions/getPlan";
 import { parseDate } from "../../../../functions/parseDate";
-import { useGaViewPing } from "../../../../hooks/gaViewPing";
 import { CountdownTimer } from "../../../CountdownTimer";
 import { useInterval } from "../../../../hooks/interval";
 import Link from "next/link";
@@ -374,22 +372,6 @@ export const WhatsNewMenu = (props: Props) => {
       : null
   );
 
-  const offerCountdownCtaRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "Intro-pricing: news",
-  });
-  const offerCountdownCta =
-    props.runtimeData && isPremiumAvailableInCountry(props.runtimeData) ? (
-      <OutboundLink
-        to={getPremiumSubscribeLink(props.runtimeData)}
-        eventLabel={"Intro-pricing: news"}
-        className={styles.cta}
-      >
-        <span ref={offerCountdownCtaRef}>
-          {l10n.getString("whatsnew-feature-offer-countdown-cta")}
-        </span>
-      </OutboundLink>
-    ) : null;
   const introPricingCountdown: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-offer-countdown-heading"),
     snippet: l10n.getString("whatsnew-feature-offer-countdown-snippet", {
@@ -409,7 +391,6 @@ export const WhatsNewMenu = (props: Props) => {
             />
           </div>
         }
-        cta={offerCountdownCta}
       />
     ),
     icon: OfferCountdownIcon.src,
