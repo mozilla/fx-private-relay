@@ -36,9 +36,9 @@ jobs:
           npx playwright install
 
       - name: Run Playwright tests
-        run: npm run test:${{ inputs.environment }}
-        env:
-          E2E_TEST_ENV: ${{ inputs.environment }}
+        run: npm run test:${{ inputs.environment != null && inputs.environment || 'stage' }}
+        env:          
+          E2E_TEST_ENV: ${{ inputs.environment != null && inputs.environment || 'stage' }}
           E2E_TEST_ACCOUNT_FREE: ${{ secrets.E2E_TEST_ACCOUNT_FREE }}
           E2E_TEST_ACCOUNT_PASSWORD: ${{ secrets.E2E_TEST_ACCOUNT_PASSWORD }}
           E2E_TEST_ACCOUNT_PREMIUM: ${{ secrets.E2E_TEST_ACCOUNT_PREMIUM }}
