@@ -374,22 +374,6 @@ export const WhatsNewMenu = (props: Props) => {
       : null
   );
 
-  const offerCountdownCtaRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "Intro-pricing: news",
-  });
-  const offerCountdownCta =
-    props.runtimeData && isPremiumAvailableInCountry(props.runtimeData) ? (
-      <OutboundLink
-        to={getPremiumSubscribeLink(props.runtimeData)}
-        eventLabel={"Intro-pricing: news"}
-        className={styles.cta}
-      >
-        <span ref={offerCountdownCtaRef}>
-          {l10n.getString("whatsnew-feature-offer-countdown-cta")}
-        </span>
-      </OutboundLink>
-    ) : null;
   const introPricingCountdown: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-offer-countdown-heading"),
     snippet: l10n.getString("whatsnew-feature-offer-countdown-snippet", {
@@ -409,7 +393,6 @@ export const WhatsNewMenu = (props: Props) => {
             />
           </div>
         }
-        cta={offerCountdownCta}
       />
     ),
     icon: OfferCountdownIcon.src,
