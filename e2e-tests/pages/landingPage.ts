@@ -50,10 +50,7 @@ export class LandingPage {
     }
 
     async selectPricingPlanSignUp(){
-        await Promise.all([
-            this.page.waitForNavigation(),
-            this.planPricingSignUpButton.click()
-        ]);
+        await this.planPricingSignUpButton.click()
     }
 
     async goToSignIn(){
