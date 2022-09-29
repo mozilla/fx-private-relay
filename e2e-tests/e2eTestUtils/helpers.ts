@@ -63,7 +63,7 @@ const enterConfirmationCode = async (page: Page) => {
 }
 
 const signIn = async (page: Page) => {
-  const signInButton = '//*[@id="use-logged-in"]'
+  const signInButton = '//button[@id="use-logged-in"]'
   await page.waitForSelector(signInButton, { timeout: 2000 })
   await page.locator(signInButton).click({force: true})
   await page.waitForTimeout(500)
@@ -112,8 +112,8 @@ export const defaultScreenshotOpts: Partial<DefaultScreenshotOpts> = {
 };
 
 export const checkAuthState = async (page: Page) => {
-  try {    
-    const authStateTitleString = await page.locator('h1').textContent({ timeout: 2000 }) 
+  try {
+    const authStateTitleString = await page.locator('h1').textContent({ timeout: 4000 })
     const checkIfTitleConatins = (potentialTitle: string) => {
       return authStateTitleString?.includes(potentialTitle)
     }

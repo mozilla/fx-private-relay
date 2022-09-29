@@ -16,7 +16,7 @@ const config: PlaywrightTestConfig = {
   testDir: 'e2e-tests/specs',
 
   /* Maximum time one test can run for. */
-  timeout: 30_000,
+  timeout: 60_000,
 
   /* Global setup */
   globalSetup: require.resolve('./e2e-tests/global-setup.ts'),
@@ -67,12 +67,12 @@ const config: PlaywrightTestConfig = {
 
   /* Configure projects for major browsers */
   projects: [
-    {
-      name: 'chromium',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
-    },
+    // {
+    //   name: 'chromium',
+    //   use: {
+    //     ...devices['Desktop Chrome'],
+    //   },
+    // },
     {
       name: 'firefox',
       use: {
