@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   AnchorHTMLAttributes,
   ButtonHTMLAttributes,
@@ -45,6 +46,22 @@ export const LinkButton = forwardRef<
   HTMLAnchorElement,
   Props & AnchorHTMLAttributes<HTMLAnchorElement>
 >((props, ref) => {
+  if (props.href?.startsWith("/")) {
+    const propsWithoutHref = { ...props };
+    delete propsWithoutHref.href;
+    return (
+      <Link href={props.href}>
+        <a
+          {...propsWithoutHref}
+          ref={ref}
+          className={`${styles.button} ${props.className} ${
+            props.variant === "destructive" ? styles["is-destructive"] : ""
+          }`}
+        />
+      </Link>
+    );
+  }
+
   return (
     <a
       {...props}

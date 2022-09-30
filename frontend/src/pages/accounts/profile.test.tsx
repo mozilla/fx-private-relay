@@ -20,7 +20,7 @@ import {
 } from "../../../__mocks__/hooks/api/aliases";
 import {
   getMockRuntimeDataWithoutPremium,
-  getMockRuntimeDataWithPremium,
+  getMockRuntimeDataWithPeriodicalPremium,
   setMockRuntimeData,
   setMockRuntimeDataOnce,
 } from "../../../__mocks__/hooks/api/runtimeData";
@@ -397,7 +397,7 @@ describe("The dashboard", () => {
 
   it("shows a banner to upgrade to Premium if the user does not have Premium yet and Premium is available in their country", () => {
     setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPremium());
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
     render(<Profile />);
 
     const premiumBanner = screen.getByRole("link", {
@@ -409,7 +409,7 @@ describe("The dashboard", () => {
 
   it("does not show a banner to upgrade to Premium if the user already has Premium", () => {
     setMockProfileDataOnce({ has_premium: true });
-    setMockRuntimeDataOnce(getMockRuntimeDataWithPremium());
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPeriodicalPremium());
 
     render(<Profile />);
 
@@ -672,7 +672,7 @@ describe("The dashboard", () => {
   it("shows the upgrade button if the user is at the max number of aliases, and Premium is available to them", () => {
     setMockAliasesDataOnce({ random: [{ enabled: true, id: 42 }], custom: [] });
     setMockProfileDataOnce({ has_premium: false });
-    setMockRuntimeData(getMockRuntimeDataWithPremium());
+    setMockRuntimeData(getMockRuntimeDataWithPeriodicalPremium());
     const mockedConfig = mockConfigModule.getRuntimeConfig();
     // getRuntimeConfig() is called frequently, so mock its return value,
     // then restore the original mock at the end of this test:
