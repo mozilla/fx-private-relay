@@ -4,12 +4,11 @@
 .wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
   gap: $spacing-xl;
   flex: 1 0 auto;
   max-width: $content-lg;
   margin: 0 auto;
-  padding: $spacing-lg;
+  padding: $spacing-2xl $spacing-lg;
 
   h2 {
     @include text-title-xs;
@@ -53,6 +52,10 @@
       gap: $spacing-md;
       margin: 0;
       padding: 0;
+
+      ::marker {
+        color: $color-violet-60;
+      }
     }
   }
 
