@@ -37,6 +37,7 @@ export const PurchasePhonesPlan = (props: Props) => {
           <li>{l10n.getString("phone-onboarding-step1-list-item-1")}</li>
           <li>{l10n.getString("phone-onboarding-step1-list-item-2")}</li>
           <li>{l10n.getString("phone-onboarding-step1-list-item-3")}</li>
+          <li>{l10n.getString("phone-onboarding-step1-list-item-4")}</li>
         </ul>
         <div className={styles.action}>
           <h3>{l10n.getString("phone-onboarding-step1-button-label")}</h3>

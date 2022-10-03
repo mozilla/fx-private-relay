@@ -26,10 +26,11 @@ fx-containers = { -brand-name-firefox } Containers
 ## Phone Onboarding
 
 phone-onboarding-step1-headline = Introducing phone number masking
-phone-onboarding-step1-body = With phone number masking, you can create a phone number mask that helps you  protect your true phone number. Share it, and receive messages privately.
-phone-onboarding-step1-list-item-1 = Share a masked phone number that forwards messages to your true number.
-phone-onboarding-step1-list-item-2 = Need to confirm a dinner reservation? Share your phone number mask instead.
-phone-onboarding-step1-list-item-3 = With phone number masking, you can receive texts. Replying is not yet available.
+phone-onboarding-step1-body = With phone number masking, you can create a phone number mask that helps you protect your true phone number. Share it, and receive messages and calls privately.
+phone-onboarding-step1-list-item-1 = Share a phone number mask that forwards texts and calls to your number.
+phone-onboarding-step1-list-item-2 = Need to get a digital receipt? Share your phone number mask instead.
+phone-onboarding-step1-list-item-3 = With phone number masking, you can reply to the last text you received.
+phone-onboarding-step1-list-item-4 = Currently available in the US and Canada only.
 
 phone-onboarding-step1-button-label = Upgrade to get phone number masking
 phone-onboarding-step1-period-toggle-yearly = Yearly
@@ -37,7 +38,7 @@ phone-onboarding-step1-period-toggle-monthly = Monthly
 # Variables:
 #   $monthly_price (string) - the monthly cost (including currency symbol) for Relay Premium. Examples: $0.99, 0,99 €
 phone-onboarding-step1-button-price = { $monthly_price } / month
-phone-onboarding-step1-button-price-note  = (Billing yearly)
+phone-onboarding-step1-button-price-note  = (Billed annually)
 phone-onboarding-step1-button-cta = Upgrade Now
 
 phone-onboarding-step2-headline = Verify your true phone number
