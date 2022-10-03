@@ -33,12 +33,10 @@ import { ProfileBanners } from "../../components/dashboard/ProfileBanners";
 import { LinkButton } from "../../components/Button";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import {
-  getPremiumSubscribeLink,
+  isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
-  isPremiumAvailableInCountry,
 } from "../../functions/getPlan";
 import { useGaViewPing } from "../../hooks/gaViewPing";
-import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { PremiumOnboarding } from "../../components/dashboard/PremiumOnboarding";
 import { Onboarding } from "../../components/dashboard/Onboarding";
 import { getRuntimeConfig } from "../../config";
@@ -320,7 +318,7 @@ const Profile: NextPage = () => {
 
   const bottomPremiumSection =
     profile.has_premium ||
-    !isPremiumAvailableInCountry(runtimeData.data) ? null : (
+    !isPeriodicalPremiumAvailableInCountry(runtimeData.data) ? null : (
       <section className={styles["bottom-banner"]}>
         <div className={styles["bottom-banner-wrapper"]}>
           <div className={styles["bottom-banner-content"]}>
@@ -332,11 +330,8 @@ const Profile: NextPage = () => {
             </Localized>
             <p>{l10n.getString("banner-pack-upgrade-copy-2")}</p>
             <LinkButton
-              href={getPremiumSubscribeLink(runtimeData.data)}
+              href="/premium#pricing"
               ref={bottomBannerSubscriptionLinkRef}
-              onClick={() =>
-                trackPurchaseStart({ label: "profile-bottom-promo" })
-              }
             >
               {l10n.getString("banner-pack-upgrade-cta")}
             </LinkButton>

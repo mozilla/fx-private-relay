@@ -30,9 +30,9 @@ import {
   getPremiumSubscribeLink,
   isBundleAvailableInCountry,
   isPhonesAvailableInCountry,
+  isPeriodicalPremiumAvailableInCountry,
   isPremiumAvailableInCountry,
 } from "../functions/getPlan";
-import { trackPurchaseStart } from "../functions/trackPurchase";
 import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
 import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
@@ -210,10 +210,10 @@ const PremiumPromo: NextPage = () => {
       </div>
     ) : null;
 
-  const cta = isPremiumAvailableInCountry(runtimeData.data) ? (
+  const cta = isPeriodicalPremiumAvailableInCountry(runtimeData.data) ? (
     <LinkButton
       ref={introPricingEndBanner === null ? heroCtaRef : heroCountdownCtaRef}
-      href={getPremiumSubscribeLink(runtimeData.data)}
+      href="#pricing"
       onClick={() => {
         gaEvent({
           category: "Purchase Button",
@@ -241,13 +241,19 @@ const PremiumPromo: NextPage = () => {
   );
 
   const getPerkCta = (label: keyof typeof perkCtaRefs) => {
-    if (!isPremiumAvailableInCountry(runtimeData.data)) {
-      return null;
+    if (!isPeriodicalPremiumAvailableInCountry(runtimeData.data)) {
+      return (
+        <LinkButton
+          href="/premium/waitlist"
+          title={l10n.getString("premium-promo-availability-warning-2")}
+        >
+          {l10n.getString("waitlist-submit-label")}
+        </LinkButton>
+      );
     }
     return (
       <LinkButton
         ref={perkCtaRefs[label]}
-        onClick={() => trackPurchaseStart({ label: label })}
         href="#pricing"
         title={l10n.getString("premium-promo-perks-cta-tooltip")}
       >
@@ -278,15 +284,7 @@ const PremiumPromo: NextPage = () => {
         <section id="hero" className={styles.hero}>
           <div className={styles.lead}>
             <h2>{l10n.getString("premium-promo-hero-headline")}</h2>
-            <Localized
-              id="premium-promo-hero-body-3"
-              vars={{
-                monthly_price: isPremiumAvailableInCountry(runtimeData.data)
-                  ? getPremiumPlan(runtimeData.data).price
-                  : runtimeData.data?.PREMIUM_PLANS.plan_country_lang_mapping.us
-                      .en.price ?? "&hellip;",
-              }}
-            >
+            <Localized id="premium-promo-hero-body-3">
               <p />
             </Localized>
             {introPricingEndBanner}

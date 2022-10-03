@@ -29,12 +29,8 @@ import { Button, LinkButton } from "../../Button";
 import { AliasData } from "../../../hooks/api/aliases";
 import { getRuntimeConfig } from "../../../config";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
-import {
-  getPremiumSubscribeLink,
-  isPremiumAvailableInCountry,
-} from "../../../functions/getPlan";
+import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
-import { trackPurchaseStart } from "../../../functions/trackPurchase";
 import { AddressPickerModal } from "./AddressPickerModal";
 
 export type Props = {
@@ -67,7 +63,7 @@ export const AliasGenerationButton = (props: Props) => {
   if (!props.profile.has_premium && props.aliases.length >= maxAliases) {
     // If the user does not have Premium, has reached the alias limit,
     // and Premium is not available to them, show a greyed-out button:
-    if (!isPremiumAvailableInCountry(props.runtimeData)) {
+    if (!isPeriodicalPremiumAvailableInCountry(props.runtimeData)) {
       return (
         <Button disabled>
           <PlusIcon alt="" width={16} height={16} />
@@ -79,15 +75,7 @@ export const AliasGenerationButton = (props: Props) => {
     // If the user does not have Premium, has reached the alias limit,
     // and Premium is available to them, prompt them to upgrade:
     return (
-      <LinkButton
-        href={getPremiumSubscribeLink(props.runtimeData)}
-        target="_blank"
-        rel="noopener noreferrer"
-        ref={getUnlimitedButtonRef}
-        onClick={() =>
-          trackPurchaseStart({ label: "profile-create-alias-upgrade-promo" })
-        }
-      >
+      <LinkButton href="/premium#pricing" ref={getUnlimitedButtonRef}>
         {l10n.getString("profile-label-upgrade-2")}
       </LinkButton>
     );

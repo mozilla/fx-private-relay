@@ -5,9 +5,11 @@ import FirefoxLogo from "./images/fx-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
 import RelayLogo from "./images/placeholder-logo.svg";
 import {
-  getPremiumPlan,
+  getPeriodicalPremiumPrice,
   getPremiumSubscribeLink,
+  isPeriodicalPremiumAvailableInCountry,
   isPremiumAvailableInCountry,
+  RuntimeDataWithPeriodicalPremiumAvailable,
   RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
 import {
@@ -109,7 +111,7 @@ export const ProfileBanners = (props: Props) => {
 
   if (
     !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.runtimeData) &&
+    isPeriodicalPremiumAvailableInCountry(props.runtimeData) &&
     props.aliases.length > 0
   ) {
     banners.push(
@@ -216,7 +218,7 @@ const NoChromeExtensionBanner = () => {
 };
 
 type NoPremiumBannerProps = {
-  runtimeData: RuntimeDataWithPremiumAvailable;
+  runtimeData: RuntimeDataWithPeriodicalPremiumAvailable;
 };
 
 // Unused but left in for when we no longer want to use <LoyalistPremiumBanner>
@@ -231,9 +233,8 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
       title={l10n.getString("banner-upgrade-headline")}
       illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
       cta={{
-        target: getPremiumSubscribeLink(props.runtimeData),
+        target: "/premium#pricing",
         content: l10n.getString("banner-upgrade-cta"),
-        onClick: () => trackPurchaseStart(),
         gaViewPing: {
           category: "Purchase Button",
           label: "profile-banner-promo",
@@ -256,9 +257,8 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
       illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
       cta={{
         size: "large",
-        target: getPremiumSubscribeLink(props.runtimeData),
+        target: "/premium#pricing",
         content: l10n.getString("banner-upgrade-loyalist-cta"),
-        onClick: () => trackPurchaseStart(),
         gaViewPing: {
           category: "Purchase Button",
           label: "profile-banner-loyalist-promo",
@@ -267,7 +267,11 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
     >
       <p>
         {l10n.getString("banner-upgrade-loyalist-copy-2", {
-          monthly_price: getPremiumPlan(props.runtimeData).price,
+          monthly_price: getPeriodicalPremiumPrice(
+            props.runtimeData,
+            "yearly",
+            l10n
+          ),
         })}
       </p>
     </Banner>

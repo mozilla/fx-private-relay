@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { OutboundLink } from "react-ga";
 import { useLocalization } from "@fluent/react";
+import Link from "next/link";
 import styles from "./Banner.module.scss";
 import { useLocalDismissal } from "../hooks/localDismissal";
 import { CloseIcon, WarningFilledIcon, InfoFilledIcon } from "./Icons";
@@ -136,6 +137,23 @@ export const BannerCta = (props: BannerCtaProps) => {
         <button onClick={props.onClick}>
           <span ref={ctaRef}>{props.content}</span>
         </button>
+      </div>
+    );
+  }
+
+  // When given a relative URL to link to in `target`, render an <a> (via <Link>):
+  if (props.target.startsWith("/")) {
+    return (
+      <div
+        className={
+          props.size === "large" ? styles["cta-large-button"] : styles.cta
+        }
+      >
+        <Link href={props.target}>
+          <a onClick={props.onClick} ref={ctaRef}>
+            {props.content}
+          </a>
+        </Link>
       </div>
     );
   }
