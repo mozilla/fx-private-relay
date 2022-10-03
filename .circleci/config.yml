@@ -9,7 +9,7 @@
 #
 version: 2.1
 orbs:
-  node: circleci/node@5.0.0
+  node: circleci/node@5.0.3
   python: circleci/python@2.0.3
   heroku: circleci/heroku@1.2.6
 commands:
@@ -29,7 +29,7 @@ executors:
 jobs:
   build_frontend:
     docker:
-      - image: cimg/node:14.19
+      - image: cimg/node:14.20
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -50,7 +50,7 @@ jobs:
 
   test_frontend:
     docker:
-      - image: cimg/node:14.19
+      - image: cimg/node:14.20
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
