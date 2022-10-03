@@ -42,7 +42,7 @@ phone-onboarding-step1-button-price-note  = (Billed annually)
 phone-onboarding-step1-button-cta = Upgrade Now
 
 phone-onboarding-step2-headline = Verify your true phone number
-phone-onboarding-step2-body = Provide the phone number where you’ll receive your texts and calls (in the future). We’ll send a 6-digit code to this number to verify it.
+phone-onboarding-step2-body = Provide the phone number where you’ll receive your texts and calls. We’ll send a 6-digit code to this number to verify it.
 phone-onboarding-step2-input-placeholder = Enter your phone number
 phone-onboarding-step2-button-cta = Send code
 phone-onboarding-step2-invalid-number = { $phone_number } is not a valid number. Please review and provide a real phone number.
