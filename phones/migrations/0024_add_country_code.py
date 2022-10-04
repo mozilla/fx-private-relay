@@ -67,7 +67,7 @@ def add_db_default_forward_func(apps, schema_editor):
             ' "remaining_texts" integer NOT NULL,'
             ' "texts_blocked" integer NOT NULL,'
             ' "texts_forwarded" integer NOT NULL,'
-            ' "remaining_seconds" integer NOT NULL,'
+            ' "remaining_seconds" integer NOT NULL DEFAULT 3000,'
             ' "remaining_minutes" integer NULL,'
             " \"country_code\" varchar(2) NOT NULL DEFAULT 'US');"
         )
