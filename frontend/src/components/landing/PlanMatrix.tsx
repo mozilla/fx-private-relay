@@ -674,7 +674,7 @@ const PricingToggle = (props: PricingToggleProps) => {
   const monthlyButtonRef = useGaViewPing(props.monthlyBilled.gaViewPing);
 
   return (
-    <PricingTabs>
+    <PricingTabs defaultSelectedKey="yearly">
       <Item
         key="yearly"
         title={l10n.getString("plan-matrix-price-period-yearly")}
