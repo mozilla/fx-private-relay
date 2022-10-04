@@ -68,6 +68,7 @@ phone-masking-faq-answer-19 = No, Relay phone masking works using your device’
 #   $url (url) - link to Firefox Relay's Privacy Policy, i.e. https://www.mozilla.org/privacy/firefox-relay/
 #   $attrs (string) - specific attributes added to external links
 phone-masking-faq-answer-20 = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
+
 ## Phone Onboarding
 
 phone-onboarding-step1-headline = Introducing phone number masking
