@@ -325,6 +325,7 @@ export const mockedRealphones: Record<typeof mockIds[number], RealPhoneData> = {
       verification_sent_date: "2022-07-27T10:17:29.775Z",
       verified: true,
       verified_date: "2022-07-27T10:18:01.801Z",
+      country_code: "US",
     },
   ],
   full: [
@@ -335,6 +336,7 @@ export const mockedRealphones: Record<typeof mockIds[number], RealPhoneData> = {
       verification_sent_date: "2022-07-27T10:17:29.775Z",
       verified: true,
       verified_date: "2022-07-27T10:18:01.801Z",
+      country_code: "US",
     },
   ],
 };

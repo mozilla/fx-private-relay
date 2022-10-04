@@ -148,6 +148,10 @@ def test_realphone_post_valid_us_es164_number(phone_user, mocked_twilio_client):
     assert call_kwargs["to"] == number
     assert "verification code" in call_kwargs["body"]
 
+    real_phone = RealPhone.objects.get(number=number)
+    assert real_phone.verified is False
+    assert real_phone.country_code == "US"
+
 
 def test_realphone_post_valid_ca_es164_number(phone_user, mocked_twilio_client):
     client = APIClient()
@@ -176,6 +180,10 @@ def test_realphone_post_valid_ca_es164_number(phone_user, mocked_twilio_client):
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == number
     assert "verification code" in call_kwargs["body"]
+
+    real_phone = RealPhone.objects.get(number=number)
+    assert real_phone.verified is False
+    assert real_phone.country_code == "CA"
 
 
 def test_realphone_post_valid_es164_number_already_sent_code(

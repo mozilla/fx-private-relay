@@ -338,6 +338,7 @@ export function getHandlers(
         verification_sent_date: new Date(sentDate).toISOString(),
         verified: false,
         verified_date: null,
+        country_code: "US",
       };
       mockedRealphones[mockId].push(newVerificationPendingPhone);
     }

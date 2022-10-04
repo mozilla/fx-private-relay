@@ -163,6 +163,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         # request.country attribute
         valid_number = _validate_number(request)
         serializer.validated_data["number"] = valid_number.phone_number
+        serializer.validated_data["country_code"] = valid_number.country_code.upper()
 
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.validated_data)
