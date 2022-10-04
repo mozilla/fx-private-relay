@@ -203,7 +203,8 @@ class RelayNumber(models.Model):
         return self.calls_blocked + self.texts_blocked
 
     def save(self, *args, **kwargs):
-        if not get_verified_realphone_records(self.user):
+        realphone = get_verified_realphone_records(self.user).first()
+        if not realphone:
             raise ValidationError("User does not have a verified real phone.")
 
         # if this number exists for this user, this is an update call
@@ -225,11 +226,18 @@ class RelayNumber(models.Model):
             sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
             voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
         )
-        # Also add this number to the Relay messaging service, so it goes
-        # into our US A2P 10DLC campaign
-        client.messaging.v1.services(
-            settings.TWILIO_MESSAGING_SERVICE_SID
-        ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
+
+        # Assume number was selected through suggested_numbers, so same country
+        # as realphone
+        self.country_code = realphone.country_code.upper()
+
+        if self.country_code == "US":
+            # Also add this number to the Relay messaging service, so it goes
+            # into our US A2P 10DLC campaign
+            client.messaging.v1.services(
+                settings.TWILIO_MESSAGING_SERVICE_SID
+            ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
+
         return super().save(*args, **kwargs)
 
 
@@ -280,7 +288,7 @@ class InboundContact(models.Model):
 
 
 def suggested_numbers(user):
-    real_phone = RealPhone.objects.filter(user=user, verified=True).first()
+    real_phone = get_verified_realphone_records(user).first()
     if real_phone is None:
         raise BadRequest(
             "available_numbers: This user hasn't verified a RealPhone yet."
@@ -294,7 +302,7 @@ def suggested_numbers(user):
 
     real_num = real_phone.number
     client = twilio_client()
-    avail_nums = client.available_phone_numbers("US")
+    avail_nums = client.available_phone_numbers(real_phone.country_code)
 
     # TODO: can we make multiple pattern searches in a single Twilio API request
     same_prefix_options = []
@@ -331,16 +339,16 @@ def suggested_numbers(user):
     }
 
 
-def location_numbers(location):
+def location_numbers(location, country_code="US"):
     client = twilio_client()
-    avail_nums = client.available_phone_numbers("US")
+    avail_nums = client.available_phone_numbers(country_code)
     twilio_nums = avail_nums.local.list(in_locality=location, limit=10)
     return convert_twilio_numbers_to_dict(twilio_nums)
 
 
-def area_code_numbers(area_code):
+def area_code_numbers(area_code, country_code="US"):
     client = twilio_client()
-    avail_nums = client.available_phone_numbers("US")
+    avail_nums = client.available_phone_numbers(country_code)
     twilio_nums = avail_nums.local.list(area_code=area_code, limit=10)
     return convert_twilio_numbers_to_dict(twilio_nums)
 

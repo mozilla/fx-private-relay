@@ -34,6 +34,7 @@ class RelayNumberSerializer(serializers.ModelSerializer):
             "id",
             "number",
             "location",
+            "country_code",
             "enabled",
             "remaining_minutes",
             "remaining_texts",
@@ -47,6 +48,7 @@ class RelayNumberSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "location",
+            "country_code",
             "remaining_minutes",
             "remaining_texts",
             "calls_forwarded",

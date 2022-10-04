@@ -527,6 +527,48 @@ def test_relaynumber_search_by_area_code(phone_user, mocked_twilio_client):
     assert mock_list.call_args_list == [call(area_code="918", limit=10)]
 
 
+def test_relaynumber_search_by_location_canada(phone_user, mocked_twilio_client):
+    mock_list = Mock(return_value=[])
+    mocked_twilio_client.available_phone_numbers = Mock(
+        return_value=(Mock(local=Mock(list=mock_list)))
+    )
+    _make_real_phone(phone_user, country_code="CA", verified=True)
+
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = "/api/v1/relaynumber/search/?location=Ottawa, ON"
+
+    response = client.get(path)
+
+    assert response.status_code == 200
+    available_numbers_calls = (
+        mocked_twilio_client.available_phone_numbers.call_args_list
+    )
+    assert available_numbers_calls == [call("CA")]
+    assert mock_list.call_args_list == [call(in_locality="Ottawa, ON", limit=10)]
+
+
+def test_relaynumber_search_by_area_code_canada(phone_user, mocked_twilio_client):
+    mock_list = Mock(return_value=[])
+    mocked_twilio_client.available_phone_numbers = Mock(
+        return_value=(Mock(local=Mock(list=mock_list)))
+    )
+    _make_real_phone(phone_user, country_code="CA", verified=True)
+
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = "/api/v1/relaynumber/search/?area_code=613"
+
+    response = client.get(path)
+
+    assert response.status_code == 200
+    available_numbers_calls = (
+        mocked_twilio_client.available_phone_numbers.call_args_list
+    )
+    assert available_numbers_calls == [call("CA")]
+    assert mock_list.call_args_list == [call(area_code="613", limit=10)]
+
+
 def test_vcard_no_lookup_key():
     client = APIClient()
     path = "/api/v1/vCard/"
