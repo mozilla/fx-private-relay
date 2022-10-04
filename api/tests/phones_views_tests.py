@@ -120,7 +120,11 @@ def test_realphone_post_valid_e164_number_in_unsupported_country(
 
     response = client.post(path, data, format="json", HTTP_X_CLIENT_REGION="nl")
     assert response.status_code == 400
-    assert "Available In The Us" in response.data[0].title()
+    expected = [
+        "Relay Phone is currently only available for these country codes: ['CA', 'US']."
+        " Your phone number country code is: 'nl'."
+    ]
+    assert response.json() == expected
 
 
 def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
