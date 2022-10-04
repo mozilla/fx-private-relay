@@ -343,12 +343,12 @@ def _validate_number(request):
             f"Could not get number details for {e164_number}"
         )
 
-    if number_details.country_code not in settings.TWILIO_ALLOWED_COUNTRY_CODES:
+    if number_details.country_code.upper() not in settings.TWILIO_ALLOWED_COUNTRY_CODES:
         raise exceptions.ValidationError(
             "Relay Phone is currently only available for these country codes: "
             f"{sorted(settings.TWILIO_ALLOWED_COUNTRY_CODES)!r}. "
             "Your phone number country code is: "
-            f"'{number_details.country_code}'."
+            f"'{number_details.country_code.upper()}'."
         )
 
     return number_details

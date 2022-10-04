@@ -122,17 +122,46 @@ def test_realphone_post_valid_e164_number_in_unsupported_country(
     assert response.status_code == 400
     expected = [
         "Relay Phone is currently only available for these country codes: ['CA', 'US']."
-        " Your phone number country code is: 'nl'."
+        " Your phone number country code is: 'NL'."
     ]
     assert response.json() == expected
 
 
-def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
+def test_realphone_post_valid_us_es164_number(phone_user, mocked_twilio_client):
     client = APIClient()
     client.force_authenticate(phone_user)
     number = "+12223334444"
     path = "/api/v1/realphone/"
     data = {"number": number}
+
+    response = client.post(path, data, format="json")
+    assert response.status_code == 201
+    assert response.data["number"] == number
+    assert response.data["verified"] == False
+    assert response.data["verification_sent_date"] != ""
+    assert "Sent verification" in response.data["message"]
+
+    mocked_twilio_client.lookups.v1.phone_numbers.assert_called_once_with(number)
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_called_once()
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == number
+    assert "verification code" in call_kwargs["body"]
+
+
+def test_realphone_post_valid_ca_es164_number(phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    number = "+12505550199"
+    path = "/api/v1/realphone/"
+    data = {"number": number}
+
+    mock_fetch = Mock(
+        return_value=Mock(country_code="ca", phone_number=number, carrier="northwestel")
+    )
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
 
     response = client.post(path, data, format="json")
     assert response.status_code == 201
