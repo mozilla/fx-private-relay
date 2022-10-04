@@ -337,9 +337,9 @@ def test_suggested_numbers(phone_user, mocked_twilio_client):
     assert available_numbers_calls == [call("US")]
     assert mock_list.call_args_list == [
         call(contains="+1222333****", limit=10),
-        call(contains="+122233*44", limit=10),
+        call(contains="+122233***44", limit=10),
         call(contains="+12223******", limit=10),
-        call(contains="***3334444", limit=10),
+        call(contains="+1***3334444", limit=10),
         call(contains="+1222*******", limit=10),
     ]
 
@@ -360,9 +360,9 @@ def test_suggested_numbers_ca(phone_user, mocked_twilio_client):
     assert available_numbers_calls == [call("CA")]
     assert mock_list.call_args_list == [
         call(contains="+1403555****", limit=10),
-        call(contains="+140355*34", limit=10),
+        call(contains="+140355***34", limit=10),
         call(contains="+14035******", limit=10),
-        call(contains="***5551234", limit=10),
+        call(contains="+1***5551234", limit=10),
         call(contains="+1403*******", limit=10),
     ]
 
