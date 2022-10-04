@@ -11,6 +11,46 @@ const Faq: NextPage = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
 
+  const phoneMaskingFaqs = isFlagActive(runtimeData.data, "phones") ? (
+    <>
+      {Array.from(Array(19).keys()).map((index) => {
+        const id = index + 1;
+        return (
+          <QAndA
+            id={`phone-masking-faq-${id}`}
+            key={`phone-masking-faq-${id}`}
+            question={l10n.getString(`phone-masking-faq-question-${id}`)}
+          >
+            <p>{l10n.getString(`phone-masking-faq-answer-${id}`)}</p>
+          </QAndA>
+        );
+      })}
+      <QAndA
+        id="phone-masking-faq-20"
+        question={l10n.getString("phone-masking-faq-question-20")}
+      >
+        <Localized
+          id="phone-masking-faq-answer-20"
+          vars={{
+            url: "https://www.mozilla.org/privacy/firefox-relay/",
+            attrs: "",
+          }}
+          elems={{
+            a: (
+              <a
+                href="https://www.mozilla.org/privacy/firefox-relay/"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            ),
+          }}
+        >
+          <p />
+        </Localized>
+      </QAndA>
+    </>
+  ) : null;
+
   const trackerBlockingFaqs = isFlagActive(
     runtimeData.data,
     "tracker_removal"
@@ -351,6 +391,7 @@ const Faq: NextPage = () => {
                 </p>
               </QAndA>
               {trackerBlockingFaqs}
+              {phoneMaskingFaqs}
             </div>
           </div>
         </div>

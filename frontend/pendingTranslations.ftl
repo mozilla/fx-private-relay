@@ -23,6 +23,51 @@ fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
 fx-containers = { -brand-name-firefox } Containers
 
+## Phone Masking FAQ 
+
+phone-masking-faq-question-1 = What is a phone number mask?
+phone-masking-faq-question-2 = Where is phone masking available?
+phone-masking-faq-question-3 = How many phone masks do I get?
+phone-masking-faq-question-4 = Can I change my phone mask?
+phone-masking-faq-question-5 = Can I reply to texts?
+phone-masking-faq-question-6 = What kinds of texts will be forwarded?
+phone-masking-faq-question-7 = Can I send or receive pictures via text?
+phone-masking-faq-question-8 = Can I reply to historical text messages?
+phone-masking-faq-question-9 = Can I send a text without replying to one?
+phone-masking-faq-question-10 = Is there a limit to how many text messages I get?
+phone-masking-faq-question-11 = How long can I talk when I get a call?
+phone-masking-faq-question-12 = Can I call someone with my phone mask?
+phone-masking-faq-question-13 = Can I see who texted or called me?
+phone-masking-faq-question-14 = Can I block a call or text?
+phone-masking-faq-question-15 = What if my phone mask starts getting spam?
+phone-masking-faq-question-16 = Can I disable the logging of callers or text senders?
+phone-masking-faq-question-17 = Can I share the number that forwards me text messages?
+phone-masking-faq-question-18 = How do I save the { -brand-name-relay } contact card?
+phone-masking-faq-question-19 = Do I need to install an app to use { -brand-name-relay } phone masking?
+phone-masking-faq-question-20 = What kinds of data does { -brand-name-relay } phone masking store?
+
+phone-masking-faq-answer-1 = Similar to an email mask, a phone number mask is a phone number that can forward texts and calls to your true phone number without revealing what your true number is to the person calling or texting you.
+phone-masking-faq-answer-2 = At this time, phone number masking is only available in the United States and Canada. This means you can only receive forwarded calls and texts from US or Canadian numbers. We’re working on finding a way to offer phone number masking outside these two countries.
+phone-masking-faq-answer-3 = You only get one phone number mask at this time. Once you choose your phone number mask, you cannot change it later.
+phone-masking-faq-answer-4 = No, you cannot change your phone number mask once you’ve chosen it. We are exploring this option.
+phone-masking-faq-answer-5 = Yes, you can reply to the last text you received. Just reply as you would for any text message.
+phone-masking-faq-answer-6 = Only SMS text messages can be forwarded. MMS texts that include photos, videos, etc. will not be forwarded.
+phone-masking-faq-answer-7 = No, only SMS text messages can be forwarded or sent as replies.
+phone-masking-faq-answer-8 = You can’t currently reply to texts you received previously, though this feature is on the way.
+phone-masking-faq-answer-9 = No, you can’t yet send texts that aren’t replies. You can only reply to forwarded texts.
+phone-masking-faq-answer-10 = You can receive and reply up to 75 text messages per month total. Any additional texts sent to your phone number mask will not be forwarded to your true number. Any additional replies will not be delivered. The month turns over on your billing date, not the calendar date. Once your billing month has turned over, you will start receiving text messages again.
+phone-masking-faq-answer-11 = Each month you get 50 minutes of talking. Once these minutes are used up, you won’t be able to receive forwarded calls until the next month on your billing cycle.
+phone-masking-faq-answer-12 = No, you can only pick up a forwarded call.
+phone-masking-faq-answer-13 = Yes, you can see the number that texted or called you. You can also disable the storage of these records, but you will lose the ability to reply to or block individual callers & texters.
+phone-masking-faq-answer-14 = You can block all forwarding from a single number.
+phone-masking-faq-answer-15 = If you start getting spam, you can block the numbers sending you spam.
+phone-masking-faq-answer-16 = Yes, you can disable logging of numbers from the { -brand-name-relay } dashboard. However, you will no longer be able to reply to texts or block specific numbers, because the log is how we are able to track who sent you a text message.
+phone-masking-faq-answer-17 = If you share this number, nothing will happen—this number is not your phone number mask. It is just the contact number from which { -brand-name-relay } will forward your texts and calls.
+phone-masking-faq-answer-18 = Once you upgrade to { -brand-name-relay } phone number masking, we will text you a contact card that contains the number from which you will receive forwarded calls and texts, similar to any contact card that stores the phone number of people who contact you. On most devices, you can select that contact card and save it like any other contact on your phone.
+phone-masking-faq-answer-19 = No, Relay phone masking works using your device’s standard text messaging and calling apps.
+#   $url (url) - link to Firefox Relay's Privacy Policy, i.e. https://www.mozilla.org/privacy/firefox-relay/
+#   $attrs (string) - specific attributes added to external links
+phone-masking-faq-answer-20 = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
 ## Phone Onboarding
 
 phone-onboarding-step1-headline = Introducing phone number masking
