@@ -12,12 +12,12 @@ def add_db_default_forward_func(apps, schema_editor):
     """
     if schema_editor.connection.vendor.startswith("postgres"):
         schema_editor.execute(
-            'ALTER TABLE "phones_realnumber"'
-            ' ALTER COLUMN "country_code" SET DEFAULT "US";'
+            'ALTER TABLE "phones_realphone"'
+            " ALTER COLUMN \"country_code\" SET DEFAULT 'US';"
         )
         schema_editor.execute(
             'ALTER TABLE "phones_relaynumber"'
-            ' ALTER COLUMN "country_code" SET DEFAULT "US";'
+            " ALTER COLUMN \"country_code\" SET DEFAULT 'US';"
         )
     elif schema_editor.connection.vendor.startswith("sqlite"):
         # Add default 'US' to phone_realnumber.country_code
