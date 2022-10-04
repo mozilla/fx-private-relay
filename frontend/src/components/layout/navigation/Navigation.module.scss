@@ -45,6 +45,8 @@
   border: none;
   cursor: pointer;
   color: currentColor;
+  // webkit adds a padding-right: 1em to button elements
+  padding: 0;
 
   @media screen and #{$mq-md} {
     display: none;
