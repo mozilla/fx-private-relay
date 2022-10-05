@@ -13,6 +13,8 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
+from twilio.base.exceptions import TwilioRestException
+
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
 LAST_CONTACT_TYPE_CHOICES = [
@@ -231,12 +233,20 @@ class RelayNumber(models.Model):
         # as realphone
         self.country_code = realphone.country_code.upper()
 
+        # Add US numbers to the Relay messaging service, so it goes into our
+        # US A2P 10DLC campaign
         if self.country_code == "US":
-            # Also add this number to the Relay messaging service, so it goes
-            # into our US A2P 10DLC campaign
-            client.messaging.v1.services(
-                settings.TWILIO_MESSAGING_SERVICE_SID
-            ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
+            try:
+                client.messaging.v1.services(
+                    settings.TWILIO_MESSAGING_SERVICE_SID
+                ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
+            except TwilioRestException as err:
+                if err.status == 409 and err.code == 21710:
+                    # Ignore "Phone Number is already in the Messaging Service"
+                    # https://www.twilio.com/docs/api/errors/21710
+                    pass
+                else:
+                    raise
 
         return super().save(*args, **kwargs)
 
