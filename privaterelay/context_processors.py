@@ -4,8 +4,7 @@ from functools import lru_cache
 from django.conf import settings
 from django.db.models import prefetch_related_objects
 
-from .templatetags.relay_tags import premium_plan_price
-from .utils import get_premium_countries_info_from_request
+from .utils import get_countries_info_from_request_and_mapping
 
 
 def django_settings(request):
@@ -17,7 +16,9 @@ def common(request):
     avatar = fxa.extra_data["avatar"] if fxa else None
     accept_language = request.headers.get("Accept-Language", "en-US")
     country_code = request.headers.get("X-Client-Region", "us").lower()
-    premium_countries_vars = get_premium_countries_info_from_request(request)
+    premium_countries_vars = get_countries_info_from_request_and_mapping(
+        request, settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING
+    )
 
     csat_dismissal_cookie, reason_to_show_csat_survey = _get_csat_cookie_and_reason(
         request
@@ -35,9 +36,6 @@ def common(request):
         "country_code": country_code,
         "show_csat": show_csat,
         "csat_dismissal_cookie": csat_dismissal_cookie,
-        "monthly_price": premium_plan_price(
-            accept_language, premium_countries_vars["country_code"]
-        ),
     }
     return {**common_vars, **premium_countries_vars}
 
