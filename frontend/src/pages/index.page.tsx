@@ -30,6 +30,7 @@ import { CarouselContentHero } from "../components/landing/carousel/ContentHero"
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 import {
   isBundleAvailableInCountry,
+  isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
 } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -106,10 +107,7 @@ const Home: NextPage = () => {
           </div>
           <div className={styles["demo-phone"]}>
             <DemoPhone
-              premium={
-                runtimeData.data?.PREMIUM_PLANS.premium_available_in_country ===
-                true
-              }
+              premium={isPeriodicalPremiumAvailableInCountry(runtimeData.data)}
             />
           </div>
         </section>

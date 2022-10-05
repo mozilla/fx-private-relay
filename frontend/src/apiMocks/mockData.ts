@@ -13,23 +13,9 @@ export const mockedRuntimeData: RuntimeData = {
   FXA_ORIGIN: "https://fxa-mock.com",
   BASKET_ORIGIN: "https://basket-mock.com",
   GOOGLE_ANALYTICS_ID: "UA-123456789-0",
-  PREMIUM_PRODUCT_ID: "prod_123456789",
   PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
   PHONE_PRODUCT_ID: "prod_123456789",
   BUNDLE_PRODUCT_ID: "prod_123456789",
-  PREMIUM_PLANS: {
-    country_code: "nl",
-    plan_country_lang_mapping: {
-      nl: {
-        nl: {
-          id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-          price: "€0,99",
-        },
-      },
-    },
-    premium_countries: ["nl"],
-    premium_available_in_country: true,
-  },
   PERIODICAL_PREMIUM_PLANS: {
     country_code: "nl",
     plan_country_lang_mapping: {

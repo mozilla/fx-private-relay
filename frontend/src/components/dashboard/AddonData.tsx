@@ -20,7 +20,6 @@ export const AddonData = (props: Props) => {
       data-api-token={props.profile.api_token}
       data-has-premium={props.profile.has_premium}
       data-fxa-subscriptions-url={`${props.runtimeData.FXA_ORIGIN}/subscriptions`}
-      data-premium-prod-id={props.runtimeData.PREMIUM_PRODUCT_ID}
       data-aliases-used-val={props.aliases.length}
       data-emails-forwarded-val={props.totalForwardedEmails}
       data-emails-blocked-val={props.totalBlockedEmails}

@@ -17,27 +17,12 @@ export type ProductData<P extends Partial<PlanData> = PlanData> = {
   plan_country_lang_mapping: Record<CountryCode, Record<LanguageCode, P>>;
 };
 
-/**
- * @deprecated
- */
-export type PremiumPlans = {
-  country_code: CountryCode;
-  premium_countries: CountryCode[];
-  premium_available_in_country: boolean;
-  plan_country_lang_mapping: Record<
-    CountryCode,
-    Record<LanguageCode, { id: string; price: string }>
-  >;
-};
 export type RuntimeData = {
   FXA_ORIGIN: string;
   GOOGLE_ANALYTICS_ID: `UA-${number}-${number}`;
-  PREMIUM_PRODUCT_ID: `prod_${string}`;
   PERIODICAL_PREMIUM_PRODUCT_ID: `prod_${string}`;
   PHONE_PRODUCT_ID: `prod_${string}`;
   BUNDLE_PRODUCT_ID: `prod_${string}`;
-  /** @deprecated See PERIODICAL_PREMIUM_PLANS instead */
-  PREMIUM_PLANS: PremiumPlans;
   PERIODICAL_PREMIUM_PLANS: ProductData<PlanData>;
   PHONE_PLANS: ProductData<PlanData>;
   BUNDLE_PLANS: ProductData<Pick<PlanData, "yearly">>;

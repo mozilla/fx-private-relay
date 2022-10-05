@@ -286,7 +286,8 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   if (
-    props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "se" &&
+    props.runtimeData?.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase() ===
+      "se" &&
     !props.profile.has_premium
   ) {
     entries.push(premiumInSweden);
@@ -317,7 +318,8 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   if (
-    props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "fi" &&
+    props.runtimeData?.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase() ===
+      "fi" &&
     !props.profile.has_premium
   ) {
     entries.push(premiumInFinland);
