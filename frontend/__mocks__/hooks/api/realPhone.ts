@@ -25,6 +25,7 @@ export function getMockVerifiedRealPhone(
     verification_sent_date: "2022-07-27T10:17:29.775Z",
     verified: true,
     verified_date: "2022-07-27T10:18:01.801Z",
+    country_code: "US",
     ...realPhone,
   };
 }
@@ -39,6 +40,7 @@ export function getMockVerificationPendingRealPhone(
     verification_sent_date: new Date().toISOString(),
     verified: false,
     verified_date: null,
+    country_code: "US",
     ...realPhone,
   };
 }
@@ -53,6 +55,7 @@ export function getMockUnverifiedRealPhone(
     verification_sent_date: "2022-07-27T10:17:29.775Z",
     verified: false,
     verified_date: null,
+    country_code: "US",
     ...realPhone,
   };
 }

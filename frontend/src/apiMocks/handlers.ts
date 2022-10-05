@@ -338,6 +338,7 @@ export function getHandlers(
         verification_sent_date: new Date(sentDate).toISOString(),
         verified: false,
         verified_date: null,
+        country_code: "US",
       };
       mockedRealphones[mockId].push(newVerificationPendingPhone);
     }
@@ -397,6 +398,7 @@ export function getHandlers(
     const newRelaynumber: RelayNumber = {
       number: body.number,
       location: "Unhošť",
+      country_code: "US",
       enabled: true,
       id: mockedRelaynumbers[mockId].length,
       remaining_texts: 74,
