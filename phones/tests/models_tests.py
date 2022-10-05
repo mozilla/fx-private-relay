@@ -260,7 +260,7 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
 
 
-def test_create_relaynumber_canade(phone_user, mocked_twilio_client):
+def test_create_relaynumber_canada(phone_user, mocked_twilio_client):
     twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     mock_twilio_client = mocked_twilio_client
     mock_messages_create = mock_twilio_client.messages.create
