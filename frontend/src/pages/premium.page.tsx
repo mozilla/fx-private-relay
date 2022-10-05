@@ -146,10 +146,7 @@ const PremiumPromo: NextPage = () => {
           </div>
           <div className={styles["demo-phone"]}>
             <DemoPhone
-              premium={
-                runtimeData.data?.PREMIUM_PLANS.premium_available_in_country ===
-                true
-              }
+              premium={isPeriodicalPremiumAvailableInCountry(runtimeData.data)}
             />
           </div>
         </section>

@@ -24,7 +24,8 @@ export const TopMessage = (props: Props) => {
     props.profile &&
     // ...the user is from the US, and...
     ["us"].includes(
-      props.runtimeData?.PREMIUM_PLANS.country_code ?? "not the user's country"
+      props.runtimeData?.PERIODICAL_PREMIUM_PLANS.country_code ??
+        "not the user's country"
     ) &&
     // ...the user speaks English:
     getLocale(l10n).split("-")[0] === "en"
