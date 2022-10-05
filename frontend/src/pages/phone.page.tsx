@@ -17,6 +17,8 @@ import { isFlagActive } from "../functions/waffle";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../functions/getPlan";
+import { toast } from "react-toastify";
+import { useLocalDismissal } from "../hooks/localDismissal";
 
 const Phone: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -42,6 +44,38 @@ const Phone: NextPage = () => {
       typeof relayNumberData.data === "undefined") ||
     // ...there was a list of Relay numbers, but it was empty:
     relayNumberData.data?.length === 0;
+
+  const resendWelcomeSMSDismissal = useLocalDismissal(
+    `resend-sms-banner-${profile?.id}`
+  );
+
+  const resendWelcomeText = !resendWelcomeSMSDismissal.isDismissed && (
+    <div className={styles["banner-wrapper"]}>
+      <Banner
+        title={l10n.getString("phone-banner-resend-welcome-sms-title")}
+        type="info"
+        cta={{
+          content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
+          onClick: () => {
+            realPhoneData.resendWelcomeSMS();
+            toast(l10n.getString("phone-banner-resend-welcome-sms-toast-msg"), {
+              type: "success",
+            });
+            resendWelcomeSMSDismissal.dismiss();
+          },
+          gaViewPing: {
+            category: "Resend Welcome SMS",
+            label: "phone-page-banner-resend-welcome",
+          },
+        }}
+        dismissal={{
+          key: `resend-sms-banner-${profile?.id}`,
+        }}
+      >
+        {l10n.getString("phone-banner-resend-welcome-sms-body")}
+      </Banner>
+    </div>
+  );
 
   useEffect(() => {
     if (!runtimeData.data) {
@@ -83,26 +117,7 @@ const Phone: NextPage = () => {
       <Layout>
         <DashboardSwitcher />
         <main className={styles["main-wrapper"]}>
-          <div className={styles["banner-wrapper"]}>
-            <Banner
-              title={l10n.getString("phone-banner-resend-welcome-sms-title")}
-              type="info"
-              cta={{
-                content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
-                onClick: () => realPhoneData.resendWelcomeSMS(),
-
-                gaViewPing: {
-                  category: "Resend Welcome SMS",
-                  label: "phone-page-banner-resend-welcome",
-                },
-              }}
-              dismissal={{
-                key: `resend-sms-banner-${profile?.id}`,
-              }}
-            >
-              {l10n.getString("phone-banner-resend-welcome-sms-body")}
-            </Banner>
-          </div>
+          {resendWelcomeText}
           <PhoneDashboard />
         </main>
       </Layout>

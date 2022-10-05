@@ -168,6 +168,7 @@ phone-settings-caller-sms-log-warning = If you decide to opt out from this prefe
 phone-banner-resend-welcome-sms-cta = Resend welcome text
 phone-banner-resend-welcome-sms-title = Quick Tip
 phone-banner-resend-welcome-sms-body =  Remember to save the contact we shared with you by text to help you identify messages forwarded by { -brand-name-relay }. Can’t find it?
+phone-banner-resend-welcome-sms-toast-msg =  The welcome text with your { -brand-name-relay } contact has been sent. Check your text message app.
 
 # Phone What's New
 whatsnew-feature-phone-header = Introducing phone number masking
