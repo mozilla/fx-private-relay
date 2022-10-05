@@ -1,6 +1,4 @@
-from datetime import datetime
 from django import template
-from django.conf import settings
 
 register = template.Library()
 
@@ -19,8 +17,3 @@ def bold_violet_link(href, link_text):
         '<a href="%s" target="_blank" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">%s</a>'
         % (href, link_text)
     )
-
-
-@register.simple_tag
-def is_intro_offer_expired():
-    return settings.INTRO_PRICING_END >= datetime.now()
