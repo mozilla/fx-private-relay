@@ -46,7 +46,7 @@ const Phone: NextPage = () => {
     relayNumberData.data?.length === 0;
 
   const resendWelcomeSMSDismissal = useLocalDismissal(
-    `resend-sms-banner-${profile?.id}` ?? "unused"
+    `resend-sms-banner-${profile?.id}`
   );
 
   const resendWelcomeText = !resendWelcomeSMSDismissal.isDismissed && (
