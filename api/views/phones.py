@@ -29,6 +29,7 @@ from phones.models import (
     get_pending_unverified_realphone_records,
     get_valid_realphone_verification_record,
     get_verified_realphone_record,
+    get_verified_realphone_records,
     send_welcome_message,
     suggested_numbers,
     location_numbers,
@@ -163,6 +164,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         # request.country attribute
         valid_number = _validate_number(request)
         serializer.validated_data["number"] = valid_number.phone_number
+        serializer.validated_data["country_code"] = valid_number.country_code.upper()
 
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.validated_data)
@@ -302,14 +304,19 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         [apn]: https://www.twilio.com/docs/phone-numbers/api/availablephonenumberlocal-resource#read-multiple-availablephonenumberlocal-resources
         """
+        real_phone = get_verified_realphone_records(request.user).first()
+        if real_phone:
+            country_code = real_phone.country_code
+        else:
+            country_code = "US"
         location = request.query_params.get("location")
         if location is not None:
-            numbers = location_numbers(location)
+            numbers = location_numbers(location, country_code)
             return response.Response(numbers)
 
         area_code = request.query_params.get("area_code")
         if area_code is not None:
-            numbers = area_code_numbers(area_code)
+            numbers = area_code_numbers(area_code, country_code)
             return response.Response(numbers)
 
         return response.Response({}, 404)
@@ -343,11 +350,12 @@ def _validate_number(request):
             f"Could not get number details for {e164_number}"
         )
 
-    if number_details.country_code != "US":
+    if number_details.country_code.upper() not in settings.TWILIO_ALLOWED_COUNTRY_CODES:
         raise exceptions.ValidationError(
-            "Relay Phone is currently only available in the US. "
+            "Relay Phone is currently only available for these country codes: "
+            f"{sorted(settings.TWILIO_ALLOWED_COUNTRY_CODES)!r}. "
             "Your phone number country code is: "
-            f"{number_details.country_code}"
+            f"'{number_details.country_code.upper()}'."
         )
 
     return number_details
