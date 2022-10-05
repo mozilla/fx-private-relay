@@ -2,7 +2,6 @@ from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 import pytest
 import random
-from twilio.rest import Client
 from unittest.mock import Mock, patch, call
 
 from django.conf import settings
@@ -11,6 +10,8 @@ from django.core.exceptions import BadRequest, ValidationError
 
 from allauth.socialaccount.models import SocialAccount, SocialToken
 from model_bakery import baker
+from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 
 from emails.models import Profile
 
@@ -282,6 +283,57 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     mock_messaging_number_create = (
         mock_twilio_client.messaging.v1.services().phone_numbers.create
     )
+    mock_messaging_number_create.assert_called_once()
+    call_kwargs = mock_messaging_number_create.call_args.kwargs
+    assert call_kwargs["phone_number_sid"] == twilio_incoming_number_sid
+
+    mock_messages_create.assert_called_once()
+    call_kwargs = mock_messages_create.call_args.kwargs
+    assert "Welcome" in call_kwargs["body"]
+    assert call_kwargs["to"] == real_phone
+    assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
+
+
+def test_create_relaynumber_already_registered_with_service(
+    phone_user, mocked_twilio_client
+):
+    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    mock_twilio_client = mocked_twilio_client
+    mock_messages_create = mock_twilio_client.messages.create
+    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
+    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
+
+    # Twilio responds that the phone number is already registered
+    mock_messaging_number_create.side_effect = TwilioRestException(
+        uri=f"/Services/{settings.TWILIO_MESSAGING_SERVICE_SID}/PhoneNumbers",
+        msg=(
+            "Unable to create record:"
+            " Phone Number or Short Code is already in the Messaging Service."
+        ),
+        method="POST",
+        status=409,
+        code=21710,
+    )
+
+    real_phone = "+12223334444"
+    RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
+    mock_messages_create.assert_called_once()
+    mock_messages_create.reset_mock()
+
+    relay_number = "+19998887777"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+
+    mock_number_create.assert_called_once()
+    call_kwargs = mock_number_create.call_args.kwargs
+    assert call_kwargs["phone_number"] == relay_number
+    assert call_kwargs["sms_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+    assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+
+    mock_services.assert_called_once()
+    call_args = mock_services.call_args
+    assert call_args[0][0] == settings.TWILIO_MESSAGING_SERVICE_SID
     mock_messaging_number_create.assert_called_once()
     call_kwargs = mock_messaging_number_create.call_args.kwargs
     assert call_kwargs["phone_number_sid"] == twilio_incoming_number_sid
