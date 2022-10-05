@@ -183,7 +183,6 @@ def runtime_data(request):
             "PERIODICAL_PREMIUM_PRODUCT_ID": settings.PERIODICAL_PREMIUM_PROD_ID,
             "GOOGLE_ANALYTICS_ID": settings.GOOGLE_ANALYTICS_ID,
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
-            "INTRO_PRICING_END": settings.INTRO_PRICING_END,
             "PREMIUM_PRODUCT_ID": settings.PREMIUM_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
             "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
