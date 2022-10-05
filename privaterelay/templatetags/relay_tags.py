@@ -30,27 +30,3 @@ def message_in_fluent(message):
         "error-premium-check-subdomain",
     ]
     return message in ftl_messages
-
-
-@register.simple_tag
-def premium_plan_id(accept_lang, cc=None):
-    if settings.PREMIUM_PRICE_ID_OVERRIDE:
-        return settings.PREMIUM_PRICE_ID_OVERRIDE
-    cc, lang = get_premium_country_lang(accept_lang, cc)
-    if cc in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING:
-        return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["id"]
-    return ""
-
-
-@register.simple_tag
-def premium_plan_price(accept_lang, cc=None):
-    cc, lang = get_premium_country_lang(accept_lang, cc)
-    if cc not in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING:
-        cc = "us"
-    return settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc][lang]["price"]
-
-
-@register.simple_tag
-def premium_subscribe_url(accept_lang=None, cc=None):
-    plan_id = premium_plan_id(accept_lang, cc)
-    return f"{settings.FXA_SUBSCRIPTIONS_URL}/products/{settings.PREMIUM_PROD_ID}?plan={plan_id}"

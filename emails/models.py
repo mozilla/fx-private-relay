@@ -160,7 +160,7 @@ class Profile(models.Model):
 
     # This method returns whether the locale associated with the user's Firefox account
     # includes a country code from a Premium country. This is less accurate than using
-    # get_premium_countries_info_from_request(), which uses a GeoIP lookup, so prefer
+    # get_countries_info_from_request_and_mapping(), which uses a GeoIP lookup, so prefer
     # using that if a request context is available. In other contexts, e.g. when
     # sending an email, this method can be useful.
     @property
@@ -171,7 +171,7 @@ class Profile(models.Model):
                 len(accept_langs) >= 1
                 and len(accept_langs[0][0].split("-")) >= 2
                 and accept_langs[0][0].split("-")[1]
-                in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+                in settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
             # If a language but no country is known, check if there's a country
@@ -182,7 +182,7 @@ class Profile(models.Model):
                 len(accept_langs) >= 1
                 and len(accept_langs[0][0].split("-")) == 1
                 and accept_langs[0][0].split("-")[0]
-                in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+                in settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
         return False
