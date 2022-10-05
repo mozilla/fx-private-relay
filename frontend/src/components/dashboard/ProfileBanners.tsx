@@ -1,5 +1,5 @@
 import { Localized, useLocalization } from "@fluent/react";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
 import BundleLogo from "./images/vpn-and-relay-logo.svg";
@@ -8,13 +8,10 @@ import RelayLogo from "./images/placeholder-logo.svg";
 import {
   getBundlePrice,
   getPeriodicalPremiumPrice,
-  getPremiumSubscribeLink,
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
-  isPremiumAvailableInCountry,
   RuntimeDataWithBundleAvailable,
   RuntimeDataWithPeriodicalPremiumAvailable,
-  RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
 import {
   isUsingFirefox,
@@ -25,16 +22,11 @@ import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
-import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
+import { isFlagActive } from "../../functions/waffle";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
-import { getLocale } from "../../functions/getLocale";
-import { CountdownTimer } from "../CountdownTimer";
-import { useInterval } from "../../hooks/interval";
-import { isFlagActive } from "../../functions/waffle";
-import { parseDate } from "../../functions/parseDate";
 
 export type Props = {
   profile: ProfileData;
@@ -92,20 +84,6 @@ export const ProfileBanners = (props: Props) => {
       onCreate={props.onCreateSubdomain}
     />
   );
-
-  if (
-    !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "intro_pricing_countdown")
-  ) {
-    banners.push(
-      <EndOfIntroPricingOfferBanner
-        key="end-of-intro-pricing"
-        runtimeData={props.runtimeData}
-        profile={props.profile}
-      />
-    );
-  }
 
   // Don't show the "Get Firefox" banner if we have an extension available,
   // to avoid banner overload:
@@ -295,66 +273,6 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
             "yearly",
             l10n
           ),
-        })}
-      </p>
-    </Banner>
-  );
-};
-
-type EndOfIntroPricingOfferBannerProps = {
-  runtimeData: RuntimeDataWithPremiumAvailable;
-  profile: ProfileData;
-};
-const EndOfIntroPricingOfferBanner = (
-  props: EndOfIntroPricingOfferBannerProps
-) => {
-  const { l10n } = useLocalization();
-  const [now, setNow] = useState(Date.now());
-  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
-    dateStyle: "long",
-  });
-
-  useInterval(() => {
-    setNow(Date.now());
-  }, 1000);
-
-  const introPricingOfferEndDate = parseDate(
-    props.runtimeData.INTRO_PRICING_END
-  );
-  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
-
-  // Don't show if the countdown has finished, or is so far in the future that
-  // the user's computer's clock is likely to be wrong:
-  if (remainingTimeInMs <= 0 || remainingTimeInMs > 32 * 24 * 60 * 60 * 1000) {
-    return null;
-  }
-
-  return (
-    <Banner
-      key="offer-end-banner"
-      type="promo"
-      title={l10n.getString("banner-offer-end-headline")}
-      illustration={<CountdownTimer remainingTimeInMs={remainingTimeInMs} />}
-      cta={{
-        size: "large",
-        content: l10n.getString("banner-offer-end-cta"),
-        target: getPremiumSubscribeLink(props.runtimeData),
-        onClick: () =>
-          trackPurchaseStart({
-            label: "Intro-Pricing: Dashboard",
-          }),
-        gaViewPing: {
-          category: "Purchase Button",
-          label: "Intro-Pricing: Dashboard",
-        },
-      }}
-      dismissal={{
-        key: `offer-end-${props.profile.id}`,
-      }}
-    >
-      <p>
-        {l10n.getString("banner-offer-end-copy", {
-          end_date: endDateFormatter.format(introPricingOfferEndDate),
         })}
       </p>
     </Banner>

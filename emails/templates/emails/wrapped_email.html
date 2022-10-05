@@ -67,21 +67,11 @@
                     <img alt="" width="24" style="display: inline-block; margin-bottom: 0px; width: 24px;"  src="{{ SITE_ORIGIN }}/static/images/email-images/tip-purple.png" />
                     {% ftlmsg 'forwarded-email-header-cc-notice-2' %}
                   {% elif not has_premium and in_premium_country %}
-                    {% if is_intro_offer_expired %}
-                      {% bold_violet_link SITE_ORIGIN|add:'/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=header' 'Firefox Relay Premium' as premium_link %}
-                      <br />
-                      <img width="15" height="15" src="{{ SITE_ORIGIN }}/static/images/email-images/smile-purple.png" style="display: inline-block; width: 15px;" alt="" />
-                      {% ftlmsg 'forwarded-email-header-premium-banner-2' premium_link=premium_link as premium_header_banner %}
-                      {{ premium_header_banner|safe }}
-                    {% else %}
-                      {% bold_violet_link SITE_ORIGIN|add:'/premium?utm_source=emails&utm_medium=email&utm_campaign=pricing-countdown&utm_content=header' 'Relay Premium' as premium_link %}
-                      <br />
-                      <img width="16" height="16" src="{{ SITE_ORIGIN }}/static/images/email-images/clock-purple.png" style="display: inline-block; width: 16px;" alt="" />
-                      {% ftlmsg 'forwarded-email-header-offer-countdown-banner' premium_link=premium_link as premium_header_banner %}
-                      <b style="color: #9059FF">
-                        {{ premium_header_banner|safe }}
-                      </b>
-                    {% endif %}
+                    {% bold_violet_link SITE_ORIGIN|add:'/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=header' 'Firefox Relay Premium' as premium_link %}
+                    <br />
+                    <img width="15" height="15" src="{{ SITE_ORIGIN }}/static/images/email-images/smile-purple.png" style="display: inline-block; width: 15px;" alt="" />
+                    {% ftlmsg 'forwarded-email-header-premium-banner-2' premium_link=premium_link as premium_header_banner %}
+                    {{ premium_header_banner|safe }}
                   {% endif %}
                   {% if tracker_report_link %}
                     <br>
@@ -116,17 +106,8 @@
                 <p style="display: inline-block; padding-top: 0; font-size: 13px; color: #363959; font-family: sans-serif; padding-left: 20px; padding-right: 20px; margin-top: 0; margin-bottom: 0;">
                   <a href="{{ SITE_ORIGIN }}/accounts/profile?utm_source=emails&utm_medium=email&utm_campaign=alias-email" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">{% ftlmsg 'forwarded-email-footer-2' %}</a>
                   {% if not has_premium and in_premium_country %}
-                    {% if is_intro_offer_expired %}
-                      |
-                      <a href="{{ SITE_ORIGIN }}/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=footer" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">{% ftlmsg 'forwarded-email-footer-premium-banner' %}</a>
-                    {% else %}
-                      {% bold_violet_link SITE_ORIGIN|add:'/premium?utm_source=emails&utm_medium=email&utm_campaign=pricing-countdown&utm_content=footer' 'Relay Premium' as premium_link %}
-                      <br />
-                      {% ftlmsg 'forwarded-email-footer-offer-countdown-banner' premium_link=premium_link as premium_footer_banner %}
-                      <b style="color: #9059FF">
-                        {{ premium_footer_banner|safe }}
-                      </b>
-                    {% endif %}
+                    |
+                    <a href="{{ SITE_ORIGIN }}/premium?utm_source=emails&utm_medium=email&utm_campaign=alias-email&utm_content=footer" target="_blank" rel="noopener noreferrer" style="font-family: sans-serif; color: #20123a; text-decoration: underline; font-weight: bolder; font-size: 13px;">{% ftlmsg 'forwarded-email-footer-premium-banner' %}</a>
                   {% endif %}
                 </p>
               </td>

@@ -32,7 +32,6 @@ export type PremiumPlans = {
 export type RuntimeData = {
   FXA_ORIGIN: string;
   GOOGLE_ANALYTICS_ID: `UA-${number}-${number}`;
-  INTRO_PRICING_END: string;
   PREMIUM_PRODUCT_ID: `prod_${string}`;
   PERIODICAL_PREMIUM_PRODUCT_ID: `prod_${string}`;
   PHONE_PRODUCT_ID: `prod_${string}`;

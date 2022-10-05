@@ -1,7 +1,6 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useState } from "react";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./index.module.scss";
@@ -29,23 +28,15 @@ import { Carousel } from "../components/landing/carousel/Carousel";
 import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
 import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
-import { Plans } from "../components/landing/Plans";
 import {
-  getPremiumPlan,
-  getPremiumSubscribeLink,
   isBundleAvailableInCountry,
   isPhonesAvailableInCountry,
-  isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { getRuntimeConfig } from "../config";
 import { setCookie } from "../functions/cookies";
 import { Reviews } from "../components/landing/Reviews";
-import { getLocale } from "../functions/getLocale";
-import { useInterval } from "../hooks/interval";
-import { CountdownTimer } from "../components/CountdownTimer";
 import { isFlagActive } from "../functions/waffle";
-import { parseDate } from "../functions/parseDate";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
@@ -59,32 +50,10 @@ const Home: NextPage = () => {
     category: "Sign In",
     label: "home-hero-cta",
   });
-  const heroCountdownCtaRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "Landing Page: Top Banner",
-  });
-  const plansCountdownCtaRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "Landing Page: Bottom Banner",
-  });
   const phoneBannerCtaRef = useGaViewPing({
     category: "Sign In",
     label: "Landing Page: Phone Banner",
   });
-
-  const [now, setNow] = useState(Date.now());
-  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
-    dateStyle: "long",
-  });
-
-  useInterval(() => {
-    setNow(Date.now());
-  }, 1000);
-
-  const introPricingOfferEndDate = runtimeData.data
-    ? parseDate(runtimeData.data?.INTRO_PRICING_END)
-    : new Date(0);
-  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
 
   if (typeof userData.data?.[0] === "object" && !userData.error) {
     router.push("/accounts/profile/");
@@ -98,140 +67,6 @@ const Home: NextPage = () => {
     });
     setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
   };
-
-  const plansSection =
-    // Show the countdown timer to the end of our introductory pricing offer if…
-    // …the offer hasn't expired yet,
-    remainingTimeInMs > 0 &&
-    // …the remaining time isn't far enough in the future that the user's
-    // computer's clock is likely to be wrong,
-    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
-    // …the user is able to purchase Premium at the introductory offer price, and
-    isPremiumAvailableInCountry(runtimeData.data) &&
-    // …the relevant feature flag is enabled:
-    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
-      <section id="pricing" className={styles["plans-wrapper"]}>
-        <div className={styles.plans}>
-          <div className={styles["plan-comparison"]}>
-            <Plans runtimeData={runtimeData.data} />
-          </div>
-          <div className={styles.callout}>
-            <h2>
-              {l10n.getString("landing-pricing-offer-end-headline", {
-                monthly_price: getPremiumPlan(runtimeData.data).price,
-              })}
-            </h2>
-            <div
-              className={styles["end-of-intro-pricing-countdown-and-warning"]}
-            >
-              <b>{l10n.getString("landing-pricing-offer-end-warning")}</b>
-              <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
-            </div>
-            <LinkButton
-              ref={plansCountdownCtaRef}
-              href={getPremiumSubscribeLink(runtimeData.data)}
-              onClick={() => {
-                gaEvent({
-                  category: "Purchase Button",
-                  action: "Engage",
-                  label: "Landing Page: Bottom Banner",
-                });
-              }}
-            >
-              {l10n.getString("landing-pricing-offer-end-cta")}
-            </LinkButton>
-            <p>
-              {l10n.getString("landing-pricing-offer-end-body", {
-                end_date: endDateFormatter.format(introPricingOfferEndDate),
-              })}
-            </p>
-          </div>
-        </div>
-      </section>
-    ) : // Otherwise, if the countdown timer has reached 0:
-    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
-      <section id="pricing" className={styles["plans-wrapper"]}>
-        <div className={styles.plans}>
-          <PlanMatrix runtimeData={runtimeData.data} />
-        </div>
-      </section>
-    ) : // Otherwise, if Premium is available in the user's country,
-    // allow them to purchase it:
-    isPremiumAvailableInCountry(runtimeData.data) ? (
-      <section id="pricing" className={styles["plans-wrapper"]}>
-        <div className={styles.plans}>
-          <div className={styles["plan-comparison"]}>
-            <Plans runtimeData={runtimeData.data} />
-          </div>
-          <div className={styles.callout}>
-            <h2>
-              {l10n.getString("landing-pricing-headline-2", {
-                monthly_price: getPremiumPlan(runtimeData.data).price,
-              })}
-            </h2>
-            <p>{l10n.getString("landing-pricing-body-2")}</p>
-          </div>
-        </div>
-      </section>
-    ) : (
-      // Or finally, if Premium is not available in the country,
-      // prompt them to join the waitlist:
-      <section id="pricing" className={styles["plans-wrapper"]}>
-        <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
-          <Plans runtimeData={runtimeData.data} />
-        </div>
-      </section>
-    );
-
-  // Only show the countdown timer to the end of our introductory pricing offer if…
-  const introPricingEndBanner =
-    // …the offer hasn't expired yet,
-    remainingTimeInMs > 0 &&
-    // …the remaining time isn't far enough in the future that the user's
-    // computer's clock is likely to be wrong,
-    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
-    // …the user is able to purchase Premium at the introductory offer price, and
-    isPremiumAvailableInCountry(runtimeData.data) &&
-    // …the relevant feature flag is enabled:
-    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
-      <div className={styles["end-of-intro-pricing-hero"]}>
-        <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
-        <div>
-          <h3>{l10n.getString("landing-offer-end-hero-heading")}</h3>
-          <p>
-            {l10n.getString("landing-offer-end-hero-content", {
-              end_date: endDateFormatter.format(introPricingOfferEndDate),
-            })}
-          </p>
-        </div>
-      </div>
-    ) : null;
-
-  const cta =
-    introPricingEndBanner === null ||
-    !isPremiumAvailableInCountry(runtimeData.data) ? (
-      <LinkButton
-        ref={heroCtaRef}
-        onClick={() => signup()}
-        href={getRuntimeConfig().fxaLoginUrl}
-      >
-        {l10n.getString("nav-profile-sign-up")}
-      </LinkButton>
-    ) : (
-      <LinkButton
-        ref={heroCountdownCtaRef}
-        href={getPremiumSubscribeLink(runtimeData.data)}
-        onClick={() => {
-          gaEvent({
-            category: "Purchase Button",
-            action: "Engage",
-            label: "Landing Page: Top Banner",
-          });
-        }}
-      >
-        {l10n.getString("landing-offer-end-hero-cta")}
-      </LinkButton>
-    );
 
   const phoneBannerCta = (
     <LinkButton
@@ -256,8 +91,13 @@ const Home: NextPage = () => {
           <div className={styles.lead}>
             <h2>{l10n.getString("landing-hero-headline-2")}</h2>
             <p>{l10n.getString("landing-hero-body-2")}</p>
-            {introPricingEndBanner}
-            {cta}
+            <LinkButton
+              ref={heroCtaRef}
+              onClick={() => signup()}
+              href={getRuntimeConfig().fxaLoginUrl}
+            >
+              {l10n.getString("nav-profile-sign-up")}
+            </LinkButton>
             <img
               src={Testimonials.src}
               alt="Forbes, ZDNet, Lifehacker, PCMag"
@@ -461,7 +301,11 @@ const Home: NextPage = () => {
         </section>
         <div className={styles["page-break"]} />
         <Reviews />
-        {plansSection}
+        <section id="pricing" className={styles["plans-wrapper"]}>
+          <div className={styles.plans}>
+            <PlanMatrix runtimeData={runtimeData.data} />
+          </div>
+        </section>
         <section id="faq" className={styles["faq-wrapper"]}>
           <div className={styles.faq}>
             <div className={styles.lead}>
