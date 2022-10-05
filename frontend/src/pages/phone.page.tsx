@@ -60,8 +60,8 @@ const Phone: NextPage = () => {
             realPhoneData.resendWelcomeSMS();
             toast(l10n.getString("phone-banner-resend-welcome-sms-toast-msg"), {
               type: "success",
-            }),
-              resendWelcomeSMSDismissal.dismiss();
+            });
+            resendWelcomeSMSDismissal.dismiss();
           },
           gaViewPing: {
             category: "Resend Welcome SMS",
