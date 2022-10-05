@@ -80,7 +80,7 @@ phone-masking-faq-question-how-i-save-card = How do I save the { -brand-name-rel
 phone-masking-faq-answer-how-i-save-card = Once you upgrade to { -brand-name-relay } phone number masking, we will text you a contact card that contains the number from which you will receive forwarded calls and texts, similar to any contact card that stores the phone number of people who contact you. On most devices, you can select that contact card and save it like any other contact on your phone.
 
 phone-masking-faq-question-install-app = Do I need to install an app to use { -brand-name-relay } phone masking?
-phone-masking-faq-answer-install-app = No, Relay phone masking works using your device’s standard text messaging and calling apps.
+phone-masking-faq-answer-install-app = No, { -brand-name-relay } phone masking works using your device’s standard text messaging and calling apps.
 #   $url (url) - link to Firefox Relay's Privacy Policy, i.e. https://www.mozilla.org/privacy/firefox-relay/
 #   $attrs (string) - specific attributes added to external links 
 phone-masking-faq-question-data = What kinds of data does { -brand-name-relay } phone masking store?
