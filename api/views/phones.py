@@ -285,6 +285,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
           * `same_prefix_options`: Numbers that match as much of the user's real number as possible.
           * `other_areas_options`: Numbers that exactly match the user's real number, in a different area code.
           * `same_area_options`: Other numbers in the same area code as the user.
+          * `random_options`: Available numbers in the user's country
         """
         numbers = suggested_numbers(request.user)
         return response.Response(numbers)
