@@ -475,6 +475,7 @@ def test_relaynumber_suggestions(phone_user):
     assert "same_prefix_options" in data_keys
     assert "other_areas_options" in data_keys
     assert "same_area_options" in data_keys
+    assert "random_options" in data_keys
 
 
 def test_relaynumber_search_requires_param(phone_user):

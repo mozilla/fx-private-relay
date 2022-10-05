@@ -475,6 +475,14 @@ export function getHandlers(
         };
         return suggestedNumber;
       }),
+      random_options: Array.from(new Array(10), () => {
+        const suffixNum = Math.random().toString().substring(2, 12);
+        const randomNumber: TwilioPhone = {
+          phone_number: userNumber.substring(0, 2) + suffixNum.toString(),
+          locality: "Hilo",
+        };
+        return randomNumber;
+      }),
     };
 
     return res(ctx.status(200), ctx.json(mockedSuggestions));
