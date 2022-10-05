@@ -13,12 +13,14 @@ class RealPhoneSerializer(serializers.ModelSerializer):
             "verification_sent_date",
             "verified",
             "verified_date",
+            "country_code",
         ]
         read_only_fields = [
             "id",
             "verification_sent_date",
             "verified",
             "verified_date",
+            "country_code",
         ]
         extra_kwargs = {
             "verification_code": {"write_only": True},
@@ -32,6 +34,7 @@ class RelayNumberSerializer(serializers.ModelSerializer):
             "id",
             "number",
             "location",
+            "country_code",
             "enabled",
             "remaining_minutes",
             "remaining_texts",
@@ -45,6 +48,7 @@ class RelayNumberSerializer(serializers.ModelSerializer):
         read_only_fields = [
             "id",
             "location",
+            "country_code",
             "remaining_minutes",
             "remaining_texts",
             "calls_forwarded",

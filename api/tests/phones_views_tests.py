@@ -120,10 +120,14 @@ def test_realphone_post_valid_e164_number_in_unsupported_country(
 
     response = client.post(path, data, format="json", HTTP_X_CLIENT_REGION="nl")
     assert response.status_code == 400
-    assert "Available In The Us" in response.data[0].title()
+    expected = [
+        "Relay Phone is currently only available for these country codes: ['CA', 'US']."
+        " Your phone number country code is: 'NL'."
+    ]
+    assert response.json() == expected
 
 
-def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
+def test_realphone_post_valid_us_es164_number(phone_user, mocked_twilio_client):
     client = APIClient()
     client.force_authenticate(phone_user)
     number = "+12223334444"
@@ -143,6 +147,43 @@ def test_realphone_post_valid_es164_number(phone_user, mocked_twilio_client):
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == number
     assert "verification code" in call_kwargs["body"]
+
+    real_phone = RealPhone.objects.get(number=number)
+    assert real_phone.verified is False
+    assert real_phone.country_code == "US"
+
+
+def test_realphone_post_valid_ca_es164_number(phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    number = "+12505550199"
+    path = "/api/v1/realphone/"
+    data = {"number": number}
+
+    mock_fetch = Mock(
+        return_value=Mock(country_code="ca", phone_number=number, carrier="northwestel")
+    )
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
+
+    response = client.post(path, data, format="json")
+    assert response.status_code == 201
+    assert response.data["number"] == number
+    assert response.data["verified"] == False
+    assert response.data["verification_sent_date"] != ""
+    assert "Sent verification" in response.data["message"]
+
+    mocked_twilio_client.lookups.v1.phone_numbers.assert_called_once_with(number)
+    mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_called_once()
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == number
+    assert "verification code" in call_kwargs["body"]
+
+    real_phone = RealPhone.objects.get(number=number)
+    assert real_phone.verified is False
+    assert real_phone.country_code == "CA"
 
 
 def test_realphone_post_valid_es164_number_already_sent_code(
@@ -176,6 +217,28 @@ def test_realphone_post_valid_es164_number_already_sent_code(
     mocked_twilio_client.lookups.v1.phone_numbers.assert_not_called()
     mocked_twilio_client.lookups.v1.phone_numbers().fetch.assert_not_called()
     mocked_twilio_client.messages.create.assert_not_called()
+
+
+def test_realphone_post_canadian_number(phone_user, mocked_twilio_client):
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    number = "+12501234567"
+    path = "/api/v1/realphone/"
+    data = {"number": number}
+
+    mock_fetch = Mock(
+        return_value=Mock(country_code="CA", phone_number=number, carrier="telus")
+    )
+    mocked_twilio_client.lookups.v1.phone_numbers = Mock(
+        return_value=Mock(fetch=mock_fetch)
+    )
+
+    response = client.post(path, data, format="json", HTTP_X_CLIENT_REGION="nl")
+    assert response.status_code == 201
+    assert response.data["number"] == number
+    assert response.data["verified"] == False
+    assert response.data["verification_sent_date"] != ""
+    assert "Sent verification" in response.data["message"]
 
 
 def test_realphone_post_valid_verification_code(phone_user, mocked_twilio_client):
@@ -462,6 +525,48 @@ def test_relaynumber_search_by_area_code(phone_user, mocked_twilio_client):
     )
     assert available_numbers_calls == [call("US")]
     assert mock_list.call_args_list == [call(area_code="918", limit=10)]
+
+
+def test_relaynumber_search_by_location_canada(phone_user, mocked_twilio_client):
+    mock_list = Mock(return_value=[])
+    mocked_twilio_client.available_phone_numbers = Mock(
+        return_value=(Mock(local=Mock(list=mock_list)))
+    )
+    _make_real_phone(phone_user, country_code="CA", verified=True)
+
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = "/api/v1/relaynumber/search/?location=Ottawa, ON"
+
+    response = client.get(path)
+
+    assert response.status_code == 200
+    available_numbers_calls = (
+        mocked_twilio_client.available_phone_numbers.call_args_list
+    )
+    assert available_numbers_calls == [call("CA")]
+    assert mock_list.call_args_list == [call(in_locality="Ottawa, ON", limit=10)]
+
+
+def test_relaynumber_search_by_area_code_canada(phone_user, mocked_twilio_client):
+    mock_list = Mock(return_value=[])
+    mocked_twilio_client.available_phone_numbers = Mock(
+        return_value=(Mock(local=Mock(list=mock_list)))
+    )
+    _make_real_phone(phone_user, country_code="CA", verified=True)
+
+    client = APIClient()
+    client.force_authenticate(phone_user)
+    path = "/api/v1/relaynumber/search/?area_code=613"
+
+    response = client.get(path)
+
+    assert response.status_code == 200
+    available_numbers_calls = (
+        mocked_twilio_client.available_phone_numbers.call_args_list
+    )
+    assert available_numbers_calls == [call("CA")]
+    assert mock_list.call_args_list == [call(area_code="613", limit=10)]
 
 
 def test_vcard_no_lookup_key():

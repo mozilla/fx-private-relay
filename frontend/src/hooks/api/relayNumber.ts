@@ -5,6 +5,7 @@ export type RelayNumber = {
   id: number;
   number: string;
   location?: string;
+  country_code: string;
   enabled: boolean;
   remaining_texts: number;
   remaining_minutes: number;

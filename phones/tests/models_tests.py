@@ -260,6 +260,41 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
 
 
+def test_create_relaynumber_canada(phone_user, mocked_twilio_client):
+    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    mock_twilio_client = mocked_twilio_client
+    mock_messages_create = mock_twilio_client.messages.create
+    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
+    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
+    mock_services = mock_twilio_client.messaging.v1.services
+
+    real_phone = "+14035551234"
+    RealPhone.objects.create(
+        user=phone_user, verified=True, number=real_phone, country_code="CA"
+    )
+    mock_messages_create.assert_called_once()
+    mock_messages_create.reset_mock()
+
+    relay_number = "+17805551234"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    assert relay_number_obj.country_code == "CA"
+
+    mock_number_create.assert_called_once()
+    call_kwargs = mock_number_create.call_args.kwargs
+    assert call_kwargs["phone_number"] == relay_number
+    assert call_kwargs["sms_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+    assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+
+    # Omit Canadian numbers for US A2P 10DLC messaging service
+    mock_services.assert_not_called()
+
+    mock_messages_create.assert_called_once()
+    call_kwargs = mock_messages_create.call_args.kwargs
+    assert "Welcome" in call_kwargs["body"]
+    assert call_kwargs["to"] == real_phone
+    assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
+
+
 def test_suggested_numbers_bad_request_for_user_without_real_phone(
     phone_user, mocked_twilio_client
 ):
@@ -302,10 +337,33 @@ def test_suggested_numbers(phone_user, mocked_twilio_client):
     assert available_numbers_calls == [call("US")]
     assert mock_list.call_args_list == [
         call(contains="+1222333****", limit=10),
-        call(contains="+122233*44", limit=10),
+        call(contains="+122233***44", limit=10),
         call(contains="+12223******", limit=10),
-        call(contains="***3334444", limit=10),
+        call(contains="+1***3334444", limit=10),
         call(contains="+1222*******", limit=10),
+    ]
+
+
+def test_suggested_numbers_ca(phone_user, mocked_twilio_client):
+    real_phone = "+14035551234"
+    RealPhone.objects.create(
+        user=phone_user, verified=True, number=real_phone, country_code="CA"
+    )
+    mock_twilio_client = mocked_twilio_client
+    mock_list = Mock(return_value=[Mock() for i in range(5)])
+    mock_twilio_client.available_phone_numbers = Mock(
+        return_value=Mock(local=Mock(list=mock_list))
+    )
+
+    suggested_numbers(phone_user)
+    available_numbers_calls = mock_twilio_client.available_phone_numbers.call_args_list
+    assert available_numbers_calls == [call("CA")]
+    assert mock_list.call_args_list == [
+        call(contains="+1403555****", limit=10),
+        call(contains="+140355***34", limit=10),
+        call(contains="+14035******", limit=10),
+        call(contains="+1***5551234", limit=10),
+        call(contains="+1403*******", limit=10),
     ]
 
 

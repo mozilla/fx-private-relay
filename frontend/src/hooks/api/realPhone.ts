@@ -9,6 +9,7 @@ export type VerifiedPhone = {
   verification_sent_date: DateString;
   verified: true;
   verified_date: DateString;
+  country_code: string;
 };
 
 export type UnverifiedPhone = {
@@ -18,6 +19,7 @@ export type UnverifiedPhone = {
   verification_sent_date: DateString;
   verified: false | undefined;
   verified_date: null;
+  country_code: string;
 };
 
 export type RealPhone = VerifiedPhone | UnverifiedPhone;
