@@ -167,7 +167,7 @@ def vcard_lookup_key_default():
 
 class RelayNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    number = models.CharField(max_length=15, db_index=True)
+    number = models.CharField(max_length=15, db_index=True, unique=True)
     location = models.CharField(max_length=255)
     country_code = models.CharField(max_length=2, default="US")
     vcard_lookup_key = models.CharField(
