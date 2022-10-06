@@ -215,6 +215,9 @@ class RelayNumber(models.Model):
         elif existing_numbers.exists():
             raise ValidationError("User can have only one relay number.")
 
+        if RelayNumber.objects.filter(number=self.number).exists():
+            raise ValidationError("This number is already claimed.")
+
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")
         client = twilio_client()

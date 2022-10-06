@@ -213,6 +213,42 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
     mock_messages_create.assert_not_called()
 
 
+def test_create_duplicate_relaynumber_raises_error(phone_user, mocked_twilio_client):
+    mock_twilio_client = mocked_twilio_client
+    mock_messages_create = mock_twilio_client.messages.create
+    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
+
+    real_phone = "+12223334444"
+    RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
+    mock_messages_create.assert_called_once()
+    mock_messages_create.reset_mock()
+
+    relay_number = "+19998887777"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+
+    mock_number_create.assert_called_once()
+    call_kwargs = mock_number_create.call_args.kwargs
+    assert call_kwargs["phone_number"] == relay_number
+    assert call_kwargs["sms_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+    assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
+
+    mock_messages_create.assert_called_once()
+    mock_number_create.reset_mock()
+    mock_messages_create.reset_mock()
+
+    second_user = make_phone_test_user()
+    second_phone = "+15553334444"
+    RealPhone.objects.create(user=second_user, verified=True, number=second_phone)
+    mock_messages_create.assert_called_once()
+    mock_messages_create.reset_mock()
+
+    with pytest.raises(ValidationError) as exc_info:
+        RelayNumber.objects.create(user=second_user, number=relay_number)
+    assert exc_info.value.message == "This number is already claimed."
+    mock_number_create.assert_not_called()
+    mock_messages_create.assert_not_called()
+
+
 def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     phone_user, mocked_twilio_client
 ):
