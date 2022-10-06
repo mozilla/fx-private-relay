@@ -13,6 +13,8 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
+from twilio.base.exceptions import TwilioRestException
+
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
 LAST_CONTACT_TYPE_CHOICES = [
@@ -167,7 +169,7 @@ def vcard_lookup_key_default():
 
 class RelayNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    number = models.CharField(max_length=15, db_index=True)
+    number = models.CharField(max_length=15, db_index=True, unique=True)
     location = models.CharField(max_length=255)
     country_code = models.CharField(max_length=2, default="US")
     vcard_lookup_key = models.CharField(
@@ -208,9 +210,15 @@ class RelayNumber(models.Model):
             raise ValidationError("User does not have a verified real phone.")
 
         # if this number exists for this user, this is an update call
-        existing_number = RelayNumber.objects.filter(user=self.user)
-        if existing_number:
+        existing_numbers = RelayNumber.objects.filter(user=self.user)
+        this_number = existing_numbers.filter(number=self.number).first()
+        if this_number and this_number.id == self.id:
             return super().save(*args, **kwargs)
+        elif existing_numbers.exists():
+            raise ValidationError("User can have only one relay number.")
+
+        if RelayNumber.objects.filter(number=self.number).exists():
+            raise ValidationError("This number is already claimed.")
 
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")
@@ -231,12 +239,20 @@ class RelayNumber(models.Model):
         # as realphone
         self.country_code = realphone.country_code.upper()
 
+        # Add US numbers to the Relay messaging service, so it goes into our
+        # US A2P 10DLC campaign
         if self.country_code == "US":
-            # Also add this number to the Relay messaging service, so it goes
-            # into our US A2P 10DLC campaign
-            client.messaging.v1.services(
-                settings.TWILIO_MESSAGING_SERVICE_SID
-            ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
+            try:
+                client.messaging.v1.services(
+                    settings.TWILIO_MESSAGING_SERVICE_SID
+                ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
+            except TwilioRestException as err:
+                if err.status == 409 and err.code == 21710:
+                    # Ignore "Phone Number is already in the Messaging Service"
+                    # https://www.twilio.com/docs/api/errors/21710
+                    pass
+                else:
+                    raise
 
         return super().save(*args, **kwargs)
 

@@ -41,6 +41,7 @@ module = [
     "markus.utils",
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
+    "twilio.base.exceptions",
     "twilio.rest",
     "twilio.request_validator",
     "vobject",
