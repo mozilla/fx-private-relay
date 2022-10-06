@@ -9,6 +9,7 @@
   max-width: $content-lg;
   margin: 0 auto;
   padding: $spacing-2xl $spacing-lg;
+  width: 100%;
 
   h2 {
     @include text-title-xs;

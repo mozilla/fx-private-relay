@@ -16,16 +16,16 @@ export function getL10n() {
     true,
     /\.ftl$/
   );
-  const RESOURCES: Record<string, FluentResource> = {};
+  const RESOURCES: Record<string, FluentResource[]> = {};
 
   for (const fileName of translationsContext.keys()) {
-    const locale = fileName.substring(
-      "./".length,
-      fileName.length - "/app.ftl".length
-    );
+    // Filenames are formatted as `./<locale>/<module>.ftl`.
+    // Example: ./en/bundle.ftl
+    const locale = fileName.split("/")[1];
 
     if (locale) {
-      RESOURCES[locale] = new FluentResource(translationsContext(fileName));
+      RESOURCES[locale] ??= [];
+      RESOURCES[locale].push(new FluentResource(translationsContext(fileName)));
     }
   }
 
@@ -47,7 +47,9 @@ export function getL10n() {
         );
       }
       const bundle = new FluentBundle(locale);
-      bundle.addResource(RESOURCES[locale]);
+      RESOURCES[locale].forEach((resource) => {
+        bundle.addResource(resource);
+      });
       if (locale === "en") {
         // `require` isn't usually valid JS, so skip type checking for that:
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,11 +61,15 @@ export function getL10n() {
         );
         bundle.addResource(pendingTranslationsResource);
         if (process.env.NEXT_PUBLIC_DEBUG === "true") {
+          // All string IDs in `pendingTranslations.ftl`:
           const pendingTranslationsIds = pendingTranslationsResource.body.map(
             (stringData) => stringData.id
           );
-          const mergedEnglishTranslationIds = RESOURCES.en.body.map(
-            (stringData) => stringData.id
+          // All string IDs in all English FTL files:
+          const mergedEnglishTranslationIds = RESOURCES.en.flatMap(
+            (enResource) => {
+              return enResource.body.map((stringData) => stringData.id);
+            }
           );
           const unmergedStrings = pendingTranslationsIds.filter(
             (id) => !mergedEnglishTranslationIds.includes(id)

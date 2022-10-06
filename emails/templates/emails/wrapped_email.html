@@ -1,3 +1,7 @@
+{% comment %}
+  Note that Django only loads strings from `app.ftl`,
+  so make sure all email strings are included in that file.
+{% endcomment %}
 {% load ftl %}
 {% load email_extras %}
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
