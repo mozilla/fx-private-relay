@@ -208,9 +208,12 @@ class RelayNumber(models.Model):
             raise ValidationError("User does not have a verified real phone.")
 
         # if this number exists for this user, this is an update call
-        existing_number = RelayNumber.objects.filter(user=self.user)
-        if existing_number:
+        existing_numbers = RelayNumber.objects.filter(user=self.user)
+        this_number = existing_numbers.filter(number=self.number).first()
+        if this_number and this_number.id == self.id:
             return super().save(*args, **kwargs)
+        elif existing_numbers.exists():
+            raise ValidationError("User can have only one relay number.")
 
         # Before saving into DB provision the number in Twilio
         phones_config = apps.get_app_config("phones")

@@ -201,12 +201,16 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
     mock_number_create.reset_mock()
     mock_messages_create.reset_mock()
     second_relay_number = "+14445556666"
-    try:
+    with pytest.raises(ValidationError):
         RelayNumber.objects.create(user=phone_user, number=second_relay_number)
-    except ValidationError:
-        mock_number_create.assert_not_called()
-        mock_messages_create.assert_not_called()
-        return
+    mock_number_create.assert_not_called()
+    mock_messages_create.assert_not_called()
+
+    # Creating RelayNumber with same number is also an error
+    with pytest.raises(ValidationError):
+        RelayNumber.objects.create(user=phone_user, number=relay_number)
+    mock_number_create.assert_not_called()
+    mock_messages_create.assert_not_called()
 
 
 def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
