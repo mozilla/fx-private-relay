@@ -331,11 +331,16 @@ def suggested_numbers(user):
     twilio_nums = avail_nums.local.list(contains=contains, limit=10)
     same_area_options = convert_twilio_numbers_to_dict(twilio_nums)
 
+    # look for any available numbers
+    twilio_nums = avail_nums.local.list(limit=10)
+    random_options = convert_twilio_numbers_to_dict(twilio_nums)
+
     return {
         "real_num": real_num,
         "same_prefix_options": same_prefix_options,
         "other_areas_options": other_areas_options,
         "same_area_options": same_area_options,
+        "random_options": random_options,
     }
 
 

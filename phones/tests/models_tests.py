@@ -341,6 +341,7 @@ def test_suggested_numbers(phone_user, mocked_twilio_client):
         call(contains="+12223******", limit=10),
         call(contains="+1***3334444", limit=10),
         call(contains="+1222*******", limit=10),
+        call(limit=10),
     ]
 
 
@@ -364,6 +365,7 @@ def test_suggested_numbers_ca(phone_user, mocked_twilio_client):
         call(contains="+14035******", limit=10),
         call(contains="+1***5551234", limit=10),
         call(contains="+1403*******", limit=10),
+        call(limit=10),
     ]
 
 

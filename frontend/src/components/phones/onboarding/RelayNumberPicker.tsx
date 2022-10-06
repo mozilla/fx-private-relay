@@ -101,13 +101,14 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
     string[] | undefined
   >();
 
-  // load suggestions. Order: same_area_options, other_area_options, same_prefix_options.
+  // load suggestions. Order: same_area_options, other_area_options, same_prefix_options, random_options.
   if (relayNumberSuggestionsData.data && relayNumberSuggestions === undefined) {
     setRelayNumberSuggestions(
       [
         ...relayNumberSuggestionsData.data.same_area_options,
         ...relayNumberSuggestionsData.data.other_areas_options,
         ...relayNumberSuggestionsData.data.same_prefix_options,
+        ...relayNumberSuggestionsData.data.random_options,
       ].map((suggestion) => suggestion.phone_number)
     );
   }

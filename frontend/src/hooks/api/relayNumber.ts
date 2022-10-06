@@ -81,6 +81,7 @@ export type RelayNumberSuggestionsData = {
   same_area_options: Array<RelayNumberSuggestion>;
   same_prefix_options: Array<RelayNumberSuggestion>;
   other_areas_options: Array<RelayNumberSuggestion>;
+  random_options: Array<RelayNumberSuggestion>;
 };
 
 export function useRelayNumberSuggestions(): SWRResponse<
