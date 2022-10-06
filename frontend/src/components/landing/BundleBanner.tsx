@@ -12,7 +12,6 @@ import styles from "./BundleBanner.module.scss";
 import { LinkButton } from "../Button";
 import womanInBanner400w from "./images/bundle-banner-woman-400w.png";
 import womanInBanner768w from "./images/bundle-banner-woman-768w.png";
-import womanInBanner1280w from "./images/bundle-banner-woman-1280w.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
@@ -60,8 +59,8 @@ export const BundleBanner = (props: Props) => {
   const mainImage = (
     <img
       src={womanInBanner400w.src}
-      srcSet={`${womanInBanner400w.src} 400w, ${womanInBanner768w.src} 768w, ${womanInBanner1280w.src} 1280w`}
-      sizes={`(max-width: 600px) 400px, 768px, 1280px`}
+      srcSet={`${womanInBanner768w.src} 768w, ${womanInBanner400w.src} 400w`}
+      sizes={`(max-width: 600px) 400px, 768px`}
       alt=""
       className={styles["main-image"]}
     />

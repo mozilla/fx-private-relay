@@ -19,6 +19,11 @@
     left: 50%;
     transform: translateX(-50%);
 
+    &.phone {
+      // Magic Number: This is the static width of the phone image
+      max-width: 369px;
+    }
+
     &.background,
     &.foreground {
       display: none;

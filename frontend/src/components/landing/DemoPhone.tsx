@@ -1,9 +1,9 @@
 import { useLocalization } from "@fluent/react";
 import styles from "./DemoPhone.module.scss";
 import BgImage from "./images/hero-image-bg.svg";
-import PremiumScreenshot from "./images/hero-image-premium.svg";
-import PremiumScreenshotFr from "./images/hero-image-premium-fr.svg";
-import PremiumScreenshotDe from "./images/hero-image-premium-de.svg";
+import PremiumScreenshot from "./images/hero-image-premium.png";
+import PremiumScreenshotFr from "./images/hero-image-premium-fr.png";
+import PremiumScreenshotDe from "./images/hero-image-premium-de.png";
 import NoPremiumScreenshot from "./images/hero-image-nopremium.svg";
 import FgImage from "./images/hero-image-fg.svg";
 import FgImageDe from "./images/hero-image-fg-de.svg";
@@ -24,7 +24,11 @@ export const DemoPhone = (props: Props) => {
   return (
     <div className={styles.container}>
       <img src={BgImage.src} alt="" className={styles.background} />
-      <img src={getScreenshotUrl(props.premium ?? false, lang)} alt="" />
+      <img
+        src={getScreenshotUrl(props.premium ?? false, lang)}
+        className={styles.phone}
+        alt=""
+      />
       <img src={getForegroundUrl(lang)} alt="" className={styles.foreground} />
     </div>
   );
