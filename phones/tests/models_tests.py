@@ -165,8 +165,9 @@ def test_mark_realphone_verified_sets_verified_and_date(phone_user):
 def test_create_relaynumber_without_realphone_raises_error(
     phone_user, mocked_twilio_client
 ):
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as exc_info:
         RelayNumber.objects.create(user=phone_user, number="+19998887777")
+    assert exc_info.value.message == "User does not have a verified real phone."
     mocked_twilio_client.messages.create.assert_not_called()
     mocked_twilio_client.incoming_phone_numbers.create.assert_not_called()
 
@@ -201,14 +202,16 @@ def test_create_relaynumber_when_user_already_has_one_raises_error(
     mock_number_create.reset_mock()
     mock_messages_create.reset_mock()
     second_relay_number = "+14445556666"
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as exc_info:
         RelayNumber.objects.create(user=phone_user, number=second_relay_number)
+    assert exc_info.value.message == "User can have only one relay number."
     mock_number_create.assert_not_called()
     mock_messages_create.assert_not_called()
 
     # Creating RelayNumber with same number is also an error
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValidationError) as exc_info:
         RelayNumber.objects.create(user=phone_user, number=relay_number)
+    assert exc_info.value.message == "User can have only one relay number."
     mock_number_create.assert_not_called()
     mock_messages_create.assert_not_called()
 
