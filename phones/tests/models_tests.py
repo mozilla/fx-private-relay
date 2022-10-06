@@ -122,13 +122,11 @@ def test_create_second_realphone_for_user_raises_exception(
     RealPhone.objects.create(user=phone_user, verified=True, number="+12223334444")
     mock_twilio_client = mocked_twilio_client
     mock_twilio_client.messages.create.assert_called_once()
-    try:
+    mock_twilio_client.reset_mock()
+
+    with pytest.raises(BadRequest):
         RealPhone.objects.create(user=phone_user, number="+12223335555")
-    except BadRequest:
-        # make sure RealPhone did not create a message for the second number
-        mock_twilio_client.messages.create.assert_called_once()
-        return
-    pytest.fail("Should have raised BadRequest exception")
+    mock_twilio_client.messages.assert_not_called()
 
 
 def test_create_realphone_deletes_expired_unverified_records(
@@ -167,18 +165,10 @@ def test_mark_realphone_verified_sets_verified_and_date(phone_user):
 def test_create_relaynumber_without_realphone_raises_error(
     phone_user, mocked_twilio_client
 ):
-    mock_twilio_client = mocked_twilio_client
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-
-    relay_number = "+19998887777"
-    try:
-        RelayNumber.objects.create(user=phone_user, number=relay_number)
-    except ValidationError:
-        mock_twilio_client = mocked_twilio_client
-        mock_number_create.assert_not_called()
-        mock_messages_create.assert_not_called()
-        return
+    with pytest.raises(ValidationError):
+        RelayNumber.objects.create(user=phone_user, number="+19998887777")
+    mocked_twilio_client.messages.create.assert_not_called()
+    mocked_twilio_client.incoming_phone_numbers.create.assert_not_called()
 
 
 def test_create_relaynumber_when_user_already_has_one_raises_error(
@@ -298,13 +288,9 @@ def test_create_relaynumber_canada(phone_user, mocked_twilio_client):
 def test_suggested_numbers_bad_request_for_user_without_real_phone(
     phone_user, mocked_twilio_client
 ):
-    try:
+    with pytest.raises(BadRequest):
         suggested_numbers(phone_user)
-    except BadRequest:
-        mock_twilio_client = mocked_twilio_client
-        mock_twilio_client.available_phone_numbers.assert_not_called()
-        return
-    pytest.fail("Should have raised BadRequest exception")
+    mocked_twilio_client.available_phone_numbers.assert_not_called()
 
 
 def test_suggested_numbers_bad_request_for_user_who_already_has_number(
@@ -314,13 +300,9 @@ def test_suggested_numbers_bad_request_for_user_who_already_has_number(
     RealPhone.objects.create(user=phone_user, verified=True, number=real_phone)
     relay_number = "+19998887777"
     RelayNumber.objects.create(user=phone_user, number=relay_number)
-    try:
+    with pytest.raises(BadRequest):
         suggested_numbers(phone_user)
-    except BadRequest:
-        mock_twilio_client = mocked_twilio_client
-        mock_twilio_client.available_phone_numbers.assert_not_called()
-        return
-    pytest.fail("Should have raised BadRequest exception")
+    mocked_twilio_client.available_phone_numbers.assert_not_called()
 
 
 def test_suggested_numbers(phone_user, mocked_twilio_client):
