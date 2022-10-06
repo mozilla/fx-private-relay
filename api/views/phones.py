@@ -439,6 +439,7 @@ def inbound_sms(request):
         raise exceptions.ValidationError("Message missing From, To, Or Body.")
 
     relay_number, real_phone = _get_phone_objects(inbound_to)
+    _check_remaining(relay_number, "texts")
 
     if inbound_from == real_phone.number:
         _handle_sms_reply(relay_number, real_phone, inbound_body)
@@ -447,7 +448,6 @@ def inbound_sms(request):
         )
 
     _check_disabled(relay_number, "texts")
-    _check_remaining(relay_number, "texts")
     inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
