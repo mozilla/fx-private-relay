@@ -12,7 +12,6 @@ import styles from "./BundleBanner.module.scss";
 import { LinkButton } from "../Button";
 import womanInBanner400w from "./images/bundle-banner-woman-400w.png";
 import womanInBanner768w from "./images/bundle-banner-woman-768w.png";
-import womanInBanner1280w from "./images/bundle-banner-woman-1280w.png";
 import bundleFloatOne from "./images/bundle-float-1.svg";
 import bundleFloatTwo from "./images/bundle-float-2.svg";
 import bundleFloatThree from "./images/bundle-float-3.svg";
