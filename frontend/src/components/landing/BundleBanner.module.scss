@@ -11,7 +11,7 @@
 
   // Snap to 2 columns
   @media #{$mq-lg} {
-    background-image: url("./images/bundle-bg.svg");
+    background-image: url("./images/bundle-bg.png");
     grid-template-columns: 5fr 5fr;
     background-size: cover;
     gap: $layout-md;
@@ -23,7 +23,7 @@
   .first-section {
     padding-right: $layout-lg; // Shrinks image towards the left side
     position: relative;
-    background-image: url("./images/bundle-bg-mobile.svg");
+    background-image: url("./images/bundle-bg-mobile.png");
     background-size: cover;
     background-repeat: no-repeat;
     border-bottom: 4px solid $color-purple-30;
