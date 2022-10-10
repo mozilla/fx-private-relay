@@ -1098,6 +1098,11 @@ def test_voice_status_completed_no_duration_error(phone_user):
 
 
 def test_voice_status_completed_reduces_remaining_seconds(phone_user):
+    # TODO: This test should fail since the Relay Number is disabled and
+    # the POST to our /api/v1/voice_status should ignore the the reduced remaining seconds.
+    # This is currently passing because the voice_status() is not checking
+    # if the user's Relay Number has hit the limit or is disabled (bug logged in MPP-2452).
+    # Keeping this test so we can correct it once MPP-2452 is completed.
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=False)
     pre_request_remaining_seconds = relay_number.remaining_seconds
