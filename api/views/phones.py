@@ -478,7 +478,7 @@ def inbound_call(request):
     relay_number, real_phone = _get_phone_objects(inbound_to)
 
     _check_disabled(relay_number, "calls")
-    _check_remaining(relay_number, "minutes")
+    _check_remaining(relay_number, "seconds")
     inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "calls", relay_number)

@@ -1026,6 +1026,26 @@ def test_inbound_call_valid_twilio_signature_disabled_number(
     mocked_twilio_client.messages.create.assert_not_called()
 
 
+def test_inbound_call_valid_twilio_signature_no_remaining_seconds(
+    phone_user, mocked_twilio_client
+):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, remaining_seconds=0)
+    caller_number = "+15556660000"
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    data = {"Caller": caller_number, "Called": relay_number.number}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert decoded_content.startswith("<?xml")
+    assert "Number Is Out Of Seconds" in decoded_content
+    mocked_twilio_client.messages.create.assert_not_called()
+
+
 @pytest.mark.django_db
 def test_voice_status_invalid_twilio_signature(mocked_twilio_validator):
     mocked_twilio_validator.validate = Mock(return_value=False)
