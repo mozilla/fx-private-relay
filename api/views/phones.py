@@ -52,6 +52,7 @@ from ..serializers.phones import (
 
 
 logger = logging.getLogger("events")
+info_logger = logging.getLogger("eventsinfo")
 
 
 def twilio_validator():
@@ -509,6 +510,17 @@ def voice_status(request):
     relay_number, _ = _get_phone_objects(called)
     relay_number.remaining_seconds = relay_number.remaining_seconds - int(call_duration)
     relay_number.save()
+    if relay_number.remaining_seconds < 0:
+        profile = relay_number.user.profile_set.first()
+        info_logger.info(
+            "phone_limit_exceeded",
+            extra={
+                "fxa_uid": profile.fxa.uid,
+                "relay_number_enabled": relay_number.enabled,
+                "remaining_seconds": relay_number.remaining_seconds,
+                "remaining_minutes": relay_number.remaining_minutes,
+            },
+        )
     return response.Response(status=200)
 
 
