@@ -380,6 +380,37 @@ def test_create_relaynumber_canada(phone_user, mocked_twilio_client):
     assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
 
 
+def test_relaynumber_remaining_minutes_returns_properly_formats_remaining_seconds(
+    phone_user, mocked_twilio_client
+):
+    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    mock_twilio_client = mocked_twilio_client
+    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
+    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
+
+    real_phone = "+14035551234"
+    RealPhone.objects.create(
+        user=phone_user, verified=True, number=real_phone, country_code="CA"
+    )
+
+    relay_number = "+17805551234"
+    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    assert relay_number_obj.country_code == "CA"
+    # Freshly created RelayNumber should have 3000 seconds => 50 minutes
+    assert relay_number_obj.remaining_minutes == 50
+
+    # After receiving calls remaining_minutes property should return the rounded down positive integer
+    relay_number_obj.remaining_seconds = 522
+    relay_number_obj.save()
+    assert relay_number_obj.remaining_minutes == 8
+
+    # If more call time is spent than alotted (negative remaining_seconds),
+    # the remaining_minutes property should return zero
+    relay_number_obj.remaining_seconds = -522
+    relay_number_obj.save()
+    assert relay_number_obj.remaining_minutes == 0
+
+
 def test_suggested_numbers_bad_request_for_user_without_real_phone(
     phone_user, mocked_twilio_client
 ):
