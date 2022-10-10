@@ -516,6 +516,7 @@ def voice_status(request):
             "phone_limit_exceeded",
             extra={
                 "fxa_uid": profile.fxa.uid,
+                "call_duration": call_duration,
                 "relay_number_enabled": relay_number.enabled,
                 "remaining_seconds": relay_number.remaining_seconds,
                 "remaining_minutes": relay_number.remaining_minutes,
