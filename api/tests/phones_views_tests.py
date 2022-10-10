@@ -47,6 +47,13 @@ def mocked_twilio_client():
 
 
 @pytest.fixture(autouse=True)
+def mocked_twiml_app():
+    with patch("api.views.phones.twiml_app") as mock_twiml_app:
+        mock_twiml_app.sms_status_callback = "test_sms_status_callback"
+        yield mock_twiml_app
+
+
+@pytest.fixture(autouse=True)
 def mocked_twilio_validator():
     """
     Mock PhonesConfig with a mock twilio validator
@@ -1074,7 +1081,11 @@ def test_voice_status_not_completed_does_nothing(phone_user):
 
     client = APIClient()
     path = "/api/v1/voice_status"
-    data = {"Called": relay_number.number, "CallStatus": "in-progress"}
+    data = {
+        "CallSid": "CA1234567890abcdef1234567890abcdef",
+        "Called": relay_number.number,
+        "CallStatus": "in-progress",
+    }
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
@@ -1089,7 +1100,11 @@ def test_voice_status_completed_no_duration_error(phone_user):
 
     client = APIClient()
     path = "/api/v1/voice_status"
-    data = {"Called": relay_number.number, "CallStatus": "completed"}
+    data = {
+        "CallSid": "CA1234567890abcdef1234567890abcdef",
+        "Called": relay_number.number,
+        "CallStatus": "completed",
+    }
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 400
@@ -1114,6 +1129,7 @@ def test_voice_status_completed_reduces_remaining_seconds(
     client = APIClient()
     path = "/api/v1/voice_status"
     data = {
+        "CallSid": "CA1234567890abcdef1234567890abcdef",
         "Called": relay_number.number,
         "CallStatus": "completed",
         "CallDuration": "27",
@@ -1136,6 +1152,7 @@ def test_voice_status_completed_reduces_remaining_seconds_to_negative_value(
     client = APIClient()
     path = "/api/v1/voice_status"
     data = {
+        "CallSid": "CA1234567890abcdef1234567890abcdef",
         "Called": relay_number.number,
         "CallStatus": "completed",
         "CallDuration": "27",
@@ -1156,3 +1173,82 @@ def test_voice_status_completed_reduces_remaining_seconds_to_negative_value(
             "remaining_minutes": 0,
         },
     )
+
+
+def test_voice_status_completed_deletes_call_from_twilio(
+    phone_user, mocked_twilio_client
+):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=False)
+    call_sid = "CA1234567890abcdef1234567890abcdef"
+
+    client = APIClient()
+    path = "/api/v1/voice_status"
+    data = {
+        "CallSid": call_sid,
+        "Called": relay_number.number,
+        "CallStatus": "completed",
+        "CallDuration": "27",
+    }
+    mock_call = Mock(spec=["delete"])
+    mocked_twilio_client.calls = Mock(return_value=mock_call)
+
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    mocked_twilio_client.calls.assert_called_once_with(call_sid)
+    mock_call.delete.assert_called_once()
+
+
+@pytest.mark.django_db
+def test_sms_status_invalid_twilio_signature(mocked_twilio_validator):
+    mocked_twilio_validator.validate = Mock(return_value=False)
+
+    client = APIClient()
+    path = "/api/v1/sms_status"
+    response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="invalid")
+
+    assert response.status_code == 400
+    assert "Invalid Signature" in response.data[0].title()
+
+
+def test_sms_status_missing_required_params_error():
+    client = APIClient()
+    path = "/api/v1/sms_status"
+    response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 400
+    assert "Missing Smsstatus Or Messagesid" in response.data[0].title()
+
+
+def test_sms_status_before_delivered_does_nothing(mocked_twilio_client):
+    client = APIClient()
+    path = "/api/v1/sms_status"
+    response = client.post(
+        path,
+        {
+            "SmsStatus": "sent",
+            "MessageSid": "SM1234567890abcdef1234567890abcdef",
+        },
+        HTTP_X_TWILIO_SIGNATURE="valid",
+    )
+    assert response.status_code == 200
+    mocked_twilio_client.messages.assert_not_called()
+
+
+def test_sms_status_delivered_deletes_message_from_twilio(mocked_twilio_client):
+    client = APIClient()
+    path = "/api/v1/sms_status"
+    message_sid = "SM1234567890abcdef1234567890abcdef"
+    mock_message = Mock(spec=["delete"])
+    mocked_twilio_client.messages = Mock(return_value=mock_message)
+    response = client.post(
+        path,
+        {
+            "SmsStatus": "delivered",
+            "MessageSid": message_sid,
+        },
+        HTTP_X_TWILIO_SIGNATURE="valid",
+    )
+    assert response.status_code == 200
+    mocked_twilio_client.messages.assert_called_once_with(message_sid)
+    mock_message.delete.assert_called_once()
