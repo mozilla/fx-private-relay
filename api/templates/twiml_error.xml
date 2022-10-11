@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Error>
+    <status_code>{{status_code}}</status_code>
+    <code>{{code}}</code>
+    <title>{{title}}</title>
+</Error>
