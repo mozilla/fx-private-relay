@@ -1026,6 +1026,26 @@ def test_inbound_call_valid_twilio_signature_disabled_number(
     mocked_twilio_client.messages.create.assert_not_called()
 
 
+def test_inbound_call_valid_twilio_signature_no_remaining_seconds(
+    phone_user, mocked_twilio_client
+):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, remaining_seconds=0)
+    caller_number = "+15556660000"
+    mocked_twilio_client.reset_mock()
+
+    client = APIClient()
+    path = "/api/v1/inbound_call"
+    data = {"Caller": caller_number, "Called": relay_number.number}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 400
+    decoded_content = response.content.decode()
+    assert decoded_content.startswith("<?xml")
+    assert "Number Is Out Of Seconds" in decoded_content
+    mocked_twilio_client.messages.create.assert_not_called()
+
+
 @pytest.mark.django_db
 def test_voice_status_invalid_twilio_signature(mocked_twilio_validator):
     mocked_twilio_validator.validate = Mock(return_value=False)
@@ -1077,7 +1097,15 @@ def test_voice_status_completed_no_duration_error(phone_user):
     assert relay_number.remaining_seconds == pre_request_remaining_seconds
 
 
-def test_voice_status_completed_reduces_remaining_seconds(phone_user):
+@patch("api.views.phones.info_logger.info")
+def test_voice_status_completed_reduces_remaining_seconds(
+    mocked_events_info, phone_user
+):
+    # TODO: This test should fail since the Relay Number is disabled and
+    # the POST to our /api/v1/voice_status should ignore the the reduced remaining seconds.
+    # This is currently passing because the voice_status() is not checking
+    # if the user's Relay Number has hit the limit or is disabled (bug logged in MPP-2452).
+    # Keeping this test so we can correct it once MPP-2452 is completed.
     _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=False)
     pre_request_remaining_seconds = relay_number.remaining_seconds
@@ -1094,3 +1122,36 @@ def test_voice_status_completed_reduces_remaining_seconds(phone_user):
     assert response.status_code == 200
     relay_number.refresh_from_db()
     assert relay_number.remaining_seconds == pre_request_remaining_seconds - 27
+    mocked_events_info.assert_not_called()
+
+
+@patch("api.views.phones.info_logger.info")
+def test_voice_status_completed_reduces_remaining_seconds_to_negative_value(
+    mocked_events_info, phone_user
+):
+    _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True, remaining_seconds=0)
+
+    client = APIClient()
+    path = "/api/v1/voice_status"
+    data = {
+        "Called": relay_number.number,
+        "CallStatus": "completed",
+        "CallDuration": "27",
+    }
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    relay_number.refresh_from_db()
+    assert relay_number.remaining_seconds == -27
+    profile = phone_user.profile_set.first()
+    mocked_events_info.assert_called_once_with(
+        "phone_limit_exceeded",
+        extra={
+            "fxa_uid": profile.fxa.uid,
+            "call_duration_in_seconds": 27,
+            "relay_number_enabled": True,
+            "remaining_seconds": -27,
+            "remaining_minutes": 0,
+        },
+    )
