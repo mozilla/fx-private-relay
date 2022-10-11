@@ -22,16 +22,19 @@ class vCardRenderer(renderers.BaseRenderer):
         return vCard.serialize().encode()
 
 
-class TwiMLBaseRenderer(renderers.BaseRenderer):
+class TemplateTwiMLRenderer(renderers.TemplateHTMLRenderer):
     """
     Twilio POSTS its request with x-www-form-urlencoded but it wants
     responses in TwiML XML.
 
-    This Base renderer also provides a default render() for all errors.
+    Put TwiML templates in api/templates/twiml_*.xml.
+
+    This renderer also provides a default render() for all errors.
     """
 
     media_type = "text/xml"
     format = "xml"
+    exception_template_names = ["twiml_error.xml"]
     xml_header = '<?xml version="1.0" encoding="UTF-8"?>'
 
     def _get_resp_status_code(self, ctx):
@@ -40,24 +43,11 @@ class TwiMLBaseRenderer(renderers.BaseRenderer):
         return status_code
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
-        error = data[0]
-        title = error.title()
-        return f"{self.xml_header}<Error><code>{error.code}</code><title>{title}</title></Error>"
+        renderer_context = renderer_context or {}
+        response = renderer_context["response"]
+        if response.exception:
+            error = data[0]
+            data = {"code": error.code, "title": error.title()}
+            renderer_context["error"] = data
 
-
-class TwilioInboundCallXMLRenderer(TwiMLBaseRenderer):
-    def render(self, data, accepted_media_type=None, renderer_context=None):
-        status_code = self._get_resp_status_code(renderer_context)
-        if status_code and status_code > 299:
-            return super().render(data, accepted_media_type, renderer_context)
-
-        return f'{self.xml_header}<Response><Dial callerId="{data["inbound_from"]}"><Number>{data["real_number"]}</Number></Dial></Response>'
-
-
-class TwilioInboundSMSXMLRenderer(TwiMLBaseRenderer):
-    def render(self, data, accepted_media_type=None, renderer_context=None):
-        status_code = self._get_resp_status_code(renderer_context)
-        if status_code and status_code > 299:
-            return super().render(data, accepted_media_type, renderer_context)
-
-        return f"{self.xml_header}<Response/>"
+        return super().render(data, accepted_media_type, renderer_context)

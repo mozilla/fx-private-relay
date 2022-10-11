@@ -715,12 +715,12 @@ def test_inbound_sms_valid_twilio_signature_disabled_number(
     data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
-    assert response.status_code == 400
+    assert response.status_code == 200
     decoded_content = response.content.decode()
     assert decoded_content.startswith("<?xml")
     relay_number.refresh_from_db()
     assert relay_number.texts_blocked == 1
-    assert "Not Accepting Texts" in decoded_content
+    assert "<Response/>" in decoded_content
     mocked_twilio_client.messages.create.assert_not_called()
 
 
@@ -1019,10 +1019,11 @@ def test_inbound_call_valid_twilio_signature_disabled_number(
     data = {"Caller": caller_number, "Called": relay_number.number}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
-    assert response.status_code == 400
+    assert response.status_code == 200
     decoded_content = response.content.decode()
     assert decoded_content.startswith("<?xml")
-    assert "Not Accepting Calls" in decoded_content
+    assert "<Say>" in decoded_content
+    assert "that number is not available" in decoded_content
     mocked_twilio_client.messages.create.assert_not_called()
 
 

@@ -40,8 +40,7 @@ from phones.models import (
 from ..exceptions import ConflictError
 from ..permissions import HasPhoneService
 from ..renderers import (
-    TwilioInboundCallXMLRenderer,
-    TwilioInboundSMSXMLRenderer,
+    TemplateTwiMLRenderer,
     vCardRenderer,
 )
 from ..serializers.phones import (
@@ -431,7 +430,7 @@ def resend_welcome_sms(request):
 
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
-@decorators.renderer_classes([TwilioInboundSMSXMLRenderer])
+@decorators.renderer_classes([TemplateTwiMLRenderer])
 def inbound_sms(request):
     _validate_twilio_request(request)
     inbound_body = request.data.get("Body", None)
@@ -446,10 +445,16 @@ def inbound_sms(request):
     if inbound_from == real_phone.number:
         _handle_sms_reply(relay_number, real_phone, inbound_body)
         return response.Response(
-            status=200, data={"message": "Sent reply to last sender."}
+            status=200,
+            template_name="twiml_empty_response.xml",
         )
 
-    _check_disabled(relay_number, "texts")
+    number_disabled = _check_disabled(relay_number, "texts")
+    if number_disabled:
+        return response.Response(
+            status=200,
+            template_name="twiml_empty_response.xml",
+        )
     inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "texts", relay_number)
@@ -463,12 +468,15 @@ def inbound_sms(request):
     relay_number.remaining_texts -= 1
     relay_number.texts_forwarded += 1
     relay_number.save()
-    return response.Response(status=201, data={"message": "Relayed message to user."})
+    return response.Response(
+        status=201,
+        template_name="twiml_empty_response.xml",
+    )
 
 
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
-@decorators.renderer_classes([TwilioInboundCallXMLRenderer])
+@decorators.renderer_classes([TemplateTwiMLRenderer])
 def inbound_call(request):
     _validate_twilio_request(request)
     inbound_from = request.data.get("Caller", None)
@@ -478,8 +486,15 @@ def inbound_call(request):
 
     relay_number, real_phone = _get_phone_objects(inbound_to)
 
-    _check_disabled(relay_number, "calls")
+    number_disabled = _check_disabled(relay_number, "calls")
+    if number_disabled:
+        say = "Sorry, that number is not available."
+        return response.Response(
+            {"say": say}, status=200, template_name="twiml_blocked.xml"
+        )
+
     _check_remaining(relay_number, "seconds")
+
     inbound_contact = _get_inbound_contact(relay_number, inbound_from)
     if inbound_contact:
         _check_and_update_contact(inbound_contact, "calls", relay_number)
@@ -487,10 +502,11 @@ def inbound_call(request):
     relay_number.calls_forwarded += 1
     relay_number.save()
 
-    # Note: TwilioInboundCallXMLRenderer will render this as TwiML
+    # Note: TemplateTwiMLRenderer will render this as TwiML
     return response.Response(
+        {"inbound_from": inbound_from, "real_number": real_phone.number},
         status=201,
-        data={"inbound_from": inbound_from, "real_number": real_phone.number},
+        template_name="twiml_dial.xml",
     )
 
 
@@ -573,7 +589,7 @@ def _check_disabled(relay_number, contact_type):
         attr = f"{contact_type}_blocked"
         setattr(relay_number, attr, getattr(relay_number, attr) + 1)
         relay_number.save()
-        raise exceptions.ValidationError(f"Number is not accepting {contact_type}s.")
+        return True
 
 
 def _check_remaining(relay_number, resource_type):
