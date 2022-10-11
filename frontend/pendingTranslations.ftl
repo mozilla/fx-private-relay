@@ -236,7 +236,7 @@ bundle-price-monthly = Monthly: <monthly-price>{ $monthly_price }</monthly-price
 #   $old_price (string) - the outdated monthly cost (including currency symbol) for a given plan. This value has a strikethrough.
 bundle-price-save-amount = Save { $savings } <outdated-price>Normally { $old_price }</outdated-price>
 bundle-banner-alt = { -brand-name-mozilla-vpn } and { -brand-name-relay }
-bundle-banner-cta = Get { -brand-name-mozilla-vpn } + { -brand-name-relay }
+bundle-banner-cta = Get { -brand-name-vpn } + { -brand-name-relay }
 # Variables:
 #   $days_guarantee (string) - the number of days for money-back guarantee. Examples: 30, 90
 bundle-banner-money-back-guarantee = { $days_guarantee }-day money-back guarantee for first-time subscribers
