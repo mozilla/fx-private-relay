@@ -161,19 +161,32 @@
 
         .money-back-guarantee {
           @include text-body-sm;
+          text-align: center;
+
+          @media #{$mq-lg} {
+            text-align: start;
+          }
         }
       }
 
       h2 {
-        @include text-title-xs;
+        @include text-title-sm;
         @include font-firefox;
         font-weight: 700;
+
+        @media #{$mq-lg} {
+          @include text-title-xs;
+        }
       }
 
       h3 {
-        @include text-title-2xs;
+        @include text-title-xs;
         @include font-firefox;
         font-weight: 500;
+
+        @media #{$mq-lg} {
+          @include text-title-2xs;
+        }
       }
 
       .pricing-logo-wrapper {
