@@ -20,6 +20,7 @@ from rest_framework.generics import get_object_or_404
 
 from api.views import SaveToRequestUser
 from emails.models import Profile, get_storing_phone_log
+from emails.utils import incr_if_enabled
 
 from phones.models import (
     InboundContact,
@@ -113,6 +114,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         [e164]: https://en.wikipedia.org/wiki/E.164
         """
+        incr_if_enabled("phones_RealPhoneViewSet.create")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -125,12 +127,14 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
                 request.user, serializer.validated_data["number"], verification_code
             )
             if not valid_record:
+                incr_if_enabled("phones_RealPhoneViewSet.create.invalid_verification")
                 raise exceptions.ValidationError(
                     "Could not find that verification_code for user and number. It may have expired."
                 )
 
             headers = self.get_success_headers(serializer.validated_data)
             verified_valid_record = valid_record.mark_verified()
+            incr_if_enabled("phones_RealPhoneViewSet.create.mark_verified")
             response_data = model_to_dict(
                 verified_valid_record,
                 fields=[
@@ -167,6 +171,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         serializer.validated_data["country_code"] = valid_number.country_code.upper()
 
         self.perform_create(serializer)
+        incr_if_enabled("phones_RealPhoneViewSet.perform_create")
         headers = self.get_success_headers(serializer.validated_data)
         response_data = serializer.data
         response_data["message"] = (
@@ -199,6 +204,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         [e164]: https://en.wikipedia.org/wiki/E.164
         """
+        incr_if_enabled("phones_RealPhoneViewSet.partial_update")
         instance = self.get_object()
         if request.data["number"] != instance.number:
             raise exceptions.ValidationError("Invalid number for ID.")
@@ -213,6 +219,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             )
 
         instance.mark_verified()
+        incr_if_enabled("phones_RealPhoneViewSet.partial_update.mark_verified")
         return super().partial_update(request, *args, **kwargs)
 
     def destroy(self, request, *args, **kwargs):
@@ -221,6 +228,7 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         Only **un-verified** real phone resources can be deleted.
         """
+        incr_if_enabled("phones_RealPhoneViewSet.destroy")
         instance = self.get_object()
         if instance.verified:
             raise exceptions.ValidationError(
@@ -258,6 +266,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         [test-numbers]: https://www.twilio.com/docs/iam/test-credentials#test-incoming-phone-numbers-parameters-PhoneNumber
         [e164]: https://en.wikipedia.org/wiki/E.164
         """
+        incr_if_enabled("phones_RelayNumberViewSet.create")
         existing_number = RelayNumber.objects.filter(user=request.user)
         if existing_number:
             raise exceptions.ValidationError("User already has a RelayNumber.")
@@ -274,6 +283,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         This is primarily used to toggle the `enabled` field.
         """
+        incr_if_enabled("phones_RelayNumberViewSet.partial_update")
         return super().partial_update(request, *args, **kwargs)
 
     @decorators.action(detail=False)
@@ -287,6 +297,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
           * `same_area_options`: Other numbers in the same area code as the user.
           * `random_options`: Available numbers in the user's country
         """
+        incr_if_enabled("phones_RelayNumberViewSet.suggestions")
         numbers = suggested_numbers(request.user)
         return response.Response(numbers)
 
@@ -305,6 +316,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
 
         [apn]: https://www.twilio.com/docs/phone-numbers/api/availablephonenumberlocal-resource#read-multiple-availablephonenumberlocal-resources
         """
+        incr_if_enabled("phones_RelayNumberViewSet.search")
         real_phone = get_verified_realphone_records(request.user).first()
         if real_phone:
             country_code = real_phone.country_code
@@ -352,6 +364,7 @@ def _validate_number(request):
         )
 
     if number_details.country_code.upper() not in settings.TWILIO_ALLOWED_COUNTRY_CODES:
+        incr_if_enabled("phones_validate_number_unsupported_country")
         raise exceptions.ValidationError(
             "Relay Phone is currently only available for these country codes: "
             f"{sorted(settings.TWILIO_ALLOWED_COUNTRY_CODES)!r}. "
@@ -378,6 +391,7 @@ def _parse_number(number, country=None):
 
 
 def _get_number_details(e164_number):
+    incr_if_enabled("phones_get_number_details")
     try:
         client = twilio_client()
         return client.lookups.v1.phone_numbers(e164_number).fetch(type=["carrier"])
@@ -396,6 +410,7 @@ def vCard(request, lookup_key):
     We use this to return a vCard for a number. When we create a RelayNumber,
     we create a secret lookup_key and text it to the user.
     """
+    incr_if_enabled("phones_vcard")
     if lookup_key is None:
         return response.Response(status=404)
 
@@ -418,6 +433,7 @@ def resend_welcome_sms(request):
 
     Requires the user to be signed in and to have phone service.
     """
+    incr_if_enabled("phones_resend_welcome_sms")
     try:
         relay_number = RelayNumber.objects.get(user=request.user)
     except RelayNumber.DoesNotExist:
@@ -432,6 +448,7 @@ def resend_welcome_sms(request):
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
 def inbound_sms(request):
+    incr_if_enabled("phones_inbound_sms")
     _validate_twilio_request(request)
     inbound_body = request.data.get("Body", None)
     inbound_from = request.data.get("From", None)
@@ -460,6 +477,7 @@ def inbound_sms(request):
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     client = twilio_client()
+    incr_if_enabled("phones_outbound_sms")
     client.messages.create(
         from_=relay_number.number,
         body=f"[Relay 📲 {inbound_from}] {inbound_body}",
@@ -478,6 +496,7 @@ def inbound_sms(request):
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
 def inbound_call(request):
+    incr_if_enabled("phones_inbound_call")
     _validate_twilio_request(request)
     inbound_from = request.data.get("Caller", None)
     inbound_to = request.data.get("Called", None)
@@ -503,6 +522,7 @@ def inbound_call(request):
     relay_number.save()
 
     # Note: TemplateTwiMLRenderer will render this as TwiML
+    incr_if_enabled("phones_outbound_call")
     return response.Response(
         {"inbound_from": inbound_from, "real_number": real_phone.number},
         status=201,
@@ -513,6 +533,7 @@ def inbound_call(request):
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 def voice_status(request):
+    incr_if_enabled("phones_voice_status")
     _validate_twilio_request(request)
     called = request.data.get("Called", None)
     call_status = request.data.get("CallStatus", None)
@@ -553,6 +574,7 @@ def _get_phone_objects(inbound_to):
 
 
 def _handle_sms_reply(relay_number, real_phone, inbound_body):
+    incr_if_enabled("phones_handle_sms_reply")
     client = twilio_client()
     storing_phone_log = get_storing_phone_log(relay_number)
     if not storing_phone_log:
@@ -573,6 +595,7 @@ def _handle_sms_reply(relay_number, real_phone, inbound_body):
             to=real_phone.number,
         )
         raise exceptions.ValidationError(error)
+    incr_if_enabled("phones_send_sms_reply")
     client.messages.create(
         from_=relay_number.number,
         body=inbound_body,
@@ -587,6 +610,7 @@ def _check_disabled(relay_number, contact_type):
     # Check if RelayNumber is disabled
     if not relay_number.enabled:
         attr = f"{contact_type}_blocked"
+        incr_if_enabled(f"phones_{contact_type}_global_blocked")
         setattr(relay_number, attr, getattr(relay_number, attr) + 1)
         relay_number.save()
         return True
@@ -595,6 +619,7 @@ def _check_disabled(relay_number, contact_type):
 def _check_remaining(relay_number, resource_type):
     model_attr = f"remaining_{resource_type}"
     if getattr(relay_number, model_attr) <= 0:
+        incr_if_enabled(f"phones_out_of_{resource_type}")
         raise exceptions.ValidationError(f"Number is out of {resource_type}.")
     return True
 
@@ -614,6 +639,7 @@ def _get_inbound_contact(relay_number, inbound_from):
 
 def _check_and_update_contact(inbound_contact, contact_type, relay_number):
     if inbound_contact.blocked:
+        incr_if_enabled(f"phones_{contact_type}_specific_blocked")
         contact_attr = f"num_{contact_type}_blocked"
         setattr(
             inbound_contact, contact_attr, getattr(inbound_contact, contact_attr) + 1
@@ -645,4 +671,5 @@ def _validate_twilio_request(request):
     request_signature = request._request.headers["X-Twilio-Signature"]
     validator = twilio_validator()
     if not validator.validate(url, sorted_params, request_signature):
+        incr_if_enabled("phones_invalid_twilio_signature")
         raise exceptions.ValidationError("Invalid request: invalid signature")
