@@ -194,7 +194,8 @@ class RelayNumber(models.Model):
 
     @property
     def remaining_minutes(self):
-        return floor(self.remaining_seconds / 60)
+        # return a 0 or positive int for remaining minutes
+        return floor(max(self.remaining_seconds, 0) / 60)
 
     @property
     def calls_and_texts_forwarded(self):
