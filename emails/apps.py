@@ -48,6 +48,7 @@ class EmailsConfig(AppConfig):
 
         # badwords file from:
         # https://www.cs.cmu.edu/~biglou/resources/bad-words.txt
+        # Using `.text` extension because of https://github.com/dependabot/dependabot-core/issues/1657
         self.badwords = self._load_terms("badwords.text")
         self.blocklist = self._load_terms("blocklist.text")
 
