@@ -65,7 +65,6 @@
 
   .info-icon {
     align-self: center;
-    margin-right: $spacing-lg;
     color: $color-yellow-50;
   }
 
@@ -112,7 +111,6 @@
   .banner.info & {
     @include text-body-sm;
     font-family: $font-stack-base;
-    padding: $spacing-xs 0;
     font-weight: 600;
   }
 
