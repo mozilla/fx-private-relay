@@ -9,7 +9,7 @@ import { useGaViewPing } from "../hooks/gaViewPing";
 
 export type BannerProps = {
   children: ReactNode;
-  type?: "promo" | "warning" | "info";
+  type: "promo" | "warning" | "info";
   title?: string;
   illustration?: ReactNode;
   cta?: BannerCtaProps;
@@ -54,7 +54,10 @@ export const Banner = (props: BannerProps) => {
           </h2>
         )) ||
         (["info", "promo"].includes(type) && (
-          <h2 className={styles.title}>{props.title}</h2>
+          <h2 className={styles.title}>
+            {infoIcon}
+            {props.title}
+          </h2>
         ))
       : null;
 
@@ -90,7 +93,7 @@ export const Banner = (props: BannerProps) => {
       >
         <div className={`${styles["highlight-wrapper"]}`}>
           {illustration}
-          {infoIcon}
+          {typeof props.title === "undefined" ? infoIcon : null}
           <div className={styles["title-and-large-cta-wrapper"]}>
             <div className={`${styles["title-text"]}`}>
               {title}

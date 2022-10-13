@@ -75,6 +75,7 @@ const Settings: NextPage = () => {
     <div className={styles["banner-wrapper"]}>
       <Banner
         title={l10n.getString("settings-warning-collection-off-heading-2")}
+        type="warning"
       >
         {l10n.getString("settings-warning-collection-off-description-2")}
       </Banner>
