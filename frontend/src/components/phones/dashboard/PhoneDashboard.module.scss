@@ -403,21 +403,49 @@
       }
 
       .phone-controls {
+        $toggle-border-radius: 40px;
         .forwarding-toggle {
-          border-radius: 40px;
-          border: $border-radius-xs solid $color-light-gray-20;
-          padding: $spacing-sm;
+          width: $content-sm;
+          max-width: 100%;
+          background-color: $color-grey-05;
+          border-radius: $toggle-border-radius;
+          border: 6px solid $color-white;
+          outline: $border-radius-xs solid $color-grey-10;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: $spacing-md;
+          position: relative;
 
-          .forwarding-toggle-icon {
-            border-radius: $border-radius-lg;
-            background-color: $color-light-gray-30;
+          // This is the background for the selected state; it's a separate
+          // element so we can animate it moving behind the different state
+          // labels ("Forwarding" and "Blocking"):
+          &::before {
+            content: "";
+            position: absolute;
+            background-color: $color-violet-70;
+            border-radius: $toggle-border-radius;
+            width: 50%;
+            height: 100%;
+            transition: transform 200ms ease-out;
+            transform: translateX(-50%);
+
+            @media (prefers-reduced-motion) {
+              transition: none;
+            }
+          }
+          &[aria-pressed="false"]::before {
+            transform: translateX(50%);
+          }
+
+          .forwarding-toggle-state {
+            // Make sure the state indicator is visible above the toggle
+            // background (i.e. the .forwarding-toggle::before), which is
+            // absolutely positioned so it can be animated:
+            z-index: 1;
+            flex: 1 0 auto;
             padding: $spacing-sm $spacing-sm;
             display: flex;
-            width: 100%;
+            gap: $spacing-sm;
             align-items: center;
             justify-content: center;
 
@@ -426,26 +454,26 @@
             }
           }
 
-          &.is-forwarding .forward-icon,
-          &.is-blocking .block-icon {
-            background-color: $color-violet-70;
+          &[aria-pressed="true"] .forward-state,
+          &[aria-pressed="false"] .block-state {
             color: $color-white;
           }
 
+          &[aria-pressed="false"] .forward-state,
+          &[aria-pressed="true"] .block-state {
+            color: $color-grey-30;
+          }
+
           &:hover {
-            &.is-forwarding .block-icon,
-            &.is-blocking .forward-icon {
+            cursor: pointer;
+            background-color: $color-violet-05;
+            &[aria-pressed="true"] .block-state,
+            &[aria-pressed="false"] .forward-state {
               color: $color-blue-50;
             }
           }
-          &:hover,
-          &:focus {
-            cursor: pointer;
-
-            &.is-forwarding .block-icon,
-            &.is-blocking .forward-icon {
-              background-color: $color-purple-05;
-            }
+          &:focus-visible {
+            outline-color: $color-blue-50;
           }
         }
       }

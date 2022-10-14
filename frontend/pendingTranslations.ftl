@@ -23,7 +23,7 @@ fx-desktop-2 = { -brand-name-firefox } for Desktop
 fx-mobile-2 = { -brand-name-firefox } for Mobile
 fx-containers = { -brand-name-firefox } Containers
 
-## Phone Masking FAQ 
+## Phone Masking FAQ
 
 phone-masking-faq-question-what-is = What is a phone number mask?
 phone-masking-faq-answer-what-is = Similar to an email mask, a phone number mask is a phone number that can forward texts and calls to your true phone number without revealing what your true number is to the person calling or texting you.
@@ -82,7 +82,7 @@ phone-masking-faq-answer-how-i-save-card = Once you upgrade to { -brand-name-rel
 phone-masking-faq-question-install-app = Do I need to install an app to use { -brand-name-relay } phone masking?
 phone-masking-faq-answer-install-app = No, { -brand-name-relay } phone masking works using your device’s standard text messaging and calling apps.
 #   $url (url) - link to Firefox Relay's Privacy Policy, i.e. https://www.mozilla.org/privacy/firefox-relay/
-#   $attrs (string) - specific attributes added to external links 
+#   $attrs (string) - specific attributes added to external links
 phone-masking-faq-question-data = What kinds of data does { -brand-name-relay } phone masking store?
 phone-masking-faq-answer-data = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
 
@@ -184,8 +184,10 @@ phone-statistics-calls-texts-blocked = Calls and texts blocked
 phone-dashboard-metadata-forwarded-to = Forwarded to:
 phone-dashboard-metadata-date-created = Date Created:
 phone-dashboard-number-copied = Copied!
-phone-dashboard-forwarding-toggle-enabled = Forwarding enabled
-phone-dashboard-forwarding-toggle-disabled = Forwarding disabled
+phone-dashboard-forwarding-toggle-enable-label = Forwarding
+phone-dashboard-forwarding-toggle-enable-tooltip = Forward calls and texts to your true phone number
+phone-dashboard-forwarding-toggle-disable-label = Blocking
+phone-dashboard-forwarding-toggle-disable-tooltip = Block calls and texts to your phone mask
 phone-dashboard-forwarding-enabled = { -brand-name-relay } is currently forwarding all phone calls and text messages to your true phone number.
 phone-dashboard-forwarding-blocked = { -brand-name-relay } is blocking all phone calls and text messages—you will not receive anything from your phone number mask.
 phone-dashboard-senders-header = Callers and text senders
