@@ -166,6 +166,9 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const getRelayNumberOptions: MouseEventHandler<HTMLButtonElement> = () => {
     const newRelayNumberIndex = relayNumberIndex + 3;
 
+    // deselect current relay number that might be set
+    setPhoneNumber("");
+
     // if we have reached the end of the list, reset to the beginning
     if (relayNumberSuggestions) {
       setRelayNumberIndex(
@@ -251,7 +254,8 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
           className={styles.button}
           type="submit"
           disabled={
-            relayNumberSuggestions && relayNumberSuggestions.length === 0
+            phoneNumber.length === 0 ||
+            (relayNumberSuggestions && relayNumberSuggestions.length === 0)
           }
         >
           {l10n.getString(
