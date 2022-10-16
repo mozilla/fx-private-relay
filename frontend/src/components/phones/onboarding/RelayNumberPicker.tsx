@@ -250,7 +250,10 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
         <Button
           className={styles.button}
           type="submit"
-          disabled={phoneNumber.length === 0}
+          disabled={
+            phoneNumber.length === 0 ||
+            (relayNumberSuggestions && relayNumberSuggestions.length === 0)
+          }
         >
           {l10n.getString(
             "phone-onboarding-step4-button-register-phone-number"
