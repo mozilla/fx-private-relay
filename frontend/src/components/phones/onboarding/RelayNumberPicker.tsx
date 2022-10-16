@@ -237,6 +237,9 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
           className={`styles.button ${styles["show-more-options"]}`}
           type="button"
           variant="secondary"
+          disabled={
+            relayNumberSuggestions && relayNumberSuggestions.length === 0
+          }
         >
           <RefreshIcon alt="" />
           {l10n.getString("phone-onboarding-step4-button-more-options")}
