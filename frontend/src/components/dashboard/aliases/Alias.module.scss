@@ -204,7 +204,8 @@ $trackerRemovalIndicatorWidth: 20px;
 }
 
 .alias-stats {
-  flex-basis: 0;
+  flex: 1 0 $content-xs;
+  text-align: center;
 
   .main-data & {
     display: none;
@@ -302,6 +303,7 @@ $trackerRemovalIndicatorWidth: 20px;
         height: 25px;
         display: flex;
         align-items: center;
+        word-break: keep-all;
       }
 
       // De-emphasise stats for:
