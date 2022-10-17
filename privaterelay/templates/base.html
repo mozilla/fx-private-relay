@@ -38,15 +38,9 @@
   </head>
   <body class="{% if user_has_premium %}is-premium{% endif %} {% if request.resolver_match.url_name == "faq" %}is-dark{% endif %}" data-fxa-settings-url="{{ settings.FXA_SETTINGS_URL }}" data-site-origin="{{ settings.SITE_ORIGIN }}" data-google-analytics-id="{{ settings.GOOGLE_ANALYTICS_ID }}" data-debug="{{ settings.DEBUG }}">
     <div class="c-layout-wrapper">
-      {% include "includes/modal-delete.html" %}
-      {% include "includes/modal-domain-registration-confirmation.html" %}
-      {% include "includes/modal-custom-alias-picker.html" %}
-      {% include "includes/header.html" %}
       <firefox-private-relay-addon data-user-logged-in="{{ request.user.is_authenticated }}" data-addon-installed="false"></firefox-private-relay-addon>
       {% block content %}
       {% endblock %}
-
-      {% include "includes/footer.html" %}
     </div>
 
     {% block javascript %}
