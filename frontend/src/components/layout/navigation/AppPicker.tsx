@@ -16,6 +16,7 @@ import {
   mergeProps,
   useMenuItem,
   useFocus,
+  AriaOverlayProps,
 } from "react-aria";
 import {
   HTMLAttributes,
@@ -27,7 +28,6 @@ import {
   RefObject,
 } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
-import { OverlayProps } from "@react-aria/overlays";
 import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./AppPicker.module.scss";
@@ -289,7 +289,7 @@ const AppPickerTrigger = ({
 type AppPickerPopupProps = TreeProps<Record<string, never>> & {
   onAction: AriaMenuItemProps["onAction"];
   domProps: HTMLAttributes<HTMLElement>;
-  onClose?: OverlayProps["onClose"];
+  onClose?: AriaOverlayProps["onClose"];
   autoFocus?: MenuTriggerState["focusStrategy"];
 };
 const AppPickerPopup = (props: AppPickerPopupProps) => {

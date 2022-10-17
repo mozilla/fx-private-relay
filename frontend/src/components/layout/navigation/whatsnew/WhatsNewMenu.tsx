@@ -539,10 +539,7 @@ export const WhatsNewMenu = (props: Props) => {
     isOpen: triggerState.isOpen,
   }).overlayProps;
 
-  const { buttonProps } = useButton(
-    { onPress: () => triggerState.open() },
-    triggerRef
-  );
+  const { buttonProps } = useButton(triggerProps, triggerRef);
 
   if (entries.length === 0) {
     return null;
@@ -564,7 +561,6 @@ export const WhatsNewMenu = (props: Props) => {
     <>
       <button
         {...buttonProps}
-        {...triggerProps}
         ref={triggerRef}
         className={`${styles.trigger} ${
           triggerState.isOpen ? styles["is-open"] : ""
@@ -573,7 +569,7 @@ export const WhatsNewMenu = (props: Props) => {
         {l10n.getString("whatsnew-trigger-label")}
         {pill}
       </button>
-      {triggerState.isOpen && (
+      {
         <OverlayContainer>
           <WhatsNewPopover
             {...overlayProps}
@@ -590,7 +586,7 @@ export const WhatsNewMenu = (props: Props) => {
             />
           </WhatsNewPopover>
         </OverlayContainer>
-      )}
+      }
     </>
   );
 };
@@ -619,12 +615,23 @@ const WhatsNewPopover = forwardRef<HTMLDivElement, PopoverProps>(
       ref as RefObject<HTMLDivElement>
     );
 
+    const mergedOverlayProps = mergeProps(
+      overlayProps,
+      dialogProps,
+      otherProps,
+      modalProps
+    );
+
     return (
       <FocusScope restoreFocus contain autoFocus>
         <div
-          {...mergeProps(overlayProps, dialogProps, otherProps, modalProps)}
+          {...mergedOverlayProps}
           ref={ref}
           className={styles["popover-wrapper"]}
+          style={{
+            ...mergedOverlayProps.style,
+            display: !isOpen ? "none" : mergedOverlayProps.style?.display,
+          }}
         >
           <VisuallyHidden>
             <h2 {...titleProps}>{title}</h2>
