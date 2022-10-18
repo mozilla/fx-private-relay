@@ -166,6 +166,9 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
   const getRelayNumberOptions: MouseEventHandler<HTMLButtonElement> = () => {
     const newRelayNumberIndex = relayNumberIndex + 3;
 
+    // deselect current relay number that might be set
+    setPhoneNumber("");
+
     // if we have reached the end of the list, reset to the beginning
     if (relayNumberSuggestions) {
       setRelayNumberIndex(
@@ -234,6 +237,9 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
           className={`styles.button ${styles["show-more-options"]}`}
           type="button"
           variant="secondary"
+          disabled={
+            relayNumberSuggestions && relayNumberSuggestions.length === 0
+          }
         >
           <RefreshIcon alt="" />
           {l10n.getString("phone-onboarding-step4-button-more-options")}
@@ -244,7 +250,14 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
         </p>
 
         {/* TODO: Add error class to input field */}
-        <Button className={styles.button} type="submit">
+        <Button
+          className={styles.button}
+          type="submit"
+          disabled={
+            phoneNumber.length === 0 ||
+            (relayNumberSuggestions && relayNumberSuggestions.length === 0)
+          }
+        >
           {l10n.getString(
             "phone-onboarding-step4-button-register-phone-number"
           )}

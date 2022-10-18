@@ -23,7 +23,7 @@ pem==21.2.0
 psycopg2==2.9.4
 PyJWT==2.5.0
 python-decouple==3.6
-pyOpenSSL==22.0.0
+pyOpenSSL==22.1.0
 requests==2.28.1
 sentry-sdk==1.9.10
 whitenoise==6.2.0
@@ -35,17 +35,17 @@ vobject==0.9.6.1
 
 # tests
 coverage==6.5.0
-model-bakery==1.7.0
+model-bakery==1.7.1
 pytest-cov==4.0.0
 pytest-django==4.5.2
-responses==0.21.0
+responses==0.22.0
 
 # linting
 black==22.10.0
 
 # type hinting
 mypy==0.982
-types-requests==2.28.11
+types-requests==2.28.11.2
 types-pyOpenSSL==22.1.0.0
 django-stubs==1.12.0
 djangorestframework-stubs==1.7.0

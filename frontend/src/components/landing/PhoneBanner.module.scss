@@ -5,6 +5,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: row-reverse;
   flex-wrap: wrap-reverse;
   column-gap: $spacing-2xl;
   row-gap: $spacing-lg;
@@ -56,7 +57,10 @@
     margin-inline: -1 * $spacing-2xl;
 
     @media screen and #{$mq-sm} {
-      margin-inline: unset;
+      // On large screens, `.floating-features li`s (and in particular,
+      // `nth-child(1)`) is positioned *outside* `.illustration`, so leave a
+      // marging around it to have room for that:
+      margin-inline: $spacing-2xl;
     }
 
     .floating-features {

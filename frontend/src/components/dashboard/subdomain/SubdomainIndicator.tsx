@@ -7,6 +7,8 @@ import {
   FocusScope,
   OverlayContainer,
   useOverlayPosition,
+  AriaOverlayProps,
+  mergeProps,
 } from "react-aria";
 import {
   forwardRef,
@@ -16,7 +18,6 @@ import {
   useRef,
 } from "react";
 import { useOverlayTriggerState } from "react-stately";
-import { OverlayProps } from "@react-aria/overlays";
 import styles from "./SubdomainIndicator.module.scss";
 import { CloseIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
@@ -105,7 +106,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
       >
         @{props.subdomain}.{getRuntimeConfig().mozmailDomain}
       </button>
-      {explainerState.isOpen && (
+      {
         <OverlayContainer>
           <Explainer
             isOpen={explainerState.isOpen}
@@ -144,7 +145,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
             </button>
           </Explainer>
         </OverlayContainer>
-      )}
+      }
       {addressPickerState.isOpen && (
         <AddressPickerModal
           isOpen={addressPickerState.isOpen}
@@ -157,7 +158,7 @@ const ExplainerTrigger = (props: ExplainerTriggerProps) => {
   );
 };
 
-type ExplainerProps = OverlayProps & {
+type ExplainerProps = AriaOverlayProps & {
   children: ReactNode;
   positionProps: HTMLAttributes<HTMLElement>;
 };
@@ -177,15 +178,23 @@ const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
       overlayRef as RefObject<HTMLDivElement>
     );
 
+    const mergedOverlayProps = mergeProps(
+      overlayProps,
+      props.positionProps,
+      dialogProps,
+      modalProps
+    );
+
     return (
       <FocusScope contain restoreFocus autoFocus>
         <div
-          {...overlayProps}
-          {...props.positionProps}
-          {...dialogProps}
-          {...modalProps}
+          {...mergedOverlayProps}
           ref={overlayRef}
           className={styles["explainer-wrapper"]}
+          style={{
+            ...mergedOverlayProps.style,
+            display: !props.isOpen ? "none" : mergedOverlayProps.style?.display,
+          }}
         >
           <h3 {...titleProps}>
             {l10n.getString("popover-custom-alias-explainer-heading-2")}

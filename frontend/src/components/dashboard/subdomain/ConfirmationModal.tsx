@@ -7,8 +7,8 @@ import {
   useModal,
   useOverlay,
   usePreventScroll,
+  AriaOverlayProps,
 } from "react-aria";
-import { OverlayProps } from "@react-aria/overlays";
 import styles from "./ConfirmationModal.module.scss";
 import { CheckCircleIcon } from "../../Icons";
 import partyIllustration from "./images/success-party.svg";
@@ -118,7 +118,7 @@ type PickerDialogProps = {
   isOpen: boolean;
   onClose?: () => void;
 };
-const PickerDialog = (props: PickerDialogProps & OverlayProps) => {
+const PickerDialog = (props: PickerDialogProps & AriaOverlayProps) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
   usePreventScroll();
