@@ -226,11 +226,12 @@ $trackLineHeight: 4px;
       content: "";
       position: absolute;
       top: -1 * $arrowEdgeLength;
-      left: calc(50% - #{$arrowEdgeLength});
+      left: 50%;
     }
 
     .value-description-content {
       width: $content-xs;
+      max-width: 100%;
       display: flex;
       flex-direction: column;
       gap: $spacing-xs;
