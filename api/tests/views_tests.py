@@ -59,8 +59,9 @@ def test_free_mask_email_limit_error(settings) -> None:
     response = client.post(reverse("relayaddress-list"), data, format="json")
     assert response.status_code == 400
 
-    # MPP-2451: This should return JSON
-    with pytest.raises(ValueError) as exc_info:
-        ret_data = response.json()  # type: ignore[attr-defined]
-    err_msg = 'Content-Type header is "text/html", not "application/json"'
-    assert str(exc_info.value) == err_msg
+    ret_data = response.json()  # type: ignore[attr-defined]
+    expected_msg = (
+        "You must be a premium subscriber to make more than"
+        f" {settings.MAX_NUM_FREE_ALIASES} aliases."
+    )
+    assert ret_data == {"non_field_errors": [expected_msg]}

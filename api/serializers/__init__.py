@@ -1,8 +1,16 @@
+from typing import Mapping
+
 from django.contrib.auth.models import User
 
 from rest_framework import serializers, exceptions
 
-from emails.models import Profile, DomainAddress, RelayAddress
+from emails.models import (
+    CannotMakeAddressException,
+    DomainAddress,
+    Profile,
+    RelayAddress,
+    check_user_can_make_another_address,
+)
 
 
 class PremiumValidatorsMixin:
@@ -61,6 +69,18 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
             "num_replied",
             "num_spam",
         ]
+
+    def validate(self, data: Mapping) -> Mapping:
+        """Check if a free user is at their RelayAddress limit."""
+        if self.context["request"].method == "POST":
+            user = self.context["request"].user
+            profile = user.profile_set.get()
+            try:
+                check_user_can_make_another_address(profile)
+            except CannotMakeAddressException as exception:
+                raise exceptions.ValidationError(str(exception)) from exception
+
+        return data
 
 
 class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
