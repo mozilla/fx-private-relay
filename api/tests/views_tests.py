@@ -13,6 +13,18 @@ from emails.models import (
 from emails.tests.models_tests import make_free_test_user
 
 
+@pytest.fixture
+def free_api_client(db) -> APIClient:
+    free_user = make_free_test_user()
+    client = APIClient()
+    client.force_authenticate(user=free_user)
+    return client
+
+
+def get_user(client: APIClient):
+    return client.handler._force_user
+
+
 @pytest.mark.parametrize("format", ("yaml", "json"))
 def test_swagger_format(client, format):
     path = f"/api/v1/swagger.{format}"
@@ -35,10 +47,29 @@ def test_runtime_data(client):
     assert response.status_code == 200
 
 
-@pytest.mark.django_db
-def test_post_relayaddress_free_mask_email_limit_error(settings) -> None:
+def test_post_relayaddress_success(settings, free_api_client) -> None:
+    """A free user is able to create an address."""
+    origin = "https://login.example.com"
+    data = {
+        "enabled": True,
+        "description": origin,
+        "generated_for": origin,
+        "used_on": origin,
+    }
+
+    response = free_api_client.post(reverse("relayaddress-list"), data, format="json")
+
+    assert response.status_code == 201
+    ret_data = response.json()
+    assert ret_data["enabled"]
+    assert ret_data["description"] == origin
+
+
+def test_post_relayaddress_free_mask_email_limit_error(
+    settings, free_api_client
+) -> None:
     """A JSON error is returned when a free user hits the mask limit"""
-    free_user = make_free_test_user()
+    free_user = get_user(free_api_client)
     free_profile = free_user.profile_set.get()
     for _ in range(settings.MAX_NUM_FREE_ALIASES):
         assert check_user_can_make_another_address(free_profile) is None
@@ -47,8 +78,6 @@ def test_post_relayaddress_free_mask_email_limit_error(settings) -> None:
     with pytest.raises(CannotMakeAddressException):
         check_user_can_make_another_address(free_profile)
 
-    client = APIClient()
-    client.force_authenticate(user=free_user)
     origin = "https://login.example.com"
     data = {
         "enabled": True,
@@ -56,10 +85,11 @@ def test_post_relayaddress_free_mask_email_limit_error(settings) -> None:
         "generated_for": origin,
         "used_on": origin,
     }
-    response = client.post(reverse("relayaddress-list"), data, format="json")
-    assert response.status_code == 400
 
-    ret_data = response.json()  # type: ignore[attr-defined]
+    response = free_api_client.post(reverse("relayaddress-list"), data, format="json")
+
+    assert response.status_code == 400
+    ret_data = response.json()
     assert ret_data == {
         "errorReason": "freeTierLimit",
         "detail": (
@@ -69,18 +99,14 @@ def test_post_relayaddress_free_mask_email_limit_error(settings) -> None:
     }
 
 
-@pytest.mark.django_db
-def test_post_relayaddress_flagged_error() -> None:
+def test_post_relayaddress_flagged_error(free_api_client) -> None:
     """A JSON error is returned when a free user hits the mask limit"""
-    free_user = make_free_test_user()
-    free_profile = free_user.profile_set.get()
+    free_profile = get_user(free_api_client).profile_set.get()
     free_profile.last_account_flagged = timezone.now()
     free_profile.save()
     with pytest.raises(CannotMakeAddressException):
         check_user_can_make_another_address(free_profile)
 
-    client = APIClient()
-    client.force_authenticate(user=free_user)
     origin = "https://login.example.com"
     data = {
         "enabled": True,
@@ -88,10 +114,11 @@ def test_post_relayaddress_flagged_error() -> None:
         "generated_for": origin,
         "used_on": origin,
     }
-    response = client.post(reverse("relayaddress-list"), data, format="json")
-    assert response.status_code == 400
 
-    ret_data = response.json()  # type: ignore[attr-defined]
+    response = free_api_client.post(reverse("relayaddress-list"), data, format="json")
+
+    assert response.status_code == 400
+    ret_data = response.json()
     assert ret_data == {
         "errorReason": "accountIsPaused",
         "detail": "Your account is on pause.",
