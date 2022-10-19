@@ -8,16 +8,16 @@ from emails.models import DomainAddress, Profile, RelayAddress
 class PremiumValidatorsMixin:
     # the user must be premium to set block_list_emails=True
     def validate_block_list_emails(self, value):
-        if (
+        if value and not (
             self.context["request"]
             .user.profile_set.prefetch_related("user__socialaccount_set")
             .first()
             .has_premium
         ):
-            return value
-        raise exceptions.AuthenticationFailed(
-            "Must be premium to set block_list_emails"
-        )
+            raise exceptions.AuthenticationFailed(
+                "Must be premium to set block_list_emails."
+            )
+        return value
 
 
 class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
