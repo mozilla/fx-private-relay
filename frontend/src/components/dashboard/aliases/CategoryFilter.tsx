@@ -60,10 +60,7 @@ export const CategoryFilter = (props: Props) => {
     isOpen: menuState.isOpen,
   }).overlayProps;
 
-  const { buttonProps } = useButton(
-    { onPress: () => menuState.open() },
-    triggerRef
-  );
+  const { buttonProps } = useButton(triggerProps, triggerRef);
 
   const onClose = (onCloseParams: OnCloseParams) => {
     const { selectedFilters, saveFilters = true } = onCloseParams;
@@ -74,24 +71,10 @@ export const CategoryFilter = (props: Props) => {
     menuState.close();
   };
 
-  const menu = menuState.isOpen ? (
-    <OverlayContainer>
-      <FilterMenu
-        {...overlayProps}
-        {...positionProps}
-        ref={overlayRef}
-        isOpen={menuState.isOpen}
-        selectedFilters={props.selectedFilters}
-        onClose={onClose}
-      />
-    </OverlayContainer>
-  ) : null;
-
   return (
     <>
       <button
         {...buttonProps}
-        {...triggerProps}
         ref={triggerRef}
         title={l10n.getString("profile-filter-category-button-tooltip")}
         className={styles["filter-button"]}
@@ -102,7 +85,16 @@ export const CategoryFilter = (props: Props) => {
           height={20}
         />
       </button>
-      {menu}
+      <OverlayContainer>
+        <FilterMenu
+          {...overlayProps}
+          {...positionProps}
+          ref={overlayRef}
+          isOpen={menuState.isOpen}
+          selectedFilters={props.selectedFilters}
+          onClose={onClose}
+        />
+      </OverlayContainer>
     </>
   );
 };
@@ -154,12 +146,18 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
       resetAndClose();
     };
 
+    const mergedOverlayProps = mergeProps(overlayProps, otherProps);
+
     return (
       <FocusScope contain restoreFocus autoFocus>
         <div
-          {...mergeProps(overlayProps, otherProps)}
+          {...mergedOverlayProps}
           ref={overlayRef}
           className={styles["filter-menu"]}
+          style={{
+            ...mergedOverlayProps.style,
+            display: !isOpen ? "none" : mergedOverlayProps.style?.display,
+          }}
         >
           <form
             onSubmit={onSubmit}

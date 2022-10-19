@@ -26,7 +26,7 @@
     "intl-pluralrules": "^1.3.1",
     "msw": "^0.46.1",
     "react": "17.0.2",
-    "react-aria": "^3.17.0",
+    "react-aria": "^3.20.0",
     "react-dom": "17.0.2",
     "react-ga": "^3.3.1",
     "react-intersection-observer": "^9.4.0",
@@ -69,7 +69,7 @@
     "stylelint-config-prettier-scss": "^0.0.1",
     "stylelint-config-recommended-scss": "^7.0.0",
     "stylelint-scss": "^4.3.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.4"
   },
   "volta": {
     "node": "14.20.1",
