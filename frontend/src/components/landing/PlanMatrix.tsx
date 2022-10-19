@@ -305,7 +305,7 @@ export const PlanMatrix = (props: Props) => {
                   <div className={styles["pricing-toggle-wrapper"]}>
                     <p className={styles["discount-notice"]}>
                       {l10n.getString("plan-matrix-price-vpn-discount", {
-                        percentage: "22",
+                        percentage: "40",
                       })}
                     </p>
                   </div>
@@ -485,7 +485,7 @@ export const PlanMatrix = (props: Props) => {
                 <div className={styles["pricing-toggle-wrapper"]}>
                   <p className={styles["discount-notice"]}>
                     {l10n.getString("plan-matrix-price-vpn-discount", {
-                      percentage: "22",
+                      percentage: "40",
                     })}
                   </p>
                 </div>

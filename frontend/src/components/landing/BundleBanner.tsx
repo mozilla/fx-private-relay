@@ -139,8 +139,7 @@ export const BundleBanner = (props: Props) => {
                   <Localized
                     id={"bundle-price-save-amount"}
                     vars={{
-                      savings: "22%",
-                      old_price: "$8.98",
+                      savings: "40%",
                     }}
                     elems={{
                       "outdated-price": <s className={styles["price"]} />,

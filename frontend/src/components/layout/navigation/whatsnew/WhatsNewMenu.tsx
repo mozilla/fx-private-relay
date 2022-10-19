@@ -471,7 +471,7 @@ export const WhatsNewMenu = (props: Props) => {
         <WhatsNewContent
           description={l10n.getString("whatsnew-feature-bundle-body", {
             monthly_price: getBundlePrice(props.runtimeData, l10n),
-            savings: "22%",
+            savings: "40%",
           })}
           heading={l10n.getString("whatsnew-feature-bundle-header")}
           image={BundleHero.src}

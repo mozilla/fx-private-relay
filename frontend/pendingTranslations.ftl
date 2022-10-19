@@ -219,7 +219,7 @@ whatsnew-feature-bundle-snippet = Upgrade your subscription to get both { -brand
 # Variables:
 #   $monthly_price (string) - the monthly cost (including currency symbol) for a given plan. Examples: $0.99, 0,99 €
 #   $savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
-whatsnew-feature-bundle-body = Upgrade your subscription to get both { -brand-name-firefox-relay-premium } + { -brand-name-mozilla-vpn } for { $monthly_price }/month. Save { $savings }!
+whatsnew-feature-bundle-body = Upgrade your subscription to get both { -brand-name-firefox-relay-premium } + { -brand-name-mozilla-vpn } for { $monthly_price }/month. { $savings } off Mozilla VPN!
 whatsnew-feature-bundle-upgrade-cta = Upgrade now
 
 ## VPN and Relay Bundle Banner
@@ -233,8 +233,7 @@ bundle-banner-1-year-plan = 1 year plan: <b>{ -brand-name-firefox-relay-premium 
 bundle-price-monthly = Monthly: <monthly-price>{ $monthly_price }</monthly-price>
 # Variables:
 #   $savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
-#   $old_price (string) - the outdated monthly cost (including currency symbol) for a given plan. This value has a strikethrough.
-bundle-price-save-amount = Save { $savings } <outdated-price>Normally { $old_price }</outdated-price>
+bundle-price-save-amount = { $savings } off { -brand-name-mozilla-vpn }
 bundle-banner-alt = { -brand-name-mozilla-vpn } and { -brand-name-relay }
 bundle-banner-cta = Get { -brand-name-mozilla-vpn } + { -brand-name-relay }
 # Variables:
