@@ -32,8 +32,12 @@ BounceStatus = namedtuple("BounceStatus", "paused type")
 NOT_PREMIUM_USER_ERR_MSG = "You must be a premium subscriber to {}."
 TRY_DIFFERENT_VALUE_ERR_MSG = "{} could not be created, try using a different value."
 ACCOUNT_PAUSED_ERR_MSG = "Your account is on pause."
+
 ACCOUNT_PAUSED_ERR_CODE = "accountIsPaused"
 FREE_TIER_LIMIT_ERR_CODE = "freeTierLimit"
+FREE_TIER_NO_DOMAIN_ERR_CODE = "freeTierNoDomainAddress"
+NEED_SUBDOMAIN_ERR_CODE = "needSubdomain"
+ADDRESS_UNAVAILABLE_ERR_CODE = "addressUnavailable"
 
 
 def get_domains_from_settings():
@@ -550,6 +554,8 @@ class CannotMakeAddressException(BadRequest):
         errorReason -- optional error phrase for client error handling code
     """
 
+    status_code = 400
+
     def __init__(self, message=None, errorReason=None):
         self.message = message
         self.errorReason = errorReason
@@ -678,16 +684,20 @@ class DeletedAddress(models.Model):
 def check_user_can_make_domain_address(user_profile):
     if not user_profile.has_premium:
         raise CannotMakeAddressException(
-            NOT_PREMIUM_USER_ERR_MSG.format("create subdomain aliases")
+            NOT_PREMIUM_USER_ERR_MSG.format("create subdomain aliases"),
+            FREE_TIER_NO_DOMAIN_ERR_CODE,
         )
 
     if not user_profile.subdomain:
         raise CannotMakeAddressException(
-            "You must select a subdomain before creating email address with subdomain."
+            "You must select a subdomain before creating email address with subdomain.",
+            NEED_SUBDOMAIN_ERR_CODE,
         )
 
     if user_profile.is_flagged:
-        raise CannotMakeAddressException(ACCOUNT_PAUSED_ERR_MSG)
+        raise CannotMakeAddressException(
+            ACCOUNT_PAUSED_ERR_MSG, ACCOUNT_PAUSED_ERR_CODE
+        )
 
 
 class DomainAddress(models.Model):
@@ -724,7 +734,10 @@ class DomainAddress(models.Model):
             address_contains_badword = has_bad_words(self.address)
             if not pattern_valid or address_contains_badword:
                 raise CannotMakeAddressException(
-                    TRY_DIFFERENT_VALUE_ERR_MSG.format(f"Domain address {self.address}")
+                    TRY_DIFFERENT_VALUE_ERR_MSG.format(
+                        f"Domain address {self.address}"
+                    ),
+                    ADDRESS_UNAVAILABLE_ERR_CODE,
                 )
             user_profile.update_abuse_metric(address_created=True)
         # TODO: validate user is premium to set block_list_emails

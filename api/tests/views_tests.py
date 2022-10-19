@@ -88,6 +88,7 @@ def test_post_domainaddress_no_subdomain_error(prem_api_client) -> None:
     assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
+        "errorReason": "needSubdomain",
         "detail": (
             "You must select a subdomain before creating email address with subdomain."
         ),
@@ -108,7 +109,10 @@ def test_post_domainaddress_user_flagged_error(prem_api_client) -> None:
 
     assert response.status_code == 403
     ret_data = response.json()
-    assert ret_data == {"detail": "Your account is on pause."}
+    assert ret_data == {
+        "errorReason": "accountIsPaused",
+        "detail": "Your account is on pause.",
+    }
 
 
 def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
@@ -122,7 +126,8 @@ def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
     assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
-        "detail": "Domain address myNewAlias could not be created, try using a different value."
+        "errorReason": "addressUnavailable",
+        "detail": "Domain address myNewAlias could not be created, try using a different value.",
     }
 
 
@@ -135,6 +140,7 @@ def test_post_domainaddress_free_user_error(free_api_client):
     assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
+        "errorReason": "freeTierNoDomainAddress",
         "detail": "You must be a premium subscriber to create subdomain aliases.",
     }
 
