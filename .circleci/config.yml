@@ -113,6 +113,41 @@ jobs:
           paths:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
+  
+  build_email_tracker_list_job:
+    executor: python
+    parameters:
+      command:
+        description: "What command should the job run?"
+        default: "exit 1"
+        type: string
+      allow_fail:
+        description: "Allow the command to fail without failing job."
+        type: boolean
+        default: false
+    steps:
+      - checkout_with_submodules
+      - python/install-packages:
+          pkg-manager: pip
+      - run:
+          name: Build level one email tracker list
+          command: ./manage.py get_latest_email_tracker_lists
+      - run:
+          name: Build level two email tracker list
+          command: ./manage.py get_latest_email_tracker_lists --tracker-level=2
+      - unless:
+          condition: << parameters.allow_fail >>
+          steps:
+            - run: << parameters.command >>
+      - when:
+          condition: << parameters.allow_fail >>
+          steps:
+            - run:
+                name: << parameters.command >> (failure allowed)
+                command: |
+                  set +x
+                  << parameters.command >> ||
+                  echo "*** Command '<< parameters.command >>' failed, but it is allowed to fail. ***"
 
   build_test_backend:
     docker:
