@@ -1,6 +1,7 @@
 import pytest
 from model_bakery import baker
 
+from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APIClient
 
@@ -35,7 +36,7 @@ def test_runtime_data(client):
 
 
 @pytest.mark.django_db
-def test_free_mask_email_limit_error(settings) -> None:
+def test_post_relayaddress_free_mask_email_limit_error(settings) -> None:
     """A JSON error is returned when a free user hits the mask limit"""
     free_user = make_free_test_user()
     free_profile = free_user.profile_set.get()
@@ -46,7 +47,6 @@ def test_free_mask_email_limit_error(settings) -> None:
     with pytest.raises(CannotMakeAddressException):
         check_user_can_make_another_address(free_profile)
 
-    url = reverse("relayaddress-list")
     client = APIClient()
     client.force_authenticate(user=free_user)
     origin = "https://login.example.com"
@@ -60,8 +60,39 @@ def test_free_mask_email_limit_error(settings) -> None:
     assert response.status_code == 400
 
     ret_data = response.json()  # type: ignore[attr-defined]
-    expected_msg = (
-        "You must be a premium subscriber to make more than"
-        f" {settings.MAX_NUM_FREE_ALIASES} aliases."
-    )
-    assert ret_data == {"non_field_errors": [expected_msg]}
+    assert ret_data == {
+        "errorReason": "freeTierLimit",
+        "detail": (
+            "You must be a premium subscriber to make more than"
+            f" {settings.MAX_NUM_FREE_ALIASES} aliases."
+        ),
+    }
+
+
+@pytest.mark.django_db
+def test_post_relayaddress_flagged_error() -> None:
+    """A JSON error is returned when a free user hits the mask limit"""
+    free_user = make_free_test_user()
+    free_profile = free_user.profile_set.get()
+    free_profile.last_account_flagged = timezone.now()
+    free_profile.save()
+    with pytest.raises(CannotMakeAddressException):
+        check_user_can_make_another_address(free_profile)
+
+    client = APIClient()
+    client.force_authenticate(user=free_user)
+    origin = "https://login.example.com"
+    data = {
+        "enabled": True,
+        "description": origin,
+        "generated_for": origin,
+        "used_on": origin,
+    }
+    response = client.post(reverse("relayaddress-list"), data, format="json")
+    assert response.status_code == 400
+
+    ret_data = response.json()  # type: ignore[attr-defined]
+    assert ret_data == {
+        "errorReason": "accountIsPaused",
+        "detail": "Your account is on pause.",
+    }

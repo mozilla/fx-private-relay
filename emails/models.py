@@ -32,6 +32,8 @@ BounceStatus = namedtuple("BounceStatus", "paused type")
 NOT_PREMIUM_USER_ERR_MSG = "You must be a premium subscriber to {}."
 TRY_DIFFERENT_VALUE_ERR_MSG = "{} could not be created, try using a different value."
 ACCOUNT_PAUSED_ERR_MSG = "Your account is on pause."
+ACCOUNT_PAUSED_ERR_CODE = "accountIsPaused"
+FREE_TIER_LIMIT_ERR_CODE = "freeTierLimit"
 
 
 def get_domains_from_settings():
@@ -456,7 +458,7 @@ class Profile(models.Model):
         if datetime.now(timezone.utc) > account_premium_feature_resumed:
             # premium feature has been resumed
             return False
-        # user was flagged and the premiume feature pause period is not yet over
+        # user was flagged and the premium feature pause period is not yet over
         return True
 
 
@@ -545,10 +547,12 @@ class CannotMakeAddressException(BadRequest):
 
     Attributes:
         message -- optional explanation of the error
+        errorReason -- optional error phrase for client error handling code
     """
 
-    def __init__(self, message=None):
+    def __init__(self, message=None, errorReason=None):
         self.message = message
+        self.errorReason = errorReason
 
 
 class RelayAddress(models.Model):
@@ -626,10 +630,14 @@ class RelayAddress(models.Model):
 
 def check_user_can_make_another_address(profile):
     if profile.is_flagged:
-        raise CannotMakeAddressException(ACCOUNT_PAUSED_ERR_MSG)
+        raise CannotMakeAddressException(
+            ACCOUNT_PAUSED_ERR_MSG, ACCOUNT_PAUSED_ERR_CODE
+        )
     if profile.at_max_free_aliases and not profile.has_premium:
         hit_limit = f"make more than {settings.MAX_NUM_FREE_ALIASES} aliases"
-        raise CannotMakeAddressException(NOT_PREMIUM_USER_ERR_MSG.format(hit_limit))
+        raise CannotMakeAddressException(
+            NOT_PREMIUM_USER_ERR_MSG.format(hit_limit), FREE_TIER_LIMIT_ERR_CODE
+        )
 
 
 def valid_address_pattern(address):

@@ -1,8 +1,12 @@
 import logging
+from typing import Mapping, Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+
+from rest_framework.response import Response
+from rest_framework.views import exception_handler
 
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
@@ -215,3 +219,15 @@ def report_webcompat_issue(request):
                 incr_if_enabled(f"webcompat_issue_{k}", 1)
         return response.Response(status=status.HTTP_201_CREATED)
     return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Response]:
+    """Tune error responses for Relay."""
+
+    # Handle CannotMakeAddressException
+    if isinstance(exc, CannotMakeAddressException):
+        data = {"errorReason": exc.errorReason, "detail": exc.message}
+        return Response(data, status=400)
+
+    # Use DRF's default handler
+    return exception_handler(exc, context)
