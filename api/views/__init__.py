@@ -230,7 +230,6 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
     When the error is a RelayAPIException, these additional fields may be present:
 
     error_code - A string identifying the error, for client-side translation
-    error_codes - A list or object identifying the error
     error_context - Additional data needed for client-side translation
     """
 
@@ -239,9 +238,6 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
         error_codes = exc.get_codes()
         if isinstance(error_codes, str):
             response.data["error_code"] = error_codes
-        else:
-            response.data["error_codes"] = error_codes
-
         error_context = exc.error_context()
         if error_context:
             response.data["error_context"] = error_context
