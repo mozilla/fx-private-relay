@@ -10,8 +10,6 @@ nav-duo-phone-mask-alt = Phone masks
 
 setting-api-key-copied-alt = Click to copy
 
-fx-containers = { -brand-name-firefox } Containers
-
 ## Phone Masking FAQ
 
 phone-masking-faq-question-what-is = What is a phone number mask?
