@@ -464,7 +464,7 @@ export const WhatsNewMenu = (props: Props) => {
   }
 
   const vpnAndRelayAnnouncement: WhatsNewEntry = {
-    title: l10n.getString("whatsnew-feature-bundle-header"),
+    title: l10n.getString("whatsnew-feature-bundle-header", { savings: "40%" }),
     snippet: l10n.getString("whatsnew-feature-bundle-snippet"),
     content:
       props.runtimeData && isBundleAvailableInCountry(props.runtimeData) ? (
@@ -473,7 +473,9 @@ export const WhatsNewMenu = (props: Props) => {
             monthly_price: getBundlePrice(props.runtimeData, l10n),
             savings: "40%",
           })}
-          heading={l10n.getString("whatsnew-feature-bundle-header")}
+          heading={l10n.getString("whatsnew-feature-bundle-header", {
+            savings: "40%",
+          })}
           image={BundleHero.src}
           videos={{
             // Unfortunately video files cannot currently be imported, so make
