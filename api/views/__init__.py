@@ -227,7 +227,7 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
 
     # Handle CannotMakeAddressException
     if isinstance(exc, CannotMakeAddressException):
-        data = {"errorReason": exc.errorReason, "detail": exc.message}
+        data = {"errorReason": exc.error_reason, "detail": exc.message}
         return Response(data, status=exc.status_code)
 
     # Use DRF's default handler

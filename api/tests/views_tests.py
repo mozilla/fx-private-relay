@@ -127,7 +127,7 @@ def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
     ret_data = response.json()
     assert ret_data == {
         "errorReason": "addressUnavailable",
-        "detail": "Domain address myNewAlias could not be created, try using a different value.",
+        "detail": 'Domain address "myNewAlias" could not be created, try using a different value.',
     }
 
 

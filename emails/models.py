@@ -1,6 +1,8 @@
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
+from enum import Enum
 from hashlib import sha256
+from typing import Optional
 import logging
 import random
 import re
@@ -28,16 +30,6 @@ logger = logging.getLogger("events")
 abuse_logger = logging.getLogger("abusemetrics")
 
 BounceStatus = namedtuple("BounceStatus", "paused type")
-
-NOT_PREMIUM_USER_ERR_MSG = "You must be a premium subscriber to {}."
-TRY_DIFFERENT_VALUE_ERR_MSG = "{} could not be created, try using a different value."
-ACCOUNT_PAUSED_ERR_MSG = "Your account is on pause."
-
-ACCOUNT_PAUSED_ERR_CODE = "accountIsPaused"
-FREE_TIER_LIMIT_ERR_CODE = "freeTierLimit"
-FREE_TIER_NO_DOMAIN_ERR_CODE = "freeTierNoDomainAddress"
-NEED_SUBDOMAIN_ERR_CODE = "needSubdomain"
-ADDRESS_UNAVAILABLE_ERR_CODE = "addressUnavailable"
 
 
 def get_domains_from_settings():
@@ -546,19 +538,60 @@ class CannotMakeSubdomainException(BadRequest):
         self.message = message
 
 
+class CannotMakeAddressCode(Enum):
+    ACCOUNT_PAUSED = "accountIsPaused"
+    FREE_TIER_LIMIT = "freeTierLimit"
+    FREE_TIER_NO_DOMAIN = "freeTierNoDomainAddress"
+    NEED_SUBDOMAIN = "needSubdomain"
+    ADDRESS_UNAVAILABLE = "addressUnavailable"
+
+
 class CannotMakeAddressException(BadRequest):
-    """Exception raised by RelayAddress or DomainAddress due to error on alias creation.
+    """
+    Exception raised by RelayAddress or DomainAddress due to error on alias creation.
 
     Attributes:
-        message -- optional explanation of the error
-        errorReason -- optional error phrase for client error handling code
+    code - CannotMakeAddressCode for the exception
+    limit (Optional) - for FREE_TIER_LIMIT, maximum number of aliases in free tier
+    address (Optional) - for ADDRESS_UNAVAILABLE, the faulty address
     """
 
     status_code = 400
 
-    def __init__(self, message=None, errorReason=None):
-        self.message = message
-        self.errorReason = errorReason
+    def __init__(
+        self,
+        code: CannotMakeAddressCode,
+        limit: Optional[int] = None,
+        address: Optional[str] = None,
+    ):
+        self.code = code
+        self.limit = limit
+        self.address = address
+
+    _code_to_template = {
+        CannotMakeAddressCode.ACCOUNT_PAUSED: "Your account is on pause.",
+        CannotMakeAddressCode.FREE_TIER_LIMIT: (
+            "You must be a premium subscriber to make more than {limit} aliases."
+        ),
+        CannotMakeAddressCode.FREE_TIER_NO_DOMAIN: (
+            "You must be a premium subscriber to create subdomain aliases."
+        ),
+        CannotMakeAddressCode.NEED_SUBDOMAIN: (
+            "You must select a subdomain before creating email address with subdomain."
+        ),
+        CannotMakeAddressCode.ADDRESS_UNAVAILABLE: (
+            'Domain address "{address}" could not be created, try using a different value.'
+        ),
+    }
+
+    @property
+    def message(self) -> str:
+        template = self._code_to_template[self.code]
+        return template.format(limit=self.limit, address=self.address)
+
+    @property
+    def error_reason(self) -> str:
+        return self.code.value
 
 
 class RelayAddress(models.Model):
@@ -634,15 +667,12 @@ class RelayAddress(models.Model):
         return "%s@%s" % (self.address, self.domain_value)
 
 
-def check_user_can_make_another_address(profile):
+def check_user_can_make_another_address(profile: Profile) -> None:
     if profile.is_flagged:
-        raise CannotMakeAddressException(
-            ACCOUNT_PAUSED_ERR_MSG, ACCOUNT_PAUSED_ERR_CODE
-        )
+        raise CannotMakeAddressException(CannotMakeAddressCode.ACCOUNT_PAUSED)
     if profile.at_max_free_aliases and not profile.has_premium:
-        hit_limit = f"make more than {settings.MAX_NUM_FREE_ALIASES} aliases"
         raise CannotMakeAddressException(
-            NOT_PREMIUM_USER_ERR_MSG.format(hit_limit), FREE_TIER_LIMIT_ERR_CODE
+            CannotMakeAddressCode.FREE_TIER_LIMIT, limit=settings.MAX_NUM_FREE_ALIASES
         )
 
 
@@ -681,23 +711,15 @@ class DeletedAddress(models.Model):
         return self.address_hash
 
 
-def check_user_can_make_domain_address(user_profile):
+def check_user_can_make_domain_address(user_profile: Profile) -> None:
     if not user_profile.has_premium:
-        raise CannotMakeAddressException(
-            NOT_PREMIUM_USER_ERR_MSG.format("create subdomain aliases"),
-            FREE_TIER_NO_DOMAIN_ERR_CODE,
-        )
+        raise CannotMakeAddressException(CannotMakeAddressCode.FREE_TIER_NO_DOMAIN)
 
     if not user_profile.subdomain:
-        raise CannotMakeAddressException(
-            "You must select a subdomain before creating email address with subdomain.",
-            NEED_SUBDOMAIN_ERR_CODE,
-        )
+        raise CannotMakeAddressException(CannotMakeAddressCode.NEED_SUBDOMAIN)
 
     if user_profile.is_flagged:
-        raise CannotMakeAddressException(
-            ACCOUNT_PAUSED_ERR_MSG, ACCOUNT_PAUSED_ERR_CODE
-        )
+        raise CannotMakeAddressException(CannotMakeAddressCode.ACCOUNT_PAUSED)
 
 
 class DomainAddress(models.Model):
@@ -726,18 +748,15 @@ class DomainAddress(models.Model):
     def __str__(self):
         return self.address
 
-    def save(self, *args, **kwargs):
-        user_profile = self.user.profile_set.first()
+    def save(self, *args, **kwargs) -> None:
+        user_profile = self.user.profile_set.get()
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
             pattern_valid = valid_address_pattern(self.address)
             address_contains_badword = has_bad_words(self.address)
             if not pattern_valid or address_contains_badword:
                 raise CannotMakeAddressException(
-                    TRY_DIFFERENT_VALUE_ERR_MSG.format(
-                        f"Domain address {self.address}"
-                    ),
-                    ADDRESS_UNAVAILABLE_ERR_CODE,
+                    CannotMakeAddressCode.ADDRESS_UNAVAILABLE, address=self.address
                 )
             user_profile.update_abuse_metric(address_created=True)
         # TODO: validate user is premium to set block_list_emails
@@ -749,6 +768,7 @@ class DomainAddress(models.Model):
     def user_profile(self):
         return Profile.objects.get(user=self.user)
 
+    @staticmethod
     def make_domain_address(user_profile, address=None, made_via_email=False):
         check_user_can_make_domain_address(user_profile)
 
