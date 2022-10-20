@@ -96,7 +96,7 @@ def test_post_domainaddress_no_subdomain_error(prem_api_client) -> None:
 
 
 def test_post_domainaddress_user_flagged_error(prem_api_client) -> None:
-    """A premium user needs to select a subdomain before creating a domain address."""
+    """A flagged user cannot create a new domain address."""
     premium_profile = get_user(prem_api_client).profile_set.get()
     premium_profile.last_account_flagged = timezone.now()
     premium_profile.save()
@@ -116,7 +116,7 @@ def test_post_domainaddress_user_flagged_error(prem_api_client) -> None:
 
 
 def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
-    """A premium user needs to select a subdomain before creating a domain address."""
+    """A domain address can be rejected due to the address format or content."""
     response = prem_api_client.post(
         reverse("domainaddress-list"),
         data={"address": "myNewAlias"},
@@ -147,7 +147,7 @@ def test_post_domainaddress_free_user_error(free_api_client):
 
 
 def test_post_relayaddress_success(settings, free_api_client) -> None:
-    """A free user is able to create an address."""
+    """A free user is able to create a random address."""
     response = free_api_client.post(
         reverse("relayaddress-list"), data={}, format="json"
     )
@@ -160,7 +160,7 @@ def test_post_relayaddress_success(settings, free_api_client) -> None:
 def test_post_relayaddress_free_mask_email_limit_error(
     settings, free_api_client
 ) -> None:
-    """A JSON error is returned when a free user hits the mask limit"""
+    """A free user is unable to exceed the mask limit."""
     free_user = get_user(free_api_client)
     for _ in range(settings.MAX_NUM_FREE_ALIASES):
         baker.make(RelayAddress, user=free_user)
@@ -180,7 +180,7 @@ def test_post_relayaddress_free_mask_email_limit_error(
 
 
 def test_post_relayaddress_flagged_error(free_api_client) -> None:
-    """A JSON error is returned when a free user hits the mask limit"""
+    """A flagged user is unable to create a random mask."""
     free_profile = get_user(free_api_client).profile_set.get()
     free_profile.last_account_flagged = timezone.now()
     free_profile.save()

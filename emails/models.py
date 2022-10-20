@@ -544,7 +544,11 @@ class CannotMakeAddressException(RelayAPIException):
 
 
 class CannotMakeRelayAddrException(CannotMakeAddressException):
-    """RelayAddress creation failure."""
+    """
+    RelayAddress creation failure.
+
+    Previously implemented as a BadRequest exception, so it uses status code 400
+    """
 
     status_code = 400
 
@@ -573,7 +577,11 @@ class RelayAddrFreeTierLimitException(CannotMakeRelayAddrException):
 
 
 class CannotMakeDomainAddrException(CannotMakeAddressException):
-    """DomainAddress creation failure."""
+    """
+    DomainAddress creation failure.
+
+    Previously implemented as a PermissionDenied exception, so it uses status code 403
+    """
 
     status_code = 403
 
