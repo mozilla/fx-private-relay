@@ -6,6 +6,7 @@ import re
 import string
 
 from waffle import get_waffle_flag_model
+import django_ftl
 import phonenumbers
 
 from django.apps import apps
@@ -43,6 +44,7 @@ from phones.models import (
     area_code_numbers,
     twilio_client,
 )
+from privaterelay.ftl_bundles import main as ftl_bundle
 
 from ..exceptions import ConflictError, ErrorContextType
 from ..permissions import HasPhoneService
@@ -494,12 +496,16 @@ def inbound_sms(request):
         try:
             _handle_sms_reply(relay_number, real_phone, inbound_body)
         except RelaySMSException as sms_exception:
-            # TODO: translate error message to user's language
+            # Send a translated message to the user
+            ftl_code = sms_exception.get_codes().replace("_", "-")
+            ftl_id = f"relay-sms-error-{ftl_code}"
+            with django_ftl.override(real_phone.user.profile.language):
+                user_message = ftl_bundle.format(ftl_id, sms_exception.error_context())
             twilio_client().messages.create(
-                from_=relay_number.number,
-                body=sms_exception.detail,
-                to=real_phone.number,
+                from_=relay_number.number, body=user_message, to=real_phone.number
             )
+
+            # Return 400 on critical exceptions
             if sms_exception.critical:
                 raise exceptions.ValidationError(
                     sms_exception.detail
@@ -676,11 +682,13 @@ class NoPhoneLog(RelaySMSException):
     default_code = "no_phone_log"
     default_detail_template = (
         "You can only reply if you allow Firefox Relay to keep a log of your callers"
-        " and text senders. {origin}/accounts/settings/"
+        " and text senders. See {account_settings_url}."
     )
 
     def error_context(self) -> ErrorContextType:
-        return {"origin": settings.SITE_ORIGIN or ""}
+        return {
+            "account_settings_url": f"{settings.SITE_ORIGIN or ''}/accounts/settings"
+        }
 
 
 class NoPreviousSender(RelaySMSException):

@@ -1281,7 +1281,8 @@ def test_inbound_sms_reply_short_prefix_multi_match(
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. There is more than one phone number in this thread"
-        " ending in 0001. To retry, start your message with the complete number."
+        " ending in \u20680001\u2069. To retry, start your message with the complete"
+        " number."
     )
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
@@ -1308,7 +1309,7 @@ def test_inbound_sms_reply_short_prefix_no_match(
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. There is no phone number in this thread ending in"
-        " 0404. Please check the number and try again."
+        " \u20680404\u2069. Please check the number and try again."
     )
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
@@ -1333,7 +1334,7 @@ def test_inbound_sms_reply_full_prefix_no_match(multi_reply: MultiReplyFixture) 
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. There is no previous sender with the phone number"
-        " +14045550404. Please check the number and try again."
+        " \u2068+14045550404\u2069. Please check the number and try again."
     )
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
@@ -1360,7 +1361,7 @@ def test_inbound_sms_reply_short_prefix_no_message(
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. Please include a message after the sender identifier"
-        " 0002."
+        " \u20680002\u2069."
     )
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
@@ -1387,7 +1388,7 @@ def test_inbound_sms_reply_full_prefix_no_message(
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. Please include a message after the phone number"
-        " +13055550002."
+        " \u2068+13055550002\u2069."
     )
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded

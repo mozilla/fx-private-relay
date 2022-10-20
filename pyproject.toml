@@ -36,6 +36,7 @@ module = [
     "debug_toolbar",
     "dj_database_url",
     "django_filters",
+    "django_ftl",
     "django_ftl.bundles",
     "drf_yasg",
     "drf_yasg.utils",
