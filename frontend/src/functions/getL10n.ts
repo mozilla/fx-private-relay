@@ -76,7 +76,7 @@ export function getL10n() {
           );
           if (unmergedStrings.length > 0) {
             console.warn(
-              "The following strings have not yet been merged into the l10n repository, and thus cannot be translated yet:",
+              `The following ${unmergedStrings.length} strings have not yet been merged into the l10n repository, and thus cannot be translated yet:`,
               unmergedStrings
             );
           }
