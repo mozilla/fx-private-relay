@@ -184,7 +184,7 @@ class RelayAddressTest(TestCase):
             RelayAddress.objects.create(user=self.premium_user_profile.user)
         with pytest.raises(CannotMakeAddressException) as exc_info:
             RelayAddress.objects.create(user=self.premium_user_profile.user)
-        assert exc_info.value.error_reason == "accountIsPaused"
+        assert exc_info.value.get_codes() == "account_is_paused"
         relay_address_count = RelayAddress.objects.filter(
             user=self.premium_user_profile.user
         ).count()
@@ -203,7 +203,7 @@ class RelayAddressTest(TestCase):
             RelayAddress.objects.create(user=self.user_profile.user)
         with pytest.raises(CannotMakeAddressException) as exc_info:
             RelayAddress.objects.create(user=self.user_profile.user)
-        assert exc_info.value.error_reason == "freeTierLimit"
+        assert exc_info.value.get_codes() == "free_tier_limit"
         relay_addresses = RelayAddress.objects.filter(
             user=self.user_profile.user
         ).values_list("address", flat=True)
@@ -1043,7 +1043,7 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(self.user_profile, "foobar" + str(i))
         with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(self.user_profile, "one-too-many")
-        assert exc_info.value.error_reason == "accountIsPaused"
+        assert exc_info.value.get_codes() == "account_is_paused"
         domain_address_count = DomainAddress.objects.filter(
             user=self.user_profile.user
         ).count()
@@ -1062,7 +1062,7 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(
                 non_premium_user_profile, "test-non-premium"
             )
-        assert exc_info.value.error_reason == "freeTierNoDomainAddress"
+        assert exc_info.value.get_codes() == "free_tier_no_subdomain_alias"
 
     def test_make_domain_address_can_make_blocklisted_address(self):
         domain_address = DomainAddress.make_domain_address(self.user_profile, "testing")
@@ -1080,7 +1080,7 @@ class DomainAddressTest(TestCase):
         user_profile = Profile.objects.get(user=user)
         with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(user_profile, "test-nosubdomain")
-        assert exc_info.value.error_reason == "needSubdomain"
+        assert exc_info.value.get_codes() == "need_subdomain"
 
     @patch.multiple("string", ascii_lowercase="a", digits="")
     def test_make_domain_address_makes_dupe_of_deleted(self):
@@ -1099,11 +1099,11 @@ class DomainAddressTest(TestCase):
     @patch("emails.models.address_default")
     def test_make_domain_address_doesnt_randomly_generate_bad_word(
         self, address_default_mocked
-    ):
+    ) -> None:
         address_default_mocked.return_value = "angry0123"
         with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(self.user_profile)
-        assert exc_info.value.error_reason == "addressUnavailable"
+        assert exc_info.value.get_codes() == "address_unavailable"
 
     def test_delete_adds_deleted_address_object(self):
         domain_address = baker.make(DomainAddress, address="lower-case", user=self.user)

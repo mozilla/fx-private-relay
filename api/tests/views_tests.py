@@ -88,10 +88,10 @@ def test_post_domainaddress_no_subdomain_error(prem_api_client) -> None:
     assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
-        "errorReason": "needSubdomain",
         "detail": (
             "You must select a subdomain before creating email address with subdomain."
         ),
+        "error_code": "need_subdomain",
     }
 
 
@@ -110,8 +110,8 @@ def test_post_domainaddress_user_flagged_error(prem_api_client) -> None:
     assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
-        "errorReason": "accountIsPaused",
         "detail": "Your account is on pause.",
+        "error_code": "account_is_paused",
     }
 
 
@@ -126,8 +126,9 @@ def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
     assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
-        "errorReason": "addressUnavailable",
         "detail": 'Domain address "myNewAlias" could not be created, try using a different value.',
+        "error_code": "address_unavailable",
+        "error_context": {"unavailable_address": "myNewAlias"},
     }
 
 
@@ -140,8 +141,8 @@ def test_post_domainaddress_free_user_error(free_api_client):
     assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
-        "errorReason": "freeTierNoDomainAddress",
         "detail": "You must be a premium subscriber to create subdomain aliases.",
+        "error_code": "free_tier_no_subdomain_alias",
     }
 
 
@@ -169,11 +170,12 @@ def test_post_relayaddress_free_mask_email_limit_error(
     assert response.status_code == 400
     ret_data = response.json()
     assert ret_data == {
-        "errorReason": "freeTierLimit",
         "detail": (
             "You must be a premium subscriber to make more than"
             f" {settings.MAX_NUM_FREE_ALIASES} aliases."
         ),
+        "error_code": "free_tier_limit",
+        "error_context": {"free_tier_limit": 5},
     }
 
 
@@ -188,6 +190,6 @@ def test_post_relayaddress_flagged_error(free_api_client) -> None:
     assert response.status_code == 400
     ret_data = response.json()
     assert ret_data == {
-        "errorReason": "accountIsPaused",
         "detail": "Your account is on pause.",
+        "error_code": "account_is_paused",
     }

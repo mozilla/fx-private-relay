@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 
+from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
 
@@ -37,7 +38,7 @@ from emails.models import (
 )
 
 
-from ..exceptions import ConflictError
+from ..exceptions import ConflictError, RelayAPIException
 from ..permissions import IsOwner
 from ..serializers import (
     DomainAddressSerializer,
@@ -223,17 +224,25 @@ def report_webcompat_issue(request):
 
 
 def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Response]:
-    """Tune error responses for Relay."""
+    """
+    Add error information to response data.
 
-    # Try DRF's exception_handler
+    When the error is a RelayAPIException, these additional fields may be present:
+
+    error_code - A string identifying the error, for client-side translation
+    error_codes - A list or object identifying the error
+    error_context - Additional data needed for client-side translation
+    """
+
     response = exception_handler(exc, context)
-    if response:
-        return response
+    if response and isinstance(exc, RelayAPIException):
+        error_codes = exc.get_codes()
+        if isinstance(error_codes, str):
+            response.data["error_code"] = error_codes
+        else:
+            response.data["error_codes"] = error_codes
 
-    # Handle CannotMakeAddressException
-    if isinstance(exc, CannotMakeAddressException):
-        data = {"errorReason": exc.error_reason, "detail": exc.message}
-        return Response(data, status=exc.status_code)
-
-    # Exception is unhandled
-    return None
+        error_context = exc.error_context()
+        if error_context:
+            response.data["error_context"] = error_context
+    return response
