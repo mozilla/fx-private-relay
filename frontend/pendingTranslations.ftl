@@ -73,3 +73,5 @@ phone-masking-faq-answer-install-app = No, { -brand-name-relay } phone masking w
 phone-masking-faq-question-data = What kinds of data does { -brand-name-relay } phone masking store?
 phone-masking-faq-answer-data = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
 
+# Phone onboarding button string update (MPP-2442) 
+phone-onboarding-step3-code-success-cta-2 = Search for masks

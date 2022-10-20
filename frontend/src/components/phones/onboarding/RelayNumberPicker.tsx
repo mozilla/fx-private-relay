@@ -78,7 +78,7 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
           {l10n.getString("phone-onboarding-step3-code-success-subhead-body")}
         </p>
         <Button onClick={() => props.onStart()} className={styles.button}>
-          {l10n.getString("phone-onboarding-step3-code-success-cta")}
+          {l10n.getString("phone-onboarding-step3-code-success-cta-2")}
         </Button>
       </div>
     </div>
