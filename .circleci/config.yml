@@ -475,7 +475,6 @@ workflows:
       - build_test_backend:
           requires:
             - build_frontend
-            - build_email_tracker_list_job
           filters:
             tags:
               only: /.*/
