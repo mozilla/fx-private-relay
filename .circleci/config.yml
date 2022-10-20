@@ -494,20 +494,9 @@ workflows:
             tags:
               only: /.*/
 
-      - python_job:
-          name: build level one email tracker list
-          command: ./manage.py get_latest_email_tracker_lists
-          has_results: true
-          allow_fail: true
-          filters:
-            tags:
-              only: /.*/
-
-      - python_job:
-          name: build level two email tracker list
-          command: ./manage.py get_latest_email_tracker_lists --tracker-level=2
-          has_results: true
-          allow_fail: true
+      - build_email_tracker_list_job:
+          requires:
+            - build_frontend
           filters:
             tags:
               only: /.*/
