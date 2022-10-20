@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import requests
+from requests_cache import CachedSession
 from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
@@ -18,6 +19,7 @@ import sentry_sdk
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, connections, transaction
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -35,6 +37,7 @@ from emails.models import (
     valid_available_subdomain,
 )
 from emails.utils import incr_if_enabled
+from emails.views import _get_address
 from privaterelay.utils import get_premium_countries_info_from_request
 
 
@@ -44,6 +47,30 @@ FXA_SUBSCRIPTION_CHANGE_EVENT = (
 )
 FXA_DELETE_EVENT = "https://schemas.accounts.firefox.com/event/delete-user"
 PROFILE_EVENTS = [FXA_PROFILE_CHANGE_EVENT, FXA_SUBSCRIPTION_CHANGE_EVENT]
+
+AVAILABLE_ASSERTIONS = [
+    "reputation",
+    "suspicious",
+    "blacklisted",
+    "malicious_activity",
+    "malicious_activity_recent",
+    "credentials_leaked",
+    "credentials_leaked_recent",
+    "data_breach",
+    "domain_exists",
+    "domain_reputation",
+    "new_domain",
+    "suspicious_tld",
+    "spam",
+    "free_provider",
+    "disposable",
+    "deliverable",
+    "accept_all",
+    "valid_mx",
+    "spoofable",
+    "spf_strict",
+    "dmarc_enforced",
+]
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -374,3 +401,108 @@ def update_social_token(existing_social_token, new_oauth2_token):
         seconds=int(new_oauth2_token["expires_in"])
     )
     existing_social_token.save()
+
+
+def repute_template(request):
+    assertions = ",".join(AVAILABLE_ASSERTIONS)
+    return HttpResponse(
+        "https://{service}/{application}/{subject}/%s" % assertions,
+        status=200,
+        content_type="text/plain",
+    )
+
+
+def _get_email_rep(subject):
+    [to_local_portion, to_domain_portion] = subject.split("@")
+    try:
+        address = _get_address(subject, to_local_portion, to_domain_portion)
+        session = CachedSession(expire_after=60 * 60 * 24)
+        url = f"https://emailrep.io/{address.user.email}"
+        headers = {
+            "Accept": "application/json",
+            "Key": settings.EMAILREP_API_KEY,
+            "User-Agent": "Firefox Relay",
+        }
+        rep = session.get(url, headers=headers).json()
+        return rep
+    except ObjectDoesNotExist:
+        return JsonResponse({"error": "Not Found"}, status=404)
+
+
+def _flatten_assertions(rep):
+    flattened_assertions = {}
+    for key, value in rep.items():
+        if key in AVAILABLE_ASSERTIONS:
+            flattened_assertions[key] = value
+    for key, value in rep["details"].items():
+        if key in AVAILABLE_ASSERTIONS:
+            flattened_assertions[key] = value
+    return flattened_assertions
+
+
+def _format_assertions(flattened_assertions):
+    formatted_assertions = {}
+    for key, value in flattened_assertions.items():
+        if key.endswith("reputation"):
+            if value == "high":
+                formatted_assertions[key] = 1.0
+            elif value == "medium":
+                formatted_assertions[key] = 0.66
+            elif value == "low":
+                formatted_assertions[key] = 0.33
+        elif type(value) is bool:
+            formatted_assertions[key] = int(value)
+    return formatted_assertions
+
+
+def _filter_to_only_requested_assertions(formatted_assertions, requested_assertions):
+    final_assertions = {}
+    if not requested_assertions:
+        final_assertions = formatted_assertions
+    else:
+        for key, value in formatted_assertions.items():
+            if key in requested_assertions:
+                final_assertions[key] = value
+    return final_assertions
+
+
+def _convert_assertions_to_reputons(final_assertions):
+    reputons = []
+    for key, value in final_assertions.items():
+        reputon = {"rater": "emailrep.io", "assertion": key, "rating": value}
+        reputons.append(reputon)
+    return reputons
+
+
+def reputons(request, application, subject, requested_assertions=None):
+    email_rep = _get_email_rep(subject)
+    flattened_assertions = _flatten_assertions(email_rep)
+    formatted_assertions = _format_assertions(flattened_assertions)
+    final_assertions = _filter_to_only_requested_assertions(
+        formatted_assertions, requested_assertions
+    )
+    reputons = _convert_assertions_to_reputons(final_assertions)
+
+    return JsonResponse(
+        {"application": "email-id", "reputons": reputons},
+        content_type="application/reputon+json",
+    )
+
+
+def openrep(request, address):
+    [to_local_portion, to_domain_portion] = address.split("@")
+    try:
+        address = _get_address(address, to_local_portion, to_domain_portion)
+        session = CachedSession(expire_after=60 * 60 * 24)
+        url = f"https://emailrep.io/{address.user.email}"
+        headers = {
+            "Accept": "application/json",
+            "Key": settings.EMAILREP_API_KEY,
+            "User-Agent": "Firefox Relay",
+        }
+        rep = session.get(url, headers=headers).json()
+        rep.pop("email")
+        rep["details"].pop("primary_mx")
+        return JsonResponse(rep)
+    except ObjectDoesNotExist:
+        return JsonResponse({"error": "Not Found"}, status=404)

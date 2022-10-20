@@ -40,6 +40,14 @@ urlpatterns = [
     ),
     path("accounts/profile/refresh", views.profile_refresh, name="profile_refresh"),
     path("api/", include("api.urls")),
+    path(".well-known/repute-template", views.repute_template, name="repute_template"),
+    path(".well-known/openrep/<address>", views.openrep, name="openrep"),
+    path("<application>/<subject>", views.reputons, name="reputons"),
+    path(
+        "<application>/<subject>/<requested_assertions>",
+        views.reputons,
+        name="reputons",
+    ),
 ]
 
 if settings.DEBUG:
