@@ -133,9 +133,6 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             serializer.save(user=self.request.user)
-        except CannotMakeAddressException as e:
-            e.status_code = 403
-            raise e
         except IntegrityError as e:
             domain_address = DomainAddress.objects.filter(
                 user=self.request.user, address=serializer.validated_data.get("address")
