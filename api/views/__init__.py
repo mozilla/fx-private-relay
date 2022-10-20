@@ -225,10 +225,15 @@ def report_webcompat_issue(request):
 def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Response]:
     """Tune error responses for Relay."""
 
+    # Try DRF's exception_handler
+    response = exception_handler(exc, context)
+    if response:
+        return response
+
     # Handle CannotMakeAddressException
     if isinstance(exc, CannotMakeAddressException):
         data = {"errorReason": exc.error_reason, "detail": exc.message}
         return Response(data, status=exc.status_code)
 
-    # Use DRF's default handler
-    return exception_handler(exc, context)
+    # Exception is unhandled
+    return None
