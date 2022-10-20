@@ -311,16 +311,12 @@ const PromotionalTrackStopGhost = (props: PromotionalTrackStopGhostProps) => {
     overlayTriggerState,
     triggerRef
   );
-  const { buttonProps } = useButton(
-    { onPress: () => overlayTriggerState.open() },
-    triggerRef
-  );
+  const { buttonProps } = useButton(triggerProps, triggerRef);
 
   return (
     <span className={styles.wrapper}>
       <button
         {...buttonProps}
-        {...triggerProps}
         ref={triggerRef}
         type="button"
         className={styles["promotional-ghost-track-stop"]}
@@ -504,7 +500,7 @@ class SliderValueFormatter implements Intl.NumberFormat {
   formatRangeToParts(
     _startDate: number | bigint,
     _endDate: number | bigint
-  ): Intl.NumberFormatPart[] {
+  ): Intl.NumberRangeFormatPart[] {
     throw new Error("Method not implemented.");
   }
 

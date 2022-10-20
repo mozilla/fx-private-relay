@@ -2,28 +2,15 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-menu-upgrade-button = Upgrade
-menu-toggle-open = Open menu
-menu-toggle-close = Close menu
 nav-dashboard = Dashboard
 nav-phone = Phone Number
-nav-settings = Settings
-nav-support = Help and Support
-nav-sign-out = Sign Out
-nav-contact = Contact Us
 nav-duo-description = Switch dashboards
 nav-duo-email-mask-alt = Email masks
 nav-duo-phone-mask-alt = Phone masks
 
 setting-api-key-copied-alt = Click to copy
 
-waitlist-control-country-label-2 = What country or region do you live in?
-
-fx-desktop-2 = { -brand-name-firefox } for Desktop
-fx-mobile-2 = { -brand-name-firefox } for Mobile
-fx-containers = { -brand-name-firefox } Containers
-
-## Phone Masking FAQ 
+## Phone Masking FAQ
 
 phone-masking-faq-question-what-is = What is a phone number mask?
 phone-masking-faq-answer-what-is = Similar to an email mask, a phone number mask is a phone number that can forward texts and calls to your true phone number without revealing what your true number is to the person calling or texting you.
@@ -82,7 +69,7 @@ phone-masking-faq-answer-how-i-save-card = Once you upgrade to { -brand-name-rel
 phone-masking-faq-question-install-app = Do I need to install an app to use { -brand-name-relay } phone masking?
 phone-masking-faq-answer-install-app = No, { -brand-name-relay } phone masking works using your device’s standard text messaging and calling apps.
 #   $url (url) - link to Firefox Relay's Privacy Policy, i.e. https://www.mozilla.org/privacy/firefox-relay/
-#   $attrs (string) - specific attributes added to external links 
+#   $attrs (string) - specific attributes added to external links
 phone-masking-faq-question-data = What kinds of data does { -brand-name-relay } phone masking store?
 phone-masking-faq-answer-data = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
 

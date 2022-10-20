@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Dial callerId="{{ inbound_from }}">
+        <Number>{{ real_number }}</Number>
+    </Dial>
+</Response>

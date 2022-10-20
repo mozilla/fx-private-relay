@@ -15,6 +15,7 @@ from django.urls import reverse
 
 from twilio.base.exceptions import TwilioRestException
 
+from emails.utils import incr_if_enabled
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
 LAST_CONTACT_TYPE_CHOICES = [
@@ -139,6 +140,7 @@ class RealPhone(models.Model):
         return super().save(*args, **kwargs)
 
     def mark_verified(self):
+        incr_if_enabled("phones_RealPhone.mark_verified")
         self.verified = True
         self.verified_date = datetime.now(timezone.utc)
         self.save(force_update=True)
@@ -153,6 +155,7 @@ def realphone_post_save(sender, instance, created, **kwargs):
 
     if created:
         # only send verification_code when creating new record
+        incr_if_enabled("phones_RealPhone.post_save_created_send_verification")
         client = twilio_client()
         client.messages.create(
             body=f"Your Firefox Relay verification code is {instance.verification_code}",
@@ -265,6 +268,7 @@ def relaynumber_post_save(sender, instance, created, **kwargs):
         return
 
     if created:
+        incr_if_enabled("phones_RelayNumber.post_save_created_send_welcome")
         # only send welcome vCard when creating new record
         send_welcome_message(instance.user, instance)
 

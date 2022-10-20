@@ -7,6 +7,7 @@ import {
   useModal,
   useOverlay,
   usePreventScroll,
+  AriaOverlayProps,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
 import {
@@ -18,7 +19,6 @@ import {
 } from "react";
 import styles from "./AliasDeletionButton.module.scss";
 import { Button } from "../../Button";
-import { OverlayProps } from "@react-aria/overlays";
 import {
   AliasData,
   getFullAddress,
@@ -138,7 +138,9 @@ type ConfirmationDialogProps = {
   isOpen: boolean;
   onClose?: () => void;
 };
-const ConfirmationDialog = (props: ConfirmationDialogProps & OverlayProps) => {
+const ConfirmationDialog = (
+  props: ConfirmationDialogProps & AriaOverlayProps
+) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(props, wrapperRef);
   usePreventScroll();

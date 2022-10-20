@@ -204,8 +204,6 @@ $trackerRemovalIndicatorWidth: 20px;
 }
 
 .alias-stats {
-  flex-basis: 0;
-
   .main-data & {
     display: none;
   }
@@ -219,6 +217,8 @@ $trackerRemovalIndicatorWidth: 20px;
     // stylelint-disable-next-line no-duplicate-selectors
     .main-data & {
       display: flex;
+      flex: 1 0 $content-xs;
+      text-align: center;
     }
     // I've grouped these together under the media query to emphasise that they
     // switch visibility at the same time:
@@ -302,6 +302,7 @@ $trackerRemovalIndicatorWidth: 20px;
         height: 25px;
         display: flex;
         align-items: center;
+        word-break: keep-all;
       }
 
       // De-emphasise stats for:
