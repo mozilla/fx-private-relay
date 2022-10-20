@@ -585,7 +585,7 @@ class DomainAddrAccountIsPausedException(CannotMakeDomainAddrException):
 
 class DomainAddrFreeTierException(CannotMakeDomainAddrException):
     default_detail = "You must be a premium subscriber to create subdomain aliases."
-    default_code = "free_tier_no_subdomain_alias"
+    default_code = "free_tier_no_subdomain_masks"
 
 
 class DomainAddrNeedSubdomainException(CannotMakeDomainAddrException):

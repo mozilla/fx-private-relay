@@ -1062,7 +1062,7 @@ class DomainAddressTest(TestCase):
             DomainAddress.make_domain_address(
                 non_premium_user_profile, "test-non-premium"
             )
-        assert exc_info.value.get_codes() == "free_tier_no_subdomain_alias"
+        assert exc_info.value.get_codes() == "free_tier_no_subdomain_masks"
 
     def test_make_domain_address_can_make_blocklisted_address(self):
         domain_address = DomainAddress.make_domain_address(self.user_profile, "testing")

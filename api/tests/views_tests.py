@@ -142,7 +142,7 @@ def test_post_domainaddress_free_user_error(free_api_client):
     ret_data = response.json()
     assert ret_data == {
         "detail": "You must be a premium subscriber to create subdomain aliases.",
-        "error_code": "free_tier_no_subdomain_alias",
+        "error_code": "free_tier_no_subdomain_masks",
     }
 
 
