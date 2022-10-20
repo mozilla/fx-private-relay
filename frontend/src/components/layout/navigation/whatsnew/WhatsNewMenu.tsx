@@ -464,16 +464,18 @@ export const WhatsNewMenu = (props: Props) => {
   }
 
   const vpnAndRelayAnnouncement: WhatsNewEntry = {
-    title: l10n.getString("whatsnew-feature-bundle-header", { savings: "40%" }),
-    snippet: l10n.getString("whatsnew-feature-bundle-snippet"),
+    title: l10n.getString("whatsnew-feature-bundle-header-2", {
+      savings: "40%",
+    }),
+    snippet: l10n.getString("whatsnew-feature-bundle-snippet-2"),
     content:
       props.runtimeData && isBundleAvailableInCountry(props.runtimeData) ? (
         <WhatsNewContent
-          description={l10n.getString("whatsnew-feature-bundle-body", {
+          description={l10n.getString("whatsnew-feature-bundle-body-v2", {
             monthly_price: getBundlePrice(props.runtimeData, l10n),
             savings: "40%",
           })}
-          heading={l10n.getString("whatsnew-feature-bundle-header", {
+          heading={l10n.getString("whatsnew-feature-bundle-header-2", {
             savings: "40%",
           })}
           image={BundleHero.src}

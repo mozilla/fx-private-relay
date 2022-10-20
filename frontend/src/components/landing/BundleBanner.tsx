@@ -116,7 +116,7 @@ export const BundleBanner = (props: Props) => {
               <h3>{l10n.getString("bundle-banner-subheader")}</h3>
               <p>{l10n.getString("bundle-banner-body")}</p>
               <Localized
-                id={"bundle-banner-1-year-plan"}
+                id={"bundle-banner-1-year-plan-v2"}
                 elems={{
                   b: <b />,
                 }}
