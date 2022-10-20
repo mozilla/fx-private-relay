@@ -213,6 +213,7 @@ profile-replies-tooltip = You can reply to emails received through this mask, an
 -brand-name-vpn = VPN
 
 ## VPN and Relay Bundle What's New Announcement
+
 # Variables:
 #   $savings (string) - the percentage saved (including % symbol) for a given plan. Examples: 50%, 70%
 whatsnew-feature-bundle-header = Add { -brand-name-mozilla-vpn } for { $savings } off!
