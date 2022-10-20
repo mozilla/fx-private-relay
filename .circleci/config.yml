@@ -130,6 +130,9 @@ jobs:
       - python/install-packages:
           pkg-manager: pip
       - run:
+          name: Set test defaults
+          command: cp .env-dist .env
+      - run:
           name: Build level one email tracker list
           command: ./manage.py get_latest_email_tracker_lists
       - run:
@@ -463,9 +466,16 @@ workflows:
             tags:
               only: /.*/
 
+      - build_email_tracker_list_job:
+          requires:
+          filters:
+            tags:
+              only: /.*/
+
       - build_test_backend:
           requires:
             - build_frontend
+            - build_email_tracker_list_job
           filters:
             tags:
               only: /.*/
@@ -490,13 +500,6 @@ workflows:
           command: mypy --strict --no-incremental --junit-xml job-results/mypy.xml .
           has_results: true
           allow_fail: true
-          filters:
-            tags:
-              only: /.*/
-
-      - build_email_tracker_list_job:
-          requires:
-            - build_frontend
           filters:
             tags:
               only: /.*/
