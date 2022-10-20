@@ -23,7 +23,7 @@ from django.utils.translation.trans_real import (
 from rest_framework.authtoken.models import Token
 from waffle.models import Flag
 
-from api.exceptions import RelayAPIException
+from api.exceptions import ErrorContextType, RelayAPIException
 
 
 emails_config = apps.get_app_config("emails")
@@ -568,7 +568,7 @@ class RelayAddrFreeTierLimitException(CannotMakeRelayAddrException):
         )
         super().__init__(*args, **kwargs)
 
-    def error_context(self):
+    def error_context(self) -> ErrorContextType:
         return {"free_tier_limit": self.free_tier_limit}
 
 
@@ -609,7 +609,7 @@ class DomainAddrUnavailableException(CannotMakeDomainAddrException):
         )
         super().__init__(*args, **kwargs)
 
-    def error_context(self):
+    def error_context(self) -> ErrorContextType:
         return {"unavailable_address": self.unavailable_address}
 
 
