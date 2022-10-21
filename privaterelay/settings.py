@@ -854,11 +854,14 @@ def set_index_cache_control_headers(
     headers: wsgiref.headers.Headers, path: str, url: str
 ) -> None:
     if DEBUG:
-        home_path = os.path.join(BASE_DIR, "frontend/out", "index.html")
+        base_path = os.path.join(BASE_DIR, "frontend/out")
     else:
-        home_path = os.path.join(STATIC_ROOT, "index.html")
-    if path == home_path:
+        base_path = STATIC_ROOT
+    relative_path = path[len(base_path) :]
+    if relative_path == "/index.html":
         headers["Cache-Control"] = "no-cache, public"
+    if relative_path.startswith("/_next/static/"):
+        headers["Cache-Control"] = "public, max-age=604800, immutable"
 
 
 WHITENOISE_ADD_HEADERS_FUNCTION = set_index_cache_control_headers
