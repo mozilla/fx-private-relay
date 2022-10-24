@@ -543,17 +543,13 @@ class CannotMakeAddressException(RelayAPIException):
     """Base exception for RelayAddress or DomainAddress creation failure."""
 
 
-class CannotMakeRelayAddrException(CannotMakeAddressException):
-    """RelayAddress creation failure."""
-
-
-class RelayAddrAccountIsPausedException(CannotMakeRelayAddrException):
+class AccountIsPausedException(CannotMakeAddressException):
     default_code = "account_is_paused"
     default_detail = "Your account is on pause."
     status_code = 403
 
 
-class RelayAddrFreeTierLimitException(CannotMakeRelayAddrException):
+class RelayAddrFreeTierLimitException(CannotMakeAddressException):
     default_code = "free_tier_limit"
     default_detail_template = (
         "You must be a premium subscriber to make more than"
@@ -572,23 +568,13 @@ class RelayAddrFreeTierLimitException(CannotMakeRelayAddrException):
         return {"free_tier_limit": self.free_tier_limit}
 
 
-class CannotMakeDomainAddrException(CannotMakeAddressException):
-    """DomainAddress creation failure."""
-
-
-class DomainAddrAccountIsPausedException(CannotMakeDomainAddrException):
-    default_code = "account_is_paused"
-    default_detail = "Your account is on pause."
-    status_code = 403
-
-
-class DomainAddrFreeTierException(CannotMakeDomainAddrException):
+class DomainAddrFreeTierException(CannotMakeAddressException):
     default_code = "free_tier_no_subdomain_masks"
     default_detail = "You must be a premium subscriber to create subdomain aliases."
     status_code = 403
 
 
-class DomainAddrNeedSubdomainException(CannotMakeDomainAddrException):
+class DomainAddrNeedSubdomainException(CannotMakeAddressException):
     default_code = "need_subdomain"
     default_detail = (
         "You must select a subdomain before creating email address with subdomain."
@@ -596,7 +582,7 @@ class DomainAddrNeedSubdomainException(CannotMakeDomainAddrException):
     status_code = 400
 
 
-class DomainAddrUnavailableException(CannotMakeDomainAddrException):
+class DomainAddrUnavailableException(CannotMakeAddressException):
     default_code = "address_unavailable"
     default_detail_template = (
         'Domain address "{unavailable_address}" could not be created,'
@@ -690,7 +676,7 @@ class RelayAddress(models.Model):
 
 def check_user_can_make_another_address(profile: Profile) -> None:
     if profile.is_flagged:
-        raise RelayAddrAccountIsPausedException()
+        raise AccountIsPausedException()
     if profile.at_max_free_aliases and not profile.has_premium:
         raise RelayAddrFreeTierLimitException()
 
@@ -738,7 +724,7 @@ def check_user_can_make_domain_address(user_profile: Profile) -> None:
         raise DomainAddrNeedSubdomainException()
 
     if user_profile.is_flagged:
-        raise DomainAddrAccountIsPausedException()
+        raise AccountIsPausedException()
 
 
 class DomainAddress(models.Model):
