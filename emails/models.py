@@ -544,26 +544,22 @@ class CannotMakeAddressException(RelayAPIException):
 
 
 class CannotMakeRelayAddrException(CannotMakeAddressException):
-    """
-    RelayAddress creation failure.
-
-    Previously implemented as a BadRequest exception, so it uses status code 400
-    """
-
-    status_code = 400
+    """RelayAddress creation failure."""
 
 
 class RelayAddrAccountIsPausedException(CannotMakeRelayAddrException):
-    default_detail = "Your account is on pause."
     default_code = "account_is_paused"
+    default_detail = "Your account is on pause."
+    status_code = 403
 
 
 class RelayAddrFreeTierLimitException(CannotMakeRelayAddrException):
+    default_code = "free_tier_limit"
     default_detail_template = (
         "You must be a premium subscriber to make more than"
         " {free_tier_limit} aliases."
     )
-    default_code = "free_tier_limit"
+    status_code = 403
 
     def __init__(self, free_tier_limit: Optional[int] = None, *args, **kwargs):
         self.free_tier_limit = free_tier_limit or settings.MAX_NUM_FREE_ALIASES
@@ -577,38 +573,36 @@ class RelayAddrFreeTierLimitException(CannotMakeRelayAddrException):
 
 
 class CannotMakeDomainAddrException(CannotMakeAddressException):
-    """
-    DomainAddress creation failure.
-
-    Previously implemented as a PermissionDenied exception, so it uses status code 403
-    """
-
-    status_code = 403
+    """DomainAddress creation failure."""
 
 
 class DomainAddrAccountIsPausedException(CannotMakeDomainAddrException):
-    default_detail = "Your account is on pause."
     default_code = "account_is_paused"
+    default_detail = "Your account is on pause."
+    status_code = 403
 
 
 class DomainAddrFreeTierException(CannotMakeDomainAddrException):
-    default_detail = "You must be a premium subscriber to create subdomain aliases."
     default_code = "free_tier_no_subdomain_masks"
+    default_detail = "You must be a premium subscriber to create subdomain aliases."
+    status_code = 403
 
 
 class DomainAddrNeedSubdomainException(CannotMakeDomainAddrException):
+    default_code = "need_subdomain"
     default_detail = (
         "You must select a subdomain before creating email address with subdomain."
     )
-    default_code = "need_subdomain"
+    status_code = 400
 
 
 class DomainAddrUnavailableException(CannotMakeDomainAddrException):
+    default_code = "address_unavailable"
     default_detail_template = (
         'Domain address "{unavailable_address}" could not be created,'
         " try using a different value."
     )
-    default_code = "address_unavailable"
+    status_code = 400
 
     def __init__(self, unavailable_address: str, *args, **kwargs):
         self.unavailable_address = unavailable_address

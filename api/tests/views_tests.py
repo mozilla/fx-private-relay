@@ -85,7 +85,7 @@ def test_post_domainaddress_no_subdomain_error(prem_api_client) -> None:
         format="json",
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 400
     ret_data = response.json()
     assert ret_data == {
         "detail": (
@@ -123,7 +123,7 @@ def test_post_domainaddress_bad_address_error(prem_api_client) -> None:
         format="json",
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 400
     ret_data = response.json()
     assert ret_data == {
         "detail": 'Domain address "myNewAlias" could not be created, try using a different value.',
@@ -167,7 +167,7 @@ def test_post_relayaddress_free_mask_email_limit_error(
 
     response = free_api_client.post(reverse("relayaddress-list"), {}, format="json")
 
-    assert response.status_code == 400
+    assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
         "detail": (
@@ -187,7 +187,7 @@ def test_post_relayaddress_flagged_error(free_api_client) -> None:
 
     response = free_api_client.post(reverse("relayaddress-list"), {}, format="json")
 
-    assert response.status_code == 400
+    assert response.status_code == 403
     ret_data = response.json()
     assert ret_data == {
         "detail": "Your account is on pause.",
