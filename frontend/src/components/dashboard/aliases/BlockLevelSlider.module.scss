@@ -165,6 +165,7 @@ $trackLineHeight: 4px;
           // stop:
           top: calc(var(--thumbDiameter) + #{$spacing-xs});
           height: $stopLabelHeight;
+          word-break: keep-all;
         }
 
         &.is-selected {
