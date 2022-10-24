@@ -118,6 +118,7 @@ export const AddressPickerModal = (props: Props) => {
                   placeholder={l10n.getString(
                     "modal-custom-alias-picker-form-prefix-placeholder"
                   )}
+                  autoCapitalize="none"
                 />
               </div>
               <span className={styles.suffix}>
