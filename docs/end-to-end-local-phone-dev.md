@@ -127,8 +127,12 @@ local app URL to its call and text webhooks, and set its app ID to your
    - Friendly name: "your-host Relay"
    - Voice request URL: https://your-host.ngrok.io/api/v1/inbound_call HTTP
      POST
+   - "Show optional settings"
+   - Voice status callback URL: https://your-host.ngrok.io/api/v1/voice_status
    - Messaging request URL: https://your-host.ngrok.io/api/v1/inbound_sms HTTP
      POST
+   - "Show optional settings"
+   - Messaging status callback URL: https://your-host.ngrok.io/api/v1/sms_status
 3. Click "Save"
 4. Click the newly-created app
 5. Copy the `SID` value into your `.env` `TWILIO_SMS_APPLICATION_SID`
