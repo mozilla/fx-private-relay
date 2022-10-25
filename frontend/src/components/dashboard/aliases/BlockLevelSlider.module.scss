@@ -274,6 +274,10 @@ $trackLineHeight: 4px;
       // would cause a lot of jumping around:
       min-height: 150px;
 
+      &::after {
+        display: none;
+      }
+
       img {
         display: inline-block;
       }
