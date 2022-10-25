@@ -1,31 +1,23 @@
-from typing import Mapping
-
 from django.contrib.auth.models import User
 
 from rest_framework import serializers, exceptions
 
-from emails.models import (
-    CannotMakeAddressException,
-    DomainAddress,
-    Profile,
-    RelayAddress,
-    check_user_can_make_another_address,
-)
+from emails.models import DomainAddress, Profile, RelayAddress
 
 
 class PremiumValidatorsMixin:
     # the user must be premium to set block_list_emails=True
     def validate_block_list_emails(self, value):
-        if (
+        if value and not (
             self.context["request"]
             .user.profile_set.prefetch_related("user__socialaccount_set")
             .first()
             .has_premium
         ):
-            return value
-        raise exceptions.AuthenticationFailed(
-            "Must be premium to set block_list_emails"
-        )
+            raise exceptions.AuthenticationFailed(
+                "Must be premium to set block_list_emails."
+            )
+        return value
 
 
 class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
@@ -69,18 +61,6 @@ class RelayAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer
             "num_replied",
             "num_spam",
         ]
-
-    def validate(self, data: Mapping) -> Mapping:
-        """Check if a free user is at their RelayAddress limit."""
-        if self.context["request"].method == "POST":
-            user = self.context["request"].user
-            profile = user.profile_set.get()
-            try:
-                check_user_can_make_another_address(profile)
-            except CannotMakeAddressException as exception:
-                raise exceptions.ValidationError(str(exception)) from exception
-
-        return data
 
 
 class DomainAddressSerializer(PremiumValidatorsMixin, serializers.ModelSerializer):
