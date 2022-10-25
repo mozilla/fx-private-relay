@@ -18,7 +18,7 @@ class RelayStaticFilesStorage(CompressedManifestStaticFilesStorage):
     The Whitenoise CompressedManifestStaticFilesStorage [2] builds on this by
     pre-compressing files as well, so that the gzipped versions can be served.
 
-    This class skips renaming files from next.js, which already include hashes
+    This class skips renaming files from Next.js, which already include hashes
     in the filenames.
 
     [1] https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/#manifeststaticfilesstorage
@@ -26,7 +26,7 @@ class RelayStaticFilesStorage(CompressedManifestStaticFilesStorage):
     """
 
     def hashed_name(self, name, content=None, filename=None):
-        """Skip hashing files output by next.js"""
+        """Skip hashing files output by Next.js"""
         if name.startswith("_next/static/"):
             return name
         else:

@@ -127,6 +127,16 @@ class StoreFirstVisit:
 
 
 class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
+    """Customize WhiteNoiseMiddleware for Relay.
+
+    The WhiteNoiseMiddleware serves static files and sets headers. In
+    production, the files are read from staticfiles/staticfiles.json,
+    and files with hashes in the name are treated as immutable with
+    10-year cache timeouts.
+
+    This class also treats Next.js output files (already hashed) as immutable.
+    """
+
     def immutable_file_test(self, path, url):
         """
         Determine whether given URL represents an immutable file (i.e. a
