@@ -332,7 +332,7 @@ PHONE_PLAN_ID_US_YEARLY = config(
 )
 BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
 BUNDLE_PLAN_ID_US = config(
-    "BUNDLE_PLAN_ID_US", "price_1La3d7JNcmPzuWtRn0cg2EyH", cast=str
+    "BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh", cast=str
 )
 PREMIUM_PRICE_ID_OVERRIDE = config("PREMIUM_PRICE_ID_OVERRIDE", "", cast=str)
 PREMIUM_PLAN_ID_MATRIX = {
