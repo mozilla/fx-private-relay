@@ -137,12 +137,13 @@
         display: flex;
         flex-direction: column;
         gap: $spacing-sm;
+        list-style: none;
 
         @media #{$mq-lg} {
           flex-direction: row;
         }
 
-        div {
+        li {
           background: rgba(255, 255, 255, 0.1);
           padding: $spacing-sm $spacing-md;
           font-weight: 500;
@@ -216,9 +217,14 @@
         gap: $spacing-md;
         align-items: center;
 
-        img {
+        .bundle-logo {
+          display: none;
           max-width: 130px;
           align-self: center;
+
+          @media #{$mq-lg} {
+            display: block;
+          }
         }
 
         @media #{$mq-lg} {
@@ -262,11 +268,7 @@
             }
 
             &:nth-child(2) {
-              @include text-body-lg;
-
-              @media #{$mq-lg} {
-                @include text-body-xl;
-              }
+              @include text-body-xl;
             }
           }
         }

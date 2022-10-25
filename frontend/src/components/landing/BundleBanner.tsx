@@ -120,20 +120,20 @@ export const BundleBanner = (props: Props) => {
               <p>
                 <strong>{l10n.getString("bundle-banner-plan-header")}</strong>
               </p>
-              <div className={styles["bundle-banner-value-props"]}>
-                <div>
+              <ul className={styles["bundle-banner-value-props"]}>
+                <li>
                   <MaskIcon alt="" width="15" height="15" />
                   {l10n.getString("bundle-banner-plan-modules-email-masking")}
-                </div>
-                <div>
+                </li>
+                <li>
                   <PhoneIcon alt="" width="15" height="20" />
                   {l10n.getString("bundle-banner-plan-modules-phone-masking")}
-                </div>
-                <div>
+                </li>
+                <li>
                   <VpnIcon alt="" width="20" height="20" />
                   {l10n.getString("bundle-banner-plan-modules-mozilla-vpn")}
-                </div>
-              </div>
+                </li>
+              </ul>
               <div className={styles["pricing-logo-wrapper"]}>
                 <div className={styles["pricing-wrapper"]}>
                   <Localized
@@ -157,6 +157,7 @@ export const BundleBanner = (props: Props) => {
                   </Localized>
                 </div>
                 <img
+                  className={styles["bundle-logo"]}
                   src={bundleLogo.src}
                   alt={l10n.getString("bundle-banner-alt")}
                 />
