@@ -19,6 +19,11 @@ class PhonesConfig(AppConfig):
             self._twilio_client = Client(
                 settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN
             )
+            # Create TwiML app to access its sms_status_callback
+            # Note:
+            self.twiml_app = self._twilio_client.applications(
+                settings.TWILIO_SMS_APPLICATION_SID
+            ).fetch()
             self._twilio_validator = RequestValidator(settings.TWILIO_AUTH_TOKEN)
         except Exception:
             logger.exception("exception creating Twilio client and/or validator")

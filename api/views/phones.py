@@ -18,6 +18,8 @@ from rest_framework import (
 )
 from rest_framework.generics import get_object_or_404
 
+from twilio.base.exceptions import TwilioRestException
+
 from api.views import SaveToRequestUser
 from emails.models import Profile, get_storing_phone_log
 from emails.utils import incr_if_enabled
@@ -59,6 +61,11 @@ def twilio_validator():
     phones_config = apps.get_app_config("phones")
     validator = phones_config.twilio_validator
     return validator
+
+
+def twiml_app():
+    phones_config = apps.get_app_config("phones")
+    return phones_config.twiml_app
 
 
 class RealPhoneRateThrottle(throttling.UserRateThrottle):
@@ -444,17 +451,37 @@ def resend_welcome_sms(request):
     return resp
 
 
+def _try_delete_from_twilio(message):
+    try:
+        message.delete()
+    except TwilioRestException as e:
+        # Raise the exception unless it's a 404 indicating the message is already gone
+        if e.status != 404:
+            raise e
+
+
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.AllowAny])
 @decorators.renderer_classes([TemplateTwiMLRenderer])
 def inbound_sms(request):
     incr_if_enabled("phones_inbound_sms")
     _validate_twilio_request(request)
+
+    """
+    TODO: delete the message from Twilio; how to do this AFTER this request? queue?
+    E.g., with a django-celery task in phones.tasks:
+
+    inbound_msg_sid = request.data.get("MessageSid", None)
+    if inbound_msg_sid is None:
+        raise exceptions.ValidationError("Request missing MessageSid")
+    tasks._try_delete_from_twilio.delay(args=message, countdown=10)
+    """
+
     inbound_body = request.data.get("Body", None)
     inbound_from = request.data.get("From", None)
     inbound_to = request.data.get("To", None)
     if inbound_body is None or inbound_from is None or inbound_to is None:
-        raise exceptions.ValidationError("Message missing From, To, Or Body.")
+        raise exceptions.ValidationError("Request missing From, To, Or Body.")
 
     relay_number, real_phone = _get_phone_objects(inbound_to)
     _check_remaining(relay_number, "texts")
@@ -477,10 +504,12 @@ def inbound_sms(request):
         _check_and_update_contact(inbound_contact, "texts", relay_number)
 
     client = twilio_client()
+    app = twiml_app()
     incr_if_enabled("phones_outbound_sms")
     client.messages.create(
         from_=relay_number.number,
         body=f"[Relay 📲 {inbound_from}] {inbound_body}",
+        status_callback=app.sms_status_callback,
         to=real_phone.number,
     )
     relay_number.remaining_texts -= 1
@@ -535,9 +564,10 @@ def inbound_call(request):
 def voice_status(request):
     incr_if_enabled("phones_voice_status")
     _validate_twilio_request(request)
+    call_sid = request.data.get("CallSid", None)
     called = request.data.get("Called", None)
     call_status = request.data.get("CallStatus", None)
-    if called is None or call_status is None:
+    if call_sid is None or called is None or call_status is None:
         raise exceptions.ValidationError("Call data missing Called, CallStatus")
     if call_status != "completed":
         return response.Response(status=200)
@@ -559,6 +589,26 @@ def voice_status(request):
                 "remaining_minutes": relay_number.remaining_minutes,
             },
         )
+    client = twilio_client()
+    client.calls(call_sid).delete()
+    return response.Response(status=200)
+
+
+@decorators.api_view(["POST"])
+@decorators.permission_classes([permissions.AllowAny])
+def sms_status(request):
+    _validate_twilio_request(request)
+    sms_status = request.data.get("SmsStatus", None)
+    message_sid = request.data.get("MessageSid", None)
+    if sms_status is None or message_sid is None:
+        raise exceptions.ValidationError(
+            "Text status data missing SmsStatus or MessageSid"
+        )
+    if sms_status != "delivered":
+        return response.Response(status=200)
+    client = twilio_client()
+    message = client.messages(message_sid)
+    _try_delete_from_twilio(message)
     return response.Response(status=200)
 
 
