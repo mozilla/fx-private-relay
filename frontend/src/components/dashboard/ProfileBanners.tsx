@@ -5,10 +5,13 @@ import FirefoxLogo from "./images/fx-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
 import RelayLogo from "./images/placeholder-logo.svg";
 import {
+  getBundlePrice,
   getPeriodicalPremiumPrice,
   getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
   isPremiumAvailableInCountry,
+  RuntimeDataWithBundleAvailable,
   RuntimeDataWithPeriodicalPremiumAvailable,
   RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
@@ -63,6 +66,19 @@ export const ProfileBanners = (props: Props) => {
         key="bounce-banner"
         email={props.user.email}
         profile={props.profile}
+      />
+    );
+  }
+
+  if (
+    props.profile.has_premium &&
+    isBundleAvailableInCountry(props.runtimeData) &&
+    isFlagActive(props.runtimeData, "bundle")
+  ) {
+    banners.push(
+      <BundlePromoPremiumBanner
+        key="bundle-promo"
+        runtimeData={props.runtimeData}
       />
     );
   }
@@ -221,6 +237,10 @@ type NoPremiumBannerProps = {
   runtimeData: RuntimeDataWithPeriodicalPremiumAvailable;
 };
 
+type BundleBannerProps = {
+  runtimeData: RuntimeDataWithBundleAvailable;
+};
+
 // Unused but left in for when we no longer want to use <LoyalistPremiumBanner>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const NoPremiumBanner = (props: NoPremiumBannerProps) => {
@@ -332,6 +352,31 @@ const EndOfIntroPricingOfferBanner = (
       <p>
         {l10n.getString("banner-offer-end-copy", {
           end_date: endDateFormatter.format(introPricingOfferEndDate),
+        })}
+      </p>
+    </Banner>
+  );
+};
+
+const BundlePromoPremiumBanner = (props: BundleBannerProps) => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      key="bundle-banner"
+      type="promo"
+      illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
+      title={l10n.getString("bundle-banner-dashboard-header")}
+      cta={{
+        target: "/premium#pricing",
+        size: "medium",
+        content: l10n.getString("bundle-banner-dashboard-upgrade-cta"),
+      }}
+    >
+      <p>
+        {l10n.getString("bundle-banner-dashboard-body", {
+          savings: "40%",
+          monthly_price: getBundlePrice(props.runtimeData, l10n),
         })}
       </p>
     </Banner>
