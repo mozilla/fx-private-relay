@@ -64,6 +64,7 @@ import { parseDate } from "../../../../functions/parseDate";
 import { CountdownTimer } from "../../../CountdownTimer";
 import { useInterval } from "../../../../hooks/interval";
 import Link from "next/link";
+import { GiftIcon } from "../../../Icons";
 
 export type WhatsNewEntry = {
   title: string;
@@ -570,7 +571,13 @@ export const WhatsNewMenu = (props: Props) => {
           triggerState.isOpen ? styles["is-open"] : ""
         } ${props.style}`}
       >
-        {l10n.getString("whatsnew-trigger-label")}
+        <GiftIcon
+          className={styles["trigger-icon"]}
+          alt={l10n.getString("whatsnew-trigger-label")}
+        />
+        <span className={styles["trigger-label"]}>
+          {l10n.getString("whatsnew-trigger-label")}
+        </span>
         {pill}
       </button>
       {
