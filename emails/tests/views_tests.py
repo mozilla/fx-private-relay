@@ -86,7 +86,7 @@ class SNSNotificationTest(TestCase):
     def setUp(self):
         # FIXME: this should make an object so that the test passes
         self.user = baker.make(User)
-        self.profile = self.user.profile_set.first()
+        self.profile = self.user.profile
         self.sa = baker.make(SocialAccount, user=self.user, provider="fxa")
         self.ra = baker.make(
             RelayAddress, user=self.user, address="ebsbdsan7", domain=2
@@ -210,28 +210,28 @@ class SNSNotificationTest(TestCase):
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
-        self.user = baker.make(User, email="relayuser@test.com", make_m2m=True)
+        self.user = baker.make(User, email="relayuser@test.com")
 
     def test_sns_message_with_hard_bounce(self):
         pre_request_datetime = datetime.now(timezone.utc)
 
         _sns_notification(BOUNCE_SNS_BODIES["hard"])
 
-        profile = self.user.profile_set.first()
-        assert profile.last_hard_bounce >= pre_request_datetime
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.last_hard_bounce >= pre_request_datetime
 
     def test_sns_message_with_soft_bounce(self):
         pre_request_datetime = datetime.now(timezone.utc)
 
         _sns_notification(BOUNCE_SNS_BODIES["soft"])
 
-        profile = self.user.profile_set.first()
-        assert profile.last_soft_bounce >= pre_request_datetime
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.last_soft_bounce >= pre_request_datetime
 
     def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
         _sns_notification(BOUNCE_SNS_BODIES["spam"])
-        profile = self.user.profile_set.first()
-        assert profile.auto_block_spam == True
+        self.user.profile.refresh_from_db()
+        assert self.user.profile.auto_block_spam == True
 
 
 class ComplaintHandlingTest(TestCase):
@@ -519,7 +519,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.bucket = "test-bucket"
         self.key = "/emails/objectkey123"
         self.user = baker.make(User, email="sender@test.com", make_m2m=True)
-        self.profile = self.user.profile_set.first()
+        self.profile = self.user.profile
         assert self.profile is not None
         self.address = baker.make(
             RelayAddress, user=self.user, address="sender", domain=2
@@ -672,7 +672,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 class SnsMessageTest(TestCase):
     def setUp(self) -> None:
         self.user = baker.make(User)
-        self.profile = self.user.profile_set.first()
+        self.profile = self.user.profile
         assert self.profile is not None
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa"
