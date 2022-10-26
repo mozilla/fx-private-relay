@@ -10,6 +10,7 @@ from django.shortcuts import redirect
 
 from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
+from whitenoise.middleware import WhiteNoiseMiddleware
 
 from .views import _get_oauth2_session, update_social_token, NoSocialToken
 
@@ -123,3 +124,31 @@ class StoreFirstVisit:
         if first_visit is None and not request.user.is_anonymous:
             response.set_cookie("first_visit", datetime.now(timezone.utc))
         return response
+
+
+class RelayStaticFilesMiddleware(WhiteNoiseMiddleware):
+    """Customize WhiteNoiseMiddleware for Relay.
+
+    The WhiteNoiseMiddleware serves static files and sets headers. In
+    production, the files are read from staticfiles/staticfiles.json,
+    and files with hashes in the name are treated as immutable with
+    10-year cache timeouts.
+
+    This class also treats Next.js output files (already hashed) as immutable.
+    """
+
+    def immutable_file_test(self, path, url):
+        """
+        Determine whether given URL represents an immutable file (i.e. a
+        file with a hash of its contents as part of its name) which can
+        therefore be cached forever.
+
+        All files outputed by next.js are hashed and immutable
+        """
+        if not url.startswith(self.static_prefix):
+            return False
+        name = url[len(self.static_prefix) :]
+        if name.startswith("_next/static/"):
+            return True
+        else:
+            return super().immutable_file_test(path, url)
