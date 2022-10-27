@@ -2,13 +2,17 @@ import { Localized, useLocalization } from "@fluent/react";
 import { ReactNode, useState } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
+import BundleLogo from "./images/vpn-and-relay-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
 import RelayLogo from "./images/placeholder-logo.svg";
 import {
+  getBundlePrice,
   getPeriodicalPremiumPrice,
   getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
   isPremiumAvailableInCountry,
+  RuntimeDataWithBundleAvailable,
   RuntimeDataWithPeriodicalPremiumAvailable,
   RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
@@ -63,6 +67,20 @@ export const ProfileBanners = (props: Props) => {
         key="bounce-banner"
         email={props.user.email}
         profile={props.profile}
+      />
+    );
+  }
+
+  if (
+    isBundleAvailableInCountry(props.runtimeData) &&
+    isFlagActive(props.runtimeData, "bundle") &&
+    !props.profile.has_vpn
+  ) {
+    banners.push(
+      <BundlePromoBanner
+        key="bundle-promo"
+        runtimeData={props.runtimeData}
+        profileData={props.profile}
       />
     );
   }
@@ -221,6 +239,11 @@ type NoPremiumBannerProps = {
   runtimeData: RuntimeDataWithPeriodicalPremiumAvailable;
 };
 
+type BundleBannerProps = {
+  runtimeData: RuntimeDataWithBundleAvailable;
+  profileData: ProfileData;
+};
+
 // Unused but left in for when we no longer want to use <LoyalistPremiumBanner>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const NoPremiumBanner = (props: NoPremiumBannerProps) => {
@@ -332,6 +355,42 @@ const EndOfIntroPricingOfferBanner = (
       <p>
         {l10n.getString("banner-offer-end-copy", {
           end_date: endDateFormatter.format(introPricingOfferEndDate),
+        })}
+      </p>
+    </Banner>
+  );
+};
+
+const BundlePromoBanner = (props: BundleBannerProps) => {
+  const { l10n } = useLocalization();
+
+  return (
+    <Banner
+      key="bundle-banner"
+      type="promo"
+      illustration={
+        <img
+          src={BundleLogo.src}
+          alt=""
+          width={120}
+          height={60}
+          className={styles["bundle-logo"]}
+        />
+      }
+      title={l10n.getString("bundle-banner-dashboard-header")}
+      cta={{
+        target: "/premium#pricing",
+        size: "large",
+        content: l10n.getString("bundle-banner-dashboard-upgrade-cta"),
+      }}
+      dismissal={{
+        key: `bundle-promo-banner-${props.profileData.id}`,
+      }}
+    >
+      <p>
+        {l10n.getString("bundle-banner-dashboard-body", {
+          savings: "40%",
+          monthly_price: getBundlePrice(props.runtimeData, l10n),
         })}
       </p>
     </Banner>
