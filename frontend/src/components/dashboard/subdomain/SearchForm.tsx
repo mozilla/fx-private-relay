@@ -57,6 +57,7 @@ export const SubdomainSearchForm = (props: Props) => {
         id="subdomain"
         minLength={1}
         maxLength={63}
+        autoCapitalize="none"
       />
       <Button type="submit">
         {l10n.getString("banner-register-subdomain-button-search")}
