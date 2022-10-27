@@ -260,9 +260,7 @@ Domain Addresses:
 
     # Check that data is cleaned or remains as desired
     for r_address in RelayAddress.objects.all():
-        profile = r_address.user.profile_set.first()
-        assert profile
-        if profile.server_storage:
+        if r_address.user.profile_set.get().server_storage:
             assert r_address.used_on
             assert r_address.description
             assert r_address.generated_for
@@ -272,9 +270,7 @@ Domain Addresses:
             assert r_address.generated_for == ""
 
     for d_address in DomainAddress.objects.all():
-        profile = d_address.user.profile_set.first()
-        assert profile
-        if profile.server_storage:
+        if d_address.user.profile_set.get().server_storage:
             assert d_address.used_on
             assert d_address.description
         else:
@@ -297,7 +293,7 @@ def setup_profile_mismatch_test_data(add_problems=False):
         return
 
     r2 = baker.make(User, email="regular2@example.com")
-    p2 = r2.profile_set.first()
+    p2 = r2.profile_set.get()
     r3 = baker.make(User, email="regular3@example.com")
     # Assign user #2's profile to user #3, leaving r2 with none and r3 with 3
     Profile.objects.filter(id=p2.id).update(user_id=r3.id)
@@ -377,8 +373,7 @@ Users:
 
     # Check that all users have profiles
     for user in User.objects.all():
-        profile = user.profile_set.first()
-        assert profile
+        assert user.profile_set.get()
 
 
 @pytest.mark.django_db

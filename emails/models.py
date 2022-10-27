@@ -82,6 +82,7 @@ def default_domain_numerical():
 
 
 class Profile(models.Model):
+    # TODO: #2708 Change to OneToOneField
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
     num_address_deleted = models.PositiveIntegerField(default=0)
@@ -658,8 +659,7 @@ class RelayAddress(models.Model):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
-        profile = self.user.profile_set.first()
-        if not profile.server_storage:
+        if not self.user.profile_set.get().server_storage:
             self.description = ""
             self.generated_for = ""
             self.used_on = ""
@@ -851,7 +851,7 @@ class Reply(models.Model):
 
     @property
     def profile(self):
-        return self.address.user.profile_set.first()
+        return self.address.user.profile_set.get()
 
     @property
     def owner_has_premium(self):

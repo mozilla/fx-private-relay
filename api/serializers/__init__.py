@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.db.models import prefetch_related_objects
 
 from rest_framework import serializers, exceptions
 
@@ -8,15 +9,13 @@ from emails.models import DomainAddress, Profile, RelayAddress
 class PremiumValidatorsMixin:
     # the user must be premium to set block_list_emails=True
     def validate_block_list_emails(self, value):
-        if value and not (
-            self.context["request"]
-            .user.profile_set.prefetch_related("user__socialaccount_set")
-            .first()
-            .has_premium
-        ):
-            raise exceptions.AuthenticationFailed(
-                "Must be premium to set block_list_emails."
-            )
+        if value:
+            user = self.context["request"].user
+            prefetch_related_objects([user], "socialaccount_set", "profile_set")
+            if not user.profile_set.get().has_premium:
+                raise exceptions.AuthenticationFailed(
+                    "Must be premium to set block_list_emails."
+                )
         return value
 
 
