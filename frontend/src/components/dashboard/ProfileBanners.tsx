@@ -72,15 +72,12 @@ export const ProfileBanners = (props: Props) => {
   }
 
   if (
-    props.profile.has_premium &&
     isBundleAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "bundle")
+    isFlagActive(props.runtimeData, "bundle") &&
+    !props.profile.has_vpn
   ) {
     banners.push(
-      <BundlePromoPremiumBanner
-        key="bundle-promo"
-        runtimeData={props.runtimeData}
-      />
+      <BundlePromoBanner key="bundle-promo" runtimeData={props.runtimeData} />
     );
   }
 
@@ -359,7 +356,7 @@ const EndOfIntroPricingOfferBanner = (
   );
 };
 
-const BundlePromoPremiumBanner = (props: BundleBannerProps) => {
+const BundlePromoBanner = (props: BundleBannerProps) => {
   const { l10n } = useLocalization();
 
   return (
