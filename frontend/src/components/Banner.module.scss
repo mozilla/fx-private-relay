@@ -155,7 +155,6 @@
   }
 }
 
-// For Loyalist upsell
 .cta-large-button {
   padding: $spacing-md;
   flex: 0 0 auto;
@@ -171,8 +170,8 @@
     display: block;
     padding: $spacing-md $spacing-lg;
     font-weight: 700;
-    background: $color-blue-50;
-    color: $color-white;
+    border: 2px solid $color-blue-50;
+    color: $color-blue-50;
     border-radius: $border-radius-sm;
 
     &:hover {

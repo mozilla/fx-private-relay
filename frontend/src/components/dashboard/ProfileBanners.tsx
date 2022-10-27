@@ -2,6 +2,7 @@ import { Localized, useLocalization } from "@fluent/react";
 import { ReactNode, useState } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
+import BundleLogo from "./images/vpn-and-relay-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
 import RelayLogo from "./images/placeholder-logo.svg";
 import {
@@ -365,11 +366,19 @@ const BundlePromoPremiumBanner = (props: BundleBannerProps) => {
     <Banner
       key="bundle-banner"
       type="promo"
-      illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
+      illustration={
+        <img
+          src={BundleLogo.src}
+          alt=""
+          width={120}
+          height={60}
+          className={styles["bundle-logo"]}
+        />
+      }
       title={l10n.getString("bundle-banner-dashboard-header")}
       cta={{
         target: "/premium#pricing",
-        size: "medium",
+        size: "large",
         content: l10n.getString("bundle-banner-dashboard-upgrade-cta"),
       }}
     >
