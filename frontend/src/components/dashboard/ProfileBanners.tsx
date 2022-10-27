@@ -77,7 +77,11 @@ export const ProfileBanners = (props: Props) => {
     !props.profile.has_vpn
   ) {
     banners.push(
-      <BundlePromoBanner key="bundle-promo" runtimeData={props.runtimeData} />
+      <BundlePromoBanner
+        key="bundle-promo"
+        runtimeData={props.runtimeData}
+        profileData={props.profile}
+      />
     );
   }
 
@@ -237,6 +241,7 @@ type NoPremiumBannerProps = {
 
 type BundleBannerProps = {
   runtimeData: RuntimeDataWithBundleAvailable;
+  profileData: ProfileData;
 };
 
 // Unused but left in for when we no longer want to use <LoyalistPremiumBanner>
@@ -377,6 +382,9 @@ const BundlePromoBanner = (props: BundleBannerProps) => {
         target: "/premium#pricing",
         size: "large",
         content: l10n.getString("bundle-banner-dashboard-upgrade-cta"),
+      }}
+      dismissal={{
+        key: `bundle-promo-banner-${props.profileData.id}`,
       }}
     >
       <p>
