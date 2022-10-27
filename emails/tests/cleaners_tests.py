@@ -293,10 +293,7 @@ def setup_profile_mismatch_test_data(add_problems=False):
         return
 
     r2 = baker.make(User, email="regular2@example.com")
-    p2 = r2.profile_set.get()
-    r3 = baker.make(User, email="regular3@example.com")
-    # Assign user #2's profile to user #3, leaving r2 with none and r3 with 3
-    Profile.objects.filter(id=p2.id).update(user_id=r3.id)
+    r2.profile_set.get().delete()
 
 
 @pytest.mark.django_db
@@ -345,29 +342,29 @@ def test_missing_profile_cleaner_with_problems() -> None:
     task = MissingProfileCleaner()
     assert task.issues() == 1
     assert task.counts == {
-        "summary": {"ok": 5, "needs_cleaning": 1},
-        "users": {"all": 6, "has_profile": 5, "no_profile": 1},
+        "summary": {"ok": 4, "needs_cleaning": 1},
+        "users": {"all": 5, "has_profile": 4, "no_profile": 1},
     }
     report = task.markdown_report()
     expected = """\
 Users:
-  All: 6
-    Has Profile: 5 ( 83.3%)
-    No Profile : 1 ( 16.7%)"""
+  All: 5
+    Has Profile: 4 ( 80.0%)
+    No Profile : 1 ( 20.0%)"""
     assert report == expected
 
     # Clean the data, check updates
     assert task.clean() == 1
     assert task.counts == {
-        "summary": {"ok": 5, "needs_cleaning": 1, "cleaned": 1},
-        "users": {"all": 6, "has_profile": 5, "no_profile": 1, "cleaned": 1},
+        "summary": {"ok": 4, "needs_cleaning": 1, "cleaned": 1},
+        "users": {"all": 5, "has_profile": 4, "no_profile": 1, "cleaned": 1},
     }
     report = task.markdown_report()
     expected = """\
 Users:
-  All: 6
-    Has Profile: 5 ( 83.3%)
-    No Profile : 1 ( 16.7%)
+  All: 5
+    Has Profile: 4 ( 80.0%)
+    No Profile : 1 ( 20.0%)
       Now has Profile: 1 (100.0%)"""
     assert report == expected
 
@@ -411,25 +408,4 @@ Users:
   All: 4
     One or no Profile: 4 (100.0%)
     Many Profiles    : 0 (  0.0%)"""
-    assert report == expected
-
-
-@pytest.mark.django_db
-def test_many_profile_detector_with_problems() -> None:
-    """ManyProfileDetector detects users with multiple profiles."""
-    setup_profile_mismatch_test_data(add_problems=True)
-
-    task = ManyProfileDetector()
-    assert task.issues() == 1
-    assert task.counts == {
-        "summary": {"ok": 5, "needs_cleaning": 1},
-        "users": {"all": 6, "one_or_no_profile": 5, "many_profiles": 1},
-    }
-    assert task.clean() == 0
-    report = task.markdown_report()
-    expected = """\
-Users:
-  All: 6
-    One or no Profile: 5 ( 83.3%)
-    Many Profiles    : 1 ( 16.7%)"""
     assert report == expected
