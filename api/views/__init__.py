@@ -1,8 +1,13 @@
 import logging
+from typing import Mapping, Optional
 
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import IntegrityError
+
+from rest_framework.exceptions import APIException
+from rest_framework.response import Response
+from rest_framework.views import exception_handler
 
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
@@ -33,7 +38,7 @@ from emails.models import (
 )
 
 
-from ..exceptions import ConflictError
+from ..exceptions import ConflictError, RelayAPIException
 from ..permissions import IsOwner
 from ..serializers import (
     DomainAddressSerializer,
@@ -128,8 +133,6 @@ class DomainAddressViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def perform_create(self, serializer):
         try:
             serializer.save(user=self.request.user)
-        except CannotMakeAddressException as e:
-            raise exceptions.PermissionDenied(e.message)
         except IntegrityError as e:
             domain_address = DomainAddress.objects.filter(
                 user=self.request.user, address=serializer.validated_data.get("address")
@@ -215,3 +218,24 @@ def report_webcompat_issue(request):
                 incr_if_enabled(f"webcompat_issue_{k}", 1)
         return response.Response(status=status.HTTP_201_CREATED)
     return response.Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Response]:
+    """
+    Add error information to response data.
+
+    When the error is a RelayAPIException, these additional fields may be present:
+
+    error_code - A string identifying the error, for client-side translation
+    error_context - Additional data needed for client-side translation
+    """
+
+    response = exception_handler(exc, context)
+    if response and isinstance(exc, RelayAPIException):
+        error_codes = exc.get_codes()
+        if isinstance(error_codes, str):
+            response.data["error_code"] = error_codes
+        error_context = exc.error_context()
+        if error_context:
+            response.data["error_context"] = error_context
+    return response

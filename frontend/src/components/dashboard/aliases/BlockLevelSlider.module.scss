@@ -72,7 +72,7 @@ $trackLineHeight: 4px;
           position: absolute;
           background-color: $color-light-gray-20;
           height: $trackLineHeight;
-          top: var(--trackLineOffset);
+          top: calc(var(--trackLineOffset) - #{$iconHeight});
           width: 100%;
         }
 
@@ -88,6 +88,7 @@ $trackLineHeight: 4px;
 
         .thumb-container {
           position: absolute;
+          top: calc(var(--thumbDiameter) / 2);
           transform: translateX(-50%);
           cursor: pointer;
           // The thumb has a z-index of 1 to overlap .track-stop-promotional,
@@ -187,7 +188,6 @@ $trackLineHeight: 4px;
           // offset it by half of the width of the track, minus half its own
           // width:
           left: calc(50% - var(--thumbDiameter) / 2);
-          top: $iconHeight;
           cursor: pointer;
         }
         &.track-stop-all {
@@ -201,21 +201,9 @@ $trackLineHeight: 4px;
       @media screen and #{$mq-md} {
         padding-top: 0;
 
-        .track .track-line {
-          // --trackLineOffset was calculated to include the height of the image
-          // on top that accompanies track stops on small screens. However, on
-          // large screens, that icon is not visible, so we need to subtract it
-          // from the offset again:
-          top: calc(var(--trackLineOffset) - #{$iconHeight});
-        }
-
         .track-stop {
           img {
             display: none;
-          }
-
-          &.track-stop-promotional {
-            top: 0;
           }
         }
       }
@@ -239,11 +227,12 @@ $trackLineHeight: 4px;
       content: "";
       position: absolute;
       top: -1 * $arrowEdgeLength;
-      left: calc(50% - #{$arrowEdgeLength});
+      left: 50%;
     }
 
     .value-description-content {
       width: $content-xs;
+      max-width: 100%;
       display: flex;
       flex-direction: column;
       gap: $spacing-xs;
@@ -284,6 +273,10 @@ $trackLineHeight: 4px;
       // so if the height would be based on the content, switching blocking modes
       // would cause a lot of jumping around:
       min-height: 150px;
+
+      &::after {
+        display: none;
+      }
 
       img {
         display: inline-block;

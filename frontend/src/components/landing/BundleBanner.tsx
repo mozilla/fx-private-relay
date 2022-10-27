@@ -7,7 +7,7 @@ import {
 } from "../../functions/getPlan";
 import { isFlagActive } from "../../functions/waffle";
 import { RuntimeData } from "../../hooks/api/runtimeData";
-import { MozillaVpnWordmark } from "../Icons";
+import { MaskIcon, MozillaVpnWordmark, PhoneIcon, VpnIcon } from "../Icons";
 import styles from "./BundleBanner.module.scss";
 import { LinkButton } from "../Button";
 import womanInBanner400w from "./images/bundle-banner-woman-400w.png";
@@ -114,15 +114,26 @@ export const BundleBanner = (props: Props) => {
                 </Localized>
               </h2>
               <h3>{l10n.getString("bundle-banner-subheader")}</h3>
-              <p>{l10n.getString("bundle-banner-body")}</p>
-              <Localized
-                id={"bundle-banner-1-year-plan"}
-                elems={{
-                  b: <b />,
-                }}
-              >
-                <p />
-              </Localized>
+              <p>
+                {l10n.getString("bundle-banner-body-v2", { savings: "40%" })}
+              </p>
+              <p>
+                <strong>{l10n.getString("bundle-banner-plan-header")}</strong>
+              </p>
+              <ul className={styles["bundle-banner-value-props"]}>
+                <li>
+                  <MaskIcon alt="" width="15" height="15" />
+                  {l10n.getString("bundle-banner-plan-modules-email-masking")}
+                </li>
+                <li>
+                  <PhoneIcon alt="" width="15" height="20" />
+                  {l10n.getString("bundle-banner-plan-modules-phone-masking")}
+                </li>
+                <li>
+                  <VpnIcon alt="" width="20" height="20" />
+                  {l10n.getString("bundle-banner-plan-modules-mozilla-vpn")}
+                </li>
+              </ul>
               <div className={styles["pricing-logo-wrapper"]}>
                 <div className={styles["pricing-wrapper"]}>
                   <Localized
@@ -137,19 +148,16 @@ export const BundleBanner = (props: Props) => {
                     <span />
                   </Localized>
                   <Localized
-                    id={"bundle-price-save-amount"}
+                    id={"bundle-banner-savings-headline"}
                     vars={{
-                      savings: "??%", // Design states 50%
-                      old_price: "$??", // Design states $11.99
-                    }}
-                    elems={{
-                      "outdated-price": <s className={styles["price"]} />,
+                      savings: "40%",
                     }}
                   >
                     <span />
                   </Localized>
                 </div>
                 <img
+                  className={styles["bundle-logo"]}
                   src={bundleLogo.src}
                   alt={l10n.getString("bundle-banner-alt")}
                 />

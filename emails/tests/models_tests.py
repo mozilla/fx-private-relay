@@ -13,13 +13,13 @@ from django.test import (
 )
 
 from allauth.socialaccount.models import SocialAccount
+import pytest
 
 from model_bakery import baker
 
 from ..models import (
     AbuseMetrics,
     address_hash,
-    ACCOUNT_PAUSED_ERR_MSG,
     CannotMakeAddressException,
     CannotMakeSubdomainException,
     DeletedAddress,
@@ -29,11 +29,9 @@ from ..models import (
     has_bad_words,
     hash_subdomain,
     is_blocklisted,
-    NOT_PREMIUM_USER_ERR_MSG,
     Profile,
     RegisteredSubdomain,
     RelayAddress,
-    TRY_DIFFERENT_VALUE_ERR_MSG,
     valid_available_subdomain,
     valid_address,
     valid_address_pattern,
@@ -181,18 +179,16 @@ class RelayAddressTest(TestCase):
         assert relay_address.user == self.user_profile.user
 
     @override_settings(MAX_NUM_FREE_ALIASES=5, MAX_ADDRESS_CREATION_PER_DAY=10)
-    def test_create_has_limit(self):
-        try:
-            for i in range(100):
-                RelayAddress.objects.create(user=self.premium_user_profile.user)
-        except CannotMakeAddressException as e:
-            relay_address_count = RelayAddress.objects.filter(
-                user=self.premium_user_profile.user
-            ).count()
-            assert e.message == ACCOUNT_PAUSED_ERR_MSG
-            assert relay_address_count == 10
-            return
-        self.fail("Should have raised CannotMakeAddressException")
+    def test_create_has_limit(self) -> None:
+        for _ in range(10):
+            RelayAddress.objects.create(user=self.premium_user_profile.user)
+        with pytest.raises(CannotMakeAddressException) as exc_info:
+            RelayAddress.objects.create(user=self.premium_user_profile.user)
+        assert exc_info.value.get_codes() == "account_is_paused"
+        relay_address_count = RelayAddress.objects.filter(
+            user=self.premium_user_profile.user
+        ).count()
+        assert relay_address_count == 10
 
     def test_create_premium_user_can_exceed_free_limit(self):
         for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
@@ -202,20 +198,16 @@ class RelayAddressTest(TestCase):
         ).values_list("address", flat=True)
         assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES + 1
 
-    def test_create_non_premium_user_cannot_pass_free_limit(self):
-        try:
-            for i in range(settings.MAX_NUM_FREE_ALIASES + 1):
-                RelayAddress.objects.create(user=self.user_profile.user)
-        except CannotMakeAddressException as e:
-            assert e.message == NOT_PREMIUM_USER_ERR_MSG.format(
-                f"make more than {settings.MAX_NUM_FREE_ALIASES} aliases"
-            )
-            relay_addresses = RelayAddress.objects.filter(
-                user=self.user_profile.user
-            ).values_list("address", flat=True)
-            assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES
-            return
-        self.fail("Should have raised CannotMakeSubdomainException")
+    def test_create_non_premium_user_cannot_pass_free_limit(self) -> None:
+        for _ in range(settings.MAX_NUM_FREE_ALIASES):
+            RelayAddress.objects.create(user=self.user_profile.user)
+        with pytest.raises(CannotMakeAddressException) as exc_info:
+            RelayAddress.objects.create(user=self.user_profile.user)
+        assert exc_info.value.get_codes() == "free_tier_limit"
+        relay_addresses = RelayAddress.objects.filter(
+            user=self.user_profile.user
+        ).values_list("address", flat=True)
+        assert len(relay_addresses) == settings.MAX_NUM_FREE_ALIASES
 
     @skip(reason="ignore test for code path that we don't actually use")
     def test_create_with_specified_domain(self):
@@ -1046,18 +1038,16 @@ class DomainAddressTest(TestCase):
         assert domain_address.first_emailed_at is None
 
     @override_settings(MAX_ADDRESS_CREATION_PER_DAY=10)
-    def test_make_domain_address_has_limit(self):
-        try:
-            for i in range(100):
-                DomainAddress.make_domain_address(self.user_profile, "foobar" + str(i))
-        except CannotMakeAddressException as e:
-            domain_address_count = DomainAddress.objects.filter(
-                user=self.user_profile.user
-            ).count()
-            assert e.message == ACCOUNT_PAUSED_ERR_MSG
-            assert domain_address_count == 10
-            return
-        self.fail("Should have raised CannotMakeAddressException")
+    def test_make_domain_address_has_limit(self) -> None:
+        for i in range(10):
+            DomainAddress.make_domain_address(self.user_profile, "foobar" + str(i))
+        with pytest.raises(CannotMakeAddressException) as exc_info:
+            DomainAddress.make_domain_address(self.user_profile, "one-too-many")
+        assert exc_info.value.get_codes() == "account_is_paused"
+        domain_address_count = DomainAddress.objects.filter(
+            user=self.user_profile.user
+        ).count()
+        assert domain_address_count == 10
 
     def test_make_domain_address_makes_requested_address_via_email(self):
         domain_address = DomainAddress.make_domain_address(
@@ -1066,24 +1056,19 @@ class DomainAddressTest(TestCase):
         assert domain_address.address == "foobar"
         assert domain_address.first_emailed_at is not None
 
-    def test_make_domain_address_non_premium_user(self):
-        non_preimum_user_profile = baker.make(Profile)
-        try:
+    def test_make_domain_address_non_premium_user(self) -> None:
+        non_premium_user_profile = baker.make(Profile)
+        with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(
-                non_preimum_user_profile, "test-non-premium"
+                non_premium_user_profile, "test-non-premium"
             )
-        except CannotMakeAddressException as e:
-            assert e.message == NOT_PREMIUM_USER_ERR_MSG.format(
-                "create subdomain aliases"
-            )
-            return
-        self.fail("Should have raise CannotMakeAddressException")
+        assert exc_info.value.get_codes() == "free_tier_no_subdomain_masks"
 
     def test_make_domain_address_can_make_blocklisted_address(self):
         domain_address = DomainAddress.make_domain_address(self.user_profile, "testing")
         assert domain_address.address == "testing"
 
-    def test_make_domain_address_valid_premium_user_with_no_subdomain(self):
+    def test_make_domain_address_valid_premium_user_with_no_subdomain(self) -> None:
         user = baker.make(User)
         random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
@@ -1093,13 +1078,9 @@ class DomainAddressTest(TestCase):
             extra_data={"subscriptions": [random_sub]},
         )
         user_profile = Profile.objects.get(user=user)
-        try:
+        with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(user_profile, "test-nosubdomain")
-        except CannotMakeAddressException as e:
-            excpected_err_msg = "You must select a subdomain before creating email address with subdomain."
-            assert e.message == excpected_err_msg
-            return
-        self.fail("Should have raise CannotMakeAddressException")
+        assert exc_info.value.get_codes() == "need_subdomain"
 
     @patch.multiple("string", ascii_lowercase="a", digits="")
     def test_make_domain_address_makes_dupe_of_deleted(self):
@@ -1118,16 +1099,11 @@ class DomainAddressTest(TestCase):
     @patch("emails.models.address_default")
     def test_make_domain_address_doesnt_randomly_generate_bad_word(
         self, address_default_mocked
-    ):
+    ) -> None:
         address_default_mocked.return_value = "angry0123"
-        try:
+        with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(self.user_profile)
-        except CannotMakeAddressException as e:
-            assert e.message == TRY_DIFFERENT_VALUE_ERR_MSG.format(
-                "Domain address angry0123"
-            )
-            return
-        self.fail("Should have raise CannotMakeAddressException")
+        assert exc_info.value.get_codes() == "address_unavailable"
 
     def test_delete_adds_deleted_address_object(self):
         domain_address = baker.make(DomainAddress, address="lower-case", user=self.user)

@@ -47,6 +47,8 @@ module = [
     "vobject",
     "waffle",
     "waffle.models",
+    "whitenoise.middleware",
+    "whitenoise.storage",
 ]
 
 [[tool.mypy.overrides]]

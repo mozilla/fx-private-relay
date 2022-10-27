@@ -72,3 +72,4 @@ phone-masking-faq-answer-install-app = No, { -brand-name-relay } phone masking w
 #   $attrs (string) - specific attributes added to external links
 phone-masking-faq-question-data = What kinds of data does { -brand-name-relay } phone masking store?
 phone-masking-faq-answer-data = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
+

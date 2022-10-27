@@ -271,7 +271,7 @@ MIDDLEWARE += [
     "django.middleware.security.SecurityMiddleware",
     "csp.middleware.CSPMiddleware",
     "privaterelay.middleware.RedirectRootIfLoggedIn",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "privaterelay.middleware.RelayStaticFilesMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -332,7 +332,7 @@ PHONE_PLAN_ID_US_YEARLY = config(
 )
 BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
 BUNDLE_PLAN_ID_US = config(
-    "BUNDLE_PLAN_ID_US", "price_1La3d7JNcmPzuWtRn0cg2EyH", cast=str
+    "BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh", cast=str
 )
 PREMIUM_PRICE_ID_OVERRIDE = config("PREMIUM_PRICE_ID_OVERRIDE", "", cast=str)
 PREMIUM_PLAN_ID_MATRIX = {
@@ -726,8 +726,7 @@ BUNDLE_PLAN_ID_MATRIX = {
                 # To allow testing the subscription flow on stage, we can set
                 # a custom plan ID via an environment variable:
                 "id": BUNDLE_PLAN_ID_US,
-                # TODO: Insert correct price
-                "price": -1337,
+                "price": 6.99,
                 "currency": "USD",
             },
         },
@@ -838,6 +837,7 @@ if settings.DEBUG:
     # all files spewed out by `npm run watch` in /frontend/out,
     # and we're fine with the performance impact of that.
     WHITENOISE_ROOT = os.path.join(BASE_DIR, "frontend/out")
+STATICFILES_STORAGE = "privaterelay.storage.RelayStaticFilesStorage"
 
 # Relay does not support user-uploaded files
 MEDIA_ROOT = None
@@ -955,6 +955,7 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": DRF_RENDERERS,
     "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "EXCEPTION_HANDLER": "api.views.relay_exception_handler",
 }
 
 PHONE_RATE_LIMIT = "5/minute"
