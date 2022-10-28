@@ -22,7 +22,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 
 def check_premium_for_block_list_emails(sender, instance, **kwargs):
-    if not instance.user.profile_set.get().has_premium:
+    if not instance.user.profile.has_premium:
         try:
             obj = sender.objects.get(pk=instance.pk)
             if obj.block_list_emails != instance.block_list_emails:

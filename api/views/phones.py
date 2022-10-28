@@ -581,7 +581,7 @@ def voice_status(request):
         info_logger.info(
             "phone_limit_exceeded",
             extra={
-                "fxa_uid": relay_number.user.profile_set.get().fxa.uid,
+                "fxa_uid": relay_number.user.profile.fxa.uid,
                 "call_duration_in_seconds": int(call_duration),
                 "relay_number_enabled": relay_number.enabled,
                 "remaining_seconds": relay_number.remaining_seconds,

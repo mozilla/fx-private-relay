@@ -52,8 +52,8 @@ def _get_fxa(request):
 def _get_csat_cookie_and_reason(request):
     if not request.user.is_authenticated:
         return None, None
-    prefetch_related_objects([request.user], "socialaccount_set", "profile_set")
-    profile = request.user.profile_set.get()
+    prefetch_related_objects([request.user], "socialaccount_set", "profile")
+    profile = request.user.profile
     first_visit = request.COOKIES.get(
         "first_visit", datetime.now(timezone.utc).isoformat()
     )

@@ -12,12 +12,11 @@ class PremiumValidatorsMixin:
         if not value:
             return value
         user = self.context["request"].user
-        prefetch_related_objects([user], "socialaccount_set", "profile_set")
-        if not user.profile_set.get().has_premium:
+        prefetch_related_objects([user], "socialaccount_set", "profile")
+        if not user.profile.has_premium:
             raise exceptions.AuthenticationFailed(
                 "Must be premium to set block_list_emails."
             )
-        return value
         return value
 
 

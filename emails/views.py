@@ -369,8 +369,8 @@ def _sns_message(message_json):
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
         address = _get_address(to_address, to_local_portion, to_domain_portion)
-        prefetch_related_objects([address.user], "socialaccount_set", "profile_set")
-        user_profile = address.user.profile_set.get()
+        prefetch_related_objects([address.user], "socialaccount_set", "profile")
+        user_profile = address.user.profile
     except (
         ObjectDoesNotExist,
         CannotMakeAddressException,
@@ -630,7 +630,7 @@ def _reply_allowed(from_address, to_address, reply_record):
         try:
             [to_local_portion, to_domain_portion] = to_address.split("@")
             address = _get_address(to_address, to_local_portion, to_domain_portion)
-            if address.user.profile_set.get().has_premium:
+            if address.user.profile.has_premium:
                 return True
         except (ObjectDoesNotExist):
             return False
@@ -696,7 +696,7 @@ def _handle_reply(from_address, message_json, to_address):
             address,
         )
         reply_record.increment_num_replied()
-        profile = address.user.profile_set.get()
+        profile = address.user.profile
         profile.update_abuse_metric(replied=True)
         return response
     except ClientError as e:
@@ -779,7 +779,7 @@ def _handle_bounce(message_json):
         )
         try:
             user = User.objects.get(email=recipient_address)
-            profile = user.profile_set.get()
+            profile = user.profile
         except User.DoesNotExist:
             incr_if_enabled("email_bounce_relay_user_gone", 1)
             # TODO: handle bounce for a user who no longer exists
