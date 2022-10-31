@@ -271,7 +271,7 @@ MIDDLEWARE += [
     "django.middleware.security.SecurityMiddleware",
     "csp.middleware.CSPMiddleware",
     "privaterelay.middleware.RedirectRootIfLoggedIn",
-    "privaterelay.middleware.RelayStaticFilesMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -837,7 +837,6 @@ if settings.DEBUG:
     # all files spewed out by `npm run watch` in /frontend/out,
     # and we're fine with the performance impact of that.
     WHITENOISE_ROOT = os.path.join(BASE_DIR, "frontend/out")
-STATICFILES_STORAGE = "privaterelay.storage.RelayStaticFilesStorage"
 
 # Relay does not support user-uploaded files
 MEDIA_ROOT = None
