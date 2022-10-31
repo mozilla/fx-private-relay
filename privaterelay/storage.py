@@ -3,10 +3,10 @@ Staticfiles storage implementation for Relay.
 
 This is used when running ./manage.py collectstatic, or rendering Django templates.
 """
-from whitenoise.storage import CompressedManifestStaticFilesStorage
+from django.contrib.staticfiles.storage import ManifestStaticFilesStorage
 
 
-class RelayStaticFilesStorage(CompressedManifestStaticFilesStorage):
+class RelayStaticFilesStorage(ManifestStaticFilesStorage):
     """
     Customize Whitenoise storage for Relay
 
@@ -14,9 +14,6 @@ class RelayStaticFilesStorage(CompressedManifestStaticFilesStorage):
     includes a hash of its contents, and serves these with a long cache time.
     It also creates staticfiles/staticfiles.json that lists all the known static
     files, rather than scanning the folder for files at startup.
-
-    The Whitenoise CompressedManifestStaticFilesStorage [2] builds on this by
-    pre-compressing files as well, so that the gzipped versions can be served.
 
     This class skips renaming files from Next.js, which already include hashes
     in the filenames.
