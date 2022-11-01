@@ -1078,6 +1078,7 @@ def test_wrapped_email_test_from_profile(rf):
 @pytest.mark.parametrize("num_level_one_email_trackers_removed", ("1", "0"))
 def test_wrapped_email_test(
     rf,
+    caplog,
     language,
     has_premium,
     in_premium_country,
@@ -1096,6 +1097,13 @@ def test_wrapped_email_test(
     request = rf.get("/emails/wrapped_email_test", data=data)
     response = wrapped_email_test(request)
     assert response.status_code == 200
+
+    # Check that all Fluent IDs were in the English corpus
+    if language == "en":
+        for log_name, log_level, message in caplog.record_tuples:
+            if log_name == "django_ftl.message_errors":
+                pytest.fail(message)
+
     no_space_html = re.sub(r"\s+", "", response.content.decode())
     assert f"<dt>language</dt><dd>{language}</dd>" in no_space_html
     assert f"<dt>has_premium</dt><dd>{has_premium}</dd>" in no_space_html
