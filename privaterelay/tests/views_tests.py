@@ -59,8 +59,7 @@ class UpdateExtraDataAndEmailTest(TestCase):
 
         assert response.status_code == 202
         sa.refresh_from_db()
-        profile = sa.user.profile_set.first()
-        assert profile.date_subscribed
+        assert sa.user.profile_set.get().date_subscribed
         assert sa.extra_data == new_extra_data
         incr_mocked.assert_called_once()
 
@@ -81,8 +80,7 @@ class UpdateExtraDataAndEmailTest(TestCase):
 
         assert response.status_code == 202
         sa.refresh_from_db()
-        profile = sa.user.profile_set.first()
-        assert profile.date_subscribed_phone
+        assert sa.user.profile_set.get().date_subscribed_phone
         assert sa.extra_data == new_extra_data
         incr_mocked.assert_called_once()
 
