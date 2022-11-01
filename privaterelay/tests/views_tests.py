@@ -7,7 +7,9 @@ from django.test import TestCase
 from allauth.socialaccount.models import SocialAccount
 from allauth.account.models import EmailAddress
 from model_bakery import baker
+import pytest
 
+from emails.models import Profile
 from ..views import _update_all_data, NoSocialToken
 
 
@@ -110,3 +112,11 @@ class UpdateExtraDataAndEmailTest(TestCase):
         # values should be un-changed because of the dupe error
         assert sa2.extra_data == extra_data
         assert ea2.email == "user2@example.com"
+
+
+@pytest.mark.django_db
+def test_logout_page(client):
+    user = baker.make(User)
+    client.force_login(user)
+    response = client.get("/accounts/logout/")
+    assert response.status_code == 200
