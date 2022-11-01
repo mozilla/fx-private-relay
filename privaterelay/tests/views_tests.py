@@ -115,8 +115,9 @@ class UpdateExtraDataAndEmailTest(TestCase):
 
 
 @pytest.mark.django_db
-def test_logout_page(client):
+def test_logout_page(client, settings):
     user = baker.make(User)
     client.force_login(user)
+    settings.ACCOUNT_LOGOUT_ON_GET = False
     response = client.get("/accounts/logout/")
     assert response.status_code == 200
