@@ -114,7 +114,7 @@ def version(request):
 
 def heartbeat(request):
     db_conn = connections["default"]
-    c = db_conn.cursor()
+    assert db_conn.cursor()
     return HttpResponse("200 OK", status=200)
 
 
@@ -131,8 +131,8 @@ def metrics_event(request):
         return JsonResponse({"msg": "Could not decode JSON"}, status=415)
     if "ga_uuid" not in request_data:
         return JsonResponse({"msg": "No GA uuid found"}, status=404)
-    # "dimension5" is a Google Analytics-specific variable to track a custom dimension.
-    # This dimension is used to determine which browser vendor the add-on is using: Firefox or Chrome
+    # "dimension5" is a Google Analytics-specific variable to track a custom dimension,
+    # used to determine which browser vendor the add-on is using: Firefox or Chrome
     event_data = event(
         request_data.get("category", None),
         request_data.get("action", None),
