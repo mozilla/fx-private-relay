@@ -578,11 +578,10 @@ def voice_status(request):
     relay_number.remaining_seconds = relay_number.remaining_seconds - int(call_duration)
     relay_number.save()
     if relay_number.remaining_seconds < 0:
-        profile = relay_number.user.profile_set.first()
         info_logger.info(
             "phone_limit_exceeded",
             extra={
-                "fxa_uid": profile.fxa.uid,
+                "fxa_uid": relay_number.user.profile_set.get().fxa.uid,
                 "call_duration_in_seconds": int(call_duration),
                 "relay_number_enabled": relay_number.enabled,
                 "remaining_seconds": relay_number.remaining_seconds,

@@ -86,7 +86,7 @@ class SNSNotificationTest(TestCase):
     def setUp(self):
         # FIXME: this should make an object so that the test passes
         self.user = baker.make(User)
-        self.profile = self.user.profile_set.first()
+        self.profile = self.user.profile_set.get()
         self.sa = baker.make(SocialAccount, user=self.user, provider="fxa")
         self.ra = baker.make(
             RelayAddress, user=self.user, address="ebsbdsan7", domain=2
@@ -210,14 +210,14 @@ class SNSNotificationTest(TestCase):
 
 class BounceHandlingTest(TestCase):
     def setUp(self):
-        self.user = baker.make(User, email="relayuser@test.com", make_m2m=True)
+        self.user = baker.make(User, email="relayuser@test.com")
 
     def test_sns_message_with_hard_bounce(self):
         pre_request_datetime = datetime.now(timezone.utc)
 
         _sns_notification(BOUNCE_SNS_BODIES["hard"])
 
-        profile = self.user.profile_set.first()
+        profile = self.user.profile_set.get()
         assert profile.last_hard_bounce >= pre_request_datetime
 
     def test_sns_message_with_soft_bounce(self):
@@ -225,12 +225,12 @@ class BounceHandlingTest(TestCase):
 
         _sns_notification(BOUNCE_SNS_BODIES["soft"])
 
-        profile = self.user.profile_set.first()
+        profile = self.user.profile_set.get()
         assert profile.last_soft_bounce >= pre_request_datetime
 
     def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
         _sns_notification(BOUNCE_SNS_BODIES["spam"])
-        profile = self.user.profile_set.first()
+        profile = self.user.profile_set.get()
         assert profile.auto_block_spam == True
 
 
@@ -519,7 +519,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
         self.bucket = "test-bucket"
         self.key = "/emails/objectkey123"
         self.user = baker.make(User, email="sender@test.com", make_m2m=True)
-        self.profile = self.user.profile_set.first()
+        self.profile = self.user.profile_set.get()
         assert self.profile is not None
         self.address = baker.make(
             RelayAddress, user=self.user, address="sender", domain=2
@@ -672,7 +672,7 @@ class SNSNotificationValidUserEmailsInS3Test(TestCase):
 class SnsMessageTest(TestCase):
     def setUp(self) -> None:
         self.user = baker.make(User)
-        self.profile = self.user.profile_set.first()
+        self.profile = self.user.profile_set.get()
         assert self.profile is not None
         self.sa: SocialAccount = baker.make(
             SocialAccount, user=self.user, provider="fxa"
@@ -1078,6 +1078,7 @@ def test_wrapped_email_test_from_profile(rf):
 @pytest.mark.parametrize("num_level_one_email_trackers_removed", ("1", "0"))
 def test_wrapped_email_test(
     rf,
+    caplog,
     language,
     has_premium,
     in_premium_country,
@@ -1096,6 +1097,13 @@ def test_wrapped_email_test(
     request = rf.get("/emails/wrapped_email_test", data=data)
     response = wrapped_email_test(request)
     assert response.status_code == 200
+
+    # Check that all Fluent IDs were in the English corpus
+    if language == "en":
+        for log_name, log_level, message in caplog.record_tuples:
+            if log_name == "django_ftl.message_errors":
+                pytest.fail(message)
+
     no_space_html = re.sub(r"\s+", "", response.content.decode())
     assert f"<dt>language</dt><dd>{language}</dd>" in no_space_html
     assert f"<dt>has_premium</dt><dd>{has_premium}</dd>" in no_space_html

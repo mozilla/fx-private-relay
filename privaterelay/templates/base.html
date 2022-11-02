@@ -8,7 +8,7 @@
 {% endif %}
 {% ftlconf bundle='privaterelay.ftl_bundles.main' %}
 
-{% with request.user.profile_set.first as user_profile %}
+{% with request.user.profile_set.get() as user_profile %}
 {% with user_profile.has_premium as user_has_premium %}
 <!DOCTYPE html>
 <html lang="{{ request.LANGUAGE_CODE }}" dir="ltr">

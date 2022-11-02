@@ -218,6 +218,7 @@ class MissingProfileCleaner(CleanerTask):
 
 
 class ManyProfileDetector(DetectorTask):
+    # TODO: #2708 Remove this detector when Profile.user is a OneToOneField
     slug = "many-profiles"
     title = "Counts users with multiple profiles"
     check_description = "Users should not have multiple profiles."
