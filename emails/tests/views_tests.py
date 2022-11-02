@@ -233,7 +233,7 @@ class BounceHandlingTest(TestCase):
     def test_sns_message_with_spam_bounce_sets_auto_block_spam(self):
         _sns_notification(BOUNCE_SNS_BODIES["spam"])
         self.user.refresh_from_db()
-        assert self.user.profile.auto_block_spam == True
+        assert self.user.profile.auto_block_spam
 
 
 class ComplaintHandlingTest(TestCase):

@@ -4,7 +4,6 @@ from hashlib import sha256
 import json
 import logging
 import os
-import requests
 from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
@@ -17,10 +16,9 @@ import sentry_sdk
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib import messages
 from django.db import IntegrityError, connections, transaction
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -28,12 +26,7 @@ from django.views.decorators.http import require_http_methods
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 
-from emails.models import (
-    CannotMakeSubdomainException,
-    DomainAddress,
-    RelayAddress,
-    valid_available_subdomain,
-)
+from emails.models import CannotMakeSubdomainException, valid_available_subdomain
 from emails.utils import incr_if_enabled
 
 

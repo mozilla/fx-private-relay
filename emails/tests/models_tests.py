@@ -950,7 +950,7 @@ class ProfileTest(TestCase):
         baker.make(AbuseMetrics, user=user, num_email_forwarded_per_day=4)
         profile = user.profile
 
-        assert profile.last_account_flagged == None
+        assert profile.last_account_flagged is None
         profile.update_abuse_metric(email_forwarded=True)
 
         abuse_metrics = AbuseMetrics.objects.get(user=user)
@@ -979,7 +979,7 @@ class ProfileTest(TestCase):
         baker.make(AbuseMetrics, user=user, forwarded_email_size_per_day=50)
         profile = user.profile
 
-        assert profile.last_account_flagged == None
+        assert profile.last_account_flagged is None
         profile.update_abuse_metric(forwarded_email_size=50)
 
         abuse_metrics = AbuseMetrics.objects.get(user=user)

@@ -1,5 +1,5 @@
 import json
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -9,7 +9,6 @@ from allauth.account.models import EmailAddress
 from model_bakery import baker
 import pytest
 
-from emails.models import Profile
 from ..views import _update_all_data, NoSocialToken
 
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
 
-from privaterelay.cleaners import CleanerTask, CleanupData, Counts, DetectorTask
+from privaterelay.cleaners import CleanerTask, CleanupData, Counts
 
 from .models import DomainAddress, Profile, RelayAddress
 from .signals import create_user_profile
