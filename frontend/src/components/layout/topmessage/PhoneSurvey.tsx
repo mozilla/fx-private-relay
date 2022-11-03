@@ -13,7 +13,7 @@ export const PhoneSurvey = () => {
     "https://survey.alchemer.com/s3/7088730/Firefox-Relay-Phone-Masking";
   // Only shown to English speakers, so unlocalised:
   const recruitmentLabel =
-    "Answer 4 questions to help improve your experience.";
+    "Answer 4 questions about phone masking to help improve your experience.";
 
   const { l10n } = useLocalization();
   const dismissal = useLocalDismissal("phone-survey-2022-11");
