@@ -114,7 +114,7 @@ const Phone: NextPage = () => {
   // If the user has their phone subscription all set up, show the dashboard:
   if (profile.has_phone && !isInOnboarding && relayNumberData.data.length > 0) {
     return (
-      <Layout>
+      <Layout runtimeData={runtimeData.data}>
         <DashboardSwitcher />
         <main className={styles["main-wrapper"]}>
           {resendWelcomeText}
@@ -134,7 +134,7 @@ const Phone: NextPage = () => {
   // show the phone plan purchase page if the user has not purchased phone product
   if (!profile.has_phone) {
     return (
-      <Layout>
+      <Layout runtimeData={runtimeData.data}>
         <DashboardSwitcher />
         <PurchasePhonesPlan runtimeData={runtimeData.data} />
       </Layout>
@@ -143,7 +143,7 @@ const Phone: NextPage = () => {
 
   // Otherwise start the onboarding process
   return (
-    <Layout>
+    <Layout runtimeData={runtimeData.data}>
       <DashboardSwitcher />
       <PhoneOnboarding
         onComplete={() => setIsInOnboarding(false)}

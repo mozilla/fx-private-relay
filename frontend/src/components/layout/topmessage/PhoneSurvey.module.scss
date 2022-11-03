@@ -1,0 +1,47 @@
+@import "../../../styles/tokens.scss";
+
+$dismissButtonWidth: 30px;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: $spacing-sm;
+  padding: $spacing-md ($spacing-sm + $dismissButtonWidth + $spacing-md);
+  background-color: $color-purple-90;
+  color: $color-white;
+  position: relative;
+  // Overlap the collapsed mobile menu (#mobile-menu.not-active),
+  // which itself has a z-index of 1 to overlap the content.
+  z-index: 2;
+
+  .dismiss-button {
+    position: absolute;
+    top: 50%;
+    right: $spacing-md;
+    background-color: transparent;
+    border-style: none;
+    color: $color-white;
+    width: $dismissButtonWidth;
+    height: $dismissButtonWidth;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: $border-radius-sm;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $color-blue-50;
+    }
+  }
+
+  a {
+    text-decoration: underline;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
