@@ -31,6 +31,7 @@ import {
 } from "../../../__mocks__/hooks/mediaQuery";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
+import { setMockRelayNumberData } from "../../../__mocks__/hooks/api/relayNumber";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Profile from "./profile.page";
@@ -61,6 +62,7 @@ jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
 setMockAliasesData();
 setMockProfileData();
 setMockUserData();
+setMockRelayNumberData();
 setMockRuntimeData();
 setMockMinViewportWidth();
 setMockAddonData();
