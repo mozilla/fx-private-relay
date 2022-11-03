@@ -176,14 +176,23 @@ class FormattingToolsTest(TestCase):
 
 
 @override_settings(SITE_ORIGIN="https://test.com")
-@patch("emails.utils.GENERAL_TRACKERS", ["trckr.com", "open.tracker.com"])
-@patch("emails.utils.STRICT_TRACKERS", ["strict.tracker.com"])
 class RemoveTrackers(TestCase):
     def setUp(self):
         self.expected_content = (
             '<a href="https://test.com/faq">A link</a>\n'
             + '<img src="https://test.com/faq">An image</img>'
         )
+        self.patcher1 = patch(
+            "emails.utils.general_trackers",
+            return_value=["trckr.com", "open.tracker.com"],
+        )
+        self.patcher2 = patch(
+            "emails.utils.strict_trackers", return_value=["strict.tracker.com"]
+        )
+        self.mock_general_trackers = self.patcher1.start()
+        self.mock_strict_trackers = self.patcher2.start()
+        self.addCleanup(self.patcher1.stop)
+        self.addCleanup(self.patcher2.stop)
 
     def test_simple_general_tracker_replaced_with_relay_content(self):
         content = (

@@ -6,8 +6,11 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.utils import parseaddr
+from functools import cache
 import json
+import pathlib
 import re
+import requests
 
 from botocore.exceptions import ClientError
 from cryptography.hazmat.primitives import hashes
@@ -41,10 +44,55 @@ info_logger = logging.getLogger("eventsinfo")
 study_logger = logging.getLogger("studymetrics")
 metrics = markus.get_metrics("fx-private-relay")
 
-with open("emails/tracker_lists/level-one-tracker.json", "r") as f:
-    GENERAL_TRACKERS = json.load(f)
-with open("emails/tracker_lists/level-two-tracker.json", "r") as f:
-    STRICT_TRACKERS = json.load(f)
+shavar_prod_lists_url = "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/master/disconnect-blacklist.json"
+EMAILS_FOLDER_PATH = pathlib.Path(__file__).parent
+TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
+
+
+def get_trackers(level):
+    category = "Email"
+    tracker_list_name = "level-one-tracker"
+    if level == 2:
+        category = "EmailAggressive"
+        tracker_list_name = "level-two-tracker"
+
+    trackers = []
+    file_name = f"{tracker_list_name}.json"
+    try:
+        with open(TRACKER_FOLDER_PATH / file_name, "r") as f:
+            trackers = json.load(f)
+    except FileNotFoundError:
+        trackers = get_trackers(shavar_prod_lists_url, category)
+        store_trackers(trackers, TRACKER_FOLDER_PATH, file_name)
+    return trackers
+
+
+def download_trackers(repo_url, category="Email"):
+    # email tracker lists from shavar-prod-list as per agreed use under license:
+    resp = requests.get(repo_url)
+    json_resp = resp.json()
+    formatted_trackers = json_resp["categories"][category]
+    trackers = []
+    for entity in formatted_trackers:
+        for _, resources in entity.items():
+            for _, domains in resources.items():
+                trackers.extend(domains)
+    return trackers
+
+
+def store_trackers(trackers, path, file_name):
+    with open(path / file_name, "w+") as f:
+        json.dump(trackers, f, indent=4)
+
+
+@cache
+def general_trackers():
+    return get_trackers(level=1)
+
+
+@cache
+def strict_trackers():
+    return get_trackers(level=2)
 
 
 def time_if_enabled(name):
@@ -390,8 +438,8 @@ def count_tracker(html_content, trackers):
 
 
 def count_all_trackers(html_content):
-    general_detail = count_tracker(html_content, GENERAL_TRACKERS)
-    strict_detail = count_tracker(html_content, STRICT_TRACKERS)
+    general_detail = count_tracker(html_content, general_trackers())
+    strict_detail = count_tracker(html_content, strict_trackers())
 
     incr_if_enabled("tracker.general_count", general_detail["count"])
     incr_if_enabled("tracker.strict_count", strict_detail["count"])
@@ -402,7 +450,7 @@ def count_all_trackers(html_content):
 
 
 def remove_trackers(html_content, level="general"):
-    trackers = GENERAL_TRACKERS if level == "general" else STRICT_TRACKERS
+    trackers = general_trackers() if level == "general" else strict_trackers()
     tracker_removed = 0
     changed_content = html_content
 
@@ -413,8 +461,8 @@ def remove_trackers(html_content, level="general"):
         )
         tracker_removed += matched
 
-    level_one_detail = count_tracker(html_content, GENERAL_TRACKERS)
-    level_two_detail = count_tracker(html_content, STRICT_TRACKERS)
+    level_one_detail = count_tracker(html_content, general_trackers())
+    level_two_detail = count_tracker(html_content, strict_trackers())
 
     tracker_details = {
         "tracker_removed": tracker_removed,

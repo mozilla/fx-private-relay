@@ -1,27 +1,12 @@
 import json
-import requests
 import pathlib
 
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
-emails_folder = pathlib.Path(__file__).parents[2]
-tracker_folder = emails_folder / "tracker_lists"
+from emails.utils import download_trackers, shavar_prod_lists_url, store_trackers
 
-shavar_prod_lists_url = "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/master/disconnect-blacklist.json"
-
-
-def get_trackers(repo_url, category="Email"):
-    print(f"Grabbing email tracker from: {repo_url}")
-    # email tracker lists from shavar-prod-list as per agreed use under license:
-    resp = requests.get(repo_url)
-    json_resp = resp.json()
-    formatted_trackers = json_resp["categories"][category]
-    trackers = []
-    for entity in formatted_trackers:
-        for _, resources in entity.items():
-            for _, domains in resources.items():
-                trackers.extend(domains)
-    return trackers
+EMAILS_FOLDER_PATH = pathlib.Path(__file__).parents[2]
+TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
 
 
 class Command(BaseCommand):
@@ -51,9 +36,8 @@ class Command(BaseCommand):
             category = "EmailAggressive"
             tracker_list_name = "level-two-tracker"
 
-        trackers = get_trackers(repo_url, category)
+        trackers = download_trackers(repo_url, category)
         file_name = f"{tracker_list_name}.json"
 
-        with open(tracker_folder / file_name, "w+") as f:
-            json.dump(trackers, f, indent=4)
-        print(f"Added {file_name} in {tracker_folder}")
+        store_trackers(trackers, TRACKER_FOLDER_PATH, file_name)
+        print(f"Added {file_name} in {TRACKER_FOLDER_PATH}")
