@@ -51,10 +51,10 @@ TRACKER_FOLDER_PATH = EMAILS_FOLDER_PATH / "tracker_lists"
 
 def get_trackers(level):
     category = "Email"
-    tracker_list_name = "level-one-tracker"
+    tracker_list_name = "level-one-trackers"
     if level == 2:
         category = "EmailAggressive"
-        tracker_list_name = "level-two-tracker"
+        tracker_list_name = "level-two-trackers"
 
     trackers = []
     file_name = f"{tracker_list_name}.json"
