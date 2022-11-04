@@ -10,7 +10,6 @@ import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { setMockAliasesData } from "../../../__mocks__/hooks/api/aliases";
 import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
-import { setMockRelayNumberData } from "../../../__mocks__/hooks/api/relayNumber";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Settings from "./settings.page";
@@ -23,7 +22,6 @@ jest.mock("../../hooks/gaViewPing.ts");
 
 setMockAliasesData();
 setMockProfileData();
-setMockRelayNumberData();
 setMockRuntimeData();
 setMockAddonData();
 

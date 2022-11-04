@@ -4,11 +4,13 @@ import styles from "./PhoneSurvey.module.scss";
 import { CloseIcon } from "../../Icons";
 import { useLocalDismissal } from "../../../hooks/localDismissal";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
+import { useRelayNumber } from "../../../hooks/api/relayNumber";
 
 /**
  * Ask people whether they're be interested in discussing their experience in using Relay.
  */
 export const PhoneSurvey = () => {
+  const relayNumberData = useRelayNumber();
   const recruitmentLink =
     "https://survey.alchemer.com/s3/7088730/Firefox-Relay-Phone-Masking";
   // Only shown to English speakers, so unlocalised:
@@ -24,6 +26,16 @@ export const PhoneSurvey = () => {
 
   // Only show if the user hasn't closed the recruitment banner before:
   if (dismissal.isDismissed) {
+    return null;
+  }
+
+  // Don't show the banner if the user has subscribed to phone masking,
+  // but has not claimed a Relay number yet:
+  if (
+    relayNumberData.error ||
+    !Array.isArray(relayNumberData.data) ||
+    relayNumberData.data.length === 0
+  ) {
     return null;
   }
 
