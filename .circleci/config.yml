@@ -129,19 +129,6 @@ jobs:
       - run:
           name: Build level two email tracker list
           command: ./manage.py get_latest_email_tracker_lists --tracker-level=2
-      - unless:
-          condition: << parameters.allow_fail >>
-          steps:
-            - run: << parameters.command >>
-      - when:
-          condition: << parameters.allow_fail >>
-          steps:
-            - run:
-                name: << parameters.command >> (failure allowed)
-                command: |
-                  set +x
-                  << parameters.command >> ||
-                  echo "*** Command '<< parameters.command >>' failed, but it is allowed to fail. ***"
 
   build_test_backend:
     docker:
