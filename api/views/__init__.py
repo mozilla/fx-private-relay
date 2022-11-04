@@ -47,6 +47,8 @@ from ..serializers import (
     WebcompatIssueSerializer,
 )
 
+from privaterelay.ftl_bundles import main as ftl_bundle
+
 info_logger = logging.getLogger("eventsinfo")
 schema_view = get_schema_view(
     openapi.Info(
@@ -223,7 +225,23 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
         error_codes = exc.get_codes()
         if isinstance(error_codes, str):
             response.data["error_code"] = error_codes
+
+            # Build Fluent error ID
+            ftl_id_sub = "api-error-"
+            ftl_id_error = error_codes.replace("_", "-")
+            ftl_id = ftl_id_sub + ftl_id_error
+
+            # Replace default message with Fluent string
+            # BUG: This method does not pass any variables to the fluent string.
+            # This is an optional param but should look like
+            # ftl_bundle.format(ftl_id, {'variable_name': error_context})
+            response.data["detail"] = ftl_bundle.format(ftl_id)
         error_context = exc.error_context()
         if error_context:
             response.data["error_context"] = error_context
+
+        response.data["error_code"] = error_codes
+
+    print(response)
+
     return response
