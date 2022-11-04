@@ -116,15 +116,6 @@ jobs:
   
   build_email_tracker_list_job:
     executor: python
-    parameters:
-      command:
-        description: "What command should the job run?"
-        default: "exit 1"
-        type: string
-      allow_fail:
-        description: "Allow the command to fail without failing job."
-        type: boolean
-        default: false
     steps:
       - checkout_with_submodules
       - python/install-packages:
@@ -176,6 +167,10 @@ jobs:
       - run:
           name: Copy build artefacts from build_frontend into this folder
           command: mv /home/circleci/project/frontend/out /dockerflow/frontend/
+      - run:
+          name: Copy email tracker lists into this folder
+          command: cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /dockerflow/emails/tracker_lists/
+          command: cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /dockerflow/emails/tracker_lists/
 
       - run:
           name: Create a version.json
