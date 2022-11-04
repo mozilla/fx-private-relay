@@ -214,15 +214,18 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
     """
     Add error information to response data.
 
-    When the error is a RelayAPIException, these additional fields may be present:
+    When the error is a RelayAPIException, these additional fields may be present and
+    the information will be translated if a accept-language header is added to the request:
 
     error_code - A string identifying the error, for client-side translation
     error_context - Additional data needed for client-side translation
     """
 
     response = exception_handler(exc, context)
+
     if response and isinstance(exc, RelayAPIException):
         error_codes = exc.get_codes()
+        error_context = exc.error_context()
         if isinstance(error_codes, str):
             response.data["error_code"] = error_codes
 
@@ -232,11 +235,8 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
             ftl_id = ftl_id_sub + ftl_id_error
 
             # Replace default message with Fluent string
-            # BUG: This method does not pass any variables to the fluent string.
-            # This is an optional param but should look like
-            # ftl_bundle.format(ftl_id, {'variable_name': error_context})
-            response.data["detail"] = ftl_bundle.format(ftl_id)
-        error_context = exc.error_context()
+            response.data["detail"] = ftl_bundle.format(ftl_id, error_context)
+
         if error_context:
             response.data["error_context"] = error_context
 
