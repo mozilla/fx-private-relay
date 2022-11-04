@@ -7,7 +7,6 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../functions/waffle";
 import { getLocale } from "../../../functions/getLocale";
 import { PhoneSurvey } from "./PhoneSurvey";
-import { useRelayNumber } from "../../../hooks/api/relayNumber";
 
 export type Props = {
   profile?: ProfileData;
@@ -17,7 +16,6 @@ export type Props = {
 export const TopMessage = (props: Props) => {
   const { l10n } = useLocalization();
   const router = useRouter();
-  const relayNumberData = useRelayNumber();
 
   if (
     // Only show the Interview Recruitment banner if it's enabled,
@@ -44,10 +42,6 @@ export const TopMessage = (props: Props) => {
     props.profile &&
     // ...the user has purchased the phone masking plan,
     props.profile.has_phone &&
-    // ...the user has set up their Relay number,
-    !relayNumberData.error &&
-    Array.isArray(relayNumberData.data) &&
-    relayNumberData.data.length > 0 &&
     // ...the user is from the US or Canada, and...
     ["us", "ca"].includes(
       props.runtimeData?.PHONE_PLANS.country_code ?? "not the user's country"

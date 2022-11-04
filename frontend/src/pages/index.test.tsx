@@ -2,7 +2,6 @@ import { act, render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
 import { mockConfigModule } from "../../__mocks__/configMock";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
-import { setMockRelayNumberData } from "../../__mocks__/hooks/api/relayNumber";
 import {
   getMockRuntimeDataWithBundle,
   getMockRuntimeDataWithPhones,
@@ -25,7 +24,6 @@ jest.mock("../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
 
 setMockRuntimeData();
 setMockProfileData(null);
-setMockRelayNumberData([]);
 
 describe("The landing page", () => {
   describe("under axe accessibility testing", () => {
