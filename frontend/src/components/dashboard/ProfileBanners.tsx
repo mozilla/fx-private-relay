@@ -155,7 +155,9 @@ const NoFirefoxBanner = () => {
     <Banner
       type="promo"
       title={l10n.getString("banner-download-firefox-headline")}
-      illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
+      illustration={{
+        img: <img src={FirefoxLogo.src} alt="" width={60} height={60} />,
+      }}
       cta={{
         target:
           "https://www.mozilla.org/firefox/new/?utm_source=fx-relay&utm_medium=banner&utm_campaign=download-fx",
@@ -174,9 +176,9 @@ const NoAddonBanner = () => {
     <Banner
       type="promo"
       title={l10n.getString("banner-download-install-extension-headline")}
-      illustration={
-        <img src={AddonIllustration.src} alt="" width={60} height={60} />
-      }
+      illustration={{
+        img: <img src={AddonIllustration.src} alt="" width={60} height={60} />,
+      }}
       cta={{
         target:
           "https://addons.mozilla.org/firefox/addon/private-relay/?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
@@ -198,9 +200,9 @@ const NoChromeExtensionBanner = () => {
       title={l10n.getString(
         "banner-download-install-chrome-extension-headline"
       )}
-      illustration={
-        <img src={AddonIllustration.src} alt="" width={60} height={60} />
-      }
+      illustration={{
+        img: <img src={AddonIllustration.src} alt="" width={60} height={60} />,
+      }}
       cta={{
         target:
           "https://chrome.google.com/webstore/detail/firefox-relay/lknpoadjjkjcmjhbjpcljdednccbldeb?utm_source=fx-relay&utm_medium=banner&utm_campaign=install-addon",
@@ -232,7 +234,9 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
       key="premium-banner"
       type="promo"
       title={l10n.getString("banner-upgrade-headline")}
-      illustration={<img src={RelayLogo.src} alt="" width={60} height={60} />}
+      illustration={{
+        img: <img src={RelayLogo.src} alt="" width={60} height={60} />,
+      }}
       cta={{
         target: "/premium#pricing",
         content: l10n.getString("banner-upgrade-cta"),
@@ -255,7 +259,9 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
       key="premium-banner"
       type="promo"
       title={l10n.getString("banner-upgrade-loyalist-headline-2")}
-      illustration={<img src={FirefoxLogo.src} alt="" width={60} height={60} />}
+      illustration={{
+        img: <img src={FirefoxLogo.src} alt="" width={60} height={60} />,
+      }}
       cta={{
         size: "large",
         target: "/premium#pricing",
@@ -286,15 +292,17 @@ const BundlePromoBanner = (props: BundleBannerProps) => {
     <Banner
       key="bundle-banner"
       type="promo"
-      illustration={
-        <img
-          src={BundleLogo.src}
-          alt=""
-          width={120}
-          height={60}
-          className={styles["bundle-logo"]}
-        />
-      }
+      illustration={{
+        img: (
+          <img
+            src={BundleLogo.src}
+            alt=""
+            width={120}
+            height={60}
+            className={styles["bundle-logo"]}
+          />
+        ),
+      }}
       title={l10n.getString("bundle-banner-dashboard-header")}
       cta={{
         target: "/premium#pricing",

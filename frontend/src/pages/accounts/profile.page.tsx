@@ -50,6 +50,7 @@ import { CloseIcon } from "../../components/Icons";
 import { isFlagActive } from "../../functions/waffle";
 import { DashboardSwitcher } from "../../components/layout/navigation/DashboardSwitcher";
 import { usePurchaseTracker } from "../../hooks/purchaseTracker";
+import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBanners";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -359,6 +360,7 @@ const Profile: NextPage = () => {
 
   const banners = (
     <section className={styles["banners-wrapper"]}>
+      <PremiumPromoBanners profile={profile} runtimeData={runtimeData.data} />
       <ProfileBanners
         profile={profile}
         user={user}

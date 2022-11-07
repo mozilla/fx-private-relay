@@ -92,13 +92,16 @@
 }
 
 .illustration {
-  padding: $spacing-md;
   display: flex;
   align-items: center;
 
   img {
     max-width: 60px;
   }
+}
+
+.flex-end {
+  align-items: flex-end;
 }
 
 .title {
