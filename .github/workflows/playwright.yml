@@ -21,8 +21,8 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - uses: actions/checkout@v3.1.0
+      - uses: actions/setup-node@v3.5.0
         with:
           node-version-file: 'frontend/package.json'
           cache: 'npm'
