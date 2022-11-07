@@ -461,13 +461,13 @@ workflows:
               only: /.*/
 
       - build_email_tracker_list_job:
-          requires:
           filters:
             tags:
               only: /.*/
 
       - build_test_backend:
           requires:
+            - build_email_tracker_list_job
             - build_frontend
           filters:
             tags:
