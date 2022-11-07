@@ -129,6 +129,16 @@ jobs:
       - run:
           name: Build level two email tracker list
           command: ./manage.py get_latest_email_tracker_lists --tracker-level=2
+      - run:
+          name: Copy email tracker lists to persisted workspace
+          command: |
+            cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
+            cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
+      - persist_to_workspace:
+            root: /tmp/workspace
+            paths:
+              - email-trackers/level-one-trackers.json
+              - email-trackers/level-two-trackers.json
 
   build_test_backend:
     docker:
@@ -158,8 +168,8 @@ jobs:
       - run:
           name: Copy email tracker lists into this folder
           command: |
-            cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /dockerflow/emails/tracker_lists/
-            cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /dockerflow/emails/tracker_lists/
+            cp /tmp/workspace/email-trackers/level-one-trackers.json /dockerflow/emails/tracker_lists/
+            cp /tmp/workspace/email-trackers/level-two-trackers.json /dockerflow/emails/tracker_lists/
 
       - run:
           name: Create a version.json
