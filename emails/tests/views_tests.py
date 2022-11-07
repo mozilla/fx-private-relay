@@ -1,7 +1,7 @@
 from copy import deepcopy
 from datetime import datetime, timezone
 from email.message import EmailMessage
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 import glob
 import io
 import json
@@ -28,15 +28,17 @@ from emails.models import (
     RelayAddress,
     Reply,
 )
+from emails.utils import b64_lookup_key, derive_reply_keys, get_message_id_bytes
 from emails.views import (
     _get_address,
     _get_attachment,
+    _get_keys_from_headers,
     _record_receipt_verdicts,
     _sns_message,
     _sns_notification,
     validate_sns_arn_and_type,
     wrapped_email_test,
-    InReplyToNotFound,
+    ReplyHeadersNotFound,
 )
 
 from .models_tests import make_premium_test_user, upgrade_test_user_to_premium
@@ -403,11 +405,11 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
     @override_settings(STATSD_ENABLED=True)
     @patch("emails.views.remove_message_from_s3")
     @patch("emails.views._get_keys_from_headers")
-    def test_no_header_reply_email_in_s3_deleted(
+    def test_noreply_headers_reply_email_in_s3_deleted(
         self, mocked_get_keys, mocked_message_removed
     ):
         """If replies@... email has no "In-Reply-To" header, delete email, return 400."""
-        mocked_get_keys.side_effect = InReplyToNotFound()
+        mocked_get_keys.side_effect = ReplyHeadersNotFound()
 
         with MetricsMock() as mm:
             response = _sns_notification(EMAIL_SNS_BODIES["s3_stored_replies"])
@@ -1121,3 +1123,57 @@ def test_wrapped_email_test(
     assert (
         f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html
+
+
+def test_get_keys_from_headers_no_reply_headers():
+    """If no reply headers, raise ReplyHeadersNotFound."""
+    msg_id = "<msg-id-123@email.com>"
+    headers = [{"name": "Message-Id", "value": msg_id}]
+    with pytest.raises(ReplyHeadersNotFound):
+        with MetricsMock() as mm:
+            _get_keys_from_headers(headers)
+        mm.assert_incr_once("fx.private.relay.email_complaint")
+
+
+def test_get_keys_from_headers_in_reply_to():
+    """If In-Reply-To header, get keys from it."""
+    msg_id = "<msg-id-123@email.com>"
+    msg_id_bytes = get_message_id_bytes(msg_id)
+    lookup_key, encryption_key = derive_reply_keys(msg_id_bytes)
+    headers = [{"name": "In-Reply-To", "value": msg_id}]
+    (lookup_key_from_header, encryption_key_from_header) = _get_keys_from_headers(
+        headers
+    )
+    assert lookup_key == lookup_key_from_header
+    assert encryption_key == encryption_key_from_header
+
+
+@pytest.mark.django_db
+def test_get_keys_from_headers_references_reply():
+    """
+    If no In-Reply-To header, get keys from References header.
+    """
+    msg_id = "<msg-id-456@email.com"
+    msg_id_bytes = get_message_id_bytes(msg_id)
+    lookup_key, encryption_key = derive_reply_keys(msg_id_bytes)
+    baker.make(Reply, lookup=b64_lookup_key(lookup_key))
+    msg_ids = f"<msg-id-123@email.com> {msg_id} <msg-id-789@email.com>"
+    headers = [{"name": "References", "value": msg_ids}]
+    (lookup_key_from_header, encryption_key_from_header) = _get_keys_from_headers(
+        headers
+    )
+    assert lookup_key == lookup_key_from_header
+    assert encryption_key == encryption_key_from_header
+
+
+@pytest.mark.django_db
+def test_get_keys_from_headers_references_reply_dne():
+    """
+    If no In-Reply-To header,
+    and no Reply record for any values in the References header,
+    raise Reply.DoesNotExist.
+    """
+    msg_ids = "<msg-id-123@email.com> <msg-id-456@email.com> <msg-id-789@email.com>"
+    headers = [{"name": "References", "value": msg_ids}]
+    with pytest.raises(Reply.DoesNotExist):
+        _get_keys_from_headers(headers)
