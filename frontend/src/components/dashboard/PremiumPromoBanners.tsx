@@ -2,6 +2,7 @@ import { useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
+import PhoneIllustrationLong from "./images/phone-premium-promo-long.svg";
 import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { isPeriodicalPremiumAvailableInCountry } from "../../functions/getPlan";
@@ -34,6 +35,8 @@ export const PremiumPromoBanners = (props: Props) => {
   return <div className={styles["profile-banners"]}>{banners}</div>;
 };
 
+const phoneImage = <img src={PhoneIllustration.src} alt="" />;
+
 const StopSpamBanner = () => {
   const { l10n } = useLocalization();
 
@@ -42,7 +45,7 @@ const StopSpamBanner = () => {
       type="promo"
       title={l10n.getString("banner-ab-premium-promo-stop-spam-headline")}
       illustration={{
-        img: <img src={PhoneIllustration.src} alt="" width={60} height={60} />,
+        img: phoneImage,
         type: "flex-end",
       }}
       cta={{
@@ -66,7 +69,7 @@ const AdvancedIdentityBanner = () => {
         "banner-ab-premium-promo-advanced-identity-headline"
       )}
       illustration={{
-        img: <img src={PhoneIllustration.src} alt="" width={60} height={60} />,
+        img: phoneImage,
         type: "flex-end",
       }}
       cta={{
@@ -90,7 +93,7 @@ const ControlReceiverBanner = () => {
         "banner-ab-premium-promo-control-receiver-headline"
       )}
       illustration={{
-        img: <img src={PhoneIllustration.src} alt="" width={60} height={60} />,
+        img: phoneImage,
         type: "flex-end",
       }}
       cta={{
@@ -114,7 +117,7 @@ const ExtraProtectionBanner = () => {
         "banner-ab-premium-promo-extra-protection-headline"
       )}
       illustration={{
-        img: <img src={PhoneIllustration.src} alt="" width={60} height={60} />,
+        img: phoneImage,
         type: "flex-end",
       }}
       cta={{

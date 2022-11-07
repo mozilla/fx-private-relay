@@ -52,8 +52,11 @@
     display: flex;
     flex-wrap: wrap;
     flex: 1 0 $content-xs;
-    padding: $spacing-md 0;
+    padding: $spacing-xs $spacing-md $spacing-md $spacing-md;
 
+    @media screen and #{$mq-sm} {
+      padding: $spacing-md;
+    }
     @media screen and #{$mq-lg} {
       flex-wrap: nowrap;
     }
@@ -61,7 +64,6 @@
 
   .title-text {
     flex: 1 1 auto;
-    padding-inline: $spacing-md;
   }
 
   .info-icon {
@@ -94,15 +96,42 @@
 .illustration {
   display: flex;
   align-items: center;
-  padding: 0 $spacing-md;
+  padding: $spacing-md $spacing-md 0 $spacing-md;
+
+  @media screen and #{$mq-md} {
+    padding: 0 $spacing-md 0 $spacing-xl;
+  }
 
   img {
-    max-width: 60px;
+    width: 60px;
   }
 }
 
+// For Banners in PremiumPromoBanners.tsx
 .flex-end {
-  align-items: flex-end;
+  border-bottom: 1px solid $color-light-gray-20;
+  align-items: center;
+  margin: 0 $spacing-md;
+  width: 100%;
+
+  @media screen and #{$mq-sm} {
+    border-bottom: none;
+    padding: none;
+    width: auto;
+    margin: 0;
+  }
+  @media screen and #{$mq-lg} {
+    align-items: flex-end;
+  }
+
+  img {
+    width: 90px;
+    margin: 0 auto;
+
+    @media screen and #{$mq-sm} {
+      margin: 0;
+    }
+  }
 }
 
 .title {
@@ -160,14 +189,14 @@
 }
 
 .cta-large-button {
-  padding: $spacing-md;
+  padding-top: $spacing-md;
   flex: 0 0 auto;
   align-self: center;
 
   @media screen and #{$mq-md} {
     align-self: center;
     margin: 0 0 0 auto;
-    padding-left: $spacing-md;
+    padding: $spacing-md;
   }
 
   a {
