@@ -52,6 +52,7 @@
     display: flex;
     flex-wrap: wrap;
     flex: 1 0 $content-xs;
+    padding: $spacing-md 0;
 
     @media screen and #{$mq-lg} {
       flex-wrap: nowrap;
@@ -80,7 +81,6 @@
   }
 
   .banner.promo & {
-    padding: $spacing-md;
     // .banner's border-radius - .banner's padding.
     // This is what makes .banner.promo appear as a 2px-wide border:
     border-radius: calc($border-radius-md - 2px);
@@ -94,6 +94,7 @@
 .illustration {
   display: flex;
   align-items: center;
+  padding: 0 $spacing-md;
 
   img {
     max-width: 60px;
