@@ -2,7 +2,6 @@ import { useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
-import PhoneIllustrationLong from "./images/phone-premium-promo-long.svg";
 import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { isPeriodicalPremiumAvailableInCountry } from "../../functions/getPlan";
