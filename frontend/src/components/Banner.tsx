@@ -71,9 +71,6 @@ export const Banner = (props: BannerProps) => {
       {props.illustration.img}
     </div>
   ) : null;
-  // props.illustration ? (
-  //   <div className={styles.illustration}>{props.illustration.img}</div>
-  // ) : null;
 
   const cta = props.cta ? <BannerCta {...props.cta} /> : null;
 
