@@ -330,7 +330,11 @@ def test_fxa_rp_events_password_change(
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
 
     assert mm.get_records() == []
-    assert caplog.record_tuples == [("request.summary", logging.INFO, "")]
+    assert caplog.record_tuples == [
+        ("eventsinfo", logging.INFO, "fxa_rp_event"),
+        ("request.summary", logging.INFO, ""),
+    ]
+    assert 0.0 < caplog.records[0].iat_age_s < 2.0
     assert response.status_code == 200
 
 
@@ -353,6 +357,7 @@ def test_fxa_rp_events_profile_change(
 
     assert mm.get_records() == []
     assert caplog.record_tuples == [
+        ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
     ]
@@ -384,6 +389,7 @@ def test_fxa_rp_events_subscription_change(
     assert mm.get_records() == []
     assert caplog.record_tuples == [
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
+        ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
     ]
     assert response.status_code == 200
@@ -407,6 +413,7 @@ def test_fxa_rp_events_delete_user(
         response = client.get("/fxa-rp-events", HTTP_AUTHORIZATION=auth_header)
     assert mm.get_records() == []
     assert caplog.record_tuples == [
+        ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("eventsinfo", logging.INFO, "fxa_rp_event"),
         ("request.summary", logging.INFO, ""),
     ]

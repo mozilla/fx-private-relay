@@ -155,6 +155,11 @@ def metrics_event(request):
 def fxa_rp_events(request: HttpRequest) -> HttpResponse:
     req_jwt = _parse_jwt_from_request(request)
     authentic_jwt = _authenticate_fxa_jwt(req_jwt)
+
+    # Issue 2738: log age of iat (issued at) claim, negative if in future
+    iat_age = datetime.now(tz=timezone.utc).timestamp() - authentic_jwt["iat"]
+    info_logger.info("fxa_rp_event", extra={"iat_age_s": round(iat_age, 3)})
+
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
