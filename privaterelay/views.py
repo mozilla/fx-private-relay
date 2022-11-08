@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from hashlib import sha256
+from typing import Any, Iterable, Optional, TypedDict
 import json
 import logging
 import os
@@ -17,17 +18,19 @@ import sentry_sdk
 from django.apps import apps
 from django.conf import settings
 from django.db import IntegrityError, connections, transaction
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-from allauth.socialaccount.models import SocialAccount, SocialApp
+from allauth.socialaccount.models import SocialAccount, SocialApp, SocialToken
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 
 from emails.models import CannotMakeSubdomainException, valid_available_subdomain
 from emails.utils import incr_if_enabled
+
+from .apps import PrivateRelayConfig
 
 
 FXA_PROFILE_CHANGE_EVENT = "https://schemas.accounts.firefox.com/event/profile-change"
@@ -149,7 +152,7 @@ def metrics_event(request):
 
 
 @csrf_exempt
-def fxa_rp_events(request):
+def fxa_rp_events(request: HttpRequest) -> HttpResponse:
     req_jwt = _parse_jwt_from_request(request)
     authentic_jwt = _authenticate_fxa_jwt(req_jwt)
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
@@ -176,13 +179,31 @@ def fxa_rp_events(request):
     return HttpResponse("200 OK", status=200)
 
 
-def _parse_jwt_from_request(request):
+def _parse_jwt_from_request(request: HttpRequest) -> str:
     request_auth = request.headers["Authorization"]
     return request_auth.split("Bearer ")[1]
 
 
-def _authenticate_fxa_jwt(req_jwt):
+class FxAEvent(TypedDict):
+    """
+    FxA Security Event Token (SET) payload, sent to relying parties.
+
+    See:
+    https://github.com/mozilla/fxa/tree/main/packages/fxa-event-broker
+    https://www.rfc-editor.org/rfc/rfc8417 (Security Event Token)
+    """
+
+    iss: str  # Issuer, https://accounts.firefox.com/
+    sub: str  # Subject, FxA user ID
+    aud: str  # Audience, Relay's client ID
+    iat: int  # Creation time, timestamp
+    jti: str  # JWT ID, unique for this SET
+    events: dict[str, dict[str, Any]]  # Event data
+
+
+def _authenticate_fxa_jwt(req_jwt: str) -> FxAEvent:
     private_relay_config = apps.get_app_config("privaterelay")
+    assert isinstance(private_relay_config, PrivateRelayConfig)
     authentic_jwt = _verify_jwt_with_fxa_key(req_jwt, private_relay_config)
 
     if not authentic_jwt:
@@ -195,7 +216,9 @@ def _authenticate_fxa_jwt(req_jwt):
     return authentic_jwt
 
 
-def _verify_jwt_with_fxa_key(req_jwt, private_relay_config):
+def _verify_jwt_with_fxa_key(
+    req_jwt: str, private_relay_config: PrivateRelayConfig
+) -> Optional[FxAEvent]:
     if not private_relay_config.fxa_verifying_keys:
         raise Exception("FXA verifying keys are not available.")
     social_app = SocialApp.objects.get(provider="fxa")
@@ -204,24 +227,37 @@ def _verify_jwt_with_fxa_key(req_jwt, private_relay_config):
             verifying_key = jwt.algorithms.RSAAlgorithm.from_jwk(
                 json.dumps(verifying_key)
             )
-            return jwt.decode(
+            security_event = jwt.decode(
                 req_jwt,
                 verifying_key,
                 audience=social_app.client_id,
                 algorithms=["RS256"],
             )
+            return FxAEvent(
+                iss=security_event["iss"],
+                sub=security_event["sub"],
+                aud=security_event["aud"],
+                iat=security_event["iat"],
+                jti=security_event["jti"],
+                events=security_event["events"],
+            )
+    return None
 
 
-def _get_account_from_jwt(authentic_jwt):
+def _get_account_from_jwt(authentic_jwt: FxAEvent) -> SocialAccount:
     social_account_uid = authentic_jwt["sub"]
     return SocialAccount.objects.get(uid=social_account_uid)
 
 
-def _get_event_keys_from_jwt(authentic_jwt):
+def _get_event_keys_from_jwt(authentic_jwt: FxAEvent) -> Iterable[str]:
     return authentic_jwt["events"].keys()
 
 
-def update_fxa(social_account, authentic_jwt=None, event_key=None):
+def update_fxa(
+    social_account: SocialAccount,
+    authentic_jwt: Optional[FxAEvent] = None,
+    event_key: Optional[str] = None,
+) -> HttpResponse:
     try:
         client = _get_oauth2_session(social_account)
     except NoSocialToken as e:
@@ -256,7 +292,9 @@ def update_fxa(social_account, authentic_jwt=None, event_key=None):
     return _update_all_data(social_account, extra_data, new_email)
 
 
-def _update_all_data(social_account, extra_data, new_email):
+def _update_all_data(
+    social_account: SocialAccount, extra_data: dict[str, Any], new_email: str
+) -> HttpResponse:
     try:
         profile = social_account.user.profile
         had_premium = profile.has_premium
@@ -294,7 +332,9 @@ def _update_all_data(social_account, extra_data, new_email):
         return HttpResponse("Conflict", status=409)
 
 
-def _handle_fxa_delete(authentic_jwt, social_account, event_key):
+def _handle_fxa_delete(
+    authentic_jwt: FxAEvent, social_account: SocialAccount, event_key: str
+) -> None:
     # TODO: Loop over the user's relay addresses and manually call delete()
     # to create hard bounce receipt rules in SES,
     # because cascade deletes like this don't necessarily call delete()
@@ -311,20 +351,20 @@ def _handle_fxa_delete(authentic_jwt, social_account, event_key):
 class NoSocialToken(Exception):
     """The SocialAccount has no SocialToken"""
 
-    def __init__(self, uid, *args, **kwargs):
+    def __init__(self, uid: str, *args, **kwargs):
         self.uid = uid
         super().__init__(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'NoSocialToken: The SocialAccount "{self.uid}" has no token.'
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f'{self.__class__.__name__}("{self.uid}")'
 
 
 # use "raw" requests_oauthlib to automatically refresh the access token
 # https://github.com/pennersr/django-allauth/issues/420#issuecomment-301805706
-def _get_oauth2_session(social_account):
+def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
     refresh_token_url = FirefoxAccountsOAuth2Adapter.access_token_url
     social_token = social_account.socialtoken_set.first()
     if social_token is None:
@@ -359,7 +399,9 @@ def _get_oauth2_session(social_account):
     return client
 
 
-def update_social_token(existing_social_token, new_oauth2_token):
+def update_social_token(
+    existing_social_token: SocialToken, new_oauth2_token: dict[str, Any]
+) -> None:
     existing_social_token.token = new_oauth2_token["access_token"]
     existing_social_token.token_secret = new_oauth2_token["refresh_token"]
     existing_social_token.expires_at = datetime.now(timezone.utc) + timedelta(
