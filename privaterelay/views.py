@@ -184,6 +184,15 @@ def _parse_jwt_from_request(request: HttpRequest) -> str:
     return request_auth.split("Bearer ")[1]
 
 
+def fxa_verifying_keys(reload: bool = False) -> list[dict[str, Any]]:
+    """Get list of FxA verifying (public) keys."""
+    private_relay_config = apps.get_app_config("privaterelay")
+    assert isinstance(private_relay_config, PrivateRelayConfig)
+    if reload:
+        private_relay_config.ready()
+    return private_relay_config.fxa_verifying_keys
+
+
 class FxAEvent(TypedDict):
     """
     FxA Security Event Token (SET) payload, sent to relying parties.
@@ -202,14 +211,13 @@ class FxAEvent(TypedDict):
 
 
 def _authenticate_fxa_jwt(req_jwt: str) -> FxAEvent:
-    private_relay_config = apps.get_app_config("privaterelay")
-    assert isinstance(private_relay_config, PrivateRelayConfig)
-    authentic_jwt = _verify_jwt_with_fxa_key(req_jwt, private_relay_config)
+    authentic_jwt = _verify_jwt_with_fxa_key(req_jwt, fxa_verifying_keys())
 
     if not authentic_jwt:
         # FXA key may be old? re-fetch FXA keys and try again
-        private_relay_config.ready()
-        authentic_jwt = _verify_jwt_with_fxa_key(req_jwt, private_relay_config)
+        authentic_jwt = _verify_jwt_with_fxa_key(
+            req_jwt, fxa_verifying_keys(reload=True)
+        )
         if not authentic_jwt:
             raise Exception("Could not authenticate JWT with FXA key.")
 
@@ -217,19 +225,17 @@ def _authenticate_fxa_jwt(req_jwt: str) -> FxAEvent:
 
 
 def _verify_jwt_with_fxa_key(
-    req_jwt: str, private_relay_config: PrivateRelayConfig
+    req_jwt: str, verifying_keys: list[dict[str, Any]]
 ) -> Optional[FxAEvent]:
-    if not private_relay_config.fxa_verifying_keys:
+    if not verifying_keys:
         raise Exception("FXA verifying keys are not available.")
     social_app = SocialApp.objects.get(provider="fxa")
-    for verifying_key in private_relay_config.fxa_verifying_keys:
+    for verifying_key in verifying_keys:
         if verifying_key["alg"] == "RS256":
-            verifying_key = jwt.algorithms.RSAAlgorithm.from_jwk(
-                json.dumps(verifying_key)
-            )
+            public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(verifying_key))
             security_event = jwt.decode(
                 req_jwt,
-                verifying_key,
+                public_key,
                 audience=social_app.client_id,
                 algorithms=["RS256"],
             )

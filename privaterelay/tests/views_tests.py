@@ -1,5 +1,5 @@
 import json
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -9,7 +9,8 @@ from allauth.account.models import EmailAddress
 from model_bakery import baker
 import pytest
 
-from ..views import _update_all_data, NoSocialToken
+from ..apps import PrivateRelayConfig
+from ..views import _update_all_data, NoSocialToken, fxa_verifying_keys
 
 
 def test_no_social_token():
@@ -120,3 +121,17 @@ def test_logout_page(client, settings):
     settings.ACCOUNT_LOGOUT_ON_GET = False
     response = client.get("/accounts/logout/")
     assert response.status_code == 200
+
+
+@pytest.mark.parametrize("reload", (True, False))
+def test_fxa_verifying_keys(reload: bool) -> None:
+    fake_key = {"key": "fake"}
+    mock_app = Mock(spec=PrivateRelayConfig)
+    mock_app.fxa_verifying_keys = [fake_key]
+    with patch("privaterelay.views.apps.get_app_config", return_value=mock_app):
+        ret = fxa_verifying_keys(reload)
+    assert ret == [fake_key]
+    if reload:
+        mock_app.ready.assert_called_once_with()
+    else:
+        mock_app.ready.assert_not_called()
