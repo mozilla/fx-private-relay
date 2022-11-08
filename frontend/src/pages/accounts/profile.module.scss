@@ -190,6 +190,9 @@
   align-items: baseline;
   gap: $spacing-md;
   padding-bottom: $spacing-xl;
+  // Ensure that the <Tips> card can always overlap elements in the profile,
+  // even if they have z-indexes to overlap each other:
+  isolation: isolate;
 }
 
 .main-wrapper,
