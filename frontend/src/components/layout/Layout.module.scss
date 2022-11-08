@@ -263,6 +263,9 @@ $toastify-toast-close-button: var(--toast-close-button);
   flex-grow: 2;
   display: flex;
   flex-direction: column;
+  // Create a new stacking context for the content, so we can use z-indexes in
+  // the content without preventing the header/mobile menu from overlapping it.
+  isolation: isolate;
 
   @media screen and (min-width: $screen-md) {
     background-color: $color-light-gray-10;
