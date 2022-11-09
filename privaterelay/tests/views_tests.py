@@ -365,6 +365,12 @@ def test_fxa_rp_events_profile_change(
     user = setup_fxa_rp_events.user
     user.refresh_from_db()
     assert user.email == "new-email@example.com"
+    fxa_acct = setup_fxa_rp_events.fxa_acct
+    fxa_acct.refresh_from_db()
+    assert fxa_acct.extra_data == setup_fxa_rp_events.profile_response.data
+    assert fxa_acct.extra_data["email"] == "new-email@example.com"
+    email_record = EmailAddress.objects.get(user=user)
+    assert email_record.email == "new-email@example.com"
 
 
 def test_fxa_rp_events_subscription_change(
