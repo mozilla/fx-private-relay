@@ -73,3 +73,5 @@ phone-masking-faq-answer-install-app = No, { -brand-name-relay } phone masking w
 phone-masking-faq-question-data = What kinds of data does { -brand-name-relay } phone masking store?
 phone-masking-faq-answer-data = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
 
+tips-multi-replies-heading = Reply to any text with your phone mask
+tips-multi-replies-content = Just start your message with the last 4 digits of that sender’s number.

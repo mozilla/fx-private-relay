@@ -22,9 +22,14 @@ import {
 import { getRuntimeConfig } from "../../../config";
 import { CustomAliasTip } from "./CustomAliasTip";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
+import { useRelayNumber } from "../../../hooks/api/relayNumber";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { isFlagActive } from "../../../functions/waffle";
+import { GenericTip } from "./GenericTip";
 
 export type Props = {
   profile: ProfileData;
+  runtimeData: RuntimeData;
 };
 
 export type TipEntry = {
@@ -42,11 +47,40 @@ export const Tips = (props: Props) => {
   const { l10n } = useLocalization();
   const [isExpanded, setIsExpanded] = useState(false);
   const [wrapperRef, wrapperIsInView] = useInView({ threshold: 1 });
+  const relayNumberData = useRelayNumber({ disable: !props.profile.has_phone });
 
   const tips: TipEntry[] = [];
 
-  // If the user has a custom subdomain, but does not have custom aliases yet,
-  // show a tip about how they get created:
+  // If the user has set up a Relay phone number, tell them how they can reply
+  // to multiple senders:
+  const multiRepliesTip: TipEntry = {
+    id: "multi-replies",
+    title: l10n.getString("tips-multi-replies-heading"),
+    content: (
+      <GenericTip
+        title={l10n.getString("tips-multi-replies-heading")}
+        content={l10n.getString("tips-multi-replies-content")}
+        videos={{
+          // Unfortunately video files cannot currently be imported, so make
+          // sure these files are present in /public. See
+          // https://github.com/vercel/next.js/issues/35248
+          "video/webm; codecs='vp9'": "/animations/tips/multi-replies.webm",
+          "video/mp4": "/animations/tips/multi-replies.mp4",
+        }}
+      />
+    ),
+    dismissal: useLocalDismissal(`tips_multiReplies_${props.profile.id}`),
+  };
+  if (
+    isFlagActive(props.runtimeData, "multi_replies") &&
+    props.profile.has_phone &&
+    Array.isArray(relayNumberData.data) &&
+    relayNumberData.data.length > 0
+  ) {
+    tips.push(multiRepliesTip);
+  }
+
+  // If the user has Premium, show a tip about how to claim a custom subdomain:
   const customAliasDismissal = useLocalDismissal(
     `tips_customAlias_${props.profile.id}`
   );

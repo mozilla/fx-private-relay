@@ -64,6 +64,7 @@ setMockProfileData();
 setMockUserData();
 setMockRelayNumberData();
 setMockRuntimeData();
+setMockRelayNumberData();
 setMockMinViewportWidth();
 setMockAddonData();
 
