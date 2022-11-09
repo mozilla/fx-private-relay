@@ -35,7 +35,6 @@ from emails.models import (
     valid_available_subdomain,
 )
 from emails.utils import incr_if_enabled
-from privaterelay.utils import get_premium_countries_info_from_request
 
 
 FXA_PROFILE_CHANGE_EVENT = "https://schemas.accounts.firefox.com/event/profile-change"

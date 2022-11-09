@@ -170,9 +170,6 @@ AWS_SQS_QUEUE_URL = config("AWS_SQS_QUEUE_URL", None)
 RELAY_FROM_ADDRESS = config("RELAY_FROM_ADDRESS", None)
 NEW_RELAY_FROM_ADDRESS = config("NEW_RELAY_FROM_ADDRESS")
 GOOGLE_ANALYTICS_ID = config("GOOGLE_ANALYTICS_ID", None)
-INTRO_PRICING_END = datetime.fromisoformat(
-    config("INTRO_PRICING_END", "2022-09-27T09:00:00.000-07:00")
-)
 INCLUDE_VPN_BANNER = config("INCLUDE_VPN_BANNER", False, cast=bool)
 RECRUITMENT_BANNER_LINK = config("RECRUITMENT_BANNER_LINK", None)
 RECRUITMENT_BANNER_TEXT = config("RECRUITMENT_BANNER_TEXT", None)
@@ -318,7 +315,6 @@ TEMPLATES = [
 RELAY_FIREFOX_DOMAIN = config("RELAY_FIREFOX_DOMAIN", "relay.firefox.com", cast=str)
 MOZMAIL_DOMAIN = config("MOZMAIL_DOMAIN", "mozmail.com", cast=str)
 MAX_NUM_FREE_ALIASES = config("MAX_NUM_FREE_ALIASES", 5, cast=int)
-PREMIUM_PROD_ID = config("PREMIUM_PROD_ID", "", cast=str)
 PERIODICAL_PREMIUM_PROD_ID = config("PERIODICAL_PREMIUM_PROD_ID", "", cast=str)
 PREMIUM_PLAN_ID_US_MONTHLY = config(
     "PREMIUM_PLAN_ID_US_MONTHLY", "price_1LXUcnJNcmPzuWtRpbNOajYS", cast=str
@@ -337,132 +333,6 @@ BUNDLE_PROD_ID = config("BUNDLE_PROD_ID", "", cast=str)
 BUNDLE_PLAN_ID_US = config(
     "BUNDLE_PLAN_ID_US", "price_1LwoSDJNcmPzuWtR6wPJZeoh", cast=str
 )
-PREMIUM_PRICE_ID_OVERRIDE = config("PREMIUM_PRICE_ID_OVERRIDE", "", cast=str)
-PREMIUM_PLAN_ID_MATRIX = {
-    "chf": {
-        "de": {
-            "id": "price_1JmRM0JNcmPzuWtRzCJ2LQHP",
-            "price": "CHF 1.00",
-        },
-        "fr": {
-            "id": "price_1JmRFrJNcmPzuWtROOs10fKh",
-            "price": "CHF 1.00",
-        },
-        "it": {
-            "id": "price_1JmREHJNcmPzuWtRxo7MoT58",
-            "price": "CHF 1.00",
-        },
-    },
-    "euro": {
-        "at": {
-            "id": "price_1JmRTDJNcmPzuWtRnJavIXXX",
-            "price": "0,99 €",
-        },
-        "de": {
-            "id": "price_1JmRTDJNcmPzuWtRnJavIXXX",
-            "price": "0,99 €",
-        },
-        "en": {
-            "id": "price_1JmRCQJNcmPzuWtRprMnmtax",
-            "price": "0,99 €",
-        },
-        "es": {
-            "id": "price_1JmRPSJNcmPzuWtRVvkEkVbS",
-            "price": "0,99 €",
-        },
-        "fr": {
-            "id": "price_1JmRU4JNcmPzuWtRRhu1FhiQ",
-            "price": "0,99 €",
-        },
-        "it": {
-            "id": "price_1JmRQLJNcmPzuWtRGs76IkUY",
-            "price": "0,99 €",
-        },
-        "nl": {
-            "id": "price_1JmROfJNcmPzuWtR6od8OfDW",
-            "price": "0,99 €",
-        },
-        "ie": {
-            "id": "price_1JmRCQJNcmPzuWtRprMnmtax",
-            "price": "0,99 €",
-        },
-        "se": {
-            "id": "price_1KQc1PJNcmPzuWtRsEfb6inB",
-            "price": "0,99 €",
-        },
-        "fi": {
-            "id": "price_1KQcA7JNcmPzuWtRPKNacfdn",
-            "price": "0,99 €",
-        },
-    },
-    "usd": {"en": {"id": "price_1JmRSRJNcmPzuWtRN9MG5cBy", "price": "$0.99"}},
-}
-PREMIUM_PLAN_COUNTRY_LANG_MAPPING = {
-    # Austria
-    "at": {"de": PREMIUM_PLAN_ID_MATRIX["euro"]["de"]},
-    # Belgium
-    "be": {
-        "fr": PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
-        "de": PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
-        "nl": PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
-    },
-    # Switzerland
-    "ch": {
-        "fr": PREMIUM_PLAN_ID_MATRIX["chf"]["fr"],
-        "de": PREMIUM_PLAN_ID_MATRIX["chf"]["de"],
-        "it": PREMIUM_PLAN_ID_MATRIX["chf"]["it"],
-    },
-    # Germany
-    "de": {
-        "de": PREMIUM_PLAN_ID_MATRIX["euro"]["de"],
-    },
-    # Spain
-    "es": {
-        "es": PREMIUM_PLAN_ID_MATRIX["euro"]["es"],
-    },
-    # France
-    "fr": {
-        "fr": PREMIUM_PLAN_ID_MATRIX["euro"]["fr"],
-    },
-    # Ireland
-    "ie": {
-        "en": PREMIUM_PLAN_ID_MATRIX["euro"]["en"],
-    },
-    # Italy
-    "it": {
-        "it": PREMIUM_PLAN_ID_MATRIX["euro"]["it"],
-    },
-    # Netherlands
-    "nl": {
-        "nl": PREMIUM_PLAN_ID_MATRIX["euro"]["nl"],
-    },
-    # Sweden
-    "se": {
-        "sv": PREMIUM_PLAN_ID_MATRIX["euro"]["se"],
-    },
-    # Finland
-    "fi": {
-        "fi": PREMIUM_PLAN_ID_MATRIX["euro"]["fi"],
-    },
-    "us": {
-        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    "gb": {
-        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    "ca": {
-        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    "nz": {
-        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    "my": {
-        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
-    },
-    "sg": {
-        "en": PREMIUM_PLAN_ID_MATRIX["usd"]["en"],
-    },
-}
 
 PERIODICAL_PREMIUM_PLAN_ID_MATRIX = {
     "chf": {

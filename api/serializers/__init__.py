@@ -156,6 +156,7 @@ class WebcompatIssueSerializer(serializers.Serializer):
     issue_on_domain = serializers.URLField(
         max_length=200, min_length=None, allow_blank=False
     )
+    user_agent = serializers.CharField(required=False, default="", allow_blank=True)
     email_mask_not_accepted = serializers.BooleanField(required=False, default=False)
     add_on_visual_issue = serializers.BooleanField(required=False, default=False)
     email_not_received = serializers.BooleanField(required=False, default=False)

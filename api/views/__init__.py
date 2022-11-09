@@ -27,7 +27,6 @@ from emails.utils import incr_if_enabled
 
 from privaterelay.utils import (
     get_countries_info_from_request_and_mapping,
-    get_premium_countries_info_from_request,
 )
 
 from emails.models import (
@@ -160,14 +159,6 @@ class UserViewSet(viewsets.ModelViewSet):
         return User.objects.filter(id=self.request.user.id)
 
 
-# Deprecated; prefer runtime_data instead.
-# (This method isn't deleted yet, because the add-on still calls it.)
-@decorators.api_view()
-@decorators.permission_classes([permissions.AllowAny])
-def premium_countries(request):
-    return response.Response(get_premium_countries_info_from_request(request))
-
-
 @decorators.api_view()
 @decorators.permission_classes([permissions.AllowAny])
 def runtime_data(request):
@@ -183,10 +174,7 @@ def runtime_data(request):
             "PERIODICAL_PREMIUM_PRODUCT_ID": settings.PERIODICAL_PREMIUM_PROD_ID,
             "GOOGLE_ANALYTICS_ID": settings.GOOGLE_ANALYTICS_ID,
             "BUNDLE_PRODUCT_ID": settings.BUNDLE_PROD_ID,
-            "INTRO_PRICING_END": settings.INTRO_PRICING_END,
-            "PREMIUM_PRODUCT_ID": settings.PREMIUM_PROD_ID,
             "PHONE_PRODUCT_ID": settings.PHONE_PROD_ID,
-            "PREMIUM_PLANS": get_premium_countries_info_from_request(request),
             "PERIODICAL_PREMIUM_PLANS": get_countries_info_from_request_and_mapping(
                 request, settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING
             ),
