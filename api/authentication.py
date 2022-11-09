@@ -28,6 +28,8 @@ class FxaTokenAuthentication(BaseAuthentication):
         token = authorization.split(" ")[1]
         cache_key = get_cache_key(token)
         cached_fxa_resp_data = fxa_resp_data = cache.get(cache_key)
+        # set a default cache_timeout, but this will be overriden to match
+        # the 'exp' time returned by FXA
         cache_timeout = 60
         if not fxa_resp_data:
             introspect_token_url = (
@@ -56,7 +58,7 @@ class FxaTokenAuthentication(BaseAuthentication):
             fxa_uid = fxa_resp_data.get("json").get("sub")
             if fxa_uid:
                 try:
-                    sa = SocialAccount.objects.get(uid=fxa_uid)
+                    sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
                 except SocialAccount.DoesNotExist:
                     # No Relay account associated with the FxA ID. It might be
                     # a user who deleted their Relay account since they first
