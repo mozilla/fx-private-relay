@@ -26,7 +26,7 @@ from sentry_sdk.integrations.logging import ignore_logger
 from hashlib import sha512
 import base64
 
-from django.conf import settings
+from django.conf.global_settings import LANGUAGES as DEFAULT_LANGUAGES
 
 import dj_database_url
 
@@ -684,7 +684,7 @@ LANGUAGE_CODE = "en"
 # Mozilla l10n directories use lang-locale language codes,
 # so we need to add those to LANGUAGES so Django's LocaleMiddleware
 # can find them.
-LANGUAGES = settings.LANGUAGES + [
+LANGUAGES = DEFAULT_LANGUAGES + [
     ("zh-tw", "Chinese"),
     ("zh-cn", "Chinese"),
 ]
@@ -703,7 +703,7 @@ STATICFILES_DIRS = [
 # Static files (the front-end in /frontend/)
 # https://whitenoise.evans.io/en/stable/django.html#using-whitenoise-with-webpack-browserify-latest-js-thing
 STATIC_URL = "/"
-if settings.DEBUG:
+if DEBUG:
     # In production, we run collectstatic to index all static files.
     # However, when running locally, we want to automatically pick up
     # all files spewed out by `npm run watch` in /frontend/out,
