@@ -322,13 +322,29 @@ const Profile: NextPage = () => {
       <section className={styles["bottom-banner"]}>
         <div className={styles["bottom-banner-wrapper"]}>
           <div className={styles["bottom-banner-content"]}>
-            <Localized
-              id="footer-banner-premium-promo-headine"
-              elems={{ strong: <strong />, i: <i /> }}
-            >
-              <h3 />
-            </Localized>
-            <p>{l10n.getString("footer-banner-premium-promo-body")}</p>
+            {isPhonesAvailableInCountry(runtimeData.data) &&
+            isFlagActive(runtimeData.data, "phones") ? (
+              <>
+                <Localized
+                  id="footer-banner-premium-promo-headine"
+                  elems={{ strong: <strong />, i: <i /> }}
+                >
+                  <h3 />
+                </Localized>
+                <p>{l10n.getString("footer-banner-premium-promo-body")}</p>
+              </>
+            ) : (
+              <>
+                <Localized
+                  id="banner-pack-upgrade-headline-2-html"
+                  elems={{ strong: <strong /> }}
+                >
+                  <h3 />
+                </Localized>
+                <p>{l10n.getString("banner-pack-upgrade-copy-2")}</p>
+              </>
+            )}
+
             <LinkButton
               href="/premium#pricing"
               ref={bottomBannerSubscriptionLinkRef}
