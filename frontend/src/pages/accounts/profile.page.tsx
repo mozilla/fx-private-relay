@@ -323,12 +323,12 @@ const Profile: NextPage = () => {
         <div className={styles["bottom-banner-wrapper"]}>
           <div className={styles["bottom-banner-content"]}>
             <Localized
-              id="banner-pack-upgrade-headline-2-html"
-              elems={{ strong: <strong /> }}
+              id="footer-banner-premium-promo-headine"
+              elems={{ strong: <strong />, i: <i /> }}
             >
               <h3 />
             </Localized>
-            <p>{l10n.getString("banner-pack-upgrade-copy-2")}</p>
+            <p>{l10n.getString("footer-banner-premium-promo-body")}</p>
             <LinkButton
               href="/premium#pricing"
               ref={bottomBannerSubscriptionLinkRef}
