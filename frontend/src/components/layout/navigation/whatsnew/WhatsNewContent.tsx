@@ -49,6 +49,7 @@ const Hero = (props: Pick<Props, "image" | "videos">) => {
         autoPlay={true}
         loop={true}
         muted={true}
+        playsInline={true}
       >
         {sources}
         {/* Fall back to the image if the video formats are not supported: */}
