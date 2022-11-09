@@ -8,23 +8,17 @@ import { useEffect, useState } from "react";
 import { PhoneDashboard } from "../components/phones/dashboard/Dashboard";
 import { getRuntimeConfig } from "../config";
 import { PurchasePhonesPlan } from "../components/phones/onboarding/PurchasePhonesPlan";
-import { Banner } from "../components/Banner";
-import styles from "./phone.module.scss";
-import { useLocalization } from "@fluent/react";
-import { useRealPhonesData } from "../hooks/api/realPhone";
+import { isVerified, useRealPhonesData } from "../hooks/api/realPhone";
 import { DashboardSwitcher } from "../components/layout/navigation/DashboardSwitcher";
 import { isFlagActive } from "../functions/waffle";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../functions/getPlan";
-import { toast } from "react-toastify";
-import { useLocalDismissal } from "../hooks/localDismissal";
 
 const Phone: NextPage = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const profile = profileData.data?.[0];
-  const { l10n } = useLocalization();
   const router = useRouter();
 
   const userData = useUsers();
@@ -44,38 +38,6 @@ const Phone: NextPage = () => {
       typeof relayNumberData.data === "undefined") ||
     // ...there was a list of Relay numbers, but it was empty:
     relayNumberData.data?.length === 0;
-
-  const resendWelcomeSMSDismissal = useLocalDismissal(
-    `resend-sms-banner-${profile?.id}`
-  );
-
-  const resendWelcomeText = !resendWelcomeSMSDismissal.isDismissed && (
-    <div className={styles["banner-wrapper"]}>
-      <Banner
-        title={l10n.getString("phone-banner-resend-welcome-sms-title")}
-        type="info"
-        cta={{
-          content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
-          onClick: () => {
-            realPhoneData.resendWelcomeSMS();
-            toast(l10n.getString("phone-banner-resend-welcome-sms-toast-msg"), {
-              type: "success",
-            });
-            resendWelcomeSMSDismissal.dismiss();
-          },
-          gaViewPing: {
-            category: "Resend Welcome SMS",
-            label: "phone-page-banner-resend-welcome",
-          },
-        }}
-        dismissal={{
-          key: `resend-sms-banner-${profile?.id}`,
-        }}
-      >
-        {l10n.getString("phone-banner-resend-welcome-sms-body")}
-      </Banner>
-    </div>
-  );
 
   useEffect(() => {
     if (!runtimeData.data) {
@@ -112,14 +74,22 @@ const Phone: NextPage = () => {
   }
 
   // If the user has their phone subscription all set up, show the dashboard:
-  if (profile.has_phone && !isInOnboarding && relayNumberData.data.length > 0) {
+  const verifiedPhones = realPhoneData.data?.filter(isVerified) ?? [];
+  if (
+    profile.has_phone &&
+    !isInOnboarding &&
+    verifiedPhones.length > 0 &&
+    relayNumberData.data.length > 0
+  ) {
     return (
       <Layout runtimeData={runtimeData.data}>
         <DashboardSwitcher />
-        <main className={styles["main-wrapper"]}>
-          {resendWelcomeText}
-          <PhoneDashboard />
-        </main>
+        <PhoneDashboard
+          profile={profile}
+          runtimeData={runtimeData.data}
+          realPhone={verifiedPhones[0]}
+          onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
+        />
       </Layout>
     );
   }
