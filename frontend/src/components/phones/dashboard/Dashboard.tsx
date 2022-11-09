@@ -1,5 +1,6 @@
 import { useToggleState } from "react-stately";
 import { useToggleButton } from "react-aria";
+import { toast } from "react-toastify";
 import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import styles from "./PhoneDashboard.module.scss";
 import {
@@ -9,23 +10,31 @@ import {
   ChevronRightIcon,
 } from "../../../components/Icons";
 import { MouseEventHandler, useRef, useState } from "react";
-import { useRealPhonesData } from "../../../hooks/api/realPhone";
+import { VerifiedPhone } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
-import { useProfiles } from "../../../hooks/api/profile";
+import { ProfileData } from "../../../hooks/api/profile";
 import { SendersPanelView } from "./SendersPanelView";
 import { formatPhone } from "../../../functions/formatPhone";
 import { getLocale } from "../../../functions/getLocale";
 import { parseDate } from "../../../functions/parseDate";
+import { Tips } from "../../dashboard/tips/Tips";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { useLocalDismissal } from "../../../hooks/localDismissal";
+import { Banner } from "../../Banner";
 
-export const PhoneDashboard = () => {
+export type Props = {
+  profile: ProfileData;
+  runtimeData: RuntimeData;
+  realPhone: VerifiedPhone;
+  onRequestContactCard: () => Promise<Response>;
+};
+
+export const PhoneDashboard = (props: Props) => {
   const { l10n } = useLocalization();
-  const profileData = useProfiles();
   const relayNumber = useRelayNumber();
-  const realPhone = useRealPhonesData();
   const relayNumberData = relayNumber.data?.[0];
-  const realPhoneData = realPhone.data?.[0];
-  const formattedPhoneNumber = formatPhone(realPhoneData?.number ?? "", {
+  const formattedPhoneNumber = formatPhone(props.realPhone.number ?? "", {
     withCountryCode: true,
   });
   const formattedRelayNumber = formatPhone(relayNumberData?.number ?? "", {
@@ -36,9 +45,40 @@ export const PhoneDashboard = () => {
 
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
+  const resendWelcomeSMSDismissal = useLocalDismissal(
+    `resend-sms-banner-${props.profile.id}`
+  );
+  const resendWelcomeText = !resendWelcomeSMSDismissal.isDismissed && (
+    <div className={styles["banner-wrapper"]}>
+      <Banner
+        title={l10n.getString("phone-banner-resend-welcome-sms-title")}
+        type="info"
+        cta={{
+          content: l10n.getString("phone-banner-resend-welcome-sms-cta"),
+          onClick: async () => {
+            await props.onRequestContactCard();
+            toast(l10n.getString("phone-banner-resend-welcome-sms-toast-msg"), {
+              type: "success",
+            });
+            resendWelcomeSMSDismissal.dismiss();
+          },
+          gaViewPing: {
+            category: "Resend Welcome SMS",
+            label: "phone-page-banner-resend-welcome",
+          },
+        }}
+        dismissal={{
+          key: `resend-sms-banner-${props.profile?.id}`,
+        }}
+      >
+        {l10n.getString("phone-banner-resend-welcome-sms-body")}
+      </Banner>
+    </div>
+  );
+
   const [showingPrimaryDashboard, toggleDashboardPanel] = useState(true);
-  const dateToFormat = realPhone.data?.[0].verified_date
-    ? parseDate(realPhone.data[0].verified_date)
+  const dateToFormat = props.realPhone.verified_date
+    ? parseDate(props.realPhone.verified_date)
     : new Date();
   const dateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
     dateStyle: "medium",
@@ -230,7 +270,7 @@ export const PhoneDashboard = () => {
   );
 
   function getSendersPanelType() {
-    if (profileData.data?.[0].store_phone_log === false) {
+    if (props.profile.store_phone_log === false) {
       return "disabled";
     }
     if (inboundArray && inboundArray.length === 0) {
@@ -241,16 +281,20 @@ export const PhoneDashboard = () => {
 
   return (
     <div className={styles["main-phone-wrapper"]}>
-      {showingPrimaryDashboard && inboundContactData !== undefined ? (
-        // Primary Panel
-        <>{primaryPanel}</>
-      ) : (
-        // Caller and SMS Senders Panel
-        <SendersPanelView
-          type={getSendersPanelType()}
-          back_btn={toggleSendersPanel}
-        />
-      )}
+      <main className={styles["content-wrapper"]}>
+        {resendWelcomeText}
+        {showingPrimaryDashboard && inboundContactData !== undefined ? (
+          // Primary Panel
+          <>{primaryPanel}</>
+        ) : (
+          // Caller and SMS Senders Panel
+          <SendersPanelView
+            type={getSendersPanelType()}
+            back_btn={toggleSendersPanel}
+          />
+        )}
+      </main>
+      <Tips profile={props.profile} runtimeData={props.runtimeData} />
     </div>
   );
 };
