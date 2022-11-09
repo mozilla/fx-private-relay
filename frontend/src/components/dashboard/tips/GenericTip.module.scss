@@ -12,4 +12,10 @@
     font-family: $font-stack-firefox;
     color: $color-purple-90;
   }
+
+  @media (prefers-reduced-motion) {
+    video {
+      display: none;
+    }
+  }
 }

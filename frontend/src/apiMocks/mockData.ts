@@ -80,6 +80,7 @@ export const mockedRuntimeData: RuntimeData = {
     ["phones", true],
     ["bundle", true],
     ["phone_launch_survey", true],
+    ["multi_replies", true],
   ],
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
 };
