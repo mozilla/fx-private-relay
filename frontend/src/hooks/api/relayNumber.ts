@@ -27,16 +27,29 @@ export type UpdateForwardingToPhone = (
   enabled: boolean,
   id: number
 ) => Promise<Response>;
+
+export type UseRelayNumberOptions = Partial<{
+  /**
+   * Set to `true` to prevent requests to the /relaynumber/ API
+   *
+   * This is useful if e.g. you already know that the user does not have a phone
+   * masking subscription.
+   */
+  disable?: boolean;
+}>;
+
 /**
  * Get relay (masked) phone number records for the authenticated user with our API using [SWR](https://swr.vercel.app).
  */
-
-export function useRelayNumber(): SWRResponse<RelayNumberData, unknown> & {
+export function useRelayNumber(
+  options: UseRelayNumberOptions = {}
+): SWRResponse<RelayNumberData, unknown> & {
   registerRelayNumber: PhoneNumberRegisterRelayNumberFn;
   setForwardingState: UpdateForwardingToPhone;
 } {
-  const relayNumber: SWRResponse<RelayNumberData, unknown> =
-    useApiV1("/relaynumber/");
+  const relayNumber: SWRResponse<RelayNumberData, unknown> = useApiV1(
+    options.disable === true ? null : "/relaynumber/"
+  );
 
   // TODO: Add post function to same API url
   /**
