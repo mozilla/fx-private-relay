@@ -4,7 +4,6 @@ from hashlib import sha256
 import json
 import logging
 import os
-import requests
 from rest_framework.decorators import api_view, schema
 
 # from silk.profiling.profiler import silk_profile
@@ -17,10 +16,9 @@ import sentry_sdk
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib import messages
 from django.db import IntegrityError, connections, transaction
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -28,12 +26,7 @@ from django.views.decorators.http import require_http_methods
 from allauth.socialaccount.models import SocialAccount, SocialApp
 from allauth.socialaccount.providers.fxa.views import FirefoxAccountsOAuth2Adapter
 
-from emails.models import (
-    CannotMakeSubdomainException,
-    DomainAddress,
-    RelayAddress,
-    valid_available_subdomain,
-)
+from emails.models import CannotMakeSubdomainException, valid_available_subdomain
 from emails.utils import incr_if_enabled
 
 
@@ -59,7 +52,7 @@ def _get_fxa(request):
 def profile_refresh(request):
     if not request.user or request.user.is_anonymous:
         return redirect(reverse("fxa_login"))
-    profile = request.user.profile_set.get()
+    profile = request.user.profile
 
     fxa = _get_fxa(request)
     update_fxa(fxa)
@@ -76,7 +69,7 @@ def profile_refresh(request):
 def profile_subdomain(request):
     if not request.user or request.user.is_anonymous:
         return redirect(reverse("fxa_login"))
-    profile = request.user.profile_set.get()
+    profile = request.user.profile
     if not profile.has_premium:
         raise CannotMakeSubdomainException("error-premium-check-subdomain")
     try:
@@ -265,13 +258,13 @@ def update_fxa(social_account, authentic_jwt=None, event_key=None):
 
 def _update_all_data(social_account, extra_data, new_email):
     try:
-        profile = social_account.user.profile_set.get()
+        profile = social_account.user.profile
         had_premium = profile.has_premium
         had_phone = profile.has_phone
         with transaction.atomic():
             social_account.extra_data = extra_data
             social_account.save()
-            profile = social_account.user.profile_set.get()
+            profile = social_account.user.profile
             now_has_premium = profile.has_premium
             newly_premium = not had_premium and now_has_premium
             no_longer_premium = had_premium and not now_has_premium

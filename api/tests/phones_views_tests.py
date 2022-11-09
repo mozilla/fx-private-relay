@@ -1165,7 +1165,7 @@ def test_voice_status_completed_reduces_remaining_seconds_to_negative_value(
     mocked_events_info.assert_called_once_with(
         "phone_limit_exceeded",
         extra={
-            "fxa_uid": phone_user.profile_set.get().fxa.uid,
+            "fxa_uid": phone_user.profile.fxa.uid,
             "call_duration_in_seconds": 27,
             "relay_number_enabled": True,
             "remaining_seconds": -27,

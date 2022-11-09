@@ -81,7 +81,7 @@ class FormattingToolsTest(TestCase):
         premium_user = make_premium_test_user()
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
-            original_from_address, premium_user.profile_set.get()
+            original_from_address, premium_user.profile
         )
 
         expected_encoded_display_name = (
@@ -103,7 +103,7 @@ class FormattingToolsTest(TestCase):
         new_from_flag.users.add(free_user)
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile_set.get()
+            original_from_address, free_user.profile
         )
         expected_encoded_display_name = (
             "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
@@ -125,7 +125,7 @@ class FormattingToolsTest(TestCase):
         Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile_set.get()
+            original_from_address, free_user.profile
         )
         expected_encoded_display_name = (
             "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
@@ -145,7 +145,7 @@ class FormattingToolsTest(TestCase):
         Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile_set.get()
+            original_from_address, free_user.profile
         )
         expected_encoded_display_name = (
             "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="

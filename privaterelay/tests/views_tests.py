@@ -1,5 +1,5 @@
 import json
-from unittest.mock import call, patch
+from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -9,7 +9,6 @@ from allauth.account.models import EmailAddress
 from model_bakery import baker
 import pytest
 
-from emails.models import Profile
 from ..views import _update_all_data, NoSocialToken
 
 
@@ -61,7 +60,7 @@ class UpdateExtraDataAndEmailTest(TestCase):
 
         assert response.status_code == 202
         sa.refresh_from_db()
-        assert sa.user.profile_set.get().date_subscribed
+        assert sa.user.profile.date_subscribed
         assert sa.extra_data == new_extra_data
         incr_mocked.assert_called_once()
 
@@ -82,7 +81,7 @@ class UpdateExtraDataAndEmailTest(TestCase):
 
         assert response.status_code == 202
         sa.refresh_from_db()
-        assert sa.user.profile_set.get().date_subscribed_phone
+        assert sa.user.profile.date_subscribed_phone
         assert sa.extra_data == new_extra_data
         incr_mocked.assert_called_once()
 
