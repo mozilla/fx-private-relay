@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import logging
 
+from waffle import get_waffle_flag_model
 import phonenumbers
 
 from django.apps import apps
@@ -638,8 +639,8 @@ def _handle_sms_reply(
             to=real_phone.number,
         )
         raise exceptions.ValidationError(error)
-    last_text_sender = get_last_text_sender(relay_number)
-    if last_text_sender is None:
+    matches, has_ident = _match_senders(relay_number, inbound_body)
+    if not matches and not has_ident:
         error = "Could not find a previous text sender."
         client.messages.create(
             from_=relay_number.number,
@@ -647,15 +648,54 @@ def _handle_sms_reply(
             to=real_phone.number,
         )
         raise exceptions.ValidationError(error)
+    # TODO MPP-2562: Implement multiple senders
+    assert not has_ident
+    assert len(matches) == 1
     incr_if_enabled("phones_send_sms_reply")
     client.messages.create(
         from_=relay_number.number,
         body=inbound_body,
-        to=last_text_sender.inbound_number,
+        to=matches[0].inbound_number,
     )
     relay_number.remaining_texts -= 1
     relay_number.texts_forwarded += 1
     relay_number.save()
+
+
+def _match_senders(
+    relay_number: RelayNumber, text: str
+) -> tuple[list[InboundContact], bool]:
+    """
+    Find the likely InboundContact(s) specified in the SMS text.
+
+    Return is a tuple:
+    * A list of InboundContacts. An empty list means no matches, a single
+      element is an exact match, and multiple elements is ambiguous.
+    * A bool that signifies if a identifer prefix was detected, like "1234: foo"
+    """
+    multi_replies_flag, _ = get_waffle_flag_model().objects.get_or_create(
+        name="multi_replies",
+        defaults={
+            "note": (
+                "MPP-2252: Use prefix on SMS text to specify the recipient,"
+                " rather than default of last contact."
+            )
+        },
+    )
+
+    if multi_replies_flag.is_active_for_user(relay_number.user):
+        # Parse a prefix from the text
+        # If prefix and a match in InboundContacts
+        #   Return matching InboundContact(s)
+        # Else
+        #   fall through to replying to last sender
+        pass
+
+    last_text_sender = get_last_text_sender(relay_number)
+    if last_text_sender:
+        return [last_text_sender], False
+    else:
+        return [], False
 
 
 def _check_disabled(relay_number, contact_type):
