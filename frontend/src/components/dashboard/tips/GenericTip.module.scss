@@ -13,9 +13,25 @@
     color: $color-purple-90;
   }
 
+  video {
+    border-radius: $border-radius-md;
+  }
+
+  .still-alternative {
+    display: none;
+    border-radius: $border-radius-md;
+  }
+
   @media (prefers-reduced-motion) {
     video {
       display: none;
+    }
+
+    // Ideally a `display: none` on <source> elements would be enough to
+    // cause the <img> inside <video> to be displayed, but it's not.
+    // Hence, another <img> element:
+    .still-alternative {
+      display: initial;
     }
   }
 }
