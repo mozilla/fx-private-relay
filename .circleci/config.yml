@@ -132,6 +132,7 @@ jobs:
       - run:
           name: Copy email tracker lists to persisted workspace
           command: |
+            mkdir --parents /tmp/workspace/email-trackers
             cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
             cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
       - persist_to_workspace:
@@ -148,6 +149,8 @@ jobs:
           password: $DOCKER_PASS
     working_directory: /dockerflow
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - checkout_with_submodules
       - setup_remote_docker:
           # Use a version of Docker that works with Node, see
