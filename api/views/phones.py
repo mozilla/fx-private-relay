@@ -2,14 +2,13 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 import hashlib
 import logging
-import phonenumbers
 import re
-from rest_framework.request import Request
 import string
 from typing import Any, Literal, Optional
 
 from waffle import get_waffle_flag_model
 import django_ftl
+import phonenumbers
 
 from django.apps import apps
 from django.conf import settings
@@ -25,6 +24,9 @@ from rest_framework import (
     exceptions,
 )
 from rest_framework.generics import get_object_or_404
+from rest_framework.request import Request
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 from twilio.base.exceptions import TwilioRestException
 
@@ -728,6 +730,35 @@ def sms_status(request):
     client = twilio_client()
     message = client.messages(message_sid)
     _try_delete_from_twilio(message)
+    return response.Response(status=200)
+
+
+call_body = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    required=["to"],
+    properties={"to": openapi.Schema(type=openapi.TYPE_STRING)},
+)
+
+
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+@swagger_auto_schema(method="post", request_body=call_body)
+@decorators.api_view(["POST"])
+def call(request):
+    """
+    Make a call from the authenticated user's relay number.
+
+    """
+    to = request.data.get("to", None)
+    if to is None:
+        raise exceptions.ValidationError("Missing 'to' parameter.")
+    real_phone = RealPhone.objects.get(user=request.user)
+    relay_number = RelayNumber.objects.get(user=request.user)
+    client = twilio_client()
+    client.calls.create(
+        twiml=f"<Response><Say>Dialing {to} ...</Say><Dial>{to}</Dial></Response>",
+        to=real_phone.number,
+        from_=relay_number.number,
+    )
     return response.Response(status=200)
 
 
