@@ -27,7 +27,7 @@ Not applicable.
 
 
 # Checklist (Definition of Done)
-- [ ] Product Owner asaccepted the User Story (demo of functionality completed) or waived the privilege.
+- [ ] Product Owner accepted the User Story (demo of functionality completed) or waived the privilege.
 - [ ] All acceptance criteria are met.
 - [ ] User Story has been updated (if needed) to match changes made during the development process.
 - [ ] I've added or updated relevant docs in the docs/ directory
