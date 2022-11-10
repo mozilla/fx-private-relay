@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
+from typing import Optional
 import logging
+import re
+import string
 
 from waffle import get_waffle_flag_model
 import phonenumbers
@@ -639,22 +642,72 @@ def _handle_sms_reply(
             to=real_phone.number,
         )
         raise exceptions.ValidationError(error)
-    matches, has_ident = _match_senders(relay_number, inbound_body)
-    if not matches and not has_ident:
-        error = "Could not find a previous text sender."
+    matches, prefix = _match_senders(relay_number, inbound_body)
+    if not matches and not prefix:
+        error = "Message failed to send. Could not find a previous text sender."
         client.messages.create(
             from_=relay_number.number,
             body=error,
             to=real_phone.number,
         )
         raise exceptions.ValidationError(error)
-    # TODO MPP-2562: Implement multiple senders
-    assert not has_ident
-    assert len(matches) == 1
+
+    if prefix:
+        digits = "".join(char for char in prefix if char in string.digits)
+    else:
+        digits = ""
+
+    prefix_error: Optional[str] = None
+    if len(matches) != 1:
+        if not matches:
+            if len(digits) <= 4:
+                prefix_error = (
+                    "Message failed to send. There is no phone number in this thread"
+                    f" ending in {digits}. Please check the number and try again."
+                )
+            else:
+                prefix_error = (
+                    "Message failed to send. There is no previous sender with the"
+                    f" phone number +{digits}. Please check the number and try again."
+                )
+        else:
+            assert prefix
+            assert len(digits) == 4
+            prefix_error = (
+                "Message failed to send. There is more than one phone number in this"
+                f" thread ending in {digits}. To retry, start your message with the"
+                " complete number."
+            )
+
+    if prefix and not prefix_error:
+        body = inbound_body.removeprefix(prefix)
+        if not body:
+            if len(digits) <= 4:
+                prefix_error = (
+                    "Message failed to send. Please include a message after the"
+                    f" sender identifier {digits}."
+                )
+            else:
+                prefix_error = (
+                    "Message failed to send. Please include a message after the"
+                    f" phone number {matches[0].inbound_number}."
+                )
+
+    else:
+        body = inbound_body
+
+    if prefix_error:
+        client.messages.create(
+            from_=relay_number.number,
+            body=prefix_error,
+            to=real_phone.number,
+        )
+        return
+
     incr_if_enabled("phones_send_sms_reply")
     client.messages.create(
         from_=relay_number.number,
-        body=inbound_body,
+        body=body,
         to=matches[0].inbound_number,
     )
     relay_number.remaining_texts -= 1
@@ -664,14 +717,14 @@ def _handle_sms_reply(
 
 def _match_senders(
     relay_number: RelayNumber, text: str
-) -> tuple[list[InboundContact], bool]:
+) -> tuple[list[InboundContact], str]:
     """
     Find the likely InboundContact(s) specified in the SMS text.
 
     Return is a tuple:
     * A list of InboundContacts. An empty list means no matches, a single
       element is an exact match, and multiple elements is ambiguous.
-    * A bool that signifies if a identifer prefix was detected, like "1234: foo"
+    * The detected identifer prefix, like "1234: "; empty string if no prefix.
     """
     multi_replies_flag, _ = get_waffle_flag_model().objects.get_or_create(
         name="multi_replies",
@@ -683,19 +736,117 @@ def _match_senders(
         },
     )
 
-    if multi_replies_flag.is_active_for_user(relay_number.user):
-        # Parse a prefix from the text
-        # If prefix and a match in InboundContacts
-        #   Return matching InboundContact(s)
-        # Else
-        #   fall through to replying to last sender
-        pass
+    if (
+        multi_replies_flag.is_active_for_user(relay_number.user)
+        or multi_replies_flag.everyone
+    ):
+        # Load all the previous contacts, collect possible countries
+        contacts = InboundContact.objects.filter(relay_number=relay_number).all()
+        contacts_by_number: dict[str, InboundContact] = {}
+        for contact in contacts:
+            pn = phonenumbers.parse(contact.inbound_number)
+            e164 = phonenumbers.format_number(pn, phonenumbers.PhoneNumberFormat.E164)
+            if e164 not in contacts_by_number:
+                contacts_by_number[e164] = contact
+
+        matches, prefix = _match_by_prefix(text, set(contacts_by_number.keys()))
+        if prefix:
+            return [contacts_by_number[match] for match in matches], prefix
 
     last_text_sender = get_last_text_sender(relay_number)
     if last_text_sender:
-        return [last_text_sender], False
+        return [last_text_sender], ""
     else:
-        return [], False
+        return [], ""
+
+
+_SMS_SHORT_PREFIX_RE = re.compile(
+    r"""
+^               # Start of string
+\s*             # One or more spaces
+\d{4}           # 4 digits
+\s*             # Optional whitespace
+[-:/\\\]|]?     # At most one separator, sync with SMS_SEPARATORS below
+\s*             # Trailing whitespace
+""",
+    re.VERBOSE | re.ASCII,
+)
+_SMS_SEPARATORS = set("-:/\\]|")  # Sync with SMS_SHORT_PREFIX_RE above
+
+
+def _match_by_prefix(
+    text: str, candidates: set[str]
+) -> tuple[list[str], Optional[str]]:
+    """
+    Look for a prefix in a text message, and return a likely phone number match.
+
+    If no prefix is detected, NoPrefixFound is raised.
+
+    Arguments:
+    * A SMS text message
+    * A set of phone numbers in E.164 format
+
+    Return is a tuple:
+    * A list of matching E.164 numbers. An empty list means no matches, a
+      single element is an exact match, and multiple elements is ambiguous.
+    * The detected identifer prefix, like "1234: "; None if no prefix.
+    """
+    # Gather potential countries, needed by PhoneNumberMatcher
+    countries = set()
+    for candidate in candidates:
+        pn = phonenumbers.parse(candidate)
+        if pn.country_code:
+            countries |= set(
+                phonenumbers.region_codes_for_country_code(pn.country_code)
+            )
+
+    # Determine where the message may start
+    #  PhoneNumberMatcher doesn't work well with a number directly followed by text,
+    #  so just feed it the start of the message that _may_ be a number.
+    msg_start = 0
+    maybe_phone = set(string.digits + string.punctuation + string.whitespace)
+    while msg_start < len(text) and text[msg_start] in maybe_phone:
+        msg_start += 1
+
+    # Does PhoneNumberMatcher detect a full number at start of message?
+    text_to_match = text[:msg_start]
+    for country in countries:
+        for match in phonenumbers.PhoneNumberMatcher(text_to_match, country):
+            e164 = phonenumbers.format_number(
+                match.number, phonenumbers.PhoneNumberFormat.E164
+            )
+
+            # Look for end of prefix
+            end = match.start + len(match.raw_string)
+            found_one_sep = False
+            while True:
+                if end >= len(text):
+                    break
+                elif text[end].isspace():
+                    end += 1
+                elif text[end] in _SMS_SEPARATORS and not found_one_sep:
+                    found_one_sep = True
+                    end += 1
+                else:
+                    break
+
+            prefix = text[:end]
+            if e164 in candidates:
+                return [e164], prefix
+            else:
+                return [], prefix
+
+    # Is there a short prefix? Return all contacts whose last 4 digits match.
+    text_prefix_match = _SMS_SHORT_PREFIX_RE.match(text)
+    if text_prefix_match:
+        text_prefix = text_prefix_match.group(0)
+        digits = set(string.digits)
+        digit_suffix = "".join(digit for digit in text_prefix if digit in digits)
+        prefix_matches = [e164 for e164 in candidates if e164[-4:] == digit_suffix]
+        return sorted(prefix_matches), text_prefix
+
+    # No prefix detected
+    return [], None
 
 
 def _check_disabled(relay_number, contact_type):

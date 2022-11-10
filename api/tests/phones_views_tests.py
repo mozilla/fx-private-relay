@@ -1,5 +1,6 @@
-import pytest
+from dataclasses import dataclass
 from datetime import timedelta
+from typing import Iterator, Optional
 from unittest.mock import Mock, patch, call
 
 from twilio.request_validator import RequestValidator
@@ -11,11 +12,15 @@ from django.utils import timezone
 
 from model_bakery import baker
 from rest_framework.test import APIClient
+from waffle.testutils import override_flag
+import pytest
+
+
 from emails.models import Profile
 
 
 if settings.PHONES_ENABLED:
-    from api.views.phones import _check_and_update_contact
+    from api.views.phones import _match_by_prefix
     from phones.models import InboundContact, RealPhone, RelayNumber
     from phones.tests.models_tests import make_phone_test_user
 
@@ -1053,6 +1058,360 @@ def test_inbound_sms_reply_pre_transition(
     assert call_kwargs["body"] == "test reply"
     relay_number.refresh_from_db()
     assert relay_number.texts_forwarded == 1
+
+
+def test_inbound_sms_reply_no_multi_replies(phone_user, mocked_twilio_client):
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    mocked_twilio_client.reset_mock()
+    InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+15556660000",
+        last_inbound_type="text",
+        last_inbound_date=timezone.now() - timedelta(seconds=1200),
+    )
+    lastest_inbound_contact = InboundContact.objects.create(
+        relay_number=relay_number,
+        inbound_number="+15556660001",
+        last_inbound_type="text",
+        last_inbound_date=timezone.now() - timedelta(seconds=600),
+    )
+
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": real_phone.number,
+        "To": relay_number.number,
+        "Body": "0000: test reply",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    mocked_twilio_client.messages.create.assert_called_once()
+    call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
+    assert call_kwargs["to"] == lastest_inbound_contact.inbound_number
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == "0000: test reply"
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+
+@dataclass
+class MultiReplyFixture:
+    user: User
+    real_phone: RealPhone
+    relay_number: RelayNumber
+    mocked_twilio_client: Client
+
+
+@pytest.fixture
+def multi_reply_fixture(
+    phone_user: User, mocked_twilio_client: Client
+) -> Iterator[MultiReplyFixture]:
+    real_phone = _make_real_phone(phone_user, verified=True)
+    relay_number = _make_relay_number(phone_user, enabled=True)
+    mocked_twilio_client.reset_mock()
+    contacts = (
+        ("+13015550000", "text", 9000),  # Oldest
+        ("+13025550001", "text", 8000),  # Same last 4 digits as below
+        ("+13035550001", "text", 7000),  # Same last 4 digits as above
+        ("+13045551301", "text", 6000),  # Last 4 match first 4 of oldest
+        ("+13055550002", "text", 5000),  # Text from number
+        ("+13055550002", "call", 4000),  # Call from same number
+        ("+14045550004", "call", 1000),  # Most recent call, never texted
+    )
+    for number, last_type, age_s in contacts:
+        InboundContact.objects.create(
+            relay_number=relay_number,
+            inbound_number=number,
+            last_inbound_type=last_type,
+            last_inbound_date=timezone.now() - timedelta(seconds=age_s),
+        )
+
+    with override_flag("multi_replies", active=True):
+        yield MultiReplyFixture(
+            user=phone_user,
+            real_phone=real_phone,
+            relay_number=relay_number,
+            mocked_twilio_client=mocked_twilio_client,
+        )
+
+
+@pytest.mark.parametrize(
+    "prefix",
+    (
+        "0000",
+        "0000:",
+        "+13015550000",
+        "+13015550000: ",
+        "(301) 555-0000 ",
+    ),
+)
+def test_inbound_sms_reply_one_match(
+    multi_reply_fixture: MultiReplyFixture, prefix: str
+) -> None:
+    relay_number = multi_reply_fixture.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply_fixture.real_phone.number,
+        "To": relay_number.number,
+        "Body": f"{prefix}test reply",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == "+13015550000"
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == "test reply"
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+
+def test_inbound_sms_reply_short_prefix_multi_match(
+    multi_reply_fixture: MultiReplyFixture,
+) -> None:
+    relay_number = multi_reply_fixture.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply_fixture.real_phone.number,
+        "To": relay_number.number,
+        "Body": "0001 test reply to ambiguous number",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == (
+        "Message failed to send. There is more than one phone number in this thread"
+        " ending in 0001. To retry, start your message with the complete number."
+    )
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 0
+
+
+def test_inbound_sms_reply_short_prefix_no_match(
+    multi_reply_fixture: MultiReplyFixture,
+) -> None:
+    relay_number = multi_reply_fixture.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply_fixture.real_phone.number,
+        "To": relay_number.number,
+        "Body": "0404 - test reply to unknown number",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == (
+        "Message failed to send. There is no phone number in this thread ending in"
+        " 0404. Please check the number and try again."
+    )
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 0
+
+
+def test_inbound_sms_reply_full_prefix_no_match(
+    multi_reply_fixture: MultiReplyFixture,
+) -> None:
+    relay_number = multi_reply_fixture.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply_fixture.real_phone.number,
+        "To": relay_number.number,
+        "Body": "+14045550404: test reply to unknown number",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == (
+        "Message failed to send. There is no previous sender with the phone number"
+        " +14045550404. Please check the number and try again."
+    )
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 0
+
+
+def test_inbound_sms_reply_short_prefix_no_message(
+    multi_reply_fixture: MultiReplyFixture,
+) -> None:
+    relay_number = multi_reply_fixture.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply_fixture.real_phone.number,
+        "To": relay_number.number,
+        "Body": "0002:",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == (
+        "Message failed to send. Please include a message after the sender identifier"
+        " 0002."
+    )
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 0
+
+
+def test_inbound_sms_reply_full_prefix_no_message(
+    multi_reply_fixture: MultiReplyFixture,
+) -> None:
+    relay_number = multi_reply_fixture.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply_fixture.real_phone.number,
+        "To": relay_number.number,
+        "Body": "+13055550002",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == (
+        "Message failed to send. Please include a message after the phone number"
+        " +13055550002."
+    )
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 0
+
+
+def test_inbound_sms_reply_no_prefix_last_sender(
+    multi_reply_fixture: MultiReplyFixture,
+) -> None:
+    relay_number = multi_reply_fixture.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply_fixture.real_phone.number,
+        "To": relay_number.number,
+        "Body": "1 2 3 4 is this on?",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == "+13055550002"
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == data["Body"]
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+
+_match_by_prefix_candidates = set(
+    (
+        "+13015550000",
+        "+13025550001",
+        "+13035550001",  # Same last 4 digits as above
+        "+13045551301",  # Last 4 match first 4 of oldest
+    )
+)
+_match_by_prefix_tests = {
+    "no prefix": ("no prefix", [], None),
+    "4 digits, no message": ("0000 ", ["+13015550000"], "0000 "),
+    "4 digit multiple matches": (
+        "0001 the message",
+        ["+13025550001", "+13035550001"],
+        "0001 ",
+    ),
+    "Two prefixes first match": ("0000 0001 the message", ["+13015550000"], "0000 "),
+    "4 digit, no match": ("0010 the message", [], "0010 "),
+    "4 digit with space": ("0000 the message", ["+13015550000"], "0000 "),
+    "4 digit without space": ("0000the message", ["+13015550000"], "0000"),
+    "4 digit with colon": ("0000:the message", ["+13015550000"], "0000:"),
+    "4 digit with colon space": ("0000: the message", ["+13015550000"], "0000: "),
+    "leading spaces 4 digits": ("  1301  the message", ["+13045551301"], "  1301  "),
+    "4 digits newline": ("1301\nthe message", ["+13045551301"], "1301\n"),
+    "first 4 of 6 digits": ("130178 the message", ["+13045551301"], "1301"),
+    "4 digit with dash": ("0000 - the message", ["+13015550000"], "0000 - "),
+    "4 digit with slash": ("0000 / the message", ["+13015550000"], "0000 / "),
+    "4 digit with backslash": ("0000 \\the message", ["+13015550000"], "0000 \\"),
+    "4 digit with right bracket": ("0000] the message", ["+13015550000"], "0000] "),
+    "4 digit with pipe": ("0000|the message", ["+13015550000"], "0000|"),
+    "3 digits is not a prefix": ("000 the message", [], None),
+    "digits with spaces is not a prefix": ("00 01 the message", [], None),
+    "letter followed by digits is not a prefix": ("x0000 the message", [], None),
+    "e.164, no message": ("+13015550000", ["+13015550000"], "+13015550000"),
+    "e.164, no match": ("+14045550000 no match", [], "+14045550000 "),
+    "e.164, colon": ("+13025550001: the message", ["+13025550001"], "+13025550001: "),
+    "e.164, dash": ("+13035550001 - the message", ["+13035550001"], "+13035550001 - "),
+    "e.164, slash": ("+13035550001 / the message", ["+13035550001"], "+13035550001 / "),
+    "e.164, backslash": (
+        "+13035550001\\the message",
+        ["+13035550001"],
+        "+13035550001\\",
+    ),
+    "e.164, right bracket": (
+        "+13045551301]the message",
+        ["+13045551301"],
+        "+13045551301]",
+    ),
+    "e.164, pipe": ("+13045551301|the message", ["+13045551301"], "+13045551301|"),
+    "Full without plus": ("13045551301 the message", ["+13045551301"], "13045551301 "),
+    "US format": (
+        "1 (304) 555-1301 the message",
+        ["+13045551301"],
+        "1 (304) 555-1301 ",
+    ),
+    "US format no country code": (
+        "(304)555-1301the message",
+        ["+13045551301"],
+        "(304)555-1301",
+    ),
+    "Full no country code": ("3015550000 a message", ["+13015550000"], "3015550000 "),
+    "Full spaces": (
+        "+1 301 555 0000 the message",
+        ["+13015550000"],
+        "+1 301 555 0000 ",
+    ),
+    "e.164 with extra num, no match": ("+130155500007 message", [], None),
+    "Two e.164, first match": (
+        "(301) 555-0000 +13045551301",
+        ["+13015550000"],
+        "(301) 555-0000 ",
+    ),
+}
+
+
+@pytest.mark.parametrize(
+    "text, expected_matches, expected_prefix",
+    _match_by_prefix_tests.values(),
+    ids=list(_match_by_prefix_tests.keys()),
+)
+def test_match_by_prefix(
+    text: str, expected_matches: list[str], expected_prefix: Optional[str]
+) -> None:
+    matches, prefix = _match_by_prefix(text, _match_by_prefix_candidates)
+    assert matches == expected_matches
+    if expected_prefix is None:
+        assert prefix is None
+    else:
+        assert prefix is not None
+        assert prefix == expected_prefix
 
 
 @pytest.mark.django_db

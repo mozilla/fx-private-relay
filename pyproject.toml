@@ -57,6 +57,7 @@ module = [
     "vobject",
     "waffle",
     "waffle.models",
+    "waffle.testutils",
     "whitenoise.middleware",
     "whitenoise.storage",
 ]
