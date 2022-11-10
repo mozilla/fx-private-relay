@@ -51,7 +51,7 @@ def make_free_test_user():
 
 def make_premium_test_user():
     # premium user
-    premium_user = baker.make(User)
+    premium_user = baker.make(User, email="premium@email.com")
     premium_user_profile = Profile.objects.get(user=premium_user)
     premium_user_profile.server_storage = True
     premium_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
@@ -62,7 +62,7 @@ def make_premium_test_user():
 
 def make_storageless_test_user():
     storageless_user = baker.make(User)
-    storageless_user_profile = storageless_user.profile_set.get()
+    storageless_user_profile = storageless_user.profile
     storageless_user_profile.server_storage = False
     storageless_user_profile.subdomain = "mydomain"
     storageless_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
@@ -169,9 +169,9 @@ class MiscEmailModelsTest(TestCase):
 class RelayAddressTest(TestCase):
     def setUp(self):
         self.user = make_free_test_user()
-        self.user_profile = self.user.profile_set.get()
+        self.user_profile = self.user.profile
         self.premium_user = make_premium_test_user()
-        self.premium_user_profile = self.premium_user.profile_set.get()
+        self.premium_user_profile = self.premium_user.profile
         self.storageless_user = make_storageless_test_user()
 
     def test_create_assigns_to_user(self):
@@ -273,7 +273,7 @@ class RelayAddressTest(TestCase):
 class ProfileTest(TestCase):
     def setUp(self):
         user = baker.make(User)
-        self.profile = user.profile_set.get()
+        self.profile = user.profile
         self.profile.server_storage = True
         self.profile.save()
 
@@ -457,7 +457,7 @@ class ProfileTest(TestCase):
             provider="fxa",
             extra_data={"subscriptions": [random_sub]},
         )
-        assert premium_user.profile_set.get().has_premium is True
+        assert premium_user.profile.has_premium is True
 
     def test_add_subdomain_to_new_unlimited_profile(self):
         subdomain = "newpremium"
@@ -501,7 +501,7 @@ class ProfileTest(TestCase):
 
     def test_add_subdomain_to_non_premium_user_raises_exception(self):
         subdomain = "test"
-        non_premium_profile = baker.make(User).profile_set.get()
+        non_premium_profile = baker.make(User).profile
         try:
             non_premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
@@ -725,7 +725,7 @@ class ProfileTest(TestCase):
         )
 
         server_stored_data_user = baker.make(User)
-        server_stored_data_profile = server_stored_data_user.profile_set.get()
+        server_stored_data_profile = server_stored_data_user.profile
         server_stored_data_profile.server_storage = True
         server_stored_data_profile.save()
         baker.make(
@@ -832,7 +832,7 @@ class ProfileTest(TestCase):
     ):
         subdomain = "test"
         user = make_premium_test_user()
-        user_profile = user.profile_set.get()
+        user_profile = user.profile
         user_profile.subdomain = subdomain
         user_profile.num_email_replied_in_deleted_address = 1
         user_profile.save()
@@ -883,7 +883,7 @@ class ProfileTest(TestCase):
             remove_level_one_email_trackers=True
         )
         baker.make(SocialAccount, user=user, provider="fxa")
-        profile = user.profile_set.get()
+        profile = user.profile
         profile.remove_level_one_email_trackers = False
         profile.save()
 
@@ -935,7 +935,7 @@ class ProfileTest(TestCase):
         self, mocked_events_info, mocked_incr
     ):
         user = baker.make(User)
-        assert user.profile_set.get()
+        assert user.profile
 
         mocked_incr.assert_not_called()
         mocked_events_info.assert_not_called()
@@ -948,9 +948,9 @@ class ProfileTest(TestCase):
         expected_now = self.patch_datetime_now()
         user = make_premium_test_user()
         baker.make(AbuseMetrics, user=user, num_email_forwarded_per_day=4)
-        profile = user.profile_set.get()
+        profile = user.profile
 
-        assert profile.last_account_flagged == None
+        assert profile.last_account_flagged is None
         profile.update_abuse_metric(email_forwarded=True)
 
         abuse_metrics = AbuseMetrics.objects.get(user=user)
@@ -977,9 +977,9 @@ class ProfileTest(TestCase):
         expected_now = self.patch_datetime_now()
         user = make_premium_test_user()
         baker.make(AbuseMetrics, user=user, forwarded_email_size_per_day=50)
-        profile = user.profile_set.get()
+        profile = user.profile
 
-        assert profile.last_account_flagged == None
+        assert profile.last_account_flagged is None
         profile.update_abuse_metric(forwarded_email_size=50)
 
         abuse_metrics = AbuseMetrics.objects.get(user=user)
@@ -1004,7 +1004,7 @@ class DomainAddressTest(TestCase):
         self.subdomain = "test"
         self.user = make_premium_test_user()
         self.storageless_user = make_storageless_test_user()
-        self.user_profile = self.user.profile_set.get()
+        self.user_profile = self.user.profile
         self.user_profile.subdomain = self.subdomain
         self.user_profile.save()
 
@@ -1055,7 +1055,7 @@ class DomainAddressTest(TestCase):
         assert domain_address.first_emailed_at is not None
 
     def test_make_domain_address_non_premium_user(self) -> None:
-        non_premium_user_profile = baker.make(User).profile_set.get()
+        non_premium_user_profile = baker.make(User).profile
         with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(
                 non_premium_user_profile, "test-non-premium"

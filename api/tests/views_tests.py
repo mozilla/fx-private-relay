@@ -23,7 +23,7 @@ def free_api_client(db) -> APIClient:
 def prem_api_client(db) -> APIClient:
     """Return an APIClient for a newly created premium user."""
     premium_user = make_premium_test_user()
-    premium_profile = premium_user.profile_set.get()
+    premium_profile = premium_user.profile
     premium_profile.subdomain = "premium"
     premium_profile.save()
     client = APIClient()
@@ -75,7 +75,7 @@ def test_post_domainaddress_success(prem_api_client) -> None:
 
 def test_post_domainaddress_no_subdomain_error(prem_api_client) -> None:
     """A premium user needs to select a subdomain before creating a domain address."""
-    premium_profile = get_user(prem_api_client).profile_set.get()
+    premium_profile = get_user(prem_api_client).profile
     premium_profile.subdomain = ""
     premium_profile.save()
 
@@ -97,7 +97,7 @@ def test_post_domainaddress_no_subdomain_error(prem_api_client) -> None:
 
 def test_post_domainaddress_user_flagged_error(prem_api_client) -> None:
     """A flagged user cannot create a new domain address."""
-    premium_profile = get_user(prem_api_client).profile_set.get()
+    premium_profile = get_user(prem_api_client).profile
     premium_profile.last_account_flagged = timezone.now()
     premium_profile.save()
 
@@ -181,7 +181,7 @@ def test_post_relayaddress_free_mask_email_limit_error(
 
 def test_post_relayaddress_flagged_error(free_api_client) -> None:
     """A flagged user is unable to create a random mask."""
-    free_profile = get_user(free_api_client).profile_set.get()
+    free_profile = get_user(free_api_client).profile
     free_profile.last_account_flagged = timezone.now()
     free_profile.save()
 

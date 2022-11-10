@@ -82,8 +82,7 @@ def default_domain_numerical():
 
 
 class Profile(models.Model):
-    # TODO: #2708 Change to OneToOneField
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
     num_address_deleted = models.PositiveIntegerField(default=0)
     date_subscribed = models.DateTimeField(blank=True, null=True)
@@ -160,7 +159,7 @@ class Profile(models.Model):
 
     # This method returns whether the locale associated with the user's Firefox account
     # includes a country code from a Premium country. This is less accurate than using
-    # get_premium_countries_info_from_request(), which uses a GeoIP lookup, so prefer
+    # get_countries_info_from_request_and_mapping(), which uses a GeoIP lookup, so prefer
     # using that if a request context is available. In other contexts, e.g. when
     # sending an email, this method can be useful.
     @property
@@ -171,7 +170,7 @@ class Profile(models.Model):
                 len(accept_langs) >= 1
                 and len(accept_langs[0][0].split("-")) >= 2
                 and accept_langs[0][0].split("-")[1]
-                in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+                in settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
             # If a language but no country is known, check if there's a country
@@ -182,7 +181,7 @@ class Profile(models.Model):
                 len(accept_langs) >= 1
                 and len(accept_langs[0][0].split("-")) == 1
                 and accept_langs[0][0].split("-")[0]
-                in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+                in settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
         return False
@@ -461,7 +460,7 @@ class Profile(models.Model):
 
 
 def get_storing_phone_log(relay_number):
-    return relay_number.user.profile_set.get().store_phone_log
+    return relay_number.user.profile.store_phone_log
 
 
 @receiver(models.signals.post_save, sender=Profile)
@@ -659,7 +658,7 @@ class RelayAddress(models.Model):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
-        if not self.user.profile_set.get().server_storage:
+        if not self.user.profile.server_storage:
             self.description = ""
             self.generated_for = ""
             self.used_on = ""
@@ -754,7 +753,7 @@ class DomainAddress(models.Model):
         return self.address
 
     def save(self, *args, **kwargs) -> None:
-        user_profile = self.user.profile_set.get()
+        user_profile = self.user.profile
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
             pattern_valid = valid_address_pattern(self.address)
@@ -851,7 +850,7 @@ class Reply(models.Model):
 
     @property
     def profile(self):
-        return self.address.user.profile_set.get()
+        return self.address.user.profile
 
     @property
     def owner_has_premium(self):

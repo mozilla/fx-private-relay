@@ -1,18 +1,6 @@
 from django.conf import settings
 
 
-def get_premium_countries_info_from_request(request):
-    country_code = _get_cc_from_request(request)
-    premium_countries = settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
-    premium_available_in_country = country_code in premium_countries
-    return {
-        "country_code": country_code,
-        "premium_countries": premium_countries,
-        "premium_available_in_country": premium_available_in_country,
-        "plan_country_lang_mapping": settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING,
-    }
-
-
 def get_countries_info_from_request_and_mapping(request, mapping):
     country_code = _get_cc_from_request(request)
     countries = mapping.keys()
@@ -46,8 +34,8 @@ def get_premium_country_lang(accept_lang, cc=None):
         if cc == "en":
             cc = "us"
 
-    if cc in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys():
-        languages = settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc]
+    if cc in settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys():
+        languages = settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING[cc]
         if lang in languages.keys():
             return cc, lang
         return cc, list(languages.keys())[0]

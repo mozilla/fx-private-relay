@@ -52,8 +52,6 @@
   background-color: $color-white;
   width: $content-sm;
   max-width: calc(100% - $spacing-xl);
-  // Prevent the BlockLevelSlider thumb, which is also absolutely positioned
-  z-index: 1;
 
   .header {
     display: flex;

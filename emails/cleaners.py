@@ -5,7 +5,7 @@ from __future__ import annotations
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
 
-from privaterelay.cleaners import CleanerTask, CleanupData, Counts, DetectorTask
+from privaterelay.cleaners import CleanerTask, CleanupData, Counts
 
 from .models import DomainAddress, Profile, RelayAddress
 from .signals import create_user_profile
@@ -212,69 +212,6 @@ class MissingProfileCleaner(CleanerTask):
         if no_profile and cleaned is not None:
             lines.append(
                 f"      Now has Profile: {self._as_percent(cleaned, no_profile)}"
-            )
-
-        return "\n".join(lines)
-
-
-class ManyProfileDetector(DetectorTask):
-    # TODO: #2708 Remove this detector when Profile.user is a OneToOneField
-    slug = "many-profiles"
-    title = "Counts users with multiple profiles"
-    check_description = "Users should not have multiple profiles."
-
-    def _get_counts_and_data(self) -> tuple[Counts, CleanupData]:
-        """
-        Analyze users and related profiles.
-
-        Returns:
-        * counts: two-level dict of summary and user counts
-        * cleanup_data: empty dict
-        """
-
-        # Construct user -> profile counts
-        users_with_profile_counts = User.objects.annotate(num_profiles=Count("profile"))
-        ok_users = users_with_profile_counts.filter(num_profiles__lte=1)
-        many_profile_users = users_with_profile_counts.filter(num_profiles__gt=1)
-
-        # Get counts once
-        ok_user_count = ok_users.count()
-        many_profiles_user_count = many_profile_users.count()
-
-        # Return counts and (empty) cleanup data
-        counts: Counts = {
-            "summary": {
-                "ok": ok_user_count,
-                "needs_cleaning": many_profiles_user_count,
-            },
-            "users": {
-                "all": User.objects.count(),
-                "one_or_no_profile": ok_user_count,
-                "many_profiles": many_profiles_user_count,
-            },
-        }
-        cleanup_data: CleanupData = {}
-        return counts, cleanup_data
-
-    def markdown_report(self) -> str:
-        """Report on user <-> profile matches."""
-
-        # Report on users
-        user_counts = self.counts["users"]
-        all_users = user_counts["all"]
-        lines = [
-            "Users:",
-            f"  All: {all_users}",
-        ]
-        if all_users > 0:
-            # Breakdown users by profile count
-            lines.extend(
-                [
-                    "    One or no Profile: "
-                    f'{self._as_percent(user_counts["one_or_no_profile"], all_users)}',
-                    "    Many Profiles    : "
-                    f'{self._as_percent(user_counts["many_profiles"], all_users)}',
-                ]
             )
 
         return "\n".join(lines)

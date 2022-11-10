@@ -8,7 +8,6 @@ from .views import (
     RelayAddressViewSet,
     ProfileViewSet,
     UserViewSet,
-    premium_countries,
     report_webcompat_issue,
     runtime_data,
     schema_view,
@@ -36,7 +35,6 @@ api_router.register(r"users", UserViewSet, "user")
 
 
 urlpatterns = [
-    path("v1/premium_countries", premium_countries, name="premium_countries"),
     path("v1/runtime_data", runtime_data, name="runtime_data"),
     path(
         "v1/report_webcompat_issue",

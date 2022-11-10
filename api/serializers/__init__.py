@@ -12,12 +12,11 @@ class PremiumValidatorsMixin:
         if not value:
             return value
         user = self.context["request"].user
-        prefetch_related_objects([user], "socialaccount_set", "profile_set")
-        if not user.profile_set.get().has_premium:
+        prefetch_related_objects([user], "socialaccount_set", "profile")
+        if not user.profile.has_premium:
             raise exceptions.AuthenticationFailed(
                 "Must be premium to set block_list_emails."
             )
-        return value
         return value
 
 
@@ -156,6 +155,7 @@ class WebcompatIssueSerializer(serializers.Serializer):
     issue_on_domain = serializers.URLField(
         max_length=200, min_length=None, allow_blank=False
     )
+    user_agent = serializers.CharField(required=False, default="", allow_blank=True)
     email_mask_not_accepted = serializers.BooleanField(required=False, default=False)
     add_on_visual_issue = serializers.BooleanField(required=False, default=False)
     email_not_received = serializers.BooleanField(required=False, default=False)
