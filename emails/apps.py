@@ -1,7 +1,5 @@
-import json
 import logging
 import os
-import requests
 
 import boto3
 from botocore.config import Config
@@ -11,21 +9,6 @@ from django.conf import settings
 
 
 logger = logging.getLogger("events")
-
-
-def get_trackers(category="Email"):
-    # email tracker lists from shavar-prod-list as per agreed use under license:
-    resp = requests.get(
-        "https://raw.githubusercontent.com/mozilla-services/shavar-prod-lists/master/disconnect-blacklist.json"
-    )
-    json_resp = resp.json()
-    formatted_trackers = json_resp["categories"][category]
-    trackers = []
-    for entity in formatted_trackers:
-        for _, resources in entity.items():
-            for _, domains in resources.items():
-                trackers.extend(domains)
-    return trackers
 
 
 class EmailsConfig(AppConfig):
@@ -51,16 +34,6 @@ class EmailsConfig(AppConfig):
         # Using `.text` extension because of https://github.com/dependabot/dependabot-core/issues/1657
         self.badwords = self._load_terms("badwords.text")
         self.blocklist = self._load_terms("blocklist.text")
-
-        # TODO: fix the relative path issue on CircleCI to use the commented code
-        # level_one_trackers = get_trackers()
-        # with open("emails/tracker_lists/level-one-tracker.json", "w+") as f:
-        #     json.dump(level_one_trackers, f, indent=4)
-        # level_two_trackers = get_trackers("EmailStrict") or get_trackers(
-        #     "EmailAggressive"
-        # )
-        # with open("emails/tracker_lists/level-two-tracker.json", "w+") as f:
-        #     json.dump(level_two_trackers, f, indent=4)
 
     def _load_terms(self, filename):
         terms = []
