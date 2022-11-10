@@ -13,6 +13,7 @@ import { useTabListState, TabListState, Item } from "react-stately";
 import { useInView } from "react-intersection-observer";
 import { event as gaEvent } from "react-ga";
 import styles from "./Tips.module.scss";
+import MultiRepliesImage from "./images/multi-replies.svg";
 import { ArrowDownIcon, InfoIcon } from "../../Icons";
 import { ProfileData } from "../../../hooks/api/profile";
 import {
@@ -67,6 +68,7 @@ export const Tips = (props: Props) => {
           "video/webm; codecs='vp9'": "/animations/tips/multi-replies.webm",
           "video/mp4": "/animations/tips/multi-replies.mp4",
         }}
+        image={MultiRepliesImage.src}
       />
     ),
     dismissal: useLocalDismissal(`tips_multiReplies_${props.profile.id}`),
