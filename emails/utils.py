@@ -62,7 +62,7 @@ def get_trackers(level):
         with open(TRACKER_FOLDER_PATH / file_name, "r") as f:
             trackers = json.load(f)
     except FileNotFoundError:
-        trackers = get_trackers(shavar_prod_lists_url, category)
+        trackers = download_trackers(shavar_prod_lists_url, category)
         store_trackers(trackers, TRACKER_FOLDER_PATH, file_name)
     return trackers
 
