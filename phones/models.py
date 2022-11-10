@@ -235,6 +235,10 @@ class RelayNumber(models.Model):
     def calls_and_texts_blocked(self):
         return self.calls_blocked + self.texts_blocked
 
+    @property
+    def storing_phone_log(self) -> bool:
+        return self.user.profile.store_phone_log
+
     def save(self, *args, **kwargs):
         realphone = get_verified_realphone_records(self.user).first()
         if not realphone:

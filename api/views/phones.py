@@ -21,7 +21,6 @@ from rest_framework.generics import get_object_or_404
 from twilio.base.exceptions import TwilioRestException
 
 from api.views import SaveToRequestUser
-from emails.models import Profile, get_storing_phone_log
 from emails.utils import incr_if_enabled
 
 from phones.models import (
@@ -625,8 +624,7 @@ def _get_phone_objects(inbound_to):
 def _handle_sms_reply(relay_number, real_phone, inbound_body):
     incr_if_enabled("phones_handle_sms_reply")
     client = twilio_client()
-    storing_phone_log = get_storing_phone_log(relay_number)
-    if not storing_phone_log:
+    if not relay_number.storing_phone_log:
         origin = settings.SITE_ORIGIN
         error = f"You can only reply if you allow Firefox Relay to keep a log of your callers and text senders. {origin}/accounts/settings/"
         client.messages.create(
@@ -675,8 +673,7 @@ def _check_remaining(relay_number, resource_type):
 
 def _get_inbound_contact(relay_number, inbound_from):
     # Check if RelayNumber is storing phone log
-    profile = Profile.objects.get(user=relay_number.user)
-    if not profile.store_phone_log:
+    if not relay_number.storing_phone_log:
         return None
 
     # Check if RelayNumber is blocking this inbound_from
