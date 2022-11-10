@@ -621,12 +621,17 @@ def _get_phone_objects(inbound_to):
     return relay_number, real_phone
 
 
-def _handle_sms_reply(relay_number, real_phone, inbound_body):
+def _handle_sms_reply(
+    relay_number: RelayNumber, real_phone: RealPhone, inbound_body: str
+) -> None:
     incr_if_enabled("phones_handle_sms_reply")
     client = twilio_client()
     if not relay_number.storing_phone_log:
         origin = settings.SITE_ORIGIN
-        error = f"You can only reply if you allow Firefox Relay to keep a log of your callers and text senders. {origin}/accounts/settings/"
+        error = (
+            "You can only reply if you allow Firefox Relay to keep a log of your"
+            f" callers and text senders. {origin}/accounts/settings/"
+        )
         client.messages.create(
             from_=relay_number.number,
             body=error,
@@ -634,7 +639,7 @@ def _handle_sms_reply(relay_number, real_phone, inbound_body):
         )
         raise exceptions.ValidationError(error)
     last_text_sender = get_last_text_sender(relay_number)
-    if last_text_sender == None:
+    if last_text_sender is None:
         error = "Could not find a previous text sender."
         client.messages.create(
             from_=relay_number.number,

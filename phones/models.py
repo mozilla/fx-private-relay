@@ -15,8 +15,11 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
 from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
+
+from .apps import PhonesConfig
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
 LAST_CONTACT_TYPE_CHOICES = [
@@ -25,10 +28,10 @@ LAST_CONTACT_TYPE_CHOICES = [
 ]
 
 
-def twilio_client():
+def twilio_client() -> Client:
     phones_config = apps.get_app_config("phones")
-    client = phones_config.twilio_client
-    return client
+    assert isinstance(phones_config, PhonesConfig)
+    return phones_config.twilio_client
 
 
 def verification_code_default():
