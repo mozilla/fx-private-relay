@@ -70,6 +70,7 @@ urlpatterns = [
 
 if settings.PHONES_ENABLED:
     from .views.phones import (
+        call,
         RealPhoneViewSet,
         RelayNumberViewSet,
         InboundContactViewSet,
@@ -106,6 +107,8 @@ if settings.PHONES_ENABLED:
             name="voice_status_deprecate_after_updating_clients",
         ),
         path("v1/voice_status/", voice_status, name="voice_status"),
+        path("v1/call", call, name="call_deprecate_after_updating_clients"),
+        path("v1/call/", call, name="call"),
         path(
             "v1/sms_status",
             sms_status,
