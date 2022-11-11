@@ -61,6 +61,7 @@ urlpatterns = [
 if settings.PHONES_ENABLED:
     from .views.phones import (
         call,
+        messages,
         RealPhoneViewSet,
         RelayNumberViewSet,
         InboundContactViewSet,
@@ -79,6 +80,7 @@ if settings.PHONES_ENABLED:
         path("v1/inbound_sms", inbound_sms, name="inbound_sms"),
         path("v1/inbound_call", inbound_call, name="inbound_call"),
         path("v1/call", call, name="call"),
+        path("v1/messages", messages, name="messages"),
         path("v1/voice_status", voice_status, name="voice_status"),
         path("v1/sms_status", sms_status, name="sms_status"),
         path("v1/vCard/<lookup_key>", vCard, name="vCard"),
