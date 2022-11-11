@@ -642,6 +642,58 @@ def call(request):
     return response.Response(status=200)
 
 
+messages_body = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={"with": openapi.Schema(type=openapi.TYPE_STRING)},
+)
+
+
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+@decorators.api_view(["GET"])
+def messages(request):
+    """
+    Get the user's messages.
+
+    Pass ?with=<E.164> parameter to filter the messages to only the ones sent between
+    the relay number and the <E.164> number.
+
+    """
+    _with = request.data.get("with", None)
+    relay_number = RelayNumber.objects.get(user=request.user)
+
+    contact = None
+    if _with is not None:
+        contact = InboundContact.objects.get(
+            relay_number=relay_number, inbound_number=_with
+        )
+
+    client = twilio_client()
+    if contact:
+        inbound_messages = client.messages.list(
+            from_=contact.inbound_number, to=relay_number.number
+        )
+        outbound_messages = client.messages.list(
+            from_=relay_number.number, to=contact.inbound_number
+        )
+        return response.Response(
+            {
+                "inbound_messages": inbound_messages,
+                "outbound_messages": outbound_messages,
+            },
+            status=200,
+        )
+    inbound_messages = convert_twilio_messages_to_dict(
+        client.messages.list(to=relay_number.number)
+    )
+    outbound_messages = convert_twilio_messages_to_dict(
+        client.messages.list(from_=relay_number.number)
+    )
+    return response.Response(
+        {"inbound_messages": inbound_messages, "outbound_messages": outbound_messages},
+        status=200,
+    )
+
+
 def _get_phone_objects(inbound_to):
     # Get RelayNumber and RealPhone
     try:
@@ -753,3 +805,19 @@ def _validate_twilio_request(request):
     if not validator.validate(url, sorted_params, request_signature):
         incr_if_enabled("phones_invalid_twilio_signature")
         raise exceptions.ValidationError("Invalid request: invalid signature")
+
+
+def convert_twilio_messages_to_dict(twilio_messages):
+    """
+    To serialize twilio messages to JSON for the API,
+    we need to convert them into dictionaries.
+    """
+    messages_as_dicts = []
+    for twilio_message in twilio_messages:
+        message = {}
+        message["from"] = twilio_message.from_
+        message["to"] = twilio_message.to
+        message["date_sent"] = twilio_message.date_sent
+        message["body"] = twilio_message.body
+        messages_as_dicts.append(message)
+    return messages_as_dicts
