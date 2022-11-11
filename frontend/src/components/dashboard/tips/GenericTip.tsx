@@ -8,6 +8,7 @@ export type GenericTipProps = {
   content: ReactNode;
   videos?: Record<string, string>;
   image?: string;
+  alt?: string;
 };
 // This component will probably be used for future tips that are yet to be added:
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -34,19 +35,27 @@ export const GenericTip = (props: GenericTipProps) => {
           {sources}
           {/* Fall back to the image if the video formats are not supported: */}
           {typeof props.image === "string" ? (
-            <img src={props.image} alt="" />
+            <img src={props.image} alt={props.alt ?? ""} />
           ) : null}
         </video>
         {/* This image will only be shown if the user has prefers-reduced-motion on */}
-        <img className={styles["still-alternative"]} src={props.image} alt="" />
+        <img
+          className={styles["still-alternative"]}
+          src={props.image}
+          alt={props.alt ?? ""}
+        />
       </>
     ) : null;
 
   return (
     <div className={styles["generic-tip"]}>
-      {video}
       <h3>{props.title}</h3>
       {props.content}
+      {/*
+        Video listed last because that makes more sense for screen readers;
+        it's usually an example of the text above.
+        */}
+      {video}
     </div>
   );
 };

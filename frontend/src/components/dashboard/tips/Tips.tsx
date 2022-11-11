@@ -69,6 +69,8 @@ export const Tips = (props: Props) => {
           "video/mp4": "/animations/tips/multi-replies.mp4",
         }}
         image={MultiRepliesImage.src}
+        // Not localised, because the video is only shown to English speakers:
+        alt="To reply to the phone number 555-555-9876, type 9876 then type your message"
       />
     ),
     dismissal: useLocalDismissal(`tips_multiReplies_${props.profile.id}`),
