@@ -10,7 +10,6 @@ from .views import (
     UserViewSet,
     report_webcompat_issue,
     runtime_data,
-    schema_view,
 )
 
 
@@ -41,17 +40,23 @@ urlpatterns = [
         report_webcompat_issue,
         name="report_webcompat_issue",
     ),
-    path(
-        "v1/swagger<swagger_format:format>",
-        schema_view.without_ui(cache_timeout=0),
-        name="schema-json",
-    ),
-    path(
-        "v1/docs/",
-        schema_view.with_ui("swagger", cache_timeout=0),
-        name="schema-swagger-ui",
-    ),
 ]
+
+if settings.API_DOCS_ENABLED:
+    from .views import schema_view
+
+    urlpatterns += [
+        path(
+            "v1/swagger<swagger_format:format>",
+            schema_view.without_ui(cache_timeout=0),
+            name="schema-json",
+        ),
+        path(
+            "v1/docs/",
+            schema_view.with_ui("swagger", cache_timeout=0),
+            name="schema-swagger-ui",
+        ),
+    ]
 
 if settings.PHONES_ENABLED:
     from .views.phones import (

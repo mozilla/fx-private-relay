@@ -2,6 +2,7 @@ import pytest
 from model_bakery import baker
 
 from django.contrib.auth.models import User
+from django.test import override_settings
 from django.utils import timezone
 from django.urls import reverse
 from rest_framework.test import APIClient
@@ -39,6 +40,7 @@ def get_user(client: APIClient) -> User:
 
 
 @pytest.mark.parametrize("format", ("yaml", "json"))
+@override_settings(API_DOCS_ENABLED=True)
 def test_swagger_format(client, format):
     path = f"/api/v1/swagger.{format}"
     response = client.get(path)

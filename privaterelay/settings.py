@@ -227,11 +227,17 @@ INSTALLED_APPS = [
     "api.apps.ApiConfig",
 ]
 
+API_DOCS_ENABLED = config("API_DOCS_ENABLED", False, cast=bool) or DEBUG
+if API_DOCS_ENABLED:
+    INSTALLED_APPS += [
+        "drf_yasg",
+    ]
+
 if DEBUG:
     INSTALLED_APPS += [
         "debug_toolbar",
-        "drf_yasg",
     ]
+
 if USE_SILK:
     INSTALLED_APPS.append("silk")
 
@@ -810,13 +816,11 @@ LOGGING = {
     },
 }
 
+DRF_RENDERERS = ["rest_framework.renderers.JSONRenderer"]
 if DEBUG and not IN_PYTEST:
-    DRF_RENDERERS = [
+    DRF_RENDERERS += [
         "rest_framework.renderers.BrowsableAPIRenderer",
-        "rest_framework.renderers.JSONRenderer",
     ]
-else:
-    DRF_RENDERERS = ["rest_framework.renderers.JSONRenderer"]
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
