@@ -18,7 +18,7 @@ drf-yasg==1.21.4
 google-measurement-protocol==1.1.0
 gunicorn==20.1.0
 jwcrypto==1.4.2
-markus[datadog]==4.0.1
+markus[datadog]==4.1.0
 pem==21.2.0
 psycopg2==2.9.5
 # NOTE: update to 2.6.0 blocked by #2738
