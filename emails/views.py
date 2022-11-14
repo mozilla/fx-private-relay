@@ -24,6 +24,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import escape
@@ -64,8 +65,8 @@ logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
 
 
-class InReplyToNotFound(Exception):
-    def __init__(self, message="No In-Reply-To header."):
+class ReplyHeadersNotFound(Exception):
+    def __init__(self, message="No In-Reply-To or References headers."):
         self.message = message
 
 
@@ -368,9 +369,8 @@ def _sns_message(message_json):
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
         address = _get_address(to_address, to_local_portion, to_domain_portion)
-        user_profile = address.user.profile_set.prefetch_related(
-            "user__socialaccount_set"
-        ).first()
+        prefetch_related_objects([address.user], "socialaccount_set", "profile")
+        user_profile = address.user.profile
     except (
         ObjectDoesNotExist,
         CannotMakeAddressException,
@@ -408,14 +408,14 @@ def _sns_message(message_json):
 
     # check if this is a reply from an external sender to a Relay user
     try:
-        (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
+        (lookup_key, _) = _get_keys_from_headers(mail["headers"])
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
         address = reply_record.address
         # make sure the relay user is premium
         if not _reply_allowed(from_address, to_address, reply_record):
             # TODO: Add metrics
             return HttpResponse("Relay replies require a premium account", status=403)
-    except (InReplyToNotFound, Reply.DoesNotExist):
+    except (ReplyHeadersNotFound, Reply.DoesNotExist):
         # if there's no In-Reply-To header, or the In-Reply-To value doesn't
         # match a Reply record, continue to treat this as a regular email from
         # an external sender to a relay user
@@ -581,10 +581,22 @@ def _get_keys_from_headers(headers):
         if header["name"].lower() == "in-reply-to":
             in_reply_to = header["value"]
             message_id_bytes = get_message_id_bytes(in_reply_to)
-    if in_reply_to is None:
-        incr_if_enabled("mail_to_replies_without_in_reply_to", 1)
-        raise InReplyToNotFound
-    return derive_reply_keys(message_id_bytes)
+            return derive_reply_keys(message_id_bytes)
+
+        if header["name"].lower() == "references":
+            message_ids = header["value"]
+            for message_id in message_ids.split(" "):
+                message_id_bytes = get_message_id_bytes(message_id)
+                lookup_key, encryption_key = derive_reply_keys(message_id_bytes)
+                try:
+                    # FIXME: calling code is likely to duplicate this query
+                    _get_reply_record_from_lookup_key(lookup_key)
+                    return lookup_key, encryption_key
+                except Reply.DoesNotExist:
+                    pass
+            raise Reply.DoesNotExist
+    incr_if_enabled("mail_to_replies_without_reply_headers", 1)
+    raise ReplyHeadersNotFound
 
 
 def _get_reply_record_from_lookup_key(lookup_key):
@@ -618,8 +630,7 @@ def _reply_allowed(from_address, to_address, reply_record):
         try:
             [to_local_portion, to_domain_portion] = to_address.split("@")
             address = _get_address(to_address, to_local_portion, to_domain_portion)
-            user_profile = address.user.profile_set.first()
-            if user_profile.has_premium:
+            if address.user.profile.has_premium:
                 return True
         except (ObjectDoesNotExist):
             return False
@@ -631,7 +642,7 @@ def _handle_reply(from_address, message_json, to_address):
     mail = message_json["mail"]
     try:
         (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
-    except InReplyToNotFound:
+    except ReplyHeadersNotFound:
         incr_if_enabled("reply_email_header_error", 1, tags=["detail:no-header"])
         return HttpResponse("No In-Reply-To header", status=400)
 
@@ -685,7 +696,7 @@ def _handle_reply(from_address, message_json, to_address):
             address,
         )
         reply_record.increment_num_replied()
-        profile = address.user.profile_set.first()
+        profile = address.user.profile
         profile.update_abuse_metric(replied=True)
         return response
     except ClientError as e:
@@ -768,7 +779,7 @@ def _handle_bounce(message_json):
         )
         try:
             user = User.objects.get(email=recipient_address)
-            profile = user.profile_set.first()
+            profile = user.profile
         except User.DoesNotExist:
             incr_if_enabled("email_bounce_relay_user_gone", 1)
             # TODO: handle bounce for a user who no longer exists

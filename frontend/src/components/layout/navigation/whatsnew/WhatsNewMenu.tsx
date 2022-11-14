@@ -4,7 +4,6 @@ import {
   ReactNode,
   RefObject,
   useRef,
-  useState,
 } from "react";
 import { useLocalization } from "@fluent/react";
 import {
@@ -57,12 +56,10 @@ import { isFlagActive } from "../../../../functions/waffle";
 import {
   getBundlePrice,
   isBundleAvailableInCountry,
+  isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
-  isPremiumAvailableInCountry,
 } from "../../../../functions/getPlan";
-import { parseDate } from "../../../../functions/parseDate";
 import { CountdownTimer } from "../../../CountdownTimer";
-import { useInterval } from "../../../../hooks/interval";
 import Link from "next/link";
 import { GiftIcon } from "../../../Icons";
 
@@ -290,7 +287,8 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   if (
-    props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "se" &&
+    props.runtimeData?.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase() ===
+      "se" &&
     !props.profile.has_premium
   ) {
     entries.push(premiumInSweden);
@@ -321,7 +319,8 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   if (
-    props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "fi" &&
+    props.runtimeData?.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase() ===
+      "fi" &&
     !props.profile.has_premium
   ) {
     entries.push(premiumInFinland);
@@ -357,21 +356,8 @@ export const WhatsNewMenu = (props: Props) => {
   const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
     dateStyle: "long",
   });
-  const introPricingOfferEndDate = props.runtimeData
-    ? parseDate(props.runtimeData.INTRO_PRICING_END)
-    : new Date(0);
-  const [now, setNow] = useState(Date.now());
-  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
-  // Show the countdown timer to the end of our introductory pricing offer if…
-  useInterval(
-    () => {
-      setNow(Date.now());
-    },
-    // Only count down if the deadline is close and not in the past:
-    remainingTimeInMs > 0 && remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000
-      ? 1000
-      : null
-  );
+  // Introductory pricing ended 2022-09-27T09:00:00.000-07:00:
+  const introPricingOfferEndDate = new Date(1664294400000);
 
   const introPricingCountdown: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-offer-countdown-heading"),
@@ -387,9 +373,7 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString("whatsnew-feature-offer-countdown-heading")}
         hero={
           <div className={styles["countdown-timer"]}>
-            <CountdownTimer
-              remainingTimeInMs={Math.max(remainingTimeInMs, 0)}
-            />
+            <CountdownTimer remainingTimeInMs={0} />
           </div>
         }
       />
@@ -405,18 +389,13 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   // Make sure to move the end-of-intro-pricing news entry is in the History
-  // tab if the countdown has finished:
-  introPricingCountdown.dismissal.isDismissed ||= remainingTimeInMs <= 0;
+  // tab now that the countdown has finished:
+  introPricingCountdown.dismissal.isDismissed = true;
   if (
-    // If the remaining time isn't far enough in the future that the user's
-    // computer's clock is likely to be wrong,
-    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
-    // …the user does not have Premium yet,
+    // If the user does not have Premium yet,
     !props.profile.has_premium &&
-    // …the user is able to purchase Premium at the introductory offer price, and
-    isPremiumAvailableInCountry(props.runtimeData) &&
-    // …the relevant feature flag is enabled:
-    isFlagActive(props.runtimeData, "intro_pricing_countdown")
+    // …but is able to purchase Premium
+    isPeriodicalPremiumAvailableInCountry(props.runtimeData)
   ) {
     entries.push(introPricingCountdown);
   }

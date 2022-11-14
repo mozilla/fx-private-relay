@@ -86,16 +86,18 @@ const Tabs = (props: TabsProps) => {
   }, []);
 
   return (
-    <div
-      {...tabListProps}
-      ref={tabsRef}
-      className={`${styles.sections} ${
-        styles["selected-tab-" + state.selectedItem.index]
-      }`}
-    >
-      {Array.from(state.collection).map((item) => (
-        <Tab key={item.key} item={item} state={state} />
-      ))}
+    <div>
+      <div
+        {...tabListProps}
+        ref={tabsRef}
+        className={`${styles.sections} ${
+          styles["selected-tab-" + state.selectedItem.index]
+        }`}
+      >
+        {Array.from(state.collection).map((item) => (
+          <Tab key={item.key} item={item} state={state} />
+        ))}
+      </div>
       <Container key={state.selectedItem.key} state={state} />
     </div>
   );

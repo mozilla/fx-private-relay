@@ -1,5 +1,4 @@
 import { NextPage } from "next";
-import { useState } from "react";
 import { Localized, useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./premium.module.scss";
@@ -24,23 +23,15 @@ import { DemoPhone } from "../components/landing/DemoPhone";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { Carousel } from "../components/landing/carousel/Carousel";
 import { CarouselContentTextOnly } from "../components/landing/carousel/ContentTextOnly";
-import { Plans } from "../components/landing/Plans";
 import {
-  getPremiumPlan,
-  getPremiumSubscribeLink,
   isBundleAvailableInCountry,
   isPhonesAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
-  isPremiumAvailableInCountry,
 } from "../functions/getPlan";
 import { CarouselContentHero } from "../components/landing/carousel/ContentHero";
 import ShoppingHero from "../components/landing/carousel/images/shopping-hero.svg";
 import { CarouselContentCards } from "../components/landing/carousel/ContentCards";
 import { isFlagActive } from "../functions/waffle";
-import { getLocale } from "../functions/getLocale";
-import { useInterval } from "../hooks/interval";
-import { CountdownTimer } from "../components/CountdownTimer";
-import { parseDate } from "../functions/parseDate";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
@@ -75,161 +66,24 @@ const PremiumPromo: NextPage = () => {
     }),
   };
 
-  const heroCountdownCtaRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "Interstitial Page: Top Banner",
-  });
-  const plansCountdownCtaRef = useGaViewPing({
-    category: "Purchase Button",
-    label: "Interstitial Page: Bottom Banner",
-  });
   const phoneBannerCtaRef = useGaViewPing({
     category: "Sign In",
     label: "Interstitial Page: Phone Banner",
   });
 
-  const [now, setNow] = useState(Date.now());
-  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
-    dateStyle: "long",
-  });
-
-  useInterval(() => {
-    setNow(Date.now());
-  }, 1000);
-
-  const introPricingOfferEndDate = runtimeData.data
-    ? parseDate(runtimeData.data.INTRO_PRICING_END)
-    : new Date(0);
-  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
-
-  const plansSection =
-    // Show the countdown timer to the end of our introductory pricing offer if…
-    // …the offer hasn't expired yet,
-    remainingTimeInMs > 0 &&
-    // …the remaining time isn't far enough in the future that the user's
-    // computer's clock is likely to be wrong,
-    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
-    // …the user is able to purchase Premium at the introductory offer price, and
-    isPremiumAvailableInCountry(runtimeData.data) &&
-    // …the relevant feature flag is enabled:
-    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
-      <section id="pricing" className={styles["plans-wrapper"]}>
-        <div className={styles.plans}>
-          <div className={styles["plan-comparison"]}>
-            <Plans runtimeData={runtimeData.data} />
-          </div>
-          <div className={styles.callout}>
-            <h2>
-              {l10n.getString("premium-promo-pricing-offer-end-headline", {
-                monthly_price: getPremiumPlan(runtimeData.data).price,
-              })}
-            </h2>
-            <div
-              className={styles["end-of-intro-pricing-countdown-and-warning"]}
-            >
-              <b>{l10n.getString("premium-promo-pricing-offer-end-warning")}</b>
-              <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
-            </div>
-            <LinkButton
-              ref={plansCountdownCtaRef}
-              href={getPremiumSubscribeLink(runtimeData.data)}
-              onClick={() => {
-                gaEvent({
-                  category: "Purchase Button",
-                  action: "Engage",
-                  label: "Interstitial Page: Bottom Banner",
-                });
-              }}
-            >
-              {l10n.getString("premium-promo-pricing-offer-end-cta")}
-            </LinkButton>
-            <p>
-              {l10n.getString("premium-promo-pricing-offer-end-body", {
-                end_date: endDateFormatter.format(introPricingOfferEndDate),
-              })}
-            </p>
-          </div>
-        </div>
-      </section>
-    ) : // Otherwise, if the countdown timer has reached 0:
-    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
-      <section id="pricing" className={styles["plans-wrapper"]}>
-        <div className={styles.plans}>
-          <PlanMatrix runtimeData={runtimeData.data} />
-        </div>
-      </section>
-    ) : // Otherwise, if Premium is available in the user's country,
-    // allow them to purchase it:
-    isPremiumAvailableInCountry(runtimeData.data) ? (
-      <section id="pricing" className={styles["plans-wrapper"]}>
-        <div className={styles.plans}>
-          <div className={styles["plan-comparison"]}>
-            <Plans runtimeData={runtimeData.data} />
-          </div>
-          <div className={styles.callout}>
-            <h2>
-              {l10n.getString("landing-pricing-headline-2", {
-                monthly_price: getPremiumPlan(runtimeData.data).price,
-              })}
-            </h2>
-            <p>{l10n.getString("landing-pricing-body-2")}</p>
-          </div>
-        </div>
-      </section>
-    ) : (
-      // Or finally, if Premium is not available in the country,
-      // prompt them to join the waitlist:
-      <section id="pricing" className={styles["plans-wrapper"]}>
-        <div className={`${styles.plans} ${styles["non-premium-country"]}`}>
-          <Plans runtimeData={runtimeData.data} />
-        </div>
-      </section>
-    );
-
-  // Only show the countdown timer to the end of our introductory pricing offer if…
-  const introPricingEndBanner =
-    // …the offer hasn't expired yet,
-    remainingTimeInMs > 0 &&
-    // …the remaining time isn't far enough in the future that the user's
-    // computer's clock is likely to be wrong,
-    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
-    // …the user is able to purchase Premium at the introductory offer price, and
-    isPremiumAvailableInCountry(runtimeData.data) &&
-    // …the relevant feature flag is enabled:
-    isFlagActive(runtimeData.data, "intro_pricing_countdown") ? (
-      <div className={styles["end-of-intro-pricing-hero"]}>
-        <CountdownTimer remainingTimeInMs={remainingTimeInMs} />
-        <div>
-          <h3>{l10n.getString("premium-promo-offer-end-hero-heading")}</h3>
-          <p>
-            {l10n.getString("premium-promo-offer-end-hero-content", {
-              end_date: endDateFormatter.format(introPricingOfferEndDate),
-            })}
-          </p>
-        </div>
-      </div>
-    ) : null;
-
   const cta = isPeriodicalPremiumAvailableInCountry(runtimeData.data) ? (
     <LinkButton
-      ref={introPricingEndBanner === null ? heroCtaRef : heroCountdownCtaRef}
+      ref={heroCtaRef}
       href="#pricing"
       onClick={() => {
         gaEvent({
           category: "Purchase Button",
           action: "Engage",
-          label:
-            introPricingEndBanner === null
-              ? "home-hero-cta"
-              : "Interstitial Page: Top Banner",
+          label: "home-hero-cta",
         });
       }}
     >
-      {l10n.getString(
-        introPricingEndBanner === null
-          ? "premium-promo-hero-cta"
-          : "premium-promo-offer-end-hero-cta"
-      )}
+      {l10n.getString("premium-promo-hero-cta")}
     </LinkButton>
   ) : (
     <LinkButton
@@ -287,16 +141,12 @@ const PremiumPromo: NextPage = () => {
             <Localized id="premium-promo-hero-body-3">
               <p />
             </Localized>
-            {introPricingEndBanner}
             {cta}
             <p>{l10n.getString("premium-promo-availability-warning-2")}</p>
           </div>
           <div className={styles["demo-phone"]}>
             <DemoPhone
-              premium={
-                runtimeData.data?.PREMIUM_PLANS.premium_available_in_country ===
-                true
-              }
+              premium={isPeriodicalPremiumAvailableInCountry(runtimeData.data)}
             />
           </div>
         </section>
@@ -550,7 +400,11 @@ const PremiumPromo: NextPage = () => {
             />
           </div>
         </section>
-        {plansSection}
+        <section id="pricing" className={styles["plans-wrapper"]}>
+          <div className={styles.plans}>
+            <PlanMatrix runtimeData={runtimeData.data} />
+          </div>
+        </section>
       </main>
     </Layout>
   );

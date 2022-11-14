@@ -1162,11 +1162,10 @@ def test_voice_status_completed_reduces_remaining_seconds_to_negative_value(
     assert response.status_code == 200
     relay_number.refresh_from_db()
     assert relay_number.remaining_seconds == -27
-    profile = phone_user.profile_set.first()
     mocked_events_info.assert_called_once_with(
         "phone_limit_exceeded",
         extra={
-            "fxa_uid": profile.fxa.uid,
+            "fxa_uid": phone_user.profile.fxa.uid,
             "call_duration_in_seconds": 27,
             "relay_number_enabled": True,
             "remaining_seconds": -27,

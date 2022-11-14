@@ -6,12 +6,8 @@ from django.contrib.auth.models import User
 from model_bakery import baker
 import pytest
 
-from emails.cleaners import (
-    ServerStorageCleaner,
-    MissingProfileCleaner,
-    ManyProfileDetector,
-)
-from emails.models import DomainAddress, Profile, RelayAddress
+from emails.cleaners import ServerStorageCleaner, MissingProfileCleaner
+from emails.models import DomainAddress, RelayAddress
 
 from .models_tests import make_premium_test_user, make_storageless_test_user
 
@@ -23,7 +19,7 @@ def setup_server_storage_test_data(
 
     # Create a user with server storage and addresses
     user_with_server_storage = make_premium_test_user()
-    profile = user_with_server_storage.profile_set.get()
+    profile = user_with_server_storage.profile
     assert profile.server_storage
     profile.subdomain = "with-server-storage"
     profile.save()
@@ -48,7 +44,7 @@ def setup_server_storage_test_data(
 
     # Create a user without server storage and addresses without data
     user_without_storage: User = make_storageless_test_user()
-    profile_without_server_storage = user_without_storage.profile_set.get()
+    profile_without_server_storage = user_without_storage.profile
     assert not profile_without_server_storage.server_storage
     assert profile_without_server_storage.subdomain
     baker.make(
@@ -260,9 +256,7 @@ Domain Addresses:
 
     # Check that data is cleaned or remains as desired
     for r_address in RelayAddress.objects.all():
-        profile = r_address.user.profile_set.first()
-        assert profile
-        if profile.server_storage:
+        if r_address.user.profile.server_storage:
             assert r_address.used_on
             assert r_address.description
             assert r_address.generated_for
@@ -272,9 +266,7 @@ Domain Addresses:
             assert r_address.generated_for == ""
 
     for d_address in DomainAddress.objects.all():
-        profile = d_address.user.profile_set.first()
-        assert profile
-        if profile.server_storage:
+        if d_address.user.profile.server_storage:
             assert d_address.used_on
             assert d_address.description
         else:
@@ -297,10 +289,7 @@ def setup_profile_mismatch_test_data(add_problems=False):
         return
 
     r2 = baker.make(User, email="regular2@example.com")
-    p2 = r2.profile_set.first()
-    r3 = baker.make(User, email="regular3@example.com")
-    # Assign user #2's profile to user #3, leaving r2 with none and r3 with 3
-    Profile.objects.filter(id=p2.id).update(user_id=r3.id)
+    r2.profile.delete()
 
 
 @pytest.mark.django_db
@@ -349,92 +338,32 @@ def test_missing_profile_cleaner_with_problems() -> None:
     task = MissingProfileCleaner()
     assert task.issues() == 1
     assert task.counts == {
-        "summary": {"ok": 5, "needs_cleaning": 1},
-        "users": {"all": 6, "has_profile": 5, "no_profile": 1},
+        "summary": {"ok": 4, "needs_cleaning": 1},
+        "users": {"all": 5, "has_profile": 4, "no_profile": 1},
     }
     report = task.markdown_report()
     expected = """\
 Users:
-  All: 6
-    Has Profile: 5 ( 83.3%)
-    No Profile : 1 ( 16.7%)"""
+  All: 5
+    Has Profile: 4 ( 80.0%)
+    No Profile : 1 ( 20.0%)"""
     assert report == expected
 
     # Clean the data, check updates
     assert task.clean() == 1
     assert task.counts == {
-        "summary": {"ok": 5, "needs_cleaning": 1, "cleaned": 1},
-        "users": {"all": 6, "has_profile": 5, "no_profile": 1, "cleaned": 1},
+        "summary": {"ok": 4, "needs_cleaning": 1, "cleaned": 1},
+        "users": {"all": 5, "has_profile": 4, "no_profile": 1, "cleaned": 1},
     }
     report = task.markdown_report()
     expected = """\
 Users:
-  All: 6
-    Has Profile: 5 ( 83.3%)
-    No Profile : 1 ( 16.7%)
+  All: 5
+    Has Profile: 4 ( 80.0%)
+    No Profile : 1 ( 20.0%)
       Now has Profile: 1 (100.0%)"""
     assert report == expected
 
     # Check that all users have profiles
     for user in User.objects.all():
-        profile = user.profile_set.first()
-        assert profile
-
-
-@pytest.mark.django_db
-def test_many_profile_detector_no_data() -> None:
-    """ManyProfileDetector works on an empty database."""
-    task = ManyProfileDetector()
-    assert task.issues() == 0
-    assert task.counts == {
-        "summary": {"ok": 0, "needs_cleaning": 0},
-        "users": {"all": 0, "one_or_no_profile": 0, "many_profiles": 0},
-    }
-    assert task.clean() == 0
-    report = task.markdown_report()
-    expected = """\
-Users:
-  All: 0"""
-    assert report == expected
-
-
-@pytest.mark.django_db
-def test_many_profile_detector_with_users() -> None:
-    """ManyProfileDetector works when data is consistant."""
-    setup_profile_mismatch_test_data()
-
-    task = ManyProfileDetector()
-    assert task.issues() == 0
-    assert task.counts == {
-        "summary": {"ok": 4, "needs_cleaning": 0},
-        "users": {"all": 4, "one_or_no_profile": 4, "many_profiles": 0},
-    }
-    assert task.clean() == 0
-    report = task.markdown_report()
-    expected = """\
-Users:
-  All: 4
-    One or no Profile: 4 (100.0%)
-    Many Profiles    : 0 (  0.0%)"""
-    assert report == expected
-
-
-@pytest.mark.django_db
-def test_many_profile_detector_with_problems() -> None:
-    """ManyProfileDetector detects users with multiple profiles."""
-    setup_profile_mismatch_test_data(add_problems=True)
-
-    task = ManyProfileDetector()
-    assert task.issues() == 1
-    assert task.counts == {
-        "summary": {"ok": 5, "needs_cleaning": 1},
-        "users": {"all": 6, "one_or_no_profile": 5, "many_profiles": 1},
-    }
-    assert task.clean() == 0
-    report = task.markdown_report()
-    expected = """\
-Users:
-  All: 6
-    One or no Profile: 5 ( 83.3%)
-    Many Profiles    : 1 ( 16.7%)"""
-    assert report == expected
+        assert user.profile

@@ -1,16 +1,17 @@
 import { Localized, useLocalization } from "@fluent/react";
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
+import BundleLogo from "./images/vpn-and-relay-logo.svg";
 import AddonIllustration from "./images/banner-addon.svg";
 import RelayLogo from "./images/placeholder-logo.svg";
 import {
+  getBundlePrice,
   getPeriodicalPremiumPrice,
-  getPremiumSubscribeLink,
+  isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
-  isPremiumAvailableInCountry,
+  RuntimeDataWithBundleAvailable,
   RuntimeDataWithPeriodicalPremiumAvailable,
-  RuntimeDataWithPremiumAvailable,
 } from "../../functions/getPlan";
 import {
   isUsingFirefox,
@@ -21,16 +22,11 @@ import { ProfileData } from "../../hooks/api/profile";
 import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
-import { trackPurchaseStart } from "../../functions/trackPurchase";
 import { renderDate } from "../../functions/renderDate";
+import { isFlagActive } from "../../functions/waffle";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
-import { getLocale } from "../../functions/getLocale";
-import { CountdownTimer } from "../CountdownTimer";
-import { useInterval } from "../../hooks/interval";
-import { isFlagActive } from "../../functions/waffle";
-import { parseDate } from "../../functions/parseDate";
 
 export type Props = {
   profile: ProfileData;
@@ -67,6 +63,20 @@ export const ProfileBanners = (props: Props) => {
     );
   }
 
+  if (
+    isBundleAvailableInCountry(props.runtimeData) &&
+    isFlagActive(props.runtimeData, "bundle") &&
+    !props.profile.has_vpn
+  ) {
+    banners.push(
+      <BundlePromoBanner
+        key="bundle-promo"
+        runtimeData={props.runtimeData}
+        profileData={props.profile}
+      />
+    );
+  }
+
   banners.push(
     <SubdomainPicker
       key="subdomain-picker"
@@ -74,20 +84,6 @@ export const ProfileBanners = (props: Props) => {
       onCreate={props.onCreateSubdomain}
     />
   );
-
-  if (
-    !props.profile.has_premium &&
-    isPremiumAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "intro_pricing_countdown")
-  ) {
-    banners.push(
-      <EndOfIntroPricingOfferBanner
-        key="end-of-intro-pricing"
-        runtimeData={props.runtimeData}
-        profile={props.profile}
-      />
-    );
-  }
 
   // Don't show the "Get Firefox" banner if we have an extension available,
   // to avoid banner overload:
@@ -221,6 +217,11 @@ type NoPremiumBannerProps = {
   runtimeData: RuntimeDataWithPeriodicalPremiumAvailable;
 };
 
+type BundleBannerProps = {
+  runtimeData: RuntimeDataWithBundleAvailable;
+  profileData: ProfileData;
+};
+
 // Unused but left in for when we no longer want to use <LoyalistPremiumBanner>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const NoPremiumBanner = (props: NoPremiumBannerProps) => {
@@ -278,60 +279,36 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
   );
 };
 
-type EndOfIntroPricingOfferBannerProps = {
-  runtimeData: RuntimeDataWithPremiumAvailable;
-  profile: ProfileData;
-};
-const EndOfIntroPricingOfferBanner = (
-  props: EndOfIntroPricingOfferBannerProps
-) => {
+const BundlePromoBanner = (props: BundleBannerProps) => {
   const { l10n } = useLocalization();
-  const [now, setNow] = useState(Date.now());
-  const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
-    dateStyle: "long",
-  });
-
-  useInterval(() => {
-    setNow(Date.now());
-  }, 1000);
-
-  const introPricingOfferEndDate = parseDate(
-    props.runtimeData.INTRO_PRICING_END
-  );
-  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
-
-  // Don't show if the countdown has finished, or is so far in the future that
-  // the user's computer's clock is likely to be wrong:
-  if (remainingTimeInMs <= 0 || remainingTimeInMs > 32 * 24 * 60 * 60 * 1000) {
-    return null;
-  }
 
   return (
     <Banner
-      key="offer-end-banner"
+      key="bundle-banner"
       type="promo"
-      title={l10n.getString("banner-offer-end-headline")}
-      illustration={<CountdownTimer remainingTimeInMs={remainingTimeInMs} />}
+      illustration={
+        <img
+          src={BundleLogo.src}
+          alt=""
+          width={120}
+          height={60}
+          className={styles["bundle-logo"]}
+        />
+      }
+      title={l10n.getString("bundle-banner-dashboard-header")}
       cta={{
+        target: "/premium#pricing",
         size: "large",
-        content: l10n.getString("banner-offer-end-cta"),
-        target: getPremiumSubscribeLink(props.runtimeData),
-        onClick: () =>
-          trackPurchaseStart({
-            label: "Intro-Pricing: Dashboard",
-          }),
-        gaViewPing: {
-          category: "Purchase Button",
-          label: "Intro-Pricing: Dashboard",
-        },
+        content: l10n.getString("bundle-banner-dashboard-upgrade-cta"),
       }}
       dismissal={{
-        key: `offer-end-${props.profile.id}`,
+        key: `bundle-promo-banner-${props.profileData.id}`,
       }}
     >
       <p>
-        {l10n.getString("banner-offer-end-copy", {
-          end_date: endDateFormatter.format(introPricingOfferEndDate),
+        {l10n.getString("bundle-banner-dashboard-body", {
+          savings: "40%",
+          monthly_price: getBundlePrice(props.runtimeData, l10n),
         })}
       </p>
     </Banner>

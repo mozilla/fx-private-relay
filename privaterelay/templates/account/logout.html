@@ -5,25 +5,13 @@
 
 {% block head_title %}{% ftlmsg 'nav-profile-sign-out' %}{% endblock %}
 
-
 {% block content %}
-<main class="container px-4 lg:px-0 py-8 mx-auto max-w-4xl">
-  <div class="bg-white rounded py-8 sm:mt-8 shadow-md  ">
-    <div class="px-8 pb-8">
-      <div class="px-8 mt-8 pb-16">
-        <p class="text-center text-2xl mb-8">{% ftlmsg 'nav-profile-sign-out-confirm' %}</p>
-
-        <form method="post" action="{% url 'account_logout' %}">
-          {% csrf_token %}
-          {% if redirect_field_value %}
-          <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
-          {% endif %}
-          <button class="w-full max-w-xs mx-auto block text-center py-2 px-4 leading-normal rounded border border-solid border-purple-700 text-purple-700 hover:bg-purple-700 hover:text-white" type="submit"> {% ftlmsg 'nav-profile-sign-out' %} </button>
-        </form>
-
-      </div>
-    </div>
-  </div>
-</main>
-
+<p>{% ftlmsg 'nav-profile-sign-out-confirm' %}</p>
+<form method="post" action="{% url 'account_logout' %}">
+  {% csrf_token %}
+  {% if redirect_field_value %}
+    <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}"/>
+  {% endif %}
+  <button type="submit">{% ftlmsg 'nav-profile-sign-out' %}</button>
+</form>
 {% endblock %}

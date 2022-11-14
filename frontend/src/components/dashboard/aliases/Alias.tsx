@@ -26,6 +26,7 @@ import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../functions/waffle";
+import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
 
 export type Props = {
   alias: AliasData;
@@ -215,10 +216,9 @@ export const Alias = (props: Props) => {
             alias={props.alias}
             onChange={setBlockLevel}
             hasPremium={props.profile.has_premium}
-            premiumAvailableInCountry={
-              props.runtimeData?.PREMIUM_PLANS.premium_available_in_country ??
-              false
-            }
+            premiumAvailableInCountry={isPeriodicalPremiumAvailableInCountry(
+              props.runtimeData
+            )}
           />
         </div>
         <div className={styles.row}>

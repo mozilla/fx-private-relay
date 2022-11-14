@@ -41,12 +41,15 @@ module = [
     "markus.utils",
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
+    "twilio.base.instance_resource",
     "twilio.base.exceptions",
     "twilio.rest",
     "twilio.request_validator",
     "vobject",
     "waffle",
     "waffle.models",
+    "whitenoise.middleware",
+    "whitenoise.storage",
 ]
 
 [[tool.mypy.overrides]]

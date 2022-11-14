@@ -10,11 +10,7 @@ from django.core.management.base import BaseCommand, DjangoHelpFormatter
 
 from codetiming import Timer
 
-from emails.cleaners import (
-    ServerStorageCleaner,
-    MissingProfileCleaner,
-    ManyProfileDetector,
-)
+from emails.cleaners import ServerStorageCleaner, MissingProfileCleaner
 
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -36,7 +32,6 @@ class Command(BaseCommand):
     task_list: list[type[DataIssueTask]] = [
         ServerStorageCleaner,
         MissingProfileCleaner,
-        ManyProfileDetector,
     ]
     tasks: dict[str, DataIssueTask]
 
@@ -237,11 +232,15 @@ class Command(BaseCommand):
             detail = [f"## {slug}"]
             detail.extend(textwrap.wrap(task["check_description"], width=80))
             detail.append("")
-            detail.append(f"Detected {needs_cleaning} issues in {query_timer} seconds.")
+            detail.append(
+                f"Detected {needs_cleaning} issue{'' if needs_cleaning == 1 else 's'}"
+                f" in {query_timer} seconds."
+            )
             if cleaned:
                 if task["can_clean"]:
                     detail.append(
-                        f"Cleaned {num_cleaned} issues in {clean_timer} seconds."
+                        f"Cleaned {num_cleaned} issue{'' if num_cleaned == 1 else 's'}"
+                        f" in {clean_timer} seconds."
                     )
                 elif needs_cleaning:
                     detail.append("Unable to automatically clean detected items.")

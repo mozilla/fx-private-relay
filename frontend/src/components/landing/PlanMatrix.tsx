@@ -524,7 +524,7 @@ export const PlanMatrix = (props: Props) => {
       {isFlagActive(props.runtimeData, "bundle") &&
         isBundleAvailableInCountry(props.runtimeData) && (
           <h2 className={styles["bundle-offer-heading"]}>
-            {l10n.getString("plan-matrix-bundle-offer-heading", {
+            {l10n.getString("plan-matrix-bundle-offer-heading-2", {
               monthly_price: getBundlePrice(props.runtimeData, l10n),
             })}
           </h2>
@@ -674,7 +674,7 @@ const PricingToggle = (props: PricingToggleProps) => {
   const monthlyButtonRef = useGaViewPing(props.monthlyBilled.gaViewPing);
 
   return (
-    <PricingTabs>
+    <PricingTabs defaultSelectedKey="yearly">
       <Item
         key="yearly"
         title={l10n.getString("plan-matrix-price-period-yearly")}

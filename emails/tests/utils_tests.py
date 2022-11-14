@@ -79,10 +79,9 @@ class FormattingToolsTest(TestCase):
 
     def test_generate_relay_From_with_premium_user(self):
         premium_user = make_premium_test_user()
-        premium_profile = premium_user.profile_set.first()
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
-            original_from_address, premium_profile
+            original_from_address, premium_user.profile
         )
 
         expected_encoded_display_name = (
@@ -104,7 +103,7 @@ class FormattingToolsTest(TestCase):
         new_from_flag.users.add(free_user)
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile_set.first()
+            original_from_address, free_user.profile
         )
         expected_encoded_display_name = (
             "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
@@ -126,7 +125,7 @@ class FormattingToolsTest(TestCase):
         Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile_set.first()
+            original_from_address, free_user.profile
         )
         expected_encoded_display_name = (
             "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
@@ -146,7 +145,7 @@ class FormattingToolsTest(TestCase):
         Flag.objects.create(name=NEW_FROM_ADDRESS_FLAG_NAME)
         original_from_address = '"foo bar" <foo@bar.com>'
         formatted_from_address = generate_relay_From(
-            original_from_address, free_user.profile_set.first()
+            original_from_address, free_user.profile
         )
         expected_encoded_display_name = (
             "=?utf-8?b?IiJmb28gYmFyIiA8Zm9vQGJhci5jb20+IFt2aWEgUmVsYXldIg==?="
@@ -177,14 +176,23 @@ class FormattingToolsTest(TestCase):
 
 
 @override_settings(SITE_ORIGIN="https://test.com")
-@patch("emails.utils.GENERAL_TRACKERS", ["trckr.com", "open.tracker.com"])
-@patch("emails.utils.STRICT_TRACKERS", ["strict.tracker.com"])
 class RemoveTrackers(TestCase):
     def setUp(self):
         self.expected_content = (
             '<a href="https://test.com/faq">A link</a>\n'
             + '<img src="https://test.com/faq">An image</img>'
         )
+        self.patcher1 = patch(
+            "emails.utils.general_trackers",
+            return_value=["trckr.com", "open.tracker.com"],
+        )
+        self.patcher2 = patch(
+            "emails.utils.strict_trackers", return_value=["strict.tracker.com"]
+        )
+        self.mock_general_trackers = self.patcher1.start()
+        self.mock_strict_trackers = self.patcher2.start()
+        self.addCleanup(self.patcher1.stop)
+        self.addCleanup(self.patcher2.stop)
 
     def test_simple_general_tracker_replaced_with_relay_content(self):
         content = (
