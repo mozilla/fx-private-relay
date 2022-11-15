@@ -1,5 +1,5 @@
 import styles from "./PhoneWelcomeView.module.scss";
-import { useLocalization } from "@fluent/react";
+import { Localized, useLocalization } from "@fluent/react";
 import SavingRelayContactImg from "./images/save-relay-as-a-contact.svg";
 import SavingRelayContactDemoImg from "./images/save-relay-contact-demo.svg";
 import ReplyingMessagesImg from "./images/reply-to-messages.svg";
@@ -10,7 +10,7 @@ import { ReactNode } from "react";
 type PhoneInstructionProps = {
   image: ReactNode;
   heading: string;
-  body: string;
+  body: ReactNode;
   demoHeading?: string;
   demoInput?: string;
   demoImage: ReactNode;
@@ -22,10 +22,10 @@ const PhoneInstruction = (props: PhoneInstructionProps) => {
       {props.image}
       <h2>{props.heading}</h2>
       <p>{props.body}</p>
-      <p className={styles["demo-heading"]}>{props.demoHeading}</p>
       <div className={styles["demo-wrapper"]}>
+        <p className={styles["demo-heading"]}>{props.demoHeading}</p>
         <div className={styles["demo-input-wrapper"]}>
-          <div className={styles["demo-img"]}>{props.demoImage}</div>
+          {props.demoImage}
           <p className={styles["demo-input"]}>{props.demoInput}</p>
         </div>
       </div>
@@ -37,11 +37,11 @@ export const PhoneWelcomeView = () => {
   const { l10n } = useLocalization();
 
   const BlockSenderDemo = (
-    <div>
+    <div className={styles["block-sender-wrapper"]}>
       <ul>
         <li>
           <span>
-            <p>Number</p>
+            <p>+1 (726) 777-7777</p>
             <p>
               {l10n.getString("phone-masking-splash-blocking-example-date")} -
               3:00pm
@@ -79,7 +79,11 @@ export const PhoneWelcomeView = () => {
           // TODO: Localize strings
           demoHeading="Saving your Relay Contact"
           demoInput="Firefox Relay"
-          demoImage={<img src={SavingRelayContactDemoImg.src} alt="" />}
+          demoImage={
+            <div className={styles["demo-img"]}>
+              <img src={SavingRelayContactDemoImg.src} alt="" />
+            </div>
+          }
         />
 
         <PhoneInstruction
@@ -90,13 +94,24 @@ export const PhoneWelcomeView = () => {
           demoInput={l10n.getString(
             "phone-masking-splash-replies-example-text"
           )}
-          demoImage={<img src={ReplyingMessagesDemoImg.src} alt="" />}
+          demoImage={
+            <div className={styles["demo-img"]}>
+              <img src={ReplyingMessagesDemoImg.src} alt="" />
+            </div>
+          }
         />
 
         <PhoneInstruction
           image={<img src={BlockingMessagesImg.src} alt="" />}
           heading={l10n.getString("phone-masking-splash-blocking-title")}
-          body={l10n.getString("phone-masking-splash-blocking-body")}
+          body={
+            <Localized
+              id="phone-masking-splash-blocking-body"
+              elems={{
+                strong: <strong />,
+              }}
+            ></Localized>
+          }
           demoImage={BlockSenderDemo}
         />
       </div>

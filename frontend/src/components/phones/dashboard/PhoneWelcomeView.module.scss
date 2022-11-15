@@ -7,12 +7,17 @@
   margin: 0 auto;
   padding: $spacing-md;
   margin-bottom: $layout-md;
-  margin-top: $layout-md;
+  margin-top: $layout-sm;
+
+  @media screen and #{$mq-md} {
+    margin-top: $layout-md;
+  }
 
   .main-heading {
     display: flex;
     flex-direction: column;
     align-items: center;
+    text-align: center;
 
     h1 {
       @include text-title-xs;
@@ -35,14 +40,22 @@
       position: relative;
       display: flex;
       flex-direction: column;
-      padding: 0 $layout-sm;
+      padding: $spacing-lg 0;
 
+      @media screen and #{$mq-md} {
+        padding: 0 $spacing-md;
+      }
       @media screen and #{$mq-lg} {
-        padding: 0 $layout-lg;
+        padding: 0 $spacing-2xl;
       }
 
       + .instruction-item {
-        border-left: solid 2px $color-light-gray-20;
+        border-top: solid 2px $color-light-gray-20;
+
+        @media screen and #{$mq-md} {
+          border-left: solid 2px $color-light-gray-20;
+          border-top: none;
+        }
       }
 
       h2 {
@@ -55,12 +68,18 @@
         align-self: center;
       }
 
-      .demo-heading {
-        color: $color-light-gray-80;
-        padding-top: $spacing-lg;
-      }
-
       .demo-wrapper {
+        padding: 0 $spacing-md;
+
+        @media screen and #{$mq-md} {
+          padding: 0;
+        }
+
+        .demo-heading {
+          color: $color-light-gray-80;
+          padding-top: $spacing-lg;
+        }
+
         .demo-input-wrapper {
           display: flex;
           align-items: center;
@@ -69,6 +88,7 @@
           .demo-input {
             @include text-body-lg;
             position: absolute;
+            // Positioning the input into the text image
             margin: 0 0 5% 5%;
 
             @media screen and #{$mq-md} {
@@ -81,10 +101,50 @@
 
           .demo-img {
             width: 100%;
+            // To counteract the drop shadow in the text image
             margin-left: -8px;
 
             img {
               width: 100%;
+            }
+          }
+        }
+
+        .block-sender-wrapper {
+          width: 100%;
+
+          ul {
+            display: flex;
+            flex-direction: column;
+            padding: $spacing-sm;
+            background: $color-white;
+            box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1); // Taken from Figma style to match it with the other svgs
+            border-radius: $border-radius-md;
+            list-style: none;
+
+            li {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              padding: $spacing-xs;
+
+              &:first-child {
+                color: $color-light-gray-50;
+                border-bottom: 1px solid $color-light-gray-10;
+              }
+
+              span {
+                margin: 0;
+
+                p:nth-child(2) {
+                  @include text-body-sm;
+                }
+
+                &:nth-child(2) {
+                  color: $color-blue-50;
+                }
+              }
             }
           }
         }
