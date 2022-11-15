@@ -31,6 +31,7 @@ export const GenericTip = (props: GenericTipProps) => {
           loop={true}
           muted={true}
           playsInline={true}
+          title={props.alt}
         >
           {sources}
           {/* Fall back to the image if the video formats are not supported: */}
