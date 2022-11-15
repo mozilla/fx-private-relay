@@ -666,9 +666,17 @@ def _handle_sms_reply(
                     f" ending in {digits}. Please check the number and try again."
                 )
             else:
+                try:
+                    pn = phonenumbers.parse(prefix, None)
+                    number = phonenumbers.format_number(
+                        pn, phonenumbers.PhoneNumberFormat.E164
+                    )
+                except phonenumbers.phonenumberutil.NumberParseException:
+                    number = digits
+
                 prefix_error = (
                     "Message failed to send. There is no previous sender with the"
-                    f" phone number +{digits}. Please check the number and try again."
+                    f" phone number {number}. Please check the number and try again."
                 )
         else:
             assert prefix
