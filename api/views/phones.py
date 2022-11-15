@@ -780,8 +780,6 @@ def _match_by_prefix(
     """
     Look for a prefix in a text message, and return a likely phone number match.
 
-    If no prefix is detected, NoPrefixFound is raised.
-
     Arguments:
     * A SMS text message
     * A set of phone numbers in E.164 format

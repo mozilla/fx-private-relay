@@ -15,7 +15,6 @@ from rest_framework.test import APIClient
 from waffle.testutils import override_flag
 import pytest
 
-
 from emails.models import Profile
 
 
@@ -1060,7 +1059,8 @@ def test_inbound_sms_reply_pre_transition(
     assert relay_number.texts_forwarded == 1
 
 
-def test_inbound_sms_reply_no_multi_replies(phone_user, mocked_twilio_client):
+def test_inbound_sms_reply_no_multi_replies(phone_user, mocked_twilio_client) -> None:
+    """A user without multi_replies flag cannot use prefixes."""
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     mocked_twilio_client.reset_mock()
@@ -1097,6 +1097,8 @@ def test_inbound_sms_reply_no_multi_replies(phone_user, mocked_twilio_client):
 
 @dataclass
 class MultiReplyFixture:
+    """Bundle fixtures for multi_replies tests."""
+
     user: User
     real_phone: RealPhone
     relay_number: RelayNumber
@@ -1104,9 +1106,10 @@ class MultiReplyFixture:
 
 
 @pytest.fixture
-def multi_reply_fixture(
+def multi_reply(
     phone_user: User, mocked_twilio_client: Client
 ) -> Iterator[MultiReplyFixture]:
+    """Setup data and mocked interfaces for multi-reply tests."""
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
     mocked_twilio_client.reset_mock()
@@ -1117,7 +1120,7 @@ def multi_reply_fixture(
         ("+13045551301", "text", 6000),  # Last 4 match first 4 of oldest
         ("+13055550002", "text", 5000),  # Text from number
         ("+13055550002", "call", 4000),  # Call from same number
-        ("+14045550004", "call", 1000),  # Most recent call, never texted
+        ("+14045550003", "call", 1000),  # Most recent call, never texted
     )
     for number, last_type, age_s in contacts:
         InboundContact.objects.create(
@@ -1147,19 +1150,20 @@ def multi_reply_fixture(
     ),
 )
 def test_inbound_sms_reply_one_match(
-    multi_reply_fixture: MultiReplyFixture, prefix: str
+    multi_reply: MultiReplyFixture, prefix: str
 ) -> None:
-    relay_number = multi_reply_fixture.relay_number
+    """A prefix that matches a single contact sends to that contact."""
+    relay_number = multi_reply.relay_number
     path = "/api/v1/inbound_sms"
     data = {
-        "From": multi_reply_fixture.real_phone.number,
+        "From": multi_reply.real_phone.number,
         "To": relay_number.number,
         "Body": f"{prefix}test reply",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
-    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
     msg_create_api.assert_called_once()
     call_kwargs = msg_create_api.call_args.kwargs
     assert call_kwargs["to"] == "+13015550000"
@@ -1169,23 +1173,72 @@ def test_inbound_sms_reply_one_match(
     assert relay_number.texts_forwarded == 1
 
 
-def test_inbound_sms_reply_short_prefix_multi_match(
-    multi_reply_fixture: MultiReplyFixture,
+def test_inbound_sms_reply_short_prefix_never_text(
+    multi_reply: MultiReplyFixture,
 ) -> None:
-    relay_number = multi_reply_fixture.relay_number
+    """A contact that only called can be texted via short prefix."""
+    relay_number = multi_reply.relay_number
     path = "/api/v1/inbound_sms"
     data = {
-        "From": multi_reply_fixture.real_phone.number,
+        "From": multi_reply.real_phone.number,
+        "To": relay_number.number,
+        "Body": "0003 - send reply to caller",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == "+14045550003"
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == "send reply to caller"
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+
+def test_inbound_sms_reply_full_prefix_never_text(
+    multi_reply: MultiReplyFixture,
+) -> None:
+    """A contact that only called can be texted via full number."""
+    relay_number = multi_reply.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply.real_phone.number,
+        "To": relay_number.number,
+        "Body": "(404)555-0003: can we continue over text?",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == "+14045550003"
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == "can we continue over text?"
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+
+def test_inbound_sms_reply_short_prefix_multi_match(
+    multi_reply: MultiReplyFixture,
+) -> None:
+    """If a short prefix matches multiple contacts, the user gets advice."""
+    relay_number = multi_reply.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply.real_phone.number,
         "To": relay_number.number,
         "Body": "0001 test reply to ambiguous number",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
-    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
     msg_create_api.assert_called_once()
     call_kwargs = msg_create_api.call_args.kwargs
-    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["to"] == multi_reply.real_phone.number
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. There is more than one phone number in this thread"
@@ -1196,22 +1249,23 @@ def test_inbound_sms_reply_short_prefix_multi_match(
 
 
 def test_inbound_sms_reply_short_prefix_no_match(
-    multi_reply_fixture: MultiReplyFixture,
+    multi_reply: MultiReplyFixture,
 ) -> None:
-    relay_number = multi_reply_fixture.relay_number
+    """If a short prefix matches no contacts, the user gets advice."""
+    relay_number = multi_reply.relay_number
     path = "/api/v1/inbound_sms"
     data = {
-        "From": multi_reply_fixture.real_phone.number,
+        "From": multi_reply.real_phone.number,
         "To": relay_number.number,
         "Body": "0404 - test reply to unknown number",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
-    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
     msg_create_api.assert_called_once()
     call_kwargs = msg_create_api.call_args.kwargs
-    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["to"] == multi_reply.real_phone.number
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. There is no phone number in this thread ending in"
@@ -1221,23 +1275,22 @@ def test_inbound_sms_reply_short_prefix_no_match(
     assert relay_number.texts_forwarded == 0
 
 
-def test_inbound_sms_reply_full_prefix_no_match(
-    multi_reply_fixture: MultiReplyFixture,
-) -> None:
-    relay_number = multi_reply_fixture.relay_number
+def test_inbound_sms_reply_full_prefix_no_match(multi_reply: MultiReplyFixture) -> None:
+    """If a full number matches no contacts, the user gets an error."""
+    relay_number = multi_reply.relay_number
     path = "/api/v1/inbound_sms"
     data = {
-        "From": multi_reply_fixture.real_phone.number,
+        "From": multi_reply.real_phone.number,
         "To": relay_number.number,
         "Body": "+14045550404: test reply to unknown number",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
-    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
     msg_create_api.assert_called_once()
     call_kwargs = msg_create_api.call_args.kwargs
-    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["to"] == multi_reply.real_phone.number
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. There is no previous sender with the phone number"
@@ -1248,22 +1301,23 @@ def test_inbound_sms_reply_full_prefix_no_match(
 
 
 def test_inbound_sms_reply_short_prefix_no_message(
-    multi_reply_fixture: MultiReplyFixture,
+    multi_reply: MultiReplyFixture,
 ) -> None:
-    relay_number = multi_reply_fixture.relay_number
+    """If the is no message after a short prefix, the user gets an error."""
+    relay_number = multi_reply.relay_number
     path = "/api/v1/inbound_sms"
     data = {
-        "From": multi_reply_fixture.real_phone.number,
+        "From": multi_reply.real_phone.number,
         "To": relay_number.number,
         "Body": "0002:",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
-    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
     msg_create_api.assert_called_once()
     call_kwargs = msg_create_api.call_args.kwargs
-    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["to"] == multi_reply.real_phone.number
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. Please include a message after the sender identifier"
@@ -1274,22 +1328,23 @@ def test_inbound_sms_reply_short_prefix_no_message(
 
 
 def test_inbound_sms_reply_full_prefix_no_message(
-    multi_reply_fixture: MultiReplyFixture,
+    multi_reply: MultiReplyFixture,
 ) -> None:
-    relay_number = multi_reply_fixture.relay_number
+    """If the is no message after a full matching number, the user gets an error."""
+    relay_number = multi_reply.relay_number
     path = "/api/v1/inbound_sms"
     data = {
-        "From": multi_reply_fixture.real_phone.number,
+        "From": multi_reply.real_phone.number,
         "To": relay_number.number,
         "Body": "+13055550002",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
-    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
     msg_create_api.assert_called_once()
     call_kwargs = msg_create_api.call_args.kwargs
-    assert call_kwargs["to"] == multi_reply_fixture.real_phone.number
+    assert call_kwargs["to"] == multi_reply.real_phone.number
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == (
         "Message failed to send. Please include a message after the phone number"
@@ -1300,19 +1355,20 @@ def test_inbound_sms_reply_full_prefix_no_message(
 
 
 def test_inbound_sms_reply_no_prefix_last_sender(
-    multi_reply_fixture: MultiReplyFixture,
+    multi_reply: MultiReplyFixture,
 ) -> None:
-    relay_number = multi_reply_fixture.relay_number
+    """If there is no detected prefix, send message to the last text contact."""
+    relay_number = multi_reply.relay_number
     path = "/api/v1/inbound_sms"
     data = {
-        "From": multi_reply_fixture.real_phone.number,
+        "From": multi_reply.real_phone.number,
         "To": relay_number.number,
         "Body": "1 2 3 4 is this on?",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
-    msg_create_api = multi_reply_fixture.mocked_twilio_client.messages.create
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
     msg_create_api.assert_called_once()
     call_kwargs = msg_create_api.call_args.kwargs
     assert call_kwargs["to"] == "+13055550002"
@@ -1405,6 +1461,7 @@ _match_by_prefix_tests = {
 def test_match_by_prefix(
     text: str, expected_matches: list[str], expected_prefix: Optional[str]
 ) -> None:
+    """_match_by_prefix returns the matching candidates and the detected prefix."""
     matches, prefix = _match_by_prefix(text, _match_by_prefix_candidates)
     assert matches == expected_matches
     if expected_prefix is None:
