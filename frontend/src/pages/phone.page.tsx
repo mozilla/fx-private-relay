@@ -14,6 +14,9 @@ import { isFlagActive } from "../functions/waffle";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../functions/getPlan";
+import { toast } from "react-toastify";
+import { useLocalDismissal } from "../hooks/localDismissal";
+import { PhoneWelcomeView } from "../components/phones/dashboard/PhoneWelcomeView";
 
 const Phone: NextPage = () => {
   const runtimeData = useRuntimeData();

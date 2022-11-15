@@ -1,0 +1,94 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/tokens.scss";
+
+.main-wrapper {
+  max-width: $content-max;
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-md;
+  margin-bottom: $layout-md;
+  margin-top: $layout-md;
+
+  .main-heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    h1 {
+      @include text-title-xs;
+      @include font-firefox;
+      font-weight: 600;
+    }
+  }
+
+  .phone-instructions-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-top: $layout-md;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+
+    .instruction-item {
+      flex: 1 1 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 0 $layout-sm;
+
+      @media screen and #{$mq-lg} {
+        padding: 0 $layout-lg;
+      }
+
+      + .instruction-item {
+        border-left: solid 2px $color-light-gray-20;
+      }
+
+      h2 {
+        @include text-title-3xs;
+        padding: $spacing-md 0;
+        font-weight: 600;
+      }
+
+      img {
+        align-self: center;
+      }
+
+      .demo-heading {
+        color: $color-light-gray-80;
+        padding-top: $spacing-lg;
+      }
+
+      .demo-wrapper {
+        .demo-input-wrapper {
+          display: flex;
+          align-items: center;
+          position: relative;
+
+          .demo-input {
+            @include text-body-lg;
+            position: absolute;
+            margin: 0 0 5% 5%;
+
+            @media screen and #{$mq-md} {
+              @include text-body-md;
+            }
+            @media screen and #{$mq-xl} {
+              @include text-body-lg;
+            }
+          }
+
+          .demo-img {
+            width: 100%;
+            margin-left: -8px;
+
+            img {
+              width: 100%;
+            }
+          }
+        }
+      }
+    }
+  }
+}

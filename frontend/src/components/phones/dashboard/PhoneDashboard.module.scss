@@ -2,6 +2,7 @@
 @import "../../../styles/tokens.scss";
 
 .main-phone-wrapper {
+<<<<<<< HEAD
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -18,6 +19,17 @@
     flex-direction: column;
   }
 
+=======
+  max-width: calc($content-lg + $layout-lg);
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-md;
+  margin-bottom: $layout-md;
+  gap: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+
+>>>>>>> af7845df (MPP-2417 - Phone Welcome Screen (WIP))
   .nav-icon {
     color: $color-light-gray-80;
     stroke: $color-light-gray-80;
