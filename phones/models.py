@@ -19,8 +19,6 @@ from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
 
-from .apps import PhonesConfig
-
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
 LAST_CONTACT_TYPE_CHOICES = [
     ("call", "call"),
@@ -29,6 +27,8 @@ LAST_CONTACT_TYPE_CHOICES = [
 
 
 def twilio_client() -> Client:
+    from .apps import PhonesConfig
+
     phones_config = apps.get_app_config("phones")
     assert isinstance(phones_config, PhonesConfig)
     return phones_config.twilio_client
