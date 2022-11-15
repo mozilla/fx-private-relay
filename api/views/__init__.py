@@ -215,7 +215,7 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
     Add error information to response data.
 
     When the error is a RelayAPIException, these additional fields may be present and
-    the information will be translated if a accept-language header is added to the request:
+    the information will be translated if an Accept-Language header is added to the request:
 
     error_code - A string identifying the error, for client-side translation
     error_context - Additional data needed for client-side translation
