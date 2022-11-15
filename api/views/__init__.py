@@ -242,6 +242,4 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
 
         response.data["error_code"] = error_codes
 
-    print(response)
-
     return response
