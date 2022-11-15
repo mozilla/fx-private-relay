@@ -18,14 +18,12 @@ $dismissButtonWidth: 30px;
 
   .dismiss-button {
     position: absolute;
-    top: 50%;
     right: $spacing-md;
     background-color: transparent;
     border-style: none;
     color: $color-white;
     width: $dismissButtonWidth;
     height: $dismissButtonWidth;
-    transform: translateY(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
