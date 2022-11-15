@@ -6,6 +6,8 @@ import ReplyingMessagesImg from "./images/reply-to-messages.svg";
 import ReplyingMessagesDemoImg from "./images/reply-to-messages-demo.svg";
 import BlockingMessagesImg from "./images/block-a-sender.svg";
 import { ReactNode } from "react";
+import { Button } from "../../Button";
+import { useLocalDismissal } from "../../../hooks/localDismissal";
 
 type PhoneInstructionProps = {
   image: ReactNode;
@@ -33,8 +35,13 @@ const PhoneInstruction = (props: PhoneInstructionProps) => {
   );
 };
 
-export const PhoneWelcomeView = () => {
+type PhoneWelcomePageProps = {
+  dismissalKey: string;
+};
+
+export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
   const { l10n } = useLocalization();
+  const welcomeScreenDismissal = useLocalDismissal(props.dismissalKey);
 
   const BlockSenderDemo = (
     <div className={styles["block-sender-wrapper"]}>
@@ -117,6 +124,15 @@ export const PhoneWelcomeView = () => {
           demoImage={BlockSenderDemo}
         />
       </div>
+
+      <Button
+        className={styles["dashboard-btn"]}
+        onClick={() => {
+          welcomeScreenDismissal.dismiss();
+        }}
+      >
+        {l10n.getString("phone-masking-splash-continue-btn")}
+      </Button>
     </div>
   );
 };

@@ -14,22 +14,21 @@ import { isFlagActive } from "../functions/waffle";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../functions/getPlan";
-import { toast } from "react-toastify";
-import { useLocalDismissal } from "../hooks/localDismissal";
+import styles from "./phone.module.scss";
 import { PhoneWelcomeView } from "../components/phones/dashboard/PhoneWelcomeView";
+import { useLocalDismissal } from "../hooks/localDismissal";
 
 const Phone: NextPage = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const profile = profileData.data?.[0];
   const router = useRouter();
-
   const userData = useUsers();
   const user = userData.data?.[0];
-
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
-  const [isShownWelcomeScreen, setIsShownWelcomeScreen] = useState<boolean>();
+  const welcomeScreenDismissalKey = "phone-welcome-screen";
+  const welcomeScreenDismissal = useLocalDismissal(welcomeScreenDismissalKey);
 
   const realPhoneData = useRealPhonesData();
   // The user hasn't completed the onboarding yet if...
@@ -88,13 +87,19 @@ const Phone: NextPage = () => {
   ) {
     return (
       <Layout runtimeData={runtimeData.data}>
-        <DashboardSwitcher />
-        <PhoneDashboard
-          profile={profile}
-          runtimeData={runtimeData.data}
-          realPhone={verifiedPhones[0]}
-          onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
-        />
+        <div className={styles["main-wrapper"]}>
+          <DashboardSwitcher />
+          {!welcomeScreenDismissal.isDismissed ? (
+            <PhoneWelcomeView dismissalKey={welcomeScreenDismissalKey} />
+          ) : (
+            <PhoneDashboard
+              profile={profile}
+              runtimeData={runtimeData.data}
+              realPhone={verifiedPhones[0]}
+              onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
+            />
+          )}
+        </div>
       </Layout>
     );
   }

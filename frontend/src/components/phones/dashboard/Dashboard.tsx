@@ -18,14 +18,10 @@ import { SendersPanelView } from "./SendersPanelView";
 import { formatPhone } from "../../../functions/formatPhone";
 import { getLocale } from "../../../functions/getLocale";
 import { parseDate } from "../../../functions/parseDate";
-<<<<<<< HEAD
 import { Tips } from "../../dashboard/tips/Tips";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useLocalDismissal } from "../../../hooks/localDismissal";
 import { Banner } from "../../Banner";
-=======
-import { PhoneWelcomeView } from "./PhoneWelcomeView";
->>>>>>> af7845df (MPP-2417 - Phone Welcome Screen (WIP))
 
 export type Props = {
   profile: ProfileData;
@@ -285,7 +281,6 @@ export const PhoneDashboard = (props: Props) => {
 
   return (
     <div className={styles["main-phone-wrapper"]}>
-<<<<<<< HEAD
       <main className={styles["content-wrapper"]}>
         {resendWelcomeText}
         {showingPrimaryDashboard && inboundContactData !== undefined ? (
@@ -300,21 +295,6 @@ export const PhoneDashboard = (props: Props) => {
         )}
       </main>
       <Tips profile={props.profile} runtimeData={props.runtimeData} />
-=======
-      {showingPrimaryDashboard && inboundContactData !== undefined ? (
-        // Primary Panel
-        <>
-          <PhoneWelcomeView />
-          {primaryPanel}
-        </>
-      ) : (
-        // Caller and SMS Senders Panel
-        <SendersPanelView
-          type={getSendersPanelType()}
-          back_btn={toggleSendersPanel}
-        />
-      )}
->>>>>>> af7845df (MPP-2417 - Phone Welcome Screen (WIP))
     </div>
   );
 };
