@@ -704,6 +704,8 @@ def _check_and_update_contact(inbound_contact, contact_type, relay_number):
     inbound_contact.last_inbound_type = contact_type[:-1]
     attr = f"num_{contact_type}"
     setattr(inbound_contact, attr, getattr(inbound_contact, attr) + 1)
+    last_date_attr = f"last_{contact_type[:-1]}_date"
+    setattr(inbound_contact, last_date_attr, inbound_contact.last_inbound_date)
     inbound_contact.save()
 
 
