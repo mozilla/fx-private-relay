@@ -1100,8 +1100,8 @@ class MultiReplyFixture:
     """Bundle fixtures for multi_replies tests."""
 
     user: User
-    real_phone: RealPhone
-    relay_number: RelayNumber
+    real_phone: "RealPhone"
+    relay_number: "RelayNumber"
     mocked_twilio_client: Client
 
 
