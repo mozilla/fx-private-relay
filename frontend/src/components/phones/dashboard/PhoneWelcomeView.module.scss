@@ -121,6 +121,7 @@
             box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1); // Taken from Figma style to match it with the other svgs
             border-radius: $border-radius-md;
             list-style: none;
+            gap: $spacing-xs;
 
             li {
               display: flex;
@@ -131,6 +132,7 @@
 
               &:first-child {
                 color: $color-light-gray-50;
+                padding-bottom: $spacing-sm;
                 border-bottom: 1px solid $color-light-gray-10;
               }
 

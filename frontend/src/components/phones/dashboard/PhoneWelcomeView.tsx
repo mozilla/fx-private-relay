@@ -110,7 +110,9 @@ export const PhoneWelcomeView = () => {
               elems={{
                 strong: <strong />,
               }}
-            ></Localized>
+            >
+              <span></span>
+            </Localized>
           }
           demoImage={BlockSenderDemo}
         />

@@ -29,6 +29,8 @@ const Phone: NextPage = () => {
 
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
+  const [isShownWelcomeScreen, setIsShownWelcomeScreen] = useState<boolean>();
+
   const realPhoneData = useRealPhonesData();
   // The user hasn't completed the onboarding yet if...
   const isNotSetup =
