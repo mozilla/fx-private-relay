@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Iterator, Optional
+from typing import Iterator, Literal, Optional
 from unittest.mock import Mock, patch, call
 
 from twilio.request_validator import RequestValidator
@@ -19,7 +19,7 @@ from emails.models import Profile
 
 
 if settings.PHONES_ENABLED:
-    from api.views.phones import _match_by_prefix
+    from api.views.phones import _match_by_prefix, MatchByPrefix
     from phones.models import InboundContact, RealPhone, RelayNumber
     from phones.tests.models_tests import make_phone_test_user
 
@@ -1386,89 +1386,248 @@ _match_by_prefix_candidates = set(
         "+13045551301",  # Last 4 match first 4 of oldest
     )
 )
-_match_by_prefix_tests = {
-    "no prefix": ("no prefix", [], None),
-    "4 digits, no message": ("0000 ", ["+13015550000"], "0000 "),
+
+
+MatchByPrefixParams = tuple[
+    str,  # text message
+    Optional[Literal["short", "full"]],  # match_type
+    str,  # prefix
+    Optional[str],  # detected number
+    list[str],  # numbers
+]
+
+_match_by_prefix_tests: dict[str, MatchByPrefixParams] = {
+    "no prefix": ("no prefix", None, "", None, []),
+    "4 digits, no message": ("0000 ", "short", "0000 ", "0000", ["+13015550000"]),
     "4 digit multiple matches": (
         "0001 the message",
-        ["+13025550001", "+13035550001"],
+        "short",
         "0001 ",
+        "0001",
+        ["+13025550001", "+13035550001"],
     ),
-    "Two prefixes first match": ("0000 0001 the message", ["+13015550000"], "0000 "),
-    "4 digit, no match": ("0010 the message", [], "0010 "),
-    "4 digit with space": ("0000 the message", ["+13015550000"], "0000 "),
-    "4 digit without space": ("0000the message", ["+13015550000"], "0000"),
-    "4 digit with colon": ("0000:the message", ["+13015550000"], "0000:"),
-    "4 digit with colon space": ("0000: the message", ["+13015550000"], "0000: "),
-    "leading spaces 4 digits": ("  1301  the message", ["+13045551301"], "  1301  "),
-    "4 digits newline": ("1301\nthe message", ["+13045551301"], "1301\n"),
-    "first 4 of 6 digits": ("130178 the message", ["+13045551301"], "1301"),
-    "4 digit with dash": ("0000 - the message", ["+13015550000"], "0000 - "),
-    "4 digit with slash": ("0000 / the message", ["+13015550000"], "0000 / "),
-    "4 digit with backslash": ("0000 \\the message", ["+13015550000"], "0000 \\"),
-    "4 digit with right bracket": ("0000] the message", ["+13015550000"], "0000] "),
-    "4 digit with pipe": ("0000|the message", ["+13015550000"], "0000|"),
-    "3 digits is not a prefix": ("000 the message", [], None),
-    "digits with spaces is not a prefix": ("00 01 the message", [], None),
-    "letter followed by digits is not a prefix": ("x0000 the message", [], None),
-    "e.164, no message": ("+13015550000", ["+13015550000"], "+13015550000"),
-    "e.164, no match": ("+14045550000 no match", [], "+14045550000 "),
-    "e.164, colon": ("+13025550001: the message", ["+13025550001"], "+13025550001: "),
-    "e.164, dash": ("+13035550001 - the message", ["+13035550001"], "+13035550001 - "),
-    "e.164, slash": ("+13035550001 / the message", ["+13035550001"], "+13035550001 / "),
-    "e.164, backslash": (
-        "+13035550001\\the message",
+    "Two prefixes first match": (
+        "0000 0001 the message",
+        "short",
+        "0000 ",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digit, no match": ("0010 the message", "short", "0010 ", "0010", []),
+    "4 digit with space": (
+        "0000 the message",
+        "short",
+        "0000 ",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digit without space": (
+        "0000the message",
+        "short",
+        "0000",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digit with colon": (
+        "0000:the message",
+        "short",
+        "0000:",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digit with colon space": (
+        "0000: the message",
+        "short",
+        "0000: ",
+        "0000",
+        ["+13015550000"],
+    ),
+    "leading spaces 4 digits": (
+        "  1301  the message",
+        "short",
+        "  1301  ",
+        "1301",
+        ["+13045551301"],
+    ),
+    "4 digit with two colons": (
+        "0000 :: the message",
+        "short",
+        "0000 :",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digits newline": (
+        "1301\nthe message",
+        "short",
+        "1301\n",
+        "1301",
+        ["+13045551301"],
+    ),
+    "first 4 of 6 digits": (
+        "130178 the message",
+        "short",
+        "1301",
+        "1301",
+        ["+13045551301"],
+    ),
+    "4 digit with dash": (
+        "0000 - the message",
+        "short",
+        "0000 - ",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digit with slash": (
+        "0000 / the message",
+        "short",
+        "0000 / ",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digit with backslash": (
+        r"0000 \ the message",
+        "short",
+        r"0000 \ ",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digit with right bracket": (
+        "0000] the message",
+        "short",
+        "0000] ",
+        "0000",
+        ["+13015550000"],
+    ),
+    "4 digit with pipe": (
+        "0000 | the message",
+        "short",
+        "0000 | ",
+        "0000",
+        ["+13015550000"],
+    ),
+    "3 digits is not a prefix": ("000 the message", None, "", None, []),
+    "digits with spaces is not a prefix": ("00 01 the message", None, "", None, []),
+    "letter + digits is not a prefix": ("x0000 the message", None, "", None, []),
+    "e.164, no message": (
+        "+13015550000",
+        "full",
+        "+13015550000",
+        "+13015550000",
+        ["+13015550000"],
+    ),
+    "e.164, no match": (
+        "+14045550000 no match",
+        "full",
+        "+14045550000 ",
+        "+14045550000",
+        [],
+    ),
+    "e.164, colon": (
+        "+13025550001: the message",
+        "full",
+        "+13025550001: ",
+        "+13025550001",
+        ["+13025550001"],
+    ),
+    "e.164, dash": (
+        "+13035550001 - the message",
+        "full",
+        "+13035550001 - ",
+        "+13035550001",
         ["+13035550001"],
-        "+13035550001\\",
+    ),
+    "e.164, slash": (
+        "+13035550001 / the message",
+        "full",
+        "+13035550001 / ",
+        "+13035550001",
+        ["+13035550001"],
+    ),
+    "e.164, backslash": (
+        r"+13035550001 \ the message",
+        "full",
+        r"+13035550001 \ ",
+        "+13035550001",
+        ["+13035550001"],
     ),
     "e.164, right bracket": (
         "+13045551301]the message",
-        ["+13045551301"],
+        "full",
         "+13045551301]",
+        "+13045551301",
+        ["+13045551301"],
     ),
-    "e.164, pipe": ("+13045551301|the message", ["+13045551301"], "+13045551301|"),
-    "Full without plus": ("13045551301 the message", ["+13045551301"], "13045551301 "),
+    "e.164, pipe": (
+        "+13045551301|the message",
+        "full",
+        "+13045551301|",
+        "+13045551301",
+        ["+13045551301"],
+    ),
+    "Full without plus": (
+        "13045551301 the message",
+        "full",
+        "13045551301 ",
+        "+13045551301",
+        ["+13045551301"],
+    ),
     "US format": (
         "1 (304) 555-1301 the message",
-        ["+13045551301"],
+        "full",
         "1 (304) 555-1301 ",
+        "+13045551301",
+        ["+13045551301"],
     ),
     "US format no country code": (
         "(304)555-1301the message",
-        ["+13045551301"],
+        "full",
         "(304)555-1301",
+        "+13045551301",
+        ["+13045551301"],
     ),
-    "Full no country code": ("3015550000 a message", ["+13015550000"], "3015550000 "),
+    "Full no country code": (
+        "3015550000 a message",
+        "full",
+        "3015550000 ",
+        "+13015550000",
+        ["+13015550000"],
+    ),
     "Full spaces": (
         "+1 301 555 0000 the message",
-        ["+13015550000"],
+        "full",
         "+1 301 555 0000 ",
+        "+13015550000",
+        ["+13015550000"],
     ),
-    "e.164 with extra num, no match": ("+130155500007 message", [], None),
+    "e.164 with extra num, no match": ("+130155500007 message", None, "", None, []),
     "Two e.164, first match": (
         "(301) 555-0000 +13045551301",
-        ["+13015550000"],
+        "full",
         "(301) 555-0000 ",
+        "+13015550000",
+        ["+13015550000"],
     ),
 }
 
 
 @pytest.mark.parametrize(
-    "text, expected_matches, expected_prefix",
+    "text, match_type, prefix, detected, numbers",
     _match_by_prefix_tests.values(),
     ids=list(_match_by_prefix_tests.keys()),
 )
 def test_match_by_prefix(
-    text: str, expected_matches: list[str], expected_prefix: Optional[str]
+    text: str,
+    match_type: Optional[Literal["short", "full"]],
+    prefix: str,
+    detected: Optional[str],
+    numbers: list[str],
 ) -> None:
     """_match_by_prefix returns the matching candidates and the detected prefix."""
-    matches, prefix = _match_by_prefix(text, _match_by_prefix_candidates)
-    assert matches == expected_matches
-    if expected_prefix is None:
-        assert prefix is None
-    else:
-        assert prefix is not None
-        assert prefix == expected_prefix
+    match = _match_by_prefix(text, _match_by_prefix_candidates)
+    expected_match = MatchByPrefix(
+        match_type=match_type, prefix=prefix, detected=detected, numbers=numbers
+    )
+    assert match == expected_match
 
 
 @pytest.mark.django_db
