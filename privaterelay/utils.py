@@ -1,4 +1,8 @@
+from functools import wraps
+from typing import Callable
+
 from django.conf import settings
+from django.http import Http404
 
 
 def get_countries_info_from_request_and_mapping(request, mapping):
@@ -40,3 +44,69 @@ def get_premium_country_lang(accept_lang, cc=None):
             return cc, lang
         return cc, list(languages.keys())[0]
     return cc, "en"
+
+
+def enable_or_404(
+    check_function: Callable[[], bool],
+    message: str = "This conditional view is disabled.",
+):
+    """
+    Returns decorator that enables a view if a check function passes,
+    otherwise returns a 404.
+
+    Usage:
+
+        def percent_1():
+           import random
+           return random.randint(1, 100) == 1
+
+        @enable_if(coin_flip)
+        def lucky_view(request):
+            #  1 in 100 chance of getting here
+            # 99 in 100 chance of 404
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            if check_function():
+                return func(*args, **kwargs)
+            else:
+                raise Http404(message)  # Display a message with DEBUG=True
+
+        return inner
+
+    return decorator
+
+
+def enable_if_setting(
+    setting_name: str,
+    message_fmt: str = "This view is disabled because {setting_name} is False",
+):
+    """
+    Returns decorator that enables a view if a setting is truthy, otherwise
+    returns a 404.
+
+    Usage:
+
+        @enable_if_setting("DEBUG")
+        def debug_only_view(request):
+            # DEBUG == True
+
+    Or in URLS:
+
+        path(
+            "developer_info",
+            enable_if_setting("DEBUG")(debug_only_view)
+        ),
+        name="developer-info",
+    ),
+
+    """
+
+    def setting_is_truthy() -> bool:
+        return bool(getattr(settings, setting_name))
+
+    return enable_or_404(
+        setting_is_truthy, message_fmt.format(setting_name=setting_name)
+    )
