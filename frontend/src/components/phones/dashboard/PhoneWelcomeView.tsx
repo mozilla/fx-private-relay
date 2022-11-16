@@ -108,6 +108,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
           body={
             <>
               {l10n.getString("phone-masking-splash-save-contact-body")}
+              <br />
               {!resendWelcomeSMSDismissal.isDismissed ? (
                 <Button
                   onClick={async () => {
