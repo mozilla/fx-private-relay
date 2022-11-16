@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from math import floor
+from typing import Optional
 import secrets
 import string
 
@@ -80,13 +81,39 @@ def get_valid_realphone_verification_record(user, number, verification_code):
     ).first()
 
 
-def get_last_text_sender(relay_number):
+def get_last_text_sender(relay_number: "RelayNumber") -> Optional["InboundContact"]:
+    """
+    Get the last text sender.
+
+    MPP-2581 introduces a last_text_date column for determining the last sender.
+    Before MPP-2581, the last_inbound_date with last_inbound_type=text was used.
+    During the transition, look at both methods.
+    """
     try:
-        return InboundContact.objects.filter(
+        latest = InboundContact.objects.filter(
+            relay_number=relay_number, last_text_date__isnull=False
+        ).latest("last_text_date")
+    except InboundContact.DoesNotExist:
+        latest = None
+
+    try:
+        latest_by_old_method = InboundContact.objects.filter(
             relay_number=relay_number, last_inbound_type="text"
         ).latest("last_inbound_date")
     except InboundContact.DoesNotExist:
-        return None
+        latest_by_old_method = None
+
+    if (latest is None and latest_by_old_method is not None) or (
+        latest
+        and latest_by_old_method
+        and latest != latest_by_old_method
+        and latest.last_text_date
+        and latest_by_old_method.last_inbound_date > latest.last_text_date
+    ):
+        # Pre-MPP-2581 server handled the latest text message
+        return latest_by_old_method
+
+    return latest
 
 
 class RealPhone(models.Model):
@@ -298,10 +325,15 @@ class InboundContact(models.Model):
     last_inbound_type = models.CharField(
         max_length=4, choices=LAST_CONTACT_TYPE_CHOICES, default="text"
     )
+
     num_calls = models.PositiveIntegerField(default=0)
     num_calls_blocked = models.PositiveIntegerField(default=0)
+    last_call_date = models.DateTimeField(null=True)
+
     num_texts = models.PositiveIntegerField(default=0)
     num_texts_blocked = models.PositiveIntegerField(default=0)
+    last_text_date = models.DateTimeField(null=True)
+
     blocked = models.BooleanField(default=False)
 
     class Meta:
