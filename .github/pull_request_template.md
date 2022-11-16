@@ -29,9 +29,9 @@ Not applicable.
 # Checklist (Definition of Done)
 - [ ] Product Owner accepted the User Story (demo of functionality completed) or waived the privilege.
 - [ ] All acceptance criteria are met.
-- [ ] User Story has been updated (if needed) to match changes made during the development process.
+- [ ] Jira ticket has been updated (if needed) to match changes made during the development process.
 - [ ] I've added or updated relevant docs in the docs/ directory
-- [ ] User Story has been updated (if needed) with suggestions for QA when this PR is deployed to stage.
+- [ ] Jira ticket has been updated (if needed) with suggestions for QA when this PR is deployed to stage.
 - [ ] All UI revisions follow the [coding standards](https://github.com/mozilla/fx-private-relay/blob/main/docs/coding-standards.md), and use Protocol tokens where applicable (see `/frontend/src/styles/tokens.scss`).
 - [ ] Commits in this PR are minimal and [have descriptive commit messages](https://chris.beams.io/posts/git-commit/).
 - [ ] l10n changes have been submitted to the l10n repository, if any.
