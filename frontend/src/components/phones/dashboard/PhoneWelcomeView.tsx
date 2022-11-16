@@ -6,15 +6,21 @@ import ReplyingMessagesImg from "./images/reply-to-messages.svg";
 import ReplyingMessagesDemoImg from "./images/reply-to-messages-demo.svg";
 import BlockingMessagesImg from "./images/block-a-sender.svg";
 import { ReactNode } from "react";
-import { Button } from "../../Button";
-import { DismissalData } from "../../../hooks/localDismissal";
+import { Button, LinkButton } from "../../Button";
+import {
+  DismissalData,
+  useLocalDismissal,
+} from "../../../hooks/localDismissal";
+import Link from "next/link";
+import { toast } from "react-toastify";
+import { ProfileData } from "../../../hooks/api/profile";
 
 type PhoneInstructionProps = {
   image: ReactNode;
   heading: string;
   body: ReactNode;
   demoHeading?: string;
-  demoInput?: string;
+  demoInput?: ReactNode;
   demoImage: ReactNode;
 };
 
@@ -37,10 +43,16 @@ const PhoneInstruction = (props: PhoneInstructionProps) => {
 
 type PhoneWelcomePageProps = {
   dismissalKey: DismissalData;
+  onRequestContactCard: () => Promise<Response>;
+  profile: ProfileData;
 };
 
 export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
   const { l10n } = useLocalization();
+
+  const resendWelcomeSMSDismissal = useLocalDismissal(
+    `resend-sms-banner-${props.profile.id}`
+  );
 
   // The unlocalized strings here are mock data
   const BlockSenderDemo = (
@@ -93,10 +105,36 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
         <PhoneInstruction
           image={<img src={SavingRelayContactImg.src} alt="" />}
           heading={l10n.getString("phone-masking-splash-save-contact-title")}
-          body={l10n.getString("phone-masking-splash-save-contact-body")}
-          // TODO: Localize strings
-          demoHeading="Saving your Relay Contact"
-          demoInput="Firefox Relay"
+          body={
+            <>
+              {l10n.getString("phone-masking-splash-save-contact-body")}
+              {!resendWelcomeSMSDismissal.isDismissed ? (
+                <Button
+                  onClick={async () => {
+                    await props.onRequestContactCard();
+                    toast(
+                      l10n.getString(
+                        "phone-banner-resend-welcome-sms-toast-msg"
+                      ),
+                      {
+                        type: "success",
+                      }
+                    );
+                    resendWelcomeSMSDismissal.dismiss();
+                  }}
+                  className={styles["welcome-text-cta"]}
+                >
+                  {l10n.getString("phone-masking-splash-save-contact-cta")}
+                </Button>
+              ) : null}
+            </>
+          }
+          demoHeading={l10n.getString(
+            "phone-masking-splash-save-contact-example"
+          )}
+          demoInput={l10n.getString(
+            "phone-masking-splash-save-contact-example-text"
+          )}
           demoImage={
             <div className={styles["demo-img"]}>
               <img src={SavingRelayContactDemoImg.src} alt="" />

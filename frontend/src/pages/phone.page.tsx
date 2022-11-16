@@ -91,7 +91,11 @@ const Phone: NextPage = () => {
           <DashboardSwitcher />
           {/* Only show the welcome screen if the user hasn't seen it before */}
           {!welcomeScreenDismissal.isDismissed ? (
-            <PhoneWelcomeView dismissalKey={welcomeScreenDismissal} />
+            <PhoneWelcomeView
+              dismissalKey={welcomeScreenDismissal}
+              onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
+              profile={profile}
+            />
           ) : (
             <PhoneDashboard
               profile={profile}

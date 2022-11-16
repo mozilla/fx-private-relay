@@ -67,6 +67,22 @@
         font-weight: 600;
       }
 
+      .welcome-text-cta {
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        text-decoration: underline;
+        color: $color-blue-50;
+        cursor: pointer;
+        font-weight: 500;
+        background: none;
+        border: none;
+
+        &:hover {
+          color: $color-blue-80;
+        }
+      }
+
       img {
         align-self: center;
       }
