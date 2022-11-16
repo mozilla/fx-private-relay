@@ -41,6 +41,8 @@ import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
 import BundleHero from "./images/bundle-promo-hero.svg";
 import BundleIcon from "./images/bundle-promo-icon.svg";
 import OfferCountdownIcon from "./images/offer-countdown-icon.svg";
+import FirefoxIntegrationHero from "./images/firefox-integration-hero.svg";
+import FirefoxIntegrationIcon from "./images/firefox-integration-icon.svg";
 import { WhatsNewComponentContent, WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -61,6 +63,7 @@ import {
 } from "../../../../functions/getPlan";
 import { CountdownTimer } from "../../../CountdownTimer";
 import Link from "next/link";
+import { GiftIcon } from "../../../Icons";
 
 export type WhatsNewEntry = {
   title: string;
@@ -492,9 +495,50 @@ export const WhatsNewMenu = (props: Props) => {
     entries.push(vpnAndRelayAnnouncement);
   }
 
-  entries.sort(entriesDescByDateSorter);
+  const firefoxIntegrationAnnouncement: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-firefox-integration-heading"),
+    snippet: l10n.getString("whatsnew-feature-firefox-integration-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-firefox-integration-description"
+        )}
+        heading={l10n.getString("whatsnew-feature-firefox-integration-heading")}
+        image={FirefoxIntegrationHero.src}
+      />
+    ),
+    icon: FirefoxIntegrationIcon.src,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_firefox-integration_${props.profile.id}`
+    ),
+    // Day after release of Firefox 108 (to ensure our announcement is not before Firefox's)
+    announcementDate: {
+      year: 2022,
+      month: 12,
+      day: 19,
+    },
+  };
+  if (
+    isFlagActive(props.runtimeData, "firefox_integration") &&
+    isUsingFirefox()
+  ) {
+    entries.push(firefoxIntegrationAnnouncement);
+  }
 
-  const newEntries = entries.filter((entry) => {
+  const entriesNotInFuture = entries.filter((entry) => {
+    const entryDate = new Date(
+      Date.UTC(
+        entry.announcementDate.year,
+        entry.announcementDate.month - 1,
+        entry.announcementDate.day
+      )
+    );
+    // Filter out entries that are in the future:
+    return entryDate.getTime() <= Date.now();
+  });
+  entriesNotInFuture.sort(entriesDescByDateSorter);
+
+  const newEntries = entriesNotInFuture.filter((entry) => {
     const entryDate = new Date(
       Date.UTC(
         entry.announcementDate.year,
@@ -524,7 +568,7 @@ export const WhatsNewMenu = (props: Props) => {
 
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
-  if (entries.length === 0) {
+  if (entriesNotInFuture.length === 0) {
     return null;
   }
 
@@ -549,7 +593,13 @@ export const WhatsNewMenu = (props: Props) => {
           triggerState.isOpen ? styles["is-open"] : ""
         } ${props.style}`}
       >
-        {l10n.getString("whatsnew-trigger-label")}
+        <GiftIcon
+          className={styles["trigger-icon"]}
+          alt={l10n.getString("whatsnew-trigger-label")}
+        />
+        <span className={styles["trigger-label"]}>
+          {l10n.getString("whatsnew-trigger-label")}
+        </span>
         {pill}
       </button>
       {
@@ -564,7 +614,7 @@ export const WhatsNewMenu = (props: Props) => {
           >
             <WhatsNewDashboard
               new={newEntries}
-              archive={entries}
+              archive={entriesNotInFuture}
               onClose={() => triggerState.close()}
             />
           </WhatsNewPopover>

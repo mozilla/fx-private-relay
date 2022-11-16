@@ -7,7 +7,16 @@ import {
   PhoneNumberSubmitVerificationFn,
 } from "../../../src/hooks/api/realPhone";
 
-jest.mock("../../../src/hooks/api/realPhone");
+jest.mock("../../../src/hooks/api/realPhone", () => {
+  // Do not mock functions like `isVerified`:
+  const actualUseRealPhonesModule = jest.requireActual(
+    "../../../src/hooks/api/realPhone"
+  );
+  return {
+    ...actualUseRealPhonesModule,
+    useRealPhonesData: jest.fn(),
+  };
+});
 
 // We know that `jest.mock` has turned exported functions into mock functions,
 // but TypeScript can't — so we tell it using a type assertion:

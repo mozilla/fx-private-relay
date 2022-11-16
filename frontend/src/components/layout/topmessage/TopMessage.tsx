@@ -6,6 +6,7 @@ import { CsatSurvey } from "./CsatSurvey";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../functions/waffle";
 import { getLocale } from "../../../functions/getLocale";
+import { PhoneSurvey } from "./PhoneSurvey";
 
 export type Props = {
   profile?: ProfileData;
@@ -15,6 +16,7 @@ export type Props = {
 export const TopMessage = (props: Props) => {
   const { l10n } = useLocalization();
   const router = useRouter();
+
   if (
     // Only show the Interview Recruitment banner if it's enabled,
     isFlagActive(props.runtimeData, "interview_recruitment") &&
@@ -31,6 +33,23 @@ export const TopMessage = (props: Props) => {
     getLocale(l10n).split("-")[0] === "en"
   ) {
     return <InterviewRecruitment />;
+  }
+
+  if (
+    // Only show the Phone launch survey banner if it's enabled,
+    isFlagActive(props.runtimeData, "phone_launch_survey") &&
+    // ...the user is logged in,
+    props.profile &&
+    // ...the user has purchased the phone masking plan,
+    props.profile.has_phone &&
+    // ...the user is from the US or Canada, and...
+    ["us", "ca"].includes(
+      props.runtimeData?.PHONE_PLANS.country_code ?? "not the user's country"
+    ) &&
+    // ...the user speaks English:
+    getLocale(l10n).split("-")[0] === "en"
+  ) {
+    return <PhoneSurvey />;
   }
 
   if (props.profile) {

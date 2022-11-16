@@ -10,6 +10,13 @@ nav-duo-phone-mask-alt = Phone masks
 
 setting-api-key-copied-alt = Click to copy
 
+whatsnew-feature-firefox-integration-heading = { -brand-name-relay } is now available in { -brand-name-firefox } password manager
+# A preview of the full content of `whatsnew-feature-firefox-integration-description`.
+# When translating, please make sure the resulting string is of roughly similar
+# length as the English version.
+whatsnew-feature-firefox-integration-snippet = Protecting your email just got easier. Now you can generate…
+whatsnew-feature-firefox-integration-description = Protecting your email just got easier. Now you can generate new { -brand-name-relay } email masks directly from your { -brand-name-firefox } password manager on desktop.
+
 ## Phone Masking FAQ
 
 phone-masking-faq-question-what-is = What is a phone number mask?
@@ -73,3 +80,5 @@ phone-masking-faq-answer-install-app = No, { -brand-name-relay } phone masking w
 phone-masking-faq-question-data = What kinds of data does { -brand-name-relay } phone masking store?
 phone-masking-faq-answer-data = Please see the <a href="{ $url }" { $attrs }>{ -brand-name-firefox-relay } Privacy Policy</a>.
 
+tips-multi-replies-heading = Reply to any text with your phone mask
+tips-multi-replies-content = Just start your message with the last 4 digits of that sender’s number.

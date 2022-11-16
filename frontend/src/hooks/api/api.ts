@@ -67,7 +67,7 @@ const fetcher: Fetcher = async (route: string, init?: RequestInit) => {
  * Make calls to our API using [SWR](https://swr.vercel.app). Generally wrapped in endpoint-specific hooks, e.g. {@link useProfiles}.
  */
 export function useApiV1<Data = unknown>(
-  route: string,
+  route: string | null,
   swrOptions: Partial<PublicConfiguration> = {}
 ): SWRResponse<Data, FetchError> {
   // TODO: Also use the sessionId cookie in the key,

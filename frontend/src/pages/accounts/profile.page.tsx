@@ -413,7 +413,7 @@ const Profile: NextPage = () => {
           {bottomBanners}
         </main>
         <aside>{bottomPremiumSection}</aside>
-        <Tips profile={profile} />
+        <Tips profile={profile} runtimeData={runtimeData.data} />
       </Layout>
     </>
   );
