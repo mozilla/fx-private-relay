@@ -9,8 +9,10 @@ export type InboundContact = {
   last_inbound_type: string;
   num_calls: number;
   num_calls_blocked: number;
+  last_call_date: string | null;
   num_texts: number;
   num_texts_blocked: number;
+  last_text_date: string | null;
   blocked: boolean;
 };
 
