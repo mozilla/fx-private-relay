@@ -895,30 +895,33 @@ def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
     assert "Could not find a previous text sender" in call_kwargs["body"]
 
 
-def test_inbound_sms_reply(phone_user, mocked_twilio_client):
+def test_inbound_sms_reply(phone_user: User, mocked_twilio_client: Client) -> None:
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
-    inbound_contact = InboundContact.objects.create(
-        relay_number=relay_number,
-        inbound_number="+15556660000",
-        last_inbound_type="text",
-        last_text_date=timezone.now(),
-    )
-    mocked_twilio_client.reset_mock()
 
+    # Setup: Recieve a text from a contact
     client = APIClient()
     path = "/api/v1/inbound_sms"
+    contact_number = "+15556660000"
+    data = {"From": contact_number, "To": relay_number.number, "Body": "test body"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 201
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+    # Test: Send text reply to the contact
+    mocked_twilio_client.reset_mock()
     data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
-    assert call_kwargs["to"] == inbound_contact.inbound_number
+    assert call_kwargs["to"] == contact_number
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == "test reply"
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_forwarded == 2
 
 
 def test_inbound_sms_reply_to_first_caller(
@@ -927,31 +930,38 @@ def test_inbound_sms_reply_to_first_caller(
     """MPP-2581: A first contact that texts then calls is the last texter."""
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
-    inbound_contact = InboundContact.objects.create(
-        relay_number=relay_number,
-        inbound_number="+15556660000",
-        last_inbound_type="text",
-        last_text_date=timezone.now(),
-    )
-    # inbound contact then calls
-    _check_and_update_contact(inbound_contact, "calls", relay_number)
-    assert inbound_contact.last_inbound_type == "call"
-    assert inbound_contact.last_call_date is not None
-    mocked_twilio_client.reset_mock()
 
+    # Setup: Recieve a text from a contact
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    sms_path = "/api/v1/inbound_sms"
+    contact_number = "+15556660000"
+    data = {"From": contact_number, "To": relay_number.number, "Body": "test body"}
+    response = client.post(sms_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 201
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+    # Setup: Recieve a call from the same contact
+    voice_path = "/api/v1/inbound_call"
+    data = {"Caller": contact_number, "Called": relay_number.number}
+    response = client.post(voice_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 201
+    relay_number.refresh_from_db()
+    assert relay_number.calls_forwarded == 1
+
+    # Test: Send text reply to the contact
+    mocked_twilio_client.reset_mock()
     data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
-    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    response = client.post(sms_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
-    assert call_kwargs["to"] == inbound_contact.inbound_number
+    assert call_kwargs["to"] == contact_number
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == "test reply"
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_forwarded == 2
 
 
 def test_inbound_sms_reply_to_caller(
@@ -960,40 +970,58 @@ def test_inbound_sms_reply_to_caller(
     """MPP-2581: A later contact that texts then calls is still the last texter."""
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
-    inbound_contact1 = InboundContact.objects.create(
-        relay_number=relay_number,
-        inbound_number="+13015550000",
-        last_inbound_type="text",
-        last_inbound_date=timezone.now() - timedelta(seconds=3600),
-        last_text_date=timezone.now() - timedelta(seconds=3600),
-    )
-    inbound_contact2 = InboundContact.objects.create(
-        relay_number=relay_number,
-        inbound_number="+13025550001",
-        last_inbound_type="text",
-        last_inbound_date=timezone.now() - timedelta(seconds=1800),
-        last_text_date=timezone.now() - timedelta(seconds=1800),
-    )
-    # second inbound contact then calls
-    _check_and_update_contact(inbound_contact2, "calls", relay_number)
-    assert inbound_contact2.last_inbound_type == "call"
-    assert inbound_contact2.last_call_date is not None
-    mocked_twilio_client.reset_mock()
 
+    # Setup: Recieve a text from first contact
     client = APIClient()
-    path = "/api/v1/inbound_sms"
-    data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
-    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    sms_path = "/api/v1/inbound_sms"
+    contact1_number = "+13015550000"
+    data = {
+        "From": contact1_number,
+        "To": relay_number.number,
+        "Body": "Hi I'm contact1",
+    }
+    response = client.post(sms_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 201
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+    # Setup: Recieve a text from second contact
+    contact2_number = "+13025550001"
+    data = {
+        "From": contact2_number,
+        "To": relay_number.number,
+        "Body": "Hello I'm contact2, I'll call in a second.",
+    }
+    response = client.post(sms_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 201
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 2
+
+    # Setup: Recieve a call from second contact
+    voice_path = "/api/v1/inbound_call"
+    data = {"Caller": contact2_number, "Called": relay_number.number}
+    response = client.post(voice_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 201
+    relay_number.refresh_from_db()
+    assert relay_number.calls_forwarded == 1
+
+    # Test: Send a reply to second contact
+    mocked_twilio_client.reset_mock()
+    data = {
+        "From": real_phone.number,
+        "To": relay_number.number,
+        "Body": "Thanks for the call!",
+    }
+    response = client.post(sms_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
-    assert call_kwargs["to"] != inbound_contact1.inbound_number
-    assert call_kwargs["to"] == inbound_contact2.inbound_number
+    assert call_kwargs["to"] == contact2_number
     assert call_kwargs["from_"] == relay_number.number
-    assert call_kwargs["body"] == "test reply"
+    assert call_kwargs["body"] == "Thanks for the call!"
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_forwarded == 3
 
 
 def test_inbound_sms_reply_pre_transition(
@@ -1002,14 +1030,16 @@ def test_inbound_sms_reply_pre_transition(
     """MPP-2581: A unmigrated server may not set last_text_date."""
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
+
+    # Setup: Create a text from a contact without last_text_date
     inbound_contact = InboundContact.objects.create(
         relay_number=relay_number,
         inbound_number="+15556660000",
         last_inbound_type="text",
-        # Contact created by before MPP-2381, so last_text_date is not set.
     )
-    mocked_twilio_client.reset_mock()
 
+    # Test: Send a reply to contact
+    mocked_twilio_client.reset_mock()
     client = APIClient()
     path = "/api/v1/inbound_sms"
     data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
