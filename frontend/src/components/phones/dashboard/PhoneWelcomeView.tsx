@@ -5,10 +5,9 @@ import SavingRelayContactDemoImg from "./images/save-relay-contact-demo.svg";
 import ReplyingMessagesImg from "./images/reply-to-messages.svg";
 import ReplyingMessagesDemoImg from "./images/reply-to-messages-demo.svg";
 import BlockingMessagesImg from "./images/block-a-sender.svg";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { Button } from "../../Button";
-import { useLocalDismissal } from "../../../hooks/localDismissal";
-import { DismissButton } from "react-aria";
+import { DismissalData } from "../../../hooks/localDismissal";
 
 type PhoneInstructionProps = {
   image: ReactNode;
@@ -37,14 +36,13 @@ const PhoneInstruction = (props: PhoneInstructionProps) => {
 };
 
 type PhoneWelcomePageProps = {
-  dismissalKey: string;
-  onDismiss: () => void;
+  dismissalKey: DismissalData;
 };
 
 export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
   const { l10n } = useLocalization();
-  const welcomeScreenDismissal = useLocalDismissal(props.dismissalKey);
 
+  // The unlocalized strings here are mock data
   const BlockSenderDemo = (
     <div className={styles["block-sender-wrapper"]}>
       <ul>
@@ -77,8 +75,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
     <Button
       className={styles["dashboard-btn"]}
       onClick={() => {
-        welcomeScreenDismissal.dismiss();
-        props.onDismiss();
+        props.dismissalKey.dismiss();
       }}
     >
       {l10n.getString("phone-masking-splash-continue-btn")}
