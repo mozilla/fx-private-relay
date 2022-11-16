@@ -137,7 +137,7 @@ def metrics_event(request):
     # "dimension5" is a Google Analytics-specific variable to track a custom dimension,
     # used to determine which browser vendor the add-on is using: Firefox or Chrome
     # "dimension7" is a Google Analytics-specific variable to track a custom dimension,
-    # used to determine which where the traffic is coming from: website (default), add-on or app
+    # used to determine where the ping is coming from: website (default), add-on or app
     event_data = event(
         request_data.get("category", None),
         request_data.get("action", None),
