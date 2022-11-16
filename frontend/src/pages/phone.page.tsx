@@ -27,8 +27,13 @@ const Phone: NextPage = () => {
   const user = userData.data?.[0];
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
+  const [isOnWelcomeScreen, setIsOnWelcomeScreen] = useState(true);
   const welcomeScreenDismissalKey = "phone-welcome-screen";
   const welcomeScreenDismissal = useLocalDismissal(welcomeScreenDismissalKey);
+
+  useEffect(() => {
+    console.log(welcomeScreenDismissal.isDismissed);
+  });
 
   const realPhoneData = useRealPhonesData();
   // The user hasn't completed the onboarding yet if...
@@ -89,8 +94,11 @@ const Phone: NextPage = () => {
       <Layout runtimeData={runtimeData.data}>
         <div className={styles["main-wrapper"]}>
           <DashboardSwitcher />
-          {!welcomeScreenDismissal.isDismissed ? (
-            <PhoneWelcomeView dismissalKey={welcomeScreenDismissalKey} />
+          {isOnWelcomeScreen ? (
+            <PhoneWelcomeView
+              dismissalKey={welcomeScreenDismissalKey}
+              onDismiss={() => setIsOnWelcomeScreen(false)}
+            />
           ) : (
             <PhoneDashboard
               profile={profile}
