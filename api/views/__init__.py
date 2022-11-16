@@ -47,6 +47,8 @@ from ..serializers import (
     WebcompatIssueSerializer,
 )
 
+from privaterelay.ftl_bundles import main as ftl_bundle
+
 info_logger = logging.getLogger("eventsinfo")
 schema_view = get_schema_view(
     openapi.Info(
@@ -212,18 +214,32 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
     """
     Add error information to response data.
 
-    When the error is a RelayAPIException, these additional fields may be present:
+    When the error is a RelayAPIException, these additional fields may be present and
+    the information will be translated if an Accept-Language header is added to the request:
 
     error_code - A string identifying the error, for client-side translation
     error_context - Additional data needed for client-side translation
     """
 
     response = exception_handler(exc, context)
+
     if response and isinstance(exc, RelayAPIException):
         error_codes = exc.get_codes()
+        error_context = exc.error_context()
         if isinstance(error_codes, str):
             response.data["error_code"] = error_codes
-        error_context = exc.error_context()
+
+            # Build Fluent error ID
+            ftl_id_sub = "api-error-"
+            ftl_id_error = error_codes.replace("_", "-")
+            ftl_id = ftl_id_sub + ftl_id_error
+
+            # Replace default message with Fluent string
+            response.data["detail"] = ftl_bundle.format(ftl_id, error_context)
+
         if error_context:
             response.data["error_context"] = error_context
+
+        response.data["error_code"] = error_codes
+
     return response
