@@ -632,6 +632,7 @@ def _handle_sms_reply(
     incr_if_enabled("phones_handle_sms_reply")
     client = twilio_client()
     if not relay_number.storing_phone_log:
+        # We do not store contacts in our database
         origin = settings.SITE_ORIGIN
         error = (
             "You can only reply if you allow Firefox Relay to keep a log of your"
@@ -643,8 +644,10 @@ def _handle_sms_reply(
             to=real_phone.number,
         )
         raise exceptions.ValidationError(error)
+
     match = _match_senders(relay_number, inbound_body)
     if match.match_type is None:
+        # No previous contacts to reply to
         error = "Message failed to send. Could not find a previous text sender."
         client.messages.create(
             from_=relay_number.number,
@@ -655,6 +658,7 @@ def _handle_sms_reply(
 
     prefix_error: Optional[str] = None
     if not match.contacts:
+        # Found a short code or full number, but no matching contact
         assert match.match_type in {"short", "full"}
         if match.match_type == "short":
             prefix_error = (
@@ -667,6 +671,7 @@ def _handle_sms_reply(
                 f" number {match.detected}. Please check the number and try again."
             )
     if len(match.contacts) > 1:
+        # A short code matches multiple contacts
         assert match.match_type == "short"
         prefix_error = (
             "Message failed to send. There is more than one phone number in this"
@@ -677,6 +682,7 @@ def _handle_sms_reply(
     if match.prefix and not prefix_error:
         body = inbound_body.removeprefix(match.prefix)
         if not body:
+            # The short code or full number matches a contact, but no following message
             if match.match_type == "short":
                 prefix_error = (
                     "Message failed to send. Please include a message after the"
@@ -687,10 +693,10 @@ def _handle_sms_reply(
                     "Message failed to send. Please include a message after the"
                     f" phone number {match.detected}."
                 )
-
     else:
         body = inbound_body
 
+    # Soft failure, suggest next action to user
     if prefix_error:
         client.messages.create(
             from_=relay_number.number,
@@ -699,6 +705,7 @@ def _handle_sms_reply(
         )
         return
 
+    # Success, send the relayed reply
     incr_if_enabled("phones_send_sms_reply")
     client.messages.create(
         from_=relay_number.number,
