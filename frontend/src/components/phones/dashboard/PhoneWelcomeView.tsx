@@ -6,12 +6,11 @@ import ReplyingMessagesImg from "./images/reply-to-messages.svg";
 import ReplyingMessagesDemoImg from "./images/reply-to-messages-demo.svg";
 import BlockingMessagesImg from "./images/block-a-sender.svg";
 import { ReactNode } from "react";
-import { Button, LinkButton } from "../../Button";
+import { Button } from "../../Button";
 import {
   DismissalData,
   useLocalDismissal,
 } from "../../../hooks/localDismissal";
-import Link from "next/link";
 import { toast } from "react-toastify";
 import { ProfileData } from "../../../hooks/api/profile";
 
