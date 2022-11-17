@@ -61,6 +61,16 @@
         }
       }
 
+      .relay-contact-icon {
+        align-self: center;
+        display: inline;
+        border-radius: 100%;
+        background: $color-light-gray-50;
+        color: $color-dark-gray-90;
+        padding: $spacing-xs;
+        margin-left: $spacing-sm;
+      }
+
       h2 {
         @include text-title-3xs;
         padding: $spacing-md 0;

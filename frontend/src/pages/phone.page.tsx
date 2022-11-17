@@ -27,8 +27,12 @@ const Phone: NextPage = () => {
   const user = userData.data?.[0];
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
-  const welcomeScreenDismissalKey = "phone-welcome-screen";
-  const welcomeScreenDismissal = useLocalDismissal(welcomeScreenDismissalKey);
+  const welcomeScreenDismissal = useLocalDismissal(
+    `phone-welcome-screen_${profile?.id}`
+  );
+  const resendWelcomeSMSDismissal = useLocalDismissal(
+    `resend-sms-banner-${profile?.id}`
+  );
 
   const realPhoneData = useRealPhonesData();
   // The user hasn't completed the onboarding yet if...
@@ -90,14 +94,21 @@ const Phone: NextPage = () => {
         <div className={styles["main-wrapper"]}>
           <DashboardSwitcher />
           {/* Only show the welcome screen if the user hasn't seen it before */}
-          {!welcomeScreenDismissal.isDismissed ? (
+          {!welcomeScreenDismissal.isDismissed &&
+          isFlagActive(runtimeData.data, "multi-replies") ? (
             <PhoneWelcomeView
-              dismissalKey={welcomeScreenDismissal}
+              dismissal={{
+                welcomeScreen: welcomeScreenDismissal,
+                resendSMS: resendWelcomeSMSDismissal,
+              }}
               onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
               profile={profile}
             />
           ) : (
             <PhoneDashboard
+              dismissal={{
+                resendSMS: resendWelcomeSMSDismissal,
+              }}
               profile={profile}
               runtimeData={runtimeData.data}
               realPhone={verifiedPhones[0]}
