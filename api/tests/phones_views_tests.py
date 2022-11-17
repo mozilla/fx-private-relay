@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import timedelta
 from typing import Iterator, Literal, Optional
 from unittest.mock import Mock, patch, call
 
@@ -8,7 +7,6 @@ from twilio.rest import Client
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.utils import timezone
 
 from model_bakery import baker
 from rest_framework.test import APIClient
@@ -1063,36 +1061,42 @@ def test_inbound_sms_reply_no_multi_replies(phone_user, mocked_twilio_client) ->
     """A user without multi_replies flag cannot use prefixes."""
     real_phone = _make_real_phone(phone_user, verified=True)
     relay_number = _make_relay_number(phone_user, enabled=True)
-    mocked_twilio_client.reset_mock()
-    InboundContact.objects.create(
-        relay_number=relay_number,
-        inbound_number="+15556660000",
-        last_inbound_type="text",
-        last_inbound_date=timezone.now() - timedelta(seconds=1200),
-    )
-    lastest_inbound_contact = InboundContact.objects.create(
-        relay_number=relay_number,
-        inbound_number="+15556660001",
-        last_inbound_type="text",
-        last_inbound_date=timezone.now() - timedelta(seconds=600),
-    )
 
+    # Setup: Contact with number ending in 0000
     path = "/api/v1/inbound_sms"
+    contact1 = "+13015550000"
+    data = {"From": contact1, "To": relay_number.number, "Body": "Hi!"}
+    client = APIClient()
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 201
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 1
+
+    # Setup: Contact with number not ending in 0000
+    contact2 = "+14015557354"
+    data = {"From": contact2, "To": relay_number.number, "Body": "Hi!"}
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    assert response.status_code == 201
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == 2
+
+    # Test: Reply starting with a prefix 0000
+    mocked_twilio_client.reset_mock()
     data = {
         "From": real_phone.number,
         "To": relay_number.number,
         "Body": "0000: test reply",
     }
-    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+    response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 200
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
-    assert call_kwargs["to"] == lastest_inbound_contact.inbound_number
+    assert call_kwargs["to"] == contact2
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == "0000: test reply"
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_forwarded == 3
 
 
 @dataclass
@@ -1102,6 +1106,7 @@ class MultiReplyFixture:
     user: User
     real_phone: "RealPhone"
     relay_number: "RelayNumber"
+    old_texts_forwarded: int
     mocked_twilio_client: Client
 
 
@@ -1114,27 +1119,39 @@ def multi_reply(
     relay_number = _make_relay_number(phone_user, enabled=True)
     mocked_twilio_client.reset_mock()
     contacts = (
-        ("+13015550000", "text", 9000),  # Oldest
-        ("+13025550001", "text", 8000),  # Same last 4 digits as below
-        ("+13035550001", "text", 7000),  # Same last 4 digits as above
-        ("+13045551301", "text", 6000),  # Last 4 match first 4 of oldest
-        ("+13055550002", "text", 5000),  # Text from number
-        ("+13055550002", "call", 4000),  # Call from same number
-        ("+14045550003", "call", 1000),  # Most recent call, never texted
+        ("+13015550000", "text"),  # Oldest
+        ("+13025550001", "text"),  # Same last 4 digits as below
+        ("+13035550001", "text"),  # Same last 4 digits as above
+        ("+13045551301", "text"),  # Last 4 match first 4 of oldest
+        ("+13055550002", "text"),  # Text from number
+        ("+13055550002", "call"),  # Call from same number
+        ("+14045550003", "call"),  # Most recent call, never texted
     )
-    for number, last_type, age_s in contacts:
-        InboundContact.objects.create(
-            relay_number=relay_number,
-            inbound_number=number,
-            last_inbound_type=last_type,
-            last_inbound_date=timezone.now() - timedelta(seconds=age_s),
-        )
+    client = APIClient()
+    for number, contact_type in contacts:
+        if contact_type == "text":
+            response = client.post(
+                "/api/v1/inbound_sms",
+                {"From": number, "To": relay_number.number, "Body": "Hi!"},
+                HTTP_X_TWILIO_SIGNATURE="valid",
+            )
+        else:
+            assert contact_type == "call"
+            response = client.post(
+                "/api/v1/inbound_call",
+                {"Caller": number, "Called": relay_number.number},
+                HTTP_X_TWILIO_SIGNATURE="valid",
+            )
+        assert response.status_code == 201
+    mocked_twilio_client.reset_mock()
+    relay_number.refresh_from_db()
 
     with override_flag("multi_replies", active=True):
         yield MultiReplyFixture(
             user=phone_user,
             real_phone=real_phone,
             relay_number=relay_number,
+            old_texts_forwarded=relay_number.texts_forwarded,
             mocked_twilio_client=mocked_twilio_client,
         )
 
@@ -1170,7 +1187,7 @@ def test_inbound_sms_reply_one_match(
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == "test reply"
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
 
 
 def test_inbound_sms_reply_short_prefix_never_text(
@@ -1194,7 +1211,7 @@ def test_inbound_sms_reply_short_prefix_never_text(
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == "send reply to caller"
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
 
 
 def test_inbound_sms_reply_full_prefix_never_text(
@@ -1218,7 +1235,7 @@ def test_inbound_sms_reply_full_prefix_never_text(
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == "can we continue over text?"
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
 
 
 def test_inbound_sms_reply_short_prefix_multi_match(
@@ -1245,7 +1262,7 @@ def test_inbound_sms_reply_short_prefix_multi_match(
         " ending in 0001. To retry, start your message with the complete number."
     )
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 0
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
 
 
 def test_inbound_sms_reply_short_prefix_no_match(
@@ -1272,7 +1289,7 @@ def test_inbound_sms_reply_short_prefix_no_match(
         " 0404. Please check the number and try again."
     )
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 0
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
 
 
 def test_inbound_sms_reply_full_prefix_no_match(multi_reply: MultiReplyFixture) -> None:
@@ -1297,7 +1314,7 @@ def test_inbound_sms_reply_full_prefix_no_match(multi_reply: MultiReplyFixture) 
         " +14045550404. Please check the number and try again."
     )
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 0
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
 
 
 def test_inbound_sms_reply_short_prefix_no_message(
@@ -1324,7 +1341,7 @@ def test_inbound_sms_reply_short_prefix_no_message(
         " 0002."
     )
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 0
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
 
 
 def test_inbound_sms_reply_full_prefix_no_message(
@@ -1351,7 +1368,7 @@ def test_inbound_sms_reply_full_prefix_no_message(
         " +13055550002."
     )
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 0
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded
 
 
 def test_inbound_sms_reply_no_prefix_last_sender(
@@ -1375,7 +1392,7 @@ def test_inbound_sms_reply_no_prefix_last_sender(
     assert call_kwargs["from_"] == relay_number.number
     assert call_kwargs["body"] == data["Body"]
     relay_number.refresh_from_db()
-    assert relay_number.texts_forwarded == 1
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
 
 
 _match_by_prefix_candidates = set(
