@@ -18,6 +18,7 @@ type PhoneInstructionProps = {
   demoHeading?: string;
   demoInput?: ReactNode;
   demoImage: ReactNode;
+  alt: string;
 };
 
 const PhoneInstruction = (props: PhoneInstructionProps) => {
@@ -26,13 +27,19 @@ const PhoneInstruction = (props: PhoneInstructionProps) => {
       {props.image}
       <h2>{props.heading}</h2>
       <p>{props.body}</p>
-      <div className={styles["demo-wrapper"]}>
-        <p className={styles["demo-heading"]}>{props.demoHeading}</p>
-        <div className={styles["demo-input-wrapper"]}>
+      <figure aria-hidden={props.alt === ""} className={styles["demo-wrapper"]}>
+        <figcaption className={styles["demo-heading"]}>
+          {props.demoHeading}
+        </figcaption>
+        <div
+          aria-label={props.alt}
+          className={styles["demo-input-wrapper"]}
+          role="img"
+        >
           {props.demoImage}
           <p className={styles["demo-input"]}>{props.demoInput}</p>
         </div>
-      </div>
+      </figure>
     </div>
   );
 };
@@ -48,10 +55,6 @@ type PhoneWelcomePageProps = {
 
 export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
   const { l10n } = useLocalization();
-
-  // const resendWelcomeSMSDismissal = useLocalDismissal(
-  //   `resend-sms-banner-${props.profile.id}`
-  // );
 
   // The unlocalized strings here are demo data
   const BlockSenderDemo = (
@@ -102,6 +105,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
 
       <div className={styles["phone-instructions-wrapper"]}>
         <PhoneInstruction
+          alt={l10n.getString("phone-masking-splash-save-contact-body")}
           image={<img src={SavingRelayContactImg.src} alt="" />}
           heading={l10n.getString("phone-masking-splash-save-contact-title")}
           body={
@@ -146,6 +150,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
         />
 
         <PhoneInstruction
+          alt={l10n.getString("phone-masking-splash-replies-body")}
           image={<img src={ReplyingMessagesImg.src} alt="" />}
           heading={l10n.getString("phone-masking-splash-replies-title")}
           body={l10n.getString("phone-masking-splash-replies-body")}
@@ -161,6 +166,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
         />
 
         <PhoneInstruction
+          alt={l10n.getString("phone-masking-splash-blocking-body")}
           image={<img src={BlockingMessagesImg.src} alt="" />}
           heading={l10n.getString("phone-masking-splash-blocking-title")}
           body={

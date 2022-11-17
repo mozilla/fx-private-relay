@@ -11,6 +11,7 @@
   padding: $spacing-md;
   margin-bottom: $layout-md;
   margin-top: $layout-sm;
+  gap: $layout-md;
 
   @media screen and #{$mq-md} {
     margin-top: $layout-md;
@@ -19,7 +20,6 @@
   .main-heading {
     display: flex;
     flex-direction: column;
-    align-items: center;
     text-align: center;
 
     h1 {
@@ -65,7 +65,7 @@
         align-self: center;
         display: inline;
         border-radius: 100%;
-        background: $color-light-gray-50;
+        background-color: $color-light-gray-10;
         color: $color-dark-gray-90;
         padding: $spacing-xs;
         margin-left: $spacing-sm;
@@ -185,7 +185,6 @@
 
   .dashboard-btn {
     @include font-firefox;
-    margin-top: $layout-md;
     width: 100%;
     text-align: center;
     padding: $spacing-sm;

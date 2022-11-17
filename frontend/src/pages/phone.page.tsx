@@ -14,7 +14,6 @@ import { isFlagActive } from "../functions/waffle";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { useRouter } from "next/router";
 import { isPhonesAvailableInCountry } from "../functions/getPlan";
-import styles from "./phone.module.scss";
 import { PhoneWelcomeView } from "../components/phones/dashboard/PhoneWelcomeView";
 import { useLocalDismissal } from "../hooks/localDismissal";
 
@@ -91,7 +90,7 @@ const Phone: NextPage = () => {
   ) {
     return (
       <Layout runtimeData={runtimeData.data}>
-        <div className={styles["main-wrapper"]}>
+        <div>
           <DashboardSwitcher />
           {/* Only show the welcome screen if the user hasn't seen it before */}
           {!welcomeScreenDismissal.isDismissed &&
