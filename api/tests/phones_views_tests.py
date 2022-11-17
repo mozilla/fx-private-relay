@@ -1190,6 +1190,28 @@ def test_inbound_sms_reply_one_match(
     assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
 
 
+def test_inbound_sms_reply_full_number_wins(multi_reply: MultiReplyFixture) -> None:
+    """If a prefix could be a short code or a full number, pick full number."""
+    relay_number = multi_reply.relay_number
+    path = "/api/v1/inbound_sms"
+    data = {
+        "From": multi_reply.real_phone.number,
+        "To": relay_number.number,
+        "Body": "1301 5550000 - Isn't +13045551301 a jerk?",
+    }
+    response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
+
+    assert response.status_code == 200
+    msg_create_api = multi_reply.mocked_twilio_client.messages.create
+    msg_create_api.assert_called_once()
+    call_kwargs = msg_create_api.call_args.kwargs
+    assert call_kwargs["to"] == "+13015550000"
+    assert call_kwargs["from_"] == relay_number.number
+    assert call_kwargs["body"] == "Isn't +13045551301 a jerk?"
+    relay_number.refresh_from_db()
+    assert relay_number.texts_forwarded == multi_reply.old_texts_forwarded + 1
+
+
 def test_inbound_sms_reply_short_prefix_never_text(
     multi_reply: MultiReplyFixture,
 ) -> None:
