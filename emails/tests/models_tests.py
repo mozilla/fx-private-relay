@@ -38,7 +38,7 @@ from ..models import (
 )
 
 
-def make_free_test_user():
+def make_free_test_user() -> User:
     user = baker.make(User)
     user_profile = Profile.objects.get(user=user)
     user_profile.server_storage = True
@@ -49,7 +49,7 @@ def make_free_test_user():
     return user
 
 
-def make_premium_test_user():
+def make_premium_test_user() -> User:
     # premium user
     premium_user = baker.make(User, email="premium@email.com")
     premium_user_profile = Profile.objects.get(user=premium_user)
