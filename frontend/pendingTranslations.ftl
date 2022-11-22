@@ -2,8 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-nav-dashboard = Dashboard
-nav-phone = Phone Number
+nav-email-dashboard = Email Masks
+nav-phone-dashboard = Phone Masks
 nav-duo-description = Switch dashboards
 nav-duo-email-mask-alt = Email masks
 nav-duo-phone-mask-alt = Phone masks
