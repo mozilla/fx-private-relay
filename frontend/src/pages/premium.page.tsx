@@ -153,14 +153,17 @@ const PremiumPromo: NextPage = () => {
 
         {isFlagActive(runtimeData.data, "bundle") &&
           isBundleAvailableInCountry(runtimeData.data) && (
-            <section className={styles["bundle-banner-section"]}>
+            <section id="vpn_promo" className={styles["bundle-banner-section"]}>
               <BundleBanner runtimeData={runtimeData.data} />
             </section>
           )}
 
         {isFlagActive(runtimeData.data, "phones") &&
           isPhonesAvailableInCountry(runtimeData.data) && (
-            <section className={styles["phone-banner-section"]}>
+            <section
+              id="phone_promo"
+              className={styles["phone-banner-section"]}
+            >
               <PhoneBanner cta={phoneBannerCta} />
             </section>
           )}

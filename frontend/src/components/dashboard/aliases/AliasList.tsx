@@ -36,7 +36,14 @@ export const AliasList = (props: Props) => {
   const [stringFilterVisible, setStringFilterVisible] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
-  const [openAlias, setOpenAlias] = useState<AliasData | undefined>(undefined);
+  const [openAlias, setOpenAlias] = useState<AliasData | undefined>(
+    // If the mask was focused on by an anchor link, expand that one on page load:
+    props.aliases.find(
+      (alias) =>
+        alias.full_address ===
+        decodeURIComponent(document.location.hash.substring(1))
+    )
+  );
   const [existingAliases, setExistingAliases] = useState<AliasData[]>(
     props.aliases
   );
@@ -110,6 +117,7 @@ export const AliasList = (props: Props) => {
       <li
         className={styles["alias-card-wrapper"]}
         key={alias.address + isRandomAlias(alias)}
+        id={encodeURIComponent(alias.full_address)}
       >
         <Alias
           alias={alias}
@@ -117,7 +125,11 @@ export const AliasList = (props: Props) => {
           profile={props.profile}
           onUpdate={onUpdate}
           onDelete={() => props.onDelete(alias)}
-          isOpen={openAlias !== undefined && openAlias.id === alias.id}
+          isOpen={
+            openAlias !== undefined &&
+            openAlias.id === alias.id &&
+            openAlias.mask_type === alias.mask_type
+          }
           onChangeOpen={onChangeOpen}
           showLabelEditor={props.profile.server_storage || localLabels !== null}
           runtimeData={props.runtimeData}
