@@ -35,10 +35,12 @@ import { isFlagActive } from "../functions/waffle";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
+import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
+  useFlaggedAnchorLinks([runtimeData.data]);
   const heroCtaRef = useGaViewPing({
     category: "Purchase Button",
     label: "premium-promo-cta",
