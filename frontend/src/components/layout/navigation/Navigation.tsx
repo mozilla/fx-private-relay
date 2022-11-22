@@ -38,8 +38,31 @@ export const Navigation = (props: Props) => {
     hasPremium,
     isLoggedIn,
   } = props;
-  const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const isPremiumPage = router.pathname === "/premium";
+
+  const homeLink = isLoggedIn ? (
+    <Link href="/accounts/profile">
+      <a
+        className={`${styles.link} ${styles["home-link"]} 
+          ${styles["hidden-mobile"]} 
+          ${
+            router.pathname === "/accounts/profile" ? styles["is-active"] : ""
+          }`}
+      >
+        {l10n.getString("nav-email-dashboard")}
+      </a>
+    </Link>
+  ) : (
+    <Link href="/">
+      <a
+        className={`${styles.link} ${styles["home-link"]} 
+          ${styles["hidden-mobile"]} 
+          ${router.pathname === "/" ? styles["is-active"] : ""}`}
+      >
+        {l10n.getString("nav-home")}
+      </a>
+    </Link>
+  );
 
   const phoneLink =
     isLoggedIn &&
@@ -51,7 +74,7 @@ export const Navigation = (props: Props) => {
             router.pathname === "/phone" ? styles["is-active"] : null
           }`}
         >
-          {l10n.getString("nav-phone")}
+          {l10n.getString("nav-phone-dashboard")}
         </a>
       </Link>
     ) : null;
@@ -69,15 +92,7 @@ export const Navigation = (props: Props) => {
 
   return (
     <nav className={styles["site-nav"]}>
-      <Link href={homePath}>
-        <a
-          className={`${styles.link} ${styles["home-link"]} 
-          ${styles["hidden-mobile"]} 
-          ${router.pathname === homePath ? styles["is-active"] : ""}`}
-        >
-          {l10n.getString("nav-home")}
-        </a>
-      </Link>
+      {homeLink}
 
       {phoneLink}
 

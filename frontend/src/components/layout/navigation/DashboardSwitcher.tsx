@@ -18,7 +18,7 @@ export const DashboardSwitcher = () => {
       {/* Email Mask Btn */}
       <Link href="/accounts/profile">
         <a
-          className={`${styles["nav-mask-phone-icon"]} ${
+          className={`${styles["nav-mask-email-icon"]} ${
             router.pathname === "/accounts/profile" ? styles["is-active"] : null
           }`}
           title={l10n.getString("nav-duo-email-mask-alt")}
@@ -26,7 +26,7 @@ export const DashboardSwitcher = () => {
           <MaskIcon
             width={25}
             height={25}
-            alt={l10n.getString("nav-duo-phone-mask-alt")}
+            alt={l10n.getString("nav-duo-email-mask-alt")}
           />
         </a>
       </Link>
