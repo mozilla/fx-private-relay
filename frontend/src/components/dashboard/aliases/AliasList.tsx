@@ -12,6 +12,7 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
 import { SearchIcon } from "../../Icons";
+import { useFlaggedAnchorLinks } from "../../../hooks/flaggedAnchorLinks";
 
 export type Props = {
   aliases: AliasData[];
@@ -36,6 +37,12 @@ export const AliasList = (props: Props) => {
   const [stringFilterVisible, setStringFilterVisible] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
+  // When <AliasList> gets added to the page, if there's an anchor link in the
+  // URL pointing to a mask, scroll to that mask:
+  useFlaggedAnchorLinks(
+    [],
+    props.aliases.map((alias) => encodeURIComponent(alias.full_address))
+  );
   const [openAlias, setOpenAlias] = useState<AliasData | undefined>(
     // If the mask was focused on by an anchor link, expand that one on page load:
     props.aliases.find(

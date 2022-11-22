@@ -41,6 +41,7 @@ import { isFlagActive } from "../functions/waffle";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
+import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 
 const Home: NextPage = () => {
   const { l10n } = useLocalization();
@@ -55,6 +56,8 @@ const Home: NextPage = () => {
     category: "Sign In",
     label: "Landing Page: Phone Banner",
   });
+
+  useFlaggedAnchorLinks([runtimeData.data]);
 
   if (typeof userData.data?.[0] === "object" && !userData.error) {
     router.push("/accounts/profile/");
