@@ -513,9 +513,9 @@ export const WhatsNewMenu = (props: Props) => {
     ),
     // Day after release of Firefox 108 (to ensure our announcement is not before Firefox's)
     announcementDate: {
-      year: 2022,
-      month: 12,
-      day: 19,
+      year: 2023,
+      month: 1,
+      day: 24,
     },
   };
   if (
