@@ -13,10 +13,6 @@
   margin-top: $layout-sm;
   gap: $layout-md;
 
-  @media screen and #{$mq-md} {
-    margin-top: $layout-md;
-  }
-
   .main-heading {
     display: flex;
     flex-direction: column;
@@ -65,7 +61,7 @@
         align-self: center;
         display: inline;
         border-radius: 100%;
-        background-color: $color-light-gray-10;
+        background-color: $color-light-gray-30;
         color: $color-dark-gray-90;
         padding: $spacing-xs;
         margin-left: $spacing-sm;

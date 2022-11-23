@@ -27,8 +27,9 @@ const Phone: NextPage = () => {
   const relayNumberData = useRelayNumber();
   const [isInOnboarding, setIsInOnboarding] = useState<boolean>();
   const welcomeScreenDismissal = useLocalDismissal(
-    `phone-welcome-screen_${profile?.id}`
+    `phone-welcome-screen-${profile?.id}`
   );
+
   const resendWelcomeSMSDismissal = useLocalDismissal(
     `resend-sms-banner-${profile?.id}`
   );
@@ -90,31 +91,29 @@ const Phone: NextPage = () => {
   ) {
     return (
       <Layout runtimeData={runtimeData.data}>
-        <div>
-          <DashboardSwitcher />
-          {/* Only show the welcome screen if the user hasn't seen it before */}
-          {!welcomeScreenDismissal.isDismissed &&
-          isFlagActive(runtimeData.data, "multi_replies") ? (
-            <PhoneWelcomeView
-              dismissal={{
-                welcomeScreen: welcomeScreenDismissal,
-                resendSMS: resendWelcomeSMSDismissal,
-              }}
-              onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
-              profile={profile}
-            />
-          ) : (
-            <PhoneDashboard
-              dismissal={{
-                resendSMS: resendWelcomeSMSDismissal,
-              }}
-              profile={profile}
-              runtimeData={runtimeData.data}
-              realPhone={verifiedPhones[0]}
-              onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
-            />
-          )}
-        </div>
+        <DashboardSwitcher />
+        {/* Only show the welcome screen if the user hasn't seen it before */}
+        {!welcomeScreenDismissal.isDismissed ? (
+          // && isFlagActive(runtimeData.data, "multi_replies")
+          <PhoneWelcomeView
+            dismissal={{
+              welcomeScreen: welcomeScreenDismissal,
+              resendSMS: resendWelcomeSMSDismissal,
+            }}
+            onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
+            profile={profile}
+          />
+        ) : (
+          <PhoneDashboard
+            dismissal={{
+              resendSMS: resendWelcomeSMSDismissal,
+            }}
+            profile={profile}
+            runtimeData={runtimeData.data}
+            realPhone={verifiedPhones[0]}
+            onRequestContactCard={() => realPhoneData.resendWelcomeSMS()}
+          />
+        )}
       </Layout>
     );
   }

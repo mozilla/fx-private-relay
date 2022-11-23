@@ -105,7 +105,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
 
       <div className={styles["phone-instructions-wrapper"]}>
         <PhoneInstruction
-          alt={l10n.getString("phone-masking-splash-save-contact-body")}
+          alt=""
           image={<img src={SavingRelayContactImg.src} alt="" />}
           heading={l10n.getString("phone-masking-splash-save-contact-title")}
           body={
@@ -150,7 +150,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
         />
 
         <PhoneInstruction
-          alt={l10n.getString("phone-masking-splash-replies-body")}
+          alt=""
           image={<img src={ReplyingMessagesImg.src} alt="" />}
           heading={l10n.getString("phone-masking-splash-replies-title")}
           body={l10n.getString("phone-masking-splash-replies-body")}
@@ -166,7 +166,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
         />
 
         <PhoneInstruction
-          alt={l10n.getString("phone-masking-splash-blocking-body")}
+          alt=""
           image={<img src={BlockingMessagesImg.src} alt="" />}
           heading={l10n.getString("phone-masking-splash-blocking-title")}
           body={
