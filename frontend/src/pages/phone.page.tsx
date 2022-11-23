@@ -93,8 +93,8 @@ const Phone: NextPage = () => {
       <Layout runtimeData={runtimeData.data}>
         <DashboardSwitcher />
         {/* Only show the welcome screen if the user hasn't seen it before */}
-        {!welcomeScreenDismissal.isDismissed ? (
-          // && isFlagActive(runtimeData.data, "multi_replies")
+        {!welcomeScreenDismissal.isDismissed &&
+        isFlagActive(runtimeData.data, "multi_replies") ? (
           <PhoneWelcomeView
             dismissal={{
               welcomeScreen: welcomeScreenDismissal,
