@@ -4,6 +4,7 @@ import { useApiV1 } from "./api";
 type CountryCode = string;
 type LanguageCode = string;
 export type FlagNames =
+  | "manage_flags"
   | "interview_recruitment"
   | "new_from_address"
   | "tracker_removal"

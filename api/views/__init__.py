@@ -13,7 +13,7 @@ from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from waffle import get_waffle_flag_model
+from waffle import get_waffle_flag_model, flag_is_active
 from waffle.models import Switch, Sample
 from rest_framework import (
     decorators,
@@ -44,6 +44,7 @@ from ..serializers import (
     ProfileSerializer,
     RelayAddressSerializer,
     UserSerializer,
+    FlagSerializer,
     WebcompatIssueSerializer,
 )
 
@@ -193,6 +194,46 @@ def runtime_data(request):
             "MAX_MINUTES_TO_VERIFY_REAL_PHONE": settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         }
     )
+
+
+class FlagFilter(filters.FilterSet):
+    class Meta:
+        model = get_waffle_flag_model()
+        fields = [
+            "name",
+            "everyone",
+            # "users",
+            # read-only
+            "id",
+        ]
+
+
+class FlagViewSet(SaveToRequestUser, viewsets.ModelViewSet):
+    serializer_class = FlagSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    filterset_class = FlagFilter
+
+    def get_queryset(self):
+        if not flag_is_active(
+            self.request, "manage_flags"
+        ) or not self.request.user.email.endswith("@mozilla.com"):
+            # TODO: Raise a proper 403 Forbidden error
+            raise RelayAPIException()
+        flags = get_waffle_flag_model().objects
+        return flags
+
+    def perform_create(self, serializer):
+        if (
+            not flag_is_active(self.request, "manage_flags")
+            or not self.request.user.email.endswith("@mozilla.com")
+            or serializer.validated_data["name"] == "manage_flags"
+        ):
+            # TODO: Raise a proper 403 Forbidden error
+            raise RelayAPIException()
+        try:
+            serializer.save()
+        except IntegrityError as e:
+            raise ConflictError({"name": serializer.validated_data["name"]})
 
 
 @swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)
