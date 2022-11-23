@@ -30,8 +30,10 @@ RUN ln --symbolic /app/privaterelay/locales/pt-BR/ privaterelay/locales/pt
 RUN ln --symbolic /app/privaterelay/locales/es-ES/ privaterelay/locales/es
 COPY --chown=app .env-dist /app/.env
 
-ARG PHONES_ENABLED
-RUN mkdir -p /app/staticfiles && \
+# Collect all staticfiles, including for apps that may be disabled
+RUN PHONES_ENABLED=True \
+    API_DOCS_ENABLED=True \
+    mkdir -p /app/staticfiles && \
     python manage.py collectstatic --no-input -v 2
 
 ENTRYPOINT ["/app/.local/bin/gunicorn"]

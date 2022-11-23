@@ -3,6 +3,7 @@ from django.urls import include, path, register_converter
 
 from rest_framework import routers
 
+from privaterelay.utils import enable_if_setting
 from .views import (
     DomainAddressViewSet,
     RelayAddressViewSet,
@@ -43,12 +44,14 @@ urlpatterns = [
     ),
     path(
         "v1/swagger<swagger_format:format>",
-        schema_view.without_ui(cache_timeout=0),
+        enable_if_setting("API_DOCS_ENABLED")(schema_view.without_ui(cache_timeout=0)),
         name="schema-json",
     ),
     path(
         "v1/docs/",
-        schema_view.with_ui("swagger", cache_timeout=0),
+        enable_if_setting("API_DOCS_ENABLED")(
+            schema_view.with_ui("swagger", cache_timeout=0)
+        ),
         name="schema-swagger-ui",
     ),
 ]

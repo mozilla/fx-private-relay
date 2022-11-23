@@ -35,10 +35,12 @@ import { isFlagActive } from "../functions/waffle";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
+import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
 
 const PremiumPromo: NextPage = () => {
   const { l10n } = useLocalization();
   const runtimeData = useRuntimeData();
+  useFlaggedAnchorLinks([runtimeData.data]);
   const heroCtaRef = useGaViewPing({
     category: "Purchase Button",
     label: "premium-promo-cta",
@@ -153,14 +155,17 @@ const PremiumPromo: NextPage = () => {
 
         {isFlagActive(runtimeData.data, "bundle") &&
           isBundleAvailableInCountry(runtimeData.data) && (
-            <section className={styles["bundle-banner-section"]}>
+            <section id="vpn_promo" className={styles["bundle-banner-section"]}>
               <BundleBanner runtimeData={runtimeData.data} />
             </section>
           )}
 
         {isFlagActive(runtimeData.data, "phones") &&
           isPhonesAvailableInCountry(runtimeData.data) && (
-            <section className={styles["phone-banner-section"]}>
+            <section
+              id="phone_promo"
+              className={styles["phone-banner-section"]}
+            >
               <PhoneBanner cta={phoneBannerCta} />
             </section>
           )}
