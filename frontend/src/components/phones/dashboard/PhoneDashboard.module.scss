@@ -16,6 +16,9 @@
     gap: $spacing-lg;
     display: flex;
     flex-direction: column;
+    // Ensure that the <Tips> card can always overlap elements in the profile,
+    // even if they have z-indexes to overlap each other:
+    isolation: isolate;
   }
 
   .nav-icon {
