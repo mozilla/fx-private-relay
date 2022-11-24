@@ -75,6 +75,7 @@
 
 .string-filter {
   display: none;
+  position: relative;
 
   &.is-visible {
     display: block;
