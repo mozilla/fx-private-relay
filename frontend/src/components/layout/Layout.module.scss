@@ -273,6 +273,10 @@ $toastify-toast-close-button: var(--toast-close-button);
   }
 }
 
+.gray-bg {
+  background-color: $color-light-gray-10;
+}
+
 .footer {
   background-color: black;
   color: $color-white;
