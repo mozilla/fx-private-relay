@@ -1,5 +1,5 @@
 export const mockCookiesModule = {
-  getCookie: jest.fn((_key: string) => undefined),
+  getCookie: jest.fn<string | undefined, [string]>((_key) => undefined),
   setCookie: jest.fn((_key: string, _value: string) => {
     return;
   }),

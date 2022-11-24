@@ -30,14 +30,14 @@ export function useLocalDismissal(
   const cookieId = key + "_dismissed";
 
   const [isDismissed, setIsDismissed] = useState(
-    hasDismissedCookie(cookieId, options)
+    hasDismissedCookie(cookieId, options.duration)
   );
 
   // Whenever `key` (and therefore `cookieId`) changes, re-check the appropriate
   // cookie.
   useEffect(() => {
-    setIsDismissed(hasDismissedCookie(cookieId, options));
-  }, [cookieId, options]);
+    setIsDismissed(hasDismissedCookie(cookieId, options.duration));
+  }, [cookieId, options.duration]);
 
   const dismiss = (dismissOptions?: DismissOptions) => {
     const maxAgeInSeconds =
@@ -58,10 +58,7 @@ export function useLocalDismissal(
   };
 }
 
-function hasDismissedCookie(
-  cookieId: string,
-  options: DismissalOptions
-): boolean {
+function hasDismissedCookie(cookieId: string, duration?: number): boolean {
   const dismissalCookieValue = getCookie(cookieId);
   const dismissalTimeStamp = dismissalCookieValue
     ? Number.parseInt(dismissalCookieValue, 10)
@@ -71,9 +68,9 @@ function hasDismissedCookie(
     // To be dismissed, the cookie has to be set, and either...
     typeof dismissalTimeStamp === "number" &&
     //   ...the dismissal should not be limited in duration, or...
-    (typeof options.duration !== "number" ||
+    (typeof duration !== "number" ||
       //   ...the dismissal was long enough ago:
-      Date.now() - dismissalTimeStamp <= options.duration * 1000);
+      Date.now() - dismissalTimeStamp <= duration * 1000);
 
   return wasDismissedBefore;
 }
