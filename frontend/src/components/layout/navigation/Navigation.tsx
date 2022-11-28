@@ -20,10 +20,10 @@ import { isFlagActive } from "../../../functions/waffle";
 export type Props = {
   theme: "free" | "premium";
   hasPremium: boolean;
-  mobileMenuExpanded: boolean | undefined;
   handleToggle: CallableFunction;
-  profile: ProfileData | undefined;
   isLoggedIn: boolean;
+  mobileMenuExpanded?: boolean;
+  profile?: ProfileData;
 };
 /** Switch between the different pages of the Relay website. */
 export const Navigation = (props: Props) => {
