@@ -2,16 +2,9 @@ import { useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
-import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
-import { ProfileData } from "../../hooks/api/profile";
 
-export type Props = {
-  profile: ProfileData;
-  runtimeData?: RuntimeData;
-};
-
-export const PremiumPromoBanners = (props: Props) => {
+export const PremiumPromoBanners = () => {
   const banners: ReactNode[] = [];
 
   banners.push(<StopSpamBanner key="stop-spam-premium-banner" />);
