@@ -4,9 +4,18 @@ mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
 exclude = "env"
 python_version = "3.9"
 show_error_codes = true
-warn_return_any = true
-warn_unused_configs = true
-warn_unused_ignores = true
+strict = true
+
+# Disable these strict checks
+# Order is the recommended enabling order, from highest to lowest priority,
+# from mypy doc "Using mypy with an existing codebase"
+check_untyped_defs = false
+disallow_subclassing_any = false
+disallow_any_generics = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_untyped_defs = false
+no_implicit_reexport = false
 
 [tool.django-stubs]
 django_settings_module = "privaterelay.settings"

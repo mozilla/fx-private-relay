@@ -143,9 +143,9 @@ CSP_IMG_SRC = ["'self'"] + AVATAR_IMG_SRC
 REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 ALLOWED_HOSTS = []
-DJANGO_ALLOWED_HOST = config("DJANGO_ALLOWED_HOST", None)
-if DJANGO_ALLOWED_HOST:
-    ALLOWED_HOSTS += DJANGO_ALLOWED_HOST.split(",")
+DJANGO_ALLOWED_HOSTS = config("DJANGO_ALLOWED_HOST", "", cast=Csv())
+if DJANGO_ALLOWED_HOSTS:
+    ALLOWED_HOSTS += DJANGO_ALLOWED_HOSTS
 DJANGO_ALLOWED_SUBNET = config("DJANGO_ALLOWED_SUBNET", None)
 if DJANGO_ALLOWED_SUBNET:
     ALLOWED_HOSTS += [str(ip) for ip in ipaddress.IPv4Network(DJANGO_ALLOWED_SUBNET)]
@@ -310,9 +310,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "emails.context_processors.relay_from_domain",
-                "privaterelay.context_processors.django_settings",
-                "privaterelay.context_processors.common",
             ],
         },
     },
@@ -620,9 +617,11 @@ BUNDLE_PLAN_COUNTRY_LANG_MAPPING = {
     },
 }
 
-SUBSCRIPTIONS_WITH_UNLIMITED = config("SUBSCRIPTIONS_WITH_UNLIMITED", default="")
-SUBSCRIPTIONS_WITH_PHONE = config("SUBSCRIPTIONS_WITH_PHONE", default="")
-SUBSCRIPTIONS_WITH_VPN = config("SUBSCRIPTIONS_WITH_VPN", default="")
+SUBSCRIPTIONS_WITH_UNLIMITED = config(
+    "SUBSCRIPTIONS_WITH_UNLIMITED", default="", cast=Csv()
+)
+SUBSCRIPTIONS_WITH_PHONE = config("SUBSCRIPTIONS_WITH_PHONE", default="", cast=Csv())
+SUBSCRIPTIONS_WITH_VPN = config("SUBSCRIPTIONS_WITH_VPN", default="", cast=Csv())
 
 MAX_ONBOARDING_AVAILABLE = config("MAX_ONBOARDING_AVAILABLE", 0, cast=int)
 
