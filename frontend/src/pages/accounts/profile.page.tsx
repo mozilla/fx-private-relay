@@ -360,7 +360,11 @@ const Profile: NextPage = () => {
 
   const banners = (
     <section className={styles["banners-wrapper"]}>
-      <PremiumPromoBanners profile={profile} runtimeData={runtimeData.data} />
+      {!profile.has_premium &&
+      isPeriodicalPremiumAvailableInCountry(runtimeData.data) &&
+      isFlagActive(runtimeData.data, "premium_promo_banners") ? (
+        <PremiumPromoBanners profile={profile} runtimeData={runtimeData.data} />
+      ) : null}
       <ProfileBanners
         profile={profile}
         user={user}

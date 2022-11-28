@@ -4,9 +4,7 @@ import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
 import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
-import { isPeriodicalPremiumAvailableInCountry } from "../../functions/getPlan";
 import { ProfileData } from "../../hooks/api/profile";
-import { isFlagActive } from "../../functions/waffle";
 
 export type Props = {
   profile: ProfileData;
@@ -16,22 +14,12 @@ export type Props = {
 export const PremiumPromoBanners = (props: Props) => {
   const banners: ReactNode[] = [];
 
-  if (
-    !props.profile.has_premium &&
-    isPeriodicalPremiumAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "premium_promo_banners")
-  ) {
-    banners.push(<StopSpamBanner key="stop-spam-premium-banner" />);
-    banners.push(
-      <AdvancedIdentityBanner key="advanced-identity-premium-banner" />
-    );
-    banners.push(
-      <ControlReceiverBanner key="control-receiver-premium-banner" />
-    );
-    banners.push(
-      <ExtraProtectionBanner key="extra-protection-premium-banner" />
-    );
-  }
+  banners.push(<StopSpamBanner key="stop-spam-premium-banner" />);
+  banners.push(
+    <AdvancedIdentityBanner key="advanced-identity-premium-banner" />
+  );
+  banners.push(<ControlReceiverBanner key="control-receiver-premium-banner" />);
+  banners.push(<ExtraProtectionBanner key="extra-protection-premium-banner" />);
 
   return <div className={styles["profile-banners"]}>{banners}</div>;
 };
