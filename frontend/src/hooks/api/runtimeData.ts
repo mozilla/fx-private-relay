@@ -11,7 +11,8 @@ export type FlagNames =
   | "bundle"
   | "phone_launch_survey"
   | "multi_replies"
-  | "firefox_integration";
+  | "firefox_integration"
+  | "premium_promo_banners";
 type WaffleFlag = [FlagNames, boolean];
 
 export type PlanData = {

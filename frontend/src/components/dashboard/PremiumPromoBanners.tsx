@@ -6,6 +6,7 @@ import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { isPeriodicalPremiumAvailableInCountry } from "../../functions/getPlan";
 import { ProfileData } from "../../hooks/api/profile";
+import { isFlagActive } from "../../functions/waffle";
 
 export type Props = {
   profile: ProfileData;
@@ -17,7 +18,8 @@ export const PremiumPromoBanners = (props: Props) => {
 
   if (
     !props.profile.has_premium &&
-    isPeriodicalPremiumAvailableInCountry(props.runtimeData)
+    isPeriodicalPremiumAvailableInCountry(props.runtimeData) &&
+    isFlagActive(props.runtimeData, "premium_promo_banners")
   ) {
     banners.push(<StopSpamBanner key="stop-spam-premium-banner" />);
     banners.push(
