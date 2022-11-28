@@ -71,7 +71,7 @@ export function getMockRuntimeDataWithPhones(): RuntimeData {
     PHONE_PLANS: getAvailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
-    WAFFLE_FLAGS: [],
+    WAFFLE_FLAGS: [["phones", true]],
   };
 }
 export function getMockRuntimeDataWithPeriodicalPremium(): RuntimeData {
@@ -86,7 +86,10 @@ export function getMockRuntimeDataWithPeriodicalPremium(): RuntimeData {
     PHONE_PLANS: getUnavailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
-    WAFFLE_FLAGS: [],
+    WAFFLE_FLAGS: [
+      ["phones", true],
+      ["bundle", true],
+    ],
   };
 }
 export function getMockRuntimeDataWithoutPremium(): RuntimeData {
