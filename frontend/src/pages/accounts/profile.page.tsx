@@ -363,7 +363,7 @@ const Profile: NextPage = () => {
       {!profile.has_premium &&
       isPeriodicalPremiumAvailableInCountry(runtimeData.data) &&
       isFlagActive(runtimeData.data, "premium_promo_banners") ? (
-        <PremiumPromoBanners profile={profile} runtimeData={runtimeData.data} />
+        <PremiumPromoBanners />
       ) : null}
       <ProfileBanners
         profile={profile}
