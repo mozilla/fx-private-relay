@@ -40,7 +40,18 @@ export const Navigation = (props: Props) => {
   } = props;
   const isPremiumPage = router.pathname === "/premium";
 
-  const homeLink = isLoggedIn ? (
+  const landingLink = (
+    <Link href="/">
+      <a
+        className={`${styles.link} ${styles["home-link"]} 
+          ${styles["hidden-mobile"]} 
+          ${router.pathname === "/" ? styles["is-active"] : ""}`}
+      >
+        {l10n.getString("nav-home")}
+      </a>
+    </Link>
+  );
+  const emailDashboardLink = (
     <Link href="/accounts/profile">
       <a
         className={`${styles.link} ${styles["home-link"]} 
@@ -50,16 +61,6 @@ export const Navigation = (props: Props) => {
           }`}
       >
         {l10n.getString("nav-email-dashboard")}
-      </a>
-    </Link>
-  ) : (
-    <Link href="/">
-      <a
-        className={`${styles.link} ${styles["home-link"]} 
-          ${styles["hidden-mobile"]} 
-          ${router.pathname === "/" ? styles["is-active"] : ""}`}
-      >
-        {l10n.getString("nav-home")}
       </a>
     </Link>
   );
@@ -92,7 +93,7 @@ export const Navigation = (props: Props) => {
 
   return (
     <nav className={styles["site-nav"]}>
-      {homeLink}
+      {isLoggedIn ? emailDashboardLink : landingLink}
 
       {phoneLink}
 
