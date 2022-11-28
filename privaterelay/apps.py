@@ -4,6 +4,7 @@ import os
 
 from django.apps import AppConfig
 from django.conf import settings
+from django.utils.functional import cached_property
 
 
 ROOT_DIR = os.path.abspath(os.curdir)
@@ -12,16 +13,20 @@ ROOT_DIR = os.path.abspath(os.curdir)
 class PrivateRelayConfig(AppConfig):
     name = "privaterelay"
 
-    def __init__(self, app_name, app_module):
-        super(PrivateRelayConfig, self).__init__(app_name, app_module)
-        self.fxa_verifying_keys: list[dict[str, Any]] = []
-
-    def ready(self):
+    def ready(self) -> None:
         import privaterelay.signals  # noqa: F401
 
+        try:
+            del self.fxa_verifying_keys  # Clear cache
+        except AttributeError:
+            pass
+
+    @cached_property
+    def fxa_verifying_keys(self) -> list[dict[str, Any]]:
         resp = requests.get(
             "%s/jwks" % settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]
         )
         if resp.status_code == 200:
-            resp_json = resp.json()
-            self.fxa_verifying_keys = resp_json["keys"]
+            keys: list[dict[str, Any]] = resp.json()["keys"]
+            return keys
+        return []

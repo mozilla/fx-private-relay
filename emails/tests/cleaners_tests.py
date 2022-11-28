@@ -13,8 +13,9 @@ from .models_tests import make_premium_test_user, make_storageless_test_user
 
 
 def setup_server_storage_test_data(
-    add_user_without_storage=False, add_server_data_for_user_without_storage=False
-):
+    add_user_without_storage: bool = False,
+    add_server_data_for_user_without_storage: bool = False,
+) -> None:
     """Setup users and addresses for testing."""
 
     # Create a user with server storage and addresses
