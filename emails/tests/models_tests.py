@@ -71,8 +71,12 @@ def make_storageless_test_user():
     return storageless_user
 
 
+def unlimited_subscription():
+    return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+
+
 def upgrade_test_user_to_premium(user):
-    random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
+    random_sub = unlimited_subscription()
     baker.make(
         SocialAccount,
         user=user,
@@ -450,36 +454,33 @@ class ProfileTest(TestCase):
 
     def test_has_premium_with_unlimited_subsription_returns_True(self):
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         assert premium_user.profile.has_premium is True
 
     def test_add_subdomain_to_new_unlimited_profile(self):
         subdomain = "newpremium"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         assert premium_profile.add_subdomain(subdomain) == subdomain
 
     def test_setting_direct_Profile_subdomain_lowercases_subdomain_value(self):
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.subdomain = "mIxEdcAsE"
@@ -489,12 +490,11 @@ class ProfileTest(TestCase):
     def test_add_subdomain_lowercases_subdomain_value(self):
         subdomain = "mIxEdcAsE"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         assert premium_profile.add_subdomain(subdomain) == "mixedcase"
@@ -512,12 +512,11 @@ class ProfileTest(TestCase):
     def test_add_subdomain_to_unlimited_profile_with_subdomain_raises_exception(self):
         subdomain = "test"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.subdomain = subdomain
@@ -535,12 +534,11 @@ class ProfileTest(TestCase):
     ):
         subdomain = "angry"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
 
@@ -556,12 +554,11 @@ class ProfileTest(TestCase):
     ):
         subdomain = "mozilla"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
 
@@ -582,12 +579,11 @@ class ProfileTest(TestCase):
 
     def test_subdomain_available_taken_returns_False(self):
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain("thisisfine")
@@ -596,12 +592,11 @@ class ProfileTest(TestCase):
 
     def test_subdomain_available_taken_returns_False_case_insensitive(self):
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain("thIsIsfInE")
@@ -612,12 +607,11 @@ class ProfileTest(TestCase):
         # subdomains registered in now deleted profiles are considered
         # inactive subdomains
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain("thisisfine")
@@ -1068,12 +1062,11 @@ class DomainAddressTest(TestCase):
 
     def test_make_domain_address_valid_premium_user_with_no_subdomain(self) -> None:
         user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         user_profile = Profile.objects.get(user=user)
         with pytest.raises(CannotMakeAddressException) as exc_info:
