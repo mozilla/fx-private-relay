@@ -82,3 +82,6 @@ phone-masking-faq-answer-data = Please see the <a href="{ $url }" { $attrs }>{ -
 
 tips-multi-replies-heading = Reply to any text with your phone mask
 tips-multi-replies-content = Just start your message with the last 4 digits of that sender’s number.
+
+phone-masking-splash-save-contact-example = Saving your { -brand-name-relay } Contact
+phone-masking-splash-save-contact-example-text = { -brand-name-firefox-relay }
