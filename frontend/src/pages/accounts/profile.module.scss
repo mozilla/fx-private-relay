@@ -206,6 +206,12 @@
   padding: 0 $spacing-md;
 }
 
+.banners-wrapper {
+  gap: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+}
+
 .no-premium-header {
   padding-top: $spacing-xl;
 }
