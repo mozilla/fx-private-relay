@@ -27,6 +27,10 @@
         color: $color-green-80;
       }
 
+      &.is-non-global {
+        text-decoration: line-through;
+      }
+
       td {
         display: flex;
         align-items: center;

@@ -58,6 +58,20 @@ const Flags: NextPage = () => {
     }
 
     const enable = actionInput === "enable";
+    const existingFlag = flags.find((flag) => flag.name === flagInput);
+
+    if (existingFlag?.everyone === null) {
+      toast(
+        <>
+          The flag <output>{flagInput}</output> already has a non-global value,
+          and therefore cannot be {enable ? "enabled" : "disabled"} for
+          everyone.
+        </>,
+        { type: "error" }
+      );
+      return;
+    }
+
     const response = await createOrUpdate(flagInput, enable);
     flagData.mutate();
     if (response.ok) {
@@ -99,7 +113,11 @@ const Flags: NextPage = () => {
               <tr
                 key={flag.name}
                 className={
-                  flag.everyone ? styles["is-active"] : styles["is-inactive"]
+                  flag.everyone === null
+                    ? styles["is-non-global"]
+                    : flag.everyone
+                    ? styles["is-active"]
+                    : styles["is-inactive"]
                 }
               >
                 <td>
