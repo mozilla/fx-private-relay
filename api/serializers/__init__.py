@@ -159,6 +159,7 @@ class FlagSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "everyone",
+            "note",
         ]
         read_only_fields = [
             "id",

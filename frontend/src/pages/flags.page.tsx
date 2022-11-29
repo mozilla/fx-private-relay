@@ -154,7 +154,7 @@ const Flags: NextPage = () => {
   );
 };
 
-type Flag = { id: number; name: string; everyone: boolean };
+type Flag = { id: number; name: string; everyone: boolean; note: string };
 function useFlagData() {
   const flagData: SWRResponse<Flag[], unknown> = useApiV1("/flags/");
   return flagData;
