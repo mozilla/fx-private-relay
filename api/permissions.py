@@ -2,6 +2,8 @@ from rest_framework import permissions
 
 from emails.models import Profile
 
+from waffle import flag_is_active
+
 
 READ_METHODS = ["GET", "HEAD"]
 
@@ -25,3 +27,10 @@ class HasPhoneService(permissions.BasePermission):
             return True
         profile = Profile.objects.get(user=request.user)
         return profile.has_phone
+
+
+class CanManageFlags(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return flag_is_active(request, "manage_flags") and request.user.email.endswith(
+            "@mozilla.com"
+        )
