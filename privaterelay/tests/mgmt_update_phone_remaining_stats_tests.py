@@ -35,7 +35,20 @@ def test_no_accounts_with_phones(db):
     update_phone_remaining_stats()
 
 
-def test_one_account_with_phones_checked_1_day_ago(phone_user):
+def test_one_account_with_phones_subscribed_3_day_ago_does_not_update_stats(phone_user):
+    profile = Profile.objects.get(user=phone_user)
+    datetime_now = datetime.now(timezone.utc)
+    profile.date_subscribed_phone = datetime_now - timedelta(3)
+    profile.save()
+
+    updated_profiles = update_phone_remaining_stats()
+
+    profile.refresh_from_db()
+    assert profile.date_phone_subscription_checked == None
+    assert len(updated_profiles) == 0
+
+
+def test_one_account_with_phones_checked_1_day_ago_does_not_update_stats(phone_user):
     profile = Profile.objects.get(user=phone_user)
     pre_update_datetime = datetime.now(timezone.utc) - timedelta(1)
     profile.date_phone_subscription_checked = pre_update_datetime

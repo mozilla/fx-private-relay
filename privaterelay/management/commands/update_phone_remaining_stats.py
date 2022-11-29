@@ -23,6 +23,13 @@ def update_phone_remaining_stats():
     updated_profiles = []
     for social_account in accounts_with_phones:
         profile = social_account.user.profile
+        if not profile.date_phone_subscription_checked:
+            first_billing_date = profile.date_subscribed_phone + timedelta(
+                settings.DAYS_PER_BILLING_CYCLE
+            )
+            if datetime.now(timezone.utc) < first_billing_date:
+                # Not yet billing cycle, ignore updating phone stats
+                continue
         # Has it been more than 30 days since we last checked the user's phone
         # subscription?
         if (
