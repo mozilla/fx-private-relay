@@ -13,7 +13,7 @@ from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from waffle import get_waffle_flag_model, flag_is_active
+from waffle import get_waffle_flag_model
 from waffle.models import Switch, Sample
 from rest_framework import (
     decorators,
@@ -38,7 +38,7 @@ from emails.models import (
 
 
 from ..exceptions import ConflictError, RelayAPIException
-from ..permissions import IsOwner
+from ..permissions import IsOwner, CanManageFlags
 from ..serializers import (
     DomainAddressSerializer,
     ProfileSerializer,
@@ -210,25 +210,18 @@ class FlagFilter(filters.FilterSet):
 
 class FlagViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = FlagSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, CanManageFlags]
     filterset_class = FlagFilter
 
     def get_queryset(self):
-        if not flag_is_active(
-            self.request, "manage_flags"
-        ) or not self.request.user.email.endswith("@mozilla.com"):
-            # TODO: Raise a proper 403 Forbidden error
-            raise RelayAPIException()
         flags = get_waffle_flag_model().objects
         return flags
 
     def perform_create(self, serializer):
-        if (
-            not flag_is_active(self.request, "manage_flags")
-            or not self.request.user.email.endswith("@mozilla.com")
-            or serializer.validated_data["name"] == "manage_flags"
-        ):
-            # TODO: Raise a proper 403 Forbidden error
+        if serializer.validated_data["name"] == "manage_flags":
+            # TODO: Raise a proper 400 Bad Request error - the only flag the
+            #       user can't modify is `manage_flags`, as that could allow
+            #       them to allow others to manage flags.
             raise RelayAPIException()
         try:
             serializer.save()
