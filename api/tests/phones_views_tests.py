@@ -1500,6 +1500,13 @@ _match_by_prefix_tests: dict[str, MatchByPrefixParams] = {
         "+13025550001",
         ["+13025550001"],
     ),
+    "e.164, double colon": (
+        "+13025550001 :: the message",
+        "full",
+        "+13025550001 :",
+        "+13025550001",
+        ["+13025550001"],
+    ),
     "e.164, dash": (
         "+13035550001 - the message",
         "full",
