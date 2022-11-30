@@ -44,7 +44,7 @@ from phones.models import (
     twilio_client,
 )
 
-from ..exceptions import ConflictError
+from ..exceptions import ConflictError, ErrorContextType
 from ..permissions import HasPhoneService
 from ..renderers import (
     TemplateTwiMLRenderer,
@@ -491,7 +491,19 @@ def inbound_sms(request):
     _check_remaining(relay_number, "texts")
 
     if inbound_from == real_phone.number:
-        _handle_sms_reply(relay_number, real_phone, inbound_body)
+        try:
+            _handle_sms_reply(relay_number, real_phone, inbound_body)
+        except RelaySMSException as sms_exception:
+            # TODO: translate error message to user's language
+            twilio_client().messages.create(
+                from_=relay_number.number,
+                body=sms_exception.detail,
+                to=real_phone.number,
+            )
+            if sms_exception.critical:
+                raise exceptions.ValidationError(
+                    sms_exception.detail
+                ) from sms_exception
         return response.Response(
             status=200,
             template_name="twiml_empty_response.xml",
@@ -626,86 +638,165 @@ def _get_phone_objects(inbound_to):
     return relay_number, real_phone
 
 
+class RelaySMSException(Exception):
+    """
+    Base class for exceptions when handling SMS messages.
+
+    Modeled after restframework.APIExcpetion, but without a status_code.
+    """
+
+    critical: bool
+    default_code: str
+    default_detail: Optional[str] = None
+    default_detail_template: Optional[str] = None
+
+    def __init__(self, critical=False, *args, **kwargs):
+        self.critical = critical
+        assert (
+            self.default_detail is not None and self.default_detail_template is None
+        ) or (self.default_detail is None and self.default_detail_template is not None)
+        super().__init__(*args, **kwargs)
+
+    @property
+    def detail(self):
+        if self.default_detail:
+            return self.default_detail
+        else:
+            return self.default_detail_template.format(**self.error_context())
+
+    def get_codes(self):
+        return self.default_code
+
+    def error_context(self) -> ErrorContextType:
+        """Return context variables for client-side translation."""
+        return {}
+
+
+class NoPhoneLog(RelaySMSException):
+    default_code = "no_phone_log"
+    default_detail_template = (
+        "You can only reply if you allow Firefox Relay to keep a log of your callers"
+        " and text senders. {origin}/accounts/settings/"
+    )
+
+    def error_context(self) -> ErrorContextType:
+        return {"origin": settings.SITE_ORIGIN or ""}
+
+
+class NoPreviousSender(RelaySMSException):
+    default_code = "no_previous_sender"
+    default_detail = "Message failed to send. Could not find a previous text sender."
+
+
+class ShortPrefixException(RelaySMSException):
+    """Base exception for short prefix exceptions"""
+
+    def __init__(self, short_prefix: str, *args, **kwargs):
+        self.short_prefix = short_prefix
+        super().__init__(*args, **kwargs)
+
+    def error_context(self) -> ErrorContextType:
+        return {"short_prefix": self.short_prefix}
+
+
+class FullNumberException(RelaySMSException):
+    """Base exception for full number exceptions"""
+
+    def __init__(self, full_number: str, *args, **kwargs):
+        self.full_number = full_number
+        super().__init__(*args, **kwargs)
+
+    def error_context(self) -> ErrorContextType:
+        return {"full_number": self.full_number}
+
+
+class NoShortPrefixMatch(ShortPrefixException):
+    default_code = "no_short_prefix_match"
+    default_detail_template = (
+        "Message failed to send. There is no phone number in this thread ending"
+        " in {short_prefix}. Please check the number and try again."
+    )
+
+
+class NoFullNumberMatch(FullNumberException):
+    default_code = "no_full_number_match"
+    default_detail_template = (
+        "Message failed to send. There is no previous sender with the phone"
+        " number {full_number}. Please check the number and try again."
+    )
+
+
+class MultiplePhoneMatches(ShortPrefixException):
+    default_code = "multiple_phone_matches"
+    default_detail_template = (
+        "Message failed to send. There is more than one phone number in this"
+        " thread ending in {short_prefix}. To retry, start your message with"
+        " the complete number."
+    )
+
+
+class NoBodyAfterShortPrefix(ShortPrefixException):
+    default_code = "no_body_after_short_prefix"
+    default_detail_template = (
+        "Message failed to send. Please include a message after the sender identifier"
+        " {short_prefix}."
+    )
+
+
+class NoBodyAfterFullNumber(FullNumberException):
+    default_code = "no_body_after_full_number"
+    default_detail_template = (
+        "Message failed to send. Please include a message after the phone number"
+        " {full_number}."
+    )
+
+
 def _handle_sms_reply(
     relay_number: RelayNumber, real_phone: RealPhone, inbound_body: str
 ) -> None:
     incr_if_enabled("phones_handle_sms_reply")
-    client = twilio_client()
     if not relay_number.storing_phone_log:
-        # We do not store contacts in our database
-        origin = settings.SITE_ORIGIN
-        error = (
-            "You can only reply if you allow Firefox Relay to keep a log of your"
-            f" callers and text senders. {origin}/accounts/settings/"
-        )
-        client.messages.create(
-            from_=relay_number.number,
-            body=error,
-            to=real_phone.number,
-        )
-        raise exceptions.ValidationError(error)
+        # We do not store user's contacts in our database
+        raise NoPhoneLog(critical=True)
 
     match = _match_senders(relay_number, inbound_body)
     if match.match_type is None:
         # No previous contacts to reply to
-        error = "Message failed to send. Could not find a previous text sender."
-        client.messages.create(
-            from_=relay_number.number,
-            body=error,
-            to=real_phone.number,
-        )
-        raise exceptions.ValidationError(error)
+        raise NoPreviousSender(critical=True)
 
     prefix_error: Optional[str] = None
+    if not match.contacts and match.match_type == "short":
+        # Found a short prefix, but no matching contact
+        assert match.detected
+        raise NoShortPrefixMatch(short_prefix=match.detected)
     if not match.contacts:
-        # Found a short code or full number, but no matching contact
-        assert match.match_type in {"short", "full"}
-        if match.match_type == "short":
-            prefix_error = (
-                "Message failed to send. There is no phone number in this thread ending"
-                f" in {match.detected}. Please check the number and try again."
-            )
-        else:
-            prefix_error = (
-                "Message failed to send. There is no previous sender with the phone"
-                f" number {match.detected}. Please check the number and try again."
-            )
+        assert match.match_type == "full"
+        assert match.detected
+        raise NoFullNumberMatch(full_number=match.detected)
+
     if len(match.contacts) > 1:
         # A short code matches multiple contacts
         assert match.match_type == "short"
-        prefix_error = (
-            "Message failed to send. There is more than one phone number in this"
-            f" thread ending in {match.detected}. To retry, start your message with"
-            " the complete number."
-        )
+        assert match.detected
+        raise MultiplePhoneMatches(short_prefix=match.detected)
 
-    if match.prefix and not prefix_error:
+    if match.prefix:
         body = inbound_body.removeprefix(match.prefix)
-        if not body:
-            # The short code or full number matches a contact, but no following message
-            if match.match_type == "short":
-                prefix_error = (
-                    "Message failed to send. Please include a message after the"
-                    f" sender identifier {match.detected}."
-                )
-            else:
-                prefix_error = (
-                    "Message failed to send. Please include a message after the"
-                    f" phone number {match.detected}."
-                )
     else:
         body = inbound_body
 
-    # Soft failure, suggest next action to user
-    if prefix_error:
-        client.messages.create(
-            from_=relay_number.number,
-            body=prefix_error,
-            to=real_phone.number,
-        )
-        return
+    if match.prefix and not body and match.match_type == "short":
+        # There was no message after a matching short prefix
+        assert match.detected
+        raise NoBodyAfterShortPrefix(short_prefix=match.detected)
+    if match.prefix and not body:
+        # There was no message after a matching full number
+        assert match.match_type == "full"
+        assert match.detected
+        raise NoBodyAfterFullNumber(full_number=match.detected)
 
     # Success, send the relayed reply
+    client = twilio_client()
     incr_if_enabled("phones_send_sms_reply")
     client.messages.create(
         from_=relay_number.number,
