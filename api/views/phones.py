@@ -710,24 +710,24 @@ class FullNumberException(RelaySMSException):
         return {"full_number": self.full_number}
 
 
-class NoShortPrefixMatch(ShortPrefixException):
-    default_code = "no_short_prefix_match"
+class ShortPrefixMatchesNoSenders(ShortPrefixException):
+    default_code = "short_prefix_matches_no_senders"
     default_detail_template = (
         "Message failed to send. There is no phone number in this thread ending"
         " in {short_prefix}. Please check the number and try again."
     )
 
 
-class NoFullNumberMatch(FullNumberException):
-    default_code = "no_full_number_match"
+class FullNumberMatchesNoSenders(FullNumberException):
+    default_code = "full_number_matches_no_senders"
     default_detail_template = (
         "Message failed to send. There is no previous sender with the phone"
         " number {full_number}. Please check the number and try again."
     )
 
 
-class MultiplePhoneMatches(ShortPrefixException):
-    default_code = "multiple_phone_matches"
+class MultipleNumberMatches(ShortPrefixException):
+    default_code = "multiple_number_matches"
     default_detail_template = (
         "Message failed to send. There is more than one phone number in this"
         " thread ending in {short_prefix}. To retry, start your message with"
@@ -759,42 +759,43 @@ def _handle_sms_reply(
         # We do not store user's contacts in our database
         raise NoPhoneLog(critical=True)
 
-    # Determine the destination number
     match = _match_senders_by_prefix(relay_number, inbound_body)
+
+    # Fail if prefix match is ambiguous
+    if match and not match.contacts and match.match_type == "short":
+        raise ShortPrefixMatchesNoSenders(short_prefix=match.detected)
+    if match and not match.contacts and match.match_type == "full":
+        raise FullNumberMatchesNoSenders(full_number=match.detected)
+    if match and len(match.contacts) > 1:
+        assert match.match_type == "short"
+        raise MultipleNumberMatches(short_prefix=match.detected)
+
+    # Determine the destination number
+    destination_number: Optional[str] = None
     if match:
-        # Found a prefix
-        if not match.contacts:
-            # The prefix does not match any contacts
-            if match.match_type == "short":
-                raise NoShortPrefixMatch(short_prefix=match.detected)
-            else:
-                raise NoFullNumberMatch(full_number=match.detected)
-
-        if len(match.contacts) > 1:
-            # A short code matches multiple contacts
-            assert match.match_type == "short"
-            raise MultiplePhoneMatches(short_prefix=match.detected)
-
+        # Use the sender matched by the prefix
+        assert len(match.contacts) == 1
         destination_number = match.contacts[0].inbound_number
     else:
-        # No prefix, default to last sender
+        # No prefix, default to last sender if any
         last_sender = get_last_text_sender(relay_number)
-        if not last_sender:
-            # No previous contacts to reply to
-            raise NoPreviousSender(critical=True)
-        destination_number = last_sender.inbound_number
+        destination_number = getattr(last_sender, "inbound_number", None)
+
+    # Fail if no last sender
+    if destination_number is None:
+        raise NoPreviousSender(critical=True)
 
     # Determine the message body
     if match:
         body = inbound_body.removeprefix(match.prefix)
-        if not body:
-            # No message was found after a matching prefix
-            if match.match_type == "short":
-                raise NoBodyAfterShortPrefix(short_prefix=match.detected)
-            else:
-                raise NoBodyAfterFullNumber(full_number=match.detected)
     else:
         body = inbound_body
+
+    # Fail if the prefix matches a sender, but there is no body to send
+    if match and not body and match.match_type == "short":
+        raise NoBodyAfterShortPrefix(short_prefix=match.detected)
+    if match and not body and match.match_type == "full":
+        raise NoBodyAfterFullNumber(full_number=match.detected)
 
     # Success, send the relayed reply
     client = twilio_client()
