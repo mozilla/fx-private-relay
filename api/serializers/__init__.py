@@ -165,6 +165,16 @@ class FlagSerializer(serializers.ModelSerializer):
             "id",
         ]
 
+    def validate(self, data):
+        if (data.get("name", "").lower() == "manage_flags") or (
+            hasattr(self, "instance")
+            and getattr(self.instance, "name", "").lower() == "manage_flags"
+        ):
+            raise serializers.ValidationError(
+                "Changing the `manage_flags` flag is not allowed."
+            )
+        return super().validate(data)
+
 
 class WebcompatIssueSerializer(serializers.Serializer):
     issue_on_domain = serializers.URLField(
