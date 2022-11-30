@@ -759,50 +759,47 @@ def _handle_sms_reply(
         # We do not store user's contacts in our database
         raise NoPhoneLog(critical=True)
 
-    match = _match_senders(relay_number, inbound_body)
-    if match.match_type is None:
-        # No previous contacts to reply to
-        raise NoPreviousSender(critical=True)
+    # Determine the destination number
+    match = _match_senders_by_prefix(relay_number, inbound_body)
+    if match:
+        # Found a prefix
+        if not match.contacts:
+            # The prefix does not match any contacts
+            if match.match_type == "short":
+                raise NoShortPrefixMatch(short_prefix=match.detected)
+            else:
+                raise NoFullNumberMatch(full_number=match.detected)
 
-    prefix_error: Optional[str] = None
-    if not match.contacts and match.match_type == "short":
-        # Found a short prefix, but no matching contact
-        assert match.detected
-        raise NoShortPrefixMatch(short_prefix=match.detected)
-    if not match.contacts:
-        assert match.match_type == "full"
-        assert match.detected
-        raise NoFullNumberMatch(full_number=match.detected)
+        if len(match.contacts) > 1:
+            # A short code matches multiple contacts
+            assert match.match_type == "short"
+            raise MultiplePhoneMatches(short_prefix=match.detected)
 
-    if len(match.contacts) > 1:
-        # A short code matches multiple contacts
-        assert match.match_type == "short"
-        assert match.detected
-        raise MultiplePhoneMatches(short_prefix=match.detected)
+        destination_number = match.contacts[0].inbound_number
+    else:
+        # No prefix, default to last sender
+        last_sender = get_last_text_sender(relay_number)
+        if not last_sender:
+            # No previous contacts to reply to
+            raise NoPreviousSender(critical=True)
+        destination_number = last_sender.inbound_number
 
-    if match.prefix:
+    # Determine the message body
+    if match:
         body = inbound_body.removeprefix(match.prefix)
+        if not body:
+            # No message was found after a matching prefix
+            if match.match_type == "short":
+                raise NoBodyAfterShortPrefix(short_prefix=match.detected)
+            else:
+                raise NoBodyAfterFullNumber(full_number=match.detected)
     else:
         body = inbound_body
-
-    if match.prefix and not body and match.match_type == "short":
-        # There was no message after a matching short prefix
-        assert match.detected
-        raise NoBodyAfterShortPrefix(short_prefix=match.detected)
-    if match.prefix and not body:
-        # There was no message after a matching full number
-        assert match.match_type == "full"
-        assert match.detected
-        raise NoBodyAfterFullNumber(full_number=match.detected)
 
     # Success, send the relayed reply
     client = twilio_client()
     incr_if_enabled("phones_send_sms_reply")
-    client.messages.create(
-        from_=relay_number.number,
-        body=body,
-        to=match.contacts[0].inbound_number,
-    )
+    client.messages.create(from_=relay_number.number, body=body, to=destination_number)
     relay_number.remaining_texts -= 1
     relay_number.texts_forwarded += 1
     relay_number.save()
@@ -812,12 +809,12 @@ def _handle_sms_reply(
 class MatchByPrefix:
     """Details of parsing a text message for a prefix."""
 
-    # Was it matched by short code, full number, or last texter?
-    match_type: Optional[Literal["short", "full", "last"]] = None
-    # The prefix portion of the text message, empty string if no prefix
-    prefix: str = ""
-    # The detected short code or full number, or None if none detected
-    detected: Optional[str] = None
+    # Was it matched by short code or full number?
+    match_type: Literal["short", "full"]
+    # The prefix portion of the text message
+    prefix: str
+    # The detected short code or full number
+    detected: str
     # The matching numbers, as e.164 strings, empty if None
     numbers: list[str] = field(default_factory=list)
 
@@ -830,8 +827,15 @@ class MatchData(MatchByPrefix):
     contacts: list[InboundContact] = field(default_factory=list)
 
 
-def _match_senders(relay_number: RelayNumber, text: str) -> MatchData:
-    """Find the likely InboundContact(s) specified in the SMS text."""
+def _match_senders_by_prefix(
+    relay_number: RelayNumber, text: str
+) -> Optional[MatchData]:
+    """
+    Match a prefix to previous InboundContact(s).
+
+    If no prefix was found, returns None
+    If a prefix was found, a MatchData object has details and matching InboundContacts
+    """
     multi_replies_flag, _ = get_waffle_flag_model().objects.get_or_create(
         name="multi_replies",
         defaults={
@@ -856,17 +860,12 @@ def _match_senders(relay_number: RelayNumber, text: str) -> MatchData:
                 contacts_by_number[e164] = contact
 
         match = _match_by_prefix(text, set(contacts_by_number.keys()))
-        if match.match_type in {"short", "full"}:
+        if match:
             return MatchData(
                 contacts=[contacts_by_number[num] for num in match.numbers],
                 **asdict(match),
             )
-
-    last_text_sender = get_last_text_sender(relay_number)
-    if last_text_sender:
-        return MatchData(match_type="last", contacts=[last_text_sender])
-    else:
-        return MatchData(match_type=None)
+    return None
 
 
 _SMS_SHORT_PREFIX_RE = re.compile(
@@ -883,7 +882,7 @@ _SMS_SHORT_PREFIX_RE = re.compile(
 _SMS_SEPARATORS = set("-:/\\]|")  # Sync with SMS_SHORT_PREFIX_RE above
 
 
-def _match_by_prefix(text: str, candidates: set[str]) -> MatchByPrefix:
+def _match_by_prefix(text: str, candidates: set[str]) -> Optional[MatchByPrefix]:
     """
     Look for a prefix in a text message, and return a likely phone number match.
 
@@ -954,7 +953,7 @@ def _match_by_prefix(text: str, candidates: set[str]) -> MatchByPrefix:
         )
 
     # No prefix detected
-    return MatchByPrefix(match_type=None)
+    return None
 
 
 def _check_disabled(relay_number, contact_type):

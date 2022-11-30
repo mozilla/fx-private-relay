@@ -1429,14 +1429,13 @@ _match_by_prefix_candidates = set(
 
 MatchByPrefixParams = tuple[
     str,  # text message
-    Optional[Literal["short", "full"]],  # match_type
+    Literal["short", "full"],  # match_type
     str,  # prefix
-    Optional[str],  # detected number
+    str,  # detected number
     list[str],  # numbers
 ]
 
 _match_by_prefix_tests: dict[str, MatchByPrefixParams] = {
-    "no prefix": ("no prefix", None, "", None, []),
     "4 digits, no message": ("0000 ", "short", "0000 ", "0000", ["+13015550000"]),
     "4 digit multiple matches": (
         "0001 the message",
@@ -1544,9 +1543,6 @@ _match_by_prefix_tests: dict[str, MatchByPrefixParams] = {
         "0000",
         ["+13015550000"],
     ),
-    "3 digits is not a prefix": ("000 the message", None, "", None, []),
-    "digits with spaces is not a prefix": ("00 01 the message", None, "", None, []),
-    "letter + digits is not a prefix": ("x0000 the message", None, "", None, []),
     "e.164, no message": (
         "+13015550000",
         "full",
@@ -1638,7 +1634,6 @@ _match_by_prefix_tests: dict[str, MatchByPrefixParams] = {
         "+13015550000",
         ["+13015550000"],
     ),
-    "e.164 with extra num, no match": ("+130155500007 message", None, "", None, []),
     "Two e.164, first match": (
         "(301) 555-0000 +13045551301",
         "full",
@@ -1656,9 +1651,9 @@ _match_by_prefix_tests: dict[str, MatchByPrefixParams] = {
 )
 def test_match_by_prefix(
     text: str,
-    match_type: Optional[Literal["short", "full"]],
+    match_type: Literal["short", "full"],
     prefix: str,
-    detected: Optional[str],
+    detected: str,
     numbers: list[str],
 ) -> None:
     """_match_by_prefix returns the matching candidates and the detected prefix."""
@@ -1667,6 +1662,25 @@ def test_match_by_prefix(
         match_type=match_type, prefix=prefix, detected=detected, numbers=numbers
     )
     assert match == expected_match
+
+
+_match_by_prefix_no_match_tests: dict[str, str] = {
+    "no prefix": "no prefix",
+    "3 digits is not a prefix": "000 the message",
+    "digits with spaces is not a prefix": "00 01 the message",
+    "letter + digits is not a prefix": "x0000 the message",
+    "e.164 with extra num, no match": "+130155500007 message",
+}
+
+
+@pytest.mark.parametrize(
+    "text",
+    _match_by_prefix_no_match_tests.values(),
+    ids=list(_match_by_prefix_no_match_tests.keys()),
+)
+def test_match_by_prefix_no_match(text: str):
+    match = _match_by_prefix(text, _match_by_prefix_candidates)
+    assert match is None
 
 
 @pytest.mark.django_db
