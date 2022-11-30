@@ -883,20 +883,22 @@ _SMS_SHORT_PREFIX_RE = re.compile(
 _SMS_SEPARATORS = set("-:/\\]|")  # Sync with SMS_SHORT_PREFIX_RE above
 
 
-def _match_by_prefix(text: str, candidates: set[str]) -> Optional[MatchByPrefix]:
+def _match_by_prefix(text: str, candidate_numbers: set[str]) -> Optional[MatchByPrefix]:
     """
-    Look for a prefix in a text message, and return a likely phone number match.
+    Look for a prefix in a text message matching a set of candidate numbers.
 
     Arguments:
     * A SMS text message
     * A set of phone numbers in E.164 format
+
+    Return None if no prefix was found, or MatchByPrefix with likely match(es)
     """
-    # Gather potential countries, needed by PhoneNumberMatcher
-    countries = set()
-    for candidate in candidates:
-        pn = phonenumbers.parse(candidate)
+    # Gather potential region codes, needed by PhoneNumberMatcher
+    region_codes = set()
+    for candidate_number in candidate_numbers:
+        pn = phonenumbers.parse(candidate_number)
         if pn.country_code:
-            countries |= set(
+            region_codes |= set(
                 phonenumbers.region_codes_for_country_code(pn.country_code)
             )
 
@@ -904,14 +906,14 @@ def _match_by_prefix(text: str, candidates: set[str]) -> Optional[MatchByPrefix]
     #  PhoneNumberMatcher doesn't work well with a number directly followed by text,
     #  so just feed it the start of the message that _may_ be a number.
     msg_start = 0
-    maybe_phone = set(string.digits + string.punctuation + string.whitespace)
-    while msg_start < len(text) and text[msg_start] in maybe_phone:
+    phone_characters = set(string.digits + string.punctuation + string.whitespace)
+    while msg_start < len(text) and text[msg_start] in phone_characters:
         msg_start += 1
 
     # Does PhoneNumberMatcher detect a full number at start of message?
     text_to_match = text[:msg_start]
-    for country in countries:
-        for match in phonenumbers.PhoneNumberMatcher(text_to_match, country):
+    for region_code in region_codes:
+        for match in phonenumbers.PhoneNumberMatcher(text_to_match, region_code):
             e164 = phonenumbers.format_number(
                 match.number, phonenumbers.PhoneNumberFormat.E164
             )
@@ -931,7 +933,7 @@ def _match_by_prefix(text: str, candidates: set[str]) -> Optional[MatchByPrefix]
                     break
 
             prefix = text[:end]
-            if e164 in candidates:
+            if e164 in candidate_numbers:
                 numbers = [e164]
             else:
                 numbers = []
@@ -945,7 +947,7 @@ def _match_by_prefix(text: str, candidates: set[str]) -> Optional[MatchByPrefix]
         text_prefix = text_prefix_match.group(0)
         digits = set(string.digits)
         digit_suffix = "".join(digit for digit in text_prefix if digit in digits)
-        numbers = [e164 for e164 in candidates if e164[-4:] == digit_suffix]
+        numbers = [e164 for e164 in candidate_numbers if e164[-4:] == digit_suffix]
         return MatchByPrefix(
             match_type="short",
             prefix=text_prefix,
