@@ -143,6 +143,7 @@ const Flags: NextPage = () => {
               type="text"
               id="action"
               autoComplete="off"
+              pattern="(?!manage_flags)"
               required={true}
               placeholder={`e.g. \`${flags[0]?.name}\``}
               value={flagInput}
