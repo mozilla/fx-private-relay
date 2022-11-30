@@ -8,6 +8,7 @@ from django.db import IntegrityError
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
+from rest_framework.serializers import ValidationError
 
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
@@ -212,17 +213,23 @@ class FlagViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     serializer_class = FlagSerializer
     permission_classes = [permissions.IsAuthenticated, CanManageFlags]
     filterset_class = FlagFilter
+    http_method_names = ["get", "post", "head", "patch"]
 
     def get_queryset(self):
         flags = get_waffle_flag_model().objects
         return flags
 
     def perform_create(self, serializer):
-        if serializer.validated_data["name"] == "manage_flags":
-            # TODO: Raise a proper 400 Bad Request error - the only flag the
-            #       user can't modify is `manage_flags`, as that could allow
-            #       them to allow others to manage flags.
-            raise RelayAPIException()
+        if serializer.validated_data["name"].strip().lower() == "manage_flags":
+            raise ValidationError("Changing the `manage_flags` flag is not allowed.")
+        try:
+            serializer.save()
+        except IntegrityError as e:
+            raise ConflictError({"name": serializer.validated_data["name"]})
+
+    def perform_update(self, serializer):
+        if serializer.data["name"].strip().lower() == "manage_flags":
+            raise ValidationError("Changing the `manage_flags` flag is not allowed.")
         try:
             serializer.save()
         except IntegrityError as e:
