@@ -209,7 +209,7 @@ class FlagFilter(filters.FilterSet):
         ]
 
 
-class FlagViewSet(SaveToRequestUser, viewsets.ModelViewSet):
+class FlagViewSet(viewsets.ModelViewSet):
     serializer_class = FlagSerializer
     permission_classes = [permissions.IsAuthenticated, CanManageFlags]
     filterset_class = FlagFilter
@@ -218,22 +218,6 @@ class FlagViewSet(SaveToRequestUser, viewsets.ModelViewSet):
     def get_queryset(self):
         flags = get_waffle_flag_model().objects
         return flags
-
-    def perform_create(self, serializer):
-        if serializer.validated_data["name"].strip().lower() == "manage_flags":
-            raise ValidationError("Changing the `manage_flags` flag is not allowed.")
-        try:
-            serializer.save()
-        except IntegrityError as e:
-            raise ConflictError({"name": serializer.validated_data["name"]})
-
-    def perform_update(self, serializer):
-        if serializer.data["name"].strip().lower() == "manage_flags":
-            raise ValidationError("Changing the `manage_flags` flag is not allowed.")
-        try:
-            serializer.save()
-        except IntegrityError as e:
-            raise ConflictError({"name": serializer.validated_data["name"]})
 
 
 @swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)
