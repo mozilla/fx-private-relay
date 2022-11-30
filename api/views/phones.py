@@ -875,12 +875,12 @@ _SMS_SHORT_PREFIX_RE = re.compile(
 \s*             # One or more spaces
 \d{4}           # 4 digits
 \s*             # Optional whitespace
-[-:/\\\]|]?     # At most one separator, sync with SMS_SEPARATORS below
+[:]?     # At most one separator, sync with SMS_SEPARATORS below
 \s*             # Trailing whitespace
 """,
     re.VERBOSE | re.ASCII,
 )
-_SMS_SEPARATORS = set("-:/\\]|")  # Sync with SMS_SHORT_PREFIX_RE above
+_SMS_SEPARATORS = set(":")  # Sync with SMS_SHORT_PREFIX_RE above
 
 
 def _match_by_prefix(text: str, candidate_numbers: set[str]) -> Optional[MatchByPrefix]:

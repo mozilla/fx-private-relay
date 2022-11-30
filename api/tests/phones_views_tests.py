@@ -1197,7 +1197,7 @@ def test_inbound_sms_reply_full_number_wins(multi_reply: MultiReplyFixture) -> N
     data = {
         "From": multi_reply.real_phone.number,
         "To": relay_number.number,
-        "Body": "1301 5550000 - Isn't +13045551301 a jerk?",
+        "Body": "1301 5550000 Isn't +13045551301 a jerk?",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -1221,7 +1221,7 @@ def test_inbound_sms_reply_short_prefix_never_text(
     data = {
         "From": multi_reply.real_phone.number,
         "To": relay_number.number,
-        "Body": "0003 - send reply to caller",
+        "Body": "0003: send reply to caller",
     }
     response = APIClient().post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -1511,35 +1511,35 @@ _match_by_prefix_tests: dict[str, MatchByPrefixParams] = {
     "4 digit with dash": (
         "0000 - the message",
         "short",
-        "0000 - ",
+        "0000 ",
         "0000",
         ["+13015550000"],
     ),
     "4 digit with slash": (
         "0000 / the message",
         "short",
-        "0000 / ",
+        "0000 ",
         "0000",
         ["+13015550000"],
     ),
     "4 digit with backslash": (
         r"0000 \ the message",
         "short",
-        r"0000 \ ",
+        r"0000 ",
         "0000",
         ["+13015550000"],
     ),
     "4 digit with right bracket": (
         "0000] the message",
         "short",
-        "0000] ",
+        "0000",
         "0000",
         ["+13015550000"],
     ),
     "4 digit with pipe": (
         "0000 | the message",
         "short",
-        "0000 | ",
+        "0000 ",
         "0000",
         ["+13015550000"],
     ),
@@ -1567,35 +1567,35 @@ _match_by_prefix_tests: dict[str, MatchByPrefixParams] = {
     "e.164, dash": (
         "+13035550001 - the message",
         "full",
-        "+13035550001 - ",
+        "+13035550001 ",
         "+13035550001",
         ["+13035550001"],
     ),
     "e.164, slash": (
         "+13035550001 / the message",
         "full",
-        "+13035550001 / ",
+        "+13035550001 ",
         "+13035550001",
         ["+13035550001"],
     ),
     "e.164, backslash": (
         r"+13035550001 \ the message",
         "full",
-        r"+13035550001 \ ",
+        r"+13035550001 ",
         "+13035550001",
         ["+13035550001"],
     ),
     "e.164, right bracket": (
         "+13045551301]the message",
         "full",
-        "+13045551301]",
+        "+13045551301",
         "+13045551301",
         ["+13045551301"],
     ),
     "e.164, pipe": (
         "+13045551301|the message",
         "full",
-        "+13045551301|",
+        "+13045551301",
         "+13045551301",
         ["+13045551301"],
     ),
