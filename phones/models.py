@@ -15,6 +15,7 @@ from django.dispatch.dispatcher import receiver
 from django.urls import reverse
 
 from twilio.base.exceptions import TwilioRestException
+from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
 
@@ -25,10 +26,12 @@ LAST_CONTACT_TYPE_CHOICES = [
 ]
 
 
-def twilio_client():
+def twilio_client() -> Client:
+    from .apps import PhonesConfig
+
     phones_config = apps.get_app_config("phones")
-    client = phones_config.twilio_client
-    return client
+    assert isinstance(phones_config, PhonesConfig)
+    return phones_config.twilio_client
 
 
 def verification_code_default():
@@ -234,6 +237,10 @@ class RelayNumber(models.Model):
     @property
     def calls_and_texts_blocked(self):
         return self.calls_blocked + self.texts_blocked
+
+    @property
+    def storing_phone_log(self) -> bool:
+        return self.user.profile.store_phone_log
 
     def save(self, *args, **kwargs):
         realphone = get_verified_realphone_records(self.user).first()
