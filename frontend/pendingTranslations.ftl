@@ -85,3 +85,43 @@ tips-multi-replies-content = Just start your message with the last 4 digits of t
 
 phone-masking-splash-save-contact-example = Saving your { -brand-name-relay } Contact
 phone-masking-splash-save-contact-example-text = { -brand-name-firefox-relay }
+
+emailinfo-loading = Loading email data…
+emailinfo-load-error = There was an error reading your email data. Please refresh the page to try again.
+emailinfo-meta-from-heading = From
+emailinfo-meta-receivedat-heading = Received by
+
+emailinfo-checklist-promotional-status-promotional = Promotional email
+emailinfo-checklist-promotional-description-promotional = This is a promotional email.
+emailinfo-checklist-promotional-status-non-promotional = Non-promotional email
+emailinfo-checklist-promotional-description-non-promotional = This is a non-promotional email.
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-promotional = Block promotional emails sent to { $address }
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-all = Block all emails sent to { $address }
+
+# Variables:
+#   $count (number) - Total number of trackers in an email served from $tracker
+emailinfo-checklist-trackers-status-blocked = { $count } trackers blocked
+# Variables:
+#   $count (number) - Total number of trackers in an email served from $tracker
+emailinfo-checklist-trackers-description-blocked = { -brand-name-firefox-relay } blocked { $count } trackers in this email.
+# Variables:
+#   $count (number) - Total number of trackers in an email served from $tracker
+emailinfo-checklist-trackers-status-found = { $count } trackers detected
+# Variables:
+#   $count (number) - Total number of trackers in an email served from $tracker
+emailinfo-checklist-trackers-description-found = This email contains { $count } trackers that { -brand-name-firefox-relay } could have blocked.
+emailinfo-checklist-trackers-status-none = No trackers found
+emailinfo-checklist-trackers-description-none = This email contains no known trackers.
+emailinfo-checklist-trackers-cta = Enable tracker blocking for all masks
+
+emailinfo-checklist-premium-status-free = Limited email masks
+# Variables:
+#   $free_tier_limit (number) - Maxmimum email masks created for free account
+emailinfo-checklist-premium-description-free = You are on the free plan and can use at most { $free_tier_limit } masks.
+emailinfo-checklist-premium-cta-free = Get { -brand-name-relay-premium } to create a unique mask for every service
+emailinfo-checklist-premium-status-premium = Unlimited email masks
+emailinfo-checklist-premium-description-premium = You’ve got { -brand-name-relay-premium } and can create a unique mask for every service you use.
