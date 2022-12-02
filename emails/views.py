@@ -20,6 +20,7 @@ from markus.utils import generate_tag
 from waffle import sample_is_active
 from waffle.models import Flag
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
@@ -620,9 +621,42 @@ def _reply_allowed(from_address, to_address, reply_record):
         # This is a Relay user replying to an external sender;
         # verify they are premium
         if reply_record.owner_has_premium and not reply_record.profile.is_flagged:
-            # TODO: send the user an email
-            # that replies are a premium feature
             return True
+        try:
+            emails_config = apps.get_app_config("emails")
+            message = "Replies are a premium feature."
+            html_data = render_to_string(
+                "emails/reply_requires_premium.html", {"message": message}
+            )
+            text_data = render_to_string(
+                "emails/reply_requires_premium.txt", {"message": message}
+            )
+            print(text_data)
+            emails_config.ses_client.send_email(
+                ConfigurationSetName=settings.AWS_SES_CONFIGSET,
+                Source=settings.RELAY_FROM_ADDRESS,
+                Destination={"ToAddresses": [from_address]},
+                Message={
+                    "Body": {
+                        "Text": {
+                            "Charset": "UTF-8",
+                            "Data": text_data,
+                        },
+                        "Html": {
+                            "Charset": "UTF-8",
+                            "Data": html_data,
+                        },
+                    },
+                    "Subject": {
+                        "Charset": "UTF-8",
+                        "Data": message,
+                    },
+                },
+            )
+        except ClientError as e:
+            logger.error(
+                "reply_not_allowed_ses_client_error", extra=e.response["Error"]
+            )
         return False
     else:
         # The From: is not a Relay user, so make sure this is a reply *TO* a

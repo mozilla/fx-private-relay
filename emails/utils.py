@@ -276,6 +276,7 @@ def generate_relay_From(original_from_address, user_profile=None):
             _, relay_from_address = parseaddr(settings.NEW_RELAY_FROM_ADDRESS)
     except Flag.DoesNotExist:
         pass
+    # FIXME: should we use From: replies@ or just keep Reply-To: replies@
     if user_profile and user_profile.has_premium:
         _, relay_from_address = parseaddr(
             "replies@%s" % get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
