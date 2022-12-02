@@ -124,4 +124,9 @@ emailinfo-checklist-premium-status-free = Limited email masks
 emailinfo-checklist-premium-description-free = You are on the free plan and can use at most { $free_tier_limit } masks.
 emailinfo-checklist-premium-cta-free = Get { -brand-name-relay-premium } to create a unique mask for every service
 emailinfo-checklist-premium-status-premium = Unlimited email masks
-emailinfo-checklist-premium-description-premium = You’ve got { -brand-name-relay-premium } and can create a unique mask for every service you use.
+emailinfo-checklist-premium-description-premium = You’ve got { -brand-name-relay-premium } and can create a unique mask for every service you use. This protects your data from being linked in different data breaches.
+
+emailinfo-checklist-random-status-random = Random mask
+emailinfo-checklist-random-description-random = This email was sent to a random mask, which can not be linked to your other masks.
+emailinfo-checklist-random-status-custom = Custom mask
+emailinfo-checklist-random-description-custom = This email was sent to one of your custom masks, which can be linked to your other custom masks. Consider changing your email address to a random mask.

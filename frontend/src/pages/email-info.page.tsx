@@ -14,6 +14,8 @@ import {
 } from "../components/Icons";
 import Link from "next/link";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
+import { AliasData, AliasUpdateFn, useAliases } from "../hooks/api/aliases";
+import { useProfiles } from "../hooks/api/profile";
 
 // Paste this in your browser console to get a report URL:
 // { let url = new URL("http://localhost:3000/email-info"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 }, subject: "Uw bestelling - bevestiging van ontvangst 1353260347", type: "random", maskId: 0, isPromotional: true }); url.href }
@@ -33,6 +35,9 @@ type EmailMeta = {
 const EmailInfo: NextPage = () => {
   const { l10n } = useLocalization();
   const [emailMeta, setEmailMeta] = useState<EmailMeta | null>();
+
+  const maskData = useAliases();
+  const profileData = useProfiles();
 
   useEffect(() => {
     function updateEmailMeta() {
@@ -59,6 +64,13 @@ const EmailInfo: NextPage = () => {
       </div>
     );
   }
+
+  const relevantMaskList: AliasData[] | undefined =
+    emailMeta.type === "custom"
+      ? maskData.customAliasData.data
+      : maskData.randomAliasData.data;
+  const currentMask =
+    relevantMaskList?.find((mask) => mask.id === emailMeta.maskId) ?? null;
 
   return (
     <>
@@ -94,33 +106,23 @@ const EmailInfo: NextPage = () => {
           </div>
           <div className={styles.checklist}>
             <ul>
-              <li
-                className={`${styles.promotional} ${styles.unchecked} ${styles["is-promotional"]}`}
-              >
-                <CloseIcon alt="" className={styles["status-icon"]} />
-                <div className={styles.text}>
-                  <b className={styles.status}>
-                    {l10n.getString(
-                      "emailinfo-checklist-promotional-status-promotional"
-                    )}
-                  </b>
-                  <p className={styles.description}>
-                    {l10n.getString(
-                      "emailinfo-checklist-promotional-description-promotional"
-                    )}
-                  </p>
-                  <button className={styles.cta}>
-                    {l10n.getString(
-                      "emailinfo-checklist-promotional-cta-promotional",
-                      { address: "abc123@mozmail.com" }
-                    )}
-                  </button>
-                </div>
-              </li>
+              <PromotionalCheck
+                emailMeta={emailMeta}
+                mask={
+                  currentMask
+                    ? { data: currentMask, onUpdate: maskData.update }
+                    : undefined
+                }
+              />
               <li
                 className={`${styles.trackers} ${styles.info} ${styles["no-trackers"]}`}
               >
-                <InfoIcon alt="" className={styles["status-icon"]} />
+                <InfoIcon
+                  alt=""
+                  width={20}
+                  height={20}
+                  className={styles["status-icon"]}
+                />
                 <div className={styles.text}>
                   <b className={styles.status}>
                     {l10n.getString("emailinfo-checklist-trackers-status-none")}
@@ -135,7 +137,12 @@ const EmailInfo: NextPage = () => {
               <li
                 className={`${styles.premium} ${styles.checked} ${styles["has-premum"]}`}
               >
-                <CheckIcon alt="" className={styles["status-icon"]} />
+                <CheckIcon
+                  alt=""
+                  width={20}
+                  height={20}
+                  className={styles["status-icon"]}
+                />
                 <div className={styles.text}>
                   <b className={styles.status}>
                     {l10n.getString(
@@ -154,6 +161,86 @@ const EmailInfo: NextPage = () => {
         </main>
       </div>
     </>
+  );
+};
+
+const PromotionalCheck = (props: {
+  emailMeta: EmailMeta;
+  mask?: { data: AliasData; onUpdate: AliasUpdateFn };
+}) => {
+  const { l10n } = useLocalization();
+
+  if (
+    props.emailMeta.isPromotional &&
+    props.mask?.data.block_level_one_trackers === false
+  ) {
+    return (
+      <Check
+        status="unchecked"
+        title={l10n.getString(
+          "emailinfo-checklist-promotional-status-promotional"
+        )}
+        description={l10n.getString(
+          "emailinfo-checklist-promotional-description-promotional"
+        )}
+        cta={{
+          text: l10n.getString(
+            "emailinfo-checklist-promotional-cta-promotional",
+            { address: props.mask.data.full_address }
+          ),
+          action: () => console.log("Doing"),
+        }}
+      />
+    );
+  }
+
+  return (
+    <Check
+      status="checked"
+      title={l10n.getString(
+        "emailinfo-checklist-promotional-status-promotional"
+      )}
+      description={l10n.getString(
+        "emailinfo-checklist-promotional-description-promotional"
+      )}
+    />
+  );
+};
+
+const Check = (props: {
+  status: "checked" | "info" | "unchecked";
+  title: string;
+  description: string;
+  cta?: { text: string; action: string | (() => void) };
+}) => {
+  const cta =
+    typeof props.cta === "undefined" ? null : typeof props.cta.action ===
+      "function" ? (
+      <button className={styles.cta}>{props.cta.text}</button>
+    ) : (
+      <a href={props.cta.action} className={styles.cta}>
+        {props.cta.text}
+      </a>
+    );
+
+  const Icon =
+    props.status === "checked"
+      ? CheckIcon
+      : props.status === "info"
+      ? InfoIcon
+      : CloseIcon;
+
+  return (
+    <li
+      className={`${styles.premium} ${styles.checked} ${styles["has-premum"]}`}
+    >
+      <Icon alt="" width={20} height={20} className={styles["status-icon"]} />
+      <div className={styles.text}>
+        <b className={styles.status}>{props.title}</b>
+        <p className={styles.description}>{props.description}</p>
+        {cta}
+      </div>
+    </li>
   );
 };
 
