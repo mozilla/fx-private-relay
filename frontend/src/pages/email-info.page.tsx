@@ -17,7 +17,11 @@ import {
 import Link from "next/link";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { AliasData, AliasUpdateFn, useAliases } from "../hooks/api/aliases";
-import { ProfileData, useProfiles } from "../hooks/api/profile";
+import {
+  ProfileData,
+  ProfileUpdateFn,
+  useProfiles,
+} from "../hooks/api/profile";
 import { Layout } from "../components/layout/Layout";
 import { RuntimeData, useRuntimeData } from "../hooks/api/runtimeData";
 import { isPeriodicalPremiumAvailableInCountry } from "../functions/getPlan";
@@ -122,28 +126,18 @@ const EmailInfo: NextPage = () => {
                   profile={profileData.data?.[0]}
                   runtimeData={runtimeData.data}
                 />
-                <li
-                  className={`${styles.trackers} ${styles.info} ${styles["no-trackers"]}`}
-                >
-                  <InfoIcon
-                    alt=""
-                    width={20}
-                    height={20}
-                    className={styles["status-icon"]}
-                  />
-                  <div className={styles.text}>
-                    <b className={styles.status}>
-                      {l10n.getString(
-                        "emailinfo-checklist-trackers-status-none"
-                      )}
-                    </b>
-                    <p className={styles.description}>
-                      {l10n.getString(
-                        "emailinfo-checklist-trackers-description-none"
-                      )}
-                    </p>
-                  </div>
-                </li>
+                <TrackerCheck
+                  emailMeta={emailMeta}
+                  profile={
+                    profileData.data
+                      ? {
+                          data: profileData.data[0],
+                          onUpdate: profileData.update,
+                          isValidating: profileData.isValidating,
+                        }
+                      : undefined
+                  }
+                />
                 <li
                   className={`${styles.premium} ${styles.checked} ${styles["has-premum"]}`}
                 >
@@ -386,6 +380,155 @@ const PromotionalCheck = (props: {
           }
         },
       }}
+    />
+  );
+};
+
+const TrackerCheck = (props: {
+  emailMeta: EmailMeta;
+  profile?: {
+    data: ProfileData;
+    onUpdate: ProfileUpdateFn;
+    isValidating: boolean;
+  };
+}) => {
+  const { l10n } = useLocalization();
+  const [wasJustEnabled, setWasJustEnabled] = useState(false);
+
+  const trackerCount = Object.keys(props.emailMeta.trackers).length;
+
+  useEffect(() => {
+    if (
+      wasJustEnabled &&
+      props.profile?.data.remove_level_one_email_trackers === false &&
+      // Wait with removing the "Undo" button until the changes have been
+      // applied, to avoid a short flash of the regular "x trackers blocked"
+      // entry:
+      props.profile?.isValidating === false
+    ) {
+      setWasJustEnabled(false);
+    }
+  }, [
+    props.profile?.data.remove_level_one_email_trackers,
+    props.profile?.isValidating,
+    wasJustEnabled,
+  ]);
+
+  if (trackerCount === 0) {
+    return (
+      <Check
+        status="info"
+        title={l10n.getString("emailinfo-checklist-trackers-status-none")}
+        description={l10n.getString(
+          "emailinfo-checklist-trackers-description-none"
+        )}
+      />
+    );
+  }
+
+  if (typeof props.profile === "undefined") {
+    return (
+      <Check
+        status="info"
+        title={l10n.getString("emailinfo-checklist-trackers-status-found", {
+          count: trackerCount,
+        })}
+        description={l10n.getString(
+          "emailinfo-checklist-trackers-description-found",
+          { count: trackerCount }
+        )}
+      />
+    );
+  }
+
+  console.log(
+    "A",
+    wasJustEnabled,
+    props.profile.data.remove_level_one_email_trackers
+  );
+  if (wasJustEnabled) {
+    const profile = props.profile.data;
+    const onUpdate = props.profile.onUpdate;
+    return (
+      <Check
+        status="checked"
+        title={l10n.getString("emailinfo-checklist-trackers-status-found", {
+          count: trackerCount,
+        })}
+        description={l10n.getString(
+          "emailinfo-checklist-trackers-description-found",
+          { count: trackerCount }
+        )}
+        cta={{
+          text: l10n.getString("emailinfo-checklist-trackers-undo-cta"),
+          action: async () => {
+            try {
+              await onUpdate(profile.id, {
+                remove_level_one_email_trackers: false,
+              });
+              toast(
+                l10n.getString("emailinfo-checklist-trackers-undo-cta-success"),
+                { type: "success" }
+              );
+            } catch (e) {
+              toast(
+                l10n.getString("emailinfo-checklist-trackers-undo-cta-success"),
+                { type: "error" }
+              );
+            }
+          },
+        }}
+      />
+    );
+  }
+
+  if (props.profile.data.remove_level_one_email_trackers === false) {
+    const profile = props.profile.data;
+    const onUpdate = props.profile.onUpdate;
+    return (
+      <Check
+        status="unchecked"
+        title={l10n.getString("emailinfo-checklist-trackers-status-found", {
+          count: trackerCount,
+        })}
+        description={l10n.getString(
+          "emailinfo-checklist-trackers-description-found",
+          { count: trackerCount }
+        )}
+        cta={{
+          text: l10n.getString("emailinfo-checklist-trackers-cta"),
+          action: async () => {
+            try {
+              await onUpdate(profile.id, {
+                remove_level_one_email_trackers: true,
+              });
+              setWasJustEnabled(true);
+              toast(
+                l10n.getString("emailinfo-checklist-trackers-cta-success"),
+                { type: "success" }
+              );
+            } catch (e) {
+              toast(
+                l10n.getString("emailinfo-checklist-trackers-cta-success"),
+                { type: "error" }
+              );
+            }
+          },
+        }}
+      />
+    );
+  }
+
+  return (
+    <Check
+      status="checked"
+      title={l10n.getString("emailinfo-checklist-trackers-status-blocked", {
+        count: trackerCount,
+      })}
+      description={l10n.getString(
+        "emailinfo-checklist-trackers-description-blocked",
+        { count: trackerCount }
+      )}
     />
   );
 };

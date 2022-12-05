@@ -148,6 +148,11 @@ emailinfo-checklist-trackers-description-found = This email contains { $count } 
 emailinfo-checklist-trackers-status-none = No trackers found
 emailinfo-checklist-trackers-description-none = This email contains no known trackers.
 emailinfo-checklist-trackers-cta = Enable tracker blocking for all masks
+emailinfo-checklist-trackers-cta-success = { -brand-name-relay } will block trackers found in all forwarded emails from now on.
+emailinfo-checklist-trackers-cta-error = There was a problem updating your tracker blocking preferences, please try again.
+emailinfo-checklist-trackers-undo-cta = { -brand-name-relay } will block trackers found in all forwarded emails from now on. Undo?
+emailinfo-checklist-trackers-undo-cta-success = { -brand-name-relay } will no longer block trackers when forwarding emails.
+emailinfo-checklist-trackers-undo-cta-error = There was a problem updating your tracker blocking preferences, please try again.
 
 emailinfo-checklist-premium-status-free = Limited email masks
 # Variables:
