@@ -25,6 +25,7 @@ import {
 import { Layout } from "../components/layout/Layout";
 import { RuntimeData, useRuntimeData } from "../hooks/api/runtimeData";
 import { isPeriodicalPremiumAvailableInCountry } from "../functions/getPlan";
+import { getRuntimeConfig } from "../config";
 
 // Paste this in your browser console to get a report URL:
 // { let url = new URL("http://localhost:3000/email-info"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 }, subject: "Uw bestelling - bevestiging van ontvangst 1353260347", type: "random", maskId: 0, isPromotional: true }); url.href }
@@ -138,28 +139,7 @@ const EmailInfo: NextPage = () => {
                       : undefined
                   }
                 />
-                <li
-                  className={`${styles.premium} ${styles.checked} ${styles["has-premum"]}`}
-                >
-                  <CheckIcon
-                    alt=""
-                    width={20}
-                    height={20}
-                    className={styles["status-icon"]}
-                  />
-                  <div className={styles.text}>
-                    <b className={styles.status}>
-                      {l10n.getString(
-                        "emailinfo-checklist-premium-status-premium"
-                      )}
-                    </b>
-                    <p className={styles.description}>
-                      {l10n.getString(
-                        "emailinfo-checklist-premium-description-premium"
-                      )}
-                    </p>
-                  </div>
-                </li>
+                <PremiumCheck profile={profileData.data?.[0]} />
               </ul>
             </div>
             {emailDashboardLink}
@@ -529,6 +509,41 @@ const TrackerCheck = (props: {
         "emailinfo-checklist-trackers-description-blocked",
         { count: trackerCount }
       )}
+    />
+  );
+};
+
+const PremiumCheck = (props: { profile?: ProfileData }) => {
+  const { l10n } = useLocalization();
+
+  if (typeof props.profile === "undefined") {
+    return null;
+  }
+
+  if (props.profile.has_premium) {
+    return (
+      <Check
+        status="checked"
+        title={l10n.getString("emailinfo-checklist-premium-status-premium")}
+        description={l10n.getString(
+          "emailinfo-checklist-premium-description-premium"
+        )}
+      />
+    );
+  }
+
+  return (
+    <Check
+      status="unchecked"
+      title={l10n.getString("emailinfo-checklist-premium-status-free")}
+      description={l10n.getString(
+        "emailinfo-checklist-premium-description-free",
+        { free_tier_limit: getRuntimeConfig().maxFreeAliases }
+      )}
+      cta={{
+        text: l10n.getString("emailinfo-checklist-premium-cta-free"),
+        action: "/premium/",
+      }}
     />
   );
 };
