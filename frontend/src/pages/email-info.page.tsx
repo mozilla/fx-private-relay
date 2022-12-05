@@ -12,6 +12,7 @@ import {
   CloseIcon,
   InfoIcon,
   CheckIcon,
+  ChevronLeftIcon,
 } from "../components/Icons";
 import Link from "next/link";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
@@ -75,6 +76,20 @@ const EmailInfo: NextPage = () => {
       : maskData.randomAliasData.data;
   const currentMask =
     relevantMaskList?.find((mask) => mask.id === emailMeta.maskId) ?? null;
+
+  const emailDashboardLink =
+    currentMask !== null ? (
+      <Link
+        href={`/accounts/profile/#${encodeURIComponent(
+          currentMask.full_address
+        )}`}
+      >
+        <a className={styles["dashboard-link"]}>
+          <ChevronLeftIcon alt="" width={16} />{" "}
+          {l10n.getString("emailinfo-footer-dashboard")}
+        </a>
+      </Link>
+    ) : null;
 
   return (
     <>
@@ -150,6 +165,7 @@ const EmailInfo: NextPage = () => {
                 </li>
               </ul>
             </div>
+            {emailDashboardLink}
           </main>
         </div>
       </Layout>

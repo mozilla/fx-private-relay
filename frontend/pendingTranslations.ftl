@@ -160,3 +160,5 @@ emailinfo-checklist-random-status-random = Random mask
 emailinfo-checklist-random-description-random = This email was sent to a random mask, which can not be linked to your other masks.
 emailinfo-checklist-random-status-custom = Custom mask
 emailinfo-checklist-random-description-custom = This email was sent to one of your custom masks, which can be linked to your other custom masks. Consider changing your email address to a random mask.
+
+emailinfo-footer-dashboard = Manage all email masks

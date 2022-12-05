@@ -162,3 +162,18 @@
     }
   }
 }
+
+.dashboard-link {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  width: 100%;
+  max-width: $content-xl;
+  padding: $spacing-lg;
+  text-decoration: underline;
+  border-radius: $border-radius-md;
+
+  &:hover {
+    color: $color-blue-50;
+  }
+}
