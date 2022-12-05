@@ -133,6 +133,10 @@ const EmailInfo: NextPage = () => {
                       : undefined
                   }
                 />
+                <RandomMaskCheck
+                  emailMeta={emailMeta}
+                  profile={profileData.data?.[0]}
+                />
                 <PremiumCheck profile={profileData.data?.[0]} />
               </ul>
             </div>
@@ -497,6 +501,44 @@ const TrackerCheck = (props: {
       description={l10n.getString(
         "emailinfo-checklist-trackers-description-blocked",
         { count: trackerCount }
+      )}
+    />
+  );
+};
+
+const RandomMaskCheck = (props: {
+  emailMeta: EmailMeta;
+  profile?: ProfileData;
+}) => {
+  const { l10n } = useLocalization();
+
+  if (
+    typeof props.profile === "undefined" ||
+    !props.profile.has_premium ||
+    typeof props.profile.subdomain !== "string" ||
+    props.profile.subdomain.length === 0
+  ) {
+    return null;
+  }
+
+  if (props.emailMeta.type === "random") {
+    return (
+      <Check
+        status="checked"
+        title={l10n.getString("emailinfo-checklist-random-status-random")}
+        description={l10n.getString(
+          "emailinfo-checklist-random-description-random"
+        )}
+      />
+    );
+  }
+
+  return (
+    <Check
+      status="unchecked"
+      title={l10n.getString("emailinfo-checklist-random-status-custom")}
+      description={l10n.getString(
+        "emailinfo-checklist-random-description-custom"
       )}
     />
   );
