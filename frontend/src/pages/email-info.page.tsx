@@ -3,19 +3,13 @@ import { NextPage } from "next";
 import { ReactNode, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import styles from "./email-info.module.scss";
-import logoType from "./images/fx-private-relay-logotype-dark.svg";
-import logo from "./images/placeholder-logo.svg";
-import { PageMetadata } from "../components/layout/PageMetadata";
 import {
-  WarningFilledIcon,
-  InfoTriangleIcon,
   CloseIcon,
   InfoIcon,
   CheckIcon,
   ChevronLeftIcon,
 } from "../components/Icons";
 import Link from "next/link";
-import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { AliasData, AliasUpdateFn, useAliases } from "../hooks/api/aliases";
 import {
   ProfileData,
