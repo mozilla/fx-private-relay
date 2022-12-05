@@ -131,6 +131,7 @@ emailinfo-checklist-promotional-cta-undo-all-success = Emails sent to { $address
 # Variables:
 #   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
 emailinfo-checklist-promotional-cta-undo-all-error = There was a problem saving your forwarding preferences for { $address }, please try again.
+emailinfo-checklist-promotional-cta-upgrade = Upgrade to { -brand-name-relay-premium } to block promotional emails.
 
 # Variables:
 #   $count (number) - Total number of trackers in an email served from $tracker

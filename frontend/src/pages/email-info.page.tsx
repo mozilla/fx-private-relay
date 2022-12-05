@@ -17,9 +17,10 @@ import {
 import Link from "next/link";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { AliasData, AliasUpdateFn, useAliases } from "../hooks/api/aliases";
-import { useProfiles } from "../hooks/api/profile";
+import { ProfileData, useProfiles } from "../hooks/api/profile";
 import { Layout } from "../components/layout/Layout";
-import { useRuntimeData } from "../hooks/api/runtimeData";
+import { RuntimeData, useRuntimeData } from "../hooks/api/runtimeData";
+import { isPeriodicalPremiumAvailableInCountry } from "../functions/getPlan";
 
 // Paste this in your browser console to get a report URL:
 // { let url = new URL("http://localhost:3000/email-info"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 }, subject: "Uw bestelling - bevestiging van ontvangst 1353260347", type: "random", maskId: 0, isPromotional: true }); url.href }
@@ -118,6 +119,8 @@ const EmailInfo: NextPage = () => {
                       ? { data: currentMask, onUpdate: maskData.update }
                       : undefined
                   }
+                  profile={profileData.data?.[0]}
+                  runtimeData={runtimeData.data}
                 />
                 <li
                   className={`${styles.trackers} ${styles.info} ${styles["no-trackers"]}`}
@@ -176,6 +179,8 @@ const EmailInfo: NextPage = () => {
 const PromotionalCheck = (props: {
   emailMeta: EmailMeta;
   mask?: { data: AliasData; onUpdate: AliasUpdateFn };
+  profile?: ProfileData;
+  runtimeData?: RuntimeData;
 }) => {
   const { l10n } = useLocalization();
 
@@ -199,6 +204,30 @@ const PromotionalCheck = (props: {
   }
 
   if (props.emailMeta.isPromotional) {
+    if (props.profile?.has_premium !== true) {
+      return (
+        <Check
+          status="unchecked"
+          title={l10n.getString(
+            "emailinfo-checklist-promotional-status-promotional"
+          )}
+          description={l10n.getString(
+            "emailinfo-checklist-promotional-description-promotional"
+          )}
+          cta={
+            isPeriodicalPremiumAvailableInCountry(props.runtimeData)
+              ? {
+                  text: l10n.getString(
+                    "emailinfo-checklist-promotional-cta-upgrade"
+                  ),
+                  action: "/premium/",
+                }
+              : undefined
+          }
+        />
+      );
+    }
+
     if (mask.data.block_level_one_trackers === true) {
       return (
         <Check
@@ -377,11 +406,19 @@ const Check = (props: {
         </button>
       );
     } else {
-      cta = (
-        <a href={props.cta.action} className={styles.cta}>
-          {props.cta.text}
-        </a>
-      );
+      if (props.cta.action.startsWith("/")) {
+        cta = (
+          <Link href={props.cta.action}>
+            <a className={styles.cta}>{props.cta.text}</a>
+          </Link>
+        );
+      } else {
+        cta = (
+          <a href={props.cta.action} className={styles.cta}>
+            {props.cta.text}
+          </a>
+        );
+      }
     }
   }
 
