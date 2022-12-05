@@ -421,11 +421,6 @@ const TrackerCheck = (props: {
     );
   }
 
-  console.log(
-    "A",
-    wasJustEnabled,
-    props.profile.data.remove_level_one_email_trackers
-  );
   if (wasJustEnabled) {
     const profile = props.profile.data;
     const onUpdate = props.profile.onUpdate;
