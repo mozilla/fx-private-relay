@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from email.utils import parseaddr
 import html
 import json
@@ -412,8 +414,9 @@ def _sns_message(message_json):
         (lookup_key, _) = _get_keys_from_headers(mail["headers"])
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
         address = reply_record.address
+        message_id = _get_message_id_from_headers(mail["headers"])
         # make sure the relay user is premium
-        if not _reply_allowed(from_address, to_address, reply_record):
+        if not _reply_allowed(from_address, to_address, reply_record, message_id):
             # TODO: Add metrics
             return HttpResponse("Relay replies require a premium account", status=403)
     except (ReplyHeadersNotFound, Reply.DoesNotExist):
@@ -576,6 +579,14 @@ def _record_receipt_verdicts(receipt, state):
     incr_if_enabled(f"relay.emails.state.{state}", 1, verdict_tags)
 
 
+def _get_message_id_from_headers(headers):
+    message_id = None
+    for header in headers:
+        if header["name"].lower() == "message-id":
+            message_id = header["value"]
+    return message_id
+
+
 def _get_keys_from_headers(headers):
     in_reply_to = None
     for header in headers:
@@ -611,7 +622,7 @@ def _strip_localpart_tag(address):
     return f"{subaddress_parts[0]}@{domain}"
 
 
-def _reply_allowed(from_address, to_address, reply_record):
+def _reply_allowed(from_address, to_address, reply_record, message_id=None):
     stripped_from_address = _strip_localpart_tag(from_address)
     reply_record_email = reply_record.address.user.email
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
@@ -625,33 +636,33 @@ def _reply_allowed(from_address, to_address, reply_record):
         try:
             emails_config = apps.get_app_config("emails")
             message = "Replies are a premium feature."
-            html_data = render_to_string(
+            html_body = render_to_string(
                 "emails/reply_requires_premium.html", {"message": message}
             )
-            text_data = render_to_string(
+            text_body = render_to_string(
                 "emails/reply_requires_premium.txt", {"message": message}
             )
-            print(text_data)
-            emails_config.ses_client.send_email(
+            charset = "utf-8"
+            msg = MIMEMultipart("mixed")
+            msg["Subject"] = message
+            domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
+            msg["From"] = f"replies@{domain}"
+            msg["To"] = from_address
+            if message_id:
+                msg["In-Reply-To"] = message_id
+                msg["References"] = message_id
+                print(f"setting In-Reply-To: {message_id}")
+            msg_body = MIMEMultipart("alternative")
+            text_part = MIMEText(text_body, "plain", charset)
+            html_part = MIMEText(html_body, "html", charset)
+            msg_body.attach(text_part)
+            msg_body.attach(html_part)
+            msg.attach(msg_body)
+            resp = emails_config.ses_client.send_raw_email(
                 ConfigurationSetName=settings.AWS_SES_CONFIGSET,
                 Source=settings.RELAY_FROM_ADDRESS,
-                Destination={"ToAddresses": [from_address]},
-                Message={
-                    "Body": {
-                        "Text": {
-                            "Charset": "UTF-8",
-                            "Data": text_data,
-                        },
-                        "Html": {
-                            "Charset": "UTF-8",
-                            "Data": html_data,
-                        },
-                    },
-                    "Subject": {
-                        "Charset": "UTF-8",
-                        "Data": message,
-                    },
-                },
+                Destinations=[from_address],
+                RawMessage={"Data": msg.as_string()},
             )
         except ClientError as e:
             logger.error(
@@ -688,7 +699,8 @@ def _handle_reply(from_address, message_json, to_address):
 
     address = reply_record.address
 
-    if not _reply_allowed(from_address, to_address, reply_record):
+    message_id = _get_message_id_from_headers(mail["headers"])
+    if not _reply_allowed(from_address, to_address, reply_record, message_id):
         return HttpResponse("Relay replies require a premium account", status=403)
 
     outbound_from_address = address.full_address
