@@ -56,20 +56,6 @@
     gap: $spacing-md;
   }
 
-  .logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: $spacing-xs;
-
-    .logomark {
-      max-height: 35px;
-    }
-    .logotype {
-      max-height: 20px;
-    }
-  }
-
   h1 {
     @include text-title-2xs;
     font-family: $font-stack-firefox;
@@ -152,6 +138,7 @@
           text-decoration: underline;
           padding: 0;
           color: $color-blue-50;
+          cursor: pointer;
         }
       }
 

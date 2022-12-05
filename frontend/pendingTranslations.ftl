@@ -100,7 +100,37 @@ emailinfo-checklist-promotional-description-non-promotional = This is a non-prom
 emailinfo-checklist-promotional-cta-promotional = Block promotional emails sent to { $address }
 # Variables:
 #   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
-emailinfo-checklist-promotional-cta-all = Block all emails sent to { $address }
+emailinfo-checklist-promotional-cta-promotional-success = Promotional emails sent to { $address } will no longer be forwarded.
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-promotional-error = There was a problem saving your forwarding preferences for { $address }, please try again.
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-undo-promotional = Promotional emails sent to { $address } will be blocked. Undo?
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-undo-promotional-success = Promotional emails sent to { $address } will no longer be blocked.
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-undo-promotional-error = There was a problem saving your forwarding preferences for { $address }, please try again.
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-all = Stop forwarding emails sent to { $address }?
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-all-success = Emails sent to { $address } will no longer be forwarded.
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-all-error = There was a problem saving your forwarding preferences for { $address }, please try again.
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-undo-all = All emails sent to { $address } will be blocked. Undo?
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-undo-all-success = Emails sent to { $address } will no longer be blocked.
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+emailinfo-checklist-promotional-cta-undo-all-error = There was a problem saving your forwarding preferences for { $address }, please try again.
 
 # Variables:
 #   $count (number) - Total number of trackers in an email served from $tracker

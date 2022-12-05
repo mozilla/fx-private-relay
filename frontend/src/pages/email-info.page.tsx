@@ -1,6 +1,7 @@
 import { useLocalization } from "@fluent/react";
 import { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import styles from "./email-info.module.scss";
 import logoType from "./images/fx-private-relay-logotype-dark.svg";
 import logo from "./images/placeholder-logo.svg";
@@ -16,6 +17,8 @@ import Link from "next/link";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { AliasData, AliasUpdateFn, useAliases } from "../hooks/api/aliases";
 import { useProfiles } from "../hooks/api/profile";
+import { Layout } from "../components/layout/Layout";
+import { useRuntimeData } from "../hooks/api/runtimeData";
 
 // Paste this in your browser console to get a report URL:
 // { let url = new URL("http://localhost:3000/email-info"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 }, subject: "Uw bestelling - bevestiging van ontvangst 1353260347", type: "random", maskId: 0, isPromotional: true }); url.href }
@@ -38,6 +41,7 @@ const EmailInfo: NextPage = () => {
 
   const maskData = useAliases();
   const profileData = useProfiles();
+  const runtimeData = useRuntimeData();
 
   useEffect(() => {
     function updateEmailMeta() {
@@ -74,92 +78,81 @@ const EmailInfo: NextPage = () => {
 
   return (
     <>
-      <PageMetadata />
-      <div className={styles.wrapper}>
-        <main className={styles["emailinfo-wrapper"]}>
-          <div className={styles.metadata}>
-            <b className={styles.logo}>
-              <img
-                src={logo.src}
-                alt=""
-                className={styles.logomark}
-                width={42}
-              />
-              <img
-                src={logoType.src}
-                alt={l10n.getString("logo-alt")}
-                className={styles.logotype}
-                height={20}
-              />
-            </b>
-            <h1>{emailMeta.subject}</h1>
-            <dl className={styles.meta}>
-              <div className={styles.from}>
-                <dt>{l10n.getString("emailinfo-meta-from-heading")}</dt>
-                <dd>{emailMeta.sender}</dd>
-              </div>
-              <div className={styles["received_at"]}>
-                <dt>{l10n.getString("emailinfo-meta-receivedat-heading")}</dt>
-                <dd>{new Date(emailMeta.received_at).toLocaleString()}</dd>
-              </div>
-            </dl>
-          </div>
-          <div className={styles.checklist}>
-            <ul>
-              <PromotionalCheck
-                emailMeta={emailMeta}
-                mask={
-                  currentMask
-                    ? { data: currentMask, onUpdate: maskData.update }
-                    : undefined
-                }
-              />
-              <li
-                className={`${styles.trackers} ${styles.info} ${styles["no-trackers"]}`}
-              >
-                <InfoIcon
-                  alt=""
-                  width={20}
-                  height={20}
-                  className={styles["status-icon"]}
-                />
-                <div className={styles.text}>
-                  <b className={styles.status}>
-                    {l10n.getString("emailinfo-checklist-trackers-status-none")}
-                  </b>
-                  <p className={styles.description}>
-                    {l10n.getString(
-                      "emailinfo-checklist-trackers-description-none"
-                    )}
-                  </p>
+      <Layout runtimeData={runtimeData.data}>
+        <div className={styles.wrapper}>
+          <main className={styles["emailinfo-wrapper"]}>
+            <div className={styles.metadata}>
+              <h1>{emailMeta.subject}</h1>
+              <dl className={styles.meta}>
+                <div className={styles.from}>
+                  <dt>{l10n.getString("emailinfo-meta-from-heading")}</dt>
+                  <dd>{emailMeta.sender}</dd>
                 </div>
-              </li>
-              <li
-                className={`${styles.premium} ${styles.checked} ${styles["has-premum"]}`}
-              >
-                <CheckIcon
-                  alt=""
-                  width={20}
-                  height={20}
-                  className={styles["status-icon"]}
-                />
-                <div className={styles.text}>
-                  <b className={styles.status}>
-                    {l10n.getString(
-                      "emailinfo-checklist-premium-status-premium"
-                    )}
-                  </b>
-                  <p className={styles.description}>
-                    {l10n.getString(
-                      "emailinfo-checklist-premium-description-premium"
-                    )}
-                  </p>
+                <div className={styles["received_at"]}>
+                  <dt>{l10n.getString("emailinfo-meta-receivedat-heading")}</dt>
+                  <dd>{new Date(emailMeta.received_at).toLocaleString()}</dd>
                 </div>
-              </li>
-            </ul>
-          </div>
-        </main>
-      </div>
+              </dl>
+            </div>
+            <div className={styles.checklist}>
+              <ul>
+                <PromotionalCheck
+                  emailMeta={emailMeta}
+                  mask={
+                    currentMask
+                      ? { data: currentMask, onUpdate: maskData.update }
+                      : undefined
+                  }
+                />
+                <li
+                  className={`${styles.trackers} ${styles.info} ${styles["no-trackers"]}`}
+                >
+                  <InfoIcon
+                    alt=""
+                    width={20}
+                    height={20}
+                    className={styles["status-icon"]}
+                  />
+                  <div className={styles.text}>
+                    <b className={styles.status}>
+                      {l10n.getString(
+                        "emailinfo-checklist-trackers-status-none"
+                      )}
+                    </b>
+                    <p className={styles.description}>
+                      {l10n.getString(
+                        "emailinfo-checklist-trackers-description-none"
+                      )}
+                    </p>
+                  </div>
+                </li>
+                <li
+                  className={`${styles.premium} ${styles.checked} ${styles["has-premum"]}`}
+                >
+                  <CheckIcon
+                    alt=""
+                    width={20}
+                    height={20}
+                    className={styles["status-icon"]}
+                  />
+                  <div className={styles.text}>
+                    <b className={styles.status}>
+                      {l10n.getString(
+                        "emailinfo-checklist-premium-status-premium"
+                      )}
+                    </b>
+                    <p className={styles.description}>
+                      {l10n.getString(
+                        "emailinfo-checklist-premium-description-premium"
+                      )}
+                    </p>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </main>
+        </div>
+      </Layout>
     </>
   );
 };
@@ -170,10 +163,67 @@ const PromotionalCheck = (props: {
 }) => {
   const { l10n } = useLocalization();
 
-  if (
-    props.emailMeta.isPromotional &&
-    props.mask?.data.block_level_one_trackers === false
-  ) {
+  const mask = props.mask;
+  if (typeof mask === "undefined") {
+    return (
+      <Check
+        status="info"
+        title={l10n.getString(
+          props.emailMeta.isPromotional
+            ? "emailinfo-checklist-promotional-status-promotional"
+            : "emailinfo-checklist-promotional-status-non-promotional"
+        )}
+        description={l10n.getString(
+          props.emailMeta.isPromotional
+            ? "emailinfo-checklist-promotional-description-promotional"
+            : "emailinfo-checklist-promotional-description-non-promotional"
+        )}
+      />
+    );
+  }
+
+  if (props.emailMeta.isPromotional) {
+    if (mask.data.block_level_one_trackers === true) {
+      return (
+        <Check
+          status="checked"
+          title={l10n.getString(
+            "emailinfo-checklist-promotional-status-promotional"
+          )}
+          description={l10n.getString(
+            "emailinfo-checklist-promotional-description-promotional"
+          )}
+          cta={{
+            text: l10n.getString(
+              "emailinfo-checklist-promotional-cta-undo-promotional",
+              { address: mask.data.full_address }
+            ),
+            action: async () => {
+              try {
+                await mask.onUpdate(mask.data, {
+                  block_level_one_trackers: false,
+                });
+                toast(
+                  l10n.getString(
+                    "emailinfo-checklist-promotional-cta-undo-promotional-success",
+                    { address: mask.data.full_address }
+                  ),
+                  { type: "success" }
+                );
+              } catch (e) {
+                toast(
+                  l10n.getString(
+                    "emailinfo-checklist-promotional-cta-undo-promotional-error",
+                    { address: mask.data.full_address }
+                  ),
+                  { type: "error" }
+                );
+              }
+            },
+          }}
+        />
+      );
+    }
     return (
       <Check
         status="unchecked"
@@ -186,9 +236,71 @@ const PromotionalCheck = (props: {
         cta={{
           text: l10n.getString(
             "emailinfo-checklist-promotional-cta-promotional",
-            { address: props.mask.data.full_address }
+            { address: mask.data.full_address }
           ),
-          action: () => console.log("Doing"),
+          action: async () => {
+            try {
+              await mask.onUpdate(mask.data, {
+                block_level_one_trackers: true,
+              });
+              toast(
+                l10n.getString(
+                  "emailinfo-checklist-promotional-cta-promotional-success",
+                  { address: mask.data.full_address }
+                ),
+                { type: "success" }
+              );
+            } catch (e) {
+              toast(
+                l10n.getString(
+                  "emailinfo-checklist-promotional-cta-promotional-error",
+                  { address: mask.data.full_address }
+                ),
+                { type: "error" }
+              );
+            }
+          },
+        }}
+      />
+    );
+  }
+
+  if (mask.data.enabled === false) {
+    return (
+      <Check
+        status="checked"
+        title={l10n.getString(
+          "emailinfo-checklist-promotional-status-non-promotional"
+        )}
+        description={l10n.getString(
+          "emailinfo-checklist-promotional-description-non-promotional"
+        )}
+        cta={{
+          text: l10n.getString("emailinfo-checklist-promotional-cta-undo-all", {
+            address: mask.data.full_address,
+          }),
+          action: async () => {
+            try {
+              await mask.onUpdate(mask.data, {
+                enabled: true,
+              });
+              toast(
+                l10n.getString(
+                  "emailinfo-checklist-promotional-cta-undo-all-success",
+                  { address: mask.data.full_address }
+                ),
+                { type: "success" }
+              );
+            } catch (e) {
+              toast(
+                l10n.getString(
+                  "emailinfo-checklist-promotional-cta-undo-all-error",
+                  { address: mask.data.full_address }
+                ),
+                { type: "error" }
+              );
+            }
+          },
         }}
       />
     );
@@ -198,11 +310,37 @@ const PromotionalCheck = (props: {
     <Check
       status="checked"
       title={l10n.getString(
-        "emailinfo-checklist-promotional-status-promotional"
+        "emailinfo-checklist-promotional-status-non-promotional"
       )}
       description={l10n.getString(
-        "emailinfo-checklist-promotional-description-promotional"
+        "emailinfo-checklist-promotional-description-non-promotional"
       )}
+      cta={{
+        text: l10n.getString("emailinfo-checklist-promotional-cta-all", {
+          address: mask.data.full_address,
+        }),
+        action: async () => {
+          try {
+            await mask.onUpdate(mask.data, {
+              enabled: false,
+            });
+            toast(
+              l10n.getString(
+                "emailinfo-checklist-promotional-cta-all-success",
+                { address: mask.data.full_address }
+              ),
+              { type: "success" }
+            );
+          } catch (e) {
+            toast(
+              l10n.getString("emailinfo-checklist-promotional-cta-all-error", {
+                address: mask.data.full_address,
+              }),
+              { type: "error" }
+            );
+          }
+        },
+      }}
     />
   );
 };
@@ -213,15 +351,23 @@ const Check = (props: {
   description: string;
   cta?: { text: string; action: string | (() => void) };
 }) => {
-  const cta =
-    typeof props.cta === "undefined" ? null : typeof props.cta.action ===
-      "function" ? (
-      <button className={styles.cta}>{props.cta.text}</button>
-    ) : (
-      <a href={props.cta.action} className={styles.cta}>
-        {props.cta.text}
-      </a>
-    );
+  let cta: ReactNode = null;
+  if (typeof props.cta !== "undefined") {
+    if (typeof props.cta.action === "function") {
+      const action = props.cta.action;
+      cta = (
+        <button onClick={() => action()} className={styles.cta}>
+          {props.cta.text}
+        </button>
+      );
+    } else {
+      cta = (
+        <a href={props.cta.action} className={styles.cta}>
+          {props.cta.text}
+        </a>
+      );
+    }
+  }
 
   const Icon =
     props.status === "checked"
@@ -232,7 +378,13 @@ const Check = (props: {
 
   return (
     <li
-      className={`${styles.premium} ${styles.checked} ${styles["has-premum"]}`}
+      className={
+        props.status === "checked"
+          ? styles.checked
+          : props.status === "unchecked"
+          ? styles.unchecked
+          : styles.info
+      }
     >
       <Icon alt="" width={20} height={20} className={styles["status-icon"]} />
       <div className={styles.text}>
