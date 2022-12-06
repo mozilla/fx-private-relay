@@ -17,6 +17,7 @@ from typing import Any, Optional
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
+from django.shortcuts import render
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
 from waffle import sample_is_active
@@ -71,6 +72,17 @@ info_logger = logging.getLogger("eventsinfo")
 class ReplyHeadersNotFound(Exception):
     def __init__(self, message="No In-Reply-To or References headers."):
         self.message = message
+
+
+def reply_requires_premium_test(request):
+    """
+    Demonstrate rendering of the "Reply requires premium" email.
+
+    Settings like language can be given in the querystring, otherwise settings
+    come from a random free profile.
+    """
+    email_context = {"message": "Replies require premium."}
+    return render(request, "emails/reply_requires_premium.html", email_context)
 
 
 def wrap_html_email(
