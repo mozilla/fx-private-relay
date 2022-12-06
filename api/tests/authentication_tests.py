@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import pytest
 from model_bakery import baker
 import responses
 
@@ -7,6 +8,7 @@ from django.core.cache import cache
 from django.test import RequestFactory, TestCase
 
 from allauth.socialaccount.models import SocialAccount
+from rest_framework.exceptions import AuthenticationFailed
 
 from ..authentication import FxaTokenAuthentication, get_cache_key
 
@@ -93,7 +95,7 @@ class FxaTokenAuthenticationTest(TestCase):
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
     @responses.activate()
-    def test_200_resp_from_fxa_no_matching_user_returns_none(self):
+    def test_200_resp_from_fxa_no_matching_user_raises_AuthenficationFailed(self):
         response_json = {"active": True, "sub": "not-a-relay-user"}
         responses.add(
             responses.POST, self.fxa_verify_path, status=200, json=response_json
@@ -101,12 +103,15 @@ class FxaTokenAuthenticationTest(TestCase):
         non_user_token = "non-user-123"
         headers = {"HTTP_AUTHORIZATION": f"Bearer {non_user_token}"}
         get_addresses_req = self.factory.get(self.path, **headers)
-        assert self.auth.authenticate(self.auth, get_addresses_req) == None
+
+        with pytest.raises(AuthenticationFailed):
+            self.auth.authenticate(self.auth, get_addresses_req)
         expected = {"status_code": 200, "json": response_json}
         assert cache.get(get_cache_key(non_user_token)) == expected
 
         # the code does NOT make another fxa request
-        assert self.auth.authenticate(self.auth, get_addresses_req) is None
+        with pytest.raises(AuthenticationFailed):
+            self.auth.authenticate(self.auth, get_addresses_req)
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
     @responses.activate()
