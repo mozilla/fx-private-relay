@@ -1,12 +1,15 @@
 # Relay API Authentication
+
 The Relay API is built on [Django REST Framework][drf] and authenticates
 requests with any of 3 methods:
-* [FXA OAuth Token Authentication](fxa-oauth-token-authentication)
-* [`SessionAuthentication`][SessionAuthentication]
-* [`TokenAuthentication`][TokenAuthentication]
+
+- [FXA OAuth Token Authentication](fxa-oauth-token-authentication)
+- [`SessionAuthentication`][sessionauthentication]
+- [`TokenAuthentication`][tokenauthentication]
 
 ## FXA OAuth Token Authentication
-The Relay add-on uses the [`identity.launchWebAuthFlow` API][mdn-webauthflow]
+
+Add-ons can use the [`identity.launchWebAuthFlow` API][mdn-webauthflow]
 to perform an OAuth2 flow with [the FXA OAuth service][fxa-oauth], including
 [PKCE][fxa-pkce].
 
@@ -40,9 +43,9 @@ sequenceDiagram
 ```
 
 [drf]: https://www.django-rest-framework.org/
-[SessionAuthentication]: https://www.django-rest-framework.org/api-guide/authentication/#sessionauthentication
-[TokenAuthentication]: https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
-[mdn-webauthflow]: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/identity/launchWebAuthFlow 
+[sessionauthentication]: https://www.django-rest-framework.org/api-guide/authentication/#sessionauthentication
+[tokenauthentication]: https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
+[mdn-webauthflow]: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/identity/launchWebAuthFlow
 [fxa-oauth]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md
 [fxa-pkce]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/pkce.md
 [fxa-oauth-token-verify]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md#post-v1verify
