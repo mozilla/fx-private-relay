@@ -33,10 +33,11 @@ class FxaTokenAuthenticationTest(TestCase):
     def test_no_token_returns_none(self):
         headers = {"HTTP_AUTHORIZATION": "Bearer "}
         get_addresses_req = self.factory.get(self.path, **headers)
-        assert self.auth.authenticate(self.auth, get_addresses_req) == None
+        with pytest.raises(AuthenticationFailed):
+            self.auth.authenticate(self.auth, get_addresses_req)
 
     @responses.activate()
-    def test_non_200_resp_from_fxa_returns_none_and_caches(self):
+    def test_non_200_resp_from_fxa_raises_error_and_caches(self):
         responses.add(
             responses.POST, self.fxa_verify_path, status=401, json={"error": "401"}
         )
@@ -45,19 +46,20 @@ class FxaTokenAuthenticationTest(TestCase):
 
         headers = {"HTTP_AUTHORIZATION": f"Bearer {not_found_token}"}
         get_addresses_req = self.factory.get(self.path, **headers)
-        auth_return = self.auth.authenticate(self.auth, get_addresses_req)
+        with pytest.raises(AuthenticationFailed):
+            self.auth.authenticate(self.auth, get_addresses_req)
 
-        assert auth_return == None
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
         expected = {"status_code": 401, "json": {"error": "401"}}
         assert cache.get(get_cache_key(not_found_token)) == expected
 
         # now check that the code does NOT make another fxa request
-        assert self.auth.authenticate(self.auth, get_addresses_req) is None
+        with pytest.raises(AuthenticationFailed):
+            assert self.auth.authenticate(self.auth, get_addresses_req) is None
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
     @responses.activate()
-    def test_non_200_non_json_resp_from_fxa_returns_none_and_caches(self):
+    def test_non_200_non_json_resp_from_fxa_raises_error_and_caches(self):
         responses.add(
             responses.POST, self.fxa_verify_path, status=503, body="Bad gateway error"
         )
@@ -66,32 +68,35 @@ class FxaTokenAuthenticationTest(TestCase):
 
         headers = {"HTTP_AUTHORIZATION": f"Bearer {not_found_token}"}
         get_addresses_req = self.factory.get(self.path, **headers)
-        auth_return = self.auth.authenticate(self.auth, get_addresses_req)
+        with pytest.raises(AuthenticationFailed):
+            self.auth.authenticate(self.auth, get_addresses_req)
 
-        assert auth_return == None
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
-        expected = {"status_code": 503, "json": None}
+        expected = {"status_code": 503, "json": {}}
         assert cache.get(get_cache_key(not_found_token)) == expected
 
         # now check that the code does NOT make another fxa request
-        assert self.auth.authenticate(self.auth, get_addresses_req) is None
+        with pytest.raises(AuthenticationFailed):
+            assert self.auth.authenticate(self.auth, get_addresses_req) is None
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
     @responses.activate()
-    def test_200_resp_from_fxa_inactive_token_returns_none(self):
+    def test_200_resp_from_fxa_inactive_token_raises_error(self):
         responses.add(
             responses.POST, self.fxa_verify_path, status=200, json={"active": False}
         )
         inactive_token = "inactive-123"
         headers = {"HTTP_AUTHORIZATION": f"Bearer {inactive_token}"}
         get_addresses_req = self.factory.get(self.path, **headers)
-        assert self.auth.authenticate(self.auth, get_addresses_req) == None
+        with pytest.raises(AuthenticationFailed):
+            assert self.auth.authenticate(self.auth, get_addresses_req) == None
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
         expected = {"status_code": 200, "json": {"active": False}}
         assert cache.get(get_cache_key(inactive_token)) == expected
 
         # the code does NOT make another fxa request
-        assert self.auth.authenticate(self.auth, get_addresses_req) is None
+        with pytest.raises(AuthenticationFailed):
+            assert self.auth.authenticate(self.auth, get_addresses_req) is None
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
 
     @responses.activate()
@@ -130,7 +135,7 @@ class FxaTokenAuthenticationTest(TestCase):
         headers = {"HTTP_AUTHORIZATION": f"Bearer {user_token}"}
         get_addresses_req = self.factory.get(self.path, **headers)
         auth_return = self.auth.authenticate(self.auth, get_addresses_req)
-        assert auth_return == (self.sa.user, None)
+        assert auth_return == (self.sa.user, user_token)
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
         expected = {"status_code": 200, "json": response_json}
         assert cache.get(get_cache_key(user_token)) == expected

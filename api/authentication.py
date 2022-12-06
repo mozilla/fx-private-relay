@@ -45,6 +45,7 @@ def introspect_token(introspect_token_url, token, cache_key, cache_timeout):
         )
         cache.set(cache_key, fxa_resp_data, cache_timeout)
         raise AuthenticationFailed("JSONDecodeError from FXA introspect response")
+    cache.set(cache_key, fxa_resp_data, cache_timeout)
     return fxa_resp_data
 
 
