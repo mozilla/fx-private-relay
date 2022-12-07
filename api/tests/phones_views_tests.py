@@ -868,12 +868,12 @@ def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_clien
 
     assert response.status_code == 400
     decoded_content = response.content.decode()
-    assert "You Can Only Reply" in decoded_content
+    assert "To Reply, You Must Allow " in decoded_content
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == real_phone.number
     assert call_kwargs["from_"] == relay_number.number
-    assert "You can only reply" in call_kwargs["body"]
+    assert call_kwargs["body"].startswith("To reply, you must allow ")
     assert f"{settings.SITE_ORIGIN}" in call_kwargs["body"]
 
 
@@ -889,12 +889,15 @@ def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
 
     assert response.status_code == 400
     decoded_content = response.content.decode()
-    assert "Could Not Find A Previous Text Sender" in decoded_content
+    assert "You Can Only Reply To Phone Numbers" in decoded_content
     mocked_twilio_client.messages.create.assert_called_once()
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == real_phone.number
     assert call_kwargs["from_"] == relay_number.number
-    assert "Could not find a previous text sender" in call_kwargs["body"]
+    assert call_kwargs["body"] == (
+        "Message failed to send. You can only reply to phone numbers that have sent"
+        " you a text message."
+    )
 
 
 def test_inbound_sms_reply(phone_user: User, mocked_twilio_client: Client) -> None:
@@ -1286,8 +1289,8 @@ _sms_reply_error_test_cases = {
     "short prefix without message": (
         "0002:",
         (
-            "Message failed to send. Please include a message after the sender"
-            " identifier \u20680002\u2069."
+            "Message failed to send. Please include a message after the phone number"
+            " ending in \u20680002\u2069."
         ),
     ),
     "full number without message": (

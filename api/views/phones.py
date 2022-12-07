@@ -688,8 +688,9 @@ class RelaySMSException(Exception):
 class NoPhoneLog(RelaySMSException):
     default_code = "no_phone_log"
     default_detail_template = (
-        "You can only reply if you allow Firefox Relay to keep a log of your callers"
-        " and text senders. See {account_settings_url}."
+        "To reply, you must allow Firefox Relay to keep a log of your callers"
+        " and text senders. You can update this under “Caller and texts log” here:"
+        "{account_settings_url}."
     )
 
     def error_context(self) -> ErrorContextType:
@@ -700,7 +701,10 @@ class NoPhoneLog(RelaySMSException):
 
 class NoPreviousSender(RelaySMSException):
     default_code = "no_previous_sender"
-    default_detail = "Message failed to send. Could not find a previous text sender."
+    default_detail = (
+        "Message failed to send. You can only reply to phone numbers that have sent"
+        " you a text message."
+    )
 
 
 class ShortPrefixException(RelaySMSException):
