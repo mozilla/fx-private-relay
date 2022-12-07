@@ -505,7 +505,7 @@ def inbound_sms(request):
         except RelaySMSException as sms_exception:
             # Send a translated message to the user
             ftl_code = sms_exception.get_codes().replace("_", "-")
-            ftl_id = f"relay-sms-error-{ftl_code}"
+            ftl_id = f"sms-error-{ftl_code}"
             with django_ftl.override(real_phone.user.profile.language):
                 user_message = ftl_bundle.format(ftl_id, sms_exception.error_context())
             twilio_client().messages.create(
