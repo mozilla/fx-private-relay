@@ -694,7 +694,7 @@ class NoPhoneLog(RelaySMSException):
 
     def error_context(self) -> ErrorContextType:
         return {
-            "account_settings_url": f"{settings.SITE_ORIGIN or ''}/accounts/settings"
+            "account_settings_url": f"{settings.SITE_ORIGIN or ''}/accounts/settings/"
         }
 
 
