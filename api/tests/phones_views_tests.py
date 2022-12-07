@@ -873,7 +873,7 @@ def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_clien
     call_kwargs = mocked_twilio_client.messages.create.call_args.kwargs
     assert call_kwargs["to"] == real_phone.number
     assert call_kwargs["from_"] == relay_number.number
-    assert call_kwargs["body"].startswith("To reply, you must allow ")
+    assert call_kwargs["body"].startswith("The reply feature requires \u2068Firefox ")
     assert f"{settings.SITE_ORIGIN}" in call_kwargs["body"]
 
 

@@ -9,7 +9,7 @@
 sms-error-no-previous-sender = Message failed to send. You can only reply to phone numbers that have sent you a text message.
 # Variables
 #   $account_settings_url (string) - The URL of the Relay account settings, to enable logs
-sms-error-no-phone-log = To reply, you must allow { -brand-name-firefox-relay } to keep a log of your callers and text senders. You can update this under “Caller and texts log” here: { $account_settings_url }
+sms-error-no-phone-log = The reply feature requires { -brand-name-firefox-relay } to keep a log of your callers and text senders. You can reply to future messages by enabling “Caller and texts log” in Settings: { $account_settings_url }
 
 # Variables
 #   $short_prefix (string) - A four-digit code, such as '1234', that matches the end of a phone number
