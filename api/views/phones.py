@@ -142,7 +142,8 @@ class RealPhoneViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             if not valid_record:
                 incr_if_enabled("phones_RealPhoneViewSet.create.invalid_verification")
                 raise exceptions.ValidationError(
-                    "Could not find that verification_code for user and number. It may have expired."
+                    "Could not find that verification_code for user and number."
+                    " It may have expired."
                 )
 
             headers = self.get_success_headers(serializer.validated_data)
@@ -278,7 +279,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         [test-creds]: https://www.twilio.com/docs/iam/test-credentials
         [test-numbers]: https://www.twilio.com/docs/iam/test-credentials#test-incoming-phone-numbers-parameters-PhoneNumber
         [e164]: https://en.wikipedia.org/wiki/E.164
-        """
+        """  # noqa: E501  # ignore long line for URL
         incr_if_enabled("phones_RelayNumberViewSet.create")
         existing_number = RelayNumber.objects.filter(user=request.user)
         if existing_number:
@@ -292,7 +293,8 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         The authenticated user must have a subscription that grants one of the
         `SUBSCRIPTIONS_WITH_PHONE` capabilities.
 
-        The `{id}` should match a previously-`POST`ed resource that belongs to the authenticated user.
+        The `{id}` should match a previously-`POST`ed resource that belongs to
+        the authenticated user.
 
         This is primarily used to toggle the `enabled` field.
         """
@@ -305,8 +307,10 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
         Returns suggested relay numbers for the authenticated user.
 
         Based on the user's real number, returns available relay numbers:
-          * `same_prefix_options`: Numbers that match as much of the user's real number as possible.
-          * `other_areas_options`: Numbers that exactly match the user's real number, in a different area code.
+          * `same_prefix_options`: Numbers that match as much of the user's
+            real number as possible.
+          * `other_areas_options`: Numbers that exactly match the user's real
+            number, in a different area code.
           * `same_area_options`: Other numbers in the same area code as the user.
           * `random_options`: Available numbers in the user's country
         """
@@ -328,7 +332,7 @@ class RelayNumberViewSet(SaveToRequestUser, viewsets.ModelViewSet):
             * Will be passed to `AvailablePhoneNumbers` `area_code` param
 
         [apn]: https://www.twilio.com/docs/phone-numbers/api/availablephonenumberlocal-resource#read-multiple-availablephonenumberlocal-resources
-        """
+        """  # noqa: E501  # ignore long line for URL
         incr_if_enabled("phones_RelayNumberViewSet.search")
         real_phone = get_verified_realphone_records(request.user).first()
         if real_phone:
@@ -366,7 +370,10 @@ def _validate_number(request):
         country = None
         if hasattr(request, "country"):
             country = request.country
-        error_message = f"number must be in E.164 format, or in local national format of the country detected: {country}"
+        error_message = (
+            "number must be in E.164 format, or in local national format of the"
+            f" country detected: {country}"
+        )
         raise exceptions.ValidationError(error_message)
 
     e164_number = f"+{parsed_number.country_code}{parsed_number.national_number}"
