@@ -28,20 +28,35 @@
       text-align: center;
       border-radius: $border-radius-md;
       background-color: $color-light-gray-10;
-      padding: $spacing-lg $spacing-md;
+      padding: $spacing-md $spacing-sm;
+
+      @media screen and #{$mq-sm} {
+        padding: $spacing-lg $spacing-md;
+      }
     }
 
     .warning {
       display: flex;
       align-items: center;
       gap: $spacing-lg;
-      padding: $spacing-lg $spacing-sm;
+      padding: $spacing-md $spacing-sm;
       border-bottom: 1px solid $color-light-gray-20;
       word-break: break-word;
 
+      @media screen and #{$mq-sm} {
+        padding: $spacing-lg $spacing-sm;
+      }
+
       .warning-icon {
+        // There is limited space on the mask creation modal on mobile.
+        // Hiding this icon until larger screens increases the available space for copy.
+        display: none;
         color: $color-pink-30;
         padding: $spacing-sm;
+
+        @media screen and #{$mq-sm} {
+          display: block;
+        }
 
         svg {
           max-width: unset;
@@ -54,7 +69,11 @@
 
       .form-heading {
         color: $color-dark-gray-70;
-        padding: $spacing-lg 0;
+        padding: $spacing-md 0;
+
+        @media screen and #{$mq-sm} {
+          padding: $spacing-lg 0;
+        }
       }
 
       .prefix {
@@ -89,9 +108,13 @@
       align-items: center;
       justify-content: center;
       gap: $spacing-sm;
-      padding: $spacing-lg $spacing-sm 0;
+      padding: $spacing-md $spacing-sm 0;
       font-family: $font-stack-firefox;
       accent-color: $color-blue-50;
+
+      @media screen and #{$mq-sm} {
+        padding: $spacing-lg $spacing-sm 0;
+      }
 
       .promotionals-blocking-description {
         a {
@@ -110,7 +133,11 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: $spacing-xl;
+      padding-top: $spacing-lg;
+
+      @media screen and #{$mq-sm} {
+        padding-top: $spacing-xl;
+      }
 
       .cancel-button {
         border-style: none;
