@@ -4,10 +4,10 @@ import { ReactNode, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import styles from "./email-info.module.scss";
 import {
-  CloseIcon,
   InfoIcon,
   CheckIcon,
   ChevronLeftIcon,
+  InfoTriangleIcon,
 } from "../components/Icons";
 import Link from "next/link";
 import { AliasData, AliasUpdateFn, useAliases } from "../hooks/api/aliases";
@@ -616,7 +616,7 @@ const Check = (props: {
       ? CheckIcon
       : props.status === "info"
       ? InfoIcon
-      : CloseIcon;
+      : InfoTriangleIcon;
 
   return (
     <li
