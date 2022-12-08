@@ -132,12 +132,17 @@
         }
 
         .cta {
+          @include text-body-sm;
           background-color: transparent;
           border-style: none;
-          text-decoration: underline;
           padding: 0;
           color: $color-blue-50;
+          font-weight: 700;
           cursor: pointer;
+
+          &:hover {
+            text-decoration: underline;
+          }
         }
       }
 
