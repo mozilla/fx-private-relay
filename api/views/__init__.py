@@ -8,6 +8,7 @@ from django.db import IntegrityError
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
+from rest_framework.serializers import ValidationError
 
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
@@ -38,14 +39,17 @@ from emails.models import (
 
 
 from ..exceptions import ConflictError, RelayAPIException
-from ..permissions import IsOwner
+from ..permissions import IsOwner, CanManageFlags
 from ..serializers import (
     DomainAddressSerializer,
     ProfileSerializer,
     RelayAddressSerializer,
     UserSerializer,
+    FlagSerializer,
     WebcompatIssueSerializer,
 )
+
+from privaterelay.ftl_bundles import main as ftl_bundle
 
 info_logger = logging.getLogger("eventsinfo")
 schema_view = get_schema_view(
@@ -193,6 +197,29 @@ def runtime_data(request):
     )
 
 
+class FlagFilter(filters.FilterSet):
+    class Meta:
+        model = get_waffle_flag_model()
+        fields = [
+            "name",
+            "everyone",
+            # "users",
+            # read-only
+            "id",
+        ]
+
+
+class FlagViewSet(viewsets.ModelViewSet):
+    serializer_class = FlagSerializer
+    permission_classes = [permissions.IsAuthenticated, CanManageFlags]
+    filterset_class = FlagFilter
+    http_method_names = ["get", "post", "head", "patch"]
+
+    def get_queryset(self):
+        flags = get_waffle_flag_model().objects
+        return flags
+
+
 @swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)
 @decorators.api_view(["POST"])
 @decorators.permission_classes([permissions.IsAuthenticated])
@@ -212,18 +239,32 @@ def relay_exception_handler(exc: Exception, context: Mapping) -> Optional[Respon
     """
     Add error information to response data.
 
-    When the error is a RelayAPIException, these additional fields may be present:
+    When the error is a RelayAPIException, these additional fields may be present and
+    the information will be translated if an Accept-Language header is added to the request:
 
     error_code - A string identifying the error, for client-side translation
     error_context - Additional data needed for client-side translation
     """
 
     response = exception_handler(exc, context)
+
     if response and isinstance(exc, RelayAPIException):
         error_codes = exc.get_codes()
+        error_context = exc.error_context()
         if isinstance(error_codes, str):
             response.data["error_code"] = error_codes
-        error_context = exc.error_context()
+
+            # Build Fluent error ID
+            ftl_id_sub = "api-error-"
+            ftl_id_error = error_codes.replace("_", "-")
+            ftl_id = ftl_id_sub + ftl_id_error
+
+            # Replace default message with Fluent string
+            response.data["detail"] = ftl_bundle.format(ftl_id, error_context)
+
         if error_context:
             response.data["error_context"] = error_context
+
+        response.data["error_code"] = error_codes
+
     return response

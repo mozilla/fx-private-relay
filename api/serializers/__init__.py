@@ -2,6 +2,7 @@ from django.contrib.auth.models import User
 from django.db.models import prefetch_related_objects
 
 from rest_framework import serializers, exceptions
+from waffle import get_waffle_flag_model
 
 from emails.models import DomainAddress, Profile, RelayAddress
 
@@ -149,6 +150,30 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["email"]
         read_only_fields = ["email"]
+
+
+class FlagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_waffle_flag_model()
+        fields = [
+            "id",
+            "name",
+            "everyone",
+            "note",
+        ]
+        read_only_fields = [
+            "id",
+        ]
+
+    def validate(self, data):
+        if (data.get("name", "").lower() == "manage_flags") or (
+            hasattr(self, "instance")
+            and getattr(self.instance, "name", "").lower() == "manage_flags"
+        ):
+            raise serializers.ValidationError(
+                "Changing the `manage_flags` flag is not allowed."
+            )
+        return super().validate(data)
 
 
 class WebcompatIssueSerializer(serializers.Serializer):

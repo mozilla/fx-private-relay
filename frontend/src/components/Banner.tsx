@@ -11,7 +11,7 @@ export type BannerProps = {
   children: ReactNode;
   type: "promo" | "warning" | "info";
   title?: string;
-  illustration?: ReactNode;
+  illustration?: { img: ReactNode; type?: "flex-end" };
   cta?: BannerCtaProps;
   /**
    * See {@link useLocalDismissal}; determines whether and for how long the user can dismiss this banner.
@@ -62,7 +62,14 @@ export const Banner = (props: BannerProps) => {
       : null;
 
   const illustration = props.illustration ? (
-    <div className={styles.illustration}>{props.illustration}</div>
+    <div
+      className={`
+          ${styles.illustration} 
+          ${props.illustration.type ? styles[props.illustration.type] : null}
+        `}
+    >
+      {props.illustration.img}
+    </div>
   ) : null;
 
   const cta = props.cta ? <BannerCta {...props.cta} /> : null;

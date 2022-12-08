@@ -1,0 +1,193 @@
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+@import "../../../styles/tokens.scss";
+
+.main-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: $content-max;
+  width: 100%;
+  margin: 0 auto;
+  padding: $spacing-md;
+  margin-bottom: $layout-md;
+  margin-top: $layout-sm;
+  gap: $layout-md;
+
+  .main-heading {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+
+    h1 {
+      @include text-title-xs;
+      @include font-firefox;
+      font-weight: 600;
+    }
+  }
+
+  .phone-instructions-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-top: $layout-md;
+
+    @media screen and #{$mq-md} {
+      flex-direction: row;
+    }
+
+    .instruction-item {
+      flex: 1 1 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: $spacing-lg 0;
+
+      @media screen and #{$mq-md} {
+        padding: 0 $spacing-md;
+      }
+      @media screen and #{$mq-lg} {
+        padding: 0 $spacing-2xl;
+      }
+
+      + .instruction-item {
+        border-top: solid 2px $color-light-gray-20;
+
+        @media screen and #{$mq-md} {
+          border-left: solid 2px $color-light-gray-20;
+          border-top: none;
+        }
+      }
+
+      .relay-contact-icon {
+        align-self: center;
+        display: inline;
+        border-radius: 100%;
+        background-color: $color-light-gray-30;
+        color: $color-dark-gray-90;
+        padding: $spacing-xs;
+        margin-left: $spacing-sm;
+      }
+
+      h2 {
+        @include text-title-3xs;
+        padding: $spacing-md 0;
+        font-weight: 600;
+      }
+
+      .welcome-text-cta {
+        display: inline-block;
+        margin: 0;
+        padding: 0;
+        text-decoration: underline;
+        color: $color-blue-50;
+        cursor: pointer;
+        font-weight: 500;
+        background: none;
+        border: none;
+
+        &:hover {
+          color: $color-blue-80;
+        }
+      }
+
+      img {
+        align-self: center;
+      }
+
+      .demo-wrapper {
+        padding: 0 $spacing-md;
+
+        @media screen and #{$mq-md} {
+          padding: 0;
+        }
+
+        .demo-heading {
+          color: $color-light-gray-80;
+          padding-top: $spacing-lg;
+        }
+
+        .demo-input-wrapper {
+          display: flex;
+          align-items: center;
+          position: relative;
+
+          .demo-input {
+            @include text-body-lg;
+            position: absolute;
+            // Positioning the input into the text image
+            margin: 0 0 5% 5%;
+
+            @media screen and #{$mq-md} {
+              @include text-body-md;
+            }
+            @media screen and #{$mq-xl} {
+              @include text-body-lg;
+            }
+          }
+
+          .demo-img {
+            width: 100%;
+            // To counteract the drop shadow in the text image
+            margin-left: -8px;
+
+            img {
+              width: 100%;
+            }
+          }
+        }
+
+        .block-sender-wrapper {
+          width: 100%;
+
+          ul {
+            display: flex;
+            flex-direction: column;
+            padding: $spacing-sm;
+            background: $color-white;
+            box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1); // Taken from Figma style to match it with the other svgs
+            border-radius: $border-radius-md;
+            list-style: none;
+            gap: $spacing-xs;
+
+            li {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              padding: $spacing-xs;
+
+              &:first-child {
+                color: $color-light-gray-50;
+                padding-bottom: $spacing-sm;
+                border-bottom: 1px solid $color-light-gray-10;
+              }
+
+              span {
+                margin: 0;
+
+                p:nth-child(2) {
+                  @include text-body-sm;
+                }
+
+                &:nth-child(2) {
+                  color: $color-blue-50;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .dashboard-btn {
+    @include font-firefox;
+    width: 100%;
+    text-align: center;
+    padding: $spacing-sm;
+
+    @media screen and #{$mq-md} {
+      width: auto;
+      padding: $spacing-sm $spacing-2xl;
+    }
+  }
+}

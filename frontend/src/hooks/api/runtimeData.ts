@@ -3,7 +3,18 @@ import { useApiV1 } from "./api";
 
 type CountryCode = string;
 type LanguageCode = string;
-type WaffleFlag = [string, boolean];
+export type FlagNames =
+  | "manage_flags"
+  | "interview_recruitment"
+  | "new_from_address"
+  | "tracker_removal"
+  | "phones"
+  | "bundle"
+  | "phone_launch_survey"
+  | "multi_replies"
+  | "firefox_integration"
+  | "premium_promo_banners";
+type WaffleFlag = [FlagNames, boolean];
 
 export type PlanData = {
   monthly: { id: string; price: number; currency: string };

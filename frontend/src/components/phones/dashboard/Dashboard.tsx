@@ -20,13 +20,16 @@ import { getLocale } from "../../../functions/getLocale";
 import { parseDate } from "../../../functions/parseDate";
 import { Tips } from "../../dashboard/tips/Tips";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
-import { useLocalDismissal } from "../../../hooks/localDismissal";
+import { DismissalData } from "../../../hooks/localDismissal";
 import { Banner } from "../../Banner";
 
 export type Props = {
   profile: ProfileData;
   runtimeData: RuntimeData;
   realPhone: VerifiedPhone;
+  dismissal: {
+    resendSMS: DismissalData;
+  };
   onRequestContactCard: () => Promise<Response>;
 };
 
@@ -45,10 +48,7 @@ export const PhoneDashboard = (props: Props) => {
 
   const [justCopiedPhoneNumber, setJustCopiedPhoneNumber] = useState(false);
 
-  const resendWelcomeSMSDismissal = useLocalDismissal(
-    `resend-sms-banner-${props.profile.id}`
-  );
-  const resendWelcomeText = !resendWelcomeSMSDismissal.isDismissed && (
+  const resendWelcomeText = !props.dismissal.resendSMS.isDismissed && (
     <div className={styles["banner-wrapper"]}>
       <Banner
         title={l10n.getString("phone-banner-resend-welcome-sms-title")}
@@ -60,7 +60,7 @@ export const PhoneDashboard = (props: Props) => {
             toast(l10n.getString("phone-banner-resend-welcome-sms-toast-msg"), {
               type: "success",
             });
-            resendWelcomeSMSDismissal.dismiss();
+            props.dismissal.resendSMS.dismiss();
           },
           gaViewPing: {
             category: "Resend Welcome SMS",

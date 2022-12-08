@@ -3,11 +3,13 @@ from django.urls import include, path, register_converter
 
 from rest_framework import routers
 
+from privaterelay.utils import enable_if_setting
 from .views import (
     DomainAddressViewSet,
     RelayAddressViewSet,
     ProfileViewSet,
     UserViewSet,
+    FlagViewSet,
     report_webcompat_issue,
     runtime_data,
     schema_view,
@@ -32,6 +34,7 @@ api_router.register(r"domainaddresses", DomainAddressViewSet, "domainaddress")
 api_router.register(r"relayaddresses", RelayAddressViewSet, "relayaddress")
 api_router.register(r"profiles", ProfileViewSet, "profiles")
 api_router.register(r"users", UserViewSet, "user")
+api_router.register(r"flags", FlagViewSet, "flag")
 
 
 urlpatterns = [
@@ -43,12 +46,14 @@ urlpatterns = [
     ),
     path(
         "v1/swagger<swagger_format:format>",
-        schema_view.without_ui(cache_timeout=0),
+        enable_if_setting("API_DOCS_ENABLED")(schema_view.without_ui(cache_timeout=0)),
         name="schema-json",
     ),
     path(
         "v1/docs/",
-        schema_view.with_ui("swagger", cache_timeout=0),
+        enable_if_setting("API_DOCS_ENABLED")(
+            schema_view.with_ui("swagger", cache_timeout=0)
+        ),
         name="schema-swagger-ui",
     ),
 ]

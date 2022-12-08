@@ -284,7 +284,7 @@ class Profile(models.Model):
             if self.user.email.endswith(f"@{premium_domain}"):
                 return True
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED:
             if sub in user_subscriptions:
                 return True
         return False
@@ -298,7 +298,7 @@ class Profile(models.Model):
             if flag.is_active_for_user(self.user):
                 return True
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_PHONE.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_PHONE:
             if sub in user_subscriptions:
                 return True
         return False
@@ -308,7 +308,7 @@ class Profile(models.Model):
         if not self.fxa:
             return False
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_VPN.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_VPN:
             if sub in user_subscriptions:
                 return True
         return False
@@ -459,10 +459,6 @@ class Profile(models.Model):
         return True
 
 
-def get_storing_phone_log(relay_number):
-    return relay_number.user.profile.store_phone_log
-
-
 @receiver(models.signals.post_save, sender=Profile)
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
@@ -552,8 +548,8 @@ class AccountIsPausedException(CannotMakeAddressException):
 class RelayAddrFreeTierLimitException(CannotMakeAddressException):
     default_code = "free_tier_limit"
     default_detail_template = (
-        "You must be a premium subscriber to make more than"
-        " {free_tier_limit} aliases."
+        "You’ve used all {free_tier_limit} email masks included with your free account."
+        "You can reuse an existing mask, but using a unique mask for each account is the most secure option."
     )
     status_code = 403
 
@@ -570,24 +566,19 @@ class RelayAddrFreeTierLimitException(CannotMakeAddressException):
 
 class DomainAddrFreeTierException(CannotMakeAddressException):
     default_code = "free_tier_no_subdomain_masks"
-    default_detail = "You must be a premium subscriber to create subdomain aliases."
+    default_detail = "Your free account does not include custom subdomains for masks. To create custom masks, upgrade to Relay Premium."
     status_code = 403
 
 
 class DomainAddrNeedSubdomainException(CannotMakeAddressException):
     default_code = "need_subdomain"
-    default_detail = (
-        "You must select a subdomain before creating email address with subdomain."
-    )
+    default_detail = "Please select a subdomain before creating a custom email address."
     status_code = 400
 
 
 class DomainAddrUnavailableException(CannotMakeAddressException):
     default_code = "address_unavailable"
-    default_detail_template = (
-        'Domain address "{unavailable_address}" could not be created,'
-        " try using a different value."
-    )
+    default_detail_template = "“{unavailable_address}” could not be created. Please try again with a different mask name."
     status_code = 400
 
     def __init__(self, unavailable_address: str, *args, **kwargs):
