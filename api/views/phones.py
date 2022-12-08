@@ -4,8 +4,6 @@ from typing import Literal, Optional
 import logging
 import re
 import string
-from drf_yasg import openapi
-from drf_yasg.utils import swagger_auto_schema
 
 from waffle import get_waffle_flag_model
 import django_ftl
@@ -25,6 +23,8 @@ from rest_framework import (
     exceptions,
 )
 from rest_framework.generics import get_object_or_404
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 from twilio.base.exceptions import TwilioRestException
 
