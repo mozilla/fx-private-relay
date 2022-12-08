@@ -22,4 +22,6 @@ class RelayMessageFinder(DjangoMessageFinder):
         return base_dirs + pending_dirs
 
 
-main = Bundle(["app.ftl", "brands.ftl", "pending.ftl"], finder=RelayMessageFinder())
+main = Bundle(
+    ["app.ftl", "brands.ftl", "phones.ftl", "pending.ftl"], finder=RelayMessageFinder()
+)
