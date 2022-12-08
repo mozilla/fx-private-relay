@@ -85,8 +85,3 @@ tips-multi-replies-content = Just start your message with the last 4 digits of t
 
 phone-masking-splash-save-contact-example = Saving your { -brand-name-relay } Contact
 phone-masking-splash-save-contact-example-text = { -brand-name-firefox-relay }
-
-# $sender (string) - the sender's email address
-replies-not-included-in-free-account-message = We’ve sent this reply to { $sender }. But moving forward, your replies will not be sent. Replying to forwarded emails from your masked email is only available with { -brand-name-firefox-relay-premium }.
-replies-not-included-in-free-account-header = Replies are not included with your free account
-upgrade-to-reply-to-future-emails = Upgrade now to reply to future emails
