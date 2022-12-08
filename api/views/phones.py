@@ -657,8 +657,12 @@ def messages(request):
     Pass ?with=<E.164> parameter to filter the messages to only the ones sent between
     the relay number and the <E.164> number.
 
+    Pass ?direction=inbound|outbound to filter the messages to only the inbound or
+    outbound messages.
+
     """
     _with = request.data.get("with", None)
+    _direction = request.data.get("direction", None)
     relay_number = RelayNumber.objects.get(user=request.user)
 
     contact = None
@@ -675,6 +679,35 @@ def messages(request):
         outbound_messages = client.messages.list(
             from_=relay_number.number, to=contact.inbound_number
         )
+        if not _direction:
+            return response.Response(
+                {
+                    "inbound_messages": inbound_messages,
+                    "outbound_messages": outbound_messages,
+                },
+                status=200,
+            )
+        if _direction == "inbound":
+            return response.Response(
+                {
+                    "inbound_messages": inbound_messages,
+                },
+                status=200,
+            )
+        if _direction == "outbound":
+            return response.Response(
+                {
+                    "outbound_messages": outbound_messages,
+                },
+                status=200,
+            )
+    inbound_messages = convert_twilio_messages_to_dict(
+        client.messages.list(to=relay_number.number)
+    )
+    outbound_messages = convert_twilio_messages_to_dict(
+        client.messages.list(from_=relay_number.number)
+    )
+    if not _direction:
         return response.Response(
             {
                 "inbound_messages": inbound_messages,
@@ -682,14 +715,25 @@ def messages(request):
             },
             status=200,
         )
-    inbound_messages = convert_twilio_messages_to_dict(
-        client.messages.list(to=relay_number.number)
-    )
-    outbound_messages = convert_twilio_messages_to_dict(
-        client.messages.list(from_=relay_number.number)
-    )
+    if _direction == "inbound":
+        return response.Response(
+            {
+                "inbound_messages": inbound_messages,
+            },
+            status=200,
+        )
+    if _direction == "outbound":
+        return response.Response(
+            {
+                "outbound_messages": outbound_messages,
+            },
+            status=200,
+        )
     return response.Response(
-        {"inbound_messages": inbound_messages, "outbound_messages": outbound_messages},
+        {
+            "inbound_messages": inbound_messages,
+            "outbound_messages": outbound_messages,
+        },
         status=200,
     )
 
