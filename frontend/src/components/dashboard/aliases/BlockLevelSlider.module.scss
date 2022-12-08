@@ -96,6 +96,10 @@ $trackLineHeight: 4px;
           // and therefore would overlap the thumb.
           z-index: 1;
 
+          @media (prefers-reduced-motion: no-preference) {
+            transition: left 50ms ease-in;
+          }
+
           .thumb {
             width: var(--thumbDiameter);
             height: var(--thumbDiameter);

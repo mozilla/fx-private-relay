@@ -33,9 +33,9 @@ export type Props = {
   user: UserData;
   profile: ProfileData;
   onUpdate: (updatedFields: Partial<AliasData>) => void;
-  onDelete: () => void;
+  onDelete?: () => void;
   isOpen: boolean;
-  onChangeOpen: (isOpen: boolean) => void;
+  onChangeOpen?: (isOpen: boolean) => void;
   showLabelEditor?: boolean;
   runtimeData?: RuntimeData;
 };
@@ -190,19 +190,21 @@ export const Alias = (props: Props) => {
           profile={props.profile}
           runtimeData={props.runtimeData}
         />
-        <div className={styles["expand-toggle"]}>
-          <button {...expandButtonProps} ref={expandButtonRef}>
-            <ArrowDownIcon
-              alt={l10n.getString(
-                expandButtonState.isSelected
-                  ? "profile-details-collapse"
-                  : "profile-details-expand"
-              )}
-              width={16}
-              height={16}
-            />
-          </button>
-        </div>
+        {typeof props.onChangeOpen === "function" && (
+          <div className={styles["expand-toggle"]}>
+            <button {...expandButtonProps} ref={expandButtonRef}>
+              <ArrowDownIcon
+                alt={l10n.getString(
+                  expandButtonState.isSelected
+                    ? "profile-details-collapse"
+                    : "profile-details-expand"
+                )}
+                width={16}
+                height={16}
+              />
+            </button>
+          </div>
+        )}
       </div>
       <div className={styles["secondary-data"]}>
         {/* This <Stats> will be hidden on large screens: */}
@@ -232,7 +234,12 @@ export const Alias = (props: Props) => {
               <dd>{renderDate(props.alias.created_at, l10n)}</dd>
             </div>
           </dl>
-          <AliasDeletionButton onDelete={props.onDelete} alias={props.alias} />
+          {typeof props.onDelete === "function" && (
+            <AliasDeletionButton
+              onDelete={props.onDelete}
+              alias={props.alias}
+            />
+          )}
         </div>
       </div>
     </div>

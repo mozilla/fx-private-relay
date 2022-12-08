@@ -77,7 +77,7 @@ export const BlockLevelSlider = (props: Props) => {
         return props.onChange(blockLevel);
       }
     },
-    defaultValue: [getSliderValueForAlias(props.alias)],
+    value: [getSliderValueForAlias(props.alias)],
   };
   const sliderState = useSliderState(sliderSettings);
 

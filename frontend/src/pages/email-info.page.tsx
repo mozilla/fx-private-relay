@@ -20,6 +20,8 @@ import { Layout } from "../components/layout/Layout";
 import { RuntimeData, useRuntimeData } from "../hooks/api/runtimeData";
 import { isPeriodicalPremiumAvailableInCountry } from "../functions/getPlan";
 import { getRuntimeConfig } from "../config";
+import { Alias } from "../components/dashboard/aliases/Alias";
+import { useUsers } from "../hooks/api/user";
 
 // Paste this in your browser console to get a report URL:
 // { let url = new URL("http://localhost:3000/email-info"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 }, subject: "Uw bestelling - bevestiging van ontvangst 1353260347", type: "random", maskId: 0, isPromotional: true }); url.href }
@@ -42,6 +44,7 @@ const EmailInfo: NextPage = () => {
 
   const maskData = useAliases();
   const profileData = useProfiles();
+  const userData = useUsers();
   const runtimeData = useRuntimeData();
 
   useEffect(() => {
@@ -91,6 +94,21 @@ const EmailInfo: NextPage = () => {
       </Link>
     ) : null;
 
+  const maskCard =
+    currentMask === null ||
+    typeof profileData.data === "undefined" ||
+    typeof userData.data === "undefined" ? null : (
+      <Alias
+        alias={currentMask}
+        isOpen={true}
+        profile={profileData.data[0]}
+        user={userData.data[0]}
+        runtimeData={runtimeData.data}
+        onUpdate={(updatedFields) =>
+          maskData.update(currentMask, updatedFields)
+        }
+      />
+    );
   return (
     <>
       <Layout runtimeData={runtimeData.data}>
@@ -140,6 +158,7 @@ const EmailInfo: NextPage = () => {
                 <PremiumCheck profile={profileData.data?.[0]} />
               </ul>
             </div>
+            {maskCard}
             {emailDashboardLink}
           </main>
         </div>
@@ -200,7 +219,7 @@ const PromotionalCheck = (props: {
       );
     }
 
-    if (mask.data.block_level_one_trackers === true) {
+    if (mask.data.block_list_emails === true) {
       return (
         <Check
           status="checked"
@@ -218,7 +237,7 @@ const PromotionalCheck = (props: {
             action: async () => {
               try {
                 await mask.onUpdate(mask.data, {
-                  block_level_one_trackers: false,
+                  block_list_emails: false,
                 });
                 toast(
                   l10n.getString(
@@ -258,7 +277,7 @@ const PromotionalCheck = (props: {
           action: async () => {
             try {
               await mask.onUpdate(mask.data, {
-                block_level_one_trackers: true,
+                block_list_emails: true,
               });
               toast(
                 l10n.getString(
