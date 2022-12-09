@@ -168,3 +168,15 @@ emailinfo-checklist-random-status-custom = Custom mask
 emailinfo-checklist-random-description-custom = This email was sent to one of your custom masks, which can be linked to your other custom masks. Consider changing your email address to a random mask.
 
 emailinfo-footer-dashboard = Manage all email masks
+
+popover-block-promo-title = Block promotional emails?
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+popover-block-promo-description = Promotional emails sent to { $address } will no longer be forwarded.
+popover-block-promo-cta = Yes, block
+popover-block-all-title = Block all emails?
+# Variables:
+#   $address (string) - The given mask's email address (e.g. abcd123@mozmail.com)
+popover-block-all-description = Stop forwarding emails sent to { $address }?
+popover-block-all-cta = Yes, stop forwarding
+popover-block-close = Close

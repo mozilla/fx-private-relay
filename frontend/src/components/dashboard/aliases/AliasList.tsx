@@ -1,6 +1,16 @@
 import { Localized, useLocalization } from "@fluent/react";
-import { useState, useEffect } from "react";
-import { VisuallyHidden } from "react-aria";
+import { useState, useEffect, Ref, useRef, RefObject, ReactNode } from "react";
+import {
+  DismissButton,
+  FocusScope,
+  mergeProps,
+  OverlayContainer,
+  useDialog,
+  useModal,
+  useOverlay,
+  useOverlayPosition,
+  VisuallyHidden,
+} from "react-aria";
 import styles from "./AliasList.module.scss";
 import { AliasData, isRandomAlias } from "../../../hooks/api/aliases";
 import { ProfileData } from "../../../hooks/api/profile";
@@ -11,8 +21,9 @@ import { UserData } from "../../../hooks/api/user";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
-import { SearchIcon } from "../../Icons";
+import { CloseIcon, SearchIcon } from "../../Icons";
 import { useFlaggedAnchorLinks } from "../../../hooks/flaggedAnchorLinks";
+import { Button } from "../../Button";
 
 export type Props = {
   aliases: AliasData[];
@@ -54,6 +65,9 @@ export const AliasList = (props: Props) => {
   const [existingAliases, setExistingAliases] = useState<AliasData[]>(
     props.aliases
   );
+
+  const focusedAliasContainerRef = useRef<HTMLLIElement>(null);
+  const [actionPrompt, setActionPrompt] = useState(getActionPrompt());
 
   useEffect(() => {
     if (props.aliases.length === 0) {
@@ -125,6 +139,12 @@ export const AliasList = (props: Props) => {
         className={styles["alias-card-wrapper"]}
         key={alias.address + isRandomAlias(alias)}
         id={encodeURIComponent(alias.full_address)}
+        ref={
+          encodeURIComponent(alias.full_address) ===
+          document?.location.hash.substring(1)
+            ? focusedAliasContainerRef
+            : undefined
+        }
       >
         <Alias
           alias={alias}
@@ -144,6 +164,60 @@ export const AliasList = (props: Props) => {
       </li>
     );
   });
+
+  const prompt =
+    actionPrompt !== null ? (
+      <BlockPrompt
+        maskContainerRef={focusedAliasContainerRef}
+        onClose={() => setActionPrompt(null)}
+        title={l10n.getString(
+          actionPrompt === "block-promo"
+            ? "popover-block-promo-title"
+            : "popover-block-all-title"
+        )}
+      >
+        <button
+          autoFocus={true}
+          onClick={() => setActionPrompt(null)}
+          className={styles.close}
+        >
+          <CloseIcon alt={l10n.getString("popover-block-close")} />
+        </button>
+        <p>
+          {l10n.getString(
+            actionPrompt === "block-promo"
+              ? "popover-block-promo-description"
+              : "popover-block-all-description",
+            { address: decodeURIComponent(document.location.hash.substring(1)) }
+          )}
+        </p>
+        <Button
+          onClick={() => {
+            const relevantAlias = aliases.find(
+              (alias) =>
+                alias.full_address ===
+                decodeURIComponent(document.location.hash.substring(1))
+            );
+            if (!relevantAlias) {
+              return;
+            }
+            const fieldsToUpdate: Partial<AliasData> =
+              actionPrompt === "block-promo"
+                ? { block_list_emails: true }
+                : { enabled: false };
+            props.onUpdate(relevantAlias, fieldsToUpdate);
+            setActionPrompt(null);
+          }}
+          className={styles.cta}
+        >
+          {l10n.getString(
+            actionPrompt === "block-promo"
+              ? "popover-block-promo-cta"
+              : "popover-block-all-cta"
+          )}
+        </Button>
+      </BlockPrompt>
+    ) : null;
 
   // With at most five aliases, filters aren't really useful
   // for non-Premium users.
@@ -224,9 +298,85 @@ export const AliasList = (props: Props) => {
       </div>
       <ul>{aliasCards}</ul>
       {emptyStateMessage}
+      {prompt}
     </section>
   );
 };
+
+const BlockPrompt = (props: {
+  maskContainerRef: RefObject<HTMLLIElement>;
+  title: string;
+  children: ReactNode;
+  onClose: () => void;
+}) => {
+  const overlayRef = useRef<HTMLDivElement>(null);
+
+  const positionProps = useOverlayPosition({
+    targetRef: props.maskContainerRef,
+    overlayRef: overlayRef,
+    placement: "top left",
+    // Top padding of the `props.maskContainerRef` element, plus some spacing:
+    offset: -24 + 8,
+    isOpen: true,
+  }).overlayProps;
+
+  const { overlayProps, underlayProps } = useOverlay(
+    {
+      onClose: props.onClose,
+      isOpen: true,
+      isDismissable: true,
+    },
+    overlayRef
+  );
+
+  const { modalProps } = useModal();
+  const { dialogProps, titleProps } = useDialog({}, overlayRef);
+
+  const divProps = mergeProps(
+    overlayProps,
+    dialogProps,
+    positionProps,
+    modalProps
+  );
+
+  return (
+    <OverlayContainer>
+      <div className={styles["prompt-underlay"]} {...underlayProps}>
+        <FocusScope restoreFocus>
+          <div
+            {...divProps}
+            ref={overlayRef}
+            className={styles["prompt-container"]}
+            style={{
+              ...divProps.style,
+              maxHeight: "auto",
+            }}
+          >
+            <h3 {...titleProps}>{props.title}</h3>
+            {props.children}
+            <DismissButton onDismiss={props.onClose} />
+          </div>
+        </FocusScope>
+      </div>
+    </OverlayContainer>
+  );
+};
+
+function getActionPrompt(): null | "block-promo" | "block-all" {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  if (document.location.search === "?prompt=block-promo") {
+    return "block-promo";
+  }
+
+  if (document.location.search === "?prompt=block-all") {
+    return "block-all";
+  }
+
+  return null;
+}
 
 function sortAliases(aliases: AliasData[]): AliasData[] {
   const aliasDataCopy = aliases.slice();
