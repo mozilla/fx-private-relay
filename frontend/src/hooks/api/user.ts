@@ -24,7 +24,7 @@ export function useUsers() {
         // If so, do not retry.
         return;
       }
-      SWRConfig.default.onErrorRetry(
+      SWRConfig.defaultValue.onErrorRetry(
         error,
         key,
         config,

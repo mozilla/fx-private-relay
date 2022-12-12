@@ -45,7 +45,7 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
     onErrorRetry: (
       error: unknown | FetchError,
       key,
-      config: Parameters<typeof SWRConfig.default.onErrorRetry>[2],
+      config: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[2],
       revalidate,
       revalidateOpts
     ) => {
@@ -54,7 +54,7 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
         // If so, do not retry.
         return;
       }
-      SWRConfig.default.onErrorRetry(
+      SWRConfig.defaultValue.onErrorRetry(
         error,
         key,
         config,
