@@ -148,7 +148,7 @@ def ses_send_raw_email(
 ):
 
     msg_with_headers = _start_message_with_headers(
-        subject, from_address, to_address, reply_address
+        subject, from_address, to_address, reply_address, address
     )
     msg_with_body = _add_body_to_message(msg_with_headers, message_body)
     msg_with_attachments = _add_attachments_to_message(msg_with_body, attachments)
@@ -174,7 +174,9 @@ def ses_send_raw_email(
     return HttpResponse("Sent email to final recipient.", status=200)
 
 
-def _start_message_with_headers(subject, from_address, to_address, reply_address):
+def _start_message_with_headers(
+    subject, from_address, to_address, reply_address, relay_address
+):
     # Create a multipart/mixed parent container.
     msg = MIMEMultipart("mixed")
     # Add subject, from and to lines.
@@ -182,6 +184,11 @@ def _start_message_with_headers(subject, from_address, to_address, reply_address
     msg["From"] = from_address
     msg["To"] = to_address
     msg["Reply-To"] = reply_address
+    if type(relay_address) == RelayAddress:
+        msg["X-RelayAddress-ID"] = str(relay_address.id)
+    if type(relay_address) == DomainAddress:
+        msg["X-DomainAddress-ID"] = str(relay_address.id)
+
     return msg
 
 
