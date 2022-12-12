@@ -511,11 +511,11 @@ export const WhatsNewMenu = (props: Props) => {
     dismissal: useLocalDismissal(
       `whatsnew-feature_firefox-integration_${props.profile.id}`
     ),
-    // Day after release of Firefox 108 (to ensure our announcement is not before Firefox's)
+    // Week after release of Firefox 110 (to ensure it was rolled out to everyone)
     announcementDate: {
       year: 2023,
-      month: 1,
-      day: 24,
+      month: 2,
+      day: 21,
     },
   };
   if (
