@@ -34,3 +34,6 @@ relay-sms-error-no-body-after-full-number = Message failed to send. Please inclu
 replies-not-included-in-free-account-message = We’ve sent this reply to { $sender }. But moving forward, your replies will not be sent. Replying to forwarded emails from your masked email is only available with { -brand-name-firefox-relay-premium }.
 replies-not-included-in-free-account-header = Replies are not included with your free account
 upgrade-to-reply-to-future-emails = Upgrade now to reply to future emails
+upgrade-for-more-protection = Upgrade for more protection
+upgrade-to-premium = Upgrade to { -brand-name-firefox-relay-premium }
+manage-your-masks = Manage your masks
