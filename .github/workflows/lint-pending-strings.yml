@@ -1,7 +1,10 @@
-name: Lint Reference Files
+name: Lint Pending Translations
 on:
   push:
-    paths: ['frontend/pendingTranslations.ftl', '.github/workflows/lint-pending-strings.yml'  ]
+    paths:
+      - 'frontend/pendingTranslations.ftl'
+      - '.github/workflows/lint-pending-strings.yml'
+      - 'privaterelay/pending_locales/en/pending.ftl'
     branches: [ '*' ]
   workflow_dispatch:
 jobs:
@@ -20,6 +23,9 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -r privaterelay/locales/.github/requirements.txt
-      - name: Lint reference
+      - name: Lint frontend pending translations
         run: |
           moz-fluent-lint frontend --config privaterelay/locales/.github/linter_config.yml
+      - name: Lint backend pending translations
+        run: |
+          moz-fluent-lint privaterelay/pending_locales --config privaterelay/locales/.github/linter_config.yml
