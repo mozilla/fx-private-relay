@@ -28,4 +28,4 @@ jobs:
           moz-fluent-lint frontend --config privaterelay/locales/.github/linter_config.yml
       - name: Lint backend pending translations
         run: |
-          moz-fluent-lint privaterelay/pending_locales
+          moz-fluent-lint privaterelay/pending_locales --config privaterelay/locales/.github/linter_config.yml
