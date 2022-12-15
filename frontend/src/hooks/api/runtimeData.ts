@@ -4,6 +4,7 @@ import { useApiV1 } from "./api";
 type CountryCode = string;
 type LanguageCode = string;
 export type FlagNames =
+  | "manage_flags"
   | "interview_recruitment"
   | "new_from_address"
   | "tracker_removal"
@@ -11,7 +12,8 @@ export type FlagNames =
   | "bundle"
   | "phone_launch_survey"
   | "multi_replies"
-  | "firefox_integration";
+  | "firefox_integration"
+  | "premium_promo_banners";
 type WaffleFlag = [FlagNames, boolean];
 
 export type PlanData = {

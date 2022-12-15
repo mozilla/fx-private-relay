@@ -102,7 +102,6 @@ export const Layout = (props: Props) => {
       </div>
     );
   };
-
   return (
     <>
       <PageMetadata />
@@ -173,7 +172,13 @@ export const Layout = (props: Props) => {
             userEmail={usersData?.email}
             userAvatar={profiles.data?.[0].avatar}
           />
-          <div className={styles.content}>{props.children}</div>
+          <div
+            className={`${styles.content} ${
+              router.pathname === "/phone" ? styles["gray-bg"] : null
+            }`}
+          >
+            {props.children}
+          </div>
           <footer className={styles.footer}>
             <a
               href="https://www.mozilla.org"

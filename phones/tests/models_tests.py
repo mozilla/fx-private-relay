@@ -55,9 +55,7 @@ def make_phone_test_user():
 
 
 def upgrade_test_user_to_phone(user):
-    random_sub = random.choice(
-        list(filter(None, settings.SUBSCRIPTIONS_WITH_PHONE.split(",")))
-    )
+    random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_PHONE)
     account = baker.make(
         SocialAccount,
         user=user,

@@ -1,0 +1,86 @@
+@import "../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-2xl;
+  padding: $spacing-2xl;
+  height: 100%;
+
+  .flag-list {
+    thead {
+      display: none;
+    }
+
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+    }
+    tr {
+      display: flex;
+      gap: $spacing-xs;
+
+      &.is-active td:first-of-type {
+        color: $color-green-80;
+      }
+
+      &.is-non-global {
+        text-decoration: line-through;
+      }
+
+      td {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &:first-of-type {
+          text-align: center;
+
+          svg {
+            display: inline-block;
+          }
+        }
+
+        &:last-of-type {
+          font-family: monospace;
+        }
+      }
+    }
+  }
+
+  .flag-form {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-lg;
+    width: $content-sm;
+
+    p {
+      border: 1px solid $color-yellow-20;
+      background-color: $color-yellow-05;
+      padding: $spacing-md;
+    }
+
+    output {
+      font-family: monospace;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: $spacing-sm;
+
+      label {
+        @include text-body-md;
+      }
+
+      input {
+        @include text-body-md;
+        font-family: monospace;
+        padding: $spacing-xs $spacing-sm;
+      }
+    }
+  }
+}

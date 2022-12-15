@@ -8,6 +8,7 @@ from django.db import IntegrityError
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
+from rest_framework.serializers import ValidationError
 
 from django_filters import rest_framework as filters
 from drf_yasg.utils import swagger_auto_schema
@@ -38,12 +39,13 @@ from emails.models import (
 
 
 from ..exceptions import ConflictError, RelayAPIException
-from ..permissions import IsOwner
+from ..permissions import IsOwner, CanManageFlags
 from ..serializers import (
     DomainAddressSerializer,
     ProfileSerializer,
     RelayAddressSerializer,
     UserSerializer,
+    FlagSerializer,
     WebcompatIssueSerializer,
 )
 
@@ -193,6 +195,29 @@ def runtime_data(request):
             "MAX_MINUTES_TO_VERIFY_REAL_PHONE": settings.MAX_MINUTES_TO_VERIFY_REAL_PHONE,
         }
     )
+
+
+class FlagFilter(filters.FilterSet):
+    class Meta:
+        model = get_waffle_flag_model()
+        fields = [
+            "name",
+            "everyone",
+            # "users",
+            # read-only
+            "id",
+        ]
+
+
+class FlagViewSet(viewsets.ModelViewSet):
+    serializer_class = FlagSerializer
+    permission_classes = [permissions.IsAuthenticated, CanManageFlags]
+    filterset_class = FlagFilter
+    http_method_names = ["get", "post", "head", "patch"]
+
+    def get_queryset(self):
+        flags = get_waffle_flag_model().objects
+        return flags
 
 
 @swagger_auto_schema(methods=["post"], request_body=WebcompatIssueSerializer)

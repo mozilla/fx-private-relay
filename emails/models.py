@@ -284,7 +284,7 @@ class Profile(models.Model):
             if self.user.email.endswith(f"@{premium_domain}"):
                 return True
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED:
             if sub in user_subscriptions:
                 return True
         return False
@@ -298,7 +298,7 @@ class Profile(models.Model):
             if flag.is_active_for_user(self.user):
                 return True
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_PHONE.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_PHONE:
             if sub in user_subscriptions:
                 return True
         return False
@@ -308,7 +308,7 @@ class Profile(models.Model):
         if not self.fxa:
             return False
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_VPN.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_VPN:
             if sub in user_subscriptions:
                 return True
         return False
@@ -457,10 +457,6 @@ class Profile(models.Model):
             return False
         # user was flagged and the premium feature pause period is not yet over
         return True
-
-
-def get_storing_phone_log(relay_number):
-    return relay_number.user.profile.store_phone_log
 
 
 @receiver(models.signals.post_save, sender=Profile)

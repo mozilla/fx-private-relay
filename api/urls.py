@@ -9,6 +9,7 @@ from .views import (
     RelayAddressViewSet,
     ProfileViewSet,
     UserViewSet,
+    FlagViewSet,
     report_webcompat_issue,
     runtime_data,
     schema_view,
@@ -33,6 +34,7 @@ api_router.register(r"domainaddresses", DomainAddressViewSet, "domainaddress")
 api_router.register(r"relayaddresses", RelayAddressViewSet, "relayaddress")
 api_router.register(r"profiles", ProfileViewSet, "profiles")
 api_router.register(r"users", UserViewSet, "user")
+api_router.register(r"flags", FlagViewSet, "flag")
 
 
 urlpatterns = [

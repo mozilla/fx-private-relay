@@ -75,6 +75,7 @@
 
 .string-filter {
   display: none;
+  position: relative;
 
   &.is-visible {
     display: block;
@@ -113,6 +114,14 @@
   input:not(:placeholder-shown) + .match-count,
   input:focus + .match-count {
     opacity: 1;
+    // Make sure input in the input field isn't shown in the background
+    background-color: $color-white;
+    // Then give it the same borders as the input it's covering...
+    @include form-input;
+    // ...except where it intersects with the input:
+    border-left: 0 solid transparent;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
   }
 }
 
