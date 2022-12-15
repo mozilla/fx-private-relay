@@ -56,7 +56,12 @@ class RedirectRootIfLoggedIn:
         # in, use a server-side redirect to send them to the dashboard,
         # rather than handling that on the client-side:
         if request.path == "/" and settings.SESSION_COOKIE_NAME in request.COOKIES:
-            return redirect("accounts/profile/")
+            query_string = (
+                "?" + request.META["QUERY_STRING"]
+                if request.META["QUERY_STRING"]
+                else ""
+            )
+            return redirect("accounts/profile/" + query_string)
 
         response = self.get_response(request)
         return response
