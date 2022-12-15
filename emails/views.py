@@ -81,7 +81,10 @@ def reply_requires_premium_test(request):
     Settings like language can be given in the querystring, otherwise settings
     come from a random free profile.
     """
-    email_context = {"message": "Replies require premium."}
+    email_context = {
+        "message": "Replies require premium.",
+        "sender": "test@example.com",
+    }
     return render(request, "emails/reply_requires_premium.html", email_context)
 
 
@@ -634,7 +637,9 @@ def _strip_localpart_tag(address):
     return f"{subaddress_parts[0]}@{domain}"
 
 
-def _reply_allowed(from_address, to_address, reply_record, message_id=None):
+def _reply_allowed(
+    from_address, to_address, reply_record, message_id=None, decrypted_metadata=None
+):
     stripped_from_address = _strip_localpart_tag(from_address)
     reply_record_email = reply_record.address.user.email
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
@@ -648,12 +653,14 @@ def _reply_allowed(from_address, to_address, reply_record, message_id=None):
         try:
             emails_config = apps.get_app_config("emails")
             message = "Replies are a premium feature."
-            html_body = render_to_string(
-                "emails/reply_requires_premium.html", {"message": message}
-            )
-            text_body = render_to_string(
-                "emails/reply_requires_premium.txt", {"message": message}
-            )
+            sender = ""
+            if decrypted_metadata is not None:
+                sender = decrypted_metadata.get("reply-to") or decrypted_metadata.get(
+                    "from"
+                )
+            ctx = {"message": message, "sender": sender}
+            html_body = render_to_string("emails/reply_requires_premium.html", ctx)
+            text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
             charset = "utf-8"
             msg = MIMEMultipart("mixed")
             msg["Subject"] = message
@@ -710,15 +717,16 @@ def _handle_reply(from_address, message_json, to_address):
         return HttpResponse("Unknown or stale In-Reply-To header", status=404)
 
     address = reply_record.address
-
     message_id = _get_message_id_from_headers(mail["headers"])
-    if not _reply_allowed(from_address, to_address, reply_record, message_id):
-        return HttpResponse("Relay replies require a premium account", status=403)
-
-    outbound_from_address = address.full_address
     decrypted_metadata = json.loads(
         decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
     )
+    if not _reply_allowed(
+        from_address, to_address, reply_record, message_id, decrypted_metadata
+    ):
+        return HttpResponse("Relay replies require a premium account", status=403)
+
+    outbound_from_address = address.full_address
     incr_if_enabled("reply_email", 1)
     subject = mail["commonHeaders"].get("subject", "")
     to_address = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
