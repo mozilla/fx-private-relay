@@ -72,6 +72,9 @@ class FxaTokenAuthentication(BaseAuthentication):
                 cache.set(cache_key, fxa_resp_data, cache_timeout)
 
         user = None
+        if fxa_resp_data["status_code"] is None:
+            raise AuthenticationFailed("Previous FXA call failed, wait to retry.")
+
         if not fxa_resp_data["status_code"] == 200:
             raise AuthenticationFailed("Did not receive a 200 response from FXA.")
 
