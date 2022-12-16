@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import json
 import logging
 import shlex
 
@@ -10,70 +9,95 @@ from django.core.cache import cache
 
 from allauth.socialaccount.models import SocialAccount
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
+from rest_framework.exceptions import AuthenticationFailed
 
 
 logger = logging.getLogger("events")
 
 
 def get_cache_key(token):
-    return f"fxa_token_{token}"
+    return hash(token)
+
+
+def introspect_token(introspect_token_url, token):
+    try:
+        fxa_resp = requests.post(introspect_token_url, json={"token": token})
+    except:
+        logger.error(
+            "Could not introspect token with FXA.",
+            extra={"fxa_response": shlex.quote(fxa_resp.text)},
+        )
+        raise AuthenticationFailed("Could not introspect token with FXA.")
+
+    fxa_resp_data = {"status_code": fxa_resp.status_code, "json": {}}
+    try:
+        fxa_resp_data["json"] = fxa_resp.json()
+    except requests.exceptions.JSONDecodeError:
+        logger.error(
+            "JSONDecodeError from FXA introspect response.",
+            extra={"fxa_response": shlex.quote(fxa_resp.text)},
+        )
+        raise AuthenticationFailed("JSONDecodeError from FXA introspect response")
+    return fxa_resp_data
 
 
 class FxaTokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
         authorization = get_authorization_header(request).decode()
         if not authorization or not authorization.startswith("Bearer "):
+            # If the request has no Bearer token, return None to attempt the next
+            # auth scheme in the REST_FRAMEWORK AUTHENTICATION_CLASSES list
             return None
 
         token = authorization.split(" ")[1]
         cache_key = get_cache_key(token)
-        cached_fxa_resp_data = fxa_resp_data = cache.get(cache_key)
         # set a default cache_timeout, but this will be overriden to match
-        # the 'exp' time returned by FXA
+        # the 'exp' time in the JWT returned by FXA
         cache_timeout = 60
+        cached_fxa_resp_data = fxa_resp_data = cache.get(cache_key)
         if not fxa_resp_data:
+            # set a default fxa_resp_data, so any error during introspection
+            # will still cache for at least cache_timeout to prevent an outage
+            # from causing useless run-away repetitive introspection requests
+            fxa_resp_data = {"status_code": None, "json": {}}
             introspect_token_url = (
                 "%s/introspect"
                 % settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]
             )
-            fxa_resp = requests.post(introspect_token_url, json={"token": token})
-            fxa_resp_data = {"status_code": fxa_resp.status_code, "json": None}
             try:
-                fxa_resp_data["json"] = fxa_resp.json()
-            except requests.exceptions.JSONDecodeError:
-                logger.error(
-                    "JSONDecodeError from FXA introspect response.",
-                    extra={"fxa_response": shlex.quote(fxa_resp.text)},
-                )
+                fxa_resp_data = introspect_token(introspect_token_url, token)
+            except AuthenticationFailed:
+                raise
+            finally:
+                cache.set(cache_key, fxa_resp_data, cache_timeout)
 
         user = None
-        if (
-            fxa_resp_data
-            and fxa_resp_data["status_code"] == 200
-            and fxa_resp_data["json"]
-            and fxa_resp_data["json"].get("active")
-        ):
+        if fxa_resp_data["status_code"] is None:
+            raise AuthenticationFailed("Previous FXA call failed, wait to retry.")
 
-            # FxA user is active, check for the associated Relay account
-            fxa_uid = fxa_resp_data.get("json").get("sub")
-            if fxa_uid:
-                try:
-                    sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
-                except SocialAccount.DoesNotExist:
-                    # No Relay account associated with the FxA ID. It might be
-                    # a user who deleted their Relay account since they first
-                    # signed up
-                    pass
-                else:
-                    user = sa.user
+        if not fxa_resp_data["status_code"] == 200:
+            raise AuthenticationFailed("Did not receive a 200 response from FXA.")
 
-                    # cache fxa_resp_data for as long as access_token is valid
-                    # Note: FXA iat and exp are timestamps in *milliseconds*
-                    fxa_token_exp_time = int(
-                        fxa_resp_data.get("json").get("exp") / 1000
-                    )
-                    now_time = int(datetime.now(timezone.utc).timestamp())
-                    cache_timeout = fxa_token_exp_time - now_time
+        if not fxa_resp_data["json"].get("active"):
+            raise AuthenticationFailed("FXA returned active: False for token.")
+
+        # FxA user is active, check for the associated Relay account
+        fxa_uid = fxa_resp_data.get("json", {}).get("sub")
+        if not fxa_uid:
+            raise AuthenticationFailed("FXA did not return an FXA UID.")
+        try:
+            sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
+        except SocialAccount.DoesNotExist:
+            raise AuthenticationFailed(
+                "Authenticated user does not have a Relay account."
+            )
+        user = sa.user
+
+        # cache fxa_resp_data for as long as access_token is valid
+        # Note: FXA iat and exp are timestamps in *milliseconds*
+        fxa_token_exp_time = int(fxa_resp_data.get("json").get("exp") / 1000)
+        now_time = int(datetime.now(timezone.utc).timestamp())
+        cache_timeout = fxa_token_exp_time - now_time
 
         # Store FxA response for 60 seconds (errors, inactive users, etc.) or
         # until access_token expires (matched Relay user)
@@ -81,6 +105,6 @@ class FxaTokenAuthentication(BaseAuthentication):
             cache.set(cache_key, fxa_resp_data, cache_timeout)
 
         if user:
-            return (user, None)
+            return (user, token)
         else:
-            return None
+            raise AuthenticationFailed()
