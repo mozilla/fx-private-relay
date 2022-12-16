@@ -313,7 +313,7 @@ const StepTwo = (props: Step2Props) => {
       </div>
       <div className={styles.description}>
         <img src={WomanEmail.src} alt="" width={400} />
-        <div>
+        <div className={styles.content}>
           <p className={styles["subdomain-description"]}>
             <span className={styles["description-caption"]}>
               {l10n.getString("onboarding-premium-title-detail")}
@@ -330,7 +330,7 @@ const StepTwo = (props: Step2Props) => {
               }
             )}
           </p>
-          <div>{subdomain}</div>
+          {subdomain}
         </div>
       </div>
     </div>
