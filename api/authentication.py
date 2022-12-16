@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import json
 import logging
 import shlex
 
@@ -17,11 +16,10 @@ logger = logging.getLogger("events")
 
 
 def get_cache_key(token):
-    # TODO: token can be a JWT which makes for a really big cache key
-    return f"fxa_token_{token}"
+    return hash(token)
 
 
-def introspect_token(introspect_token_url, token, cache_key, cache_timeout):
+def introspect_token(introspect_token_url, token):
     try:
         fxa_resp = requests.post(introspect_token_url, json={"token": token})
     except:
@@ -29,10 +27,6 @@ def introspect_token(introspect_token_url, token, cache_key, cache_timeout):
             "Could not introspect token with FXA.",
             extra={"fxa_response": shlex.quote(fxa_resp.text)},
         )
-        # cache empty response data to prevent FXA failures from causing runaway
-        # HTTP retries
-        fxa_resp_data = {"status_code": None, "json": {}}
-        cache.set(cache_key, fxa_resp_data, cache_timeout)
         raise AuthenticationFailed("Could not introspect token with FXA.")
 
     fxa_resp_data = {"status_code": fxa_resp.status_code, "json": {}}
@@ -43,9 +37,7 @@ def introspect_token(introspect_token_url, token, cache_key, cache_timeout):
             "JSONDecodeError from FXA introspect response.",
             extra={"fxa_response": shlex.quote(fxa_resp.text)},
         )
-        cache.set(cache_key, fxa_resp_data, cache_timeout)
         raise AuthenticationFailed("JSONDecodeError from FXA introspect response")
-    cache.set(cache_key, fxa_resp_data, cache_timeout)
     return fxa_resp_data
 
 
@@ -59,18 +51,25 @@ class FxaTokenAuthentication(BaseAuthentication):
 
         token = authorization.split(" ")[1]
         cache_key = get_cache_key(token)
-        cached_fxa_resp_data = fxa_resp_data = cache.get(cache_key)
         # set a default cache_timeout, but this will be overriden to match
         # the 'exp' time in the JWT returned by FXA
         cache_timeout = 60
+        cached_fxa_resp_data = fxa_resp_data = cache.get(cache_key)
         if not fxa_resp_data:
+            # set a default fxa_resp_data, so any error during introspection
+            # will still cache for at least cache_timeout to prevent an outage
+            # from causing useless run-away repetitive introspection requests
+            fxa_resp_data = {"status_code": None, "json": {}}
             introspect_token_url = (
                 "%s/introspect"
                 % settings.SOCIALACCOUNT_PROVIDERS["fxa"]["OAUTH_ENDPOINT"]
             )
-            fxa_resp_data = introspect_token(
-                introspect_token_url, token, cache_key, cache_timeout
-            )
+            try:
+                fxa_resp_data = introspect_token(introspect_token_url, token)
+            except AuthenticationFailed:
+                raise
+            finally:
+                cache.set(cache_key, fxa_resp_data, cache_timeout)
 
         user = None
         if not fxa_resp_data["status_code"] == 200:
@@ -80,11 +79,9 @@ class FxaTokenAuthentication(BaseAuthentication):
             raise AuthenticationFailed("FXA returned active: False for token.")
 
         # FxA user is active, check for the associated Relay account
-        fxa_uid = fxa_resp_data.get("json").get("sub")
+        fxa_uid = fxa_resp_data.get("json", {}).get("sub")
         if not fxa_uid:
-            raise AuthenticationFailed(
-                "Authenticated user does not have a Relay account."
-            )
+            raise AuthenticationFailed("FXA did not return an FXA UID.")
         try:
             sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         except SocialAccount.DoesNotExist:

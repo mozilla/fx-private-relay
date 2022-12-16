@@ -72,7 +72,7 @@ class FxaTokenAuthenticationTest(TestCase):
             self.auth.authenticate(self.auth, get_addresses_req)
 
         assert responses.assert_call_count(self.fxa_verify_path, 1) is True
-        expected = {"status_code": 503, "json": {}}
+        expected = {"status_code": None, "json": {}}
         assert cache.get(get_cache_key(not_found_token)) == expected
 
         # now check that the code does NOT make another fxa request

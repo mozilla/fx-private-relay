@@ -3,7 +3,7 @@
 The Relay API is built on [Django REST Framework][drf] and authenticates
 requests with any of 3 methods:
 
-- [FXA OAuth Token Authentication](fxa-oauth-token-authentication)
+- [FXA OAuth Token Authentication](#fxa-oauth-token-authentication)
 - [`SessionAuthentication`][sessionauthentication]
 - [`TokenAuthentication`][tokenauthentication]
 
