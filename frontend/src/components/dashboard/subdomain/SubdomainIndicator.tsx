@@ -22,6 +22,7 @@ import styles from "./SubdomainIndicator.module.scss";
 import { CloseIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { AddressPickerModal } from "../aliases/AddressPickerModal";
+import { useMinViewportWidth } from "../../../hooks/mediaQuery";
 
 export type Props = {
   subdomain: string | null;
@@ -165,6 +166,7 @@ type ExplainerProps = AriaOverlayProps & {
 const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
   function ExplainerWithForwardedRef(props, overlayRef) {
     const { l10n } = useLocalization();
+    const isWideScreen = useMinViewportWidth("md");
 
     const { overlayProps } = useOverlay(
       props,
@@ -178,9 +180,12 @@ const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
       overlayRef as RefObject<HTMLDivElement>
     );
 
+    // On small screens, this is a dialog at the top of the viewport.
+    // On wider screens, it is a popover attached to the indicator:
+    const positionProps = isWideScreen ? props.positionProps : {};
     const mergedOverlayProps = mergeProps(
       overlayProps,
-      props.positionProps,
+      positionProps,
       dialogProps,
       modalProps
     );

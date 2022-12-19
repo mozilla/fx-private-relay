@@ -17,8 +17,12 @@
   background-color: $color-white;
   box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
-  max-width: $content-sm;
   padding: $spacing-lg;
+  // On small screens, appear as a modal at the top of the viewport:
+  top: $spacing-lg;
+  left: $spacing-lg;
+  right: $spacing-lg;
+  position: absolute;
 
   &::before {
     content: "";
@@ -29,6 +33,18 @@
     left: $spacing-2xl;
     transform: rotate(45deg);
     background-color: $color-white;
+    display: none;
+  }
+
+  @media screen and #{$mq-md} {
+    // On wider screens, the popover is attached to the indicator:
+    inset: unset;
+    position: unset;
+    max-width: $content-sm;
+
+    &::before {
+      display: initial;
+    }
   }
 
   h3 {
