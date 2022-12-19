@@ -381,7 +381,7 @@ $trackerRemovalIndicatorWidth: 20px;
 
   .is-expanded & {
     // An arbitrary high value that allows it to expand to its full height:
-    max-height: 100vh;
+    max-height: 1000vh;
     border-color: $color-light-gray-20;
     padding: $spacing-sm 0;
     visibility: visible;
