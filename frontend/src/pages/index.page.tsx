@@ -1,7 +1,6 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./index.module.scss";
 import Testimonials from "../../public/images/hero-brands.svg";
@@ -41,9 +40,10 @@ import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
+import { useL10n } from "../hooks/l10n";
 
 const Home: NextPage = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const router = useRouter();
   const runtimeData = useRuntimeData();
   const userData = useUsers();

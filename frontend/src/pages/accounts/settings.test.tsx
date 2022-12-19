@@ -2,7 +2,6 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../../__mocks__/modules/react-ga";
 import { mockConfigModule } from "../../../__mocks__/configMock";
@@ -10,15 +9,18 @@ import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { setMockAliasesData } from "../../../__mocks__/hooks/api/aliases";
 import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
+import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
+import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Settings from "./settings.page";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../hooks/gaViewPing.ts");
+jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../../components/Localized.tsx", () => mockLocalizedModule);
 
 setMockAliasesData();
 setMockProfileData();

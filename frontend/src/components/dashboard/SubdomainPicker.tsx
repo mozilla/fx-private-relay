@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useLocalization } from "@fluent/react";
 import { useOverlayTriggerState } from "react-stately";
 import { useState } from "react";
 import styles from "./SubdomainPicker.module.scss";
@@ -8,6 +7,7 @@ import { ProfileData } from "../../hooks/api/profile";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
 import { getRuntimeConfig } from "../../config";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   profile: ProfileData;
@@ -18,7 +18,7 @@ export type Props = {
  * Allows the user to search for available subdomains, and pops up a modal to claim it if available.
  */
 export const SubdomainPicker = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [chosenSubdomain, setChosenSubdomain] = useState("");
   const [partialSubdomain, setPartialSubdomain] = useState("");
 

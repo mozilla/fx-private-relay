@@ -1,5 +1,4 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
-import { Localized, useLocalization } from "@fluent/react";
 import styles from "./RealPhoneSetup.module.scss";
 import PhoneVerify from "./images/phone-verify.svg";
 import EnterVerifyCode from "./images/enter-verify-code.svg";
@@ -16,6 +15,8 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { parseDate } from "../../../functions/parseDate";
 import { formatPhone } from "../../../functions/formatPhone";
 import { useInterval } from "../../../hooks/interval";
+import { useL10n } from "../../../hooks/l10n";
+import { Localized } from "../../Localized";
 
 type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
@@ -67,7 +68,7 @@ type RealPhoneFormProps = {
 };
 
 const RealPhoneForm = (props: RealPhoneFormProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const phoneNumberData = useRealPhonesData();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [phoneNumberSubmitted, setPhoneNumberSubmitted] = useState("");
@@ -190,7 +191,7 @@ type RealPhoneVerificationProps = {
   onGoBack: () => void;
 };
 const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const phoneWithMostRecentlySentVerificationCode =
     getPhoneWithMostRecentlySentVerificationCode(
       props.phonesPendingVerification

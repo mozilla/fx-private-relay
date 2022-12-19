@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 import { OutboundLink } from "react-ga";
-import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import styles from "./Banner.module.scss";
 import { useLocalDismissal } from "../hooks/localDismissal";
 import { CloseIcon, WarningFilledIcon, InfoFilledIcon } from "./Icons";
 import { useGaViewPing } from "../hooks/gaViewPing";
+import { useL10n } from "../hooks/l10n";
 
 export type BannerProps = {
   children: ReactNode;
@@ -32,7 +32,7 @@ export const Banner = (props: BannerProps) => {
   const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", {
     duration: props.dismissal?.duration,
   });
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const type = props.type ?? "warning";
 
   const warningIcon = (

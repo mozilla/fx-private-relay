@@ -1,5 +1,4 @@
 import { FluentVariable } from "@fluent/bundle";
-import { Localized, useLocalization } from "@fluent/react";
 import {
   getBundlePrice,
   getBundleSubscribeLink,
@@ -17,6 +16,8 @@ import bundleFloatThree from "./images/bundle-float-3.svg";
 import bundleLogo from "./images/vpn-and-relay-logo.svg";
 import { trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { useGaViewPing } from "../../hooks/gaViewPing";
+import { useL10n } from "../../hooks/l10n";
+import { Localized } from "../Localized";
 
 export type Props = {
   runtimeData: RuntimeData;
@@ -30,7 +31,7 @@ type FloatingFeaturesProps = {
 };
 
 const FloatingFeatures = (props: FloatingFeaturesProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const text = props.vars ? (
     <Localized id={props.text} vars={props.vars}>
@@ -53,7 +54,7 @@ const FloatingFeatures = (props: FloatingFeaturesProps) => {
 };
 
 export const BundleBanner = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const mainImage = (
     <img

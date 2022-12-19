@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import { StaticImageData } from "next/image";
 import { useId } from "react-aria";
 import { ReactElement } from "react";
@@ -9,13 +8,14 @@ import floatClock from "./images/phone-float-clock.svg";
 import floatAccount from "./images/phone-float-account.svg";
 import floatHeart from "./images/phone-float-heart.png";
 import floatPhone from "./images/phone-float-phone.png";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   cta: ReactElement;
 };
 
 export const PhoneBanner = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <div className={styles.wrapper}>

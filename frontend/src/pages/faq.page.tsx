@@ -1,15 +1,16 @@
 import { NextPage } from "next";
 import { ReactNode } from "react";
-import { Localized, useLocalization } from "@fluent/react";
 import styles from "./faq.module.scss";
 import { Layout } from "../components/layout/Layout";
 import { getRuntimeConfig } from "../config";
 import { useRuntimeData } from "../hooks/api/runtimeData";
 import { isFlagActive } from "../functions/waffle";
 import { isPhonesAvailableInCountry } from "../functions/getPlan";
+import { useL10n } from "../hooks/l10n";
+import { Localized } from "../components/Localized";
 
 const Faq: NextPage = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const runtimeData = useRuntimeData();
 
   const phoneMaskingFaqs = isPhonesAvailableInCountry(runtimeData.data) ? (

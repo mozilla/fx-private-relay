@@ -1,5 +1,4 @@
 import { ReactNode, useRef } from "react";
-import { useLocalization } from "@fluent/react";
 import {
   OverlayContainer,
   FocusScope,
@@ -13,6 +12,7 @@ import styles from "./RelayNumberConfirmationModal.module.scss";
 import { CloseIcon } from "../../Icons";
 import { Button } from "../../Button";
 import { formatPhone } from "../../../functions/formatPhone";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   onClose: () => void;
@@ -22,7 +22,7 @@ export type Props = {
 };
 
 export const RelayNumberConfirmationModal = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <OverlayContainer>

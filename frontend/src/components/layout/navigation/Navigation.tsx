@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useLocalization } from "@fluent/react";
 import styles from "./Navigation.module.scss";
 import { SignUpButton } from "./SignUpButton";
 import { SignInButton } from "./SignInButton";
@@ -15,6 +14,7 @@ import {
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
 } from "../../../functions/getPlan";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   theme: "free" | "premium";
@@ -26,7 +26,7 @@ export type Props = {
 };
 /** Switch between the different pages of the Relay website. */
 export const Navigation = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const runtimeData = useRuntimeData();
   const router = useRouter();
   const {

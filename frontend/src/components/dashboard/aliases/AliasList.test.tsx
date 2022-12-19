@@ -1,14 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { mockLocalizedModule } from "../../../../__mocks__/components/Localized";
 import { mockConfigModule } from "../../../../__mocks__/configMock";
 import { getMockRandomAlias } from "../../../../__mocks__/hooks/api/aliases";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
+import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import * as LocalLabelsMock from "../../../../__mocks__/hooks/localLabels";
-import { mockFluentReact } from "../../../../__mocks__/modules/fluent__react";
 import { AliasList } from "./AliasList";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("../../../config.ts", () => mockConfigModule);
+jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../../../components/Localized.tsx", () => mockLocalizedModule);
 LocalLabelsMock.setMockLocalLabels();
 
 describe("<AliasList>", () => {
