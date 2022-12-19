@@ -8,19 +8,19 @@ import {
 } from "../../../../__mocks__/hooks/api/runtimeData";
 import { setMockUserData } from "../../../../__mocks__/hooks/api/user";
 import { mockUseFxaFlowTrackerModule } from "../../../../__mocks__/hooks/fxaFlowTracker";
-import { mockFluentReact } from "../../../../__mocks__/modules/fluent__react";
+import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 import { mockNextRouter } from "../../../../__mocks__/modules/next__router";
 import { mockReactIntersectionObsever } from "../../../../__mocks__/modules/react-intersection-observer";
 
 import { Navigation } from "./Navigation";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-intersection-observer", () => mockReactIntersectionObsever);
 jest.mock(
   "../../../hooks/fxaFlowTracker.ts",
   () => mockUseFxaFlowTrackerModule
 );
+jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 jest.mock("../../../config.ts", () => mockConfigModule);
 
 setMockRuntimeData();

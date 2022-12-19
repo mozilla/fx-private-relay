@@ -1,4 +1,3 @@
-import { Localized, useLocalization } from "@fluent/react";
 import {
   OverlayContainer,
   FocusScope,
@@ -24,6 +23,8 @@ import {
   getFullAddress,
   isRandomAlias,
 } from "../../../hooks/api/aliases";
+import { useL10n } from "../../../hooks/l10n";
+import { Localized } from "../../Localized";
 
 export type Props = {
   alias: AliasData;
@@ -34,7 +35,7 @@ export type Props = {
  * A button to delete a given alias, which will pop up a confirmation modal before deleting.
  */
 export const AliasDeletionButton = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [confirmCheckbox, setConfirmCheckbox] = useState(false);
 
   const openModalButtonRef = useRef<HTMLButtonElement>(null);

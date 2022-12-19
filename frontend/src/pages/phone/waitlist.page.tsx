@@ -1,12 +1,13 @@
-import { Localized, useLocalization } from "@fluent/react";
 import { NextPage } from "next";
+import { Localized } from "../../components/Localized";
 import { WaitlistPage } from "../../components/waitlist/WaitlistPage";
+import { useL10n } from "../../hooks/l10n";
 
 /** These are the languages that marketing can send emails in: */
 const supportedLocales = ["en", "es", "pl", "pt", "ja"];
 
 const PhoneWaitlist: NextPage = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const legalese = (
     <>

@@ -1,14 +1,14 @@
-import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./SignUpButton.module.scss";
 import { setCookie } from "../../../functions/cookies";
 import { getLoginUrl, useFxaFlowTracker } from "../../../hooks/fxaFlowTracker";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   className: string;
 };
 export const SignUpButton = (props: Props): JSX.Element => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const signUpFxaFlowTracker = useFxaFlowTracker({
     category: "Sign In",
     label: "nav-profile-sign-up",

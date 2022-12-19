@@ -11,7 +11,6 @@ import {
 } from "../../Icons";
 import { MouseEventHandler, useRef, useState } from "react";
 import { VerifiedPhone } from "../../../hooks/api/realPhone";
-import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import { ProfileData } from "../../../hooks/api/profile";
 import { SendersPanelView } from "./SendersPanelView";
@@ -22,6 +21,7 @@ import { Tips } from "../../dashboard/tips/Tips";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { DismissalData } from "../../../hooks/localDismissal";
 import { Banner } from "../../Banner";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   profile: ProfileData;
@@ -34,7 +34,7 @@ export type Props = {
 };
 
 export const PhoneDashboard = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const relayNumber = useRelayNumber();
   const relayNumberData = relayNumber.data?.[0];
   const formattedPhoneNumber = formatPhone(props.realPhone.number ?? "", {

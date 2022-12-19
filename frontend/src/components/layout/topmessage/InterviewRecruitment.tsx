@@ -1,9 +1,9 @@
-import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./InterviewRecruitment.module.scss";
 import { CloseIcon } from "../../Icons";
 import { useLocalDismissal } from "../../../hooks/localDismissal";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
+import { useL10n } from "../../../hooks/l10n";
 
 /**
  * Ask people whether they're be interested in discussing their experience in using Relay.
@@ -15,7 +15,7 @@ export const InterviewRecruitment = () => {
   const recruitmentLabel =
     "Want to help improve Firefox Relay? We'd love to hear what you think. Research participants receive a $50 gift card.";
 
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const dismissal = useLocalDismissal("interview-recruitment-2022-08");
   const linkRef = useGaViewPing({
     category: "Recruitment",

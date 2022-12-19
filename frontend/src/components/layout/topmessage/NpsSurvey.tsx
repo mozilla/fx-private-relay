@@ -3,9 +3,9 @@ import styles from "./NpsSurvey.module.scss";
 import { useFirstSeen } from "../../../hooks/firstSeen";
 import { useLocalDismissal } from "../../../hooks/localDismissal";
 import { useIsLoggedIn } from "../../../hooks/session";
-import { useLocalization } from "@fluent/react";
 import { useProfiles } from "../../../hooks/api/profile";
 import { CloseIcon } from "../../Icons";
+import { useL10n } from "../../../hooks/l10n";
 
 /**
  * Quickly survey the user for input to our Net Promotor Score.
@@ -20,7 +20,7 @@ export const NpsSurvey = () => {
   );
   const firstSeen = useFirstSeen();
   const isLoggedIn = useIsLoggedIn();
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const hasBeenUserForThreeDays =
     isLoggedIn &&

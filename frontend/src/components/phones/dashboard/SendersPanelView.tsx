@@ -7,12 +7,12 @@ import {
 } from "../../../components/Icons";
 import disabledSendersDataIllustration from "./images/sender-data-disabled-illustration.svg";
 import emptySenderDataIllustration from "./images/sender-data-empty-illustration.svg";
-import { useLocalization } from "@fluent/react";
 import { useInboundContact } from "../../../hooks/api/inboundContact";
 import { OutboundLink } from "react-ga";
 import { formatPhone } from "../../../functions/formatPhone";
 import { parseDate } from "../../../functions/parseDate";
 import { getLocale } from "../../../functions/getLocale";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   type: "primary" | "disabled" | "empty";
@@ -20,7 +20,7 @@ export type Props = {
 };
 
 export const SendersPanelView = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const inboundContactData = useInboundContact();
   const inboundArray = inboundContactData.data;
   const dateTimeFormatter = new Intl.DateTimeFormat(getLocale(l10n), {

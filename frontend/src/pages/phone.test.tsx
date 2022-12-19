@@ -1,5 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
+import { mockLocalizedModule } from "../../__mocks__/components/Localized";
 import { mockConfigModule } from "../../__mocks__/configMock";
 import { setMockInboundContactData } from "../../__mocks__/hooks/api/inboundContact";
 import {
@@ -21,17 +22,18 @@ import {
   setMockRuntimeDataOnce,
 } from "../../__mocks__/hooks/api/runtimeData";
 import { setMockUserData } from "../../__mocks__/hooks/api/user";
-import { mockFluentReact } from "../../__mocks__/modules/fluent__react";
+import { mockUseL10nModule } from "../../__mocks__/hooks/l10n";
 import { mockNextRouter } from "../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../__mocks__/modules/react-ga";
 
 import PhoneDashboard from "./phone.page";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../config.ts", () => mockConfigModule);
 jest.mock("../hooks/gaViewPing.ts");
+jest.mock("../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../components/Localized.tsx", () => mockLocalizedModule);
 
 setMockProfileData();
 setMockUserData();

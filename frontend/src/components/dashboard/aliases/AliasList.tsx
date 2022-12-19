@@ -1,4 +1,3 @@
-import { Localized, useLocalization } from "@fluent/react";
 import { useState, useEffect } from "react";
 import { VisuallyHidden } from "react-aria";
 import styles from "./AliasList.module.scss";
@@ -13,6 +12,8 @@ import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
 import { SearchIcon } from "../../Icons";
 import { useFlaggedAnchorLinks } from "../../../hooks/flaggedAnchorLinks";
+import { useL10n } from "../../../hooks/l10n";
+import { Localized } from "../../Localized";
 
 export type Props = {
   aliases: AliasData[];
@@ -32,7 +33,7 @@ export type Props = {
  * Display a list of <Alias> cards, with the ability to filter them or create a new alias.
  */
 export const AliasList = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [stringFilterInput, setStringFilterInput] = useState("");
   const [stringFilterVisible, setStringFilterVisible] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});

@@ -1,13 +1,13 @@
-import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import styles from "./DashboardSwitcher.module.scss";
 import { MaskIcon, PhoneIcon } from "../../Icons";
+import { useL10n } from "../../../hooks/l10n";
 
 /** Component that allows the user to switch between the Email and Phone masks dashboards. */
 export const DashboardSwitcher = () => {
   const router = useRouter();
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     /* Email and Phone Duo Header on Mobile */

@@ -1,7 +1,7 @@
-import { useLocalization } from "@fluent/react";
 import styles from "./CustomAliasTip.module.scss";
 import { getRuntimeConfig } from "../../../config";
 import { getLocale } from "../../../functions/getLocale";
+import { useL10n } from "../../../hooks/l10n";
 
 export type CustomAliasTipProps = {
   subdomain?: string;
@@ -11,7 +11,7 @@ export type CustomAliasTipProps = {
  * so it can't use {@see GenericTip}.
  */
 export const CustomAliasTip = (props: CustomAliasTipProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const subdomainElement =
     typeof props.subdomain === "string" ? (

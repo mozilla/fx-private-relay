@@ -1,15 +1,6 @@
-import { ReactNode, cloneElement, isValidElement } from "react";
+import { cloneElement, isValidElement, ReactNode } from "react";
 
-export const mockFluentReact = {
-  useLocalization: () => {
-    return {
-      l10n: {
-        getString: (id: string, vars?: Record<string, string>) =>
-          `l10n string: [${id}], with vars: ${JSON.stringify(vars ?? {})}`,
-        bundles: [{ locales: ["en-GB"] }],
-      },
-    };
-  },
+export const mockLocalizedModule = {
   Localized: (props: {
     children: ReactNode;
     id: string;

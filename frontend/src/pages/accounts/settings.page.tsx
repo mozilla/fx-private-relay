@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import {
   FormEventHandler,
@@ -30,11 +29,12 @@ import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { useAddonData } from "../../hooks/addon";
 import { isFlagActive } from "../../functions/waffle";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
+import { useL10n } from "../../hooks/l10n";
 
 const Settings: NextPage = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [localLabels] = useLocalLabels();
   const aliasData = useAliases();
   const addonData = useAddonData();

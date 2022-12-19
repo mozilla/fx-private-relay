@@ -1,5 +1,4 @@
 import { NextPage } from "next";
-import { useLocalization } from "@fluent/react";
 import { Layout } from "../components/layout/Layout";
 import logo from "../components/layout/images/relay-logo.svg";
 import logoType from "../components/layout/images/fx-private-relay-premium-logotype-dark.svg";
@@ -10,9 +9,10 @@ import { useEffect } from "react";
 import { authenticatedFetch } from "../hooks/api/api";
 import Link from "next/link";
 import { LinkButton } from "../components/Button";
+import { useL10n } from "../hooks/l10n";
 
 const VpnRelayWelcome: NextPage = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const referringSiteUrl =
     typeof document !== "undefined"
       ? document.location.host
