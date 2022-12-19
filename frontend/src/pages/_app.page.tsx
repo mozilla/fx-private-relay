@@ -1,8 +1,8 @@
 import "../styles/globals.scss";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
-import { LocalizationProvider } from "@fluent/react";
+import { LocalizationProvider, ReactLocalization } from "@fluent/react";
 import { SSRProvider } from "@react-aria/ssr";
 import { OverlayProvider } from "@react-aria/overlays";
 import ReactGa from "react-ga";
@@ -43,6 +43,19 @@ function MyApp({ Component, pageProps }: AppProps) {
   const addonDataElementRef = useRef<HTMLElement>(null);
 
   const addonData = useAddonElementWatcher(addonDataElementRef);
+  const [l10n, setL10n] = useState<ReactLocalization>(
+    getL10n({ deterministicLocales: true })
+  );
+
+  useEffect(() => {
+    // When pre-rendering and on the first render, we deterministically load the
+    // `en` bundle.  After that, however, we want to load the bundles relevant
+    // to the user's preferred locales. (See the `useL10n` hook for more detail
+    // on why.) Unfortunately we can't load additional needed locales
+    // asynchronously on the client-side yet using @fluent/react, see
+    // https://github.com/projectfluent/fluent.js/wiki/ReactLocalization/43a959b35fbf9eea694367f948cfb1387914657c#flexibility
+    setL10n(getL10n({ deterministicLocales: false }));
+  }, []);
 
   useEffect(() => {
     if (hasDoNotTrackEnabled()) {
@@ -81,7 +94,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 
   return (
     <SSRProvider>
-      <LocalizationProvider l10n={getL10n()}>
+      <LocalizationProvider l10n={l10n}>
         <ReactAriaI18nProvider>
           <AddonDataContext.Provider value={addonData}>
             <firefox-private-relay-addon
