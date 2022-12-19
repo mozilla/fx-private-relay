@@ -19,10 +19,6 @@ $toggleTransitionDuration: 200ms;
   &.is-disabled {
     background-color: rgba($color-white, 0.5);
   }
-
-  .controls {
-    flex-grow: 2;
-  }
 }
 
 .main-data {
@@ -32,6 +28,7 @@ $toggleTransitionDuration: 200ms;
 }
 
 .controls {
+  min-width: $content-xs;
   display: flex;
   gap: $spacing-xs;
   align-items: center;
