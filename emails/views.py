@@ -637,6 +637,59 @@ def _strip_localpart_tag(address):
     return f"{subaddress_parts[0]}@{domain}"
 
 
+def _send_reply_requires_premium_email(
+    from_address,
+    reply_record,
+    message_id,
+    decrypted_metadata,
+):
+    # If we haven't forwaded a first reply for this user yet, _reply_allowed will.
+    # So, tell the user we forwarded it.
+    forwarded = not reply_record.address.user.profile.forwarded_first_reply
+    message = "Replies are a premium feature."
+    sender = ""
+    if decrypted_metadata is not None:
+        sender = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
+    ctx = {
+        "message": message,
+        "sender": sender,
+        "forwarded": forwarded,
+    }
+    html_body = render_to_string("emails/reply_requires_premium.html", ctx)
+    text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
+    charset = "utf-8"
+    msg = MIMEMultipart("mixed")
+    msg["Subject"] = message
+    domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
+    msg["From"] = f"replies@{domain}"
+    msg["To"] = from_address
+    if message_id:
+        msg["In-Reply-To"] = message_id
+        msg["References"] = message_id
+        print(f"setting In-Reply-To: {message_id}")
+    msg_body = MIMEMultipart("alternative")
+    text_part = MIMEText(text_body, "plain", charset)
+    html_part = MIMEText(html_body, "html", charset)
+    msg_body.attach(text_part)
+    msg_body.attach(html_part)
+    msg.attach(msg_body)
+    try:
+        emails_config = apps.get_app_config("emails")
+        emails_config.ses_client.send_raw_email(
+            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
+            Source=settings.RELAY_FROM_ADDRESS,
+            Destinations=[from_address],
+            RawMessage={"Data": msg.as_string()},
+        )
+        # If we haven't forwaded a first reply for this user yet, _reply_allowed will.
+        # So, updated the DB.
+        reply_record.address.user.profile.forwarded_first_reply = True
+        reply_record.address.user.profile.save()
+    except ClientError as e:
+        logger.error("reply_not_allowed_ses_client_error", extra=e.response["Error"])
+    incr_if_enabled("free_user_reply_attempt", 1)
+
+
 def _reply_allowed(
     from_address, to_address, reply_record, message_id=None, decrypted_metadata=None
 ):
@@ -650,44 +703,14 @@ def _reply_allowed(
         # verify they are premium
         if reply_record.owner_has_premium and not reply_record.profile.is_flagged:
             return True
-        try:
-            emails_config = apps.get_app_config("emails")
-            message = "Replies are a premium feature."
-            sender = ""
-            if decrypted_metadata is not None:
-                sender = decrypted_metadata.get("reply-to") or decrypted_metadata.get(
-                    "from"
-                )
-            ctx = {"message": message, "sender": sender}
-            html_body = render_to_string("emails/reply_requires_premium.html", ctx)
-            text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
-            charset = "utf-8"
-            msg = MIMEMultipart("mixed")
-            msg["Subject"] = message
-            domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
-            msg["From"] = f"replies@{domain}"
-            msg["To"] = from_address
-            if message_id:
-                msg["In-Reply-To"] = message_id
-                msg["References"] = message_id
-                print(f"setting In-Reply-To: {message_id}")
-            msg_body = MIMEMultipart("alternative")
-            text_part = MIMEText(text_body, "plain", charset)
-            html_part = MIMEText(html_body, "html", charset)
-            msg_body.attach(text_part)
-            msg_body.attach(html_part)
-            msg.attach(msg_body)
-            resp = emails_config.ses_client.send_raw_email(
-                ConfigurationSetName=settings.AWS_SES_CONFIGSET,
-                Source=settings.RELAY_FROM_ADDRESS,
-                Destinations=[from_address],
-                RawMessage={"Data": msg.as_string()},
-            )
-        except ClientError as e:
-            logger.error(
-                "reply_not_allowed_ses_client_error", extra=e.response["Error"]
-            )
-        return False
+
+        # if we haven't forwarded a first reply for this user, return True to allow
+        # this first reply
+        allow_first_reply = not reply_record.address.user.profile.forwarded_first_reply
+        _send_reply_requires_premium_email(
+            from_address, reply_record, message_id, decrypted_metadata
+        )
+        return allow_first_reply
     else:
         # The From: is not a Relay user, so make sure this is a reply *TO* a
         # premium Relay user
@@ -724,6 +747,7 @@ def _handle_reply(from_address, message_json, to_address):
     if not _reply_allowed(
         from_address, to_address, reply_record, message_id, decrypted_metadata
     ):
+        # TODO: should we return a 200 OK here?
         return HttpResponse("Relay replies require a premium account", status=403)
 
     outbound_from_address = address.full_address
