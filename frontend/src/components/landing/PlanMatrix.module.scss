@@ -232,6 +232,7 @@ table.desktop {
       flex-direction: column;
       align-items: center;
       gap: $spacing-lg;
+      max-width: 100%;
       background-color: $color-white;
       border-radius: $border-radius-md;
       padding: $spacing-md;
@@ -266,6 +267,7 @@ table.desktop {
 
         li {
           display: flex;
+          gap: $spacing-xs;
 
           .description {
             flex: 1 0 auto;
@@ -276,7 +278,7 @@ table.desktop {
             }
           }
           .availability {
-            flex: 0 1 $layout-lg;
+            flex: 0 1 $layout-2xs;
             display: flex;
             align-items: center;
             justify-content: center;
