@@ -60,7 +60,11 @@ ORIGIN_CHANNEL_MAP: dict[Optional[str], str] = {
     "https://stage.fxprivaterelay.nonprod.cloudops.mozgcp.net": "stage",
     "https://relay.firefox.com": "prod",
 }
-RELAY_CHANNEL = ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN, "prod")
+RELAY_CHANNEL = (
+    "local"
+    if SITE_ORIGIN and SITE_ORIGIN.endswith(".loca.lt")
+    else ORIGIN_CHANNEL_MAP.get(SITE_ORIGIN, "prod")
+)
 DEBUG = config("DEBUG", False, cast=bool)
 if DEBUG:
     INTERNAL_IPS = config("DJANGO_INTERNAL_IPS", default="", cast=Csv())
