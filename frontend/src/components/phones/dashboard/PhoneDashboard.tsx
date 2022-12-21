@@ -8,7 +8,7 @@ import {
   ForwardIcon,
   BlockIcon,
   ChevronRightIcon,
-} from "../../../components/Icons";
+} from "../../Icons";
 import { MouseEventHandler, useRef, useState } from "react";
 import { VerifiedPhone } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";

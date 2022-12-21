@@ -271,7 +271,7 @@
     min-height: $content-xs;
 
     .header-phone-number {
-      @include text-body-lg;
+      @include text-body-md;
       @include font-firefox;
       display: flex;
       justify-content: center;
@@ -279,6 +279,10 @@
 
       @media screen and #{$mq-sm} {
         @include text-body-xl;
+      }
+
+      .copy-controls {
+        flex: 1 0 auto;
       }
     }
 

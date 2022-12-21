@@ -5,7 +5,7 @@ import { useUsers } from "../hooks/api/user";
 import { PhoneOnboarding } from "../components/phones/onboarding/PhoneOnboarding";
 import { useRelayNumber } from "../hooks/api/relayNumber";
 import { useEffect, useState } from "react";
-import { PhoneDashboard } from "../components/phones/dashboard/Dashboard";
+import { PhoneDashboard } from "../components/phones/dashboard/PhoneDashboard";
 import { getRuntimeConfig } from "../config";
 import { PurchasePhonesPlan } from "../components/phones/onboarding/PurchasePhonesPlan";
 import { isVerified, useRealPhonesData } from "../hooks/api/realPhone";
