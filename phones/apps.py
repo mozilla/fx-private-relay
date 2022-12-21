@@ -25,9 +25,11 @@ class PhonesConfig(AppConfig):
     def twiml_app(self) -> InstanceResource:
         if not settings.TWILIO_SMS_APPLICATION_SID:
             raise Exception("Must define TWILIO_SMS_APPLICATION_SID")
-        return self.twilio_client.applications(
+        instance = self.twilio_client.applications(
             settings.TWILIO_SMS_APPLICATION_SID
         ).fetch()
+        assert isinstance(instance, InstanceResource)
+        return instance
 
     @cached_property
     def twilio_test_client(self) -> Client:
