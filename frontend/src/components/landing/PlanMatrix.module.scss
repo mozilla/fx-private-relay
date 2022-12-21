@@ -159,23 +159,33 @@ table.desktop {
       border-bottom-right-radius: $spacing-sm;
     }
 
+    tr {
+      // The actual height will be determined by the contents, but by giving the
+      // <tr> an explicit height, `.pricing` can have its height set to 100% to
+      // make it stretch the entire height of the row:
+      height: 1px;
+    }
+
     td {
       vertical-align: top;
+      height: 100%;
     }
 
     .pricing {
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       gap: $spacing-md;
       width: 100%;
+      height: 100%;
       text-align: center;
       $pricing-toggle-height: 35px;
 
       &.single-price {
-        padding-top: $spacing-md + $pricing-toggle-height;
+        justify-content: flex-end;
       }
       .pricing-toggle-wrapper {
-        height: $pricing-toggle-height;
+        min-height: $pricing-toggle-height;
       }
 
       .discount-notice {

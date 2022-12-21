@@ -191,6 +191,13 @@ export const PlanMatrix = (props: Props) => {
                 >
                   {l10n.getString("plan-matrix-pick")}
                 </a>
+                {/*
+                The <small> has space for price-related notices (e.g. "* billed
+                annually"). When there is no such notice, we still want to leave
+                space for it to prevent the page from jumping around; hence the
+                empty <small>.
+                */}
+                <small>&nbsp;</small>
               </div>
             </div>
           </td>
@@ -726,6 +733,13 @@ const PricingToggle = (props: PricingToggleProps) => {
         >
           {l10n.getString("plan-matrix-pick")}
         </a>
+        {/*
+        The <small> has space for price-related notices (e.g. "* billed
+        annually"). When there is no such notice, we still want to leave
+        space for it to prevent the page from jumping around; hence the
+        empty <small>.
+        */}
+        <small>&nbsp;</small>
       </Item>
     </PricingTabs>
   );
