@@ -37,6 +37,7 @@
 
   .description {
     max-width: 100%;
+    min-width: $content-xs;
     border-color: $color-light-gray-30;
     border-width: 1px;
     border-bottom-style: solid;
