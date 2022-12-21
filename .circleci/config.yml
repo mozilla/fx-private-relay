@@ -367,6 +367,7 @@ jobs:
                   echo "# Production tag is ${PROD_TAG}"
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
+                  git submodule update --init --recursive
                   git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
                   git status
       - unless:
@@ -443,6 +444,7 @@ jobs:
                   echo "# Production tag is ${PROD_TAG}"
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
+                  git submodule update --init --recursive
                   git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
                   git status
       - run:
