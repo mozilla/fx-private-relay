@@ -19,10 +19,6 @@ $toggleTransitionDuration: 200ms;
   &.is-disabled {
     background-color: rgba($color-white, 0.5);
   }
-
-  .controls {
-    flex-grow: 2;
-  }
 }
 
 .main-data {
@@ -32,6 +28,7 @@ $toggleTransitionDuration: 200ms;
 }
 
 .controls {
+  min-width: $content-xs;
   display: flex;
   gap: $spacing-xs;
   align-items: center;
@@ -384,7 +381,7 @@ $trackerRemovalIndicatorWidth: 20px;
 
   .is-expanded & {
     // An arbitrary high value that allows it to expand to its full height:
-    max-height: 100vh;
+    max-height: 1000vh;
     border-color: $color-light-gray-20;
     padding: $spacing-sm 0;
     visibility: visible;

@@ -18,6 +18,9 @@
   background-color: $color-white;
   box-shadow: $box-shadow-lg;
   width: 100%;
+  // Prevent the menu from being shown while collapsed;
+  // otherwise it might get exposed when the browser "overscrolls":
+  opacity: 0;
 
   &.not-active {
     animation: slide-out 300ms cubic-bezier(0.52, -0.14, 0.31, 1.2);
@@ -41,16 +44,28 @@
   }
 
   @keyframes slide-in {
+    0% {
+      // Make sure the menu is visible while sliding in:
+      opacity: 1;
+    }
     100% {
       transform: translateY(0);
+      opacity: 1;
     }
   }
   @keyframes slide-out {
     0% {
       transform: translateY(0);
+      opacity: 1;
+    }
+    99% {
+      // Make sure the menu doesn't disappear until it is behind the header:
+      opacity: 1;
     }
     100% {
       transform: translateY(-100%);
+      // Hide the menu again, so it's not revealed when the browser "overscrolls":
+      opacity: 0;
     }
   }
 }
