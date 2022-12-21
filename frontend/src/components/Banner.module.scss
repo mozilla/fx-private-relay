@@ -51,7 +51,7 @@
   .title-and-large-cta-wrapper {
     display: flex;
     flex-wrap: wrap;
-    flex: 1 0 $content-xs;
+    flex: 1 1 $content-xs;
     padding: $spacing-xs $spacing-md $spacing-md $spacing-md;
 
     @media screen and #{$mq-sm} {
@@ -148,6 +148,7 @@
   }
 
   .icon {
+    flex: 1 0 auto;
     margin-right: $spacing-md;
 
     .warning & {
