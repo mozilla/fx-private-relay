@@ -11,8 +11,11 @@ relay-email-upgrade-to-reply-to-future-emails = Upgrade now to reply to future e
 relay-email-upgrade-for-more-protection = Upgrade for more protection
 relay-email-upgrade-to-premium = Upgrade to { -brand-name-firefox-relay-premium }
 relay-email-manage-your-masks = Manage your masks
-relay-email-relay-dashboard = { -brand-name-firefox-relay } dashboard
+relay-email-relay-dashboard = { -brand-name-relay } dashboard
 relay-email-block-sender = Block sender
-relay-email-premium-by-line-html = by <a class="container-link" href="https://relay.firefox.com/accounts/profile/">{ -brand-name-firefox-relay-premium }</a>
+# $url - the url to Relay using site origin
+relay-email-premium-by-line-html = by <a class="container-link" href="{ $url }">{ -brand-name-firefox-relay-premium }</a>
 # $display_email - the mask email address
 relay-email-forwarded-from-html = Forwarded from <span class="forwarded-by">{ $display_email }</span>
+# $number - the number of email trackers removed
+relay-email-trackers-removed = { $number } email trackers removed
