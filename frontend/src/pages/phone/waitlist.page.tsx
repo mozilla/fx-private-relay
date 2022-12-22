@@ -5,7 +5,7 @@ import { WaitlistPage } from "../../components/waitlist/WaitlistPage";
 /** These are the languages that marketing can send emails in: */
 const supportedLocales = ["en", "es", "pl", "pt", "ja"];
 
-const PremiumWaitlist: NextPage = () => {
+const PhoneWaitlist: NextPage = () => {
   const { l10n } = useLocalization();
 
   const legalese = (
@@ -24,19 +24,19 @@ const PremiumWaitlist: NextPage = () => {
       >
         <p />
       </Localized>
-      <p>{l10n.getString("waitlist-privacy-policy-use")}</p>
+      <p>{l10n.getString("waitlist-privacy-policy-use-phone")}</p>
     </>
   );
 
   return (
     <WaitlistPage
       supportedLocales={supportedLocales}
-      headline={l10n.getString("waitlist-heading")}
-      lead={l10n.getString("waitlist-lead-2")}
+      headline={l10n.getString("waitlist-heading-phone")}
+      lead={l10n.getString("waitlist-lead-phone")}
       legalese={legalese}
-      newsletterId="relay-waitlist"
+      newsletterId="relay-phone-masking-waitlist"
     />
   );
 };
 
-export default PremiumWaitlist;
+export default PhoneWaitlist;
