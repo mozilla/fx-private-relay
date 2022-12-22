@@ -84,7 +84,14 @@ def reply_requires_premium_test(request):
     email_context = {
         "message": "Replies require premium.",
         "sender": "test@example.com",
+        "forwarded": False,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
+    for param in request.GET:
+        email_context[param] = request.GET.get(param)
+        if param == "forwarded" and request.GET[param] == "True":
+            email_context[param] = True
+
     return render(request, "emails/reply_requires_premium.html", email_context)
 
 
@@ -654,6 +661,7 @@ def _send_reply_requires_premium_email(
         "message": message,
         "sender": sender,
         "forwarded": forwarded,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
     html_body = render_to_string("emails/reply_requires_premium.html", ctx)
     text_body = render_to_string("emails/reply_requires_premium.txt", ctx)

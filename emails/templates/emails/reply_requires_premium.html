@@ -75,10 +75,18 @@
         <tr>
             <td style="max-width:800px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
                 <h2 style="font-family: 'inter medium';"> 
-                    <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>  {% ftlmsg 'replies-not-included-in-free-account-header' %}</h2>
+                    <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>
+                    {% if forwarded %}
+                        {% ftlmsg 'replies-not-included-in-free-account-header' %}
+                    {% else %}
+                        {% ftlmsg 'reply-not-sent-header' %}
+                    {% endif %}
+                </h2>
                 <p style="line-height: 200%; margin-bottom: 30px; padding: 20px 60px 20px 60px">
-                    {% ftlmsg 'replies-not-included-in-free-account-message' sender=sender as replies_not_included_message %} 
-                    {{ replies_not_included_message|safe }}
+                    {% if forwarded %}
+                        {% ftlmsg 'first-reply-forwarded' sender=sender %}
+                    {% endif %}
+                    {% ftlmsg 'replies-only-available-with-premium' %}
                 </p> 
                 <a href="{{ SITE_ORIGIN|add:"/premium" }}" style="margin: 10px 0;">{% ftlmsg 'upgrade-to-reply-to-future-emails' %}</a>
             </td> 
