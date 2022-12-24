@@ -13,9 +13,10 @@ relay-email-upgrade-to-premium = Upgrade to { -brand-name-firefox-relay-premium 
 relay-email-manage-your-masks = Manage your masks
 relay-email-relay-dashboard = { -brand-name-relay } dashboard
 relay-email-block-sender = Block sender
-# $url - the url to Relay using site origin
-relay-email-premium-by-line-html = by <a class="container-link" href="{ $url }">{ -brand-name-firefox-relay-premium }</a>
-# $display_email - the mask email address
-relay-email-forwarded-from-html = Forwarded from <span class="forwarded-by">{ $display_email }</span>
+# The by line for the premium email header that reads "by Firefox Relay Premium"
+relay-email-premium-by-line = by
+# This is used by relay-email-premium-by-line to create a sentence like "by Firefox Relay Premium"
+relay-email-premium-by-line-link = { -brand-name-firefox-relay-premium } 
+relay-email-forwarded-from = Forwarded from
 # $number - the number of email trackers removed
 relay-email-trackers-removed = { $number } email trackers removed
