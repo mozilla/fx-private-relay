@@ -1,3 +1,6 @@
+// Imports of `useLocalization` are forbidden because the hook in this file
+// should be used instead, but of course this hook can use it just fine:
+// eslint-disable-next-line no-restricted-imports
 import { ReactLocalization, useLocalization } from "@fluent/react";
 import { useEffect, useState } from "react";
 
