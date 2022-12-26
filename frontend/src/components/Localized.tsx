@@ -1,3 +1,7 @@
+// Imports of `Localized` from @fluent/react are forbidden because the component
+// in this file should be used instead, but of course this component can use it
+// just fine:
+// eslint-disable-next-line no-restricted-imports
 import { LocalizedProps, Localized as OriginalLocalized } from "@fluent/react";
 import { useEffect, useState } from "react";
 import { useL10n } from "../hooks/l10n";
