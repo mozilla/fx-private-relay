@@ -110,24 +110,20 @@ export const ProfileBanners = (props: Props) => {
   if (
     !props.profile.has_premium &&
     isPeriodicalPremiumAvailableInCountry(props.runtimeData) &&
-    !isPhonesAvailableInCountry(props.runtimeData) &&
     props.aliases.length > 0
   ) {
-    banners.push(
-      <LoyalistPremiumBanner
-        key="premium-banner"
-        runtimeData={props.runtimeData}
-      />
-      // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
-    );
-  }
-
-  // Only show updated Premium Banners to users in US/CAN
-  if (
-    !props.profile.has_premium &&
-    isPhonesAvailableInCountry(props.runtimeData)
-  ) {
-    banners.push(<PremiumPromoBanners showFirstPremiumBanner={true} />);
+    // Only show updated Premium Banners to users in US/CAN
+    {
+      isPhonesAvailableInCountry(props.runtimeData)
+        ? banners.push(<PremiumPromoBanners showFirstPremiumBanner={true} />)
+        : banners.push(
+            <LoyalistPremiumBanner
+              key="premium-banner"
+              runtimeData={props.runtimeData}
+            />
+          );
+    }
+    // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
   }
 
   return <div className={styles["profile-banners"]}>{banners}</div>;
@@ -262,7 +258,6 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
   );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
   const { l10n } = useLocalization();
 
