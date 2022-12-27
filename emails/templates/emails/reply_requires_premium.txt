@@ -11,5 +11,5 @@
 {% ftlmsg 'first-reply-forwarded' sender=sender %}
 {% endif %}
 {% ftlmsg 'replies-only-available-with-premium' %}
-{{ SITE_ORIGIN|add:"/premium" }}
+{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}
 {% endwithftl %}
