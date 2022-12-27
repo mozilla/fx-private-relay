@@ -10,6 +10,7 @@ import {
   getPeriodicalPremiumPrice,
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
+  isPhonesAvailableInCountry,
   RuntimeDataWithBundleAvailable,
   RuntimeDataWithPeriodicalPremiumAvailable,
 } from "../../functions/getPlan";
@@ -109,16 +110,24 @@ export const ProfileBanners = (props: Props) => {
   if (
     !props.profile.has_premium &&
     isPeriodicalPremiumAvailableInCountry(props.runtimeData) &&
+    !isPhonesAvailableInCountry(props.runtimeData) &&
     props.aliases.length > 0
   ) {
     banners.push(
-      // <LoyalistPremiumBanner
-      //   key="premium-banner"
-      //   runtimeData={props.runtimeData}
-      // />
+      <LoyalistPremiumBanner
+        key="premium-banner"
+        runtimeData={props.runtimeData}
+      />
       // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
-      <PremiumPromoBanners showFirstPremiumBanner={true} />
     );
+  }
+
+  // Only show updated Premium Banners to users in US/CAN
+  if (
+    !props.profile.has_premium &&
+    isPhonesAvailableInCountry(props.runtimeData)
+  ) {
+    banners.push(<PremiumPromoBanners showFirstPremiumBanner={true} />);
   }
 
   return <div className={styles["profile-banners"]}>{banners}</div>;
