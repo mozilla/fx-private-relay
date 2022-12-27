@@ -2,12 +2,12 @@
 {% load email_extras %}
 {% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
 {% ftlmsg 'upgrade-for-more-protection' %}
-{% if forwarded %}
+{% if forwarded == True %}
 {% ftlmsg 'replies-not-included-in-free-account-header' %}
 {% else %}
 {% ftlmsg 'reply-not-sent-header' %}
 {% endif %}
-{% if forwarded %}
+{% if forwarded == True %}
 {% ftlmsg 'first-reply-forwarded' sender=sender %}
 {% endif %}
 {% ftlmsg 'replies-only-available-with-premium' %}

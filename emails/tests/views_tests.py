@@ -1127,9 +1127,10 @@ def test_wrapped_email_test(
 
 
 @pytest.mark.parametrize("forwarded", ("False", "True"))
+@pytest.mark.parametrize("content_type", ("text/plain", "text/html"))
 @pytest.mark.django_db
-def test_reply_requires_premium_test(rf, forwarded):
-    url = f"/emails/reply_requires_premium_test?forwarded={forwarded}"
+def test_reply_requires_premium_test(rf, forwarded, content_type):
+    url = f"/emails/reply_requires_premium_test?forwarded={forwarded}&content-type={content_type}"
     request = rf.get(url)
     response = reply_requires_premium_test(request)
     assert response.status_code == 200
