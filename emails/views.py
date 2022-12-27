@@ -92,6 +92,14 @@ def reply_requires_premium_test(request):
         if param == "forwarded" and request.GET[param] == "True":
             email_context[param] = True
 
+    for param in request.GET:
+        if param == "content-type" and request.GET[param] == "text/plain":
+            return render(
+                request,
+                "emails/reply_requires_premium.txt",
+                email_context,
+                "text/plain; charset=utf-8",
+            )
     return render(request, "emails/reply_requires_premium.html", email_context)
 
 

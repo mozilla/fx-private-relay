@@ -1,2 +1,15 @@
-{{ message }}\r\n
-\r\n
+{% load ftl %}
+{% load email_extras %}
+{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
+{% ftlmsg 'upgrade-for-more-protection' %}
+{% if forwarded %}
+{% ftlmsg 'replies-not-included-in-free-account-header' %}
+{% else %}
+{% ftlmsg 'reply-not-sent-header' %}
+{% endif %}
+{% if forwarded %}
+{% ftlmsg 'first-reply-forwarded' sender=sender %}
+{% endif %}
+{% ftlmsg 'replies-only-available-with-premium' %}
+{{ SITE_ORIGIN|add:"/premium" }}
+{% endwithftl %}
