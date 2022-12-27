@@ -121,9 +121,9 @@ export const ProfileBanners = (props: Props) => {
               key="premium-banner"
               runtimeData={props.runtimeData}
             />
+            // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
           );
     }
-    // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
   }
 
   return <div className={styles["profile-banners"]}>{banners}</div>;
