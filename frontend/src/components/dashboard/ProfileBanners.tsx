@@ -27,6 +27,7 @@ import { isFlagActive } from "../../functions/waffle";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
+import { PremiumPromoBanners } from "./PremiumPromoBanners";
 
 export type Props = {
   profile: ProfileData;
@@ -111,11 +112,12 @@ export const ProfileBanners = (props: Props) => {
     props.aliases.length > 0
   ) {
     banners.push(
-      <LoyalistPremiumBanner
-        key="premium-banner"
-        runtimeData={props.runtimeData}
-      />
+      // <LoyalistPremiumBanner
+      //   key="premium-banner"
+      //   runtimeData={props.runtimeData}
+      // />
       // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
+      <PremiumPromoBanners showFirstPremiumBanner={true} />
     );
   }
 
@@ -251,6 +253,7 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
   const { l10n } = useLocalization();
 
