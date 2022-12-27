@@ -36,6 +36,7 @@ from emails.views import (
     _record_receipt_verdicts,
     _sns_message,
     _sns_notification,
+    reply_requires_premium_test,
     validate_sns_arn_and_type,
     wrapped_email_test,
     ReplyHeadersNotFound,
@@ -1123,6 +1124,25 @@ def test_wrapped_email_test(
     assert (
         f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html
+
+
+@pytest.mark.parametrize("forwarded", ("False", "True"))
+@pytest.mark.django_db
+def test_reply_requires_premium_test(rf, forwarded):
+    url = f"/emails/reply_requires_premium_test?forwarded={forwarded}"
+    request = rf.get(url)
+    response = reply_requires_premium_test(request)
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert (
+        "/premium/?utm_campaign=email_replies&amp;utm_source=email&amp;utm_medium=email"
+        in html
+    )
+    assert "Upgrade for more protection" in html
+    if forwarded == "True":
+        assert "We’ve sent this reply" in html
+    else:
+        assert "Your reply was not sent" in html
 
 
 def test_get_keys_from_headers_no_reply_headers():

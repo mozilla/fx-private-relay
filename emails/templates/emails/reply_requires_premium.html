@@ -76,14 +76,14 @@
             <td style="max-width:800px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
                 <h2 style="font-family: 'inter medium';"> 
                     <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>
-                    {% if forwarded %}
+                    {% if forwarded == True %}
                         {% ftlmsg 'replies-not-included-in-free-account-header' %}
                     {% else %}
                         {% ftlmsg 'reply-not-sent-header' %}
                     {% endif %}
                 </h2>
                 <p style="line-height: 200%; margin-bottom: 30px; padding: 20px 60px 20px 60px">
-                    {% if forwarded %}
+                    {% if forwarded == True %}
                         {% ftlmsg 'first-reply-forwarded' sender=sender %}
                     {% endif %}
                     {% ftlmsg 'replies-only-available-with-premium' %}

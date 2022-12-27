@@ -34,6 +34,7 @@ from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
+
 from .models import (
     address_hash,
     CannotMakeAddressException,
@@ -64,6 +65,8 @@ from .utils import (
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
+from privaterelay.ftl_bundles import main as ftl_bundle
+
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
@@ -82,7 +85,6 @@ def reply_requires_premium_test(request):
     come from a random free profile.
     """
     email_context = {
-        "message": "Replies require premium.",
         "sender": "test@example.com",
         "forwarded": False,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
@@ -658,37 +660,44 @@ def _send_reply_requires_premium_email(
     message_id,
     decrypted_metadata,
 ):
-    # If we haven't forwaded a first reply for this user yet, _reply_allowed will.
+    # If we haven't forwaded a first reply for this user yet, _reply_allowed will forward.
     # So, tell the user we forwarded it.
     forwarded = not reply_record.address.user.profile.forwarded_first_reply
-    message = "Replies are a premium feature."
     sender = ""
     if decrypted_metadata is not None:
         sender = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
     ctx = {
-        "message": message,
         "sender": sender,
         "forwarded": forwarded,
         "SITE_ORIGIN": settings.SITE_ORIGIN,
     }
     html_body = render_to_string("emails/reply_requires_premium.html", ctx)
     text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
-    charset = "utf-8"
+
+    # We build the raw multipart MIME message to specify a custom In-Reply-To header
     msg = MIMEMultipart("mixed")
-    msg["Subject"] = message
+    subject_ftl_id = "replies-not-included-in-free-account-header"
+    subject = ftl_bundle.format(subject_ftl_id)
+    msg["Subject"] = subject
+
     domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
     msg["From"] = f"replies@{domain}"
+
     msg["To"] = from_address
+
     if message_id:
         msg["In-Reply-To"] = message_id
         msg["References"] = message_id
-        print(f"setting In-Reply-To: {message_id}")
+
+    # Compose the full raw message together
+    charset = "utf-8"
     msg_body = MIMEMultipart("alternative")
     text_part = MIMEText(text_body, "plain", charset)
     html_part = MIMEText(html_body, "html", charset)
     msg_body.attach(text_part)
     msg_body.attach(html_part)
     msg.attach(msg_body)
+
     try:
         emails_config = apps.get_app_config("emails")
         emails_config.ses_client.send_raw_email(
