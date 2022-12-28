@@ -35,6 +35,8 @@ from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
 
 
+from .apps import EmailsConfig
+
 from .models import (
     address_hash,
     CannotMakeAddressException,
@@ -654,7 +656,7 @@ def _strip_localpart_tag(address):
     return f"{subaddress_parts[0]}@{domain}"
 
 
-def _send_reply_requires_premium_email(
+def _build_reply_requires_premium_email(
     from_address,
     reply_record,
     message_id,
@@ -698,8 +700,26 @@ def _send_reply_requires_premium_email(
     msg_body.attach(html_part)
     msg.attach(msg_body)
 
+    return msg
+
+
+def _set_forwarded_first_reply(profile):
+    profile.forwarded_first_reply = True
+    profile.save()
+
+
+def _send_reply_requires_premium_email(
+    from_address,
+    reply_record,
+    message_id,
+    decrypted_metadata,
+):
+    msg = _build_reply_requires_premium_email(
+        from_address, reply_record, message_id, decrypted_metadata
+    )
     try:
         emails_config = apps.get_app_config("emails")
+        assert isinstance(emails_config, EmailsConfig)
         emails_config.ses_client.send_raw_email(
             ConfigurationSetName=settings.AWS_SES_CONFIGSET,
             Source=settings.RELAY_FROM_ADDRESS,
@@ -708,8 +728,7 @@ def _send_reply_requires_premium_email(
         )
         # If we haven't forwaded a first reply for this user yet, _reply_allowed will.
         # So, updated the DB.
-        reply_record.address.user.profile.forwarded_first_reply = True
-        reply_record.address.user.profile.save()
+        _set_forwarded_first_reply(reply_record.address.user.profile)
     except ClientError as e:
         logger.error("reply_not_allowed_ses_client_error", extra=e.response["Error"])
     incr_if_enabled("free_user_reply_attempt", 1)
