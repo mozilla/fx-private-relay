@@ -266,6 +266,7 @@
 }
 
 .phone-input {
+  @include text-body-md; // The browser will zoom if the font-size is less than 16px
   width: $content-xs;
   height: $layout-sm;
   padding: $spacing-md $spacing-sm $spacing-md $spacing-2xl;
