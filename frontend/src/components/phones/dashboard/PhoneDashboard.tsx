@@ -101,7 +101,9 @@ export const PhoneDashboard = (props: Props) => {
 
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
     if (relayNumberData?.number) {
-      navigator.clipboard.writeText(relayNumberData.number);
+      // removing the + from the number to make it easier to copy
+      const RelayNumber = relayNumberData.number.replace("+1", "");
+      navigator.clipboard.writeText(RelayNumber);
       setJustCopiedPhoneNumber(true);
       setTimeout(() => setJustCopiedPhoneNumber(false), 1000);
     }
