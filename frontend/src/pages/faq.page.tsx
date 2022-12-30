@@ -380,7 +380,7 @@ const Faq: NextPage = () => {
                 question={l10n.getString("faq-question-8-question")}
               >
                 <Localized
-                  id="faq-question-8-answer-2-html"
+                  id="faq-question-8-answer-3-html"
                   vars={{
                     url: "https://www.mozilla.org/privacy/firefox-relay/",
                     attrs: "",
