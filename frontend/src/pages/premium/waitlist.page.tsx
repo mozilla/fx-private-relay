@@ -31,7 +31,7 @@ const PremiumWaitlist: NextPage = () => {
   return (
     <WaitlistPage
       supportedLocales={supportedLocales}
-      headline={l10n.getString("waitlist-heading")}
+      headline={l10n.getString("waitlist-heading-2")}
       lead={l10n.getString("waitlist-lead-2")}
       legalese={legalese}
       newsletterId="relay-waitlist"
