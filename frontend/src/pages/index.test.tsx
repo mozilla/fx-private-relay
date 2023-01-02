@@ -84,28 +84,29 @@ describe("The landing page", () => {
     expect(phoneFeatureRow).toBeInTheDocument();
   });
 
-  it("does not show the phone plan if phones is not available in the user's country", () => {
+  it("links to the waitlist if phones is not available in the user's country", () => {
     setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
-    const phoneColumn = screen.queryByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-phones], with vars: {}",
+    const waitlistLinks = screen.getAllByRole("link", {
+      name: "l10n string: [plan-matrix-join-waitlist], with vars: {}",
     });
 
-    expect(phoneColumn).not.toBeInTheDocument();
+    const linkTargets = waitlistLinks.map((el) => el.getAttribute("href"));
+    expect(linkTargets).toContain("/phone/waitlist");
   });
 
-  it("does not show the phone feature if phones is not available in the user's country", () => {
+  it("shows the phone feature even if phones is not available in the user's country", () => {
     setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
-    const phoneFeatureRow = screen.queryByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-phone_mask] and vars: {}]",
+    const phoneFeatureRow = screen.getByRole("rowheader", {
+      name: "[<Localized> with id [plan-matrix-heading-feature-phone-mask] and vars: {}]",
     });
 
-    expect(phoneFeatureRow).not.toBeInTheDocument();
+    expect(phoneFeatureRow).toBeInTheDocument();
   });
 
   it("shows the bundle plan if bundle is available in the user's country", () => {
@@ -120,6 +121,19 @@ describe("The landing page", () => {
     expect(bundleColumn).toBeInTheDocument();
   });
 
+  it("links to the waitlist if bundle is not available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
+
+    render(<Home />);
+
+    const waitlistLinks = screen.getAllByRole("link", {
+      name: "l10n string: [plan-matrix-join-waitlist], with vars: {}",
+    });
+
+    const linkTargets = waitlistLinks.map((el) => el.getAttribute("href"));
+    expect(linkTargets).toContain("/vpn-relay/waitlist");
+  });
+
   it("shows the VPN feature if bundle is available in the user's country", () => {
     setMockRuntimeDataOnce(getMockRuntimeDataWithBundle());
 
@@ -132,15 +146,15 @@ describe("The landing page", () => {
     expect(vpnFeatureRow).toBeInTheDocument();
   });
 
-  it("does not show the bundle plan if phones and bundle are not available in the user's country", () => {
+  it("shows the bundle plan even if phones and bundle are not available in the user's country", () => {
     setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
-    const vpnFeatureRow = screen.queryByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-vpn], with vars: {}",
+    const vpnFeatureRow = screen.getByRole("columnheader", {
+      name: "l10n string: [plan-matrix-heading-plan-bundle], with vars: {}",
     });
 
-    expect(vpnFeatureRow).not.toBeInTheDocument();
+    expect(vpnFeatureRow).toBeInTheDocument();
   });
 });
