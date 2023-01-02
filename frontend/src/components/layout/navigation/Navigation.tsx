@@ -15,7 +15,6 @@ import {
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
 } from "../../../functions/getPlan";
-import { isFlagActive } from "../../../functions/waffle";
 
 export type Props = {
   theme: "free" | "premium";
@@ -66,9 +65,7 @@ export const Navigation = (props: Props) => {
   );
 
   const phoneLink =
-    isLoggedIn &&
-    isPhonesAvailableInCountry(runtimeData.data) &&
-    isFlagActive(runtimeData.data, "phones") ? (
+    isLoggedIn && isPhonesAvailableInCountry(runtimeData.data) ? (
       <Link href="/phone">
         <a
           className={`${styles.link} ${styles["hidden-mobile"]} ${

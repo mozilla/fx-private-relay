@@ -21,7 +21,6 @@ import {
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
 } from "../../functions/getPlan";
-import { isFlagActive } from "../../functions/waffle";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { CheckIcon, MozillaVpnWordmark } from "../Icons";
 import { getRuntimeConfig } from "../../config";
@@ -102,16 +101,10 @@ export const PlanMatrix = (props: Props) => {
   };
 
   let planCount = 2;
-  if (
-    isFlagActive(props.runtimeData, "phones") &&
-    isPhonesAvailableInCountry(props.runtimeData)
-  ) {
+  if (isPhonesAvailableInCountry(props.runtimeData)) {
     planCount += 1;
   }
-  if (
-    isFlagActive(props.runtimeData, "bundle") &&
-    isBundleAvailableInCountry(props.runtimeData)
-  ) {
+  if (isBundleAvailableInCountry(props.runtimeData)) {
     planCount += 1;
   }
   const planCountClass = styles[`has-${planCount}-plans`];
@@ -125,18 +118,16 @@ export const PlanMatrix = (props: Props) => {
           <th scope="col">
             {l10n.getString("plan-matrix-heading-plan-premium")}
           </th>
-          {isFlagActive(props.runtimeData, "phones") &&
-            isPhonesAvailableInCountry(props.runtimeData) && (
-              <th scope="col">
-                {l10n.getString("plan-matrix-heading-plan-phones")}
-              </th>
-            )}
-          {isFlagActive(props.runtimeData, "bundle") &&
-            isBundleAvailableInCountry(props.runtimeData) && (
-              <th scope="col" className={styles.recommended}>
-                <b>{l10n.getString("plan-matrix-heading-plan-bundle")}</b>
-              </th>
-            )}
+          {isPhonesAvailableInCountry(props.runtimeData) && (
+            <th scope="col">
+              {l10n.getString("plan-matrix-heading-plan-phones")}
+            </th>
+          )}
+          {isBundleAvailableInCountry(props.runtimeData) && (
+            <th scope="col" className={styles.recommended}>
+              <b>{l10n.getString("plan-matrix-heading-plan-bundle")}</b>
+            </th>
+          )}
         </tr>
       </thead>
       <tbody>
@@ -158,17 +149,15 @@ export const PlanMatrix = (props: Props) => {
           feature="email-subdomain"
         />
         <DesktopFeature runtimeData={props.runtimeData} feature="email-reply" />
-        {isFlagActive(props.runtimeData, "phones") &&
-          isPhonesAvailableInCountry(props.runtimeData) && (
-            <DesktopFeature
-              runtimeData={props.runtimeData}
-              feature="phone-mask"
-            />
-          )}
-        {isFlagActive(props.runtimeData, "bundle") &&
-          isBundleAvailableInCountry(props.runtimeData) && (
-            <DesktopFeature runtimeData={props.runtimeData} feature="vpn" />
-          )}
+        {isPhonesAvailableInCountry(props.runtimeData) && (
+          <DesktopFeature
+            runtimeData={props.runtimeData}
+            feature="phone-mask"
+          />
+        )}
+        {isBundleAvailableInCountry(props.runtimeData) && (
+          <DesktopFeature runtimeData={props.runtimeData} feature="vpn" />
+        )}
       </tbody>
       <tfoot>
         <tr>
@@ -260,88 +249,86 @@ export const PlanMatrix = (props: Props) => {
               </div>
             )}
           </td>
-          {isFlagActive(props.runtimeData, "phones") &&
-            isPhonesAvailableInCountry(props.runtimeData) && (
-              <td>
-                <PricingToggle
-                  monthlyBilled={{
-                    monthly_price: getPhonesPrice(
-                      props.runtimeData,
-                      "monthly",
-                      l10n
-                    ),
-                    subscribeLink: getPhoneSubscribeLink(
-                      props.runtimeData,
-                      "monthly"
-                    ),
-                    gaViewPing: {
-                      category: "Purchase monthly Premium+phones button",
-                      label: "plan-matrix-phone-monthly-cta-desktop",
-                    },
-                    plan: {
-                      plan: "phones",
-                      billing_period: "monthly",
-                    },
-                  }}
-                  yearlyBilled={{
-                    monthly_price: getPhonesPrice(
-                      props.runtimeData,
-                      "yearly",
-                      l10n
-                    ),
-                    subscribeLink: getPhoneSubscribeLink(
-                      props.runtimeData,
-                      "yearly"
-                    ),
-                    gaViewPing: {
-                      category: "Purchase yearly Premium+phones button",
-                      label: "plan-matrix-phone-yearly-cta-desktop",
-                    },
-                    plan: {
-                      plan: "phones",
-                      billing_period: "yearly",
-                    },
-                  }}
-                />
-              </td>
-            )}
-          {isFlagActive(props.runtimeData, "bundle") &&
-            isBundleAvailableInCountry(props.runtimeData) && (
-              <td>
-                <div className={`${styles.pricing}`}>
-                  <div className={styles["pricing-toggle-wrapper"]}>
-                    <p className={styles["discount-notice"]}>
-                      {l10n.getString("plan-matrix-price-vpn-discount", {
-                        percentage: "40",
-                      })}
-                    </p>
-                  </div>
-                  <div className={styles["pricing-overview"]}>
-                    <span className={styles.price}>
-                      {l10n.getString("plan-matrix-price-monthly", {
-                        monthly_price: getBundlePrice(props.runtimeData, l10n),
-                      })}
-                    </span>
-                    <a
-                      ref={bundleButtonDesktopRef}
-                      href={getBundleSubscribeLink(props.runtimeData)}
-                      onClick={() =>
-                        trackPlanPurchaseStart(
-                          { plan: "bundle" },
-                          { label: "plan-matrix-bundle-cta-desktop" }
-                        )
-                      }
-                      className={styles["pick-button"]}
-                    >
-                      {l10n.getString("plan-matrix-pick")}
-                    </a>
-                    <small>
-                      * {l10n.getString("plan-matrix-price-period-yearly-note")}
-                    </small>
-                  </div>
+          {isPhonesAvailableInCountry(props.runtimeData) && (
+            <td>
+              <PricingToggle
+                monthlyBilled={{
+                  monthly_price: getPhonesPrice(
+                    props.runtimeData,
+                    "monthly",
+                    l10n
+                  ),
+                  subscribeLink: getPhoneSubscribeLink(
+                    props.runtimeData,
+                    "monthly"
+                  ),
+                  gaViewPing: {
+                    category: "Purchase monthly Premium+phones button",
+                    label: "plan-matrix-phone-monthly-cta-desktop",
+                  },
+                  plan: {
+                    plan: "phones",
+                    billing_period: "monthly",
+                  },
+                }}
+                yearlyBilled={{
+                  monthly_price: getPhonesPrice(
+                    props.runtimeData,
+                    "yearly",
+                    l10n
+                  ),
+                  subscribeLink: getPhoneSubscribeLink(
+                    props.runtimeData,
+                    "yearly"
+                  ),
+                  gaViewPing: {
+                    category: "Purchase yearly Premium+phones button",
+                    label: "plan-matrix-phone-yearly-cta-desktop",
+                  },
+                  plan: {
+                    plan: "phones",
+                    billing_period: "yearly",
+                  },
+                }}
+              />
+            </td>
+          )}
+          {isBundleAvailableInCountry(props.runtimeData) && (
+            <td>
+              <div className={`${styles.pricing}`}>
+                <div className={styles["pricing-toggle-wrapper"]}>
+                  <p className={styles["discount-notice"]}>
+                    {l10n.getString("plan-matrix-price-vpn-discount", {
+                      percentage: "40",
+                    })}
+                  </p>
                 </div>
-              </td>
-            )}
+                <div className={styles["pricing-overview"]}>
+                  <span className={styles.price}>
+                    {l10n.getString("plan-matrix-price-monthly", {
+                      monthly_price: getBundlePrice(props.runtimeData, l10n),
+                    })}
+                  </span>
+                  <a
+                    ref={bundleButtonDesktopRef}
+                    href={getBundleSubscribeLink(props.runtimeData)}
+                    onClick={() =>
+                      trackPlanPurchaseStart(
+                        { plan: "bundle" },
+                        { label: "plan-matrix-bundle-cta-desktop" }
+                      )
+                    }
+                    className={styles["pick-button"]}
+                  >
+                    {l10n.getString("plan-matrix-pick")}
+                  </a>
+                  <small>
+                    * {l10n.getString("plan-matrix-price-period-yearly-note")}
+                  </small>
+                </div>
+              </div>
+            </td>
+          )}
         </tr>
       </tfoot>
     </table>
@@ -436,106 +423,103 @@ export const PlanMatrix = (props: Props) => {
             </>
           )}
         </li>
-        {isFlagActive(props.runtimeData, "phones") &&
-          isPhonesAvailableInCountry(props.runtimeData) && (
-            <li className={styles.plan}>
-              <h3>{l10n.getString("plan-matrix-heading-plan-phones")}</h3>
-              <MobileFeatureList list={phoneFeatures} />
-              <PricingToggle
-                monthlyBilled={{
-                  monthly_price: getPhonesPrice(
-                    props.runtimeData,
-                    "monthly",
-                    l10n
-                  ),
-                  subscribeLink: getPhoneSubscribeLink(
-                    props.runtimeData,
-                    "monthly"
-                  ),
-                  gaViewPing: {
-                    category: "Purchase monthly Premium+phones button",
-                    label: "plan-matrix-phone-monthly-cta-mobile",
-                  },
-                  plan: {
-                    plan: "phones",
-                    billing_period: "monthly",
-                  },
-                }}
-                yearlyBilled={{
-                  monthly_price: getPhonesPrice(
-                    props.runtimeData,
-                    "yearly",
-                    l10n
-                  ),
-                  subscribeLink: getPhoneSubscribeLink(
-                    props.runtimeData,
-                    "yearly"
-                  ),
-                  gaViewPing: {
-                    category: "Purchase yearly Premium+phones button",
-                    label: "plan-matrix-phone-yearly-cta-mobile",
-                  },
-                  plan: {
-                    plan: "phones",
-                    billing_period: "yearly",
-                  },
-                }}
-              />
-            </li>
-          )}
-        {isFlagActive(props.runtimeData, "bundle") &&
-          isBundleAvailableInCountry(props.runtimeData) && (
-            <li className={`${styles.plan} ${styles.recommended}`}>
-              <h3>{l10n.getString("plan-matrix-heading-plan-bundle")}</h3>
-              <MobileFeatureList list={bundleFeatures} />
-              <div className={styles.pricing}>
-                <div className={styles["pricing-toggle-wrapper"]}>
-                  <p className={styles["discount-notice"]}>
-                    {l10n.getString("plan-matrix-price-vpn-discount", {
-                      percentage: "40",
-                    })}
-                  </p>
-                </div>
-                <div className={styles["pricing-overview"]}>
-                  <span className={styles.price}>
-                    {l10n.getString("plan-matrix-price-monthly", {
-                      monthly_price: getBundlePrice(props.runtimeData, l10n),
-                    })}
-                  </span>
-                  <a
-                    ref={bundleButtonMobileRef}
-                    href={getBundleSubscribeLink(props.runtimeData)}
-                    onClick={() =>
-                      trackPlanPurchaseStart(
-                        { plan: "bundle" },
-                        { label: "plan-matrix-bundle-cta-mobile" }
-                      )
-                    }
-                    className={styles["pick-button"]}
-                  >
-                    {l10n.getString("plan-matrix-pick")}
-                  </a>
-                  <small>
-                    * {l10n.getString("plan-matrix-price-period-yearly-note")}
-                  </small>
-                </div>
+        {isPhonesAvailableInCountry(props.runtimeData) && (
+          <li className={styles.plan}>
+            <h3>{l10n.getString("plan-matrix-heading-plan-phones")}</h3>
+            <MobileFeatureList list={phoneFeatures} />
+            <PricingToggle
+              monthlyBilled={{
+                monthly_price: getPhonesPrice(
+                  props.runtimeData,
+                  "monthly",
+                  l10n
+                ),
+                subscribeLink: getPhoneSubscribeLink(
+                  props.runtimeData,
+                  "monthly"
+                ),
+                gaViewPing: {
+                  category: "Purchase monthly Premium+phones button",
+                  label: "plan-matrix-phone-monthly-cta-mobile",
+                },
+                plan: {
+                  plan: "phones",
+                  billing_period: "monthly",
+                },
+              }}
+              yearlyBilled={{
+                monthly_price: getPhonesPrice(
+                  props.runtimeData,
+                  "yearly",
+                  l10n
+                ),
+                subscribeLink: getPhoneSubscribeLink(
+                  props.runtimeData,
+                  "yearly"
+                ),
+                gaViewPing: {
+                  category: "Purchase yearly Premium+phones button",
+                  label: "plan-matrix-phone-yearly-cta-mobile",
+                },
+                plan: {
+                  plan: "phones",
+                  billing_period: "yearly",
+                },
+              }}
+            />
+          </li>
+        )}
+        {isBundleAvailableInCountry(props.runtimeData) && (
+          <li className={`${styles.plan} ${styles.recommended}`}>
+            <h3>{l10n.getString("plan-matrix-heading-plan-bundle")}</h3>
+            <MobileFeatureList list={bundleFeatures} />
+            <div className={styles.pricing}>
+              <div className={styles["pricing-toggle-wrapper"]}>
+                <p className={styles["discount-notice"]}>
+                  {l10n.getString("plan-matrix-price-vpn-discount", {
+                    percentage: "40",
+                  })}
+                </p>
               </div>
-            </li>
-          )}
+              <div className={styles["pricing-overview"]}>
+                <span className={styles.price}>
+                  {l10n.getString("plan-matrix-price-monthly", {
+                    monthly_price: getBundlePrice(props.runtimeData, l10n),
+                  })}
+                </span>
+                <a
+                  ref={bundleButtonMobileRef}
+                  href={getBundleSubscribeLink(props.runtimeData)}
+                  onClick={() =>
+                    trackPlanPurchaseStart(
+                      { plan: "bundle" },
+                      { label: "plan-matrix-bundle-cta-mobile" }
+                    )
+                  }
+                  className={styles["pick-button"]}
+                >
+                  {l10n.getString("plan-matrix-pick")}
+                </a>
+                <small>
+                  * {l10n.getString("plan-matrix-price-period-yearly-note")}
+                </small>
+              </div>
+            </div>
+          </li>
+        )}
       </ul>
     </div>
   );
 
   return (
     <div className={styles.wrapper}>
-      {isFlagActive(props.runtimeData, "bundle") &&
-        isBundleAvailableInCountry(props.runtimeData) && (
-          <h2 className={styles["bundle-offer-heading"]}>
-            {l10n.getString("plan-matrix-bundle-offer-heading-2", {
-              monthly_price: getBundlePrice(props.runtimeData, l10n),
-            })}
-          </h2>
-        )}
+      {isBundleAvailableInCountry(props.runtimeData) && (
+        <h2 className={styles["bundle-offer-heading"]}>
+          {l10n.getString("plan-matrix-bundle-offer-heading-2", {
+            monthly_price: getBundlePrice(props.runtimeData, l10n),
+          })}
+        </h2>
+      )}
       {isPeriodicalPremiumAvailableInCountry(props.runtimeData) && (
         <p className={styles["bundle-offer-content"]}>
           {l10n.getString("plan-matrix-bundle-offer-content")}
@@ -568,18 +552,16 @@ const DesktopFeature = (props: DesktopFeatureProps) => {
       <td>
         <AvailabilityListing availability={premiumFeatures[props.feature]} />
       </td>
-      {isFlagActive(props.runtimeData, "phones") &&
-        isPhonesAvailableInCountry(props.runtimeData) && (
-          <td>
-            <AvailabilityListing availability={phoneFeatures[props.feature]} />
-          </td>
-        )}
-      {isFlagActive(props.runtimeData, "bundle") &&
-        isBundleAvailableInCountry(props.runtimeData) && (
-          <td>
-            <AvailabilityListing availability={bundleFeatures[props.feature]} />
-          </td>
-        )}
+      {isPhonesAvailableInCountry(props.runtimeData) && (
+        <td>
+          <AvailabilityListing availability={phoneFeatures[props.feature]} />
+        </td>
+      )}
+      {isBundleAvailableInCountry(props.runtimeData) && (
+        <td>
+          <AvailabilityListing availability={bundleFeatures[props.feature]} />
+        </td>
+      )}
     </tr>
   );
 };
