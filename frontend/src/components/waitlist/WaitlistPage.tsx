@@ -149,7 +149,7 @@ export const WaitlistPage = (props: Props) => {
             </div>
           </div>
           <Button type="submit">
-            {l10n.getString("waitlist-submit-label")}
+            {l10n.getString("waitlist-submit-label-2")}
           </Button>
           <div className={styles.privacy}>{props.legalese}</div>
         </form>
