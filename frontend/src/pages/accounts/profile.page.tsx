@@ -122,8 +122,7 @@ const Profile: NextPage = () => {
           totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
         />
         <Layout runtimeData={runtimeData.data}>
-          {isPhonesAvailableInCountry(runtimeData.data) &&
-          isFlagActive(runtimeData.data, "phones") ? (
+          {isPhonesAvailableInCountry(runtimeData.data) ? (
             <DashboardSwitcher />
           ) : null}
           <PremiumOnboarding
@@ -323,8 +322,7 @@ const Profile: NextPage = () => {
       <section className={styles["bottom-banner"]}>
         <div className={styles["bottom-banner-wrapper"]}>
           <div className={styles["bottom-banner-content"]}>
-            {isPhonesAvailableInCountry(runtimeData.data) &&
-            isFlagActive(runtimeData.data, "phones") ? (
+            {isPhonesAvailableInCountry(runtimeData.data) ? (
               <>
                 <Localized
                   id="footer-banner-premium-promo-headine"
@@ -388,8 +386,7 @@ const Profile: NextPage = () => {
         totalEmailTrackersRemoved={profile.level_one_trackers_blocked}
       />
       <Layout runtimeData={runtimeData.data}>
-        {isPhonesAvailableInCountry(runtimeData.data) &&
-        isFlagActive(runtimeData.data, "phones") ? (
+        {isPhonesAvailableInCountry(runtimeData.data) ? (
           <DashboardSwitcher />
         ) : null}
         <main className={styles["profile-wrapper"]}>

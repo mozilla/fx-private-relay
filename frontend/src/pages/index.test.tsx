@@ -4,6 +4,7 @@ import { mockConfigModule } from "../../__mocks__/configMock";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import {
   getMockRuntimeDataWithBundle,
+  getMockRuntimeDataWithoutPremium,
   getMockRuntimeDataWithPhones,
   setMockRuntimeData,
   setMockRuntimeDataOnce,
@@ -59,11 +60,8 @@ describe("The landing page", () => {
     expect(comparisonMatrix).toBeInTheDocument();
   });
 
-  it("shows the phone plan if the `phones` flag is enabled and phones is available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithPhones(),
-      WAFFLE_FLAGS: [["phones", true]],
-    });
+  it("shows the phone plan if phones is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
 
     render(<Home />);
 
@@ -74,11 +72,8 @@ describe("The landing page", () => {
     expect(phoneColumn).toBeInTheDocument();
   });
 
-  it("shows the phone feature if the `phones` flag is enabled and phones is available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithPhones(),
-      WAFFLE_FLAGS: [["phones", true]],
-    });
+  it("shows the phone feature if phones is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
 
     render(<Home />);
 
@@ -89,11 +84,8 @@ describe("The landing page", () => {
     expect(phoneFeatureRow).toBeInTheDocument();
   });
 
-  it("does not show the phone plan if the `phones` flag is not enabled", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithPhones(),
-      WAFFLE_FLAGS: [["phones", false]],
-    });
+  it("does not show the phone plan if phones is not available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
@@ -104,24 +96,8 @@ describe("The landing page", () => {
     expect(phoneColumn).not.toBeInTheDocument();
   });
 
-  it("does not show the phone plan if the `phones` flag is enabled but phones is not available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      WAFFLE_FLAGS: [["phones", true]],
-    });
-
-    render(<Home />);
-
-    const phoneColumn = screen.queryByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-phones], with vars: {}",
-    });
-
-    expect(phoneColumn).not.toBeInTheDocument();
-  });
-
-  it("does not show the phone feature if the `phones` flag is enabled but phones is not available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      WAFFLE_FLAGS: [["phones", true]],
-    });
+  it("does not show the phone feature if phones is not available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
@@ -132,11 +108,8 @@ describe("The landing page", () => {
     expect(phoneFeatureRow).not.toBeInTheDocument();
   });
 
-  it("shows the bundle plan if the `bundle` flag is enabled and bundle is available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithBundle(),
-      WAFFLE_FLAGS: [["bundle", true]],
-    });
+  it("shows the bundle plan if bundle is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithBundle());
 
     render(<Home />);
 
@@ -147,11 +120,8 @@ describe("The landing page", () => {
     expect(bundleColumn).toBeInTheDocument();
   });
 
-  it("shows the VPN feature if the `bundle` flag is enabled and bundle is available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithBundle(),
-      WAFFLE_FLAGS: [["bundle", true]],
-    });
+  it("shows the VPN feature if bundle is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithBundle());
 
     render(<Home />);
 
@@ -162,44 +132,13 @@ describe("The landing page", () => {
     expect(vpnFeatureRow).toBeInTheDocument();
   });
 
-  it("does not show the phone bundle if the `bundle` flag is not enabled", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithBundle(),
-      WAFFLE_FLAGS: [["bundle", false]],
-    });
-
-    render(<Home />);
-
-    const bundleColumn = screen.queryByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-bundle], with vars: {}",
-    });
-
-    expect(bundleColumn).not.toBeInTheDocument();
-  });
-
-  it("does not show the bundle plan if the `bundle` flag is enabled but phones is not available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      WAFFLE_FLAGS: [["bundle", true]],
-    });
+  it("does not show the bundle plan if phones and bundle are not available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
     const vpnFeatureRow = screen.queryByRole("columnheader", {
       name: "l10n string: [plan-matrix-heading-plan-vpn], with vars: {}",
-    });
-
-    expect(vpnFeatureRow).not.toBeInTheDocument();
-  });
-
-  it("does not show the VPN feature if the `bundle` flag is enabled but bundle is not available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      WAFFLE_FLAGS: [["bundle", true]],
-    });
-
-    render(<Home />);
-
-    const vpnFeatureRow = screen.queryByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-vpn] and vars: {}]",
     });
 
     expect(vpnFeatureRow).not.toBeInTheDocument();

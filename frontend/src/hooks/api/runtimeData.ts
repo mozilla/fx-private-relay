@@ -8,8 +8,6 @@ export type FlagNames =
   | "interview_recruitment"
   | "new_from_address"
   | "tracker_removal"
-  | "phones"
-  | "bundle"
   | "phone_launch_survey"
   | "multi_replies"
   | "firefox_integration"
