@@ -8,7 +8,7 @@ import {
   ForwardIcon,
   BlockIcon,
   ChevronRightIcon,
-} from "../../../components/Icons";
+} from "../../Icons";
 import { MouseEventHandler, useRef, useState } from "react";
 import { VerifiedPhone } from "../../../hooks/api/realPhone";
 import { useLocalization } from "@fluent/react";
@@ -101,7 +101,9 @@ export const PhoneDashboard = (props: Props) => {
 
   const copyPhoneNumber: MouseEventHandler<HTMLButtonElement> = () => {
     if (relayNumberData?.number) {
-      navigator.clipboard.writeText(relayNumberData.number);
+      // removing the + from the number to make it easier to copy
+      const RelayNumber = relayNumberData.number.replace("+", "");
+      navigator.clipboard.writeText(RelayNumber);
       setJustCopiedPhoneNumber(true);
       setTimeout(() => setJustCopiedPhoneNumber(false), 1000);
     }

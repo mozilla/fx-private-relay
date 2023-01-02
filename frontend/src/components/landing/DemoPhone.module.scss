@@ -2,8 +2,12 @@
 
 .container {
   position: relative;
+  background-color: $color-light-gray-10;
+  border-radius: $border-radius-lg;
   text-align: center;
-  height: 600px;
+  // This leaves some space below the phone on mobile, and is based on the rough
+  // size of the phone image on small screens:
+  height: 650px;
 
   @media screen and #{$mq-lg} {
     width: 400px;

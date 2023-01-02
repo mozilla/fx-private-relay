@@ -36,6 +36,8 @@
   }
 
   .description {
+    max-width: 100%;
+    min-width: $content-xs;
     border-color: $color-light-gray-30;
     border-width: 1px;
     border-bottom-style: solid;
@@ -64,6 +66,10 @@
     .example {
       @include text-title-2xs;
       color: $color-light-gray-90;
+      display: block;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow-x: hidden;
 
       .subdomain-part {
         color: $color-purple-50;
