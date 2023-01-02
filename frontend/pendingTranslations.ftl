@@ -4,6 +4,7 @@
 
 waitlist-heading-2 = Join the { -brand-name-relay-premium } waitlist
 waitlist-submit-label-2 = Join the waitlist
+waitlist-privacy-policy-agree-2 = By clicking “{ waitlist-submit-label-2 }”, you agree to our <a>Privacy Policy</a>.
 waitlist-heading-phone = Join the { -brand-name-relay } phone masking waitlist 
 waitlist-lead-2 = We’ll let you know when { -brand-name-relay-premium } is available in your area.
 waitlist-lead-phone = We’ll let you know when phone masking is available in your area.
