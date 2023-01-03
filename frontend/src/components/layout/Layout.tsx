@@ -28,7 +28,6 @@ import { CloseIcon } from "../Icons";
 import { PageMetadata } from "./PageMetadata";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { useRouter } from "next/router";
-import { isFlagActive } from "../../functions/waffle";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 
 export type Props = {
@@ -164,10 +163,7 @@ export const Layout = (props: Props) => {
           <MobileNavigation
             mobileMenuExpanded={mobileMenuExpanded}
             hasPremium={hasPremium}
-            isPhonesAvailable={
-              isFlagActive(props.runtimeData, "phones") &&
-              isPhonesAvailableInCountry(props.runtimeData)
-            }
+            isPhonesAvailable={isPhonesAvailableInCountry(props.runtimeData)}
             isLoggedIn={isLoggedIn}
             userEmail={usersData?.email}
             userAvatar={profiles.data?.[0].avatar}

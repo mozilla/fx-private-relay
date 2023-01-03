@@ -2,8 +2,8 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import { type Props as CountryPickerProps } from "../../components/waitlist/CountryPicker";
-import { type Props as LocalePickerProps } from "../../components/waitlist/LocalePicker";
+import { type Props as CountryPickerProps } from "./CountryPicker";
+import { type Props as LocalePickerProps } from "./LocalePicker";
 import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockConfigModule } from "../../../__mocks__/configMock";
@@ -12,7 +12,7 @@ import { setMockUserData } from "../../../__mocks__/hooks/api/user";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
 
-import PremiumWaitlist from "./waitlist.page";
+import { WaitlistPage } from "./WaitlistPage";
 
 jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
@@ -57,7 +57,15 @@ beforeEach(() => {
 describe("The waitlist", () => {
   describe("under axe accessibility testing", () => {
     it("passes axe accessibility testing", async () => {
-      const { baseElement } = render(<PremiumWaitlist />);
+      const { baseElement } = render(
+        <WaitlistPage
+          headline="Arbitrary headline"
+          lead="Arbitrary lead text"
+          legalese={<>Arbitrary legalese footer.</>}
+          newsletterId="arbitrary-newsletter-id"
+          supportedLocales={["en"]}
+        />
+      );
 
       let results;
       await act(async () => {
@@ -72,7 +80,15 @@ describe("The waitlist", () => {
   // `onSubmit` callback no longer gets called. For more information, see
   // https://github.com/mozilla/fx-private-relay/pull/2211#issuecomment-1188884809
   it.skip("sends the user's email to Basket", async () => {
-    render(<PremiumWaitlist />);
+    render(
+      <WaitlistPage
+        headline="Arbitrary headline"
+        lead="Arbitrary lead text"
+        legalese={<>Arbitrary legalese footer.</>}
+        newsletterId="arbitrary-newsletter-id"
+        supportedLocales={["en"]}
+      />
+    );
 
     const emailInput = screen.getByLabelText(
       "l10n string: [waitlist-control-email-label], with vars: {}"
@@ -100,7 +116,15 @@ describe("The waitlist", () => {
   // https://github.com/mozilla/fx-private-relay/pull/2211#issuecomment-1188884809
   it.skip("uses the Basket URL set by the back-end", async () => {
     setMockRuntimeData({ BASKET_ORIGIN: "https://some-basket-url.com" });
-    render(<PremiumWaitlist />);
+    render(
+      <WaitlistPage
+        headline="Arbitrary headline"
+        lead="Arbitrary lead text"
+        legalese={<>Arbitrary legalese footer.</>}
+        newsletterId="arbitrary-newsletter-id"
+        supportedLocales={["en"]}
+      />
+    );
 
     const emailInput = screen.getByLabelText(
       "l10n string: [waitlist-control-email-label], with vars: {}"
