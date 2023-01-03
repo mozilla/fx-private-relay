@@ -438,10 +438,7 @@ export const WhatsNewMenu = (props: Props) => {
   };
 
   // Only show its announcement if phone masking is live:
-  if (
-    isPhonesAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "phones")
-  ) {
+  if (isPhonesAvailableInCountry(props.runtimeData)) {
     entries.push(phoneAnnouncement);
   }
 
@@ -488,10 +485,7 @@ export const WhatsNewMenu = (props: Props) => {
   };
 
   // Only show its announcement if bundle is live:
-  if (
-    isFlagActive(props.runtimeData, "bundle") &&
-    isBundleAvailableInCountry(props.runtimeData)
-  ) {
+  if (isBundleAvailableInCountry(props.runtimeData)) {
     entries.push(vpnAndRelayAnnouncement);
   }
 

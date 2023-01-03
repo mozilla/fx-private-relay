@@ -46,9 +46,7 @@ describe("The Phone dashboard", () => {
 
     describe("under axe accessibility testing", () => {
       it("passes axe accessibility testing", async () => {
-        setMockRuntimeDataOnce({
-          WAFFLE_FLAGS: [["phones", true]],
-        });
+        setMockRuntimeDataOnce();
 
         const { baseElement } = render(<PhoneDashboard />);
 
@@ -99,9 +97,7 @@ describe("The Phone dashboard", () => {
 
     describe("under axe accessibility testing", () => {
       it("passes axe accessibility testing", async () => {
-        setMockRuntimeDataOnce({
-          WAFFLE_FLAGS: [["phones", true]],
-        });
+        setMockRuntimeDataOnce();
 
         const { baseElement } = render(<PhoneDashboard />);
 

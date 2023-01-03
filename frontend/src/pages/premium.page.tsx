@@ -153,22 +153,17 @@ const PremiumPromo: NextPage = () => {
           </div>
         </section>
 
-        {isFlagActive(runtimeData.data, "bundle") &&
-          isBundleAvailableInCountry(runtimeData.data) && (
-            <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-              <BundleBanner runtimeData={runtimeData.data} />
-            </section>
-          )}
+        {isBundleAvailableInCountry(runtimeData.data) && (
+          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
+            <BundleBanner runtimeData={runtimeData.data} />
+          </section>
+        )}
 
-        {isFlagActive(runtimeData.data, "phones") &&
-          isPhonesAvailableInCountry(runtimeData.data) && (
-            <section
-              id="phone_promo"
-              className={styles["phone-banner-section"]}
-            >
-              <PhoneBanner cta={phoneBannerCta} />
-            </section>
-          )}
+        {isPhonesAvailableInCountry(runtimeData.data) && (
+          <section id="phone_promo" className={styles["phone-banner-section"]}>
+            <PhoneBanner cta={phoneBannerCta} />
+          </section>
+        )}
 
         <section id="perks" className={styles["perks-wrapper"]}>
           <div className={styles.perks}>

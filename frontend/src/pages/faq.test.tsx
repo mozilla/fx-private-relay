@@ -41,10 +41,7 @@ describe("The page with Frequently Asked Questions", () => {
 });
 
 it("displays phone FAQs if phones is available in the user's country", () => {
-  setMockRuntimeDataOnce({
-    ...getMockRuntimeDataWithPhones(),
-    WAFFLE_FLAGS: [["phones", true]],
-  });
+  setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
 
   render(<Faq />);
 
@@ -56,10 +53,7 @@ it("displays phone FAQs if phones is available in the user's country", () => {
 });
 
 it("does not display phone FAQs if phones isn't available in the user's country", () => {
-  setMockRuntimeDataOnce({
-    ...getMockRuntimeDataWithoutPremium(),
-    WAFFLE_FLAGS: [["phones", true]],
-  });
+  setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
   render(<Faq />);
 

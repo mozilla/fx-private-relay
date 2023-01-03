@@ -11,7 +11,7 @@ const PhoneWaitlist: NextPage = () => {
   const legalese = (
     <>
       <Localized
-        id="waitlist-privacy-policy-agree"
+        id="waitlist-privacy-policy-agree-2"
         elems={{
           a: (
             <a
