@@ -71,7 +71,7 @@ export function getMockRuntimeDataWithPhones(): RuntimeData {
     PHONE_PLANS: getAvailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
-    WAFFLE_FLAGS: [["phones", true]],
+    WAFFLE_FLAGS: [],
   };
 }
 export function getMockRuntimeDataWithPeriodicalPremium(): RuntimeData {
@@ -86,10 +86,7 @@ export function getMockRuntimeDataWithPeriodicalPremium(): RuntimeData {
     PHONE_PLANS: getUnavailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
     MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
-    WAFFLE_FLAGS: [
-      ["phones", true],
-      ["bundle", true],
-    ],
+    WAFFLE_FLAGS: [],
   };
 }
 export function getMockRuntimeDataWithoutPremium(): RuntimeData {
@@ -114,6 +111,8 @@ function getReturnValue(
   return {
     isValidating: false,
     mutate: jest.fn(),
+    error: undefined,
+    isLoading: false,
     data: {
       ...getMockRuntimeDataWithPeriodicalPremium(),
       ...runtimeData,

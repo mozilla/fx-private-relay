@@ -37,7 +37,6 @@ import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { getRuntimeConfig } from "../config";
 import { setCookie } from "../functions/cookies";
 import { Reviews } from "../components/landing/Reviews";
-import { isFlagActive } from "../functions/waffle";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
@@ -115,22 +114,17 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        {isFlagActive(runtimeData.data, "bundle") &&
-          isBundleAvailableInCountry(runtimeData.data) && (
-            <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-              <BundleBanner runtimeData={runtimeData.data} />
-            </section>
-          )}
+        {isBundleAvailableInCountry(runtimeData.data) && (
+          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
+            <BundleBanner runtimeData={runtimeData.data} />
+          </section>
+        )}
 
-        {isFlagActive(runtimeData.data, "phones") &&
-          isPhonesAvailableInCountry(runtimeData.data) && (
-            <section
-              id="phone_promo"
-              className={styles["phone-banner-section"]}
-            >
-              <PhoneBanner cta={phoneBannerCta} />
-            </section>
-          )}
+        {isPhonesAvailableInCountry(runtimeData.data) && (
+          <section id="phone_promo" className={styles["phone-banner-section"]}>
+            <PhoneBanner cta={phoneBannerCta} />
+          </section>
+        )}
 
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
           <div className={styles["how-it-works"]}>

@@ -24,7 +24,6 @@ import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { renderDate } from "../../functions/renderDate";
-import { isFlagActive } from "../../functions/waffle";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
@@ -65,11 +64,7 @@ export const ProfileBanners = (props: Props) => {
     );
   }
 
-  if (
-    isBundleAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "bundle") &&
-    !props.profile.has_vpn
-  ) {
+  if (isBundleAvailableInCountry(props.runtimeData) && !props.profile.has_vpn) {
     banners.push(
       <BundlePromoBanner
         key="bundle-promo"
