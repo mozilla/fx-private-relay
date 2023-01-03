@@ -27,15 +27,3 @@ relay-sms-error-full-number-matches-no-senders = Message failed to send. There i
 # Variables
 #   $full_number (string) - A phone number, such as '+13025551234' or '1 (302) 555-1234'
 relay-sms-error-no-body-after-full-number = Message failed to send. Please include a message after the phone number { $full_number }.
-
-## Relay Email reply errors
-
-# $sender (string) - the sender's email address
-first-reply-forwarded = We’ve sent this reply to { $sender }. But moving forward, your replies will not be sent.
-replies-only-available-with-premium = Replying to forwarded emails from your masked email is only available with { -brand-name-firefox-relay-premium }.
-replies-not-included-in-free-account-header = Replies are not included with your free account
-reply-not-sent-header = Your reply was not sent
-upgrade-to-reply-to-future-emails = Upgrade now to send replies
-upgrade-for-more-protection = Upgrade for more protection
-upgrade-to-premium = Upgrade to { -brand-name-firefox-relay-premium }
-manage-your-masks = Manage your masks
