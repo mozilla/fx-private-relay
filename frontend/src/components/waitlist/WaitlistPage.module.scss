@@ -10,9 +10,10 @@
   padding: $spacing-sm $spacing-lg;
 
   .form {
-    width: $content-md;
+    width: $content-lg;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: $spacing-2xl;
     padding: $spacing-md 0;
 
@@ -20,6 +21,7 @@
       display: flex;
       flex-direction: column;
       gap: $spacing-sm;
+      width: $content-md;
 
       .control {
         display: flex;

@@ -4,15 +4,30 @@ import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
 import { Banner } from "../Banner";
 
-export const PremiumPromoBanners = () => {
+export type Props = {
+  showFirstPremiumBanner?: boolean;
+};
+
+export const PremiumPromoBanners = (props: Props) => {
   const banners: ReactNode[] = [];
 
-  banners.push(<StopSpamBanner key="stop-spam-premium-banner" />);
-  banners.push(
-    <AdvancedIdentityBanner key="advanced-identity-premium-banner" />
-  );
-  banners.push(<ControlReceiverBanner key="control-receiver-premium-banner" />);
-  banners.push(<ExtraProtectionBanner key="extra-protection-premium-banner" />);
+  // Only show the first banner while waiting for the A/B test architecture to be built out
+  {
+    props.showFirstPremiumBanner
+      ? banners.push(<StopSpamBanner key="stop-spam-premium-banner" />)
+      : null;
+  }
+
+  // TODO: Implement A/B architecture to following banners
+  // banners.push(<StopSpamBanner key="stop-spam-premium-banner" />);
+  //   banners.push(
+  //     <AdvancedIdentityBanner key="advanced-identity-premium-banner" />
+  //   );
+  //   banners.push(
+  //     <ControlReceiverBanner key="control-receiver-premium-banner" />
+  //   );
+  //   banners.push(
+  //     <ExtraProtectionBanner key="extra-protection-premium-banner" />);
 
   return <div className={styles["profile-banners"]}>{banners}</div>;
 };
@@ -32,7 +47,7 @@ const StopSpamBanner = () => {
       }}
       cta={{
         size: "large",
-        target: "/premium/pricing",
+        target: "/premium#pricing",
         content: l10n.getString("banner-ab-premium-promo-cta"),
       }}
     >
@@ -41,6 +56,7 @@ const StopSpamBanner = () => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AdvancedIdentityBanner = () => {
   const { l10n } = useLocalization();
 
@@ -56,7 +72,7 @@ const AdvancedIdentityBanner = () => {
       }}
       cta={{
         size: "large",
-        target: "/premium/pricing",
+        target: "/premium#pricing",
         content: l10n.getString("banner-ab-premium-promo-cta"),
       }}
     >
@@ -65,6 +81,7 @@ const AdvancedIdentityBanner = () => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ControlReceiverBanner = () => {
   const { l10n } = useLocalization();
 
@@ -80,7 +97,7 @@ const ControlReceiverBanner = () => {
       }}
       cta={{
         size: "large",
-        target: "/premium/pricing",
+        target: "/premium#pricing",
         content: l10n.getString("banner-ab-premium-promo-cta"),
       }}
     >
@@ -89,6 +106,7 @@ const ControlReceiverBanner = () => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ExtraProtectionBanner = () => {
   const { l10n } = useLocalization();
 
@@ -104,7 +122,7 @@ const ExtraProtectionBanner = () => {
       }}
       cta={{
         size: "large",
-        target: "/premium/pricing",
+        target: "/premium#pricing",
         content: l10n.getString("banner-ab-premium-promo-cta"),
       }}
     >
