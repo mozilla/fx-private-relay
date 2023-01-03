@@ -143,8 +143,8 @@ def metrics_event(request):
         request_data.get("action", None),
         request_data.get("label", None),
         request_data.get("value", None),
-        dimension5=request_data.get("dimension5", None),
-        dimension7=request_data.get("dimension7", "website"),
+        cd5=request_data.get("dimension5", None),
+        cd7=request_data.get("dimension7", "website"),
     )
     try:
         report(settings.GOOGLE_ANALYTICS_ID, request_data.get("ga_uuid"), event_data)
