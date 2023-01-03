@@ -86,4 +86,4 @@ tips-multi-replies-content = Just start your message with the last 4 digits of t
 phone-masking-splash-save-contact-example = Saving your { -brand-name-relay } Contact
 phone-masking-splash-save-contact-example-text = { -brand-name-firefox-relay }
 
-phone-onboarding-step2-sub-body = This phone number will be connected to your { -brand-name-firefox-relay } account and cannot be changed.
+phone-onboarding-step2-sub-body = This phone number will be connected to your { -brand-name-relay } account and cannot be changed.
