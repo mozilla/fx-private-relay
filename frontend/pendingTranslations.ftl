@@ -87,3 +87,10 @@ phone-masking-splash-save-contact-example = Saving your { -brand-name-relay } Co
 phone-masking-splash-save-contact-example-text = { -brand-name-firefox-relay }
 
 phone-onboarding-step2-sub-body = This phone number will be connected to your { -brand-name-relay } account and cannot be changed.
+
+waitlist-heading-2 = Join the { -brand-name-relay-premium } waitlist
+waitlist-submit-label-2 = Join the waitlist
+waitlist-heading-phone = Join the { -brand-name-relay } phone masking waitlist 
+waitlist-lead-2 = We’ll let you know when { -brand-name-relay-premium } is available in your area.
+waitlist-lead-phone = We’ll let you know when phone masking is available in your area.
+waitlist-privacy-policy-use-phone = Your information will only be used to notify you when phone masking is available in your area.
