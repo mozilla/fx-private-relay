@@ -744,8 +744,11 @@ def _reply_allowed(
         stripped_from_address == stripped_reply_record_address
     ):
         # This is a Relay user replying to an external sender;
-        # verify they are premium
-        if reply_record.owner_has_premium and not reply_record.profile.is_flagged:
+
+        if reply_record.profile.is_flagged:
+            return False
+
+        if reply_record.owner_has_premium:
             return True
 
         # if we haven't forwarded a first reply for this user, return True to allow
