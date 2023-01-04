@@ -3,7 +3,7 @@
 // just fine:
 // eslint-disable-next-line no-restricted-imports
 import { LocalizedProps, Localized as OriginalLocalized } from "@fluent/react";
-import { useEffect, useState } from "react";
+import { cloneElement, isValidElement, useEffect, useState } from "react";
 import { useL10n } from "../hooks/l10n";
 
 /**
@@ -34,7 +34,15 @@ export const Localized = (props: LocalizedProps) => {
 
   if (isPrerendering) {
     // `useL10n` makes sure that this is a prerenderable string
-    return <>{l10n.getString(props.id, props.vars)}</>;
+    return isValidElement(props.children) ? (
+      cloneElement(
+        props.children,
+        {},
+        <>{l10n.getString(props.id, props.vars)}</>
+      )
+    ) : (
+      <>{l10n.getString(props.id, props.vars)}</>
+    );
   }
 
   return <OriginalLocalized {...props} />;
