@@ -2,7 +2,6 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../../__mocks__/modules/react-ga";
 import { mockReactIntersectionObsever } from "../../../__mocks__/modules/react-intersection-observer";
@@ -32,6 +31,8 @@ import {
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
 import { setMockAddonData } from "../../../__mocks__/hooks/addon";
 import { setMockRelayNumberData } from "../../../__mocks__/hooks/api/relayNumber";
+import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
+import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
 
 // Important: make sure mocks are imported *before* the page under test:
 import Profile from "./profile.page";
@@ -39,7 +40,6 @@ import { AliasUpdateFn } from "../../hooks/api/aliases";
 import { ProfileUpdateFn } from "../../hooks/api/profile";
 import { RuntimeConfig } from "../../config";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("react-intersection-observer", () => mockReactIntersectionObsever);
@@ -58,6 +58,8 @@ jest.mock("../../hooks/api/api.ts", () => ({
 }));
 jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
+jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../../components/Localized.tsx", () => mockLocalizedModule);
 
 setMockAliasesData();
 setMockProfileData();

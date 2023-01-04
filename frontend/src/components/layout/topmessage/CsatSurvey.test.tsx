@@ -2,14 +2,14 @@ import { render, screen } from "@testing-library/react";
 import { mockCookiesModule } from "../../../../__mocks__/functions/cookies";
 import { mockGetLocaleModule } from "../../../../__mocks__/functions/getLocale";
 import { getMockProfileData } from "../../../../__mocks__/hooks/api/profile";
-import { mockFluentReact } from "../../../../__mocks__/modules/fluent__react";
+import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 
 import { CsatSurvey } from "./CsatSurvey";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("../../../functions/cookies.ts", () => mockCookiesModule);
 jest.mock("../../../functions/getLocale.ts", () => mockGetLocaleModule);
 jest.mock("../../../hooks/firstSeen.ts");
+jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 
 describe("The CSAT survey", () => {
   it("does not display the survey if the user has joined within the last week", () => {

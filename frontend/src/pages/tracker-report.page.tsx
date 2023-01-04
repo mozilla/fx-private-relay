@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
 import styles from "./tracker-report.module.scss";
@@ -12,6 +11,7 @@ import {
 } from "../components/Icons";
 import Link from "next/link";
 import { FaqAccordion } from "../components/landing/FaqAccordion";
+import { useL10n } from "../hooks/l10n";
 
 // Paste this in your browser console to get a report URL:
 // { let url = new URL("http://localhost:3000/tracker-report"); url.hash = JSON.stringify({ sender: "email@example.com", received_at: Date.now(), trackers: { "ads.facebook.com": 1, "ads.googletagmanager.com": 2 } }); url.href }
@@ -26,7 +26,7 @@ type ReportData = {
 };
 
 const TrackerReport: NextPage = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [reportData, setReportData] = useState<ReportData | null>();
 
   useEffect(() => {

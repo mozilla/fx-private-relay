@@ -1,8 +1,8 @@
-import { useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
 import { Banner } from "../Banner";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   showFirstPremiumBanner?: boolean;
@@ -35,7 +35,7 @@ export const PremiumPromoBanners = (props: Props) => {
 const phoneImage = <img src={PhoneIllustration.src} alt="" />;
 
 const StopSpamBanner = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner
@@ -58,7 +58,7 @@ const StopSpamBanner = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const AdvancedIdentityBanner = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner
@@ -83,7 +83,7 @@ const AdvancedIdentityBanner = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ControlReceiverBanner = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner
@@ -108,7 +108,7 @@ const ControlReceiverBanner = () => {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const ExtraProtectionBanner = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner

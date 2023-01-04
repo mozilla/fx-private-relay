@@ -1,4 +1,4 @@
-import { useLocalization } from "@fluent/react";
+import { useL10n } from "../hooks/l10n";
 import styles from "./CountdownTimer.module.scss";
 
 export type Props = {
@@ -6,7 +6,7 @@ export type Props = {
 };
 
 export const CountdownTimer = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const { remainingDays, remainingHours, remainingMinutes, remainingSeconds } =
     getRemainingTimeParts(props.remainingTimeInMs);

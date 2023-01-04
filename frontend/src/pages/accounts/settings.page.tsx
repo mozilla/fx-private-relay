@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import {
   FormEventHandler,
@@ -30,11 +29,12 @@ import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { useAddonData } from "../../hooks/addon";
 import { isFlagActive } from "../../functions/waffle";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
+import { useL10n } from "../../hooks/l10n";
 
 const Settings: NextPage = () => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [localLabels] = useLocalLabels();
   const aliasData = useAliases();
   const addonData = useAddonData();
@@ -74,10 +74,10 @@ const Settings: NextPage = () => {
   const currentSettingWarning = profile.server_storage ? null : (
     <div className={styles["banner-wrapper"]}>
       <Banner
-        title={l10n.getString("settings-warning-collection-off-heading-2")}
+        title={l10n.getString("settings-warning-collection-off-heading-3")}
         type="warning"
       >
-        {l10n.getString("settings-warning-collection-off-description-2")}
+        {l10n.getString("settings-warning-collection-off-description-3")}
       </Banner>
     </div>
   );
@@ -87,7 +87,7 @@ const Settings: NextPage = () => {
     labelCollectionDisabledWarningToggles > 1 && !labelCollectionEnabled ? (
       <div role="alert" className={styles["field-warning"]}>
         <InfoTriangleIcon alt="" />
-        <p>{l10n.getString("setting-label-collection-off-warning-2")}</p>
+        <p>{l10n.getString("setting-label-collection-off-warning-3")}</p>
       </div>
     ) : null;
 
@@ -167,7 +167,7 @@ const Settings: NextPage = () => {
             onChange={(e) => setLabelCollectionEnabled(e.target.checked)}
           />
           <label htmlFor="label-collection">
-            {l10n.getString("setting-label-collection-description-2")}
+            {l10n.getString("setting-label-collection-description-3")}
           </label>
         </div>
         {labelCollectionWarning}

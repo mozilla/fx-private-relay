@@ -1,6 +1,6 @@
-import { useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import { getLocale } from "../../../functions/getLocale";
+import { useL10n } from "../../../hooks/l10n";
 import styles from "./GenericTip.module.scss";
 
 export type GenericTipProps = {
@@ -13,7 +13,7 @@ export type GenericTipProps = {
 // This component will probably be used for future tips that are yet to be added:
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const GenericTip = (props: GenericTipProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const sources = Object.entries(props.videos ?? {}).map(([type, source]) => (
     <source key={source} type={type} src={source} />

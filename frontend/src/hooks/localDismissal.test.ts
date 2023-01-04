@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 import { mockCookiesModule } from "../../__mocks__/functions/cookies";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import { useLocalDismissal } from "./localDismissal";

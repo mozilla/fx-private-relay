@@ -1,4 +1,3 @@
-import { Localized, useLocalization } from "@fluent/react";
 import { useTab, useTabList, useTabPanel, VisuallyHidden } from "react-aria";
 import { Key, ReactNode, useRef } from "react";
 import Link from "next/link";
@@ -27,6 +26,8 @@ import { getRuntimeConfig } from "../../config";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { Plan, trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { setCookie } from "../../functions/cookies";
+import { useL10n } from "../../hooks/l10n";
+import { Localized } from "../Localized";
 
 type FeatureList = {
   "email-masks": number;
@@ -73,7 +74,7 @@ export type Props = {
  * Matrix to compare and choose between the different plans available to the user.
  */
 export const PlanMatrix = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const freeButtonDesktopRef = useGaViewPing({
     category: "Sign In",
     label: "plan-matrix-free-cta-desktop",
@@ -633,7 +634,7 @@ type MobileFeatureListProps = {
   list: FeatureList;
 };
 const MobileFeatureList = (props: MobileFeatureListProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const lis = Object.entries(props.list)
     .filter(
@@ -684,7 +685,7 @@ type AvailabilityListingProps = {
   availability: FeatureList[keyof FeatureList];
 };
 const AvailabilityListing = (props: AvailabilityListingProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   if (typeof props.availability === "number") {
     if (props.availability === Number.POSITIVE_INFINITY) {
@@ -721,7 +722,7 @@ type PricingToggleProps = {
   };
 };
 const PricingToggle = (props: PricingToggleProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const yearlyButtonRef = useGaViewPing(props.yearlyBilled.gaViewPing);
   const monthlyButtonRef = useGaViewPing(props.monthlyBilled.gaViewPing);
 

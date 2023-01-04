@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import { useRouter } from "next/router";
 import { ProfileData } from "../../../hooks/api/profile";
 import { InterviewRecruitment } from "./InterviewRecruitment";
@@ -7,6 +6,7 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../functions/waffle";
 import { getLocale } from "../../../functions/getLocale";
 import { PhoneSurvey } from "./PhoneSurvey";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   profile?: ProfileData;
@@ -14,7 +14,7 @@ export type Props = {
 };
 
 export const TopMessage = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const router = useRouter();
 
   if (
