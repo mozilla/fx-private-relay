@@ -27,3 +27,9 @@ relay-sms-error-full-number-matches-no-senders = Message failed to send. There i
 # Variables
 #   $full_number (string) - A phone number, such as '+13025551234' or '1 (302) 555-1234'
 relay-sms-error-no-body-after-full-number = Message failed to send. Please include a message after the phone number { $full_number }.
+
+## Email sent to free users who try to reply
+
+# Variables
+#   $sender (string) - the original sender's email address
+other-reply-not-forwarded = Your reply was NOT sent to { $sender }.

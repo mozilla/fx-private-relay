@@ -85,6 +85,8 @@
                 <p style="line-height: 200%; margin-bottom: 30px; padding: 20px 60px 20px 60px">
                     {% if forwarded == True %}
                         {% ftlmsg 'first-reply-forwarded' sender=sender %}
+                    {% else %}
+                        {% ftlmsg 'other-reply-not-forwarded' sender=sender %}
                     {% endif %}
                     {% ftlmsg 'replies-only-available-with-premium' %}
                 </p> 
