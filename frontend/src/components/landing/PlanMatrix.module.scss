@@ -326,6 +326,10 @@ table.desktop {
             font-weight: 600;
           }
 
+          .primary-pick-button {
+            width: 100%;
+          }
+
           .pick-button {
             border: 2px solid $color-blue-50;
             border-radius: $border-radius-sm;

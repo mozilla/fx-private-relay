@@ -28,6 +28,7 @@ import { Plan, trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { setCookie } from "../../functions/cookies";
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../Localized";
+import { LinkButton } from "../Button";
 
 type FeatureList = {
   "email-masks": number;
@@ -159,14 +160,14 @@ export const PlanMatrix = (props: Props) => {
                 <span className={styles.price}>
                   {l10n.getString("plan-matrix-price-free")}
                 </span>
-                <a
+                <LinkButton
                   ref={freeButtonDesktopRef}
                   href={getRuntimeConfig().fxaLoginUrl}
                   onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
-                  className={styles["pick-button"]}
+                  className={styles["primary-pick-button"]}
                 >
                   {l10n.getString("plan-matrix-pick")}
-                </a>
+                </LinkButton>
                 {/*
                 The <small> has space for price-related notices (e.g. "* billed
                 annually"). When there is no such notice, we still want to leave
@@ -383,14 +384,14 @@ export const PlanMatrix = (props: Props) => {
               <span className={styles.price}>
                 {l10n.getString("plan-matrix-price-free")}
               </span>
-              <a
+              <LinkButton
                 ref={freeButtonMobileRef}
                 href={getRuntimeConfig().fxaLoginUrl}
                 onClick={() => countSignIn("plan-matrix-free-cta-mobile")}
-                className={styles["pick-button"]}
+                className={styles["primary-pick-button"]}
               >
                 {l10n.getString("plan-matrix-pick")}
-              </a>
+              </LinkButton>
             </div>
           </div>
         </li>
