@@ -145,7 +145,9 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
         <img src={PhoneVerify.src} alt="" width={200} />
         <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
         <p>{l10n.getString("phone-onboarding-step2-body")}</p>
-        <p>{l10n.getString("phone-onboarding-step2-sub-body")}</p>
+        <p className={`${styles["step-verify-sub-body"]}`}>
+          {l10n.getString("phone-onboarding-step2-sub-body")}
+        </p>
       </div>
 
       {renderErrorMessage}
