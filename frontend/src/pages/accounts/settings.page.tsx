@@ -116,7 +116,11 @@ const Settings: NextPage = () => {
               localLabel.id === alias.id
           );
           if (typeof localLabel !== "undefined") {
-            aliasData.update(alias, { description: localLabel.description });
+            aliasData.update(alias, {
+              description: localLabel.description,
+              generated_for: localLabel.generated_for,
+              used_on: localLabel.used_on,
+            });
           }
         };
         aliasData.randomAliasData.data?.forEach(uploadLocalLabel);

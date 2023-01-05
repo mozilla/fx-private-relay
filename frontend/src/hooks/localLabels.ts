@@ -13,6 +13,7 @@ export type LocalLabel = {
   id: number;
   description: string;
   generated_for?: string;
+  used_on?: string;
 };
 export type SetLocalLabel = (alias: AliasData, newLabel: string) => void;
 export type LocalLabelHook = [LocalLabel[], SetLocalLabel];
