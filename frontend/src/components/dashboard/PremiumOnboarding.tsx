@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import { useOverlayTriggerState } from "react-stately";
 import styles from "./PremiumOnboarding.module.scss";
@@ -20,6 +19,7 @@ import {
   supportsAnExtension,
 } from "../../functions/userAgent";
 import { CheckBadgeIcon } from "../Icons";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   profile: ProfileData;
@@ -31,7 +31,7 @@ export type Props = {
  * Shows the user how to take advantage of Premium features when they've just upgraded.
  */
 export const PremiumOnboarding = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const getStartedButtonRef = useGaViewPing({
     category: "Premium Onboarding",
     label: "onboarding-step-1-continue",
@@ -243,7 +243,7 @@ export const PremiumOnboarding = (props: Props) => {
 };
 
 const StepOne = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const isLargeScreen = useMinViewportWidth("md");
 
   return (
@@ -285,7 +285,7 @@ type Step2Props = {
   onPickSubdomain: (subdomain: string) => void;
 };
 const StepTwo = (props: Step2Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const subdomain =
     typeof props.profile.subdomain === "string" ? (
@@ -342,7 +342,7 @@ type Step2SubdomainPickerProps = {
   profile: ProfileData;
 };
 const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [chosenSubdomain, setChosenSubdomain] = useState("");
   const [partialSubdomain, setPartialSubdomain] = useState("");
 
@@ -393,7 +393,7 @@ const Step2SubdomainPicker = (props: Step2SubdomainPickerProps) => {
 };
 
 const StepThree = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <div className={`${styles.step} ${styles["step-addon"]}`}>
@@ -430,7 +430,7 @@ const StepThree = () => {
 };
 
 const StepThreeTitle = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const isLargeScreen = useMinViewportWidth("md");
   if (!isLargeScreen) {
     return <h2>{l10n.getString("multi-part-onboarding-reply-headline")}</h2>;
@@ -508,7 +508,7 @@ const AddonDescription = () => {
 const AddonDescriptionHeader = ({
   headerMessageId,
 }: Pick<AddonDescriptionProps, "headerMessageId">) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   if (!supportsAnExtension()) {
     return null;
   }
@@ -518,7 +518,7 @@ const AddonDescriptionHeader = ({
 const AddonDescriptionParagraph = ({
   paragraphMessageId,
 }: Pick<AddonDescriptionProps, "paragraphMessageId">) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   if (!supportsAnExtension()) {
     return null;
   }
@@ -529,7 +529,7 @@ const AddonDescriptionLinkButton = ({
   linkHref,
   linkMessageId,
 }: Pick<AddonDescriptionProps, "linkHref" | "linkMessageId">) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   if (!supportsAnExtension()) {
     return null;
   }

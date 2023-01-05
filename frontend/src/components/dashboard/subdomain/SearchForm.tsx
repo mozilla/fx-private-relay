@@ -1,8 +1,8 @@
-import { useLocalization } from "@fluent/react";
 import { FormEventHandler, ChangeEventHandler, useState } from "react";
 import { VisuallyHidden } from "react-aria";
 import { toast } from "react-toastify";
 import { authenticatedFetch } from "../../../hooks/api/api";
+import { useL10n } from "../../../hooks/l10n";
 import { Button } from "../../Button";
 
 export type Props = {
@@ -14,7 +14,7 @@ export type Props = {
  * Form with which the user can check whether a given subdomain is still available for them to claim.
  */
 export const SubdomainSearchForm = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [subdomainInput, setSubdomainInput] = useState("");
 
   const onSubmit: FormEventHandler = async (event) => {

@@ -1,21 +1,18 @@
 import { NextPage } from "next";
-import { useLocalization } from "@fluent/react";
 import { Layout } from "../components/layout/Layout";
-import { useRuntimeData } from "../hooks/api/runtimeData";
 import logo from "../components/layout/images/relay-logo.svg";
 import logoType from "../components/layout/images/fx-private-relay-premium-logotype-dark.svg";
 import panelArt from "./images/vpn-relay-panel-art.svg";
 import vpnLogo from "./images/mozilla-vpn-logo.svg";
 import styles from "./vpn-relay-welcome.module.scss";
-import { isFlagActive } from "../functions/waffle";
 import { useEffect } from "react";
 import { authenticatedFetch } from "../hooks/api/api";
 import Link from "next/link";
 import { LinkButton } from "../components/Button";
+import { useL10n } from "../hooks/l10n";
 
 const VpnRelayWelcome: NextPage = () => {
-  const { l10n } = useLocalization();
-  const runtimeData = useRuntimeData();
+  const l10n = useL10n();
   const referringSiteUrl =
     typeof document !== "undefined"
       ? document.location.host
@@ -28,7 +25,7 @@ const VpnRelayWelcome: NextPage = () => {
     authenticatedFetch("/accounts/profile/refresh");
   }, []);
 
-  return runtimeData && isFlagActive(runtimeData.data, "bundle") ? (
+  return (
     <Layout theme="premium">
       <main>
         <div className={styles["content-container"]}>
@@ -92,7 +89,7 @@ const VpnRelayWelcome: NextPage = () => {
         </div>
       </main>
     </Layout>
-  ) : null;
+  );
 };
 
 export default VpnRelayWelcome;

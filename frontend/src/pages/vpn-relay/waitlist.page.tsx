@@ -1,12 +1,12 @@
 import { NextPage } from "next";
+import { Localized } from "../../components/Localized";
 import { WaitlistPage } from "../../components/waitlist/WaitlistPage";
 import { useL10n } from "../../hooks/l10n";
-import { Localized } from "../../components/Localized";
 
 /** These are the languages that marketing can send emails in: */
 const supportedLocales = ["en", "es", "pl", "pt", "ja"];
 
-const PremiumWaitlist: NextPage = () => {
+const BundleWaitlist: NextPage = () => {
   const l10n = useL10n();
 
   const legalese = (
@@ -25,19 +25,19 @@ const PremiumWaitlist: NextPage = () => {
       >
         <p />
       </Localized>
-      <p>{l10n.getString("waitlist-privacy-policy-use")}</p>
+      <p>{l10n.getString("waitlist-privacy-policy-use-bundle")}</p>
     </>
   );
 
   return (
     <WaitlistPage
       supportedLocales={supportedLocales}
-      headline={l10n.getString("waitlist-heading-2")}
-      lead={l10n.getString("waitlist-lead-2")}
+      headline={l10n.getString("waitlist-heading-bundle")}
+      lead={l10n.getString("waitlist-lead-bundle")}
       legalese={legalese}
-      newsletterId="relay-waitlist"
+      newsletterId="relay-vpn-bundle-waitlist"
     />
   );
 };
 
-export default PremiumWaitlist;
+export default BundleWaitlist;

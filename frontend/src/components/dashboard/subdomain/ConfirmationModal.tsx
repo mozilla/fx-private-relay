@@ -1,5 +1,4 @@
 import { ReactElement, ReactNode, useRef } from "react";
-import { useLocalization, Localized } from "@fluent/react";
 import {
   OverlayContainer,
   FocusScope,
@@ -15,6 +14,8 @@ import partyIllustration from "./images/success-party.svg";
 import { SubdomainConfirmationForm } from "./ConfirmationForm";
 import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
+import { useL10n } from "../../../hooks/l10n";
+import { Localized } from "../../Localized";
 
 export type Props = {
   subdomain: string;
@@ -40,7 +41,7 @@ export const SubdomainConfirmationModal = (props: Props) => {
 };
 
 const ConfirmModal = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <PickerDialog
@@ -74,7 +75,7 @@ const ConfirmModal = (props: Props) => {
 };
 
 const SuccessModal = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <div className={styles["picked-confirmation"]}>

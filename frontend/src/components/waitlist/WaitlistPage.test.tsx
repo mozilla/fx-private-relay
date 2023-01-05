@@ -2,24 +2,26 @@ import React from "react";
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
-import { type Props as CountryPickerProps } from "../../components/waitlist/CountryPicker";
-import { type Props as LocalePickerProps } from "../../components/waitlist/LocalePicker";
-import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
+import { type Props as CountryPickerProps } from "./CountryPicker";
+import { type Props as LocalePickerProps } from "./LocalePicker";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
 import { setMockUserData } from "../../../__mocks__/hooks/api/user";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
+import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
+import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
 
-import PremiumWaitlist from "./waitlist.page";
+import { WaitlistPage } from "./WaitlistPage";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
-jest.mock("../../components/waitlist/CountryPicker.tsx", () => ({
+jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../Localized.tsx", () => mockLocalizedModule);
+jest.mock("../waitlist/CountryPicker.tsx", () => ({
   // We're mocking out the country picker because it dynamically imports the
   // list of available countries, which would mean the test would have to mock
   // out that import's Promise and wait for that to resolve, distracting from
@@ -57,7 +59,15 @@ beforeEach(() => {
 describe("The waitlist", () => {
   describe("under axe accessibility testing", () => {
     it("passes axe accessibility testing", async () => {
-      const { baseElement } = render(<PremiumWaitlist />);
+      const { baseElement } = render(
+        <WaitlistPage
+          headline="Arbitrary headline"
+          lead="Arbitrary lead text"
+          legalese={<>Arbitrary legalese footer.</>}
+          newsletterId="arbitrary-newsletter-id"
+          supportedLocales={["en"]}
+        />
+      );
 
       let results;
       await act(async () => {
@@ -72,7 +82,15 @@ describe("The waitlist", () => {
   // `onSubmit` callback no longer gets called. For more information, see
   // https://github.com/mozilla/fx-private-relay/pull/2211#issuecomment-1188884809
   it.skip("sends the user's email to Basket", async () => {
-    render(<PremiumWaitlist />);
+    render(
+      <WaitlistPage
+        headline="Arbitrary headline"
+        lead="Arbitrary lead text"
+        legalese={<>Arbitrary legalese footer.</>}
+        newsletterId="arbitrary-newsletter-id"
+        supportedLocales={["en"]}
+      />
+    );
 
     const emailInput = screen.getByLabelText(
       "l10n string: [waitlist-control-email-label], with vars: {}"
@@ -100,7 +118,15 @@ describe("The waitlist", () => {
   // https://github.com/mozilla/fx-private-relay/pull/2211#issuecomment-1188884809
   it.skip("uses the Basket URL set by the back-end", async () => {
     setMockRuntimeData({ BASKET_ORIGIN: "https://some-basket-url.com" });
-    render(<PremiumWaitlist />);
+    render(
+      <WaitlistPage
+        headline="Arbitrary headline"
+        lead="Arbitrary lead text"
+        legalese={<>Arbitrary legalese footer.</>}
+        newsletterId="arbitrary-newsletter-id"
+        supportedLocales={["en"]}
+      />
+    );
 
     const emailInput = screen.getByLabelText(
       "l10n string: [waitlist-control-email-label], with vars: {}"

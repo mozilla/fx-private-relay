@@ -2,8 +2,8 @@
 //       then added to react-icons: https://react-icons.github.io/react-icons/.
 //       These manually-created components are a workaround until that is done.
 
-import { useLocalization } from "@fluent/react";
 import { SVGProps } from "react";
+import { useL10n } from "../hooks/l10n";
 import styles from "./Icons.module.scss";
 
 /** Info button that inherits the text color of its container */
@@ -150,7 +150,7 @@ export const BentoIcon = (
 export const NewTabIcon = (
   props: SVGProps<SVGSVGElement> & { alt?: string }
 ) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <svg

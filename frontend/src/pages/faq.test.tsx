@@ -1,5 +1,6 @@
 import { act, render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
+import { mockLocalizedModule } from "../../__mocks__/components/Localized";
 import { mockConfigModule } from "../../__mocks__/configMock";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import {
@@ -9,18 +10,19 @@ import {
   setMockRuntimeDataOnce,
 } from "../../__mocks__/hooks/api/runtimeData";
 import { mockUseFxaFlowTrackerModule } from "../../__mocks__/hooks/fxaFlowTracker";
-import { mockFluentReact } from "../../__mocks__/modules/fluent__react";
+import { mockUseL10nModule } from "../../__mocks__/hooks/l10n";
 import { mockNextRouter } from "../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../__mocks__/modules/react-ga";
 
 import Faq from "./faq.page";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../config.ts", () => mockConfigModule);
 jest.mock("../hooks/gaViewPing.ts");
 jest.mock("../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
+jest.mock("../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../components/Localized.tsx", () => mockLocalizedModule);
 
 setMockRuntimeData();
 setMockProfileData(null);
@@ -41,10 +43,7 @@ describe("The page with Frequently Asked Questions", () => {
 });
 
 it("displays phone FAQs if phones is available in the user's country", () => {
-  setMockRuntimeDataOnce({
-    ...getMockRuntimeDataWithPhones(),
-    WAFFLE_FLAGS: [["phones", true]],
-  });
+  setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
 
   render(<Faq />);
 
@@ -56,10 +55,7 @@ it("displays phone FAQs if phones is available in the user's country", () => {
 });
 
 it("does not display phone FAQs if phones isn't available in the user's country", () => {
-  setMockRuntimeDataOnce({
-    ...getMockRuntimeDataWithoutPremium(),
-    WAFFLE_FLAGS: [["phones", true]],
-  });
+  setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
   render(<Faq />);
 

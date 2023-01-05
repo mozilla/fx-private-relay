@@ -34,16 +34,6 @@
     display: initial;
   }
 
-  @media screen and #{$mq-lg} {
-    .desktop.has-2-plans,
-    .desktop.has-3-plans {
-      display: initial;
-    }
-    .mobile.has-2-plans,
-    .mobile.has-3-plans {
-      display: none;
-    }
-  }
   @media screen and #{$mq-xl} {
     .desktop {
       display: initial;
@@ -265,6 +255,7 @@ table.desktop {
         background-color: $color-violet-80;
         color: $color-white;
         border-radius: $spacing-sm;
+        font-weight: 900;
       }
 
       .feature-list {
@@ -333,6 +324,10 @@ table.desktop {
             @include text-body-xl;
             color: $color-blue-50;
             font-weight: 600;
+          }
+
+          .primary-pick-button {
+            width: 100%;
           }
 
           .pick-button {

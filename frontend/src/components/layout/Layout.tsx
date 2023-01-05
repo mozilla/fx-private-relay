@@ -6,7 +6,6 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
-import { useLocalization } from "@fluent/react";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./Layout.module.scss";
@@ -28,8 +27,8 @@ import { CloseIcon } from "../Icons";
 import { PageMetadata } from "./PageMetadata";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { useRouter } from "next/router";
-import { isFlagActive } from "../../functions/waffle";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   children: ReactNode;
@@ -41,7 +40,7 @@ export type Props = {
  * Standard page layout for Relay, wrapping its children in the relevant header and footer.
  */
 export const Layout = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
@@ -164,10 +163,7 @@ export const Layout = (props: Props) => {
           <MobileNavigation
             mobileMenuExpanded={mobileMenuExpanded}
             hasPremium={hasPremium}
-            isPhonesAvailable={
-              isFlagActive(props.runtimeData, "phones") &&
-              isPhonesAvailableInCountry(props.runtimeData)
-            }
+            isPhonesAvailable={isPhonesAvailableInCountry(props.runtimeData)}
             isLoggedIn={isLoggedIn}
             userEmail={usersData?.email}
             userAvatar={profiles.data?.[0].avatar}

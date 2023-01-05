@@ -1,16 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { mockGetLocaleModule } from "../../../../../__mocks__/functions/getLocale";
-import { mockFluentReact } from "../../../../../__mocks__/modules/fluent__react";
+import { mockUseL10nModule } from "../../../../../__mocks__/hooks/l10n";
 import { mockReactGa } from "../../../../../__mocks__/modules/react-ga";
 
 import { WhatsNewDashboard } from "./WhatsNewDashboard";
 import { WhatsNewEntry } from "./WhatsNewMenu";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../../../../functions/getLocale.ts", () => mockGetLocaleModule);
 jest.mock("../../../../hooks/gaViewPing.ts");
+jest.mock("../../../../hooks/l10n.ts", () => mockUseL10nModule);
 
 function getMockEntry(
   id: number,

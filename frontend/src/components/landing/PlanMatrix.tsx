@@ -1,4 +1,3 @@
-import { Localized, useLocalization } from "@fluent/react";
 import { useTab, useTabList, useTabPanel, VisuallyHidden } from "react-aria";
 import { Key, ReactNode, useRef } from "react";
 import Link from "next/link";
@@ -21,13 +20,15 @@ import {
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
 } from "../../functions/getPlan";
-import { isFlagActive } from "../../functions/waffle";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { CheckIcon, MozillaVpnWordmark } from "../Icons";
 import { getRuntimeConfig } from "../../config";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { Plan, trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { setCookie } from "../../functions/cookies";
+import { useL10n } from "../../hooks/l10n";
+import { Localized } from "../Localized";
+import { LinkButton } from "../Button";
 
 type FeatureList = {
   "email-masks": number;
@@ -74,7 +75,7 @@ export type Props = {
  * Matrix to compare and choose between the different plans available to the user.
  */
 export const PlanMatrix = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const freeButtonDesktopRef = useGaViewPing({
     category: "Sign In",
     label: "plan-matrix-free-cta-desktop",
@@ -101,23 +102,8 @@ export const PlanMatrix = (props: Props) => {
     setCookie("user-sign-in", "true", { maxAgeInSeconds: 60 * 60 });
   };
 
-  let planCount = 2;
-  if (
-    isFlagActive(props.runtimeData, "phones") &&
-    isPhonesAvailableInCountry(props.runtimeData)
-  ) {
-    planCount += 1;
-  }
-  if (
-    isFlagActive(props.runtimeData, "bundle") &&
-    isBundleAvailableInCountry(props.runtimeData)
-  ) {
-    planCount += 1;
-  }
-  const planCountClass = styles[`has-${planCount}-plans`];
-
   const desktopView = (
-    <table className={`${styles.desktop} ${planCountClass}`}>
+    <table className={styles.desktop}>
       <thead>
         <tr>
           <th scope="col">{l10n.getString("plan-matrix-heading-features")}</th>
@@ -125,18 +111,18 @@ export const PlanMatrix = (props: Props) => {
           <th scope="col">
             {l10n.getString("plan-matrix-heading-plan-premium")}
           </th>
-          {isFlagActive(props.runtimeData, "phones") &&
-            isPhonesAvailableInCountry(props.runtimeData) && (
-              <th scope="col">
-                {l10n.getString("plan-matrix-heading-plan-phones")}
-              </th>
-            )}
-          {isFlagActive(props.runtimeData, "bundle") &&
-            isBundleAvailableInCountry(props.runtimeData) && (
-              <th scope="col" className={styles.recommended}>
-                <b>{l10n.getString("plan-matrix-heading-plan-bundle")}</b>
-              </th>
-            )}
+          <th scope="col">
+            {l10n.getString("plan-matrix-heading-plan-phones")}
+          </th>
+          {isBundleAvailableInCountry(props.runtimeData) ? (
+            <th scope="col" className={styles.recommended}>
+              <b>{l10n.getString("plan-matrix-heading-plan-bundle")}</b>
+            </th>
+          ) : (
+            <th scope="col">
+              {l10n.getString("plan-matrix-heading-plan-bundle")}
+            </th>
+          )}
         </tr>
       </thead>
       <tbody>
@@ -158,17 +144,8 @@ export const PlanMatrix = (props: Props) => {
           feature="email-subdomain"
         />
         <DesktopFeature runtimeData={props.runtimeData} feature="email-reply" />
-        {isFlagActive(props.runtimeData, "phones") &&
-          isPhonesAvailableInCountry(props.runtimeData) && (
-            <DesktopFeature
-              runtimeData={props.runtimeData}
-              feature="phone-mask"
-            />
-          )}
-        {isFlagActive(props.runtimeData, "bundle") &&
-          isBundleAvailableInCountry(props.runtimeData) && (
-            <DesktopFeature runtimeData={props.runtimeData} feature="vpn" />
-          )}
+        <DesktopFeature runtimeData={props.runtimeData} feature="phone-mask" />
+        <DesktopFeature runtimeData={props.runtimeData} feature="vpn" />
       </tbody>
       <tfoot>
         <tr>
@@ -183,14 +160,14 @@ export const PlanMatrix = (props: Props) => {
                 <span className={styles.price}>
                   {l10n.getString("plan-matrix-price-free")}
                 </span>
-                <a
+                <LinkButton
                   ref={freeButtonDesktopRef}
                   href={getRuntimeConfig().fxaLoginUrl}
                   onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
-                  className={styles["pick-button"]}
+                  className={styles["primary-pick-button"]}
                 >
                   {l10n.getString("plan-matrix-pick")}
-                </a>
+                </LinkButton>
                 {/*
                 The <small> has space for price-related notices (e.g. "* billed
                 annually"). When there is no such notice, we still want to leave
@@ -256,191 +233,19 @@ export const PlanMatrix = (props: Props) => {
                       {l10n.getString("plan-matrix-join-waitlist")}
                     </a>
                   </Link>
+                  {/*
+                  The <small> has space for price-related notices (e.g. "* billed
+                  annually"). When there is no such notice, we still want to leave
+                  space for it to prevent the page from jumping around; hence the
+                  empty <small>.
+                  */}
+                  <small>&nbsp;</small>
                 </div>
               </div>
             )}
           </td>
-          {isFlagActive(props.runtimeData, "phones") &&
-            isPhonesAvailableInCountry(props.runtimeData) && (
-              <td>
-                <PricingToggle
-                  monthlyBilled={{
-                    monthly_price: getPhonesPrice(
-                      props.runtimeData,
-                      "monthly",
-                      l10n
-                    ),
-                    subscribeLink: getPhoneSubscribeLink(
-                      props.runtimeData,
-                      "monthly"
-                    ),
-                    gaViewPing: {
-                      category: "Purchase monthly Premium+phones button",
-                      label: "plan-matrix-phone-monthly-cta-desktop",
-                    },
-                    plan: {
-                      plan: "phones",
-                      billing_period: "monthly",
-                    },
-                  }}
-                  yearlyBilled={{
-                    monthly_price: getPhonesPrice(
-                      props.runtimeData,
-                      "yearly",
-                      l10n
-                    ),
-                    subscribeLink: getPhoneSubscribeLink(
-                      props.runtimeData,
-                      "yearly"
-                    ),
-                    gaViewPing: {
-                      category: "Purchase yearly Premium+phones button",
-                      label: "plan-matrix-phone-yearly-cta-desktop",
-                    },
-                    plan: {
-                      plan: "phones",
-                      billing_period: "yearly",
-                    },
-                  }}
-                />
-              </td>
-            )}
-          {isFlagActive(props.runtimeData, "bundle") &&
-            isBundleAvailableInCountry(props.runtimeData) && (
-              <td>
-                <div className={`${styles.pricing}`}>
-                  <div className={styles["pricing-toggle-wrapper"]}>
-                    <p className={styles["discount-notice"]}>
-                      {l10n.getString("plan-matrix-price-vpn-discount", {
-                        percentage: "40",
-                      })}
-                    </p>
-                  </div>
-                  <div className={styles["pricing-overview"]}>
-                    <span className={styles.price}>
-                      {l10n.getString("plan-matrix-price-monthly", {
-                        monthly_price: getBundlePrice(props.runtimeData, l10n),
-                      })}
-                    </span>
-                    <a
-                      ref={bundleButtonDesktopRef}
-                      href={getBundleSubscribeLink(props.runtimeData)}
-                      onClick={() =>
-                        trackPlanPurchaseStart(
-                          { plan: "bundle" },
-                          { label: "plan-matrix-bundle-cta-desktop" }
-                        )
-                      }
-                      className={styles["pick-button"]}
-                    >
-                      {l10n.getString("plan-matrix-pick")}
-                    </a>
-                    <small>
-                      * {l10n.getString("plan-matrix-price-period-yearly-note")}
-                    </small>
-                  </div>
-                </div>
-              </td>
-            )}
-        </tr>
-      </tfoot>
-    </table>
-  );
-
-  const mobileView = (
-    <div className={`${styles.mobile} ${planCountClass}`}>
-      <ul className={styles.plans}>
-        <li className={styles.plan}>
-          <h3>{l10n.getString("plan-matrix-heading-plan-free")}</h3>
-          <MobileFeatureList list={freeFeatures} />
-          <div className={styles.pricing}>
-            <div className={styles["pricing-overview"]}>
-              <span className={styles.price}>
-                {l10n.getString("plan-matrix-price-free")}
-              </span>
-              <a
-                ref={freeButtonMobileRef}
-                href={getRuntimeConfig().fxaLoginUrl}
-                onClick={() => countSignIn("plan-matrix-free-cta-mobile")}
-                className={styles["pick-button"]}
-              >
-                {l10n.getString("plan-matrix-pick")}
-              </a>
-            </div>
-          </div>
-        </li>
-        <li className={styles.plan}>
-          {isPeriodicalPremiumAvailableInCountry(props.runtimeData) ? (
-            <>
-              <h3>{l10n.getString("plan-matrix-heading-plan-premium")}</h3>
-              <MobileFeatureList list={premiumFeatures} />
-              <PricingToggle
-                monthlyBilled={{
-                  monthly_price: getPeriodicalPremiumPrice(
-                    props.runtimeData,
-                    "monthly",
-                    l10n
-                  ),
-                  subscribeLink: getPeriodicalPremiumSubscribeLink(
-                    props.runtimeData,
-                    "monthly"
-                  ),
-                  gaViewPing: {
-                    category: "Purchase monthly Premium button",
-                    label: "plan-matrix-premium-monthly-cta-mobile",
-                  },
-                  plan: {
-                    plan: "premium",
-                    billing_period: "monthly",
-                  },
-                }}
-                yearlyBilled={{
-                  monthly_price: getPeriodicalPremiumPrice(
-                    props.runtimeData,
-                    "yearly",
-                    l10n
-                  ),
-                  subscribeLink: getPeriodicalPremiumSubscribeLink(
-                    props.runtimeData,
-                    "yearly"
-                  ),
-                  gaViewPing: {
-                    category: "Purchase yearly Premium button",
-                    label: "plan-matrix-premium-yearly-cta-mobile",
-                  },
-                  plan: {
-                    plan: "premium",
-                    billing_period: "yearly",
-                  },
-                }}
-              />
-            </>
-          ) : (
-            <>
-              <h3>{l10n.getString("plan-matrix-heading-plan-premium")}</h3>
-              <MobileFeatureList list={premiumFeatures} />
-              <div className={styles.pricing}>
-                <div className={styles["pricing-overview"]}>
-                  <span className={styles.price}>
-                    {/* Clunky method to make sure that there's whitespace
-                        where the prices are for other plans on the same row. */}
-                    &nbsp;
-                  </span>
-                  <Link href="/premium/waitlist">
-                    <a className={styles["pick-button"]}>
-                      {l10n.getString("plan-matrix-join-waitlist")}
-                    </a>
-                  </Link>
-                </div>
-              </div>
-            </>
-          )}
-        </li>
-        {isFlagActive(props.runtimeData, "phones") &&
-          isPhonesAvailableInCountry(props.runtimeData) && (
-            <li className={styles.plan}>
-              <h3>{l10n.getString("plan-matrix-heading-plan-phones")}</h3>
-              <MobileFeatureList list={phoneFeatures} />
+          <td>
+            {isPhonesAvailableInCountry(props.runtimeData) ? (
               <PricingToggle
                 monthlyBilled={{
                   monthly_price: getPhonesPrice(
@@ -454,7 +259,7 @@ export const PlanMatrix = (props: Props) => {
                   ),
                   gaViewPing: {
                     category: "Purchase monthly Premium+phones button",
-                    label: "plan-matrix-phone-monthly-cta-mobile",
+                    label: "plan-matrix-phone-monthly-cta-desktop",
                   },
                   plan: {
                     plan: "phones",
@@ -473,7 +278,7 @@ export const PlanMatrix = (props: Props) => {
                   ),
                   gaViewPing: {
                     category: "Purchase yearly Premium+phones button",
-                    label: "plan-matrix-phone-yearly-cta-mobile",
+                    label: "plan-matrix-phone-yearly-cta-desktop",
                   },
                   plan: {
                     plan: "phones",
@@ -481,14 +286,33 @@ export const PlanMatrix = (props: Props) => {
                   },
                 }}
               />
-            </li>
-          )}
-        {isFlagActive(props.runtimeData, "bundle") &&
-          isBundleAvailableInCountry(props.runtimeData) && (
-            <li className={`${styles.plan} ${styles.recommended}`}>
-              <h3>{l10n.getString("plan-matrix-heading-plan-bundle")}</h3>
-              <MobileFeatureList list={bundleFeatures} />
-              <div className={styles.pricing}>
+            ) : (
+              <div className={`${styles.pricing} ${styles["single-price"]}`}>
+                <div className={styles["pricing-overview"]}>
+                  <span className={styles.price}>
+                    {/* Clunky method to make sure the .pick-button is aligned
+                        with the buttons for plans that do display a price */}
+                    &nbsp;
+                  </span>
+                  <Link href="/phone/waitlist">
+                    <a className={styles["pick-button"]}>
+                      {l10n.getString("plan-matrix-join-waitlist")}
+                    </a>
+                  </Link>
+                  {/*
+                  The <small> has space for price-related notices (e.g. "* billed
+                  annually"). When there is no such notice, we still want to leave
+                  space for it to prevent the page from jumping around; hence the
+                  empty <small>.
+                  */}
+                  <small>&nbsp;</small>
+                </div>
+              </div>
+            )}
+          </td>
+          <td>
+            {isBundleAvailableInCountry(props.runtimeData) ? (
+              <div className={`${styles.pricing}`}>
                 <div className={styles["pricing-toggle-wrapper"]}>
                   <p className={styles["discount-notice"]}>
                     {l10n.getString("plan-matrix-price-vpn-discount", {
@@ -503,12 +327,12 @@ export const PlanMatrix = (props: Props) => {
                     })}
                   </span>
                   <a
-                    ref={bundleButtonMobileRef}
+                    ref={bundleButtonDesktopRef}
                     href={getBundleSubscribeLink(props.runtimeData)}
                     onClick={() =>
                       trackPlanPurchaseStart(
                         { plan: "bundle" },
-                        { label: "plan-matrix-bundle-cta-mobile" }
+                        { label: "plan-matrix-bundle-cta-desktop" }
                       )
                     }
                     className={styles["pick-button"]}
@@ -520,22 +344,251 @@ export const PlanMatrix = (props: Props) => {
                   </small>
                 </div>
               </div>
-            </li>
+            ) : (
+              <div className={`${styles.pricing} ${styles["single-price"]}`}>
+                <div className={styles["pricing-overview"]}>
+                  <span className={styles.price}>
+                    {/* Clunky method to make sure the .pick-button is aligned
+                        with the buttons for plans that do display a price */}
+                    &nbsp;
+                  </span>
+                  <Link href="/vpn-relay/waitlist">
+                    <a className={styles["pick-button"]}>
+                      {l10n.getString("plan-matrix-join-waitlist")}
+                    </a>
+                  </Link>
+                  {/*
+                  The <small> has space for price-related notices (e.g. "* billed
+                  annually"). When there is no such notice, we still want to leave
+                  space for it to prevent the page from jumping around; hence the
+                  empty <small>.
+                  */}
+                  <small>&nbsp;</small>
+                </div>
+              </div>
+            )}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+
+  const mobileView = (
+    <div className={styles.mobile}>
+      <ul className={styles.plans}>
+        <li className={styles.plan}>
+          <h3>{l10n.getString("plan-matrix-heading-plan-free")}</h3>
+          <MobileFeatureList list={freeFeatures} />
+          <div className={styles.pricing}>
+            <div className={styles["pricing-overview"]}>
+              <span className={styles.price}>
+                {l10n.getString("plan-matrix-price-free")}
+              </span>
+              <LinkButton
+                ref={freeButtonMobileRef}
+                href={getRuntimeConfig().fxaLoginUrl}
+                onClick={() => countSignIn("plan-matrix-free-cta-mobile")}
+                className={styles["primary-pick-button"]}
+              >
+                {l10n.getString("plan-matrix-pick")}
+              </LinkButton>
+            </div>
+          </div>
+        </li>
+        <li className={styles.plan}>
+          <h3>{l10n.getString("plan-matrix-heading-plan-premium")}</h3>
+          <MobileFeatureList list={premiumFeatures} />
+          {isPeriodicalPremiumAvailableInCountry(props.runtimeData) ? (
+            <PricingToggle
+              monthlyBilled={{
+                monthly_price: getPeriodicalPremiumPrice(
+                  props.runtimeData,
+                  "monthly",
+                  l10n
+                ),
+                subscribeLink: getPeriodicalPremiumSubscribeLink(
+                  props.runtimeData,
+                  "monthly"
+                ),
+                gaViewPing: {
+                  category: "Purchase monthly Premium button",
+                  label: "plan-matrix-premium-monthly-cta-mobile",
+                },
+                plan: {
+                  plan: "premium",
+                  billing_period: "monthly",
+                },
+              }}
+              yearlyBilled={{
+                monthly_price: getPeriodicalPremiumPrice(
+                  props.runtimeData,
+                  "yearly",
+                  l10n
+                ),
+                subscribeLink: getPeriodicalPremiumSubscribeLink(
+                  props.runtimeData,
+                  "yearly"
+                ),
+                gaViewPing: {
+                  category: "Purchase yearly Premium button",
+                  label: "plan-matrix-premium-yearly-cta-mobile",
+                },
+                plan: {
+                  plan: "premium",
+                  billing_period: "yearly",
+                },
+              }}
+            />
+          ) : (
+            <div className={styles.pricing}>
+              <div className={styles["pricing-overview"]}>
+                <span className={styles.price}>
+                  {/* Clunky method to make sure that there's whitespace
+                      where the prices are for other plans on the same row. */}
+                  &nbsp;
+                </span>
+                <Link href="/premium/waitlist">
+                  <a className={styles["pick-button"]}>
+                    {l10n.getString("plan-matrix-join-waitlist")}
+                  </a>
+                </Link>
+              </div>
+            </div>
           )}
+        </li>
+        <li className={styles.plan}>
+          <h3>{l10n.getString("plan-matrix-heading-plan-phones")}</h3>
+          <MobileFeatureList list={phoneFeatures} />
+          {isPhonesAvailableInCountry(props.runtimeData) ? (
+            <PricingToggle
+              monthlyBilled={{
+                monthly_price: getPhonesPrice(
+                  props.runtimeData,
+                  "monthly",
+                  l10n
+                ),
+                subscribeLink: getPhoneSubscribeLink(
+                  props.runtimeData,
+                  "monthly"
+                ),
+                gaViewPing: {
+                  category: "Purchase monthly Premium+phones button",
+                  label: "plan-matrix-phone-monthly-cta-mobile",
+                },
+                plan: {
+                  plan: "phones",
+                  billing_period: "monthly",
+                },
+              }}
+              yearlyBilled={{
+                monthly_price: getPhonesPrice(
+                  props.runtimeData,
+                  "yearly",
+                  l10n
+                ),
+                subscribeLink: getPhoneSubscribeLink(
+                  props.runtimeData,
+                  "yearly"
+                ),
+                gaViewPing: {
+                  category: "Purchase yearly Premium+phones button",
+                  label: "plan-matrix-phone-yearly-cta-mobile",
+                },
+                plan: {
+                  plan: "phones",
+                  billing_period: "yearly",
+                },
+              }}
+            />
+          ) : (
+            <div className={styles.pricing}>
+              <div className={styles["pricing-overview"]}>
+                <span className={styles.price}>
+                  {/* Clunky method to make sure that there's whitespace
+                        where the prices are for other plans on the same row. */}
+                  &nbsp;
+                </span>
+                <Link href="/phone/waitlist">
+                  <a className={styles["pick-button"]}>
+                    {l10n.getString("plan-matrix-join-waitlist")}
+                  </a>
+                </Link>
+              </div>
+            </div>
+          )}
+        </li>
+        <li
+          className={`${styles.plan} ${
+            isBundleAvailableInCountry(props.runtimeData)
+              ? styles.recommended
+              : ""
+          }`}
+        >
+          <h3>{l10n.getString("plan-matrix-heading-plan-bundle")}</h3>
+          <MobileFeatureList list={bundleFeatures} />
+          {isBundleAvailableInCountry(props.runtimeData) ? (
+            <div className={styles.pricing}>
+              <div className={styles["pricing-toggle-wrapper"]}>
+                <p className={styles["discount-notice"]}>
+                  {l10n.getString("plan-matrix-price-vpn-discount", {
+                    percentage: "40",
+                  })}
+                </p>
+              </div>
+              <div className={styles["pricing-overview"]}>
+                <span className={styles.price}>
+                  {l10n.getString("plan-matrix-price-monthly", {
+                    monthly_price: getBundlePrice(props.runtimeData, l10n),
+                  })}
+                </span>
+                <a
+                  ref={bundleButtonMobileRef}
+                  href={getBundleSubscribeLink(props.runtimeData)}
+                  onClick={() =>
+                    trackPlanPurchaseStart(
+                      { plan: "bundle" },
+                      { label: "plan-matrix-bundle-cta-mobile" }
+                    )
+                  }
+                  className={styles["pick-button"]}
+                >
+                  {l10n.getString("plan-matrix-pick")}
+                </a>
+                <small>
+                  * {l10n.getString("plan-matrix-price-period-yearly-note")}
+                </small>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.pricing}>
+              <div className={styles["pricing-overview"]}>
+                <span className={styles.price}>
+                  {/* Clunky method to make sure that there's whitespace
+                        where the prices are for other plans on the same row. */}
+                  &nbsp;
+                </span>
+                <Link href="/vpn-relay/waitlist">
+                  <a className={styles["pick-button"]}>
+                    {l10n.getString("plan-matrix-join-waitlist")}
+                  </a>
+                </Link>
+              </div>
+            </div>
+          )}
+        </li>
       </ul>
     </div>
   );
 
   return (
     <div className={styles.wrapper}>
-      {isFlagActive(props.runtimeData, "bundle") &&
-        isBundleAvailableInCountry(props.runtimeData) && (
-          <h2 className={styles["bundle-offer-heading"]}>
-            {l10n.getString("plan-matrix-bundle-offer-heading-2", {
-              monthly_price: getBundlePrice(props.runtimeData, l10n),
-            })}
-          </h2>
-        )}
+      {isBundleAvailableInCountry(props.runtimeData) && (
+        <h2 className={styles["bundle-offer-heading"]}>
+          {l10n.getString("plan-matrix-bundle-offer-heading-2", {
+            monthly_price: getBundlePrice(props.runtimeData, l10n),
+          })}
+        </h2>
+      )}
       {isPeriodicalPremiumAvailableInCountry(props.runtimeData) && (
         <p className={styles["bundle-offer-content"]}>
           {l10n.getString("plan-matrix-bundle-offer-content")}
@@ -568,18 +621,12 @@ const DesktopFeature = (props: DesktopFeatureProps) => {
       <td>
         <AvailabilityListing availability={premiumFeatures[props.feature]} />
       </td>
-      {isFlagActive(props.runtimeData, "phones") &&
-        isPhonesAvailableInCountry(props.runtimeData) && (
-          <td>
-            <AvailabilityListing availability={phoneFeatures[props.feature]} />
-          </td>
-        )}
-      {isFlagActive(props.runtimeData, "bundle") &&
-        isBundleAvailableInCountry(props.runtimeData) && (
-          <td>
-            <AvailabilityListing availability={bundleFeatures[props.feature]} />
-          </td>
-        )}
+      <td>
+        <AvailabilityListing availability={phoneFeatures[props.feature]} />
+      </td>
+      <td>
+        <AvailabilityListing availability={bundleFeatures[props.feature]} />
+      </td>
     </tr>
   );
 };
@@ -588,7 +635,7 @@ type MobileFeatureListProps = {
   list: FeatureList;
 };
 const MobileFeatureList = (props: MobileFeatureListProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const lis = Object.entries(props.list)
     .filter(
@@ -639,7 +686,7 @@ type AvailabilityListingProps = {
   availability: FeatureList[keyof FeatureList];
 };
 const AvailabilityListing = (props: AvailabilityListingProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   if (typeof props.availability === "number") {
     if (props.availability === Number.POSITIVE_INFINITY) {
@@ -676,7 +723,7 @@ type PricingToggleProps = {
   };
 };
 const PricingToggle = (props: PricingToggleProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const yearlyButtonRef = useGaViewPing(props.yearlyBilled.gaViewPing);
   const monthlyButtonRef = useGaViewPing(props.monthlyBilled.gaViewPing);
 

@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import { TouchEventHandler, useRef, useState } from "react";
 import { useButton } from "react-aria";
 import FxBrowserLogo from "./images/fx-logo.svg";
@@ -10,6 +9,7 @@ import {
 } from "../Icons";
 import styles from "./Reviews.module.scss";
 import { getLocale } from "../../functions/getLocale";
+import { useL10n } from "../../hooks/l10n";
 
 // We want to ensure only these values can be used for a rating.
 export type Rating = 1 | 2 | 3 | 4 | 5;
@@ -30,7 +30,7 @@ export const Reviews = () => {
     useState<Direction>("left");
   const [touchStart, setTouchStart] = useState(0);
   const [touchEnd, setTouchEnd] = useState(0);
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const slideLeftButtonRef = useRef<HTMLButtonElement>(null);
 

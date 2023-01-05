@@ -5,7 +5,6 @@ import {
   RefObject,
   useRef,
 } from "react";
-import { useLocalization } from "@fluent/react";
 import {
   DismissButton,
   FocusScope,
@@ -64,6 +63,7 @@ import {
 import { CountdownTimer } from "../../../CountdownTimer";
 import Link from "next/link";
 import { GiftIcon } from "../../../Icons";
+import { useL10n } from "../../../../hooks/l10n";
 
 export type WhatsNewEntry = {
   title: string;
@@ -110,7 +110,7 @@ const CtaLinkButton = (props: CtaProps) => {
 };
 
 export const WhatsNewMenu = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const triggerState = useOverlayTriggerState({
     onOpenChange(isOpen) {
@@ -438,10 +438,7 @@ export const WhatsNewMenu = (props: Props) => {
   };
 
   // Only show its announcement if phone masking is live:
-  if (
-    isPhonesAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "phones")
-  ) {
+  if (isPhonesAvailableInCountry(props.runtimeData)) {
     entries.push(phoneAnnouncement);
   }
 
@@ -488,10 +485,7 @@ export const WhatsNewMenu = (props: Props) => {
   };
 
   // Only show its announcement if bundle is live:
-  if (
-    isFlagActive(props.runtimeData, "bundle") &&
-    isBundleAvailableInCountry(props.runtimeData)
-  ) {
+  if (isBundleAvailableInCountry(props.runtimeData)) {
     entries.push(vpnAndRelayAnnouncement);
   }
 

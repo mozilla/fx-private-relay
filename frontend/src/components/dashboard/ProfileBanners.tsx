@@ -1,4 +1,3 @@
-import { Localized, useLocalization } from "@fluent/react";
 import { ReactNode } from "react";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
@@ -10,6 +9,7 @@ import {
   getPeriodicalPremiumPrice,
   isBundleAvailableInCountry,
   isPeriodicalPremiumAvailableInCountry,
+  isPhonesAvailableInCountry,
   RuntimeDataWithBundleAvailable,
   RuntimeDataWithPeriodicalPremiumAvailable,
 } from "../../functions/getPlan";
@@ -23,10 +23,12 @@ import { UserData } from "../../hooks/api/user";
 import { RuntimeData } from "../../../src/hooks/api/runtimeData";
 import { Banner } from "../Banner";
 import { renderDate } from "../../functions/renderDate";
-import { isFlagActive } from "../../functions/waffle";
 import { SubdomainPicker } from "./SubdomainPicker";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import { AliasData } from "../../hooks/api/aliases";
+import { PremiumPromoBanners } from "./PremiumPromoBanners";
+import { useL10n } from "../../hooks/l10n";
+import { Localized } from "../Localized";
 
 export type Props = {
   profile: ProfileData;
@@ -63,11 +65,7 @@ export const ProfileBanners = (props: Props) => {
     );
   }
 
-  if (
-    isBundleAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "bundle") &&
-    !props.profile.has_vpn
-  ) {
+  if (isBundleAvailableInCountry(props.runtimeData) && !props.profile.has_vpn) {
     banners.push(
       <BundlePromoBanner
         key="bundle-promo"
@@ -110,13 +108,18 @@ export const ProfileBanners = (props: Props) => {
     isPeriodicalPremiumAvailableInCountry(props.runtimeData) &&
     props.aliases.length > 0
   ) {
-    banners.push(
-      <LoyalistPremiumBanner
-        key="premium-banner"
-        runtimeData={props.runtimeData}
-      />
-      // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
-    );
+    // Only show updated Premium Banners to users in US/CAN
+    {
+      isPhonesAvailableInCountry(props.runtimeData)
+        ? banners.push(<PremiumPromoBanners showFirstPremiumBanner={true} />)
+        : banners.push(
+            <LoyalistPremiumBanner
+              key="premium-banner"
+              runtimeData={props.runtimeData}
+            />
+            // <NoPremiumBanner key="premium-banner" runtimeData={props.runtimeData} />
+          );
+    }
   }
 
   return <div className={styles["profile-banners"]}>{banners}</div>;
@@ -127,7 +130,7 @@ type BounceBannerProps = {
   profile: ProfileData;
 };
 const BounceBanner = (props: BounceBannerProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner type="warning" title={l10n.getString("banner-bounced-headline")}>
@@ -149,7 +152,7 @@ const BounceBanner = (props: BounceBannerProps) => {
 };
 
 const NoFirefoxBanner = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner
@@ -170,7 +173,7 @@ const NoFirefoxBanner = () => {
 };
 
 const NoAddonBanner = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner
@@ -192,7 +195,7 @@ const NoAddonBanner = () => {
 };
 
 const NoChromeExtensionBanner = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner
@@ -227,7 +230,7 @@ type BundleBannerProps = {
 // Unused but left in for when we no longer want to use <LoyalistPremiumBanner>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const NoPremiumBanner = (props: NoPremiumBannerProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner
@@ -252,7 +255,7 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
 };
 
 const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner
@@ -286,7 +289,7 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
 };
 
 const BundlePromoBanner = (props: BundleBannerProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <Banner

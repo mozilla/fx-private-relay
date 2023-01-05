@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import styles from "./PurchasePhonesPlan.module.scss";
 import WomanPhone from "./images/woman-phone.svg";
 import { LinkButton } from "../../Button";
@@ -17,13 +16,14 @@ import {
 } from "react-stately";
 import { Key, ReactNode, useRef } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   runtimeData: RuntimeDataWithPhonesAvailable;
 };
 
 export const PurchasePhonesPlan = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <main className={styles.wrapper}>
@@ -52,7 +52,7 @@ type PricingToggleProps = {
   runtimeData: RuntimeDataWithPhonesAvailable;
 };
 const PricingToggle = (props: PricingToggleProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const yearlyButtonRef = useGaViewPing({
     category: "Purchase yearly Premium+phones button",
     label: "phone-onboarding-purchase-yearly-cta",
