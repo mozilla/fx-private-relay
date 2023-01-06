@@ -50,7 +50,10 @@ export const Dialer = (props: Props) => {
           <button onClick={() => press(0)}>0</button>
         </div>
       </div>
-      <button onClick={() => props.onCall(number)} className={styles.call}>
+      <button
+        onClick={() => props.onCall("+1" + number)}
+        className={styles.call}
+      >
         {l10n.getString("dialer-dial-label")}
       </button>
     </div>
