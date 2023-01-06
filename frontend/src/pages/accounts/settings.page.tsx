@@ -30,6 +30,7 @@ import { useAddonData } from "../../hooks/addon";
 import { isFlagActive } from "../../functions/waffle";
 import { isPhonesAvailableInCountry } from "../../functions/getPlan";
 import { useL10n } from "../../hooks/l10n";
+import QRCode from "react-qr-code";
 
 const Settings: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -230,6 +231,12 @@ const Settings: NextPage = () => {
               </span>
             </span>
           </span>
+        </div>
+        <div className={styles["settings-api-qr-code-wrapper"]}>
+          <div className={styles["settings-api-qr-code"]}>
+            <QRCode value={"Token " + profile.api_token} />
+          </div>
+          <p>Scan the code with your Relay mobile app.</p>
         </div>
         <div className={styles["settings-api-key-copy"]}>
           {l10n.getString("settings-api-key-description")}{" "}
