@@ -214,7 +214,7 @@ $trackerRemovalIndicatorWidth: 20px;
     // stylelint-disable-next-line no-duplicate-selectors
     .main-data & {
       display: flex;
-      flex: 1 0 $content-xs;
+      flex: 0 0 0;
       text-align: center;
     }
     // I've grouped these together under the media query to emphasise that they
