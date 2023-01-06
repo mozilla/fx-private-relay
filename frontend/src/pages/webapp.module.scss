@@ -1,0 +1,27 @@
+.loading-screen {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+
+  img {
+    animation-name: pulse;
+    animation-timing-function: ease-in-out;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-delay: 200ms;
+    animation-fill-mode: both;
+  }
+
+  @keyframes pulse {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+}

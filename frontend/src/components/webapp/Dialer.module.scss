@@ -1,0 +1,76 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  padding: $spacing-md 0;
+}
+
+.display {
+  @include text-title-md;
+  font-family: $font-stack-firefox;
+  display: block;
+  text-align: center;
+  height: $layout-md;
+  line-height: 1;
+  padding: $spacing-md;
+}
+
+.numpad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  row-gap: $spacing-lg;
+  column-gap: $spacing-md;
+  padding: $spacing-md;
+
+  .number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:nth-of-type(10) {
+      // The "0" button should be in the middle column
+      grid-column: 2;
+    }
+
+    button {
+      @include text-title-sm;
+      $size: $layout-xl;
+      width: $size;
+      height: $size;
+      border-radius: 100%;
+      border: 2px solid $color-blue-50;
+      box-shadow: $box-shadow-sm;
+      background-color: $color-white;
+      color: $color-blue-50;
+      cursor: pointer;
+
+      &:hover {
+        background-color: $color-blue-50;
+        color: $color-white;
+      }
+    }
+  }
+}
+
+.call {
+  @include text-title-xs;
+  font-family: $font-stack-firefox;
+  font-weight: 700;
+  align-self: center;
+  background-color: $color-green-50;
+  border: 4px solid $color-green-50;
+  padding: $spacing-lg $spacing-xl;
+  border-radius: $border-radius-lg;
+  color: $color-white;
+  cursor: pointer;
+
+  &:hover {
+    background-color: $color-white;
+    color: $color-green-50;
+  }
+}

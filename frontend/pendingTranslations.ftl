@@ -105,3 +105,8 @@ waitlist-lead-phone = We’ll let you know when phone masking is available in yo
 waitlist-lead-bundle = We’ll let you know when you can get { -brand-name-relay-premium } and { -brand-name-mozilla-vpn } at a discount in your area.
 waitlist-privacy-policy-use-phone = Your information will only be used to notify you when phone masking is available in your area.
 waitlist-privacy-policy-use-bundle = Your information will only be used to notify you about { -brand-name-relay } + { -brand-name-vpn } bundle availability.
+
+# Web app prototype strings
+webapp-tab-stats-label = Stats
+webapp-tab-dialer-label = Dialer
+dialer-dial-label = Call

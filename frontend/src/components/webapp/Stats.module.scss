@@ -1,0 +1,53 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: $spacing-md;
+  padding-top: $spacing-md;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .number {
+    @include text-title-sm;
+  }
+}
+
+.stats {
+  list-style-type: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-2xl;
+}
+
+.meter {
+  stroke-linecap: round;
+
+  .track {
+    stroke: $color-blue-50;
+    stroke-opacity: 0.2;
+  }
+
+  .fill {
+    stroke: $color-blue-50;
+  }
+
+  .value {
+    fill: $color-blue-50;
+  }
+
+  .label {
+    text-align: center;
+    display: block;
+  }
+}

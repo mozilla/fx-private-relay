@@ -1,0 +1,51 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.wrapper {
+  user-select: none;
+  height: 100%;
+
+  @media (pointer: fine) {
+    user-select: initial;
+  }
+}
+
+.sheets-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .sheet {
+    flex: 1 0 auto;
+  }
+
+  .sheet-list {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    box-shadow: $box-shadow-sm;
+    padding: $spacing-xs;
+
+    .tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: $spacing-xs;
+      padding: $spacing-md;
+      font-family: $font-stack-firefox;
+      width: 100%;
+      border-radius: $border-radius-sm;
+      cursor: pointer;
+
+      &.is-active {
+        color: $color-blue-50;
+      }
+
+      &:hover {
+        background-color: $color-blue-50;
+        color: $color-white;
+      }
+    }
+  }
+}
