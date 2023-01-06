@@ -107,6 +107,7 @@ waitlist-privacy-policy-use-phone = Your information will only be used to notify
 waitlist-privacy-policy-use-bundle = Your information will only be used to notify you about { -brand-name-relay } + { -brand-name-vpn } bundle availability.
 
 # Web app prototype strings
+webapp-tabs-label = Menu
 webapp-tab-stats-label = Stats
 webapp-tab-dialer-label = Dialer
 dialer-dial-label = Call

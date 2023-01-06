@@ -8,7 +8,7 @@
   flex-direction: column;
   justify-content: space-evenly;
   gap: $spacing-md;
-  padding-top: $spacing-md;
+  padding-block: $spacing-md;
 }
 
 .heading {
@@ -31,6 +31,9 @@
 }
 
 .meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   stroke-linecap: round;
 
   .track {

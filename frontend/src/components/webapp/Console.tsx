@@ -25,8 +25,7 @@ export const Console = (props: Props) => {
   return (
     <div className={styles.wrapper}>
       <PageMetadata />
-      {/* TODO: Proper label and titles */}
-      <Sheets aria-label="Firefox Relay">
+      <Sheets aria-label={l10n.getString("webapp-tabs-label")}>
         <Item key="stats" title={l10n.getString("webapp-tab-stats-label")}>
           <Stats relayNumber={props.relayNumber} />
         </Item>

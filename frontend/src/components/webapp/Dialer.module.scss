@@ -3,29 +3,35 @@
 @import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
 
 .wrapper {
-  height: 100%;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
   padding: $spacing-md 0;
 }
 
 .display {
-  @include text-title-md;
+  @include text-title-xs;
   font-family: $font-stack-firefox;
-  display: block;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: $content-xs;
   height: $layout-md;
-  line-height: 1;
-  padding: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  background-color: $color-light-gray-20;
+  border-radius: $border-radius-lg;
 }
 
 .numpad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   row-gap: $spacing-lg;
-  column-gap: $spacing-md;
+  column-gap: $spacing-lg;
   padding: $spacing-md;
+  max-width: $content-xs;
 
   .number {
     display: flex;
@@ -39,7 +45,7 @@
 
     button {
       @include text-title-sm;
-      $size: $layout-xl;
+      $size: $layout-lg;
       width: $size;
       height: $size;
       border-radius: 100%;
@@ -63,6 +69,7 @@
   font-weight: 700;
   align-self: center;
   background-color: $color-green-50;
+  box-shadow: $box-shadow-sm;
   border: 4px solid $color-green-50;
   padding: $spacing-lg $spacing-xl;
   border-radius: $border-radius-lg;

@@ -45,7 +45,7 @@ const Meter = (
 ) => {
   const { meterProps, labelProps } = useMeter(props);
 
-  const size = 200;
+  const size = 150;
   const strokeWidth = 10;
 
   const circumference = 2 * (size / 2 - strokeWidth) * Math.PI;
