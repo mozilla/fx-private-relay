@@ -228,7 +228,7 @@ const Settings: NextPage = () => {
             </span>
           </span>
         </div>
-        <div>
+        <div className={styles["settings-api-qr-code-wrapper"]}>
           <div className={styles["settings-api-qr-code"]}>
             <QRCode value={"Token " + profile.api_token} />
           </div>
