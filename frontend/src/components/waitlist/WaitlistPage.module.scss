@@ -11,6 +11,7 @@
 
   .form {
     width: $content-lg;
+    max-width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -22,6 +23,7 @@
       flex-direction: column;
       gap: $spacing-sm;
       width: $content-md;
+      max-width: 100%;
 
       .control {
         display: flex;
