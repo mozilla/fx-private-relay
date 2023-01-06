@@ -671,6 +671,37 @@ def call(request):
     return response.Response(status=200)
 
 
+message_body = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        "body": openapi.Schema(type=openapi.TYPE_STRING),
+        "destination": openapi.Schema(type=openapi.TYPE_STRING),
+    },
+)
+
+
+@decorators.permission_classes([permissions.IsAuthenticated, HasPhoneService])
+@swagger_auto_schema(method="post", request_body=message_body)
+@decorators.api_view(["POST"])
+def post_message(request):
+    """
+    Send a message from the user's realy number.
+
+    POST params:
+        body: the body of the message
+        destination: E.164-formatted phone number
+
+    """
+    relay_number = RelayNumber.objects.get(user=request.user)
+    body = request.data.get("body")
+    destination_number = request.data.get("destination")
+    client = twilio_client()
+    client.messages.create(from_=relay_number.number, body=body, to=destination_number)
+    return response.Response(
+        status=200,
+    )
+
+
 messages_body = openapi.Schema(
     type=openapi.TYPE_OBJECT,
     properties={"with": openapi.Schema(type=openapi.TYPE_STRING)},
