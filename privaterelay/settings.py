@@ -108,6 +108,7 @@ CSP_SCRIPT_SRC = [
     "'self'",
     "https://www.google-analytics.com/",
 ]
+CSP_FONT_SRC = ["https://relay.firefox.com/"]
 if USE_SILK:
     CSP_SCRIPT_SRC.append("'unsafe-inline'")
 

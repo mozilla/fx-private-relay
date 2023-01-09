@@ -1,3 +1,4 @@
+from base64 import b64decode
 from copy import deepcopy
 from datetime import datetime, timezone
 from email.message import EmailMessage
@@ -27,21 +28,35 @@ from emails.models import (
     Profile,
     RelayAddress,
     Reply,
+    get_domains_from_settings,
 )
-from emails.utils import b64_lookup_key, derive_reply_keys, get_message_id_bytes
+from emails.utils import (
+    b64_lookup_key,
+    decrypt_reply_metadata,
+    derive_reply_keys,
+    encrypt_reply_metadata,
+    get_message_id_bytes,
+)
 from emails.views import (
     _get_address,
     _get_attachment,
     _get_keys_from_headers,
     _record_receipt_verdicts,
+    _build_reply_requires_premium_email,
+    _set_forwarded_first_reply,
     _sns_message,
     _sns_notification,
+    reply_requires_premium_test,
     validate_sns_arn_and_type,
     wrapped_email_test,
     ReplyHeadersNotFound,
 )
 
-from .models_tests import make_premium_test_user, upgrade_test_user_to_premium
+from .models_tests import (
+    make_free_test_user,
+    make_premium_test_user,
+    upgrade_test_user_to_premium,
+)
 
 # Load the sns json fixtures from files
 real_abs_cwd = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -1123,6 +1138,125 @@ def test_wrapped_email_test(
     assert (
         f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html
+
+
+@pytest.mark.parametrize("forwarded", ("False", "True"))
+@pytest.mark.parametrize("content_type", ("text/plain", "text/html"))
+@pytest.mark.django_db
+def test_reply_requires_premium_test(rf, forwarded, content_type):
+    url = f"/emails/reply_requires_premium_test?forwarded={forwarded}&content-type={content_type}"
+    request = rf.get(url)
+    response = reply_requires_premium_test(request)
+    assert response.status_code == 200
+    html = response.content.decode()
+    assert (
+        "/premium/?utm_campaign=email_replies&amp;utm_source=email&amp;utm_medium=email"
+        in html
+    )
+    assert "Upgrade for more protection" in html
+    if forwarded == "True":
+        assert "We’ve sent this reply" in html
+    else:
+        assert "Your reply was not sent" in html
+
+
+@pytest.mark.django_db
+def test_build_reply_requires_premium_email_first_time_includes_forward_text():
+    # First create a valid reply record from an external sender to a free Relay user
+    free_user = make_free_test_user()
+    relay_address = baker.make(RelayAddress, user=free_user)
+
+    original_sender = "external_sender@test.com"
+    original_msg_id = "<external-msg-id-123@test.com>"
+    original_msg_id_bytes = get_message_id_bytes(original_msg_id)
+    (lookup_key, encryption_key) = derive_reply_keys(original_msg_id_bytes)
+    original_metadata = {
+        "message-id": original_msg_id,
+        "from": original_sender,
+        "reply-to": original_sender,
+    }
+    original_encrypted_metadata = encrypt_reply_metadata(
+        encryption_key, original_metadata
+    )
+    reply_record = Reply.objects.create(
+        lookup=b64_lookup_key(lookup_key),
+        encrypted_metadata=original_encrypted_metadata,
+        relay_address=relay_address,
+    )
+
+    # Now send a reply from the free Relay user to the external sender
+    test_from = relay_address.address
+    test_msg_id = "<relay-user-msg-id-456@usersemail.com>"
+    decrypted_metadata = json.loads(
+        decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
+    )
+    msg = _build_reply_requires_premium_email(
+        test_from, reply_record, test_msg_id, decrypted_metadata
+    )
+
+    domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
+    expected_From = f"replies@{domain}"
+    assert msg["Subject"] == "Replies are not included with your free account"
+    assert msg["From"] == expected_From
+    assert msg["To"] == relay_address.address
+
+    multipart_payload = msg.get_payload()[0]
+    first_part = multipart_payload.get_payload()[0]
+    second_part = multipart_payload.get_payload()[1]
+    text_content = b64decode(first_part.get_payload()).decode()
+    html_content = b64decode(second_part.get_payload()).decode()
+    assert "sent this reply" in text_content
+    assert "sent this reply" in html_content
+
+
+@pytest.mark.django_db
+def test_build_reply_requires_premium_email_after_forward():
+    # First create a valid reply record from an external sender to a free Relay user
+    free_user = make_free_test_user()
+    relay_address = baker.make(RelayAddress, user=free_user)
+    _set_forwarded_first_reply(free_user.profile)
+
+    original_sender = "external_sender@test.com"
+    original_msg_id = "<external-msg-id-123@test.com>"
+    original_msg_id_bytes = get_message_id_bytes(original_msg_id)
+    (lookup_key, encryption_key) = derive_reply_keys(original_msg_id_bytes)
+    original_metadata = {
+        "message-id": original_msg_id,
+        "from": original_sender,
+        "reply-to": original_sender,
+    }
+    original_encrypted_metadata = encrypt_reply_metadata(
+        encryption_key, original_metadata
+    )
+    reply_record = Reply.objects.create(
+        lookup=b64_lookup_key(lookup_key),
+        encrypted_metadata=original_encrypted_metadata,
+        relay_address=relay_address,
+    )
+
+    # Now send a reply from the free Relay user to the external sender
+    test_from = relay_address.address
+    test_msg_id = "<relay-user-msg-id-456@usersemail.com>"
+    decrypted_metadata = json.loads(
+        decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
+    )
+    msg = _build_reply_requires_premium_email(
+        test_from, reply_record, test_msg_id, decrypted_metadata
+    )
+
+    domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
+    expected_From = f"replies@{domain}"
+    assert msg["Subject"] == "Replies are not included with your free account"
+    assert msg["From"] == expected_From
+    assert msg["To"] == relay_address.address
+
+    multipart_payload = msg.get_payload()[0]
+    first_part = multipart_payload.get_payload()[0]
+    second_part = multipart_payload.get_payload()[1]
+    text_content = b64decode(first_part.get_payload()).decode()
+    html_content = b64decode(second_part.get_payload()).decode()
+    assert "Your reply was not sent" in text_content
+    assert "Your reply was not sent" in html_content
 
 
 def test_get_keys_from_headers_no_reply_headers():
