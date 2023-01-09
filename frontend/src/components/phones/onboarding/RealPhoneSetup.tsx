@@ -17,10 +17,11 @@ import { formatPhone } from "../../../functions/formatPhone";
 import { useInterval } from "../../../hooks/interval";
 import { useL10n } from "../../../hooks/l10n";
 import { Localized } from "../../Localized";
+import { E164Number } from "../../../functions/e164number";
 
 type RealPhoneSetupProps = {
   unverifiedRealPhones: Array<UnverifiedPhone>;
-  onRequestVerification: (numberToVerify: string) => Promise<Response>;
+  onRequestVerification: (numberToVerify: E164Number) => Promise<Response>;
   onSubmitVerification: PhoneNumberSubmitVerificationFn;
   onRequestPhoneRemoval: RequestPhoneRemovalFn;
   runtimeData: RuntimeData;
@@ -63,7 +64,7 @@ export const RealPhoneSetup = (props: RealPhoneSetupProps) => {
 };
 
 type RealPhoneFormProps = {
-  requestPhoneVerification: (phoneNumber: string) => Promise<Response>;
+  requestPhoneVerification: (phoneNumber: E164Number) => Promise<Response>;
   requestPhoneRemoval: (id: number) => Promise<Response>;
 };
 
@@ -188,7 +189,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
 type RealPhoneVerificationProps = {
   phonesPendingVerification: UnverifiedPhone[];
   submitPhoneVerification: PhoneNumberSubmitVerificationFn;
-  requestPhoneVerification: (numberToVerify: string) => Promise<Response>;
+  requestPhoneVerification: (numberToVerify: E164Number) => Promise<Response>;
   maxMinutesToVerify: number;
   onGoBack: () => void;
 };

@@ -18,6 +18,7 @@ import { formatPhone } from "../../../functions/formatPhone";
 import { RefreshIcon } from "../../Icons";
 import { RelayNumberConfirmationModal } from "./RelayNumberConfirmationModal";
 import { useL10n } from "../../../hooks/l10n";
+import { E164Number, isE164Number } from "../../../functions/e164number";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;
@@ -33,7 +34,7 @@ export const RelayNumberPicker = (props: RelayNumberPickerProps) => {
   if (!relayNumberData.data || relayNumberData.data.length === 0) {
     return (
       <RelayNumberSelection
-        registerRelayNumber={(number) =>
+        registerRelayNumber={(number: E164Number) =>
           relayNumberData.registerRelayNumber(number)
         }
         search={(query) => search(query)}
@@ -86,7 +87,7 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
 };
 
 type RelayNumberSelectionProps = {
-  registerRelayNumber: (phoneNumber: string) => Promise<Response>;
+  registerRelayNumber: (phoneNumber: E164Number) => Promise<Response>;
   search: (search: string) => Promise<RelayNumberSuggestion[] | undefined>;
 };
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
@@ -276,6 +277,10 @@ const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
           }}
           isOpen={confirmationModalState.isOpen}
           confirm={() => {
+            if (!isE164Number(phoneNumber)) {
+              // Show an error message?
+              return;
+            }
             confirmationModalState.close();
             props.registerRelayNumber(phoneNumber);
           }}

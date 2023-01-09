@@ -1,8 +1,18 @@
+import { E164Number } from "./e164number";
+
 /**
  * Make sure that when we format phone numbers in a consistent way.
  * phoneNumber: The phone number to format.
  * withCountryCode: Whether to include the country code in the formatted number.
  */
+export function formatPhone(
+  phoneNumber: string,
+  options: { withCountryCode: true; digitsOnly: true }
+): E164Number;
+export function formatPhone(
+  phoneNumber: string,
+  options?: { withCountryCode?: boolean; digitsOnly?: boolean }
+): string;
 export function formatPhone(
   phoneNumber: string,
   options?: { withCountryCode?: boolean; digitsOnly?: boolean }

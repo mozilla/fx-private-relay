@@ -1,10 +1,11 @@
 import { SWRResponse } from "swr";
+import { E164Number } from "../../functions/e164number";
 import { DateString, parseDate } from "../../functions/parseDate";
 import { apiFetch, useApiV1 } from "./api";
 
 export type VerifiedPhone = {
   id: number;
-  number: string;
+  number: E164Number;
   verification_code: string;
   verification_sent_date: DateString;
   verified: true;
@@ -14,7 +15,7 @@ export type VerifiedPhone = {
 
 export type UnverifiedPhone = {
   id: number;
-  number: string;
+  number: E164Number;
   verification_code: string;
   verification_sent_date: DateString;
   verified: false | undefined;
@@ -61,7 +62,7 @@ export function hasPendingVerification(
 export type RealPhonesData = [RealPhoneData];
 
 export type PhoneNumberRequestVerificationFn = (
-  phoneNumber: string
+  phoneNumber: E164Number
 ) => Promise<Response>;
 
 export type ResendWelcomeSMSFn = () => Promise<Response>;
@@ -111,7 +112,7 @@ export function useRealPhonesData(): SWRResponse<RealPhoneData, unknown> & {
     phoneNumber
   ) => {
     // TODO: Validate number as E.164
-    // https://blog.kevinchisholm.com/javascript/javascript-e164-phone-number-validation/
+    // See the [[isE164Number]] function.
 
     const response = await apiFetch("/realphone/", {
       method: "POST",

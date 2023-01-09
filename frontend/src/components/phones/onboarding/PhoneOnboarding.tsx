@@ -9,6 +9,7 @@ import { PurchasePhonesPlan } from "./PurchasePhonesPlan";
 import { RealPhoneSetup } from "./RealPhoneSetup";
 import { RelayNumberPicker } from "./RelayNumberPicker";
 import { RuntimeDataWithPhonesAvailable } from "../../../functions/getPlan";
+import { E164Number } from "../../../functions/e164number";
 
 export type Props = {
   onComplete: () => void;
@@ -39,7 +40,7 @@ export const PhoneOnboarding = (props: Props) => {
     step = (
       <RealPhoneSetup
         unverifiedRealPhones={unverifiedPhones}
-        onRequestVerification={async (number) =>
+        onRequestVerification={async (number: E164Number) =>
           await realPhoneData.requestPhoneVerification(number)
         }
         onRequestPhoneRemoval={async (id: number) =>

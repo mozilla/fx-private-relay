@@ -1,9 +1,10 @@
 import { SWRResponse } from "swr";
+import { E164Number } from "../../functions/e164number";
 import { apiFetch, FetchError, useApiV1 } from "./api";
 
 export type RelayNumber = {
   id: number;
-  number: string;
+  number: E164Number;
   location?: string;
   country_code: string;
   enabled: boolean;
@@ -20,7 +21,7 @@ export type RelayNumber = {
 export type RelayNumberData = Array<RelayNumber>;
 
 export type PhoneNumberRegisterRelayNumberFn = (
-  phoneNumber: string
+  phoneNumber: E164Number
 ) => Promise<Response>;
 
 export type UpdateForwardingToPhone = (
@@ -59,7 +60,7 @@ export function useRelayNumber(
     phoneNumber
   ) => {
     // TODO: Validate number as E.164
-    // https://blog.kevinchisholm.com/javascript/javascript-e164-phone-number-validation/
+    // See the [[isE164Number]] function.
     const response = await apiFetch("/relaynumber/", {
       method: "POST",
       body: JSON.stringify({ number: phoneNumber }),
@@ -90,7 +91,7 @@ export function useRelayNumber(
 }
 
 export type RelayNumberSuggestionsData = {
-  real_num: string;
+  real_num: E164Number;
   same_area_options: Array<RelayNumberSuggestion>;
   same_prefix_options: Array<RelayNumberSuggestion>;
   other_areas_options: Array<RelayNumberSuggestion>;
@@ -113,13 +114,13 @@ export type RelayNumberSuggestion = {
   friendly_name: string;
   iso_country: string;
   locality: string;
-  phone_number: string;
+  phone_number: E164Number;
   postal_code: string;
   region: string;
 };
 
 /**
- * Search folr relay number suggestions
+ * Search for relay number suggestions
  */
 export const search = async (search: string) => {
   // return early if search is empty
