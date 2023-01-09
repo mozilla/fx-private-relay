@@ -51,7 +51,7 @@ export class DashboardPage {
         this.header = page.locator('div header').first();
         this.FAQButton = page.locator('header >> text=FAQ')
         this.newsButton = page.locator('header >> text=News')
-        this.homeButton = page.locator('header >> text=Home')
+        this.homeButton = page.locator('header >> text=Email Masks')
         this.userMenuButton = page.locator('//div[starts-with(@class, "UserMenu_wrapper")]')
         this.userMenuPopUp = page.locator('//ul[starts-with(@class, "UserMenu_popup")]')
         this.userMenuLetter = page.locator('//div[starts-with(@class, "UserMenu_wrapper")]')
