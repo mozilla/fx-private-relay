@@ -55,10 +55,8 @@ const VpnRelayWelcome: NextPage = () => {
               </div>
 
               <p>{l10n.getString("vpn-relay-go-relay-body")}</p>
-              <Link href={"/"}>
-                <a className={styles.button}>
-                  {l10n.getString("vpn-relay-go-relay-cta")}
-                </a>
+              <Link href={"/"} className={styles.button}>
+                {l10n.getString("vpn-relay-go-relay-cta")}
               </Link>
             </div>
 

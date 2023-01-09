@@ -51,11 +51,9 @@ export const MobileNavigation = (props: Props) => {
 
     return isVisible ? (
       <li className={`${styles["menu-item"]}`}>
-        <Link href={item.url}>
-          <a className={`${styles.link}`}>
-            {item.icon}
-            {l10n.getString(item.l10n)}
-          </a>
+        <Link href={item.url} className={`${styles.link}`}>
+          {item.icon}
+          {l10n.getString(item.l10n)}
         </Link>
       </li>
     ) : null;

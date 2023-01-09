@@ -50,15 +50,14 @@ export const LinkButton = forwardRef<
     const propsWithoutHref = { ...props };
     delete propsWithoutHref.href;
     return (
-      <Link href={props.href}>
-        <a
-          {...propsWithoutHref}
-          ref={ref}
-          className={`${styles.button} ${props.className} ${
-            props.variant === "destructive" ? styles["is-destructive"] : ""
-          }`}
-        />
-      </Link>
+      <Link
+        href={props.href}
+        {...propsWithoutHref}
+        ref={ref}
+        className={`${styles.button} ${props.className} ${
+          props.variant === "destructive" ? styles["is-destructive"] : ""
+        }`}
+      ></Link>
     );
   }
 

@@ -154,11 +154,7 @@ export const AddressPickerModal = (props: Props) => {
                     "popover-custom-alias-explainer-promotional-block-tooltip-2"
                   )}
                   <Link href="/faq#faq-promotional-email-blocking">
-                    <a>
-                      {l10n.getString(
-                        "banner-label-data-notification-body-cta"
-                      )}
-                    </a>
+                    {l10n.getString("banner-label-data-notification-body-cta")}
                   </Link>
                 </p>
               </InfoTooltip>

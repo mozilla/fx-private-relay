@@ -311,10 +311,8 @@ const Home: NextPage = () => {
                 {l10n.getString("landing-faq-headline")}
               </h2>
               <p>
-                <Link href="/faq">
-                  <a className={styles["read-more"]}>
-                    {l10n.getString("landing-faq-cta")}
-                  </a>
+                <Link href="/faq" className={styles["read-more"]}>
+                  {l10n.getString("landing-faq-cta")}
                 </Link>
               </p>
             </div>

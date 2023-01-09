@@ -81,7 +81,7 @@ export const SubdomainPicker = (props: Props) => {
           })}
         </p>
         <Link href="/faq">
-          <a>{l10n.getString("banner-label-data-notification-body-cta")}</a>
+          {l10n.getString("banner-label-data-notification-body-cta")}
         </Link>
       </div>
       <div className={styles.search}>
