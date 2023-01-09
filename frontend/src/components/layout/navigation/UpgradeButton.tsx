@@ -11,10 +11,12 @@ export const UpgradeButton = (): JSX.Element => {
   });
 
   return (
-    <Link href="/premium#pricing">
-      <a ref={upgradeButtonRef} id={styles["upgrade-button"]}>
-        {l10n.getString("menu-upgrade-button")}
-      </a>
+    <Link
+      href="/premium#pricing"
+      ref={upgradeButtonRef}
+      id={styles["upgrade-button"]}
+    >
+      {l10n.getString("menu-upgrade-button")}
     </Link>
   );
 };

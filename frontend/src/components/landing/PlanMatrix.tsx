@@ -228,10 +228,11 @@ export const PlanMatrix = (props: Props) => {
                         with the buttons for plans that do display a price */}
                     &nbsp;
                   </span>
-                  <Link href="/premium/waitlist">
-                    <a className={styles["pick-button"]}>
-                      {l10n.getString("plan-matrix-join-waitlist")}
-                    </a>
+                  <Link
+                    href="/premium/waitlist"
+                    className={styles["pick-button"]}
+                  >
+                    {l10n.getString("plan-matrix-join-waitlist")}
                   </Link>
                   {/*
                   The <small> has space for price-related notices (e.g. "* billed
@@ -294,10 +295,11 @@ export const PlanMatrix = (props: Props) => {
                         with the buttons for plans that do display a price */}
                     &nbsp;
                   </span>
-                  <Link href="/phone/waitlist">
-                    <a className={styles["pick-button"]}>
-                      {l10n.getString("plan-matrix-join-waitlist")}
-                    </a>
+                  <Link
+                    href="/phone/waitlist"
+                    className={styles["pick-button"]}
+                  >
+                    {l10n.getString("plan-matrix-join-waitlist")}
                   </Link>
                   {/*
                   The <small> has space for price-related notices (e.g. "* billed
@@ -352,10 +354,11 @@ export const PlanMatrix = (props: Props) => {
                         with the buttons for plans that do display a price */}
                     &nbsp;
                   </span>
-                  <Link href="/vpn-relay/waitlist">
-                    <a className={styles["pick-button"]}>
-                      {l10n.getString("plan-matrix-join-waitlist")}
-                    </a>
+                  <Link
+                    href="/vpn-relay/waitlist"
+                    className={styles["pick-button"]}
+                  >
+                    {l10n.getString("plan-matrix-join-waitlist")}
                   </Link>
                   {/*
                   The <small> has space for price-related notices (e.g. "* billed
@@ -447,10 +450,11 @@ export const PlanMatrix = (props: Props) => {
                       where the prices are for other plans on the same row. */}
                   &nbsp;
                 </span>
-                <Link href="/premium/waitlist">
-                  <a className={styles["pick-button"]}>
-                    {l10n.getString("plan-matrix-join-waitlist")}
-                  </a>
+                <Link
+                  href="/premium/waitlist"
+                  className={styles["pick-button"]}
+                >
+                  {l10n.getString("plan-matrix-join-waitlist")}
                 </Link>
               </div>
             </div>
@@ -508,10 +512,8 @@ export const PlanMatrix = (props: Props) => {
                         where the prices are for other plans on the same row. */}
                   &nbsp;
                 </span>
-                <Link href="/phone/waitlist">
-                  <a className={styles["pick-button"]}>
-                    {l10n.getString("plan-matrix-join-waitlist")}
-                  </a>
+                <Link href="/phone/waitlist" className={styles["pick-button"]}>
+                  {l10n.getString("plan-matrix-join-waitlist")}
                 </Link>
               </div>
             </div>
@@ -567,10 +569,11 @@ export const PlanMatrix = (props: Props) => {
                         where the prices are for other plans on the same row. */}
                   &nbsp;
                 </span>
-                <Link href="/vpn-relay/waitlist">
-                  <a className={styles["pick-button"]}>
-                    {l10n.getString("plan-matrix-join-waitlist")}
-                  </a>
+                <Link
+                  href="/vpn-relay/waitlist"
+                  className={styles["pick-button"]}
+                >
+                  {l10n.getString("plan-matrix-join-waitlist")}
                 </Link>
               </div>
             </div>

@@ -40,40 +40,35 @@ export const Navigation = (props: Props) => {
   const isPremiumPage = router.pathname === "/premium";
 
   const landingLink = (
-    <Link href="/">
-      <a
-        className={`${styles.link} ${styles["home-link"]} 
-          ${styles["hidden-mobile"]} 
-          ${router.pathname === "/" ? styles["is-active"] : ""}`}
-      >
-        {l10n.getString("nav-home")}
-      </a>
+    <Link
+      href="/"
+      className={`${styles.link} ${styles["home-link"]} 
+        ${styles["hidden-mobile"]} 
+        ${router.pathname === "/" ? styles["is-active"] : ""}`}
+    >
+      {l10n.getString("nav-home")}
     </Link>
   );
   const emailDashboardLink = (
-    <Link href="/accounts/profile">
-      <a
-        className={`${styles.link} ${styles["home-link"]} 
-          ${styles["hidden-mobile"]} 
-          ${
-            router.pathname === "/accounts/profile" ? styles["is-active"] : ""
-          }`}
-      >
-        {l10n.getString("nav-email-dashboard")}
-      </a>
+    <Link
+      href="/accounts/profile"
+      className={`${styles.link} ${styles["home-link"]} 
+        ${styles["hidden-mobile"]} 
+        ${router.pathname === "/accounts/profile" ? styles["is-active"] : ""}`}
+    >
+      {l10n.getString("nav-email-dashboard")}
     </Link>
   );
 
   const phoneLink =
     isLoggedIn && isPhonesAvailableInCountry(runtimeData.data) ? (
-      <Link href="/phone">
-        <a
-          className={`${styles.link} ${styles["hidden-mobile"]} ${
-            router.pathname === "/phone" ? styles["is-active"] : null
-          }`}
-        >
-          {l10n.getString("nav-phone-dashboard")}
-        </a>
+      <Link
+        href="/phone"
+        className={`${styles.link} ${styles["hidden-mobile"]} ${
+          router.pathname === "/phone" ? styles["is-active"] : null
+        }`}
+      >
+        {l10n.getString("nav-phone-dashboard")}
       </Link>
     ) : null;
 
@@ -94,14 +89,13 @@ export const Navigation = (props: Props) => {
 
       {phoneLink}
 
-      <Link href="/faq">
-        <a
-          className={`${styles.link} ${styles["faq-link"]} 
-          ${styles["hidden-mobile"]} 
-          ${router.pathname === "/faq" ? styles["is-active"] : ""}`}
-        >
-          {l10n.getString("nav-faq")}
-        </a>
+      <Link
+        href="/faq"
+        className={`${styles.link} ${styles["faq-link"]} 
+        ${styles["hidden-mobile"]} 
+        ${router.pathname === "/faq" ? styles["is-active"] : ""}`}
+      >
+        {l10n.getString("nav-faq")}
       </Link>
 
       {/* if user is not logged in, show sign in and sign up buttons */}

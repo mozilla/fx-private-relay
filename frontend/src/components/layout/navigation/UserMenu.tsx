@@ -153,15 +153,14 @@ export const UserMenu = (props: Props) => {
         key={itemKeys.settings}
         textValue={l10n.getString("nav-profile-settings")}
       >
-        <Link href="/accounts/settings">
-          <a
-            ref={settingsLinkRef}
-            title={l10n.getString("nav-profile-settings-tooltip")}
-            className={styles["menu-link"]}
-          >
-            <Cogwheel width={20} height={20} alt="" />
-            {l10n.getString("nav-profile-settings")}
-          </a>
+        <Link
+          href="/accounts/settings"
+          ref={settingsLinkRef}
+          title={l10n.getString("nav-profile-settings-tooltip")}
+          className={styles["menu-link"]}
+        >
+          <Cogwheel width={20} height={20} alt="" />
+          {l10n.getString("nav-profile-settings")}
         </Link>
       </Item>
       {contactLink as JSX.Element}

@@ -112,27 +112,25 @@ export const Layout = (props: Props) => {
         />
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles["logo-wrapper"]}>
-            <Link href={homePath}>
-              <a className={styles.logo}>
-                {router.pathname === "/vpn-relay-welcome" ? (
-                  <img src={vpnRelayLogo.src} alt="" height={32} />
-                ) : (
-                  <>
-                    <img
-                      src={logo.src}
-                      alt=""
-                      className={styles.logomark}
-                      width={42}
-                    />
-                    <img
-                      src={logoType.src}
-                      alt={logoAlt}
-                      className={styles.logotype}
-                      height={20}
-                    />
-                  </>
-                )}
-              </a>
+            <Link href={homePath} className={styles.logo}>
+              {router.pathname === "/vpn-relay-welcome" ? (
+                <img src={vpnRelayLogo.src} alt="" height={32} />
+              ) : (
+                <>
+                  <img
+                    src={logo.src}
+                    alt=""
+                    className={styles.logomark}
+                    width={42}
+                  />
+                  <img
+                    src={logoType.src}
+                    alt={logoAlt}
+                    className={styles.logotype}
+                    height={20}
+                  />
+                </>
+              )}
             </Link>
           </div>
           <div className={styles["nav-wrapper"]}>

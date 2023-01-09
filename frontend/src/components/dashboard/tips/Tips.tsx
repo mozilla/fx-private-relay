@@ -141,10 +141,11 @@ export const Tips = (props: Props) => {
       <footer className={styles.footer}>
         <ul>
           <li>
-            <Link href="/faq">
-              <a title={l10n.getString("tips-footer-link-faq-tooltip")}>
-                {l10n.getString("tips-footer-link-faq-label")}
-              </a>
+            <Link
+              href="/faq"
+              title={l10n.getString("tips-footer-link-faq-tooltip")}
+            >
+              {l10n.getString("tips-footer-link-faq-label")}
             </Link>
           </li>
           <li>
