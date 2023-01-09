@@ -5,6 +5,7 @@ import {
   useState,
 } from "react";
 import { useOverlayTriggerState } from "react-stately";
+import Image from "next/image";
 import styles from "./RelayNumberPicker.module.scss";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
 import { Button } from "../../Button";
@@ -59,7 +60,7 @@ const RelayNumberIntro = (props: RelayNumberIntroProps) => {
           className={`${styles["step-input-verificiation-code-lead-success"]} `}
         >
           {/* Success state */}
-          <img src={EnteryVerifyCodeSuccess.src} alt="" width={170} />
+          <Image src={EnteryVerifyCodeSuccess} alt="" width={170} />
           <h2 className={`${styles["is-success"]} `}>
             {l10n.getString("phone-onboarding-step3-code-success-title")}
           </h2>
@@ -304,7 +305,7 @@ const RelayNumberConfirmation = (props: RelayNumberConfirmationProps) => {
           className={`${styles["step-input-verificiation-code-lead-success"]} `}
         >
           {/* Success state */}
-          <img src={EnteryVerifyCodeSuccess.src} alt="" width={170} />
+          <Image src={EnteryVerifyCodeSuccess} alt="" width={170} />
           <h2 className={`${styles["is-success"]} `}>
             {l10n.getString("phone-onboarding-step4-code-success-title")}
           </h2>

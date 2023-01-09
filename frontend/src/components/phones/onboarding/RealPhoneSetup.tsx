@@ -1,4 +1,5 @@
 import { ChangeEventHandler, FormEventHandler, useState } from "react";
+import Image from "next/image";
 import styles from "./RealPhoneSetup.module.scss";
 import PhoneVerify from "./images/phone-verify.svg";
 import EnterVerifyCode from "./images/enter-verify-code.svg";
@@ -142,7 +143,7 @@ const RealPhoneForm = (props: RealPhoneFormProps) => {
   return (
     <div className={`${styles.step} ${styles["step-verify-input"]} `}>
       <div className={styles.lead}>
-        <img src={PhoneVerify.src} alt="" width={200} />
+        <Image src={PhoneVerify} alt="" width={200} />
         <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
         <p>{l10n.getString("phone-onboarding-step2-body")}</p>
         <p className={`${styles["step-verify-sub-body"]}`}>
@@ -280,14 +281,14 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
           className={`${styles["step-input-verificiation-code-lead-default"]}`}
         >
           {/* Default state */}
-          <img src={EnterVerifyCode.src} alt="" width={300} />
+          <Image src={EnterVerifyCode} alt="" width={300} />
           <h2>{l10n.getString("phone-onboarding-step2-headline")}</h2>
         </div>
         <div
           className={`${styles["step-input-verificiation-code-lead-error"]} `}
         >
           {/* Timeout error state */}
-          <img src={EnterVerifyCodeError.src} alt="" width={170} />
+          <Image src={EnterVerifyCodeError} alt="" width={170} />
           <h2 className={`${styles["is-error"]} `}>
             {l10n.getString("phone-onboarding-step3-code-fail-title")}
           </h2>

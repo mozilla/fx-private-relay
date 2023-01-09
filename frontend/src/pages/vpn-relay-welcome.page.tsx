@@ -1,9 +1,10 @@
 import { NextPage } from "next";
+import Image from "next/image";
 import { Layout } from "../components/layout/Layout";
-import logo from "../components/layout/images/relay-logo.svg";
-import logoType from "../components/layout/images/fx-private-relay-premium-logotype-dark.svg";
-import panelArt from "./images/vpn-relay-panel-art.svg";
-import vpnLogo from "./images/mozilla-vpn-logo.svg";
+import Logo from "../components/layout/images/relay-logo.svg";
+import LogoType from "../components/layout/images/fx-private-relay-premium-logotype-dark.svg";
+import PanelArt from "./images/vpn-relay-panel-art.svg";
+import VpnLogo from "./images/mozilla-vpn-logo.svg";
 import styles from "./vpn-relay-welcome.module.scss";
 import { useEffect } from "react";
 import { authenticatedFetch } from "../hooks/api/api";
@@ -41,14 +42,14 @@ const VpnRelayWelcome: NextPage = () => {
           <div className={styles["content-body"]}>
             <div className={styles.panel}>
               <div className={styles.logo}>
-                <img
-                  src={logo.src}
+                <Image
+                  src={Logo}
                   alt=""
                   className={styles.logomark}
                   width={42}
                 />
-                <img
-                  src={logoType.src}
+                <Image
+                  src={LogoType}
                   alt={l10n.getString("logo-premium-alt")}
                   className={styles.logotype}
                 />
@@ -60,12 +61,12 @@ const VpnRelayWelcome: NextPage = () => {
               </Link>
             </div>
 
-            <img src={panelArt.src} alt="" className={styles["panel-art"]} />
+            <Image src={PanelArt} alt="" className={styles["panel-art"]} />
 
             <div className={styles.panel}>
               <div className={styles.logo}>
-                <img
-                  src={vpnLogo.src}
+                <Image
+                  src={VpnLogo}
                   alt={l10n.getString("logo-premium-alt")}
                   className={styles["vpn-logo"]}
                   height={20}

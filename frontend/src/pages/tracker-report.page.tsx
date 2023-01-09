@@ -1,8 +1,9 @@
 import { NextPage } from "next";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import styles from "./tracker-report.module.scss";
-import logoType from "./images/fx-private-relay-logotype-dark.svg";
-import logo from "./images/placeholder-logo.svg";
+import LogoType from "./images/fx-private-relay-logotype-dark.svg";
+import Logo from "./images/placeholder-logo.svg";
 import { PageMetadata } from "../components/layout/PageMetadata";
 import {
   HideIcon,
@@ -97,14 +98,9 @@ const TrackerReport: NextPage = () => {
         <main className={styles["report-wrapper"]}>
           <div className={styles.report}>
             <b className={styles.logo}>
-              <img
-                src={logo.src}
-                alt=""
-                className={styles.logomark}
-                width={42}
-              />
-              <img
-                src={logoType.src}
+              <Image src={Logo} alt="" className={styles.logomark} width={42} />
+              <Image
+                src={LogoType}
                 alt={l10n.getString("logo-alt")}
                 className={styles.logotype}
                 height={20}

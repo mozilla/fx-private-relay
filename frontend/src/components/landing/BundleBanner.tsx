@@ -1,4 +1,5 @@
 import { FluentVariable } from "@fluent/bundle";
+import Image, { StaticImageData } from "next/image";
 import {
   getBundlePrice,
   getBundleSubscribeLink,
@@ -24,7 +25,7 @@ export type Props = {
 };
 
 type FloatingFeaturesProps = {
-  icon: string;
+  icon: StaticImageData;
   text: string;
   position: string;
   vars?: Record<string, FluentVariable>;
@@ -47,7 +48,7 @@ const FloatingFeatures = (props: FloatingFeaturesProps) => {
     <div
       className={`${styles[props.position]} ${styles["float-features-item"]}`}
     >
-      <img alt="" src={props.icon} />
+      <Image alt="" src={props.icon} />
       {text}
     </div>
   );
@@ -77,7 +78,7 @@ export const BundleBanner = (props: Props) => {
         <div className={styles["main-img-wrapper"]}>{mainImage}</div>
         <div className={styles["float-features-wrapper"]}>
           <FloatingFeatures
-            icon={bundleFloatOne.src}
+            icon={bundleFloatOne}
             text="bundle-feature-one"
             position="feature-one"
             vars={{
@@ -85,7 +86,7 @@ export const BundleBanner = (props: Props) => {
             }}
           />
           <FloatingFeatures
-            icon={bundleFloatTwo.src}
+            icon={bundleFloatTwo}
             text="bundle-feature-two"
             position="feature-two"
             vars={{
@@ -93,7 +94,7 @@ export const BundleBanner = (props: Props) => {
             }}
           />
           <FloatingFeatures
-            icon={bundleFloatThree.src}
+            icon={bundleFloatThree}
             text="bundle-feature-three"
             position="feature-three"
           />
@@ -153,9 +154,9 @@ export const BundleBanner = (props: Props) => {
                   <span />
                 </Localized>
               </div>
-              <img
+              <Image
                 className={styles["bundle-logo"]}
-                src={bundleLogo.src}
+                src={bundleLogo}
                 alt={l10n.getString("bundle-banner-alt")}
               />
             </div>

@@ -1,3 +1,4 @@
+import Image, { StaticImageData } from "next/image";
 import { ReactNode } from "react";
 import { getLocale } from "../../../functions/getLocale";
 import { useL10n } from "../../../hooks/l10n";
@@ -7,7 +8,7 @@ export type GenericTipProps = {
   title: string;
   content: ReactNode;
   videos?: Record<string, string>;
-  image?: string;
+  image?: StaticImageData;
   alt?: string;
 };
 // This component will probably be used for future tips that are yet to be added:
@@ -26,7 +27,9 @@ export const GenericTip = (props: GenericTipProps) => {
           // the text below in an easier-to-understand way. Thus, there is no text
           // alternative that wouldn't be redundant with the text below:
           aria-hidden={true}
-          poster={props.image}
+          poster={
+            typeof props.image === "object" ? props.image.src : props.image
+          }
           autoPlay={true}
           loop={true}
           muted={true}
@@ -40,11 +43,13 @@ export const GenericTip = (props: GenericTipProps) => {
           ) : null}
         </video>
         {/* This image will only be shown if the user has prefers-reduced-motion on */}
-        <img
-          className={styles["still-alternative"]}
-          src={props.image}
-          alt={props.alt ?? ""}
-        />
+        {props.image && (
+          <Image
+            className={styles["still-alternative"]}
+            src={props.image}
+            alt={props.alt ?? ""}
+          />
+        )}
       </>
     ) : null;
 

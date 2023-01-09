@@ -1,3 +1,4 @@
+import Image from "next/image";
 import styles from "./PhoneDashboard.module.scss";
 import {
   ChevronLeftIcon,
@@ -30,8 +31,8 @@ export const SendersPanelView = (props: Props) => {
 
   const emptyCallerSMSSendersPanel = (
     <div className={styles["senders-panel"]}>
-      <img
-        src={emptySenderDataIllustration.src}
+      <Image
+        src={emptySenderDataIllustration}
         alt="Empty Senders Data Illustration"
         width={130}
       />
@@ -43,8 +44,8 @@ export const SendersPanelView = (props: Props) => {
 
   const disabledCallerSMSSendersPanel = (
     <div className={styles["senders-panel"]}>
-      <img
-        src={disabledSendersDataIllustration.src}
+      <Image
+        src={disabledSendersDataIllustration}
         alt="Disabled Senders Data Illustration"
         width={130}
       />

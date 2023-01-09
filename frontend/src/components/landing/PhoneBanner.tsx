@@ -1,4 +1,4 @@
-import { StaticImageData } from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { useId } from "react-aria";
 import { ReactElement } from "react";
 import styles from "./PhoneBanner.module.scss";
@@ -34,21 +34,21 @@ export const PhoneBanner = (props: Props) => {
         <PersonInCircle pngImg={womanInBannerPng} webpImg={womanInBannerWebp} />
         <ul className={styles["floating-features"]}>
           <li className={styles["with-text"]}>
-            <img src={floatClock.src} alt="" />
+            <Image src={floatClock} alt="" />
             {l10n.getString("phone-banner-float-limits", {
               nr_calls: 50,
               nr_texts: 75,
             })}
           </li>
           <li className={styles["with-text"]}>
-            <img src={floatAccount.src} alt="" />
+            <Image src={floatAccount} alt="" />
             {l10n.getString("phone-banner-float-replies")}
           </li>
           <li aria-hidden className={styles["image-only"]}>
-            <img src={floatHeart.src} alt="" />
+            <Image src={floatHeart} alt="" />
           </li>
           <li aria-hidden className={styles["image-only"]}>
-            <img src={floatPhone.src} alt="" />
+            <Image src={floatPhone} alt="" />
           </li>
         </ul>
       </div>
@@ -107,7 +107,7 @@ const PersonInCircle = (props: {
       >
         <picture>
           <source type="image/webp" srcSet={props.webpImg.src} />
-          <img src={props.pngImg.src} alt="" />
+          <Image src={props.pngImg} alt="" />
         </picture>
       </foreignObject>
     </svg>
