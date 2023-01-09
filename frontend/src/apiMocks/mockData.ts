@@ -85,14 +85,14 @@ export const mockedRuntimeData: RuntimeData = {
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
 };
 
-export const mockedUsers: Record<typeof mockIds[number], UserData> = {
+export const mockedUsers: Record<(typeof mockIds)[number], UserData> = {
   empty: { email: "empty@example.com" },
   onboarding: { email: "onboarding@example.com" },
   some: { email: "some@example.com" },
   full: { email: "full@example.com" },
 };
 
-export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
+export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
   empty: {
     api_token: "empty",
     avatar: "https://profile.accounts.firefox.com/v1/avatar/e",
@@ -175,7 +175,7 @@ export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
   },
 };
 export const mockedRelayaddresses: Record<
-  typeof mockIds[number],
+  (typeof mockIds)[number],
   RandomAliasData[]
 > = {
   empty: [],
@@ -270,7 +270,7 @@ export const mockedRelayaddresses: Record<
   ],
 };
 export const mockedDomainaddresses: Record<
-  typeof mockIds[number],
+  (typeof mockIds)[number],
   CustomAliasData[]
 > = {
   empty: [],
@@ -300,35 +300,36 @@ export const mockedDomainaddresses: Record<
   ],
 };
 
-export const mockedRealphones: Record<typeof mockIds[number], RealPhoneData> = {
-  empty: [],
-  onboarding: [],
-  some: [
-    {
-      id: 0,
-      number: "+14155552671",
-      verification_code: "123456",
-      verification_sent_date: "2022-07-27T10:17:29.775Z",
-      verified: true,
-      verified_date: "2022-07-27T10:18:01.801Z",
-      country_code: "US",
-    },
-  ],
-  full: [
-    {
-      id: 0,
-      number: "+14155552671",
-      verification_code: "123456",
-      verification_sent_date: "2022-07-27T10:17:29.775Z",
-      verified: true,
-      verified_date: "2022-07-27T10:18:01.801Z",
-      country_code: "US",
-    },
-  ],
-};
+export const mockedRealphones: Record<(typeof mockIds)[number], RealPhoneData> =
+  {
+    empty: [],
+    onboarding: [],
+    some: [
+      {
+        id: 0,
+        number: "+14155552671",
+        verification_code: "123456",
+        verification_sent_date: "2022-07-27T10:17:29.775Z",
+        verified: true,
+        verified_date: "2022-07-27T10:18:01.801Z",
+        country_code: "US",
+      },
+    ],
+    full: [
+      {
+        id: 0,
+        number: "+14155552671",
+        verification_code: "123456",
+        verification_sent_date: "2022-07-27T10:17:29.775Z",
+        verified: true,
+        verified_date: "2022-07-27T10:18:01.801Z",
+        country_code: "US",
+      },
+    ],
+  };
 
 export const mockedRelaynumbers: Record<
-  typeof mockIds[number],
+  (typeof mockIds)[number],
   RelayNumberData
 > = {
   empty: [],
@@ -370,7 +371,7 @@ export const mockedRelaynumbers: Record<
 };
 
 export const mockedInboundContacts: Record<
-  typeof mockIds[number],
+  (typeof mockIds)[number],
   InboundContactData
 > = {
   empty: [],
