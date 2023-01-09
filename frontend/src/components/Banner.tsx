@@ -159,10 +159,8 @@ export const BannerCta = (props: BannerCtaProps) => {
           props.size === "large" ? styles["cta-large-button"] : styles.cta
         }
       >
-        <Link href={props.target}>
-          <a onClick={props.onClick} ref={ctaRef}>
-            {props.content}
-          </a>
+        <Link href={props.target} onClick={props.onClick} ref={ctaRef}>
+          {props.content}
         </Link>
       </div>
     );

@@ -101,7 +101,7 @@ const CtaLinkButton = (props: CtaProps) => {
   return (
     <>
       {!hasSubscription ? (
-        <Link href="/premium#pricing">
+        <Link href="/premium#pricing" legacyBehavior>
           <span className={styles.cta}>{props.label}</span>
         </Link>
       ) : null}

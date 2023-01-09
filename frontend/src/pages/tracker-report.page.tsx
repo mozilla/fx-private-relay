@@ -174,10 +174,8 @@ const TrackerReport: NextPage = () => {
                 {l10n.getString("trackerreport-faq-heading")}
               </h2>
               <p>
-                <Link href="/faq">
-                  <a className={styles["read-more"]}>
-                    {l10n.getString("trackerreport-faq-cta")}
-                  </a>
+                <Link href="/faq" className={styles["read-more"]}>
+                  {l10n.getString("trackerreport-faq-cta")}
                 </Link>
               </p>
             </div>

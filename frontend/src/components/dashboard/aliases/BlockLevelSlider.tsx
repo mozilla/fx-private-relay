@@ -264,7 +264,7 @@ const BlockLevelDescription = (props: { level: BlockLevel }) => {
           "profile-promo-email-blocking-description-promotionals"
         )}
         <Link href="/faq#faq-promotional-email-blocking">
-          <a>{l10n.getString("banner-label-data-notification-body-cta")}</a>
+          {l10n.getString("banner-label-data-notification-body-cta")}
         </Link>
       </span>
     );
@@ -379,19 +379,15 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
 
   const link = props.premiumAvailableInCountry ? (
     <Link href="/premium/">
-      <a>
-        {l10n.getString(
-          "profile-promo-email-blocking-description-promotionals-locked-cta"
-        )}
-      </a>
+      {l10n.getString(
+        "profile-promo-email-blocking-description-promotionals-locked-cta"
+      )}
     </Link>
   ) : (
     <Link href="/premium/waitlist">
-      <a>
-        {l10n.getString(
-          "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta"
-        )}
-      </a>
+      {l10n.getString(
+        "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta"
+      )}
     </Link>
   );
 
