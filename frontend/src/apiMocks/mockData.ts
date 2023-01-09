@@ -5,6 +5,7 @@ import { InboundContactData } from "../hooks/api/inboundContact";
 import { ProfileData } from "../hooks/api/profile";
 import { RuntimeData } from "../hooks/api/runtimeData";
 import { UserData } from "../hooks/api/user";
+import { MessagesData } from "../hooks/api/messages";
 
 export const mockIds = ["empty", "onboarding", "some", "full"] as const;
 
@@ -85,14 +86,14 @@ export const mockedRuntimeData: RuntimeData = {
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
 };
 
-export const mockedUsers: Record<(typeof mockIds)[number], UserData> = {
+export const mockedUsers: Record<typeof mockIds[number], UserData> = {
   empty: { email: "empty@example.com" },
   onboarding: { email: "onboarding@example.com" },
   some: { email: "some@example.com" },
   full: { email: "full@example.com" },
 };
 
-export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
+export const mockedProfiles: Record<typeof mockIds[number], ProfileData> = {
   empty: {
     api_token: "empty",
     avatar: "https://profile.accounts.firefox.com/v1/avatar/e",
@@ -175,7 +176,7 @@ export const mockedProfiles: Record<(typeof mockIds)[number], ProfileData> = {
   },
 };
 export const mockedRelayaddresses: Record<
-  (typeof mockIds)[number],
+  typeof mockIds[number],
   RandomAliasData[]
 > = {
   empty: [],
@@ -270,7 +271,7 @@ export const mockedRelayaddresses: Record<
   ],
 };
 export const mockedDomainaddresses: Record<
-  (typeof mockIds)[number],
+  typeof mockIds[number],
   CustomAliasData[]
 > = {
   empty: [],
@@ -300,36 +301,35 @@ export const mockedDomainaddresses: Record<
   ],
 };
 
-export const mockedRealphones: Record<(typeof mockIds)[number], RealPhoneData> =
-  {
-    empty: [],
-    onboarding: [],
-    some: [
-      {
-        id: 0,
-        number: "+14155552671",
-        verification_code: "123456",
-        verification_sent_date: "2022-07-27T10:17:29.775Z",
-        verified: true,
-        verified_date: "2022-07-27T10:18:01.801Z",
-        country_code: "US",
-      },
-    ],
-    full: [
-      {
-        id: 0,
-        number: "+14155552671",
-        verification_code: "123456",
-        verification_sent_date: "2022-07-27T10:17:29.775Z",
-        verified: true,
-        verified_date: "2022-07-27T10:18:01.801Z",
-        country_code: "US",
-      },
-    ],
-  };
+export const mockedRealphones: Record<typeof mockIds[number], RealPhoneData> = {
+  empty: [],
+  onboarding: [],
+  some: [
+    {
+      id: 0,
+      number: "+14155552671",
+      verification_code: "123456",
+      verification_sent_date: "2022-07-27T10:17:29.775Z",
+      verified: true,
+      verified_date: "2022-07-27T10:18:01.801Z",
+      country_code: "US",
+    },
+  ],
+  full: [
+    {
+      id: 0,
+      number: "+14155552671",
+      verification_code: "123456",
+      verification_sent_date: "2022-07-27T10:17:29.775Z",
+      verified: true,
+      verified_date: "2022-07-27T10:18:01.801Z",
+      country_code: "US",
+    },
+  ],
+};
 
 export const mockedRelaynumbers: Record<
-  (typeof mockIds)[number],
+  typeof mockIds[number],
   RelayNumberData
 > = {
   empty: [],
@@ -371,7 +371,7 @@ export const mockedRelaynumbers: Record<
 };
 
 export const mockedInboundContacts: Record<
-  (typeof mockIds)[number],
+  typeof mockIds[number],
   InboundContactData
 > = {
   empty: [],
@@ -438,4 +438,56 @@ export const mockedInboundContacts: Record<
       blocked: false,
     },
   ],
+};
+
+export const mockedMessages: Record<typeof mockIds[number], MessagesData> = {
+  empty: {
+    inbound_messages: [],
+    outbound_messages: [],
+  },
+  onboarding: {
+    inbound_messages: [],
+    outbound_messages: [],
+  },
+  some: {
+    inbound_messages: [
+      {
+        from: "+12345678910",
+        to: "+18089251571",
+        date_sent: new Date(Date.now() - 42 * 60 * 60 * 1000).toISOString(),
+        body: "Hi mum, I lost my mobile, so texting from a friend's. Could you send me €579 for a new one?",
+      },
+    ],
+    outbound_messages: [],
+  },
+  full: {
+    inbound_messages: [
+      {
+        from: "+319060400404",
+        to: "+18089251571",
+        date_sent: new Date(Date.now() - 7 * 60 * 60 * 1000).toISOString(),
+        body: "Ik snap wel dat het bestaat, maar het is gewoon best wel krom geregeld",
+      },
+      {
+        from: "+12345678910",
+        to: "+18089251571",
+        date_sent: new Date(Date.now() - 42 * 60 * 60 * 1000).toISOString(),
+        body: "Hi mum, I lost my mobile, so texting from a friend's. Could you send me €579 for a new one?",
+      },
+      {
+        from: "+319060400404",
+        to: "+18089251571",
+        date_sent: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+        body: "BELASTINGDIENST",
+      },
+    ],
+    outbound_messages: [
+      {
+        from: "+18089251571",
+        to: "+12345678910",
+        date_sent: new Date(Date.now()).toISOString(),
+        body: "If you were my REAL child, you would have texted me at my true phone number, you fool!",
+      },
+    ],
+  },
 };

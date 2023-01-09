@@ -13,14 +13,15 @@ import {
   mockedRealphones,
   mockedRelaynumbers,
   mockedInboundContacts,
+  mockedMessages,
 } from "./mockData";
 
 export function getHandlers(
-  defaultMockId: null | (typeof mockIds)[number] = null
+  defaultMockId: null | typeof mockIds[number] = null
 ): RestHandler[] {
   const handlers: RestHandler[] = [];
 
-  const getMockId = (req: RestRequest): (typeof mockIds)[number] | null => {
+  const getMockId = (req: RestRequest): typeof mockIds[number] | null => {
     const authHeader = req.headers.get("Authorization");
     if (typeof authHeader !== "string") {
       return defaultMockId;
@@ -532,6 +533,15 @@ export function getHandlers(
     }
 
     return res(ctx.status(200), ctx.json(mockedInboundContacts[mockId]));
+  });
+
+  addGetHandler("/api/v1/messages/", (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    return res(ctx.status(200), ctx.json(mockedMessages[mockId]));
   });
 
   handlers.push(

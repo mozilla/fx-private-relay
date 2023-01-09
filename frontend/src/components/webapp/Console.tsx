@@ -11,12 +11,15 @@ import { RelayNumber } from "../../hooks/api/relayNumber";
 import { Stats } from "./Stats";
 import { AriaTabPanelProps, useTab, useTabList, useTabPanel } from "react-aria";
 import { Node } from "@react-types/shared";
-import { PerformanceIcon, PhoneIcon } from "../Icons";
+import { ContactIcon, PerformanceIcon, PhoneIcon } from "../Icons";
 import { Call } from "./Call";
 import { useL10n } from "../../hooks/l10n";
+import { MessagesData } from "../../hooks/api/messages";
+import { Text } from "./Text";
 
 export type Props = {
   relayNumber: RelayNumber;
+  messages: MessagesData;
 };
 
 export const Console = (props: Props) => {
@@ -29,6 +32,12 @@ export const Console = (props: Props) => {
         <Item key="stats" title={l10n.getString("webapp-tab-stats-label")}>
           <Stats relayNumber={props.relayNumber} />
         </Item>
+        <Item
+          key="messages"
+          title={l10n.getString("webapp-tab-messages-label")}
+        >
+          <Text relayNumber={props.relayNumber} messages={props.messages} />
+        </Item>
         <Item key="dialer" title={l10n.getString("webapp-tab-dialer-label")}>
           <Call relayNumber={props.relayNumber} />
         </Item>
@@ -40,6 +49,7 @@ export const Console = (props: Props) => {
 // Workaround for https://github.com/adobe/react-spectrum/discussions/3891
 const icons: Record<Key, ReactNode> = {
   stats: <PerformanceIcon alt="" height={30} />,
+  messages: <ContactIcon alt="" height={30} />,
   dialer: <PhoneIcon alt="" height={30} />,
 };
 

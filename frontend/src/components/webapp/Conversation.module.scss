@@ -1,0 +1,64 @@
+@import "../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/mixins/typography";
+@import "~@mozilla-protocol/core/protocol/css/includes/forms/lib";
+
+.wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+
+  .back-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-lg;
+    background-color: transparent;
+    border-style: none;
+    cursor: pointer;
+
+    &:hover {
+      color: $color-blue-50;
+    }
+  }
+}
+
+.conversation-partner {
+  @include text-title-sm;
+  font-family: $font-stack-firefox;
+  font-weight: 400;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  padding: $spacing-md;
+
+  .message {
+    border-radius: $border-radius-lg;
+    padding: $spacing-sm $spacing-md;
+    width: 80%;
+
+    &.inbound {
+      background-color: $color-green-70;
+      color: $color-white;
+    }
+
+    &.outbound {
+      background-color: $color-blue-50;
+      color: $color-white;
+      align-self: flex-end;
+    }
+
+    time {
+      @include text-body-xs;
+      display: block;
+    }
+  }
+}

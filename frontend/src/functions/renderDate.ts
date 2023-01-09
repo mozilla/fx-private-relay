@@ -16,3 +16,19 @@ export const renderDate = (
   const date = parseDate(iso8601DateString);
   return formatter.format(date);
 };
+
+/**
+ * Make sure that when we render a datetime, we do so consistently across the website.
+ */
+export const renderDatetime = (
+  iso8601DateString: string,
+  l10n: ReactLocalization
+): string => {
+  const formatter = new Intl.DateTimeFormat(getLocale(l10n), {
+    dateStyle: "medium",
+    timeStyle: "medium",
+  });
+
+  const date = parseDate(iso8601DateString);
+  return formatter.format(date);
+};
