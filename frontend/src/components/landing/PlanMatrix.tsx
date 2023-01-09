@@ -1,4 +1,3 @@
-import { Localized, useLocalization } from "@fluent/react";
 import { useTab, useTabList, useTabPanel, VisuallyHidden } from "react-aria";
 import { Key, ReactNode, useRef } from "react";
 import Link from "next/link";
@@ -27,6 +26,9 @@ import { getRuntimeConfig } from "../../config";
 import { useGaViewPing } from "../../hooks/gaViewPing";
 import { Plan, trackPlanPurchaseStart } from "../../functions/trackPurchase";
 import { setCookie } from "../../functions/cookies";
+import { useL10n } from "../../hooks/l10n";
+import { Localized } from "../Localized";
+import { LinkButton } from "../Button";
 
 type FeatureList = {
   "email-masks": number;
@@ -73,7 +75,7 @@ export type Props = {
  * Matrix to compare and choose between the different plans available to the user.
  */
 export const PlanMatrix = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const freeButtonDesktopRef = useGaViewPing({
     category: "Sign In",
     label: "plan-matrix-free-cta-desktop",
@@ -158,14 +160,14 @@ export const PlanMatrix = (props: Props) => {
                 <span className={styles.price}>
                   {l10n.getString("plan-matrix-price-free")}
                 </span>
-                <a
+                <LinkButton
                   ref={freeButtonDesktopRef}
                   href={getRuntimeConfig().fxaLoginUrl}
                   onClick={() => countSignIn("plan-matrix-free-cta-desktop")}
-                  className={styles["pick-button"]}
+                  className={styles["primary-pick-button"]}
                 >
                   {l10n.getString("plan-matrix-pick")}
-                </a>
+                </LinkButton>
                 {/*
                 The <small> has space for price-related notices (e.g. "* billed
                 annually"). When there is no such notice, we still want to leave
@@ -226,10 +228,11 @@ export const PlanMatrix = (props: Props) => {
                         with the buttons for plans that do display a price */}
                     &nbsp;
                   </span>
-                  <Link href="/premium/waitlist">
-                    <a className={styles["pick-button"]}>
-                      {l10n.getString("plan-matrix-join-waitlist")}
-                    </a>
+                  <Link
+                    href="/premium/waitlist"
+                    className={styles["pick-button"]}
+                  >
+                    {l10n.getString("plan-matrix-join-waitlist")}
                   </Link>
                   {/*
                   The <small> has space for price-related notices (e.g. "* billed
@@ -292,10 +295,11 @@ export const PlanMatrix = (props: Props) => {
                         with the buttons for plans that do display a price */}
                     &nbsp;
                   </span>
-                  <Link href="/phone/waitlist">
-                    <a className={styles["pick-button"]}>
-                      {l10n.getString("plan-matrix-join-waitlist")}
-                    </a>
+                  <Link
+                    href="/phone/waitlist"
+                    className={styles["pick-button"]}
+                  >
+                    {l10n.getString("plan-matrix-join-waitlist")}
                   </Link>
                   {/*
                   The <small> has space for price-related notices (e.g. "* billed
@@ -350,10 +354,11 @@ export const PlanMatrix = (props: Props) => {
                         with the buttons for plans that do display a price */}
                     &nbsp;
                   </span>
-                  <Link href="/vpn-relay/waitlist">
-                    <a className={styles["pick-button"]}>
-                      {l10n.getString("plan-matrix-join-waitlist")}
-                    </a>
+                  <Link
+                    href="/vpn-relay/waitlist"
+                    className={styles["pick-button"]}
+                  >
+                    {l10n.getString("plan-matrix-join-waitlist")}
                   </Link>
                   {/*
                   The <small> has space for price-related notices (e.g. "* billed
@@ -382,14 +387,14 @@ export const PlanMatrix = (props: Props) => {
               <span className={styles.price}>
                 {l10n.getString("plan-matrix-price-free")}
               </span>
-              <a
+              <LinkButton
                 ref={freeButtonMobileRef}
                 href={getRuntimeConfig().fxaLoginUrl}
                 onClick={() => countSignIn("plan-matrix-free-cta-mobile")}
-                className={styles["pick-button"]}
+                className={styles["primary-pick-button"]}
               >
                 {l10n.getString("plan-matrix-pick")}
-              </a>
+              </LinkButton>
             </div>
           </div>
         </li>
@@ -445,10 +450,11 @@ export const PlanMatrix = (props: Props) => {
                       where the prices are for other plans on the same row. */}
                   &nbsp;
                 </span>
-                <Link href="/premium/waitlist">
-                  <a className={styles["pick-button"]}>
-                    {l10n.getString("plan-matrix-join-waitlist")}
-                  </a>
+                <Link
+                  href="/premium/waitlist"
+                  className={styles["pick-button"]}
+                >
+                  {l10n.getString("plan-matrix-join-waitlist")}
                 </Link>
               </div>
             </div>
@@ -506,10 +512,8 @@ export const PlanMatrix = (props: Props) => {
                         where the prices are for other plans on the same row. */}
                   &nbsp;
                 </span>
-                <Link href="/phone/waitlist">
-                  <a className={styles["pick-button"]}>
-                    {l10n.getString("plan-matrix-join-waitlist")}
-                  </a>
+                <Link href="/phone/waitlist" className={styles["pick-button"]}>
+                  {l10n.getString("plan-matrix-join-waitlist")}
                 </Link>
               </div>
             </div>
@@ -565,10 +569,11 @@ export const PlanMatrix = (props: Props) => {
                         where the prices are for other plans on the same row. */}
                   &nbsp;
                 </span>
-                <Link href="/vpn-relay/waitlist">
-                  <a className={styles["pick-button"]}>
-                    {l10n.getString("plan-matrix-join-waitlist")}
-                  </a>
+                <Link
+                  href="/vpn-relay/waitlist"
+                  className={styles["pick-button"]}
+                >
+                  {l10n.getString("plan-matrix-join-waitlist")}
                 </Link>
               </div>
             </div>
@@ -633,7 +638,7 @@ type MobileFeatureListProps = {
   list: FeatureList;
 };
 const MobileFeatureList = (props: MobileFeatureListProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const lis = Object.entries(props.list)
     .filter(
@@ -684,7 +689,7 @@ type AvailabilityListingProps = {
   availability: FeatureList[keyof FeatureList];
 };
 const AvailabilityListing = (props: AvailabilityListingProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   if (typeof props.availability === "number") {
     if (props.availability === Number.POSITIVE_INFINITY) {
@@ -721,7 +726,7 @@ type PricingToggleProps = {
   };
 };
 const PricingToggle = (props: PricingToggleProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const yearlyButtonRef = useGaViewPing(props.yearlyBilled.gaViewPing);
   const monthlyButtonRef = useGaViewPing(props.monthlyBilled.gaViewPing);
 

@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import { Key, ReactNode, useRef, useState } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Item, TabListState, useTabListState } from "react-stately";
@@ -7,6 +6,7 @@ import { CloseIcon } from "../../../Icons";
 import styles from "./WhatsNewDashboard.module.scss";
 import { WhatsNewList } from "./WhatsNewList";
 import { WhatsNewEntry } from "./WhatsNewMenu";
+import { useL10n } from "../../../../hooks/l10n";
 
 export type Props = {
   new: WhatsNewEntry[];
@@ -15,7 +15,7 @@ export type Props = {
 };
 
 export const WhatsNewDashboard = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [expandedEntry, setExpandedEntry] = useState<WhatsNewEntry>();
   // `onClearAll` is undefined when there are no entries,
   // which signals to <Tabs> that the "Clear all" button should not be shown.
@@ -107,7 +107,7 @@ type TabProps = Parameters<typeof useTabListState>[0] & {
   onClearAll?: () => void;
 };
 const Tabs = (props: TabProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const tabListState = useTabListState(props);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const { tabListProps } = useTabList(props, tabListState, wrapperRef);

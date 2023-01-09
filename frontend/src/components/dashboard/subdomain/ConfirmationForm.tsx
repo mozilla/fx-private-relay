@@ -1,8 +1,9 @@
-import { useLocalization, Localized } from "@fluent/react";
 import styles from "./ConfirmationForm.module.scss";
 import { Button } from "../../Button";
 import { FormEventHandler, useRef, useState } from "react";
 import { useButton } from "react-aria";
+import { useL10n } from "../../../hooks/l10n";
+import { Localized } from "../../Localized";
 
 export type Props = {
   subdomain: string;
@@ -16,7 +17,7 @@ export type Props = {
  * Primarily used in {@link ConfirmationModal}.
  */
 export const SubdomainConfirmationForm = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [confirmCheckbox, setConfirmCheckbox] = useState(false);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
   const cancelButton = useButton(

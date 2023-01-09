@@ -16,11 +16,11 @@ import {
 } from "./mockData";
 
 export function getHandlers(
-  defaultMockId: null | typeof mockIds[number] = null
+  defaultMockId: null | (typeof mockIds)[number] = null
 ): RestHandler[] {
   const handlers: RestHandler[] = [];
 
-  const getMockId = (req: RestRequest): typeof mockIds[number] | null => {
+  const getMockId = (req: RestRequest): (typeof mockIds)[number] | null => {
     const authHeader = req.headers.get("Authorization");
     if (typeof authHeader !== "string") {
       return defaultMockId;

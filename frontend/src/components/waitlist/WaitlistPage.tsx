@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import styles from "./WaitlistPage.module.scss";
 import { Layout } from "../layout/Layout";
 import { Button } from "../Button";
@@ -9,6 +8,7 @@ import { CountryPicker } from "./CountryPicker";
 import { useRuntimeData } from "../../hooks/api/runtimeData";
 import { LocalePicker } from "./LocalePicker";
 import { useUsers } from "../../hooks/api/user";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   supportedLocales: string[];
@@ -19,7 +19,7 @@ export type Props = {
 };
 
 export const WaitlistPage = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const currentLocale = getLocale(l10n);
   const runtimeData = useRuntimeData();
   const currentCountry =

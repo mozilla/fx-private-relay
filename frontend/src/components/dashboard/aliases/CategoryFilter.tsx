@@ -15,12 +15,12 @@ import {
   useOverlayPosition,
   useButton,
 } from "react-aria";
-import { useLocalization } from "@fluent/react";
 import styles from "./CategoryFilter.module.scss";
 import { Filters } from "../../../functions/filterAliases";
 import { useOverlayTriggerState } from "react-stately";
 import { Button } from "../../Button";
 import { FilterIcon } from "../../Icons";
+import { useL10n } from "../../../hooks/l10n";
 
 export type SelectedFilters = {
   domainType?: Filters["domainType"];
@@ -41,7 +41,7 @@ type OnCloseParams = {
  * Menu to select alias filters to apply, based on properties like being random or custom, or enabled or disabled.
  */
 export const CategoryFilter = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const menuState = useOverlayTriggerState({});
   const triggerRef = useRef<HTMLButtonElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -109,7 +109,7 @@ const FilterMenu = forwardRef<HTMLDivElement, FilterMenuProps>(
     { selectedFilters, onClose, isOpen, ...otherProps },
     overlayRef
   ) {
-    const { l10n } = useLocalization();
+    const l10n = useL10n();
     const [domainType, setDomainType] = useState<Filters["domainType"]>(
       selectedFilters.domainType
     );

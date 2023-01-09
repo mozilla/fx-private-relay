@@ -105,6 +105,11 @@
   text-align: center;
   margin: 0 auto;
 }
+.step-verify-sub-body {
+  background-color: $color-white;
+  border-radius: $border-radius-md;
+  padding: $spacing-lg;
+}
 
 .step-verify-input .is-hidden {
   display: none;

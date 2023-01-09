@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import {
   FocusEventHandler,
   FormEventHandler,
@@ -6,6 +5,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { useL10n } from "../../../hooks/l10n";
 import styles from "./LabelEditor.module.scss";
 
 export type Props = {
@@ -17,7 +17,7 @@ export type Props = {
  * Input field that allows the user to update the label of an alias.
  */
 export const LabelEditor = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [inputValue, setInputValue] = useState(props.label);
   const formRef = useRef<HTMLFormElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);

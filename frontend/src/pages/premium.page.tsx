@@ -1,5 +1,4 @@
 import { NextPage } from "next";
-import { Localized, useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./premium.module.scss";
 import PerkIllustrationUnlimited from "../../public/images/perk-unlimited.svg";
@@ -36,9 +35,11 @@ import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
+import { useL10n } from "../hooks/l10n";
+import { Localized } from "../components/Localized";
 
 const PremiumPromo: NextPage = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const runtimeData = useRuntimeData();
   useFlaggedAnchorLinks([runtimeData.data]);
   const heroCtaRef = useGaViewPing({

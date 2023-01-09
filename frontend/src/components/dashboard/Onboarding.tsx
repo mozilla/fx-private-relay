@@ -1,9 +1,9 @@
-import { useLocalization } from "@fluent/react";
 import styles from "./Onboarding.module.scss";
 import IconImage from "./images/onboarding-step-2.svg";
 import RightClickImage from "./images/onboarding-step-3.svg";
 import { AliasData } from "../../hooks/api/aliases";
 import { Button } from "../Button";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   aliases: AliasData[];
@@ -14,7 +14,7 @@ export type Props = {
  * Shows the user instructions on how to use Relay if they don't have aliases yet.
  */
 export const Onboarding = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   if (props.aliases.length > 0) {
     return null;

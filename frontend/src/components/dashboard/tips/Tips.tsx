@@ -6,7 +6,6 @@ import {
   useCallback,
   RefObject,
 } from "react";
-import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { useTabList, useTabPanel, useTab } from "react-aria";
 import { useTabListState, TabListState, Item } from "react-stately";
@@ -27,6 +26,7 @@ import { useRelayNumber } from "../../../hooks/api/relayNumber";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../functions/waffle";
 import { GenericTip } from "./GenericTip";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   profile: ProfileData;
@@ -45,7 +45,7 @@ export type TipEntry = {
  * Panel to be used on the bottom of the page, displaying tips relevant to the user.
  */
 export const Tips = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [isExpanded, setIsExpanded] = useState(false);
   const [wrapperRef, wrapperIsInView] = useInView({ threshold: 1 });
   const relayNumberData = useRelayNumber({ disable: !props.profile.has_phone });
@@ -141,10 +141,11 @@ export const Tips = (props: Props) => {
       <footer className={styles.footer}>
         <ul>
           <li>
-            <Link href="/faq">
-              <a title={l10n.getString("tips-footer-link-faq-tooltip")}>
-                {l10n.getString("tips-footer-link-faq-label")}
-              </a>
+            <Link
+              href="/faq"
+              title={l10n.getString("tips-footer-link-faq-tooltip")}
+            >
+              {l10n.getString("tips-footer-link-faq-label")}
             </Link>
           </li>
           <li>
@@ -277,7 +278,7 @@ type PanelDotProps = {
   tabListState: TabListState<object>;
 };
 const PanelDot = (props: PanelDotProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const dotRef = useRef<HTMLDivElement>(null);
   const { tabProps } = useTab(
     { key: props.item.key },

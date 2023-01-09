@@ -1,4 +1,3 @@
-import { Localized, useLocalization } from "@fluent/react";
 import type { NextPage } from "next";
 import {
   forwardRef,
@@ -51,6 +50,8 @@ import { isFlagActive } from "../../functions/waffle";
 import { DashboardSwitcher } from "../../components/layout/navigation/DashboardSwitcher";
 import { usePurchaseTracker } from "../../hooks/purchaseTracker";
 import { PremiumPromoBanners } from "../../components/dashboard/PremiumPromoBanners";
+import { useL10n } from "../../hooks/l10n";
+import { Localized } from "../../components/Localized";
 
 const Profile: NextPage = () => {
   const runtimeData = useRuntimeData();
@@ -58,7 +59,7 @@ const Profile: NextPage = () => {
   const userData = useUsers();
   const aliasData = useAliases();
   const addonData = useAddonData();
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const bottomBannerSubscriptionLinkRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-bottom-promo",
@@ -423,7 +424,7 @@ const Profile: NextPage = () => {
 };
 
 const StatExplainer = (props: { children: React.ReactNode }) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const explainerState = useMenuTriggerState({});
   const overlayRef = useRef<HTMLDivElement>(null);
   const openButtonRef = useRef<HTMLButtonElement>(null);

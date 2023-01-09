@@ -4,22 +4,24 @@ import userEvent from "@testing-library/user-event";
 import { axe } from "jest-axe";
 import { type Props as CountryPickerProps } from "./CountryPicker";
 import { type Props as LocalePickerProps } from "./LocalePicker";
-import { mockFluentReact } from "../../../__mocks__/modules/fluent__react";
 import { mockNextRouter } from "../../../__mocks__/modules/next__router";
 import { mockConfigModule } from "../../../__mocks__/configMock";
 import { setMockRuntimeData } from "../../../__mocks__/hooks/api/runtimeData";
 import { setMockUserData } from "../../../__mocks__/hooks/api/user";
 import { setMockProfileData } from "../../../__mocks__/hooks/api/profile";
 import { mockUseFxaFlowTrackerModule } from "../../../__mocks__/hooks/fxaFlowTracker";
+import { mockUseL10nModule } from "../../../__mocks__/hooks/l10n";
+import { mockLocalizedModule } from "../../../__mocks__/components/Localized";
 
 import { WaitlistPage } from "./WaitlistPage";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("../../config.ts", () => mockConfigModule);
 jest.mock("../../hooks/gaViewPing.ts");
 jest.mock("../../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
-jest.mock("../../components/waitlist/CountryPicker.tsx", () => ({
+jest.mock("../../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../Localized.tsx", () => mockLocalizedModule);
+jest.mock("../waitlist/CountryPicker.tsx", () => ({
   // We're mocking out the country picker because it dynamically imports the
   // list of available countries, which would mean the test would have to mock
   // out that import's Promise and wait for that to resolve, distracting from

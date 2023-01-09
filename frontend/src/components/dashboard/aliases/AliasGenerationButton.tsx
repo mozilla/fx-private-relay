@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import {
   FocusScope,
   useOverlay,
@@ -32,6 +31,7 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
 import { AddressPickerModal } from "./AddressPickerModal";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   aliases: AliasData[];
@@ -53,7 +53,7 @@ export type Props = {
  * user is able to.
  */
 export const AliasGenerationButton = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const getUnlimitedButtonRef = useGaViewPing({
     category: "Purchase Button",
     label: "profile-create-alias-upgrade-promo",
@@ -113,7 +113,7 @@ type AliasTypeMenuProps = {
   ) => void;
 };
 const AliasTypeMenu = (props: AliasTypeMenuProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const modalState = useOverlayTriggerState({});
 
   const onAction = (key: Key) => {
@@ -169,7 +169,7 @@ type AliasTypeMenuButtonProps = Parameters<typeof useMenuTriggerState>[0] & {
   onAction: AriaMenuItemProps["onAction"];
 };
 const AliasTypeMenuButton = (props: AliasTypeMenuButtonProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const triggerState = useMenuTriggerState(props);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { menuTriggerProps, menuProps } = useMenuTrigger(
