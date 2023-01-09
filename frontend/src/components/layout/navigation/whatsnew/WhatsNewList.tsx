@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Key, ReactNode, useRef } from "react";
 import { useMenu, useMenuItem } from "react-aria";
 import { Item, TreeProps, TreeState, useTreeState } from "react-stately";
@@ -19,7 +20,7 @@ export const WhatsNewList = (props: Props) => {
   if (props.entries.length === 0) {
     return (
       <div className={styles["empty-message"]}>
-        <img src={EmptyStateHero.src} alt="" />
+        <Image src={EmptyStateHero} alt="" />
         <p>{l10n.getString("whatsnew-empty-message")}</p>
       </div>
     );
@@ -120,7 +121,7 @@ const ItemWrapper = (props: ItemWrapperProps) => {
 
   return (
     <div ref={wrapperRef} className={styles.item}>
-      <img src={props.entry.icon} alt="" />
+      <Image src={props.entry.icon} alt="" />
       <div className={styles.text}>
         <h3>{props.entry.title}</h3>
         <p>{props.entry.snippet}</p>

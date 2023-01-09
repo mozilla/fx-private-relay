@@ -16,6 +16,7 @@ import {
   VisuallyHidden,
 } from "react-aria";
 import Link from "next/link";
+import Image from "next/image";
 import {
   SliderState,
   useOverlayTriggerState,
@@ -124,7 +125,7 @@ export const BlockLevelSlider = (props: Props) => {
                 "none"
               )}
             >
-              <img src={UmbrellaClosedMobile.src} alt="" />
+              <Image src={UmbrellaClosedMobile} alt="" />
               <p aria-hidden="true">{getLabelForBlockLevel("none", l10n)}</p>
             </div>
             {/*
@@ -141,7 +142,7 @@ export const BlockLevelSlider = (props: Props) => {
                   "promotional"
                 )}
               >
-                <img src={UmbrellaSemiMobile.src} alt="" />
+                <Image src={UmbrellaSemiMobile} alt="" />
                 <p aria-hidden="true">
                   {getLabelForBlockLevel("promotional", l10n)}
                 </p>
@@ -154,7 +155,7 @@ export const BlockLevelSlider = (props: Props) => {
                 "all"
               )}
             >
-              <img src={UmbrellaOpenMobile.src} alt="" />
+              <Image src={UmbrellaOpenMobile} alt="" />
               <p aria-hidden="true">{getLabelForBlockLevel("all", l10n)}</p>
             </div>
             <Thumb sliderState={sliderState} trackRef={trackRef} />
@@ -171,7 +172,7 @@ export const BlockLevelSlider = (props: Props) => {
               sliderState={sliderState}
               premiumAvailableInCountry={props.premiumAvailableInCountry}
             >
-              <img src={UmbrellaSemiMobile.src} alt="" />
+              <Image src={UmbrellaSemiMobile} alt="" />
               {lockIcon}
               <p>
                 {getLabelForBlockLevel("promotional", l10n)}
@@ -278,16 +279,14 @@ const BlockLevelDescription = (props: { level: BlockLevel }) => {
 };
 const BlockLevelIllustration = (props: { level: BlockLevel }) => {
   if (props.level === "none") {
-    return (
-      <img src={UmbrellaClosed.src} height={UmbrellaClosed.height} alt="" />
-    );
+    return <Image src={UmbrellaClosed} height={UmbrellaClosed.height} alt="" />;
   }
 
   if (props.level === "promotional") {
-    return <img src={UmbrellaSemi.src} height={UmbrellaSemi.height} alt="" />;
+    return <Image src={UmbrellaSemi} height={UmbrellaSemi.height} alt="" />;
   }
 
-  return <img src={UmbrellaOpen.src} height={UmbrellaOpen.height} alt="" />;
+  return <Image src={UmbrellaOpen} height={UmbrellaOpen.height} alt="" />;
 };
 
 type PromotionalTrackStopGhostProps = {
@@ -405,9 +404,9 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
           ref={overlayRef}
           className={styles["upgrade-tooltip"]}
         >
-          <img
+          <Image
             className={styles["promotionals-blocking-icon"]}
-            src={UmbrellaSemi.src}
+            src={UmbrellaSemi}
             alt=""
           />
           <span className={styles["upgrade-message"]}>

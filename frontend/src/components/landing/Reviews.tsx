@@ -1,5 +1,6 @@
 import { TouchEventHandler, useRef, useState } from "react";
 import { useButton } from "react-aria";
+import Image from "next/image";
 import FxBrowserLogo from "./images/fx-logo.svg";
 import {
   ChevronLeftIcon,
@@ -151,7 +152,7 @@ export const Reviews = () => {
       <div className={styles.reviews}>
         <div className={styles["left-container"]}>
           <div className={styles["logo-container"]}>
-            <img className={styles["logo"]} src={FxBrowserLogo.src} alt="" />
+            <Image className={styles["logo"]} src={FxBrowserLogo} alt="" />
             <p className={styles["logo-title"]}>
               {l10n.getString("landing-reviews-logo-title")}
             </p>

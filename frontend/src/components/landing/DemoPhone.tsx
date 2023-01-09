@@ -1,3 +1,4 @@
+import Image, { StaticImageData } from "next/image";
 import styles from "./DemoPhone.module.scss";
 import BgImage from "./images/hero-image-bg.svg";
 import PremiumScreenshot from "./images/hero-image-premium.png";
@@ -23,36 +24,40 @@ export const DemoPhone = (props: Props) => {
 
   return (
     <div className={styles.container}>
-      <img src={BgImage.src} alt="" className={styles.background} />
-      <img
-        src={getScreenshotUrl(props.premium ?? false, lang)}
+      <Image src={BgImage} alt="" className={styles.background} />
+      <Image
+        src={getScreenshotImage(props.premium ?? false, lang)}
         className={styles.phone}
         alt=""
       />
-      <img src={getForegroundUrl(lang)} alt="" className={styles.foreground} />
+      <Image
+        src={getForegroundImage(lang)}
+        alt=""
+        className={styles.foreground}
+      />
     </div>
   );
 };
 
-function getScreenshotUrl(isPremium: boolean, lang: string): string {
+function getScreenshotImage(isPremium: boolean, lang: string): StaticImageData {
   if (isPremium) {
     if (lang === "fr") {
-      return PremiumScreenshotFr.src;
+      return PremiumScreenshotFr;
     }
     if (lang === "de") {
-      return PremiumScreenshotDe.src;
+      return PremiumScreenshotDe;
     }
-    return PremiumScreenshot.src;
+    return PremiumScreenshot;
   }
-  return NoPremiumScreenshot.src;
+  return NoPremiumScreenshot;
 }
 
-function getForegroundUrl(lang: string): string {
+function getForegroundImage(lang: string): StaticImageData {
   if (lang === "fr") {
-    return FgImageFr.src;
+    return FgImageFr;
   }
   if (lang === "de") {
-    return FgImageDe.src;
+    return FgImageDe;
   }
-  return FgImage.src;
+  return FgImage;
 }

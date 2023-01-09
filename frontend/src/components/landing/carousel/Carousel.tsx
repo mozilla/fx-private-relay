@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Key, ReactNode, useEffect, useRef } from "react";
 import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Item, TabListState, useTabListState } from "react-stately";
@@ -34,7 +35,7 @@ export const Carousel = (props: Props) => {
       {props.tabs.map((tab) => {
         const titleElement = (
           <div className={`${styles.title} ${styles[tab.color]}`}>
-            <img src={tab.illustration.src} alt="" />
+            <Image src={tab.illustration} alt="" />
             <span className={styles["title-text"]}>{tab.heading}</span>
           </div>
         );

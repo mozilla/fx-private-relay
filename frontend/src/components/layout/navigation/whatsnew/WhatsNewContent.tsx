@@ -1,9 +1,10 @@
+import Image, { StaticImageData } from "next/image";
 import styles from "./WhatsNewContent.module.scss";
 
 export type Props = {
   heading: string;
   description: string;
-  image: string;
+  image: StaticImageData;
   videos?: Record<string, string>;
   cta?: JSX.Element | null;
 };
@@ -33,7 +34,7 @@ export const WhatsNewContent = (props: Props) => {
 
 const Hero = (props: Pick<Props, "image" | "videos">) => {
   if (typeof props.videos === "undefined") {
-    return <img src={props.image} alt="" />;
+    return <Image src={props.image} alt="" />;
   }
 
   const sources = Object.entries(props.videos).map(([type, source]) => (
@@ -45,7 +46,7 @@ const Hero = (props: Pick<Props, "image" | "videos">) => {
       <video
         // This animation is purely decorative, so screen readers should ignore it:
         aria-hidden={true}
-        poster={props.image}
+        poster={props.image.src}
         autoPlay={true}
         loop={true}
         muted={true}
@@ -53,10 +54,10 @@ const Hero = (props: Pick<Props, "image" | "videos">) => {
       >
         {sources}
         {/* Fall back to the image if the video formats are not supported: */}
-        <img src={props.image} alt="" />
+        <Image src={props.image} alt="" />
       </video>
       {/* This image will only be shown if the user has prefers-reduced-motion on */}
-      <img className={styles["still-alternative"]} src={props.image} alt="" />
+      <Image className={styles["still-alternative"]} src={props.image} alt="" />
     </>
   );
 };

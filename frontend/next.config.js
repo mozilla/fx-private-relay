@@ -93,6 +93,13 @@ module.exports = withBundleAnalyzer({
   // (https://nextjs.org/docs/basic-features/environment-variables),
   // and use this mechanism instead:
   publicRuntimeConfig: runtimeConfigs[applicableConfig],
+  images: {
+    // Since we're statically exporting the frontend (i.e. turning it into HTML
+    // as build time, rather than running Next.js on the backend), we can't use
+    // automatic image optimisation. See
+    // https://nextjs.org/docs/messages/export-image-api
+    unoptimized: true,
+  },
   webpack: (config, options) => {
     config.module.rules.push({
       test: /\.ftl/,

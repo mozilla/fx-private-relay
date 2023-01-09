@@ -8,9 +8,10 @@ import {
   usePreventScroll,
   AriaOverlayProps,
 } from "react-aria";
+import Image from "next/image";
 import styles from "./ConfirmationModal.module.scss";
 import { CheckCircleIcon } from "../../Icons";
-import partyIllustration from "./images/success-party.svg";
+import PartyIllustration from "./images/success-party.svg";
 import { SubdomainConfirmationForm } from "./ConfirmationForm";
 import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
@@ -101,7 +102,7 @@ const SuccessModal = (props: Props) => {
         isDismissable={true}
       >
         <div className={styles["picked-confirmation-body"]}>
-          <img src={partyIllustration.src} alt="" />
+          <Image src={PartyIllustration} alt="" />
           <p>{l10n.getString("modal-domain-register-success-copy-2")}</p>
           <Button onClick={() => props.onClose()}>
             {l10n.getString("profile-label-continue")}

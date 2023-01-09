@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import Image from "next/image";
 import styles from "./ProfileBanners.module.scss";
 import FirefoxLogo from "./images/fx-logo.svg";
 import BundleLogo from "./images/vpn-and-relay-logo.svg";
@@ -159,7 +160,7 @@ const NoFirefoxBanner = () => {
       type="promo"
       title={l10n.getString("banner-download-firefox-headline")}
       illustration={{
-        img: <img src={FirefoxLogo.src} alt="" width={60} height={60} />,
+        img: <Image src={FirefoxLogo} alt="" width={60} height={60} />,
       }}
       cta={{
         target:
@@ -180,7 +181,7 @@ const NoAddonBanner = () => {
       type="promo"
       title={l10n.getString("banner-download-install-extension-headline")}
       illustration={{
-        img: <img src={AddonIllustration.src} alt="" width={60} height={60} />,
+        img: <Image src={AddonIllustration} alt="" width={60} height={60} />,
       }}
       cta={{
         target:
@@ -204,7 +205,7 @@ const NoChromeExtensionBanner = () => {
         "banner-download-install-chrome-extension-headline"
       )}
       illustration={{
-        img: <img src={AddonIllustration.src} alt="" width={60} height={60} />,
+        img: <Image src={AddonIllustration} alt="" width={60} height={60} />,
       }}
       cta={{
         target:
@@ -238,7 +239,7 @@ const NoPremiumBanner = (props: NoPremiumBannerProps) => {
       type="promo"
       title={l10n.getString("banner-upgrade-headline")}
       illustration={{
-        img: <img src={RelayLogo.src} alt="" width={60} height={60} />,
+        img: <Image src={RelayLogo} alt="" width={60} height={60} />,
       }}
       cta={{
         target: "/premium#pricing",
@@ -263,7 +264,7 @@ const LoyalistPremiumBanner = (props: NoPremiumBannerProps) => {
       type="promo"
       title={l10n.getString("banner-upgrade-loyalist-headline-2")}
       illustration={{
-        img: <img src={FirefoxLogo.src} alt="" width={60} height={60} />,
+        img: <Image src={FirefoxLogo} alt="" width={60} height={60} />,
       }}
       cta={{
         size: "large",
@@ -297,8 +298,8 @@ const BundlePromoBanner = (props: BundleBannerProps) => {
       type="promo"
       illustration={{
         img: (
-          <img
-            src={BundleLogo.src}
+          <Image
+            src={BundleLogo}
             alt=""
             width={120}
             height={60}

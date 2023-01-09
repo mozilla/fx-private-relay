@@ -27,7 +27,11 @@ function getMockEntry(
     },
     content: `New feature ${id} content`,
     snippet: `New feature ${id} con...`,
-    icon: "https://example.com/new-feature-icon.svg",
+    icon: {
+      src: "https://example.com/new-feature-icon.svg",
+      width: 42,
+      height: 42,
+    },
     dismissal: {
       dismiss: jest.fn(),
       isDismissed: options.dismissed ?? false,

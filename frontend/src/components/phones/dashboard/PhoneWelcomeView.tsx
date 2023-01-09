@@ -1,3 +1,4 @@
+import Image from "next/image";
 import styles from "./PhoneWelcomeView.module.scss";
 import SavingRelayContactImg from "./images/save-relay-as-a-contact.svg";
 import SavingRelayContactDemoImg from "./images/save-relay-contact-demo.svg";
@@ -107,7 +108,7 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
       <div className={styles["phone-instructions-wrapper"]}>
         <PhoneInstruction
           alt=""
-          image={<img src={SavingRelayContactImg.src} alt="" />}
+          image={<Image src={SavingRelayContactImg} alt="" />}
           heading={l10n.getString("phone-masking-splash-save-contact-title")}
           body={
             <>
@@ -145,14 +146,14 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
           }
           demoImage={
             <div className={styles["demo-img"]}>
-              <img src={SavingRelayContactDemoImg.src} alt="" />
+              <Image src={SavingRelayContactDemoImg} alt="" />
             </div>
           }
         />
 
         <PhoneInstruction
           alt=""
-          image={<img src={ReplyingMessagesImg.src} alt="" />}
+          image={<Image src={ReplyingMessagesImg} alt="" />}
           heading={l10n.getString("phone-masking-splash-replies-title")}
           body={l10n.getString("phone-masking-splash-replies-body")}
           demoHeading={l10n.getString("phone-masking-splash-replies-example")}
@@ -161,14 +162,14 @@ export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
           )}
           demoImage={
             <div className={styles["demo-img"]}>
-              <img src={ReplyingMessagesDemoImg.src} alt="" />
+              <Image src={ReplyingMessagesDemoImg} alt="" />
             </div>
           }
         />
 
         <PhoneInstruction
           alt=""
-          image={<img src={BlockingMessagesImg.src} alt="" />}
+          image={<Image src={BlockingMessagesImg} alt="" />}
           heading={l10n.getString("phone-masking-splash-blocking-title")}
           body={
             <Localized
