@@ -39,7 +39,7 @@ export const GenericTip = (props: GenericTipProps) => {
           {sources}
           {/* Fall back to the image if the video formats are not supported: */}
           {typeof props.image === "string" ? (
-            <img src={props.image} alt={props.alt ?? ""} />
+            <Image src={props.image} alt={props.alt ?? ""} />
           ) : null}
         </video>
         {/* This image will only be shown if the user has prefers-reduced-motion on */}
