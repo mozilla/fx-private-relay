@@ -15,6 +15,8 @@ import {
   mockedInboundContacts,
   mockedMessages,
 } from "./mockData";
+import { E164Number } from "../functions/e164number";
+import { OutboundMessage } from "../hooks/api/messages";
 
 export function getHandlers(
   defaultMockId: null | typeof mockIds[number] = null
@@ -542,6 +544,27 @@ export function getHandlers(
     }
 
     return res(ctx.status(200), ctx.json(mockedMessages[mockId]));
+  });
+
+  addPostHandler("/api/v1/message/", async (req, res, ctx) => {
+    const mockId = getMockId(req);
+    if (mockId === null) {
+      return res(ctx.status(400));
+    }
+
+    const body = (await req.json()) as {
+      body: string;
+      destination: E164Number;
+    };
+
+    const newMessage: OutboundMessage = {
+      body: body.body,
+      from: mockedRelaynumbers[mockId][0].number,
+      to: body.destination,
+      date_sent: new Date(Date.now()).toISOString(),
+    };
+    mockedMessages[mockId].outbound_messages.push(newMessage);
+    return res(ctx.status(201));
   });
 
   handlers.push(

@@ -6,6 +6,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  gap: $spacing-sm;
 }
 
 .header {
@@ -33,32 +34,57 @@
   font-weight: 400;
 }
 
-.messages {
+.messages-wrapper {
+  flex: 1 0 auto;
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: $spacing-md;
-  padding: $spacing-md;
+  // I'm not exactly sure what's going on here, but having `.messages-wrapper`
+  // flex-grow, it needs to be given an explicit height to have `.messages`
+  // actually scroll when there's no more room for it to grow (i.e. when
+  // `.messages-wrapper` extends until the `.compose` area). See
+  // https://stackoverflow.com/a/65742620
+  height: 0;
 
-  .message {
-    border-radius: $border-radius-lg;
-    padding: $spacing-sm $spacing-md;
-    width: 80%;
+  .messages {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: $spacing-md;
+    padding: $spacing-md;
+    overflow-y: auto;
 
-    &.inbound {
-      background-color: $color-green-70;
-      color: $color-white;
+    .message {
+      border-radius: $border-radius-lg;
+      padding: $spacing-sm $spacing-md;
+      width: 80%;
+
+      &.inbound {
+        background-color: $color-violet-70;
+        color: $color-white;
+      }
+
+      &.outbound {
+        background-color: $color-blue-50;
+        color: $color-white;
+        align-self: flex-end;
+      }
+
+      time {
+        @include text-body-xs;
+        display: block;
+      }
     }
+  }
+}
 
-    &.outbound {
-      background-color: $color-blue-50;
-      color: $color-white;
-      align-self: flex-end;
-    }
+.compose {
+  display: flex;
+  gap: $spacing-sm;
+  padding-inline: $spacing-sm;
 
-    time {
-      @include text-body-xs;
-      display: block;
-    }
+  input[type="text"] {
+    flex: 1 0 auto;
+    border-radius: $border-radius-sm;
+    border: 1px solid $color-light-gray-50;
   }
 }

@@ -17,6 +17,15 @@
   padding: $spacing-md $spacing-lg;
   cursor: pointer;
 
+  &:hover {
+    background-color: $color-blue-50;
+    color: $color-white;
+
+    .datetime {
+      color: $color-white;
+    }
+  }
+
   dt {
     display: none;
   }

@@ -1,6 +1,7 @@
 import { SWRResponse } from "swr";
+import useSWRMutation, { SWRMutationHook } from "swr/mutation";
 import { E164Number } from "../../functions/e164number";
-import { useApiV1 } from "./api";
+import { apiFetch, useApiV1 } from "./api";
 import { DateString } from "../../functions/parseDate";
 
 export type InboundMessage = {
@@ -28,7 +29,9 @@ export type Options = Partial<{
   };
 }>;
 
-export function useMessages(options: Options = {}): SWRResponse<MessagesData> {
+export function useMessages(
+  options: Options = {}
+): SWRResponse<MessagesData> & { sendMessage: SendMessage } {
   const queryParamers = new URLSearchParams();
   if (typeof options.filter?.direction === "string") {
     queryParamers.set("direction", options.filter.direction);
@@ -41,5 +44,26 @@ export function useMessages(options: Options = {}): SWRResponse<MessagesData> {
     "/messages/" + (searchParams.length > 1 ? searchParams : "")
   );
 
-  return messages;
+  const sendMessage = async (message: string, receiver: E164Number) => {
+    const body = {
+      body: message,
+      destination: receiver,
+    };
+    const response = await apiFetch("/message/", {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+    messages.mutate();
+    return response;
+  };
+
+  return {
+    ...messages,
+    sendMessage: sendMessage,
+  };
 }
+
+export type SendMessage = (
+  message: string,
+  receiver: E164Number
+) => Promise<Response>;

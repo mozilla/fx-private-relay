@@ -116,3 +116,4 @@ messages-list-heading = Conversations
 messages-list-conversation-partner-label = With
 messages-list-conversation-date-label = Last message on
 messages-conversation-back = Back
+messages-conversation-message-send = Send
