@@ -71,34 +71,41 @@ if (process.env.NODE_ENV === "development") {
   applicableConfig = "development";
 }
 
-/** @type {import('next').NextConfig} */
-module.exports = withBundleAnalyzer({
-  // react-aria doesn't support React 18's stricter StrictMode yet. Hopefully
-  // we can re-enable this when it does. See
-  // https://github.com/adobe/react-spectrum/issues/779 and
-  // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-strict-mode
-  reactStrictMode: false,
-  // This custom value for `pageExtensions` ensures that
-  // test files are not picked up as pages to render by Next.js.
-  // See https://nextjs.org/docs/api-reference/next.config.js/custom-page-extensions
-  pageExtensions: ["page.ts", "page.tsx", "page.js", "page.jsx"],
-  trailingSlash: true,
-  productionBrowserSourceMaps: true,
-  // Unfortunately we cannot use Next.js's built-in dev server,
-  // as the front-end needs to be served from the same origin as the back-end
-  // in order to use authenticated sessions.
-  // Thus, we use `npm run watch` to create a build every time a file in `src/`
-  // changes — but builds are production builds in Next.js by default.
-  // Thus, we cannot use different .env files for different environments
-  // (https://nextjs.org/docs/basic-features/environment-variables),
-  // and use this mechanism instead:
-  publicRuntimeConfig: runtimeConfigs[applicableConfig],
-  webpack: (config, options) => {
-    config.module.rules.push({
-      test: /\.ftl/,
-      type: "asset/source",
-    });
+// This file is only loaded at build time, so we don't care about tree shaking
+// being made impossible by a `require` call:
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const withPwa = require("next-pwa")({ dest: "public", scope: "/webapp" });
 
-    return config;
-  },
-});
+/** @type {import('next').NextConfig} */
+module.exports = withBundleAnalyzer(
+  withPwa({
+    // react-aria doesn't support React 18's stricter StrictMode yet. Hopefully
+    // we can re-enable this when it does. See
+    // https://github.com/adobe/react-spectrum/issues/779 and
+    // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html#updates-to-strict-mode
+    reactStrictMode: false,
+    // This custom value for `pageExtensions` ensures that
+    // test files are not picked up as pages to render by Next.js.
+    // See https://nextjs.org/docs/api-reference/next.config.js/custom-page-extensions
+    pageExtensions: ["page.ts", "page.tsx", "page.js", "page.jsx"],
+    trailingSlash: true,
+    productionBrowserSourceMaps: true,
+    // Unfortunately we cannot use Next.js's built-in dev server,
+    // as the front-end needs to be served from the same origin as the back-end
+    // in order to use authenticated sessions.
+    // Thus, we use `npm run watch` to create a build every time a file in `src/`
+    // changes — but builds are production builds in Next.js by default.
+    // Thus, we cannot use different .env files for different environments
+    // (https://nextjs.org/docs/basic-features/environment-variables),
+    // and use this mechanism instead:
+    publicRuntimeConfig: runtimeConfigs[applicableConfig],
+    webpack: (config, options) => {
+      config.module.rules.push({
+        test: /\.ftl/,
+        type: "asset/source",
+      });
+
+      return config;
+    },
+  })
+);
