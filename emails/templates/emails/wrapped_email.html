@@ -56,6 +56,33 @@
       a:active {
           transition: all 0.2s ease;
       }
+      @media screen and (max-width: 768px) {
+        .header-block {
+          display: block;
+          width: 100%;
+          text-align: left;
+        }
+
+        .header-block:nth-child(2) {
+          margin-left: 40px; 
+        }
+
+        .header-block:nth-child(2) > p {
+          width: 100%;
+          display: block;
+        }
+
+        .footer-block {
+          display: block;
+          width: 100%;
+          text-align: center;
+        }
+
+        .footer-block .container-link img {
+          height: 45px;
+          width: auto;
+        }
+      }
   </style>
   </head>
   <body style="padding: 0; margin: 0;">
@@ -64,22 +91,25 @@
       <tr>
           <td align="center" valign="top" width="100%" style="padding-top: 0px; padding-bottom: 0px;">
           <table width="100%" style="max-width:1200px; text-align: center; border-collapse: collapse;">
-              <tr>
-                <td width="45px" align="left"> 
-                  <img width="30" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-icon.png" style="margin: 0;" alt="relay icon"/>   
-                </td>
-                <td align="left"> 
-                  {% with display_email|urlencode as mask_url %}
-                  <p style="margin-top: 0; margin-bottom: 5px;"> 
-                    {% ftlmsg 'relay-email-forwarded-from' %}
+              <tr> 
+                <td class="header-block" width="50%" align="left"> 
+                  <img width="30" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-icon.png" style="margin-right: 5px; display: inline-block; vertical-align: top;" alt="relay icon"/>   
+                   
+                  <p style="margin-top: 0; margin-bottom: 5px; display: inline-block;"> 
+                    {% with display_email|urlencode as mask_url %}
+                    <span style="display: block;"> 
+                    {% ftlmsg 'relay-email-forwarded-from' %} 
                     <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile/#{{ mask_url }}" style="margin-right: 30px;"> {{ display_email }} </a>
-                  {% endwith %}
-                  </p> 
-                  
-                  <p style="margin-top: 0; margin-bottom: 5px;">{% ftlmsg 'relay-email-premium-by-line' %} <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile" style="margin-right: 30px;">{% ftlmsg 'relay-email-premium-by-line-link' %}</a>
-                  </p> 
+                    {% endwith %}
+                    </span>
+                
+
+                  <span style="margin-top: 0; margin-bottom: 5px; display: block;">{% ftlmsg 'relay-email-premium-by-line' %} <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile" style="margin-right: 30px;">{% ftlmsg 'relay-email-premium-by-line-link' %}</a>
+                  </span>
+                  </p>  
+                    
                 </td> 
-                <td width="50%" style="line-height: 150%;" align="right"> 
+                <td class="header-block" width="50%" align="right"> 
                   <p style="margin: 0 30px 0 0; display: inline-block;">
                     <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/email-trackers-removed-icon.png" style="margin-right: 5px; position: relative; top: 5px;" alt="warning icon"/>   
 
@@ -118,12 +148,12 @@
         <td align="center" valign="top" width="100%" style=" padding-top: 0px; padding-bottom: 0px;">
           <table width="100%" style="max-width:1200px; text-align: center; border-collapse: collapse;">
               <tr>
-                <td width="50%" style="line-height: 150%;" align="left">  
+                <td class="footer-block" width="50%" align="left">  
                   <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile"> 
                     <img width="110" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0;" alt="relay logo"/>   
                   </a>
                 </td>
-                <td width="50%" style="line-height: 150%;" align="right">  
+                <td class="footer-block" width="50%" align="right">  
                   <a class="container-link" href="{{ SITE_ORIGIN }}/accounts/profile">{% ftlmsg 'relay-email-relay-dashboard' %}</a>  
                 </td> 
               </tr>
