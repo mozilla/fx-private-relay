@@ -5,6 +5,7 @@ import { getRuntimeConfig } from "../config";
 import { useRelayNumber } from "../hooks/api/relayNumber";
 import { Console } from "../components/webapp/Console";
 import { useMessages } from "../hooks/api/messages";
+import Head from "next/head";
 
 const WebApp: NextPage = () => {
   const relayNumberApi = useRelayNumber();
@@ -12,9 +13,12 @@ const WebApp: NextPage = () => {
 
   if (relayNumberApi.isLoading || messagesApi.isLoading) {
     return (
-      <div className={styles["loading-screen"]}>
-        <img src={Logo.src} alt="" />
-      </div>
+      <>
+        <ManifestLink />
+        <div className={styles["loading-screen"]}>
+          <img src={Logo.src} alt="" />
+        </div>
+      </>
     );
   }
 
@@ -28,8 +32,22 @@ const WebApp: NextPage = () => {
   }
 
   return (
-    <Console relayNumber={relayNumberApi.data[0]} messages={messagesApi.data} />
+    <>
+      <ManifestLink />
+      <Console
+        relayNumber={relayNumberApi.data[0]}
+        messages={messagesApi.data}
+      />
+    </>
   );
 };
+
+const ManifestLink = () => (
+  <>
+    <Head>
+      <link rel="manifest" href="/pwa.webmanifest"></link>
+    </Head>
+  </>
+);
 
 export default WebApp;
