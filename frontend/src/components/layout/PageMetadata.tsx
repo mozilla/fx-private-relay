@@ -13,6 +13,7 @@ export const PageMetadata = () => {
     <Head>
       <link rel="icon" type="image/svg+xml" href={favicon.src}></link>
       <title>{l10n.getString("meta-title")}</title>
+      <link rel="manifest" href="pwa.webmanifest"></link>
       <meta name="description" content={l10n.getString("meta-description-2")} />
       <meta
         property="og:url"

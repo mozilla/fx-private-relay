@@ -1,0 +1,19 @@
+{
+  "name": "Firefox Relay",
+  "short_name": "Relay",
+  "background_color": "#FFFFFF",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192",
+      "type": "image/svg"
+    }
+  ],
+  "start_url": "/webapp/",
+  "display": "standalone"
+}
