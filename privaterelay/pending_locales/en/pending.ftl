@@ -20,6 +20,7 @@ relay-email-premium-by-line-link = { -brand-name-firefox-relay-premium }
 relay-email-forwarded-from = Forwarded from
 # $number - the number of email trackers removed
 relay-email-trackers-removed = { $number } email trackers removed
+
 ## Relay SMS reply errors
 
 relay-sms-error-no-previous-sender = Message failed to send. Could not find a previous text sender.
