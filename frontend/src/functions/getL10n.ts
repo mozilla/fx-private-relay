@@ -3,10 +3,11 @@ import { negotiateLanguages } from "@fluent/langneg";
 import { MarkupParser, ReactLocalization } from "@fluent/react";
 
 /**
+ * @param options Set `deterministicLocales` to `true` to ensure the `en` bundle is loaded.
  * @returns Initialise `@fluent/react`.
  * @todo Get the relevant .ftl injected by the server.
  */
-export function getL10n() {
+export function getL10n(options: { deterministicLocales: boolean }) {
   // Store all translations as a simple object which is available
   // synchronously and bundled with the rest of the code.
   // Also, `require` isn't usually valid JS, so skip type checking for that:
@@ -35,7 +36,11 @@ export function getL10n() {
   function* generateBundles(userLocales: typeof navigator.languages) {
     // Choose locales that are best for the user.
     const currentLocales = negotiateLanguages(
-      userLocales as string[],
+      // During pre-render, no locales are available yet. To avoid a mismatch
+      // between pre-rendered HTML and the DOM generated in the first render,
+      // we don't load locales dependent on the user's preferences on first
+      // render either:
+      options.deterministicLocales ? [] : (userLocales as string[]),
       Object.keys(RESOURCES),
       { defaultLocale: "en" }
     );

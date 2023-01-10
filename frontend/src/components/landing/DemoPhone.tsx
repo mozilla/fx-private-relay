@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import styles from "./DemoPhone.module.scss";
 import BgImage from "./images/hero-image-bg.svg";
 import PremiumScreenshot from "./images/hero-image-premium.png";
@@ -9,6 +8,7 @@ import FgImage from "./images/hero-image-fg.svg";
 import FgImageDe from "./images/hero-image-fg-de.svg";
 import FgImageFr from "./images/hero-image-fg-fr.svg";
 import { getLocale } from "../../functions/getLocale";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   premium?: boolean;
@@ -18,7 +18,7 @@ export type Props = {
  * Image of a phone showing the Relay interface, either the Premium or regular UI as desired.
  */
 export const DemoPhone = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const lang = getLocale(l10n).split("-")[0] ?? "en";
 
   return (

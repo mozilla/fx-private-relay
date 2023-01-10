@@ -1,12 +1,12 @@
 import Head from "next/head";
-import { useLocalization } from "@fluent/react";
 import { useRouter } from "next/router";
 import favicon from "../../../public/favicon.svg";
 import socialMediaImage from "./images/share-relay.jpg";
 import { getRuntimeConfig } from "../../config";
+import { useL10n } from "../../hooks/l10n";
 
 export const PageMetadata = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const router = useRouter();
 
   return (

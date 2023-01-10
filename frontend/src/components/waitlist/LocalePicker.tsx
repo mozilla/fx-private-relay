@@ -1,6 +1,6 @@
-import { useLocalization } from "@fluent/react";
 import { SelectHTMLAttributes, useEffect, useState } from "react";
 import { getLocale } from "../../functions/getLocale";
+import { useL10n } from "../../hooks/l10n";
 
 type LocaleDisplayNames = Record<string, string>;
 type Languages = {
@@ -17,7 +17,7 @@ export type Props = SelectHTMLAttributes<HTMLSelectElement> & {
   supportedLocales: string[];
 };
 export const LocalePicker = ({ supportedLocales, ...selectProps }: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const currentLocale = getLocale(l10n);
   const [localeDisplayNames, setLocaleDisplayNames] =
     useState<LocaleDisplayNames>();

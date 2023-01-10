@@ -1,7 +1,6 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
-import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./index.module.scss";
 import Testimonials from "../../public/images/hero-brands.svg";
@@ -37,14 +36,14 @@ import { FaqAccordion } from "../components/landing/FaqAccordion";
 import { getRuntimeConfig } from "../config";
 import { setCookie } from "../functions/cookies";
 import { Reviews } from "../components/landing/Reviews";
-import { isFlagActive } from "../functions/waffle";
 import { PlanMatrix } from "../components/landing/PlanMatrix";
 import { BundleBanner } from "../components/landing/BundleBanner";
 import { PhoneBanner } from "../components/landing/PhoneBanner";
 import { useFlaggedAnchorLinks } from "../hooks/flaggedAnchorLinks";
+import { useL10n } from "../hooks/l10n";
 
 const Home: NextPage = () => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const router = useRouter();
   const runtimeData = useRuntimeData();
   const userData = useUsers();
@@ -115,22 +114,17 @@ const Home: NextPage = () => {
           </div>
         </section>
 
-        {isFlagActive(runtimeData.data, "bundle") &&
-          isBundleAvailableInCountry(runtimeData.data) && (
-            <section id="vpn_promo" className={styles["bundle-banner-section"]}>
-              <BundleBanner runtimeData={runtimeData.data} />
-            </section>
-          )}
+        {isBundleAvailableInCountry(runtimeData.data) && (
+          <section id="vpn_promo" className={styles["bundle-banner-section"]}>
+            <BundleBanner runtimeData={runtimeData.data} />
+          </section>
+        )}
 
-        {isFlagActive(runtimeData.data, "phones") &&
-          isPhonesAvailableInCountry(runtimeData.data) && (
-            <section
-              id="phone_promo"
-              className={styles["phone-banner-section"]}
-            >
-              <PhoneBanner cta={phoneBannerCta} />
-            </section>
-          )}
+        {isPhonesAvailableInCountry(runtimeData.data) && (
+          <section id="phone_promo" className={styles["phone-banner-section"]}>
+            <PhoneBanner cta={phoneBannerCta} />
+          </section>
+        )}
 
         <section id="how_it_works" className={styles["how-it-works-wrapper"]}>
           <div className={styles["how-it-works"]}>
@@ -317,10 +311,8 @@ const Home: NextPage = () => {
                 {l10n.getString("landing-faq-headline")}
               </h2>
               <p>
-                <Link href="/faq">
-                  <a className={styles["read-more"]}>
-                    {l10n.getString("landing-faq-cta")}
-                  </a>
+                <Link href="/faq" className={styles["read-more"]}>
+                  {l10n.getString("landing-faq-cta")}
                 </Link>
               </p>
             </div>

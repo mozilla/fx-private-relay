@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
-import { ReactLocalization, useLocalization } from "@fluent/react";
+import { ReactLocalization } from "@fluent/react";
 import {
   OverlayContainer,
   FocusScope,
@@ -24,6 +24,7 @@ import { InfoIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { Button } from "../../Button";
 import { InfoTooltip } from "../../InfoTooltip";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   isOpen: boolean;
@@ -37,7 +38,7 @@ export type Props = {
  * while also being educated on why they don't need to do that.
  */
 export const AddressPickerModal = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [address, setAddress] = useState("");
   const [promotionalsBlocking, setPromotionalsBlocking] = useState(false);
   const cancelButtonRef = useRef<HTMLButtonElement>(null);
@@ -153,11 +154,7 @@ export const AddressPickerModal = (props: Props) => {
                     "popover-custom-alias-explainer-promotional-block-tooltip-2"
                   )}
                   <Link href="/faq#faq-promotional-email-blocking">
-                    <a>
-                      {l10n.getString(
-                        "banner-label-data-notification-body-cta"
-                      )}
-                    </a>
+                    {l10n.getString("banner-label-data-notification-body-cta")}
                   </Link>
                 </p>
               </InfoTooltip>

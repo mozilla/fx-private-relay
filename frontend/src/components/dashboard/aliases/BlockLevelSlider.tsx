@@ -1,4 +1,4 @@
-import { ReactLocalization, useLocalization } from "@fluent/react";
+import { ReactLocalization } from "@fluent/react";
 import { HTMLAttributes, ReactNode, useRef } from "react";
 import {
   FocusScope,
@@ -31,6 +31,7 @@ import UmbrellaOpen from "./images/umbrella-open.svg";
 import UmbrellaOpenMobile from "./images/umbrella-open-mobile.svg";
 import { AliasData } from "../../../hooks/api/aliases";
 import { CloseIcon, LockIcon } from "../../Icons";
+import { useL10n } from "../../../hooks/l10n";
 
 export type BlockLevel = "none" | "promotional" | "all";
 export type Props = {
@@ -46,7 +47,7 @@ export type Props = {
 const onlyThumbIndex = 0;
 
 export const BlockLevelSlider = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const trackRef = useRef<HTMLDivElement>(null);
   const numberFormatter = new SliderValueFormatter(l10n);
   const sliderSettings: Parameters<typeof useSliderState>[0] = {
@@ -246,7 +247,7 @@ const Thumb = (props: ThumbProps) => {
 };
 
 const BlockLevelDescription = (props: { level: BlockLevel }) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   if (props.level === "none") {
     return (
@@ -263,7 +264,7 @@ const BlockLevelDescription = (props: { level: BlockLevel }) => {
           "profile-promo-email-blocking-description-promotionals"
         )}
         <Link href="/faq#faq-promotional-email-blocking">
-          <a>{l10n.getString("banner-label-data-notification-body-cta")}</a>
+          {l10n.getString("banner-label-data-notification-body-cta")}
         </Link>
       </span>
     );
@@ -350,7 +351,7 @@ type PromotionalTooltipProps = {
   premiumAvailableInCountry: boolean;
 };
 const PromotionalTooltip = (props: PromotionalTooltipProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const overlayRef = useRef<HTMLDivElement>(null);
   const { overlayProps, underlayProps } = useOverlay(
     { isOpen: true, onClose: props.onClose, isDismissable: true },
@@ -378,19 +379,15 @@ const PromotionalTooltip = (props: PromotionalTooltipProps) => {
 
   const link = props.premiumAvailableInCountry ? (
     <Link href="/premium/">
-      <a>
-        {l10n.getString(
-          "profile-promo-email-blocking-description-promotionals-locked-cta"
-        )}
-      </a>
+      {l10n.getString(
+        "profile-promo-email-blocking-description-promotionals-locked-cta"
+      )}
     </Link>
   ) : (
     <Link href="/premium/waitlist">
-      <a>
-        {l10n.getString(
-          "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta"
-        )}
-      </a>
+      {l10n.getString(
+        "profile-promo-email-blocking-description-promotionals-locked-waitlist-cta"
+      )}
     </Link>
   );
 

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useLocalization } from "@fluent/react";
 import styles from "./MobileNavigation.module.scss";
 import { SignUpButton } from "./SignUpButton";
 import {
@@ -16,6 +15,7 @@ import {
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
+import { useL10n } from "../../../hooks/l10n";
 
 export type MenuItem = {
   url: string;
@@ -42,7 +42,7 @@ export const MobileNavigation = (props: Props) => {
     userEmail,
     userAvatar,
   } = props;
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const runtimeData = useRuntimeData();
   const { supportUrl } = getRuntimeConfig();
 
@@ -51,11 +51,9 @@ export const MobileNavigation = (props: Props) => {
 
     return isVisible ? (
       <li className={`${styles["menu-item"]}`}>
-        <Link href={item.url}>
-          <a className={`${styles.link}`}>
-            {item.icon}
-            {l10n.getString(item.l10n)}
-          </a>
+        <Link href={item.url} className={`${styles.link}`}>
+          {item.icon}
+          {l10n.getString(item.l10n)}
         </Link>
       </li>
     ) : null;

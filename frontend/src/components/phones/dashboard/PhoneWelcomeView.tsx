@@ -1,5 +1,4 @@
 import styles from "./PhoneWelcomeView.module.scss";
-import { Localized, useLocalization } from "@fluent/react";
 import SavingRelayContactImg from "./images/save-relay-as-a-contact.svg";
 import SavingRelayContactDemoImg from "./images/save-relay-contact-demo.svg";
 import ReplyingMessagesImg from "./images/reply-to-messages.svg";
@@ -10,6 +9,8 @@ import { Button } from "../../Button";
 import { DismissalData } from "../../../hooks/localDismissal";
 import { toast } from "react-toastify";
 import { ProfileData } from "../../../hooks/api/profile";
+import { useL10n } from "../../../hooks/l10n";
+import { Localized } from "../../Localized";
 
 type PhoneInstructionProps = {
   image: ReactNode;
@@ -54,7 +55,7 @@ type PhoneWelcomePageProps = {
 };
 
 export const PhoneWelcomeView = (props: PhoneWelcomePageProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   // The unlocalized strings here are demo data
   const BlockSenderDemo = (

@@ -1,4 +1,4 @@
-import { act, renderHook } from "@testing-library/react-hooks";
+import { act, renderHook } from "@testing-library/react";
 import { setMockAddonDataOnce } from "../../__mocks__/hooks/addon";
 import { getMockRandomAlias } from "../../__mocks__/hooks/api/aliases";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";

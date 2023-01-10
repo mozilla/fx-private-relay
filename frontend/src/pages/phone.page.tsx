@@ -52,11 +52,11 @@ const Phone: NextPage = () => {
       return;
     }
     if (
-      // Send the user to /premium if the phones flag is disabled...
-      !isFlagActive(runtimeData.data, "phones") ||
-      // ...or if a phone subscription is not available in the current country,
-      // and the user has not set it up before (possibly in another country):
-      (!isPhonesAvailableInCountry(runtimeData.data) && isNotSetup)
+      // Send the user to /premium if a phone subscription is not available in
+      // the current country, and the user has not set it up before (possibly in
+      // another country):
+      !isPhonesAvailableInCountry(runtimeData.data) &&
+      isNotSetup
     ) {
       router.push("/premium");
     }

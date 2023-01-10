@@ -85,3 +85,23 @@ tips-multi-replies-content = Just start your message with the last 4 digits of t
 
 phone-masking-splash-save-contact-example = Saving your { -brand-name-relay } Contact
 phone-masking-splash-save-contact-example-text = { -brand-name-firefox-relay }
+
+settings-warning-collection-off-heading-3 = Your email mask account names are turned off
+setting-label-collection-description-3 = Enable account names for email masks
+setting-label-collection-off-warning-3 = { -brand-name-firefox-relay } will store the websites where you’ve used your email masks, and label your masks with those websites so you can easily identify them. Turning this off means you won’t be able to see where you’ve used each mask, and your account names will no longer sync between devices.
+settings-warning-collection-off-description-3 = { -brand-name-relay } is not currently allowed to label your email masks with the websites where you’ve used them. To change this, enable account names for email maks under “Privacy.”
+
+faq-question-8-answer-3-html = { -brand-name-firefox-relay } collects the websites where you’ve used your email masks, and labels your masks with those websites so you can easily identify them. You can opt out of this on your Settings page, under Privacy. But please note, turning that setting off means you won’t be able to see where you’ve used each mask, and your account names will no longer sync between devices. You can learn more about the data { -brand-name-firefox-relay } collects in our <a href="{ $url }" { $attrs }>Privacy Notice</a>.
+
+phone-onboarding-step2-sub-body = This phone number will be connected to your { -brand-name-relay } account and cannot be changed.
+
+waitlist-heading-2 = Join the { -brand-name-relay-premium } waitlist
+waitlist-submit-label-2 = Join the waitlist
+waitlist-privacy-policy-agree-2 = By clicking “{ waitlist-submit-label-2 }”, you agree to our <a>Privacy Policy</a>.
+waitlist-heading-phone = Join the { -brand-name-relay } phone masking waitlist 
+waitlist-heading-bundle = Join the waitlist for the { -brand-name-relay } + { -brand-name-vpn } bundle
+waitlist-lead-2 = We’ll let you know when { -brand-name-relay-premium } is available in your area.
+waitlist-lead-phone = We’ll let you know when phone masking is available in your area.
+waitlist-lead-bundle = We’ll let you know when you can get { -brand-name-relay-premium } and { -brand-name-mozilla-vpn } at a discount in your area.
+waitlist-privacy-policy-use-phone = Your information will only be used to notify you when phone masking is available in your area.
+waitlist-privacy-policy-use-bundle = Your information will only be used to notify you about { -brand-name-relay } + { -brand-name-vpn } bundle availability.

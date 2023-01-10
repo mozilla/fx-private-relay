@@ -1,4 +1,3 @@
-import { useLocalization } from "@fluent/react";
 import {
   useButton,
   useOverlay,
@@ -23,6 +22,7 @@ import { CloseIcon } from "../../Icons";
 import { getRuntimeConfig } from "../../../config";
 import { AddressPickerModal } from "../aliases/AddressPickerModal";
 import { useMinViewportWidth } from "../../../hooks/mediaQuery";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   subdomain: string | null;
@@ -56,7 +56,7 @@ type ExplainerTriggerProps = {
   ) => void;
 };
 const ExplainerTrigger = (props: ExplainerTriggerProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const explainerState = useOverlayTriggerState({});
   const addressPickerState = useOverlayTriggerState({});
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -165,7 +165,7 @@ type ExplainerProps = AriaOverlayProps & {
 };
 const Explainer = forwardRef<HTMLDivElement, ExplainerProps>(
   function ExplainerWithForwardedRef(props, overlayRef) {
-    const { l10n } = useLocalization();
+    const l10n = useL10n();
     const isWideScreen = useMinViewportWidth("md");
 
     const { overlayProps } = useOverlay(

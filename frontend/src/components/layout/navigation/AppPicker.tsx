@@ -28,7 +28,6 @@ import {
   RefObject,
 } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
-import { useLocalization } from "@fluent/react";
 import { event as gaEvent } from "react-ga";
 import styles from "./AppPicker.module.scss";
 import FirefoxLogo from "../images/fx.png";
@@ -40,6 +39,7 @@ import FxMobileLogo from "../images/fx-mobile.png";
 import { Props as LayoutProps } from "../Layout";
 import { getRuntimeConfig } from "../../../config";
 import { BentoIcon } from "../../Icons";
+import { useL10n } from "../../../hooks/l10n";
 
 const getProducts = (referringSiteUrl: string) => ({
   monitor: {
@@ -86,7 +86,7 @@ export type Props = {
  * Menu that can be opened to see other relevant products Mozilla has available for people.
  */
 export const AppPicker = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const products = getProducts(
     typeof document !== "undefined"
@@ -230,7 +230,7 @@ const AppPickerTrigger = ({
   style,
   ...otherProps
 }: AppPickerTriggerProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const appPickerTriggerState = useMenuTriggerState(otherProps);
   const isFirstRenderDone = useRef(false);
 
@@ -293,7 +293,7 @@ type AppPickerPopupProps = TreeProps<Record<string, never>> & {
   autoFocus?: MenuTriggerState["focusStrategy"];
 };
 const AppPickerPopup = (props: AppPickerPopupProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const popupState = useTreeState({ ...props, selectionMode: "none" });
 
   const popupRef = useRef<HTMLDivElement>(null);

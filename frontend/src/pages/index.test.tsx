@@ -1,26 +1,29 @@
 import { act, render, screen } from "@testing-library/react";
 import { axe } from "jest-axe";
+import { mockLocalizedModule } from "../../__mocks__/components/Localized";
 import { mockConfigModule } from "../../__mocks__/configMock";
 import { setMockProfileData } from "../../__mocks__/hooks/api/profile";
 import {
   getMockRuntimeDataWithBundle,
+  getMockRuntimeDataWithoutPremium,
   getMockRuntimeDataWithPhones,
   setMockRuntimeData,
   setMockRuntimeDataOnce,
 } from "../../__mocks__/hooks/api/runtimeData";
 import { mockUseFxaFlowTrackerModule } from "../../__mocks__/hooks/fxaFlowTracker";
-import { mockFluentReact } from "../../__mocks__/modules/fluent__react";
+import { mockUseL10nModule } from "../../__mocks__/hooks/l10n";
 import { mockNextRouter } from "../../__mocks__/modules/next__router";
 import { mockReactGa } from "../../__mocks__/modules/react-ga";
 
 import Home from "./index.page";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("next/router", () => mockNextRouter);
 jest.mock("react-ga", () => mockReactGa);
 jest.mock("../config.ts", () => mockConfigModule);
 jest.mock("../hooks/gaViewPing.ts");
 jest.mock("../hooks/fxaFlowTracker.ts", () => mockUseFxaFlowTrackerModule);
+jest.mock("../hooks/l10n.ts", () => mockUseL10nModule);
+jest.mock("../components/Localized.tsx", () => mockLocalizedModule);
 
 setMockRuntimeData();
 setMockProfileData(null);
@@ -59,11 +62,8 @@ describe("The landing page", () => {
     expect(comparisonMatrix).toBeInTheDocument();
   });
 
-  it("shows the phone plan if the `phones` flag is enabled and phones is available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithPhones(),
-      WAFFLE_FLAGS: [["phones", true]],
-    });
+  it("shows the phone plan if phones is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
 
     render(<Home />);
 
@@ -74,11 +74,8 @@ describe("The landing page", () => {
     expect(phoneColumn).toBeInTheDocument();
   });
 
-  it("shows the phone feature if the `phones` flag is enabled and phones is available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithPhones(),
-      WAFFLE_FLAGS: [["phones", true]],
-    });
+  it("shows the phone feature if phones is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithPhones());
 
     render(<Home />);
 
@@ -89,54 +86,33 @@ describe("The landing page", () => {
     expect(phoneFeatureRow).toBeInTheDocument();
   });
 
-  it("does not show the phone plan if the `phones` flag is not enabled", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithPhones(),
-      WAFFLE_FLAGS: [["phones", false]],
-    });
+  it("links to the waitlist if phones is not available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
-    const phoneColumn = screen.queryByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-phones], with vars: {}",
+    const waitlistLinks = screen.getAllByRole("link", {
+      name: "l10n string: [plan-matrix-join-waitlist], with vars: {}",
     });
 
-    expect(phoneColumn).not.toBeInTheDocument();
+    const linkTargets = waitlistLinks.map((el) => el.getAttribute("href"));
+    expect(linkTargets).toContain("/phone/waitlist");
   });
 
-  it("does not show the phone plan if the `phones` flag is enabled but phones is not available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      WAFFLE_FLAGS: [["phones", true]],
-    });
+  it("shows the phone feature even if phones is not available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
-    const phoneColumn = screen.queryByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-phones], with vars: {}",
+    const phoneFeatureRow = screen.getByRole("rowheader", {
+      name: "[<Localized> with id [plan-matrix-heading-feature-phone-mask] and vars: {}]",
     });
 
-    expect(phoneColumn).not.toBeInTheDocument();
+    expect(phoneFeatureRow).toBeInTheDocument();
   });
 
-  it("does not show the phone feature if the `phones` flag is enabled but phones is not available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      WAFFLE_FLAGS: [["phones", true]],
-    });
-
-    render(<Home />);
-
-    const phoneFeatureRow = screen.queryByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-phone_mask] and vars: {}]",
-    });
-
-    expect(phoneFeatureRow).not.toBeInTheDocument();
-  });
-
-  it("shows the bundle plan if the `bundle` flag is enabled and bundle is available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithBundle(),
-      WAFFLE_FLAGS: [["bundle", true]],
-    });
+  it("shows the bundle plan if bundle is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithBundle());
 
     render(<Home />);
 
@@ -147,11 +123,21 @@ describe("The landing page", () => {
     expect(bundleColumn).toBeInTheDocument();
   });
 
-  it("shows the VPN feature if the `bundle` flag is enabled and bundle is available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithBundle(),
-      WAFFLE_FLAGS: [["bundle", true]],
+  it("links to the waitlist if bundle is not available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
+
+    render(<Home />);
+
+    const waitlistLinks = screen.getAllByRole("link", {
+      name: "l10n string: [plan-matrix-join-waitlist], with vars: {}",
     });
+
+    const linkTargets = waitlistLinks.map((el) => el.getAttribute("href"));
+    expect(linkTargets).toContain("/vpn-relay/waitlist");
+  });
+
+  it("shows the VPN feature if bundle is available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithBundle());
 
     render(<Home />);
 
@@ -162,46 +148,15 @@ describe("The landing page", () => {
     expect(vpnFeatureRow).toBeInTheDocument();
   });
 
-  it("does not show the phone bundle if the `bundle` flag is not enabled", () => {
-    setMockRuntimeDataOnce({
-      ...getMockRuntimeDataWithBundle(),
-      WAFFLE_FLAGS: [["bundle", false]],
-    });
+  it("shows the bundle plan even if phones and bundle are not available in the user's country", () => {
+    setMockRuntimeDataOnce(getMockRuntimeDataWithoutPremium());
 
     render(<Home />);
 
-    const bundleColumn = screen.queryByRole("columnheader", {
+    const vpnFeatureRow = screen.getByRole("columnheader", {
       name: "l10n string: [plan-matrix-heading-plan-bundle], with vars: {}",
     });
 
-    expect(bundleColumn).not.toBeInTheDocument();
-  });
-
-  it("does not show the bundle plan if the `bundle` flag is enabled but phones is not available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      WAFFLE_FLAGS: [["bundle", true]],
-    });
-
-    render(<Home />);
-
-    const vpnFeatureRow = screen.queryByRole("columnheader", {
-      name: "l10n string: [plan-matrix-heading-plan-vpn], with vars: {}",
-    });
-
-    expect(vpnFeatureRow).not.toBeInTheDocument();
-  });
-
-  it("does not show the VPN feature if the `bundle` flag is enabled but bundle is not available in the user's country", () => {
-    setMockRuntimeDataOnce({
-      WAFFLE_FLAGS: [["bundle", true]],
-    });
-
-    render(<Home />);
-
-    const vpnFeatureRow = screen.queryByRole("rowheader", {
-      name: "[<Localized> with id [plan-matrix-heading-feature-vpn] and vars: {}]",
-    });
-
-    expect(vpnFeatureRow).not.toBeInTheDocument();
+    expect(vpnFeatureRow).toBeInTheDocument();
   });
 });

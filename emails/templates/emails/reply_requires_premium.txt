@@ -1,0 +1,17 @@
+{% load ftl %}
+{% load email_extras %}
+{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
+{% ftlmsg 'upgrade-for-more-protection' %}
+{% if forwarded == True %}
+{% ftlmsg 'replies-not-included-in-free-account-header' %}
+{% else %}
+{% ftlmsg 'reply-not-sent-header' %}
+{% endif %}
+{% if forwarded == True %}
+{% ftlmsg 'first-reply-forwarded' sender=sender %}
+{% else %}
+{% ftlmsg 'other-reply-not-forwarded' sender=sender %}
+{% endif %}
+{% ftlmsg 'replies-only-available-with-premium' %}
+{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}
+{% endwithftl %}
