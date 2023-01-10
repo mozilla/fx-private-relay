@@ -1,3 +1,5 @@
+@import "../styles/tokens.scss";
+
 .loading-screen {
   height: 100%;
   display: flex;
@@ -23,5 +25,20 @@
     to {
       opacity: 1;
     }
+  }
+}
+
+.login-prompt {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: $spacing-md;
+  max-width: $content-sm;
+  margin-inline: auto;
+
+  p {
+    text-align: center;
   }
 }

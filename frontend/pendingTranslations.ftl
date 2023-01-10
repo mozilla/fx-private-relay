@@ -107,6 +107,8 @@ waitlist-privacy-policy-use-phone = Your information will only be used to notify
 waitlist-privacy-policy-use-bundle = Your information will only be used to notify you about { -brand-name-relay } + { -brand-name-vpn } bundle availability.
 
 # Web app prototype strings
+webapp-signin-lead = You are not signed in to a { -brand-name-firefox-relay } account that has a phone masking subscription.
+webapp-signin-button = Sign in
 webapp-tabs-label = Menu
 webapp-tab-stats-label = Stats
 webapp-tab-dialer-label = Dialer

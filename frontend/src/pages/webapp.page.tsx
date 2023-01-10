@@ -6,8 +6,11 @@ import { useRelayNumber } from "../hooks/api/relayNumber";
 import { Console } from "../components/webapp/Console";
 import { useMessages } from "../hooks/api/messages";
 import Head from "next/head";
+import { useL10n } from "../hooks/l10n";
+import { LinkButton } from "../components/Button";
 
 const WebApp: NextPage = () => {
+  const l10n = useL10n();
   const relayNumberApi = useRelayNumber();
   const messagesApi = useMessages();
 
@@ -27,8 +30,22 @@ const WebApp: NextPage = () => {
     !Array.isArray(relayNumberApi.data) ||
     !messagesApi.data
   ) {
-    document.location.assign(getRuntimeConfig().fxaLoginUrl);
-    return null;
+    return (
+      <>
+        <ManifestLink />
+        <div className={styles["login-prompt"]}>
+          <p>{l10n.getString("webapp-signin-lead")}</p>
+          <LinkButton
+            href={
+              getRuntimeConfig().fxaLoginUrl +
+              "&redirect_uri=http://127.0.0.1:8000/webapp/"
+            }
+          >
+            {l10n.getString("webapp-signin-button")}
+          </LinkButton>
+        </div>
+      </>
+    );
   }
 
   return (
