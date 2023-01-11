@@ -23,7 +23,6 @@ a {
   margin: 0;
 }
 
-html,
 body,
 #__next,
 #overlayProvider {
@@ -35,12 +34,23 @@ body,
   // empty space at the bottom of the page, below the footer.
   // Since the user can scroll in `.non-header-wrapper`, everything outside that
   // that still overflows these elements can safely be hidden:
-  overflow: hidden;
+  // overflow: hidden;
 }
 
 html {
   scroll-behavior: smooth;
   scroll-padding-top: $layout-xl;
+  font-family: $font-stack-base;
+  height: auto;
+
+  @media #{$mq-sm} {
+    // In <Layout> all content is wrapped in a `.non-header-wrapper` that has its
+    // own `overflow` applied, to allow the header and mobile menu to remain fixed
+    // in place. However, in Blink- and WebKit-based browsers, this resulted in
+    // empty space at the bottom of the page, below the footer.
+    // Hence, a height of 100% is applied to the html document
+    height: 100%;
+  }
 
   @media (prefers-reduced-motion) {
     & {
