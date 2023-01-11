@@ -116,6 +116,7 @@ class Profile(models.Model):
     remove_level_one_email_trackers = models.BooleanField(null=True, default=False)
     onboarding_state = models.PositiveIntegerField(default=0)
     auto_block_spam = models.BooleanField(default=False)
+    forwarded_first_reply = models.BooleanField(default=False)
 
     def __str__(self):
         return "%s Profile" % self.user
