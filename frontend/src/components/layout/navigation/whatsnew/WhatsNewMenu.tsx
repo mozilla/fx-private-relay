@@ -4,9 +4,7 @@ import {
   ReactNode,
   RefObject,
   useRef,
-  useState,
 } from "react";
-import { useLocalization } from "@fluent/react";
 import {
   DismissButton,
   FocusScope,
@@ -42,6 +40,8 @@ import PhoneMaskingIcon from "./images/phone-masking-icon.svg";
 import BundleHero from "./images/bundle-promo-hero.svg";
 import BundleIcon from "./images/bundle-promo-icon.svg";
 import OfferCountdownIcon from "./images/offer-countdown-icon.svg";
+import FirefoxIntegrationHero from "./images/firefox-integration-hero.svg";
+import FirefoxIntegrationIcon from "./images/firefox-integration-icon.svg";
 import { WhatsNewComponentContent, WhatsNewContent } from "./WhatsNewContent";
 import {
   DismissalData,
@@ -57,13 +57,13 @@ import { isFlagActive } from "../../../../functions/waffle";
 import {
   getBundlePrice,
   isBundleAvailableInCountry,
+  isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
-  isPremiumAvailableInCountry,
 } from "../../../../functions/getPlan";
-import { parseDate } from "../../../../functions/parseDate";
 import { CountdownTimer } from "../../../CountdownTimer";
-import { useInterval } from "../../../../hooks/interval";
 import Link from "next/link";
+import { GiftIcon } from "../../../Icons";
+import { useL10n } from "../../../../hooks/l10n";
 
 export type WhatsNewEntry = {
   title: string;
@@ -101,7 +101,7 @@ const CtaLinkButton = (props: CtaProps) => {
   return (
     <>
       {!hasSubscription ? (
-        <Link href="/premium#pricing">
+        <Link href="/premium#pricing" legacyBehavior>
           <span className={styles.cta}>{props.label}</span>
         </Link>
       ) : null}
@@ -110,7 +110,7 @@ const CtaLinkButton = (props: CtaProps) => {
 };
 
 export const WhatsNewMenu = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const triggerState = useOverlayTriggerState({
     onOpenChange(isOpen) {
@@ -289,7 +289,8 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   if (
-    props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "se" &&
+    props.runtimeData?.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase() ===
+      "se" &&
     !props.profile.has_premium
   ) {
     entries.push(premiumInSweden);
@@ -320,7 +321,8 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   if (
-    props.runtimeData?.PREMIUM_PLANS.country_code.toLowerCase() === "fi" &&
+    props.runtimeData?.PERIODICAL_PREMIUM_PLANS.country_code.toLowerCase() ===
+      "fi" &&
     !props.profile.has_premium
   ) {
     entries.push(premiumInFinland);
@@ -356,21 +358,8 @@ export const WhatsNewMenu = (props: Props) => {
   const endDateFormatter = new Intl.DateTimeFormat(getLocale(l10n), {
     dateStyle: "long",
   });
-  const introPricingOfferEndDate = props.runtimeData
-    ? parseDate(props.runtimeData.INTRO_PRICING_END)
-    : new Date(0);
-  const [now, setNow] = useState(Date.now());
-  const remainingTimeInMs = introPricingOfferEndDate.getTime() - now;
-  // Show the countdown timer to the end of our introductory pricing offer if…
-  useInterval(
-    () => {
-      setNow(Date.now());
-    },
-    // Only count down if the deadline is close and not in the past:
-    remainingTimeInMs > 0 && remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000
-      ? 1000
-      : null
-  );
+  // Introductory pricing ended 2022-09-27T09:00:00.000-07:00:
+  const introPricingOfferEndDate = new Date(1664294400000);
 
   const introPricingCountdown: WhatsNewEntry = {
     title: l10n.getString("whatsnew-feature-offer-countdown-heading"),
@@ -386,9 +375,7 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString("whatsnew-feature-offer-countdown-heading")}
         hero={
           <div className={styles["countdown-timer"]}>
-            <CountdownTimer
-              remainingTimeInMs={Math.max(remainingTimeInMs, 0)}
-            />
+            <CountdownTimer remainingTimeInMs={0} />
           </div>
         }
       />
@@ -404,18 +391,13 @@ export const WhatsNewMenu = (props: Props) => {
     },
   };
   // Make sure to move the end-of-intro-pricing news entry is in the History
-  // tab if the countdown has finished:
-  introPricingCountdown.dismissal.isDismissed ||= remainingTimeInMs <= 0;
+  // tab now that the countdown has finished:
+  introPricingCountdown.dismissal.isDismissed = true;
   if (
-    // If the remaining time isn't far enough in the future that the user's
-    // computer's clock is likely to be wrong,
-    remainingTimeInMs <= 32 * 24 * 60 * 60 * 1000 &&
-    // …the user does not have Premium yet,
+    // If the user does not have Premium yet,
     !props.profile.has_premium &&
-    // …the user is able to purchase Premium at the introductory offer price, and
-    isPremiumAvailableInCountry(props.runtimeData) &&
-    // …the relevant feature flag is enabled:
-    isFlagActive(props.runtimeData, "intro_pricing_countdown")
+    // …but is able to purchase Premium
+    isPeriodicalPremiumAvailableInCountry(props.runtimeData)
   ) {
     entries.push(introPricingCountdown);
   }
@@ -456,10 +438,7 @@ export const WhatsNewMenu = (props: Props) => {
   };
 
   // Only show its announcement if phone masking is live:
-  if (
-    isPhonesAvailableInCountry(props.runtimeData) &&
-    isFlagActive(props.runtimeData, "phones")
-  ) {
+  if (isPhonesAvailableInCountry(props.runtimeData)) {
     entries.push(phoneAnnouncement);
   }
 
@@ -506,16 +485,54 @@ export const WhatsNewMenu = (props: Props) => {
   };
 
   // Only show its announcement if bundle is live:
-  if (
-    isFlagActive(props.runtimeData, "bundle") &&
-    isBundleAvailableInCountry(props.runtimeData)
-  ) {
+  if (isBundleAvailableInCountry(props.runtimeData)) {
     entries.push(vpnAndRelayAnnouncement);
   }
 
-  entries.sort(entriesDescByDateSorter);
+  const firefoxIntegrationAnnouncement: WhatsNewEntry = {
+    title: l10n.getString("whatsnew-feature-firefox-integration-heading"),
+    snippet: l10n.getString("whatsnew-feature-firefox-integration-snippet"),
+    content: (
+      <WhatsNewContent
+        description={l10n.getString(
+          "whatsnew-feature-firefox-integration-description"
+        )}
+        heading={l10n.getString("whatsnew-feature-firefox-integration-heading")}
+        image={FirefoxIntegrationHero.src}
+      />
+    ),
+    icon: FirefoxIntegrationIcon.src,
+    dismissal: useLocalDismissal(
+      `whatsnew-feature_firefox-integration_${props.profile.id}`
+    ),
+    // Week after release of Firefox 110 (to ensure it was rolled out to everyone)
+    announcementDate: {
+      year: 2023,
+      month: 2,
+      day: 21,
+    },
+  };
+  if (
+    isFlagActive(props.runtimeData, "firefox_integration") &&
+    isUsingFirefox()
+  ) {
+    entries.push(firefoxIntegrationAnnouncement);
+  }
 
-  const newEntries = entries.filter((entry) => {
+  const entriesNotInFuture = entries.filter((entry) => {
+    const entryDate = new Date(
+      Date.UTC(
+        entry.announcementDate.year,
+        entry.announcementDate.month - 1,
+        entry.announcementDate.day
+      )
+    );
+    // Filter out entries that are in the future:
+    return entryDate.getTime() <= Date.now();
+  });
+  entriesNotInFuture.sort(entriesDescByDateSorter);
+
+  const newEntries = entriesNotInFuture.filter((entry) => {
     const entryDate = new Date(
       Date.UTC(
         entry.announcementDate.year,
@@ -545,7 +562,7 @@ export const WhatsNewMenu = (props: Props) => {
 
   const { buttonProps } = useButton(triggerProps, triggerRef);
 
-  if (entries.length === 0) {
+  if (entriesNotInFuture.length === 0) {
     return null;
   }
 
@@ -570,7 +587,13 @@ export const WhatsNewMenu = (props: Props) => {
           triggerState.isOpen ? styles["is-open"] : ""
         } ${props.style}`}
       >
-        {l10n.getString("whatsnew-trigger-label")}
+        <GiftIcon
+          className={styles["trigger-icon"]}
+          alt={l10n.getString("whatsnew-trigger-label")}
+        />
+        <span className={styles["trigger-label"]}>
+          {l10n.getString("whatsnew-trigger-label")}
+        </span>
         {pill}
       </button>
       {
@@ -585,7 +608,7 @@ export const WhatsNewMenu = (props: Props) => {
           >
             <WhatsNewDashboard
               new={newEntries}
-              archive={entries}
+              archive={entriesNotInFuture}
               onClose={() => triggerState.close()}
             />
           </WhatsNewPopover>

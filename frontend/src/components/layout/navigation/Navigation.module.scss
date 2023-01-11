@@ -6,10 +6,11 @@
   justify-content: flex-end;
   width: 100%;
   padding: 0 $spacing-md;
-  gap: $spacing-lg;
+  gap: $spacing-md;
 
   @media screen and (min-width: $content-xl) {
     padding: 0 $spacing-xl;
+    gap: $spacing-lg;
   }
 }
 
@@ -23,7 +24,6 @@
   color: inherit;
 
   &.is-active {
-    padding-top: $spacing-xs;
     height: 100%;
   }
 

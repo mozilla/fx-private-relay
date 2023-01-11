@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
+from django.db.models import prefetch_related_objects
 
 from rest_framework import serializers, exceptions
+from waffle import get_waffle_flag_model
 
 from emails.models import DomainAddress, Profile, RelayAddress
 
@@ -8,12 +10,11 @@ from emails.models import DomainAddress, Profile, RelayAddress
 class PremiumValidatorsMixin:
     # the user must be premium to set block_list_emails=True
     def validate_block_list_emails(self, value):
-        if value and not (
-            self.context["request"]
-            .user.profile_set.prefetch_related("user__socialaccount_set")
-            .first()
-            .has_premium
-        ):
+        if not value:
+            return value
+        user = self.context["request"].user
+        prefetch_related_objects([user], "socialaccount_set", "profile")
+        if not user.profile.has_premium:
             raise exceptions.AuthenticationFailed(
                 "Must be premium to set block_list_emails."
             )
@@ -151,10 +152,35 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ["email"]
 
 
+class FlagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = get_waffle_flag_model()
+        fields = [
+            "id",
+            "name",
+            "everyone",
+            "note",
+        ]
+        read_only_fields = [
+            "id",
+        ]
+
+    def validate(self, data):
+        if (data.get("name", "").lower() == "manage_flags") or (
+            hasattr(self, "instance")
+            and getattr(self.instance, "name", "").lower() == "manage_flags"
+        ):
+            raise serializers.ValidationError(
+                "Changing the `manage_flags` flag is not allowed."
+            )
+        return super().validate(data)
+
+
 class WebcompatIssueSerializer(serializers.Serializer):
     issue_on_domain = serializers.URLField(
         max_length=200, min_length=None, allow_blank=False
     )
+    user_agent = serializers.CharField(required=False, default="", allow_blank=True)
     email_mask_not_accepted = serializers.BooleanField(required=False, default=False)
     add_on_visual_issue = serializers.BooleanField(required=False, default=False)
     email_not_received = serializers.BooleanField(required=False, default=False)

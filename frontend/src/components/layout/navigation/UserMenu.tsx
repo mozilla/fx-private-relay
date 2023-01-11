@@ -20,7 +20,6 @@ import {
 } from "react-aria";
 import { HTMLAttributes, Key, ReactNode, useRef, useState } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
-import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { event as gaEvent } from "react-ga";
 import styles from "./UserMenu.module.scss";
@@ -37,6 +36,7 @@ import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { setCookie } from "../../../functions/cookies";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   style: string;
@@ -48,7 +48,7 @@ export const UserMenu = (props: Props) => {
   const runtimeData = useRuntimeData();
   const profileData = useProfiles();
   const usersData = useUsers();
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   const itemKeys = {
     account: "account",
@@ -153,15 +153,14 @@ export const UserMenu = (props: Props) => {
         key={itemKeys.settings}
         textValue={l10n.getString("nav-profile-settings")}
       >
-        <Link href="/accounts/settings">
-          <a
-            ref={settingsLinkRef}
-            title={l10n.getString("nav-profile-settings-tooltip")}
-            className={styles["menu-link"]}
-          >
-            <Cogwheel width={20} height={20} alt="" />
-            {l10n.getString("nav-profile-settings")}
-          </a>
+        <Link
+          href="/accounts/settings"
+          ref={settingsLinkRef}
+          title={l10n.getString("nav-profile-settings-tooltip")}
+          className={styles["menu-link"]}
+        >
+          <Cogwheel width={20} height={20} alt="" />
+          {l10n.getString("nav-profile-settings")}
         </Link>
       </Item>
       {contactLink as JSX.Element}
@@ -215,7 +214,7 @@ const UserMenuTrigger = ({
   style,
   ...otherProps
 }: UserMenuTriggerProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const userMenuTriggerState = useMenuTriggerState(otherProps);
 
   const triggerButtonRef = useRef<HTMLButtonElement>(null);

@@ -6,13 +6,13 @@ import {
   useCallback,
   RefObject,
 } from "react";
-import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import { useTabList, useTabPanel, useTab } from "react-aria";
 import { useTabListState, TabListState, Item } from "react-stately";
 import { useInView } from "react-intersection-observer";
 import { event as gaEvent } from "react-ga";
 import styles from "./Tips.module.scss";
+import MultiRepliesImage from "./images/multi-replies.svg";
 import { ArrowDownIcon, InfoIcon } from "../../Icons";
 import { ProfileData } from "../../../hooks/api/profile";
 import {
@@ -22,9 +22,15 @@ import {
 import { getRuntimeConfig } from "../../../config";
 import { CustomAliasTip } from "./CustomAliasTip";
 import { useGaViewPing } from "../../../hooks/gaViewPing";
+import { useRelayNumber } from "../../../hooks/api/relayNumber";
+import { RuntimeData } from "../../../hooks/api/runtimeData";
+import { isFlagActive } from "../../../functions/waffle";
+import { GenericTip } from "./GenericTip";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   profile: ProfileData;
+  runtimeData: RuntimeData;
 };
 
 export type TipEntry = {
@@ -39,14 +45,46 @@ export type TipEntry = {
  * Panel to be used on the bottom of the page, displaying tips relevant to the user.
  */
 export const Tips = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [isExpanded, setIsExpanded] = useState(false);
   const [wrapperRef, wrapperIsInView] = useInView({ threshold: 1 });
+  const relayNumberData = useRelayNumber({ disable: !props.profile.has_phone });
 
   const tips: TipEntry[] = [];
 
-  // If the user has a custom subdomain, but does not have custom aliases yet,
-  // show a tip about how they get created:
+  // If the user has set up a Relay phone number, tell them how they can reply
+  // to multiple senders:
+  const multiRepliesTip: TipEntry = {
+    id: "multi-replies",
+    title: l10n.getString("tips-multi-replies-heading"),
+    content: (
+      <GenericTip
+        title={l10n.getString("tips-multi-replies-heading")}
+        content={l10n.getString("tips-multi-replies-content")}
+        videos={{
+          // Unfortunately video files cannot currently be imported, so make
+          // sure these files are present in /public. See
+          // https://github.com/vercel/next.js/issues/35248
+          "video/webm; codecs='vp9'": "/animations/tips/multi-replies.webm",
+          "video/mp4": "/animations/tips/multi-replies.mp4",
+        }}
+        image={MultiRepliesImage.src}
+        // Not localised, because the video is only shown to English speakers:
+        alt="To reply to the phone number 555-555-9876, type 9876 then type your message"
+      />
+    ),
+    dismissal: useLocalDismissal(`tips_multiReplies_${props.profile.id}`),
+  };
+  if (
+    isFlagActive(props.runtimeData, "multi_replies") &&
+    props.profile.has_phone &&
+    Array.isArray(relayNumberData.data) &&
+    relayNumberData.data.length > 0
+  ) {
+    tips.push(multiRepliesTip);
+  }
+
+  // If the user has Premium, show a tip about how to claim a custom subdomain:
   const customAliasDismissal = useLocalDismissal(
     `tips_customAlias_${props.profile.id}`
   );
@@ -103,10 +141,11 @@ export const Tips = (props: Props) => {
       <footer className={styles.footer}>
         <ul>
           <li>
-            <Link href="/faq">
-              <a title={l10n.getString("tips-footer-link-faq-tooltip")}>
-                {l10n.getString("tips-footer-link-faq-label")}
-              </a>
+            <Link
+              href="/faq"
+              title={l10n.getString("tips-footer-link-faq-tooltip")}
+            >
+              {l10n.getString("tips-footer-link-faq-label")}
             </Link>
           </li>
           <li>
@@ -239,7 +278,7 @@ type PanelDotProps = {
   tabListState: TabListState<object>;
 };
 const PanelDot = (props: PanelDotProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const dotRef = useRef<HTMLDivElement>(null);
   const { tabProps } = useTab(
     { key: props.item.key },

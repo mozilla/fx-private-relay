@@ -21,10 +21,10 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3.3.0
+      - uses: actions/setup-node@v3.6.0
         with:
-          node-version: '14.x'
+          node-version-file: 'frontend/package.json'
           cache: 'npm'
 
       - name: Install Node dependencies

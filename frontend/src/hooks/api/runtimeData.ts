@@ -3,7 +3,16 @@ import { useApiV1 } from "./api";
 
 type CountryCode = string;
 type LanguageCode = string;
-type WaffleFlag = [string, boolean];
+export type FlagNames =
+  | "manage_flags"
+  | "interview_recruitment"
+  | "new_from_address"
+  | "tracker_removal"
+  | "phone_launch_survey"
+  | "multi_replies"
+  | "firefox_integration"
+  | "premium_promo_banners";
+type WaffleFlag = [FlagNames, boolean];
 
 export type PlanData = {
   monthly: { id: string; price: number; currency: string };
@@ -17,28 +26,12 @@ export type ProductData<P extends Partial<PlanData> = PlanData> = {
   plan_country_lang_mapping: Record<CountryCode, Record<LanguageCode, P>>;
 };
 
-/**
- * @deprecated
- */
-export type PremiumPlans = {
-  country_code: CountryCode;
-  premium_countries: CountryCode[];
-  premium_available_in_country: boolean;
-  plan_country_lang_mapping: Record<
-    CountryCode,
-    Record<LanguageCode, { id: string; price: string }>
-  >;
-};
 export type RuntimeData = {
   FXA_ORIGIN: string;
   GOOGLE_ANALYTICS_ID: `UA-${number}-${number}`;
-  INTRO_PRICING_END: string;
-  PREMIUM_PRODUCT_ID: `prod_${string}`;
   PERIODICAL_PREMIUM_PRODUCT_ID: `prod_${string}`;
   PHONE_PRODUCT_ID: `prod_${string}`;
   BUNDLE_PRODUCT_ID: `prod_${string}`;
-  /** @deprecated See PERIODICAL_PREMIUM_PLANS instead */
-  PREMIUM_PLANS: PremiumPlans;
   PERIODICAL_PREMIUM_PLANS: ProductData<PlanData>;
   PHONE_PLANS: ProductData<PlanData>;
   BUNDLE_PLANS: ProductData<Pick<PlanData, "yearly">>;

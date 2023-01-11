@@ -4,7 +4,6 @@ import {
   MouseEventHandler,
   useState,
 } from "react";
-import { useLocalization } from "@fluent/react";
 import { useOverlayTriggerState } from "react-stately";
 import styles from "./RelayNumberPicker.module.scss";
 import EnteryVerifyCodeSuccess from "./images/verify-code-success.svg";
@@ -18,6 +17,7 @@ import {
 import { formatPhone } from "../../../functions/formatPhone";
 import { RefreshIcon } from "../../Icons";
 import { RelayNumberConfirmationModal } from "./RelayNumberConfirmationModal";
+import { useL10n } from "../../../hooks/l10n";
 
 type RelayNumberPickerProps = {
   onComplete: () => void;
@@ -48,7 +48,7 @@ type RelayNumberIntroProps = {
   onStart: () => void;
 };
 const RelayNumberIntro = (props: RelayNumberIntroProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <div
@@ -90,7 +90,7 @@ type RelayNumberSelectionProps = {
   search: (search: string) => Promise<RelayNumberSuggestion[] | undefined>;
 };
 const RelayNumberSelection = (props: RelayNumberSelectionProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const relayNumberSuggestionsData = useRelayNumberSuggestions();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [searchValue, setSearchValue] = useState("");
@@ -293,7 +293,7 @@ type RelayNumberConfirmationProps = {
   onComplete: () => void;
 };
 const RelayNumberConfirmation = (props: RelayNumberConfirmationProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
 
   return (
     <div

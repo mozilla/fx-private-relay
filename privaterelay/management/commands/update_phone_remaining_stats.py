@@ -15,16 +15,14 @@ def update_phone_remaining_stats():
     if not settings.PHONES_ENABLED:
         return []
     accounts_with_phones = []
-    for sub_with_phone in list(
-        filter(None, settings.SUBSCRIPTIONS_WITH_PHONE.split(","))
-    ):
+    for sub_with_phone in settings.SUBSCRIPTIONS_WITH_PHONE:
         social_accounts = SocialAccount.objects.filter(
             extra_data__icontains=sub_with_phone
         )
         accounts_with_phones.extend(list(social_accounts))
     updated_profiles = []
     for social_account in accounts_with_phones:
-        profile = social_account.user.profile_set.first()
+        profile = social_account.user.profile
         # Has it been more than 30 days since we last checked the user's phone
         # subscription?
         if (

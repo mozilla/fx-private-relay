@@ -22,7 +22,7 @@ commands:
 executors:
   python:
     docker:
-      - image: cimg/python:3.9.15
+      - image: cimg/python:3.10.9
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -113,6 +113,33 @@ jobs:
           paths:
             - test-results/frontend-coverage/lcov-prefixed.info
             - test-results/frontend-coverage/coveralls.json
+  
+  build_email_tracker_list_job:
+    executor: python
+    steps:
+      - checkout_with_submodules
+      - python/install-packages:
+          pkg-manager: pip
+      - run:
+          name: Set test defaults
+          command: cp .env-dist .env
+      - run:
+          name: Build level one email tracker list
+          command: ./manage.py get_latest_email_tracker_lists
+      - run:
+          name: Build level two email tracker list
+          command: ./manage.py get_latest_email_tracker_lists --tracker-level=2
+      - run:
+          name: Copy email tracker lists to persisted workspace
+          command: |
+            mkdir --parents /tmp/workspace/email-trackers
+            cp /home/circleci/project/emails/tracker_lists/level-one-trackers.json /tmp/workspace/email-trackers/
+            cp /home/circleci/project/emails/tracker_lists/level-two-trackers.json /tmp/workspace/email-trackers/
+      - persist_to_workspace:
+            root: /tmp/workspace
+            paths:
+              - email-trackers/level-one-trackers.json
+              - email-trackers/level-two-trackers.json
 
   build_test_backend:
     docker:
@@ -122,6 +149,8 @@ jobs:
           password: $DOCKER_PASS
     working_directory: /dockerflow
     steps:
+      - attach_workspace:
+          at: /tmp/workspace
       - checkout_with_submodules
       - setup_remote_docker:
           # Use a version of Docker that works with Node, see
@@ -138,6 +167,12 @@ jobs:
       - run:
           name: Copy build artefacts from build_frontend into this folder
           command: mv /home/circleci/project/frontend/out /dockerflow/frontend/
+
+      - run:
+          name: Copy email tracker lists into this folder
+          command: |
+            cp /tmp/workspace/email-trackers/level-one-trackers.json /dockerflow/emails/tracker_lists/
+            cp /tmp/workspace/email-trackers/level-two-trackers.json /dockerflow/emails/tracker_lists/
 
       - run:
           name: Create a version.json
@@ -157,7 +192,6 @@ jobs:
             --build-arg CIRCLE_BRANCH="$CIRCLE_BRANCH" \
             --build-arg CIRCLE_TAG="$CIRCLE_TAG" \
             --build-arg CIRCLE_SHA1="$CIRCLE_SHA1" \
-            --build-arg PHONES_ENABLED="$PHONES_ENABLED" \
             .
 
       - run:
@@ -240,7 +274,7 @@ jobs:
 
   upload_coverage:
     docker:
-      - image: cimg/python:3.9.15-node
+      - image: cimg/python:3.10.9-node
     steps:
       - attach_workspace:
           at: /tmp/workspace
@@ -333,6 +367,7 @@ jobs:
                   echo "# Production tag is ${PROD_TAG}"
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
+                  git submodule update --init --recursive
                   git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
                   git status
       - unless:
@@ -356,7 +391,7 @@ jobs:
 
   python_test_postgres:
     docker:
-      - image: cimg/python:3.9.15
+      - image: cimg/python:3.10.9
         auth:
           username: $DOCKER_USER
           password: $DOCKER_PASS
@@ -409,6 +444,7 @@ jobs:
                   echo "# Production tag is ${PROD_TAG}"
                   git fetch --force origin tag ${PROD_TAG}
                   git checkout ${PROD_TAG}
+                  git submodule update --init --recursive
                   git checkout --theirs "${CIRCLE_SHA1}" -- '**/migrations/**'
                   git status
       - run:
@@ -428,8 +464,14 @@ workflows:
             tags:
               only: /.*/
 
+      - build_email_tracker_list_job:
+          filters:
+            tags:
+              only: /.*/
+
       - build_test_backend:
           requires:
+            - build_email_tracker_list_job
             - build_frontend
           filters:
             tags:

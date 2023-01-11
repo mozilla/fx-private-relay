@@ -1,17 +1,17 @@
 import { ReactNode } from "react";
 import { OutboundLink } from "react-ga";
-import { useLocalization } from "@fluent/react";
 import Link from "next/link";
 import styles from "./Banner.module.scss";
 import { useLocalDismissal } from "../hooks/localDismissal";
 import { CloseIcon, WarningFilledIcon, InfoFilledIcon } from "./Icons";
 import { useGaViewPing } from "../hooks/gaViewPing";
+import { useL10n } from "../hooks/l10n";
 
 export type BannerProps = {
   children: ReactNode;
   type: "promo" | "warning" | "info";
   title?: string;
-  illustration?: ReactNode;
+  illustration?: { img: ReactNode; type?: "flex-end" };
   cta?: BannerCtaProps;
   /**
    * See {@link useLocalDismissal}; determines whether and for how long the user can dismiss this banner.
@@ -32,7 +32,7 @@ export const Banner = (props: BannerProps) => {
   const dismissal = useLocalDismissal(props.dismissal?.key ?? "unused", {
     duration: props.dismissal?.duration,
   });
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const type = props.type ?? "warning";
 
   const warningIcon = (
@@ -62,7 +62,14 @@ export const Banner = (props: BannerProps) => {
       : null;
 
   const illustration = props.illustration ? (
-    <div className={styles.illustration}>{props.illustration}</div>
+    <div
+      className={`
+          ${styles.illustration} 
+          ${props.illustration.type ? styles[props.illustration.type] : null}
+        `}
+    >
+      {props.illustration.img}
+    </div>
   ) : null;
 
   const cta = props.cta ? <BannerCta {...props.cta} /> : null;
@@ -152,10 +159,8 @@ export const BannerCta = (props: BannerCtaProps) => {
           props.size === "large" ? styles["cta-large-button"] : styles.cta
         }
       >
-        <Link href={props.target}>
-          <a onClick={props.onClick} ref={ctaRef}>
-            {props.content}
-          </a>
+        <Link href={props.target} onClick={props.onClick} ref={ctaRef}>
+          {props.content}
         </Link>
       </div>
     );

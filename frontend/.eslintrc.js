@@ -21,6 +21,23 @@ module.exports = {
     // but we try to avoid implicitly casting values (see e.g. reviews of
     // https://github.com/mozilla/fx-private-relay/pull/2315):
     eqeqeq: ["error", "always"],
+    "no-restricted-imports": [
+      "error",
+      {
+        paths: [
+          {
+            // The `useL10n` hook works around the problem of the user's locale
+            // not being known at build time, which could potentially cause the
+            // prerendered text content to be mismatched compared to the first
+            // client-side render. Hence, we should only use that hook:
+            name: "@fluent/react",
+            importNames: ["useLocalization", "Localized"],
+            message:
+              "Please use the `useL10n` hook from `/src/hooks/l10n.ts` instead of `useLocalization` from @fluent/react, and the `Localized` component from `/src/components/Localized.tsx` instead of from @fluent/react.",
+          },
+        ],
+      },
+    ],
   },
   overrides: [
     {

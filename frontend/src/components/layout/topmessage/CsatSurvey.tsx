@@ -5,12 +5,12 @@ import {
   DismissOptions,
   useLocalDismissal,
 } from "../../../hooks/localDismissal";
-import { useLocalization } from "@fluent/react";
 import { ProfileData } from "../../../hooks/api/profile";
 import { CloseIcon } from "../../Icons";
 import { parseDate } from "../../../functions/parseDate";
 import { useState } from "react";
 import { getLocale } from "../../../functions/getLocale";
+import { useL10n } from "../../../hooks/l10n";
 
 type SurveyLinks = {
   "Very Dissatisfied": string;
@@ -66,7 +66,7 @@ export const CsatSurvey = (props: Props) => {
     { duration: 90 * 24 * 60 * 60 }
   );
   const firstSeen = useFirstSeen();
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [answer, setAnswer] = useState<keyof SurveyLinks>();
 
   let reasonToShow:

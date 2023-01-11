@@ -71,8 +71,10 @@ class InboundContactSerializer(serializers.ModelSerializer):
             "last_inbound_type",
             "num_calls",
             "num_calls_blocked",
+            "last_call_date",
             "num_texts",
             "num_texts_blocked",
+            "last_text_date",
             "blocked",
         ]
         read_only_fields = [
@@ -83,6 +85,8 @@ class InboundContactSerializer(serializers.ModelSerializer):
             "last_inbound_type",
             "num_calls",
             "num_calls_blocked",
+            "last_call_date",
             "num_texts",
             "num_texts_blocked",
+            "last_text_date",
         ]

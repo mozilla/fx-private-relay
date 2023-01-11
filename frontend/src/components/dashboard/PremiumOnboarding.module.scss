@@ -10,6 +10,7 @@
 
 .step,
 .controls {
+  width: 100%;
   max-width: $content-lg;
   margin: 0 auto;
   padding: $spacing-lg;
@@ -44,6 +45,11 @@
 
     @media screen and #{$mq-md} {
       flex-direction: row;
+    }
+
+    .content {
+      max-width: 100%;
+      min-width: $content-xs;
     }
 
     .description-caption {
@@ -100,6 +106,10 @@
       color: $color-light-gray-70;
       display: inline-block;
       padding: $spacing-md 0;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow-x: hidden;
+      max-width: 100%;
 
       .customizable-part {
         color: $color-purple-50;

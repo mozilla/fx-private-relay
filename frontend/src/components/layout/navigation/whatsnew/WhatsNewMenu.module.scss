@@ -6,7 +6,6 @@ button.trigger {
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: $spacing-sm;
   background-color: transparent;
   border-style: none;
   color: inherit;
@@ -14,6 +13,7 @@ button.trigger {
   cursor: pointer;
   padding: $spacing-xs $spacing-md;
   font-family: $font-stack-firefox;
+  position: relative;
 
   &.is-open {
     background-color: $color-light-gray-20;
@@ -22,6 +22,10 @@ button.trigger {
     &:hover {
       color: $color-blue-50;
     }
+  }
+
+  .trigger-label {
+    display: none;
   }
 
   .pill {
@@ -37,6 +41,26 @@ button.trigger {
     font-weight: 700;
     color: $color-white;
     font-style: normal;
+    // On small screens, let the "new news entries" counter slightly overlap
+    // the news icon. These position coordinates are not an exact science.
+    position: absolute;
+    top: -5px;
+    right: 0;
+  }
+
+  @media screen and #{$mq-md} {
+    gap: $spacing-sm;
+    position: initial;
+
+    .trigger-icon {
+      display: none;
+    }
+    .trigger-label {
+      display: initial;
+    }
+    .pill {
+      position: initial;
+    }
   }
 }
 

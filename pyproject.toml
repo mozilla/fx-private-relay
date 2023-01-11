@@ -2,11 +2,20 @@
 plugins = ["mypy_django_plugin.main"]
 mypy_path = "$MYPY_CONFIG_FILE_DIR/mypy_stubs"
 exclude = "env"
-python_version = "3.9"
+python_version = "3.10"
 show_error_codes = true
-warn_return_any = true
-warn_unused_configs = true
-warn_unused_ignores = true
+strict = true
+
+# Disable these strict checks
+# Order is the recommended enabling order, from highest to lowest priority,
+# from mypy doc "Using mypy with an existing codebase"
+check_untyped_defs = false
+disallow_subclassing_any = false
+disallow_any_generics = false
+disallow_untyped_calls = false
+disallow_incomplete_defs = false
+disallow_untyped_defs = false
+no_implicit_reexport = false
 
 [tool.django-stubs]
 django_settings_module = "privaterelay.settings"
@@ -27,6 +36,7 @@ module = [
     "debug_toolbar",
     "dj_database_url",
     "django_filters",
+    "django_ftl",
     "django_ftl.bundles",
     "drf_yasg",
     "drf_yasg.utils",
@@ -41,12 +51,14 @@ module = [
     "markus.utils",
     "oauthlib.oauth2.rfc6749.errors",
     "requests_oauthlib",
+    "twilio.base.instance_resource",
     "twilio.base.exceptions",
     "twilio.rest",
     "twilio.request_validator",
     "vobject",
     "waffle",
     "waffle.models",
+    "waffle.testutils",
     "whitenoise.middleware",
     "whitenoise.storage",
 ]

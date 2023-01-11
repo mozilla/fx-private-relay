@@ -202,6 +202,8 @@ $trackLineHeight: 4px;
         padding-top: 0;
 
         .track-stop {
+          top: 0;
+
           img {
             display: none;
           }
@@ -295,7 +297,9 @@ $trackLineHeight: 4px;
     }
     .promotional-ghost-track-stop {
       position: absolute;
-      top: 0;
+      // On small screens, `.track-stop` has a top padding of `$spacing-sm`
+      // before the track stop begins:
+      top: $spacing-sm;
       left: 33%;
       width: 33%;
       // This is like the regular .track's bottom padding, but with
@@ -307,6 +311,10 @@ $trackLineHeight: 4px;
       background-color: transparent;
       border-style: none;
       cursor: pointer;
+
+      @media screen and #{$mq-md} {
+        top: 0;
+      }
 
       .track-stop-promotional {
         color: $color-light-gray-70;

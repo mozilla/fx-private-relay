@@ -1,5 +1,7 @@
 from datetime import datetime, timezone
 from email import message_from_bytes, policy
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from email.utils import parseaddr
 import html
 import json
@@ -15,19 +17,25 @@ from typing import Any, Optional
 
 from botocore.exceptions import ClientError
 from decouple import strtobool
+from django.shortcuts import render
 from sentry_sdk import capture_message
 from markus.utils import generate_tag
 from waffle import sample_is_active
 from waffle.models import Flag
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.db.models import prefetch_related_objects
 from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.utils.html import escape
 from django.views.decorators.csrf import csrf_exempt
+
+
+from .apps import EmailsConfig
 
 from .models import (
     address_hash,
@@ -59,14 +67,44 @@ from .utils import (
 )
 from .sns import verify_from_sns, SUPPORTED_SNS_TYPES
 
+from privaterelay.ftl_bundles import main as ftl_bundle
+
 
 logger = logging.getLogger("events")
 info_logger = logging.getLogger("eventsinfo")
 
 
-class InReplyToNotFound(Exception):
-    def __init__(self, message="No In-Reply-To header."):
+class ReplyHeadersNotFound(Exception):
+    def __init__(self, message="No In-Reply-To or References headers."):
         self.message = message
+
+
+def reply_requires_premium_test(request):
+    """
+    Demonstrate rendering of the "Reply requires premium" email.
+
+    Settings like language can be given in the querystring, otherwise settings
+    come from a random free profile.
+    """
+    email_context = {
+        "sender": "test@example.com",
+        "forwarded": False,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+    }
+    for param in request.GET:
+        email_context[param] = request.GET.get(param)
+        if param == "forwarded" and request.GET[param] == "True":
+            email_context[param] = True
+
+    for param in request.GET:
+        if param == "content-type" and request.GET[param] == "text/plain":
+            return render(
+                request,
+                "emails/reply_requires_premium.txt",
+                email_context,
+                "text/plain; charset=utf-8",
+            )
+    return render(request, "emails/reply_requires_premium.html", email_context)
 
 
 def wrap_html_email(
@@ -368,9 +406,8 @@ def _sns_message(message_json):
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
         address = _get_address(to_address, to_local_portion, to_domain_portion)
-        user_profile = address.user.profile_set.prefetch_related(
-            "user__socialaccount_set"
-        ).first()
+        prefetch_related_objects([address.user], "socialaccount_set", "profile")
+        user_profile = address.user.profile
     except (
         ObjectDoesNotExist,
         CannotMakeAddressException,
@@ -408,14 +445,15 @@ def _sns_message(message_json):
 
     # check if this is a reply from an external sender to a Relay user
     try:
-        (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
+        (lookup_key, _) = _get_keys_from_headers(mail["headers"])
         reply_record = _get_reply_record_from_lookup_key(lookup_key)
         address = reply_record.address
+        message_id = _get_message_id_from_headers(mail["headers"])
         # make sure the relay user is premium
-        if not _reply_allowed(from_address, to_address, reply_record):
+        if not _reply_allowed(from_address, to_address, reply_record, message_id):
             # TODO: Add metrics
             return HttpResponse("Relay replies require a premium account", status=403)
-    except (InReplyToNotFound, Reply.DoesNotExist):
+    except (ReplyHeadersNotFound, Reply.DoesNotExist):
         # if there's no In-Reply-To header, or the In-Reply-To value doesn't
         # match a Reply record, continue to treat this as a regular email from
         # an external sender to a relay user
@@ -575,16 +613,36 @@ def _record_receipt_verdicts(receipt, state):
     incr_if_enabled(f"relay.emails.state.{state}", 1, verdict_tags)
 
 
+def _get_message_id_from_headers(headers):
+    message_id = None
+    for header in headers:
+        if header["name"].lower() == "message-id":
+            message_id = header["value"]
+    return message_id
+
+
 def _get_keys_from_headers(headers):
     in_reply_to = None
     for header in headers:
         if header["name"].lower() == "in-reply-to":
             in_reply_to = header["value"]
             message_id_bytes = get_message_id_bytes(in_reply_to)
-    if in_reply_to is None:
-        incr_if_enabled("mail_to_replies_without_in_reply_to", 1)
-        raise InReplyToNotFound
-    return derive_reply_keys(message_id_bytes)
+            return derive_reply_keys(message_id_bytes)
+
+        if header["name"].lower() == "references":
+            message_ids = header["value"]
+            for message_id in message_ids.split(" "):
+                message_id_bytes = get_message_id_bytes(message_id)
+                lookup_key, encryption_key = derive_reply_keys(message_id_bytes)
+                try:
+                    # FIXME: calling code is likely to duplicate this query
+                    _get_reply_record_from_lookup_key(lookup_key)
+                    return lookup_key, encryption_key
+                except Reply.DoesNotExist:
+                    pass
+            raise Reply.DoesNotExist
+    incr_if_enabled("mail_to_replies_without_reply_headers", 1)
+    raise ReplyHeadersNotFound
 
 
 def _get_reply_record_from_lookup_key(lookup_key):
@@ -598,7 +656,87 @@ def _strip_localpart_tag(address):
     return f"{subaddress_parts[0]}@{domain}"
 
 
-def _reply_allowed(from_address, to_address, reply_record):
+def _build_reply_requires_premium_email(
+    from_address,
+    reply_record,
+    message_id,
+    decrypted_metadata,
+):
+    # If we haven't forwaded a first reply for this user yet, _reply_allowed will forward.
+    # So, tell the user we forwarded it.
+    forwarded = not reply_record.address.user.profile.forwarded_first_reply
+    sender = ""
+    if decrypted_metadata is not None:
+        sender = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
+    ctx = {
+        "sender": sender,
+        "forwarded": forwarded,
+        "SITE_ORIGIN": settings.SITE_ORIGIN,
+    }
+    html_body = render_to_string("emails/reply_requires_premium.html", ctx)
+    text_body = render_to_string("emails/reply_requires_premium.txt", ctx)
+
+    # We build the raw multipart MIME message to specify a custom In-Reply-To header
+    msg = MIMEMultipart("mixed")
+    subject_ftl_id = "replies-not-included-in-free-account-header"
+    subject = ftl_bundle.format(subject_ftl_id)
+    msg["Subject"] = subject
+
+    domain = get_domains_from_settings().get("RELAY_FIREFOX_DOMAIN")
+    msg["From"] = f"replies@{domain}"
+
+    msg["To"] = from_address
+
+    if message_id:
+        msg["In-Reply-To"] = message_id
+        msg["References"] = message_id
+
+    # Compose the full raw message together
+    charset = "utf-8"
+    msg_body = MIMEMultipart("alternative")
+    text_part = MIMEText(text_body, "plain", charset)
+    html_part = MIMEText(html_body, "html", charset)
+    msg_body.attach(text_part)
+    msg_body.attach(html_part)
+    msg.attach(msg_body)
+
+    return msg
+
+
+def _set_forwarded_first_reply(profile):
+    profile.forwarded_first_reply = True
+    profile.save()
+
+
+def _send_reply_requires_premium_email(
+    from_address,
+    reply_record,
+    message_id,
+    decrypted_metadata,
+):
+    msg = _build_reply_requires_premium_email(
+        from_address, reply_record, message_id, decrypted_metadata
+    )
+    try:
+        emails_config = apps.get_app_config("emails")
+        assert isinstance(emails_config, EmailsConfig)
+        emails_config.ses_client.send_raw_email(
+            ConfigurationSetName=settings.AWS_SES_CONFIGSET,
+            Source=settings.RELAY_FROM_ADDRESS,
+            Destinations=[from_address],
+            RawMessage={"Data": msg.as_string()},
+        )
+        # If we haven't forwaded a first reply for this user yet, _reply_allowed will.
+        # So, updated the DB.
+        _set_forwarded_first_reply(reply_record.address.user.profile)
+    except ClientError as e:
+        logger.error("reply_not_allowed_ses_client_error", extra=e.response["Error"])
+    incr_if_enabled("free_user_reply_attempt", 1)
+
+
+def _reply_allowed(
+    from_address, to_address, reply_record, message_id=None, decrypted_metadata=None
+):
     stripped_from_address = _strip_localpart_tag(from_address)
     reply_record_email = reply_record.address.user.email
     stripped_reply_record_address = _strip_localpart_tag(reply_record_email)
@@ -606,20 +744,27 @@ def _reply_allowed(from_address, to_address, reply_record):
         stripped_from_address == stripped_reply_record_address
     ):
         # This is a Relay user replying to an external sender;
-        # verify they are premium
-        if reply_record.owner_has_premium and not reply_record.profile.is_flagged:
-            # TODO: send the user an email
-            # that replies are a premium feature
+
+        if reply_record.profile.is_flagged:
+            return False
+
+        if reply_record.owner_has_premium:
             return True
-        return False
+
+        # if we haven't forwarded a first reply for this user, return True to allow
+        # this first reply
+        allow_first_reply = not reply_record.address.user.profile.forwarded_first_reply
+        _send_reply_requires_premium_email(
+            from_address, reply_record, message_id, decrypted_metadata
+        )
+        return allow_first_reply
     else:
         # The From: is not a Relay user, so make sure this is a reply *TO* a
         # premium Relay user
         try:
             [to_local_portion, to_domain_portion] = to_address.split("@")
             address = _get_address(to_address, to_local_portion, to_domain_portion)
-            user_profile = address.user.profile_set.first()
-            if user_profile.has_premium:
+            if address.user.profile.has_premium:
                 return True
         except (ObjectDoesNotExist):
             return False
@@ -631,7 +776,7 @@ def _handle_reply(from_address, message_json, to_address):
     mail = message_json["mail"]
     try:
         (lookup_key, encryption_key) = _get_keys_from_headers(mail["headers"])
-    except InReplyToNotFound:
+    except ReplyHeadersNotFound:
         incr_if_enabled("reply_email_header_error", 1, tags=["detail:no-header"])
         return HttpResponse("No In-Reply-To header", status=400)
 
@@ -642,14 +787,17 @@ def _handle_reply(from_address, message_json, to_address):
         return HttpResponse("Unknown or stale In-Reply-To header", status=404)
 
     address = reply_record.address
-
-    if not _reply_allowed(from_address, to_address, reply_record):
-        return HttpResponse("Relay replies require a premium account", status=403)
-
-    outbound_from_address = address.full_address
+    message_id = _get_message_id_from_headers(mail["headers"])
     decrypted_metadata = json.loads(
         decrypt_reply_metadata(encryption_key, reply_record.encrypted_metadata)
     )
+    if not _reply_allowed(
+        from_address, to_address, reply_record, message_id, decrypted_metadata
+    ):
+        # TODO: should we return a 200 OK here?
+        return HttpResponse("Relay replies require a premium account", status=403)
+
+    outbound_from_address = address.full_address
     incr_if_enabled("reply_email", 1)
     subject = mail["commonHeaders"].get("subject", "")
     to_address = decrypted_metadata.get("reply-to") or decrypted_metadata.get("from")
@@ -685,7 +833,7 @@ def _handle_reply(from_address, message_json, to_address):
             address,
         )
         reply_record.increment_num_replied()
-        profile = address.user.profile_set.first()
+        profile = address.user.profile
         profile.update_abuse_metric(replied=True)
         return response
     except ClientError as e:
@@ -768,7 +916,7 @@ def _handle_bounce(message_json):
         )
         try:
             user = User.objects.get(email=recipient_address)
-            profile = user.profile_set.first()
+            profile = user.profile
         except User.DoesNotExist:
             incr_if_enabled("email_bounce_relay_user_gone", 1)
             # TODO: handle bounce for a user who no longer exists

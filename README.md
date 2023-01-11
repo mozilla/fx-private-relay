@@ -15,7 +15,7 @@ Please refer to our [coding standards](docs/coding-standards.md) for code styles
 
 ### Requirements
 
-- python 3.9 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
+- python 3.10 (we recommend [virtualenv](https://docs.python-guide.org/dev/virtualenvs/))
 - PostgreSQL - even if you are using sqlite for development, requirements.txt installs
   psycopg2 which [requires libpq](https://www.psycopg.org/docs/install.html#build-prerequisites) and Python header files.
   The following should work:
@@ -265,9 +265,16 @@ In detail:
 | Var                            | Value                                                                 |
 | ------------------------------ | --------------------------------------------------------------------- |
 | `FXA_SUBSCRIPTIONS_URL`        | `https://accounts.stage.mozaws.net/subscriptions`                     |
-| `PREMIUM_PROD_ID`              | `prod_IyCWnXUbkYjDgL` (from Stripe)                                   |
-| `PREMIUM_PRICE_ID`             | `price_1IMG7KKb9q6OnNsL15Hsn1HE` (from Stripe)                        |
+| `PERIODICAL_PREMIUM_PROD_ID`   | `prod_KEq0LXqs7vysQT` (from Stripe)                                   |
+| `PREMIUM_PLAN_ID_US_MONTHLY`   | `price_1LiMjeKb9q6OnNsLzwixHuRz` (from Stripe)                        |
+| `PREMIUM_PLAN_ID_US_YEARLY`    | `price_1LiMlBKb9q6OnNsL7tvrtI7y` (from Stripe)                        |
+| `PHONE_PROD_ID`                | `prod_LviM2I0paxH1DZ` (from Stripe)                                   |
+| `PHONE_PLAN_ID_US_MONTHLY`     | `price_1LDqw3Kb9q6OnNsL6XIDst28` (from Stripe)                        |
+| `PHONE_PLAN_ID_US_YEARLY`      | `price_1Lhd35Kb9q6OnNsL9bAxjUGq` (from Stripe)                        |
+| `BUNDLE_PROD_ID`               | `prod_MQ9Zf1cyI81XS2` (from Stripe)                                   |
+| `BUNDLE_PLAN_ID_US`            | `price_1Lwp7uKb9q6OnNsLQYzpzUs5` (from Stripe)                        |
 | `SUBSCRIPTIONS_WITH_UNLIMITED` | `"premium-relay"` (match the `capabilities` value you used in Stripe) |
+| `SUBSCRIPTIONS_WITH_PHONE`     | `"relay-phones"` (match the `capabilities` value you used in Stripe)  |
 
 ### Optional: Debugging JavaScript bundle sizes
 

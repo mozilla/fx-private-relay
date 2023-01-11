@@ -1,20 +1,21 @@
 import Link from "next/link";
-import { useLocalization } from "@fluent/react";
 import styles from "./MobileNavigation.module.scss";
 import { SignUpButton } from "./SignUpButton";
 import {
   Cogwheel,
   ContactIcon,
-  DashboardIcon,
   FaqIcon,
   HomeIcon,
+  MaskIcon,
   NewTabIcon,
+  PhoneIcon,
   SignOutIcon,
   SupportIcon,
 } from "../../Icons";
 import { useRuntimeData } from "../../../hooks/api/runtimeData";
 import { getRuntimeConfig } from "../../../config";
 import { getCsrfToken } from "../../../functions/cookies";
+import { useL10n } from "../../../hooks/l10n";
 
 export type MenuItem = {
   url: string;
@@ -26,15 +27,22 @@ export type MenuItem = {
 export type Props = {
   mobileMenuExpanded: boolean | undefined;
   hasPremium: boolean;
+  isPhonesAvailable: boolean;
   isLoggedIn: boolean;
   userEmail: string | undefined;
   userAvatar: string | undefined;
 };
 
 export const MobileNavigation = (props: Props) => {
-  const { mobileMenuExpanded, hasPremium, isLoggedIn, userEmail, userAvatar } =
-    props;
-  const { l10n } = useLocalization();
+  const {
+    mobileMenuExpanded,
+    hasPremium,
+    isLoggedIn,
+    isPhonesAvailable,
+    userEmail,
+    userAvatar,
+  } = props;
+  const l10n = useL10n();
   const runtimeData = useRuntimeData();
   const { supportUrl } = getRuntimeConfig();
 
@@ -43,11 +51,9 @@ export const MobileNavigation = (props: Props) => {
 
     return isVisible ? (
       <li className={`${styles["menu-item"]}`}>
-        <Link href={item.url}>
-          <a className={`${styles.link}`}>
-            {item.icon}
-            {l10n.getString(item.l10n)}
-          </a>
+        <Link href={item.url} className={`${styles.link}`}>
+          {item.icon}
+          {l10n.getString(item.l10n)}
         </Link>
       </li>
     ) : null;
@@ -106,8 +112,15 @@ export const MobileNavigation = (props: Props) => {
         {renderMenuItem({
           url: "/accounts/profile",
           isVisible: isLoggedIn,
-          icon: <DashboardIcon width={20} height={20} alt="" />,
-          l10n: "nav-dashboard",
+          icon: <MaskIcon width={20} height={20} alt="" />,
+          l10n: "nav-email-dashboard",
+        })}
+
+        {renderMenuItem({
+          url: "/phone",
+          isVisible: isLoggedIn && isPhonesAvailable,
+          icon: <PhoneIcon width={20} height={20} alt="" />,
+          l10n: "nav-phone-dashboard",
         })}
 
         {/* omitting condition as this should always be visible */}

@@ -1,5 +1,4 @@
-import useSWR, { Fetcher, SWRConfig, SWRResponse } from "swr";
-import { PublicConfiguration } from "swr/dist/types";
+import useSWR, { Fetcher, SWRConfig, SWRConfiguration, SWRResponse } from "swr";
 import { getRuntimeConfig } from "../../config";
 import { getCsrfToken } from "../../functions/cookies";
 
@@ -67,8 +66,8 @@ const fetcher: Fetcher = async (route: string, init?: RequestInit) => {
  * Make calls to our API using [SWR](https://swr.vercel.app). Generally wrapped in endpoint-specific hooks, e.g. {@link useProfiles}.
  */
 export function useApiV1<Data = unknown>(
-  route: string,
-  swrOptions: Partial<PublicConfiguration> = {}
+  route: string | null,
+  swrOptions: Partial<SWRConfiguration> = {}
 ): SWRResponse<Data, FetchError> {
   // TODO: Also use the sessionId cookie in the key,
   //       to ensure no data is cached from different users?
@@ -78,7 +77,7 @@ export function useApiV1<Data = unknown>(
     onErrorRetry: (
       error: unknown | FetchError,
       key,
-      config: Parameters<typeof SWRConfig.default.onErrorRetry>[2],
+      config: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[2],
       revalidate,
       revalidateOpts
     ) => {
@@ -87,7 +86,7 @@ export function useApiV1<Data = unknown>(
         return;
       }
       // Otherwise, use SWR's default exponential back-off to retry:
-      SWRConfig.default.onErrorRetry(
+      SWRConfig.defaultValue.onErrorRetry(
         error,
         key,
         config,

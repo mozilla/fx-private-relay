@@ -151,7 +151,7 @@ $toastify-toast-close-button: var(--toast-close-button);
   // overlap the AppPicker drawer).
   // Thus, upping the z-index stack the header, and menus
   // expanding from it, on top again:
-  z-index: 2;
+  z-index: 1;
   display: grid;
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -168,6 +168,7 @@ $toastify-toast-close-button: var(--toast-close-button);
     grid-area: logoWrapper;
     display: flex;
     align-items: center;
+    max-width: calc(100% - $spacing-md);
 
     .logo {
       display: inline-flex;
@@ -263,10 +264,17 @@ $toastify-toast-close-button: var(--toast-close-button);
   flex-grow: 2;
   display: flex;
   flex-direction: column;
+  // Create a new stacking context for the content, so we can use z-indexes in
+  // the content without preventing the header/mobile menu from overlapping it.
+  isolation: isolate;
 
   @media screen and (min-width: $screen-md) {
     background-color: $color-light-gray-10;
   }
+}
+
+.gray-bg {
+  background-color: $color-light-gray-10;
 }
 
 .footer {
@@ -322,7 +330,4 @@ $toastify-toast-close-button: var(--toast-close-button);
   padding: $spacing-md $spacing-lg;
   text-align: center;
   position: relative;
-  // We set the index to '2' to overlap mobile menu
-  // Mimicking the behavior of the header
-  z-index: 2;
 }

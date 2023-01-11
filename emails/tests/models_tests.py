@@ -38,7 +38,7 @@ from ..models import (
 )
 
 
-def make_free_test_user():
+def make_free_test_user() -> User:
     user = baker.make(User)
     user_profile = Profile.objects.get(user=user)
     user_profile.server_storage = True
@@ -49,9 +49,9 @@ def make_free_test_user():
     return user
 
 
-def make_premium_test_user():
+def make_premium_test_user() -> User:
     # premium user
-    premium_user = baker.make(User)
+    premium_user = baker.make(User, email="premium@email.com")
     premium_user_profile = Profile.objects.get(user=premium_user)
     premium_user_profile.server_storage = True
     premium_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
@@ -62,7 +62,7 @@ def make_premium_test_user():
 
 def make_storageless_test_user():
     storageless_user = baker.make(User)
-    storageless_user_profile = Profile.objects.get(user=storageless_user)
+    storageless_user_profile = storageless_user.profile
     storageless_user_profile.server_storage = False
     storageless_user_profile.subdomain = "mydomain"
     storageless_user_profile.date_subscribed = datetime.now(tz=timezone.utc)
@@ -71,8 +71,12 @@ def make_storageless_test_user():
     return storageless_user
 
 
+def unlimited_subscription():
+    return random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED)
+
+
 def upgrade_test_user_to_premium(user):
-    random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
+    random_sub = unlimited_subscription()
     baker.make(
         SocialAccount,
         user=user,
@@ -169,9 +173,9 @@ class MiscEmailModelsTest(TestCase):
 class RelayAddressTest(TestCase):
     def setUp(self):
         self.user = make_free_test_user()
-        self.user_profile = self.user.profile_set.first()
+        self.user_profile = self.user.profile
         self.premium_user = make_premium_test_user()
-        self.premium_user_profile = self.premium_user.profile_set.first()
+        self.premium_user_profile = self.premium_user.profile
         self.storageless_user = make_storageless_test_user()
 
     def test_create_assigns_to_user(self):
@@ -273,7 +277,7 @@ class RelayAddressTest(TestCase):
 class ProfileTest(TestCase):
     def setUp(self):
         user = baker.make(User)
-        self.profile = user.profile_set.first()
+        self.profile = user.profile
         self.profile.server_storage = True
         self.profile.save()
 
@@ -450,37 +454,33 @@ class ProfileTest(TestCase):
 
     def test_has_premium_with_unlimited_subsription_returns_True(self):
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
-        premium_profile = baker.make(Profile, user=premium_user)
-        assert premium_profile.has_premium is True
+        assert premium_user.profile.has_premium is True
 
     def test_add_subdomain_to_new_unlimited_profile(self):
         subdomain = "newpremium"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         assert premium_profile.add_subdomain(subdomain) == subdomain
 
     def test_setting_direct_Profile_subdomain_lowercases_subdomain_value(self):
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.subdomain = "mIxEdcAsE"
@@ -490,19 +490,18 @@ class ProfileTest(TestCase):
     def test_add_subdomain_lowercases_subdomain_value(self):
         subdomain = "mIxEdcAsE"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         assert premium_profile.add_subdomain(subdomain) == "mixedcase"
 
     def test_add_subdomain_to_non_premium_user_raises_exception(self):
         subdomain = "test"
-        non_premium_profile = baker.make(Profile)
+        non_premium_profile = baker.make(User).profile
         try:
             non_premium_profile.add_subdomain(subdomain)
         except CannotMakeSubdomainException as e:
@@ -513,12 +512,11 @@ class ProfileTest(TestCase):
     def test_add_subdomain_to_unlimited_profile_with_subdomain_raises_exception(self):
         subdomain = "test"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.subdomain = subdomain
@@ -536,12 +534,11 @@ class ProfileTest(TestCase):
     ):
         subdomain = "angry"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
 
@@ -557,12 +554,11 @@ class ProfileTest(TestCase):
     ):
         subdomain = "mozilla"
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
 
@@ -583,12 +579,11 @@ class ProfileTest(TestCase):
 
     def test_subdomain_available_taken_returns_False(self):
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain("thisisfine")
@@ -597,12 +592,11 @@ class ProfileTest(TestCase):
 
     def test_subdomain_available_taken_returns_False_case_insensitive(self):
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain("thIsIsfInE")
@@ -613,12 +607,11 @@ class ProfileTest(TestCase):
         # subdomains registered in now deleted profiles are considered
         # inactive subdomains
         premium_user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=premium_user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         premium_profile = Profile.objects.get(user=premium_user)
         premium_profile.add_subdomain("thisisfine")
@@ -726,7 +719,7 @@ class ProfileTest(TestCase):
         )
 
         server_stored_data_user = baker.make(User)
-        server_stored_data_profile = server_stored_data_user.profile_set.first()
+        server_stored_data_profile = server_stored_data_user.profile
         server_stored_data_profile.server_storage = True
         server_stored_data_profile.save()
         baker.make(
@@ -833,7 +826,7 @@ class ProfileTest(TestCase):
     ):
         subdomain = "test"
         user = make_premium_test_user()
-        user_profile = Profile.objects.get(user=user)
+        user_profile = user.profile
         user_profile.subdomain = subdomain
         user_profile.num_email_replied_in_deleted_address = 1
         user_profile.save()
@@ -879,12 +872,12 @@ class ProfileTest(TestCase):
     def test_remove_level_one_email_trackers_disabled_emits_metric_and_logs(
         self, mocked_events_info, mocked_incr
     ):
-        profile = baker.make(Profile, remove_level_one_email_trackers=True)
-        baker.make(
-            SocialAccount,
-            user=profile.user,
-            provider="fxa",
+        user = baker.make(User)
+        Profile.objects.filter(user_id=user.id).update(
+            remove_level_one_email_trackers=True
         )
+        baker.make(SocialAccount, user=user, provider="fxa")
+        profile = user.profile
         profile.remove_level_one_email_trackers = False
         profile.save()
 
@@ -935,7 +928,8 @@ class ProfileTest(TestCase):
     def test_profile_created_does_not_emit_metric_and_logs_from_measure_feature_usage_signal(
         self, mocked_events_info, mocked_incr
     ):
-        baker.make(Profile)
+        user = baker.make(User)
+        assert user.profile
 
         mocked_incr.assert_not_called()
         mocked_events_info.assert_not_called()
@@ -948,9 +942,9 @@ class ProfileTest(TestCase):
         expected_now = self.patch_datetime_now()
         user = make_premium_test_user()
         baker.make(AbuseMetrics, user=user, num_email_forwarded_per_day=4)
-        profile = user.profile_set.first()
+        profile = user.profile
 
-        assert profile.last_account_flagged == None
+        assert profile.last_account_flagged is None
         profile.update_abuse_metric(email_forwarded=True)
 
         abuse_metrics = AbuseMetrics.objects.get(user=user)
@@ -977,9 +971,9 @@ class ProfileTest(TestCase):
         expected_now = self.patch_datetime_now()
         user = make_premium_test_user()
         baker.make(AbuseMetrics, user=user, forwarded_email_size_per_day=50)
-        profile = user.profile_set.first()
+        profile = user.profile
 
-        assert profile.last_account_flagged == None
+        assert profile.last_account_flagged is None
         profile.update_abuse_metric(forwarded_email_size=50)
 
         abuse_metrics = AbuseMetrics.objects.get(user=user)
@@ -1004,9 +998,7 @@ class DomainAddressTest(TestCase):
         self.subdomain = "test"
         self.user = make_premium_test_user()
         self.storageless_user = make_storageless_test_user()
-        # get rather than create profile since profile is auto-generated
-        # when user is created
-        self.user_profile = Profile.objects.get(user=self.user)
+        self.user_profile = self.user.profile
         self.user_profile.subdomain = self.subdomain
         self.user_profile.save()
 
@@ -1057,7 +1049,7 @@ class DomainAddressTest(TestCase):
         assert domain_address.first_emailed_at is not None
 
     def test_make_domain_address_non_premium_user(self) -> None:
-        non_premium_user_profile = baker.make(Profile)
+        non_premium_user_profile = baker.make(User).profile
         with pytest.raises(CannotMakeAddressException) as exc_info:
             DomainAddress.make_domain_address(
                 non_premium_user_profile, "test-non-premium"
@@ -1070,12 +1062,11 @@ class DomainAddressTest(TestCase):
 
     def test_make_domain_address_valid_premium_user_with_no_subdomain(self) -> None:
         user = baker.make(User)
-        random_sub = random.choice(settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","))
         baker.make(
             SocialAccount,
             user=user,
             provider="fxa",
-            extra_data={"subscriptions": [random_sub]},
+            extra_data={"subscriptions": [unlimited_subscription()]},
         )
         user_profile = Profile.objects.get(user=user)
         with pytest.raises(CannotMakeAddressException) as exc_info:

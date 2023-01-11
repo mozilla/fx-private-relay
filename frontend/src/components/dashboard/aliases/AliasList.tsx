@@ -1,4 +1,3 @@
-import { Localized, useLocalization } from "@fluent/react";
 import { useState, useEffect } from "react";
 import { VisuallyHidden } from "react-aria";
 import styles from "./AliasList.module.scss";
@@ -12,6 +11,9 @@ import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useLocalLabels } from "../../../hooks/localLabels";
 import { AliasGenerationButton } from "./AliasGenerationButton";
 import { SearchIcon } from "../../Icons";
+import { useFlaggedAnchorLinks } from "../../../hooks/flaggedAnchorLinks";
+import { useL10n } from "../../../hooks/l10n";
+import { Localized } from "../../Localized";
 
 export type Props = {
   aliases: AliasData[];
@@ -31,12 +33,25 @@ export type Props = {
  * Display a list of <Alias> cards, with the ability to filter them or create a new alias.
  */
 export const AliasList = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [stringFilterInput, setStringFilterInput] = useState("");
   const [stringFilterVisible, setStringFilterVisible] = useState(false);
   const [categoryFilters, setCategoryFilters] = useState<SelectedFilters>({});
   const [localLabels, storeLocalLabel] = useLocalLabels();
-  const [openAlias, setOpenAlias] = useState<AliasData | undefined>(undefined);
+  // When <AliasList> gets added to the page, if there's an anchor link in the
+  // URL pointing to a mask, scroll to that mask:
+  useFlaggedAnchorLinks(
+    [],
+    props.aliases.map((alias) => encodeURIComponent(alias.full_address))
+  );
+  const [openAlias, setOpenAlias] = useState<AliasData | undefined>(
+    // If the mask was focused on by an anchor link, expand that one on page load:
+    props.aliases.find(
+      (alias) =>
+        alias.full_address ===
+        decodeURIComponent(document.location.hash.substring(1))
+    )
+  );
   const [existingAliases, setExistingAliases] = useState<AliasData[]>(
     props.aliases
   );
@@ -110,6 +125,7 @@ export const AliasList = (props: Props) => {
       <li
         className={styles["alias-card-wrapper"]}
         key={alias.address + isRandomAlias(alias)}
+        id={encodeURIComponent(alias.full_address)}
       >
         <Alias
           alias={alias}
@@ -117,7 +133,11 @@ export const AliasList = (props: Props) => {
           profile={props.profile}
           onUpdate={onUpdate}
           onDelete={() => props.onDelete(alias)}
-          isOpen={openAlias !== undefined && openAlias.id === alias.id}
+          isOpen={
+            openAlias !== undefined &&
+            openAlias.id === alias.id &&
+            openAlias.mask_type === alias.mask_type
+          }
           onChangeOpen={onChangeOpen}
           showLabelEditor={props.profile.server_storage || localLabels !== null}
           runtimeData={props.runtimeData}

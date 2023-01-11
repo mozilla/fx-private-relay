@@ -7,13 +7,13 @@ import {
   getMockRuntimeDataWithoutPremium,
   getMockRuntimeDataWithPeriodicalPremium,
 } from "../../../../__mocks__/hooks/api/runtimeData";
-import { mockFluentReact } from "../../../../__mocks__/modules/fluent__react";
+import { mockUseL10nModule } from "../../../../__mocks__/hooks/l10n";
 
 import { AliasGenerationButton } from "./AliasGenerationButton";
 
-jest.mock("@fluent/react", () => mockFluentReact);
 jest.mock("../../../config.ts", () => mockConfigModule);
 jest.mock("../../../hooks/gaViewPing.ts");
+jest.mock("../../../hooks/l10n.ts", () => mockUseL10nModule);
 
 describe("<AliasGenerationButton>", () => {
   it("displays a usable button to generate an alias for a free user not at the alias limit", () => {

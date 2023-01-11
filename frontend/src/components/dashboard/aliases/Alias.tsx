@@ -1,5 +1,4 @@
 import { useRef, useState, ReactNode } from "react";
-import { Localized, useLocalization } from "@fluent/react";
 import { useToggleState, useTooltipTriggerState } from "react-stately";
 import {
   mergeProps,
@@ -26,6 +25,9 @@ import { getLocale } from "../../../functions/getLocale";
 import { BlockLevel, BlockLevelSlider } from "./BlockLevelSlider";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { isFlagActive } from "../../../functions/waffle";
+import { isPeriodicalPremiumAvailableInCountry } from "../../../functions/getPlan";
+import { useL10n } from "../../../hooks/l10n";
+import { Localized } from "../../Localized";
 
 export type Props = {
   alias: AliasData;
@@ -43,7 +45,7 @@ export type Props = {
  * A card to manage (toggle it on/off, view details, ...) a single alias.
  */
 export const Alias = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const [justCopied, setJustCopied] = useState(false);
 
   const expandButtonRef = useRef<HTMLButtonElement>(null);
@@ -215,10 +217,9 @@ export const Alias = (props: Props) => {
             alias={props.alias}
             onChange={setBlockLevel}
             hasPremium={props.profile.has_premium}
-            premiumAvailableInCountry={
-              props.runtimeData?.PREMIUM_PLANS.premium_available_in_country ??
-              false
-            }
+            premiumAvailableInCountry={isPeriodicalPremiumAvailableInCountry(
+              props.runtimeData
+            )}
           />
         </div>
         <div className={styles.row}>
@@ -245,7 +246,7 @@ type StatsProps = {
   runtimeData?: RuntimeData;
 };
 const Stats = (props: StatsProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const numberFormatter = new Intl.NumberFormat(getLocale(l10n), {
     notation: "compact",
     compactDisplay: "short",
@@ -307,7 +308,7 @@ type TooltipProps = {
   children: ReactNode;
 };
 const ForwardedTooltip = (props: TooltipProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const triggerState = useTooltipTriggerState({ delay: 0 });
   const triggerRef = useRef<HTMLSpanElement>(null);
   const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
@@ -347,7 +348,7 @@ const ForwardedTooltip = (props: TooltipProps) => {
 };
 
 const BlockedTooltip = (props: TooltipProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const triggerState = useTooltipTriggerState({ delay: 0 });
   const triggerRef = useRef<HTMLSpanElement>(null);
   const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
@@ -375,7 +376,7 @@ const BlockedTooltip = (props: TooltipProps) => {
 };
 
 const TrackersRemovedTooltip = (props: TooltipProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const triggerState = useTooltipTriggerState({ delay: 0 });
   const triggerRef = useRef<HTMLSpanElement>(null);
   const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
@@ -411,7 +412,7 @@ const TrackersRemovedTooltip = (props: TooltipProps) => {
 };
 
 const RepliesTooltip = (props: TooltipProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const triggerState = useTooltipTriggerState({ delay: 0 });
   const triggerRef = useRef<HTMLSpanElement>(null);
   const tooltipTrigger = useTooltipTrigger({}, triggerState, triggerRef);
@@ -443,7 +444,7 @@ type BlockLevelLabelProps = {
   alias: AliasData;
 };
 const BlockLevelLabel = (props: BlockLevelLabelProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   if (props.alias.enabled === false) {
     return (
       <b
@@ -472,7 +473,7 @@ type TrackerRemovalIndicatorProps = {
   profile: ProfileData;
 };
 const TrackerRemovalIndicator = (props: TrackerRemovalIndicatorProps) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const tooltipState = useTooltipTriggerState({ delay: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const { triggerProps, tooltipProps: triggerTooltipProps } = useTooltipTrigger(

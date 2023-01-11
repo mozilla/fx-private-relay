@@ -82,7 +82,7 @@ def default_domain_numerical():
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     api_token = models.UUIDField(default=uuid.uuid4)
     num_address_deleted = models.PositiveIntegerField(default=0)
     date_subscribed = models.DateTimeField(blank=True, null=True)
@@ -116,6 +116,7 @@ class Profile(models.Model):
     remove_level_one_email_trackers = models.BooleanField(null=True, default=False)
     onboarding_state = models.PositiveIntegerField(default=0)
     auto_block_spam = models.BooleanField(default=False)
+    forwarded_first_reply = models.BooleanField(default=False)
 
     def __str__(self):
         return "%s Profile" % self.user
@@ -159,7 +160,7 @@ class Profile(models.Model):
 
     # This method returns whether the locale associated with the user's Firefox account
     # includes a country code from a Premium country. This is less accurate than using
-    # get_premium_countries_info_from_request(), which uses a GeoIP lookup, so prefer
+    # get_countries_info_from_request_and_mapping(), which uses a GeoIP lookup, so prefer
     # using that if a request context is available. In other contexts, e.g. when
     # sending an email, this method can be useful.
     @property
@@ -170,7 +171,7 @@ class Profile(models.Model):
                 len(accept_langs) >= 1
                 and len(accept_langs[0][0].split("-")) >= 2
                 and accept_langs[0][0].split("-")[1]
-                in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+                in settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
             # If a language but no country is known, check if there's a country
@@ -181,7 +182,7 @@ class Profile(models.Model):
                 len(accept_langs) >= 1
                 and len(accept_langs[0][0].split("-")) == 1
                 and accept_langs[0][0].split("-")[0]
-                in settings.PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
+                in settings.PERIODICAL_PREMIUM_PLAN_COUNTRY_LANG_MAPPING.keys()
             ):
                 return True
         return False
@@ -284,7 +285,7 @@ class Profile(models.Model):
             if self.user.email.endswith(f"@{premium_domain}"):
                 return True
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_UNLIMITED:
             if sub in user_subscriptions:
                 return True
         return False
@@ -298,7 +299,7 @@ class Profile(models.Model):
             if flag.is_active_for_user(self.user):
                 return True
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_PHONE.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_PHONE:
             if sub in user_subscriptions:
                 return True
         return False
@@ -308,7 +309,7 @@ class Profile(models.Model):
         if not self.fxa:
             return False
         user_subscriptions = self.fxa.extra_data.get("subscriptions", [])
-        for sub in settings.SUBSCRIPTIONS_WITH_VPN.split(","):
+        for sub in settings.SUBSCRIPTIONS_WITH_VPN:
             if sub in user_subscriptions:
                 return True
         return False
@@ -459,10 +460,6 @@ class Profile(models.Model):
         return True
 
 
-def get_storing_phone_log(relay_number):
-    return relay_number.user.profile_set.get().store_phone_log
-
-
 @receiver(models.signals.post_save, sender=Profile)
 def copy_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
@@ -552,8 +549,8 @@ class AccountIsPausedException(CannotMakeAddressException):
 class RelayAddrFreeTierLimitException(CannotMakeAddressException):
     default_code = "free_tier_limit"
     default_detail_template = (
-        "You must be a premium subscriber to make more than"
-        " {free_tier_limit} aliases."
+        "You’ve used all {free_tier_limit} email masks included with your free account."
+        "You can reuse an existing mask, but using a unique mask for each account is the most secure option."
     )
     status_code = 403
 
@@ -570,24 +567,19 @@ class RelayAddrFreeTierLimitException(CannotMakeAddressException):
 
 class DomainAddrFreeTierException(CannotMakeAddressException):
     default_code = "free_tier_no_subdomain_masks"
-    default_detail = "You must be a premium subscriber to create subdomain aliases."
+    default_detail = "Your free account does not include custom subdomains for masks. To create custom masks, upgrade to Relay Premium."
     status_code = 403
 
 
 class DomainAddrNeedSubdomainException(CannotMakeAddressException):
     default_code = "need_subdomain"
-    default_detail = (
-        "You must select a subdomain before creating email address with subdomain."
-    )
+    default_detail = "Please select a subdomain before creating a custom email address."
     status_code = 400
 
 
 class DomainAddrUnavailableException(CannotMakeAddressException):
     default_code = "address_unavailable"
-    default_detail_template = (
-        'Domain address "{unavailable_address}" could not be created,'
-        " try using a different value."
-    )
+    default_detail_template = "“{unavailable_address}” could not be created. Please try again with a different mask name."
     status_code = 400
 
     def __init__(self, unavailable_address: str, *args, **kwargs):
@@ -658,8 +650,7 @@ class RelayAddress(models.Model):
                         break
                     self.address = address_default()
                 locked_profile.update_abuse_metric(address_created=True)
-        profile = self.user.profile_set.first()
-        if not profile.server_storage:
+        if not self.user.profile.server_storage:
             self.description = ""
             self.generated_for = ""
             self.used_on = ""
@@ -754,7 +745,7 @@ class DomainAddress(models.Model):
         return self.address
 
     def save(self, *args, **kwargs) -> None:
-        user_profile = self.user.profile_set.get()
+        user_profile = self.user.profile
         if self._state.adding:
             check_user_can_make_domain_address(user_profile)
             pattern_valid = valid_address_pattern(self.address)
@@ -851,7 +842,7 @@ class Reply(models.Model):
 
     @property
     def profile(self):
-        return self.address.user.profile_set.first()
+        return self.address.user.profile
 
     @property
     def owner_has_premium(self):

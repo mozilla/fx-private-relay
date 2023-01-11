@@ -49,24 +49,9 @@ export function getMockRuntimeDataWithBundle(): RuntimeData {
     FXA_ORIGIN: "https://fxa-mock.com",
     BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
-    INTRO_PRICING_END: "2022-09-27T16:00:00.000Z",
-    PREMIUM_PRODUCT_ID: "prod_123456789",
     PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     BUNDLE_PRODUCT_ID: "prod_123456789",
-    PREMIUM_PLANS: {
-      country_code: "nl",
-      plan_country_lang_mapping: {
-        nl: {
-          nl: {
-            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€0,99",
-          },
-        },
-      },
-      premium_countries: ["nl"],
-      premium_available_in_country: true,
-    },
     PERIODICAL_PREMIUM_PLANS: getAvailableProductData(),
     PHONE_PLANS: getAvailableProductData(),
     BUNDLE_PLANS: getAvailableProductData(),
@@ -79,24 +64,9 @@ export function getMockRuntimeDataWithPhones(): RuntimeData {
     FXA_ORIGIN: "https://fxa-mock.com",
     BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
-    INTRO_PRICING_END: "2022-09-27T16:00:00.000Z",
-    PREMIUM_PRODUCT_ID: "prod_123456789",
     PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     BUNDLE_PRODUCT_ID: "prod_123456789",
-    PREMIUM_PLANS: {
-      country_code: "nl",
-      plan_country_lang_mapping: {
-        nl: {
-          nl: {
-            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€0,99",
-          },
-        },
-      },
-      premium_countries: ["nl"],
-      premium_available_in_country: true,
-    },
     PERIODICAL_PREMIUM_PLANS: getAvailableProductData(),
     PHONE_PLANS: getAvailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
@@ -109,24 +79,9 @@ export function getMockRuntimeDataWithPeriodicalPremium(): RuntimeData {
     FXA_ORIGIN: "https://fxa-mock.com",
     BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
-    INTRO_PRICING_END: "2022-09-27T16:00:00.000Z",
-    PREMIUM_PRODUCT_ID: "prod_123456789",
     PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     BUNDLE_PRODUCT_ID: "prod_123456789",
-    PREMIUM_PLANS: {
-      country_code: "nl",
-      plan_country_lang_mapping: {
-        nl: {
-          nl: {
-            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€0,99",
-          },
-        },
-      },
-      premium_countries: ["nl"],
-      premium_available_in_country: true,
-    },
     PERIODICAL_PREMIUM_PLANS: getAvailableProductData(),
     PHONE_PLANS: getUnavailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
@@ -139,24 +94,9 @@ export function getMockRuntimeDataWithoutPremium(): RuntimeData {
     FXA_ORIGIN: "https://fxa-mock.com",
     BASKET_ORIGIN: "https://basket-mock.com",
     GOOGLE_ANALYTICS_ID: "UA-123456789-0",
-    INTRO_PRICING_END: "2022-09-27T16:00:00.000Z",
-    PREMIUM_PRODUCT_ID: "prod_123456789",
     PERIODICAL_PREMIUM_PRODUCT_ID: "prod_123456789",
     PHONE_PRODUCT_ID: "prod_123456789",
     BUNDLE_PRODUCT_ID: "prod_123456789",
-    PREMIUM_PLANS: {
-      country_code: "be",
-      plan_country_lang_mapping: {
-        nl: {
-          nl: {
-            id: "price_1JmROfJNcmPzuWtR6od8OfDW",
-            price: "€0,99",
-          },
-        },
-      },
-      premium_countries: ["nl"],
-      premium_available_in_country: false,
-    },
     PERIODICAL_PREMIUM_PLANS: getUnavailableProductData(),
     PHONE_PLANS: getUnavailableProductData(),
     BUNDLE_PLANS: getUnavailableProductData(),
@@ -171,6 +111,8 @@ function getReturnValue(
   return {
     isValidating: false,
     mutate: jest.fn(),
+    error: undefined,
+    isLoading: false,
     data: {
       ...getMockRuntimeDataWithPeriodicalPremium(),
       ...runtimeData,

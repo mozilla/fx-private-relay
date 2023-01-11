@@ -1,0 +1,49 @@
+@import "../../../styles/tokens.scss";
+@import "~@mozilla-protocol/core/protocol/css/includes/lib";
+
+.generic-tip {
+  @include text-body-sm;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  h3 {
+    @include text-title-3xs;
+    font-family: $font-stack-firefox;
+    color: $color-purple-90;
+  }
+
+  video {
+    border-radius: $border-radius-md;
+    // The video is listed last because its content is usually an example of the
+    // textual content, so for screen readers it makes more sense to read it
+    // last. However, we want to visually show it first.
+    // (This might create a disconnect for low-vision-but-not-blind users, but
+    // that's probably/hopefully managable.)
+    order: -1;
+  }
+
+  .still-alternative {
+    display: none;
+    border-radius: $border-radius-md;
+    // The video is listed last because its content is usually an example of the
+    // textual content, so for screen readers it makes more sense to read it
+    // last. However, we want to visually show it first.
+    // (This might create a disconnect for low-vision-but-not-blind users, but
+    // that's probably/hopefully managable.)
+    order: -1;
+  }
+
+  @media (prefers-reduced-motion) {
+    video {
+      display: none;
+    }
+
+    // Ideally a `display: none` on <source> elements would be enough to
+    // cause the <img> inside <video> to be displayed, but it's not.
+    // Hence, another <img> element:
+    .still-alternative {
+      display: initial;
+    }
+  }
+}

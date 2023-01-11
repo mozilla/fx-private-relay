@@ -1,0 +1,118 @@
+{% comment %}
+  Note that Django only loads strings from `app.ftl` and `brands.ftl`,
+  so make sure all email strings are included in that file.
+{% endcomment %}
+{% load ftl %}
+{% load email_extras %}
+{% withftl bundle='privaterelay.ftl_bundles.main' language=language %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ request.LANGUAGE_CODE }}" dir="ltr"></html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width"/>
+    <title>Firefox Relay</title>
+    <style> 
+        @font-face {
+                font-family: 'inter';
+                font-style: normal;
+                font-weight: 500;
+                src: local('Inter Regular'), local('Inter-Regular'), url(https://relay.firefox.com/fonts/Inter/Inter-Regular.4232a675a077.woff2?v=3.18) format('woff');
+            }
+        @font-face {
+        font-family: 'inter medium';
+        font-style: bold;
+        font-weight: 600;
+        src: local('Inter Medium'), local('Inter-Medium'), url(https://relay.firefox.com/fonts/Inter/Inter-Medium.027d14e7d35b.woff2?v=3.18) format('woff');
+        }
+            * {
+            box-sizing: border-box;
+            } 
+        body {
+            font-family: 'inter', Arial, sans-serif !important; 
+            color: #3D3D3D;
+        }
+        a { 
+            color: #0060DF;
+            transition: all 0.2s ease;
+        }
+        a:hover {
+            color: #20123ad5;
+            transition: all 0.2s ease;
+        }
+        a.container-link {
+          color: #FFFFFF;
+          font-size: 12px;
+        }
+        a:hover,
+        a:focus,
+        a:active {
+            transition: all 0.2s ease;
+        }
+    </style>
+  </head>
+  <body style="padding: 0; margin: 0;">
+    
+    <!-- temporary header -->
+    <table width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" align="center">
+        <tr>
+            <td align="center" valign="top" width="100%" style="max-width:800px; padding-top: 0px; padding-bottom: 0px;">
+            <table width="100%" style="max-width:700px; text-align: center; border-collapse: collapse;">
+                <tr>
+                <td width="50%" style="line-height: 150%;" align="left"> 
+                      <img width="155" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0 5px;" alt="warning icon"/>   
+                </td>
+                <td width="50%" style="line-height: 150%;" align="right"> 
+                    <a class="container-link" href="{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}">{% ftlmsg 'upgrade-for-more-protection' %}</a> 
+                </td>
+                </tr>
+            </table>
+            </td>
+        </tr>
+    </table>  
+    
+    <table role="presentation" border="0" cellpadding="0" cellspacing="10px" style="padding: 60px 30px 120px 30px;" align="center">
+        <tr>
+            <td style="max-width:800px; padding-top: 0px; padding-bottom: 0px; text-align: center;">
+                <h2 style="font-family: 'inter medium';"> 
+                    <img width="18" src="{{ SITE_ORIGIN }}/static/images/email-images/warning.png" style="margin: 0 5px;" alt="warning icon"/>
+                    {% if forwarded == True %}
+                        {% ftlmsg 'replies-not-included-in-free-account-header' %}
+                    {% else %}
+                        {% ftlmsg 'reply-not-sent-header' %}
+                    {% endif %}
+                </h2>
+                <p style="line-height: 200%; margin-bottom: 30px; padding: 20px 60px 20px 60px">
+                    {% if forwarded == True %}
+                        {% ftlmsg 'first-reply-forwarded' sender=sender %}
+                    {% else %}
+                        {% ftlmsg 'other-reply-not-forwarded' sender=sender %}
+                    {% endif %}
+                    {% ftlmsg 'replies-only-available-with-premium' %}
+                </p> 
+                <a href="{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}" style="margin: 10px 0;">{% ftlmsg 'upgrade-to-reply-to-future-emails' %}</a>
+            </td> 
+        </tr>
+    </table>
+
+    <!-- temporary footer -->
+    <table width="100%" bgcolor="#3D3D3D" style="background: #3D3D3D; padding-top: 12px; padding-right: 12px; padding-left: 12px; padding-bottom:12px; margin-top: 30px; margin-bottom: 30px; width: 96%; border-radius: 6px;" align="center">
+      <tr>
+          <td align="center" valign="top" width="100%" style="max-width:800px; padding-top: 0px; padding-bottom: 0px;">
+          <table width="100%" style="max-width:700px; text-align: center; border-collapse: collapse;">
+              <tr>
+              <td width="50%" style="line-height: 150%;" align="left"> 
+                    <img width="110" src="{{ SITE_ORIGIN }}/static/images/email-images/relay-logo-emails-dark-bg.png" style="margin: 0 5px;" alt="warning icon"/>   
+              </td>
+              <td width="50%" style="line-height: 150%;" align="right"> 
+              <a class="container-link" href="{{ SITE_ORIGIN|add:"/premium/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}" style="margin-right: 30px;">{% ftlmsg 'upgrade-to-premium' %}</a> 
+              <a class="container-link" href="{{ SITE_ORIGIN|add:"/accounts/profile/?utm_campaign=email_replies&utm_source=email&utm_medium=email" }}">{% ftlmsg 'manage-your-masks' %}</a> 
+              </td> 
+          </table>
+          </td>
+      </tr>
+  </table>  
+
+  </body>
+</html>
+{% endwithftl %}

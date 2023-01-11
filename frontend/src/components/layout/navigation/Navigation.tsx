@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useLocalization } from "@fluent/react";
 import styles from "./Navigation.module.scss";
 import { SignUpButton } from "./SignUpButton";
 import { SignInButton } from "./SignInButton";
@@ -15,19 +14,19 @@ import {
   isPeriodicalPremiumAvailableInCountry,
   isPhonesAvailableInCountry,
 } from "../../../functions/getPlan";
-import { isFlagActive } from "../../../functions/waffle";
+import { useL10n } from "../../../hooks/l10n";
 
 export type Props = {
   theme: "free" | "premium";
   hasPremium: boolean;
-  mobileMenuExpanded: boolean | undefined;
   handleToggle: CallableFunction;
-  profile: ProfileData | undefined;
   isLoggedIn: boolean;
+  mobileMenuExpanded?: boolean;
+  profile?: ProfileData;
 };
 /** Switch between the different pages of the Relay website. */
 export const Navigation = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const runtimeData = useRuntimeData();
   const router = useRouter();
   const {
@@ -38,21 +37,38 @@ export const Navigation = (props: Props) => {
     hasPremium,
     isLoggedIn,
   } = props;
-  const homePath = isLoggedIn ? "/accounts/profile" : "/";
   const isPremiumPage = router.pathname === "/premium";
 
+  const landingLink = (
+    <Link
+      href="/"
+      className={`${styles.link} ${styles["home-link"]} 
+        ${styles["hidden-mobile"]} 
+        ${router.pathname === "/" ? styles["is-active"] : ""}`}
+    >
+      {l10n.getString("nav-home")}
+    </Link>
+  );
+  const emailDashboardLink = (
+    <Link
+      href="/accounts/profile"
+      className={`${styles.link} ${styles["home-link"]} 
+        ${styles["hidden-mobile"]} 
+        ${router.pathname === "/accounts/profile" ? styles["is-active"] : ""}`}
+    >
+      {l10n.getString("nav-email-dashboard")}
+    </Link>
+  );
+
   const phoneLink =
-    isLoggedIn &&
-    isPhonesAvailableInCountry(runtimeData.data) &&
-    isFlagActive(runtimeData.data, "phones") ? (
-      <Link href="/phone">
-        <a
-          className={`${styles.link} ${styles["hidden-mobile"]} ${
-            router.pathname === "/phone" ? styles["is-active"] : null
-          }`}
-        >
-          {l10n.getString("nav-phone")}
-        </a>
+    isLoggedIn && isPhonesAvailableInCountry(runtimeData.data) ? (
+      <Link
+        href="/phone"
+        className={`${styles.link} ${styles["hidden-mobile"]} ${
+          router.pathname === "/phone" ? styles["is-active"] : null
+        }`}
+      >
+        {l10n.getString("nav-phone-dashboard")}
       </Link>
     ) : null;
 
@@ -69,26 +85,17 @@ export const Navigation = (props: Props) => {
 
   return (
     <nav className={styles["site-nav"]}>
-      <Link href={homePath}>
-        <a
-          className={`${styles.link} ${styles["home-link"]} 
-          ${styles["hidden-mobile"]} 
-          ${router.pathname === homePath ? styles["is-active"] : ""}`}
-        >
-          {l10n.getString("nav-home")}
-        </a>
-      </Link>
+      {isLoggedIn ? emailDashboardLink : landingLink}
 
       {phoneLink}
 
-      <Link href="/faq">
-        <a
-          className={`${styles.link} ${styles["faq-link"]} 
-          ${styles["hidden-mobile"]} 
-          ${router.pathname === "/faq" ? styles["is-active"] : ""}`}
-        >
-          {l10n.getString("nav-faq")}
-        </a>
+      <Link
+        href="/faq"
+        className={`${styles.link} ${styles["faq-link"]} 
+        ${styles["hidden-mobile"]} 
+        ${router.pathname === "/faq" ? styles["is-active"] : ""}`}
+      >
+        {l10n.getString("nav-faq")}
       </Link>
 
       {/* if user is not logged in, show sign in and sign up buttons */}

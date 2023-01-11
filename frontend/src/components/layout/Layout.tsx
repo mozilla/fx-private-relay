@@ -6,7 +6,6 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
-import { useLocalization } from "@fluent/react";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./Layout.module.scss";
@@ -28,6 +27,8 @@ import { CloseIcon } from "../Icons";
 import { PageMetadata } from "./PageMetadata";
 import { RuntimeData } from "../../hooks/api/runtimeData";
 import { useRouter } from "next/router";
+import { isPhonesAvailableInCountry } from "../../functions/getPlan";
+import { useL10n } from "../../hooks/l10n";
 
 export type Props = {
   children: ReactNode;
@@ -39,7 +40,7 @@ export type Props = {
  * Standard page layout for Relay, wrapping its children in the relevant header and footer.
  */
 export const Layout = (props: Props) => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const profiles = useProfiles();
   const isLoggedIn = useIsLoggedIn();
   const router = useRouter();
@@ -100,7 +101,6 @@ export const Layout = (props: Props) => {
       </div>
     );
   };
-
   return (
     <>
       <PageMetadata />
@@ -112,27 +112,25 @@ export const Layout = (props: Props) => {
         />
         <header className={`${styles.header} ${darkClass}`}>
           <div className={styles["logo-wrapper"]}>
-            <Link href={homePath}>
-              <a className={styles.logo}>
-                {router.pathname === "/vpn-relay-welcome" ? (
-                  <img src={vpnRelayLogo.src} alt="" height={32} />
-                ) : (
-                  <>
-                    <img
-                      src={logo.src}
-                      alt=""
-                      className={styles.logomark}
-                      width={42}
-                    />
-                    <img
-                      src={logoType.src}
-                      alt={logoAlt}
-                      className={styles.logotype}
-                      height={20}
-                    />
-                  </>
-                )}
-              </a>
+            <Link href={homePath} className={styles.logo}>
+              {router.pathname === "/vpn-relay-welcome" ? (
+                <img src={vpnRelayLogo.src} alt="" height={32} />
+              ) : (
+                <>
+                  <img
+                    src={logo.src}
+                    alt=""
+                    className={styles.logomark}
+                    width={42}
+                  />
+                  <img
+                    src={logoType.src}
+                    alt={logoAlt}
+                    className={styles.logotype}
+                    height={20}
+                  />
+                </>
+              )}
             </Link>
           </div>
           <div className={styles["nav-wrapper"]}>
@@ -163,11 +161,18 @@ export const Layout = (props: Props) => {
           <MobileNavigation
             mobileMenuExpanded={mobileMenuExpanded}
             hasPremium={hasPremium}
+            isPhonesAvailable={isPhonesAvailableInCountry(props.runtimeData)}
             isLoggedIn={isLoggedIn}
             userEmail={usersData?.email}
             userAvatar={profiles.data?.[0].avatar}
           />
-          <div className={styles.content}>{props.children}</div>
+          <div
+            className={`${styles.content} ${
+              router.pathname === "/phone" ? styles["gray-bg"] : null
+            }`}
+          >
+            {props.children}
+          </div>
           <footer className={styles.footer}>
             <a
               href="https://www.mozilla.org"

@@ -2,6 +2,25 @@
 @import "../../../styles/tokens.scss";
 
 .main-phone-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .content-wrapper {
+    max-width: calc($content-lg + $layout-lg);
+    width: 100%;
+    height: 100%;
+    margin: 0 auto;
+    padding: $spacing-md;
+    margin-bottom: $layout-md;
+    gap: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    // Ensure that the <Tips> card can always overlap elements in the profile,
+    // even if they have z-indexes to overlap each other:
+    isolation: isolate;
+  }
+
   .nav-icon {
     color: $color-light-gray-80;
     stroke: $color-light-gray-80;
@@ -9,22 +28,6 @@
 
     &:hover {
       color: $color-blue-50;
-    }
-  }
-
-  button {
-    border: 0;
-    padding: 0;
-    background: transparent;
-    cursor: pointer;
-
-    &:hover {
-      color: $color-blue-50;
-
-      .nav-icon {
-        color: $color-blue-50;
-        stroke: $color-blue-50;
-      }
     }
   }
 
@@ -41,6 +44,19 @@
     flex-direction: row;
     border-radius: $border-radius-lg;
     align-items: center;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+
+    &:hover {
+      color: $color-blue-50;
+
+      .nav-icon {
+        color: $color-blue-50;
+        stroke: $color-blue-50;
+      }
+    }
 
     @media screen and #{$mq-md} {
       padding: $spacing-sm;
@@ -95,6 +111,10 @@
     .caller-sms-logs-back-btn {
       display: flex;
       align-items: center;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
     }
   }
 
@@ -230,6 +250,10 @@
 
     .block-btn {
       color: $color-blue-50;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      cursor: pointer;
 
       &:hover {
         color: $color-blue-80;
@@ -247,7 +271,7 @@
     min-height: $content-xs;
 
     .header-phone-number {
-      @include text-body-lg;
+      @include text-body-md;
       @include font-firefox;
       display: flex;
       justify-content: center;
@@ -255,6 +279,10 @@
 
       @media screen and #{$mq-sm} {
         @include text-body-xl;
+      }
+
+      .copy-controls {
+        flex: 1 0 auto;
       }
     }
 

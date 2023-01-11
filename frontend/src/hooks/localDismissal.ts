@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getCookie, setCookie } from "../functions/cookies";
 
 export type DismissOptions = {
@@ -28,20 +28,16 @@ export function useLocalDismissal(
   options: DismissalOptions = {}
 ): DismissalData {
   const cookieId = key + "_dismissed";
-  const dismissalCookieValue = getCookie(cookieId);
-  const dismissalTimeStamp = dismissalCookieValue
-    ? Number.parseInt(dismissalCookieValue, 10)
-    : undefined;
 
-  const wasDismissedBefore =
-    // To be dismissed, the cookie has to be set, and either...
-    typeof dismissalTimeStamp === "number" &&
-    //   ...the dismissal should not be limited in duration, or...
-    (typeof options.duration !== "number" ||
-      //   ...the dismissal was long enough ago:
-      Date.now() - dismissalTimeStamp <= options.duration * 1000);
+  const [isDismissed, setIsDismissed] = useState(
+    hasDismissedCookie(cookieId, options.duration)
+  );
 
-  const [isDismissed, setIsDismissed] = useState(wasDismissedBefore);
+  // Whenever `key` (and therefore `cookieId`) changes, re-check the appropriate
+  // cookie.
+  useEffect(() => {
+    setIsDismissed(hasDismissedCookie(cookieId, options.duration));
+  }, [cookieId, options.duration]);
 
   const dismiss = (dismissOptions?: DismissOptions) => {
     const maxAgeInSeconds =
@@ -60,4 +56,21 @@ export function useLocalDismissal(
     isDismissed: isDismissed,
     dismiss: dismiss,
   };
+}
+
+function hasDismissedCookie(cookieId: string, duration?: number): boolean {
+  const dismissalCookieValue = getCookie(cookieId);
+  const dismissalTimeStamp = dismissalCookieValue
+    ? Number.parseInt(dismissalCookieValue, 10)
+    : undefined;
+
+  const wasDismissedBefore =
+    // To be dismissed, the cookie has to be set, and either...
+    typeof dismissalTimeStamp === "number" &&
+    //   ...the dismissal should not be limited in duration, or...
+    (typeof duration !== "number" ||
+      //   ...the dismissal was long enough ago:
+      Date.now() - dismissalTimeStamp <= duration * 1000);
+
+  return wasDismissedBefore;
 }

@@ -1,4 +1,4 @@
-import { useLocalization } from "@fluent/react";
+import { useL10n } from "../../../hooks/l10n";
 import { CloseIcon, MenuIcon } from "../../Icons";
 
 export type Props = {
@@ -6,7 +6,7 @@ export type Props = {
 };
 
 export const MenuToggle = (props: Props): JSX.Element => {
-  const { l10n } = useLocalization();
+  const l10n = useL10n();
   const { toggleState } = props;
 
   const closeMenuIcon = (
