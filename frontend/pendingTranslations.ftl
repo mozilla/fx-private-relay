@@ -119,3 +119,6 @@ messages-list-conversation-partner-label = With
 messages-list-conversation-date-label = Last message on
 messages-conversation-back = Back
 messages-conversation-message-send = Send
+
+setting-api-key-qr-scan-lead = Open the { -brand-name-firefox-relay } settings on your deskop, then scan the QR code to sign in.
+setting-api-key-qr-scan-start = Start scanning
