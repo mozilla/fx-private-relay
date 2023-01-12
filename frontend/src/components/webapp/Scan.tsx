@@ -35,6 +35,18 @@ export const Scan = (props: Props) => {
       // TODO: Proper error handling
       onError={(e) => console.log("Error", e)}
       facingMode="rear"
+      // QrReader only supports Safari in legacy mode, so use that on Apple devices:
+      legacyMode={
+        [
+          "iPad Simulator",
+          "iPhone Simulator",
+          "iPod Simulator",
+          "iPad",
+          "iPhone",
+          "iPod",
+        ].includes(navigator?.platform) ||
+        navigator?.platform.indexOf("Mac") === 0
+      }
     />
   ) : (
     <Button onClick={() => setIsScanning(true)}>
