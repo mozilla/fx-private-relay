@@ -230,6 +230,21 @@ $field-gap: $spacing-lg;
   }
 }
 
+.settings-api-key-qrcode-wrapper {
+  display: flex;
+  gap: $spacing-md;
+  align-items: center;
+  flex-wrap: wrap;
+
+  svg {
+    flex: 0 0 auto;
+  }
+
+  p {
+    flex: 1 1 $layout-2xl;
+  }
+}
+
 @media screen and #{$mq-md} {
   .settings-page {
     display: flex;

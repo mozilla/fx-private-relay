@@ -9,18 +9,12 @@ export const authenticatedFetch = async (
   path: string,
   init?: Parameters<typeof fetch>[1]
 ) => {
-  let authToken;
-  if (
-    process.env.NODE_ENV === "development" ||
-    process.env.NEXT_PUBLIC_MOCK_API === "true"
-  ) {
-    // Note: If running on a separate (dev) server, logging in doesn't work.
-    //       As a workaround, you can authenticate by opening http://127.0.0.1:8000/admin/authtoken/tokenproxy/,
-    //       copying the token you need, then running:
-    //           localStorage.setItem("authToken", "<your token>")
-    //       in the browser console with the React UI open.
-    authToken = localStorage.getItem("authToken");
-  }
+  // Note: If running on a separate (dev) server, logging in doesn't work.
+  //       As a workaround, you can authenticate by opening http://127.0.0.1:8000/admin/authtoken/tokenproxy/,
+  //       copying the token you need, then running:
+  //           localStorage.setItem("authToken", "<your token>")
+  //       in the browser console with the React UI open.
+  const authToken = localStorage.getItem("authToken");
   const headers = new Headers(init?.headers ?? undefined);
   headers.set(
     "Content-Type",

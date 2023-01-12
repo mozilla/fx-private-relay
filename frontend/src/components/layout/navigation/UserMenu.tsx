@@ -92,6 +92,7 @@ export const UserMenu = (props: Props) => {
         label: "Website Sign Out",
       });
       setCookie("user-sign-out", "true", { maxAgeInSeconds: 60 * 60 });
+      localStorage.removeItem("authToken");
       logoutFormRef.current?.submit();
     }
   };

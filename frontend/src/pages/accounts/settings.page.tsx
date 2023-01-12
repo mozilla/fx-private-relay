@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import { toast } from "react-toastify";
+import { QRCodeSVG } from "qrcode.react";
 import styles from "./settings.module.scss";
 import { Layout } from "../../components/layout/Layout";
 import { Banner } from "../../components/Banner";
@@ -235,6 +236,18 @@ const Settings: NextPage = () => {
           {l10n.getString("settings-api-key-description")}{" "}
           <b>{l10n.getString("settings-api-key-description-bolded")}</b>
         </div>
+        {profile.has_phone && (
+          <div className={styles["settings-api-key-qrcode-wrapper"]}>
+            <QRCodeSVG
+              value={
+                document.location.origin +
+                `/webapp/?apiToken=` +
+                profile.api_token
+              }
+            />
+            <p>Scan this QR code on your phone to sign in to the Relay app.</p>
+          </div>
+        )}
       </div>
     </div>
   );
