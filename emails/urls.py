@@ -11,4 +11,5 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += [
         path("wrapped_email_test", views.wrapped_email_test),
+        path("reply_requires_premium_test", views.reply_requires_premium_test),
     ]
