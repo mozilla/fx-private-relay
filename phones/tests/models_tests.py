@@ -102,7 +102,7 @@ def test_get_valid_realphone_verification_record_returns_none(phone_user):
     record = get_valid_realphone_verification_record(
         phone_user, number, real_phone.verification_code
     )
-    assert record == None
+    assert record is None
 
 
 def test_create_realphone_creates_twilio_message(phone_user, mocked_twilio_client):
@@ -226,7 +226,7 @@ def test_create_duplicate_relaynumber_raises_error(phone_user, mocked_twilio_cli
     mock_messages_create.reset_mock()
 
     relay_number = "+19998887777"
-    relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
+    RelayNumber.objects.create(user=phone_user, number=relay_number)
 
     mock_number_create.assert_called_once()
     call_kwargs = mock_number_create.call_args.kwargs
@@ -397,7 +397,8 @@ def test_relaynumber_remaining_minutes_returns_properly_formats_remaining_second
     # Freshly created RelayNumber should have 3000 seconds => 50 minutes
     assert relay_number_obj.remaining_minutes == 50
 
-    # After receiving calls remaining_minutes property should return the rounded down positive integer
+    # After receiving calls remaining_minutes property should return the rounded down
+    # to a positive integer
     relay_number_obj.remaining_seconds = 522
     relay_number_obj.save()
     assert relay_number_obj.remaining_minutes == 8
@@ -548,7 +549,7 @@ def test_get_last_text_sender_returning_None():
     baker.make(RealPhone, user=user, verified=True)
     relay_number = baker.make(RelayNumber, user=user)
 
-    assert get_last_text_sender(relay_number) == None
+    assert get_last_text_sender(relay_number) is None
 
 
 def test_get_last_text_sender_returning_one():
