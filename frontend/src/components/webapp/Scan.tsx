@@ -1,5 +1,6 @@
-import { useState } from "react";
-import QrReader, { ScanResult } from "react-qr-scanner";
+import { useEffect, useRef, useState } from "react";
+import QrScanner from "qr-scanner";
+import styles from "./Scan.module.scss";
 import { useL10n } from "../../hooks/l10n";
 import { Button } from "../Button";
 
@@ -16,48 +17,49 @@ export type Props = {
  */
 export const Scan = (props: Props) => {
   const l10n = useL10n();
+  const [message, setMessage] = useState<string>();
+  const videoElemRef = useRef<HTMLVideoElement>(null);
   const [isScanning, setIsScanning] = useState(false);
 
-  const onScan = (value: ScanResult | null) => {
-    if (value === null) {
+  useEffect(() => {
+    if (!isScanning || !videoElemRef.current) {
       return;
     }
-    props.onScan(
-      value.text.substring(
-        (document.location.origin + `/webapp/?apiToken=`).length
-      )
-    );
-  };
 
-  const scanner = isScanning ? (
-    <QrReader
-      onScan={onScan}
-      // TODO: Proper error handling
-      onError={(e) => console.log("Error", e)}
-      facingMode="rear"
-      // QrReader only supports Safari in legacy mode, so use that on Apple devices:
-      legacyMode={
-        [
-          "iPad Simulator",
-          "iPhone Simulator",
-          "iPod Simulator",
-          "iPad",
-          "iPhone",
-          "iPod",
-        ].includes(navigator?.platform) ||
-        navigator?.platform.indexOf("Mac") === 0
+    const scanner = new QrScanner(
+      videoElemRef.current,
+      (result) => {
+        const prefix = document.location.origin + `/webapp/?apiToken=`;
+        if (result.data.substring(0, prefix.length) !== prefix) {
+          throw new Error("Invalid prefix");
+        }
+        props.onScan(result.data.substring(prefix.length));
+      },
+      {
+        preferredCamera: "environment",
+        highlightScanRegion: true,
+        highlightCodeOutline: true,
+        onDecodeError: (_error) => {
+          setMessage(l10n.getString("setting-api-key-qr-scan-failed"));
+        },
       }
-    />
-  ) : (
-    <Button onClick={() => setIsScanning(true)}>
-      {l10n.getString("setting-api-key-qr-scan-start")}
-    </Button>
-  );
+    );
+    scanner.start();
+
+    return () => {
+      scanner.stop();
+      scanner.destroy();
+    };
+  }, [isScanning, l10n, props]);
 
   return (
     <>
       <p>{l10n.getString("setting-api-key-qr-scan-lead")}</p>
-      {scanner}
+      <Button onClick={() => setIsScanning(!isScanning)}>
+        {l10n.getString("setting-api-key-qr-scan-start")}
+      </Button>
+      {message && <p className={styles.error}>{message}</p>}
+      <video ref={videoElemRef}></video>
     </>
   );
 };

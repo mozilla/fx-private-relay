@@ -121,4 +121,5 @@ messages-conversation-back = Back
 messages-conversation-message-send = Send
 
 setting-api-key-qr-scan-lead = Open the { -brand-name-firefox-relay } settings on your deskop, then scan the QR code to sign in.
-setting-api-key-qr-scan-start = Start scanning
+setting-api-key-qr-scan-start = Scan QR code
+setting-api-key-qr-scan-failed = Could not scan your QR code, please try again.

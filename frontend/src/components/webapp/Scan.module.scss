@@ -1,0 +1,13 @@
+@import "../../styles/tokens.scss";
+
+.dropzone {
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  border-radius: $border-radius-sm;
+  background-color: $color-red-50;
+  color: $color-white;
+  padding: $spacing-sm;
+}

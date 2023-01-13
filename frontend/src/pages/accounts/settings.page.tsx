@@ -244,6 +244,7 @@ const Settings: NextPage = () => {
                 `/webapp/?apiToken=` +
                 profile.api_token
               }
+              size={172}
             />
             <p>Scan this QR code on your phone to sign in to the Relay app.</p>
           </div>
