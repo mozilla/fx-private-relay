@@ -10,10 +10,6 @@ export type Props = {
 
 /**
  * Scan a QR code containing a Relay API token.
- *
- * Note that the QR scanner is rather heavy and thus lazily loaded; make sure to
- * wrap this component in a `<Suspense>` to show a loading state.
- * See https://reactjs.org/docs/code-splitting.html#reactlazy.
  */
 export const Scan = (props: Props) => {
   const l10n = useL10n();

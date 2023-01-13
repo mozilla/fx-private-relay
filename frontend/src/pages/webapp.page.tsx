@@ -1,4 +1,4 @@
-import { useCallback, useEffect, Component, Suspense } from "react";
+import { useCallback, useEffect, Component, Suspense, lazy } from "react";
 import { NextPage } from "next";
 import styles from "./webapp.module.scss";
 import Logo from "../../public/favicon.svg";
@@ -7,7 +7,13 @@ import { Console } from "../components/webapp/Console";
 import { useMessages } from "../hooks/api/messages";
 import Head from "next/head";
 import { useL10n } from "../hooks/l10n";
-import { Scan } from "../components/webapp/Scan";
+
+const Scan = lazy(async () => {
+  const m = await import("../components/webapp/Scan");
+  return {
+    default: m.Scan,
+  };
+});
 
 const WebApp: NextPage = () => {
   const l10n = useL10n();
