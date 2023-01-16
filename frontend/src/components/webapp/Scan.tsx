@@ -37,6 +37,7 @@ export const Scan = (props: Props) => {
         highlightCodeOutline: true,
         onDecodeError: (_error) => {
           setMessage(l10n.getString("setting-api-key-qr-scan-failed"));
+          setIsScanning(false);
         },
       }
     );
@@ -51,7 +52,12 @@ export const Scan = (props: Props) => {
   return (
     <>
       <p>{l10n.getString("setting-api-key-qr-scan-lead")}</p>
-      <Button onClick={() => setIsScanning(!isScanning)}>
+      <Button
+        onClick={() => {
+          setMessage(undefined);
+          setIsScanning(true);
+        }}
+      >
         {l10n.getString("setting-api-key-qr-scan-start")}
       </Button>
       {message && <p className={styles.error}>{message}</p>}
