@@ -594,7 +594,7 @@ def test_vcard_no_lookup_key():
 @pytest.mark.django_db
 def test_vcard_wrong_lookup_key():
     client = APIClient()
-    path = "/api/v1/vCard/wrong-lookup-key"
+    path = "/api/v1/vCard/wrong-lookup-key/"
 
     response = client.get(path)
 
@@ -606,7 +606,7 @@ def test_vcard_valid_lookup_key(phone_user):
     relay_number = _make_relay_number(phone_user)
 
     client = APIClient()
-    path = f"/api/v1/vCard/{relay_number.vcard_lookup_key}"
+    path = f"/api/v1/vCard/{relay_number.vcard_lookup_key}/"
     response = client.get(path)
 
     assert response.status_code == 200
@@ -619,7 +619,7 @@ def test_vcard_valid_lookup_key(phone_user):
 
 def test_resend_welcome_sms_requires_phone_user():
     client = APIClient()
-    path = "/api/v1/realphone/resend_welcome_sms"
+    path = "/api/v1/realphone/resend_welcome_sms/"
     response = client.post(path)
 
     assert response.status_code == 401
@@ -633,7 +633,7 @@ def test_resend_welcome_sms(phone_user, mocked_twilio_client):
     mocked_twilio_client.reset_mock()
     client = APIClient()
     client.force_authenticate(phone_user)
-    path = "/api/v1/realphone/resend_welcome_sms"
+    path = "/api/v1/realphone/resend_welcome_sms/"
     response = client.post(path)
 
     assert response.status_code == 201
@@ -647,7 +647,7 @@ def test_resend_welcome_sms(phone_user, mocked_twilio_client):
 @pytest.mark.django_db
 def test_inbound_sms_no_twilio_signature():
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     response = client.post(path)
 
     assert response.status_code == 400
@@ -659,7 +659,7 @@ def test_inbound_sms_invalid_twilio_signature(mocked_twilio_validator):
     mocked_twilio_validator.validate = Mock(return_value=False)
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="invalid")
 
     assert response.status_code == 400
@@ -669,7 +669,7 @@ def test_inbound_sms_invalid_twilio_signature(mocked_twilio_validator):
 @pytest.mark.django_db
 def test_inbound_sms_valid_twilio_signature_bad_data():
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 400
@@ -685,7 +685,7 @@ def test_inbound_sms_valid_twilio_signature_unknown_number(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": "+15556660000", "To": unknown_number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -700,7 +700,7 @@ def test_inbound_sms_valid_twilio_signature_good_data(phone_user, mocked_twilio_
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -723,7 +723,7 @@ def test_inbound_sms_valid_twilio_signature_disabled_number(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -746,7 +746,7 @@ def test_inbound_sms_to_number_with_no_remaining_texts(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": "+15556660000", "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -766,7 +766,7 @@ def test_inbound_sms_reply_with_no_remaining_texts(phone_user, mocked_twilio_cli
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": "+12223334444", "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -790,7 +790,7 @@ def test_inbound_sms_valid_twilio_signature_no_phone_log(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": inbound_number, "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -817,7 +817,7 @@ def test_inbound_sms_valid_twilio_signature_blocked_contact(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": inbound_number, "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -862,7 +862,7 @@ def test_inbound_sms_reply_not_storing_phone_log(phone_user, mocked_twilio_clien
     profile.save()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -883,7 +883,7 @@ def test_inbound_sms_reply_no_previous_sender(phone_user, mocked_twilio_client):
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -906,7 +906,7 @@ def test_inbound_sms_reply(phone_user: User, mocked_twilio_client: Client) -> No
 
     # Setup: Recieve a text from a contact
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     contact_number = "+15556660000"
     data = {"From": contact_number, "To": relay_number.number, "Body": "test body"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
@@ -938,7 +938,7 @@ def test_inbound_sms_reply_to_first_caller(
 
     # Setup: Recieve a text from a contact
     client = APIClient()
-    sms_path = "/api/v1/inbound_sms"
+    sms_path = "/api/v1/inbound_sms/"
     contact_number = "+15556660000"
     data = {"From": contact_number, "To": relay_number.number, "Body": "test body"}
     response = client.post(sms_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
@@ -947,7 +947,7 @@ def test_inbound_sms_reply_to_first_caller(
     assert relay_number.texts_forwarded == 1
 
     # Setup: Recieve a call from the same contact
-    voice_path = "/api/v1/inbound_call"
+    voice_path = "/api/v1/inbound_call/"
     data = {"Caller": contact_number, "Called": relay_number.number}
     response = client.post(voice_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
     assert response.status_code == 201
@@ -978,7 +978,7 @@ def test_inbound_sms_reply_to_caller(
 
     # Setup: Recieve a text from first contact
     client = APIClient()
-    sms_path = "/api/v1/inbound_sms"
+    sms_path = "/api/v1/inbound_sms/"
     contact1_number = "+13015550000"
     data = {
         "From": contact1_number,
@@ -1003,7 +1003,7 @@ def test_inbound_sms_reply_to_caller(
     assert relay_number.texts_forwarded == 2
 
     # Setup: Recieve a call from second contact
-    voice_path = "/api/v1/inbound_call"
+    voice_path = "/api/v1/inbound_call/"
     data = {"Caller": contact2_number, "Called": relay_number.number}
     response = client.post(voice_path, data, HTTP_X_TWILIO_SIGNATURE="valid")
     assert response.status_code == 201
@@ -1046,7 +1046,7 @@ def test_inbound_sms_reply_pre_transition(
     # Test: Send a reply to contact
     mocked_twilio_client.reset_mock()
     client = APIClient()
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {"From": real_phone.number, "To": relay_number.number, "Body": "test reply"}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -1066,7 +1066,7 @@ def test_inbound_sms_reply_no_multi_replies(phone_user, mocked_twilio_client) ->
     relay_number = _make_relay_number(phone_user, enabled=True)
 
     # Setup: Contact with number ending in 0000
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     contact1 = "+13015550000"
     data = {"From": contact1, "To": relay_number.number, "Body": "Hi!"}
     client = APIClient()
@@ -1134,14 +1134,14 @@ def multi_reply(
     for number, contact_type in contacts:
         if contact_type == "text":
             response = client.post(
-                "/api/v1/inbound_sms",
+                "/api/v1/inbound_sms/",
                 {"From": number, "To": relay_number.number, "Body": "Hi!"},
                 HTTP_X_TWILIO_SIGNATURE="valid",
             )
         else:
             assert contact_type == "call"
             response = client.post(
-                "/api/v1/inbound_call",
+                "/api/v1/inbound_call/",
                 {"Caller": number, "Called": relay_number.number},
                 HTTP_X_TWILIO_SIGNATURE="valid",
             )
@@ -1174,7 +1174,7 @@ def test_inbound_sms_reply_one_match(
 ) -> None:
     """A prefix that matches a single contact sends to that contact."""
     relay_number = multi_reply.relay_number
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {
         "From": multi_reply.real_phone.number,
         "To": relay_number.number,
@@ -1196,7 +1196,7 @@ def test_inbound_sms_reply_one_match(
 def test_inbound_sms_reply_full_number_wins(multi_reply: MultiReplyFixture) -> None:
     """If a prefix could be a short code or a full number, pick full number."""
     relay_number = multi_reply.relay_number
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {
         "From": multi_reply.real_phone.number,
         "To": relay_number.number,
@@ -1220,7 +1220,7 @@ def test_inbound_sms_reply_short_prefix_never_text(
 ) -> None:
     """A contact that only called can be texted via short prefix."""
     relay_number = multi_reply.relay_number
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {
         "From": multi_reply.real_phone.number,
         "To": relay_number.number,
@@ -1244,7 +1244,7 @@ def test_inbound_sms_reply_full_prefix_never_text(
 ) -> None:
     """A contact that only called can be texted via full number."""
     relay_number = multi_reply.relay_number
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {
         "From": multi_reply.real_phone.number,
         "To": relay_number.number,
@@ -1313,7 +1313,7 @@ def test_inbound_sms_reply_prefix_errors(
 ) -> None:
     """If a prefixed message has an issue, the user gets advice."""
     relay_number = multi_reply.relay_number
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {
         "From": multi_reply.real_phone.number,
         "To": relay_number.number,
@@ -1337,7 +1337,7 @@ def test_inbound_sms_reply_no_prefix_last_sender(
 ) -> None:
     """If there is no detected prefix, send message to the last text contact."""
     relay_number = multi_reply.relay_number
-    path = "/api/v1/inbound_sms"
+    path = "/api/v1/inbound_sms/"
     data = {
         "From": multi_reply.real_phone.number,
         "To": relay_number.number,
@@ -1651,7 +1651,7 @@ def test_phone_get_inbound_contact_requires_relay_number(phone_user):
 @pytest.mark.django_db
 def test_inbound_call_no_twilio_signature():
     client = APIClient()
-    path = "/api/v1/inbound_call"
+    path = "/api/v1/inbound_call/"
     response = client.post(path)
 
     assert response.status_code == 400
@@ -1663,7 +1663,7 @@ def test_inbound_call_invalid_twilio_signature(mocked_twilio_validator):
     mocked_twilio_validator.validate = Mock(return_value=False)
 
     client = APIClient()
-    path = "/api/v1/inbound_call"
+    path = "/api/v1/inbound_call/"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="invalid")
 
     assert response.status_code == 400
@@ -1673,7 +1673,7 @@ def test_inbound_call_invalid_twilio_signature(mocked_twilio_validator):
 @pytest.mark.django_db
 def test_inbound_call_valid_twilio_signature_bad_data():
     client = APIClient()
-    path = "/api/v1/inbound_call"
+    path = "/api/v1/inbound_call/"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
 
     assert response.status_code == 400
@@ -1690,7 +1690,7 @@ def test_inbound_call_valid_twilio_signature_unknown_number(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_call"
+    path = "/api/v1/inbound_call/"
     data = {"Caller": caller_number, "Called": unknown_number}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -1708,7 +1708,7 @@ def test_inbound_call_valid_twilio_signature_good_data(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_call"
+    path = "/api/v1/inbound_call/"
     data = {"Caller": caller_number, "Called": relay_number.number}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -1734,7 +1734,7 @@ def test_inbound_call_valid_twilio_signature_disabled_number(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_call"
+    path = "/api/v1/inbound_call/"
     data = {"Caller": caller_number, "Called": relay_number.number}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -1755,7 +1755,7 @@ def test_inbound_call_valid_twilio_signature_no_remaining_seconds(
     mocked_twilio_client.reset_mock()
 
     client = APIClient()
-    path = "/api/v1/inbound_call"
+    path = "/api/v1/inbound_call/"
     data = {"Caller": caller_number, "Called": relay_number.number}
     response = client.post(path, data, HTTP_X_TWILIO_SIGNATURE="valid")
 
@@ -1771,7 +1771,7 @@ def test_voice_status_invalid_twilio_signature(mocked_twilio_validator):
     mocked_twilio_validator.validate = Mock(return_value=False)
 
     client = APIClient()
-    path = "/api/v1/voice_status"
+    path = "/api/v1/voice_status/"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="invalid")
 
     assert response.status_code == 400
@@ -1780,7 +1780,7 @@ def test_voice_status_invalid_twilio_signature(mocked_twilio_validator):
 
 def test_voice_status_missing_required_params_error():
     client = APIClient()
-    path = "/api/v1/voice_status"
+    path = "/api/v1/voice_status/"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
     assert response.status_code == 400
     assert "Missing Called, Callstatus" in response.data[0].title()
@@ -1792,7 +1792,7 @@ def test_voice_status_not_completed_does_nothing(phone_user):
     pre_request_remaining_seconds = relay_number.remaining_seconds
 
     client = APIClient()
-    path = "/api/v1/voice_status"
+    path = "/api/v1/voice_status/"
     data = {
         "CallSid": "CA1234567890abcdef1234567890abcdef",
         "Called": relay_number.number,
@@ -1811,7 +1811,7 @@ def test_voice_status_completed_no_duration_error(phone_user):
     pre_request_remaining_seconds = relay_number.remaining_seconds
 
     client = APIClient()
-    path = "/api/v1/voice_status"
+    path = "/api/v1/voice_status/"
     data = {
         "CallSid": "CA1234567890abcdef1234567890abcdef",
         "Called": relay_number.number,
@@ -1830,7 +1830,7 @@ def test_voice_status_completed_reduces_remaining_seconds(
     mocked_events_info, phone_user
 ):
     # TODO: This test should fail since the Relay Number is disabled and
-    # the POST to our /api/v1/voice_status should ignore the the reduced remaining seconds.
+    # the POST to our /api/v1/voice_status/ should ignore the the reduced remaining seconds.
     # This is currently passing because the voice_status() is not checking
     # if the user's Relay Number has hit the limit or is disabled (bug logged in MPP-2452).
     # Keeping this test so we can correct it once MPP-2452 is completed.
@@ -1839,7 +1839,7 @@ def test_voice_status_completed_reduces_remaining_seconds(
     pre_request_remaining_seconds = relay_number.remaining_seconds
 
     client = APIClient()
-    path = "/api/v1/voice_status"
+    path = "/api/v1/voice_status/"
     data = {
         "CallSid": "CA1234567890abcdef1234567890abcdef",
         "Called": relay_number.number,
@@ -1862,7 +1862,7 @@ def test_voice_status_completed_reduces_remaining_seconds_to_negative_value(
     relay_number = _make_relay_number(phone_user, enabled=True, remaining_seconds=0)
 
     client = APIClient()
-    path = "/api/v1/voice_status"
+    path = "/api/v1/voice_status/"
     data = {
         "CallSid": "CA1234567890abcdef1234567890abcdef",
         "Called": relay_number.number,
@@ -1894,7 +1894,7 @@ def test_voice_status_completed_deletes_call_from_twilio(
     call_sid = "CA1234567890abcdef1234567890abcdef"
 
     client = APIClient()
-    path = "/api/v1/voice_status"
+    path = "/api/v1/voice_status/"
     data = {
         "CallSid": call_sid,
         "Called": relay_number.number,
@@ -1916,7 +1916,7 @@ def test_sms_status_invalid_twilio_signature(mocked_twilio_validator):
     mocked_twilio_validator.validate = Mock(return_value=False)
 
     client = APIClient()
-    path = "/api/v1/sms_status"
+    path = "/api/v1/sms_status/"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="invalid")
 
     assert response.status_code == 400
@@ -1925,7 +1925,7 @@ def test_sms_status_invalid_twilio_signature(mocked_twilio_validator):
 
 def test_sms_status_missing_required_params_error():
     client = APIClient()
-    path = "/api/v1/sms_status"
+    path = "/api/v1/sms_status/"
     response = client.post(path, {}, HTTP_X_TWILIO_SIGNATURE="valid")
     assert response.status_code == 400
     assert "Missing Smsstatus Or Messagesid" in response.data[0].title()
@@ -1933,7 +1933,7 @@ def test_sms_status_missing_required_params_error():
 
 def test_sms_status_before_delivered_does_nothing(mocked_twilio_client):
     client = APIClient()
-    path = "/api/v1/sms_status"
+    path = "/api/v1/sms_status/"
     response = client.post(
         path,
         {
@@ -1948,7 +1948,7 @@ def test_sms_status_before_delivered_does_nothing(mocked_twilio_client):
 
 def test_sms_status_delivered_deletes_message_from_twilio(mocked_twilio_client):
     client = APIClient()
-    path = "/api/v1/sms_status"
+    path = "/api/v1/sms_status/"
     message_sid = "SM1234567890abcdef1234567890abcdef"
     mock_message = Mock(spec=["delete"])
     mocked_twilio_client.messages = Mock(return_value=mock_message)

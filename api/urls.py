@@ -38,14 +38,14 @@ api_router.register(r"flags", FlagViewSet, "flag")
 
 
 urlpatterns = [
-    path("v1/runtime_data", runtime_data, name="runtime_data"),
+    path("v1/runtime_data/", runtime_data, name="runtime_data"),
     path(
-        "v1/report_webcompat_issue",
+        "v1/report_webcompat_issue/",
         report_webcompat_issue,
         name="report_webcompat_issue",
     ),
     path(
-        "v1/swagger<swagger_format:format>",
+        "v1/swagger<swagger_format:format>/",
         enable_if_setting("API_DOCS_ENABLED")(schema_view.without_ui(cache_timeout=0)),
         name="schema-json",
     ),
@@ -75,13 +75,13 @@ if settings.PHONES_ENABLED:
     api_router.register(r"relaynumber", RelayNumberViewSet, "relay_number")
     api_router.register(r"inboundcontact", InboundContactViewSet, "inbound_contact")
     urlpatterns += [
-        path("v1/inbound_sms", inbound_sms, name="inbound_sms"),
-        path("v1/inbound_call", inbound_call, name="inbound_call"),
-        path("v1/voice_status", voice_status, name="voice_status"),
-        path("v1/sms_status", sms_status, name="sms_status"),
-        path("v1/vCard/<lookup_key>", vCard, name="vCard"),
+        path("v1/inbound_sms/", inbound_sms, name="inbound_sms"),
+        path("v1/inbound_call/", inbound_call, name="inbound_call"),
+        path("v1/voice_status/", voice_status, name="voice_status"),
+        path("v1/sms_status/", sms_status, name="sms_status"),
+        path("v1/vCard/<lookup_key>/", vCard, name="vCard"),
         path(
-            "v1/realphone/resend_welcome_sms",
+            "v1/realphone/resend_welcome_sms/",
             resend_welcome_sms,
             name="resend_welcome_sms",
         ),
