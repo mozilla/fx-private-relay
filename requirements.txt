@@ -23,7 +23,7 @@ pem==21.2.0
 psycopg2==2.9.5
 # NOTE: update to 2.6.0 blocked by #2738
 PyJWT==2.5.0
-python-decouple==3.6
+python-decouple==3.7
 pyOpenSSL==23.0.0
 requests==2.28.2
 sentry-sdk==1.13.0
