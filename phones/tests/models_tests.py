@@ -337,6 +337,36 @@ def test_create_relaynumber_already_registered_with_service(
     mock_messages_create.assert_called_once()
 
 
+def test_create_relaynumber_full_service(phone_user, real_phone_us, mock_twilio_client):
+    """If the Twilio Messaging Service pool is full, an exception is raised."""
+    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    mock_messages_create = mock_twilio_client.messages.create
+    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
+    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
+
+    # Twilio responds that the pool is full
+    mock_messaging_number_create.side_effect = TwilioRestException(
+        uri=f"/Services/{settings.TWILIO_MESSAGING_SERVICE_SID}/PhoneNumbers",
+        msg=("Unable to create record:" " Number Pool size limit reached"),
+        method="POST",
+        status=412,
+        code=21714,
+    )
+
+    relay_number = "+19998887777"
+    # "Pool full" exception is raised
+    with pytest.raises(TwilioRestException) as exc_info:
+        RelayNumber.objects.create(user=phone_user, number=relay_number)
+    assert exc_info.value.code == 21714
+
+    mock_messaging_number_create.assert_called_once_with(
+        phone_number_sid=twilio_incoming_number_sid
+    )
+    mock_messages_create.assert_not_called()
+
+
 def test_create_relaynumber_canada(phone_user, mock_twilio_client):
     twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     mock_messages_create = mock_twilio_client.messages.create
