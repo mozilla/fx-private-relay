@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta, timezone
 from math import floor
 from typing import Optional
+import logging
 import secrets
 import string
 
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
 from django.db.migrations.recorder import MigrationRecorder
 from django.db import models
@@ -18,6 +20,9 @@ from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
+
+logger = logging.getLogger("eventsinfo")
+
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
 LAST_CONTACT_TYPE_CHOICES = [
@@ -282,19 +287,59 @@ class RelayNumber(models.Model):
         # Add US numbers to the Relay messaging service, so it goes into our
         # US A2P 10DLC campaign
         if self.country_code == "US":
-            try:
-                client.messaging.v1.services(
-                    settings.TWILIO_MESSAGING_SERVICE_SID
-                ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
-            except TwilioRestException as err:
-                if err.status == 409 and err.code == 21710:
-                    # Ignore "Phone Number is already in the Messaging Service"
-                    # https://www.twilio.com/docs/api/errors/21710
-                    pass
-                else:
-                    raise
+            register_with_messaging_service(client, twilio_incoming_number.sid)
 
         return super().save(*args, **kwargs)
+
+
+def register_with_messaging_service(client: Client, number_sid: str) -> None:
+    """Register a Twilio US phone number with a Messaging Service."""
+
+    if not settings.TWILIO_MESSAGING_SERVICE_SID:
+        raise Exception("TWILIO_MESSAGING_SERVICE_SID is unset")
+
+    cache_value = cache.get("twilio_messaging_service_closed", "")
+    if cache_value:
+        closed_sids = cache_value.split(",")
+    else:
+        closed_sids = []
+
+    for service_sid in settings.TWILIO_MESSAGING_SERVICE_SID:
+        if service_sid in closed_sids:
+            continue
+        try:
+            client.messaging.v1.services(service_sid).phone_numbers.create(
+                phone_number_sid=number_sid
+            )
+        except TwilioRestException as err:
+            log_extra = {
+                "err_msg": err.msg,
+                "status": err.status,
+                "code": err.code,
+                "service_sid": service_sid,
+                "number_sid": number_sid,
+            }
+            if err.status == 409 and err.code == 21710:
+                # Log "Phone Number is already in the Messaging Service"
+                # https://www.twilio.com/docs/api/errors/21710
+                logger.warning("twilio_messaging_service", extra=log_extra)
+                return
+            elif err.status == 412 and err.code == 21714:
+                # Log "Number Pool size limit reached", continue to next service
+                # https://www.twilio.com/docs/api/errors/21714
+                closed_sids.append(service_sid)
+                cache.set(
+                    "twilio_messaging_service_closed", ",".join(sorted(closed_sids))
+                )
+                logger.warning("twilio_messaging_service", extra=log_extra)
+            else:
+                # Log and re-raise other Twilio errors
+                logger.error("twilio_messaging_service", extra=log_extra)
+                raise
+        else:
+            return  # Successfully registered with service
+
+    raise Exception("All services in TWILIO_MESSAGING_SERVICE_SID are full")
 
 
 @receiver(post_save, sender=RelayNumber)
