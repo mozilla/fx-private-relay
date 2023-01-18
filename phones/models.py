@@ -287,7 +287,14 @@ class RelayNumber(models.Model):
         # Add US numbers to the Relay messaging service, so it goes into our
         # US A2P 10DLC campaign
         if self.country_code == "US":
-            register_with_messaging_service(client, twilio_incoming_number.sid)
+            if settings.TWILIO_MESSAGING_SERVICE_SID:
+                register_with_messaging_service(client, twilio_incoming_number.sid)
+            else:
+                logger.warning(
+                    "Skipping Twilio Messaging Service registration, since"
+                    " TWILIO_MESSAGING_SERVICE_SID is empty.",
+                    extra={"number_sid": twilio_incoming_number.sid},
+                )
 
         return super().save(*args, **kwargs)
 
@@ -295,8 +302,7 @@ class RelayNumber(models.Model):
 def register_with_messaging_service(client: Client, number_sid: str) -> None:
     """Register a Twilio US phone number with a Messaging Service."""
 
-    if not settings.TWILIO_MESSAGING_SERVICE_SID:
-        raise Exception("TWILIO_MESSAGING_SERVICE_SID is unset")
+    assert settings.TWILIO_MESSAGING_SERVICE_SID
 
     cache_value = cache.get("twilio_messaging_service_closed", "")
     if cache_value:

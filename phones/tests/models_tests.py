@@ -289,6 +289,7 @@ def real_phone_us(phone_user, mock_twilio_client):
 def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
     phone_user, real_phone_us, mock_twilio_client
 ):
+    """A successful relay phone creation sends a welcome message."""
     twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     mock_messages_create = mock_twilio_client.messages.create
     mock_number_create = mock_twilio_client.incoming_phone_numbers.create
@@ -318,6 +319,12 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
 def test_create_relaynumber_already_registered_with_service(
     phone_user, real_phone_us, mock_twilio_client, caplog, test_settings
 ):
+    """
+    It is OK if the relay phone is already registered with a messaging service.
+
+    This is not likely in production, since relay phone acquisition and registration
+    is a single step, but can happen when manually moving relay phones between users.
+    """
     twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     twilio_service_sid = test_settings.TWILIO_MESSAGING_SERVICE_SID[0]
     mock_messages_create = mock_twilio_client.messages.create
@@ -393,9 +400,9 @@ def test_create_relaynumber_full_service(
 
 
 def test_create_relaynumber_no_service(
-    phone_user, real_phone_us, mock_twilio_client, test_settings
+    phone_user, real_phone_us, mock_twilio_client, test_settings, caplog
 ):
-    """If the Twilio Messaging Service pool is full, an exception is raised."""
+    """If no Twilio Messaging Service IDs are defined, registration is skipped."""
     twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
     test_settings.TWILIO_MESSAGING_SERVICE_SID = []
     mock_messages_create = mock_twilio_client.messages.create
@@ -404,13 +411,14 @@ def test_create_relaynumber_no_service(
     mock_services = mock_twilio_client.messaging.v1.services
     mock_messaging_number_create = mock_services.return_value.phone_numbers.create
 
-    # "Pool full" exception is raised
-    with pytest.raises(Exception) as exc_info:
-        RelayNumber.objects.create(user=phone_user, number="+19998887777")
-    assert str(exc_info.value) == "TWILIO_MESSAGING_SERVICE_SID is unset"
+    RelayNumber.objects.create(user=phone_user, number="+19998887777")
 
     mock_messaging_number_create.assert_not_called()
-    mock_messages_create.assert_not_called()
+    mock_messages_create.assert_called_once()
+    assert caplog.messages == [
+        "Skipping Twilio Messaging Service registration, since"
+        " TWILIO_MESSAGING_SERVICE_SID is empty."
+    ]
 
 
 def test_create_relaynumber_fallback_service(
