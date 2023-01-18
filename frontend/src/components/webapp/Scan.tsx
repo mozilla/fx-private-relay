@@ -55,7 +55,11 @@ export const Scan = (props: Props) => {
       <Button
         onClick={() => {
           setMessage(undefined);
-          setIsScanning(true);
+          if (typeof window?.ReactNativeWebView?.postMessage === "function") {
+            window.ReactNativeWebView.postMessage("startScan");
+          } else {
+            setIsScanning(true);
+          }
         }}
       >
         {l10n.getString("setting-api-key-qr-scan-start")}

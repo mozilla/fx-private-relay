@@ -8,3 +8,10 @@ declare namespace JSX {
     "firefox-private-relay-addon-data": JSX.IntrinsicElements.div;
   }
 }
+
+declare interface Window {
+  ReactNativeWebView?: {
+    // These are the messages that our React Native webview explicitly listens for:
+    postMessage?: (message: "startScan") => void;
+  };
+}
