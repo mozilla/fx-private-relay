@@ -326,6 +326,7 @@ const RealPhoneVerification = (props: RealPhoneVerificationProps) => {
         <input
           placeholder={codeEntryPlaceholder}
           required={true}
+          inputMode="numeric"
           maxLength={6}
           minLength={6}
           className={isVerifiedSuccessfully === false ? styles["is-error"] : ""}
