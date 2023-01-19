@@ -158,11 +158,6 @@ def metrics_event(request):
 def fxa_rp_events(request: HttpRequest) -> HttpResponse:
     req_jwt = _parse_jwt_from_request(request)
     authentic_jwt = _authenticate_fxa_jwt(req_jwt)
-
-    # Issue 2738: log age of iat (issued at) claim, negative if in future
-    iat_age = datetime.now(tz=timezone.utc).timestamp() - authentic_jwt["iat"]
-    info_logger.info("fxa_rp_event", extra={"iat_age_s": round(iat_age, 3)})
-
     event_keys = _get_event_keys_from_jwt(authentic_jwt)
     try:
         social_account = _get_account_from_jwt(authentic_jwt)
@@ -241,12 +236,30 @@ def _verify_jwt_with_fxa_key(
     for verifying_key in verifying_keys:
         if verifying_key["alg"] == "RS256":
             public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(verifying_key))
-            security_event = jwt.decode(
-                req_jwt,
-                public_key,
-                audience=social_app.client_id,
-                algorithms=["RS256"],
-            )
+            try:
+                security_event = jwt.decode(
+                    req_jwt,
+                    public_key,
+                    audience=social_app.client_id,
+                    algorithms=["RS256"],
+                    leeway=5,  # allow iat to be slightly in future, for clock skew
+                )
+            except jwt.ImmatureSignatureError:
+                # Issue 2738: Log age of iat, if present
+                claims = jwt.decode(
+                    req_jwt,
+                    public_key,
+                    algorithms=["RS256"],
+                    options={"verify_signature": False},
+                )
+                iat = claims.get("iat")
+                iat_age = None
+                if iat:
+                    iat_age = round(datetime.now(tz=timezone.utc).timestamp() - iat, 3)
+                info_logger.warning(
+                    "fxa_rp_event.future_iat", extra={"iat": iat, "iat_age_s": iat_age}
+                )
+                raise
             return FxAEvent(
                 iss=security_event["iss"],
                 sub=security_event["sub"],
