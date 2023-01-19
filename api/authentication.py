@@ -9,7 +9,13 @@ from django.core.cache import cache
 
 from allauth.socialaccount.models import SocialAccount
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import (
+    APIException,
+    AuthenticationFailed,
+    NotFound,
+    ParseError,
+    PermissionDenied,
+)
 
 
 logger = logging.getLogger("events")
@@ -42,6 +48,12 @@ def introspect_token(introspect_token_url, token):
 
 
 class FxaTokenAuthentication(BaseAuthentication):
+    def authenticate_header(self, request):
+        # Note: we need to implement this function to make DRF return a 401 status code
+        # when we raise AuthenticationFailed, rather than a 403.
+        # See https://www.django-rest-framework.org/api-guide/exceptions/#authenticationfailed
+        return "FXA Bearer:"
+
     def authenticate(self, request):
         authorization = get_authorization_header(request).decode()
         if not authorization or not authorization.startswith("Bearer "):
@@ -50,6 +62,9 @@ class FxaTokenAuthentication(BaseAuthentication):
             return None
 
         token = authorization.split(" ")[1]
+        if token == "":
+            raise ParseError("Missing FXA Token after 'Bearer'.")
+
         cache_key = get_cache_key(token)
         # set a default cache_timeout, but this will be overriden to match
         # the 'exp' time in the JWT returned by FXA
@@ -73,10 +88,10 @@ class FxaTokenAuthentication(BaseAuthentication):
 
         user = None
         if fxa_resp_data["status_code"] is None:
-            raise AuthenticationFailed("Previous FXA call failed, wait to retry.")
+            raise APIException("Previous FXA call failed, wait to retry.")
 
         if not fxa_resp_data["status_code"] == 200:
-            raise AuthenticationFailed("Did not receive a 200 response from FXA.")
+            raise APIException("Did not receive a 200 response from FXA.")
 
         if not fxa_resp_data["json"].get("active"):
             raise AuthenticationFailed("FXA returned active: False for token.")
@@ -84,13 +99,11 @@ class FxaTokenAuthentication(BaseAuthentication):
         # FxA user is active, check for the associated Relay account
         fxa_uid = fxa_resp_data.get("json", {}).get("sub")
         if not fxa_uid:
-            raise AuthenticationFailed("FXA did not return an FXA UID.")
+            raise NotFound("FXA did not return an FXA UID.")
         try:
             sa = SocialAccount.objects.get(uid=fxa_uid, provider="fxa")
         except SocialAccount.DoesNotExist:
-            raise AuthenticationFailed(
-                "Authenticated user does not have a Relay account."
-            )
+            raise PermissionDenied("Authenticated user does not have a Relay account.")
         user = sa.user
 
         # cache fxa_resp_data for as long as access_token is valid
@@ -107,4 +120,4 @@ class FxaTokenAuthentication(BaseAuthentication):
         if user:
             return (user, token)
         else:
-            raise AuthenticationFailed()
+            raise NotFound()
