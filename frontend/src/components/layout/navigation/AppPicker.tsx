@@ -29,6 +29,7 @@ import {
 } from "react";
 import { AriaMenuItemProps } from "@react-aria/menu";
 import { event as gaEvent } from "react-ga";
+import Image from "next/image";
 import styles from "./AppPicker.module.scss";
 import FirefoxLogo from "../images/fx.png";
 import MonitorLogo from "../images/monitor.png";
@@ -141,7 +142,7 @@ export const AppPicker = (props: Props) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <img src={VpnLogo.src} alt="" width={16} height={16} />
+          <Image src={VpnLogo} alt="" width={16} height={16} />
           {l10n.getString("fx-vpn")}
         </a>
       </Item>
@@ -153,7 +154,7 @@ export const AppPicker = (props: Props) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <img src={MonitorLogo.src} alt="" width={16} height={16} />
+          <Image src={MonitorLogo} alt="" width={16} height={16} />
           {l10n.getString("fx-monitor")}
         </a>
       </Item>
@@ -165,7 +166,7 @@ export const AppPicker = (props: Props) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <img src={PocketLogo.src} alt="" width={16} height={16} />
+          <Image src={PocketLogo} alt="" width={16} height={16} />
           {l10n.getString("fx-pocket")}
         </a>
       </Item>
@@ -180,7 +181,7 @@ export const AppPicker = (props: Props) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <img src={FxDesktopLogo.src} alt="" width={16} height={16} />
+          <Image src={FxDesktopLogo} alt="" width={16} height={16} />
           {l10n.getString("fx-desktop-2")}
         </a>
       </Item>
@@ -195,7 +196,7 @@ export const AppPicker = (props: Props) => {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <img src={FxMobileLogo.src} alt="" width={16} height={16} />
+          <Image src={FxMobileLogo} alt="" width={16} height={16} />
           {l10n.getString("fx-mobile-2")}
         </a>
       </Item>
@@ -324,7 +325,7 @@ const AppPickerPopup = (props: AppPickerPopupProps) => {
           className={styles.popup}
         >
           <div className={styles["app-picker-heading"]}>
-            <img src={FirefoxLogo.src} alt="" width={32} height={32} />
+            <Image src={FirefoxLogo} alt="" width={32} height={32} />
             <h2>{l10n.getString("fx-makes-tech")}</h2>
           </div>
           <ul>

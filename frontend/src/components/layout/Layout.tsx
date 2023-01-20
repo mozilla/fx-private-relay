@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ToastContainer, toast, Slide } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import styles from "./Layout.module.scss";
@@ -114,17 +115,17 @@ export const Layout = (props: Props) => {
           <div className={styles["logo-wrapper"]}>
             <Link href={homePath} className={styles.logo}>
               {router.pathname === "/vpn-relay-welcome" ? (
-                <img src={vpnRelayLogo.src} alt="" height={32} />
+                <Image src={vpnRelayLogo} alt="" height={32} />
               ) : (
                 <>
-                  <img
-                    src={logo.src}
+                  <Image
+                    src={logo}
                     alt=""
                     className={styles.logomark}
                     width={42}
                   />
-                  <img
-                    src={logoType.src}
+                  <Image
+                    src={logoType}
                     alt={logoAlt}
                     className={styles.logotype}
                     height={20}
@@ -180,8 +181,8 @@ export const Layout = (props: Props) => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <img
-                src={mozillaLogo.src}
+              <Image
+                src={mozillaLogo}
                 alt={l10n.getString("logo-mozilla-alt")}
                 width={120}
               />

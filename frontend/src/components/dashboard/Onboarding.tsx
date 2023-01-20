@@ -1,3 +1,4 @@
+import Image from "next/image";
 import styles from "./Onboarding.module.scss";
 import IconImage from "./images/onboarding-step-2.svg";
 import RightClickImage from "./images/onboarding-step-3.svg";
@@ -38,13 +39,13 @@ export const Onboarding = (props: Props) => {
         <li className={styles.step}>
           <p>{l10n.getString("onboarding-alias-tip-2")}</p>
           <div className={styles.footer}>
-            <img src={IconImage.src} alt="" />
+            <Image src={IconImage} alt="" />
           </div>
         </li>
         <li className={styles.step}>
           <p>{l10n.getString("onboarding-alias-tip-3-2")}</p>
           <div className={styles.footer}>
-            <img src={RightClickImage.src} alt="" />
+            <Image src={RightClickImage} alt="" />
           </div>
         </li>
       </ol>

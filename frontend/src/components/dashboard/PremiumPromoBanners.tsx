@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import Image from "next/image";
 import styles from "./ProfileBanners.module.scss";
 import PhoneIllustration from "./images/phone-premium-promo.svg";
 import { Banner } from "../Banner";
@@ -32,7 +33,7 @@ export const PremiumPromoBanners = (props: Props) => {
   return <div className={styles["profile-banners"]}>{banners}</div>;
 };
 
-const phoneImage = <img src={PhoneIllustration.src} alt="" />;
+const phoneImage = <Image src={PhoneIllustration} alt="" />;
 
 const StopSpamBanner = () => {
   const l10n = useL10n();

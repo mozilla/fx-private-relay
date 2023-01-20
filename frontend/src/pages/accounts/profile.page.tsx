@@ -1,4 +1,5 @@
 import type { NextPage } from "next";
+import Image from "next/image";
 import {
   forwardRef,
   HTMLAttributes,
@@ -352,7 +353,7 @@ const Profile: NextPage = () => {
               {l10n.getString("banner-pack-upgrade-cta")}
             </LinkButton>
           </div>
-          <img src={BottomBannerIllustration.src} alt="" />
+          <Image src={BottomBannerIllustration} alt="" />
         </div>
       </section>
     );

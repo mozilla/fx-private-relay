@@ -2,6 +2,7 @@ import { NextPage } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import { event as gaEvent } from "react-ga";
+import Image from "next/image";
 import styles from "./index.module.scss";
 import Testimonials from "../../public/images/hero-brands.svg";
 import HowItWorks1 from "../../public/images/how-it-works-1.svg";
@@ -101,8 +102,8 @@ const Home: NextPage = () => {
             >
               {l10n.getString("nav-profile-sign-up")}
             </LinkButton>
-            <img
-              src={Testimonials.src}
+            <Image
+              src={Testimonials}
               alt="Forbes, ZDNet, Lifehacker, PCMag"
               className={styles["social-proof"]}
             />
@@ -136,7 +137,7 @@ const Home: NextPage = () => {
             </p>
             <ol className={styles.steps}>
               <li className={styles.step}>
-                <img src={HowItWorks1.src} alt="" />
+                <Image src={HowItWorks1} alt="" />
                 <h3>{l10n.getString("how-it-works-step-1-headline")}</h3>
                 <p>
                   <a href="https://addons.mozilla.org/firefox/addon/private-relay/">
@@ -147,12 +148,12 @@ const Home: NextPage = () => {
                 </p>
               </li>
               <li className={styles.step}>
-                <img src={HowItWorks2.src} alt="" />
+                <Image src={HowItWorks2} alt="" />
                 <h3>{l10n.getString("how-it-works-step-2-headline-2")}</h3>
                 <p>{l10n.getString("landing-how-it-works-step-2-body-2")}</p>
               </li>
               <li className={styles.step}>
-                <img src={HowItWorks3.src} alt="" />
+                <Image src={HowItWorks3} alt="" />
                 <h3>{l10n.getString("how-it-works-step-3-headline-2")}</h3>
                 <p>{l10n.getString("landing-how-it-works-step-3-body-2")}</p>
               </li>
@@ -169,7 +170,7 @@ const Home: NextPage = () => {
                   heading: l10n.getString("landing-use-cases-shopping"),
                   content: (
                     <CarouselContentHero
-                      heroImage={ShoppingHero.src}
+                      heroImage={ShoppingHero}
                       heading={l10n.getString(
                         "landing-use-cases-shopping-hero-heading"
                       )}
@@ -220,7 +221,7 @@ const Home: NextPage = () => {
                       lead={l10n.getString("landing-use-cases-on-the-go-lead")}
                       cards={[
                         {
-                          image: OnTheGoConnect.src,
+                          image: OnTheGoConnect,
                           heading: l10n.getString(
                             "landing-use-cases-on-the-go-connect-heading"
                           ),
@@ -229,7 +230,7 @@ const Home: NextPage = () => {
                           ),
                         },
                         {
-                          image: OnTheGoReceipt.src,
+                          image: OnTheGoReceipt,
                           heading: l10n.getString(
                             "landing-use-cases-on-the-go-receipt-heading"
                           ),
@@ -238,7 +239,7 @@ const Home: NextPage = () => {
                           ),
                         },
                         {
-                          image: OnTheGoPhone.src,
+                          image: OnTheGoPhone,
                           heading: l10n.getString(
                             "landing-use-cases-on-the-go-phone-heading"
                           ),
@@ -257,7 +258,7 @@ const Home: NextPage = () => {
                   heading: l10n.getString("landing-use-cases-signups"),
                   content: (
                     <CarouselContentHero
-                      heroImage={SignupsHero.src}
+                      heroImage={SignupsHero}
                       heading={l10n.getString(
                         "landing-use-cases-signups-hero-heading"
                       )}

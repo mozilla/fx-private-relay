@@ -20,6 +20,7 @@ import {
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
 import { event as gaEvent } from "react-ga";
+import { StaticImageData } from "next/image";
 import styles from "./WhatsNewMenu.module.scss";
 import SizeLimitHero from "./images/size-limit-hero-10mb.svg";
 import SizeLimitIcon from "./images/size-limit-icon-10mb.svg";
@@ -69,7 +70,7 @@ export type WhatsNewEntry = {
   title: string;
   snippet: string;
   content: ReactNode;
-  icon: string;
+  icon: StaticImageData;
   dismissal: DismissalData;
   /**
    * This is used to automatically archive entries of a certain age
@@ -143,7 +144,7 @@ export const WhatsNewMenu = (props: Props) => {
             }
           )}
           heading={l10n.getString("whatsnew-feature-size-limit-heading")}
-          image={SizeLimitHero.src}
+          image={SizeLimitHero}
           videos={{
             // Unfortunately video files cannot currently be imported, so make
             // sure these files are present in /public. See
@@ -154,7 +155,7 @@ export const WhatsNewMenu = (props: Props) => {
           }}
         />
       ),
-      icon: SizeLimitIcon.src,
+      icon: SizeLimitIcon,
       dismissal: useLocalDismissal(
         `whatsnew-feature_size-limit_${props.profile.id}`
       ),
@@ -175,10 +176,10 @@ export const WhatsNewMenu = (props: Props) => {
           "whatsnew-feature-forward-some-description"
         )}
         heading={l10n.getString("whatsnew-feature-forward-some-heading")}
-        image={ForwardSomeHero.src}
+        image={ForwardSomeHero}
       />
     ),
-    icon: ForwardSomeIcon.src,
+    icon: ForwardSomeIcon,
     dismissal: useLocalDismissal(
       `whatsnew-feature_sign-back-in_${props.profile.id}`
     ),
@@ -201,10 +202,10 @@ export const WhatsNewMenu = (props: Props) => {
           "whatsnew-feature-sign-back-in-description"
         )}
         heading={l10n.getString("whatsnew-feature-sign-back-in-heading")}
-        image={SignBackInHero.src}
+        image={SignBackInHero}
       />
     ),
-    icon: SignBackInIcon.src,
+    icon: SignBackInIcon,
     dismissal: useLocalDismissal(
       `whatsnew-feature_sign-back-in_${props.profile.id}`
     ),
@@ -227,10 +228,10 @@ export const WhatsNewMenu = (props: Props) => {
           "whatsnew-feature-alias-to-mask-description"
         )}
         heading={l10n.getString("whatsnew-feature-alias-to-mask-heading")}
-        image={aliasToMaskHero.src}
+        image={aliasToMaskHero}
       />
     ),
-    icon: aliasToMaskIcon.src,
+    icon: aliasToMaskIcon,
     dismissal: useLocalDismissal(
       `whatsnew-feature_alias-to-mask_${props.profile.id}`
     ),
@@ -275,10 +276,10 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString(
           "whatsnew-feature-premium-expansion-sweden-heading"
         )}
-        image={PremiumSwedenHero.src}
+        image={PremiumSwedenHero}
       />
     ),
-    icon: PremiumSwedenIcon.src,
+    icon: PremiumSwedenIcon,
     dismissal: useLocalDismissal(
       `whatsnew-feature_premium-expansion-sweden_${props.profile.id}`
     ),
@@ -307,10 +308,10 @@ export const WhatsNewMenu = (props: Props) => {
         heading={l10n.getString(
           "whatsnew-feature-premium-expansion-finland-heading"
         )}
-        image={PremiumFinlandHero.src}
+        image={PremiumFinlandHero}
       />
     ),
-    icon: PremiumFinlandIcon.src,
+    icon: PremiumFinlandIcon,
     dismissal: useLocalDismissal(
       `whatsnew-feature_premium-expansion-finland_${props.profile.id}`
     ),
@@ -337,10 +338,10 @@ export const WhatsNewMenu = (props: Props) => {
           "whatsnew-feature-tracker-removal-description-2"
         )}
         heading={l10n.getString("whatsnew-feature-tracker-removal-heading")}
-        image={TrackerRemovalHero.src}
+        image={TrackerRemovalHero}
       />
     ),
-    icon: TrackerRemovalIcon.src,
+    icon: TrackerRemovalIcon,
     dismissal: useLocalDismissal(
       `whatsnew-feature_tracker-removal_${props.profile.id}`
     ),
@@ -380,7 +381,7 @@ export const WhatsNewMenu = (props: Props) => {
         }
       />
     ),
-    icon: OfferCountdownIcon.src,
+    icon: OfferCountdownIcon,
     dismissal: useLocalDismissal(
       `whatsnew-feature_offer-countdown_${props.profile.id}`
     ),
@@ -410,7 +411,7 @@ export const WhatsNewMenu = (props: Props) => {
         <WhatsNewContent
           description={l10n.getString("whatsnew-feature-phone-description")}
           heading={l10n.getString("whatsnew-feature-phone-header")}
-          image={PhoneMaskingHero.src}
+          image={PhoneMaskingHero}
           videos={{
             // Unfortunately video files cannot currently be imported, so make
             // sure these files are present in /public. See
@@ -428,7 +429,7 @@ export const WhatsNewMenu = (props: Props) => {
         />
       ) : null,
 
-    icon: PhoneMaskingIcon.src,
+    icon: PhoneMaskingIcon,
     dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
     announcementDate: {
       year: 2022,
@@ -457,7 +458,7 @@ export const WhatsNewMenu = (props: Props) => {
           heading={l10n.getString("whatsnew-feature-bundle-header-2", {
             savings: "40%",
           })}
-          image={BundleHero.src}
+          image={BundleHero}
           videos={{
             // Unfortunately video files cannot currently be imported, so make
             // sure these files are present in /public. See
@@ -475,7 +476,7 @@ export const WhatsNewMenu = (props: Props) => {
         />
       ) : null,
 
-    icon: BundleIcon.src,
+    icon: BundleIcon,
     dismissal: useLocalDismissal(`whatsnew-feature_phone_${props.profile.id}`),
     announcementDate: {
       year: 2022,
@@ -498,10 +499,10 @@ export const WhatsNewMenu = (props: Props) => {
           "whatsnew-feature-firefox-integration-description"
         )}
         heading={l10n.getString("whatsnew-feature-firefox-integration-heading")}
-        image={FirefoxIntegrationHero.src}
+        image={FirefoxIntegrationHero}
       />
     ),
-    icon: FirefoxIntegrationIcon.src,
+    icon: FirefoxIntegrationIcon,
     dismissal: useLocalDismissal(
       `whatsnew-feature_firefox-integration_${props.profile.id}`
     ),

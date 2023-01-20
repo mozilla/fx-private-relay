@@ -52,3 +52,6 @@ relay-sms-error-no-body-after-full-number = Message failed to send. Please inclu
 # Variables
 #   $sender (string) - the original sender's email address
 other-reply-not-forwarded = Your reply was NOT sent to { $sender }.
+# Variables
+#   $sender (string) - the original sender's email address
+other-reply-not-forwarded-2 = Your reply was not sent to { $sender }.

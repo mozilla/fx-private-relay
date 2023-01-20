@@ -1,10 +1,11 @@
+import Image, { StaticImageData } from "next/image";
 import { ReactNode } from "react";
 import styles from "./ContentHero.module.scss";
 
 export type Props = {
   heading: string;
   body: ReactNode;
-  heroImage: string;
+  heroImage: StaticImageData;
   /**
    * Whether text should be shown before (e.g. on the left side, in English) the
    * hero image. Only applies on wide screens; on small screens, the hero image
@@ -25,7 +26,7 @@ export const CarouselContentHero = (props: Props) => {
         <div className={styles.body}>{props.body}</div>
       </div>
       <div className={styles.hero}>
-        <img src={props.heroImage} alt="" />
+        <Image src={props.heroImage} alt="" />
       </div>
     </div>
   );

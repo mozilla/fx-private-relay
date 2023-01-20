@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { event as gaEvent } from "react-ga";
 import { useOverlayTriggerState } from "react-stately";
+import Image from "next/image";
 import styles from "./PremiumOnboarding.module.scss";
 import ManLaptopEmail from "./images/man-laptop-email-alt.svg";
 import WomanOnCouch from "./images/woman-couch.svg";
@@ -257,7 +258,7 @@ const StepOne = () => {
         </p>
       </div>
       <div className={styles.description}>
-        <img src={WomanOnCouch.src} alt="" width={350} />
+        <Image src={WomanOnCouch} alt="" width={350} />
         <p>
           <span className={styles["description-caption"]}>
             {l10n.getString("onboarding-premium-title-detail")}
@@ -312,7 +313,7 @@ const StepTwo = (props: Step2Props) => {
         <h2>{l10n.getString("multi-part-onboarding-premium-get-subdomain")}</h2>
       </div>
       <div className={styles.description}>
-        <img src={WomanEmail.src} alt="" width={400} />
+        <Image src={WomanEmail} alt="" width={400} />
         <div className={styles.content}>
           <p className={styles["subdomain-description"]}>
             <span className={styles["description-caption"]}>
@@ -401,7 +402,7 @@ const StepThree = () => {
         <StepThreeTitle />
       </div>
       <div className={styles.description}>
-        <img src={ManLaptopEmail.src} alt="" width={500} />
+        <Image src={ManLaptopEmail} alt="" width={500} />
         <div>
           <p className={styles["reply-description"]}>
             <span className={styles["description-caption"]}>

@@ -1,5 +1,6 @@
 import { NextPage } from "next";
 import { event as gaEvent } from "react-ga";
+import Image from "next/image";
 import styles from "./premium.module.scss";
 import PerkIllustrationUnlimited from "../../public/images/perk-unlimited.svg";
 import PerkIllustrationCustomDomain from "../../public/images/perk-custom-domain.svg";
@@ -175,7 +176,7 @@ const PremiumPromo: NextPage = () => {
               {l10n.getString("premium-promo-perks-lead-2")}
             </p>
             <div className={styles.perk}>
-              <img src={PerkIllustrationUnlimited.src} alt="" />
+              <Image src={PerkIllustrationUnlimited} alt="" />
               <div className={styles.description}>
                 <h3>
                   {l10n.getString(
@@ -189,7 +190,7 @@ const PremiumPromo: NextPage = () => {
               </div>
             </div>
             <div className={styles.perk}>
-              <img src={PerkIllustrationCustomDomain.src} alt="" />
+              <Image src={PerkIllustrationCustomDomain} alt="" />
               <div className={styles.description}>
                 <h3>
                   {l10n.getString(
@@ -205,7 +206,7 @@ const PremiumPromo: NextPage = () => {
               </div>
             </div>
             <div className={styles.perk}>
-              <img src={PerkIllustrationDashboard.src} alt="" />
+              <Image src={PerkIllustrationDashboard} alt="" />
               <div className={styles.description}>
                 <h3>
                   {l10n.getString(
@@ -219,7 +220,7 @@ const PremiumPromo: NextPage = () => {
               </div>
             </div>
             <div className={styles.perk}>
-              <img src={PerkIllustrationBlockPromotionals.src} alt="" />
+              <Image src={PerkIllustrationBlockPromotionals} alt="" />
               <div className={styles.description}>
                 <b className={styles.pill}>
                   {l10n.getString("premium-promo-perks-pill-new")}
@@ -239,7 +240,7 @@ const PremiumPromo: NextPage = () => {
             </div>
             {isFlagActive(runtimeData.data, "tracker_removal") ? (
               <div className={styles.perk}>
-                <img src={PerkIllustrationTrackerBlocking.src} alt="" />
+                <Image src={PerkIllustrationTrackerBlocking} alt="" />
                 <div className={styles.description}>
                   <b className={styles.pill}>
                     {l10n.getString("premium-promo-perks-pill-new")}
@@ -273,7 +274,7 @@ const PremiumPromo: NextPage = () => {
                   heading: l10n.getString("landing-use-cases-shopping"),
                   content: (
                     <CarouselContentHero
-                      heroImage={ShoppingHero.src}
+                      heroImage={ShoppingHero}
                       heading={l10n.getString(
                         "landing-use-cases-shopping-hero-heading"
                       )}
@@ -324,7 +325,7 @@ const PremiumPromo: NextPage = () => {
                       lead={l10n.getString("landing-use-cases-on-the-go-lead")}
                       cards={[
                         {
-                          image: OnTheGoConnect.src,
+                          image: OnTheGoConnect,
                           heading: l10n.getString(
                             "landing-use-cases-on-the-go-connect-heading"
                           ),
@@ -333,7 +334,7 @@ const PremiumPromo: NextPage = () => {
                           ),
                         },
                         {
-                          image: OnTheGoReceipt.src,
+                          image: OnTheGoReceipt,
                           heading: l10n.getString(
                             "landing-use-cases-on-the-go-receipt-heading"
                           ),
@@ -342,7 +343,7 @@ const PremiumPromo: NextPage = () => {
                           ),
                         },
                         {
-                          image: OnTheGoPhone.src,
+                          image: OnTheGoPhone,
                           heading: l10n.getString(
                             "landing-use-cases-on-the-go-phone-heading"
                           ),
@@ -361,7 +362,7 @@ const PremiumPromo: NextPage = () => {
                   heading: l10n.getString("landing-use-cases-signups"),
                   content: (
                     <CarouselContentHero
-                      heroImage={SignupsHero.src}
+                      heroImage={SignupsHero}
                       heading={l10n.getString(
                         "landing-use-cases-signups-hero-heading"
                       )}
