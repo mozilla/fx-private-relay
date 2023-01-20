@@ -49,8 +49,8 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
       revalidate,
       revalidateOpts
     ) => {
-      if (error instanceof FetchError && error.response.status === 403) {
-        // When the user is not logged in, this API returns a 403.
+      if (error instanceof FetchError && error.response.status === 401) {
+        // When the user is not logged in, this API returns a 401.
         // If so, do not retry.
         return;
       }
