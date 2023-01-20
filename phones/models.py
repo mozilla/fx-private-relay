@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from math import floor
-from typing import Optional
+from typing import Iterator, Optional
 import logging
 import secrets
 import string
@@ -299,16 +299,32 @@ class RelayNumber(models.Model):
         return super().save(*args, **kwargs)
 
 
+class CachedList:
+    """A list that is stored in a cache."""
+
+    def __init__(self, cache_key: str) -> None:
+        self.cache_key = cache_key
+        cache_value = cache.get(self.cache_key, "")
+        if cache_value:
+            self.data = cache_value.split(",")
+        else:
+            self.data = []
+
+    def __iter__(self) -> Iterator[str]:
+        return (item for item in self.data)
+
+    def append(self, item: str) -> None:
+        self.data.append(item)
+        self.data.sort()
+        cache.set(self.cache_key, ",".join(self.data))
+
+
 def register_with_messaging_service(client: Client, number_sid: str) -> None:
     """Register a Twilio US phone number with a Messaging Service."""
 
     assert settings.TWILIO_MESSAGING_SERVICE_SID
 
-    cache_value = cache.get("twilio_messaging_service_closed", "")
-    if cache_value:
-        closed_sids = cache_value.split(",")
-    else:
-        closed_sids = []
+    closed_sids = CachedList("twilio_messaging_service_closed")
 
     for service_sid in settings.TWILIO_MESSAGING_SERVICE_SID:
         if service_sid in closed_sids:
@@ -334,9 +350,6 @@ def register_with_messaging_service(client: Client, number_sid: str) -> None:
                 # Log "Number Pool size limit reached", continue to next service
                 # https://www.twilio.com/docs/api/errors/21714
                 closed_sids.append(service_sid)
-                cache.set(
-                    "twilio_messaging_service_closed", ",".join(sorted(closed_sids))
-                )
                 logger.warning("twilio_messaging_service", extra=log_extra)
             else:
                 # Log and re-raise other Twilio errors
