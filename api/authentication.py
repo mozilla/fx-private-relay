@@ -51,8 +51,8 @@ class FxaTokenAuthentication(BaseAuthentication):
     def authenticate_header(self, request):
         # Note: we need to implement this function to make DRF return a 401 status code
         # when we raise AuthenticationFailed, rather than a 403.
-        # See https://www.django-rest-framework.org/api-guide/exceptions/#authenticationfailed
-        return "FXA Bearer:"
+        # See https://www.django-rest-framework.org/api-guide/authentication/#custom-authentication
+        return "Bearer"
 
     def authenticate(self, request):
         authorization = get_authorization_header(request).decode()
