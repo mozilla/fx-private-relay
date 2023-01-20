@@ -40,8 +40,14 @@ def test_settings(settings):
     return settings
 
 
+@pytest.fixture
+def twilio_number_sid():
+    """A Twilio Incoming Number ID"""
+    return f"PN{uuid4().hex}"
+
+
 @pytest.fixture(autouse=True)
-def mock_twilio_client():
+def mock_twilio_client(twilio_number_sid: str):
     """Mock PhonesConfig with a mock twilio client"""
     with patch(
         "phones.apps.PhonesConfig.twilio_client",
@@ -54,7 +60,9 @@ def mock_twilio_client():
     ) as mock_twilio_client:
         mock_twilio_client.available_phone_numbers = Mock(spec_set=[])
         mock_twilio_client.incoming_phone_numbers = Mock(spec_set=["create"])
-        mock_twilio_client.incoming_phone_numbers.create = Mock(spec_set=[])
+        mock_twilio_client.incoming_phone_numbers.create = Mock(
+            spec_set=[], return_value=SimpleNamespace(sid=twilio_number_sid)
+        )
         mock_twilio_client.messages = Mock(spec_set=["create"])
         mock_twilio_client.messages.create = Mock(spec_set=[])
         mock_twilio_client.messaging = Mock(spec_set=["v1"])
@@ -287,28 +295,24 @@ def real_phone_us(phone_user, mock_twilio_client):
 
 
 def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
-    phone_user, real_phone_us, mock_twilio_client
+    phone_user, real_phone_us, mock_twilio_client, settings, twilio_number_sid
 ):
     """A successful relay phone creation sends a welcome message."""
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-    mock_services = mock_twilio_client.messaging.v1.services
-
     relay_number = "+19998887777"
     relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
 
-    mock_number_create.assert_called_once_with(
+    mock_twilio_client.incoming_phone_numbers.create.assert_called_once_with(
         phone_number=relay_number,
         sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
         voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
     )
+    mock_services = mock_twilio_client.messaging.v1.services
     mock_services.assert_called_once_with(settings.TWILIO_MESSAGING_SERVICE_SID[0])
     mock_services.return_value.phone_numbers.create.assert_called_once_with(
-        phone_number_sid=twilio_incoming_number_sid
+        phone_number_sid=twilio_number_sid
     )
 
+    mock_messages_create = mock_twilio_client.messages.create
     mock_messages_create.assert_called_once()
     call_kwargs = mock_messages_create.call_args.kwargs
     assert "Welcome" in call_kwargs["body"]
@@ -317,7 +321,7 @@ def test_create_relaynumber_creates_twilio_incoming_number_and_sends_welcome(
 
 
 def test_create_relaynumber_already_registered_with_service(
-    phone_user, real_phone_us, mock_twilio_client, caplog, test_settings
+    phone_user, real_phone_us, mock_twilio_client, caplog, settings, twilio_number_sid
 ):
     """
     It is OK if the relay phone is already registered with a messaging service.
@@ -325,15 +329,11 @@ def test_create_relaynumber_already_registered_with_service(
     This is not likely in production, since relay phone acquisition and registration
     is a single step, but can happen when manually moving relay phones between users.
     """
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    twilio_service_sid = test_settings.TWILIO_MESSAGING_SERVICE_SID[0]
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-    mock_services = mock_twilio_client.messaging.v1.services
-    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
+    twilio_service_sid = settings.TWILIO_MESSAGING_SERVICE_SID[0]
 
     # Twilio responds that the phone number is already registered
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
     mock_messaging_number_create.side_effect = TwilioRestException(
         uri=f"/Services/{twilio_service_sid}/PhoneNumbers",
         msg=(
@@ -349,33 +349,29 @@ def test_create_relaynumber_already_registered_with_service(
     relay_number = "+19998887777"
     RelayNumber.objects.create(user=phone_user, number=relay_number)
 
-    mock_number_create.assert_called_once_with(
+    mock_twilio_client.incoming_phone_numbers.create.assert_called_once_with(
         phone_number=relay_number,
         sms_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
         voice_application_sid=settings.TWILIO_SMS_APPLICATION_SID,
     )
-    mock_services.assert_called_once_with(settings.TWILIO_MESSAGING_SERVICE_SID[0])
+    mock_services.assert_called_once_with(twilio_service_sid)
     mock_messaging_number_create.assert_called_once_with(
-        phone_number_sid=twilio_incoming_number_sid
+        phone_number_sid=twilio_number_sid
     )
-    mock_messages_create.assert_called_once()
+    mock_twilio_client.messages.create.assert_called_once()
     assert caplog.messages == ["twilio_messaging_service"]
     assert caplog.records[0].code == 21710
 
 
-def test_create_relaynumber_full_service(
-    phone_user, real_phone_us, mock_twilio_client, test_settings, caplog
+def test_create_relaynumber_fail_if_all_services_are_full(
+    phone_user, real_phone_us, mock_twilio_client, settings, caplog, twilio_number_sid
 ):
     """If the Twilio Messaging Service pool is full, an exception is raised."""
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    twilio_service_sid = test_settings.TWILIO_MESSAGING_SERVICE_SID[0]
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-    mock_services = mock_twilio_client.messaging.v1.services
-    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
+    twilio_service_sid = settings.TWILIO_MESSAGING_SERVICE_SID[0]
 
     # Twilio responds that the pool is full
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
     mock_messaging_number_create.side_effect = TwilioRestException(
         uri=f"/Services/{twilio_service_sid}/PhoneNumbers",
         msg=("Unable to create record: Number Pool size limit reached"),
@@ -392,51 +388,48 @@ def test_create_relaynumber_full_service(
     )
 
     mock_messaging_number_create.assert_called_once_with(
-        phone_number_sid=twilio_incoming_number_sid
+        phone_number_sid=twilio_number_sid
     )
-    mock_messages_create.assert_not_called()
+    mock_twilio_client.messages.create.assert_not_called()
     assert caplog.messages == ["twilio_messaging_service"]
     assert caplog.records[0].code == 21714
 
 
 def test_create_relaynumber_no_service(
-    phone_user, real_phone_us, mock_twilio_client, test_settings, caplog
+    phone_user, real_phone_us, mock_twilio_client, settings, caplog
 ):
     """If no Twilio Messaging Service IDs are defined, registration is skipped."""
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    test_settings.TWILIO_MESSAGING_SERVICE_SID = []
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-    mock_services = mock_twilio_client.messaging.v1.services
-    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
+    settings.TWILIO_MESSAGING_SERVICE_SID = []
 
     RelayNumber.objects.create(user=phone_user, number="+19998887777")
 
-    mock_messaging_number_create.assert_not_called()
-    mock_messages_create.assert_called_once()
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_services.return_value.phone_numbers.create.assert_not_called()
+    mock_twilio_client.messages.create.assert_called_once()
     assert caplog.messages == [
         "Skipping Twilio Messaging Service registration, since"
         " TWILIO_MESSAGING_SERVICE_SID is empty."
     ]
 
 
-def test_create_relaynumber_fallback_service(
-    phone_user, real_phone_us, mock_twilio_client, settings, django_cache, caplog
+def test_create_relaynumber_fallback_to_second_service(
+    phone_user,
+    real_phone_us,
+    mock_twilio_client,
+    settings,
+    django_cache,
+    caplog,
+    twilio_number_sid,
 ):
     """The fallback messaging pool if the first is full."""
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    twilio_service1_sid = "MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1"
-    twilio_service2_sid = "MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2"
+    twilio_service1_sid = f"MG{uuid4().hex}"
+    twilio_service2_sid = f"MG{uuid4().hex}"
     settings.TWILIO_MESSAGING_SERVICE_SID = [twilio_service1_sid, twilio_service2_sid]
     django_cache.set("twilio_messaging_service_closed", "")
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-    mock_services = mock_twilio_client.messaging.v1.services
-    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
 
     # Twilio responds that pool 1 is full, pool 2 is OK
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
     mock_messaging_number_create.side_effect = [
         TwilioRestException(
             uri=f"/Services/{twilio_service1_sid}/PhoneNumbers",
@@ -453,57 +446,60 @@ def test_create_relaynumber_fallback_service(
     mock_services.assert_has_calls(
         [
             call(twilio_service1_sid),
-            call().phone_numbers.create(phone_number_sid=twilio_incoming_number_sid),
+            call().phone_numbers.create(phone_number_sid=twilio_number_sid),
             call(twilio_service2_sid),
-            call().phone_numbers.create(phone_number_sid=twilio_incoming_number_sid),
+            call().phone_numbers.create(phone_number_sid=twilio_number_sid),
         ]
     )
-    mock_messages_create.assert_called_once()
+    mock_twilio_client.messages.create.assert_called_once()
 
     assert django_cache.get("twilio_messaging_service_closed") == twilio_service1_sid
     assert caplog.messages == ["twilio_messaging_service"]
     assert caplog.records[0].code == 21714
 
 
-def test_create_relaynumber_skip_to_fallback_service(
-    phone_user, real_phone_us, mock_twilio_client, settings, django_cache, caplog
+def test_create_relaynumber_skip_known_full_service(
+    phone_user,
+    real_phone_us,
+    mock_twilio_client,
+    settings,
+    django_cache,
+    caplog,
+    twilio_number_sid,
 ):
     """If a pool has been marked as full, it is skipped."""
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    twilio_service1_sid = "MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX1"
-    twilio_service2_sid = "MGXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX2"
+    twilio_service1_sid = f"MG{uuid4().hex}"
+    twilio_service2_sid = f"MG{uuid4().hex}"
     settings.TWILIO_MESSAGING_SERVICE_SID = [twilio_service1_sid, twilio_service2_sid]
     django_cache.set("twilio_messaging_service_closed", twilio_service1_sid)
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-    mock_services = mock_twilio_client.messaging.v1.services
-    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
 
     RelayNumber.objects.create(user=phone_user, number="+19998887777")
 
+    mock_services = mock_twilio_client.messaging.v1.services
     mock_services.assert_called_once_with(twilio_service2_sid)
-    mock_messaging_number_create.assert_called_once_with(
-        phone_number_sid=twilio_incoming_number_sid
+    mock_services.return_value.phone_numbers.create.assert_called_once_with(
+        phone_number_sid=twilio_number_sid
     )
-    mock_messages_create.assert_called_once()
+    mock_twilio_client.messages.create.assert_called_once()
     assert django_cache.get("twilio_messaging_service_closed") == twilio_service1_sid
     assert caplog.messages == []
 
 
 def test_create_relaynumber_other_messaging_error_raised(
-    phone_user, real_phone_us, mock_twilio_client, test_settings, caplog, django_cache
+    phone_user,
+    real_phone_us,
+    mock_twilio_client,
+    settings,
+    caplog,
+    django_cache,
+    twilio_number_sid,
 ):
     """If adding to a pool raises a different error, it is skipped."""
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    twilio_service_sid = test_settings.TWILIO_MESSAGING_SERVICE_SID[0]
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-    mock_services = mock_twilio_client.messaging.v1.services
-    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
+    twilio_service_sid = settings.TWILIO_MESSAGING_SERVICE_SID[0]
 
     # Twilio responds that pool 1 is full, pool 2 is OK
+    mock_services = mock_twilio_client.messaging.v1.services
+    mock_messaging_number_create = mock_services.return_value.phone_numbers.create
     mock_messaging_number_create.side_effect = TwilioRestException(
         uri=f"/Services/{twilio_service_sid}/PhoneNumbers",
         msg=(
@@ -520,32 +516,37 @@ def test_create_relaynumber_other_messaging_error_raised(
 
     mock_services.assert_called_once_with(twilio_service_sid)
     mock_messaging_number_create.assert_called_once_with(
-        phone_number_sid=twilio_incoming_number_sid
+        phone_number_sid=twilio_number_sid
     )
-    mock_messages_create.assert_not_called()
+    mock_twilio_client.messages.create.assert_not_called()
     assert django_cache.get("twilio_messaging_service_closed") is None
     assert caplog.messages == ["twilio_messaging_service"]
     assert caplog.records[0].code == 21712
 
 
-def test_create_relaynumber_canada(phone_user, mock_twilio_client):
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    mock_messages_create = mock_twilio_client.messages.create
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-    mock_services = mock_twilio_client.messaging.v1.services
-
-    real_phone = "+14035551234"
-    RealPhone.objects.create(
-        user=phone_user, verified=True, number=real_phone, country_code="CA"
+@pytest.fixture
+def real_phone_ca(phone_user, mock_twilio_client):
+    """Create a CA-based RealPhone for phone_user, with a reset twilio_client."""
+    real_phone = RealPhone.objects.create(
+        user=phone_user,
+        number="+14035551234",
+        verified=True,
+        verification_sent_date=datetime.now(timezone.utc),
+        country_code="CA",
     )
-    mock_messages_create.assert_called_once()
-    mock_messages_create.reset_mock()
+    mock_twilio_client.messages.create.assert_called_once()
+    mock_twilio_client.messages.create.reset_mock()
+    return real_phone
 
+
+def test_create_relaynumber_canada(
+    phone_user, real_phone_ca, mock_twilio_client, twilio_number_sid
+):
     relay_number = "+17805551234"
     relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
     assert relay_number_obj.country_code == "CA"
 
+    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
     mock_number_create.assert_called_once()
     call_kwargs = mock_number_create.call_args.kwargs
     assert call_kwargs["phone_number"] == relay_number
@@ -553,22 +554,20 @@ def test_create_relaynumber_canada(phone_user, mock_twilio_client):
     assert call_kwargs["voice_application_sid"] == settings.TWILIO_SMS_APPLICATION_SID
 
     # Omit Canadian numbers for US A2P 10DLC messaging service
-    mock_services.assert_not_called()
+    mock_twilio_client.messaging.v1.services.assert_not_called()
 
+    # A welcome message is sent
+    mock_messages_create = mock_twilio_client.messages.create
     mock_messages_create.assert_called_once()
     call_kwargs = mock_messages_create.call_args.kwargs
     assert "Welcome" in call_kwargs["body"]
-    assert call_kwargs["to"] == real_phone
+    assert call_kwargs["to"] == real_phone_ca.number
     assert relay_number_obj.vcard_lookup_key in call_kwargs["media_url"][0]
 
 
 def test_relaynumber_remaining_minutes_returns_properly_formats_remaining_seconds(
     phone_user, real_phone_us, mock_twilio_client
 ):
-    twilio_incoming_number_sid = "PNXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-    mock_number_create = mock_twilio_client.incoming_phone_numbers.create
-    mock_number_create.return_value = SimpleNamespace(sid=twilio_incoming_number_sid)
-
     relay_number = "+13045551234"
     relay_number_obj = RelayNumber.objects.create(user=phone_user, number=relay_number)
 
