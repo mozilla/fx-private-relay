@@ -36,7 +36,9 @@ if TYPE_CHECKING:
 try:
     # Silk is a live profiling and inspection tool for the Django framework
     # https://github.com/jazzband/django-silk
-    import silk  # noqa: F401  # suppress "imported but unused"
+    import silk
+
+    assert silk  # Suppress "imported but unused" warning
 
     HAS_SILK = True
 except ImportError:
