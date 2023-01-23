@@ -44,7 +44,7 @@
     "@types/jest-axe": "^3.5.5",
     "@types/react": "^18.0.27",
     "@typescript-eslint/eslint-plugin": "^5.48.1",
-    "@typescript-eslint/parser": "^5.48.1",
+    "@typescript-eslint/parser": "^5.48.2",
     "babel-jest": "^29.3.1",
     "chokidar-cli": "^3.0.0",
     "eslint": "^8.32.0",
