@@ -377,7 +377,7 @@ def test_fxa_rp_events_password_change_far_future_iat(
         client_id=setup_fxa_rp_events.app.client_id,
         signing_key=setup_fxa_rp_events.key,
         event_data={"changeTime": int(datetime.utcnow().timestamp()) - 100},
-        iat_skew=6,
+        iat_skew=10,
     )
     auth_header = f"Bearer {event_jwt}"
 
@@ -389,7 +389,7 @@ def test_fxa_rp_events_password_change_far_future_iat(
         ("eventsinfo", logging.WARNING, "fxa_rp_event.future_iat"),
         ("request.summary", logging.ERROR, "The token is not yet valid (iat)"),
     ]
-    assert -6.0 <= caplog.records[0].iat_age_s < -4.0
+    assert -10.0 <= caplog.records[0].iat_age_s < -8.0
 
 
 def test_fxa_rp_events_profile_change(
