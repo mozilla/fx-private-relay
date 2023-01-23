@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 from __future__ import annotations
-import ipaddress
-import os, sys
-from datetime import datetime
 from typing import Any, Optional, TYPE_CHECKING
+import ipaddress
+import os
+import sys
 
 
 from decouple import config, Choices, Csv
@@ -37,6 +37,8 @@ try:
     # Silk is a live profiling and inspection tool for the Django framework
     # https://github.com/jazzband/django-silk
     import silk
+
+    assert silk  # Suppress "imported but unused" warning
 
     HAS_SILK = True
 except ImportError:
@@ -185,7 +187,7 @@ TWILIO_ACCOUNT_SID = config("TWILIO_ACCOUNT_SID", None)
 TWILIO_AUTH_TOKEN = config("TWILIO_AUTH_TOKEN", None)
 TWILIO_MAIN_NUMBER = config("TWILIO_MAIN_NUMBER", None)
 TWILIO_SMS_APPLICATION_SID = config("TWILIO_SMS_APPLICATION_SID", None)
-TWILIO_MESSAGING_SERVICE_SID = config("TWILIO_MESSAGING_SERVICE_SID", None)
+TWILIO_MESSAGING_SERVICE_SID = config("TWILIO_MESSAGING_SERVICE_SID", "", cast=Csv())
 TWILIO_TEST_ACCOUNT_SID = config("TWILIO_TEST_ACCOUNT_SID", None)
 TWILIO_TEST_AUTH_TOKEN = config("TWILIO_TEST_AUTH_TOKEN", None)
 TWILIO_ALLOWED_COUNTRY_CODES = set(
@@ -669,19 +671,12 @@ if REDIS_URL:
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 # only needed when admin UI is enabled
 if ADMIN_ENABLED:
+    _DJANGO_PWD_VALIDATION = "django.contrib.auth.password_validation"
     AUTH_PASSWORD_VALIDATORS = [
-        {
-            "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-        },
-        {
-            "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-        },
+        {"NAME": _DJANGO_PWD_VALIDATION + ".UserAttributeSimilarityValidator"},
+        {"NAME": _DJANGO_PWD_VALIDATION + ".MinimumLengthValidator"},
+        {"NAME": _DJANGO_PWD_VALIDATION + ".CommonPasswordValidator"},
+        {"NAME": _DJANGO_PWD_VALIDATION + ".NumericPasswordValidator"},
     ]
 
 
@@ -725,6 +720,7 @@ MEDIA_ROOT = None
 MEDIA_URL = None
 
 WHITENOISE_INDEX_FILE = True
+
 
 # See
 # https://whitenoise.evans.io/en/stable/django.html#WHITENOISE_ADD_HEADERS_FUNCTION
