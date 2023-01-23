@@ -11,7 +11,6 @@ import { useGaViewPing } from "../../hooks/gaViewPing";
 import { ProfileData } from "../../hooks/api/profile";
 import { SubdomainSearchForm } from "./subdomain/SearchForm";
 import { SubdomainConfirmationModal } from "./subdomain/ConfirmationModal";
-import { VisuallyHidden } from "react-aria";
 import { getRuntimeConfig } from "../../config";
 import { useMinViewportWidth } from "../../hooks/mediaQuery";
 import {
@@ -21,6 +20,7 @@ import {
 } from "../../functions/userAgent";
 import { CheckBadgeIcon } from "../Icons";
 import { useL10n } from "../../hooks/l10n";
+import { VisuallyHidden } from "../VisuallyHidden";
 
 export type Props = {
   profile: ProfileData;

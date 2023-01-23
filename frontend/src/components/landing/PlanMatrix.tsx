@@ -1,4 +1,4 @@
-import { useTab, useTabList, useTabPanel, VisuallyHidden } from "react-aria";
+import { useTab, useTabList, useTabPanel } from "react-aria";
 import { Key, ReactNode, useRef } from "react";
 import Link from "next/link";
 import { event as gaEvent } from "react-ga";
@@ -29,6 +29,7 @@ import { setCookie } from "../../functions/cookies";
 import { useL10n } from "../../hooks/l10n";
 import { Localized } from "../Localized";
 import { LinkButton } from "../Button";
+import { VisuallyHidden } from "../VisuallyHidden";
 
 type FeatureList = {
   "email-masks": number;
