@@ -16,7 +16,6 @@ import {
   useOverlay,
   useOverlayPosition,
   useOverlayTrigger,
-  VisuallyHidden,
 } from "react-aria";
 import { useOverlayTriggerState } from "react-stately";
 import { event as gaEvent } from "react-ga";
@@ -65,6 +64,7 @@ import { CountdownTimer } from "../../../CountdownTimer";
 import Link from "next/link";
 import { GiftIcon } from "../../../Icons";
 import { useL10n } from "../../../../hooks/l10n";
+import { VisuallyHidden } from "../../../VisuallyHidden";
 
 export type WhatsNewEntry = {
   title: string;

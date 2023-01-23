@@ -35,6 +35,18 @@ module.exports = {
             message:
               "Please use the `useL10n` hook from `/src/hooks/l10n.ts` instead of `useLocalization` from @fluent/react, and the `Localized` component from `/src/components/Localized.tsx` instead of from @fluent/react.",
           },
+          {
+            // react-aria's <VisuallyHidden> component adds inline styles to
+            // visually hide its children, but our Content Security Policy
+            // disallows inline styles. By adding the equivalent styles to a CSS
+            // file, which automatically gets added to our Content Security
+            // Policy, our own <VisuallyHidden> component avoids this
+            // restriction.
+            name: "react-aria",
+            importNames: ["VisuallyHidden"],
+            message:
+              "Please use the <VisuallyHidden> component from `/components/VisuallyHidden.tsx` instead of the one from react-aria, since the latter's (inline) styles will be stripped by our Content Security Policy.",
+          },
         ],
       },
     ],
