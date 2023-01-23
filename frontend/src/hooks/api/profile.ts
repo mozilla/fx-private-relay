@@ -44,10 +44,15 @@ export function useProfiles(): SWRResponse<ProfilesData, unknown> & {
     revalidateOnFocus: false,
     onErrorRetry: (
       error: unknown | FetchError,
-      key,
-      config: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[2],
-      revalidate,
-      revalidateOpts
+      key: string,
+      // SWR's type definitions do not expose the type required here, at the
+      // time of writing, and they're not reconcilable with anything other than
+      // `any`. Since we're just passing on the value unmodified anyway, this
+      // should not be a problem:
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      config: any,
+      revalidate: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[3],
+      revalidateOpts: Parameters<typeof SWRConfig.defaultValue.onErrorRetry>[4]
     ) => {
       if (error instanceof FetchError && error.response.status === 401) {
         // When the user is not logged in, this API returns a 401.
