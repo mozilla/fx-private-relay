@@ -735,74 +735,69 @@ class SnsMessageTest(TestCase):
         assert response.status_code == 200
 
 
-@override_settings(SITE_ORIGIN="https://test.com", RELAY_CHANNEL="test")
+@override_settings(
+    SITE_ORIGIN="https://test.com", RELAY_CHANNEL="test", STATSD_ENABLED=True
+)
 class GetAddressTest(TestCase):
     def setUp(self):
-        self.service_domain = "test.com"
-        self.local_portion = "foo"
+        self.user = make_premium_test_user()
+        self.user.profile.subdomain = "subdomain"
+        self.user.profile.save()
+        self.relay_address = baker.make(
+            RelayAddress, user=self.user, address="relay123"
+        )
+        self.deleted_relay_address = baker.make(
+            DeletedAddress, address_hash=address_hash("deleted456", domain="test.com")
+        )
+        self.domain_address = baker.make(
+            DomainAddress, user=self.user, address="domain"
+        )
 
     def test_existing_relay_address(self):
-        local_portion = "foo"
-        relay_address = baker.make(RelayAddress, address=local_portion)
-
         actual = _get_address(
-            to_address=f"{self.local_portion}@{self.service_domain}",
-            local_portion=f"{self.local_portion}",
-            domain_portion=f"{self.service_domain}",
+            to_address="relay123@test.com",
+            local_portion="relay123",
+            domain_portion="test.com",
         )
-        assert actual == relay_address
+        assert actual == self.relay_address
 
-    @patch("emails.views.incr_if_enabled")
-    @patch("emails.views.logger")
-    def test_unknown_relay_address_raises(self, logging_mocked, incr_mocked):
-        with pytest.raises(RelayAddress.DoesNotExist):
+    def test_unknown_relay_address_raises(self):
+        with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
             _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion={self.local_portion},
-                domain_portion=f"{self.service_domain}",
+                to_address="unknown@test.com",
+                local_portion="unknown",
+                domain_portion="test.com",
             )
-        incr_mocked.assert_called_once_with("email_for_unknown_address", 1)
+        mm.assert_incr_once("fx.private.relay.email_for_unknown_address")
 
-    @patch("emails.views.incr_if_enabled")
-    def test_deleted_relay_address_raises(self, incr_mocked):
-        hashed_address = address_hash(self.local_portion, domain=self.service_domain)
-        baker.make(DeletedAddress, address_hash=hashed_address)
-
-        with pytest.raises(RelayAddress.DoesNotExist):
+    def test_deleted_relay_address_raises(self):
+        with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
             _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=self.service_domain,
+                to_address="deleted456@test.com",
+                local_portion="deleted456",
+                domain_portion="test.com",
             )
-        incr_mocked.assert_called_once_with("email_for_deleted_address", 1)
+        mm.assert_incr_once("fx.private.relay.email_for_deleted_address")
 
-    @patch("emails.views.incr_if_enabled")
-    def test_multiple_deleted_relay_addresses_raises_same_as_one(self, incr_mocked):
+    def test_multiple_deleted_relay_addresses_raises_same_as_one(self):
         """Multiple DeletedAddress records can have the same hash."""
-        hashed_address = address_hash(self.local_portion, domain=self.service_domain)
-        baker.make(DeletedAddress, address_hash=hashed_address)
-        baker.make(DeletedAddress, address_hash=hashed_address)
+        baker.make(DeletedAddress, address_hash=self.deleted_relay_address.address_hash)
 
-        with pytest.raises(RelayAddress.DoesNotExist):
+        with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
             _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=f"{self.service_domain}",
+                to_address="deleted456@test.com",
+                local_portion="deleted456",
+                domain_portion="test.com",
             )
-        incr_mocked.assert_called_once_with("email_for_deleted_address_multiple", 1)
+        mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
 
-    @patch("emails.views._get_domain_address")
-    def test_existing_domain_address(self, _get_domain_address_mocked):
-        expected = "DomainAddress"
-        _get_domain_address_mocked.return_value = expected
-        # email_domain_mocked.return_value = service_domain
-
+    def test_existing_domain_address(self):
         actual = _get_address(
-            to_address=f"{self.local_portion}@subdomain.{self.service_domain}",
-            local_portion=self.local_portion,
-            domain_portion=f"subdomain.{self.service_domain}",
+            to_address="domain@subdomain.test.com",
+            local_portion="domain",
+            domain_portion="subdomain.test.com",
         )
-        assert actual == expected
+        assert actual == self.domain_address
 
 
 class GetAttachmentTests(TestCase):
