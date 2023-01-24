@@ -799,6 +799,42 @@ class GetAddressTest(TestCase):
         )
         assert actual == self.domain_address
 
+    def test_subdomain_for_wrong_domain_raises(self):
+        with pytest.raises(ObjectDoesNotExist) as exc_info, MetricsMock() as mm:
+            _get_address(
+                to_address="unknown@subdomain.example.com",
+                local_portion="unknown",
+                domain_portion="subdomain.example.com",
+            )
+        assert str(exc_info.value) == "Address does not exist"
+        mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
+
+    def test_unknown_subdomain_raises(self):
+        with pytest.raises(Profile.DoesNotExist), MetricsMock() as mm:
+            _get_address(
+                to_address="domain@unknown.test.com",
+                local_portion="domain",
+                domain_portion="unknown.test.com",
+            )
+        mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
+
+    def test_unknown_domain_address_is_created(self):
+        """
+        An unknown but valid domain address is created.
+
+        This supports creating domain addresses on third-party sites, when
+        emailing a checkout reciept, or other situations when the email
+        cannot be pre-created.
+        """
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+        address = _get_address(
+            to_address="unknown@subdomain.test.com",
+            local_portion="unknown",
+            domain_portion="subdomain.test.com",
+        )
+        assert address.user == self.user
+        assert DomainAddress.objects.filter(user=self.user).count() == 2
+
 
 class GetAttachmentTests(TestCase):
     def setUp(self):
