@@ -261,7 +261,8 @@ class ComplaintHandlingTest(TestCase):
     @override_settings(STATSD_ENABLED=True)
     def test_notification_type_complaint(self):
         """
-        A notificationType of complaint increments a counter, logs details, and returns 200.
+        A notificationType of complaint increments a counter, logs details, and
+        returns 200.
 
         Example derived from:
         https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
@@ -274,7 +275,9 @@ class ComplaintHandlingTest(TestCase):
                 "complaintFeedbackType": "abuse",
                 "arrivalDate": "2009-12-03T04:24:21.000-05:00",
                 "timestamp": "2012-05-25T14:59:38.623Z",
-                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+                "feedbackId": (
+                    "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000"
+                ),
             },
         }
         json_body = {"Message": json.dumps(complaint)}
@@ -423,7 +426,9 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
     def test_noreply_headers_reply_email_in_s3_deleted(
         self, mocked_get_keys, mocked_message_removed
     ):
-        """If replies@... email has no "In-Reply-To" header, delete email, return 400."""
+        """
+        If replies@... email has no "In-Reply-To" header, delete email, return 400.
+        """
         mocked_get_keys.side_effect = ReplyHeadersNotFound()
 
         with MetricsMock() as mm:
@@ -1136,7 +1141,8 @@ def test_wrapped_email_test(
         "Yes" if int(num_level_one_email_trackers_removed) else "No"
     )
     assert (
-        f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
+        "<dt>has_num_level_one_email_trackers_removed</dt>"
+        f"<dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html
 
 
@@ -1144,7 +1150,10 @@ def test_wrapped_email_test(
 @pytest.mark.parametrize("content_type", ("text/plain", "text/html"))
 @pytest.mark.django_db
 def test_reply_requires_premium_test(rf, forwarded, content_type):
-    url = f"/emails/reply_requires_premium_test?forwarded={forwarded}&content-type={content_type}"
+    url = (
+        "/emails/reply_requires_premium_test"
+        f"?forwarded={forwarded}&content-type={content_type}"
+    )
     request = rf.get(url)
     response = reply_requires_premium_test(request)
     assert response.status_code == 200

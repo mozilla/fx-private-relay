@@ -179,8 +179,10 @@ def wrapped_email_test(request):
         has_tracker_report_link = False
     if has_tracker_report_link:
         tracker_report_link = (
-            '/tracker-report/#{"sender": "sender@example.com", "received_at": 1658434657,'
-            + '"trackers": {"fake-tracker.example.com": 2}}'
+            "/tracker-report/#{"
+            '"sender": "sender@example.com", '
+            '"received_at": 1658434657, '
+            '"trackers": {"fake-tracker.example.com": 2}}'
         )
     else:
         tracker_report_link = ""
@@ -662,8 +664,8 @@ def _build_reply_requires_premium_email(
     message_id,
     decrypted_metadata,
 ):
-    # If we haven't forwaded a first reply for this user yet, _reply_allowed will forward.
-    # So, tell the user we forwarded it.
+    # If we haven't forwaded a first reply for this user yet, _reply_allowed
+    # will forward.  So, tell the user we forwarded it.
     forwarded = not reply_record.address.user.profile.forwarded_first_reply
     sender = ""
     if decrypted_metadata is not None:
@@ -982,7 +984,8 @@ def _get_text_html_attachments(message_json):
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
     text_content, html_content, attachments = _get_all_contents(bytes_email_message)
-    # TODO add logs on the entire size of the email and the time it takes to download/process
+    # TODO: add logs on the entire size of the email and the time it takes to
+    # download/process
     return text_content, html_content, attachments, email_size
 
 
