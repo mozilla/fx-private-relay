@@ -81,6 +81,7 @@ export const mockedRuntimeData: RuntimeData = {
     ["multi_replies", true],
     ["firefox_integration", true],
     ["premium_promo_banners", false],
+    ["mask_redesign", true],
   ],
   MAX_MINUTES_TO_VERIFY_REAL_PHONE: 5,
 };

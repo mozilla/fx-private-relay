@@ -20,7 +20,8 @@
   @include text-body-md;
 
   &:hover {
-    color: $color-red-70;
+    background-color: $color-red-70;
+    color: $color-white;
   }
 }
 
