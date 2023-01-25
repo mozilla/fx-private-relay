@@ -3,8 +3,15 @@
 
 .card {
   background-color: $color-white;
-  box-shadow: $box-shadow-sm;
   border-radius: $border-radius-md;
+  transition: box-shadow 200ms ease-in-out, opacity 200ms ease-in-out;
+
+  &.is-enabled {
+    box-shadow: $box-shadow-sm;
+  }
+  &:not(.is-enabled) {
+    opacity: 0.7;
+  }
 }
 
 .bar {
