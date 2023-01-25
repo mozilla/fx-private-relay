@@ -848,6 +848,7 @@ def _get_domain_address(local_portion, domain_portion):
     if address_domain != get_domains_from_settings()["MOZMAIL_DOMAIN"]:
         incr_if_enabled("email_for_not_supported_domain", 1)
         raise ObjectDoesNotExist("Address does not exist")
+    local_address = local_portion.lower()
     try:
         with transaction.atomic():
             locked_profile = Profile.objects.select_for_update().get(
@@ -857,14 +858,16 @@ def _get_domain_address(local_portion, domain_portion):
             # filter DomainAddress because it may not exist
             # which will throw an error with get()
             domain_address = DomainAddress.objects.filter(
-                user=locked_profile.user, address=local_portion, domain=domain_numerical
+                user=locked_profile.user,
+                address=local_address,
+                domain=domain_numerical,
             ).first()
             if domain_address is None:
                 # TODO: Consider flows when a user generating alias on a fly
                 # was unable to receive an email due to user no longer being a
                 # premium user as seen in exception thrown on make_domain_address
                 domain_address = DomainAddress.make_domain_address(
-                    locked_profile, local_portion, True
+                    locked_profile, local_address, True
                 )
             domain_address.last_used_at = datetime.now(timezone.utc)
             domain_address.save()

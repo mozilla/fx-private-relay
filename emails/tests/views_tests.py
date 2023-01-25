@@ -799,6 +799,15 @@ class GetAddressTest(TestCase):
         )
         assert actual == self.domain_address
 
+    def test_uppercase_local_part_of_existing_domain_address(self):
+        """Uppercase letters are allowed in the local part of a domain address."""
+        actual = _get_address(
+            to_address="Domain@subdomain.test.com",
+            local_portion="Domain",
+            domain_portion="subdomain.test.com",
+        )
+        assert actual == self.domain_address
+
     def test_subdomain_for_wrong_domain_raises(self):
         with pytest.raises(ObjectDoesNotExist) as exc_info, MetricsMock() as mm:
             _get_address(
@@ -833,6 +842,25 @@ class GetAddressTest(TestCase):
             domain_portion="subdomain.test.com",
         )
         assert address.user == self.user
+        assert DomainAddress.objects.filter(user=self.user).count() == 2
+
+    def test_uppercase_local_part_of_unknown_domain_address(self):
+        """
+        Uppercase letters are allowed in the local part of a new domain address.
+
+        This creates a new domain address with lower-cased letters. It supports
+        creating domain addresses by third-parties that would not be allowed
+        on the relay dashboard due to the upper-case characters, but are still
+        consistent with dashboard-created domain adddresses.
+        """
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+        address = _get_address(
+            to_address="Unknown@subdomain.test.com",
+            local_portion="Unknown",
+            domain_portion="subdomain.test.com",
+        )
+        assert address.user == self.user
+        assert address.address == "unknown"
         assert DomainAddress.objects.filter(user=self.user).count() == 2
 
 
