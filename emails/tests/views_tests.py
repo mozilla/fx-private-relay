@@ -735,9 +735,7 @@ class SnsMessageTest(TestCase):
         assert response.status_code == 200
 
 
-@override_settings(
-    SITE_ORIGIN="https://test.com", RELAY_CHANNEL="test", STATSD_ENABLED=True
-)
+@override_settings(SITE_ORIGIN="https://test.com", STATSD_ENABLED=True)
 class GetAddressTest(TestCase):
     def setUp(self):
         self.user = make_premium_test_user()
