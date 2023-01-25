@@ -326,7 +326,7 @@
       font-weight: 500;
       color: $color-grey-40;
 
-      &:not(.is-selected) {
+      &:not(.is-selected):not(.is-disabled) {
         cursor: pointer;
 
         &:hover {
@@ -342,6 +342,22 @@
 
       &.is-focused {
         outline: 3px solid $color-blue-50;
+      }
+
+      &.is-disabled {
+        cursor: help;
+        padding-inline: $spacing-md;
+        background-color: transparent;
+        color: $color-grey-30;
+        text-decoration: line-through;
+
+        &:hover {
+          color: $color-red-70;
+        }
+
+        svg {
+          flex: 1 0 10px;
+        }
       }
     }
   }

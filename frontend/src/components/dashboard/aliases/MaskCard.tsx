@@ -1,6 +1,7 @@
 import {
   createContext,
   ReactElement,
+  ReactNode,
   useContext,
   useId,
   useRef,
@@ -35,7 +36,7 @@ import { ProfileData } from "../../../hooks/api/profile";
 import { RuntimeData } from "../../../hooks/api/runtimeData";
 import { useL10n } from "../../../hooks/l10n";
 import { LabelEditor } from "./LabelEditor";
-import { ArrowDownIcon, CopyIcon } from "../../Icons";
+import { ArrowDownIcon, CopyIcon, LockIcon } from "../../Icons";
 import { getLocale } from "../../../functions/getLocale";
 import { isFlagActive } from "../../../functions/waffle";
 import { renderDate } from "../../../functions/renderDate";
@@ -235,7 +236,20 @@ export const MaskCard = (props: Props) => {
                 <BlockLevelOption value="none">
                   {l10n.getString("profile-promo-email-blocking-option-none")}
                 </BlockLevelOption>
-                <BlockLevelOption value="promotionals">
+                <BlockLevelOption
+                  value="promotionals"
+                  isDisabled={!props.profile.has_premium}
+                  title={l10n.getString(
+                    "profile-promo-email-blocking-description-promotionals-locked-label"
+                  )}
+                >
+                  {!props.profile.has_premium && (
+                    <LockIcon
+                      alt={l10n.getString(
+                        "profile-promo-email-blocking-description-promotionals-locked-label"
+                      )}
+                    />
+                  )}
                   {l10n.getString(
                     "profile-promo-email-blocking-option-promotionals"
                   )}
@@ -333,7 +347,9 @@ const BlockLevelSegmentedControl = (
   );
 };
 
-const BlockLevelOption = (props: AriaRadioProps & { children: string }) => {
+const BlockLevelOption = (
+  props: AriaRadioProps & { children: ReactNode; title?: string }
+) => {
   const state = useContext(BlockLevelContext);
   const inputRef = useRef<HTMLInputElement>(null);
   // The `!` is safe here as long as <BlockLevelOption> is only used as a child
@@ -346,7 +362,8 @@ const BlockLevelOption = (props: AriaRadioProps & { children: string }) => {
     <label
       className={`${isSelected ? styles["is-selected"] : ""} ${
         isFocusVisible ? styles["is-focused"] : ""
-      }`}
+      } ${props.isDisabled ? styles["is-disabled"] : ""}`}
+      title={props.title}
     >
       <VisuallyHidden>
         <input {...inputProps} {...focusProps} ref={inputRef} />
