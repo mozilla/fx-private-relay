@@ -741,20 +741,7 @@ class GetAddressTest(TestCase):
         self.service_domain = "test.com"
         self.local_portion = "foo"
 
-    @patch("emails.views._get_domain_address")
-    def test_get_address_with_domain_address(self, _get_domain_address_mocked):
-        expected = "DomainAddress"
-        _get_domain_address_mocked.return_value = expected
-        # email_domain_mocked.return_value = service_domain
-
-        actual = _get_address(
-            to_address=f"{self.local_portion}@subdomain.{self.service_domain}",
-            local_portion=self.local_portion,
-            domain_portion=f"subdomain.{self.service_domain}",
-        )
-        assert actual == expected
-
-    def test_get_address_with_relay_address(self):
+    def test_existing_relay_address(self):
         local_portion = "foo"
         relay_address = baker.make(RelayAddress, address=local_portion)
 
@@ -766,7 +753,20 @@ class GetAddressTest(TestCase):
         assert actual == relay_address
 
     @patch("emails.views.incr_if_enabled")
-    def test_get_address_with_deleted_relay_address(self, incr_mocked):
+    @patch("emails.views.logger")
+    def test_unknown_relay_address_raises(self, logging_mocked, incr_mocked):
+        try:
+            _get_address(
+                to_address=f"{self.local_portion}@{self.service_domain}",
+                local_portion={self.local_portion},
+                domain_portion=f"{self.service_domain}",
+            )
+        except Exception as e:
+            assert e.args[0] == "RelayAddress matching query does not exist."
+            incr_mocked.assert_called_once_with("email_for_unknown_address", 1)
+
+    @patch("emails.views.incr_if_enabled")
+    def test_deleted_relay_address_raises(self, incr_mocked):
         hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
 
@@ -781,22 +781,8 @@ class GetAddressTest(TestCase):
             incr_mocked.assert_called_once_with("email_for_deleted_address", 1)
 
     @patch("emails.views.incr_if_enabled")
-    @patch("emails.views.logger")
-    def test_get_address_with_relay_address_does_not_exist(
-        self, logging_mocked, incr_mocked
-    ):
-        try:
-            _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion={self.local_portion},
-                domain_portion=f"{self.service_domain}",
-            )
-        except Exception as e:
-            assert e.args[0] == "RelayAddress matching query does not exist."
-            incr_mocked.assert_called_once_with("email_for_unknown_address", 1)
-
-    @patch("emails.views.incr_if_enabled")
-    def test_get_address_with_deleted_relay_address_multiple(self, incr_mocked):
+    def test_multiple_deleted_relay_addresses_raises_same_as_one(self, incr_mocked):
+        """Multiple DeletedAddress records can have the same hash."""
         hashed_address = address_hash(self.local_portion, domain=self.service_domain)
         baker.make(DeletedAddress, address_hash=hashed_address)
         baker.make(DeletedAddress, address_hash=hashed_address)
@@ -810,6 +796,19 @@ class GetAddressTest(TestCase):
         except Exception as e:
             assert e.args[0] == "RelayAddress matching query does not exist."
             incr_mocked.assert_called_once_with("email_for_deleted_address_multiple", 1)
+
+    @patch("emails.views._get_domain_address")
+    def test_existing_domain_address(self, _get_domain_address_mocked):
+        expected = "DomainAddress"
+        _get_domain_address_mocked.return_value = expected
+        # email_domain_mocked.return_value = service_domain
+
+        actual = _get_address(
+            to_address=f"{self.local_portion}@subdomain.{self.service_domain}",
+            local_portion=self.local_portion,
+            domain_portion=f"subdomain.{self.service_domain}",
+        )
+        assert actual == expected
 
 
 class GetAttachmentTests(TestCase):
