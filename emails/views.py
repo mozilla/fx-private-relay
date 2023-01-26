@@ -400,7 +400,7 @@ def _sns_message(message_json):
         # TODO: Add metric
         return HttpResponse("Malformed to field.", status=400)
 
-    if to_local_portion == "noreply":
+    if to_local_portion.lower() == "noreply":
         incr_if_enabled("email_for_noreply_address", 1)
         return HttpResponse("noreply address is not supported.")
     try:
@@ -415,7 +415,7 @@ def _sns_message(message_json):
         CannotMakeAddressException,
         DeletedAddress.MultipleObjectsReturned,
     ):
-        if to_local_portion == "replies":
+        if to_local_portion.lower() == "replies":
             response = _handle_reply(from_address, message_json, to_address)
         else:
             response = HttpResponse("Address does not exist", status=404)

@@ -420,6 +420,18 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"noreply address is not supported."
 
+    @patch("emails.views.remove_message_from_s3")
+    def test_noreply_mixed_case_email_in_s3_deleted(self, mocked_message_removed):
+        message_w_email_to_noreply = EMAIL_SNS_BODIES["s3_stored"]["Message"].replace(
+            "sender@test.com", "NoReply@default.com"
+        )
+        notification_w_email_to_noreply = EMAIL_SNS_BODIES["s3_stored"].copy()
+        notification_w_email_to_noreply["Message"] = message_w_email_to_noreply
+        response = _sns_notification(notification_w_email_to_noreply)
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"noreply address is not supported."
+
     @override_settings(STATSD_ENABLED=True)
     @patch("emails.views.remove_message_from_s3")
     @patch("emails.views._get_keys_from_headers")
