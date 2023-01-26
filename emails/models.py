@@ -299,7 +299,8 @@ class Profile(models.Model):
                 phone_flag = Flag.objects.get(name="phones")
             except Flag.DoesNotExist:
                 return False
-            return phone_flag.is_active_for_user(self.user)
+            if not phone_flag.is_active_for_user(self.user):
+                return False
         flags = Flag.objects.filter(name="free_phones")
         for flag in flags:
             if flag.is_active_for_user(self.user):
