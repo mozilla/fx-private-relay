@@ -848,7 +848,6 @@ def _get_domain_address(local_portion, domain_portion):
     if address_domain != get_domains_from_settings()["MOZMAIL_DOMAIN"]:
         incr_if_enabled("email_for_not_supported_domain", 1)
         raise ObjectDoesNotExist("Address does not exist")
-    local_address = local_portion.lower()
     try:
         with transaction.atomic():
             locked_profile = Profile.objects.select_for_update().get(
@@ -858,16 +857,14 @@ def _get_domain_address(local_portion, domain_portion):
             # filter DomainAddress because it may not exist
             # which will throw an error with get()
             domain_address = DomainAddress.objects.filter(
-                user=locked_profile.user,
-                address=local_address,
-                domain=domain_numerical,
+                user=locked_profile.user, address=local_portion, domain=domain_numerical
             ).first()
             if domain_address is None:
                 # TODO: Consider flows when a user generating alias on a fly
                 # was unable to receive an email due to user no longer being a
                 # premium user as seen in exception thrown on make_domain_address
                 domain_address = DomainAddress.make_domain_address(
-                    locked_profile, local_address, True
+                    locked_profile, local_portion, True
                 )
             domain_address.last_used_at = datetime.now(timezone.utc)
             domain_address.save()
@@ -881,20 +878,22 @@ def _get_address(to_address, local_portion, domain_portion):
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
     email_domains = get_domains_from_settings().values()
-    if domain_portion not in email_domains:
-        return _get_domain_address(local_portion, domain_portion)
+    local_address = local_portion.lower()
+    domain = domain_portion.lower()
+    if domain not in email_domains:
+        return _get_domain_address(local_address, domain)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
-        domain_numerical = get_domain_numerical(domain_portion)
+        domain_numerical = get_domain_numerical(domain)
         relay_address = RelayAddress.objects.get(
-            address=local_portion, domain=domain_numerical
+            address=local_address, domain=domain_numerical
         )
         return relay_address
     except RelayAddress.DoesNotExist as e:
         try:
             DeletedAddress.objects.get(
-                address_hash=address_hash(local_portion, domain=domain_portion)
+                address_hash=address_hash(local_address, domain=domain)
             )
             incr_if_enabled("email_for_deleted_address", 1)
             # TODO: create a hard bounce receipt rule in SES

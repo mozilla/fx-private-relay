@@ -759,6 +759,24 @@ class GetAddressTest(TestCase):
         )
         assert actual == self.relay_address
 
+    def test_uppercase_local_part_of_existing_relay_address(self):
+        """Case-insensitive matching is used for the local part of relay addresses."""
+        actual = _get_address(
+            to_address="Relay123@test.com",
+            local_portion="Relay123",
+            domain_portion="test.com",
+        )
+        assert actual == self.relay_address
+
+    def test_uppercase_domain_part_of_existing_relay_address(self):
+        """Case-insensitive matching is used for the domain part of relay addresses."""
+        actual = _get_address(
+            to_address="relay123@Test.Com",
+            local_portion="relay123",
+            domain_portion="Test.Com",
+        )
+        assert actual == self.relay_address
+
     def test_unknown_relay_address_raises(self):
         with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
             _get_address(
@@ -798,11 +816,29 @@ class GetAddressTest(TestCase):
         assert actual == self.domain_address
 
     def test_uppercase_local_part_of_existing_domain_address(self):
-        """Uppercase letters are allowed in the local part of a domain address."""
+        """Case-insensitive matching is used in the local part of a domain address."""
         actual = _get_address(
             to_address="Domain@subdomain.test.com",
             local_portion="Domain",
             domain_portion="subdomain.test.com",
+        )
+        assert actual == self.domain_address
+
+    def test_uppercase_subdomain_part_of_existing_domain_address(self):
+        """Case-insensitive matching is used in the subdomain of a domain address."""
+        actual = _get_address(
+            to_address="domain@SubDomain.test.com",
+            local_portion="domain",
+            domain_portion="SubDomain.test.com",
+        )
+        assert actual == self.domain_address
+
+    def test_uppercase_domain_part_of_existing_domain_address(self):
+        """Case-insensitive matching is used in the domain part of a domain address."""
+        actual = _get_address(
+            to_address="domain@subdomain.Test.Com",
+            local_portion="domain",
+            domain_portion="subdomain.Test.Com",
         )
         assert actual == self.domain_address
 
