@@ -752,113 +752,57 @@ class GetAddressTest(TestCase):
         )
 
     def test_existing_relay_address(self):
-        actual = _get_address(
-            to_address="relay123@test.com",
-            local_portion="relay123",
-            domain_portion="test.com",
-        )
-        assert actual == self.relay_address
+        assert _get_address("relay123@test.com") == self.relay_address
 
     def test_uppercase_local_part_of_existing_relay_address(self):
         """Case-insensitive matching is used for the local part of relay addresses."""
-        actual = _get_address(
-            to_address="Relay123@test.com",
-            local_portion="Relay123",
-            domain_portion="test.com",
-        )
-        assert actual == self.relay_address
+        assert _get_address("Relay123@test.com") == self.relay_address
 
     def test_uppercase_domain_part_of_existing_relay_address(self):
         """Case-insensitive matching is used for the domain part of relay addresses."""
-        actual = _get_address(
-            to_address="relay123@Test.Com",
-            local_portion="relay123",
-            domain_portion="Test.Com",
-        )
-        assert actual == self.relay_address
+        assert _get_address("relay123@Test.Com") == self.relay_address
 
     def test_unknown_relay_address_raises(self):
         with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
-            _get_address(
-                to_address="unknown@test.com",
-                local_portion="unknown",
-                domain_portion="test.com",
-            )
+            _get_address("unknown@test.com")
         mm.assert_incr_once("fx.private.relay.email_for_unknown_address")
 
     def test_deleted_relay_address_raises(self):
         with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
-            _get_address(
-                to_address="deleted456@test.com",
-                local_portion="deleted456",
-                domain_portion="test.com",
-            )
+            _get_address("deleted456@test.com")
         mm.assert_incr_once("fx.private.relay.email_for_deleted_address")
 
     def test_multiple_deleted_relay_addresses_raises_same_as_one(self):
         """Multiple DeletedAddress records can have the same hash."""
         baker.make(DeletedAddress, address_hash=self.deleted_relay_address.address_hash)
-
         with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
-            _get_address(
-                to_address="deleted456@test.com",
-                local_portion="deleted456",
-                domain_portion="test.com",
-            )
+            _get_address("deleted456@test.com")
         mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
 
     def test_existing_domain_address(self):
-        actual = _get_address(
-            to_address="domain@subdomain.test.com",
-            local_portion="domain",
-            domain_portion="subdomain.test.com",
-        )
-        assert actual == self.domain_address
+        assert _get_address("domain@subdomain.test.com") == self.domain_address
 
     def test_uppercase_local_part_of_existing_domain_address(self):
         """Case-insensitive matching is used in the local part of a domain address."""
-        actual = _get_address(
-            to_address="Domain@subdomain.test.com",
-            local_portion="Domain",
-            domain_portion="subdomain.test.com",
-        )
-        assert actual == self.domain_address
+        assert _get_address("Domain@subdomain.test.com") == self.domain_address
 
     def test_uppercase_subdomain_part_of_existing_domain_address(self):
         """Case-insensitive matching is used in the subdomain of a domain address."""
-        actual = _get_address(
-            to_address="domain@SubDomain.test.com",
-            local_portion="domain",
-            domain_portion="SubDomain.test.com",
-        )
-        assert actual == self.domain_address
+        assert _get_address("domain@SubDomain.test.com") == self.domain_address
 
     def test_uppercase_domain_part_of_existing_domain_address(self):
         """Case-insensitive matching is used in the domain part of a domain address."""
-        actual = _get_address(
-            to_address="domain@subdomain.Test.Com",
-            local_portion="domain",
-            domain_portion="subdomain.Test.Com",
-        )
-        assert actual == self.domain_address
+        assert _get_address("domain@subdomain.Test.Com") == self.domain_address
 
     def test_subdomain_for_wrong_domain_raises(self):
         with pytest.raises(ObjectDoesNotExist) as exc_info, MetricsMock() as mm:
-            _get_address(
-                to_address="unknown@subdomain.example.com",
-                local_portion="unknown",
-                domain_portion="subdomain.example.com",
-            )
+            _get_address("unknown@subdomain.example.com")
         assert str(exc_info.value) == "Address does not exist"
         mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
 
     def test_unknown_subdomain_raises(self):
         with pytest.raises(Profile.DoesNotExist), MetricsMock() as mm:
-            _get_address(
-                to_address="domain@unknown.test.com",
-                local_portion="domain",
-                domain_portion="unknown.test.com",
-            )
+            _get_address("domain@unknown.test.com")
         mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
 
     def test_unknown_domain_address_is_created(self):
@@ -870,12 +814,9 @@ class GetAddressTest(TestCase):
         cannot be pre-created.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
-        address = _get_address(
-            to_address="unknown@subdomain.test.com",
-            local_portion="unknown",
-            domain_portion="subdomain.test.com",
-        )
+        address = _get_address("unknown@subdomain.test.com")
         assert address.user == self.user
+        assert address.address == "unknown"
         assert DomainAddress.objects.filter(user=self.user).count() == 2
 
     def test_uppercase_local_part_of_unknown_domain_address(self):
@@ -888,11 +829,7 @@ class GetAddressTest(TestCase):
         consistent with dashboard-created domain adddresses.
         """
         assert DomainAddress.objects.filter(user=self.user).count() == 1
-        address = _get_address(
-            to_address="Unknown@subdomain.test.com",
-            local_portion="Unknown",
-            domain_portion="subdomain.test.com",
-        )
+        address = _get_address("Unknown@subdomain.test.com")
         assert address.user == self.user
         assert address.address == "unknown"
         assert DomainAddress.objects.filter(user=self.user).count() == 2

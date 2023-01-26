@@ -407,7 +407,7 @@ def _sns_message(message_json):
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        address = _get_address(to_address, to_local_portion, to_domain_portion)
+        address = _get_address(to_address)
         prefetch_related_objects([address.user], "socialaccount_set", "profile")
         user_profile = address.user.profile
     except (
@@ -764,8 +764,7 @@ def _reply_allowed(
         # The From: is not a Relay user, so make sure this is a reply *TO* a
         # premium Relay user
         try:
-            [to_local_portion, to_domain_portion] = to_address.split("@")
-            address = _get_address(to_address, to_local_portion, to_domain_portion)
+            address = _get_address(to_address)
             if address.user.profile.has_premium:
                 return True
         except (ObjectDoesNotExist):
@@ -843,7 +842,18 @@ def _handle_reply(from_address, message_json, to_address):
         return HttpResponse("SES client error", status=400)
 
 
-def _get_domain_address(local_portion, domain_portion):
+def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddress:
+    """
+    Find or create the DomainAddress for the parts of an email address.
+
+    If the domain_portion is for a valid subdomain, a new DomainAddress
+    will be created and returned.
+
+    If the domain_portion is for an unknown domain, ObjectDoesNotExist is raised.
+
+    If the domain_portion is for an unclaimed subdomain, Profile.DoesNotExist is raised.
+    """
+
     [address_subdomain, address_domain] = domain_portion.split(".", 1)
     if address_domain != get_domains_from_settings()["MOZMAIL_DOMAIN"]:
         incr_if_enabled("email_for_not_supported_domain", 1)
@@ -874,12 +884,26 @@ def _get_domain_address(local_portion, domain_portion):
         raise e
 
 
-def _get_address(to_address, local_portion, domain_portion):
+def _get_address(address: str) -> RelayAddress | DomainAddress:
+    """
+    Find or create the RelayAddress or DomainAddress for an email address.
+
+    If an unknown email address is for a valid subdomain, a new DomainAddress
+    will be created.
+
+    On failure, raises exception based on Django's ObjectDoesNotExist:
+    * RelayAddress.DoesNotExist - looks like RelayAddress, deleted or does not exist
+    * Profile.DoesNotExist - looks like DomainAddress, no subdomain match
+    * ObjectDoesNotExist - Unknown domain
+    """
+
+    local_portion, domain_portion = address.split("@")
+    local_address = local_portion.lower()
+    domain = domain_portion.lower()
+
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
     email_domains = get_domains_from_settings().values()
-    local_address = local_portion.lower()
-    domain = domain_portion.lower()
     if domain not in email_domains:
         return _get_domain_address(local_address, domain)
 
