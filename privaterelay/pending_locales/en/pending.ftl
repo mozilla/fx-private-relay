@@ -16,9 +16,9 @@ relay-email-block-sender = Block sender
 # The by line for the premium email header that reads "by Firefox Relay Premium"
 relay-email-by-line = by
 # This is used by relay-email-premium-by-line to create a sentence like "by Firefox Relay Premium"
-relay-email-premium-by-line-link = { -brand-name-firefox-relay-premium } 
+relay-email-premium-by-line-link = { -brand-name-firefox-relay-premium }
 # This is used by relay-email-by-line to create a sentence like "by Firefox Relay"
-relay-email-by-line-link = { -brand-name-firefox-relay } 
+relay-email-by-line-link = { -brand-name-firefox-relay }
 relay-email-forwarded-from = Forwarded from
 # $number - the number of email trackers removed
 relay-email-trackers-removed = { $number } email trackers removed
