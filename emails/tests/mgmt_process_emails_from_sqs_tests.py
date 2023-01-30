@@ -1,12 +1,10 @@
 from datetime import datetime, timezone
-from io import StringIO
 from unittest.mock import patch, Mock
-from uuid import uuid4, UUID
+from uuid import uuid4
 import json
 
 from botocore.exceptions import ClientError
 from markus.testing import MetricsMock
-import boto3
 import pytest
 import OpenSSL
 
