@@ -48,7 +48,7 @@
     "babel-jest": "^29.4.1",
     "chokidar-cli": "^3.0.0",
     "eslint": "^8.33.0",
-    "eslint-config-next": "^13.1.4",
+    "eslint-config-next": "^13.1.6",
     "eslint-plugin-jest-dom": "^4.0.3",
     "eslint-plugin-testing-library": "^5.9.1",
     "fast-check": "^3.6.2",
