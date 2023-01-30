@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Any, Generator
 from unittest.mock import patch, Mock
 from uuid import uuid4
 import json
@@ -20,25 +21,42 @@ TEST_SNS_MESSAGE = EMAIL_SNS_BODIES["s3_stored"]
 
 
 @pytest.fixture(autouse=True)
-def mocked_clocks():
+def mocked_clocks() -> Generator:
     """
     Mock time functions, so tests run faster than real time.
 
     time.monotonic() with return +1 seconds each call
     time.sleep() will not sleep but will increase monotonic counter
     """
-    clock = 0.0
+    clock: float = 0.0
 
-    def inc_clock(seconds=1.0):
+    def inc_clock(seconds: float = 1.0) -> float:
         nonlocal clock
         clock += seconds
         return clock
 
-    with patch(f"{MOCK_BASE}.time.monotonic") as mock_monotonic:
-        with patch(f"{MOCK_BASE}.time.sleep") as mock_sleep:
-            mock_monotonic.side_effect = inc_clock
-            mock_sleep.side_effect = inc_clock
-            yield (mock_monotonic, mock_sleep)
+    class MockTimer:
+        """Mocked version of codetiming.Timer, only used as context manager."""
+
+        def __init__(self, logger: None) -> None:
+            assert logger is None
+
+        def __enter__(self) -> "MockTimer":
+            nonlocal clock
+            self._mock_time = clock
+            return self
+
+        def __exit__(self, *exc_info: Any) -> None:
+            nonlocal clock
+            self.last = clock - self._mock_time
+
+    with (
+        patch(f"{MOCK_BASE}.time.monotonic") as mock_monotonic,
+        patch(f"{MOCK_BASE}.time.sleep") as mock_sleep,
+        patch(f"{MOCK_BASE}.Timer", MockTimer),
+    ):
+        mock_monotonic.side_effect = mock_sleep.side_effect = inc_clock
+        yield
 
 
 @pytest.fixture(autouse=True)
