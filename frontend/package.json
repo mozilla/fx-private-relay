@@ -73,6 +73,9 @@
   "volta": {
     "node": "18.13.0"
   },
+  "overrides": {
+    "react@<18": "18.2.0"
+  },
   "msw": {
     "workerDirectory": "public"
   }
