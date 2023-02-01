@@ -730,7 +730,7 @@ describe("The dashboard", () => {
     render(<Profile />);
 
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
 
     expect(categoryFilterButton).toBeInTheDocument();
@@ -750,7 +750,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
     await userEvent.click(categoryFilterButton);
 
@@ -788,7 +788,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
     await userEvent.click(categoryFilterButton);
 
@@ -823,7 +823,7 @@ describe("The dashboard", () => {
 
     // Open and select a category filter option
     const categoryFilterButton = screen.getByRole("button", {
-      name: "l10n string: [profile-filter-category-button-tooltip], with vars: {}",
+      name: "l10n string: [profile-filter-category-button-label], with vars: {}",
     });
     await userEvent.click(categoryFilterButton);
 
