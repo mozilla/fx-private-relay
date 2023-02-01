@@ -11,8 +11,7 @@
     "dotenv": "^16.0.1"
   },
   "volta": {
-    "node": "18.12.1",
-    "npm": "8.1.0"
+    "node": "18.12.1"
   },
   "license": "MPL-2.0",
   "private": true,
