@@ -46,7 +46,7 @@ sequenceDiagram
 [sessionauthentication]: https://www.django-rest-framework.org/api-guide/authentication/#sessionauthentication
 [tokenauthentication]: https://www.django-rest-framework.org/api-guide/authentication/#tokenauthentication
 [mdn-webauthflow]: https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/identity/launchWebAuthFlow
-[fxa-oauth]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md
+[fxa-oauth]: https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview
 [fxa-pkce]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/pkce.md
-[fxa-oauth-token-verify]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md#post-v1verify
+[fxa-oauth-token-verify]: https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview/operation/postVerify
 [searchfox-getoauthtoken]: https://searchfox.org/mozilla-central/search?q=symbol:%23getOAuthToken&redirect=false
