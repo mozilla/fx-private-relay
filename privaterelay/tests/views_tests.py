@@ -24,7 +24,8 @@ import pytest
 import responses
 
 from ..apps import PrivateRelayConfig
-from ..views import _update_all_data, NoSocialToken, fxa_verifying_keys
+from ..fxa_utils import NoSocialToken
+from ..views import _update_all_data, fxa_verifying_keys
 
 
 def test_no_social_token():
