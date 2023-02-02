@@ -750,7 +750,7 @@ AUTHENTICATION_BACKENDS = (
 SOCIALACCOUNT_PROVIDERS = {
     "fxa": {
         # Note: to request "profile" scope, must be a trusted Mozilla client
-        "SCOPE": ["profile"],
+        "SCOPE": ["profile", "https://identity.mozilla.com/account/subscriptions"],
         "AUTH_PARAMS": {"access_type": "offline"},
         "OAUTH_ENDPOINT": config(
             "FXA_OAUTH_ENDPOINT", "https://oauth.accounts.firefox.com/v1"
@@ -772,6 +772,11 @@ FXA_BASE_ORIGIN = config("FXA_BASE_ORIGIN", "https://accounts.firefox.com")
 FXA_SETTINGS_URL = config("FXA_SETTINGS_URL", f"{FXA_BASE_ORIGIN}/settings")
 FXA_SUBSCRIPTIONS_URL = config(
     "FXA_SUBSCRIPTIONS_URL", f"{FXA_BASE_ORIGIN}/subscriptions"
+)
+# check https://mozilla.github.io/ecosystem-platform/api#tag/Subscriptions/operation/getOauthMozillasubscriptionsCustomerBillingandsubscriptions
+FXA_SUBSCRIPTION_ENDPOINT = config(
+    "FXA_SUBSCRIPTION_ENDPOINT",
+    "https://api.accounts.firefox.com/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions",
 )
 FXA_SUPPORT_URL = config("FXA_SUPPORT_URL", f"{FXA_BASE_ORIGIN}/support/")
 

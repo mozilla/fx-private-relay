@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any
+from typing import Any, cast
 
 from django.conf import settings
 
@@ -77,3 +77,80 @@ def _get_oauth2_session(social_account: SocialAccount) -> OAuth2Session:
         token_updater=_token_updater,
     )
     return client
+
+
+def get_subscription_data_from_fxa(
+    social_account: SocialAccount, fxa_url: str = ""
+) -> dict[str, Any]:
+    if fxa_url == "":
+        # https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/docs/API.md#get-v1subscriptions
+        fxa_url = FirefoxAccountsOAuth2Adapter.profile_url + "/v1/subscriptions"
+    try:
+        client = _get_oauth2_session(social_account)
+    except NoSocialToken as e:
+        sentry_sdk.capture_exception(e)
+        return {}
+
+    try:
+        resp = client.get(fxa_url)
+        json_resp = cast(dict[str, Any], resp.json())
+        if "Requested scopes are not allowed" in json_resp.get("message", ""):
+            social_token = SocialToken.objects.get(account=social_account)
+            # refresh user token to get subscription data
+            new_token = client.refresh_token(
+                FirefoxAccountsOAuth2Adapter.access_token_url
+            )
+            update_social_token(social_token, new_token)
+            json_resp = {"social_token": new_token, "refreshed": True}
+    except CustomOAuth2Error as e:
+        sentry_sdk.capture_exception(e)
+    return json_resp
+
+
+def get_phone_subscription_dates(social_account):
+    date_subscribed_phone = start_date = end_date = None
+
+    detailed_subscription_endpoint = settings.FXA_SUBSCRIPTION_ENDPOINT
+    subscription_data = get_subscription_data_from_fxa(
+        social_account, detailed_subscription_endpoint
+    )
+    if "refreshed" in subscription_data.keys():
+        # user token refreshed for expanded scope
+        social_account.refresh_from_db()
+        subscription_data = get_subscription_data_from_fxa(
+            social_account, detailed_subscription_endpoint
+        )
+    if "subscriptions" not in subscription_data.keys():
+        # failed to get subscriptions data which may mean user never had subscription and/or there is data mismatch with FxA
+        profile = social_account.user.profile
+        profile.date_subscribed_phone = None
+        profile.save()
+        # User who was flagged for having phone subscriptions did not actually have phone subscriptions
+        logger.warning("no_subscription_data")
+        return date_subscribed_phone, start_date, end_date
+
+    product_w_phone_capabilites = [settings.PHONE_PROD_ID, settings.BUNDLE_PROD_ID]
+    phone_subscription_data = None
+    for sub in subscription_data.get("subscriptions", []):
+        # If a user upgrade subscription e.g. from monthly to yearly or from phone to VPN bundle will there be both data or replaced
+        if sub.get("product_id") in product_w_phone_capabilites:
+            subscription_created_timestamp = sub.get(
+                "created", datetime.now(timezone.utc).timestamp()
+            )
+            subscription_start_timestamp = sub.get(
+                "current_period_start", datetime.now(timezone.utc).timestamp()
+            )
+            subscription_end_timestamp = sub.get(
+                "current_period_end", datetime.now(timezone.utc).timestamp()
+            )
+
+            date_subscribed_phone = datetime.fromtimestamp(
+                subscription_created_timestamp, tz=timezone.utc
+            )
+            start_date = datetime.fromtimestamp(
+                subscription_start_timestamp, tz=timezone.utc
+            )
+            end_date = datetime.fromtimestamp(
+                subscription_end_timestamp, tz=timezone.utc
+            )
+    return date_subscribed_phone, start_date, end_date
