@@ -6,7 +6,8 @@
 
 Technical Spike:
 
-- [MPP-2633](https://mozilla-hub.atlassian.net/browse/MPP-2633)
+- [MPP-2717](https://mozilla-hub.atlassian.net/browse/MPP-2717)
+- [MPP-2704](https://mozilla-hub.atlassian.net/browse/MPP-2704)
 
 ## Context and Problem Statement
 
