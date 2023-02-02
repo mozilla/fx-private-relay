@@ -41,11 +41,12 @@ def test_one_account_with_phones_subscribed_3_day_ago_does_not_update_stats(phon
     profile.date_subscribed_phone = datetime_now - timedelta(3)
     profile.save()
 
-    updated_profiles = update_phone_remaining_stats()
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
     profile.refresh_from_db()
     assert profile.date_phone_subscription_checked == None
-    assert len(updated_profiles) == 0
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 0
 
 
 def test_one_account_with_phones_checked_1_day_ago_does_not_update_stats(phone_user):
@@ -54,34 +55,50 @@ def test_one_account_with_phones_checked_1_day_ago_does_not_update_stats(phone_u
     profile.date_phone_subscription_checked = pre_update_datetime
     profile.save()
 
-    updated_profiles = update_phone_remaining_stats()
+    num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
     profile.refresh_from_db()
     assert profile.date_phone_subscription_checked == pre_update_datetime
-    assert len(updated_profiles) == 0
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 0
 
 
-def test_one_account_with_phones_checked_31_day_ago_no_relay_number(phone_user):
+@patch(
+    "privaterelay.management.commands.update_phone_remaining_stats.get_phone_subscription_dates"
+)
+def test_one_account_with_phones_checked_31_day_ago_no_relay_number(
+    mocked_dates, phone_user
+):
     profile = Profile.objects.get(user=phone_user)
     pre_update_datetime = datetime.now(timezone.utc) - timedelta(31)
     profile.date_phone_subscription_checked = pre_update_datetime
     profile.save()
+    mocked_dates.return_value = (
+        pre_update_datetime,
+        pre_update_datetime,
+        datetime.now(timezone.utc),
+    )
 
     with patch(
         "privaterelay.management.commands.update_phone_remaining_stats.update_fxa"
     ):
-        updated_profiles = update_phone_remaining_stats()
+        num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
     profile.refresh_from_db()
     assert (
         profile.date_phone_subscription_checked.date()
         == datetime.now(timezone.utc).today().date()
     )
-    assert len(updated_profiles) == 1
-    assert profile in updated_profiles
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
 
 
-def test_one_account_with_phones_checked_31_day_ago_with_relay_number(phone_user):
+@patch(
+    "privaterelay.management.commands.update_phone_remaining_stats.get_phone_subscription_dates"
+)
+def test_one_account_with_phones_checked_31_day_ago_with_relay_number(
+    mocked_dates, phone_user
+):
     profile = Profile.objects.get(user=phone_user)
     pre_update_datetime = datetime.now(timezone.utc) - timedelta(31)
     profile.date_phone_subscription_checked = pre_update_datetime
@@ -91,17 +108,22 @@ def test_one_account_with_phones_checked_31_day_ago_with_relay_number(phone_user
     relay_number.remaining_texts = 6
     relay_number.remaining_seconds = 25 * 60
     relay_number.save()
+    mocked_dates.return_value = (
+        pre_update_datetime,
+        pre_update_datetime,
+        datetime.now(timezone.utc),
+    )
 
     with patch(
         "privaterelay.management.commands.update_phone_remaining_stats.update_fxa"
     ):
-        updated_profiles = update_phone_remaining_stats()
+        num_profiles_w_phones, num_profiles_updated = update_phone_remaining_stats()
 
     profile.refresh_from_db()
     relay_number.refresh_from_db()
     assert profile.date_phone_subscription_checked >= pre_update_datetime
-    assert len(updated_profiles) == 1
-    assert profile in updated_profiles
+    assert num_profiles_w_phones == 1
+    assert num_profiles_updated == 1
     assert relay_number.remaining_texts == settings.MAX_TEXTS_PER_BILLING_CYCLE
     assert relay_number.remaining_minutes == settings.MAX_MINUTES_PER_BILLING_CYCLE
     assert relay_number.remaining_seconds == settings.MAX_MINUTES_PER_BILLING_CYCLE * 60
