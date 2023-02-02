@@ -261,7 +261,8 @@ class ComplaintHandlingTest(TestCase):
     @override_settings(STATSD_ENABLED=True)
     def test_notification_type_complaint(self):
         """
-        A notificationType of complaint increments a counter, logs details, and returns 200.
+        A notificationType of complaint increments a counter, logs details, and
+        returns 200.
 
         Example derived from:
         https://docs.aws.amazon.com/ses/latest/dg/notification-contents.html#complaint-object
@@ -274,7 +275,9 @@ class ComplaintHandlingTest(TestCase):
                 "complaintFeedbackType": "abuse",
                 "arrivalDate": "2009-12-03T04:24:21.000-05:00",
                 "timestamp": "2012-05-25T14:59:38.623Z",
-                "feedbackId": "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000",
+                "feedbackId": (
+                    "000001378603177f-18c07c78-fa81-4a58-9dd1-fedc3cb8f49a-000000"
+                ),
             },
         }
         json_body = {"Message": json.dumps(complaint)}
@@ -417,13 +420,27 @@ class SNSNotificationRemoveEmailsInS3Test(TestCase):
         assert response.status_code == 200
         assert response.content == b"noreply address is not supported."
 
+    @patch("emails.views.remove_message_from_s3")
+    def test_noreply_mixed_case_email_in_s3_deleted(self, mocked_message_removed):
+        message_w_email_to_noreply = EMAIL_SNS_BODIES["s3_stored"]["Message"].replace(
+            "sender@test.com", "NoReply@default.com"
+        )
+        notification_w_email_to_noreply = EMAIL_SNS_BODIES["s3_stored"].copy()
+        notification_w_email_to_noreply["Message"] = message_w_email_to_noreply
+        response = _sns_notification(notification_w_email_to_noreply)
+        mocked_message_removed.assert_called_once_with(self.bucket, self.key)
+        assert response.status_code == 200
+        assert response.content == b"noreply address is not supported."
+
     @override_settings(STATSD_ENABLED=True)
     @patch("emails.views.remove_message_from_s3")
     @patch("emails.views._get_keys_from_headers")
     def test_noreply_headers_reply_email_in_s3_deleted(
         self, mocked_get_keys, mocked_message_removed
     ):
-        """If replies@... email has no "In-Reply-To" header, delete email, return 400."""
+        """
+        If replies@... email has no "In-Reply-To" header, delete email, return 400.
+        """
         mocked_get_keys.side_effect = ReplyHeadersNotFound()
 
         with MetricsMock() as mm:
@@ -730,81 +747,104 @@ class SnsMessageTest(TestCase):
         assert response.status_code == 200
 
 
-@override_settings(SITE_ORIGIN="https://test.com", RELAY_CHANNEL="test")
+@override_settings(SITE_ORIGIN="https://test.com", STATSD_ENABLED=True)
 class GetAddressTest(TestCase):
     def setUp(self):
-        self.service_domain = "test.com"
-        self.local_portion = "foo"
-
-    @patch("emails.views._get_domain_address")
-    def test_get_address_with_domain_address(self, _get_domain_address_mocked):
-        expected = "DomainAddress"
-        _get_domain_address_mocked.return_value = expected
-        # email_domain_mocked.return_value = service_domain
-
-        actual = _get_address(
-            to_address=f"{self.local_portion}@subdomain.{self.service_domain}",
-            local_portion=self.local_portion,
-            domain_portion=f"subdomain.{self.service_domain}",
+        self.user = make_premium_test_user()
+        self.user.profile.subdomain = "subdomain"
+        self.user.profile.save()
+        self.relay_address = baker.make(
+            RelayAddress, user=self.user, address="relay123"
         )
-        assert actual == expected
-
-    def test_get_address_with_relay_address(self):
-        local_portion = "foo"
-        relay_address = baker.make(RelayAddress, address=local_portion)
-
-        actual = _get_address(
-            to_address=f"{self.local_portion}@{self.service_domain}",
-            local_portion=f"{self.local_portion}",
-            domain_portion=f"{self.service_domain}",
+        self.deleted_relay_address = baker.make(
+            DeletedAddress, address_hash=address_hash("deleted456", domain="test.com")
         )
-        assert actual == relay_address
+        self.domain_address = baker.make(
+            DomainAddress, user=self.user, address="domain"
+        )
 
-    @patch("emails.views.incr_if_enabled")
-    def test_get_address_with_deleted_relay_address(self, incr_mocked):
-        hashed_address = address_hash(self.local_portion, domain=self.service_domain)
-        baker.make(DeletedAddress, address_hash=hashed_address)
+    def test_existing_relay_address(self):
+        assert _get_address("relay123@test.com") == self.relay_address
 
-        try:
-            _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=self.service_domain,
-            )
-        except Exception as e:
-            assert e.args[0] == "RelayAddress matching query does not exist."
-            incr_mocked.assert_called_once_with("email_for_deleted_address", 1)
+    def test_uppercase_local_part_of_existing_relay_address(self):
+        """Case-insensitive matching is used for the local part of relay addresses."""
+        assert _get_address("Relay123@test.com") == self.relay_address
 
-    @patch("emails.views.incr_if_enabled")
-    @patch("emails.views.logger")
-    def test_get_address_with_relay_address_does_not_exist(
-        self, logging_mocked, incr_mocked
-    ):
-        try:
-            _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion={self.local_portion},
-                domain_portion=f"{self.service_domain}",
-            )
-        except Exception as e:
-            assert e.args[0] == "RelayAddress matching query does not exist."
-            incr_mocked.assert_called_once_with("email_for_unknown_address", 1)
+    def test_uppercase_domain_part_of_existing_relay_address(self):
+        """Case-insensitive matching is used for the domain part of relay addresses."""
+        assert _get_address("relay123@Test.Com") == self.relay_address
 
-    @patch("emails.views.incr_if_enabled")
-    def test_get_address_with_deleted_relay_address_multiple(self, incr_mocked):
-        hashed_address = address_hash(self.local_portion, domain=self.service_domain)
-        baker.make(DeletedAddress, address_hash=hashed_address)
-        baker.make(DeletedAddress, address_hash=hashed_address)
+    def test_unknown_relay_address_raises(self):
+        with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
+            _get_address("unknown@test.com")
+        mm.assert_incr_once("fx.private.relay.email_for_unknown_address")
 
-        try:
-            _get_address(
-                to_address=f"{self.local_portion}@{self.service_domain}",
-                local_portion=self.local_portion,
-                domain_portion=f"{self.service_domain}",
-            )
-        except Exception as e:
-            assert e.args[0] == "RelayAddress matching query does not exist."
-            incr_mocked.assert_called_once_with("email_for_deleted_address_multiple", 1)
+    def test_deleted_relay_address_raises(self):
+        with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
+            _get_address("deleted456@test.com")
+        mm.assert_incr_once("fx.private.relay.email_for_deleted_address")
+
+    def test_multiple_deleted_relay_addresses_raises_same_as_one(self):
+        """Multiple DeletedAddress records can have the same hash."""
+        baker.make(DeletedAddress, address_hash=self.deleted_relay_address.address_hash)
+        with pytest.raises(RelayAddress.DoesNotExist), MetricsMock() as mm:
+            _get_address("deleted456@test.com")
+        mm.assert_incr_once("fx.private.relay.email_for_deleted_address_multiple")
+
+    def test_existing_domain_address(self):
+        assert _get_address("domain@subdomain.test.com") == self.domain_address
+
+    def test_uppercase_local_part_of_existing_domain_address(self):
+        """Case-insensitive matching is used in the local part of a domain address."""
+        assert _get_address("Domain@subdomain.test.com") == self.domain_address
+
+    def test_uppercase_subdomain_part_of_existing_domain_address(self):
+        """Case-insensitive matching is used in the subdomain of a domain address."""
+        assert _get_address("domain@SubDomain.test.com") == self.domain_address
+
+    def test_uppercase_domain_part_of_existing_domain_address(self):
+        """Case-insensitive matching is used in the domain part of a domain address."""
+        assert _get_address("domain@subdomain.Test.Com") == self.domain_address
+
+    def test_subdomain_for_wrong_domain_raises(self):
+        with pytest.raises(ObjectDoesNotExist) as exc_info, MetricsMock() as mm:
+            _get_address("unknown@subdomain.example.com")
+        assert str(exc_info.value) == "Address does not exist"
+        mm.assert_incr_once("fx.private.relay.email_for_not_supported_domain")
+
+    def test_unknown_subdomain_raises(self):
+        with pytest.raises(Profile.DoesNotExist), MetricsMock() as mm:
+            _get_address("domain@unknown.test.com")
+        mm.assert_incr_once("fx.private.relay.email_for_dne_subdomain")
+
+    def test_unknown_domain_address_is_created(self):
+        """
+        An unknown but valid domain address is created.
+
+        This supports creating domain addresses on third-party sites, when
+        emailing a checkout reciept, or other situations when the email
+        cannot be pre-created.
+        """
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+        address = _get_address("unknown@subdomain.test.com")
+        assert address.user == self.user
+        assert address.address == "unknown"
+        assert DomainAddress.objects.filter(user=self.user).count() == 2
+
+    def test_uppercase_local_part_of_unknown_domain_address(self):
+        """
+        Uppercase letters are allowed in the local part of a new domain address.
+
+        This creates a new domain address with lower-cased letters. It supports
+        creating domain addresses by third-parties that would not be allowed
+        on the relay dashboard due to the upper-case characters, but are still
+        consistent with dashboard-created domain adddresses.
+        """
+        assert DomainAddress.objects.filter(user=self.user).count() == 1
+        address = _get_address("Unknown@subdomain.test.com")
+        assert address.user == self.user
+        assert address.address == "unknown"
+        assert DomainAddress.objects.filter(user=self.user).count() == 2
 
 
 class GetAttachmentTests(TestCase):
@@ -1136,7 +1176,8 @@ def test_wrapped_email_test(
         "Yes" if int(num_level_one_email_trackers_removed) else "No"
     )
     assert (
-        f"<dt>has_num_level_one_email_trackers_removed</dt><dd>{has_num_level_one_email_trackers_removed}</dd>"
+        "<dt>has_num_level_one_email_trackers_removed</dt>"
+        f"<dd>{has_num_level_one_email_trackers_removed}</dd>"
     ) in no_space_html
 
 
@@ -1144,7 +1185,10 @@ def test_wrapped_email_test(
 @pytest.mark.parametrize("content_type", ("text/plain", "text/html"))
 @pytest.mark.django_db
 def test_reply_requires_premium_test(rf, forwarded, content_type):
-    url = f"/emails/reply_requires_premium_test?forwarded={forwarded}&content-type={content_type}"
+    url = (
+        "/emails/reply_requires_premium_test"
+        f"?forwarded={forwarded}&content-type={content_type}"
+    )
     request = rf.get(url)
     response = reply_requires_premium_test(request)
     assert response.status_code == 200

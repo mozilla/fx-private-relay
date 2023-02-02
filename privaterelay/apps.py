@@ -14,7 +14,9 @@ class PrivateRelayConfig(AppConfig):
     name = "privaterelay"
 
     def ready(self) -> None:
-        import privaterelay.signals  # noqa: F401
+        import privaterelay.signals
+
+        assert privaterelay.signals  # Suppress "imported but unused" warnings
 
         try:
             del self.fxa_verifying_keys  # Clear cache

@@ -179,8 +179,10 @@ def wrapped_email_test(request):
         has_tracker_report_link = False
     if has_tracker_report_link:
         tracker_report_link = (
-            '/tracker-report/#{"sender": "sender@example.com", "received_at": 1658434657,'
-            + '"trackers": {"fake-tracker.example.com": 2}}'
+            "/tracker-report/#{"
+            '"sender": "sender@example.com", '
+            '"received_at": 1658434657, '
+            '"trackers": {"fake-tracker.example.com": 2}}'
         )
     else:
         tracker_report_link = ""
@@ -398,14 +400,14 @@ def _sns_message(message_json):
         # TODO: Add metric
         return HttpResponse("Malformed to field.", status=400)
 
-    if to_local_portion == "noreply":
+    if to_local_portion.lower() == "noreply":
         incr_if_enabled("email_for_noreply_address", 1)
         return HttpResponse("noreply address is not supported.")
     try:
         # FIXME: this ambiguous return of either
         # RelayAddress or DomainAddress types makes the Rustacean in me throw
         # up a bit.
-        address = _get_address(to_address, to_local_portion, to_domain_portion)
+        address = _get_address(to_address)
         prefetch_related_objects([address.user], "socialaccount_set", "profile")
         user_profile = address.user.profile
     except (
@@ -413,7 +415,7 @@ def _sns_message(message_json):
         CannotMakeAddressException,
         DeletedAddress.MultipleObjectsReturned,
     ):
-        if to_local_portion == "replies":
+        if to_local_portion.lower() == "replies":
             response = _handle_reply(from_address, message_json, to_address)
         else:
             response = HttpResponse("Address does not exist", status=404)
@@ -662,8 +664,8 @@ def _build_reply_requires_premium_email(
     message_id,
     decrypted_metadata,
 ):
-    # If we haven't forwaded a first reply for this user yet, _reply_allowed will forward.
-    # So, tell the user we forwarded it.
+    # If we haven't forwaded a first reply for this user yet, _reply_allowed
+    # will forward.  So, tell the user we forwarded it.
     forwarded = not reply_record.address.user.profile.forwarded_first_reply
     sender = ""
     if decrypted_metadata is not None:
@@ -762,8 +764,7 @@ def _reply_allowed(
         # The From: is not a Relay user, so make sure this is a reply *TO* a
         # premium Relay user
         try:
-            [to_local_portion, to_domain_portion] = to_address.split("@")
-            address = _get_address(to_address, to_local_portion, to_domain_portion)
+            address = _get_address(to_address)
             if address.user.profile.has_premium:
                 return True
         except (ObjectDoesNotExist):
@@ -841,7 +842,18 @@ def _handle_reply(from_address, message_json, to_address):
         return HttpResponse("SES client error", status=400)
 
 
-def _get_domain_address(local_portion, domain_portion):
+def _get_domain_address(local_portion: str, domain_portion: str) -> DomainAddress:
+    """
+    Find or create the DomainAddress for the parts of an email address.
+
+    If the domain_portion is for a valid subdomain, a new DomainAddress
+    will be created and returned.
+
+    If the domain_portion is for an unknown domain, ObjectDoesNotExist is raised.
+
+    If the domain_portion is for an unclaimed subdomain, Profile.DoesNotExist is raised.
+    """
+
     [address_subdomain, address_domain] = domain_portion.split(".", 1)
     if address_domain != get_domains_from_settings()["MOZMAIL_DOMAIN"]:
         incr_if_enabled("email_for_not_supported_domain", 1)
@@ -872,24 +884,40 @@ def _get_domain_address(local_portion, domain_portion):
         raise e
 
 
-def _get_address(to_address, local_portion, domain_portion):
+def _get_address(address: str) -> RelayAddress | DomainAddress:
+    """
+    Find or create the RelayAddress or DomainAddress for an email address.
+
+    If an unknown email address is for a valid subdomain, a new DomainAddress
+    will be created.
+
+    On failure, raises exception based on Django's ObjectDoesNotExist:
+    * RelayAddress.DoesNotExist - looks like RelayAddress, deleted or does not exist
+    * Profile.DoesNotExist - looks like DomainAddress, no subdomain match
+    * ObjectDoesNotExist - Unknown domain
+    """
+
+    local_portion, domain_portion = address.split("@")
+    local_address = local_portion.lower()
+    domain = domain_portion.lower()
+
     # if the domain is not the site's 'top' relay domain,
     # it may be for a user's subdomain
     email_domains = get_domains_from_settings().values()
-    if domain_portion not in email_domains:
-        return _get_domain_address(local_portion, domain_portion)
+    if domain not in email_domains:
+        return _get_domain_address(local_address, domain)
 
     # the domain is the site's 'top' relay domain, so look up the RelayAddress
     try:
-        domain_numerical = get_domain_numerical(domain_portion)
+        domain_numerical = get_domain_numerical(domain)
         relay_address = RelayAddress.objects.get(
-            address=local_portion, domain=domain_numerical
+            address=local_address, domain=domain_numerical
         )
         return relay_address
     except RelayAddress.DoesNotExist as e:
         try:
             DeletedAddress.objects.get(
-                address_hash=address_hash(local_portion, domain=domain_portion)
+                address_hash=address_hash(local_address, domain=domain)
             )
             incr_if_enabled("email_for_deleted_address", 1)
             # TODO: create a hard bounce receipt rule in SES
@@ -982,7 +1010,8 @@ def _get_text_html_attachments(message_json):
     bytes_email_message = message_from_bytes(message_content, policy=policy.default)
 
     text_content, html_content, attachments = _get_all_contents(bytes_email_message)
-    # TODO add logs on the entire size of the email and the time it takes to download/process
+    # TODO: add logs on the entire size of the email and the time it takes to
+    # download/process
     return text_content, html_content, attachments, email_size
 
 

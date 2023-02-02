@@ -1,12 +1,14 @@
 from datetime import datetime, timedelta, timezone
 from math import floor
-from typing import Optional
+from typing import Iterator, Optional
+import logging
 import secrets
 import string
 
 from django.apps import apps
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.cache import cache
 from django.core.exceptions import BadRequest, ValidationError
 from django.db.migrations.recorder import MigrationRecorder
 from django.db import models
@@ -18,6 +20,9 @@ from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 
 from emails.utils import incr_if_enabled
+
+logger = logging.getLogger("eventsinfo")
+
 
 MAX_MINUTES_TO_VERIFY_REAL_PHONE = 5
 LAST_CONTACT_TYPE_CHOICES = [
@@ -188,7 +193,9 @@ def realphone_post_save(sender, instance, created, **kwargs):
         incr_if_enabled("phones_RealPhone.post_save_created_send_verification")
         client = twilio_client()
         client.messages.create(
-            body=f"Your Firefox Relay verification code is {instance.verification_code}",
+            body=(
+                f"Your Firefox Relay verification code is {instance.verification_code}"
+            ),
             from_=settings.TWILIO_MAIN_NUMBER,
             to=instance.number,
         )
@@ -280,19 +287,78 @@ class RelayNumber(models.Model):
         # Add US numbers to the Relay messaging service, so it goes into our
         # US A2P 10DLC campaign
         if self.country_code == "US":
-            try:
-                client.messaging.v1.services(
-                    settings.TWILIO_MESSAGING_SERVICE_SID
-                ).phone_numbers.create(phone_number_sid=twilio_incoming_number.sid)
-            except TwilioRestException as err:
-                if err.status == 409 and err.code == 21710:
-                    # Ignore "Phone Number is already in the Messaging Service"
-                    # https://www.twilio.com/docs/api/errors/21710
-                    pass
-                else:
-                    raise
+            if settings.TWILIO_MESSAGING_SERVICE_SID:
+                register_with_messaging_service(client, twilio_incoming_number.sid)
+            else:
+                logger.warning(
+                    "Skipping Twilio Messaging Service registration, since"
+                    " TWILIO_MESSAGING_SERVICE_SID is empty.",
+                    extra={"number_sid": twilio_incoming_number.sid},
+                )
 
         return super().save(*args, **kwargs)
+
+
+class CachedList:
+    """A list that is stored in a cache."""
+
+    def __init__(self, cache_key: str) -> None:
+        self.cache_key = cache_key
+        cache_value = cache.get(self.cache_key, "")
+        if cache_value:
+            self.data = cache_value.split(",")
+        else:
+            self.data = []
+
+    def __iter__(self) -> Iterator[str]:
+        return (item for item in self.data)
+
+    def append(self, item: str) -> None:
+        self.data.append(item)
+        self.data.sort()
+        cache.set(self.cache_key, ",".join(self.data))
+
+
+def register_with_messaging_service(client: Client, number_sid: str) -> None:
+    """Register a Twilio US phone number with a Messaging Service."""
+
+    assert settings.TWILIO_MESSAGING_SERVICE_SID
+
+    closed_sids = CachedList("twilio_messaging_service_closed")
+
+    for service_sid in settings.TWILIO_MESSAGING_SERVICE_SID:
+        if service_sid in closed_sids:
+            continue
+        try:
+            client.messaging.v1.services(service_sid).phone_numbers.create(
+                phone_number_sid=number_sid
+            )
+        except TwilioRestException as err:
+            log_extra = {
+                "err_msg": err.msg,
+                "status": err.status,
+                "code": err.code,
+                "service_sid": service_sid,
+                "number_sid": number_sid,
+            }
+            if err.status == 409 and err.code == 21710:
+                # Log "Phone Number is already in the Messaging Service"
+                # https://www.twilio.com/docs/api/errors/21710
+                logger.warning("twilio_messaging_service", extra=log_extra)
+                return
+            elif err.status == 412 and err.code == 21714:
+                # Log "Number Pool size limit reached", continue to next service
+                # https://www.twilio.com/docs/api/errors/21714
+                closed_sids.append(service_sid)
+                logger.warning("twilio_messaging_service", extra=log_extra)
+            else:
+                # Log and re-raise other Twilio errors
+                logger.error("twilio_messaging_service", extra=log_extra)
+                raise
+        else:
+            return  # Successfully registered with service
+
+    raise Exception("All services in TWILIO_MESSAGING_SERVICE_SID are full")
 
 
 @receiver(post_save, sender=RelayNumber)
@@ -314,7 +380,10 @@ def send_welcome_message(user, relay_number):
     )
     client = twilio_client()
     client.messages.create(
-        body="Welcome to Relay phone masking! 🎉 Please add your number to your contacts. This will help you identify your Relay messages and calls.",
+        body=(
+            "Welcome to Relay phone masking! 🎉 Please add your number to your contacts."
+            " This will help you identify your Relay messages and calls."
+        ),
         from_=settings.TWILIO_MAIN_NUMBER,
         to=real_phone.number,
         media_url=[media_url],

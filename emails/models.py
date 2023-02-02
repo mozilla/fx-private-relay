@@ -294,6 +294,13 @@ class Profile(models.Model):
     def has_phone(self):
         if not self.fxa:
             return False
+        if settings.RELAY_CHANNEL != "prod" and not settings.IN_PYTEST:
+            try:
+                phone_flag = Flag.objects.get(name="phones")
+            except Flag.DoesNotExist:
+                return False
+            if not phone_flag.is_active_for_user(self.user):
+                return False
         flags = Flag.objects.filter(name="free_phones")
         for flag in flags:
             if flag.is_active_for_user(self.user):
