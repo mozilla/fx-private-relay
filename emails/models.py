@@ -88,6 +88,7 @@ class Profile(models.Model):
     date_subscribed = models.DateTimeField(blank=True, null=True)
     date_subscribed_phone = models.DateTimeField(blank=True, null=True)
     date_phone_subscription_checked = models.DateTimeField(blank=True, null=True)
+    date_phone_subscription_end = models.DateTimeField(blank=True, null=True)
     address_last_deleted = models.DateTimeField(blank=True, null=True, db_index=True)
     last_soft_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
     last_hard_bounce = models.DateTimeField(blank=True, null=True, db_index=True)
